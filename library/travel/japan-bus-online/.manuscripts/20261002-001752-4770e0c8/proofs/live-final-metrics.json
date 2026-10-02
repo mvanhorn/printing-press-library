@@ -1,0 +1,122 @@
+[
+  {
+    "workflow": "routes",
+    "command_args": [
+      "routes",
+      "list",
+      "--query",
+      "Hamamatsu",
+      "--limit",
+      "3"
+    ],
+    "fetched_at": "2026-10-01T20:01:10Z",
+    "output_bytes": 913,
+    "upstream_requests": 1,
+    "upstream_bytes": 1280373,
+    "latency_ms": 1503,
+    "peak_rss_bytes": 38797312
+  },
+  {
+    "workflow": "route",
+    "command_args": [
+      "bus",
+      "route",
+      "--route",
+      "12200160001"
+    ],
+    "fetched_at": "2026-10-01T20:01:12Z",
+    "output_bytes": 9210,
+    "upstream_requests": 1,
+    "upstream_bytes": 95004,
+    "latency_ms": 1668,
+    "peak_rss_bytes": 25198592
+  },
+  {
+    "workflow": "services",
+    "command_args": [
+      "bus",
+      "services",
+      "--route",
+      "12200160001",
+      "--direction",
+      "0",
+      "--date",
+      "2026-10-10"
+    ],
+    "fetched_at": "2026-10-01T20:01:15Z",
+    "output_bytes": 1375,
+    "upstream_requests": 2,
+    "upstream_bytes": 198207,
+    "latency_ms": 3165,
+    "peak_rss_bytes": 27426816
+  },
+  {
+    "workflow": "quote",
+    "command_args": [
+      "bus",
+      "quote",
+      "--route",
+      "12200160001",
+      "--direction",
+      "0",
+      "--date",
+      "2026-10-10",
+      "--service",
+      "0001",
+      "--adults",
+      "2",
+      "--children",
+      "1"
+    ],
+    "fetched_at": "2026-10-01T20:01:19Z",
+    "output_bytes": 3520,
+    "upstream_requests": 6,
+    "upstream_bytes": 251220,
+    "latency_ms": 5340,
+    "peak_rss_bytes": 27361280
+  },
+  {
+    "workflow": "quote-segment",
+    "command_args": [
+      "bus",
+      "quote",
+      "--route",
+      "12200160001",
+      "--direction",
+      "0",
+      "--date",
+      "2026-10-10",
+      "--service",
+      "0001",
+      "--adults",
+      "2",
+      "--children",
+      "1",
+      "--dep-stop",
+      "8",
+      "--arr-stop",
+      "9"
+    ],
+    "fetched_at": "2026-10-01T20:01:23Z",
+    "output_bytes": 3533,
+    "upstream_requests": 6,
+    "upstream_bytes": 251231,
+    "latency_ms": 4445,
+    "peak_rss_bytes": 27230208
+  },
+  {
+    "workflow": "conditions",
+    "command_args": [
+      "bus",
+      "conditions",
+      "--route",
+      "12200160001"
+    ],
+    "fetched_at": "2026-10-01T20:01:28Z",
+    "output_bytes": 2298,
+    "upstream_requests": 2,
+    "upstream_bytes": 198187,
+    "latency_ms": 2841,
+    "peak_rss_bytes": 27033600
+  }
+]

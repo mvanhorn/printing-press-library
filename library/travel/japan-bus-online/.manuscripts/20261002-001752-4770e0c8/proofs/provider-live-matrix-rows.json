@@ -1,0 +1,152 @@
+[
+  {
+    "command": "bus conditions",
+    "kind": "help",
+    "status": "pass",
+    "reason": null
+  },
+  {
+    "command": "bus conditions",
+    "kind": "happy_path",
+    "status": "pass",
+    "reason": null
+  },
+  {
+    "command": "bus conditions",
+    "kind": "json_fidelity",
+    "status": "pass",
+    "reason": null
+  },
+  {
+    "command": "bus conditions",
+    "kind": "error_path",
+    "status": "skip",
+    "reason": "no positional argument"
+  },
+  {
+    "command": "bus conditions",
+    "kind": "dry_run_json",
+    "status": "pass",
+    "reason": null
+  },
+  {
+    "command": "bus quote",
+    "kind": "help",
+    "status": "pass",
+    "reason": null
+  },
+  {
+    "command": "bus quote",
+    "kind": "happy_path",
+    "status": "pass",
+    "reason": null
+  },
+  {
+    "command": "bus quote",
+    "kind": "json_fidelity",
+    "status": "pass",
+    "reason": null
+  },
+  {
+    "command": "bus quote",
+    "kind": "error_path",
+    "status": "skip",
+    "reason": "no positional argument"
+  },
+  {
+    "command": "bus quote",
+    "kind": "dry_run_json",
+    "status": "pass",
+    "reason": null
+  },
+  {
+    "command": "bus route",
+    "kind": "help",
+    "status": "pass",
+    "reason": null
+  },
+  {
+    "command": "bus route",
+    "kind": "happy_path",
+    "status": "pass",
+    "reason": null
+  },
+  {
+    "command": "bus route",
+    "kind": "json_fidelity",
+    "status": "pass",
+    "reason": null
+  },
+  {
+    "command": "bus route",
+    "kind": "error_path",
+    "status": "skip",
+    "reason": "no positional argument"
+  },
+  {
+    "command": "bus route",
+    "kind": "dry_run_json",
+    "status": "pass",
+    "reason": null
+  },
+  {
+    "command": "bus services",
+    "kind": "help",
+    "status": "pass",
+    "reason": null
+  },
+  {
+    "command": "bus services",
+    "kind": "happy_path",
+    "status": "pass",
+    "reason": null
+  },
+  {
+    "command": "bus services",
+    "kind": "json_fidelity",
+    "status": "pass",
+    "reason": null
+  },
+  {
+    "command": "bus services",
+    "kind": "error_path",
+    "status": "skip",
+    "reason": "no positional argument"
+  },
+  {
+    "command": "bus services",
+    "kind": "dry_run_json",
+    "status": "pass",
+    "reason": null
+  },
+  {
+    "command": "routes list",
+    "kind": "help",
+    "status": "pass",
+    "reason": null
+  },
+  {
+    "command": "routes list",
+    "kind": "happy_path",
+    "status": "pass",
+    "reason": null
+  },
+  {
+    "command": "routes list",
+    "kind": "json_fidelity",
+    "status": "pass",
+    "reason": null
+  },
+  {
+    "command": "routes list",
+    "kind": "error_path",
+    "status": "skip",
+    "reason": "no positional argument"
+  },
+  {
+    "command": "routes list",
+    "kind": "dry_run_json",
+    "status": "pass",
+    "reason": null
+  }
+]

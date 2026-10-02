@@ -1,0 +1,89 @@
+{
+  "live_check": {
+    "passed": 3,
+    "failed": 0,
+    "skipped": 0,
+    "features": [
+      {
+        "name": "Dated inventory with overnight dates",
+        "command": "bus services",
+        "example": "japan-bus-online-pp-cli bus services --route 12200160001 --direction 0 --date 2026-10-10 --agent",
+        "status": "pass",
+        "output_sample": "{\n  \"meta\": {\n    \"provider\": \"Japan Bus Online\",\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"booking_url\": \"https://japanbusonline.com/en/Detail/12200160001/0/4221309/3122271/20261010\",\n    \"direction\": 0,\n    \"effective_source_date\": \"2026-10-10\",\n    \"elapsed_ms\": 3407,\n    \"fare_basis\": \"one-way headline from fare, not a stop-pair or party quote\",\n    \"fetched_at\": \"2026-10-01T20:29:30Z\",\n    \"has_more\": false,\n    \"language\": \"en\",\n    \"limit\": 20,\n    \"offset\": 0,\n    \"requested_date\": \"2026-10-10\",\n    \"response_bytes\": 198207,\n    \"route_id\": \"12200160001\",\n    \"sales_window\": [\n      \"2026-10-02\",\n      \"2026-12-02\"\n    ],\n    \"services\": [\n      {\n        \"arrival_date\": \"2026-10-11\",\n        \"arrival_jst\": \"2026-10-11T07:05:00+09:00\",\n        \"arrival_source_time\": \"07:05\",\n        \"availability\": {\n          \"exact_seats\": null,\n          \"seats_lower_bound\": 6,\n          \"source_text\": \"more than 5 seats left\",\n          \"status\": \"available\"\n        },\n        \"departure_date\": \"2026-10-10\",\n        \"departure_jst\": \"2026-10-10T23:25:00+09:00\",\n        \"departure_source_time\": \"23:25\",\n        \"direction\": 0,\n        \"first_stop\": \"Hamamatsu Sta.\",\n        \"from_fare_jpy\": 6100,\n        \"last_stop\": \"Tokyo DisneySea®\",\n        \"route_id\": \"12200160001\",\n        \"service_id\": \"0001\"\n      }\n    ],\n    \"source_url\": \"https://japanbusonline.com/en/Detail/12200160001/0/4221309/3122271/20261010\",\n    \"status\": \"inventory_reported\",\n    \"timezone\": \"Asia/Tokyo\",\n    \"total_services\": 1,\n    \"upstream_requests\": 2\n  }\n}\n"
+      },
+      {
+        "name": "Stop-pair party fare evidence",
+        "command": "bus quote",
+        "example": "japan-bus-online-pp-cli bus quote --route 12200160001 --direction 0 --date 2026-10-10 --service 0001 --adults 2 --children 1 --agent",
+        "status": "pass",
+        "output_sample": "{\"meta\":{\"provider\":\"Japan Bus Online\",\"source\":\"live\"},\"results\":{\"adults\":2,\"alighting\":{\"map_url\":\"https://maps.google.co.jp/maps?q=35.625614,139.89059\u0026z=18\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"role\":\"arrival\",\"source_time\":\"07:05\",\"stop_id\":\"12\",\"timestamp_jst\":\"2026-10-11T07:05:00+09:00\"},\"boarding\":{\"map_url\":\"https://maps.google.co.jp/maps?q=34.70521,137.734388\u0026z=18\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"role\":\"departure\",\"source_time\":\"23:25\",\"stop_id\":\"1\",\"timestamp_jst\":\"2026-10-10T23:25:00+09:00\"},\"booking_url\":\"https://japanbusonline.com/en/Detail/12200160001/0/4221309/3122271/20261010\",\"cancellation_fee_conditions\":\"Cancellation Fee Until 8 days before the departure : One way 100 JPY Until 1 day before departure : 20% of the fare Until the departure time : 30% of the fare ※After the departure time : 100% of charge You may cancel your booking via the \\\"Manage my Booking\\\" section of Japan Bus Online prior to the indicated cancellation deadlines.\",\"capacity_basis\":\"Selected stop pair and fare plan; positive numeric display conservatively treated as a lower bound, booking confirmation required\",\"children\":1,\"currency\":\"JPY\",\"direction\":0,\"effective_source_date\":\"2026-10-10\",\"elapsed_ms\":5068,\"estimated_total_jpy\":15750,\"fare_plan\":1,\"fare_plan_choices\":1,\"fare_plan_id\":\"00/01/12200160001\",\"fare_source_url\":\"https://japanbusonline.com/en/DetailAjax/GetFareTable/1/12/0\",\"fares\":{\"adult\":{\"label\":\"Adult\",\"unit_jpy\":6300},\"child\":{\"label\":\"Child(6-12)\",\"unit_jpy\":3150}},\"fetched_at\":\"2026-10-01T20:29:29Z\",\"group_discount\":\"unknown_not_assumed\",\"headline_fare_basis\":\"one-way headline from fare, not a stop-pair or party quote\",\"language\":\"en\",\"party\":{\"availability\":{\"exact_seats\":null,\"seats_lower_bound\":6,\"source_text\":\"Seat Availability : 6\",\"status\":\"available\"},\"gender_or_seat_plan_feasibility\":\"unknown\",\"max_tickets_per_transaction\":4,\"requested_seats\":3,\"seat_adjacency\":\"unknown\",\"status\":\"capacity_sufficient\"},\"price_basis\":\"Source labeled unit fares for selected stops; arithmetic estimate, booking confirmation required\",\"quote_status\":\"fare_evidence_reported\",\"requested_date\":\"2026-10-10\",\"response_bytes\":251220,\"roundtrip_fare\":\"unknown_not_assumed\",\"route_id\":\"12200160001\",\"sales_window\":[\"2026-10-02\",\"2026-12-02\"],\"service\":{\"arrival_date\":\"2026-10-11\",\"arrival_jst\":\"2026-10-11T07:05:00+09:00\",\"arrival_source_time\":\"07:05\",\"availability\":{\"exact_seats\":null,\"seats_lower_bound\":6,\"source_text\":\"more than 5 seats left\",\"status\":\"available\"},\"departure_date\":\"2026-10-10\",\"departure_jst\":\"2026-10-10T23:25:00+09:00\",\"departure_source_time\":\"23:25\",\"direction\":0,\"first_stop\":\"Hamamatsu Sta.\",\"from_fare_jpy\":6100,\"last_stop\":\"Tokyo DisneySea®\",\"route_id\":\"12200160001\",\"service_id\":\"0001\"},\"source_availability_as_of_jst\":\"10/02/2026 04:51\",\"source_url\":\"https://japanbusonline.com/en/Detail/12200160001/0/4221309/3122271/20261010\",\"status\":\"inventory_reported\",\"stop_id_scope\":\"route, direction and service; not a global bus-stop ID\",\"timezone\":\"Asia/Tokyo\",\"trip_type\":\"one_way\",\"upstream_requests\":6}}"
+      },
+      {
+        "name": "Schedule and stop identity",
+        "command": "bus route",
+        "example": "japan-bus-online-pp-cli bus route --route 12200160001 --agent",
+        "status": "pass",
+        "output_sample": "{\"meta\":{\"provider\":\"Japan Bus Online\",\"source\":\"live\"},\"results\":{\"currency\":\"JPY\",\"directions\":[{\"advertised_fares_jpy\":[3600,6300],\"arrival_area_id\":\"3122271\",\"booking_url\":\"https://japanbusonline.com/en/Detail/12200160001/0/4221309/3122271/\",\"departure_area_id\":\"4221309\",\"direction\":0,\"schedule_stops\":[{\"day_offsets\":[0],\"map_url\":\"https://maps.google.co.jp/maps?q=34.70521,137.734388\u0026z=18\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"schedule_row\":1,\"source_times\":[\"Dep. 23:25\"]},{\"day_offsets\":[0],\"map_url\":\"https://maps.google.co.jp/maps?q=34.710388,137.725117\u0026z=18\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"schedule_row\":2,\"source_times\":[\"Dep. 23:30\"]},{\"day_offsets\":[0],\"map_url\":\"https://maps.google.co.jp/maps?q=34.725539,137.719539\u0026z=18\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"schedule_row\":3,\"source_times\":[\"Dep. 23:35\"]},{\"day_offsets\":[1],\"map_url\":\"https://maps.google.co.jp/maps?q=34.764116,137.68134\u0026z=18\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"schedule_row\":4,\"source_times\":[\"Dep. 24:04\"]},{\"day_offsets\":[1],\"map_url\":\"https://maps.google.co.jp/maps?q=34.750469,137.751018\u0026z=18\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"schedule_row\":5,\"source_times\":[\"Dep. 24:15\"]},{\"day_offsets\":[1],\"map_url\":\"https://maps.google.co.jp/maps?q=34.74025,137.792361\u0026z=18\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"schedule_row\":6,\"source_times\":[\"Dep. 24:26\"]},{\"day_offsets\":[1],\"map_url\":\"https://maps.google.co.jp/maps?q=34.745333,137.857413\u0026z=18\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"schedule_row\":7,\"source_times\":[\"Dep. 24:43\"]},{\"day_offsets\":[1],\"map_url\":\"https://maps.google.co.jp/maps?q=34.765294,138.022771\u0026z=18\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"schedule_row\":8,\"source_times\":[\"Dep. 25:00\"]},{\"day_offsets\":[1],\"map_url\":\"https://maps.google.co.jp/maps?q=35.6885,139.700667\u0026z=18\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"schedule_row\":9,\"source_times\":[\"Arr. 06:00\"]},{\"day_offsets\":[1],\"map_url\":\"https://maps.google.co.jp/maps?q=35.633538,139.791614\u0026z=18\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"schedule_row\":10,\"source_times\":[\"Arr. 06:30\"]},{\"day_offsets\":[1],\"map_url\":\"https://maps.google.co.jp/maps?q=35.632856,139.87662\u0026z=18\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"schedule_row\":11,\"source_times\":[\"Arr. 07:00\"]},{\"day_offsets\":[1],\"map_url\":\"https://maps.google.co.jp/maps?q=35.625614,139.89059\u0026z=18\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"schedule_row\":12,\"source_times\":[\"Arr. 07:05\"]}],\"title\":\"From:Hamamatsu(Shizuoka) To:Urayasu(Chiba) | Highway Bus Hamamatsu – Shinjuku / Tokyo Disneyland Line\"},{\"advertised_fares_jpy\":[3600,6300],\"arrival_area_id\":\"4221309\",\"booking_url\":\"https://japanbusonline.com/en/Detail/12200160001/1/3122271/4221309/\",\"departure_area_id\":\"3122271\",\"direction\":1,\"schedule_stops\":[{\"day_offsets\":[0],\"map_url\":\"https://maps.google.co.jp/maps?q=35.632856,139.87662\u0026z=18\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"schedule_row\":1,\"source_times\":[\"Dep. 22:20\"]},{\"day_offsets\":[0],\"map_url\":\"https://maps.google.co.jp/maps?q=35.625614,139.89059\u0026z=18\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"schedule_row\":2,\"source_times\":[\"Dep. 22:40\"]},{\"day_offsets\":[0],\"map_url\":\"https://maps.google.co.jp/maps?q=35.633538,139.791614\u0026z=18\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"schedule_row\":3,\"source_times\":[\"Dep. 23:10\"]},{\"day_offsets\":[1],\"map_url\":\"https://maps.google.co.jp/maps?q=35.6885,139.700667\u0026z=18\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"schedule_row\":4,\"source_times\":[\"Dep. 24:00\"]},{\"day_offsets\":[1],\"map_url\":\"https://maps.google.co.jp/maps?q=34.765294,138.022771\u0026z=18\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"schedule_row\":5,\"source_times\":[\"Arr. 04:43\"]},{\"day_offsets\":[1],\"map_url\":\"https://maps.google.co.jp/maps?q=34.745333,137.857413\u0026z=18\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"schedule_row\":6,\"source_times\":[\"Arr. 04:58\"]},{\"day_offsets\":[1],\"map_url\":\"https://maps.google.co.jp/maps?q=34.74025,137.792361\u0026z=18\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"schedule_row\":7,\"source_times\":[\"Arr. 05:10\"]},{\"day_offsets\":[1],\"map_url\":\"https://maps.google.co.jp/maps?q=34.750469,137.751018\u0026z=18\",\"name\":\"\u003credacted\u003e\",\"name_ja\":null,\"schedule_row\":8,\"source_times\":[\"Arr. 05:16\"]},{\"day_offse…[truncated]"
+      }
+    ],
+    "binary_refresh": {
+      "action": "fresh",
+      "stage_path": "<source-tree>/build/stage/bin/japan-bus-online-pp-cli",
+      "binary_path": "<source-tree>/build/stage/bin/japan-bus-online-pp-cli",
+      "reason": "staged binary is newer than Go sources"
+    },
+    "ran_at": "2026-10-01T20:29:26.095519Z",
+    "status": "available",
+    "checked": 3,
+    "evaluated": 3,
+    "pass_rate_pct": 100
+  },
+  "scorecard": {
+    "api_name": "japan-bus-online",
+    "steinberger": {
+      "output_modes": 10,
+      "auth": 10,
+      "error_handling": 8,
+      "terminal_ux": 9,
+      "readme": 7,
+      "doctor": 10,
+      "agent_native": 10,
+      "mcp_quality": 7,
+      "mcp_description_quality": 10,
+      "mcp_token_efficiency": 10,
+      "mcp_remote_transport": 10,
+      "mcp_tool_design": 0,
+      "mcp_surface_strategy": 0,
+      "local_cache": 10,
+      "cache_freshness": 3,
+      "breadth": 7,
+      "vision": 6,
+      "workflows": 6,
+      "insight": 8,
+      "agent_workflow_readiness": 9,
+      "path_validity": 0,
+      "auth_protocol": 0,
+      "data_pipeline_integrity": 7,
+      "sync_correctness": 7,
+      "type_fidelity": 5,
+      "dead_code": 0,
+      "live_api_verification": 0,
+      "total": 80,
+      "percentage": 80,
+      "calibration_note": "Score raised from 64 to 80 based on verify pass rate"
+    },
+    "competitor_scores": null,
+    "overall_grade": "A",
+    "gap_report": [
+      "path_validity scored 0/10 - needs improvement",
+      "dead_code scored 0/5 - needs improvement",
+      "MCP: 23 tools (23 public, 0 auth-required) — readiness: full"
+    ],
+    "unscored_dimensions": [
+      "mcp_tool_design",
+      "mcp_surface_strategy",
+      "auth_protocol",
+      "live_api_verification"
+    ]
+  }
+}

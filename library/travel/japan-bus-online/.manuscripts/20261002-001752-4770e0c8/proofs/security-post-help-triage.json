@@ -1,0 +1,8 @@
+{
+  "raw_findings": 39,
+  "post_triage_unresolved": 0,
+  "same_as_reviewed_baseline": true,
+  "provider_findings": 0,
+  "narrow_false_positive": "internal/platform/migration.go:156 G202; actual SQLite destination literal escapes apostrophes before VACUUM INTO",
+  "baseline_triage": "security-triage.json"
+}

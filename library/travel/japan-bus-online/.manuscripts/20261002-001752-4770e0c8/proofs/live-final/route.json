@@ -1,0 +1,329 @@
+{
+  "currency": "JPY",
+  "directions": [
+    {
+      "direction": 0,
+      "departure_area_id": "4221309",
+      "arrival_area_id": "3122271",
+      "title": "From:Hamamatsu(Shizuoka) To:Urayasu(Chiba) | Highway Bus Hamamatsu – Shinjuku / Tokyo Disneyland Line",
+      "booking_url": "https://japanbusonline.com/en/Detail/12200160001/0/4221309/3122271/",
+      "advertised_fares_jpy": [
+        3600,
+        6300
+      ],
+      "schedule_stops": [
+        {
+          "schedule_row": 1,
+          "name": "Hamamatsu Sta.",
+          "name_ja": null,
+          "map_url": "https://maps.google.co.jp/maps?q=34.70521,137.734388\u0026z=18",
+          "source_times": [
+            "Dep. 23:25"
+          ],
+          "day_offsets": [
+            0
+          ]
+        },
+        {
+          "schedule_row": 2,
+          "name": "City Hall South",
+          "name_ja": null,
+          "map_url": "https://maps.google.co.jp/maps?q=34.710388,137.725117\u0026z=18",
+          "source_times": [
+            "Dep. 23:30"
+          ],
+          "day_offsets": [
+            0
+          ]
+        },
+        {
+          "schedule_row": 3,
+          "name": "Shizuoka University Hamamatsu Campus",
+          "name_ja": null,
+          "map_url": "https://maps.google.co.jp/maps?q=34.725539,137.719539\u0026z=18",
+          "source_times": [
+            "Dep. 23:35"
+          ],
+          "day_offsets": [
+            0
+          ]
+        },
+        {
+          "schedule_row": 4,
+          "name": "Hamamatsu Nishi I.C.",
+          "name_ja": null,
+          "map_url": "https://maps.google.co.jp/maps?q=34.764116,137.68134\u0026z=18",
+          "source_times": [
+            "Dep. 24:04"
+          ],
+          "day_offsets": [
+            1
+          ]
+        },
+        {
+          "schedule_row": 5,
+          "name": "Tomei Hamamatsu North",
+          "name_ja": null,
+          "map_url": "https://maps.google.co.jp/maps?q=34.750469,137.751018\u0026z=18",
+          "source_times": [
+            "Dep. 24:15"
+          ],
+          "day_offsets": [
+            1
+          ]
+        },
+        {
+          "schedule_row": 6,
+          "name": "Hamamatsu IC parking lot",
+          "name_ja": null,
+          "map_url": "https://maps.google.co.jp/maps?q=34.74025,137.792361\u0026z=18",
+          "source_times": [
+            "Dep. 24:26"
+          ],
+          "day_offsets": [
+            1
+          ]
+        },
+        {
+          "schedule_row": 7,
+          "name": "Iwata IC parking lot",
+          "name_ja": null,
+          "map_url": "https://maps.google.co.jp/maps?q=34.745333,137.857413\u0026z=18",
+          "source_times": [
+            "Dep. 24:43"
+          ],
+          "day_offsets": [
+            1
+          ]
+        },
+        {
+          "schedule_row": 8,
+          "name": "Tomei Kakegawa",
+          "name_ja": null,
+          "map_url": "https://maps.google.co.jp/maps?q=34.765294,138.022771\u0026z=18",
+          "source_times": [
+            "Dep. 25:00"
+          ],
+          "day_offsets": [
+            1
+          ]
+        },
+        {
+          "schedule_row": 9,
+          "name": "Shinjuku Expressway Bus Terminal",
+          "name_ja": null,
+          "map_url": "https://maps.google.co.jp/maps?q=35.6885,139.700667\u0026z=18",
+          "source_times": [
+            "Arr. 06:00"
+          ],
+          "day_offsets": [
+            1
+          ]
+        },
+        {
+          "schedule_row": 10,
+          "name": "Kokusai Tenjijo Station ( Tokyo Big Sight)",
+          "name_ja": null,
+          "map_url": "https://maps.google.co.jp/maps?q=35.633538,139.791614\u0026z=18",
+          "source_times": [
+            "Arr. 06:30"
+          ],
+          "day_offsets": [
+            1
+          ]
+        },
+        {
+          "schedule_row": 11,
+          "name": "Tokyo Disneyland®",
+          "name_ja": null,
+          "map_url": "https://maps.google.co.jp/maps?q=35.632856,139.87662\u0026z=18",
+          "source_times": [
+            "Arr. 07:00"
+          ],
+          "day_offsets": [
+            1
+          ]
+        },
+        {
+          "schedule_row": 12,
+          "name": "Tokyo DisneySea®",
+          "name_ja": null,
+          "map_url": "https://maps.google.co.jp/maps?q=35.625614,139.89059\u0026z=18",
+          "source_times": [
+            "Arr. 07:05"
+          ],
+          "day_offsets": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "direction": 1,
+      "departure_area_id": "3122271",
+      "arrival_area_id": "4221309",
+      "title": "From:Urayasu(Chiba) To:Hamamatsu(Shizuoka) | Highway Bus Hamamatsu – Shinjuku / Tokyo Disneyland Line",
+      "booking_url": "https://japanbusonline.com/en/Detail/12200160001/1/3122271/4221309/",
+      "advertised_fares_jpy": [
+        3600,
+        6300
+      ],
+      "schedule_stops": [
+        {
+          "schedule_row": 1,
+          "name": "Tokyo Disneyland®",
+          "name_ja": null,
+          "map_url": "https://maps.google.co.jp/maps?q=35.632856,139.87662\u0026z=18",
+          "source_times": [
+            "Dep. 22:20"
+          ],
+          "day_offsets": [
+            0
+          ]
+        },
+        {
+          "schedule_row": 2,
+          "name": "Tokyo DisneySea®",
+          "name_ja": null,
+          "map_url": "https://maps.google.co.jp/maps?q=35.625614,139.89059\u0026z=18",
+          "source_times": [
+            "Dep. 22:40"
+          ],
+          "day_offsets": [
+            0
+          ]
+        },
+        {
+          "schedule_row": 3,
+          "name": "Kokusai Tenjijo Station ( Tokyo Big Sight)",
+          "name_ja": null,
+          "map_url": "https://maps.google.co.jp/maps?q=35.633538,139.791614\u0026z=18",
+          "source_times": [
+            "Dep. 23:10"
+          ],
+          "day_offsets": [
+            0
+          ]
+        },
+        {
+          "schedule_row": 4,
+          "name": "Shinjuku Expressway Bus Terminal",
+          "name_ja": null,
+          "map_url": "https://maps.google.co.jp/maps?q=35.6885,139.700667\u0026z=18",
+          "source_times": [
+            "Dep. 24:00"
+          ],
+          "day_offsets": [
+            1
+          ]
+        },
+        {
+          "schedule_row": 5,
+          "name": "Tomei Kakegawa",
+          "name_ja": null,
+          "map_url": "https://maps.google.co.jp/maps?q=34.765294,138.022771\u0026z=18",
+          "source_times": [
+            "Arr. 04:43"
+          ],
+          "day_offsets": [
+            1
+          ]
+        },
+        {
+          "schedule_row": 6,
+          "name": "Iwata IC parking lot",
+          "name_ja": null,
+          "map_url": "https://maps.google.co.jp/maps?q=34.745333,137.857413\u0026z=18",
+          "source_times": [
+            "Arr. 04:58"
+          ],
+          "day_offsets": [
+            1
+          ]
+        },
+        {
+          "schedule_row": 7,
+          "name": "Hamamatsu IC parking lot",
+          "name_ja": null,
+          "map_url": "https://maps.google.co.jp/maps?q=34.74025,137.792361\u0026z=18",
+          "source_times": [
+            "Arr. 05:10"
+          ],
+          "day_offsets": [
+            1
+          ]
+        },
+        {
+          "schedule_row": 8,
+          "name": "Tomei Hamamatsu North",
+          "name_ja": null,
+          "map_url": "https://maps.google.co.jp/maps?q=34.750469,137.751018\u0026z=18",
+          "source_times": [
+            "Arr. 05:16"
+          ],
+          "day_offsets": [
+            1
+          ]
+        },
+        {
+          "schedule_row": 9,
+          "name": "Hamamatsu Nishi I.C.",
+          "name_ja": null,
+          "map_url": "https://maps.google.co.jp/maps?q=34.764116,137.68134\u0026z=18",
+          "source_times": [
+            "Arr. 05:26"
+          ],
+          "day_offsets": [
+            1
+          ]
+        },
+        {
+          "schedule_row": 10,
+          "name": "Shizuoka University Hamamatsu Campus",
+          "name_ja": null,
+          "map_url": "https://maps.google.co.jp/maps?q=34.725539,137.719539\u0026z=18",
+          "source_times": [
+            "Arr. 05:49"
+          ],
+          "day_offsets": [
+            1
+          ]
+        },
+        {
+          "schedule_row": 11,
+          "name": "City Hall South",
+          "name_ja": null,
+          "map_url": "https://maps.google.co.jp/maps?q=34.710388,137.725117\u0026z=18",
+          "source_times": [
+            "Arr. 05:55"
+          ],
+          "day_offsets": [
+            1
+          ]
+        },
+        {
+          "schedule_row": 12,
+          "name": "Hamamatsu Sta.",
+          "name_ja": null,
+          "map_url": "https://maps.google.co.jp/maps?q=34.70521,137.734388\u0026z=18",
+          "source_times": [
+            "Arr. 06:00"
+          ],
+          "day_offsets": [
+            1
+          ]
+        }
+      ]
+    }
+  ],
+  "elapsed_ms": 1651,
+  "fetched_at": "2026-10-01T20:01:12Z",
+  "kind": "published_schedule_not_inventory",
+  "language": "en",
+  "response_bytes": 95004,
+  "route_id": "12200160001",
+  "source_url": "https://japanbusonline.com/en/CourseSearch/12200160001",
+  "stop_identity_note": "schedule_row is a display row; quote returns source stop IDs scoped to route/direction/service",
+  "timezone": "Asia/Tokyo",
+  "upstream_requests": 1
+}

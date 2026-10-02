@@ -1,0 +1,15 @@
+{
+  "completed_at": "2026-10-02T01:33:31.625633+00:00",
+  "run_id": "20261002-001752-4770e0c8",
+  "receipt_ledger_closed": true,
+  "final_phase": "21-next-steps",
+  "next": "done",
+  "final_sequence": 39,
+  "lock_released": true,
+  "library_recognized": true,
+  "source": "<source-tree>",
+  "library": "<local-library>",
+  "archive": "<manuscript-archive>/japan-bus-online/20261002-001752-4770e0c8",
+  "publication": "not requested; local only",
+  "report_sha256": "501e45cd4c22c6a61ee9725f1f5af32728b23b7074002a78e27e41c8c68f272b"
+}

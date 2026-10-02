@@ -1,0 +1,11 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/japan-bus-online-pp-cli
+/japan-bus-online-pp-cli.exe
+/japan-bus-online-pp-mcp
+/japan-bus-online-pp-mcp.exe
+/bin/
+/build/
+/dist/
+
+.press-path
+.playwright-cli/

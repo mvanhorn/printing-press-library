@@ -1,0 +1,10 @@
+{
+  "tier1_vendor_findings": [],
+  "sensitive_files": [],
+  "tier2_status": "reviewed; synthetic unit-test fixtures, public provider place/operator names, software/legal vocabulary and required public author attribution only",
+  "tier2_unique_count": 119,
+  "tier2_unresolved_count": 0,
+  "pii_audit_strict_exit_code": 0,
+  "external_detector_available": false,
+  "backup_preserved_outside_public_package": true
+}

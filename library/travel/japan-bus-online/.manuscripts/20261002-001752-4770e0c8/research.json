@@ -1,0 +1,106 @@
+{
+  "api_name": "japan-bus-online",
+  "novelty_score": 0,
+  "alternatives": null,
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-01T16:27:06.824781Z",
+  "novel_features": [
+    {
+      "name": "Dated inventory with overnight dates",
+      "command": "bus services",
+      "description": "See service-day dates and inventory uncertainty explicitly.",
+      "rationale": "Combines public service attributes with safe availability classification.",
+      "example": "japan-bus-online-pp-cli bus services --route 12200160001 --direction 0 --date 2026-10-10 --agent",
+      "why_it_matters": "Prevent timetable and midnight date mistakes.",
+      "group": "Bus planning"
+    },
+    {
+      "name": "Stop-pair party fare evidence",
+      "command": "bus quote",
+      "description": "Read selected-stop Adult/Child fares, one-way party totals and capacity evidence.",
+      "rationale": "Replay source fare table for actual route-local stop IDs.",
+      "example": "japan-bus-online-pp-cli bus quote --route 12200160001 --direction 0 --date 2026-10-10 --service 0001 --adults 2 --children 1 --agent",
+      "why_it_matters": "Avoid treating the headline from-fare as the party total.",
+      "group": "Bus planning"
+    },
+    {
+      "name": "Schedule and stop identity",
+      "command": "bus route",
+      "description": "Read directional timetables and mapped stops.",
+      "rationale": "Keep public schedule separate from dated inventory.",
+      "example": "japan-bus-online-pp-cli bus route --route 12200160001 --agent",
+      "why_it_matters": "Discover boarding location before checking availability.",
+      "group": "Bus planning"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Dated inventory with overnight dates",
+      "command": "bus services",
+      "description": "See service-day dates and inventory uncertainty explicitly.",
+      "rationale": "Combines public service attributes with safe availability classification.",
+      "example": "japan-bus-online-pp-cli bus services --route 12200160001 --direction 0 --date 2026-10-10 --agent",
+      "why_it_matters": "Prevent timetable and midnight date mistakes.",
+      "group": "Bus planning"
+    },
+    {
+      "name": "Stop-pair party fare evidence",
+      "command": "bus quote",
+      "description": "Read selected-stop Adult/Child fares, one-way party totals and capacity evidence.",
+      "rationale": "Replay source fare table for actual route-local stop IDs.",
+      "example": "japan-bus-online-pp-cli bus quote --route 12200160001 --direction 0 --date 2026-10-10 --service 0001 --adults 2 --children 1 --agent",
+      "why_it_matters": "Avoid treating the headline from-fare as the party total.",
+      "group": "Bus planning"
+    },
+    {
+      "name": "Schedule and stop identity",
+      "command": "bus route",
+      "description": "Read directional timetables and mapped stops.",
+      "rationale": "Keep public schedule separate from dated inventory.",
+      "example": "japan-bus-online-pp-cli bus route --route 12200160001 --agent",
+      "why_it_matters": "Discover boarding location before checking availability.",
+      "group": "Bus planning"
+    }
+  ],
+  "narrative": {
+    "display_name": "Japan Bus Online",
+    "headline": "Read-only bus routes, dated inventory and source-grounded fares.",
+    "value_prop": "Discover directional timetables, then check dated services and exact boarding-pair fares. Overnight dates and unknown capacity remain explicit.",
+    "auth_narrative": "Public searches need no login. Each command creates a temporary memory-only session; no cookies or credentials are stored.",
+    "quickstart": [
+      {
+        "command": "japan-bus-online-pp-cli doctor --dry-run",
+        "comment": "Check local setup"
+      },
+      {
+        "command": "japan-bus-online-pp-cli routes list --query Hamamatsu --limit 5 --agent",
+        "comment": "Find a route"
+      },
+      {
+        "command": "japan-bus-online-pp-cli bus route --route 12200160001 --agent",
+        "comment": "Read the schedule"
+      }
+    ],
+    "when_to_use": "Use for Japan Bus Online route discovery, dated service comparison, boarding-stop selection and read-only fare or baggage planning.",
+    "anti_triggers": [
+      "Bookings, payments, cancellations or account history",
+      "Guaranteed seat adjacency or group discounts"
+    ],
+    "recipes": [
+      {
+        "title": "Bound discovery",
+        "command": "japan-bus-online-pp-cli routes list --query Hamamatsu --limit 5 --agent --select routes.id,routes.name,routes.url",
+        "explanation": "Return a compact route shortlist."
+      }
+    ],
+    "trigger_phrases": [
+      "Japan Bus Online availability",
+      "bus baggage conditions",
+      "overnight bus fare",
+      "use japan-bus-online",
+      "run japan-bus-online"
+    ]
+  }
+}

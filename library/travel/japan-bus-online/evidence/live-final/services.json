@@ -1,0 +1,46 @@
+{
+  "booking_url": "https://japanbusonline.com/en/Detail/12200160001/0/4221309/3122271/20261010",
+  "direction": 0,
+  "effective_source_date": "2026-10-10",
+  "elapsed_ms": 3142,
+  "fare_basis": "one-way headline from fare, not a stop-pair or party quote",
+  "fetched_at": "2026-10-01T20:01:15Z",
+  "has_more": false,
+  "language": "en",
+  "limit": 20,
+  "offset": 0,
+  "requested_date": "2026-10-10",
+  "response_bytes": 198207,
+  "route_id": "12200160001",
+  "sales_window": [
+    "2026-10-02",
+    "2026-12-02"
+  ],
+  "services": [
+    {
+      "service_id": "0001",
+      "route_id": "12200160001",
+      "direction": 0,
+      "departure_date": "2026-10-10",
+      "arrival_date": "2026-10-11",
+      "departure_source_time": "23:25",
+      "arrival_source_time": "07:05",
+      "departure_jst": "2026-10-10T23:25:00+09:00",
+      "arrival_jst": "2026-10-11T07:05:00+09:00",
+      "first_stop": "Hamamatsu Sta.",
+      "last_stop": "Tokyo DisneySea®",
+      "availability": {
+        "status": "available",
+        "source_text": "more than 5 seats left",
+        "exact_seats": null,
+        "seats_lower_bound": 6
+      },
+      "from_fare_jpy": 6100
+    }
+  ],
+  "source_url": "https://japanbusonline.com/en/Detail/12200160001/0/4221309/3122271/20261010",
+  "status": "inventory_reported",
+  "timezone": "Asia/Tokyo",
+  "total_services": 1,
+  "upstream_requests": 2
+}

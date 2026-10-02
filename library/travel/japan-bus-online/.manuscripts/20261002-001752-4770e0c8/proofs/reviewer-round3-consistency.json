@@ -1,0 +1,68 @@
+{
+  "approved_descriptions": {
+    "bus services": "See service-day dates and inventory uncertainty explicitly.",
+    "bus quote": "Read selected-stop Adult/Child fares, one-way party totals and capacity evidence.",
+    "bus route": "Read directional timetables and mapped stops."
+  },
+  "all_description_maps_match": true,
+  "mirror_entries": [
+    {
+      "command": "bus services",
+      "cli_command": "bus services",
+      "mcp_tool": "bus_services"
+    },
+    {
+      "command": "bus quote",
+      "cli_command": "bus quote",
+      "mcp_tool": "bus_quote"
+    },
+    {
+      "command": "bus route",
+      "cli_command": "bus route",
+      "mcp_tool": "bus_route"
+    }
+  ],
+  "runtime_tool_count": 23,
+  "manifest_descriptor_parity": true,
+  "metadata_counts_match": true,
+  "historical_endpoint_count": 1,
+  "provider_read_hints": true,
+  "context_commands": [
+    "bus conditions",
+    "bus quote",
+    "bus route",
+    "bus services",
+    "routes list"
+  ],
+  "all_provider_resources_unsyncable": true,
+  "sql_scope_correct": true,
+  "latest_short_refinements": {
+    "bus_route": true,
+    "routes": true,
+    "learnings_list": true,
+    "learnings_candidates": true
+  },
+  "unknown_parameter_rejected": true,
+  "README.md": {
+    "descriptions_match": true,
+    "no_exclusivity": true
+  },
+  "SKILL.md": {
+    "descriptions_match": true,
+    "no_exclusivity": true
+  },
+  "entire_install_section_byte_exact": true,
+  "install_bytes": 1159,
+  "callback_overlay_matches_final_root": true,
+  "source_sha256": {
+    "internal/jbo/client.go": "5d6d875ea1a869c3c4ac36bdb12c21c531d9f5e4f77184ad41fc0860010570eb",
+    "internal/jbo/quote.go": "33dddaf114d4f0bf3d32e7ef89f28741c2ae9877f4fc7cd3e42e48d43e13c918",
+    "internal/cli/jbo_discovery.go": "8ef2595897886a60d4c658cbaab49c22af7d77ef28d4e452497b402a793591b6",
+    "internal/mcp/tools.go": "5eb71fd7b9dbbea4870a6a4c502224102423b47db399c2e5d715c637c1074866",
+    "internal/mcp/jbo_context.go": "ccd4e65f65ddefda4fc81085ee1a0016ef246a8d9b83b3cfa990551b5409bf32",
+    "scripts/refresh-provider-artifacts.py": "68f040d98f496d457f1873d54ee59c70659aa170aee5c694be65bfd32c9e4234",
+    "README.md": "44723ecfa268206fd8127f69f79567e02cba0a3336930ba18b25b5fa2dae2e25",
+    "SKILL.md": "536da058fc00b187d7cc331ece3b7fdea5d53f134574151bc4a48d915ce01df1",
+    "tools-manifest.json": "1a5e5458aab8693eef540872b1b7d23d42afd23adf2b57157b336054bb9b01f7"
+  }
+}

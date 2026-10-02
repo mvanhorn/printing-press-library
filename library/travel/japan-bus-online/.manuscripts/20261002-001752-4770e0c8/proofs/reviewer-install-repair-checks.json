@@ -1,0 +1,29 @@
+[
+  {
+    "fixture": "exact",
+    "pass": true,
+    "canonical_exact": true,
+    "extra_occurrences": null,
+    "document_unchanged": true
+  },
+  {
+    "fixture": "duplicate_prose",
+    "pass": true,
+    "canonical_exact": true,
+    "extra_occurrences": 1,
+    "document_unchanged": null
+  },
+  {
+    "fixture": "new_prose",
+    "pass": true,
+    "canonical_exact": true,
+    "extra_occurrences": 1,
+    "document_unchanged": null
+  },
+  {
+    "fixture": "protected_prefix_changed",
+    "pass": true,
+    "fails_closed": true,
+    "protected_file_unchanged": true
+  }
+]

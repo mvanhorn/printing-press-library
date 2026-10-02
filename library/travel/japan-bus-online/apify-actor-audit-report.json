@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/japan-bus-online-cli",
+  "research_dir": "\u003ccli-dir\u003e/20261002-001752-4770e0c8",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

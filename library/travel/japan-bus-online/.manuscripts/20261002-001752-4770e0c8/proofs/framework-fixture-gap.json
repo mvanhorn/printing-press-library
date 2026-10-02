@@ -1,0 +1,37 @@
+{
+  "provider_affected": false,
+  "blocked_rows": [
+    {
+      "command": "learnings confirm",
+      "kind": "happy_path",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "json_fidelity",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "error_path_real",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "happy_path",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "json_fidelity",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "error_path_real",
+      "reason": "blocked-fixture: required API parameter"
+    }
+  ],
+  "cause": "Runner sandbox has no staged CLI improvement candidate IDs; local candidate mutations remain protected/dry-run. All five provider workflows and real fare pairs passed.",
+  "disposition": "Printing Press runner fixture-seeding candidate; do not fabricate IDs or change provider source to silence it."
+}

@@ -1,0 +1,42 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Japan Bus Online",
+    "version": "1.0.0",
+    "description": "Anonymous read-only public website extraction. No bookings or payments."
+  },
+  "servers": [
+    {
+      "url": "https://japanbusonline.com"
+    }
+  ],
+  "tags": [
+    {
+      "name": "routes",
+      "description": "Discover bus route catalog"
+    }
+  ],
+  "paths": {
+    "/en/AllRouteList": {
+      "get": {
+        "operationId": "listRoutes",
+        "summary": "Discover public route names and canonical course IDs",
+        "tags": [
+          "routes"
+        ],
+        "responses": {
+          "200": {
+            "description": "Public HTML route catalog; parsed by provider adapter",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

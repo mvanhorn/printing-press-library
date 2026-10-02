@@ -1,0 +1,19 @@
+{
+  "cancellation_note": "Exact service/plan cancellation fees are returned by bus quote when source provides them",
+  "conditions": "Important notice regarding this route. ・Each adult and fare-paying child is allowed to bring up to two pieces of luggage that fit within the dimensions of 2 meters in length, 0.7 meters in height, and 30 kilograms in weight. These may be placed on the overhead rack or in the trunk compartment. ・Please make sure to keep valuables such as cash and precious metals, as well as fragile items like glassware, watches, and cameras, with you at all times. ・Due to limited trunk space, we kindly ask that you refrain from bringing large items such as bicycles (including foldable ones or those in carrying bags) or long surfboards exceeding 2 meters in length. ・Bus company will not be held responsible for any damage, loss, or other issues related to your luggage. ・For your safety, please fasten your seatbelt while the bus is in motion. ・Depending on traffic conditions, there may be significant delays, cancellations, early terminations after service has started, or route changes. Contact information Enshu Railway Bus Call Center, 053-455-2255 Business Hours: Weekdays 7:30 AM – 7:00 PM , Weekends and Holidays: 8:00 AM – 7:00 PM Important notice from operating bus company ・To receive a refund for your bus ticket, please proceed via the \"Manage my Booking\" section on the Japan Bus Online website before the cancellation deadline indicated in your \"Reservation Details.\" A designated cancellation fee will apply. ・If you wish to change your reservation, please make a new booking and cancel the original through the \"Manage my Booking\" section on the Japan Bus Online website.",
+  "direction": 0,
+  "elapsed_ms": 2818,
+  "fetched_at": "2026-10-01T20:01:28Z",
+  "general_policy_urls": {
+    "boarding": "https://japanbusonline.com/en/Boarding",
+    "faq": "https://japanbusonline.com/en/FAQ",
+    "luggage": "https://japanbusonline.com/en/Luggage",
+    "terms": "https://japanbusonline.com/en/TermsOfUse"
+  },
+  "language": "en",
+  "response_bytes": 198187,
+  "route_id": "12200160001",
+  "source_url": "https://japanbusonline.com/en/Detail/12200160001/0/4221309/3122271/20261009",
+  "timezone": "Asia/Tokyo",
+  "upstream_requests": 2
+}

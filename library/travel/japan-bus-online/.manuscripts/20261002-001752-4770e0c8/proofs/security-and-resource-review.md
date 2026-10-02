@@ -1,0 +1,9 @@
+# Security and resource review
+
+Final go test -count=1 ./... and go vet ./... pass; workspace evidence/go-test-final.txt and go-vet-final.txt. All request methods are GET, sessions are memory-only, source redirects restricted to same-provider HTTPS, body6MiB and request25s limits enforced, root timeout and rate setting honored, typed429/HTTP200 maintenance failures preserved. No passenger, terms, Next, booking, payment or account operation is implemented. Fresh reviewer separately assessed these paths.
+
+Pinned gosec completed with39 generator/framework findings, zero hand-authored provider findings. They concern generator-owned/reserved paths; one platform migration SQL-concatenation finding is an already-escaped VACUUM path false positive. No provider security finding remains. Full raw scan and per-finding triage stay in workspace evidence; structural template candidates are retained for a later requested retro, not silently patched into reserved code.
+
+Tools audit is clear after two individually justified generated thin-Short accepts; no provider read-hint finding remains. PII audit initially has no findings and is repeated at final polish/archive. No API key or authenticated session was used, so exact-secret-value scanning has no credential value to test. Raw browser snapshots/third-party console logs pruned; only dense permitted public source summaries and parsed output retained for archive.
+
+Representative real pre-maintenance source metrics are in evidence/live-metrics.json: output sizes913B routes, 9210B route detail,1375B services,3511B default quote,3524B selected-pair quote,2298B conditions. Upstream requests1/1/2/6/6/2; memory/latency/upstream bytes measured with macOS time. Do not present these as current inventory during maintenance. Fresh live acceptance remains mandatory after source reopening.

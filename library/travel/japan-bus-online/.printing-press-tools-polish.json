@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-10-01T20:21:23.200048Z",
+  "cli_dir": "\u003ccli-dir\u003e/japan-bus-online-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated framework file. This leaf lists local platform client profiles; its group and schema identify profile selection, and the Short is accurate. Richer generated baseline is an upstream template improvement."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 868,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated framework learning leaf. It lists the local journal teaching records and has no provider request; accurate brief text under the learnings group. Retain framework wording and route expansion to the template."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-10-01T17:16:46.411787Z"
+  }
+}

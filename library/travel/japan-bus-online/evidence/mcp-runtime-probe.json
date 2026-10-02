@@ -1,0 +1,56 @@
+{
+  "binary": "build/stage/bin/japan-bus-online-pp-mcp",
+  "observed_at": "2026-10-02T01:27:16.820845+00:00",
+  "initialize": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+      "protocolVersion": "2024-11-05",
+      "capabilities": {
+        "tools": {}
+      },
+      "serverInfo": {
+        "name": "Japan Bus Online",
+        "version": "0.0.0-dev"
+      }
+    }
+  },
+  "context": {
+    "jsonrpc": "2.0",
+    "id": 3,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"api\": \"japan-bus-online\",\n  \"archetype\": \"travel-planning\",\n  \"command_mirror_capabilities\": [\n    {\n      \"cli_command\": \"bus services\",\n      \"command\": \"bus services\",\n      \"description\": \"See service-day dates and inventory uncertainty explicitly.\",\n      \"mcp_tool\": \"bus_services\",\n      \"name\": \"Dated inventory with overnight dates\",\n      \"rationale\": \"Combines public service attributes with safe availability classification.\",\n      \"via\": \"mcp-command-mirror\"\n    },\n    {\n      \"cli_command\": \"bus quote\",\n      \"command\": \"bus quote\",\n      \"description\": \"Read selected-stop Adult/Child fares, one-way party totals and capacity evidence.\",\n      \"mcp_tool\": \"bus_quote\",\n      \"name\": \"Stop-pair party fare evidence\",\n      \"rationale\": \"Replay source fare table for actual route-local stop IDs.\",\n      \"via\": \"mcp-command-mirror\"\n    },\n    {\n      \"cli_command\": \"bus route\",\n      \"command\": \"bus route\",\n      \"description\": \"Read directional timetables and mapped stops.\",\n      \"mcp_tool\": \"bus_route\",\n      \"name\": \"Schedule and stop identity\",\n      \"rationale\": \"Keep public schedule separate from dated inventory.\",\n      \"via\": \"mcp-command-mirror\"\n    }\n  ],\n  \"description\": \"Read-only bus routes, dated inventory and source-grounded fares.\",\n  \"learn_protocol\": \"1. Recall first: before answering a domain query, pass the question as an argv or MCP argument to recall --agent (never interpolate user-controlled text into a shell command line, quoted string, or heredoc: an apostrophe breaks quotes, and a body line equal to the delimiter breaks a heredoc). If a shell is required, write the question with a non-shell file tool, then QUERY=$(cat /path/to/question.txt) \\u0026\\u0026 recall \\\"$QUERY\\\" --agent. Apply any verified learnings, playbook steps, and notes it returns.\\n2. Empty-store short-circuit: if the store has no learnings, playbooks, or candidates yet (recall finds nothing and learnings list and learnings candidates are both empty), skip recall for the rest of this session instead of taxing every query; resume recall-first once something has been taught.\\n3. Candidates are try-then-confirm, never facts: entries in the recall envelope's candidates section are unverified. Follow each candidate's two-step next_action verbatim: run the trial command first, then run learnings confirm \\u003cid\\u003e only after the trial verified the behavior. Reject a wrong candidate with learnings reject \\u003cid\\u003e.\\n4. Teach contract: after resolving a query the store could not answer, teach the structural query shape with identifiers stripped: never include names, emails, phone numbers, account ids, or other personal identifiers in taught queries or notes. Pass the query the same argv/MCP way as recall, or write it with a non-shell file tool then QUERY=$(cat /path/to/question.txt) \\u0026\\u0026 teach --query \\\"$QUERY\\\"; do not splice it into a shell command.\\n5. Never re-teach what recall already surfaced as a candidate: confirm or reject that candidate instead of teaching a duplicate.\",\n  \"paths\": {\n    \"cache_dir\": \"<operator-home>/.cache/japan-bus-online-pp-cli\",\n    \"config_dir\": \"<operator-home>/.config/japan-bus-online-pp-cli\",\n    \"data_dir\": \"<operator-home>/.local/share/japan-bus-online-pp-cli\",\n    \"state_dir\": \"<operator-home>/.local/state/japan-bus-online-pp-cli\"\n  },\n  \"playbook\": [\n    {\n      \"insight\": \"Combines public service attributes with safe availability classification.\",\n      \"topic\": \"Dated inventory with overnight dates\"\n    },\n    {\n      \"insight\": \"Replay source fare table for actual route-local stop IDs.\",\n      \"topic\": \"Stop-pair party fare evidence\"\n    },\n    {\n      \"insight\": \"Keep public schedule separate from dated inventory.\",\n      \"topic\": \"Schedule and stop identity\"\n    }\n  ],\n  \"query_tips\": [\n    \"Use routes list --query for a local substring filter over one public catalog response. Route and service lists use offset/limit, default 20, maximum 100; no cursor or after parameter.\",\n    \"Use bus route for direction IDs and published schedules; schedules do not establish bookable inventory.\",\n    \"Use bus services with an explicit YYYY-MM-DD JST service day. Omitted dates default to seven days after today in JST. Source date substitution, not on sale, sold out and unknown availability remain distinct.\",\n    \"Use bus quote --include-stops to discover stop IDs scoped to route, direction, service and fare plan, then quote the selected pair and Adult/Child counts. Prices are one-way JPY arithmetic; numeric positive capacity is a conservative lower bound, transaction limits and seat/gender feasibility are separate.\",\n    \"Use bus conditions for route/operator baggage and boarding text. Hand the canonical booking URL to the traveler; bookings, payments and account operations are outside this CLI.\",\n    \"Provider data is live-only with no inventory cache. Use --timeout and --rate-limit to bound requests; --data-source local is rejected by provider commands. Local learning records are separate from provider inventory.\"\n  ],\n  \"resources\": [\n    {\n      \"commands\": [\n        \"routes list\",\n        \"bus route\"\n      ],\n      \"description\": \"Original course IDs, names and canonical URLs\",\n      \"name\": \"routes\",\n      \"syncable\": false\n    },\n    {\n      \"commands\": [\n        \"bus services\"\n      ],\n      \"description\": \"Dated JST inventory, source availability and overnight timestamps\",\n      \"name\": \"services\",\n      \"syncable\": false\n    },\n    {\n      \"commands\": [\n        \"bus quote\"\n      ],\n      \"description\": \"Source stop IDs, Adult/Child JPY fares, party capacity and cancellation fees\",\n      \"name\": \"stop-pair fare evidence\",\n      \"syncable\": false\n    },\n    {\n      \"commands\": [\n        \"bus conditions\"\n      ],\n      \"description\": \"Source baggage, boarding and route/operator policy text\",\n      \"name\": \"operator conditions\",\n      \"syncable\": false\n    }\n  ],\n  \"tool_count\": 23,\n  \"tool_surface\": \"Provider tools mirror routes list, bus route, bus services, bus quote and bus conditions through the companion CLI. They read anonymous English pages using standard Go HTTP with temporary memory-only sessions. Other tools support local configuration and learning.\"\n}"
+        }
+      ]
+    }
+  },
+  "dry_run_quote": {
+    "jsonrpc": "2.0",
+    "id": 4,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "dry-run: would run bus quote; no changes made\n"
+        }
+      ]
+    }
+  },
+  "unknown_parameter": {
+    "jsonrpc": "2.0",
+    "id": 5,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "unknown MCP parameter \"imaginary\"; use the tool schema's named parameters"
+        }
+      ],
+      "isError": true
+    }
+  },
+  "tool_count": 23
+}

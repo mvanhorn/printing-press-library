@@ -1,0 +1,2 @@
+{"tool_count": 23, "catalog": "<local-library>/evidence/mcp-runtime-tools.json", "probe": "<local-library>/evidence/mcp-runtime-probe.json"}
+{"runtime_tools": 23, "provider_tools": 5, "manifest": "tools-manifest.json"}

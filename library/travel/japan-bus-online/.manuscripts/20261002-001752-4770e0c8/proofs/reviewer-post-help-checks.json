@@ -1,0 +1,17 @@
+[
+  {
+    "command": "bus",
+    "help_example_present": true,
+    "example_dry_run_pass": true
+  },
+  {
+    "command": "routes",
+    "help_example_present": true,
+    "example_dry_run_pass": true
+  },
+  {
+    "command": "en",
+    "help_example_present": true,
+    "example_dry_run_pass": true
+  }
+]

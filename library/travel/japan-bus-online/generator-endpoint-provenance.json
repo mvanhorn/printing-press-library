@@ -1,0 +1,28 @@
+{
+  "api_name": "japan-bus-online",
+  "base_url": "https://japanbusonline.com",
+  "description": "Read-only bus routes, dated inventory and source-grounded fares.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "en_list-routes",
+      "description": "Discover public route names and canonical course IDs.",
+      "method": "GET",
+      "path": "/en/AllRouteList",
+      "no_auth": true,
+      "params": [],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "text/html"
+        }
+      ]
+    }
+  ],
+  "catalog_role": "historical_generator_endpoint_input_not_runtime_tools"
+}

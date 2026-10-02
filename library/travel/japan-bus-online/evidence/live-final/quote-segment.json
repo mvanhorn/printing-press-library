@@ -1,0 +1,98 @@
+{
+  "adults": 2,
+  "alighting": {
+    "stop_id": "9",
+    "name": "Shinjuku Expressway Bus Terminal",
+    "name_ja": null,
+    "role": "arrival",
+    "source_time": "06:00",
+    "timestamp_jst": "2026-10-11T06:00:00+09:00",
+    "map_url": "https://maps.google.co.jp/maps?q=35.6885,139.700667\u0026z=18"
+  },
+  "boarding": {
+    "stop_id": "8",
+    "name": "Tomei Kakegawa",
+    "name_ja": null,
+    "role": "departure",
+    "source_time": "25:00",
+    "timestamp_jst": "2026-10-11T01:00:00+09:00",
+    "map_url": "https://maps.google.co.jp/maps?q=34.765294,138.022771\u0026z=18"
+  },
+  "booking_url": "https://japanbusonline.com/en/Detail/12200160001/0/4221309/3122271/20261010",
+  "cancellation_fee_conditions": "Cancellation Fee Until 8 days before the departure : One way 100 JPY Until 1 day before departure : 20% of the fare Until the departure time : 30% of the fare ※After the departure time : 100% of charge You may cancel your booking via the \"Manage my Booking\" section of Japan Bus Online prior to the indicated cancellation deadlines.",
+  "capacity_basis": "Selected stop pair and fare plan; positive numeric display conservatively treated as a lower bound, booking confirmation required",
+  "children": 1,
+  "currency": "JPY",
+  "direction": 0,
+  "effective_source_date": "2026-10-10",
+  "elapsed_ms": 4421,
+  "estimated_total_jpy": 15250,
+  "fare_plan": 1,
+  "fare_plan_choices": 1,
+  "fare_plan_id": "00/01/12200160001",
+  "fare_source_url": "https://japanbusonline.com/en/DetailAjax/GetFareTable/8/9/0",
+  "fares": {
+    "adult": {
+      "label": "Adult",
+      "unit_jpy": 6100
+    },
+    "child": {
+      "label": "Child(6-12)",
+      "unit_jpy": 3050
+    }
+  },
+  "fetched_at": "2026-10-01T20:01:23Z",
+  "group_discount": "unknown_not_assumed",
+  "headline_fare_basis": "one-way headline from fare, not a stop-pair or party quote",
+  "language": "en",
+  "party": {
+    "availability": {
+      "status": "available",
+      "source_text": "Seat Availability : 6",
+      "exact_seats": null,
+      "seats_lower_bound": 6
+    },
+    "gender_or_seat_plan_feasibility": "unknown",
+    "max_tickets_per_transaction": 4,
+    "requested_seats": 3,
+    "seat_adjacency": "unknown",
+    "status": "capacity_sufficient"
+  },
+  "price_basis": "Source labeled unit fares for selected stops; arithmetic estimate, booking confirmation required",
+  "quote_status": "fare_evidence_reported",
+  "requested_date": "2026-10-10",
+  "response_bytes": 251231,
+  "roundtrip_fare": "unknown_not_assumed",
+  "route_id": "12200160001",
+  "sales_window": [
+    "2026-10-02",
+    "2026-12-02"
+  ],
+  "service": {
+    "service_id": "0001",
+    "route_id": "12200160001",
+    "direction": 0,
+    "departure_date": "2026-10-10",
+    "arrival_date": "2026-10-11",
+    "departure_source_time": "23:25",
+    "arrival_source_time": "07:05",
+    "departure_jst": "2026-10-10T23:25:00+09:00",
+    "arrival_jst": "2026-10-11T07:05:00+09:00",
+    "first_stop": "Hamamatsu Sta.",
+    "last_stop": "Tokyo DisneySea®",
+    "availability": {
+      "status": "available",
+      "source_text": "more than 5 seats left",
+      "exact_seats": null,
+      "seats_lower_bound": 6
+    },
+    "from_fare_jpy": 6100
+  },
+  "source_availability_as_of_jst": "10/02/2026 04:51",
+  "source_url": "https://japanbusonline.com/en/Detail/12200160001/0/4221309/3122271/20261010",
+  "status": "inventory_reported",
+  "stop_id_scope": "route, direction and service; not a global bus-stop ID",
+  "timezone": "Asia/Tokyo",
+  "trip_type": "one_way",
+  "upstream_requests": 6
+}

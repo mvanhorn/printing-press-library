@@ -1,0 +1,89 @@
+{
+  "live_check": {
+    "passed": 1,
+    "failed": 2,
+    "skipped": 0,
+    "features": [
+      {
+        "name": "Dated inventory with overnight dates",
+        "command": "bus services",
+        "example": "japan-bus-online-pp-cli bus services --route 12200160001 --direction 0 --date 2026-10-10 --agent",
+        "status": "fail",
+        "reason": "exit 5: Error: route ID not found or direction layout changed"
+      },
+      {
+        "name": "Stop-pair party fare evidence",
+        "command": "bus quote",
+        "example": "japan-bus-online-pp-cli bus quote --route 12200160001 --direction 0 --date 2026-10-10 --service 0001 --adults 2 --children 1 --agent",
+        "status": "fail",
+        "reason": "exit 5: Error: route ID not found or direction layout changed"
+      },
+      {
+        "name": "Schedule and stop identity",
+        "command": "bus route",
+        "example": "japan-bus-online-pp-cli bus route --route 12200160001 --agent",
+        "status": "pass",
+        "reason": "graceful empty: Error: route ID not found or direction layout changed",
+        "output_sample": "Error: route ID not found or direction layout changed\n"
+      }
+    ],
+    "binary_refresh": {
+      "action": "fresh",
+      "stage_path": "<source-tree>/build/stage/bin/japan-bus-online-pp-cli",
+      "binary_path": "<source-tree>/build/stage/bin/japan-bus-online-pp-cli",
+      "reason": "staged binary is newer than Go sources"
+    },
+    "ran_at": "2026-10-01T17:06:39.544334Z",
+    "status": "available",
+    "checked": 3,
+    "evaluated": 3,
+    "pass_rate_pct": 33
+  },
+  "scorecard": {
+    "api_name": "japan-bus-online",
+    "steinberger": {
+      "output_modes": 10,
+      "auth": 10,
+      "error_handling": 8,
+      "terminal_ux": 9,
+      "readme": 7,
+      "doctor": 10,
+      "agent_native": 10,
+      "mcp_quality": 7,
+      "mcp_description_quality": 10,
+      "mcp_token_efficiency": 10,
+      "mcp_remote_transport": 10,
+      "mcp_tool_design": 0,
+      "mcp_surface_strategy": 0,
+      "local_cache": 10,
+      "cache_freshness": 3,
+      "breadth": 7,
+      "vision": 6,
+      "workflows": 6,
+      "insight": 4,
+      "agent_workflow_readiness": 9,
+      "path_validity": 0,
+      "auth_protocol": 0,
+      "data_pipeline_integrity": 7,
+      "sync_correctness": 7,
+      "type_fidelity": 5,
+      "dead_code": 0,
+      "live_api_verification": 0,
+      "total": 63,
+      "percentage": 63
+    },
+    "competitor_scores": null,
+    "overall_grade": "C",
+    "gap_report": [
+      "insight scored 4/10 - needs improvement",
+      "path_validity scored 0/10 - needs improvement",
+      "dead_code scored 0/5 - needs improvement"
+    ],
+    "unscored_dimensions": [
+      "mcp_tool_design",
+      "mcp_surface_strategy",
+      "auth_protocol",
+      "live_api_verification"
+    ]
+  }
+}

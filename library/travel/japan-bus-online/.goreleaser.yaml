@@ -1,0 +1,55 @@
+version: 2
+project_name: japan-bus-online-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: japan-bus-online-pp-cli
+    main: ./cmd/japan-bus-online-pp-cli
+    binary: japan-bus-online-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/japan-bus-online/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: japan-bus-online-pp-mcp
+    main: ./cmd/japan-bus-online-pp-mcp
+    binary: japan-bus-online-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: japan-bus-online-pp-cli
+    repository:
+      owner: zjsng
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Read-only bus routes, dated inventory and source-grounded fares."
+    install: |
+      bin.install "japan-bus-online-pp-cli"
+      bin.install "japan-bus-online-pp-mcp"

@@ -1,0 +1,30 @@
+{
+  "binary": "<local-library>/build/japan-bus-online-pp-cli",
+  "exit": 0,
+  "fetched_at": "2026-10-02T01:29:32Z",
+  "requested_service_day": "2026-10-10",
+  "effective_service_day": "2026-10-10",
+  "quote_status": "fare_evidence_reported",
+  "adults": 2,
+  "children": 1,
+  "dep_stop": "8",
+  "arr_stop": "9",
+  "boarding_jst": "2026-10-11T01:00:00+09:00",
+  "alighting_jst": "2026-10-11T06:00:00+09:00",
+  "adult_jpy": 6100,
+  "child_jpy": 3050,
+  "party_total_jpy": 15250,
+  "capacity": {
+    "status": "available",
+    "source_text": "Seat Availability : 6",
+    "exact_seats": null,
+    "seats_lower_bound": 6
+  },
+  "max_tickets_per_transaction": 4,
+  "output_bytes": 3533,
+  "upstream_requests": 6,
+  "latency_ms": 5144,
+  "peak_rss_bytes": 27623424,
+  "mutation": "none; anonymous public GET only",
+  "sandbox_network_note": "Restricted sandbox DNS could not resolve provider; authorized public read-only verification succeeded outside that restriction."
+}

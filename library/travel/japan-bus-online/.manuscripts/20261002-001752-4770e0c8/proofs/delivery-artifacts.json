@@ -1,0 +1,26 @@
+{
+  "checked_at": "2026-10-02T01:28:31.475228+00:00",
+  "library_path": "<local-library>",
+  "atomic_promote_passed": true,
+  "actual_marker_source_gate_passed": true,
+  "source_tree_equal_files": 161,
+  "source_tree_changed_files": [],
+  "runtime_tools": 23,
+  "provider_tools": 5,
+  "exact_reviewed_descriptors": true,
+  "runtime_manifest_parity": true,
+  "metadata_counts_correct": true,
+  "provider_readonly_non_destructive_hints": true,
+  "install_section_byte_exact": true,
+  "install_section_bytes": 1159,
+  "mcpb_files": [
+    "manifest.json",
+    "bin/japan-bus-online-pp-mcp",
+    "bin/japan-bus-online-pp-cli"
+  ],
+  "bundle_host_binary_parity": {
+    "japan-bus-online-pp-cli": true,
+    "japan-bus-online-pp-mcp": true
+  },
+  "generic_promotion_catalog_repair": "Existing reviewed artifact refresh restored 23 actual runtime tools after generic promote re-emitted historical one-endpoint catalog; no Go change."
+}

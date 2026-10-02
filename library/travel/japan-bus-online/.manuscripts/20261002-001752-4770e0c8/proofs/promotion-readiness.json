@@ -1,0 +1,28 @@
+{
+  "checked_at": "2026-10-02T01:25:33.646836+00:00",
+  "source_state": "same reviewed provider behavior; help and protected installer refinements independently confirmed",
+  "shipcheck_passed": true,
+  "shipcheck_legs": 7,
+  "scorecard": 80,
+  "grade": "A",
+  "verify_pass_rate_pct": 100,
+  "live_feature_checks": {
+    "pass": 3,
+    "fail": 0
+  },
+  "full_live_matrix": {
+    "level": "full",
+    "passed": 92,
+    "failed": 0,
+    "skipped": 84,
+    "unverified": 84,
+    "pass_rate": 100
+  },
+  "acceptance_marker_status": "pass",
+  "acceptance_source_fingerprint": "b617bedaa3091e546a774f795bbf3ee2d48a72bd4a3d976e009db6e2e3b5ff8f",
+  "marker_validation": "actual lock promote gate remains authoritative; no marker content modified",
+  "install_section_byte_exact": true,
+  "install_section_bytes": 1159,
+  "reviewer_evidence": "reviewer-round3.md",
+  "publication": "not requested; local only"
+}
