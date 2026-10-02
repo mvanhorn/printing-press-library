@@ -72,7 +72,7 @@ func applyOptions(f url.Values, doc *html.Node, o SearchOptions) error {
 	return nil
 }
 
-func (c *Client) Quote(ctx context.Context, pickupID, dropoffID string, period Period, o SearchOptions, category string, limit int, details bool) (QuoteResult, error) {
+func (c *Client) Quote(ctx context.Context, pickupID, dropoffID string, period Period, o SearchOptions, category, class string, limit int, details bool) (QuoteResult, error) {
 	carType, ok := categories[category]
 	if !ok {
 		return QuoteResult{}, &InputError{"--category must be compact,standard,minivan or suv"}
@@ -181,10 +181,23 @@ func (c *Client) Quote(ctx context.Context, pickupID, dropoffID string, period P
 		return QuoteResult{}, err
 	}
 	count := len(offers)
+	if class != "" {
+		matched := make([]ClassOffer, 0)
+		for _, offer := range offers {
+			if offer.Class == class {
+				matched = append(matched, offer)
+			}
+		}
+		if len(matched) == 0 {
+			return QuoteResult{}, &NotFoundError{Message: fmt.Sprintf("class %s was not returned for category %s; use the matching --category", class, category)}
+		}
+		offers = matched
+	}
+	truncated := len(offers) > limit
 	if len(offers) > limit {
 		offers = offers[:limit]
 	}
-	return QuoteResult{Meta: c.Meta(), PickupShop: pickup, DropoffShop: dropoff, Period: period, Options: o, OperatingWindows: map[string]OperatingWindow{"pickup": pickupWindow, "dropoff": dropoffWindow}, Category: category, Offers: offers, SourceCount: count, Truncated: count > len(offers),
+	return QuoteResult{Meta: c.Meta(), PickupShop: pickup, DropoffShop: dropoff, Period: period, Options: o, OperatingWindows: map[string]OperatingWindow{"pickup": pickupWindow, "dropoff": dropoffWindow}, Category: category, Offers: offers, SourceCount: count, Truncated: truncated,
 		PriceAssumptions: []string{"Toyota's class-page Rental Price is a live tax-inclusive estimate, not a confirmed final booking total.",
 			"This anonymous class-page search does not select or verify a driver/license profile; reconfirm the applicable rate in Toyota's booking flow.",
 			"Search options above were echoed by Toyota. Specific child seats,ETC cards and other equipment require stock confirmation.",

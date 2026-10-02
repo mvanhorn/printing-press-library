@@ -113,12 +113,66 @@ func TestQuoteReplaysDatedFormAndRejectsContextDrift(t *testing.T) {
 				t.Fatalf("unexpected path=%s", r.URL)
 				return nil, nil
 			})
-			out, err := c.Quote(context.Background(), "63601:01V", "63601:01V", period, SearchOptions{Transmission: "AT", Seats: []string{}}, "compact", 8, false)
+			out, err := c.Quote(context.Background(), "63601:01V", "63601:01V", period, SearchOptions{Transmission: "AT", Seats: []string{}}, "compact", "", 8, false)
 			if (err == nil) != tc.ok {
 				t.Fatalf("err=%v", err)
 			}
 			if tc.ok && (len(out.Offers) != 2 || out.ConfirmedFullTotalJPY != nil || out.Meta.Requests != 5 || out.Meta.ResponseBytes == 0 || out.Period.Hours != 24) {
 				t.Fatalf("quote=%+v", out)
+			}
+		})
+	}
+}
+
+func TestQuoteFiltersClassBeforeLimitingOffers(t *testing.T) {
+	period := Period{Pickup: time.Date(2026, 10, 20, 9, 0, 0, 0, jst), Dropoff: time.Date(2026, 10, 21, 9, 0, 0, 0, jst), Hours: 24}
+	for _, tc := range []struct {
+		name, class, wantClass string
+		limit                  int
+		truncated              bool
+		missing                bool
+		invalid                bool
+	}{
+		{name: "later class remains returned", class: "C0", limit: 1, wantClass: "C0"},
+		{name: "unfiltered limit", limit: 1, wantClass: "C1", truncated: true},
+		{name: "absent class", class: "C9", limit: 1, missing: true},
+		{name: "filtered invalid zero limit", class: "C0", limit: 0, invalid: true},
+		{name: "filtered invalid large limit", class: "C0", limit: 21, invalid: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			c := fastClient(func(r *http.Request) (*http.Response, error) {
+				if r.Method == http.MethodPost {
+					return reply(r, http.StatusFound, "", "/eng/reservation/index02.aspx"), nil
+				}
+				if r.URL.Path == BookingPath {
+					return reply(r, http.StatusOK, rentalDoc(""), ""), nil
+				}
+				if r.URL.Path == "/eng/reservation/index02.aspx" {
+					return reply(r, http.StatusOK, rentalDoc(classCards), ""), nil
+				}
+				t.Fatalf("unexpected source request: %s", r.URL.Path)
+				return nil, nil
+			})
+			out, err := c.Quote(context.Background(), "63601:01V", "63601:01V", period, SearchOptions{Transmission: "AT", Seats: []string{}}, "compact", tc.class, tc.limit, false)
+			if tc.invalid {
+				var input *InputError
+				if !errors.As(err, &input) || c.requests != 0 {
+					t.Fatalf("limit validation: err=%v requests=%d", err, c.requests)
+				}
+				return
+			}
+			if tc.missing {
+				var missing *NotFoundError
+				if !errors.As(err, &missing) {
+					t.Fatalf("missing class should be typed: %v", err)
+				}
+				return
+			}
+			if err != nil || len(out.Offers) != 1 || out.Offers[0].Class != tc.wantClass || out.Truncated != tc.truncated || out.SourceCount != 2 || out.ConfirmedFullTotalJPY != nil {
+				t.Fatalf("filtered quote=%+v err=%v", out, err)
+			}
+			if tc.class == "C0" && out.Offers[0].Availability != "fully_booked" {
+				t.Fatalf("class filtering changed source availability: %+v", out.Offers[0])
 			}
 		})
 	}

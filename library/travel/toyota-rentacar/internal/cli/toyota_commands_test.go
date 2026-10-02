@@ -54,6 +54,27 @@ func TestToyotaHandoffPreservesPremiumClassCodes(t *testing.T) {
 	}
 }
 
+func TestToyotaAgentQuietHandoffPreservesStructuredPlanning(t *testing.T) {
+	pick := time.Now().In(time.FixedZone("JST", 9*3600)).AddDate(0, 0, 7)
+	pick = time.Date(pick.Year(), pick.Month(), pick.Day(), 9, 0, 0, 0, pick.Location())
+	data, err := runToyotaCLI(t, []string{"booking", "handoff", "--pickup-shop", "63601:01V", "--pickup", pick.Format("2006-01-02T15:04"), "--dropoff", pick.AddDate(0, 0, 1).Format("2006-01-02T15:04"), "--class", "C1", "--agent", "--quiet"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var out struct {
+		Meta struct {
+			Source string `json:"source"`
+		} `json:"meta"`
+		Results toyota.Handoff `json:"results"`
+	}
+	if err := json.Unmarshal(data, &out); err != nil {
+		t.Fatalf("agent quiet output must remain JSON: %s (%v)", data, err)
+	}
+	if out.Meta.Source != "computed" || out.Results.Class != "C1" || len(out.Results.Checklist) == 0 || len(out.Results.RequiresReentry) == 0 || out.Results.InventoryChecked || out.Results.ConfirmedFullTotalJPY != nil {
+		t.Fatalf("agent quiet lost planning context: %s", data)
+	}
+}
+
 func runToyotaCLI(t *testing.T, args []string) ([]byte, error) {
 	t.Helper()
 	testenv.Isolate(t)
@@ -112,6 +133,7 @@ func TestToyotaHandoffFieldSelectionAndAgentProvenance(t *testing.T) {
 	}{
 		{"plain select", []string{"--json", "--select", "pickup_shop_id,confirmed_full_total_jpy"}, false},
 		{"agent select", []string{"--agent", "--select", "pickup_shop_id,confirmed_full_total_jpy"}, true},
+		{"agent quiet select", []string{"--agent", "--quiet", "--select", "pickup_shop_id,confirmed_full_total_jpy"}, true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			data, err := runToyotaCLI(t, append(base, tc.extra...))

@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "toyota-agent-json-and-filter-before-offer-limit",
+  "applied_at": "2026-10-02",
+  "base_run_id": "20261002-003332-fdaecdac",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Preserve structured Toyota agent output with quiet mode and filter the complete verified class set before limiting results.",
+  "reason": "Agents need JSON provenance and uncertainty fields even with quiet requested; a class after the first source offer must remain retrievable with a limit of one. Keep returned availability and null confirmed totals unchanged.",
+  "files": [
+    "internal/cli/toyota_commands.go",
+    "internal/cli/toyota_commands_test.go",
+    "internal/cli/cars_quote.go",
+    "internal/toyota/quote.go",
+    "internal/toyota/client_test.go"
+  ],
+  "validated_outcome": "Focused regressions cover the actual agent/quiet handoff, explicit field selection, later-class filtering, typed missing-class errors, source counts and pre-network limit validation."
+}

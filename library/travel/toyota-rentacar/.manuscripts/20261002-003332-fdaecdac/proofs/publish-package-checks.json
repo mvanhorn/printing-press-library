@@ -1,15 +1,15 @@
 {
   "checks": [
     {
+      "check": "go-test",
+      "exit_code": 0
+    },
+    {
       "check": "go-build",
       "exit_code": 0
     },
     {
       "check": "go-vet",
-      "exit_code": 0
-    },
-    {
-      "check": "go-test",
       "exit_code": 0
     },
     {
@@ -19,14 +19,10 @@
     {
       "check": "verify-skill",
       "exit_code": 0
-    },
-    {
-      "check": "help-binary",
-      "exit_code": 0
     }
   ],
   "privacy": {
-    "scanned_files": 254,
+    "scanned_files": 258,
     "recursive_help_pages": 47,
     "vendor_token_hits": 0,
     "customer_pii_hits": 0,
@@ -38,5 +34,7 @@
       "synthetic unit-test person names and PII-detector inputs",
       "image @2x descriptor"
     ]
-  }
+  },
+  "validated_source_fingerprint": "ab21cbacdea65d860994f3853a093d1650bac66fe9f845a06e431c6573ef0a55",
+  "verified_at": "2026-10-02T02:21:10.589204+00:00"
 }

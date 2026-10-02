@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "4f64fb60eb246c15e5d98af2ba0697bf3160f8da1c5134ea37e6b8611f9b9bea",
+  "source_fingerprint": "ab21cbacdea65d860994f3853a093d1650bac66fe9f845a06e431c6573ef0a55",
   "source_files": {
     "cmd/toyota-rentacar-pp-cli/main.go": "027da86fc44110679a93de76bea7293a5137520529c2c0050f7c8c03f6c6c3e5",
     "cmd/toyota-rentacar-pp-mcp/main.go": "9fc8ea40ab55255393a4d24ffb9754a24cc5ad69a42012f697637e522fef6710",
@@ -24,7 +24,7 @@
     "internal/cli/booking_handoff.go": "3611342eedcbd01c67a0a0e362d4bff41270a23047bff338004eb9516c664056",
     "internal/cli/booking_handoff_test.go": "776081da0b71ac7d2c37a135b8cfc0694d84977175276e03b60d0ab4872cd9e7",
     "internal/cli/cars.go": "d3cb2c43a5225b15de91adfadea4b0184c6c50724b4a8cfac2a0f7c255be73c0",
-    "internal/cli/cars_quote.go": "94d1c153f1d7b916c156ecee14469234900a9c1a99323382b00350d8930d8054",
+    "internal/cli/cars_quote.go": "b00a56979ddc786abed3c9a0e35dc165d704e5c734bd4b686f95b14d2860dd8a",
     "internal/cli/cars_quote_test.go": "0810c28f66e8eb21598b8574e1660c0a87416f21b42030986b9d622c7753d175",
     "internal/cli/channel_workflow.go": "ae64e4168b79c04f0eb95514250929f478b92a9a932f691dff8387700ea5f693",
     "internal/cli/data_source.go": "1a2a8832787c5d548e0ac32a8d8f3ef7e71c6299aced1e48cff5659da9c9b68c",
@@ -69,8 +69,8 @@
     "internal/cli/teach_playbook.go": "7fb8ca3904ee01c4a347d1c4024842ae200de04b53515635c0498290439fa6f3",
     "internal/cli/teach_playbook_test.go": "dd3320db0987611224f9bd424e88ac3dde9eff2b3f3c0122f9c98291b9d4aee9",
     "internal/cli/teach_test.go": "139d25e427c5b2e1b1966ad4c12810177cadded93fca6a40e6ae90e833deb88e",
-    "internal/cli/toyota_commands.go": "d401de98a855101f76a409e1332cd4623f1ff50a320a15f06a21afc0c25b8a38",
-    "internal/cli/toyota_commands_test.go": "9e526ef5c012c6777c2eb9b47db018976632d2004008c77ae9ccdd62adce056c",
+    "internal/cli/toyota_commands.go": "8ff4572e3793c3757cf34212a1c0bcb5b4eecd5c1a3b14bee4a962386542ef1d",
+    "internal/cli/toyota_commands_test.go": "b1ca9d3c5aba9b73867429aab195878c482b08a97b277adfc54275fbc7543797",
     "internal/cli/version.go": "e09971a19ec8ddee22febaaf25efec9d83880c76f8137e01b142d8d85429b0cf",
     "internal/cli/which.go": "333327d516a9c0280483d4d817108db9b27cdeb3ca067d7c2b73b33e25abac67",
     "internal/cli/which_test.go": "a2d4ab34e8bc3e36be55215ef0f5396392a7f7de3a4d132ca71f75a2556f4f92",
@@ -179,14 +179,14 @@
     "internal/store/store.go": "2f2365f3e5853289015076c02586de8861532bc720c777fcafbbab244e848464",
     "internal/store/upsert_batch_test.go": "5929b9d6af5da1832ece232865850a591653e8a7922d116204efe961dc3c96bb",
     "internal/toyota/client.go": "87f98ec61c228b64a9d8fb9a5d8e61005f6263f014a8ac3ef22dda5a56e84b16",
-    "internal/toyota/client_test.go": "a1fe850763e5f783ead8561e34836ef1234c5aed4031f213eaf7aac5bcef07b8",
+    "internal/toyota/client_test.go": "686877da0940c7b72520425bfd66e0d120c42fb183c2e7027a653b6860c126d6",
     "internal/toyota/domain.go": "62e91a0eb4affedec8ad6d8d6f52b780eea5a05d141c89961b7869d2b457c9cb",
     "internal/toyota/domain_test.go": "8a1342c44f82908999c5f740e66a3d7199ab370e6ed730301e7f4d6ee750b2ee",
     "internal/toyota/html.go": "7b0de6f59e5f7171f33dd219b09a692b7645aa346d1627f0fc941bedc66aa228",
     "internal/toyota/html_test.go": "ce726440519a9730d5a18512ff0c6d3c9f23a60bd3419cc845115ec702854a50",
     "internal/toyota/policies.go": "efd2f0384cd81cbdd6d998b35372dc002d4e8db47156b706d5726cba632f8059",
     "internal/toyota/policies_test.go": "c25c5be1a779a73595081f2d62c14f8068e8747a99fbdd1dd00a93aec5445f93",
-    "internal/toyota/quote.go": "c7a6070b98cc546ec9a578e0c9bf3dfa546716cddf740380b46ff06726066959",
+    "internal/toyota/quote.go": "25f8b58db15d648a483f52ffbda5e2b11949719a46bae67d715491f74daf51c2",
     "internal/types/types.go": "02cc3b010b3a727b70745ea862a48379f4d3d5b4de58f19bae761c81bcde4b27",
     "spec.yaml": "64ca95a74702206ae02234b5a6e65c33106cfea7a0cb355420eb097460ee7549"
   }

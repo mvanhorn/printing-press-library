@@ -87,9 +87,14 @@ type toyotaShopResult struct {
 	Note string          `json:"note"`
 }
 
-// Quiet output uses domain identities; explicit selection keeps the shared
-// selection behavior.
+// Quiet output uses domain identities. Agent JSON keeps its structured result
+// and provenance even when quiet is also requested.
 func toyotaPrint(cmd *cobra.Command, flags *rootFlags, value any) error {
+	if flags.quiet && flags.agent && flags.asJSON && !flags.csv && !flags.plain {
+		structured := *flags
+		structured.quiet = false
+		return structured.printJSON(cmd, value)
+	}
 	if !flags.quiet || flags.selectFields != "" {
 		return flags.printJSON(cmd, value)
 	}

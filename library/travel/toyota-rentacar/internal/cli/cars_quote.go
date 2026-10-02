@@ -2,7 +2,6 @@
 package cli
 
 import (
-	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/travel/toyota-rentacar/internal/toyota"
 	"github.com/spf13/cobra"
 )
@@ -26,21 +25,9 @@ func newNovelCarsQuoteCmd(flags *rootFlags) *cobra.Command {
 			}
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
-			out, err := toyota.NewClient(flags.rateLimit).Quote(ctx, rental.pickupID, rental.dropoffID, period, o, category, limit, details)
+			out, err := toyota.NewClient(flags.rateLimit).Quote(ctx, rental.pickupID, rental.dropoffID, period, o, category, class, limit, details)
 			if err != nil {
 				return toyotaError(err)
-			}
-			if class != "" {
-				found := make([]toyota.ClassOffer, 0)
-				for _, offer := range out.Offers {
-					if offer.Class == class {
-						found = append(found, offer)
-					}
-				}
-				if len(found) == 0 {
-					return notFoundErr(fmt.Errorf("class %s was not returned in the bounded %s results; use the matching --category or raise --limit", class, category))
-				}
-				out.Offers = found
 			}
 			return toyotaPrint(cmd, flags, out)
 		}}
@@ -53,7 +40,7 @@ func newNovelCarsQuoteCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&rental.winter, "winter-tires", false, "Request winter tires; seasonal rates and stock may apply")
 	cmd.Flags().StringVar(&rental.seats, "child-seats", "", "Comma-separated child,infant,booster seat kinds; maximum four")
 	cmd.Flags().StringVar(&category, "category", "compact", "Source category: compact,standard,minivan or suv")
-	cmd.Flags().StringVar(&class, "class", "", "Filter one class code,e.g. C1; does not select a model")
+	cmd.Flags().StringVar(&class, "class", "", "Filter one class code before applying --limit,e.g. C1; does not select a model")
 	cmd.Flags().IntVar(&limit, "limit", 8, "Maximum class offers returned,1–20")
 	cmd.Flags().BoolVar(&details, "details", false, "Include up to twelve representative models per class instead of three")
 	toyotaRequireFlags(cmd, flags, "pickup-shop", "pickup", "dropoff")

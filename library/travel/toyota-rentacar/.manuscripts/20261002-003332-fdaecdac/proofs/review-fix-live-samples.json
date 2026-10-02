@@ -1,0 +1,31 @@
+{
+  "observed_at": "2026-10-02T02:18:56.948593+00:00",
+  "samples": [
+    {
+      "case": "agent-quiet-handoff",
+      "status": "pass",
+      "source": "computed",
+      "requested_class": "C1",
+      "returned_classes": [],
+      "confirmed_full_total_jpy": null,
+      "source_count": null,
+      "truncated": null,
+      "checklist_retained": true
+    },
+    {
+      "case": "class-before-limit",
+      "status": "pass",
+      "source": "live",
+      "requested_class": "C2",
+      "returned_classes": [
+        "C2"
+      ],
+      "confirmed_full_total_jpy": null,
+      "source_count": 3,
+      "truncated": false,
+      "checklist_retained": false
+    }
+  ],
+  "raw_output_persisted": false,
+  "no_provider_mutation": true
+}
