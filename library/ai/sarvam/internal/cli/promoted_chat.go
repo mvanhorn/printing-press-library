@@ -329,8 +329,9 @@ func streamedChatOutput(response []byte) (json.RawMessage, error) {
 				Index        int             `json:"index"`
 				FinishReason json.RawMessage `json:"finish_reason"`
 				Delta        struct {
-					Role    string `json:"role"`
-					Content string `json:"content"`
+					Role      string          `json:"role"`
+					Content   string          `json:"content"`
+					ToolCalls json.RawMessage `json:"tool_calls"`
 				} `json:"delta"`
 			} `json:"choices"`
 		}
@@ -344,6 +345,12 @@ func streamedChatOutput(response []byte) (json.RawMessage, error) {
 			usage = chunk.Usage
 		}
 		for _, part := range chunk.Choices {
+			toolCalls := bytes.TrimSpace(part.Delta.ToolCalls)
+			if len(toolCalls) > 0 && !bytes.Equal(toolCalls, []byte("null")) && !bytes.Equal(toolCalls, []byte("[]")) {
+				// Tool calls can arrive in multiple fragments. Keep the full
+				// wire response instead of publishing a partial message.
+				return json.Marshal(result)
+			}
 			state := choices[part.Index]
 			if state == nil {
 				state = &choiceState{}

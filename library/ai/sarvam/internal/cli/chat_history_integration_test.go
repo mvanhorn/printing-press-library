@@ -193,3 +193,27 @@ func TestChatStreamOutputsCompletedReplyAndSavesResumeContext(t *testing.T) {
 		t.Fatalf("saved stream cannot resume full context: %#v", resumed)
 	}
 }
+
+func TestStreamedChatOutputLeavesToolCallsInRawStream(t *testing.T) {
+	response := []byte("data: {\"id\":\"chat-tools\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"partial\"}}]}\n\n" +
+		"data: {\"id\":\"chat-tools\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"name\":\"lookup\"}}]}}]}\n\n" +
+		"data: [DONE]\n\n")
+	output, err := streamedChatOutput(response)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var result map[string]json.RawMessage
+	if err := json.Unmarshal(output, &result); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := result["choices"]; ok {
+		t.Fatal("tool-call stream was presented as an incomplete structured choice")
+	}
+	if _, ok := result["id"]; ok {
+		t.Fatal("tool-call stream was presented as a complete structured response")
+	}
+	var raw string
+	if err := json.Unmarshal(result["stream"], &raw); err != nil || raw != string(response) {
+		t.Fatalf("tool-call events were not preserved intact: %v", err)
+	}
+}
