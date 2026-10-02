@@ -53,23 +53,27 @@ func newNovelLeaderboardCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer db.Close()
 
+			date := asOf
 			if wantsNow {
-				if _, _, err := db.CaptureSnapshot(ctx, resourceType); err != nil {
+				date, _, err = db.CaptureSnapshot(ctx, resourceType)
+				if err != nil {
 					return fmt.Errorf("capturing today's snapshot: %w", err)
 				}
-			}
-
-			date, ok, err := db.NearestSnapshotDateOnOrBefore(ctx, asOf)
-			if err != nil {
-				return err
-			}
-			if !ok {
-				note := fmt.Sprintf("no snapshot exists on or before %s yet. Run `mcpmarket-pp-cli %s leaderboard` (which snapshots today's state) at least once, then retry with an earlier --as-of on a later day.", asOf, resourceType)
-				if !wantsHumanTable(cmd.OutOrStdout(), flags) {
-					return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"note": note}, flags)
+				asOf = date
+			} else {
+				var ok bool
+				date, ok, err = db.NearestSnapshotDateOnOrBefore(ctx, asOf, resourceType)
+				if err != nil {
+					return err
 				}
-				fmt.Fprintln(cmd.OutOrStdout(), note)
-				return nil
+				if !ok {
+					note := fmt.Sprintf("no snapshot exists on or before %s yet. Run `mcpmarket-pp-cli %s leaderboard` (which snapshots today's state) at least once, then retry with an earlier --as-of on a later day.", asOf, resourceType)
+					if !wantsHumanTable(cmd.OutOrStdout(), flags) {
+						return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"note": note}, flags)
+					}
+					fmt.Fprintln(cmd.OutOrStdout(), note)
+					return nil
+				}
 			}
 
 			rows, err := db.SnapshotRows(ctx, date, resourceType)

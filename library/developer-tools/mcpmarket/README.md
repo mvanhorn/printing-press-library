@@ -158,6 +158,8 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   mcpmarket-pp-cli diff --from 2026-08-01 --to 2026-08-27 --json
   ```
+
+  Refreshing a snapshot on the same day replaces that resource type's saved rows, including items removed from the current catalog. History dates for `diff`, `trending`, and `leaderboard` are chosen from the requested resource type.
 - **`author`** — See everything one GitHub org has published across servers, skills, and clients in one view.
 
   _Use this to evaluate an author's full footprint before trusting one of their servers._

@@ -17,27 +17,38 @@ type SnapshotRow struct {
 
 // CaptureSnapshot copies the current contents of the resources table for the
 // given resource types into resource_snapshots, stamped with today's date
-// (UTC). Calling it more than once on the same day refreshes today's rows in
-// place, so history only ever accumulates one entry per resource per day.
+// (UTC). Calling it more than once on the same day replaces today's rows in
+// the requested scope, so removed resources do not linger in that snapshot.
 func (s *Store) CaptureSnapshot(ctx context.Context, resourceTypes ...string) (date string, captured int, err error) {
 	date = time.Now().UTC().Format("2006-01-02")
 	now := time.Now().UTC().Format(time.RFC3339)
 
-	query := `SELECT resource_type, id, data FROM resources`
-	args := []any{}
+	scopeClause := ""
+	scopePlaceholders := ""
+	scopeArgs := []any{}
 	if len(resourceTypes) > 0 {
-		placeholders := ""
-		for i, rt := range resourceTypes {
+		for i, resourceType := range resourceTypes {
 			if i > 0 {
-				placeholders += ","
+				scopePlaceholders += ","
 			}
-			placeholders += "?"
-			args = append(args, rt)
+			scopePlaceholders += "?"
+			scopeArgs = append(scopeArgs, resourceType)
 		}
-		query += ` WHERE resource_type IN (` + placeholders + `)`
+		scopeClause = ` WHERE resource_type IN (` + scopePlaceholders + `)`
 	}
 
-	rows, err := s.db.QueryContext(ctx, query, args...)
+	s.lockForWrite()
+	defer s.unlockAfterWrite()
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return date, 0, err
+	}
+	defer tx.Rollback()
+
+	query := `SELECT resource_type, id, data FROM resources`
+	query += scopeClause
+
+	rows, err := tx.QueryContext(ctx, query, scopeArgs...)
 	if err != nil {
 		return date, 0, err
 	}
@@ -61,13 +72,20 @@ func (s *Store) CaptureSnapshot(ctx context.Context, resourceTypes ...string) (d
 	}
 	rows.Close()
 
-	s.lockForWrite()
-	defer s.unlockAfterWrite()
-	tx, err := s.db.Begin()
-	if err != nil {
+	// A capture is an authoritative replacement for today's rows in the
+	// requested scope, not an append-only upsert. Clear that scope first so a
+	// resource removed from the current catalog does not survive in a refreshed
+	// same-day snapshot. A scoped capture deliberately preserves snapshot rows
+	// belonging to other resource types.
+	deleteQuery := `DELETE FROM resource_snapshots WHERE snapshot_date = ?`
+	deleteArgs := []any{date}
+	if scopePlaceholders != "" {
+		deleteQuery += ` AND resource_type IN (` + scopePlaceholders + `)`
+		deleteArgs = append(deleteArgs, scopeArgs...)
+	}
+	if _, err := tx.ExecContext(ctx, deleteQuery, deleteArgs...); err != nil {
 		return date, 0, err
 	}
-	defer tx.Rollback()
 
 	stmt, err := tx.Prepare(`
 		INSERT INTO resource_snapshots (resource_type, resource_id, data, snapshot_date, captured_at)
@@ -80,7 +98,7 @@ func (s *Store) CaptureSnapshot(ctx context.Context, resourceTypes ...string) (d
 	defer stmt.Close()
 
 	for _, r := range buffered {
-		if _, err := stmt.Exec(r.resourceType, r.id, r.data, date, now); err != nil {
+		if _, err := stmt.ExecContext(ctx, r.resourceType, r.id, r.data, date, now); err != nil {
 			return date, 0, err
 		}
 	}
@@ -90,9 +108,13 @@ func (s *Store) CaptureSnapshot(ctx context.Context, resourceTypes ...string) (d
 	return date, len(buffered), nil
 }
 
-// SnapshotDates returns every distinct snapshot_date on record, oldest first.
-func (s *Store) SnapshotDates(ctx context.Context) ([]string, error) {
-	rows, err := s.db.QueryContext(ctx, `SELECT DISTINCT snapshot_date FROM resource_snapshots ORDER BY snapshot_date ASC`)
+// SnapshotDates returns every distinct snapshot_date for the requested
+// resource type, oldest first.
+func (s *Store) SnapshotDates(ctx context.Context, resourceType string) ([]string, error) {
+	rows, err := s.db.QueryContext(ctx,
+		`SELECT DISTINCT snapshot_date FROM resource_snapshots WHERE resource_type = ? ORDER BY snapshot_date ASC`,
+		resourceType,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -108,12 +130,14 @@ func (s *Store) SnapshotDates(ctx context.Context) ([]string, error) {
 	return dates, rows.Err()
 }
 
-// NearestSnapshotDateOnOrBefore returns the latest snapshot_date that is <=
-// the given date (YYYY-MM-DD). ok is false when no snapshot qualifies.
-func (s *Store) NearestSnapshotDateOnOrBefore(ctx context.Context, date string) (string, bool, error) {
+// NearestSnapshotDateOnOrBefore returns the latest snapshot_date for the
+// requested resource type that is <= the given date (YYYY-MM-DD). ok is false
+// when no snapshot qualifies.
+func (s *Store) NearestSnapshotDateOnOrBefore(ctx context.Context, date, resourceType string) (string, bool, error) {
 	var found sql.NullString
 	err := s.db.QueryRowContext(ctx,
-		`SELECT MAX(snapshot_date) FROM resource_snapshots WHERE snapshot_date <= ?`, date,
+		`SELECT MAX(snapshot_date) FROM resource_snapshots WHERE snapshot_date <= ? AND resource_type = ?`,
+		date, resourceType,
 	).Scan(&found)
 	if err != nil {
 		return "", false, err

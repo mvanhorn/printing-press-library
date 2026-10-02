@@ -113,7 +113,7 @@ func computeTrending(ctx context.Context, resourceType string, since time.Durati
 	}
 
 	target := time.Now().UTC().Add(-since).Format("2006-01-02")
-	priorDate, ok, err := db.NearestSnapshotDateOnOrBefore(ctx, target)
+	priorDate, ok, err := db.NearestSnapshotDateOnOrBefore(ctx, target, resourceType)
 	if err != nil {
 		return nil, "", err
 	}

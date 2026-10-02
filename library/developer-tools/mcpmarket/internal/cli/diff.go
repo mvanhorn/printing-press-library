@@ -77,7 +77,7 @@ func computeDiff(ctx context.Context, resourceType, from, to string) (*diffResul
 		}
 	}
 
-	dates, err := db.SnapshotDates(ctx)
+	dates, err := db.SnapshotDates(ctx, resourceType)
 	if err != nil {
 		return nil, "", err
 	}

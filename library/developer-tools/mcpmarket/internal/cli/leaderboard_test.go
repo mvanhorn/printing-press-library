@@ -6,8 +6,12 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"strings"
 	"testing"
+	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/mcpmarket/internal/store"
 )
 
 // TestNovelLeaderboardHelpWires smoke-tests that the leaderboard command
@@ -28,5 +32,35 @@ func TestNovelLeaderboardHelpWires(t *testing.T) {
 		if !strings.Contains(help, want) {
 			t.Fatalf("leaderboard --help missing %q in output:\n%s", want, help)
 		}
+	}
+}
+
+func TestLeaderboardCurrentEmptyCatalogDoesNotShowOldEntries(t *testing.T) {
+	withTempLearnHome(t)
+	t.Setenv("PRINTING_PRESS_CLIENT_PROFILE", "")
+	ctx := context.Background()
+	db, err := store.OpenWithContext(ctx, defaultDBPath("mcpmarket-pp-cli"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	yesterday := time.Now().UTC().AddDate(0, 0, -1).Format("2006-01-02")
+	if _, err := db.DB().ExecContext(ctx, `INSERT INTO resource_snapshots (resource_type, resource_id, data, snapshot_date, captured_at) VALUES ('server', 'removed', '{"name":"removed"}', ?, ?)`, yesterday, yesterday+"T00:00:00Z"); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	stdout, stderr, err := runRootArgs(t, "leaderboard", "--agent")
+	if err != nil {
+		t.Fatalf("current leaderboard failed: %v (stderr=%q)", err, stderr)
+	}
+	var result struct {
+		AsOf    string             `json:"as_of"`
+		Entries []leaderboardEntry `json:"entries"`
+	}
+	unmarshalAgentResults(t, stdout, &result)
+	if result.AsOf != time.Now().UTC().Format("2006-01-02") || len(result.Entries) != 0 {
+		t.Fatalf("current empty catalog fell back to old entries: %#v", result)
 	}
 }
