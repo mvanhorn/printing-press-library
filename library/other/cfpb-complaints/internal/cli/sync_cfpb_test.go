@@ -163,6 +163,27 @@ func TestSyncDataResearchStartingOffsetAdvances(t *testing.T) {
 	}
 }
 
+func TestSyncDataResearchSavedOffsetWinsWhenResuming(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	c := &cfpbSyncTestClient{total: 1501}
+	params := &syncUserParams{flatGlobal: map[string]string{"size": "500", "from": "500"}}
+	first := syncResource(context.Background(), c, db, "data-research", "", false, 1, false, false, params, io.Discard)
+	if first.Err != nil || first.Count != 500 {
+		t.Fatalf("first capped sync failed: %+v", first)
+	}
+	second := syncResource(context.Background(), c, db, "data-research", "", false, 0, false, false, params, io.Discard)
+	if second.Err != nil || second.Count != 501 {
+		t.Fatalf("resume did not complete remaining pages: %+v", second)
+	}
+	if len(c.calls) != 3 || c.calls[0]["from"] != "500" || c.calls[1]["from"] != "1000" || c.calls[2]["from"] != "1500" {
+		t.Fatalf("saved cursor was overwritten by repeated starting offset: %v", c.calls)
+	}
+}
+
 func TestSyncDataResearchRejectsInvalidPaginationBeforeFetch(t *testing.T) {
 	for _, tc := range []struct {
 		name, key, value string
@@ -232,5 +253,27 @@ func TestSyncDataResearchRemovesOnlyLegacyEnvelopeAfterCompleteSync(t *testing.T
 	}
 	if _, err := db.Get(resource, resource); err != nil {
 		t.Fatalf("cleanup removed a non-envelope complaint: %v", err)
+	}
+}
+
+func TestSyncDataResearchPartialRangeKeepsLegacyEnvelope(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	const resource = "data-research"
+	legacy := []byte(`{"hits":{"hits":[{"_id":"old","_source":{"complaint_id":"old"}}]}}`)
+	if err := db.Upsert(resource, resource, legacy); err != nil {
+		t.Fatal(err)
+	}
+	c := &cfpbSyncTestClient{total: 1001}
+	params := &syncUserParams{flatGlobal: map[string]string{"size": "500", "from": "500"}}
+	result := syncResource(context.Background(), c, db, resource, "", true, 0, false, false, params, io.Discard)
+	if result.Err != nil || result.Count != 501 {
+		t.Fatalf("partial-range sync failed: %+v", result)
+	}
+	if _, err := db.Get(resource, resource); err != nil {
+		t.Fatalf("partial-range sync removed legacy copy of earlier complaints: %v", err)
 	}
 }

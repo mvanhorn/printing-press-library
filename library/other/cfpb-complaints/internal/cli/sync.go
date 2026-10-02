@@ -465,9 +465,14 @@ func syncResource(ctx context.Context, c interface {
 			if parseErr != nil || offset < 0 || offset > int(^uint(0)>>1)-1000 {
 				return syncResult{Resource: resource, Err: fmt.Errorf("CFPB complaint starting offset must be a non-negative integer below the supported range"), Duration: time.Since(started)}
 			}
-			cursor = strconv.Itoa(offset)
+			// A saved cursor from a capped run has already passed this starting
+			// offset. Keep it so repeating the same command can resume.
+			if cursor == "" || full {
+				cursor = strconv.Itoa(offset)
+			}
 		}
 	}
+	startedAtBeginning := cursor == "" || cursor == "0"
 	var progressCount int64
 	pagesFetched := 0
 	lastNextCursor := ""
@@ -797,9 +802,10 @@ func syncResource(ctx context.Context, c interface {
 		cursor = nextCursor
 	}
 
-	if resource == "data-research" && outcome.complete {
+	if resource == "data-research" && outcome.complete && startedAtBeginning {
 		// The former sync stored the entire search response under this ID.
-		// Remove only that envelope after a valid, complete replacement sync.
+		// Remove only after a valid scan from offset zero reaches the end.
+		// A complete scan of a later range has not replaced earlier rows.
 		if err := db.DeleteLegacyCFPBEnvelope(); err != nil {
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("removing legacy CFPB response envelope: %w", err), Duration: time.Since(started)}
 		}
