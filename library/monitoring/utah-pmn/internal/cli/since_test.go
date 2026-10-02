@@ -4,13 +4,25 @@
 package cli
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"errors"
 	"io"
+	"net/http"
+	"net/http/httptest"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/monitoring/utah-pmn/internal/store"
 )
+
+type failingOutputWriter struct{}
+
+func (failingOutputWriter) Write([]byte) (int, error) {
+	return 0, errors.New("injected output failure")
+}
 
 // TestNovelSinceHelpWires smoke-tests that the since command
 // resolves at runtime and renders --help without error. Catches wiring
@@ -80,5 +92,86 @@ func TestNovelSinceBehavior(t *testing.T) {
 	}
 	if err := recordNotice(ctx, db.DB(), n, "2026-06-02T00:00:00Z"); err != nil {
 		t.Fatalf("duplicate recordNotice: %v", err)
+	}
+}
+
+func TestNovelSinceDoesNotRecordNoticesWhenOutputFails(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"noticeDtoList": []pmnNotice{{
+				NoticeID:         77,
+				PublicBodyName:   "Delta City Council",
+				MeetingTitle:     "Rezone hearing",
+				MeetingStartTime: "2026-07-01",
+			}},
+		})
+	}))
+	defer srv.Close()
+	t.Setenv("UTAH_PMN_BASE_URL", srv.URL)
+
+	dbPath := filepath.Join(t.TempDir(), "since-output-failure.db")
+	cmd := RootCmd()
+	cmd.SetArgs([]string{
+		"--config", filepath.Join(t.TempDir(), "missing-config.json"),
+		"--no-cache", "--json",
+		"since", "--location", "Delta", "--limit", "2", "--db", dbPath,
+	})
+	cmd.SetOut(failingOutputWriter{})
+	cmd.SetErr(io.Discard)
+	err := cmd.Execute()
+	if err == nil || !strings.Contains(err.Error(), "injected output failure") {
+		t.Fatalf("Execute error = %v, want injected output failure", err)
+	}
+
+	db, openErr := store.OpenWithContext(context.Background(), dbPath)
+	if openErr != nil {
+		t.Fatalf("reopen store: %v", openErr)
+	}
+	defer db.Close()
+	var count int
+	if queryErr := db.DB().QueryRow(`SELECT COUNT(*) FROM pmn_seen_notices`).Scan(&count); queryErr != nil {
+		t.Fatalf("count seen notices: %v", queryErr)
+	}
+	if count != 0 {
+		t.Fatalf("seen notice count = %d, want 0 after failed output", count)
+	}
+}
+
+func TestFinishSuccessfulCommandAcknowledgesOnlySuccessfulDelivery(t *testing.T) {
+	for _, tc := range []struct {
+		name      string
+		status    int
+		wantCalls int
+	}{
+		{name: "failed delivery", status: http.StatusBadGateway, wantCalls: 0},
+		{name: "successful delivery", status: http.StatusNoContent, wantCalls: 1},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(tc.status)
+			}))
+			defer srv.Close()
+
+			calls := 0
+			flags := rootFlags{
+				deliverBuf:  bytes.NewBufferString(`[{"noticeId":77}]`),
+				deliverSink: DeliverSink{Scheme: "webhook", Target: srv.URL},
+				afterSuccessfulDelivery: func() error {
+					calls++
+					return nil
+				},
+			}
+			err := finishSuccessfulCommand(&flags)
+			if tc.status >= 400 && err == nil {
+				t.Fatal("failed delivery returned nil error")
+			}
+			if tc.status < 400 && err != nil {
+				t.Fatalf("successful delivery: %v", err)
+			}
+			if calls != tc.wantCalls {
+				t.Fatalf("acknowledgement calls = %d, want %d", calls, tc.wantCalls)
+			}
+		})
 	}
 }

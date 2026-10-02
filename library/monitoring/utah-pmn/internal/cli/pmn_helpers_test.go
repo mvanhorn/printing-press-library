@@ -82,3 +82,31 @@ func TestSweepLocationsAllSucceed(t *testing.T) {
 		t.Fatalf("len = %d, want 2", len(got))
 	}
 }
+
+func TestFetchNoticesDetectsTruncation(t *testing.T) {
+	t.Parallel()
+	c := testPMNClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if got := r.URL.Query().Get("listSize"); got != "3" {
+			t.Errorf("listSize = %q, want one-row lookahead of 3", got)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"noticeDtoList": []pmnNotice{
+				{NoticeID: 1},
+				{NoticeID: 2},
+				{NoticeID: 3},
+			},
+		})
+	})
+
+	got, err := fetchNotices(context.Background(), c, "Delta", "", "", 2)
+	if err == nil {
+		t.Fatal("expected truncation error")
+	}
+	if got != nil {
+		t.Fatalf("truncated fetch returned notices %v", got)
+	}
+	if !strings.Contains(err.Error(), "raise --limit") {
+		t.Fatalf("error %q should explain how to request complete coverage", err)
+	}
+}

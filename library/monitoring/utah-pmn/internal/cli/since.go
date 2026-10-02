@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -82,17 +83,41 @@ func newNovelSinceCmd(flags *rootFlags) *cobra.Command {
 					continue
 				}
 				fresh = append(fresh, n)
-				if !flagPeek {
-					if err := recordNotice(ctx, db.DB(), n, now); err != nil {
-						return fmt.Errorf("recording notice: %w", err)
-					}
-				}
 			}
 			b, err := json.Marshal(fresh)
 			if err != nil {
 				return err
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), b, flags)
+			if err := printOutputWithFlags(cmd.OutOrStdout(), b, flags); err != nil {
+				return err
+			}
+			// Persist only after output and any configured external delivery
+			// succeed. A broken pipe, failed file write, or rejected webhook must
+			// leave the notices fresh for the next scheduled run.
+			if !flagPeek {
+				commitSeen := func() error {
+					commitDB, err := store.OpenWithContext(context.Background(), dbPath)
+					if err != nil {
+						return fmt.Errorf("reopening database to record delivered notices: %w", err)
+					}
+					defer commitDB.Close()
+					if err := ensurePMNTables(context.Background(), commitDB.DB()); err != nil {
+						return fmt.Errorf("preparing tables to record delivered notices: %w", err)
+					}
+					for _, n := range fresh {
+						if err := recordNotice(context.Background(), commitDB.DB(), n, now); err != nil {
+							return fmt.Errorf("recording notice: %w", err)
+						}
+					}
+					return nil
+				}
+				if flags.deliverBuf != nil {
+					flags.afterSuccessfulDelivery = commitSeen
+					return nil
+				}
+				return commitSeen()
+			}
+			return nil
 		},
 	}
 	cmd.Flags().StringVar(&flagLocation, "location", "", "ZIP or city to scan (default: all Millard County towns)")

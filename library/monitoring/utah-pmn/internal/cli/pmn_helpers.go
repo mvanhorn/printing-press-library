@@ -126,10 +126,20 @@ func agendaHasLandUse(n pmnNotice) (bool, string) {
 // fetchNotices calls getUpcomingNotices.json for one location and date window.
 // returnFormattedDateValues is always true so meetingStartTime is a string.
 func fetchNotices(ctx context.Context, c *client.Client, location, start, end string, limit int) ([]pmnNotice, error) {
+	if limit <= 0 {
+		return nil, fmt.Errorf("notice limit must be greater than zero")
+	}
+	// Ask for one more row than the caller intends to consume. PMN exposes no
+	// continuation cursor, so the extra row is the only reliable signal that a
+	// town's result set would otherwise be silently truncated.
+	requestLimit := int64(limit) + 1
+	if requestLimit <= int64(limit) {
+		return nil, fmt.Errorf("notice limit is too large")
+	}
 	params := map[string]string{
 		"zipOrCity":                 location,
 		"returnFormattedDateValues": "true",
-		"listSize":                  strconv.Itoa(limit),
+		"listSize":                  strconv.FormatInt(requestLimit, 10),
 	}
 	if start != "" {
 		params["startDate"] = start
@@ -146,6 +156,9 @@ func fetchNotices(ctx context.Context, c *client.Client, location, start, end st
 	}
 	if err := json.Unmarshal(raw, &env); err != nil {
 		return nil, fmt.Errorf("parsing notices: %w", err)
+	}
+	if len(env.NoticeDtoList) > limit {
+		return nil, fmt.Errorf("notice results for %q exceed --limit %d; raise --limit to avoid incomplete coverage", location, limit)
 	}
 	for i := range env.NoticeDtoList {
 		env.NoticeDtoList[i].NoticeURL = noticeURL(env.NoticeDtoList[i].NoticeID)

@@ -4,6 +4,12 @@
 
 The state Public Notice Website makes you pick a ZIP and click through bodies one at a time. This CLI sweeps a whole county's towns in one call, keeps only planning/council/commission/board meetings, scans the inline agendas for rezones, subdivisions, CUPs, and variances, and with a local store tells you what's new since your last run. Built for tracking Delta City and Millard County development approvals.
 
+Created by [@pgradeff](https://github.com/pgradeff) (Paul Gradeff).
+
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
+Cached notice lists now honor location, meeting dates, and result limits. County sweeps report an error when the requested limit could hide more notices. The `since` command records notices as seen only after output and any requested delivery succeed.
+
 ## Install
 
 The recommended path installs both the `utah-pmn-pp-cli` binary and the `pp-utah-pmn` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

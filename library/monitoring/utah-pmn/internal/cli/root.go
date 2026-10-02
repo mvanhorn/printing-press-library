@@ -43,8 +43,9 @@ type rootFlags struct {
 
 	// deliverBuf captures command output when --deliver is set to a
 	// non-stdout sink. Flushed to the sink after Execute returns.
-	deliverBuf  *bytes.Buffer
-	deliverSink DeliverSink
+	deliverBuf              *bytes.Buffer
+	deliverSink             DeliverSink
+	afterSuccessfulDelivery func() error
 }
 
 // RootCmd returns the Cobra command tree without executing it. The MCP server
@@ -77,11 +78,8 @@ func Execute() error {
 			}
 		}
 	}
-	if err == nil && flags.deliverBuf != nil {
-		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
-			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
-			return derr
-		}
+	if err == nil {
+		err = finishSuccessfulCommand(&flags)
 	}
 	if err != nil && isCobraUsageError(err) {
 		// Cobra/pflag pre-RunE errors (unknown flag, unknown command,
@@ -93,6 +91,22 @@ func Execute() error {
 		return usageErr(err)
 	}
 	return err
+}
+
+// finishSuccessfulCommand delivers captured output before committing any
+// command state that acknowledges it. Tracking commands can therefore retry
+// the same items when an external destination rejects a delivery.
+func finishSuccessfulCommand(flags *rootFlags) error {
+	if flags.deliverBuf != nil {
+		if err := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, err)
+			return err
+		}
+	}
+	if flags.afterSuccessfulDelivery != nil {
+		return flags.afterSuccessfulDelivery()
+	}
+	return nil
 }
 
 // isCobraUsageError reports whether err matches one of Cobra/pflag's

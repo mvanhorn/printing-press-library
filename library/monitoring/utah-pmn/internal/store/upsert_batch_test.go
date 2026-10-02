@@ -177,6 +177,28 @@ func TestUpsertBatch_TemplatedIDFieldOverrideWins(t *testing.T) {
 // it with x-resource-id annotations; this test pins what the generic list
 // is now responsible for so a future trim doesn't silently break unannotated
 // specs.
+func TestUpsertBatchUsesPMNNoticeID(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	stored, extractFailures, err := s.UpsertBatch("notices", []json.RawMessage{
+		json.RawMessage(`{"noticeId": 12345, "meetingTitle": "Planning Commission"}`),
+	})
+	if err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+	if stored != 1 || extractFailures != 0 {
+		t.Fatalf("stored, extractFailures = %d, %d; want 1, 0", stored, extractFailures)
+	}
+	if _, err := s.Get("notices", "12345"); err != nil {
+		t.Fatalf("get cached PMN notice by noticeId: %v", err)
+	}
+}
+
 func TestUpsertBatch_GenericFallbackList(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 	s, err := Open(dbPath)

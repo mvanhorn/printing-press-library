@@ -57,7 +57,7 @@ func newNoticesPromotedCmd(flags *rootFlags) *cobra.Command {
 			if flagReturnFormattedDateValues != "" {
 				params["returnFormattedDateValues"] = formatCLIParamValue(flagReturnFormattedDateValues)
 			}
-			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "notices", false, path, params, nil, cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "notices", true, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

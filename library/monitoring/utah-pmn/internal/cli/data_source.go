@@ -14,6 +14,8 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -569,8 +571,10 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 
 	prov := localProvenance(db, resourceType, reason)
 
-	// Warn if endpoint had filters that local reads can't reproduce
-	if len(params) > 0 {
+	filtersApplied := resourceType == "notices" && isList
+	// Warn only when endpoint filters cannot be reproduced locally. Notice
+	// rows carry the location and meeting date fields needed by their endpoint.
+	if len(params) > 0 && !filtersApplied {
 		fmt.Fprintf(os.Stderr, "warning: local data is unfiltered — endpoint filters are not applied to cached data\n")
 	}
 
@@ -589,7 +593,13 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 			}
 			items = append(items, r)
 		}
-		if len(items) == 0 {
+		if filtersApplied {
+			items, err = filterCachedNotices(items, params)
+			if err != nil {
+				return nil, DataProvenance{}, err
+			}
+		}
+		if len(items) == 0 && !filtersApplied {
 			return nil, DataProvenance{}, fmt.Errorf("no local data for %q. Run 'utah-pmn-pp-cli sync' first", resourceType)
 		}
 		// Marshal []json.RawMessage into a single JSON array
@@ -612,6 +622,125 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 		return nil, DataProvenance{}, fmt.Errorf("querying local store: %w", err)
 	}
 	return item, prov, nil
+}
+
+func filterCachedNotices(items []json.RawMessage, params map[string]string) ([]json.RawMessage, error) {
+	location := strings.TrimSpace(params["zipOrCity"])
+	start, err := parseNoticeFilterDate(params["startDate"])
+	if err != nil {
+		return nil, fmt.Errorf("invalid startDate: %w", err)
+	}
+	end, err := parseNoticeFilterDate(params["endDate"])
+	if err != nil {
+		return nil, fmt.Errorf("invalid endDate: %w", err)
+	}
+	limit := 0
+	if value := strings.TrimSpace(params["listSize"]); value != "" {
+		limit, err = strconv.Atoi(value)
+		if err != nil || limit <= 0 {
+			return nil, fmt.Errorf("invalid listSize %q: expected a positive integer", value)
+		}
+	}
+
+	type cachedNotice struct {
+		raw     json.RawMessage
+		meeting time.Time
+	}
+	matches := make([]cachedNotice, 0, len(items))
+	for index, item := range items {
+		var notice struct {
+			MeetingCity      string          `json:"meetingCity"`
+			MeetingZip       string          `json:"meetingZip"`
+			MeetingStartTime json.RawMessage `json:"meetingStartTime"`
+		}
+		if err := json.Unmarshal(item, &notice); err != nil {
+			return nil, fmt.Errorf("decoding cached notice %d: %w", index+1, err)
+		}
+		if location != "" && !strings.EqualFold(location, strings.TrimSpace(notice.MeetingCity)) && location != strings.TrimSpace(notice.MeetingZip) {
+			continue
+		}
+		meeting, parsedMeeting, err := parseCachedMeetingJSONTime(notice.MeetingStartTime)
+		if err != nil {
+			return nil, fmt.Errorf("decoding meetingStartTime for cached notice %d: %w", index+1, err)
+		}
+		if !start.IsZero() || !end.IsZero() {
+			if !parsedMeeting || (!start.IsZero() && meeting.Before(start)) || (!end.IsZero() && meeting.After(end.Add(24*time.Hour-time.Nanosecond))) {
+				continue
+			}
+		}
+		matches = append(matches, cachedNotice{raw: item, meeting: meeting})
+	}
+	sort.SliceStable(matches, func(i, j int) bool {
+		if matches[i].meeting.IsZero() {
+			return false
+		}
+		if matches[j].meeting.IsZero() {
+			return true
+		}
+		return matches[i].meeting.Before(matches[j].meeting)
+	})
+	filtered := make([]json.RawMessage, 0, len(matches))
+	for _, match := range matches {
+		filtered = append(filtered, match.raw)
+		if limit > 0 && len(filtered) == limit {
+			break
+		}
+	}
+	return filtered, nil
+}
+
+func parseNoticeFilterDate(value string) (time.Time, error) {
+	if strings.TrimSpace(value) == "" {
+		return time.Time{}, nil
+	}
+	parsed, err := time.Parse("2006-01-02", value)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("expected YYYY-MM-DD")
+	}
+	return parsed, nil
+}
+
+func parseCachedMeetingTime(value string) (time.Time, bool) {
+	for _, layout := range []string{
+		time.RFC3339, "2006-01-02", "2006-01-02 15:04:05",
+		"1/2/2006 3:04 PM", "1/2/2006 3:04:05 PM",
+		"01/02/2006 03:04 PM", "01/02/2006 03:04:05 PM",
+	} {
+		if parsed, err := time.Parse(layout, strings.TrimSpace(value)); err == nil {
+			return parsed, true
+		}
+	}
+	return time.Time{}, false
+}
+
+// parseCachedMeetingJSONTime accepts both response shapes emitted by PMN:
+// formatted requests return a JSON string, while unformatted requests return
+// a Unix timestamp (normally milliseconds). Cached rows preserve the upstream
+// JSON, so local filtering must understand both representations.
+func parseCachedMeetingJSONTime(raw json.RawMessage) (time.Time, bool, error) {
+	value := strings.TrimSpace(string(raw))
+	if value == "" || value == "null" {
+		return time.Time{}, false, nil
+	}
+	if value[0] == '"' {
+		var formatted string
+		if err := json.Unmarshal(raw, &formatted); err != nil {
+			return time.Time{}, false, err
+		}
+		meeting, parsed := parseCachedMeetingTime(formatted)
+		return meeting, parsed, nil
+	}
+
+	epoch, err := strconv.ParseInt(value, 10, 64)
+	if err != nil {
+		return time.Time{}, false, fmt.Errorf("expected a formatted date string or integer Unix timestamp")
+	}
+	seconds, nanoseconds := epoch, int64(0)
+	if epoch >= 100_000_000_000 || epoch <= -100_000_000_000 {
+		seconds = epoch / 1_000
+		nanoseconds = (epoch % 1_000) * int64(time.Millisecond)
+	}
+	return time.Unix(seconds, nanoseconds).UTC(), true, nil
 }
 
 // Ensure time import is used (compilation guard).
