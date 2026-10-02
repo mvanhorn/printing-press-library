@@ -121,6 +121,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 No Ashby API key or customer account is required. Authenticated recruiting, candidate, and application-management APIs are intentionally out of scope.
 
+The MCP server uses local standard input and output by default. For HTTP MCP, set `PP_MCP_HTTP_TOKEN` in the server environment and run `ashby-pp-mcp --transport http --addr 127.0.0.1:7777`. Requests must carry that token as a Bearer token. A server exposed beyond the local computer also requires `--tls-cert` and `--tls-key`. Keep the token out of command-line arguments.
+
 ## Quick Start
 
 ```bash

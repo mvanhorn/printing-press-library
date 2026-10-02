@@ -4,10 +4,16 @@
 package main
 
 import (
+	"crypto/sha256"
+	"crypto/subtle"
+	"crypto/tls"
 	"flag"
 	"fmt"
+	"net"
+	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/job-boards/ashby/internal/cli"
@@ -45,6 +51,8 @@ func main() {
 
 	transport := flag.String("transport", defaultTransport(), "MCP transport: stdio | http")
 	addr := flag.String("addr", defaultHTTPAddr, "bind address for http transport (host:port or :port)")
+	tlsCert := flag.String("tls-cert", "", "TLS certificate file for non-loopback HTTP transport")
+	tlsKey := flag.String("tls-key", "", "TLS private key file for non-loopback HTTP transport")
 	flag.Parse()
 
 	switch strings.ToLower(*transport) {
@@ -54,16 +62,106 @@ func main() {
 			os.Exit(1)
 		}
 	case "http":
-		httpSrv := server.NewStreamableHTTPServer(s)
-		fmt.Fprintf(os.Stderr, "ashby-pp-mcp serving MCP over streamable HTTP at %s\n", *addr)
-		if err := httpSrv.Start(*addr); err != nil {
+		token := strings.TrimSpace(os.Getenv("PP_MCP_HTTP_TOKEN"))
+		useTLS, err := validateHTTPTransport(*addr, token, *tlsCert, *tlsKey)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "refusing unsafe MCP HTTP configuration: %v\n", err)
+			os.Exit(2)
+		}
+		listener, err := net.Listen("tcp", *addr)
+		if err != nil {
 			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
+			os.Exit(1)
+		}
+		if err := validateBoundListener(listener.Addr(), useTLS); err != nil {
+			_ = listener.Close()
+			fmt.Fprintf(os.Stderr, "refusing unsafe MCP HTTP configuration: %v\n", err)
+			os.Exit(2)
+		}
+		mcpHandler := server.NewStreamableHTTPServer(s)
+		httpSrv := &http.Server{
+			Handler:           requireHTTPToken(token, mcpHandler),
+			ReadHeaderTimeout: 5 * time.Second,
+			ReadTimeout:       30 * time.Second,
+			IdleTimeout:       2 * time.Minute,
+			MaxHeaderBytes:    1 << 20,
+			TLSConfig:         &tls.Config{MinVersion: tls.VersionTLS12},
+		}
+		fmt.Fprintf(os.Stderr, "ashby-pp-mcp serving MCP over authenticated %s at %s\n", tlsLabel(useTLS), listener.Addr())
+		var serveErr error
+		if useTLS {
+			serveErr = httpSrv.ServeTLS(listener, *tlsCert, *tlsKey)
+		} else {
+			serveErr = httpSrv.Serve(listener)
+		}
+		if serveErr != nil {
+			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", serveErr)
 			os.Exit(1)
 		}
 	default:
 		fmt.Fprintf(os.Stderr, "unknown --transport %q (supported: stdio, http)\n", *transport)
 		os.Exit(2)
 	}
+}
+
+func validateBoundListener(addr net.Addr, useTLS bool) error {
+	if useTLS {
+		return nil
+	}
+	tcp, ok := addr.(*net.TCPAddr)
+	if !ok || !tcp.IP.IsLoopback() {
+		return fmt.Errorf("non-loopback bind %q requires TLS", addr)
+	}
+	return nil
+}
+
+func validateHTTPTransport(addr, token, tlsCert, tlsKey string) (bool, error) {
+	if strings.TrimSpace(token) == "" {
+		return false, fmt.Errorf("set PP_MCP_HTTP_TOKEN in the server environment")
+	}
+	useTLS := tlsCert != "" || tlsKey != ""
+	if useTLS && (tlsCert == "" || tlsKey == "") {
+		return false, fmt.Errorf("both --tls-cert and --tls-key are required when TLS is enabled")
+	}
+	if !isLoopbackAddr(addr) && !useTLS {
+		return false, fmt.Errorf("non-loopback bind %q requires TLS", addr)
+	}
+	return useTLS, nil
+}
+
+func requireHTTPToken(token string, next http.Handler) http.Handler {
+	expected := sha256.Sum256([]byte("Bearer " + token))
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		provided := sha256.Sum256([]byte(r.Header.Get("Authorization")))
+		if subtle.ConstantTimeCompare(provided[:], expected[:]) != 1 {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			_, _ = w.Write([]byte(`{"error":"unauthorized"}`))
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func isLoopbackAddr(addr string) bool {
+	host, _, err := net.SplitHostPort(addr)
+	if err != nil || host == "" {
+		return false
+	}
+	if strings.EqualFold(host, "localhost") {
+		// The actual bound IP is checked after Listen, so a local hostname
+		// that resolves elsewhere still cannot serve plaintext remotely.
+		return true
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
+}
+
+func tlsLabel(useTLS bool) string {
+	if useTLS {
+		return "HTTPS"
+	}
+	return "HTTP"
 }
 
 // defaultTransport reads PP_MCP_TRANSPORT env when set, otherwise falls back
