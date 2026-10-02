@@ -117,6 +117,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 </details>
 
+For HTTP MCP, set `PP_MCP_HTTP_TOKEN` in the server environment and start `mcpmarket-pp-mcp --transport http --addr 127.0.0.1:7777`. Send the same token in each request's `Authorization: Bearer <token>` header. Keep the token out of command-line arguments. A server exposed beyond the local computer also needs `--tls-cert` and `--tls-key`; plaintext HTTP is limited to a verified loopback listener.
+
 ## Quick Start
 
 ```bash

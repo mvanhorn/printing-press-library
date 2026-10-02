@@ -37,6 +37,9 @@ import (
 const BinaryResponseHeader = "X-Printing-Press-Binary-Response"
 const maxErrorBodyBytes = 4096
 
+var errCrossOriginRedirect = errors.New("refusing cross-origin redirect")
+var errRedirectLimit = errors.New("stopped after 10 redirects")
+
 type Client struct {
 	BaseURL           string
 	Config            *config.Config
@@ -308,10 +311,10 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 			// would cause Do to return the 3xx with nil error, which do()
 			// would then classify as a successful response and hand the HTML
 			// "Moved Permanently" body back to the caller.
-			return errors.New("stopped after 10 redirects")
+			return errRedirectLimit
 		}
 		if !sameOrigin(req.URL, via[0].URL) {
-			return fmt.Errorf("refusing cross-origin redirect")
+			return errCrossOriginRedirect
 		}
 		if h, err := c.authHeader(req.Context()); err == nil && h != "" {
 			req.Header.Set("Authorization", h)
@@ -1043,7 +1046,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			// timeout). Back off before retrying — same exponential schedule as
 			// the 5xx path below — so a brief outage does not burn every attempt
 			// in a tight loop. ctx cancellation breaks out of the wait at once.
-			if attempt < maxRetries && canRetryAmbiguousFailure && !isPermanentDNSError(err) {
+			if attempt < maxRetries && canRetryAmbiguousFailure && !isPermanentDNSError(err) && !errors.Is(err, errCrossOriginRedirect) && !errors.Is(err, errRedirectLimit) {
 				wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
 				if !retryWithinBudget(wait) {
 					return nil, 0, lastErr

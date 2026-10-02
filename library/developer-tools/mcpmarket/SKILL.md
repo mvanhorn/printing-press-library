@@ -520,6 +520,8 @@ Parse `$ARGUMENTS`:
    ```
 3. Verify: `claude mcp list`
 
+For HTTP MCP, set `PP_MCP_HTTP_TOKEN` in the server environment, start `mcpmarket-pp-mcp --transport http --addr 127.0.0.1:7777`, and send `Authorization: Bearer <token>` with requests. Remote binds require `--tls-cert` and `--tls-key`. Never pass the token as a command-line argument.
+
 ## Direct Use
 
 1. Check if installed: `which mcpmarket-pp-cli`
