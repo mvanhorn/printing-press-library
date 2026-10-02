@@ -1,0 +1,26 @@
+[
+  {
+    "command": "parcel",
+    "resolved": true
+  },
+  {
+    "command": "quote",
+    "resolved": true
+  },
+  {
+    "command": "airports",
+    "resolved": true
+  },
+  {
+    "command": "counters",
+    "resolved": true
+  },
+  {
+    "command": "same-day",
+    "resolved": true
+  },
+  {
+    "command": "products",
+    "resolved": true
+  }
+]

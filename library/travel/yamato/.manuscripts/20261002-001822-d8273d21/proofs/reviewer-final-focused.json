@@ -1,0 +1,76 @@
+[
+  {
+    "args": [
+      "airports",
+      "--data-source",
+      "bogus"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "Error: invalid --data-source value \"bogus\": must be auto, live, or local\n"
+  },
+  {
+    "args": [
+      "parcel",
+      "--length",
+      "63.2",
+      "--width",
+      "64.9",
+      "--height",
+      "31.9",
+      "--weight",
+      "1"
+    ],
+    "exit": 0,
+    "stdout": "{\n  \"meta\": {\n    \"source\": \"computed\",\n    \"timezone\": \"Asia/Tokyo\",\n    \"upstream_requests\": 0\n  },\n  \"results\": {\n    \"length_cm\": 63.2,\n    \"width_cm\": 64.9,\n    \"height_cm\": 31.9,\n    \"weight_kg\": 1,\n    \"linear_cm\": 160,\n    \"dimension_category\": 160,\n    \"weight_category\": 60,\n    \"chargeable_size\": 160,\n    \"within_size_weight_limits\": true,\n    \"reasons\": [],\n    \"charging_basis\": \"greater of dimension and weight categories\",\n    \"acceptance\": \"unknown: contents, packaging, local counter and destination acceptance must be checked\",\n    \"rule_url\": \"https://www.kuronekoyamato.co.jp/ytc/en/send/services/takkyubin/\",\n    \"rule_observed_at\": \"2026-10-02T01:32:00+09:00\"\n  }\n}\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "parcel",
+      "--length",
+      "63.2",
+      "--width",
+      "64.9",
+      "--height",
+      "71.9",
+      "--weight",
+      "1"
+    ],
+    "exit": 0,
+    "stdout": "{\n  \"meta\": {\n    \"source\": \"computed\",\n    \"timezone\": \"Asia/Tokyo\",\n    \"upstream_requests\": 0\n  },\n  \"results\": {\n    \"length_cm\": 63.2,\n    \"width_cm\": 64.9,\n    \"height_cm\": 71.9,\n    \"weight_kg\": 1,\n    \"linear_cm\": 200,\n    \"dimension_category\": 200,\n    \"weight_category\": 60,\n    \"chargeable_size\": 200,\n    \"within_size_weight_limits\": true,\n    \"reasons\": [],\n    \"charging_basis\": \"greater of dimension and weight categories\",\n    \"acceptance\": \"unknown: contents, packaging, local counter and destination acceptance must be checked\",\n    \"rule_url\": \"https://www.kuronekoyamato.co.jp/ytc/en/send/services/takkyubin/\",\n    \"rule_observed_at\": \"2026-10-02T01:32:00+09:00\"\n  }\n}\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "parcel",
+      "--length",
+      "63.2",
+      "--width",
+      "64.9",
+      "--height",
+      "71.90000000000002",
+      "--weight",
+      "1"
+    ],
+    "exit": 0,
+    "stdout": "{\n  \"meta\": {\n    \"source\": \"computed\",\n    \"timezone\": \"Asia/Tokyo\",\n    \"upstream_requests\": 0\n  },\n  \"results\": {\n    \"length_cm\": 63.2,\n    \"width_cm\": 64.9,\n    \"height_cm\": 71.90000000000002,\n    \"weight_kg\": 1,\n    \"linear_cm\": 200.00000000000003,\n    \"dimension_category\": 0,\n    \"weight_category\": 60,\n    \"chargeable_size\": 0,\n    \"within_size_weight_limits\": false,\n    \"reasons\": [\n      \"linear dimensions exceed 200 cm\"\n    ],\n    \"charging_basis\": \"greater of dimension and weight categories\",\n    \"acceptance\": \"unknown: contents, packaging, local counter and destination acceptance must be checked\",\n    \"rule_url\": \"https://www.kuronekoyamato.co.jp/ytc/en/send/services/takkyubin/\",\n    \"rule_observed_at\": \"2026-10-02T01:32:00+09:00\"\n  }\n}\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "parcel",
+      "--length",
+      "20.1",
+      "--width",
+      "15.3",
+      "--height",
+      "24.6",
+      "--weight",
+      "1"
+    ],
+    "exit": 0,
+    "stdout": "{\n  \"meta\": {\n    \"source\": \"computed\",\n    \"timezone\": \"Asia/Tokyo\",\n    \"upstream_requests\": 0\n  },\n  \"results\": {\n    \"length_cm\": 20.1,\n    \"width_cm\": 15.3,\n    \"height_cm\": 24.6,\n    \"weight_kg\": 1,\n    \"linear_cm\": 60,\n    \"dimension_category\": 60,\n    \"weight_category\": 60,\n    \"chargeable_size\": 60,\n    \"within_size_weight_limits\": true,\n    \"reasons\": [],\n    \"charging_basis\": \"greater of dimension and weight categories\",\n    \"acceptance\": \"unknown: contents, packaging, local counter and destination acceptance must be checked\",\n    \"rule_url\": \"https://www.kuronekoyamato.co.jp/ytc/en/send/services/takkyubin/\",\n    \"rule_observed_at\": \"2026-10-02T01:32:00+09:00\"\n  }\n}\n",
+    "stderr": ""
+  }
+]

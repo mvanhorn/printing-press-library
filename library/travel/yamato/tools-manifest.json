@@ -1,0 +1,53 @@
+{
+  "api_name": "yamato",
+  "base_url": "https://www.kuronekoyamato.co.jp",
+  "description": "Plan Japan luggage forwarding with source rates, calendar deadlines and acceptance evidence.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "source_overview",
+      "description": "Read the public TA-Q-BIN page metadata and links.",
+      "method": "GET",
+      "path": "/ytc/en/send/services/takkyubin/",
+      "no_auth": true,
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Measured luggage eligibility",
+      "command": "parcel",
+      "description": "Classify both size and weight and preserve acceptance unknowns."
+    },
+    {
+      "name": "Source calendar and tariff",
+      "command": "quote",
+      "description": "Fetch current source rates and date-specific arrival or shipping deadline."
+    },
+    {
+      "name": "Terminal-aware airport resolution",
+      "command": "airports",
+      "description": "Use live upstream airport codes and Japanese terminal names."
+    },
+    {
+      "name": "Acceptance and hour evidence",
+      "command": "counters",
+      "description": "Inspect public send/pickup/floor evidence and fingerprint-checked image hours."
+    },
+    {
+      "name": "Distinct same-day evidence",
+      "command": "same-day",
+      "description": "Inspect limited-area cutoff schedules and separate example prices."
+    },
+    {
+      "name": "Product distinctions",
+      "command": "products",
+      "description": "Review live service policy evidence for standard, airport, roundtrip and same-day products."
+    }
+  ]
+}

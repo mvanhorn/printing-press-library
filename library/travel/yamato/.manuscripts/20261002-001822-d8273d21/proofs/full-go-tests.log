@@ -1,0 +1,20 @@
+?   	yamato-pp-cli/cmd/yamato-pp-cli	[no test files]
+ok  	yamato-pp-cli/cmd/yamato-pp-mcp	0.597s
+?   	yamato-pp-cli/internal/cache	[no test files]
+ok  	yamato-pp-cli/internal/cli	(cached)
+?   	yamato-pp-cli/internal/cli/playbooks	[no test files]
+ok  	yamato-pp-cli/internal/client	2.053s
+ok  	yamato-pp-cli/internal/cliutil	13.347s
+?   	yamato-pp-cli/internal/cliutil/testenv	[no test files]
+?   	yamato-pp-cli/internal/config	[no test files]
+ok  	yamato-pp-cli/internal/learn	2.045s
+ok  	yamato-pp-cli/internal/learn/entities	2.932s
+ok  	yamato-pp-cli/internal/learn/lookups	2.738s
+ok  	yamato-pp-cli/internal/learn/patterns	2.167s
+ok  	yamato-pp-cli/internal/mcp	3.471s
+ok  	yamato-pp-cli/internal/mcp/bound	4.199s
+ok  	yamato-pp-cli/internal/mcp/cobratree	9.703s
+ok  	yamato-pp-cli/internal/platform	5.181s
+ok  	yamato-pp-cli/internal/store	5.412s
+?   	yamato-pp-cli/internal/types	[no test files]
+ok  	yamato-pp-cli/internal/yamato	(cached)

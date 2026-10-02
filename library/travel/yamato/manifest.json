@@ -1,0 +1,28 @@
+{
+  "manifest_version": "0.3",
+  "name": "yamato-pp-mcp",
+  "display_name": "Yamato Transport",
+  "version": "0.1.0",
+  "description": "Plan Japan luggage forwarding with source rates, calendar deadlines and acceptance evidence.",
+  "author": {
+    "name": "zjsng",
+    "url": "https://github.com/zjsng"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/yamato-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/yamato-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

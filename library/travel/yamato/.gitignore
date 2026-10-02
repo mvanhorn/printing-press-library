@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/yamato-pp-cli
+/yamato-pp-cli.exe
+/yamato-pp-mcp
+/yamato-pp-mcp.exe
+/bin/
+/build/
+/dist/

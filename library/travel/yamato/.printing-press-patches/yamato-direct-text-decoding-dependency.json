@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "yamato-direct-text-decoding-dependency",
+  "applied_at": "2026-10-02",
+  "base_run_id": "20261002-001822-d8273d21",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Keep golang.org/x/text declared as a direct dependency for Japanese source decoding.",
+  "reason": "The Yamato domain parser directly imports the decoder; indirect classification makes go mod tidy fail the publication gate.",
+  "files": [
+    "go.mod"
+  ],
+  "validated_outcome": "go mod tidy -diff is empty after normalization."
+}

@@ -1,0 +1,8 @@
+{
+  "outcome": "public library not found locally; internal working source is canonical",
+  "valid_clones": [],
+  "cli": "yamato",
+  "standalone": false,
+  "publication_authorized": false,
+  "own_build_lock": "scope yamato, working tree owner; no concurrent source writers"
+}

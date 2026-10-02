@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "source": "live",
+    "timezone": "Asia/Tokyo",
+    "upstream_requests": 1,
+    "elapsed_ms": 129,
+    "sources": [
+      {
+        "url": "https://www.kuronekoyamato.co.jp/ytc/en/send/services/same-day-delivery/",
+        "fetched_at": "2026-10-01T16:49:00Z",
+        "bytes": 28113,
+        "sha256": "d1e8ec39ca579b69a07c4f4158689ef5df87090f1f4f4c8d21847ceceec5f451"
+      }
+    ]
+  },
+  "results": {
+    "id": "same-day",
+    "url": "https://www.kuronekoyamato.co.jp/ytc/en/send/services/same-day-delivery/",
+    "title": "Same-day Delivery Service | YAMATO TRANSPORT",
+    "conditions": [
+      "Dates are estimated; counter dispatch cutoff, exceptional holidays, packaging, contents and receiving acceptance require confirmation.",
+      "Only listed counters/service areas and cutoffs; standard TA-Q-BIN quote is not same-day eligibility.",
+      "Counter fees and destination arrival times vary; express fee may apply when sending to airport."
+    ],
+    "source_evidence": [
+      "The cut-off time for drop off varies by service counter.",
+      "Fees vary depending on the baggage size and service counter.",
+      "Business hours and fees vary by service counter."
+    ],
+    "acceptance": "unknown: policy eligibility is not parcel or destination acceptance"
+  }
+}

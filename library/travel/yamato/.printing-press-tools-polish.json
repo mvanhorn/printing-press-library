@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-10-01T17:51:40.365615Z",
+  "cli_dir": "\u003ccli-dir\u003e/yamato-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated profile listing. The Short names its complete no-argument action; parent scope identifies local client configuration. It returns profile names and has a correct read-only annotation. Additional scope text belongs in the generator template."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 868,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated local learning-list command. The Short names stored records; query/source/resource/action flags expose its filters and its read-only annotation is correct. A richer filter summary is a template improvement rather than a Yamato source defect."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-10-01T17:50:02.421148Z"
+  }
+}

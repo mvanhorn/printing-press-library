@@ -1,0 +1,62 @@
+{
+  "meta": {
+    "source": "live",
+    "timezone": "Asia/Tokyo",
+    "upstream_requests": 2,
+    "elapsed_ms": 660,
+    "sources": [
+      {
+        "url": "https://date.kuronekoyamato.co.jp/date/MainSmp?LINK=KT",
+        "fetched_at": "2026-10-01T17:03:35Z",
+        "bytes": 5978,
+        "sha256": "e49473bf76f709dc2ada1a89ca35148a62e33def0fe4fc6c78b1c0042200b84f"
+      },
+      {
+        "url": "https://date.kuronekoyamato.co.jp/date/KuukouTakkyubinSmp",
+        "fetched_at": "2026-10-01T17:03:36Z",
+        "bytes": 15270,
+        "sha256": "c18d46331b06b79d1216501ea18287508295348ee191c052d441e8ace4128e40"
+      }
+    ]
+  },
+  "results": {
+    "service": "airport",
+    "origin": "1000005",
+    "destination": "成田空港 第2ﾀｰﾐﾅﾙ",
+    "airport": {
+      "id": "006",
+      "name_jp": "成田空港 第2ﾀｰﾐﾅﾙ",
+      "aliases": [
+        "Narita terminal2",
+        "NRT"
+      ]
+    },
+    "input_date": "2026-10-02",
+    "date_kind": "ship",
+    "calendar_kind": "earliest_boarding_date",
+    "calendar_date": "2026-10-04",
+    "guaranteed": false,
+    "selected_rate": {
+      "size": 160,
+      "cashless_jpy": 3674,
+      "cash_jpy": 3680
+    },
+    "currency": "JPY",
+    "tax_included": true,
+    "rate_basis": "one-way per parcel, source list tariff",
+    "included_fees": [
+      "outbound airport fee 660 JPY included"
+    ],
+    "discounts": "conditional drop-off/member/digital discounts not applied; packaging and other optional charges not included",
+    "acceptance": "unknown: valid source quote is not shipment, counter or hotel acceptance",
+    "counter_cutoff_time": null,
+    "exceptional_calendar": null,
+    "warnings": [
+      "Estimated dates are not guaranteed. Counter shipping cutoff times vary and are not closing hours.",
+      "Weather, holidays, disrupted transport and some islands may alter displayed dates; air-restricted or unclear contents can delay delivery up to about one week.",
+      "Confirm hotel reception and contents/packaging eligibility before sending; some convenience stores cannot accept size200.",
+      "No time-zone delivery or cash-on-delivery when sending to an airport. Airport delivery occurs by the day before boarding; use source deadline."
+    ],
+    "handoff_url": "https://date.kuronekoyamato.co.jp/date/MainSmp?LINK=KT"
+  }
+}

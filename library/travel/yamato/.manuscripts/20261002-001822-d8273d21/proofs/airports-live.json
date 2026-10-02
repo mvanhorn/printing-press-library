@@ -1,0 +1,233 @@
+{
+  "meta": {
+    "source": "live",
+    "timezone": "Asia/Tokyo",
+    "upstream_requests": 1,
+    "elapsed_ms": 270,
+    "sources": [
+      {
+        "url": "https://date.kuronekoyamato.co.jp/date/MainSmp?LINK=KT",
+        "fetched_at": "2026-10-01T16:48:56Z",
+        "bytes": 5978,
+        "sha256": "e49473bf76f709dc2ada1a89ca35148a62e33def0fe4fc6c78b1c0042200b84f"
+      }
+    ]
+  },
+  "results": {
+    "has_more": false,
+    "items": [
+      {
+        "id": "001",
+        "name_jp": "新千歳空港",
+        "aliases": [
+          "New Chitose",
+          "CTS"
+        ]
+      },
+      {
+        "id": "003",
+        "name_jp": "仙台空港",
+        "aliases": [
+          "Sendai",
+          "SDJ"
+        ]
+      },
+      {
+        "id": "002",
+        "name_jp": "福島空港",
+        "aliases": [
+          "Fukushima",
+          "FKS"
+        ]
+      },
+      {
+        "id": "004",
+        "name_jp": "新潟空港",
+        "aliases": [
+          "Niigata",
+          "KIJ"
+        ]
+      },
+      {
+        "id": "005",
+        "name_jp": "成田空港 第1ﾀｰﾐﾅﾙ 北ｳｲﾝｸﾞ",
+        "aliases": [
+          "Narita terminal1 north",
+          "NRT"
+        ]
+      },
+      {
+        "id": "022",
+        "name_jp": "成田空港 第1ﾀｰﾐﾅﾙ 南ｳｲﾝｸﾞ",
+        "aliases": [
+          "Narita terminal1 south",
+          "NRT"
+        ]
+      },
+      {
+        "id": "006",
+        "name_jp": "成田空港 第2ﾀｰﾐﾅﾙ",
+        "aliases": [
+          "Narita terminal2",
+          "NRT"
+        ]
+      },
+      {
+        "id": "034",
+        "name_jp": "成田空港 第3ﾀｰﾐﾅﾙ",
+        "aliases": [
+          "Narita terminal3",
+          "NRT"
+        ]
+      },
+      {
+        "id": "008",
+        "name_jp": "羽田空港 第1旅客ﾀｰﾐﾅﾙ 国内線",
+        "aliases": [
+          "Haneda terminal1 domestic",
+          "HND"
+        ]
+      },
+      {
+        "id": "019",
+        "name_jp": "羽田空港 第2旅客ﾀｰﾐﾅﾙ 国内線",
+        "aliases": [
+          "Haneda terminal2 domestic",
+          "HND"
+        ]
+      },
+      {
+        "id": "038",
+        "name_jp": "羽田空港 第2旅客ﾀｰﾐﾅﾙ 国際線",
+        "aliases": [
+          "Haneda terminal2 international",
+          "HND"
+        ]
+      },
+      {
+        "id": "007",
+        "name_jp": "羽田空港 第3旅客ﾀｰﾐﾅﾙ 国際線",
+        "aliases": [
+          "Haneda terminal3 international",
+          "HND"
+        ]
+      },
+      {
+        "id": "009",
+        "name_jp": "小松空港",
+        "aliases": [
+          "Komatsu",
+          "KMQ"
+        ]
+      },
+      {
+        "id": "010",
+        "name_jp": "中部国際空港 第1ﾀｰﾐﾅﾙ",
+        "aliases": [
+          "Chubu terminal1",
+          "NGO"
+        ]
+      },
+      {
+        "id": "035",
+        "name_jp": "中部国際空港 第2ﾀｰﾐﾅﾙ",
+        "aliases": [
+          "Chubu terminal2",
+          "NGO"
+        ]
+      },
+      {
+        "id": "011",
+        "name_jp": "大阪(伊丹)空港 空港ﾀｰﾐﾅﾙﾋﾞﾙ",
+        "aliases": [
+          "Itami",
+          "ITM"
+        ]
+      },
+      {
+        "id": "012",
+        "name_jp": "関西国際空港 第1ﾀｰﾐﾅﾙﾋﾞﾙ",
+        "aliases": [
+          "Kansai terminal1",
+          "KIX"
+        ]
+      },
+      {
+        "id": "039",
+        "name_jp": "神戸空港第1ﾀｰﾐﾅﾙ",
+        "aliases": [
+          "Kobe terminal1",
+          "UKB"
+        ]
+      },
+      {
+        "id": "040",
+        "name_jp": "神戸空港第2ﾀｰﾐﾅﾙ",
+        "aliases": [
+          "Kobe terminal2",
+          "UKB"
+        ]
+      },
+      {
+        "id": "020",
+        "name_jp": "岡山桃太郎空港",
+        "aliases": [
+          "Okayama",
+          "OKJ"
+        ]
+      },
+      {
+        "id": "013",
+        "name_jp": "広島空港",
+        "aliases": [
+          "Hiroshima",
+          "HIJ"
+        ]
+      },
+      {
+        "id": "014",
+        "name_jp": "福岡空港 国際線旅客ﾀｰﾐﾅﾙﾋﾞﾙ",
+        "aliases": [
+          "Fukuoka international",
+          "FUK"
+        ]
+      },
+      {
+        "id": "015",
+        "name_jp": "福岡空港 国内線旅客ﾀｰﾐﾅﾙﾋﾞﾙ",
+        "aliases": [
+          "Fukuoka domestic",
+          "FUK"
+        ]
+      },
+      {
+        "id": "018",
+        "name_jp": "北九州空港",
+        "aliases": [
+          "Kitakyushu",
+          "KKJ"
+        ]
+      },
+      {
+        "id": "016",
+        "name_jp": "長崎空港",
+        "aliases": [
+          "Nagasaki",
+          "NGS"
+        ]
+      },
+      {
+        "id": "017",
+        "name_jp": "鹿児島空港",
+        "aliases": [
+          "Kagoshima",
+          "KOJ"
+        ]
+      }
+    ],
+    "limit": 50,
+    "next_offset": 26,
+    "offset": 0,
+    "total": 26
+  }
+}

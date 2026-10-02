@@ -1,0 +1,24 @@
+{
+  "command": [
+    "<press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/working/yamato-pp-cli/yamato-pp-cli",
+    "quote",
+    "--origin",
+    "1000005",
+    "--destination",
+    "6008216",
+    "--date",
+    "2026-10-02",
+    "--date-kind",
+    "delivery",
+    "--size",
+    "160",
+    "--timeout",
+    "8s",
+    "--json",
+    "--no-learn"
+  ],
+  "exit": 0,
+  "wall_ms": 790,
+  "stdout": "{\n  \"meta\": {\n    \"source\": \"live\",\n    \"timezone\": \"Asia/Tokyo\",\n    \"upstream_requests\": 2,\n    \"elapsed_ms\": 777,\n    \"sources\": [\n      {\n        \"url\": \"https://date.kuronekoyamato.co.jp/date/MainSmp?LINK=TK\",\n        \"fetched_at\": \"2026-10-01T17:24:58Z\",\n        \"bytes\": 4534,\n        \"sha256\": \"d9773a39cb7eb302e002025c0febaceb5d8854692650ffe501127f339fa85aff\"\n      },\n      {\n        \"url\": \"https://date.kuronekoyamato.co.jp/date/TakkyubinSmp\",\n        \"fetched_at\": \"2026-10-01T17:24:58Z\",\n        \"bytes\": 33179,\n        \"sha256\": \"be2b255b3a084e9cdd1d20821325807e7d2ecb3f8b1feaf23ad0e926a3b33f1c\"\n      }\n    ]\n  },\n  \"results\": {\n    \"service\": \"takkyubin\",\n    \"origin\": \"1000005\",\n    \"destination\": \"6008216\",\n    \"airport\": null,\n    \"input_date\": \"2026-10-02\",\n    \"date_kind\": \"delivery\",\n    \"calendar_kind\": \"shipping_deadline_date\",\n    \"calendar_date\": \"2026-10-01\",\n    \"guaranteed\": false,\n    \"selected_rate\": {\n      \"size\": 160,\n      \"cashless_jpy\": 3157,\n      \"cash_jpy\": 3160\n    },\n    \"currency\": \"JPY\",\n    \"tax_included\": true,\n    \"rate_basis\": \"one-way per parcel, source list tariff\",\n    \"included_fees\": [],\n    \"discounts\": \"conditional drop-off/member/digital discounts not applied; packaging and other optional charges not included\",\n    \"acceptance\": \"unknown: valid source quote is not shipment, counter or hotel acceptance\",\n    \"counter_cutoff_time\": null,\n    \"exceptional_calendar\": null,\n    \"warnings\": [\n      \"Estimated dates are not guaranteed. Counter shipping cutoff times vary and are not closing hours.\",\n      \"Weather, holidays, disrupted transport and some islands may alter displayed dates; air-restricted or unclear contents can delay delivery up to about one week.\",\n      \"Confirm hotel reception and contents/packaging eligibility before sending; some convenience stores cannot accept size200.\"\n    ],\n    \"handoff_url\": \"https://date.kuronekoyamato.co.jp/date/MainSmp?LINK=TK\"\n  }\n}\n",
+  "stderr": ""
+}

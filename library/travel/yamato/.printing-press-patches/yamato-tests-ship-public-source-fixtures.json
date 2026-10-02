@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "yamato-tests-ship-public-source-fixtures",
+  "applied_at": "2026-10-02",
+  "base_run_id": "20261002-001822-d8273d21",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Ship deterministic public source inputs beside Yamato parser tests under internal/yamato/testdata.",
+  "reason": "The packaged CLI excludes private build evidence; parser regression tests must retain their public source inputs without depending on that local evidence tree.",
+  "files": [
+    "internal/yamato/yamato_test.go",
+    "internal/yamato/testdata/domestic-quote.html",
+    "internal/yamato/testdata/airport-quote.html",
+    "internal/yamato/testdata/roundtrip-quote.html",
+    "internal/yamato/testdata/airport-ship-quote.html",
+    "internal/yamato/testdata/roundtrip-ship-quote.html",
+    "internal/yamato/testdata/takkyubin-policy.html",
+    "internal/yamato/testdata/airport-policy.html",
+    "internal/yamato/testdata/roundtrip-policy.html",
+    "internal/yamato/testdata/same-day-policy.html",
+    "internal/yamato/testdata/same-day_delivery.pdf",
+    "internal/yamato/testdata/SHA256.json"
+  ],
+  "validated_outcome": "Full Go suite passes from the published module with no private evidence directory."
+}

@@ -1,0 +1,469 @@
+
+COMMAND  EXIT 0
+Plan Japan luggage forwarding with source rates, calendar deadlines and acceptance evidence.
+
+Highlights (not in the official API docs):
+  • parcel   Classify both size and weight and preserve acceptance unknowns.
+  • quote   Fetch current source rates and date-specific arrival or shipping deadline.
+  • airports   Use live upstream airport codes and Japanese terminal names.
+  • counters   Inspect public send/pickup/floor evidence and fingerprint-checked image hours.
+  • same-day   Inspect limited-area cutoff schedules and separate example prices.
+  • products   Review live service policy evidence for standard, airport, roundtrip and same-day products.
+
+Agent mode: add --agent to any command for JSON output + non-interactive mode.
+Health check: run 'yamato-pp-cli doctor' to verify connectivity.
+See README.md or the bundled SKILL.md for recipes.
+
+Usage:
+  yamato-pp-cli [command]
+
+Available Commands:
+  agent-context  Emit structured JSON describing this CLI for agents
+  airports       List live airport terminal IDs and Japanese names for an airport quote.
+  completion     Generate the autocompletion script for the specified shell
+  counters       Inspect live airport pickup/send/floor evidence and supported counter hours.
+  doctor         Check CLI health
+  feedback       Record feedback about this CLI (local by default; upstream opt-in)
+  help           Help about any command
+  learnings      Inspect or forget the local search_learnings table
+  parcel         Determine luggage category from dimensions and weight; retain acceptance unknowns.
+  playbook       Inspect or amend stored CLI playbooks
+  products       Read current product policy evidence, sizes and conditional charges.
+  profile        Named sets of flags saved for reuse
+  quote          Fetch current source rate and calendar result for a distinct luggage product.
+  recall         Check prior learnings for a query before running discovery (LLM-fired, pre-discovery)
+  same-day       Review separate same-day airport route cutoff evidence and live example fees.
+  source         Read the public TA-Q-BIN page metadata and links.
+  teach          Record a query -> resource mapping for future recall (LLM-fired, silent)
+  teach-lookup   Install a manual entity-lookup row (kind, canonical, value)
+  teach-pattern  Install a manual generalization pattern (query_template, resource_template, entity_kind)
+  teach-playbook Record a CLI playbook + free-text notes for a query family
+  version        Print version
+  which          Find the command that implements a capability
+  workflow       Compound workflows that combine multiple API operations
+
+Flags:
+      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)
+      --audit-dir string        Aggregate the receipt and index under this audit directory
+      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)
+      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage
+      --config string           Config file path
+      --csv                     Output as CSV (table and array responses)
+      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default "auto")
+      --deliver string          Route output to a sink: stdout (default), file:<path>, webhook:<url>
+      --dry-run                 Show request without sending
+  -h, --help                    help for yamato-pp-cli
+      --home string             Root directory for config, data, state, and cache files
+      --human-friendly          Enable colored output and rich formatting
+      --json                    Output as JSON
+      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)
+      --no-cache                Bypass response cache
+      --no-color                Disable colored output
+      --no-input                Disable all interactive prompts (for CI/agents)
+      --no-learn                Disable the teach/recall learning loop for this invocation
+      --plain                   Output as plain tab-separated text
+      --profile string          Apply values from a saved run profile; this does not select a client (see 'yamato-pp-cli profile list')
+      --quiet                   Bare output, one value per line
+      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)
+      --receipt                 Write an atomic private run receipt
+      --receipt-file string     Override the run receipt destination
+      --select string           Comma-separated fields to include in output
+      --timeout duration        Request timeout (default 1m0s)
+  -v, --version                 version for yamato-pp-cli
+      --yes                     Skip confirmation prompts (explicit confirmation for scripts)
+
+Use "yamato-pp-cli [command] --help" for more information about a command.
+
+COMMAND parcel EXIT 0
+Determine luggage category from dimensions and weight; retain acceptance unknowns.
+
+Usage:
+  yamato-pp-cli parcel [flags]
+
+Examples:
+  yamato-pp-cli parcel --length 70 --width 45 --height 30 --weight 23 --agent
+
+Flags:
+      --height float   Measured parcel height including protruding parts, in cm
+  -h, --help           help for parcel
+      --length float   Measured parcel length including handles and wheels, in cm
+      --upright        Parcel must stay upright; apply 100cm longest-side limit
+      --weight float   Total packed parcel weight measured in kilograms
+      --width float    Measured parcel width including protruding parts, in cm
+
+Global Flags:
+      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)
+      --audit-dir string        Aggregate the receipt and index under this audit directory
+      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)
+      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage
+      --config string           Config file path
+      --csv                     Output as CSV (table and array responses)
+      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default "auto")
+      --deliver string          Route output to a sink: stdout (default), file:<path>, webhook:<url>
+      --dry-run                 Show request without sending
+      --home string             Root directory for config, data, state, and cache files
+      --human-friendly          Enable colored output and rich formatting
+      --json                    Output as JSON
+      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)
+      --no-cache                Bypass response cache
+      --no-color                Disable colored output
+      --no-input                Disable all interactive prompts (for CI/agents)
+      --no-learn                Disable the teach/recall learning loop for this invocation
+      --plain                   Output as plain tab-separated text
+      --profile string          Apply values from a saved run profile; this does not select a client (see 'yamato-pp-cli profile list')
+      --quiet                   Bare output, one value per line
+      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)
+      --receipt                 Write an atomic private run receipt
+      --receipt-file string     Override the run receipt destination
+      --select string           Comma-separated fields to include in output
+      --timeout duration        Request timeout (default 1m0s)
+      --yes                     Skip confirmation prompts (explicit confirmation for scripts)
+
+COMMAND quote EXIT 0
+Query Yamato's public read-only calculator. Use date-kind ship for shipping date, delivery for standard requested arrival, boarding for airport flight date, and use for lodging roundtrip check-in. Source dates are estimated and local dispatch cutoff times remain unknown. Rates are tax-inclusive list tariffs per parcel; conditional discounts and packaging are not automatically applied. Use parcel to determine the chargeable size from both measured dimensions and weight.
+
+Usage:
+  yamato-pp-cli quote [flags]
+
+Examples:
+  yamato-pp-cli quote --origin 1000005 --destination 6008216 --date 2026-10-09 --size 160 --agent
+
+Flags:
+      --airport string       Exact live airport terminal ID from the airports command
+      --date string          Shipping, arrival, boarding or use date YYYY-MM-DD in JST
+      --date-kind string     Date meaning: ship, delivery, boarding or use; must match service (default "ship")
+      --destination string   Destination Japanese postal code for standard or lodging roundtrip
+      --detail               Include the full source cash/cashless size-rate table
+  -h, --help                 help for quote
+      --origin string        Origin seven-digit Japanese postal code, optional hyphen
+      --service string       Luggage product: takkyubin, airport, roundtrip or airport-roundtrip (default "takkyubin")
+      --size int             Chargeable category60..200 from parcel; weight must also meet category
+
+Global Flags:
+      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)
+      --audit-dir string        Aggregate the receipt and index under this audit directory
+      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)
+      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage
+      --config string           Config file path
+      --csv                     Output as CSV (table and array responses)
+      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default "auto")
+      --deliver string          Route output to a sink: stdout (default), file:<path>, webhook:<url>
+      --dry-run                 Show request without sending
+      --home string             Root directory for config, data, state, and cache files
+      --human-friendly          Enable colored output and rich formatting
+      --json                    Output as JSON
+      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)
+      --no-cache                Bypass response cache
+      --no-color                Disable colored output
+      --no-input                Disable all interactive prompts (for CI/agents)
+      --no-learn                Disable the teach/recall learning loop for this invocation
+      --plain                   Output as plain tab-separated text
+      --profile string          Apply values from a saved run profile; this does not select a client (see 'yamato-pp-cli profile list')
+      --quiet                   Bare output, one value per line
+      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)
+      --receipt                 Write an atomic private run receipt
+      --receipt-file string     Override the run receipt destination
+      --select string           Comma-separated fields to include in output
+      --timeout duration        Request timeout (default 1m0s)
+      --yes                     Skip confirmation prompts (explicit confirmation for scripts)
+
+COMMAND airports EXIT 0
+List live airport terminal IDs and Japanese names for an airport quote.
+
+Usage:
+  yamato-pp-cli airports [flags]
+
+Examples:
+  yamato-pp-cli airports --query Narita --agent --select results
+
+Flags:
+  -h, --help           help for airports
+      --limit int      Maximum airport records returned; bounded1..50, default10 (default 10)
+      --offset int     Skip matched records to read the next source list window
+      --query string   Literal airport/terminal name, Japanese text, IATA alias or source ID
+
+Global Flags:
+      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)
+      --audit-dir string        Aggregate the receipt and index under this audit directory
+      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)
+      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage
+      --config string           Config file path
+      --csv                     Output as CSV (table and array responses)
+      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default "auto")
+      --deliver string          Route output to a sink: stdout (default), file:<path>, webhook:<url>
+      --dry-run                 Show request without sending
+      --home string             Root directory for config, data, state, and cache files
+      --human-friendly          Enable colored output and rich formatting
+      --json                    Output as JSON
+      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)
+      --no-cache                Bypass response cache
+      --no-color                Disable colored output
+      --no-input                Disable all interactive prompts (for CI/agents)
+      --no-learn                Disable the teach/recall learning loop for this invocation
+      --plain                   Output as plain tab-separated text
+      --profile string          Apply values from a saved run profile; this does not select a client (see 'yamato-pp-cli profile list')
+      --quiet                   Bare output, one value per line
+      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)
+      --receipt                 Write an atomic private run receipt
+      --receipt-file string     Override the run receipt destination
+      --select string           Comma-separated fields to include in output
+      --timeout duration        Request timeout (default 1m0s)
+      --yes                     Skip confirmation prompts (explicit confirmation for scripts)
+
+COMMAND counters EXIT 0
+Read the full first-party airport directory. Map links identify listed pickup/send counters. Most hours are image-only and remain explicit unknowns; Narita Terminal2 sending hours are visually transcribed and served only while live image bytes match the verified fingerprint. Business closing hours are not dispatch deadlines. Use the local-office source handoff for other dropoff locations.
+
+Usage:
+  yamato-pp-cli counters [flags]
+
+Examples:
+  yamato-pp-cli counters --query Narita --agent
+
+Flags:
+  -h, --help           help for counters
+      --limit int      Maximum counter records returned; bounded1..50, default10 (default 10)
+      --offset int     Skip matched records for the next bounded result window
+      --query string   Literal airport, prefecture, service name or counter map ID
+
+Global Flags:
+      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)
+      --audit-dir string        Aggregate the receipt and index under this audit directory
+      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)
+      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage
+      --config string           Config file path
+      --csv                     Output as CSV (table and array responses)
+      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default "auto")
+      --deliver string          Route output to a sink: stdout (default), file:<path>, webhook:<url>
+      --dry-run                 Show request without sending
+      --home string             Root directory for config, data, state, and cache files
+      --human-friendly          Enable colored output and rich formatting
+      --json                    Output as JSON
+      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)
+      --no-cache                Bypass response cache
+      --no-color                Disable colored output
+      --no-input                Disable all interactive prompts (for CI/agents)
+      --no-learn                Disable the teach/recall learning loop for this invocation
+      --plain                   Output as plain tab-separated text
+      --profile string          Apply values from a saved run profile; this does not select a client (see 'yamato-pp-cli profile list')
+      --quiet                   Bare output, one value per line
+      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)
+      --receipt                 Write an atomic private run receipt
+      --receipt-file string     Override the run receipt destination
+      --select string           Comma-separated fields to include in output
+      --timeout duration        Request timeout (default 1m0s)
+      --yes                     Skip confirmation prompts (explicit confirmation for scripts)
+
+COMMAND same-day EXIT 0
+Return selected Narita/Haneda airport-to-hotel service areas and cutoffs from Yamato's versioned same-day PDF only while live bytes match the source fingerprint. Other directions/counters remain explicit full-PDF/directory handoffs. Changed source suppresses the snapshot. Published example fees are separately labeled and are not quotes for every listed route. This command does not check actual hotel or parcel acceptance.
+
+Usage:
+  yamato-pp-cli same-day [flags]
+
+Examples:
+  yamato-pp-cli same-day --query Narita --agent
+
+Flags:
+  -h, --help           help for same-day
+      --limit int      Maximum verified schedule records returned; bounded1..50, default10 (default 10)
+      --query string   Literal selected Narita/Haneda counter name, ID or destination area
+
+Global Flags:
+      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)
+      --audit-dir string        Aggregate the receipt and index under this audit directory
+      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)
+      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage
+      --config string           Config file path
+      --csv                     Output as CSV (table and array responses)
+      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default "auto")
+      --deliver string          Route output to a sink: stdout (default), file:<path>, webhook:<url>
+      --dry-run                 Show request without sending
+      --home string             Root directory for config, data, state, and cache files
+      --human-friendly          Enable colored output and rich formatting
+      --json                    Output as JSON
+      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)
+      --no-cache                Bypass response cache
+      --no-color                Disable colored output
+      --no-input                Disable all interactive prompts (for CI/agents)
+      --no-learn                Disable the teach/recall learning loop for this invocation
+      --plain                   Output as plain tab-separated text
+      --profile string          Apply values from a saved run profile; this does not select a client (see 'yamato-pp-cli profile list')
+      --quiet                   Bare output, one value per line
+      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)
+      --receipt                 Write an atomic private run receipt
+      --receipt-file string     Override the run receipt destination
+      --select string           Comma-separated fields to include in output
+      --timeout duration        Request timeout (default 1m0s)
+      --yes                     Skip confirmation prompts (explicit confirmation for scripts)
+
+COMMAND products EXIT 0
+Read current product policy evidence, sizes and conditional charges.
+
+Usage:
+  yamato-pp-cli products [flags]
+
+Examples:
+  yamato-pp-cli products --service airport --agent
+
+Flags:
+  -h, --help             help for products
+      --service string   Distinct product policy: takkyubin, airport, roundtrip or same-day (default "takkyubin")
+
+Global Flags:
+      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)
+      --audit-dir string        Aggregate the receipt and index under this audit directory
+      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)
+      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage
+      --config string           Config file path
+      --csv                     Output as CSV (table and array responses)
+      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default "auto")
+      --deliver string          Route output to a sink: stdout (default), file:<path>, webhook:<url>
+      --dry-run                 Show request without sending
+      --home string             Root directory for config, data, state, and cache files
+      --human-friendly          Enable colored output and rich formatting
+      --json                    Output as JSON
+      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)
+      --no-cache                Bypass response cache
+      --no-color                Disable colored output
+      --no-input                Disable all interactive prompts (for CI/agents)
+      --no-learn                Disable the teach/recall learning loop for this invocation
+      --plain                   Output as plain tab-separated text
+      --profile string          Apply values from a saved run profile; this does not select a client (see 'yamato-pp-cli profile list')
+      --quiet                   Bare output, one value per line
+      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)
+      --receipt                 Write an atomic private run receipt
+      --receipt-file string     Override the run receipt destination
+      --select string           Comma-separated fields to include in output
+      --timeout duration        Request timeout (default 1m0s)
+      --yes                     Skip confirmation prompts (explicit confirmation for scripts)
+
+COMMAND doctor EXIT 0
+Check CLI health
+
+Usage:
+  yamato-pp-cli doctor [flags]
+
+Examples:
+  yamato-pp-cli doctor
+  yamato-pp-cli doctor --json
+  yamato-pp-cli doctor --fail-on warn
+  yamato-pp-cli doctor --fail-on stale
+
+Flags:
+      --fail-on string   Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: path warnings plus errors; error: errors only. Default is never.
+  -h, --help             help for doctor
+
+Global Flags:
+      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)
+      --audit-dir string        Aggregate the receipt and index under this audit directory
+      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)
+      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage
+      --config string           Config file path
+      --csv                     Output as CSV (table and array responses)
+      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default "auto")
+      --deliver string          Route output to a sink: stdout (default), file:<path>, webhook:<url>
+      --dry-run                 Show request without sending
+      --home string             Root directory for config, data, state, and cache files
+      --human-friendly          Enable colored output and rich formatting
+      --json                    Output as JSON
+      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)
+      --no-cache                Bypass response cache
+      --no-color                Disable colored output
+      --no-input                Disable all interactive prompts (for CI/agents)
+      --no-learn                Disable the teach/recall learning loop for this invocation
+      --plain                   Output as plain tab-separated text
+      --profile string          Apply values from a saved run profile; this does not select a client (see 'yamato-pp-cli profile list')
+      --quiet                   Bare output, one value per line
+      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)
+      --receipt                 Write an atomic private run receipt
+      --receipt-file string     Override the run receipt destination
+      --select string           Comma-separated fields to include in output
+      --timeout duration        Request timeout (default 1m0s)
+      --yes                     Skip confirmation prompts (explicit confirmation for scripts)
+
+COMMAND agent-context EXIT 0
+Outputs a machine-readable description of commands, flags, and auth so
+agents can introspect this CLI at runtime without parsing --help or
+reading source. Schema is versioned via schema_version.
+
+Usage:
+  yamato-pp-cli agent-context [flags]
+
+Flags:
+  -h, --help     help for agent-context
+      --pretty   indent JSON output for human reading
+
+Global Flags:
+      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)
+      --audit-dir string        Aggregate the receipt and index under this audit directory
+      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)
+      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage
+      --config string           Config file path
+      --csv                     Output as CSV (table and array responses)
+      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default "auto")
+      --deliver string          Route output to a sink: stdout (default), file:<path>, webhook:<url>
+      --dry-run                 Show request without sending
+      --home string             Root directory for config, data, state, and cache files
+      --human-friendly          Enable colored output and rich formatting
+      --json                    Output as JSON
+      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)
+      --no-cache                Bypass response cache
+      --no-color                Disable colored output
+      --no-input                Disable all interactive prompts (for CI/agents)
+      --no-learn                Disable the teach/recall learning loop for this invocation
+      --plain                   Output as plain tab-separated text
+      --profile string          Apply values from a saved run profile; this does not select a client (see 'yamato-pp-cli profile list')
+      --quiet                   Bare output, one value per line
+      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)
+      --receipt                 Write an atomic private run receipt
+      --receipt-file string     Override the run receipt destination
+      --select string           Comma-separated fields to include in output
+      --timeout duration        Request timeout (default 1m0s)
+      --yes                     Skip confirmation prompts (explicit confirmation for scripts)
+
+COMMAND which EXIT 0
+which resolves a natural-language capability query (for example, "search messages" or "stale tickets") to the best matching command from this CLI's curated feature index.
+
+Exit codes:
+  0  at least one match found
+  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one. Machine output (--json/--csv/--plain/--quiet, or a pipe) still exits 2 and writes {"matches":[]} (or the equivalent empty table) to stdout.
+
+Usage:
+  yamato-pp-cli which [query] [flags]
+
+Examples:
+  yamato-pp-cli which "stale tickets"
+  yamato-pp-cli which "bottleneck"
+  yamato-pp-cli which --limit 1 "send message"
+  yamato-pp-cli which                                # list the full capability index
+
+Flags:
+  -h, --help        help for which
+      --limit int   Maximum number of matches to return (default 3)
+
+Global Flags:
+      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)
+      --audit-dir string        Aggregate the receipt and index under this audit directory
+      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)
+      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage
+      --config string           Config file path
+      --csv                     Output as CSV (table and array responses)
+      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default "auto")
+      --deliver string          Route output to a sink: stdout (default), file:<path>, webhook:<url>
+      --dry-run                 Show request without sending
+      --home string             Root directory for config, data, state, and cache files
+      --human-friendly          Enable colored output and rich formatting
+      --json                    Output as JSON
+      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)
+      --no-cache                Bypass response cache
+      --no-color                Disable colored output
+      --no-input                Disable all interactive prompts (for CI/agents)
+      --no-learn                Disable the teach/recall learning loop for this invocation
+      --plain                   Output as plain tab-separated text
+      --profile string          Apply values from a saved run profile; this does not select a client (see 'yamato-pp-cli profile list')
+      --quiet                   Bare output, one value per line
+      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)
+      --receipt                 Write an atomic private run receipt
+      --receipt-file string     Override the run receipt destination
+      --select string           Comma-separated fields to include in output
+      --timeout duration        Request timeout (default 1m0s)
+      --yes                     Skip confirmation prompts (explicit confirmation for scripts)

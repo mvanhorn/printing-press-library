@@ -1,0 +1,360 @@
+{
+  "observed_at": "2026-10-01T17:03:38.004309+00:00",
+  "cases": [
+    {
+      "case": "parcel",
+      "exit": 0,
+      "stdout_bytes": 685,
+      "wall_ms": 13,
+      "max_rss_bytes": 19382272,
+      "argv": [
+        "parcel",
+        "--length",
+        "70",
+        "--width",
+        "45",
+        "--height",
+        "30",
+        "--weight",
+        "23"
+      ],
+      "requests": 0,
+      "elapsed_ms": null
+    },
+    {
+      "case": "domestic",
+      "exit": 0,
+      "stdout_bytes": 2768,
+      "wall_ms": 1388,
+      "max_rss_bytes": 24903680,
+      "argv": [
+        "quote",
+        "--origin",
+        "1000005",
+        "--destination",
+        "6008216",
+        "--date",
+        "2026-10-02",
+        "--date-kind",
+        "ship",
+        "--size",
+        "160",
+        "--detail"
+      ],
+      "requests": 2,
+      "elapsed_ms": 785
+    },
+    {
+      "case": "delivery-deadline",
+      "exit": 0,
+      "stdout_bytes": 1953,
+      "wall_ms": 727,
+      "max_rss_bytes": 25001984,
+      "argv": [
+        "quote",
+        "--origin",
+        "1000005",
+        "--destination",
+        "6008216",
+        "--date",
+        "2026-10-08",
+        "--date-kind",
+        "delivery",
+        "--size",
+        "160"
+      ],
+      "requests": 2,
+      "elapsed_ms": 701
+    },
+    {
+      "case": "airport",
+      "exit": 0,
+      "stdout_bytes": 3092,
+      "wall_ms": 650,
+      "max_rss_bytes": 25231360,
+      "argv": [
+        "quote",
+        "--origin",
+        "1000005",
+        "--service",
+        "airport",
+        "--airport",
+        "006",
+        "--date",
+        "2026-10-08",
+        "--date-kind",
+        "boarding",
+        "--size",
+        "160",
+        "--detail"
+      ],
+      "requests": 2,
+      "elapsed_ms": 625
+    },
+    {
+      "case": "airport-roundtrip",
+      "exit": 0,
+      "stdout_bytes": 2589,
+      "wall_ms": 646,
+      "max_rss_bytes": 25133056,
+      "argv": [
+        "quote",
+        "--origin",
+        "1000005",
+        "--service",
+        "airport-roundtrip",
+        "--airport",
+        "006",
+        "--date",
+        "2026-10-08",
+        "--date-kind",
+        "boarding",
+        "--size",
+        "160"
+      ],
+      "requests": 2,
+      "elapsed_ms": 627
+    },
+    {
+      "case": "airport-ship",
+      "exit": 0,
+      "stdout_bytes": 2325,
+      "wall_ms": 682,
+      "max_rss_bytes": 25264128,
+      "argv": [
+        "quote",
+        "--origin",
+        "1000005",
+        "--service",
+        "airport",
+        "--airport",
+        "006",
+        "--date",
+        "2026-10-02",
+        "--date-kind",
+        "ship",
+        "--size",
+        "160"
+      ],
+      "requests": 2,
+      "elapsed_ms": 660
+    },
+    {
+      "case": "roundtrip",
+      "exit": 0,
+      "stdout_bytes": 2917,
+      "wall_ms": 725,
+      "max_rss_bytes": 25378816,
+      "argv": [
+        "quote",
+        "--origin",
+        "1000005",
+        "--destination",
+        "6008216",
+        "--service",
+        "roundtrip",
+        "--date",
+        "2026-10-08",
+        "--date-kind",
+        "use",
+        "--size",
+        "160",
+        "--detail"
+      ],
+      "requests": 2,
+      "elapsed_ms": 700
+    },
+    {
+      "case": "roundtrip-ship",
+      "exit": 0,
+      "stdout_bytes": 2148,
+      "wall_ms": 726,
+      "max_rss_bytes": 24821760,
+      "argv": [
+        "quote",
+        "--origin",
+        "1000005",
+        "--destination",
+        "6008216",
+        "--service",
+        "roundtrip",
+        "--date",
+        "2026-10-02",
+        "--date-kind",
+        "ship",
+        "--size",
+        "160"
+      ],
+      "requests": 2,
+      "elapsed_ms": 701
+    },
+    {
+      "case": "airports",
+      "exit": 0,
+      "stdout_bytes": 4919,
+      "wall_ms": 282,
+      "max_rss_bytes": 24444928,
+      "argv": [
+        "airports",
+        "--limit",
+        "50"
+      ],
+      "requests": 1,
+      "elapsed_ms": 270
+    },
+    {
+      "case": "airports-zero",
+      "exit": 0,
+      "stdout_bytes": 520,
+      "wall_ms": 285,
+      "max_rss_bytes": 24199168,
+      "argv": [
+        "airports",
+        "--query",
+        "no-such-airport"
+      ],
+      "requests": 1,
+      "elapsed_ms": 273
+    },
+    {
+      "case": "counters",
+      "exit": 0,
+      "stdout_bytes": 19579,
+      "wall_ms": 754,
+      "max_rss_bytes": 25395200,
+      "argv": [
+        "counters",
+        "--limit",
+        "50"
+      ],
+      "requests": 2,
+      "elapsed_ms": 742
+    },
+    {
+      "case": "counter-hours",
+      "exit": 0,
+      "stdout_bytes": 1844,
+      "wall_ms": 590,
+      "max_rss_bytes": 25362432,
+      "argv": [
+        "counters",
+        "--query",
+        "narita2_send"
+      ],
+      "requests": 2,
+      "elapsed_ms": 577
+    },
+    {
+      "case": "counters-zero",
+      "exit": 0,
+      "stdout_bytes": 755,
+      "wall_ms": 410,
+      "max_rss_bytes": 25051136,
+      "argv": [
+        "counters",
+        "--query",
+        "no-such-counter"
+      ],
+      "requests": 1,
+      "elapsed_ms": 386
+    },
+    {
+      "case": "same-day",
+      "exit": 0,
+      "stdout_bytes": 4093,
+      "wall_ms": 560,
+      "max_rss_bytes": 25198592,
+      "argv": [
+        "same-day",
+        "--query",
+        "Narita"
+      ],
+      "requests": 2,
+      "elapsed_ms": 548
+    },
+    {
+      "case": "same-day-haneda",
+      "exit": 0,
+      "stdout_bytes": 5389,
+      "wall_ms": 562,
+      "max_rss_bytes": 25395200,
+      "argv": [
+        "same-day",
+        "--query",
+        "Haneda"
+      ],
+      "requests": 2,
+      "elapsed_ms": 550
+    },
+    {
+      "case": "same-day-zero",
+      "exit": 0,
+      "stdout_bytes": 2146,
+      "wall_ms": 578,
+      "max_rss_bytes": 25313280,
+      "argv": [
+        "same-day",
+        "--query",
+        "no-such-counter"
+      ],
+      "requests": 2,
+      "elapsed_ms": 566
+    },
+    {
+      "case": "product-takkyubin",
+      "exit": 0,
+      "stdout_bytes": 2238,
+      "wall_ms": 150,
+      "max_rss_bytes": 25493504,
+      "argv": [
+        "products",
+        "--service",
+        "takkyubin"
+      ],
+      "requests": 1,
+      "elapsed_ms": 136
+    },
+    {
+      "case": "product-airport",
+      "exit": 0,
+      "stdout_bytes": 2600,
+      "wall_ms": 155,
+      "max_rss_bytes": 25788416,
+      "argv": [
+        "products",
+        "--service",
+        "airport"
+      ],
+      "requests": 1,
+      "elapsed_ms": 144
+    },
+    {
+      "case": "product-roundtrip",
+      "exit": 0,
+      "stdout_bytes": 2347,
+      "wall_ms": 175,
+      "max_rss_bytes": 25362432,
+      "argv": [
+        "products",
+        "--service",
+        "roundtrip"
+      ],
+      "requests": 1,
+      "elapsed_ms": 164
+    },
+    {
+      "case": "product-same-day",
+      "exit": 0,
+      "stdout_bytes": 1296,
+      "wall_ms": 141,
+      "max_rss_bytes": 24788992,
+      "argv": [
+        "products",
+        "--service",
+        "same-day"
+      ],
+      "requests": 1,
+      "elapsed_ms": 129
+    }
+  ]
+}

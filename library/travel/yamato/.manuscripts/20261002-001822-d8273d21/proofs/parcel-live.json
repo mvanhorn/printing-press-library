@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "source": "computed",
+    "timezone": "Asia/Tokyo",
+    "upstream_requests": 0
+  },
+  "results": {
+    "length_cm": 70,
+    "width_cm": 45,
+    "height_cm": 30,
+    "weight_kg": 23,
+    "linear_cm": 145,
+    "dimension_category": 160,
+    "weight_category": 160,
+    "chargeable_size": 160,
+    "within_size_weight_limits": true,
+    "reasons": [],
+    "charging_basis": "greater of dimension and weight categories",
+    "acceptance": "unknown: contents, packaging, local counter and destination acceptance must be checked",
+    "rule_url": "https://www.kuronekoyamato.co.jp/ytc/en/send/services/takkyubin/",
+    "rule_observed_at": "2026-10-02T01:32:00+09:00"
+  }
+}

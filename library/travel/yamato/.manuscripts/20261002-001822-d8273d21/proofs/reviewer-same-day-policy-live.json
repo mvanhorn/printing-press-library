@@ -1,0 +1,16 @@
+{
+  "command": [
+    "<press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/working/yamato-pp-cli/yamato-pp-cli",
+    "products",
+    "--service",
+    "same-day",
+    "--timeout",
+    "8s",
+    "--json",
+    "--no-learn"
+  ],
+  "exit": 0,
+  "wall_ms": 314,
+  "stdout": "{\n  \"meta\": {\n    \"source\": \"live\",\n    \"timezone\": \"Asia/Tokyo\",\n    \"upstream_requests\": 1,\n    \"elapsed_ms\": 301,\n    \"sources\": [\n      {\n        \"url\": \"https://www.kuronekoyamato.co.jp/ytc/en/send/services/same-day-delivery/\",\n        \"fetched_at\": \"2026-10-01T17:24:58Z\",\n        \"bytes\": 28113,\n        \"sha256\": \"d1e8ec39ca579b69a07c4f4158689ef5df87090f1f4f4c8d21847ceceec5f451\"\n      }\n    ]\n  },\n  \"results\": {\n    \"id\": \"same-day\",\n    \"url\": \"https://www.kuronekoyamato.co.jp/ytc/en/send/services/same-day-delivery/\",\n    \"title\": \"Same-day Delivery Service | YAMATO TRANSPORT\",\n    \"conditions\": [\n      \"Dates are estimated; counter dispatch cutoff, exceptional holidays, packaging, contents and receiving acceptance require confirmation.\",\n      \"Only listed counters/service areas and cutoffs; standard TA-Q-BIN quote is not same-day eligibility.\",\n      \"Counter fees and destination arrival times vary; express fee may apply when sending to airport.\"\n    ],\n    \"source_evidence\": [\n      \"The cut-off time for drop off varies by service counter.\",\n      \"Fees vary depending on the baggage size and service counter.\",\n      \"Business hours and fees vary by service counter.\"\n    ],\n    \"acceptance\": \"unknown: policy eligibility is not parcel or destination acceptance\"\n  }\n}\n",
+  "stderr": ""
+}

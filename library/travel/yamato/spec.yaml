@@ -1,0 +1,33 @@
+name: yamato
+version: 0.1.0
+category: travel
+description: Read-only Japan luggage-forwarding planning from Yamato first-party sources.
+cli_description: Plan Japan luggage forwarding with source rates, calendar deadlines and acceptance evidence.
+base_url: https://www.kuronekoyamato.co.jp
+health_check_path: /ytc/en/send/services/takkyubin/
+auth:
+  type: none
+learn:
+  entity_lookup_seeds:
+    service:
+      - canonical: TA-Q-BIN
+        aliases: [takkyubin, 宅急便]
+      - canonical: Airport TA-Q-BIN
+        aliases: [airport, 空港宅急便]
+      - canonical: Round Trip TA-Q-BIN
+        aliases: [roundtrip, 往復宅急便]
+      - canonical: Same-day Delivery
+        aliases: [same-day, 当日手荷物配送]
+resources:
+  source:
+    description: First-party public service policy source.
+    endpoints:
+      overview:
+        method: GET
+        path: /ytc/en/send/services/takkyubin/
+        description: Read the public TA-Q-BIN page metadata and links.
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: object

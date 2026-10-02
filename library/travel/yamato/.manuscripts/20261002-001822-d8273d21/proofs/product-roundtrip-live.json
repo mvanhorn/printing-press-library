@@ -1,0 +1,76 @@
+{
+  "meta": {
+    "source": "live",
+    "timezone": "Asia/Tokyo",
+    "upstream_requests": 1,
+    "elapsed_ms": 164,
+    "sources": [
+      {
+        "url": "https://www.kuronekoyamato.co.jp/ytc/en/send/services/bothways/",
+        "fetched_at": "2026-10-01T16:49:00Z",
+        "bytes": 54497,
+        "sha256": "64d00a42bc799e13ba153aa6a8ea2ff9d0c134a9bf4b3a1960eefd335fd78870"
+      }
+    ]
+  },
+  "results": {
+    "id": "roundtrip",
+    "url": "https://www.kuronekoyamato.co.jp/ytc/en/send/services/bothways/",
+    "title": "Round Trip TA-Q-BIN | YAMATO TRANSPORT",
+    "size_limits": [
+      {
+        "size": 60,
+        "linear_cm": 60,
+        "weight_kg": 2
+      },
+      {
+        "size": 80,
+        "linear_cm": 80,
+        "weight_kg": 5
+      },
+      {
+        "size": 100,
+        "linear_cm": 100,
+        "weight_kg": 10
+      },
+      {
+        "size": 120,
+        "linear_cm": 120,
+        "weight_kg": 15
+      },
+      {
+        "size": 140,
+        "linear_cm": 140,
+        "weight_kg": 20
+      },
+      {
+        "size": 160,
+        "linear_cm": 160,
+        "weight_kg": 25
+      },
+      {
+        "size": 180,
+        "linear_cm": 180,
+        "weight_kg": 30
+      },
+      {
+        "size": 200,
+        "linear_cm": 200,
+        "weight_kg": 30
+      }
+    ],
+    "conditions": [
+      "Use the greater size or weight category; max200cm linear dimensions/30kg, longest side170cm or100cm upright-only.",
+      "Some convenience stores cannot accept parcels larger than size180; verify the local counter.",
+      "Dates are estimated; counter dispatch cutoff, exceptional holidays, packaging, contents and receiving acceptance require confirmation.",
+      "Two-leg source tariff includes roundtrip reduction; return within one month of outbound dropoff.",
+      "Lodging roundtrip arrives by day before use; use live calendar deadline and confirm reception."
+    ],
+    "source_evidence": [
+      "The parcel size is the total of width, length, and height in centimeters.",
+      "When either the parcel size or weight exceeds the criteria as listed below, the size category for the greater of the two will be used.",
+      "The return service can be used up to one month from the day you drop off your luggage."
+    ],
+    "acceptance": "unknown: policy eligibility is not parcel or destination acceptance"
+  }
+}

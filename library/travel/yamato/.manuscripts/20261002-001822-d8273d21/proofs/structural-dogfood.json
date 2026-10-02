@@ -1,0 +1,144 @@
+{
+  "dir": "<press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/working/yamato-pp-cli",
+  "spec_path": "<press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/working/yamato-pp-cli/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 24,
+    "dead": 1,
+    "items": [
+      "maxAge"
+    ]
+  },
+  "dead_functions": {
+    "total": 107,
+    "dead": 6,
+    "items": [
+      "handleBinaryResponseDelivery",
+      "hasChangedLocalFlags",
+      "readSecretFromStdin",
+      "retainCLIQueryParams",
+      "retainExplicitQueryParams",
+      "successfulNoop"
+    ]
+  },
+  "pipeline_check": {
+    "sync_calls_domain": false,
+    "search_calls_domain": false,
+    "domain_tables": 4,
+    "sync_file_emitted": false,
+    "sync_resources_present": false,
+    "detail": "sync Upsert calls not found; search methods not found; 4 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 54,
+      "registered": 54
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 6,
+    "found": 6
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 6,
+    "exempted_via_store": 0,
+    "exempted_via_computed_data_source": 1,
+    "suspicious": [
+      {
+        "command": "quote",
+        "file": "quote.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "airports",
+        "file": "airports.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "counters",
+        "file": "counters.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "same-day",
+        "file": "same_day.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "products",
+        "file": "products.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      }
+    ]
+  },
+  "description_drift_check": {
+    "expected": "Plan Japan luggage forwarding with source rates, calendar deadlines and acceptance evidence."
+  },
+  "source_client_check": {
+    "checked": 14
+  },
+  "print_json_filtered_check": {
+    "checked": 28
+  },
+  "test_presence": {
+    "checked": 3
+  },
+  "naming_check": {
+    "checked": 28
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "1 dead flags found",
+    "6 dead helper functions found",
+    "sync uses generic Upsert only",
+    "5/6 novel features look reimplemented: quote (quote.go) — hand-rolled response: no API client call, no store access; airports (airports.go) — hand-rolled response: no API client call, no store access; counters (counters.go) — hand-rolled response: no API client call, no store access; same-day (same_day.go) — hand-rolled response: no API client call, no store access; products (products.go) — hand-rolled response: no API client call, no store access"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "cli_dir": "<press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/working/yamato-pp-cli",
+  "skill_path": "<press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/working/yamato-pp-cli/SKILL.md",
+  "checks_run": [
+    "flag-names",
+    "flag-commands",
+    "positional-args",
+    "shell-var-quotes",
+    "unknown-command",
+    "canonical-sections"
+  ],
+  "recipes_checked": 27,
+  "findings": []
+}

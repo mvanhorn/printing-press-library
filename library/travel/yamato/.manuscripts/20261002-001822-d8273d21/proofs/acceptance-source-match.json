@@ -1,0 +1,8 @@
+{
+  "status": "pass",
+  "source_fingerprint": "68b5c6a43d21101987331f8eea415dc62169698056b5bad0dfb93f849110ced4",
+  "publication_source_validation_passed": true,
+  "promoted_source_validation_passed": true,
+  "embedded_and_archived_markers_identical": true,
+  "normalization": "Printing Press normalizes Go module identity; this is not a raw-file digest."
+}

@@ -1,0 +1,78 @@
+{
+  "meta": {
+    "source": "live",
+    "timezone": "Asia/Tokyo",
+    "upstream_requests": 1,
+    "elapsed_ms": 144,
+    "sources": [
+      {
+        "url": "https://www.kuronekoyamato.co.jp/ytc/en/send/services/airport/",
+        "fetched_at": "2026-10-01T16:49:00Z",
+        "bytes": 61207,
+        "sha256": "5349c5557d71f0594b1458efd409869ece0c7bd94a2e085b9e7adc0a90eadaac"
+      }
+    ]
+  },
+  "results": {
+    "id": "airport",
+    "url": "https://www.kuronekoyamato.co.jp/ytc/en/send/services/airport/",
+    "title": "Airport TA-Q-BIN | YAMATO TRANSPORT",
+    "size_limits": [
+      {
+        "size": 60,
+        "linear_cm": 60,
+        "weight_kg": 2
+      },
+      {
+        "size": 80,
+        "linear_cm": 80,
+        "weight_kg": 5
+      },
+      {
+        "size": 100,
+        "linear_cm": 100,
+        "weight_kg": 10
+      },
+      {
+        "size": 120,
+        "linear_cm": 120,
+        "weight_kg": 15
+      },
+      {
+        "size": 140,
+        "linear_cm": 140,
+        "weight_kg": 20
+      },
+      {
+        "size": 160,
+        "linear_cm": 160,
+        "weight_kg": 25
+      },
+      {
+        "size": 180,
+        "linear_cm": 180,
+        "weight_kg": 30
+      },
+      {
+        "size": 200,
+        "linear_cm": 200,
+        "weight_kg": 30
+      }
+    ],
+    "conditions": [
+      "Use the greater size or weight category; max200cm linear dimensions/30kg, longest side170cm or100cm upright-only.",
+      "Some convenience stores cannot accept parcels larger than size180; verify the local counter.",
+      "Dates are estimated; counter dispatch cutoff, exceptional holidays, packaging, contents and receiving acceptance require confirmation.",
+      "Outbound airport fee660JPY is included in calculator tariff. From-airport charges differ; Kansai return fee660JPY applies.",
+      "Ship by source boarding deadline, usually two days before flight or three in some areas; dispatch cutoff depends on counter.",
+      "No time-zone delivery or cash-on-delivery when sending to airports."
+    ],
+    "source_evidence": [
+      "The parcel size is the total of width, length, and height in centimeters.",
+      "When either the parcel size or weight exceeds the criteria as listed below, the size category for the greater of the two will be used.",
+      "two days prior to your departure date (three days in some areas) Please drop off your bag by the \"Sending Deadline.",
+      "The return service can be used up to one month from the day your drop off your luggage."
+    ],
+    "acceptance": "unknown: policy eligibility is not parcel or destination acceptance"
+  }
+}

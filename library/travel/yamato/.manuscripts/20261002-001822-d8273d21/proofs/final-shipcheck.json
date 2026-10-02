@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "verdict": "PASS",
+  "started_at": "2026-10-01T17:55:11Z",
+  "elapsed_ms": 10393,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T17:55:11Z",
+      "elapsed_ms": 5307,
+      "command": "<local-path> verify --dir <press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/working/yamato-pp-cli --write-manifest <press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/working/yamato-pp-cli/.printing-press.json --spec <press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/research/spec.yaml --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T17:55:16Z",
+      "elapsed_ms": 171,
+      "command": "<local-path> validate-narrative --strict --full-examples --research <press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/research.json --binary <press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/working/yamato-pp-cli/build/stage/bin/yamato-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T17:55:17Z",
+      "elapsed_ms": 1761,
+      "command": "<local-path> dogfood --dir <press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/working/yamato-pp-cli --spec <press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/research/spec.yaml --research-dir <press-home>/.runstate/yamato/runs/20261002-001822-d8273d21"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T17:55:18Z",
+      "elapsed_ms": 13,
+      "command": "<local-path> workflow-verify --dir <press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/working/yamato-pp-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T17:55:18Z",
+      "elapsed_ms": 31,
+      "command": "<local-path> apify-audit --dir <press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/working/yamato-pp-cli --research-dir <press-home>/.runstate/yamato/runs/20261002-001822-d8273d21"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T17:55:18Z",
+      "elapsed_ms": 1883,
+      "command": "<local-path> verify-skill --dir <press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/working/yamato-pp-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T17:55:20Z",
+      "elapsed_ms": 1225,
+      "command": "<local-path> scorecard --dir <press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/working/yamato-pp-cli --write-manifest <press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/working/yamato-pp-cli/.printing-press.json --research-dir <press-home>/.runstate/yamato/runs/20261002-001822-d8273d21 --spec <press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/research/spec.yaml --live-check"
+    }
+  ]
+}

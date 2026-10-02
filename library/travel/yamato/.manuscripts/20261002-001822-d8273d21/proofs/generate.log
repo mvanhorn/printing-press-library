@@ -1,0 +1,16 @@
+info: learn: defaulting self-learning loop on (opt out with learn.disabled: true)
+PASS go mod tidy
+PASS ensure safe golang.org/x/net
+PASS ensure safe golang.org/x/text
+PASS ensure safe github.com/enetx/http
+PASS go test ./...
+PASS govulncheck ./...
+PASS go vet ./...
+PASS go build ./...
+PASS build runnable binary
+PASS yamato-pp-cli --help
+PASS yamato-pp-cli version
+PASS yamato-pp-cli doctor
+agentcookie: skipping yamato (cookie-only or no env-var auth)
+Generated yamato at <press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/working/yamato-pp-cli
+Bundled <press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/working/yamato-pp-cli/build/yamato-pp-mcp-darwin-arm64.mcpb

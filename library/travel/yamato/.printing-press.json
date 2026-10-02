@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-01T18:11:14.689652Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "yamato",
+  "display_name": "Yamato Transport",
+  "cli_name": "yamato-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:9cafde925b0448e4ba6b9743d3ec1fdd10618efe3db55fec361efc7fbadce944",
+  "run_id": "20261002-001822-d8273d21",
+  "category": "travel",
+  "description": "Plan Japan luggage forwarding with source rates, calendar deadlines and acceptance evidence.",
+  "mcp_binary": "yamato-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Measured luggage eligibility",
+      "command": "parcel",
+      "description": "Classify both size and weight and preserve acceptance unknowns."
+    },
+    {
+      "name": "Source calendar and tariff",
+      "command": "quote",
+      "description": "Fetch current source rates and date-specific arrival or shipping deadline."
+    },
+    {
+      "name": "Terminal-aware airport resolution",
+      "command": "airports",
+      "description": "Use live upstream airport codes and Japanese terminal names."
+    },
+    {
+      "name": "Acceptance and hour evidence",
+      "command": "counters",
+      "description": "Inspect public send/pickup/floor evidence and fingerprint-checked image hours."
+    },
+    {
+      "name": "Distinct same-day evidence",
+      "command": "same-day",
+      "description": "Inspect limited-area cutoff schedules and separate example prices."
+    },
+    {
+      "name": "Product distinctions",
+      "command": "products",
+      "description": "Review live service policy evidence for standard, airport, roundtrip and same-day products."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Measured luggage eligibility",
+      "command": "parcel",
+      "description": "Classify both size and weight and preserve acceptance unknowns."
+    },
+    {
+      "name": "Source calendar and tariff",
+      "command": "quote",
+      "description": "Fetch current source rates and date-specific arrival or shipping deadline."
+    },
+    {
+      "name": "Terminal-aware airport resolution",
+      "command": "airports",
+      "description": "Use live upstream airport codes and Japanese terminal names."
+    },
+    {
+      "name": "Acceptance and hour evidence",
+      "command": "counters",
+      "description": "Inspect public send/pickup/floor evidence and fingerprint-checked image hours."
+    },
+    {
+      "name": "Distinct same-day evidence",
+      "command": "same-day",
+      "description": "Inspect limited-area cutoff schedules and separate example prices."
+    },
+    {
+      "name": "Product distinctions",
+      "command": "products",
+      "description": "Review live service policy evidence for standard, airport, roundtrip and same-day products."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 27,
+    "total": 27,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 80,
+      "grade": "A",
+      "total": 80
+    }
+  }
+}

@@ -1,0 +1,169 @@
+{
+  "reviewer": "dedicated fresh-context MAX reviewer; no further delegation",
+  "reviewed_at": "2026-10-01T17:38:59.187593+00:00",
+  "working_tree": "<press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/working/yamato-pp-cli",
+  "baseline": "pre-MAX phase11 checkpoint, not pristine generation",
+  "overall_status": "PASS_WITH_NON_GATING_TEMPLATE_RETRO_CANDIDATES",
+  "in_scope_outstanding_findings": [],
+  "fixed_findings": [
+    {
+      "id": "YAMATO-MAX-01",
+      "severity": "P2",
+      "status": "fixed_and_reverified",
+      "file": "internal/yamato/parcel.go",
+      "original_line": 31,
+      "description": "Binary floating-point addition misclassified ordinary decimal dimensions at category boundaries and falsely rejected exact200cm parcels.",
+      "reproductions": [
+        {
+          "args": [
+            "parcel",
+            "--length",
+            "63.2",
+            "--width",
+            "64.9",
+            "--height",
+            "31.9",
+            "--weight",
+            "1"
+          ],
+          "nominal_linear_cm": 160,
+          "before_chargeable_size": 180,
+          "after_chargeable_size": 160
+        },
+        {
+          "args": [
+            "parcel",
+            "--length",
+            "63.2",
+            "--width",
+            "64.9",
+            "--height",
+            "71.9",
+            "--weight",
+            "1"
+          ],
+          "nominal_linear_cm": 200,
+          "before_supported": false,
+          "after_supported": true
+        },
+        {
+          "args": [
+            "parcel",
+            "--length",
+            "20.1",
+            "--width",
+            "15.3",
+            "--height",
+            "24.6",
+            "--weight",
+            "1"
+          ],
+          "nominal_linear_cm": 60,
+          "before_chargeable_size": 80,
+          "after_chargeable_size": 60
+        }
+      ],
+      "fix": "Builder uses exact rational addition of shortest decimal measurement representations and compares the exact total to category and maximum limits.",
+      "verification": [
+        "go test ./internal/yamato -run 'TestDecimalDimensionBoundaries|TestParcelConsequentialBoundaries' -count=1 passed",
+        "reviewer-final-focused.json confirms corrected CLI outputs and rejection of a real200cm overage"
+      ],
+      "current_fix_lines": [
+        39,
+        72
+      ]
+    }
+  ],
+  "template_retro_candidates": [
+    {
+      "id": "PP-MAX-01",
+      "severity": "P3",
+      "status": "documented_template_retro",
+      "file": "internal/cli/root.go",
+      "line": 401,
+      "template_origin": "generated root-command validation template (DO NOT EDIT header; exact upstream template filename not resolved)",
+      "description": "Unrecognized --data-source values produce an untyped root error and exit1. README now distinguishes this generated behavior from planning validation exit2.",
+      "reproduction": "yamato-pp-cli airports --data-source bogus --json --no-learn => exit1; Error: invalid --data-source value \"bogus\": must be auto, live, or local",
+      "fix": "Wrap invalid root flag values with the upstream usage-error convention, or retain explicit documentation until regeneration.",
+      "reason_not_fixed_locally": "Generator-shaped behavior; user brief requires machine retro classification rather than local framework hacks.",
+      "evidence": "reviewer-final-focused.json; README.md:83"
+    },
+    {
+      "id": "PP-MAX-02",
+      "severity": "P2",
+      "status": "template_security_retro",
+      "file": "cmd/yamato-pp-mcp/main.go",
+      "line": 86,
+      "template_origin": "generated MCP entrypoint template (DO NOT EDIT header; exact upstream template filename not resolved)",
+      "description": "Opt-in HTTP transport constructs http.Server with zero ReadHeaderTimeout/ReadTimeout. Connections can retain incomplete headers before bearer authentication; TLS does not impose a deadline.",
+      "evidence": "http.Server literal at lines86-89 configures only Addr and Handler. gosec-before.json independently reports G112 at86-89.",
+      "reproduction": "Static confirmation: start the optional HTTP transport and send an incomplete HTTP header without finishing the request; no header deadline is configured. No live network listener attack was performed.",
+      "fix": "Configure a finite upstream ReadHeaderTimeout, and consider IdleTimeout. Preserve streaming behavior rather than applying a blanket write deadline.",
+      "reason_not_fixed_locally": "Shared generated MCP-server shape; native user scope uses local stdio by default. Route to Printing Press template review without hiding it in this printed CLI."
+    }
+  ],
+  "phases": {
+    "14": {
+      "status": "PASS",
+      "checks": [
+        "trigger phrases match capabilities",
+        "verified set exactly matches six built commands",
+        "novel descriptions match command help and actual behavior",
+        "source/snapshot/limited coverage disclosures are present",
+        "no-auth narrative matches public HTTP client",
+        "recipe prose matches result intent and shape",
+        "capability descriptions are concrete"
+      ],
+      "findings": []
+    },
+    "15": {
+      "status": "PASS",
+      "findings": [],
+      "note": "README root-error exit1 qualification verified after builder edit; canonical catalog install block explicitly qualified as post-publication."
+    },
+    "16": {
+      "status": "PASS",
+      "eligible_samples_reviewed": 6,
+      "findings": [],
+      "aggregation_and_ranking": "not applicable: no fan-out source selection or ranking claim"
+    },
+    "17": {
+      "status": "PASS",
+      "rounds": 2,
+      "outstanding_in_scope_findings": 0,
+      "template_retro_candidates": 2
+    }
+  },
+  "evidence": {
+    "help": "reviewer-help.txt",
+    "focused_cli": "reviewer-final-focused.json",
+    "independent_live": [
+      "reviewer-delivery-today-live.json",
+      "reviewer-same-day-policy-live.json"
+    ],
+    "provided_live": [
+      "live-matrix.json",
+      "live-assertions.json",
+      "output-review-livecheck.json"
+    ],
+    "provided_security": [
+      "gosec-before.json",
+      "security-checks.json"
+    ],
+    "native_browser": "Isolated Chrome review tab 448471424 rendered the first-party 5-page same-day PDF; screenshot crop confirmed all 9 selected Narita/Haneda rows. Tab closed after review.",
+    "network": "Default sandbox DNS failed. Authorized public read-only escalation succeeded; no source login, challenge, shipment, payment, account or private-tracking action.",
+    "domain_confirmed": "JST date kinds, correct primary price tables, measured cm/kg/category/max/upright handling, cash/cashless and included/conditional fees, no guarantee/acceptance claims, fingerprint-gated PDF/image snapshots and explicit optional fetch failures."
+  },
+  "scan_classification": {
+    "gosec_total": 31,
+    "handwritten_yamato_hits": 0,
+    "confirmed_generator_security_candidates": [
+      "G112"
+    ],
+    "other_generated_hits": "Retained in original scanner artifacts; sampled redirect-origin, SQL identifier/parameter, local-state path and directory-permission hits were not independently established as vulnerabilities. Scanner findings are not all asserted false positives."
+  },
+  "limitations": [
+    "Review covers supported planning contracts and relevant generated framework surfaces, not arbitrary possible upstream redesigns.",
+    "No new release/publication action or GitHub write was performed."
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "printing_press_bin": "<local-path>",
+  "cli_dir": "<press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/working/yamato-pp-cli",
+  "phase3_transcendence_rows_planned": 6,
+  "phase3_transcendence_rows_built": 6,
+  "phase3_transcendence_rows_missing": [],
+  "prior_sub60_reprint": false,
+  "partial_transcendence_override": "none",
+  "standalone": false,
+  "publication_authorized": false,
+  "build_owner_scope": "yamato",
+  "shipcheck_before": {
+    "steinberger": {
+      "percentage": 80,
+      "grade": "A",
+      "total": 80
+    }
+  },
+  "verify_before": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 27,
+    "total": 27,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "live_check": {
+    "passed": 6,
+    "failed": 0,
+    "skipped": 0,
+    "features": [
+      {
+        "name": "Measured luggage eligibility",
+        "command": "parcel",
+        "example": "yamato-pp-cli parcel --length 70 --width 45 --height 30 --weight 23 --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Source calendar and tariff",
+        "command": "quote",
+        "example": "yamato-pp-cli quote --origin 1000005 --destination 6008216 --date 2026-10-08 --size 160 --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Terminal-aware airport resolution",
+        "command": "airports",
+        "example": "yamato-pp-cli airports --query \u6210\u7530 --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Acceptance and hour evidence",
+        "command": "counters",
+        "example": "yamato-pp-cli counters --query Narita --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Distinct same-day evidence",
+        "command": "same-day",
+        "example": "yamato-pp-cli same-day --query Narita --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Product distinctions",
+        "command": "products",
+        "example": "yamato-pp-cli products --service airport --agent",
+        "status": "pass"
+      }
+    ],
+    "binary_refresh": {
+      "action": "fresh",
+      "stage_path": "<press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/working/yamato-pp-cli/build/stage/bin/yamato-pp-cli",
+      "binary_path": "<press-home>/.runstate/yamato/runs/20261002-001822-d8273d21/working/yamato-pp-cli/build/stage/bin/yamato-pp-cli",
+      "reason": "staged binary is newer than Go sources"
+    },
+    "ran_at": "2026-10-01T17:11:57.163417Z",
+    "status": "available",
+    "checked": 6,
+    "evaluated": 6,
+    "pass_rate_pct": 100
+  },
+  "scorecard": {
+    "api_name": "yamato",
+    "steinberger": {
+      "output_modes": 10,
+      "auth": 10,
+      "error_handling": 8,
+      "terminal_ux": 9,
+      "readme": 10,
+      "doctor": 10,
+      "agent_native": 10,
+      "mcp_quality": 7,
+      "mcp_description_quality": 10,
+      "mcp_token_efficiency": 10,
+      "mcp_remote_transport": 10,
+      "mcp_tool_design": 0,
+      "mcp_surface_strategy": 0,
+      "local_cache": 10,
+      "cache_freshness": 3,
+      "breadth": 9,
+      "vision": 7,
+      "workflows": 8,
+      "insight": 10,
+      "agent_workflow_readiness": 9,
+      "path_validity": 0,
+      "auth_protocol": 0,
+      "data_pipeline_integrity": 7,
+      "sync_correctness": 7,
+      "type_fidelity": 5,
+      "dead_code": 0,
+      "live_api_verification": 0,
+      "total": 75,
+      "percentage": 75
+    },
+    "competitor_scores": null,
+    "overall_grade": "B (2 of 24 dimensions unverified: path_validity, auth_protocol)",
+    "gap_report": [
+      "dead_code scored 0/5 - needs improvement",
+      "MCP: 1 tools (1 public, 0 auth-required) \u2014 readiness: full"
+    ],
+    "unscored_dimensions": [
+      "mcp_tool_design",
+      "mcp_surface_strategy",
+      "path_validity",
+      "auth_protocol",
+      "live_api_verification"
+    ],
+    "unverified_dimensions": [
+      "path_validity",
+      "auth_protocol"
+    ]
+  }
+}

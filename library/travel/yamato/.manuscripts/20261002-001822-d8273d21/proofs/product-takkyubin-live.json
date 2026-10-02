@@ -1,0 +1,75 @@
+{
+  "meta": {
+    "source": "live",
+    "timezone": "Asia/Tokyo",
+    "upstream_requests": 1,
+    "elapsed_ms": 136,
+    "sources": [
+      {
+        "url": "https://www.kuronekoyamato.co.jp/ytc/en/send/services/takkyubin/",
+        "fetched_at": "2026-10-01T16:49:00Z",
+        "bytes": 59669,
+        "sha256": "e85c374fda0ccb49e3a8196c2d6a86decd6af085610138ab36cbfc67e911dcb6"
+      }
+    ]
+  },
+  "results": {
+    "id": "takkyubin",
+    "url": "https://www.kuronekoyamato.co.jp/ytc/en/send/services/takkyubin/",
+    "title": "TA-Q-BIN | YAMATO TRANSPORT",
+    "size_limits": [
+      {
+        "size": 60,
+        "linear_cm": 60,
+        "weight_kg": 2
+      },
+      {
+        "size": 80,
+        "linear_cm": 80,
+        "weight_kg": 5
+      },
+      {
+        "size": 100,
+        "linear_cm": 100,
+        "weight_kg": 10
+      },
+      {
+        "size": 120,
+        "linear_cm": 120,
+        "weight_kg": 15
+      },
+      {
+        "size": 140,
+        "linear_cm": 140,
+        "weight_kg": 20
+      },
+      {
+        "size": 160,
+        "linear_cm": 160,
+        "weight_kg": 25
+      },
+      {
+        "size": 180,
+        "linear_cm": 180,
+        "weight_kg": 30
+      },
+      {
+        "size": 200,
+        "linear_cm": 200,
+        "weight_kg": 30
+      }
+    ],
+    "conditions": [
+      "Use the greater size or weight category; max200cm linear dimensions/30kg, longest side170cm or100cm upright-only.",
+      "Some convenience stores cannot accept parcels larger than size180; verify the local counter.",
+      "Dates are estimated; counter dispatch cutoff, exceptional holidays, packaging, contents and receiving acceptance require confirmation.",
+      "Standard TA-Q-BIN is distinct from limited-area same-day delivery.",
+      "Drop-off100JPY, digital60JPY and member discounts require source conditions; never subtract all discounts automatically."
+    ],
+    "source_evidence": [
+      "The parcel size is the total of width, length, and height in centimeters.",
+      "When either the parcel size or weight exceeds the criteria as listed below, the size category for the greater of the two will be used."
+    ],
+    "acceptance": "unknown: policy eligibility is not parcel or destination acceptance"
+  }
+}

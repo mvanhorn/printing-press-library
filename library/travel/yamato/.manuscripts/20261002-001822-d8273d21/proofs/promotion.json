@@ -1,0 +1,6 @@
+{
+  "cli": "yamato-pp-cli",
+  "library_dir": "<cli-dir>/yamato",
+  "preserved_patches": [],
+  "promoted": true
+}

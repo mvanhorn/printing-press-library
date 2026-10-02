@@ -1,0 +1,22 @@
+[
+  "AGENTS.md",
+  "README.md",
+  "SKILL.md",
+  "cmd/yamato-pp-cli/main.go",
+  "cmd/yamato-pp-mcp/http_auth_test.go",
+  "cmd/yamato-pp-mcp/main.go",
+  "internal/cli/airports.go",
+  "internal/cli/counters.go",
+  "internal/cli/parcel.go",
+  "internal/cli/products.go",
+  "internal/cli/quote.go",
+  "internal/cli/same_day.go",
+  "internal/cli/yamato_behavior_test.go",
+  "internal/cli/yamato_commands.go",
+  "internal/yamato/client.go",
+  "internal/yamato/directory.go",
+  "internal/yamato/parcel.go",
+  "internal/yamato/products.go",
+  "internal/yamato/quote.go",
+  "internal/yamato/yamato_test.go"
+]

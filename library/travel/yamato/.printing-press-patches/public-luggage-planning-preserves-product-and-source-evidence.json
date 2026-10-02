@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "public-luggage-planning-preserves-product-and-source-evidence",
+  "applied_at": "2026-10-02",
+  "base_run_id": "20261002-001822-d8273d21",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Preserve all six read-only luggage planning commands, their typed source client and consequential behavioral tests when regenerating.",
+  "reason": "Yamato public calculators need ordinary ephemeral sessions and primary product-table parsing; traveler decisions require separate weight/dimension categories, product date meanings, included fees, source freshness and acceptance unknowns.",
+  "files": [
+    "internal/cli/yamato_commands.go",
+    "internal/cli/yamato_behavior_test.go",
+    "internal/cli/parcel.go",
+    "internal/cli/quote.go",
+    "internal/cli/airports.go",
+    "internal/cli/counters.go",
+    "internal/cli/same_day.go",
+    "internal/cli/products.go",
+    "internal/yamato/client.go",
+    "internal/yamato/parcel.go",
+    "internal/yamato/quote.go",
+    "internal/yamato/directory.go",
+    "internal/yamato/products.go",
+    "internal/yamato/yamato_test.go"
+  ],
+  "validated_outcome": "Native browser and live HTTP rates/date semantics agree; changed image/PDF content suppresses snapshots, source throttles remain typed, and empty results are arrays."
+}

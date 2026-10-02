@@ -1,0 +1,55 @@
+{
+  "meta": {
+    "source": "live",
+    "timezone": "Asia/Tokyo",
+    "upstream_requests": 2,
+    "elapsed_ms": 701,
+    "sources": [
+      {
+        "url": "https://date.kuronekoyamato.co.jp/date/MainSmp?LINK=LT",
+        "fetched_at": "2026-10-01T17:03:37Z",
+        "bytes": 5155,
+        "sha256": "56dad6cb2a01fdd8c5b92c453b2d1bd4b860094fd9447c0ee4ccdea88c5d51ce"
+      },
+      {
+        "url": "https://date.kuronekoyamato.co.jp/date/LeisureTakkyubinSmp",
+        "fetched_at": "2026-10-01T17:03:37Z",
+        "bytes": 30966,
+        "sha256": "0121da2d2ed698acae5d86dbd59113aed72dd4b6f53971f3c3bb4ac8f145e0cf"
+      }
+    ]
+  },
+  "results": {
+    "service": "roundtrip",
+    "origin": "1000005",
+    "destination": "6008216",
+    "airport": null,
+    "input_date": "2026-10-02",
+    "date_kind": "ship",
+    "calendar_kind": "earliest_use_date",
+    "calendar_date": "2026-10-04",
+    "guaranteed": false,
+    "selected_rate": {
+      "size": 160,
+      "cashless_jpy": 6114,
+      "cash_jpy": 6120
+    },
+    "currency": "JPY",
+    "tax_included": true,
+    "rate_basis": "roundtrip per parcel; source roundtrip discount included",
+    "included_fees": [
+      "source roundtrip reduction included; do not subtract another 200 JPY"
+    ],
+    "discounts": "conditional drop-off/member/digital discounts not applied; packaging and other optional charges not included",
+    "acceptance": "unknown: valid source quote is not shipment, counter or hotel acceptance",
+    "counter_cutoff_time": null,
+    "exceptional_calendar": null,
+    "warnings": [
+      "Estimated dates are not guaranteed. Counter shipping cutoff times vary and are not closing hours.",
+      "Weather, holidays, disrupted transport and some islands may alter displayed dates; air-restricted or unclear contents can delay delivery up to about one week.",
+      "Confirm hotel reception and contents/packaging eligibility before sending; some convenience stores cannot accept size200.",
+      "Return service within one month of outbound dropoff; confirm lodging accepts both legs."
+    ],
+    "handoff_url": "https://date.kuronekoyamato.co.jp/date/MainSmp?LINK=LT"
+  }
+}

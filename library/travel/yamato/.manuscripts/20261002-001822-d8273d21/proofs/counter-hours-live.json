@@ -1,0 +1,51 @@
+{
+  "meta": {
+    "source": "live",
+    "timezone": "Asia/Tokyo",
+    "upstream_requests": 2,
+    "elapsed_ms": 577,
+    "sources": [
+      {
+        "url": "https://www.kuronekoyamato.co.jp/ytc/en/send/services/airport/list.html",
+        "fetched_at": "2026-10-01T16:48:57Z",
+        "bytes": 43206,
+        "sha256": "f4e74fe9d452642b08654860faddc370b9e1ed7ccae11aa2ef0d039a77f0aa2c"
+      },
+      {
+        "url": "https://www.kuronekoyamato.co.jp/ytc/en/send/services/airport/image/narita2_send_img.gif",
+        "fetched_at": "2026-10-01T16:48:58Z",
+        "bytes": 27204,
+        "sha256": "8a0e0f87a57a9db84d2ff7e3dc64882c5db96223e081fbba598a738a2381f1f6"
+      }
+    ]
+  },
+  "results": {
+    "acceptance": "listed service evidence only; verify parcel, current operating calendar and dispatch deadline",
+    "has_more": false,
+    "items": [
+      {
+        "id": "narita2_send",
+        "prefecture": "Chiba",
+        "name": "Narita Airport Terminal 2",
+        "service": "Send",
+        "floor": "1F",
+        "map_url": "https://www.kuronekoyamato.co.jp/ytc/en/send/services/airport/narita2_send.html",
+        "hours": {
+          "open_jst": "06:30",
+          "close_jst": "22:30",
+          "observed_at": "2026-10-02T01:32:00+09:00",
+          "evidence_url": "https://www.kuronekoyamato.co.jp/ytc/en/send/services/airport/image/narita2_send_img.gif",
+          "status": "current bytes match visually verified snapshot"
+        },
+        "hours_status": "verified-image-snapshot",
+        "dispatch_cutoff_time": null,
+        "acceptance_evidence": "listed public service/floor, not confirmation of current parcel acceptance"
+      }
+    ],
+    "limit": 10,
+    "local_office_handoff": "https://www.kuronekoyamato.co.jp/ytc/files/redirect/search_office.html",
+    "next_offset": 1,
+    "offset": 0,
+    "total": 1
+  }
+}

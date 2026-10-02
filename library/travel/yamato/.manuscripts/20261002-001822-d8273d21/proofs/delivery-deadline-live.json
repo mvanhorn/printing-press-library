@@ -1,0 +1,52 @@
+{
+  "meta": {
+    "source": "live",
+    "timezone": "Asia/Tokyo",
+    "upstream_requests": 2,
+    "elapsed_ms": 701,
+    "sources": [
+      {
+        "url": "https://date.kuronekoyamato.co.jp/date/MainSmp?LINK=TK",
+        "fetched_at": "2026-10-01T17:03:33Z",
+        "bytes": 4534,
+        "sha256": "d9773a39cb7eb302e002025c0febaceb5d8854692650ffe501127f339fa85aff"
+      },
+      {
+        "url": "https://date.kuronekoyamato.co.jp/date/TakkyubinSmp",
+        "fetched_at": "2026-10-01T17:03:34Z",
+        "bytes": 33179,
+        "sha256": "78bed5678fad1e61147f03211bf250012c82cf81247d3cce8f43507f018156c0"
+      }
+    ]
+  },
+  "results": {
+    "service": "takkyubin",
+    "origin": "1000005",
+    "destination": "6008216",
+    "airport": null,
+    "input_date": "2026-10-08",
+    "date_kind": "delivery",
+    "calendar_kind": "shipping_deadline_date",
+    "calendar_date": "2026-10-07",
+    "guaranteed": false,
+    "selected_rate": {
+      "size": 160,
+      "cashless_jpy": 3157,
+      "cash_jpy": 3160
+    },
+    "currency": "JPY",
+    "tax_included": true,
+    "rate_basis": "one-way per parcel, source list tariff",
+    "included_fees": [],
+    "discounts": "conditional drop-off/member/digital discounts not applied; packaging and other optional charges not included",
+    "acceptance": "unknown: valid source quote is not shipment, counter or hotel acceptance",
+    "counter_cutoff_time": null,
+    "exceptional_calendar": null,
+    "warnings": [
+      "Estimated dates are not guaranteed. Counter shipping cutoff times vary and are not closing hours.",
+      "Weather, holidays, disrupted transport and some islands may alter displayed dates; air-restricted or unclear contents can delay delivery up to about one week.",
+      "Confirm hotel reception and contents/packaging eligibility before sending; some convenience stores cannot accept size200."
+    ],
+    "handoff_url": "https://date.kuronekoyamato.co.jp/date/MainSmp?LINK=TK"
+  }
+}

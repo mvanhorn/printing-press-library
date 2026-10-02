@@ -1,0 +1,101 @@
+{
+  "meta": {
+    "source": "live",
+    "timezone": "Asia/Tokyo",
+    "upstream_requests": 2,
+    "elapsed_ms": 550,
+    "sources": [
+      {
+        "url": "https://www.kuronekoyamato.co.jp/ytc/en/send/services/baggage-branch-list/pdf/same-day_delivery.pdf",
+        "fetched_at": "2026-10-01T16:48:59Z",
+        "bytes": 182594,
+        "sha256": "7764d6a096766794144bf3dfda916c5c848f37243aac9026168b939902dc23bc"
+      },
+      {
+        "url": "https://www.kuronekoyamato.co.jp/ytc/en/send/services/same-day-delivery/",
+        "fetched_at": "2026-10-01T16:48:59Z",
+        "bytes": 28113,
+        "sha256": "d1e8ec39ca579b69a07c4f4158689ef5df87090f1f4f4c8d21847ceceec5f451"
+      }
+    ]
+  },
+  "results": {
+    "schedules": [
+      {
+        "id": "haneda_terminal1",
+        "name_jp": "羽田空港第1旅客ターミナル国内線手荷物カウンター（発送）",
+        "name": "Haneda Terminal1 Domestic Send",
+        "cutoff_jst": "11:00",
+        "service_area": "Hotels in Tokyo23 wards, Urayasu, Kawasaki, Yokohama (Nishi/Naka/Tsurumi/Kanagawa/Hodogaya/Minami/Konan), Ichikawa, Funabashi, Narashino and Chiba (Hanamigawa/Inage/Mihama/Chuo)",
+        "arrival_window_jst": "18:00 onward",
+        "fee_basis": "standard TA-Q-BIN plus value-added surcharge; amount unknown for this row",
+        "acceptance": "unknown; only listed hotels/areas"
+      },
+      {
+        "id": "haneda_terminal2_send",
+        "name_jp": "羽田空港第2旅客ターミナル国際線手荷物カウンター（発送）",
+        "name": "Haneda Terminal2 International Send",
+        "cutoff_jst": "11:00",
+        "service_area": "Hotels in Tokyo23 wards, Urayasu, Kawasaki, Yokohama (Nishi/Naka/Tsurumi/Kanagawa/Hodogaya/Minami/Konan), Ichikawa, Funabashi, Narashino and Chiba (Hanamigawa/Inage/Mihama/Chuo)",
+        "arrival_window_jst": "18:00 onward",
+        "fee_basis": "standard TA-Q-BIN plus value-added surcharge; amount unknown for this row",
+        "acceptance": "unknown; only listed hotels/areas"
+      },
+      {
+        "id": "haneda_terminal2",
+        "name_jp": "羽田空港第2旅客ターミナル国内線手荷物カウンター（発送）",
+        "name": "Haneda Terminal2 Domestic Send",
+        "cutoff_jst": "11:00",
+        "service_area": "Hotels in Tokyo23 wards, Urayasu, Kawasaki, Yokohama (Nishi/Naka/Tsurumi/Kanagawa/Hodogaya/Minami/Konan), Ichikawa, Funabashi, Narashino and Chiba (Hanamigawa/Inage/Mihama/Chuo)",
+        "arrival_window_jst": "18:00 onward",
+        "fee_basis": "standard TA-Q-BIN plus value-added surcharge; amount unknown for this row",
+        "acceptance": "unknown; only listed hotels/areas"
+      },
+      {
+        "id": "haneda_terminal2_p",
+        "name_jp": "羽田空港第2旅客ターミナル国際線手荷物カウンター（受取）",
+        "name": "Haneda Terminal2 International Pickup",
+        "cutoff_jst": "11:00",
+        "service_area": "Hotels in Tokyo23 wards, Urayasu, Kawasaki, Yokohama (Nishi/Naka/Tsurumi/Kanagawa/Hodogaya/Minami/Konan), Ichikawa, Funabashi, Narashino and Chiba (Hanamigawa/Inage/Mihama/Chuo)",
+        "arrival_window_jst": "18:00 onward",
+        "fee_basis": "standard TA-Q-BIN plus value-added surcharge; amount unknown for this row",
+        "acceptance": "unknown; only listed hotels/areas"
+      },
+      {
+        "id": "haneda_send",
+        "name_jp": "羽田空港第3旅客ターミナル国際線手荷物カウンター（発送）",
+        "name": "Haneda Terminal3 International Send",
+        "cutoff_jst": "11:00",
+        "service_area": "Hotels in Tokyo23 wards, Urayasu, Kawasaki, Yokohama (Nishi/Naka/Tsurumi/Kanagawa/Hodogaya/Minami/Konan), Ichikawa, Funabashi, Narashino and Chiba (Hanamigawa/Inage/Mihama/Chuo)",
+        "arrival_window_jst": "18:00 onward",
+        "fee_basis": "standard TA-Q-BIN plus value-added surcharge; amount unknown for this row",
+        "acceptance": "unknown; only listed hotels/areas"
+      }
+    ],
+    "schedule_status": "current PDF bytes match verified source version",
+    "schedule_version": "2026/09/01ver",
+    "schedule_observed_at": "2026-10-02T01:32:00+09:00",
+    "coverage": "Selected Narita/Haneda airport-to-hotel rows. For all other counters, directions and destinations use full source PDF and directory.",
+    "pdf_url": "https://www.kuronekoyamato.co.jp/ytc/en/send/services/baggage-branch-list/pdf/same-day_delivery.pdf",
+    "directory_url": "https://www.kuronekoyamato.co.jp/ytc/en/send/services/baggage-branch-list/",
+    "fee_examples": [
+      {
+        "route": "Delivery within the 23 wards of Tokyo from Haneda Airport",
+        "size": 160,
+        "jpy": 5780,
+        "basis": "live published example, tax/discount details require source confirmation"
+      },
+      {
+        "route": "Delivery wihin Kyoto city from Kyoto Station Service Counter",
+        "size": 160,
+        "jpy": 3470,
+        "basis": "live published example, tax/discount details require source confirmation"
+      }
+    ],
+    "conditions": [
+      "Source schedule evidence is not confirmed acceptance or a guarantee; verify destination, cutoff and operating calendar at the counter.",
+      "Cutoff is separate from counter closing time. Optional/express fees and calendar exceptions must be confirmed.",
+      "Example prices are route/size examples, not a quote for the listed schedules."
+    ]
+  }
+}

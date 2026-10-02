@@ -1,0 +1,185 @@
+{
+  "api_name": "yamato",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-01T16:30:19.319048Z",
+  "novel_features": [
+    {
+      "name": "Measured luggage eligibility",
+      "command": "parcel",
+      "description": "Classify both size and weight and preserve acceptance unknowns.",
+      "rationale": "Classify both size and weight and preserve acceptance unknowns.",
+      "example": "yamato-pp-cli parcel --length 70 --width 45 --height 30 --weight 23 --agent",
+      "why_it_matters": "Classify both size and weight and preserve acceptance unknowns.",
+      "group": "Luggage planning"
+    },
+    {
+      "name": "Source calendar and tariff",
+      "command": "quote",
+      "description": "Fetch current source rates and date-specific arrival or shipping deadline.",
+      "rationale": "Fetch current source rates and date-specific arrival or shipping deadline.",
+      "example": "yamato-pp-cli quote --origin 1000005 --destination 6008216 --date 2026-10-08 --size 160 --agent",
+      "why_it_matters": "Fetch current source rates and date-specific arrival or shipping deadline.",
+      "group": "Luggage planning"
+    },
+    {
+      "name": "Terminal-aware airport resolution",
+      "command": "airports",
+      "description": "Use live upstream airport codes and Japanese terminal names.",
+      "rationale": "Use live upstream airport codes and Japanese terminal names.",
+      "example": "yamato-pp-cli airports --query 成田 --agent",
+      "why_it_matters": "Use live upstream airport codes and Japanese terminal names.",
+      "group": "Luggage planning"
+    },
+    {
+      "name": "Acceptance and hour evidence",
+      "command": "counters",
+      "description": "Inspect public send/pickup/floor evidence and fingerprint-checked image hours.",
+      "rationale": "Inspect public send/pickup/floor evidence and fingerprint-checked image hours.",
+      "example": "yamato-pp-cli counters --query Narita --agent",
+      "why_it_matters": "Inspect public send/pickup/floor evidence and fingerprint-checked image hours.",
+      "group": "Luggage planning"
+    },
+    {
+      "name": "Distinct same-day evidence",
+      "command": "same-day",
+      "description": "Inspect limited-area cutoff schedules and separate example prices.",
+      "rationale": "Inspect limited-area cutoff schedules and separate example prices.",
+      "example": "yamato-pp-cli same-day --query Narita --agent",
+      "why_it_matters": "Inspect limited-area cutoff schedules and separate example prices.",
+      "group": "Luggage planning"
+    },
+    {
+      "name": "Product distinctions",
+      "command": "products",
+      "description": "Review live service policy evidence for standard, airport, roundtrip and same-day products.",
+      "rationale": "Review live service policy evidence for standard, airport, roundtrip and same-day products.",
+      "example": "yamato-pp-cli products --service airport --agent",
+      "why_it_matters": "Review live service policy evidence for standard, airport, roundtrip and same-day products.",
+      "group": "Luggage planning"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Measured luggage eligibility",
+      "command": "parcel",
+      "description": "Classify both size and weight and preserve acceptance unknowns.",
+      "rationale": "Classify both size and weight and preserve acceptance unknowns.",
+      "example": "yamato-pp-cli parcel --length 70 --width 45 --height 30 --weight 23 --agent",
+      "why_it_matters": "Classify both size and weight and preserve acceptance unknowns.",
+      "group": "Luggage planning"
+    },
+    {
+      "name": "Source calendar and tariff",
+      "command": "quote",
+      "description": "Fetch current source rates and date-specific arrival or shipping deadline.",
+      "rationale": "Fetch current source rates and date-specific arrival or shipping deadline.",
+      "example": "yamato-pp-cli quote --origin 1000005 --destination 6008216 --date 2026-10-08 --size 160 --agent",
+      "why_it_matters": "Fetch current source rates and date-specific arrival or shipping deadline.",
+      "group": "Luggage planning"
+    },
+    {
+      "name": "Terminal-aware airport resolution",
+      "command": "airports",
+      "description": "Use live upstream airport codes and Japanese terminal names.",
+      "rationale": "Use live upstream airport codes and Japanese terminal names.",
+      "example": "yamato-pp-cli airports --query 成田 --agent",
+      "why_it_matters": "Use live upstream airport codes and Japanese terminal names.",
+      "group": "Luggage planning"
+    },
+    {
+      "name": "Acceptance and hour evidence",
+      "command": "counters",
+      "description": "Inspect public send/pickup/floor evidence and fingerprint-checked image hours.",
+      "rationale": "Inspect public send/pickup/floor evidence and fingerprint-checked image hours.",
+      "example": "yamato-pp-cli counters --query Narita --agent",
+      "why_it_matters": "Inspect public send/pickup/floor evidence and fingerprint-checked image hours.",
+      "group": "Luggage planning"
+    },
+    {
+      "name": "Distinct same-day evidence",
+      "command": "same-day",
+      "description": "Inspect limited-area cutoff schedules and separate example prices.",
+      "rationale": "Inspect limited-area cutoff schedules and separate example prices.",
+      "example": "yamato-pp-cli same-day --query Narita --agent",
+      "why_it_matters": "Inspect limited-area cutoff schedules and separate example prices.",
+      "group": "Luggage planning"
+    },
+    {
+      "name": "Product distinctions",
+      "command": "products",
+      "description": "Review live service policy evidence for standard, airport, roundtrip and same-day products.",
+      "rationale": "Review live service policy evidence for standard, airport, roundtrip and same-day products.",
+      "example": "yamato-pp-cli products --service airport --agent",
+      "why_it_matters": "Review live service policy evidence for standard, airport, roundtrip and same-day products.",
+      "group": "Luggage planning"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Yamato Transport",
+    "headline": "Plan Japan luggage forwarding with source rates, calendar deadlines and acceptance evidence.",
+    "value_prop": "Measure luggage, compare distinct TA-Q-BIN products, and query current public rates and estimated delivery dates. Airport terminal and limited same-day evidence preserve cutoff and acceptance uncertainty.",
+    "auth_narrative": "No login or API key is required for supported public planning commands.",
+    "quickstart": [
+      {
+        "command": "yamato-pp-cli doctor --json",
+        "comment": "Check the public CLI setup and connectivity."
+      },
+      {
+        "command": "yamato-pp-cli parcel --length 70 --width 45 --height 30 --weight 23",
+        "comment": "Determine the chargeable parcel category."
+      },
+      {
+        "command": "yamato-pp-cli quote --origin 1000005 --destination 6008216 --date 2026-10-08 --size 160",
+        "comment": "Replace the example date with today or a future JST date; read estimated arrival and source list rates."
+      }
+    ],
+    "when_to_use": "Use for public Japan luggage-forwarding planning, route tariffs, source date deadlines, parcel sizing and airport counter evidence.",
+    "anti_triggers": [
+      "Shipment creation, payment, labels, private tracking or confirmed hotel acceptance."
+    ],
+    "recipes": [
+      {
+        "title": "parcel",
+        "command": "yamato-pp-cli parcel --length 70 --width 45 --height 30 --weight 23 --agent",
+        "explanation": "Classify both size and weight and preserve acceptance unknowns."
+      },
+      {
+        "title": "quote",
+        "command": "yamato-pp-cli quote --origin 1000005 --destination 6008216 --date 2026-10-08 --size 160 --agent",
+        "explanation": "Use a current/future JST date and correct date-kind. Read current source tariffs and an estimated arrival or shipping deadline; acceptance remains unknown."
+      },
+      {
+        "title": "airports",
+        "command": "yamato-pp-cli airports --query 成田 --agent --select results",
+        "explanation": "Use live upstream airport codes and Japanese terminal names."
+      },
+      {
+        "title": "counters",
+        "command": "yamato-pp-cli counters --query Narita --agent",
+        "explanation": "Inspect public send/pickup/floor evidence and fingerprint-checked image hours."
+      },
+      {
+        "title": "same-day",
+        "command": "yamato-pp-cli same-day --query Narita --agent",
+        "explanation": "Inspect limited-area cutoff schedules and separate example prices."
+      },
+      {
+        "title": "products",
+        "command": "yamato-pp-cli products --service airport --agent",
+        "explanation": "Review live service policy evidence for standard, airport, roundtrip and same-day products."
+      }
+    ],
+    "trigger_phrases": [
+      "Yamato luggage forwarding",
+      "TA-Q-BIN rates",
+      "airport baggage deadline",
+      "use yamato",
+      "run yamato"
+    ]
+  }
+}

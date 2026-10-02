@@ -1,0 +1,9 @@
+{
+  "status": "pass",
+  "cases": 20,
+  "assertions": "rates/calendar kinds/guarantee and acceptance unknowns/terminal ID/count/hour versus cutoff/same-day distinct fees/source size-weight table/empty arrays",
+  "max_output_bytes": 19579,
+  "max_requests": 2,
+  "max_wall_ms": 1388,
+  "max_rss_bytes": 25788416
+}

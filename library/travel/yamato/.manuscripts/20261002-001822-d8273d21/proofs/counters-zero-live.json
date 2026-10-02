@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "source": "live",
+    "timezone": "Asia/Tokyo",
+    "upstream_requests": 1,
+    "elapsed_ms": 386,
+    "sources": [
+      {
+        "url": "https://www.kuronekoyamato.co.jp/ytc/en/send/services/airport/list.html",
+        "fetched_at": "2026-10-01T17:03:37Z",
+        "bytes": 43206,
+        "sha256": "f4e74fe9d452642b08654860faddc370b9e1ed7ccae11aa2ef0d039a77f0aa2c"
+      }
+    ]
+  },
+  "results": {
+    "acceptance": "listed service evidence only; verify parcel, current operating calendar and dispatch deadline",
+    "has_more": false,
+    "items": [],
+    "limit": 10,
+    "local_office_handoff": "https://www.kuronekoyamato.co.jp/ytc/files/redirect/search_office.html",
+    "next_offset": 0,
+    "offset": 0,
+    "total": 0
+  }
+}

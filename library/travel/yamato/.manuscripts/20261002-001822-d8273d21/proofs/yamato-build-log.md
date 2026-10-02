@@ -1,0 +1,9 @@
+Manifest transcendence rows: 6 planned, 6 built. All approved commands resolve and have domain/command behavioral acceptance.
+
+Implemented parcel, quote, airports, counters, same-day and products in internal/yamato and internal/cli/yamato_commands.go, preserving generated framework wiring. The primary quote parser distinguishes estimated delivery, earliest boarding/use and shipping deadline dates in JST. Actual source cash/cashless tariffs, conditional discounts/included fees and acceptance unknowns remain explicit.
+
+MAX continuation fixed public session handling with an ephemeral cookie jar, initialized each product form before POST, excluded expandable other-product tables, checked tariff column labels, bounded whole-command timeout, added adaptive per-source limiting, propagated typed429 errors, reported optional-source gaps and corrected zero-result arrays. Verified the Narita2 hours and selected9 same-day rows against unchanged source hashes. Corrected the earlier airport HTTP replay overstatement and replaced its invalid capture.
+
+Targeted tests: proofs/targeted-tests-max.log. Twenty live read-only source cases and content assertions pass: proofs/live-matrix.json, proofs/live-assertions.json. Largest sampled output19579bytes (counter limit50); max2upstream requests; max1388ms; maxRSS25788416bytes. Native isolated Chrome discovery succeeded; earlier isolated Playwright postal discovery after iab unavailable is recorded. All research tabs are closed. No authentication/challenge/private tracking or remote mutations were used.
+
+Documents now describe local installation, supported product/calendar meanings, bounded outputs, and exact source limitations. Generated-tree delegate/body preservation is recorded in .printing-press-patches/. Structural novel coverage and exact Cobra resolution are recorded separately. Remaining checks are the required shipcheck/review/full live dogfood and local promotion.
