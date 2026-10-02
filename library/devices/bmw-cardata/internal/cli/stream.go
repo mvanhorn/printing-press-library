@@ -54,6 +54,9 @@ in real time). Requires:
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
 			}
+			if flags.dataSource == "local" {
+				return usageErr(fmt.Errorf("--data-source local cannot start a live BMW CarData stream"))
+			}
 			if dryRunOK(flags) {
 				fmt.Fprintln(cmd.OutOrStdout(), "would connect to the BMW CarData MQTT stream")
 				return nil

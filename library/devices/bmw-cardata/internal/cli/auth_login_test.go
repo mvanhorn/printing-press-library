@@ -86,6 +86,50 @@ func TestNewClientPreviewAndLocalModesDoNotRefreshOAuth(t *testing.T) {
 	}
 }
 
+func TestLocalDataSourceRefusesGeneratedMutationWithoutProviderCall(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+	t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "")
+	t.Setenv("PRINTING_PRESS_VERIFY", "")
+	var calls atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		calls.Add(1)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+	t.Setenv("BMW_CARDATA_BASE_URL", server.URL)
+	cfg, err := config.Load(filepath.Join(home, "config.toml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := cfg.SaveTokens("client", "", "access", "refresh", time.Now().Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	flags := &rootFlags{}
+	cmd := newRootCmd(flags)
+	cmd.SetArgs([]string{"--config", cfg.Path, "--data-source", "local", "customers", "create-container", "--name", "example"})
+	cmd.SetOut(io.Discard)
+	cmd.SetErr(io.Discard)
+	if err := cmd.Execute(); err == nil || !strings.Contains(err.Error(), "--data-source local") {
+		t.Fatalf("expected local-only refusal, got %v", err)
+	}
+	if calls.Load() != 0 {
+		t.Fatalf("local-only mutation sent %d provider requests", calls.Load())
+	}
+}
+
+func TestLocalDataSourceRefusesDirectStream(t *testing.T) {
+	t.Setenv("PRINTING_PRESS_VERIFY", "")
+	cmd := newStreamCmd(&rootFlags{dataSource: "local"})
+	cmd.SetArgs([]string{"WBAJB3105JUV12345"})
+	cmd.SetOut(io.Discard)
+	cmd.SetErr(io.Discard)
+	if err := cmd.Execute(); err == nil || !strings.Contains(err.Error(), "--data-source local") {
+		t.Fatalf("expected local-only stream refusal, got %v", err)
+	}
+}
+
 func TestRefreshCardataAccessTokenPersistsRotatedCredential(t *testing.T) {
 	t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "")
 	now := time.Date(2026, 9, 6, 12, 0, 0, 0, time.UTC)

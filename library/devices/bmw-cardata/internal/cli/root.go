@@ -293,6 +293,7 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	}
 	c := client.New(cfg, f.timeout, f.rateLimit)
 	c.DryRun = f.dryRun || (cliutil.IsVerifyEnv() && !cliutil.IsVerifyLiveHTTPEnv())
+	c.LocalOnly = f.dataSource == "local"
 	c.NoCache = f.noCache
 	return c, nil
 }

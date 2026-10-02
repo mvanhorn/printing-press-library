@@ -34,6 +34,7 @@ type Client struct {
 	Config     *config.Config
 	HTTPClient *http.Client
 	DryRun     bool
+	LocalOnly  bool
 	NoCache    bool
 	cacheDir   string
 	limiter    *cliutil.AdaptiveLimiter
@@ -162,7 +163,7 @@ func (c *Client) GetWithHeadersNoCache(ctx context.Context, path string, params 
 }
 
 func (c *Client) responseCacheEnabled(binaryResponse bool) bool {
-	return !binaryResponse && !c.NoCache && !c.DryRun && c.cacheDir != ""
+	return !binaryResponse && !c.NoCache && !c.DryRun && !c.LocalOnly && c.cacheDir != ""
 }
 
 // The response cache stores text/JSON bodies as <hash>.json. Binary callers
@@ -421,6 +422,9 @@ func (c *Client) doRead(ctx context.Context, method, path string, params map[str
 // operations like GraphQL queries) to skip the mutating-verb verify-mode
 // gate. Plain do() callers leave it false and get the usual short-circuit.
 func (c *Client) doInternal(ctx context.Context, method, path string, params map[string]string, body any, headerOverrides map[string]string, readOnlyIntent bool) (json.RawMessage, int, error) {
+	if c.LocalOnly {
+		return nil, 0, fmt.Errorf("--data-source local cannot make a live API request for this command")
+	}
 	// Keep authentication and rate-limit recovery available; only ambiguous
 	// transport/server failures must not replay an unprotected write.
 	canRetryAmbiguousFailure := readOnlyIntent || method == http.MethodGet || method == http.MethodHead || method == http.MethodOptions
