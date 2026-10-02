@@ -374,35 +374,33 @@ Graceful degradation: if `learnings confirm` is an unknown command, you are driv
 
 ### Step 4: `teach &` after finalizing your response - always
 
-Teaching is unconditional. After resolving a query the store could not answer, background-teach the final resource mapping - no call-count threshold, no judging whether it was "worth" learning. The teach is the anchor of the loop: it triggers playbook synthesis for a family without a playbook, and same-referent phrasings fold into one family so near-duplicate teaches do not fragment the store. Fire it after assembling your user-facing response but BEFORE emitting it, with a shell `&` so the call returns immediately:
+Teaching is unconditional. After resolving a query the store could not answer, background-teach the final resource mapping - no call-count threshold, no judging whether it was "worth" learning. The teach is the anchor of the loop: it triggers playbook synthesis for a family without a playbook, and same-referent phrasings fold into one family so near-duplicate teaches do not fragment the store. Fire it after assembling your user-facing response but BEFORE emitting it. Prefer an asynchronous argument-array process runner. For a shell, set `RUNDOWN_TEACH_QUERY`, `RUNDOWN_RESOURCE_TYPE`, and `RUNDOWN_RESOURCE_ID` through the runner's environment API, then run:
 
 ```bash
-rundown-pp-cli teach --query "<user's question>" --resource-type <type> --resource <id1> --resource <id2>
-# (append shell `&` to background it)
+rundown-pp-cli teach --query "$RUNDOWN_TEACH_QUERY" --resource-type "$RUNDOWN_RESOURCE_TYPE" --resource "$RUNDOWN_RESOURCE_ID" &
 ```
 
 Silent on success. Errors only land in `teach.log` under the resolved state dir. Teach the **most specific** resource - if the user asked a broad question and you walked through parent records to find the specific answer, teach the leaf id, not the parent. The CLI uses seeded `entity_lookups` for cross-alias resolution at recall time, so a teach under one alias (e.g., "Niners") satisfies future queries under another alias (e.g., "49ers", "San Francisco") automatically.
 
-PII rule: teach the structural question with identifiers stripped - never include names, emails, phone numbers, account ids, or other personal identifiers in taught queries or notes. The CLI scans teach queries for obvious email/phone shapes and warns, but does not block; strip before teaching rather than relying on the warning.
+PII rule: set `RUNDOWN_TEACH_QUERY` to the structural question with identifiers stripped - never include names, emails, phone numbers, account ids, or other personal identifiers in taught queries or notes. The CLI scans teach queries for obvious email/phone shapes and warns, but does not block; strip before teaching rather than relying on the warning. To teach several resources, append `--resource` arguments using the runner's argument-array API or separate environment values. Never paste the question or resource IDs into shell source.
 
 ### Step 5: playbooks - optional flags, automatic synthesis
 
-You do not need to decide whether a session "deserves" a playbook: a teach on a family without one auto-synthesizes a `playbook_candidate` from the session's journal, and the next session judges it via confirm/reject. Attach explicit playbook flags only when you already hold choreography worth recording verbatim - workarounds the CLI didn't surface (silently-dropped flags, undocumented params, pagination tricks, payload gotchas). Prefer the **integrated one-call form** - record the resource learning and the playbook in the same `teach` invocation:
+You do not need to decide whether a session "deserves" a playbook: a teach on a family without one auto-synthesizes a `playbook_candidate` from the session's journal, and the next session judges it via confirm/reject. Attach explicit playbook flags only when you already hold choreography worth recording verbatim - workarounds the CLI didn't surface (silently-dropped flags, undocumented params, pagination tricks, payload gotchas). Prefer the **integrated one-call form** - record the resource learning and the playbook in the same `teach` invocation. Set the file paths through the runner's environment API too:
 
 ```bash
 # Common case: record both the resource learning AND the playbook in one call.
 rundown-pp-cli teach \
-  --query "<user's question>" \
-  --resource <id> \
-  --playbook-file ~/playbooks/<shape>.json \
-  --playbook-notes-file ~/playbooks/<shape>-notes.md
-# (append shell `&` to background it)
+  --query "$RUNDOWN_TEACH_QUERY" \
+  --resource "$RUNDOWN_RESOURCE_ID" \
+  --playbook-file "$RUNDOWN_PLAYBOOK_FILE" \
+  --playbook-notes-file "$RUNDOWN_NOTES_FILE" &
 
 # Alternate: playbook-only (no resource to record alongside).
 rundown-pp-cli teach-playbook \
-  --query "<user's question>" \
-  --playbook-file ~/playbooks/<shape>.json \
-  --notes-file ~/playbooks/<shape>-notes.md
+  --query "$RUNDOWN_TEACH_QUERY" \
+  --playbook-file "$RUNDOWN_PLAYBOOK_FILE" \
+  --notes-file "$RUNDOWN_NOTES_FILE" &
 ```
 
 Playbook files are JSON with `steps`, `entity_slots`, `expected_tool_calls`. Notes files are markdown carrying the gotchas verbatim. File-free callers (MCP-only agents) pass the same content inline: `--playbook-json` and `--playbook-notes` on the integrated `teach` form, `--playbook-json` and `--notes` on `teach-playbook`. On the integrated `teach` form, the playbook flags are optional - omit them entirely for a resource-only teach. On the standalone `teach-playbook` form, at least one of the playbook and notes flags must be set; both empty is rejected. Playbooks are keyed on the structural query family (entities stripped) so a recipe taught from one entity-shaped query applies to every other query of the same shape, with `slots_resolved` binding the live query's canonical at recall time.
@@ -411,13 +409,12 @@ When you DO find a playbook on a future recall, treat it as ground truth: replay
 
 ### Step 6: `playbook amend &` when your debug response identifies a correction
 
-If your debug-protocol response identifies a concrete correction the notes or playbook should know — a workaround, an undocumented endpoint shape, a stale field name, observed schema drift, an empty-payload fallback — fire `playbook amend` BEFORE emitting your user-facing response. Same fire-and-forget posture as `teach`.
+If your debug-protocol response identifies a concrete correction the notes or playbook should know — a workaround, an undocumented endpoint shape, a stale field name, observed schema drift, an empty-payload fallback — fire `playbook amend` BEFORE emitting your user-facing response. Same fire-and-forget posture as `teach`. Set `RUNDOWN_QUESTION` to the exact recall query and `RUNDOWN_CORRECTION` to the note through the runner's environment API:
 
 ```bash
 rundown-pp-cli playbook amend \
-  --query "<exact recall query string>" \
-  --add-note "<your concrete correction>"
-# (append shell `&` to background it)
+  --query "$RUNDOWN_QUESTION" \
+  --add-note "$RUNDOWN_CORRECTION" &
 ```
 
 What counts as worth amending: a behavior you OBSERVED this session that future-you would benefit from knowing. Examples worth amending:
