@@ -1559,6 +1559,53 @@ func (s *Store) upsertTextToSpeechTx(tx *sql.Tx, id string, obj map[string]any, 
 	return nil
 }
 
+// removeLegacyDictionaryKeysTx removes older dictionary rows keyed by name
+// before writing the same dictionary under its stable dictionary_id. Match
+// the ID in stored JSON so a voice with the same name is never removed.
+func removeLegacyDictionaryKeysTx(tx *sql.Tx, id string, obj map[string]any) error {
+	dictionaryID := scalarIDString(lookupFieldValue(obj, "dictionary_id"))
+	if dictionaryID == "" || id != dictionaryID {
+		return nil
+	}
+	rows, err := tx.Query(
+		`SELECT id FROM resources
+		 WHERE resource_type = ? AND id <> ?
+		   AND (CASE WHEN json_valid(data) THEN json_extract(data, '$.dictionary_id') END) = ?`,
+		"text-to-speech", id, dictionaryID,
+	)
+	if err != nil {
+		return fmt.Errorf("finding legacy dictionary rows: %w", err)
+	}
+	var legacyIDs []string
+	for rows.Next() {
+		var legacyID string
+		if err := rows.Scan(&legacyID); err != nil {
+			_ = rows.Close()
+			return err
+		}
+		legacyIDs = append(legacyIDs, legacyID)
+	}
+	if err := rows.Err(); err != nil {
+		_ = rows.Close()
+		return err
+	}
+	if err := rows.Close(); err != nil {
+		return err
+	}
+	for _, legacyID := range legacyIDs {
+		if _, err := tx.Exec(`DELETE FROM "text_to_speech" WHERE id = ?`, legacyID); err != nil {
+			return fmt.Errorf("removing legacy dictionary typed row: %w", err)
+		}
+		if _, err := tx.Exec(`DELETE FROM resources_fts WHERE rowid = ?`, ftsRowID("text-to-speech", legacyID)); err != nil {
+			return fmt.Errorf("removing legacy dictionary search row: %w", err)
+		}
+		if _, err := tx.Exec(`DELETE FROM resources WHERE resource_type = ? AND id = ?`, "text-to-speech", legacyID); err != nil {
+			return fmt.Errorf("removing legacy dictionary row: %w", err)
+		}
+	}
+	return nil
+}
+
 // UpsertTextToSpeech inserts or updates a text_to_speech record with domain-specific columns.
 func (s *Store) UpsertTextToSpeech(data json.RawMessage) error {
 	obj, err := DecodeJSONObject(data)
@@ -1566,7 +1613,7 @@ func (s *Store) UpsertTextToSpeech(data json.RawMessage) error {
 		return fmt.Errorf("unmarshaling text_to_speech: %w", err)
 	}
 
-	id := extractObjectID(obj)
+	id := ExtractResourceID("text-to-speech", obj)
 	if id == "" {
 		return fmt.Errorf("missing id for text_to_speech")
 	}
@@ -1579,6 +1626,9 @@ func (s *Store) UpsertTextToSpeech(data json.RawMessage) error {
 		return err
 	}
 	defer tx.Rollback()
+	if err := removeLegacyDictionaryKeysTx(tx, storageID, obj); err != nil {
+		return err
+	}
 
 	if err := s.upsertGenericResourceTx(tx, "text-to-speech", storageID, data); err != nil {
 		return err
@@ -2038,6 +2088,11 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 			continue
 		}
 		storageID := resourceStorageID(resourceType, id, obj)
+		if resourceType == "text-to-speech" {
+			if err := removeLegacyDictionaryKeysTx(tx, storageID, obj); err != nil {
+				return 0, extractFailures, fmt.Errorf("migrating %s/%s: %w", resourceType, storageID, err)
+			}
+		}
 
 		if err := s.upsertGenericResourceTx(tx, resourceType, storageID, item); err != nil {
 			// A non-nil error aborts this transaction through the deferred

@@ -3,6 +3,7 @@
 package store
 
 import (
+	"database/sql"
 	"encoding/json"
 	"path/filepath"
 	"testing"
@@ -30,6 +31,58 @@ func TestSarvamResourceScopedIDFallbacks(t *testing.T) {
 	} {
 		if got := ExtractResourceID(tc.resource, tc.item); got != tc.want {
 			t.Errorf("ExtractResourceID(%q, %#v) = %q, want %q", tc.resource, tc.item, got, tc.want)
+		}
+	}
+}
+
+func TestSarvamDictionarySyncMigratesLegacyNameKey(t *testing.T) {
+	db, err := Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	legacy := json.RawMessage(`{"dictionary_id":"dictionary-1","name":"legacy-name"}`)
+	if err := db.Upsert("text-to-speech", "legacy-name", legacy); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.DB().Exec(
+		`INSERT INTO text_to_speech (id, data, dictionary_id, name) VALUES (?, ?, ?, ?)`,
+		"legacy-name", string(legacy), "dictionary-1", "legacy-name",
+	); err != nil {
+		t.Fatal(err)
+	}
+	// Generic-only rows can survive a failed typed projection and need cleanup too.
+	if err := db.Upsert("text-to-speech", "older-name", json.RawMessage(`{"dictionary_id":"dictionary-1","name":"older-name"}`)); err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := db.UpsertBatch("text-to-speech", []json.RawMessage{json.RawMessage(`{"name":"voice-name"}`)}); err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := db.UpsertBatch("text-to-speech", []json.RawMessage{json.RawMessage(`{"dictionary_id":"dictionary-1","name":"current-name"}`)}); err != nil {
+		t.Fatal(err)
+	}
+	for _, staleID := range []string{"legacy-name", "older-name"} {
+		if _, err := db.Get("text-to-speech", staleID); err != sql.ErrNoRows {
+			t.Fatalf("legacy row %q remains or lookup failed: %v", staleID, err)
+		}
+		var matches int
+		if err := db.DB().QueryRow(`SELECT COUNT(*) FROM resources_fts WHERE rowid = ?`, ftsRowID("text-to-speech", staleID)).Scan(&matches); err != nil || matches != 0 {
+			t.Fatalf("legacy search row %q count=%d err=%v", staleID, matches, err)
+		}
+	}
+	for _, id := range []string{"dictionary-1", "voice-name"} {
+		if _, err := db.Get("text-to-speech", id); err != nil {
+			t.Fatalf("expected row %q is missing: %v", id, err)
+		}
+	}
+	for _, table := range []string{"resources", "text_to_speech"} {
+		var rows int
+		query := `SELECT COUNT(*) FROM ` + table
+		if table == "resources" {
+			query += ` WHERE resource_type = 'text-to-speech'`
+		}
+		if err := db.DB().QueryRow(query).Scan(&rows); err != nil || rows != 2 {
+			t.Fatalf("%s row count=%d err=%v, want dictionary and voice", table, rows, err)
 		}
 	}
 }
