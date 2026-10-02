@@ -7,6 +7,7 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -119,7 +120,7 @@ func newNovelDocaiBatchCmd(flags *rootFlags) *cobra.Command {
 					continue
 				}
 				// #nosec G304 -- doc is a path enumerated from the user-supplied --dir.
-				file, err := os.Open(doc)
+				file, err := openDocaiBatchDocument(doc)
 				if err != nil {
 					res.Error = err.Error()
 					res.Status = "failed"
@@ -297,6 +298,9 @@ func docaiBatchDocuments(dir string) ([]string, error) {
 	for _, e := range entries {
 		info, err := e.Info()
 		if err != nil {
+			if errors.Is(err, os.ErrNotExist) {
+				continue
+			}
 			return nil, err
 		}
 		if !info.Mode().IsRegular() {
@@ -308,6 +312,23 @@ func docaiBatchDocuments(dir string) ([]string, error) {
 		}
 	}
 	return docs, nil
+}
+
+func openDocaiBatchDocument(path string) (*os.File, error) {
+	// An entry can be replaced after directory enumeration and presign.
+	// Compare the opened descriptor with the current path so an intervening
+	// symlink swap cannot redirect an upload outside the selected folder.
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	opened, openErr := file.Stat()
+	current, pathErr := os.Lstat(path)
+	if openErr != nil || pathErr != nil || !opened.Mode().IsRegular() || !current.Mode().IsRegular() || !os.SameFile(opened, current) {
+		_ = file.Close()
+		return nil, fmt.Errorf("document changed while opening: %s", filepath.Base(path))
+	}
+	return file, nil
 }
 
 func loadDocaiSchema(cmd *cobra.Command, name string) (json.RawMessage, error) {

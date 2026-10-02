@@ -38,6 +38,35 @@ func TestDocaiBatchDocumentsSkipsSymlinkOutsideFolder(t *testing.T) {
 	}
 }
 
+func TestOpenDocaiBatchDocumentRejectsSwappedSymlink(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("symlink creation requires extra privileges on Windows")
+	}
+	dir := t.TempDir()
+	outside := filepath.Join(t.TempDir(), "outside.txt")
+	if err := os.WriteFile(outside, []byte("fixture"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(dir, "invoice.pdf")
+	if err := os.WriteFile(path, []byte("document"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	listed, err := docaiBatchDocuments(dir)
+	if err != nil || len(listed) != 1 {
+		t.Fatalf("enumerating original document: paths=%v err=%v", listed, err)
+	}
+	if err := os.Remove(path); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(outside, path); err != nil {
+		t.Fatal(err)
+	}
+	if file, err := openDocaiBatchDocument(listed[0]); err == nil {
+		_ = file.Close()
+		t.Fatal("swapped symlink was opened for upload")
+	}
+}
+
 // TestDocaiBatchFailureReason locks down that any status other than a
 // genuine success ("completed"/"partially_completed") is treated as a
 // failure, not a silent success with no saved result — whether the poll
