@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/loops-pp-cli
+/loops-pp-cli.exe
+/loops-pp-mcp
+/loops-pp-mcp.exe
+/bin/
+/build/
+/dist/

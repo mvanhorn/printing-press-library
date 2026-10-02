@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "loops-pp-mcp",
+  "display_name": "Loops",
+  "version": "1.22.2",
+  "description": "This is the OpenAPI Spec for the [Loops API](https://loops.so/docs/api).",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/loops-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/loops-pp-mcp",
+      "args": [],
+      "env": {
+        "LOOPS_API_KEY": "${user_config.loops_api_key}",
+        "LOOPS_SEND_JOURNAL_DIR": "${user_config.loops_send_journal_dir}"
+      }
+    }
+  },
+  "user_config": {
+    "loops_api_key": {
+      "type": "string",
+      "title": "LOOPS_API_KEY",
+      "description": "Sets LOOPS_API_KEY for the Loops MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "loops_send_journal_dir": {
+      "type": "string",
+      "title": "LOOPS_SEND_JOURNAL_DIR",
+      "description": "Sets LOOPS_SEND_JOURNAL_DIR for the Loops MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

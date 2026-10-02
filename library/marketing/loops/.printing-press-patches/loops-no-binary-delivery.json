@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "loops-no-binary-delivery",
+  "applied_at": "2026-10-02",
+  "base_run_id": "20261002-173515",
+  "base_printing_press_version": "4.33.0",
+  "summary": "Remove unused binary delivery helpers from the Loops JSON-only print.",
+  "reason": "The complete Loops spec has no binary response endpoint; the generic generated helper was dead and failed the structural dogfood check.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/deliver.go"
+  ]
+}

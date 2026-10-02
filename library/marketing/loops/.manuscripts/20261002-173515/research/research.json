@@ -1,0 +1,72 @@
+{
+  "api_name": "loops",
+  "novelty_score": 7,
+  "alternatives": [],
+  "gaps": [
+    "The official CLI does not require an exact live team match before each mutation.",
+    "The public API does not offer bulk contact listing or product-usage cohorts."
+  ],
+  "patterns": [
+    "The official Loops CLI already provides broad API coverage, profiles, and JSON output."
+  ],
+  "recommendation": "proceed-with-gaps",
+  "researched_at": "2026-10-02T17:35:15Z",
+  "novel_features": [
+    {
+      "name": "Exact team and mutation safety",
+      "command": "team verify",
+      "description": "Verify the selected API team before a change, preview writes without private values, and journal send attempts.",
+      "rationale": "A wrong team or repeated send can affect real recipients; each write needs an explicit, verified target.",
+      "example": "loops-pp-cli team verify --agent"
+    },
+    {
+      "name": "Lifecycle inventory",
+      "command": "audit lifecycle",
+      "description": "Count communication resources without retrieving contact records.",
+      "rationale": "An agent can find missing nurture infrastructure without reading private contact data.",
+      "example": "loops-pp-cli audit lifecycle --agent"
+    },
+    {
+      "name": "Campaign preflight",
+      "command": "campaigns preflight",
+      "description": "Check draft status, audience targeting, message presence, and Guardian findings before publication.",
+      "rationale": "Campaign publication can send email; these API-visible checks should precede a separate approval.",
+      "example": "loops-pp-cli campaigns preflight --latest-draft --agent"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Exact team and mutation safety",
+      "command": "team verify",
+      "description": "Verify the selected API team before a change, preview writes without private values, and journal send attempts.",
+      "rationale": "A wrong team or repeated send can affect real recipients; each write needs an explicit, verified target.",
+      "example": "loops-pp-cli team verify --agent"
+    },
+    {
+      "name": "Lifecycle inventory",
+      "command": "audit lifecycle",
+      "description": "Count communication resources without retrieving contact records.",
+      "rationale": "An agent can find missing nurture infrastructure without reading private contact data.",
+      "example": "loops-pp-cli audit lifecycle --agent"
+    },
+    {
+      "name": "Campaign preflight",
+      "command": "campaigns preflight",
+      "description": "Check draft status, audience targeting, message presence, and Guardian findings before publication.",
+      "rationale": "Campaign publication can send email; these API-visible checks should precede a separate approval.",
+      "example": "loops-pp-cli campaigns preflight --latest-draft --agent"
+    }
+  ],
+  "narrative": {
+    "quickstart": [
+      {
+        "command": "loops-pp-cli version",
+        "comment": "Confirm the CLI version."
+      },
+      {
+        "command": "loops-pp-cli doctor --dry-run --json",
+        "comment": "Check the doctor path without making an API call."
+      }
+    ]
+  }
+}

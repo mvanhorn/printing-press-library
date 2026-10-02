@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "loops-mutation-safety",
+  "applied_at": "2026-10-02",
+  "base_run_id": "20261002-173515",
+  "base_printing_press_version": "4.33.0",
+  "summary": "Add exact team checks, redacted previews, explicit send intent, and a private duplicate-send journal across CLI and client transport.",
+  "reason": "The Loops API can send email or alter live audiences; generated endpoint commands expose optional idempotency and generic dry runs. This patch makes live writes deliberate and keeps private values out of previews and errors.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/loops_safety.go",
+    "internal/cli/loops_safety_test.go",
+    "internal/cli/promoted_events.go",
+    "internal/client/client.go",
+    "internal/client/loops_safety.go",
+    "internal/client/loops_safety_test.go",
+    "internal/client/client_verify_short_circuit_test.go",
+    "internal/client/platform_rate_limit_test.go",
+    ".printing-press.json",
+    "tools-manifest.json"
+  ]
+}

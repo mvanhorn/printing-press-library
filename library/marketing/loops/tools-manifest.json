@@ -1,0 +1,2193 @@
+{
+  "api_name": "loops",
+  "base_url": "https://app.loops.so/api",
+  "description": "This is the OpenAPI Spec for the [Loops API](https://loops.so/docs/api).",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "LOOPS_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "LOOPS_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "api-key_test",
+      "description": "Test your API key and get team context. Returns the ApiKeyTestResponse.",
+      "method": "GET",
+      "path": "/v1/api-key",
+      "params": []
+    },
+    {
+      "name": "audience-segments_create",
+      "description": "Create a new audience segment. Required: filter, name. Optional: description. Returns the new AudienceSegmentResponse.",
+      "method": "POST",
+      "path": "/v1/audience-segments",
+      "params": [
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "An optional description of the audience segment."
+        },
+        {
+          "name": "filter-conditions",
+          "wire_name": "filter.conditions",
+          "type": "array",
+          "location": "body",
+          "description": "Conditions",
+          "required": true
+        },
+        {
+          "name": "filter-match",
+          "wire_name": "filter.match",
+          "type": "string",
+          "location": "body",
+          "description": "Match",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the audience segment. Must be unique within the team.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "audience-segments_get",
+      "description": "Retrieve a single audience segment by ID. Required: audienceSegmentId. Returns the AudienceSegmentResponse.",
+      "method": "GET",
+      "path": "/v1/audience-segments/{audienceSegmentId}",
+      "params": [
+        {
+          "name": "audienceSegmentId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the audience segment.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "audience-segments_list",
+      "description": "Retrieve a paginated list of audience segments, most recently created first. Optional: perPage, cursor. Returns array of AudienceSegment.",
+      "method": "GET",
+      "path": "/v1/audience-segments",
+      "params": [
+        {
+          "name": "perPage",
+          "type": "string",
+          "location": "query",
+          "description": "How many results to return in each request. Must be between 10 and 50. Default is 20."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "A cursor to return a specific page of results."
+        }
+      ]
+    },
+    {
+      "name": "campaign-groups_create",
+      "description": "Create a new campaign group. Required: name. Optional: description. Returns the new GroupResponse.",
+      "method": "POST",
+      "path": "/v1/campaign-groups",
+      "params": [
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "An optional description for the group."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The group name. Cannot be the reserved name 'Unsorted'.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaign-groups_get",
+      "description": "Retrieve a single campaign group by ID. Required: campaignGroupId. Returns the GroupResponse.",
+      "method": "GET",
+      "path": "/v1/campaign-groups/{campaignGroupId}",
+      "params": [
+        {
+          "name": "campaignGroupId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the campaign group.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaign-groups_list",
+      "description": "Retrieve a paginated list of campaign groups, most recently created first. Optional: perPage, cursor. Returns array of GroupResponse.",
+      "method": "GET",
+      "path": "/v1/campaign-groups",
+      "params": [
+        {
+          "name": "perPage",
+          "type": "string",
+          "location": "query",
+          "description": "How many results to return in each request. Must be between 10 and 50. Default is 20."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "A cursor to return a specific page of results."
+        }
+      ]
+    },
+    {
+      "name": "campaign-groups_update",
+      "description": "Update a campaign group's name or description. At least one field must be provided. The reserved 'Unsorted' group cannot be edited. Required: campaignGroupId. Optional: description, name. Returns the new GroupResponse.",
+      "method": "POST",
+      "path": "/v1/campaign-groups/{campaignGroupId}",
+      "params": [
+        {
+          "name": "campaignGroupId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the campaign group.",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "A description for the group."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The group name. Cannot be the reserved name 'Unsorted'."
+        }
+      ]
+    },
+    {
+      "name": "campaigns_create",
+      "description": "Create a new draft campaign. An empty email message is created automatically and its `emailMessageId` is returned. Use the `/email-messages/{emailMessageId}` endpoint to set subject, sender, preview text, and LMX content. The audience (mailing list, segment, or filter), group, and scheduling can be set on create or later via update. Required: name. Optional: audienceFilter, audienceSegmentId, campaignGroupId (plus 2 more). Returns the new CreateCampaignResponse.",
+      "method": "POST",
+      "path": "/v1/campaigns",
+      "params": [
+        {
+          "name": "audience-filter-conditions",
+          "wire_name": "audienceFilter.conditions",
+          "type": "array",
+          "location": "body",
+          "description": "Conditions",
+          "required": true
+        },
+        {
+          "name": "audience-filter-match",
+          "wire_name": "audienceFilter.match",
+          "type": "string",
+          "location": "body",
+          "description": "Match",
+          "required": true
+        },
+        {
+          "name": "audienceSegmentId",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of an audience segment. Setting this without also providing `audienceFilter` clears any existing `audienceFilter`. If both are provided, the filter is applied on top of the segment's filter."
+        },
+        {
+          "name": "campaignGroupId",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the group to add this campaign to. Defaults to the team's Unsorted group when omitted."
+        },
+        {
+          "name": "mailingListId",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the mailing list to send to."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The campaign name.",
+          "required": true
+        },
+        {
+          "name": "scheduling-method",
+          "wire_name": "scheduling.method",
+          "type": "string",
+          "location": "body",
+          "description": "Method",
+          "required": true
+        },
+        {
+          "name": "scheduling-timestamp",
+          "wire_name": "scheduling.timestamp",
+          "type": "string",
+          "location": "body",
+          "description": "Timestamp"
+        }
+      ]
+    },
+    {
+      "name": "campaigns_get",
+      "description": "Retrieve a single campaign by ID. Required: campaignId. Returns the CampaignResponse.",
+      "method": "GET",
+      "path": "/v1/campaigns/{campaignId}",
+      "params": [
+        {
+          "name": "campaignId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the campaign.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_list",
+      "description": "Retrieve a paginated list of campaigns. Optional: perPage, cursor. Returns array of CampaignResponse.",
+      "method": "GET",
+      "path": "/v1/campaigns",
+      "params": [
+        {
+          "name": "perPage",
+          "type": "string",
+          "location": "query",
+          "description": "How many results to return in each request. Must be between 10 and 50. Default is 20."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "A cursor to return a specific page of results."
+        }
+      ]
+    },
+    {
+      "name": "campaigns_update",
+      "description": "Update a draft campaign's name, group, audience (mailing list, segment, or filter), or scheduling. At least one field must be provided. Once a campaign has been sent, only its `name` and `campaignGroupId` can be updated. Required: campaignId. Optional: audienceFilter, audienceSegmentId, campaignGroupId (plus 3 more). Returns the new CampaignResponse.",
+      "method": "POST",
+      "path": "/v1/campaigns/{campaignId}",
+      "params": [
+        {
+          "name": "campaignId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the campaign.",
+          "required": true
+        },
+        {
+          "name": "audience-filter-conditions",
+          "wire_name": "audienceFilter.conditions",
+          "type": "array",
+          "location": "body",
+          "description": "Conditions",
+          "required": true
+        },
+        {
+          "name": "audience-filter-match",
+          "wire_name": "audienceFilter.match",
+          "type": "string",
+          "location": "body",
+          "description": "Match",
+          "required": true
+        },
+        {
+          "name": "audienceSegmentId",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of an audience segment. Setting this without also providing `audienceFilter` clears any existing `audienceFilter`. If both are provided, the filter is applied on top of the segment's filter."
+        },
+        {
+          "name": "campaignGroupId",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the group to move this campaign to."
+        },
+        {
+          "name": "mailingListId",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the mailing list to send to."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The updated campaign name."
+        },
+        {
+          "name": "scheduling-method",
+          "wire_name": "scheduling.method",
+          "type": "string",
+          "location": "body",
+          "description": "Method",
+          "required": true
+        },
+        {
+          "name": "scheduling-timestamp",
+          "wire_name": "scheduling.timestamp",
+          "type": "string",
+          "location": "body",
+          "description": "Timestamp"
+        }
+      ]
+    },
+    {
+      "name": "campaigns_metrics_get-campaign",
+      "description": "Retrieve all-time email engagement metrics for a campaign. Required: campaignId. Returns the EmailMetricsResponse.",
+      "method": "GET",
+      "path": "/v1/campaigns/{campaignId}/metrics",
+      "params": [
+        {
+          "name": "campaignId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the campaign.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "components_create",
+      "description": "Create a new email component from an LMX body. Required: lmx, name. Returns the new ComponentResponse.",
+      "method": "POST",
+      "path": "/v1/components",
+      "params": [
+        {
+          "name": "lmx",
+          "type": "string",
+          "location": "body",
+          "description": "The component body as an LMX string.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The component name.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "components_get",
+      "description": "Retrieve a single component by ID. Required: componentId. Returns the ComponentResponse.",
+      "method": "GET",
+      "path": "/v1/components/{componentId}",
+      "params": [
+        {
+          "name": "componentId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the component.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "components_list",
+      "description": "Retrieve a paginated list of email components. Optional: perPage, cursor. Returns array of Component.",
+      "method": "GET",
+      "path": "/v1/components",
+      "params": [
+        {
+          "name": "perPage",
+          "type": "string",
+          "location": "query",
+          "description": "How many results to return in each request. Must be between 10 and 50. Default is 20."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "A cursor to return a specific page of results."
+        }
+      ]
+    },
+    {
+      "name": "components_update",
+      "description": "Update a component's name and/or body. When the `lmx` body changes, the update cascades to every email using this component, and `affectedEmailCount` reports how many were affected. A change that would introduce a dynamic variable an email using the component cannot use is rejected. Required: componentId. Optional: lmx, name. Returns the new UpdateComponentResponse.",
+      "method": "POST",
+      "path": "/v1/components/{componentId}",
+      "params": [
+        {
+          "name": "componentId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the component.",
+          "required": true
+        },
+        {
+          "name": "lmx",
+          "type": "string",
+          "location": "body",
+          "description": "The component body as an LMX string."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "contacts_create",
+      "description": "Add a contact to your audience. Required: email. Optional: firstName, lastName, mailingLists (plus 4 more). Returns the new ContactSuccessResponse.",
+      "method": "POST",
+      "path": "/v1/contacts/create",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "The contact's email address.",
+          "required": true
+        },
+        {
+          "name": "firstName",
+          "type": "string",
+          "location": "body",
+          "description": "The contact's first name."
+        },
+        {
+          "name": "lastName",
+          "type": "string",
+          "location": "body",
+          "description": "The contact's last name."
+        },
+        {
+          "name": "mailingLists",
+          "type": "object",
+          "location": "body",
+          "description": "Manage mailing list subscriptions. Include key-value pairs of mailing list IDs and a `boolean` denoting if the contact should be added (`true`) or removed (`false`) from the list."
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "body",
+          "description": "A custom source value to replace the default “API”."
+        },
+        {
+          "name": "subscribed",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the contact will receive campaign and workflow emails. All new contacts are subscribed by default."
+        },
+        {
+          "name": "userGroup",
+          "type": "string",
+          "location": "body",
+          "description": "The contact's user group."
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "body",
+          "description": "A unique user ID (for example, from an external application)."
+        }
+      ]
+    },
+    {
+      "name": "contacts_create-property",
+      "description": "Create a custom contact property. Required: name, type. Returns the new ContactPropertySuccessResponse.",
+      "method": "POST",
+      "path": "/v1/contacts/properties",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the property. This should be in camelCase, like `planName` or `importDate`.",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of property.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_delete",
+      "description": "Delete a contact by `email` or `userId`. Returns the new ContactDeleteResponse.",
+      "method": "POST",
+      "path": "/v1/contacts/delete",
+      "params": []
+    },
+    {
+      "name": "contacts_find",
+      "description": "Search for a contact by `email` or `userId`. Only one parameter is allowed. Optional: email, userId. Returns array of Contact.",
+      "method": "GET",
+      "path": "/v1/contacts/find",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "query",
+          "description": "Email address (URI-encoded)"
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "query",
+          "description": "User id"
+        }
+      ]
+    },
+    {
+      "name": "contacts_get-suppression",
+      "description": "Retrieve suppression status and removal quota for a contact by `email` or `userId`. Include only one query parameter. Optional: email, userId. Returns the ContactSuppressionStatusResponse.",
+      "method": "GET",
+      "path": "/v1/contacts/suppression",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "query",
+          "description": "Email address (URI-encoded)"
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "query",
+          "description": "User id"
+        }
+      ]
+    },
+    {
+      "name": "contacts_list-properties",
+      "description": "Retrieve a list of your account's contact properties. Use the `list` parameter to query 'all' or 'custom' properties. Optional: list. Returns array of ContactProperty.",
+      "method": "GET",
+      "path": "/v1/contacts/properties",
+      "params": [
+        {
+          "name": "list",
+          "type": "string",
+          "location": "query",
+          "description": "`all` (default) or `custom` (only custom contact properties)"
+        }
+      ]
+    },
+    {
+      "name": "contacts_remove-suppression",
+      "description": "Remove a suppressed contact from the suppression list by `email` or `userId`. Include only one query parameter. Optional: email, userId. Returns the ContactSuppressionRemoveResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/contacts/suppression",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "query",
+          "description": "Email address (URI-encoded)"
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "query",
+          "description": "User id"
+        }
+      ]
+    },
+    {
+      "name": "contacts_update",
+      "description": "Update a contact by `email` or `userId`. You must provide one of these parameters. If you want to update a contact's email address, the contact will first need a `userId` value. You can then make a request containing the `userId` field along with an updated email address. This endpoint will create a contact if a matching contact does not already exist in your audience. Provide either `email` or `userId` to identify the contact you want to update. If both are provided, the system will look for a contact with either a matching `email` or `userId` value. If a contact is found for one of the values (e.g. `email`), the other value (e.g. `userId`) will be updated. If a contact is not found, a new contact will be created using both `email` and `userId` values. Returns the updated ContactSuccessResponse.",
+      "method": "PUT",
+      "path": "/v1/contacts/update",
+      "params": []
+    },
+    {
+      "name": "dedicated-sending-ips_list",
+      "description": "Retrieve a list of Loops' dedicated sending IP addresses. This endpoint is provided for the rare instances where you may need to whitelist our sending IPs. Please note that this list is subject to change and will not include shared IPs used for sending mail. Unless you are sure you need this and are comfortable watching for changes, we strongly recommend you _do not_ whitelist these IPs. Returns array of string.",
+      "method": "GET",
+      "path": "/v1/dedicated-sending-ips",
+      "params": []
+    },
+    {
+      "name": "email-messages_get",
+      "description": "Retrieve an email message, including its compiled LMX content. Required: emailMessageId. Returns array of EmailMessagesGetItem.",
+      "method": "GET",
+      "path": "/v1/email-messages/{emailMessageId}",
+      "params": [
+        {
+          "name": "emailMessageId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the email message.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "email-messages_update",
+      "description": "Update fields on an email message (subject, preview text, sender, LMX content). The campaign must be in draft status. Supply `expectedRevisionId` matching the current `contentRevisionId` — the server rejects mismatched revisions with 409. Required: emailMessageId. Optional: bccEmail, ccEmail, contactPropertiesFallbacks (plus 11 more). Returns array of EmailMessagesUpdateItem.",
+      "method": "POST",
+      "path": "/v1/email-messages/{emailMessageId}",
+      "params": [
+        {
+          "name": "emailMessageId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the email message.",
+          "required": true
+        },
+        {
+          "name": "bccEmail",
+          "type": "string",
+          "location": "body",
+          "description": "BCC email address. Requires the team to have CC/BCC enabled. Not supported for campaign emails."
+        },
+        {
+          "name": "ccEmail",
+          "type": "string",
+          "location": "body",
+          "description": "CC email address. Requires the team to have CC/BCC enabled. Not supported for campaign emails."
+        },
+        {
+          "name": "contactPropertiesFallbacks",
+          "type": "object",
+          "location": "body",
+          "description": "Fallback values for contact properties, keyed by property name. Per-key merge: a string value sets the fallback, a null value deletes it, and keys omitted from the map are left unchanged."
+        },
+        {
+          "name": "dataVariablesFallbacks",
+          "type": "object",
+          "location": "body",
+          "description": "Fallback values for data variables, keyed by variable name. Per-key merge: a string value sets the fallback, a null value deletes it, and keys omitted from the map are left unchanged."
+        },
+        {
+          "name": "emailFormat",
+          "type": "string",
+          "location": "body",
+          "description": "The rendering format of the email."
+        },
+        {
+          "name": "eventPropertiesFallbacks",
+          "type": "object",
+          "location": "body",
+          "description": "Fallback values for event properties, keyed by property name. Per-key merge: a string value sets the fallback, a null value deletes it, and keys omitted from the map are left unchanged."
+        },
+        {
+          "name": "expectedRevisionId",
+          "type": "string",
+          "location": "body",
+          "description": "The `contentRevisionId` you last fetched, or the `emailMessageContentRevisionId` you received when creating the campaign."
+        },
+        {
+          "name": "fromEmail",
+          "type": "string",
+          "location": "body",
+          "description": "The email sender email address, without the team's sending domain."
+        },
+        {
+          "name": "fromName",
+          "type": "string",
+          "location": "body",
+          "description": "From name"
+        },
+        {
+          "name": "languageCode",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 639-1 language code for the email, e.g. `en` or `fr`."
+        },
+        {
+          "name": "lmx",
+          "type": "string",
+          "location": "body",
+          "description": "The email body serialized as LMX. Styles must be embedded in the LMX `\u003cStyle /\u003e` tag."
+        },
+        {
+          "name": "previewText",
+          "type": "string",
+          "location": "body",
+          "description": "Preview text"
+        },
+        {
+          "name": "replyToEmail",
+          "type": "string",
+          "location": "body",
+          "description": "Reply-to email. Must be empty or a valid email address."
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Subject"
+        }
+      ]
+    },
+    {
+      "name": "email-messages_guardian_get-email-message",
+      "description": "Validate an email message's content against Guardian rules and return any errors and warnings. Errors must be resolved before the email can be published, warnings are advisory. Required: emailMessageId. Returns the EmailMessageGuardianResponse.",
+      "method": "GET",
+      "path": "/v1/email-messages/{emailMessageId}/guardian",
+      "params": [
+        {
+          "name": "emailMessageId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the email message.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "email-messages_preview_email-message",
+      "description": "Send a test preview of an email message to one or more addresses. The accepted variable fields depend on the parent's type - campaign previews accept `contactProperties`, workflow previews accept `contactProperties` and `eventProperties`, and transactional previews accept `dataVariables`. Supplying a field the parent cannot reference is rejected with 400. Required: emailMessageId, emails. Optional: contactProperties, dataVariables, eventProperties. Returns the new EmailMessagePreviewResponse.",
+      "method": "POST",
+      "path": "/v1/email-messages/{emailMessageId}/preview",
+      "params": [
+        {
+          "name": "emailMessageId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the email message.",
+          "required": true
+        },
+        {
+          "name": "contactProperties",
+          "type": "object",
+          "location": "body",
+          "description": "Contact property values to render. Accepted for campaign and workflow previews."
+        },
+        {
+          "name": "dataVariables",
+          "type": "object",
+          "location": "body",
+          "description": "Transactional data variables to render. Accepted for transactional previews only."
+        },
+        {
+          "name": "emails",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "One or more addresses to send the preview to.",
+          "required": true
+        },
+        {
+          "name": "eventProperties",
+          "type": "object",
+          "location": "body",
+          "description": "Event property values to render. Accepted for workflow previews only."
+        }
+      ]
+    },
+    {
+      "name": "event-patterns_get",
+      "description": "Retrieve event pattern details for a workflow event trigger. Required: eventPatternId. Returns array of WorkflowEventProperty.",
+      "method": "GET",
+      "path": "/v1/event-patterns/{eventPatternId}",
+      "params": [
+        {
+          "name": "eventPatternId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the event pattern.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "event-patterns_get-by-name",
+      "description": "Retrieve event pattern details by event name for a workflow event trigger. Event names are case-sensitive, so `PaymentReceived` and `paymentReceived` are different events. Required: eventName. Returns array of WorkflowEventProperty.",
+      "method": "GET",
+      "path": "/v1/event-patterns/by-name/{eventName}",
+      "params": [
+        {
+          "name": "eventName",
+          "type": "string",
+          "location": "path",
+          "description": "The exact event name. Event names are case-sensitive and should be URL-encoded if they contain special characters.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "event-patterns_list",
+      "description": "Retrieve a paginated list of event patterns available to workflow event trigger nodes. Optional: perPage, cursor. Returns array of EventPatternSummary.",
+      "method": "GET",
+      "path": "/v1/event-patterns",
+      "params": [
+        {
+          "name": "perPage",
+          "type": "string",
+          "location": "query",
+          "description": "How many results to return in each request. Must be between 10 and 50. Default is 20."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "A cursor to return a specific page of results."
+        }
+      ]
+    },
+    {
+      "name": "events_send",
+      "description": "Send events to trigger workflows. Optional: Idempotency-Key. Returns the new EventSuccessResponse.",
+      "method": "POST",
+      "path": "/v1/events/send",
+      "params": [
+        {
+          "name": "Idempotency-Key",
+          "type": "string",
+          "location": "query",
+          "description": "Include a unique ID for this request (maximum 100 characters) to avoid duplicate emails. The value should be a string of up to 100 characters and should be unique for each request. We recommend using V4 UUIDs or some other method with enough guaranteed entropy to avoid collisions during a 24 hour window. This endpoint will return a `409 Conflict` response if the idempotency key has been used in the previous 24 hours."
+        }
+      ]
+    },
+    {
+      "name": "lists_mailing",
+      "description": "Retrieve a list of your account's mailing lists. Returns array of MailingList.",
+      "method": "GET",
+      "path": "/v1/lists",
+      "params": []
+    },
+    {
+      "name": "themes_create",
+      "description": "Create a new email theme for use across Loops emails. Required: name. Optional: styles. Returns the new ThemeResponse.",
+      "method": "POST",
+      "path": "/v1/themes",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The theme name.",
+          "required": true
+        },
+        {
+          "name": "styles-background-color",
+          "wire_name": "styles.backgroundColor",
+          "type": "string",
+          "location": "body",
+          "description": "Background color"
+        },
+        {
+          "name": "styles-background-x-padding",
+          "wire_name": "styles.backgroundXPadding",
+          "type": "float",
+          "location": "body",
+          "description": "Background xpadding"
+        },
+        {
+          "name": "styles-background-y-padding",
+          "wire_name": "styles.backgroundYPadding",
+          "type": "float",
+          "location": "body",
+          "description": "Background ypadding"
+        },
+        {
+          "name": "styles-body-color",
+          "wire_name": "styles.bodyColor",
+          "type": "string",
+          "location": "body",
+          "description": "Body color"
+        },
+        {
+          "name": "styles-body-font-category",
+          "wire_name": "styles.bodyFontCategory",
+          "type": "string",
+          "location": "body",
+          "description": "Body font category"
+        },
+        {
+          "name": "styles-body-font-family",
+          "wire_name": "styles.bodyFontFamily",
+          "type": "string",
+          "location": "body",
+          "description": "Body font family"
+        },
+        {
+          "name": "styles-body-x-padding",
+          "wire_name": "styles.bodyXPadding",
+          "type": "float",
+          "location": "body",
+          "description": "Body xpadding"
+        },
+        {
+          "name": "styles-body-y-padding",
+          "wire_name": "styles.bodyYPadding",
+          "type": "float",
+          "location": "body",
+          "description": "Body ypadding"
+        },
+        {
+          "name": "styles-border-color",
+          "wire_name": "styles.borderColor",
+          "type": "string",
+          "location": "body",
+          "description": "Border color"
+        },
+        {
+          "name": "styles-border-radius",
+          "wire_name": "styles.borderRadius",
+          "type": "float",
+          "location": "body",
+          "description": "Border radius"
+        },
+        {
+          "name": "styles-border-width",
+          "wire_name": "styles.borderWidth",
+          "type": "float",
+          "location": "body",
+          "description": "Border width"
+        },
+        {
+          "name": "styles-button-body-color",
+          "wire_name": "styles.buttonBodyColor",
+          "type": "string",
+          "location": "body",
+          "description": "Button body color"
+        },
+        {
+          "name": "styles-button-body-x-padding",
+          "wire_name": "styles.buttonBodyXPadding",
+          "type": "float",
+          "location": "body",
+          "description": "Button body xpadding"
+        },
+        {
+          "name": "styles-button-body-y-padding",
+          "wire_name": "styles.buttonBodyYPadding",
+          "type": "float",
+          "location": "body",
+          "description": "Button body ypadding"
+        },
+        {
+          "name": "styles-button-border-color",
+          "wire_name": "styles.buttonBorderColor",
+          "type": "string",
+          "location": "body",
+          "description": "Button border color"
+        },
+        {
+          "name": "styles-button-border-radius",
+          "wire_name": "styles.buttonBorderRadius",
+          "type": "float",
+          "location": "body",
+          "description": "Button border radius"
+        },
+        {
+          "name": "styles-button-border-width",
+          "wire_name": "styles.buttonBorderWidth",
+          "type": "float",
+          "location": "body",
+          "description": "Button border width"
+        },
+        {
+          "name": "styles-button-text-color",
+          "wire_name": "styles.buttonTextColor",
+          "type": "string",
+          "location": "body",
+          "description": "Button text color"
+        },
+        {
+          "name": "styles-button-text-font-size",
+          "wire_name": "styles.buttonTextFontSize",
+          "type": "float",
+          "location": "body",
+          "description": "Button text font size"
+        },
+        {
+          "name": "styles-button-text-format",
+          "wire_name": "styles.buttonTextFormat",
+          "type": "float",
+          "location": "body",
+          "description": "Button text format"
+        },
+        {
+          "name": "styles-divider-border-width",
+          "wire_name": "styles.dividerBorderWidth",
+          "type": "float",
+          "location": "body",
+          "description": "Divider border width"
+        },
+        {
+          "name": "styles-divider-color",
+          "wire_name": "styles.dividerColor",
+          "type": "string",
+          "location": "body",
+          "description": "Divider color"
+        },
+        {
+          "name": "styles-heading1-color",
+          "wire_name": "styles.heading1Color",
+          "type": "string",
+          "location": "body",
+          "description": "Heading1 color"
+        },
+        {
+          "name": "styles-heading1-font-size",
+          "wire_name": "styles.heading1FontSize",
+          "type": "float",
+          "location": "body",
+          "description": "Heading1 font size"
+        },
+        {
+          "name": "styles-heading1-letter-spacing",
+          "wire_name": "styles.heading1LetterSpacing",
+          "type": "float",
+          "location": "body",
+          "description": "Heading1 letter spacing"
+        },
+        {
+          "name": "styles-heading1-line-height",
+          "wire_name": "styles.heading1LineHeight",
+          "type": "float",
+          "location": "body",
+          "description": "Heading1 line height"
+        },
+        {
+          "name": "styles-heading2-color",
+          "wire_name": "styles.heading2Color",
+          "type": "string",
+          "location": "body",
+          "description": "Heading2 color"
+        },
+        {
+          "name": "styles-heading2-font-size",
+          "wire_name": "styles.heading2FontSize",
+          "type": "float",
+          "location": "body",
+          "description": "Heading2 font size"
+        },
+        {
+          "name": "styles-heading2-letter-spacing",
+          "wire_name": "styles.heading2LetterSpacing",
+          "type": "float",
+          "location": "body",
+          "description": "Heading2 letter spacing"
+        },
+        {
+          "name": "styles-heading2-line-height",
+          "wire_name": "styles.heading2LineHeight",
+          "type": "float",
+          "location": "body",
+          "description": "Heading2 line height"
+        },
+        {
+          "name": "styles-heading3-color",
+          "wire_name": "styles.heading3Color",
+          "type": "string",
+          "location": "body",
+          "description": "Heading3 color"
+        },
+        {
+          "name": "styles-heading3-font-size",
+          "wire_name": "styles.heading3FontSize",
+          "type": "float",
+          "location": "body",
+          "description": "Heading3 font size"
+        },
+        {
+          "name": "styles-heading3-letter-spacing",
+          "wire_name": "styles.heading3LetterSpacing",
+          "type": "float",
+          "location": "body",
+          "description": "Heading3 letter spacing"
+        },
+        {
+          "name": "styles-heading3-line-height",
+          "wire_name": "styles.heading3LineHeight",
+          "type": "float",
+          "location": "body",
+          "description": "Heading3 line height"
+        },
+        {
+          "name": "styles-text-base-color",
+          "wire_name": "styles.textBaseColor",
+          "type": "string",
+          "location": "body",
+          "description": "Text base color"
+        },
+        {
+          "name": "styles-text-base-font-size",
+          "wire_name": "styles.textBaseFontSize",
+          "type": "float",
+          "location": "body",
+          "description": "Text base font size"
+        },
+        {
+          "name": "styles-text-base-letter-spacing",
+          "wire_name": "styles.textBaseLetterSpacing",
+          "type": "float",
+          "location": "body",
+          "description": "Text base letter spacing"
+        },
+        {
+          "name": "styles-text-base-line-height",
+          "wire_name": "styles.textBaseLineHeight",
+          "type": "float",
+          "location": "body",
+          "description": "Text base line height"
+        },
+        {
+          "name": "styles-text-link-color",
+          "wire_name": "styles.textLinkColor",
+          "type": "string",
+          "location": "body",
+          "description": "Text link color"
+        }
+      ]
+    },
+    {
+      "name": "themes_get",
+      "description": "Retrieve a single theme by ID. Required: themeId. Returns the ThemeResponse.",
+      "method": "GET",
+      "path": "/v1/themes/{themeId}",
+      "params": [
+        {
+          "name": "themeId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the theme.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "themes_list",
+      "description": "Retrieve a paginated list of email themes, most recently created first. Optional: perPage, cursor. Returns array of Theme.",
+      "method": "GET",
+      "path": "/v1/themes",
+      "params": [
+        {
+          "name": "perPage",
+          "type": "string",
+          "location": "query",
+          "description": "How many results to return in each request. Must be between 10 and 50. Default is 20."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "A cursor to return a specific page of results."
+        }
+      ]
+    },
+    {
+      "name": "themes_update",
+      "description": "Update a theme's name and/or styles. When `styles` change, the update cascades to every email using this theme, and `affectedEmailCount` in the response reports how many emails were affected. Manual style edits made on individual emails are preserved: the cascade only changes properties an email has not overridden. A per-email override is removed only when it becomes identical to the theme's new value, after which that email follows the theme for that property. Required: themeId. Optional: name, styles. Returns the new UpdateThemeResponse.",
+      "method": "POST",
+      "path": "/v1/themes/{themeId}",
+      "params": [
+        {
+          "name": "themeId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the theme.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "styles-background-color",
+          "wire_name": "styles.backgroundColor",
+          "type": "string",
+          "location": "body",
+          "description": "Background color"
+        },
+        {
+          "name": "styles-background-x-padding",
+          "wire_name": "styles.backgroundXPadding",
+          "type": "float",
+          "location": "body",
+          "description": "Background xpadding"
+        },
+        {
+          "name": "styles-background-y-padding",
+          "wire_name": "styles.backgroundYPadding",
+          "type": "float",
+          "location": "body",
+          "description": "Background ypadding"
+        },
+        {
+          "name": "styles-body-color",
+          "wire_name": "styles.bodyColor",
+          "type": "string",
+          "location": "body",
+          "description": "Body color"
+        },
+        {
+          "name": "styles-body-font-category",
+          "wire_name": "styles.bodyFontCategory",
+          "type": "string",
+          "location": "body",
+          "description": "Body font category"
+        },
+        {
+          "name": "styles-body-font-family",
+          "wire_name": "styles.bodyFontFamily",
+          "type": "string",
+          "location": "body",
+          "description": "Body font family"
+        },
+        {
+          "name": "styles-body-x-padding",
+          "wire_name": "styles.bodyXPadding",
+          "type": "float",
+          "location": "body",
+          "description": "Body xpadding"
+        },
+        {
+          "name": "styles-body-y-padding",
+          "wire_name": "styles.bodyYPadding",
+          "type": "float",
+          "location": "body",
+          "description": "Body ypadding"
+        },
+        {
+          "name": "styles-border-color",
+          "wire_name": "styles.borderColor",
+          "type": "string",
+          "location": "body",
+          "description": "Border color"
+        },
+        {
+          "name": "styles-border-radius",
+          "wire_name": "styles.borderRadius",
+          "type": "float",
+          "location": "body",
+          "description": "Border radius"
+        },
+        {
+          "name": "styles-border-width",
+          "wire_name": "styles.borderWidth",
+          "type": "float",
+          "location": "body",
+          "description": "Border width"
+        },
+        {
+          "name": "styles-button-body-color",
+          "wire_name": "styles.buttonBodyColor",
+          "type": "string",
+          "location": "body",
+          "description": "Button body color"
+        },
+        {
+          "name": "styles-button-body-x-padding",
+          "wire_name": "styles.buttonBodyXPadding",
+          "type": "float",
+          "location": "body",
+          "description": "Button body xpadding"
+        },
+        {
+          "name": "styles-button-body-y-padding",
+          "wire_name": "styles.buttonBodyYPadding",
+          "type": "float",
+          "location": "body",
+          "description": "Button body ypadding"
+        },
+        {
+          "name": "styles-button-border-color",
+          "wire_name": "styles.buttonBorderColor",
+          "type": "string",
+          "location": "body",
+          "description": "Button border color"
+        },
+        {
+          "name": "styles-button-border-radius",
+          "wire_name": "styles.buttonBorderRadius",
+          "type": "float",
+          "location": "body",
+          "description": "Button border radius"
+        },
+        {
+          "name": "styles-button-border-width",
+          "wire_name": "styles.buttonBorderWidth",
+          "type": "float",
+          "location": "body",
+          "description": "Button border width"
+        },
+        {
+          "name": "styles-button-text-color",
+          "wire_name": "styles.buttonTextColor",
+          "type": "string",
+          "location": "body",
+          "description": "Button text color"
+        },
+        {
+          "name": "styles-button-text-font-size",
+          "wire_name": "styles.buttonTextFontSize",
+          "type": "float",
+          "location": "body",
+          "description": "Button text font size"
+        },
+        {
+          "name": "styles-button-text-format",
+          "wire_name": "styles.buttonTextFormat",
+          "type": "float",
+          "location": "body",
+          "description": "Button text format"
+        },
+        {
+          "name": "styles-divider-border-width",
+          "wire_name": "styles.dividerBorderWidth",
+          "type": "float",
+          "location": "body",
+          "description": "Divider border width"
+        },
+        {
+          "name": "styles-divider-color",
+          "wire_name": "styles.dividerColor",
+          "type": "string",
+          "location": "body",
+          "description": "Divider color"
+        },
+        {
+          "name": "styles-heading1-color",
+          "wire_name": "styles.heading1Color",
+          "type": "string",
+          "location": "body",
+          "description": "Heading1 color"
+        },
+        {
+          "name": "styles-heading1-font-size",
+          "wire_name": "styles.heading1FontSize",
+          "type": "float",
+          "location": "body",
+          "description": "Heading1 font size"
+        },
+        {
+          "name": "styles-heading1-letter-spacing",
+          "wire_name": "styles.heading1LetterSpacing",
+          "type": "float",
+          "location": "body",
+          "description": "Heading1 letter spacing"
+        },
+        {
+          "name": "styles-heading1-line-height",
+          "wire_name": "styles.heading1LineHeight",
+          "type": "float",
+          "location": "body",
+          "description": "Heading1 line height"
+        },
+        {
+          "name": "styles-heading2-color",
+          "wire_name": "styles.heading2Color",
+          "type": "string",
+          "location": "body",
+          "description": "Heading2 color"
+        },
+        {
+          "name": "styles-heading2-font-size",
+          "wire_name": "styles.heading2FontSize",
+          "type": "float",
+          "location": "body",
+          "description": "Heading2 font size"
+        },
+        {
+          "name": "styles-heading2-letter-spacing",
+          "wire_name": "styles.heading2LetterSpacing",
+          "type": "float",
+          "location": "body",
+          "description": "Heading2 letter spacing"
+        },
+        {
+          "name": "styles-heading2-line-height",
+          "wire_name": "styles.heading2LineHeight",
+          "type": "float",
+          "location": "body",
+          "description": "Heading2 line height"
+        },
+        {
+          "name": "styles-heading3-color",
+          "wire_name": "styles.heading3Color",
+          "type": "string",
+          "location": "body",
+          "description": "Heading3 color"
+        },
+        {
+          "name": "styles-heading3-font-size",
+          "wire_name": "styles.heading3FontSize",
+          "type": "float",
+          "location": "body",
+          "description": "Heading3 font size"
+        },
+        {
+          "name": "styles-heading3-letter-spacing",
+          "wire_name": "styles.heading3LetterSpacing",
+          "type": "float",
+          "location": "body",
+          "description": "Heading3 letter spacing"
+        },
+        {
+          "name": "styles-heading3-line-height",
+          "wire_name": "styles.heading3LineHeight",
+          "type": "float",
+          "location": "body",
+          "description": "Heading3 line height"
+        },
+        {
+          "name": "styles-text-base-color",
+          "wire_name": "styles.textBaseColor",
+          "type": "string",
+          "location": "body",
+          "description": "Text base color"
+        },
+        {
+          "name": "styles-text-base-font-size",
+          "wire_name": "styles.textBaseFontSize",
+          "type": "float",
+          "location": "body",
+          "description": "Text base font size"
+        },
+        {
+          "name": "styles-text-base-letter-spacing",
+          "wire_name": "styles.textBaseLetterSpacing",
+          "type": "float",
+          "location": "body",
+          "description": "Text base letter spacing"
+        },
+        {
+          "name": "styles-text-base-line-height",
+          "wire_name": "styles.textBaseLineHeight",
+          "type": "float",
+          "location": "body",
+          "description": "Text base line height"
+        },
+        {
+          "name": "styles-text-link-color",
+          "wire_name": "styles.textLinkColor",
+          "type": "string",
+          "location": "body",
+          "description": "Text link color"
+        }
+      ]
+    },
+    {
+      "name": "transactional_list-published-emails",
+      "description": "Get a list of published transactional emails. Optional: perPage, cursor. Returns array of TransactionalEmail. Deprecated.",
+      "method": "GET",
+      "path": "/v1/transactional",
+      "params": [
+        {
+          "name": "perPage",
+          "type": "string",
+          "location": "query",
+          "description": "How many results to return in each request. Must be between 10 and 50. Default is 20."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "A cursor, to return a specific page of results. Cursors can be found from the `pagination.nextCursor` value in each response."
+        }
+      ]
+    },
+    {
+      "name": "transactional_send-email",
+      "description": "Send a transactional email to a contact. Please [email us](mailto:help@loops.so) to enable attachments on your account before using them with the API. To set dynamic Subject, From, Reply to, CC, BCC email header fields, add data variables to those fields in the editor, then include data for each variable in the API request. Read our transactional email guide for more details. Required: email, transactionalId. Optional: Idempotency-Key, addToAudience, attachments (plus 1 more). Returns the new TransactionalSuccessResponse.",
+      "method": "POST",
+      "path": "/v1/transactional",
+      "params": [
+        {
+          "name": "Idempotency-Key",
+          "type": "string",
+          "location": "query",
+          "description": "Include a unique ID for this request (maximum 100 characters) to avoid duplicate emails. The value should be a string of up to 100 characters and should be unique for each request. We recommend using V4 UUIDs or some other method with enough guaranteed entropy to avoid collisions during a 24 hour window. This endpoint will return a `409 Conflict` response if the idempotency key has been used in the previous 24 hours."
+        },
+        {
+          "name": "addToAudience",
+          "type": "bool",
+          "location": "body",
+          "description": "If `true`, a contact will be created in your audience using the `email` value (if a matching contact doesn't already exist)."
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "A list containing file objects to be sent along with an email message. Attachments must be enabled by Loops support before they can be used with the API."
+        },
+        {
+          "name": "dataVariables",
+          "type": "object",
+          "location": "body",
+          "description": "An object containing data as defined by the data variables added to the transactional email template. Values can be of type string or number. If you have added optional data variables to your email, you can exclude them from the dataVariables object or set the value to ''. If you have added an array data variable to your email, make sure to include an array matching the data variables you added to your array block."
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "The recipient's email address.",
+          "required": true
+        },
+        {
+          "name": "transactionalId",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the transactional email to send.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactional-emails_create",
+      "description": "Create a new transactional email. An empty draft email message is created automatically and its `draftEmailMessageId` is returned. Use the `POST /v1/email-messages/{emailMessageId}` endpoint along with the returned `draftEmailMessageContentRevisionId` to set subject, sender, preview text, and LMX content, then call `POST /v1/transactional-emails/{transactionalId}/publish` to publish the draft. Required: name. Optional: transactionalGroupId. Returns array of string.",
+      "method": "POST",
+      "path": "/v1/transactional-emails",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the transactional email.",
+          "required": true
+        },
+        {
+          "name": "transactionalGroupId",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the group to add this transactional email to. Defaults to the team's Unsorted group when omitted."
+        }
+      ]
+    },
+    {
+      "name": "transactional-emails_get",
+      "description": "Retrieve a single transactional email by ID. Required: transactionalId. Returns array of string.",
+      "method": "GET",
+      "path": "/v1/transactional-emails/{transactionalId}",
+      "params": [
+        {
+          "name": "transactionalId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the transactional email.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactional-emails_list",
+      "description": "Retrieve a paginated list of transactional emails, most recently created first. Optional: perPage, cursor. Returns array of TransactionalResource.",
+      "method": "GET",
+      "path": "/v1/transactional-emails",
+      "params": [
+        {
+          "name": "perPage",
+          "type": "string",
+          "location": "query",
+          "description": "How many results to return in each request. Must be between 10 and 50. Default is 20."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "A cursor to return a specific page of results."
+        }
+      ]
+    },
+    {
+      "name": "transactional-emails_update",
+      "description": "Update a transactional email by ID. Required: transactionalId. Optional: name, transactionalGroupId. Returns array of string.",
+      "method": "POST",
+      "path": "/v1/transactional-emails/{transactionalId}",
+      "params": [
+        {
+          "name": "transactionalId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the transactional email.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "transactionalGroupId",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the group to move this transactional email to."
+        }
+      ]
+    },
+    {
+      "name": "transactional-emails_draft_ensure-transactional",
+      "description": "Ensure the transactional email has a draft email message. If a draft already exists it is returned unchanged; otherwise a new empty draft is created (seeded from the most recent published version when present). Use `POST /v1/email-messages/{emailMessageId}` to edit the draft's content. Required: transactionalId. Returns array of string.",
+      "method": "POST",
+      "path": "/v1/transactional-emails/{transactionalId}/draft",
+      "params": [
+        {
+          "name": "transactionalId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the transactional email.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactional-emails_metrics_get-transactional-email",
+      "description": "Retrieve all-time delivery metrics for a transactional email, totalled across every published version. Required: transactionalId. Returns the TransactionalMetricsResponse.",
+      "method": "GET",
+      "path": "/v1/transactional-emails/{transactionalId}/metrics",
+      "params": [
+        {
+          "name": "transactionalId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the transactional email.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactional-emails_publish_transactional-email",
+      "description": "Publish the transactional email's current draft email message. The draft becomes the published version and the draft is cleared. Required: transactionalId. Returns array of string.",
+      "method": "POST",
+      "path": "/v1/transactional-emails/{transactionalId}/publish",
+      "params": [
+        {
+          "name": "transactionalId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the transactional email.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactional-groups_create",
+      "description": "Create a new transactional group. Required: name. Optional: description. Returns the new GroupResponse.",
+      "method": "POST",
+      "path": "/v1/transactional-groups",
+      "params": [
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "An optional description for the group."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The group name. Cannot be the reserved name 'Unsorted'.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactional-groups_get",
+      "description": "Retrieve a single transactional group by ID. Required: transactionalGroupId. Returns the GroupResponse.",
+      "method": "GET",
+      "path": "/v1/transactional-groups/{transactionalGroupId}",
+      "params": [
+        {
+          "name": "transactionalGroupId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the transactional group.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactional-groups_list",
+      "description": "Retrieve a paginated list of transactional groups, most recently created first. Optional: perPage, cursor. Returns array of GroupResponse.",
+      "method": "GET",
+      "path": "/v1/transactional-groups",
+      "params": [
+        {
+          "name": "perPage",
+          "type": "string",
+          "location": "query",
+          "description": "How many results to return in each request. Must be between 10 and 50. Default is 20."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "A cursor to return a specific page of results."
+        }
+      ]
+    },
+    {
+      "name": "transactional-groups_update",
+      "description": "Update a transactional group's name or description. At least one field must be provided. The reserved 'Unsorted' group cannot be edited. Required: transactionalGroupId. Optional: description, name. Returns the new GroupResponse.",
+      "method": "POST",
+      "path": "/v1/transactional-groups/{transactionalGroupId}",
+      "params": [
+        {
+          "name": "transactionalGroupId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the transactional group.",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "A description for the group."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The group name. Cannot be the reserved name 'Unsorted'."
+        }
+      ]
+    },
+    {
+      "name": "uploads_create",
+      "description": "Request a pre-signed URL to upload an image asset. Upload the file with an HTTP `PUT` to the returned `presignedUrl` (sending the same `Content-Type` and `Content-Length`), then call `/uploads/{emailAssetId}/complete` to finalize the asset. Required: contentLength, contentType. Returns the new CreateUploadResponse.",
+      "method": "POST",
+      "path": "/v1/uploads",
+      "params": [
+        {
+          "name": "contentLength",
+          "type": "int",
+          "location": "body",
+          "description": "The size of the file in bytes. Must be a positive integer no greater than 4,000,000 bytes.",
+          "required": true
+        },
+        {
+          "name": "contentType",
+          "type": "string",
+          "location": "body",
+          "description": "The MIME type of the file to upload. Supported types are `image/jpeg`, `image/png`, `image/gif` and `image/webp`.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "uploads_complete_upload",
+      "description": "Finalize an image upload after the file has been uploaded to the pre-signed URL. Returns the public URL of the uploaded image asset. Required: emailAssetId.",
+      "method": "POST",
+      "path": "/v1/uploads/{emailAssetId}/complete",
+      "params": [
+        {
+          "name": "emailAssetId",
+          "type": "string",
+          "location": "path",
+          "description": "The `emailAssetId` returned when the upload was created via `POST /v1/uploads`.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workflows_create",
+      "description": "Create a draft workflow with a blank trigger and exit node. Required: name. Optional: description, mailingListId. Returns the new SimplifiedWorkflow.",
+      "method": "POST",
+      "path": "/v1/workflows",
+      "params": [
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "The description of the workflow."
+        },
+        {
+          "name": "mailingListId",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of a mailing list the workflow sends to. After creation, the mailing list can be changed with the `/v1/workflows/{workflowId}/mailing-list` endpoint."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the workflow.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workflows_delete",
+      "description": "Delete a workflow. Successful deletion returns `204 No Content`. If the workflow is currently sending or has queued contacts, Loops returns `409 Conflict` with a message instead of deleting. Retry with `confirmDelete: true` to delete the workflow, stop sending, and cancel queued contacts. Required: workflowId, expectedRevisionId. Optional: confirmDelete. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/workflows/{workflowId}",
+      "params": [
+        {
+          "name": "workflowId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow.",
+          "required": true
+        },
+        {
+          "name": "confirmDelete",
+          "type": "bool",
+          "location": "body",
+          "description": "Set to `true` after a confirmation-required `409 Conflict` response to confirm deleting a sending workflow or a workflow with queued contacts."
+        },
+        {
+          "name": "expectedRevisionId",
+          "type": "string",
+          "location": "body",
+          "description": "The workflow revision token returned by the latest workflow read or mutation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workflows_get",
+      "description": "Retrieve a workflow graph with node type names, connections, and selected display fields. Required: workflowId. Returns the SimplifiedWorkflow.",
+      "method": "GET",
+      "path": "/v1/workflows/{workflowId}",
+      "params": [
+        {
+          "name": "workflowId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workflows_list",
+      "description": "Retrieve a paginated list of workflows. Optional: perPage, cursor. Returns array of WorkflowSummary.",
+      "method": "GET",
+      "path": "/v1/workflows",
+      "params": [
+        {
+          "name": "perPage",
+          "type": "string",
+          "location": "query",
+          "description": "How many results to return in each request. Must be between 10 and 50. Default is 20."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "A cursor to return a specific page of results."
+        }
+      ]
+    },
+    {
+      "name": "workflows_update-properties",
+      "description": "Update a workflow's display properties. At least one property must be provided. To change the workflow's mailing list, use the `POST /v1/workflows/{workflowId}/mailing-list` endpoint instead. Required: workflowId. Returns the new SimplifiedWorkflow.",
+      "method": "POST",
+      "path": "/v1/workflows/{workflowId}",
+      "params": [
+        {
+          "name": "workflowId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workflows_mailing-list_change-workflow",
+      "description": "Dry run or apply a workflow mailing list change. If queued contacts would be removed from the workflow due to the change of mailing list, Loops returns with `'status': 'queuedContactsFound'` instead of applying the change. Retry with `queuedContactPolicy: 'discard'` to apply the change and discard those contacts. Confirmed update responses include the simplified workflow after the mailing list changes. Required: workflowId, expectedRevisionId, mailingListId. Optional: dryRun, queuedContactPolicy (default: fail).",
+      "method": "POST",
+      "path": "/v1/workflows/{workflowId}/mailing-list",
+      "params": [
+        {
+          "name": "workflowId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow.",
+          "required": true
+        },
+        {
+          "name": "dryRun",
+          "type": "bool",
+          "location": "body",
+          "description": "If `true`, the request will be validated but the workflow will not be modified."
+        },
+        {
+          "name": "expectedRevisionId",
+          "type": "string",
+          "location": "body",
+          "description": "The workflow revision token returned by the latest workflow read or mutation.",
+          "required": true
+        },
+        {
+          "name": "mailingListId",
+          "type": "string",
+          "location": "body",
+          "description": "The mailing list to use for the workflow. When assigning a mailing list, queued contacts excluded by the new list can return `queuedContactsFound`; retry with `queuedContactPolicy: 'discard'` to apply the change and discard those contacts. Use `null` to clear the workflow mailing list; clearing does not discard queued contacts.",
+          "required": true
+        },
+        {
+          "name": "queuedContactPolicy",
+          "type": "string",
+          "location": "body",
+          "description": "`fail` returns queued-contact impact instead of mutating."
+        }
+      ]
+    },
+    {
+      "name": "workflows_nodes_add-workflow-branch",
+      "description": "Add a branch and a child node under an existing Branch or Experiment node. Returns the created child node plus the latest workflow. - Adding a branch to a `BranchNode` creates one `AudienceFilter` child node. - Adding a branch to an `ExperimentBranchNode` creates one `VariantNode` child node. This endpoint does not accept node configuration fields; update the child node with `POST /v1/workflows/{workflowId}/nodes/{nodeId}` after creation. Public workflows are limited to 400 nodes, and this endpoint adds 1 node. Required: workflowId, nodeId, expectedRevisionId.",
+      "method": "POST",
+      "path": "/v1/workflows/{workflowId}/nodes/{nodeId}/add-branch",
+      "params": [
+        {
+          "name": "workflowId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow.",
+          "required": true
+        },
+        {
+          "name": "nodeId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the BranchNode or ExperimentBranchNode that should receive one new child.",
+          "required": true
+        },
+        {
+          "name": "expectedRevisionId",
+          "type": "string",
+          "location": "body",
+          "description": "The workflow revision token returned by the latest workflow read or mutation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workflows_nodes_create-workflow",
+      "description": "Create a new default workflow node and return it with the latest workflow. Choose where the node goes with `insertMode`: `between` places it between an existing `fromNodeId` -\u003e `toNodeId` connection, `before` places it before `toNodeId`, and `after` places it after `fromNodeId` when that node has exactly one outgoing connection. `after` is a convenience for simple linear paths, so callers do not need to fetch and pass the current child node ID. It is invalid when `fromNodeId` has no outgoing nodes, multiple outgoing nodes, or is an exit node. When the source has multiple outgoing nodes, use `between` with the exact `toNodeId` instead. For `before`, deprecated `beforeNodeId` requests are still accepted for compatibility, but new callers should use `toNodeId`. New nodes start with default settings; update the node after creation to configure it. Branch nodes create their default paths too: `BranchNode` creates two `AudienceFilter` children, and `ExperimentBranchNode` creates two regular `VariantNode` children plus one control `VariantNode`. Public workflows can have up to 400 nodes. Generated children count toward that limit, so a normal create adds 1 node, `BranchNode` adds 3, and `ExperimentBranchNode` adds 4. To add a sibling child path to a branch or experiment branch, use the `POST /v1/workflows/{workflowId}/nodes/{nodeId}/add-branch` endpoint. Branch paths can be edited with create-node, but a workflow cannot be started unless each direct `BranchNode` child is an `AudienceFilter`. For experiments, use create-node only to insert a missing `VariantNode` before non-variant content; use add-branch for another variant path. Required: workflowId. Returns the new CreateWorkflowNodeResponse.",
+      "method": "POST",
+      "path": "/v1/workflows/{workflowId}/nodes",
+      "params": [
+        {
+          "name": "workflowId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workflows_nodes_delete-workflow",
+      "description": "Delete a single workflow node. If contacts are queued at the node, Loops returns with `'status': 'queuedContactsFound'` instead of deleting. Retry with `queuedContactPolicy: 'discard'` to delete the node and discard those queued contacts. Confirmed deletion responses include the simplified workflow after the node is removed. Required: workflowId, nodeId, expectedRevisionId. Optional: dryRun, queuedContactPolicy (default: fail). Destructive.",
+      "method": "DELETE",
+      "path": "/v1/workflows/{workflowId}/nodes/{nodeId}",
+      "params": [
+        {
+          "name": "workflowId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow.",
+          "required": true
+        },
+        {
+          "name": "nodeId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow node.",
+          "required": true
+        },
+        {
+          "name": "dryRun",
+          "type": "bool",
+          "location": "body",
+          "description": "If `true`, the request will be validated but the workflow will not be modified."
+        },
+        {
+          "name": "expectedRevisionId",
+          "type": "string",
+          "location": "body",
+          "description": "The workflow revision token returned by the latest workflow read or mutation.",
+          "required": true
+        },
+        {
+          "name": "queuedContactPolicy",
+          "type": "string",
+          "location": "body",
+          "description": "`fail` returns queued-contact impact instead of mutating."
+        }
+      ]
+    },
+    {
+      "name": "workflows_nodes_delete-workflow-recursively",
+      "description": "Delete a node and its downstream subtree. If contacts are queued at any node that would be deleted, Loops returns with `'status': 'queuedContactsFound'` instead of deleting. Retry with `queuedContactPolicy: 'discard'` to delete the nodes and discard those queued contacts. Confirmed deletion responses include the simplified workflow after the nodes are removed. Required: workflowId, nodeId, expectedRevisionId. Optional: dryRun, queuedContactPolicy (default: fail). Destructive.",
+      "method": "DELETE",
+      "path": "/v1/workflows/{workflowId}/nodes/{nodeId}/recursive",
+      "params": [
+        {
+          "name": "workflowId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow.",
+          "required": true
+        },
+        {
+          "name": "nodeId",
+          "type": "string",
+          "location": "path",
+          "description": "The root node ID of the subtree to delete.",
+          "required": true
+        },
+        {
+          "name": "dryRun",
+          "type": "bool",
+          "location": "body",
+          "description": "If `true`, the request will be validated but the workflow will not be modified."
+        },
+        {
+          "name": "expectedRevisionId",
+          "type": "string",
+          "location": "body",
+          "description": "The workflow revision token returned by the latest workflow read or mutation.",
+          "required": true
+        },
+        {
+          "name": "queuedContactPolicy",
+          "type": "string",
+          "location": "body",
+          "description": "`fail` returns queued-contact impact instead of mutating."
+        }
+      ]
+    },
+    {
+      "name": "workflows_nodes_get-workflow",
+      "description": "Retrieve detailed data for a single workflow node. Required: workflowId, nodeId. Returns the WorkflowNodeWithRevision.",
+      "method": "GET",
+      "path": "/v1/workflows/{workflowId}/nodes/{nodeId}",
+      "params": [
+        {
+          "name": "workflowId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow.",
+          "required": true
+        },
+        {
+          "name": "nodeId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow node.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workflows_nodes_get-workflow-metrics",
+      "description": "Retrieve all-time email engagement metrics for a workflow `SendEmailAction` node. Nodes of any other type return a `400` response. A `SendEmailAction` node with an email that has not sent anything yet reports every counter as `0`. Required: workflowId, nodeId. Returns the EmailMetricsResponse.",
+      "method": "GET",
+      "path": "/v1/workflows/{workflowId}/nodes/{nodeId}/metrics",
+      "params": [
+        {
+          "name": "workflowId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow.",
+          "required": true
+        },
+        {
+          "name": "nodeId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the `SendEmailAction` node.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workflows_nodes_reroute-connection",
+      "description": "Reroute the source node's existing connection to another valid target node. Returns the updated source node and the latest workflow. Required: workflowId, nodeId, expectedRevisionId, newTargetNodeId.",
+      "method": "POST",
+      "path": "/v1/workflows/{workflowId}/nodes/{nodeId}/reroute",
+      "params": [
+        {
+          "name": "workflowId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow.",
+          "required": true
+        },
+        {
+          "name": "nodeId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the source workflow node whose outgoing connection should be moved.",
+          "required": true
+        },
+        {
+          "name": "expectedRevisionId",
+          "type": "string",
+          "location": "body",
+          "description": "The workflow revision token returned by the latest workflow read or mutation.",
+          "required": true
+        },
+        {
+          "name": "newTargetNodeId",
+          "type": "string",
+          "location": "body",
+          "description": "The valid workflow node that should receive the connection from the source node.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workflows_nodes_update-workflow",
+      "description": "Update workflow-node-owned fields for a single node. Shared resources such as email messages and audience segments should be updated through their own APIs. Required: workflowId, nodeId, expectedRevisionId, payload. Returns the new UpdateWorkflowNodeResponse.",
+      "method": "POST",
+      "path": "/v1/workflows/{workflowId}/nodes/{nodeId}",
+      "params": [
+        {
+          "name": "workflowId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow.",
+          "required": true
+        },
+        {
+          "name": "nodeId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow node.",
+          "required": true
+        },
+        {
+          "name": "expectedRevisionId",
+          "type": "string",
+          "location": "body",
+          "description": "The workflow revision token returned by the latest workflow read or mutation.",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "string",
+          "location": "body",
+          "description": "Node-type-specific fields to update. The allowed fields depend on the existing node type. Trigger node updates may include `typeName` when changing one trigger node type to another trigger node type.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

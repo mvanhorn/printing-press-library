@@ -1,0 +1,82 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-02T17:35:15.786566Z",
+  "printing_press_version": "4.33.0",
+  "api_name": "loops",
+  "display_name": "Loops",
+  "cli_name": "loops-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "owner": "cathrynlavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
+  "spec_url": "https://app.loops.so/openapi.json",
+  "spec_path": "spec.json",
+  "spec_format": "openapi3",
+  "spec_source": "official",
+  "spec_checksum": "sha256:7af2534a8f1181d1c8186a40a85f5625a08cf26a50ca0c6d150e59a16aeb743b",
+  "run_id": "20261002-173515",
+  "category": "marketing",
+  "description": "This is the OpenAPI Spec for the [Loops API](https://loops.so/docs/api).",
+  "mcp_binary": "loops-pp-mcp",
+  "mcp_tool_count": 68,
+  "mcp_ready": "partial",
+  "api_version": "1.22.2",
+  "auth_type": "bearer_token",
+  "auth_preference": "apiKey",
+  "auth_env_vars": [
+    "LOOPS_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Exact team and mutation safety",
+      "command": "team verify",
+      "description": "Verify the selected API team before a change, preview writes without private values, and journal send attempts."
+    },
+    {
+      "name": "Lifecycle inventory",
+      "command": "audit lifecycle",
+      "description": "Count communication resources without retrieving contact records."
+    },
+    {
+      "name": "Campaign preflight",
+      "command": "campaigns preflight",
+      "description": "Check draft status, audience targeting, message presence, and Guardian findings before publication."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Exact team and mutation safety",
+      "command": "team verify",
+      "description": "Verify the selected API team before a change, preview writes without private values, and journal send attempts."
+    },
+    {
+      "name": "Lifecycle inventory",
+      "command": "audit lifecycle",
+      "description": "Count communication resources without retrieving contact records."
+    },
+    {
+      "name": "Campaign preflight",
+      "command": "campaigns preflight",
+      "description": "Check draft status, audience targeting, message presence, and Guardian findings before publication."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 98.83720930232558,
+    "passed": 85,
+    "total": 86,
+    "failed": 1,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 93,
+      "grade": "A",
+      "total": 93
+    }
+  }
+}

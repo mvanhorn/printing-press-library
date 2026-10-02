@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "loops-agent-workflows",
+  "applied_at": "2026-10-02",
+  "base_run_id": "20261002-173515",
+  "base_printing_press_version": "4.33.0",
+  "summary": "Add read-only lifecycle inventory and campaign preflight commands with complete command effect documentation.",
+  "reason": "Agents need concise audience and readiness checks that combine multiple Loops endpoints without returning contact records.",
+  "files": [
+    "internal/cli/loops_workflows.go",
+    "internal/cli/workflows_nodes_add-workflow-branch.go",
+    "internal/cli/loops_safety_test.go",
+    "COMMANDS.md",
+    "WORKFLOWS.md",
+    "README.md",
+    "SKILL.md",
+    "AGENTS.md",
+    ".printing-press.json"
+  ]
+}
