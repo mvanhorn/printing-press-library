@@ -50,16 +50,19 @@ func TestNovelTitleRaceIncludesSprintAndRacePoints(t *testing.T) {
 		case "/results/events":
 			fmt.Fprint(w, `[`+
 				`{"id":"opening-no-race","name":"Opening Round","date_start":"2024-05-01"},`+
+				`{"id":"sprint-only","name":"Sprint Only Round","date_start":"2024-05-15"},`+
 				`{"id":"mugello","name":"Italian GP","date_start":"2024-06-01"}`+
 				`]`)
 		case "/results/sessions":
 			sessionsRequests++
 			if r.URL.Query().Get("eventUuid") == "opening-no-race" {
 				fmt.Fprint(w, `[{"id":"opening-fp1","type":"FP","number":1}]`)
+			} else if r.URL.Query().Get("eventUuid") == "sprint-only" {
+				fmt.Fprint(w, `[{"id":"sprint-only-sprint","type":"SPR"}]`)
 			} else {
 				fmt.Fprint(w, `[{"id":"mugello-sprint","type":"SPR"},{"id":"mugello-race","type":"RAC"}]`)
 			}
-		case "/results/session/mugello-sprint/classification":
+		case "/results/session/sprint-only-sprint/classification", "/results/session/mugello-sprint/classification":
 			sprintRequests++
 			fmt.Fprint(w, `{"classification":[{"position":1,"points":12,"rider":{"id":"pecco","full_name":"Francesco Bagnaia"}}]}`)
 		case "/results/session/mugello-race/classification":
@@ -87,18 +90,22 @@ func TestNovelTitleRaceIncludesSprintAndRacePoints(t *testing.T) {
 	if err := json.Unmarshal([]byte(stdout), &out); err != nil {
 		t.Fatalf("decode output: %v (stdout=%q)", err, stdout)
 	}
-	if len(out.Rounds) != 1 {
-		t.Fatalf("round count = %d, want 1", len(out.Rounds))
+	if len(out.Rounds) != 2 {
+		t.Fatalf("round count = %d, want 2", len(out.Rounds))
 	}
-	round := out.Rounds[0]
-	if round.Round != 1 || round.Winner != "Francesco Bagnaia" {
-		t.Errorf("round identity = %#v, want round 1 won by Francesco Bagnaia", round)
+	sprintOnly := out.Rounds[0]
+	if sprintOnly.Round != 1 || sprintOnly.Winner != "" || sprintOnly.LeaderPoints != 12 {
+		t.Errorf("sprint-only round = %#v, want round 1 with 12 points and no race winner", sprintOnly)
 	}
-	if round.LeaderPoints != 37 || round.Standings["Francesco Bagnaia"] != 37 {
-		t.Errorf("combined sprint+race points = %#v, want 37", round)
+	round := out.Rounds[1]
+	if round.Round != 2 || round.Winner != "Francesco Bagnaia" {
+		t.Errorf("round identity = %#v, want round 2 won by Francesco Bagnaia", round)
 	}
-	if sessionsRequests != 2 || sprintRequests != 1 || raceRequests != 1 {
-		t.Errorf("request counts sessions/sprint/race = %d/%d/%d, want 2/1/1", sessionsRequests, sprintRequests, raceRequests)
+	if round.LeaderPoints != 49 || round.Standings["Francesco Bagnaia"] != 49 {
+		t.Errorf("sprint-only, sprint and race points = %#v, want 49", round)
+	}
+	if sessionsRequests != 3 || sprintRequests != 2 || raceRequests != 1 {
+		t.Errorf("request counts sessions/sprint/race = %d/%d/%d, want 3/2/1", sessionsRequests, sprintRequests, raceRequests)
 	}
 }
 

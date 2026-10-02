@@ -8,7 +8,7 @@ Created by [@waterpig0221](https://github.com/waterpig0221) (waterpig).
 
 Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
-Title race analysis counts points from both sprint and main races. Archive and circuit history commands report incomplete source reads instead of silently returning partial results.
+Title race analysis counts points from both sprint and main races, including sprint-only weekends. Archive and circuit history commands report incomplete source reads instead of silently returning partial results. Archive totals include rows stored before a later failure.
 
 HTTP MCP binds to loopback by default and requires a bearer token. To bind to another address, configure both `--tls-cert` and `--tls-key`. Set `PP_MCP_HTTP_TOKEN` in the server environment or pass `--http-token`.
 

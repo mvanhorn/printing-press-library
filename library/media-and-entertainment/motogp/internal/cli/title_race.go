@@ -92,15 +92,16 @@ func newNovelTitleRaceCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return classifyAPIError(fmt.Errorf("fetching sessions for %s: %w", ev.label(), err), flags)
 				}
-				raceSession, ok := findSession(sessions, "race")
-				if !ok {
-					continue // future or test events may not have a race session
+				raceSession, hasRace := findSession(sessions, "race")
+				sprintSession, hasSprint := findSession(sessions, "sprint")
+				if !hasRace && !hasSprint {
+					continue // future or test events may have no points sessions
 				}
 
 				// A MotoGP championship round may award points in both a sprint
 				// and the main race. Add the optional sprint first so the round
 				// snapshot reflects every championship point awarded that weekend.
-				if sprintSession, ok := findSession(sessions, "sprint"); ok {
+				if hasSprint {
 					sprintRows, err := sessionClassification(ctx, c, flags, sprintSession.ID)
 					if err != nil {
 						return classifyAPIError(fmt.Errorf("fetching sprint classification for %s: %w", ev.label(), err), flags)
@@ -108,15 +109,17 @@ func newNovelTitleRaceCmd(flags *rootFlags) *cobra.Command {
 					accumulateClassification(cumulative, names, sprintRows)
 				}
 
-				raceRows, err := sessionClassification(ctx, c, flags, raceSession.ID)
-				if err != nil {
-					return classifyAPIError(fmt.Errorf("fetching race classification for %s: %w", ev.label(), err), flags)
-				}
-				accumulateClassification(cumulative, names, raceRows)
 				winner := ""
-				for _, r := range raceRows {
-					if r.Position == 1 {
-						winner = r.Rider.fullName()
+				if hasRace {
+					raceRows, err := sessionClassification(ctx, c, flags, raceSession.ID)
+					if err != nil {
+						return classifyAPIError(fmt.Errorf("fetching race classification for %s: %w", ev.label(), err), flags)
+					}
+					accumulateClassification(cumulative, names, raceRows)
+					for _, r := range raceRows {
+						if r.Position == 1 {
+							winner = r.Rider.fullName()
+						}
 					}
 				}
 				// Snapshot is keyed by display name for output; leader is

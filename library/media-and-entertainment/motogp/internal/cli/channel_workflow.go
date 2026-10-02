@@ -81,18 +81,14 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 
 			for _, resource := range resources {
 				res := syncResource(cmd.Context(), c, s, resource, "", full, 100, false, false, nil, syncEventWriter)
-				if res.Err != nil {
-					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: error: %v\n", resource, res.Err)
-					failedResources = append(failedResources, resourceFailure{Resource: resource, Error: res.Err.Error()})
-					continue
-				}
-				if res.Warn != nil {
-					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: warning: %v\n", resource, res.Warn)
-					failedResources = append(failedResources, resourceFailure{Resource: resource, Error: res.Warn.Error()})
+				count, failure := archiveSyncOutcome(res)
+				totalSynced += count
+				if failure != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: incomplete: %v\n", resource, failure)
+					failedResources = append(failedResources, resourceFailure{Resource: resource, Error: failure.Error()})
 					continue
 				}
 				successfulResources++
-				totalSynced += res.Count
 				fmt.Fprintf(cmd.ErrOrStderr(), "  %s: %d synced\n", resource, res.Count)
 			}
 
@@ -128,6 +124,19 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 	cmd.Flags().BoolVar(&full, "full", false, "Full re-archive (ignore previous sync state)")
 
 	return cmd
+}
+
+func archiveSyncOutcome(res syncResult) (int, error) {
+	switch {
+	case res.Err != nil:
+		return res.Count, res.Err
+	case res.Warn != nil:
+		return res.Count, res.Warn
+	case res.IncompleteReason != "":
+		return res.Count, fmt.Errorf("enumeration stopped: %s", res.IncompleteReason)
+	default:
+		return res.Count, nil
+	}
 }
 
 func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {

@@ -14,6 +14,7 @@
     "internal/cli/circuit_history.go",
     "internal/cli/circuit_history_test.go",
     "internal/cli/motogp_resolve.go",
+    "internal/cli/sync.go",
     "internal/cli/title_race.go",
     "internal/cli/title_race_test.go",
     "go.mod",
@@ -22,5 +23,5 @@
     "README.md",
     "NOTICE"
   ],
-  "validated_outcome": "Offline tests cover authenticated HTTP transport, partial archive reporting, sprint and race points, and explicit classification failures."
+  "validated_outcome": "Offline tests cover authenticated HTTP transport, non-JSON and partial archive failures with stored-item counts, sprint-only and combined race points, and explicit classification failures."
 }

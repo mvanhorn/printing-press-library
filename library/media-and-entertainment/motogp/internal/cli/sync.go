@@ -41,7 +41,10 @@ type syncResult struct {
 	Count    int
 	Err      error
 	Warn     error
-	Duration time.Duration
+	// IncompleteReason records an abnormal stop even when the shared sync
+	// command treats it as a resumable warning. Archives require completeness.
+	IncompleteReason string
+	Duration         time.Duration
 }
 
 func newSyncCmd(flags *rootFlags) *cobra.Command {
@@ -573,7 +576,7 @@ func syncResource(ctx context.Context, c interface {
 				if !humanFriendly {
 					fmt.Fprintln(syncEvents, syncErrorJSON(resource, "", err))
 				}
-				return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
+				return syncResult{Resource: resource, Count: totalCount, Err: err, Duration: time.Since(started)}
 			}
 			totalCount++
 			// Single-object resources are fully enumerated by definition.
@@ -834,6 +837,9 @@ func syncResource(ctx context.Context, c interface {
 		}
 	}
 
+	if !outcome.complete {
+		return syncResult{Resource: resource, Count: totalCount, IncompleteReason: outcome.reason, Duration: time.Since(started)}
+	}
 	return syncResult{Resource: resource, Count: totalCount, Duration: time.Since(started)}
 }
 
