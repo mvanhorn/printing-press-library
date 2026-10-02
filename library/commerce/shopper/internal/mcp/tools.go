@@ -311,19 +311,19 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
 				return mcpToolError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
-					"\n      Set it with: shopper-pp-cli auth set-token <token> or export SHOPPER_TOKEN=\"your-token-here\"" +
+					"\n      Save it with: shopper-pp-cli auth set-token --stdin, or provide SHOPPER_TOKEN through your environment or secret manager" +
 					"\n      See API docs: https://siteapi.shopper.com.br" +
 					"\n      Run 'shopper-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
 				return mcpToolError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your token." +
-					"\n      Set it with: shopper-pp-cli auth set-token <token> or export SHOPPER_TOKEN=\"your-token-here\"" +
+					"\n      Save it with: shopper-pp-cli auth set-token --stdin, or provide SHOPPER_TOKEN through your environment or secret manager" +
 					"\n      See API docs: https://siteapi.shopper.com.br" +
 					"\n      Run 'shopper-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
 				return mcpToolError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: your credentials are valid but lack access to this resource. Check that they have the required permissions and match the API's expected auth scheme." +
-					"\n      Set it with: shopper-pp-cli auth set-token <token> or export SHOPPER_TOKEN=\"your-token-here\"" +
+					"\n      Save it with: shopper-pp-cli auth set-token --stdin, or provide SHOPPER_TOKEN through your environment or secret manager" +
 					"\n      See API docs: https://siteapi.shopper.com.br" +
 					"\n      Run 'shopper-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):

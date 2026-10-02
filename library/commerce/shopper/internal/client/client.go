@@ -1222,7 +1222,7 @@ func looksLikeCredentialPlaceholder(value string) bool {
 }
 
 func authPlaceholderCredentialError(cfg *config.Config) error {
-	return authPlaceholderCredentialErrorWithSetup(cfg, "export SHOPPER_TOKEN=<your-token> or shopper-pp-cli auth set-token <token>")
+	return authPlaceholderCredentialErrorWithSetup(cfg, "shopper-pp-cli auth set-token --stdin or provide SHOPPER_TOKEN through your environment or secret manager")
 }
 
 func authPlaceholderCredentialErrorWithSetup(cfg *config.Config, setup string) error {

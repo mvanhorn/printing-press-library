@@ -121,11 +121,15 @@ Resource scoping:
 			}
 			c.NoCache = true
 
-			if dbPath == "" {
-				dbPath = defaultDBPath("shopper-pp-cli")
+			selectedDBPath := dbPath
+			if selectedDBPath == "" {
+				selectedDBPath, err = autoRefreshDBPath(flags)
+				if err != nil {
+					return fmt.Errorf("selecting local database: %w", err)
+				}
 			}
 
-			db, err := store.OpenWithContext(cmd.Context(), dbPath)
+			db, err := store.OpenWithContext(cmd.Context(), selectedDBPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w", err)
 			}

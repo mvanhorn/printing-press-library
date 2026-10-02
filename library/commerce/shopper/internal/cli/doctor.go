@@ -207,7 +207,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				configured, authSource := doctorAuthConfiguredState(cfg)
 				if !configured {
 					report["auth"] = "not configured"
-					report["auth_hint"] = "Set it with: shopper-pp-cli auth set-token <token> or export SHOPPER_TOKEN=\"your-token-here\""
+					report["auth_hint"] = "Save it with: shopper-pp-cli auth set-token --stdin, or provide SHOPPER_TOKEN through your environment or secret manager"
 				} else {
 					authConfigured = true
 					report["auth"] = "configured"

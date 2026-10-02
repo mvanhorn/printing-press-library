@@ -9,6 +9,8 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
@@ -175,6 +177,67 @@ func TestAutoRefreshDBPathUsesActiveProfileStore(t *testing.T) {
 	}
 	if decision != cliutil.DecisionStaleAPI {
 		t.Fatalf("active profile decision = %s, want stale-api", decision)
+	}
+}
+
+func TestAutoRefreshAndLocalReadUseSameProfileStore(t *testing.T) {
+	home := t.TempDir()
+	restore, err := cliutil.SetHomeOverride(home)
+	if err != nil {
+		t.Fatalf("set home override: %v", err)
+	}
+	t.Cleanup(restore)
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/orders/orders" {
+			t.Errorf("refresh path = %q, want /orders/orders", r.URL.Path)
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = io.WriteString(w, `[{"id":"profile-new"}]`)
+	}))
+	t.Cleanup(server.Close)
+	t.Setenv("SHOPPER_BASE_URL", server.URL)
+	t.Setenv("SHOPPER_TOKEN", "synthetic-offline-token-value")
+
+	defaultPath := defaultDBPath("shopper-pp-cli")
+	profilePath := filepath.Join(home, "profiles", "tenant-a", "data.db")
+	defaultStore, err := store.OpenWithContext(context.Background(), defaultPath)
+	if err != nil {
+		t.Fatalf("open global store: %v", err)
+	}
+	if _, _, err := defaultStore.UpsertBatch("orders", []json.RawMessage{json.RawMessage(`{"id":"global-only"}`)}); err != nil {
+		t.Fatalf("seed global row: %v", err)
+	}
+	if err := defaultStore.SaveSyncStateAt("orders", "", 1, time.Now()); err != nil {
+		t.Fatalf("seed fresh global sync state: %v", err)
+	}
+	if err := defaultStore.Close(); err != nil {
+		t.Fatalf("close global store: %v", err)
+	}
+	profileStore, err := store.OpenWithContext(context.Background(), profilePath)
+	if err != nil {
+		t.Fatalf("open profile store: %v", err)
+	}
+	if err := profileStore.SaveSyncStateAt("orders", "", 1, time.Now().Add(-48*time.Hour)); err != nil {
+		t.Fatalf("seed stale profile sync state: %v", err)
+	}
+	if err := profileStore.Close(); err != nil {
+		t.Fatalf("close profile store: %v", err)
+	}
+
+	flags := &rootFlags{dataSource: "auto", platformSession: &platform.Session{Paths: platform.Paths{DataFile: profilePath}}}
+	meta := autoRefreshIfStale(context.Background(), flags, []string{"orders"})
+	if !meta.Ran || meta.Reason != "refreshed" {
+		t.Fatalf("profile refresh = %+v, want ran/refreshed", meta)
+	}
+	data, _, err := resolveLocal(context.Background(), flags, io.Discard, "orders", true, "/orders/orders", nil, "test")
+	if err != nil {
+		t.Fatalf("read refreshed profile rows: %v", err)
+	}
+	if !strings.Contains(string(data), "profile-new") || strings.Contains(string(data), "global-only") {
+		t.Fatalf("local read selected wrong store: %s", data)
 	}
 }
 

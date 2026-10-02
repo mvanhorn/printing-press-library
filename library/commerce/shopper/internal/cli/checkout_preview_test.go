@@ -179,7 +179,7 @@ func TestCheckoutURLNeverHasEmptySubdomain(t *testing.T) {
 // must not overwrite notes with the one-off/unica label, and must not attach
 // a charge calendar.
 func TestSubscriptionDeliveryFailureDoesNotRelabelAsOneOff(t *testing.T) {
-	authNote := "cart, delivery, and payment data unavailable — authenticate first: shopper-pp-cli auth set-token <token>"
+	authNote := "cart, delivery, and payment data unavailable — authenticate first: shopper-pp-cli auth set-token --stdin"
 	next := &chargeCalendarEntry{DeliveryDate: "2026-10-01"}
 	for _, store := range []string{"programada", "fresh", "pet", "mensal", "1", "5"} {
 		view := checkoutPreviewView{Store: store, Note: authNote}

@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "shopper-safe-token-input",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260803-082038-a3b929d1",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Accept tokens from standard input and guide users to that method throughout CLI and MCP authentication hints.",
+  "reason": "Putting a token in a process argument exposes it in process listings and shell history.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/auth_set_token_test.go",
+    "internal/cli/doctor.go",
+    "internal/cli/checkout_preview.go",
+    "internal/cli/checkout_preview_test.go",
+    "internal/cli/helpers.go",
+    "internal/client/client.go",
+    "internal/mcp/tools.go",
+    ".printing-press.json",
+    "README.md",
+    "NOTICE"
+  ],
+  "validated_outcome": "Offline tests confirm a token is saved from stdin without appearing in output or command arguments."
+}

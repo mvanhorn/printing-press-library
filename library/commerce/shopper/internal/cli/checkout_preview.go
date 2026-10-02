@@ -101,7 +101,7 @@ Run 'shopper-pp-cli checkout open --store <store>' to open the checkout page.`,
 			// If cart and delivery both failed (most likely cause: no auth token),
 			// add a note so the caller understands which fields are absent and why.
 			if cartErr != nil && delivErr != nil {
-				view.Note = "cart, delivery, and payment data unavailable — authenticate first: shopper-pp-cli auth set-token <token>"
+				view.Note = "cart, delivery, and payment data unavailable — authenticate first: shopper-pp-cli auth set-token --stdin"
 			}
 
 			// Subscription storefronts only grow a charge calendar when delivery
