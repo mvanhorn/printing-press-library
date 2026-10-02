@@ -1,0 +1,698 @@
+{
+  "label": "independent read-only consumer source observation, not delivered-CLI evidence",
+  "normalized_inspector_result": {
+    "id": "f8f030bf-7182-4b75-a93d-686a669ebde6",
+    "kind": "hotels",
+    "status": "success",
+    "retrieved_at": "2026-10-02T06:01:33.575152Z",
+    "query": {
+      "kind": "hotels",
+      "market": "SG",
+      "locale": "en-SG",
+      "currency": "SGD",
+      "origin": "",
+      "destination": "",
+      "depart": "",
+      "return_date": "",
+      "cabin": "",
+      "geo_id": "10000045",
+      "property_id": "",
+      "property_name": "Bangkok",
+      "check_in": "2027-01-06",
+      "check_out": "2027-01-08",
+      "adults": 3,
+      "children": 2,
+      "infants": 0,
+      "rooms": 2,
+      "limit": 2,
+      "offset": 0,
+      "max_candidates": 2,
+      "child_ages": [
+        8,
+        5
+      ]
+    },
+    "offers": [
+      {
+        "id": "9000000001714",
+        "kind": "hotel",
+        "property_id": "9000000001714",
+        "property_name": "The Berkeley Hotel Pratunam",
+        "room_id": "",
+        "room_name": "",
+        "meal_plan": "",
+        "payment": "",
+        "booking_url": "https://www.traveloka.com/en-sg/hotel/detail?childSpec=8%2C5&spec=06-01-2027.08-01-2027.2.2.HOTEL.9000000001714.The+Berkeley+Hotel+Pratunam.3",
+        "price": {
+          "total": {
+            "currency": "SGD",
+            "amount": "488.52",
+            "minor_units": "48852",
+            "decimals": 2
+          },
+          "per_passenger": null,
+          "per_room_per_night": {
+            "currency": "SGD",
+            "amount": "122.13",
+            "minor_units": "12213",
+            "decimals": 2
+          },
+          "base_fare": {
+            "currency": "SGD",
+            "amount": "415.05",
+            "minor_units": "41505",
+            "decimals": 2
+          },
+          "taxes": {
+            "currency": "SGD",
+            "amount": "73.47",
+            "minor_units": "7347",
+            "decimals": 2
+          },
+          "fees": {
+            "currency": "SGD",
+            "amount": "0.00",
+            "minor_units": "0",
+            "decimals": 2
+          },
+          "tax_inclusion": "inclusive"
+        },
+        "legs": [],
+        "stops": null,
+        "duration_minutes": null,
+        "occupancy_match": true,
+        "refundable": null,
+        "reschedulable": null,
+        "cancellation": null,
+        "details": {
+          "inventory": {
+            "availableRateTypes": [
+              "PAY_NOW"
+            ],
+            "hasFreeCancellationRooms": true,
+            "hotelRoomCCGuaranteeRequirementDisplay": null,
+            "matchSearchOccupancy": true,
+            "numChargedRooms": "2"
+          },
+          "num_charged_rooms": "2",
+          "price_basis": "party_stay_total",
+          "property": {
+            "address": null,
+            "displayName": "The Berkeley Hotel Pratunam",
+            "hotelFeatures": [
+              {
+                "backgroundColor": "#F0F1F2",
+                "icon": null,
+                "text": "Shopping center shuttle",
+                "textColor": "#4F5254",
+                "type": "FEATURES"
+              },
+              {
+                "backgroundColor": "#F0F1F2",
+                "icon": null,
+                "text": "Massage",
+                "textColor": "#4F5254",
+                "type": "FEATURES"
+              },
+              {
+                "backgroundColor": "#F0F1F2",
+                "icon": null,
+                "text": "Poolside bar",
+                "textColor": "#4F5254",
+                "type": "FEATURES"
+              },
+              {
+                "backgroundColor": "#F0F1F2",
+                "icon": null,
+                "text": "Sauna",
+                "textColor": "#4F5254",
+                "type": "FEATURES"
+              },
+              {
+                "backgroundColor": "#F0F1F2",
+                "icon": null,
+                "text": "Spa",
+                "textColor": "#4F5254",
+                "type": "FEATURES"
+              },
+              {
+                "backgroundColor": "#F0F1F2",
+                "icon": null,
+                "text": "Bar",
+                "textColor": "#4F5254",
+                "type": "FEATURES"
+              }
+            ],
+            "hotelFlexibilityFeatures": [
+              {
+                "backgroundColor": "",
+                "icon": "http://img.cnt.traveloka.com/tvlk/image/imageResource/2024/05/10/1715311425788-bb09b97db03db2ccd74f95d77f80057f.png",
+                "text": "Free Cancellation",
+                "textColor": "#00875A",
+                "type": "FLEX_FEATURES"
+              }
+            ],
+            "hotelSeoUrl": "hotel/thailand/the-berkeley-hotel-pratunam-9000000001714",
+            "latitude": "13.750155",
+            "longitude": "100.54174699999999",
+            "numReviews": null,
+            "region": "Pratunam, Ratchathewi",
+            "reviewSummary": {
+              "providerReviewSummary": null,
+              "showProviderReview": false,
+              "travelokaReviewSummary": null,
+              "ugcReviewSummary": {
+                "iconUrl": null,
+                "maxUserRating": "10.0",
+                "numReviews": "1912",
+                "reviewProvider": "TRAVELOKA",
+                "userRating": "8.9",
+                "userRatingInfo": "Very Good"
+              }
+            },
+            "showedFacilityTypes": [
+              "WIFI_PUBLIC_AREA",
+              "CARPARK",
+              "BAR"
+            ],
+            "starRating": "5.0",
+            "userRating": null
+          },
+          "source_price": {
+            "perRoomPerNightDisplay": {
+              "baseFare": {
+                "amount": "10376",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "exclusiveFinalPrice": {
+                "amount": "10376",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "fees": {
+                "amount": "0",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "inclusiveFinalPrice": {
+                "amount": "12213",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "numOfDecimalPoint": "2",
+              "taxes": {
+                "amount": "1836",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "totalFare": {
+                "amount": "12213",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              }
+            },
+            "totalPriceRateDisplay": {
+              "baseFare": {
+                "amount": "41505",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "exclusiveFinalPrice": {
+                "amount": "41505",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "fees": {
+                "amount": "0",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "inclusiveFinalPrice": {
+                "amount": "48852",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "numOfDecimalPoint": "2",
+              "taxes": {
+                "amount": "7347",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "totalFare": {
+                "amount": "48852",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "1000000134834",
+        "kind": "hotel",
+        "property_id": "1000000134834",
+        "property_name": "Amari Bangkok",
+        "room_id": "",
+        "room_name": "",
+        "meal_plan": "",
+        "payment": "",
+        "booking_url": "https://www.traveloka.com/en-sg/hotel/detail?childSpec=8%2C5&spec=06-01-2027.08-01-2027.2.2.HOTEL.1000000134834.Amari+Bangkok.3",
+        "price": {
+          "total": {
+            "currency": "SGD",
+            "amount": "715.96",
+            "minor_units": "71596",
+            "decimals": 2
+          },
+          "per_passenger": null,
+          "per_room_per_night": {
+            "currency": "SGD",
+            "amount": "178.99",
+            "minor_units": "17899",
+            "decimals": 2
+          },
+          "base_fare": {
+            "currency": "SGD",
+            "amount": "608.29",
+            "minor_units": "60829",
+            "decimals": 2
+          },
+          "taxes": {
+            "currency": "SGD",
+            "amount": "107.67",
+            "minor_units": "10767",
+            "decimals": 2
+          },
+          "fees": {
+            "currency": "SGD",
+            "amount": "0.00",
+            "minor_units": "0",
+            "decimals": 2
+          },
+          "tax_inclusion": "inclusive"
+        },
+        "legs": [],
+        "stops": null,
+        "duration_minutes": null,
+        "occupancy_match": true,
+        "refundable": null,
+        "reschedulable": null,
+        "cancellation": null,
+        "details": {
+          "inventory": {
+            "availableRateTypes": [
+              "PAY_NOW"
+            ],
+            "hasFreeCancellationRooms": true,
+            "hotelRoomCCGuaranteeRequirementDisplay": null,
+            "matchSearchOccupancy": true,
+            "numChargedRooms": "2"
+          },
+          "num_charged_rooms": "2",
+          "price_basis": "party_stay_total",
+          "property": {
+            "address": null,
+            "displayName": "Amari Bangkok",
+            "hotelFeatures": [
+              {
+                "backgroundColor": "#F0F1F2",
+                "icon": null,
+                "text": "Aerobics",
+                "textColor": "#4F5254",
+                "type": "FEATURES"
+              },
+              {
+                "backgroundColor": "#F0F1F2",
+                "icon": null,
+                "text": "Limo or town car service",
+                "textColor": "#4F5254",
+                "type": "FEATURES"
+              },
+              {
+                "backgroundColor": "#F0F1F2",
+                "icon": null,
+                "text": "Massage",
+                "textColor": "#4F5254",
+                "type": "FEATURES"
+              },
+              {
+                "backgroundColor": "#F0F1F2",
+                "icon": null,
+                "text": "Fitness center",
+                "textColor": "#4F5254",
+                "type": "FEATURES"
+              },
+              {
+                "backgroundColor": "#F0F1F2",
+                "icon": null,
+                "text": "Business facilities",
+                "textColor": "#4F5254",
+                "type": "FEATURES"
+              },
+              {
+                "backgroundColor": "#F0F1F2",
+                "icon": null,
+                "text": "Bar",
+                "textColor": "#4F5254",
+                "type": "FEATURES"
+              }
+            ],
+            "hotelFlexibilityFeatures": [
+              {
+                "backgroundColor": "",
+                "icon": "http://img.cnt.traveloka.com/tvlk/image/imageResource/2024/05/10/1715311425788-bb09b97db03db2ccd74f95d77f80057f.png",
+                "text": "Free Cancellation",
+                "textColor": "#00875A",
+                "type": "FLEX_FEATURES"
+              }
+            ],
+            "hotelSeoUrl": "hotel/thailand/amari-bangkok--1000000134834",
+            "latitude": "13.7511036326424",
+            "longitude": "100.540341152779",
+            "numReviews": null,
+            "region": "Pratunam, Ratchathewi",
+            "reviewSummary": {
+              "providerReviewSummary": null,
+              "showProviderReview": false,
+              "travelokaReviewSummary": null,
+              "ugcReviewSummary": {
+                "iconUrl": null,
+                "maxUserRating": "10.0",
+                "numReviews": "1405",
+                "reviewProvider": "EXPEDIA",
+                "userRating": "9.2",
+                "userRatingInfo": "Exceptional"
+              }
+            },
+            "showedFacilityTypes": [
+              "WIFI_PUBLIC_AREA",
+              "CARPARK",
+              "BAR"
+            ],
+            "starRating": "5.0",
+            "userRating": null
+          },
+          "source_price": {
+            "perRoomPerNightDisplay": {
+              "baseFare": {
+                "amount": "15207",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "exclusiveFinalPrice": {
+                "amount": "15207",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "fees": {
+                "amount": "0",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "inclusiveFinalPrice": {
+                "amount": "17899",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "numOfDecimalPoint": "2",
+              "taxes": {
+                "amount": "2691",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "totalFare": {
+                "amount": "17899",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              }
+            },
+            "totalPriceRateDisplay": {
+              "baseFare": {
+                "amount": "60829",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "exclusiveFinalPrice": {
+                "amount": "60829",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "fees": {
+                "amount": "0",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "inclusiveFinalPrice": {
+                "amount": "71596",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "numOfDecimalPoint": "2",
+              "taxes": {
+                "amount": "10767",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "totalFare": {
+                "amount": "71596",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              }
+            }
+          }
+        }
+      }
+    ],
+    "search_complete": true,
+    "coverage": {
+      "inventory_entries": 2,
+      "next_offset": 2,
+      "offset": 0,
+      "ordering": "POPULARITY",
+      "returned": 2,
+      "scanned_entries": 3,
+      "scope": "source_page",
+      "search_url": "https://www.traveloka.com/en-sg/hotel/search?childSpec=8%2C5&spec=06-01-2027.08-01-2027.2.2.HOTEL_GEO.10000045.Bangkok.3",
+      "source_original_hotel_cards": "2",
+      "source_total": "6432",
+      "top": 2,
+      "truncated": false
+    },
+    "warnings": [],
+    "indicative": true,
+    "freshness": "fresh_retrieval"
+  },
+  "observed_at": "2026-10-02T06:01:33.575223Z",
+  "query": {
+    "kind": "hotels",
+    "market": "SG",
+    "locale": "en-SG",
+    "currency": "SGD",
+    "origin": "",
+    "destination": "",
+    "depart": "",
+    "return_date": "",
+    "cabin": "",
+    "geo_id": "10000045",
+    "property_id": "",
+    "property_name": "Bangkok",
+    "check_in": "2027-01-06",
+    "check_out": "2027-01-08",
+    "adults": 3,
+    "children": 2,
+    "infants": 0,
+    "rooms": 2,
+    "limit": 2,
+    "offset": 0,
+    "max_candidates": 2,
+    "child_ages": [
+      8,
+      5
+    ]
+  },
+  "requests": [
+    {
+      "http_status": 200,
+      "path": "/api/v2/hotel/searchList",
+      "request_context": {
+        "checkInDate": {
+          "day": "6",
+          "month": "1",
+          "year": "2027"
+        },
+        "checkOutDate": {
+          "day": "8",
+          "month": "1",
+          "year": "2027"
+        },
+        "childAges": [
+          8,
+          5
+        ],
+        "currency": "SGD",
+        "geoId": "10000045",
+        "locationName": "Bangkok",
+        "numAdults": 3,
+        "numChildren": 2,
+        "numRooms": 2,
+        "sourceType": "HOTEL_GEO"
+      },
+      "shopper": {
+        "currency": "SGD",
+        "locale": "en_SG",
+        "market": "SG"
+      },
+      "source_prices": [
+        {
+          "finalPrice": {
+            "perRoomPerNightDisplay": {
+              "baseFare": {
+                "amount": "10376",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "exclusiveFinalPrice": {
+                "amount": "10376",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "fees": {
+                "amount": "0",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "inclusiveFinalPrice": {
+                "amount": "12213",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "numOfDecimalPoint": "2",
+              "taxes": {
+                "amount": "1836",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "totalFare": {
+                "amount": "12213",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              }
+            },
+            "totalPriceRateDisplay": {
+              "baseFare": {
+                "amount": "41505",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "exclusiveFinalPrice": {
+                "amount": "41505",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "fees": {
+                "amount": "0",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "inclusiveFinalPrice": {
+                "amount": "48852",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "numOfDecimalPoint": "2",
+              "taxes": {
+                "amount": "7347",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "totalFare": {
+                "amount": "48852",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              }
+            }
+          },
+          "id": "9000000001714",
+          "matchSearchOccupancy": true,
+          "name": "The Berkeley Hotel Pratunam",
+          "numChargedRooms": "2"
+        },
+        {
+          "finalPrice": {
+            "perRoomPerNightDisplay": {
+              "baseFare": {
+                "amount": "15207",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "exclusiveFinalPrice": {
+                "amount": "15207",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "fees": {
+                "amount": "0",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "inclusiveFinalPrice": {
+                "amount": "17899",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "numOfDecimalPoint": "2",
+              "taxes": {
+                "amount": "2691",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "totalFare": {
+                "amount": "17899",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              }
+            },
+            "totalPriceRateDisplay": {
+              "baseFare": {
+                "amount": "60829",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "exclusiveFinalPrice": {
+                "amount": "60829",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "fees": {
+                "amount": "0",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "inclusiveFinalPrice": {
+                "amount": "71596",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "numOfDecimalPoint": "2",
+              "taxes": {
+                "amount": "10767",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              },
+              "totalFare": {
+                "amount": "71596",
+                "currency": "SGD",
+                "nullOrEmpty": false
+              }
+            }
+          },
+          "id": "1000000134834",
+          "matchSearchOccupancy": true,
+          "name": "Amari Bangkok",
+          "numChargedRooms": "2"
+        }
+      ]
+    }
+  ]
+}

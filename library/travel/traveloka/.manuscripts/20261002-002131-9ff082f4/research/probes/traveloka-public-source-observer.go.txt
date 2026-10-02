@@ -1,0 +1,59 @@
+// Temporary independent source observer; never included in the delivered project.
+package main
+
+import (
+ "bytes"
+ "context"
+ "encoding/json"
+ "fmt"
+ "io"
+ "net/http"
+ "os"
+ "strings"
+ "time"
+ "traveloka-pp-cli/internal/client"
+ "traveloka-pp-cli/internal/config"
+ "traveloka-pp-cli/internal/traveloka"
+)
+
+type observer struct { next http.RoundTripper; records []map[string]any }
+func object(v any) map[string]any { x,_:=v.(map[string]any);return x }
+func list(v any) []any { x,_:=v.([]any);return x }
+func pick(m map[string]any, keys ...string) map[string]any { out:=map[string]any{};for _,k:=range keys {if v,ok:=m[k];ok{out[k]=v}};return out }
+func decode(b []byte) map[string]any { var m map[string]any;d:=json.NewDecoder(bytes.NewReader(b));d.UseNumber();_ = d.Decode(&m);return m }
+func (o *observer) RoundTrip(r *http.Request)(*http.Response,error){
+ b,_:=io.ReadAll(r.Body);r.Body=io.NopCloser(bytes.NewReader(b))
+ request:=object(decode(b)["data"])
+ resp,e:=o.next.RoundTrip(r);if e!=nil{return resp,e}
+ body,e:=io.ReadAll(io.LimitReader(resp.Body,24<<20));resp.Body.Close();resp.Body=io.NopCloser(bytes.NewReader(body));if e!=nil{return resp,e}
+ data:=object(decode(body)["data"])
+ record:=map[string]any{"path":r.URL.Path,"http_status":resp.StatusCode,"shopper":map[string]string{"market":r.Header.Get("Tv-Country"),"locale":r.Header.Get("Tv-Language"),"currency":r.Header.Get("Tv-Currency")},"request_context":pick(request,"journeys","tripType","numSeats","seatPublishedClass","currency","checkInDate","checkOutDate","numRooms","numAdults","numChildren","childAges","childrenAge","numNights","geoId","hotelId","locationName","sourceType","searchSpec")}
+ prices:=[]map[string]any{}
+ switch r.URL.Path {
+ case "/api/v2/flight/search/redirection":
+  ids:=[]string{};for _,v:=range list(request["journeyIds"]){if s,ok:=v.(string);ok{ids=append(ids,s)}}
+  prices=append(prices,map[string]any{"id":strings.Join(ids,"+"),"totalPrice":data["totalPrice"],"displayedPricePerPax":data["displayedPricePerPax"],"displayType":data["displayType"]})
+ case "/api/v2/hotel/searchList":
+  for _,v:=range list(data["entries"]){entry:=object(v);if entry["displayType"]!="INVENTORY"||entry["contentType"]!="HOTEL"{continue};hotel:=object(entry["data"]);inventory:=object(hotel["hotelInventorySummary"]);prices=append(prices,map[string]any{"id":hotel["id"],"name":hotel["name"],"finalPrice":inventory["finalPrice"],"matchSearchOccupancy":inventory["matchSearchOccupancy"],"numChargedRooms":inventory["numChargedRooms"]})}
+ case "/api/v2/hotel/search/rooms":
+  for _,v:=range list(data["recommendedEntries"]){room:=object(v);for _,v:=range list(room["hotelRoomInventoryList"]){rate:=object(v);prices=append(prices,pick(rate,"hotelRoomInventoryId","finalPrice","matchSearchOccupancy","numChargedRooms","mealPlanDisplay","includedMealTypes","isRefundable","rateType","roomCancellationPolicy"))}}
+ }
+ if len(prices)>0{record["source_prices"]=prices}
+ o.records=append(o.records,record);return resp,nil
+}
+func main(){
+ if len(os.Args)!=3{fmt.Fprintln(os.Stderr,"usage: observer public-snapshot.json public-evidence.json");os.Exit(2)}
+ s,e:=traveloka.ReadSnapshotFile(os.Args[1]);if e!=nil{panic(e)}
+ source,e:=traveloka.NewClient(os.Getenv("TRAVELOKA_SESSION_FILE"));if e!=nil{panic(e)}
+ cfg,e:=config.Load("");if e!=nil{panic(e)}
+ native:=client.New(cfg,90*time.Second,0);tr:=&observer{next:native.HTTPClient.Transport};source.SetHTTPTransport(tr);_ = source.SetRateLimit(0)
+ ctx,cancel:=context.WithTimeout(context.Background(),90*time.Second);defer cancel()
+ q:=s.Query;q.Limit=2;q.MaxCandidates=2
+ var result *traveloka.Snapshot
+ switch q.Kind{case "flights":result,e=source.SearchFlights(ctx,q);case "hotels":result,e=source.SearchHotels(ctx,q);case "rooms":result,e=source.HotelRooms(ctx,q);default:panic("unsupported research kind")}
+ out:=map[string]any{"label":"independent read-only consumer source observation, not delivered-CLI evidence","query":q,"observed_at":time.Now().UTC().Format(time.RFC3339Nano),"requests":tr.records,"normalized_inspector_result":result}
+ if e!=nil{out["error"]=e.Error()}
+ b,_:=json.MarshalIndent(out,"","  ");if e:=os.WriteFile(os.Args[2],append(b,'\n'),0600);e!=nil{panic(e)}
+ fmt.Println("Source observations saved without headers, cookies or request tokens.")
+ if e!=nil{os.Exit(1)}
+}

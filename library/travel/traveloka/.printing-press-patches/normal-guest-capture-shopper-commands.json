@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "normal-guest-capture-shopper-commands",
+  "applied_at": "2026-10-02",
+  "base_run_id": "20261002-002131-9ff082f4",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Provide explicit guest capture/import and scoped POST doctor validation in every selected home, with direct HTTP shopper commands and public snapshots.",
+  "reason": "A valid consumer session needs read-only operation profiles as well as Traveloka cookies. Browser launch is opt-in, scoped, refused under harnesses, and closed before HTTP replay; ordinary commands use direct Go HTTP.",
+  "files": [
+    "internal/cli/traveloka_shared.go",
+    "internal/cli/traveloka_auth.go",
+    "internal/cli/traveloka_core.go",
+    "internal/cli/traveloka_commands_test.go",
+    "internal/travelokacapture/capture.go",
+    "internal/travelokacapture/capture_test.go",
+    "internal/cli/doctor.go",
+    "workflow_verify.yaml",
+    "internal/cli/traveloka_shared_security_test.go",
+    "README.md",
+    "SKILL.md",
+    "AGENTS.md"
+  ]
+}

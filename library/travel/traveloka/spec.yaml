@@ -1,0 +1,317 @@
+name: traveloka
+description: Research dated Traveloka flights and hotel stays with explicit shopper
+  context, source price bases and booking handoff.
+version: 0.1.0
+category: travel
+base_url: https://www.traveloka.com
+spec_source: browser-sniffed
+http_transport: browser-chrome
+health_check_path: /
+auth:
+  type: cookie
+  cookie_domain: .traveloka.com
+  requires_browser_session: true
+  browser_session_reason: Anonymous consumer searches require legitimate Traveloka-only
+    cookies and per-operation request-token profiles captured through the normal website.
+  browser_session_validation_path: /api/v2/airport/search-nexus
+  browser_session_validation_method: POST
+  instructions: Use auth capture with an installed browser-use backend or auth import-session
+    with scoped private cookie/request JSON. Normal commands replay HTTP; refresh
+    explicitly on expired/protected access. Do not install globally or bypass challenges.
+  env_var_specs:
+  - name: TRAVELOKA_SESSION_FILE
+    kind: per_call
+    sensitive: false
+    required: true
+    description: Path to a private Traveloka-only cookie and request-profile session
+      file. This is a file path, never a raw Cookie header.
+  cookies:
+  - tv_cs
+  - clientSessionId
+  description: Observed core guest-session cookie names for generator metadata. The
+    delivered session importer preserves the complete scoped cookie jar and captured
+    operation profiles; these names do not imply other cookies are unnecessary.
+auth_warnings:
+- The consumer interface is session-gated; public homepage reachability does not establish
+  anonymous API access. No single vendor API key or token env var is known.
+config:
+  format: toml
+  path: ~/.config/traveloka-pp-cli/config.toml
+cache:
+  enabled: false
+mcp:
+  transport:
+  - stdio
+  orchestration: endpoint-mirror
+learn:
+  entity_lookup_seeds:
+    airport:
+    - canonical: Changi International Airport
+      aliases:
+      - SIN
+      - Singapore Changi
+    hotel_destination:
+    - canonical: Singapore
+      aliases:
+      - Singapore city
+    - canonical: Bangkok
+      aliases:
+      - Bangkok Thailand
+    property:
+    - canonical: The Berkeley Hotel Pratunam
+      aliases:
+      - Berkeley Pratunam
+      - Berkeley hotel Bangkok
+  ticker_patterns:
+  - ^[A-Z]{3}$
+  - ^[0-9]{13}$
+  synonyms:
+    round trip: return flight
+    non-refundable: nonrefundable
+    checkin: check-in
+resources:
+  airport:
+    description: Advanced read-only Traveloka airport source operations. Clean resolve/flights/hotels
+      commands orchestrate the shopper workflows.
+    endpoints:
+      lookup:
+        method: POST
+        path: /api/v2/airport/search-nexus
+        mutation: false
+        description: Resolve ranked airport/city matches; prefer the resolve command.
+        no_auth: false
+        request_content_type: application/json
+        body:
+        - name: clientInterface
+          flag_name: client-interface
+          type: string
+          default: desktop
+          description: Source client interface; desktop is the observed consumer web
+            context.
+        - name: data
+          type: object
+          required: true
+          description: Operation-specific search data; clean shopper commands construct
+            the validated source payload.
+        - name: fields
+          type: array
+          default: []
+          description: Source projection field list; empty preserves returned source
+            data.
+        response:
+          type: object
+          item: SourceReply
+        response_format: json
+  flight:
+    description: Advanced read-only Traveloka flight source operations. Clean resolve/flights/hotels
+      commands orchestrate the shopper workflows.
+    endpoints:
+      initial:
+        method: POST
+        path: /api/v2/flight/search/initial
+        mutation: false
+        description: Start a dated flight search; prefer flights search for the complete
+          workflow.
+        no_auth: false
+        request_content_type: application/json
+        body:
+        - name: clientInterface
+          flag_name: client-interface
+          type: string
+          default: desktop
+          description: Source client interface; desktop is the observed consumer web
+            context.
+        - name: data
+          type: object
+          required: true
+          description: Operation-specific search data; clean shopper commands construct
+            the validated source payload.
+        - name: fields
+          type: array
+          default: []
+          description: Source projection field list; empty preserves returned source
+            data.
+        response:
+          type: object
+          item: SourceReply
+        response_format: json
+      poll:
+        method: POST
+        path: /api/v2/flight/search/poll
+        mutation: false
+        description: Read incremental flight inventory or selected-outbound return
+          options.
+        no_auth: false
+        request_content_type: application/json
+        body:
+        - name: clientInterface
+          flag_name: client-interface
+          type: string
+          default: desktop
+          description: Source client interface; desktop is the observed consumer web
+            context.
+        - name: data
+          type: object
+          required: true
+          description: Operation-specific search data; clean shopper commands construct
+            the validated source payload.
+        - name: fields
+          type: array
+          default: []
+          description: Source projection field list; empty preserves returned source
+            data.
+        response:
+          type: object
+          item: SourceReply
+        response_format: json
+      prefetch:
+        method: POST
+        path: /api/v2/flight/search/redirection
+        mutation: false
+        description: Read source-confirmed prices for selected flight journeys; search
+          preparation only.
+        no_auth: false
+        request_content_type: application/json
+        body:
+        - name: clientInterface
+          flag_name: client-interface
+          type: string
+          default: desktop
+          description: Source client interface; desktop is the observed consumer web
+            context.
+        - name: data
+          type: object
+          required: true
+          description: Operation-specific search data; clean shopper commands construct
+            the validated source payload.
+        - name: fields
+          type: array
+          default: []
+          description: Source projection field list; empty preserves returned source
+            data.
+        response:
+          type: object
+          item: SourceReply
+        response_format: json
+  hotel:
+    description: Advanced read-only Traveloka hotel source operations. Clean resolve/flights/hotels
+      commands orchestrate the shopper workflows.
+    endpoints:
+      lookup:
+        method: POST
+        path: /api/v1/hotel/autocomplete
+        mutation: false
+        description: Resolve ranked hotel destinations and properties; prefer resolve.
+        no_auth: false
+        request_content_type: application/json
+        body:
+        - name: clientInterface
+          flag_name: client-interface
+          type: string
+          default: desktop
+          description: Source client interface; desktop is the observed consumer web
+            context.
+        - name: data
+          type: object
+          required: true
+          description: Operation-specific search data; clean shopper commands construct
+            the validated source payload.
+        - name: fields
+          type: array
+          default: []
+          description: Source projection field list; empty preserves returned source
+            data.
+        response:
+          type: object
+          item: SourceReply
+        response_format: json
+      features:
+        method: POST
+        path: /api/v2/hotel/autocomplete/features
+        mutation: false
+        description: Read hotel autocomplete feature metadata.
+        no_auth: false
+        request_content_type: application/json
+        body:
+        - name: clientInterface
+          flag_name: client-interface
+          type: string
+          default: desktop
+          description: Source client interface; desktop is the observed consumer web
+            context.
+        - name: data
+          type: object
+          required: true
+          description: Operation-specific search data; clean shopper commands construct
+            the validated source payload.
+        - name: fields
+          type: array
+          default: []
+          description: Source projection field list; empty preserves returned source
+            data.
+        response:
+          type: object
+          item: SourceReply
+        response_format: json
+      catalog:
+        method: POST
+        path: /api/v2/hotel/searchList
+        mutation: false
+        description: Read dated property inventory; prefer hotels search.
+        no_auth: false
+        request_content_type: application/json
+        body:
+        - name: clientInterface
+          flag_name: client-interface
+          type: string
+          default: desktop
+          description: Source client interface; desktop is the observed consumer web
+            context.
+        - name: data
+          type: object
+          required: true
+          description: Operation-specific search data; clean shopper commands construct
+            the validated source payload.
+        - name: fields
+          type: array
+          default: []
+          description: Source projection field list; empty preserves returned source
+            data.
+        response:
+          type: object
+          item: SourceReply
+        response_format: json
+      rooms:
+        method: POST
+        path: /api/v2/hotel/search/rooms
+        mutation: false
+        description: Read dated room/rate plans; prefer hotels rooms.
+        no_auth: false
+        request_content_type: application/json
+        body:
+        - name: clientInterface
+          flag_name: client-interface
+          type: string
+          default: desktop
+          description: Source client interface; desktop is the observed consumer web
+            context.
+        - name: data
+          type: object
+          required: true
+          description: Operation-specific search data; clean shopper commands construct
+            the validated source payload.
+        - name: fields
+          type: array
+          default: []
+          description: Source projection field list; empty preserves returned source
+            data.
+        response:
+          type: object
+          item: SourceReply
+        response_format: json
+types:
+  SourceReply:
+    fields:
+    - name: data
+      type: object
+      description: Source response data, preserving its variable flight/hotel shape.

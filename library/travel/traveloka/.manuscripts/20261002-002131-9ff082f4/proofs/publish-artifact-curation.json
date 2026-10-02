@@ -1,0 +1,27 @@
+{
+  "public_archive_curated": true,
+  "retained_proofs": [
+    "12-shipcheck-final.json",
+    "18-manual-live-summary-immediate.jsonl",
+    "18-source-family-fresh.json",
+    "18-source-flight-fresh.json",
+    "18-source-price-crosschecks.json",
+    "18-source-return-fresh.json",
+    "19-polish-gosec-triage.json",
+    "19-polish-output-review.md",
+    "20-final-private-value-scan.json",
+    "20-private-export-cleanup.json",
+    "20-promoted-artifact-checks.json",
+    "2026-10-02-fix-traveloka-pp-cli-acceptance.md",
+    "2026-10-02-fix-traveloka-pp-cli-polish.md",
+    "2026-10-02-fix-traveloka-pp-cli-shipcheck.md",
+    "21-local-delivery-summary.json",
+    "phase-4.85-findings.md",
+    "phase-4.95-findings.md",
+    "phase5-acceptance.json",
+    "publish-live-summary.json"
+  ],
+  "historical_and_raw_evidence_retained_locally": true,
+  "runtime_databases_removed": true,
+  "pre_scrub_copy_available": true
+}

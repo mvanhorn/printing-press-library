@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "full-live-source-fixture-contract",
+  "applied_at": "2026-10-02",
+  "base_run_id": "20261002-002131-9ff082f4",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Provide bounded explicit operation JSON file inputs and runnable source examples; preserve honest local-write metadata and confined full-live fixture homes.",
+  "reason": "The full binary-owned matrix found missing source Examples and hollow preview-only approved features. Required data remains explicit, tokens stay in the scoped private session, and fresh public query/source-ID fixtures are supplied at runtime rather than invented or embedded in source.",
+  "files": [
+    "internal/cli/traveloka_dogfood.go",
+    "internal/cli/traveloka_dogfood_test.go",
+    ".gitignore",
+    "README.md",
+    "SKILL.md"
+  ]
+}

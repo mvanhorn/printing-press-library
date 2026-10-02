@@ -1,0 +1,12 @@
+### Absorbed core features
+| # | Feature | Best Source | Our Implementation | Added Value |
+|---|---|---|---|---|
+| 1 | Resolve cities, airports and properties | Traveloka live airport search-nexus and hotel autocomplete; hhtrieu0108/Crawl_Traveloka discovery | traveloka-pp-cli resolve | Source IDs, type/ambiguity, bounded JSON, explicit market/locale/currency |
+| 2 | One-way flight search | Traveloka live ONE_WAY initial/poll/prefetch | traveloka-pp-cli flights search | Explicit dates/passengers/cabin, source total/per-passenger price, legs/UTC offsets, policies, bounded results |
+| 3 | Return flight search | Traveloka live ROUND_TRIP initial + both journey indices + redirection | (behavior in traveloka-pp-cli flights search) --return-date obtains both legs and authoritative combined price | No guessed fare sums or delta-as-total mistakes |
+| 4 | Inspect available flight offers | Traveloka live redirection inventory, segment facilities and restriction fields | traveloka-pp-cli flights inspect | Inspect source-backed quote detail with timestamp and original search context; snapshots labelled as snapshots |
+| 5 | Dated hotel catalog search | Traveloka live searchList; hhtrieu0108/Crawl_Traveloka | traveloka-pp-cli hotels search | Required dates, adults/children/ages/rooms, exact source stay and nightly amounts, occupancy match, canonical property links |
+| 6 | Room/rate-plan offer inspection | Traveloka live search/rooms | traveloka-pp-cli hotels rooms | Room and rate IDs, meal plan, occupancy fit, cancellation/payment conditions, tax/fee detail, unknowns preserved |
+| 7 | Like-for-like offer comparison and booking handoff | Traveloka price basis; fli and trvl primary command docs | traveloka-pp-cli quotes compare | Grouping by context, currency and price unit, no invented conversion or inferred totals, source timestamps and canonical links |
+| 8 | Agent help/output/input/errors | User objective; fli/trvl primary CLI docs | (behavior in traveloka-pp-cli flights search) and all core commands | Compact JSON/projections, validation, pagination when exposed, distinct access/upstream/no-inventory/unsupported errors |
+| 9 | Reproducible anonymous session setup | Actual Traveloka-only browser capture and HTTP replay | traveloka-pp-cli auth import-session | Explicit private session-file input; normal commands HTTP; no browser sidecar; protection errors remain errors |

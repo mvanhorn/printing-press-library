@@ -1,0 +1,19 @@
+{
+  "status": "complete",
+  "library_dir": "/Users/zjsng/printing-press/library/traveloka",
+  "manuscripts_dir": "/Users/zjsng/printing-press/manuscripts/traveloka/20261002-002131-9ff082f4",
+  "approved_core_features": 9,
+  "approved_novel_features": 5,
+  "live_checks_passed": 156,
+  "live_measured_checks": 156,
+  "explicit_matrix_skips": 86,
+  "verification_checks_passed": 31,
+  "verification_checks": 31,
+  "scorecard": 79,
+  "source_fingerprint": "ee7bed075277eac02d4f0d0c21e0f894104ff95970db43b1d332ea03bda6e7b1",
+  "promotion_and_archive_receipts_complete": true,
+  "next_step": "done locally",
+  "private_value_leaks": 0,
+  "remaining_blockers": [],
+  "publication_performed": false
+}

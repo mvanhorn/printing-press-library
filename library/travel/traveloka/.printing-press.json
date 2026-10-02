@@ -1,0 +1,111 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-02T13:23:09.946697Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "traveloka",
+  "display_name": "Traveloka",
+  "cli_name": "traveloka-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "Jet Sng"
+  },
+  "owner": "jet-sng",
+  "printer": "zjsng",
+  "printer_name": "Jet Sng",
+  "spec_path": "traveloka-browser-sniff-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:7a647865fa574192eb8ddaa7a990989659d2dcdc2c9741a2e84bc18dab61e983",
+  "run_id": "20261002-002131-9ff082f4",
+  "category": "travel",
+  "description": "Research dated flights and hotel stays with source price bases, complete itineraries and comparable quote snapshots.",
+  "mcp_binary": "traveloka-pp-mcp",
+  "mcp_tool_count": 8,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "auth_env_vars": [
+    "TRAVELOKA_SESSION_FILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "TRAVELOKA_SESSION_FILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false,
+      "description": "Path to a private Traveloka-only cookie and request-profile session file. This is a file path, never a raw Cookie header."
+    }
+  ],
+  "auth_description": "Observed core guest-session cookie names for generator metadata. The delivered session importer preserves the complete scoped cookie jar and captured operation profiles; these names do not imply other cookies are unnecessary.",
+  "novel_features": [
+    {
+      "name": "Explicit flight date grid",
+      "command": "flights date-grid",
+      "description": "Compare retrieved trip totals across a bounded list of explicit departure and return dates."
+    },
+    {
+      "name": "Explicit hotel stay grid",
+      "command": "hotels date-grid",
+      "description": "Compare source stay totals for one property across equal-length stays with fixed occupancy."
+    },
+    {
+      "name": "Flight trade-off frontier",
+      "command": "flights shortlist",
+      "description": "Keep retrieved flight offers that trade price against stops and elapsed time."
+    },
+    {
+      "name": "Same-room cancellation price difference",
+      "command": "hotels flexibility",
+      "description": "See the stay-price difference between comparable cancellable and nonrefundable room rates."
+    },
+    {
+      "name": "Quote snapshot changes",
+      "command": "quotes diff",
+      "description": "Compare matched-offer price and policy changes between two explicit retrieval snapshots."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Explicit flight date grid",
+      "command": "flights date-grid",
+      "description": "Compare retrieved trip totals across a bounded list of explicit departure and return dates."
+    },
+    {
+      "name": "Explicit hotel stay grid",
+      "command": "hotels date-grid",
+      "description": "Compare source stay totals for one property across equal-length stays with fixed occupancy."
+    },
+    {
+      "name": "Flight trade-off frontier",
+      "command": "flights shortlist",
+      "description": "Keep retrieved flight offers that trade price against stops and elapsed time."
+    },
+    {
+      "name": "Same-room cancellation price difference",
+      "command": "hotels flexibility",
+      "description": "See the stay-price difference between comparable cancellable and nonrefundable room rates."
+    },
+    {
+      "name": "Quote snapshot changes",
+      "command": "quotes diff",
+      "description": "Compare matched-offer price and policy changes between two explicit retrieval snapshots."
+    }
+  ],
+  "verify": {
+    "mode": "live",
+    "pass_rate": 100,
+    "passed": 31,
+    "total": 31,
+    "data_pipeline": true,
+    "browser_session_required": true,
+    "browser_session_proof": "valid",
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 81,
+      "grade": "A",
+      "total": 81
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "source-priced-travel-snapshots",
+  "applied_at": "2026-10-02",
+  "base_run_id": "20261002-002131-9ff082f4",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Keep source trip/stay totals distinct from rounded display prices, complete itinerary/rate identities, and original retrieval context.",
+  "reason": "Return fare deltas are not trip totals, and rounded nightly displays do not reproduce stay totals. Preserve ranked nested airport children and expose bounded/incomplete source coverage rather than invent inventory.",
+  "files": [
+    "internal/traveloka/models.go",
+    "internal/traveloka/money.go",
+    "internal/traveloka/validation.go",
+    "internal/traveloka/resolve.go",
+    "internal/traveloka/flights.go",
+    "internal/traveloka/hotels.go",
+    "internal/traveloka/workflow_helpers.go",
+    "internal/traveloka/snapshots.go",
+    "internal/traveloka/hotel_prices_test.go",
+    "internal/traveloka/resolve_kinds_test.go",
+    "internal/traveloka/hotel_meals_test.go",
+    "internal/traveloka/flights_context_test.go"
+  ]
+}

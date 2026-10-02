@@ -1,0 +1,221 @@
+{
+  "api_name": "traveloka",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "Crawl_Traveloka",
+      "url": "https://github.com/hhtrieu0108/Crawl_Traveloka",
+      "language": "Python",
+      "install_method": "",
+      "stars": 8,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "fli",
+      "url": "https://github.com/punitarani/fli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "trvl",
+      "url": "https://github.com/MikkoParkkola/trvl",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-01T21:32:14.083587Z",
+  "novel_features": [
+    {
+      "name": "Explicit flight date grid",
+      "command": "flights date-grid",
+      "description": "Compare retrieved trip totals across a bounded list of explicit departure and return dates.",
+      "rationale": "Coordinates complete source-confirmed searches while retaining a status for each requested cell.",
+      "example": "traveloka-pp-cli flights date-grid --origin SIN --destination CGK --depart-dates 2026-11-20,2026-11-21 --limit 2 --agent",
+      "why_it_matters": "Use this when the traveller can choose among specific dates and needs fresh, comparable offers.",
+      "group": "Explicit date comparisons"
+    },
+    {
+      "name": "Explicit hotel stay grid",
+      "command": "hotels date-grid",
+      "description": "Compare source stay totals for one property across equal-length stays with fixed occupancy.",
+      "rationale": "Combines actual room retrievals and preserves the different room and rate identities returned for each stay.",
+      "example": "traveloka-pp-cli hotels date-grid --property-id 9000000001714 --stays 2027-01-06:2027-01-08,2027-01-13:2027-01-15 --adults 2 --rooms 1 --limit 2 --agent",
+      "why_it_matters": "Use this to compare specific alternative stays without assuming identical rooms are available.",
+      "group": "Explicit date comparisons"
+    },
+    {
+      "name": "Flight trade-off frontier",
+      "command": "flights shortlist",
+      "description": "Keep retrieved flight offers that trade price against stops and elapsed time.",
+      "rationale": "Joins authoritative trip totals to complete itineraries from a matched-context local snapshot.",
+      "example": "traveloka-pp-cli flights shortlist --snapshot /private/tmp/traveloka-flight.json --agent",
+      "why_it_matters": "Use this to reduce an existing search to source-backed trade-offs without a subjective score. Offers with missing price, stops or duration remain in unknown_dimensions.",
+      "group": "Retrieved offer comparisons"
+    },
+    {
+      "name": "Same-room cancellation price difference",
+      "command": "hotels flexibility",
+      "description": "See the stay-price difference between comparable cancellable and nonrefundable room rates.",
+      "rationale": "Pairs only explicit source cancellation classifications for the same room, occupancy, meal and payment context.",
+      "example": "traveloka-pp-cli hotels flexibility --snapshot /private/tmp/traveloka-rooms.json --agent",
+      "why_it_matters": "Use this when choosing a rate plan for the same room and stay. Unknown or unmatched policies remain unpaired; zero comparable cancellation pairs is a valid result.",
+      "group": "Retrieved offer comparisons"
+    },
+    {
+      "name": "Quote snapshot changes",
+      "command": "quotes diff",
+      "description": "Compare matched-offer price and policy changes between two explicit retrieval snapshots.",
+      "rationale": "Correlates exact source identities under identical context and reports missing results as not returned.",
+      "example": "traveloka-pp-cli quotes diff --before /private/tmp/traveloka-flight-before.json --after /private/tmp/traveloka-flight-after.json --agent",
+      "why_it_matters": "Use this to explain changes between two actual searches without inferring sold-out inventory.",
+      "group": "Retrieval history"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Explicit flight date grid",
+      "command": "flights date-grid",
+      "description": "Compare retrieved trip totals across a bounded list of explicit departure and return dates.",
+      "rationale": "Coordinates complete source-confirmed searches while retaining a status for each requested cell.",
+      "example": "traveloka-pp-cli flights date-grid --origin SIN --destination CGK --depart-dates 2026-11-20,2026-11-21 --limit 2 --agent",
+      "why_it_matters": "Use this when the traveller can choose among specific dates and needs fresh, comparable offers.",
+      "group": "Explicit date comparisons"
+    },
+    {
+      "name": "Explicit hotel stay grid",
+      "command": "hotels date-grid",
+      "description": "Compare source stay totals for one property across equal-length stays with fixed occupancy.",
+      "rationale": "Combines actual room retrievals and preserves the different room and rate identities returned for each stay.",
+      "example": "traveloka-pp-cli hotels date-grid --property-id 9000000001714 --stays 2027-01-06:2027-01-08,2027-01-13:2027-01-15 --adults 2 --rooms 1 --limit 2 --agent",
+      "why_it_matters": "Use this to compare specific alternative stays without assuming identical rooms are available.",
+      "group": "Explicit date comparisons"
+    },
+    {
+      "name": "Flight trade-off frontier",
+      "command": "flights shortlist",
+      "description": "Keep retrieved flight offers that trade price against stops and elapsed time.",
+      "rationale": "Joins authoritative trip totals to complete itineraries from a matched-context local snapshot.",
+      "example": "traveloka-pp-cli flights shortlist --snapshot /private/tmp/traveloka-flight.json --agent",
+      "why_it_matters": "Use this to reduce an existing search to source-backed trade-offs without a subjective score. Offers with missing price, stops or duration remain in unknown_dimensions.",
+      "group": "Retrieved offer comparisons"
+    },
+    {
+      "name": "Same-room cancellation price difference",
+      "command": "hotels flexibility",
+      "description": "See the stay-price difference between comparable cancellable and nonrefundable room rates.",
+      "rationale": "Pairs only explicit source cancellation classifications for the same room, occupancy, meal and payment context.",
+      "example": "traveloka-pp-cli hotels flexibility --snapshot /private/tmp/traveloka-rooms.json --agent",
+      "why_it_matters": "Use this when choosing a rate plan for the same room and stay. Unknown or unmatched policies remain unpaired; zero comparable cancellation pairs is a valid result.",
+      "group": "Retrieved offer comparisons"
+    },
+    {
+      "name": "Quote snapshot changes",
+      "command": "quotes diff",
+      "description": "Compare matched-offer price and policy changes between two explicit retrieval snapshots.",
+      "rationale": "Correlates exact source identities under identical context and reports missing results as not returned.",
+      "example": "traveloka-pp-cli quotes diff --before /private/tmp/traveloka-flight-before.json --after /private/tmp/traveloka-flight-after.json --agent",
+      "why_it_matters": "Use this to explain changes between two actual searches without inferring sold-out inventory.",
+      "group": "Retrieval history"
+    }
+  ],
+  "narrative": {
+    "display_name": "Traveloka",
+    "headline": "Research dated flights and hotel stays with source price bases, complete itineraries and comparable quote snapshots.",
+    "value_prop": "Retrieve Traveloka flight and hotel offers with explicit dates, party, market and currency. Compare selected dates and source-backed snapshots while retaining itinerary details, room policies, price units and canonical booking links.",
+    "auth_narrative": "Consumer searches require a legitimate anonymous Traveloka browser session. Run auth capture --launch --timeout 2m with an already installed browser-use backend, or auth import-session with Traveloka-only cookie and captured-request JSON files. auth capture without --launch prints its plan. Capture closes its task guest browser before POST airport validation; ordinary searches replay directly over HTTP. Select the private mode-0600 session file with TRAVELOKA_SESSION_FILE or --session-file. Protection/expiry requires explicit normal-browser refresh. Airport validation proves that endpoint at that time; actual flight/hotel access is checked by the intended query. No partner API key, account change, CAPTCHA solving or global installation is performed.",
+    "quickstart": [
+      {
+        "command": "traveloka-pp-cli doctor --dry-run",
+        "comment": "Check the CLI safely before session setup."
+      },
+      {
+        "command": "traveloka-pp-cli auth capture --launch --timeout 2m --agent",
+        "comment": "Capture a scoped normal guest session using an existing browser-use backend."
+      },
+      {
+        "command": "traveloka-pp-cli resolve --query Singapore --kind airport --market SG --locale en-SG --currency SGD --limit 5 --agent",
+        "comment": "Resolve source airport IDs under explicit shopper context."
+      },
+      {
+        "command": "traveloka-pp-cli flights search --origin SIN --destination CGK --depart 2026-11-20 --adults 1 --limit 3 --save-snapshot /private/tmp/traveloka-flight.json --agent",
+        "comment": "Retrieve complete one-way offers and save a secret-free comparison snapshot."
+      },
+      {
+        "command": "traveloka-pp-cli hotels rooms --property-id 9000000001714 --check-in 2027-01-06 --check-out 2027-01-08 --adults 2 --rooms 1 --limit 3 --save-snapshot /private/tmp/traveloka-rooms.json --agent",
+        "comment": "Inspect dated room-rate policies and explicit stay versus nightly prices."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "AUTH_REQUIRED, ACCESS_BLOCKED or an empty HTTP 202 response",
+        "fix": "Run traveloka-pp-cli auth capture --launch --timeout 2m for a fresh normal Traveloka guest session; use scoped manual import if normal source intervention is essential. No challenge is bypassed."
+      },
+      {
+        "symptom": "A return-leg display looks like a zero or small extra fare",
+        "fix": "Use flights search --return-date; it retrieves the combined source total rather than summing displayed deltas."
+      },
+      {
+        "symptom": "Hotel rates do not fit the requested party",
+        "fix": "Inspect occupancy_match and use hotels rooms with the exact adults, rooms, children and child-ages flags."
+      },
+      {
+        "symptom": "Snapshot comparison rejects different dates or currencies",
+        "fix": "Retrieve both snapshots using identical query context; no currency conversion or unlike-stay ranking is performed."
+      }
+    ],
+    "when_to_use": "Use this CLI for explicit-date Traveloka flight and hotel research, detailed room and itinerary inspection, and canonical booking handoff. Use date grids for a small list of acceptable dates and snapshot commands for reproducible comparisons of already retrieved offers.",
+    "anti_triggers": [
+      "Booking, paying, cancelling or modifying a reservation",
+      "Account/profile changes or loyalty operations",
+      "CAPTCHA bypass, proxy rotation or synthetic clearance tokens",
+      "Tours, buses, packages or other Traveloka products",
+      "Guaranteed final ticket prices or inferred sold-out inventory"
+    ],
+    "recipes": [
+      {
+        "title": "Complete return flights",
+        "command": "traveloka-pp-cli flights search --origin SIN --destination CGK --depart 2026-11-20 --return-date 2026-11-27 --adults 1 --limit 3 --agent --select offers,query,retrieved_at",
+        "explanation": "Return both itineraries with authoritative combined totals and the matched shopper context."
+      },
+      {
+        "title": "Explicit flight dates",
+        "command": "traveloka-pp-cli flights date-grid --origin SIN --destination CGK --depart-dates 2026-11-20,2026-11-21 --limit 2 --agent",
+        "explanation": "Run a bounded date comparison with an outcome for every requested cell."
+      },
+      {
+        "title": "Hotel stay alternatives",
+        "command": "traveloka-pp-cli hotels date-grid --property-id 9000000001714 --stays 2027-01-06:2027-01-08,2027-01-13:2027-01-15 --adults 2 --rooms 1 --limit 2 --agent",
+        "explanation": "Keep occupancy fixed while retaining returned room and rate identities."
+      },
+      {
+        "title": "Same-room cancellation price difference",
+        "command": "traveloka-pp-cli hotels flexibility --snapshot /private/tmp/traveloka-rooms.json --agent",
+        "explanation": "Pair explicit policies only when room, stay, meal, occupancy and payment match. Unknown or unmatched rates remain unpaired, and no comparable pairs is a valid result."
+      }
+    ],
+    "trigger_phrases": [
+      "Compare Traveloka flights for these dates",
+      "Find Traveloka hotel rates for this party",
+      "Inspect this Traveloka room cancellation policy",
+      "Compare two Traveloka quote snapshots",
+      "use Traveloka",
+      "run Traveloka"
+    ]
+  }
+}

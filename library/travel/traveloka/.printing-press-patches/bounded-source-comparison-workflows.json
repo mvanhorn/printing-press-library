@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "bounded-source-comparison-workflows",
+  "applied_at": "2026-10-02",
+  "base_run_id": "20261002-002131-9ff082f4",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Implement all five approved bounded flight/hotel comparison commands using authoritative live retrievals and exact source-backed local snapshots.",
+  "reason": "Endpoint mirrors cannot coordinate explicit date cells, compute a Pareto frontier, join exact room cancellation alternatives, or compare temporal exact identities. Keep failed fetches visible, source totals exact and unknown policy/occupancy fields unpaired.",
+  "files": [
+    "internal/travelokacompare/compare.go",
+    "internal/travelokacompare/compare_test.go",
+    "internal/travelokacompare/grid.go",
+    "internal/travelokacompare/grid_test.go",
+    "internal/cli/flights_date_grid.go",
+    "internal/cli/hotels_date_grid.go",
+    "internal/cli/flights_shortlist.go",
+    "internal/cli/hotels_flexibility.go",
+    "internal/cli/quotes_diff.go",
+    "internal/cli/traveloka_novel_helpers.go",
+    "internal/cli/traveloka_novel_helpers_test.go"
+  ]
+}

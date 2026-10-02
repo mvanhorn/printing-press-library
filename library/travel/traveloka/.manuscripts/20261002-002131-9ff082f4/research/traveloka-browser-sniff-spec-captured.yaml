@@ -1,0 +1,2728 @@
+name: traveloka
+description: Discovered API spec for traveloka
+version: 0.1.0
+base_url: https://www.traveloka.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "prefetchCacheKey" from body: request body field'
+config:
+    format: toml
+    path: ~/.config/traveloka-pp-cli/config.toml
+resources:
+    airport:
+        description: Operations on search-nexus
+        endpoints:
+            create_search_nexus:
+                method: POST
+                path: /api/v2/airport/search-nexus
+                description: POST /api/v2/airport/search-nexus
+                params: []
+                body:
+                    - name: clientInterface
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: data
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: filters
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: frequentAirport
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: originAirport
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: query
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: showTags
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: fields
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: SearchNexus
+                pagination: null
+    flight:
+        description: Operations on promotions
+        endpoints:
+            create_config:
+                method: POST
+                path: /api/v2/flight/search/config
+                description: POST /api/v2/flight/search/config
+                params: []
+                body:
+                    - name: clientInterface
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: data
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: fields
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: Config
+                pagination: null
+            create_dateflow:
+                method: POST
+                path: /api/v2/flight/dateflow
+                description: POST /api/v2/flight/dateflow
+                params: []
+                body:
+                    - name: clientInterface
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: data
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: dateflowRouteType
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: departFilterSpec
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: filterSearchSpec
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: flexibleTicket
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: isPaxTypePriceAverage
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: returnFilterSpec
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: roundTripSourceType
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: routeSearchSpec
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: clientInterface
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: currency
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: destinationAirportOrArea
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: flightDate
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: locale
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: numSeats
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: returnFlightDate
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: seatPublishedClass
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: sourceAirportOrArea
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                    - name: fields
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: Dateflow
+                pagination: null
+            create_initial:
+                method: POST
+                path: /api/v2/flight/search/initial
+                description: POST /api/v2/flight/search/initial
+                params: []
+                body:
+                    - name: clientInterface
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: data
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: additionalData
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: isBaggageFilterEnabled
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: isBreakSmartCombo
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: isCouponJourneyEnabled
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: pageName
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: prefetchFlag
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: searchSource
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: useDateFlow
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: usePromoFinder
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: visitId
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: uuid
+                        - name: currency
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: filter
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: standAlone
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: inventoryPricingDisplayType
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: journeyIndex
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: journeys
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: departureDate
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: destinationCode
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: originCode
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: numSeats
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: numAdults
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: numChildren
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: numInfants
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: searchId
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                        - name: seatPublishedClass
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: selectedFlights
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: selectedFlightsContext
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: sharedFlights
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: trackingMap
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: funnelSource
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: originalUrl
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: url
+                        - name: tripType
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: fields
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: Initial
+                pagination: null
+            create_poll:
+                method: POST
+                path: /api/v2/flight/search/poll
+                description: POST /api/v2/flight/search/poll
+                params: []
+                body:
+                    - name: clientInterface
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: data
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: additionalData
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: isBaggageFilterEnabled
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: isBreakSmartCombo
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: isCouponJourneyEnabled
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: pageName
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: prefetchFlag
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: searchSource
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: useDateFlow
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: usePromoFinder
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: visitId
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: uuid
+                        - name: currency
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: filter
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: standAlone
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: inventoryPricingDisplayType
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: journeyIndex
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: journeys
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: departureDate
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: destinationCode
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: originCode
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: numSeats
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: numAdults
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: numChildren
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: numInfants
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: searchId
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                        - name: seatPublishedClass
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: selectedFlights
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: selectedFlightsContext
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: 41f4909473e9f4781083e2da02d40380
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: sharedFlights
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: trackingMap
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: originalUrl
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: url
+                        - name: tripType
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: fields
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: Poll
+                pagination: null
+            create_promotions:
+                method: POST
+                path: /api/v2/flight/search/promotions
+                description: POST /api/v2/flight/search/promotions
+                params: []
+                body:
+                    - name: clientInterface
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: data
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: currency
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: isReschedule
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: locale
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: numSeats
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: numAdults
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: numChildren
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: numInfants
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: routeList
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: destinationAirportOrArea
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: flightDate
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: sourceAirportOrArea
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: seatPublishedClass
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: fields
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: Promotion
+                pagination: null
+            create_redirection:
+                method: POST
+                path: /api/v2/flight/search/redirection
+                description: POST /api/v2/flight/search/redirection
+                params: []
+                body:
+                    - name: clientInterface
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: data
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: isBreakSmartCombo
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: isPrefetch
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: journeyContextData
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: 41f4909473e9f4781083e2da02d40380
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: b5366972283dac93ff09369ad6eca0f5
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: journeyIds
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: searchId
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                    - name: fields
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: prefetchCacheKey
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: Redirection
+                pagination: null
+    hotel:
+        description: Operations on searchList
+        endpoints:
+            create_autocomplete:
+                method: POST
+                path: /api/v1/hotel/autocomplete
+                description: POST /api/v1/hotel/autocomplete
+                params: []
+                body:
+                    - name: clientInterface
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: data
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: experimentContext
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: mapParamKeyToVariant
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: query
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: fields
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: Autocomplete
+                pagination: null
+            create_features:
+                method: POST
+                path: /api/v2/hotel/autocomplete/features
+                description: POST /api/v2/hotel/autocomplete/features
+                params: []
+                body:
+                    - name: clientInterface
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: data
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: currency
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: firstRow
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: displayName
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: id
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: type
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: locale
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: query
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: fields
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: Feature
+                pagination: null
+            create_rooms:
+                method: POST
+                path: /api/v2/hotel/search/rooms
+                description: POST /api/v2/hotel/search/rooms
+                params: []
+                body:
+                    - name: clientInterface
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: data
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: ccGuaranteeOptions
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: ccGuaranteeRequirementOptions
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: ccInfoPreferences
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: checkInDate
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: day
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: month
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: year
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: checkOutDate
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: day
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: month
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: year
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: childAges
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: contexts
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: externalPageSource
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: hotelDetailURL
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: url
+                            - name: shouldDisplayAllRooms
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: sourceIdentifier
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: currency
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: hasPromoLabel
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: hotelId
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: isExtraBedIncluded
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: isJustLogin
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: isReschedule
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: labelContext
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: monitoringSpec
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: referrer
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: numAdults
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: numChildren
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: numInfants
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: numOfNights
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: numRooms
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: prefetch
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: prevSearchId
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: preview
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: rateTypes
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: supportedRoomHighlightTypes
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: tid
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                    - name: fields
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: Room
+                pagination: null
+            create_searchList:
+                method: POST
+                path: /api/v2/hotel/searchList
+                description: POST /api/v2/hotel/searchList
+                params: []
+                body:
+                    - name: clientInterface
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: data
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: backdate
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: catalogContext
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: catalogState
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: ccGuaranteeOptions
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: ccGuaranteeRequirementOptions
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: ccInfoPreferences
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: checkInDate
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: day
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: month
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: year
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: checkOutDate
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: day
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: month
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: year
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: childAges
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: contexts
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: abTestPageSpeedVariant
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: searchURL
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: url
+                        - name: currency
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: enableMultiOccupancy
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: filterSortRequestSpec
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: areaFilters
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: ascending
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: basicFilterIds
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: basicSortType
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: rangeFilters
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: skip
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: top
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: frTid
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                        - name: geoId
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: isExtraBedIncluded
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: isJustLogin
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: locationName
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: monitoringSpec
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: bannerMessage
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: lastKeyword
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: referrer
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: url
+                        - name: numAdults
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: numChildren
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: numInfants
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: numOfNights
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: numRooms
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: rateTypes
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: showHidden
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: sourceType
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: supportedDisplayTypes
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: tid
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                        - name: userSearchPreferences
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: fields
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: SearchList
+                pagination: null
+types:
+    AccomPriceFilterData:
+        fields:
+            - name: maxPriceFilter
+              type: string
+            - name: minPriceFilter
+              type: string
+    AirlineDataMap:
+        fields:
+            - name: 8B
+              type: object
+            - name: AK
+              type: object
+            - name: CI
+              type: object
+            - name: GA
+              type: object
+            - name: HU
+              type: object
+            - name: ID
+              type: object
+            - name: IP
+              type: object
+            - name: IU
+              type: object
+              omit_empty: true
+            - name: JT
+              type: object
+            - name: KL
+              type: object
+              omit_empty: true
+            - name: MH
+              type: object
+            - name: OD
+              type: object
+            - name: QG
+              type: object
+            - name: QZ
+              type: object
+            - name: SQ
+              type: object
+            - name: TR
+              type: object
+    AirlineDataMap2:
+        fields:
+            - name: 8B
+              type: object
+            - name: AK
+              type: object
+            - name: CI
+              type: object
+              omit_empty: true
+            - name: GA
+              type: object
+            - name: HU
+              type: object
+            - name: ID
+              type: object
+            - name: IP
+              type: object
+            - name: JT
+              type: object
+            - name: KL
+              type: object
+            - name: MH
+              type: object
+            - name: OD
+              type: object
+            - name: QG
+              type: object
+            - name: QZ
+              type: object
+            - name: SQ
+              type: object
+            - name: TR
+              type: object
+    AirportDataMap:
+        fields:
+            - name: CGK
+              type: object
+            - name: DPS
+              type: object
+            - name: HAK
+              type: object
+            - name: KNO
+              type: object
+              omit_empty: true
+            - name: KUL
+              type: object
+            - name: PEN
+              type: object
+              omit_empty: true
+            - name: PLM
+              type: object
+              omit_empty: true
+            - name: SIN
+              type: object
+            - name: SUB
+              type: object
+              omit_empty: true
+            - name: SZB
+              type: object
+              omit_empty: true
+            - name: TPE
+              type: object
+    AirportDataMap2:
+        fields:
+            - name: CGK
+              type: object
+            - name: DPS
+              type: object
+            - name: HAK
+              type: object
+            - name: KNO
+              type: object
+            - name: KUL
+              type: object
+            - name: SIN
+              type: object
+            - name: SUB
+              type: object
+              omit_empty: true
+            - name: SZB
+              type: object
+              omit_empty: true
+            - name: TPE
+              type: object
+              omit_empty: true
+    AreaRecommendationContent:
+        fields:
+            - name: geoName
+              type: string
+            - name: rows
+              type: array
+    AutoCompleteContent:
+        fields:
+            - name: rows
+              type: array
+    Autocomplete:
+        fields:
+            - name: data
+              type: ref:Data9
+            - name: failed
+              type: bool
+            - name: message
+              type: string
+            - name: status
+              type: string
+            - name: success
+              type: bool
+    AvailableCouponData:
+        fields:
+            - name: couponPaymentInformationDisplay
+              type: array
+            - name: coupons
+              type: array
+            - name: filters
+              type: array
+    AvailableCouponData2:
+        fields:
+            - name: couponPaymentInformationDisplay
+              type: array
+            - name: coupons
+              type: array
+            - name: filters
+              type: array
+    AvailableInventoryTag:
+        fields:
+            - name: description
+              type: string
+            - name: displayName
+              type: string
+            - name: eligibleForCrossSell
+              type: bool
+            - name: highlightedIcon
+              type: bool
+            - name: name
+              type: string
+            - name: shortDescription
+              type: string
+    Config:
+        fields:
+            - name: data
+              type: ref:Data5
+    Data:
+        fields:
+            - name: flightAnnouncement
+              type: array
+            - name: flightBanner
+              type: ref:FlightBanner
+            - name: flightPromotions
+              type: array
+    Data2:
+        fields:
+            - name: airlineDataMap
+              type: ref:AirlineDataMap
+            - name: airportDataMap
+              type: ref:AirportDataMap
+            - name: applicablePromoList
+              type: array
+            - name: availableCouponData
+              type: ref:AvailableCouponData
+              omit_empty: true
+            - name: meta
+              type: ref:Meta
+            - name: promoLabelDataMap
+              type: ref:PromoLabelDataMap
+            - name: quickFilterList
+              type: '[]ref:QuickFilterList'
+            - name: quickFilterSectionList
+              type: '[]ref:QuickFilterSectionList'
+            - name: searchResults
+              type: '[]ref:SearchResult'
+    Data3:
+        fields:
+            - name: currencyDecimalPoint
+              type: string
+            - name: meta
+              type: ref:Meta2
+            - name: summaries
+              type: '[]ref:Summary'
+    Data4:
+        fields:
+            - name: airlineDataMap
+              type: ref:AirlineDataMap2
+            - name: airportDataMap
+              type: ref:AirportDataMap2
+            - name: applicablePromoList
+              type: array
+            - name: availableCouponData
+              type: ref:AvailableCouponData2
+            - name: meta
+              type: ref:Meta3
+            - name: promoLabelDataMap
+              type: ref:PromoLabelDataMap2
+            - name: quickFilterList
+              type: '[]ref:QuickFilterList2'
+            - name: quickFilterSectionList
+              type: '[]ref:QuickFilterSectionList2'
+            - name: searchResults
+              type: '[]ref:SearchResult2'
+    Data5:
+        fields:
+            - name: defaultDestinationAirport
+              type: ref:DefaultDestinationAirport
+            - name: defaultOriginAirport
+              type: ref:DefaultOriginAirport
+            - name: discoverAnytimeMaxTripDuration
+              type: string
+            - name: searchRevampEligibleRoutes
+              type: array
+            - name: searchRevampIneligibleRoutes
+              type: array
+            - name: seatClass
+              type: '[]ref:SeatClass'
+    Data6:
+        fields:
+            - name: directory
+              type: '[]ref:Directory'
+            - name: locale
+              type: string
+            - name: sections
+              type: '[]ref:Section'
+    Data7:
+        fields:
+            - name: accomPriceFilterData
+              type: ref:AccomPriceFilterData
+            - name: contexts
+              type: object
+            - name: countryName
+              type: string
+            - name: countryTaxFactor
+              type: string
+            - name: entries
+              type: '[]ref:Entry'
+            - name: fbGeoInformation
+              type: ref:FbGeoInformation
+            - name: filterAggregationInfo
+              type: ref:FilterAggregationInfo
+            - name: geoLocation
+              type: ref:GeoLocation
+            - name: hotelDisplayInfo
+              type: ref:HotelDisplayInfo
+            - name: hotelSearchComplementaryInfo
+              type: ref:HotelSearchComplementaryInfo
+            - name: hotelSearchListPageBanner
+              type: '[]ref:HotelSearchListPageBanner'
+            - name: layout
+              type: ref:Layout
+            - name: numOfHotels
+              type: string
+            - name: numOfOriginalHotelCard
+              type: string
+            - name: requestId
+              type: string
+              format: uuid
+            - name: searchId
+              type: string
+            - name: searchResultDisplayName
+              type: string
+            - name: seoInfo
+              type: ref:SeoInfo
+            - name: servedBy
+              type: string
+            - name: showDeadEndBanner
+              type: bool
+            - name: showResponseAfterLogin
+              type: bool
+            - name: status
+              type: string
+            - name: variantContexts
+              type: ref:VariantContexts
+    Data8:
+        fields:
+            - name: availableInventoryTags
+              type: '[]ref:AvailableInventoryTag'
+            - name: bookmarkInventoryId
+              type: string
+            - name: contexts
+              type: object
+            - name: inventoryContainPayAtHotel
+              type: bool
+            - name: isInventoryContainPayAtHotel
+              type: bool
+            - name: isReschedule
+              type: bool
+            - name: layout
+              type: ref:Layout2
+            - name: priceHeaderBanner
+              type: object
+            - name: pricingRuleDescription
+              type: string
+            - name: recommendedEntries
+              type: '[]ref:RecommendedEntry'
+            - name: requestId
+              type: string
+              format: uuid
+            - name: reschedule
+              type: bool
+            - name: roomDisplayInfo
+              type: ref:RoomDisplayInfo
+            - name: roomListBanners
+              type: ref:RoomListBanners
+            - name: searchId
+              type: string
+            - name: servedBy
+              type: string
+            - name: showResponseAfterLogin
+              type: bool
+            - name: status
+              type: string
+            - name: variantContexts
+              type: ref:VariantContexts2
+    Data9:
+        fields:
+            - name: areaRecommendationContent
+              type: ref:AreaRecommendationContent
+            - name: autoCompleteContent
+              type: ref:AutoCompleteContent
+            - name: frequentlyBooked
+              type: array
+            - name: geoAreaContent
+              type: ref:GeoAreaContent
+            - name: geoCityContent
+              type: ref:GeoCityContent
+            - name: geoCountryContent
+              type: ref:GeoCountryContent
+            - name: geoRegionContent
+              type: ref:GeoRegionContent
+            - name: hotelContent
+              type: ref:HotelContent
+            - name: landmarkContent
+              type: ref:LandmarkContent
+            - name: recentlyViewed
+              type: object
+    Data10:
+        fields:
+            - name: displayType
+              type: string
+            - name: displayedPricePerPax
+              type: ref:DisplayedPricePerPax
+            - name: displayedPricePerPaxRounded
+              type: ref:DisplayedPricePerPaxRounded
+            - name: inventories
+              type: '[]ref:Inventory'
+            - name: totalPrice
+              type: ref:TotalPrice
+            - name: totalPriceRounded
+              type: ref:TotalPriceRounded
+    Dateflow:
+        fields:
+            - name: data
+              type: ref:Data3
+    DefaultDestinationAirport:
+        fields:
+            - name: airportDisplay
+              type: object
+            - name: code
+              type: string
+    DefaultOriginAirport:
+        fields:
+            - name: airportDisplay
+              type: object
+            - name: code
+              type: string
+    Directory:
+        fields:
+            - name: children
+              type: array
+            - name: clickable
+              type: bool
+            - name: code
+              type: string
+            - name: displayData
+              type: object
+            - name: entityId
+              type: string
+            - name: score
+              type: string
+            - name: type
+              type: string
+    DisplayedPricePerPax:
+        fields:
+            - name: currencyValue
+              type: object
+            - name: numOfDecimalPoint
+              type: string
+    DisplayedPricePerPaxRounded:
+        fields:
+            - name: currencyValue
+              type: object
+            - name: numOfDecimalPoint
+              type: string
+    Entry:
+        fields:
+            - name: contentType
+              type: string
+            - name: data
+              type: object
+            - name: displayType
+              type: string
+    FbGeoInformation:
+        fields:
+            - name: fbCity
+              type: string
+            - name: fbCountry
+              type: string
+            - name: fbRegion
+              type: string
+    Feature:
+        fields:
+            - name: data
+              type: object
+    FilterAggregationInfo:
+        fields:
+            - name: areaFilters
+              type: array
+            - name: areaFiltersCategoryId
+              type: string
+            - name: basicFilters
+              type: array
+            - name: popularFilters
+              type: array
+            - name: rangeFilters
+              type: object
+    FlightBanner:
+        fields:
+            - name: announcements
+              type: array
+            - name: features
+              type: array
+            - name: promos
+              type: array
+    GeoAreaContent:
+        fields:
+            - name: rows
+              type: array
+    GeoCityContent:
+        fields:
+            - name: rows
+              type: array
+    GeoCountryContent:
+        fields:
+            - name: rows
+              type: array
+    GeoLocation:
+        fields:
+            - name: lat
+              type: string
+            - name: lon
+              type: string
+            - name: valid
+              type: bool
+    GeoRegionContent:
+        fields:
+            - name: rows
+              type: array
+    HotelContent:
+        fields:
+            - name: rows
+              type: array
+    HotelDisplayInfo:
+        fields:
+            - name: finalPriceInfo
+              type: string
+    HotelSearchComplementaryInfo:
+        fields:
+            - name: snackbarDisplay
+              type: object
+    HotelSearchListPageBanner:
+        fields:
+            - name: actionColor
+              type: string
+            - name: actionTitle
+              type: string
+            - name: actionType
+              type: string
+            - name: actionValue
+              type: string
+            - name: backgroundColor
+              type: string
+            - name: backgroundImage
+              type: string
+            - name: icon
+              type: string
+              format: url
+            - name: ruleId
+              type: string
+            - name: stickyText
+              type: string
+            - name: text
+              type: string
+            - name: textColor
+              type: string
+    Initial:
+        fields:
+            - name: data
+              type: ref:Data2
+    Inventory:
+        fields:
+            - name: displayedPrice
+              type: object
+            - name: displayedPriceRounded
+              type: object
+            - name: flightIds
+              type: array
+            - name: isPackage
+              type: bool
+            - name: package
+              type: bool
+    LandmarkContent:
+        fields:
+            - name: rows
+              type: array
+    Layout:
+        fields:
+            - name: card
+              type: string
+    Layout2:
+        fields:
+            - name: card
+              type: string
+            - name: detail
+              type: string
+            - name: useNewRoomMappingLayout
+              type: bool
+    Meta:
+        fields:
+            - name: availableSortTypes
+              type: array
+            - name: baggageUpgradeAvailable
+              type: bool
+            - name: cheapestFlightFares
+              type: array
+            - name: defaultSortType
+              type: string
+            - name: dffSortingType
+              type: string
+            - name: expiryDurationMillis
+              type: string
+            - name: expiryTimeStamp
+              type: string
+            - name: inventoryRefreshV2
+              type: bool
+            - name: isBaggageUpgradeAvailable
+              type: bool
+            - name: isInventoryRefreshV2
+              type: bool
+            - name: newInventoryAvailable
+              type: bool
+            - name: priceDisplayType
+              type: string
+            - name: refreshDelay
+              type: string
+            - name: refreshDelayMillisecond
+              type: string
+            - name: searchCompleted
+              type: bool
+            - name: searchConfig
+              type: object
+            - name: searchId
+              type: string
+              format: uuid
+            - name: selectedInventories
+              type: array
+            - name: shouldDoBackgroundRefresh
+              type: bool
+            - name: showSymbol
+              type: bool
+            - name: topPickInformationAdditionalData
+              type: object
+    Meta2:
+        fields:
+            - name: airlineDataMap
+              type: object
+            - name: availableAirlines
+              type: array
+            - name: priceInsight
+              type: object
+            - name: roundtripMaxStayDays
+              type: string
+    Meta3:
+        fields:
+            - name: availableSortTypes
+              type: array
+            - name: baggageUpgradeAvailable
+              type: bool
+            - name: cheapestFlightFares
+              type: array
+            - name: defaultSortType
+              type: string
+            - name: dffSortingType
+              type: string
+            - name: expiryDurationMillis
+              type: string
+            - name: expiryTimeStamp
+              type: string
+            - name: inventoryRefreshV2
+              type: bool
+            - name: isBaggageUpgradeAvailable
+              type: bool
+            - name: isInventoryRefreshV2
+              type: bool
+            - name: newInventoryAvailable
+              type: bool
+            - name: priceDisplayType
+              type: string
+            - name: refreshDelay
+              type: string
+            - name: refreshDelayMillisecond
+              type: string
+            - name: searchCompleted
+              type: bool
+            - name: searchConfig
+              type: object
+            - name: searchId
+              type: string
+              format: uuid
+            - name: selectedInventories
+              type: array
+            - name: shouldDoBackgroundRefresh
+              type: bool
+            - name: showSymbol
+              type: bool
+            - name: topPickInformationAdditionalData
+              type: object
+    Poll:
+        fields:
+            - name: data
+              type: ref:Data4
+    PromoLabelDataMap:
+        fields:
+            - name: SG_1010_8B
+              type: object
+    PromoLabelDataMap2:
+        fields:
+            - name: SG_1010_8B
+              type: object
+    Promotion:
+        fields:
+            - name: data
+              type: ref:Data
+    QuickFilterList:
+        fields:
+            - name: descriptionText
+              type: string
+            - name: iconUrl
+              type: string
+              format: url
+            - name: id
+              type: string
+            - name: moreInfo
+              type: object
+            - name: priority
+              type: string
+            - name: sectionName
+              type: string
+            - name: titleText
+              type: string
+            - name: trackingMap
+              type: object
+            - name: type
+              type: string
+    QuickFilterList2:
+        fields:
+            - name: descriptionText
+              type: string
+            - name: iconUrl
+              type: string
+              format: url
+            - name: id
+              type: string
+            - name: moreInfo
+              type: object
+            - name: priority
+              type: string
+            - name: sectionName
+              type: string
+            - name: titleText
+              type: string
+            - name: trackingMap
+              type: object
+            - name: type
+              type: string
+    QuickFilterSectionList:
+        fields:
+            - name: sectionName
+              type: string
+            - name: sectionTitle
+              type: string
+    QuickFilterSectionList2:
+        fields:
+            - name: sectionName
+              type: string
+            - name: sectionTitle
+              type: string
+    RecommendedEntry:
+        fields:
+            - name: amenitiesByCategory
+              type: object
+            - name: amenitiesIncluded
+              type: array
+            - name: baseOccupancy
+              type: string
+            - name: bedArrangements
+              type: object
+            - name: caption
+              type: string
+            - name: description
+              type: string
+            - name: displayBaseOccupancy
+              type: string
+            - name: globalLanguage
+              type: object
+            - name: hotelBedType
+              type: array
+            - name: hotelRoomId
+              type: string
+            - name: hotelRoomInventoryList
+              type: array
+            - name: hotelRoomSizeDisplay
+              type: object
+            - name: imageWithCaptions
+              type: array
+            - name: localeLanguageMetadata
+              type: object
+            - name: matchSearchOccupancy
+              type: bool
+            - name: name
+              type: string
+            - name: numChargedRooms
+              type: string
+            - name: originalDescription
+              type: string
+            - name: roomHighlightFacilityDisplay
+              type: array
+            - name: roomImages
+              type: array
+    Redirection:
+        fields:
+            - name: data
+              type: ref:Data10
+    Room:
+        fields:
+            - name: data
+              type: ref:Data8
+    RoomDisplayInfo:
+        fields:
+            - name: finalPriceInfo
+              type: string
+            - name: finalPriceInfoPerRoom
+              type: string
+            - name: finalPriceInfoRoomDetail
+              type: string
+    RoomListBanners:
+        fields:
+            - name: ROOM_RECOMMENDATION
+              type: object
+    SearchList:
+        fields:
+            - name: data
+              type: ref:Data7
+    SearchNexus:
+        fields:
+            - name: data
+              type: ref:Data6
+    SearchResult:
+        fields:
+            - name: aiRecommendationContext
+              type: object
+              omit_empty: true
+            - name: connectingFlightRoutes
+              type: array
+            - name: extensionInfo
+              type: object
+              omit_empty: true
+            - name: fare
+              type: object
+            - name: flightMetadata
+              type: object
+            - name: id
+              type: string
+            - name: primaryPriceHighlighter
+              type: object
+              omit_empty: true
+            - name: secondaryPriceHighlighter
+              type: object
+              omit_empty: true
+    SearchResult2:
+        fields:
+            - name: connectingFlightRoutes
+              type: array
+            - name: extensionInfo
+              type: object
+            - name: fare
+              type: object
+            - name: flightMetadata
+              type: object
+            - name: id
+              type: string
+    SeatClass:
+        fields:
+            - name: definition
+              type: string
+            - name: description
+              type: string
+            - name: seatClass
+              type: string
+            - name: shortDescription
+              type: string
+    Section:
+        fields:
+            - name: results
+              type: array
+            - name: title
+              type: string
+            - name: type
+              type: string
+    SeoInfo:
+        fields:
+            - name: description
+              type: string
+            - name: title
+              type: string
+            - name: url
+              type: string
+              format: url
+    Summary:
+        fields:
+            - name: brandCodes
+              type: string
+            - name: cheapestFare
+              type: object
+            - name: displayDate
+              type: object
+            - name: displayDateRoundtripReturn
+              type: object
+            - name: displayPrice
+              type: string
+            - name: displayType
+              type: string
+    TotalPrice:
+        fields:
+            - name: currencyValue
+              type: object
+            - name: numOfDecimalPoint
+              type: string
+    TotalPriceRounded:
+        fields:
+            - name: currencyValue
+              type: object
+            - name: numOfDecimalPoint
+              type: string
+    VariantContexts:
+        fields:
+            - name: dualNameDisplay
+              type: string
+    VariantContexts2:
+        fields:
+            - name: HASPROMOLABEL
+              type: bool
+            - name: fomoVariantName
+              type: string
+            - name: isCollapseAll
+              type: bool
+            - name: isExpandAllRooms
+              type: bool
+            - name: isNewLayout
+              type: bool
+            - name: isShowChevron
+              type: bool
+            - name: modifiedInventoryVariant
+              type: string
+            - name: roomImprovementDisplay
+              type: string
+            - name: showFomoMessage
+              type: bool
+            - name: varInventoryCaption
+              type: string
+            - name: varM3CouponCXComponent
+              type: string
+            - name: varM3CouponCXSection
+              type: string
+            - name: varPeci1
+              type: string
+            - name: varPeci2
+              type: string
+            - name: varRoomCompare
+              type: string
+            - name: varRoomListOpt
+              type: string

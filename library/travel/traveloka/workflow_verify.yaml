@@ -1,0 +1,27 @@
+workflows:
+  - name: dated source flight research and saved comparison
+    primary: true
+    steps:
+      - command: resolve --query Singapore --kind airport --limit 3 --home /Users/zjsng/printing-press/.runstate/traveloka-cli-7d625453/runs/20261002-002131-9ff082f4/working/traveloka-pp-cli/.printing-press-fixtures/live-home
+        mode: live
+        auth_required: true
+        expect_fields: [locations, shopper, retrieved_at]
+      - command: flights search --origin SIN --destination CGK --depart 2026-11-20 --limit 1 --max-candidates 1 --home /Users/zjsng/printing-press/.runstate/traveloka-cli-7d625453/runs/20261002-002131-9ff082f4/working/traveloka-pp-cli/.printing-press-fixtures/live-home
+        mode: live
+        auth_required: true
+        expect_fields: [offers, query, retrieved_at]
+      - command: flights inspect --home /Users/zjsng/printing-press/.runstate/traveloka-cli-7d625453/runs/20261002-002131-9ff082f4/working/traveloka-pp-cli/.printing-press-fixtures/live-home
+        mode: local
+        expect_fields: [offers, query, retrieved_at, freshness]
+      - command: quotes compare --home /Users/zjsng/printing-press/.runstate/traveloka-cli-7d625453/runs/20261002-002131-9ff082f4/working/traveloka-pp-cli/.printing-press-fixtures/live-home
+        mode: local
+        expect_fields: [offers, query, retrievals, freshness]
+  - name: dated source room rates and flexibility
+    steps:
+      - command: hotels rooms --property-id 9000000001714 --check-in 2027-01-06 --check-out 2027-01-08 --adults 2 --rooms 1 --limit 3 --home /Users/zjsng/printing-press/.runstate/traveloka-cli-7d625453/runs/20261002-002131-9ff082f4/working/traveloka-pp-cli/.printing-press-fixtures/live-home
+        mode: live
+        auth_required: true
+        expect_fields: [offers, query, retrieved_at]
+      - command: hotels flexibility --home /Users/zjsng/printing-press/.runstate/traveloka-cli-7d625453/runs/20261002-002131-9ff082f4/working/traveloka-pp-cli/.printing-press-fixtures/live-home
+        mode: local
+        expect_fields: [pairs, unpaired, query, retrieved_at]

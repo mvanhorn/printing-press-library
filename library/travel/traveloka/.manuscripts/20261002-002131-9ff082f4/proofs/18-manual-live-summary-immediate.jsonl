@@ -1,0 +1,15 @@
+{"tag": "18-singapore-solo-usd", "exit_code": 0, "status": "success", "error": null, "offers": 3, "cells": 0, "first_total": {"amount": "146.74", "currency": "USD", "decimals": 2, "minor_units": "14674"}}
+{"tag": "18-bangkok-family", "exit_code": 0, "status": "success", "error": null, "offers": 3, "cells": 0, "first_total": {"amount": "488.52", "currency": "SGD", "decimals": 2, "minor_units": "48852"}}
+{"tag": "18-berkeley-rooms", "exit_code": 0, "status": "success", "error": null, "offers": 6, "cells": 0, "first_total": {"amount": "211.53", "currency": "SGD", "decimals": 2, "minor_units": "21153"}}
+{"tag": "18-flight-oneway", "exit_code": 0, "status": "incomplete", "error": null, "offers": 3, "cells": 0, "first_total": {"amount": "114.40", "currency": "SGD", "decimals": 2, "minor_units": "11440"}}
+{"tag": "18-flight-return", "exit_code": 0, "status": "incomplete", "error": null, "offers": 1, "cells": 0, "first_total": {"amount": "181.05", "currency": "SGD", "decimals": 2, "minor_units": "18105"}}
+{"tag": "18-second-route-mixed-usd", "exit_code": 0, "status": "incomplete", "error": null, "offers": 2, "cells": 0, "first_total": {"amount": "656.28", "currency": "USD", "decimals": 2, "minor_units": "65628"}}
+{"tag": "18-flight-date-grid", "exit_code": 0, "status": "success", "error": null, "offers": 0, "cells": 2, "first_total": null}
+{"tag": "18-hotel-date-grid", "exit_code": 0, "status": "success", "error": null, "offers": 0, "cells": 2, "first_total": null}
+{"tag": "18-flight-inspect", "exit_code": 0, "status": "saved_snapshot", "error": null, "offers": 3, "cells": 0, "first_total": {"amount": "114.40", "currency": "SGD", "decimals": 2, "minor_units": "11440"}}
+{"tag": "18-quote-compare", "exit_code": 0, "status": "saved_snapshot_comparison", "error": null, "offers": 3, "cells": 0, "first_total": null}
+{"tag": "18-flight-shortlist", "exit_code": 0, "status": "saved_snapshot_frontier", "error": null, "offers": 3, "cells": 0, "first_total": {"amount": "114.40", "currency": "SGD", "decimals": 2, "minor_units": "11440"}}
+{"tag": "18-hotel-flexibility", "exit_code": 0, "status": "saved_snapshot_flexibility", "error": null, "offers": 0, "cells": 0, "first_total": null}
+{"tag": "18-quote-diff", "exit_code": 0, "status": "saved_snapshot_diff", "error": null, "offers": 0, "cells": 0, "first_total": null}
+{"tag": "18-resolve-city", "exit_code": 0, "status": "success", "error": null, "offers": 0, "cells": 0, "first_total": null}
+{"tag": "18-resolve-property", "exit_code": 0, "status": "success", "error": null, "offers": 0, "cells": 0, "first_total": null}

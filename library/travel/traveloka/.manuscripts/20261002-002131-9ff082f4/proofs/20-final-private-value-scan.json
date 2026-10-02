@@ -1,0 +1,12 @@
+{
+  "files_scanned": 1455,
+  "credential_values_checked": 746,
+  "leaks": [],
+  "scan_size_cap_exceptions": [],
+  "roots": [
+    "owned run",
+    "promoted CLI",
+    "archived manuscripts"
+  ],
+  "scan_performed_before_private_export_cleanup": true
+}

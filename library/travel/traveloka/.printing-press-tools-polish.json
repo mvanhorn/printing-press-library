@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-10-02T12:59:05.04093Z",
+  "cli_dir": "\u003ccli-dir\u003e/traveloka-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "Generated platform client list already names the exact local profile collection; DO-NOT-EDIT scaffold. Richer optional-field guidance is a generator-template retro candidate."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 868,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Generated learning-list command precisely lists the recorded local rules; its schema supplies filtering flags. DO-NOT-EDIT learning framework; richer field summary is a separate generator-template retro candidate."
+    }
+  ]
+}

@@ -1,0 +1,247 @@
+{
+  "label": "real delivered-CLI results cross-checked against independent consumer-source responses under matching dates,party,market,locale,currency",
+  "status": "pass",
+  "checks": [
+    {
+      "cli_proof": "18-bangkok-family.stdout",
+      "source_proof": "18-source-family-fresh.json",
+      "context_match": true,
+      "header_context_match": true,
+      "matched_offers": [
+        {
+          "id": "9000000001714",
+          "source_minor_units": "48852",
+          "source_decimal_scale": 2,
+          "cli_total": {
+            "amount": "488.52",
+            "currency": "SGD",
+            "decimals": 2,
+            "minor_units": "48852"
+          },
+          "match": true
+        },
+        {
+          "id": "1000000134834",
+          "source_minor_units": "71596",
+          "source_decimal_scale": 2,
+          "cli_total": {
+            "amount": "715.96",
+            "currency": "SGD",
+            "decimals": 2,
+            "minor_units": "71596"
+          },
+          "match": true
+        }
+      ],
+      "request_contexts": [
+        {
+          "checkInDate": {
+            "day": "6",
+            "month": "1",
+            "year": "2027"
+          },
+          "checkOutDate": {
+            "day": "8",
+            "month": "1",
+            "year": "2027"
+          },
+          "childAges": [
+            8,
+            5
+          ],
+          "currency": "SGD",
+          "geoId": "10000045",
+          "locationName": "Bangkok",
+          "numAdults": 3,
+          "numChildren": 2,
+          "numRooms": 2,
+          "sourceType": "HOTEL_GEO"
+        }
+      ]
+    },
+    {
+      "cli_proof": "18-flight-oneway.stdout",
+      "source_proof": "18-source-flight-fresh.json",
+      "context_match": true,
+      "header_context_match": true,
+      "matched_offers": [
+        {
+          "id": "c52ff5f5386e951b7f1daaab24d8fb5e",
+          "source_minor_units": "11440",
+          "source_decimal_scale": 2,
+          "cli_total": {
+            "amount": "114.40",
+            "currency": "SGD",
+            "decimals": 2,
+            "minor_units": "11440"
+          },
+          "match": true
+        },
+        {
+          "id": "1fa1294ae272b77a4919211a801bfbc4",
+          "source_minor_units": "11440",
+          "source_decimal_scale": 2,
+          "cli_total": {
+            "amount": "114.40",
+            "currency": "SGD",
+            "decimals": 2,
+            "minor_units": "11440"
+          },
+          "match": true
+        }
+      ],
+      "request_contexts": [
+        {
+          "currency": "SGD",
+          "journeys": [
+            {
+              "departureDate": "2026-11-20",
+              "destinationCode": "CGK",
+              "originCode": "SIN"
+            }
+          ],
+          "numSeats": {
+            "numAdults": 1,
+            "numChildren": 0,
+            "numInfants": 0
+          },
+          "seatPublishedClass": "ECONOMY",
+          "tripType": "ONE_WAY"
+        }
+      ]
+    },
+    {
+      "cli_proof": "18-flight-return.stdout",
+      "source_proof": "18-source-return-fresh.json",
+      "context_match": true,
+      "header_context_match": true,
+      "matched_offers": [
+        {
+          "id": "c52ff5f5386e951b7f1daaab24d8fb5e+84bd5a7533bb6d3fb9c73a4b41b702d7",
+          "source_minor_units": "18105",
+          "source_decimal_scale": 2,
+          "cli_total": {
+            "amount": "181.05",
+            "currency": "SGD",
+            "decimals": 2,
+            "minor_units": "18105"
+          },
+          "match": true
+        }
+      ],
+      "request_contexts": [
+        {
+          "currency": "SGD",
+          "journeys": [
+            {
+              "departureDate": "2026-11-20",
+              "destinationCode": "CGK",
+              "originCode": "SIN"
+            },
+            {
+              "departureDate": "2026-11-27",
+              "destinationCode": "SIN",
+              "originCode": "CGK"
+            }
+          ],
+          "numSeats": {
+            "numAdults": 1,
+            "numChildren": 0,
+            "numInfants": 0
+          },
+          "seatPublishedClass": "ECONOMY",
+          "tripType": "ROUND_TRIP"
+        },
+        {
+          "currency": "SGD",
+          "journeys": [
+            {
+              "departureDate": "2026-11-20",
+              "destinationCode": "CGK",
+              "originCode": "SIN"
+            },
+            {
+              "departureDate": "2026-11-27",
+              "destinationCode": "SIN",
+              "originCode": "CGK"
+            }
+          ],
+          "numSeats": {
+            "numAdults": 1,
+            "numChildren": 0,
+            "numInfants": 0
+          },
+          "seatPublishedClass": "ECONOMY",
+          "tripType": "ROUND_TRIP"
+        },
+        {
+          "currency": "SGD",
+          "journeys": [
+            {
+              "departureDate": "2026-11-20",
+              "destinationCode": "CGK",
+              "originCode": "SIN"
+            },
+            {
+              "departureDate": "2026-11-27",
+              "destinationCode": "SIN",
+              "originCode": "CGK"
+            }
+          ],
+          "numSeats": {
+            "numAdults": 1,
+            "numChildren": 0,
+            "numInfants": 0
+          },
+          "seatPublishedClass": "ECONOMY",
+          "tripType": "ROUND_TRIP"
+        },
+        {
+          "currency": "SGD",
+          "journeys": [
+            {
+              "departureDate": "2026-11-20",
+              "destinationCode": "CGK",
+              "originCode": "SIN"
+            },
+            {
+              "departureDate": "2026-11-27",
+              "destinationCode": "SIN",
+              "originCode": "CGK"
+            }
+          ],
+          "numSeats": {
+            "numAdults": 1,
+            "numChildren": 0,
+            "numInfants": 0
+          },
+          "seatPublishedClass": "ECONOMY",
+          "tripType": "ROUND_TRIP"
+        },
+        {
+          "currency": "SGD",
+          "journeys": [
+            {
+              "departureDate": "2026-11-20",
+              "destinationCode": "CGK",
+              "originCode": "SIN"
+            },
+            {
+              "departureDate": "2026-11-27",
+              "destinationCode": "SIN",
+              "originCode": "CGK"
+            }
+          ],
+          "numSeats": {
+            "numAdults": 1,
+            "numChildren": 0,
+            "numInfants": 0
+          },
+          "seatPublishedClass": "ECONOMY",
+          "tripType": "ROUND_TRIP"
+        }
+      ]
+    }
+  ],
+  "source_observer": "temporary read-only Go observer; headers/cookies/tokens omitted; separate from delivered-CLI evidence"
+}

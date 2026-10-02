@@ -1,0 +1,1327 @@
+{
+  "label": "independent read-only consumer source observation, not delivered-CLI evidence",
+  "normalized_inspector_result": {
+    "id": "77f6b33e-2670-4f33-bb99-53f98adc3904",
+    "kind": "flights",
+    "status": "success",
+    "retrieved_at": "2026-10-02T06:01:37.172384Z",
+    "query": {
+      "kind": "flights",
+      "market": "SG",
+      "locale": "en-SG",
+      "currency": "SGD",
+      "origin": "SIN",
+      "destination": "CGK",
+      "depart": "2026-11-20",
+      "return_date": "2026-11-27",
+      "cabin": "ECONOMY",
+      "geo_id": "",
+      "property_id": "",
+      "property_name": "",
+      "check_in": "",
+      "check_out": "",
+      "adults": 1,
+      "children": 0,
+      "infants": 0,
+      "rooms": 0,
+      "limit": 2,
+      "offset": 0,
+      "max_candidates": 2,
+      "child_ages": []
+    },
+    "offers": [
+      {
+        "id": "c52ff5f5386e951b7f1daaab24d8fb5e+84bd5a7533bb6d3fb9c73a4b41b702d7",
+        "kind": "flight",
+        "property_id": "",
+        "property_name": "",
+        "room_id": "",
+        "room_name": "",
+        "meal_plan": "",
+        "payment": "",
+        "booking_url": "https://www.traveloka.com/en-sg/flight/fulltwosearch?ap=SIN.CGK&dt=20-11-2026.27-11-2026&ps=1.0.0&sc=ECONOMY",
+        "price": {
+          "total": {
+            "currency": "SGD",
+            "amount": "181.05",
+            "minor_units": "18105",
+            "decimals": 2
+          },
+          "per_passenger": {
+            "currency": "SGD",
+            "amount": "181.05",
+            "minor_units": "18105",
+            "decimals": 2
+          },
+          "per_room_per_night": null,
+          "base_fare": null,
+          "taxes": null,
+          "fees": null,
+          "tax_inclusion": "unknown"
+        },
+        "legs": [
+          {
+            "segments": [
+              {
+                "origin": "SIN",
+                "destination": "CGK",
+                "departure_date": "2026-11-20",
+                "departure_time": "21:00",
+                "arrival_date": "2026-11-20",
+                "arrival_time": "21:55",
+                "departure_utc_offset_minutes": 480,
+                "arrival_utc_offset_minutes": 420,
+                "marketing_airline": "QG",
+                "operating_airline": "QG",
+                "flight_number": "QG-527",
+                "cabin": "ECONOMY",
+                "duration_minutes": 115,
+                "checked_baggage": {
+                  "availableToBuy": false,
+                  "copyDescription": null,
+                  "copyText": null,
+                  "height": "0",
+                  "iconUrl": null,
+                  "length": "0",
+                  "quantity": "0",
+                  "source": "SUPPLY.FREE_BAGGAGE.PRE<KG.0.0>",
+                  "unitOfMeasure": "KG",
+                  "weight": "0",
+                  "width": "0"
+                },
+                "cabin_baggage": {
+                  "availableToBuy": false,
+                  "copyDescription": null,
+                  "copyText": null,
+                  "height": "0",
+                  "iconUrl": null,
+                  "length": "0",
+                  "quantity": "1",
+                  "source": "Version:QG.default~Rule:ECONOMY.*.FareBasisPattern:*",
+                  "unitOfMeasure": "KG",
+                  "weight": "7",
+                  "width": "0"
+                },
+                "details": {
+                  "aircraftInformation": {
+                    "aircraft": {
+                      "model": "Airbus A320-100/200",
+                      "seatInformation": {
+                        "layout": "3-3",
+                        "pitch": "28",
+                        "type": "BELOW_AVERAGE_LEGROOM"
+                      },
+                      "type": null
+                    },
+                    "cabinBaggage": {
+                      "height": "0",
+                      "length": "0",
+                      "quantity": "1",
+                      "source": "Version:QG.default~Rule:ECONOMY.*.FareBasisPattern:*",
+                      "unitOfMeasure": "KG",
+                      "weight": "7",
+                      "width": "0"
+                    }
+                  },
+                  "aircraftType": "",
+                  "arrivalTerminalName": "Terminal 2F",
+                  "brandCode": "QG",
+                  "departureTerminalName": "Terminal 3",
+                  "facilities": {
+                    "baggage": {
+                      "availableToBuy": false,
+                      "copyDescription": null,
+                      "copyText": null,
+                      "height": "0",
+                      "iconUrl": null,
+                      "length": "0",
+                      "quantity": "0",
+                      "source": "SUPPLY.FREE_BAGGAGE.PRE<KG.0.0>",
+                      "unitOfMeasure": "KG",
+                      "weight": "0",
+                      "width": "0"
+                    },
+                    "cabinBaggage": {
+                      "availableToBuy": false,
+                      "copyDescription": null,
+                      "copyText": null,
+                      "height": "0",
+                      "iconUrl": null,
+                      "length": "0",
+                      "quantity": "1",
+                      "source": "Version:QG.default~Rule:ECONOMY.*.FareBasisPattern:*",
+                      "unitOfMeasure": "KG",
+                      "weight": "7",
+                      "width": "0"
+                    },
+                    "collapseCount": "2",
+                    "entertainment": {
+                      "available": false,
+                      "copyText": "In-flight entertainment not available",
+                      "iconUrl": "https://img.cnt.traveloka.com/tvlk/image/imageResource/2021/03/17/1615984140852-2b608bc70b0c35184c143655edc13747.png?tr=q-75"
+                    },
+                    "freeMeal": {
+                      "available": false
+                    },
+                    "isPersonalItemIncluded": false,
+                    "isUsingEnrichBaggageInfo": true,
+                    "order": [
+                      "baggage",
+                      "freeMeal",
+                      "entertainment",
+                      "wifi",
+                      "usbAndPower"
+                    ],
+                    "personalItem": null,
+                    "personalItemIncluded": false,
+                    "usbAndPower": {
+                      "available": false,
+                      "chance": "NA",
+                      "copyText": "Power/USB port not available",
+                      "iconUrl": "https://img.cnt.traveloka.com/tvlk/image/imageResource/2021/03/17/1615984115262-c61472ad45f2d3375802325e6160b4b5.png?tr=q-75",
+                      "power": false,
+                      "usb": false
+                    },
+                    "usingEnrichBaggageInfo": true,
+                    "wifi": {
+                      "available": false,
+                      "chance": "NA",
+                      "copyText": "WiFi not available",
+                      "cost": "NA",
+                      "iconUrl": "https://img.cnt.traveloka.com/tvlk/image/imageResource/2021/03/17/1615983992523-ef76706b2884d0f24f3c1a87a6a0b40d.png?tr=q-75"
+                    }
+                  },
+                  "flightLegInfoList": [],
+                  "mayReCheckIn": false,
+                  "numTransits": "0",
+                  "transitInfoV2": null,
+                  "visaRequired": false
+                }
+              }
+            ],
+            "fare_rules": {
+              "routes": [
+                {
+                  "flightRefundInfo": {
+                    "policyDetails": [],
+                    "refundInfoDetail": "[{\"routeIndex\":-1,\"sourcePolicy\":\"AIRLINE_POLICY\",\"matchingPaxTypes\":[\"ADT\"],\"partialPax\":false,\"partialRoute\":\"NO\",\"periodAndFees\":[{\"refundable\":true,\"startPeriodType\":\"AFTER_PURCHASE\",\"endPeriodType\":\"BEFORE_DEPARTURE\",\"startNumHours\":0,\"endNumHours\":0,\"amount\":159.51,\"currencyCode\":\"USD\",\"isPercentage\":false,\"refundType\":\"REGULAR\",\"flightRefundFeeLevelType\":\"PER_PNR\"},{\"refundable\":false,\"startPeriodType\":\"AFTER_DEPARTURE\",\"endPeriodType\":\"AFTER_DEPARTURE\",\"startNumHours\":0,\"endNumHours\":9999,\"amount\":161.0,\"currencyCode\":\"USD\",\"isPercentage\":false,\"refundType\":\"REGULAR\",\"flightRefundFeeLevelType\":\"PER_PNR\"}],\"otherInfo\":{\"cat16Info\":\"\",\"cat31Info\":\"\",\"cat33Info\":\"\"},\"serviceFee\":{\"amount\":0,\"levelType\":\"PER_PNR\",\"currency\":\"USD\"}}]",
+                    "refundInfoSummary": "",
+                    "refundableStatus": "NO"
+                  },
+                  "flightRescheduleInfo": {
+                    "policyDetails": [
+                      "To see your flight reschedule policy, please select flight"
+                    ],
+                    "rescheduleInfoDetail": "[{\"routeIndex\":-1,\"sourcePolicy\":\"AIRLINE_POLICY\",\"matchingPaxTypes\":[\"ADT\"],\"partialPax\":false,\"partialRoute\":\"NO\",\"periodAndFees\":[{\"changeable\":true,\"startPeriodType\":\"AFTER_PURCHASE\",\"endPeriodType\":\"BEFORE_DEPARTURE\",\"startNumHours\":0,\"endNumHours\":0,\"amount\":152.97,\"currencyCode\":\"USD\",\"isPercentage\":false,\"feeValueType\":\"PER_PNR_ROUTE\",\"changeType\":\"REISSUANCE\",\"reasonType\":\"REGULAR\"},{\"changeable\":false,\"startPeriodType\":\"AFTER_DEPARTURE\",\"endPeriodType\":\"AFTER_DEPARTURE\",\"startNumHours\":0,\"endNumHours\":9999,\"amount\":161.0,\"currencyCode\":\"USD\",\"isPercentage\":false,\"feeValueType\":\"PER_PNR_ROUTE\",\"changeType\":\"REISSUANCE\",\"reasonType\":\"REGULAR\"}],\"otherInfo\":{\"cat16Info\":\"\",\"cat31Info\":\"\",\"cat33Info\":\"\"},\"serviceFee\":{\"amount\":0,\"levelType\":\"PER_PNR\",\"currency\":\"USD\"}}]",
+                    "rescheduleInfoSummary": null,
+                    "rescheduleStatus": "YES",
+                    "rescheduleUnknownReason": null
+                  }
+                }
+              ]
+            },
+            "details": {
+              "fare": {
+                "adult": {
+                  "currencyValue": {
+                    "amount": "9963",
+                    "currency": "SGD",
+                    "nullOrEmpty": false
+                  },
+                  "numOfDecimalPoint": "2"
+                },
+                "adultRounded": {
+                  "currencyValue": {
+                    "amount": "100",
+                    "currency": "SGD",
+                    "nullOrEmpty": false
+                  },
+                  "numOfDecimalPoint": "0"
+                },
+                "airlineFare": null,
+                "display": {
+                  "currencyValue": {
+                    "amount": "18105",
+                    "currency": "SGD",
+                    "nullOrEmpty": false
+                  },
+                  "numOfDecimalPoint": "2"
+                },
+                "displayRounded": {
+                  "currencyValue": {
+                    "amount": "181",
+                    "currency": "SGD",
+                    "nullOrEmpty": false
+                  },
+                  "numOfDecimalPoint": "0"
+                },
+                "displayType": "ADT",
+                "hasPointCashback": false
+              },
+              "flight_metadata": {
+                "cardFacilities": [
+                  {
+                    "airlineId": "QG",
+                    "items": []
+                  }
+                ],
+                "isRefundable": false,
+                "isReschedulable": true,
+                "isSelfTransfer": false,
+                "seatClassInventory": "ECONOMY",
+                "totalNumStop": "0",
+                "transitAirportCodes": [],
+                "transitDurations": [],
+                "tripDuration": "115"
+              },
+              "id": "c52ff5f5386e951b7f1daaab24d8fb5e",
+              "routes": [
+                {
+                  "arrivalAirport": "CGK",
+                  "departureAirport": "SIN",
+                  "durationInMinutes": "0",
+                  "numDayOffset": "0",
+                  "totalNumStop": "0"
+                }
+              ]
+            }
+          },
+          {
+            "segments": [
+              {
+                "origin": "CGK",
+                "destination": "SIN",
+                "departure_date": "2026-11-27",
+                "departure_time": "17:10",
+                "arrival_date": "2026-11-27",
+                "arrival_time": "20:00",
+                "departure_utc_offset_minutes": 420,
+                "arrival_utc_offset_minutes": 480,
+                "marketing_airline": "QG",
+                "operating_airline": "QG",
+                "flight_number": "QG-526",
+                "cabin": "ECONOMY",
+                "duration_minutes": 110,
+                "checked_baggage": {
+                  "availableToBuy": false,
+                  "copyDescription": null,
+                  "copyText": null,
+                  "height": "0",
+                  "iconUrl": null,
+                  "length": "0",
+                  "quantity": "0",
+                  "source": "SUPPLY.FREE_BAGGAGE.PRE<KG.0.0>",
+                  "unitOfMeasure": "KG",
+                  "weight": "0",
+                  "width": "0"
+                },
+                "cabin_baggage": {
+                  "availableToBuy": false,
+                  "copyDescription": null,
+                  "copyText": null,
+                  "height": "0",
+                  "iconUrl": null,
+                  "length": "0",
+                  "quantity": "1",
+                  "source": "Version:QG.default~Rule:ECONOMY.*.FareBasisPattern:*",
+                  "unitOfMeasure": "KG",
+                  "weight": "7",
+                  "width": "0"
+                },
+                "details": {
+                  "aircraftInformation": {
+                    "aircraft": {
+                      "model": "Airbus A320-100/200",
+                      "seatInformation": {
+                        "layout": "3-3",
+                        "pitch": "28",
+                        "type": "BELOW_AVERAGE_LEGROOM"
+                      },
+                      "type": null
+                    },
+                    "cabinBaggage": {
+                      "height": "0",
+                      "length": "0",
+                      "quantity": "1",
+                      "source": "Version:QG.default~Rule:ECONOMY.*.FareBasisPattern:*",
+                      "unitOfMeasure": "KG",
+                      "weight": "7",
+                      "width": "0"
+                    }
+                  },
+                  "aircraftType": "",
+                  "arrivalTerminalName": "Terminal 3",
+                  "brandCode": "QG",
+                  "departureTerminalName": "Terminal 2F",
+                  "facilities": {
+                    "baggage": {
+                      "availableToBuy": false,
+                      "copyDescription": null,
+                      "copyText": null,
+                      "height": "0",
+                      "iconUrl": null,
+                      "length": "0",
+                      "quantity": "0",
+                      "source": "SUPPLY.FREE_BAGGAGE.PRE<KG.0.0>",
+                      "unitOfMeasure": "KG",
+                      "weight": "0",
+                      "width": "0"
+                    },
+                    "cabinBaggage": {
+                      "availableToBuy": false,
+                      "copyDescription": null,
+                      "copyText": null,
+                      "height": "0",
+                      "iconUrl": null,
+                      "length": "0",
+                      "quantity": "1",
+                      "source": "Version:QG.default~Rule:ECONOMY.*.FareBasisPattern:*",
+                      "unitOfMeasure": "KG",
+                      "weight": "7",
+                      "width": "0"
+                    },
+                    "collapseCount": "2",
+                    "entertainment": {
+                      "available": false,
+                      "copyText": "In-flight entertainment not available",
+                      "iconUrl": "https://img.cnt.traveloka.com/tvlk/image/imageResource/2021/03/17/1615984140852-2b608bc70b0c35184c143655edc13747.png?tr=q-75"
+                    },
+                    "freeMeal": {
+                      "available": false
+                    },
+                    "isPersonalItemIncluded": false,
+                    "isUsingEnrichBaggageInfo": true,
+                    "order": [
+                      "baggage",
+                      "freeMeal",
+                      "entertainment",
+                      "wifi",
+                      "usbAndPower"
+                    ],
+                    "personalItem": null,
+                    "personalItemIncluded": false,
+                    "usbAndPower": {
+                      "available": false,
+                      "chance": "NA",
+                      "copyText": "Power/USB port not available",
+                      "iconUrl": "https://img.cnt.traveloka.com/tvlk/image/imageResource/2021/03/17/1615984115262-c61472ad45f2d3375802325e6160b4b5.png?tr=q-75",
+                      "power": false,
+                      "usb": false
+                    },
+                    "usingEnrichBaggageInfo": true,
+                    "wifi": {
+                      "available": false,
+                      "chance": "NA",
+                      "copyText": "WiFi not available",
+                      "cost": "NA",
+                      "iconUrl": "https://img.cnt.traveloka.com/tvlk/image/imageResource/2021/03/17/1615983992523-ef76706b2884d0f24f3c1a87a6a0b40d.png?tr=q-75"
+                    }
+                  },
+                  "flightLegInfoList": [],
+                  "mayReCheckIn": false,
+                  "numTransits": "0",
+                  "transitInfoV2": null,
+                  "visaRequired": false
+                }
+              }
+            ],
+            "fare_rules": {
+              "routes": [
+                {
+                  "flightRefundInfo": {
+                    "policyDetails": [],
+                    "refundInfoDetail": "[{\"routeIndex\":-1,\"sourcePolicy\":\"AIRLINE_POLICY\",\"matchingPaxTypes\":[\"ADT\"],\"partialPax\":false,\"partialRoute\":\"NO\",\"periodAndFees\":[{\"refundable\":true,\"startPeriodType\":\"AFTER_PURCHASE\",\"endPeriodType\":\"BEFORE_DEPARTURE\",\"startNumHours\":0,\"endNumHours\":0,\"amount\":159.36,\"currencyCode\":\"USD\",\"isPercentage\":false,\"refundType\":\"REGULAR\",\"flightRefundFeeLevelType\":\"PER_PNR\"},{\"refundable\":false,\"startPeriodType\":\"AFTER_DEPARTURE\",\"endPeriodType\":\"AFTER_DEPARTURE\",\"startNumHours\":0,\"endNumHours\":9999,\"amount\":160.85,\"currencyCode\":\"USD\",\"isPercentage\":false,\"refundType\":\"REGULAR\",\"flightRefundFeeLevelType\":\"PER_PNR\"}],\"otherInfo\":{\"cat16Info\":\"\",\"cat31Info\":\"\",\"cat33Info\":\"\"},\"serviceFee\":{\"amount\":0,\"levelType\":\"PER_PNR\",\"currency\":\"USD\"}}]",
+                    "refundInfoSummary": "",
+                    "refundableStatus": "NO"
+                  },
+                  "flightRescheduleInfo": {
+                    "policyDetails": [
+                      "To see your flight reschedule policy, please select flight"
+                    ],
+                    "rescheduleInfoDetail": "[{\"routeIndex\":-1,\"sourcePolicy\":\"AIRLINE_POLICY\",\"matchingPaxTypes\":[\"ADT\"],\"partialPax\":false,\"partialRoute\":\"NO\",\"periodAndFees\":[{\"changeable\":true,\"startPeriodType\":\"AFTER_PURCHASE\",\"endPeriodType\":\"BEFORE_DEPARTURE\",\"startNumHours\":0,\"endNumHours\":0,\"amount\":152.97,\"currencyCode\":\"USD\",\"isPercentage\":false,\"feeValueType\":\"PER_PNR_ROUTE\",\"changeType\":\"REISSUANCE\",\"reasonType\":\"REGULAR\"},{\"changeable\":false,\"startPeriodType\":\"AFTER_DEPARTURE\",\"endPeriodType\":\"AFTER_DEPARTURE\",\"startNumHours\":0,\"endNumHours\":9999,\"amount\":161.0,\"currencyCode\":\"USD\",\"isPercentage\":false,\"feeValueType\":\"PER_PNR_ROUTE\",\"changeType\":\"REISSUANCE\",\"reasonType\":\"REGULAR\"}],\"otherInfo\":{\"cat16Info\":\"\",\"cat31Info\":\"\",\"cat33Info\":\"\"},\"serviceFee\":{\"amount\":0,\"levelType\":\"PER_PNR\",\"currency\":\"USD\"}}]",
+                    "rescheduleInfoSummary": null,
+                    "rescheduleStatus": "YES",
+                    "rescheduleUnknownReason": null
+                  }
+                }
+              ]
+            },
+            "details": {
+              "fare": {
+                "adult": {
+                  "currencyValue": {
+                    "amount": "6665",
+                    "currency": "SGD",
+                    "nullOrEmpty": false
+                  },
+                  "numOfDecimalPoint": "2"
+                },
+                "adultRounded": {
+                  "currencyValue": {
+                    "amount": "67",
+                    "currency": "SGD",
+                    "nullOrEmpty": false
+                  },
+                  "numOfDecimalPoint": "0"
+                },
+                "airlineFare": null,
+                "display": {
+                  "currencyValue": {
+                    "amount": "0",
+                    "currency": "SGD",
+                    "nullOrEmpty": false
+                  },
+                  "numOfDecimalPoint": "2"
+                },
+                "displayRounded": {
+                  "currencyValue": {
+                    "amount": "0",
+                    "currency": "SGD",
+                    "nullOrEmpty": false
+                  },
+                  "numOfDecimalPoint": "0"
+                },
+                "displayType": "ADT",
+                "hasPointCashback": false
+              },
+              "flight_metadata": {
+                "cardFacilities": [
+                  {
+                    "airlineId": "QG",
+                    "items": []
+                  }
+                ],
+                "isRefundable": false,
+                "isReschedulable": true,
+                "isSelfTransfer": false,
+                "seatClassInventory": "ECONOMY",
+                "totalNumStop": "0",
+                "transitAirportCodes": [],
+                "transitDurations": [],
+                "tripDuration": "110"
+              },
+              "id": "84bd5a7533bb6d3fb9c73a4b41b702d7",
+              "routes": [
+                {
+                  "arrivalAirport": "SIN",
+                  "departureAirport": "CGK",
+                  "durationInMinutes": "0",
+                  "numDayOffset": "0",
+                  "totalNumStop": "0"
+                }
+              ]
+            }
+          }
+        ],
+        "stops": 0,
+        "duration_minutes": 225,
+        "occupancy_match": null,
+        "refundable": false,
+        "reschedulable": true,
+        "cancellation": null,
+        "details": {
+          "display_type": "ADT",
+          "journey_ids": [
+            "c52ff5f5386e951b7f1daaab24d8fb5e",
+            "84bd5a7533bb6d3fb9c73a4b41b702d7"
+          ],
+          "price_basis": "party_trip_total"
+        }
+      },
+      {
+        "id": "c52ff5f5386e951b7f1daaab24d8fb5e+a0b1f9defc1b44c58b94a5af02b78db8",
+        "kind": "flight",
+        "property_id": "",
+        "property_name": "",
+        "room_id": "",
+        "room_name": "",
+        "meal_plan": "",
+        "payment": "",
+        "booking_url": "https://www.traveloka.com/en-sg/flight/fulltwosearch?ap=SIN.CGK&dt=20-11-2026.27-11-2026&ps=1.0.0&sc=ECONOMY",
+        "price": {
+          "total": {
+            "currency": "SGD",
+            "amount": "181.05",
+            "minor_units": "18105",
+            "decimals": 2
+          },
+          "per_passenger": {
+            "currency": "SGD",
+            "amount": "181.05",
+            "minor_units": "18105",
+            "decimals": 2
+          },
+          "per_room_per_night": null,
+          "base_fare": null,
+          "taxes": null,
+          "fees": null,
+          "tax_inclusion": "unknown"
+        },
+        "legs": [
+          {
+            "segments": [
+              {
+                "origin": "SIN",
+                "destination": "CGK",
+                "departure_date": "2026-11-20",
+                "departure_time": "21:00",
+                "arrival_date": "2026-11-20",
+                "arrival_time": "21:55",
+                "departure_utc_offset_minutes": 480,
+                "arrival_utc_offset_minutes": 420,
+                "marketing_airline": "QG",
+                "operating_airline": "QG",
+                "flight_number": "QG-527",
+                "cabin": "ECONOMY",
+                "duration_minutes": 115,
+                "checked_baggage": {
+                  "availableToBuy": false,
+                  "copyDescription": null,
+                  "copyText": null,
+                  "height": "0",
+                  "iconUrl": null,
+                  "length": "0",
+                  "quantity": "0",
+                  "source": "SUPPLY.FREE_BAGGAGE.PRE<KG.0.0>",
+                  "unitOfMeasure": "KG",
+                  "weight": "0",
+                  "width": "0"
+                },
+                "cabin_baggage": {
+                  "availableToBuy": false,
+                  "copyDescription": null,
+                  "copyText": null,
+                  "height": "0",
+                  "iconUrl": null,
+                  "length": "0",
+                  "quantity": "1",
+                  "source": "Version:QG.default~Rule:ECONOMY.*.FareBasisPattern:*",
+                  "unitOfMeasure": "KG",
+                  "weight": "7",
+                  "width": "0"
+                },
+                "details": {
+                  "aircraftInformation": {
+                    "aircraft": {
+                      "model": "Airbus A320-100/200",
+                      "seatInformation": {
+                        "layout": "3-3",
+                        "pitch": "28",
+                        "type": "BELOW_AVERAGE_LEGROOM"
+                      },
+                      "type": null
+                    },
+                    "cabinBaggage": {
+                      "height": "0",
+                      "length": "0",
+                      "quantity": "1",
+                      "source": "Version:QG.default~Rule:ECONOMY.*.FareBasisPattern:*",
+                      "unitOfMeasure": "KG",
+                      "weight": "7",
+                      "width": "0"
+                    }
+                  },
+                  "aircraftType": "",
+                  "arrivalTerminalName": "Terminal 2F",
+                  "brandCode": "QG",
+                  "departureTerminalName": "Terminal 3",
+                  "facilities": {
+                    "baggage": {
+                      "availableToBuy": false,
+                      "copyDescription": null,
+                      "copyText": null,
+                      "height": "0",
+                      "iconUrl": null,
+                      "length": "0",
+                      "quantity": "0",
+                      "source": "SUPPLY.FREE_BAGGAGE.PRE<KG.0.0>",
+                      "unitOfMeasure": "KG",
+                      "weight": "0",
+                      "width": "0"
+                    },
+                    "cabinBaggage": {
+                      "availableToBuy": false,
+                      "copyDescription": null,
+                      "copyText": null,
+                      "height": "0",
+                      "iconUrl": null,
+                      "length": "0",
+                      "quantity": "1",
+                      "source": "Version:QG.default~Rule:ECONOMY.*.FareBasisPattern:*",
+                      "unitOfMeasure": "KG",
+                      "weight": "7",
+                      "width": "0"
+                    },
+                    "collapseCount": "2",
+                    "entertainment": {
+                      "available": false,
+                      "copyText": "In-flight entertainment not available",
+                      "iconUrl": "https://img.cnt.traveloka.com/tvlk/image/imageResource/2021/03/17/1615984140852-2b608bc70b0c35184c143655edc13747.png?tr=q-75"
+                    },
+                    "freeMeal": {
+                      "available": false
+                    },
+                    "isPersonalItemIncluded": false,
+                    "isUsingEnrichBaggageInfo": true,
+                    "order": [
+                      "baggage",
+                      "freeMeal",
+                      "entertainment",
+                      "wifi",
+                      "usbAndPower"
+                    ],
+                    "personalItem": null,
+                    "personalItemIncluded": false,
+                    "usbAndPower": {
+                      "available": false,
+                      "chance": "NA",
+                      "copyText": "Power/USB port not available",
+                      "iconUrl": "https://img.cnt.traveloka.com/tvlk/image/imageResource/2021/03/17/1615984115262-c61472ad45f2d3375802325e6160b4b5.png?tr=q-75",
+                      "power": false,
+                      "usb": false
+                    },
+                    "usingEnrichBaggageInfo": true,
+                    "wifi": {
+                      "available": false,
+                      "chance": "NA",
+                      "copyText": "WiFi not available",
+                      "cost": "NA",
+                      "iconUrl": "https://img.cnt.traveloka.com/tvlk/image/imageResource/2021/03/17/1615983992523-ef76706b2884d0f24f3c1a87a6a0b40d.png?tr=q-75"
+                    }
+                  },
+                  "flightLegInfoList": [],
+                  "mayReCheckIn": false,
+                  "numTransits": "0",
+                  "transitInfoV2": null,
+                  "visaRequired": false
+                }
+              }
+            ],
+            "fare_rules": {
+              "routes": [
+                {
+                  "flightRefundInfo": {
+                    "policyDetails": [],
+                    "refundInfoDetail": "[{\"routeIndex\":-1,\"sourcePolicy\":\"AIRLINE_POLICY\",\"matchingPaxTypes\":[\"ADT\"],\"partialPax\":false,\"partialRoute\":\"NO\",\"periodAndFees\":[{\"refundable\":true,\"startPeriodType\":\"AFTER_PURCHASE\",\"endPeriodType\":\"BEFORE_DEPARTURE\",\"startNumHours\":0,\"endNumHours\":0,\"amount\":159.51,\"currencyCode\":\"USD\",\"isPercentage\":false,\"refundType\":\"REGULAR\",\"flightRefundFeeLevelType\":\"PER_PNR\"},{\"refundable\":false,\"startPeriodType\":\"AFTER_DEPARTURE\",\"endPeriodType\":\"AFTER_DEPARTURE\",\"startNumHours\":0,\"endNumHours\":9999,\"amount\":161.0,\"currencyCode\":\"USD\",\"isPercentage\":false,\"refundType\":\"REGULAR\",\"flightRefundFeeLevelType\":\"PER_PNR\"}],\"otherInfo\":{\"cat16Info\":\"\",\"cat31Info\":\"\",\"cat33Info\":\"\"},\"serviceFee\":{\"amount\":0,\"levelType\":\"PER_PNR\",\"currency\":\"USD\"}}]",
+                    "refundInfoSummary": "",
+                    "refundableStatus": "NO"
+                  },
+                  "flightRescheduleInfo": {
+                    "policyDetails": [
+                      "To see your flight reschedule policy, please select flight"
+                    ],
+                    "rescheduleInfoDetail": "[{\"routeIndex\":-1,\"sourcePolicy\":\"AIRLINE_POLICY\",\"matchingPaxTypes\":[\"ADT\"],\"partialPax\":false,\"partialRoute\":\"NO\",\"periodAndFees\":[{\"changeable\":true,\"startPeriodType\":\"AFTER_PURCHASE\",\"endPeriodType\":\"BEFORE_DEPARTURE\",\"startNumHours\":0,\"endNumHours\":0,\"amount\":152.97,\"currencyCode\":\"USD\",\"isPercentage\":false,\"feeValueType\":\"PER_PNR_ROUTE\",\"changeType\":\"REISSUANCE\",\"reasonType\":\"REGULAR\"},{\"changeable\":false,\"startPeriodType\":\"AFTER_DEPARTURE\",\"endPeriodType\":\"AFTER_DEPARTURE\",\"startNumHours\":0,\"endNumHours\":9999,\"amount\":161.0,\"currencyCode\":\"USD\",\"isPercentage\":false,\"feeValueType\":\"PER_PNR_ROUTE\",\"changeType\":\"REISSUANCE\",\"reasonType\":\"REGULAR\"}],\"otherInfo\":{\"cat16Info\":\"\",\"cat31Info\":\"\",\"cat33Info\":\"\"},\"serviceFee\":{\"amount\":0,\"levelType\":\"PER_PNR\",\"currency\":\"USD\"}}]",
+                    "rescheduleInfoSummary": null,
+                    "rescheduleStatus": "YES",
+                    "rescheduleUnknownReason": null
+                  }
+                }
+              ]
+            },
+            "details": {
+              "fare": {
+                "adult": {
+                  "currencyValue": {
+                    "amount": "9963",
+                    "currency": "SGD",
+                    "nullOrEmpty": false
+                  },
+                  "numOfDecimalPoint": "2"
+                },
+                "adultRounded": {
+                  "currencyValue": {
+                    "amount": "100",
+                    "currency": "SGD",
+                    "nullOrEmpty": false
+                  },
+                  "numOfDecimalPoint": "0"
+                },
+                "airlineFare": null,
+                "display": {
+                  "currencyValue": {
+                    "amount": "18105",
+                    "currency": "SGD",
+                    "nullOrEmpty": false
+                  },
+                  "numOfDecimalPoint": "2"
+                },
+                "displayRounded": {
+                  "currencyValue": {
+                    "amount": "181",
+                    "currency": "SGD",
+                    "nullOrEmpty": false
+                  },
+                  "numOfDecimalPoint": "0"
+                },
+                "displayType": "ADT",
+                "hasPointCashback": false
+              },
+              "flight_metadata": {
+                "cardFacilities": [
+                  {
+                    "airlineId": "QG",
+                    "items": []
+                  }
+                ],
+                "isRefundable": false,
+                "isReschedulable": true,
+                "isSelfTransfer": false,
+                "seatClassInventory": "ECONOMY",
+                "totalNumStop": "0",
+                "transitAirportCodes": [],
+                "transitDurations": [],
+                "tripDuration": "115"
+              },
+              "id": "c52ff5f5386e951b7f1daaab24d8fb5e",
+              "routes": [
+                {
+                  "arrivalAirport": "CGK",
+                  "departureAirport": "SIN",
+                  "durationInMinutes": "0",
+                  "numDayOffset": "0",
+                  "totalNumStop": "0"
+                }
+              ]
+            }
+          },
+          {
+            "segments": [
+              {
+                "origin": "CGK",
+                "destination": "SIN",
+                "departure_date": "2026-11-27",
+                "departure_time": "06:20",
+                "arrival_date": "2026-11-27",
+                "arrival_time": "09:10",
+                "departure_utc_offset_minutes": 420,
+                "arrival_utc_offset_minutes": 480,
+                "marketing_airline": "QG",
+                "operating_airline": "QG",
+                "flight_number": "QG-522",
+                "cabin": "ECONOMY",
+                "duration_minutes": 110,
+                "checked_baggage": {
+                  "availableToBuy": false,
+                  "copyDescription": null,
+                  "copyText": null,
+                  "height": "0",
+                  "iconUrl": null,
+                  "length": "0",
+                  "quantity": "0",
+                  "source": "SUPPLY.FREE_BAGGAGE.PRE<KG.0.0>",
+                  "unitOfMeasure": "KG",
+                  "weight": "0",
+                  "width": "0"
+                },
+                "cabin_baggage": {
+                  "availableToBuy": false,
+                  "copyDescription": null,
+                  "copyText": null,
+                  "height": "0",
+                  "iconUrl": null,
+                  "length": "0",
+                  "quantity": "1",
+                  "source": "Version:QG.default~Rule:ECONOMY.*.FareBasisPattern:*",
+                  "unitOfMeasure": "KG",
+                  "weight": "7",
+                  "width": "0"
+                },
+                "details": {
+                  "aircraftInformation": {
+                    "aircraft": {
+                      "model": "Airbus A320-100/200",
+                      "seatInformation": {
+                        "layout": "3-3",
+                        "pitch": "28",
+                        "type": "BELOW_AVERAGE_LEGROOM"
+                      },
+                      "type": null
+                    },
+                    "cabinBaggage": {
+                      "height": "0",
+                      "length": "0",
+                      "quantity": "1",
+                      "source": "Version:QG.default~Rule:ECONOMY.*.FareBasisPattern:*",
+                      "unitOfMeasure": "KG",
+                      "weight": "7",
+                      "width": "0"
+                    }
+                  },
+                  "aircraftType": "",
+                  "arrivalTerminalName": "Terminal 3",
+                  "brandCode": "QG",
+                  "departureTerminalName": "Terminal 2F",
+                  "facilities": {
+                    "baggage": {
+                      "availableToBuy": false,
+                      "copyDescription": null,
+                      "copyText": null,
+                      "height": "0",
+                      "iconUrl": null,
+                      "length": "0",
+                      "quantity": "0",
+                      "source": "SUPPLY.FREE_BAGGAGE.PRE<KG.0.0>",
+                      "unitOfMeasure": "KG",
+                      "weight": "0",
+                      "width": "0"
+                    },
+                    "cabinBaggage": {
+                      "availableToBuy": false,
+                      "copyDescription": null,
+                      "copyText": null,
+                      "height": "0",
+                      "iconUrl": null,
+                      "length": "0",
+                      "quantity": "1",
+                      "source": "Version:QG.default~Rule:ECONOMY.*.FareBasisPattern:*",
+                      "unitOfMeasure": "KG",
+                      "weight": "7",
+                      "width": "0"
+                    },
+                    "collapseCount": "2",
+                    "entertainment": {
+                      "available": false,
+                      "copyText": "In-flight entertainment not available",
+                      "iconUrl": "https://img.cnt.traveloka.com/tvlk/image/imageResource/2021/03/17/1615984140852-2b608bc70b0c35184c143655edc13747.png?tr=q-75"
+                    },
+                    "freeMeal": {
+                      "available": false
+                    },
+                    "isPersonalItemIncluded": false,
+                    "isUsingEnrichBaggageInfo": true,
+                    "order": [
+                      "baggage",
+                      "freeMeal",
+                      "entertainment",
+                      "wifi",
+                      "usbAndPower"
+                    ],
+                    "personalItem": null,
+                    "personalItemIncluded": false,
+                    "usbAndPower": {
+                      "available": false,
+                      "chance": "NA",
+                      "copyText": "Power/USB port not available",
+                      "iconUrl": "https://img.cnt.traveloka.com/tvlk/image/imageResource/2021/03/17/1615984115262-c61472ad45f2d3375802325e6160b4b5.png?tr=q-75",
+                      "power": false,
+                      "usb": false
+                    },
+                    "usingEnrichBaggageInfo": true,
+                    "wifi": {
+                      "available": false,
+                      "chance": "NA",
+                      "copyText": "WiFi not available",
+                      "cost": "NA",
+                      "iconUrl": "https://img.cnt.traveloka.com/tvlk/image/imageResource/2021/03/17/1615983992523-ef76706b2884d0f24f3c1a87a6a0b40d.png?tr=q-75"
+                    }
+                  },
+                  "flightLegInfoList": [],
+                  "mayReCheckIn": false,
+                  "numTransits": "0",
+                  "transitInfoV2": null,
+                  "visaRequired": false
+                }
+              }
+            ],
+            "fare_rules": {
+              "routes": [
+                {
+                  "flightRefundInfo": {
+                    "policyDetails": [],
+                    "refundInfoDetail": "[{\"routeIndex\":-1,\"sourcePolicy\":\"AIRLINE_POLICY\",\"matchingPaxTypes\":[\"ADT\"],\"partialPax\":false,\"partialRoute\":\"NO\",\"periodAndFees\":[{\"refundable\":true,\"startPeriodType\":\"AFTER_PURCHASE\",\"endPeriodType\":\"BEFORE_DEPARTURE\",\"startNumHours\":0,\"endNumHours\":0,\"amount\":159.51,\"currencyCode\":\"USD\",\"isPercentage\":false,\"refundType\":\"REGULAR\",\"flightRefundFeeLevelType\":\"PER_PNR\"},{\"refundable\":false,\"startPeriodType\":\"AFTER_DEPARTURE\",\"endPeriodType\":\"AFTER_DEPARTURE\",\"startNumHours\":0,\"endNumHours\":9999,\"amount\":161.0,\"currencyCode\":\"USD\",\"isPercentage\":false,\"refundType\":\"REGULAR\",\"flightRefundFeeLevelType\":\"PER_PNR\"}],\"otherInfo\":{\"cat16Info\":\"\",\"cat31Info\":\"\",\"cat33Info\":\"\"},\"serviceFee\":{\"amount\":0,\"levelType\":\"PER_PNR\",\"currency\":\"USD\"}}]",
+                    "refundInfoSummary": "",
+                    "refundableStatus": "NO"
+                  },
+                  "flightRescheduleInfo": {
+                    "policyDetails": [
+                      "To see your flight reschedule policy, please select flight"
+                    ],
+                    "rescheduleInfoDetail": "[{\"routeIndex\":-1,\"sourcePolicy\":\"AIRLINE_POLICY\",\"matchingPaxTypes\":[\"ADT\"],\"partialPax\":false,\"partialRoute\":\"NO\",\"periodAndFees\":[{\"changeable\":true,\"startPeriodType\":\"AFTER_PURCHASE\",\"endPeriodType\":\"BEFORE_DEPARTURE\",\"startNumHours\":0,\"endNumHours\":0,\"amount\":152.97,\"currencyCode\":\"USD\",\"isPercentage\":false,\"feeValueType\":\"PER_PNR_ROUTE\",\"changeType\":\"REISSUANCE\",\"reasonType\":\"REGULAR\"},{\"changeable\":false,\"startPeriodType\":\"AFTER_DEPARTURE\",\"endPeriodType\":\"AFTER_DEPARTURE\",\"startNumHours\":0,\"endNumHours\":9999,\"amount\":161.0,\"currencyCode\":\"USD\",\"isPercentage\":false,\"feeValueType\":\"PER_PNR_ROUTE\",\"changeType\":\"REISSUANCE\",\"reasonType\":\"REGULAR\"}],\"otherInfo\":{\"cat16Info\":\"\",\"cat31Info\":\"\",\"cat33Info\":\"\"},\"serviceFee\":{\"amount\":0,\"levelType\":\"PER_PNR\",\"currency\":\"USD\"}}]",
+                    "rescheduleInfoSummary": null,
+                    "rescheduleStatus": "YES",
+                    "rescheduleUnknownReason": null
+                  }
+                }
+              ]
+            },
+            "details": {
+              "fare": {
+                "adult": {
+                  "currencyValue": {
+                    "amount": "6665",
+                    "currency": "SGD",
+                    "nullOrEmpty": false
+                  },
+                  "numOfDecimalPoint": "2"
+                },
+                "adultRounded": {
+                  "currencyValue": {
+                    "amount": "67",
+                    "currency": "SGD",
+                    "nullOrEmpty": false
+                  },
+                  "numOfDecimalPoint": "0"
+                },
+                "airlineFare": null,
+                "display": {
+                  "currencyValue": {
+                    "amount": "0",
+                    "currency": "SGD",
+                    "nullOrEmpty": false
+                  },
+                  "numOfDecimalPoint": "2"
+                },
+                "displayRounded": {
+                  "currencyValue": {
+                    "amount": "0",
+                    "currency": "SGD",
+                    "nullOrEmpty": false
+                  },
+                  "numOfDecimalPoint": "0"
+                },
+                "displayType": "ADT",
+                "hasPointCashback": false
+              },
+              "flight_metadata": {
+                "cardFacilities": [
+                  {
+                    "airlineId": "QG",
+                    "items": []
+                  }
+                ],
+                "isRefundable": false,
+                "isReschedulable": true,
+                "isSelfTransfer": false,
+                "seatClassInventory": "ECONOMY",
+                "totalNumStop": "0",
+                "transitAirportCodes": [],
+                "transitDurations": [],
+                "tripDuration": "110"
+              },
+              "id": "a0b1f9defc1b44c58b94a5af02b78db8",
+              "routes": [
+                {
+                  "arrivalAirport": "SIN",
+                  "departureAirport": "CGK",
+                  "durationInMinutes": "0",
+                  "numDayOffset": "0",
+                  "totalNumStop": "0"
+                }
+              ]
+            }
+          }
+        ],
+        "stops": 0,
+        "duration_minutes": 225,
+        "occupancy_match": null,
+        "refundable": false,
+        "reschedulable": true,
+        "cancellation": null,
+        "details": {
+          "display_type": "ADT",
+          "journey_ids": [
+            "c52ff5f5386e951b7f1daaab24d8fb5e",
+            "a0b1f9defc1b44c58b94a5af02b78db8"
+          ],
+          "price_basis": "party_trip_total"
+        }
+      }
+    ],
+    "search_complete": true,
+    "coverage": {
+      "candidate_order": "source_display_price",
+      "max_outbound_candidates": 2,
+      "outbound_candidates_truncated": true,
+      "outbound_evaluated": 1,
+      "outbound_observed": 124,
+      "outbound_retained": 2,
+      "output_limit": 2,
+      "output_truncated": true,
+      "polls": 3,
+      "prefetch_attempted": 2,
+      "prefetch_cap": 50,
+      "prefetch_failed": 0,
+      "prefetch_failures": [],
+      "returned": 2,
+      "returns": [
+        {
+          "observed": 115,
+          "outbound_id": "c52ff5f5386e951b7f1daaab24d8fb5e",
+          "polls": 0,
+          "search_complete": true,
+          "source_meta": {
+            "defaultSortType": "DIRECT_FLIGHT_FIRST",
+            "expiryTimeStamp": "1791007895259",
+            "priceDisplayType": "ADT"
+          }
+        }
+      ],
+      "scope": "bounded_candidates",
+      "search_id": "4bffa4be-659f-49db-aa9e-b69c7d83d314",
+      "source_outbound_meta": {
+        "availableSortTypes": [
+          "CHEAPEST",
+          "SHORTEST_DURATION",
+          "DIRECT_FLIGHT_FIRST",
+          "EARLIEST_DEPARTURE",
+          "LATEST_DEPARTURE",
+          "EARLIEST_ARRIVAL",
+          "LATEST_ARRIVAL"
+        ],
+        "defaultSortType": "DIRECT_FLIGHT_FIRST",
+        "expiryTimeStamp": "1791007895259",
+        "priceDisplayType": "ADT",
+        "searchCompleted": true
+      }
+    },
+    "warnings": [],
+    "indicative": true,
+    "freshness": "fresh_retrieval"
+  },
+  "observed_at": "2026-10-02T06:01:37.172387Z",
+  "query": {
+    "kind": "flights",
+    "market": "SG",
+    "locale": "en-SG",
+    "currency": "SGD",
+    "origin": "SIN",
+    "destination": "CGK",
+    "depart": "2026-11-20",
+    "return_date": "2026-11-27",
+    "cabin": "ECONOMY",
+    "geo_id": "",
+    "property_id": "",
+    "property_name": "",
+    "check_in": "",
+    "check_out": "",
+    "adults": 1,
+    "children": 0,
+    "infants": 0,
+    "rooms": 0,
+    "limit": 2,
+    "offset": 0,
+    "max_candidates": 2,
+    "child_ages": []
+  },
+  "requests": [
+    {
+      "http_status": 200,
+      "path": "/api/v2/flight/search/initial",
+      "request_context": {
+        "currency": "SGD",
+        "journeys": [
+          {
+            "departureDate": "2026-11-20",
+            "destinationCode": "CGK",
+            "originCode": "SIN"
+          },
+          {
+            "departureDate": "2026-11-27",
+            "destinationCode": "SIN",
+            "originCode": "CGK"
+          }
+        ],
+        "numSeats": {
+          "numAdults": 1,
+          "numChildren": 0,
+          "numInfants": 0
+        },
+        "seatPublishedClass": "ECONOMY",
+        "tripType": "ROUND_TRIP"
+      },
+      "shopper": {
+        "currency": "SGD",
+        "locale": "en_SG",
+        "market": "SG"
+      }
+    },
+    {
+      "http_status": 200,
+      "path": "/api/v2/flight/search/poll",
+      "request_context": {
+        "currency": "SGD",
+        "journeys": [
+          {
+            "departureDate": "2026-11-20",
+            "destinationCode": "CGK",
+            "originCode": "SIN"
+          },
+          {
+            "departureDate": "2026-11-27",
+            "destinationCode": "SIN",
+            "originCode": "CGK"
+          }
+        ],
+        "numSeats": {
+          "numAdults": 1,
+          "numChildren": 0,
+          "numInfants": 0
+        },
+        "seatPublishedClass": "ECONOMY",
+        "tripType": "ROUND_TRIP"
+      },
+      "shopper": {
+        "currency": "SGD",
+        "locale": "en_SG",
+        "market": "SG"
+      }
+    },
+    {
+      "http_status": 200,
+      "path": "/api/v2/flight/search/poll",
+      "request_context": {
+        "currency": "SGD",
+        "journeys": [
+          {
+            "departureDate": "2026-11-20",
+            "destinationCode": "CGK",
+            "originCode": "SIN"
+          },
+          {
+            "departureDate": "2026-11-27",
+            "destinationCode": "SIN",
+            "originCode": "CGK"
+          }
+        ],
+        "numSeats": {
+          "numAdults": 1,
+          "numChildren": 0,
+          "numInfants": 0
+        },
+        "seatPublishedClass": "ECONOMY",
+        "tripType": "ROUND_TRIP"
+      },
+      "shopper": {
+        "currency": "SGD",
+        "locale": "en_SG",
+        "market": "SG"
+      }
+    },
+    {
+      "http_status": 200,
+      "path": "/api/v2/flight/search/poll",
+      "request_context": {
+        "currency": "SGD",
+        "journeys": [
+          {
+            "departureDate": "2026-11-20",
+            "destinationCode": "CGK",
+            "originCode": "SIN"
+          },
+          {
+            "departureDate": "2026-11-27",
+            "destinationCode": "SIN",
+            "originCode": "CGK"
+          }
+        ],
+        "numSeats": {
+          "numAdults": 1,
+          "numChildren": 0,
+          "numInfants": 0
+        },
+        "seatPublishedClass": "ECONOMY",
+        "tripType": "ROUND_TRIP"
+      },
+      "shopper": {
+        "currency": "SGD",
+        "locale": "en_SG",
+        "market": "SG"
+      }
+    },
+    {
+      "http_status": 200,
+      "path": "/api/v2/flight/search/poll",
+      "request_context": {
+        "currency": "SGD",
+        "journeys": [
+          {
+            "departureDate": "2026-11-20",
+            "destinationCode": "CGK",
+            "originCode": "SIN"
+          },
+          {
+            "departureDate": "2026-11-27",
+            "destinationCode": "SIN",
+            "originCode": "CGK"
+          }
+        ],
+        "numSeats": {
+          "numAdults": 1,
+          "numChildren": 0,
+          "numInfants": 0
+        },
+        "seatPublishedClass": "ECONOMY",
+        "tripType": "ROUND_TRIP"
+      },
+      "shopper": {
+        "currency": "SGD",
+        "locale": "en_SG",
+        "market": "SG"
+      }
+    },
+    {
+      "http_status": 200,
+      "path": "/api/v2/flight/search/redirection",
+      "request_context": {},
+      "shopper": {
+        "currency": "SGD",
+        "locale": "en_SG",
+        "market": "SG"
+      },
+      "source_prices": [
+        {
+          "displayType": "ADT",
+          "displayedPricePerPax": {
+            "currencyValue": {
+              "amount": "18105",
+              "currency": "SGD",
+              "nullOrEmpty": false
+            },
+            "numOfDecimalPoint": "2"
+          },
+          "id": "c52ff5f5386e951b7f1daaab24d8fb5e+84bd5a7533bb6d3fb9c73a4b41b702d7",
+          "totalPrice": {
+            "currencyValue": {
+              "amount": "18105",
+              "currency": "SGD",
+              "nullOrEmpty": false
+            },
+            "numOfDecimalPoint": "2"
+          }
+        }
+      ]
+    },
+    {
+      "http_status": 200,
+      "path": "/api/v2/flight/search/redirection",
+      "request_context": {},
+      "shopper": {
+        "currency": "SGD",
+        "locale": "en_SG",
+        "market": "SG"
+      },
+      "source_prices": [
+        {
+          "displayType": "ADT",
+          "displayedPricePerPax": {
+            "currencyValue": {
+              "amount": "18105",
+              "currency": "SGD",
+              "nullOrEmpty": false
+            },
+            "numOfDecimalPoint": "2"
+          },
+          "id": "c52ff5f5386e951b7f1daaab24d8fb5e+a0b1f9defc1b44c58b94a5af02b78db8",
+          "totalPrice": {
+            "currencyValue": {
+              "amount": "18105",
+              "currency": "SGD",
+              "nullOrEmpty": false
+            },
+            "numOfDecimalPoint": "2"
+          }
+        }
+      ]
+    }
+  ]
+}

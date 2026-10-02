@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "traveloka-pp-cli"
+display_name = "Traveloka"
+description = "Research dated flights and hotel stays with source price bases, complete itineraries and comparable quote snapshots."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/traveloka-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+TRAVELOKA_SESSION_FILE = false

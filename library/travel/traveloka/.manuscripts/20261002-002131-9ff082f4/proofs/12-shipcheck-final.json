@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "verdict": "PASS",
+  "started_at": "2026-10-02T04:40:31Z",
+  "elapsed_ms": 30702,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T04:40:31Z",
+      "elapsed_ms": 8555,
+      "command": "/Users/zjsng/go/bin/cli-printing-press verify --dir /Users/zjsng/printing-press/.runstate/traveloka-cli-7d625453/runs/20261002-002131-9ff082f4/working/traveloka-pp-cli --write-manifest /Users/zjsng/printing-press/.runstate/traveloka-cli-7d625453/runs/20261002-002131-9ff082f4/working/traveloka-pp-cli/.printing-press.json --spec /Users/zjsng/printing-press/.runstate/traveloka-cli-7d625453/runs/20261002-002131-9ff082f4/working/traveloka-pp-cli/spec.yaml --fix --env-var TRAVELOKA_SESSION_FILE"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T04:40:39Z",
+      "elapsed_ms": 145,
+      "command": "/Users/zjsng/go/bin/cli-printing-press validate-narrative --strict --full-examples --research /Users/zjsng/printing-press/.runstate/traveloka-cli-7d625453/runs/20261002-002131-9ff082f4/research.json --binary /Users/zjsng/printing-press/.runstate/traveloka-cli-7d625453/runs/20261002-002131-9ff082f4/working/traveloka-pp-cli/build/stage/bin/traveloka-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T04:40:39Z",
+      "elapsed_ms": 2629,
+      "command": "/Users/zjsng/go/bin/cli-printing-press dogfood --dir /Users/zjsng/printing-press/.runstate/traveloka-cli-7d625453/runs/20261002-002131-9ff082f4/working/traveloka-pp-cli --spec /Users/zjsng/printing-press/.runstate/traveloka-cli-7d625453/runs/20261002-002131-9ff082f4/working/traveloka-pp-cli/spec.yaml --research-dir /Users/zjsng/printing-press/.runstate/traveloka-cli-7d625453/runs/20261002-002131-9ff082f4"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T04:40:42Z",
+      "elapsed_ms": 14817,
+      "command": "/Users/zjsng/go/bin/cli-printing-press workflow-verify --dir /Users/zjsng/printing-press/.runstate/traveloka-cli-7d625453/runs/20261002-002131-9ff082f4/working/traveloka-pp-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T04:40:57Z",
+      "elapsed_ms": 33,
+      "command": "/Users/zjsng/go/bin/cli-printing-press apify-audit --dir /Users/zjsng/printing-press/.runstate/traveloka-cli-7d625453/runs/20261002-002131-9ff082f4/working/traveloka-pp-cli --research-dir /Users/zjsng/printing-press/.runstate/traveloka-cli-7d625453/runs/20261002-002131-9ff082f4"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T04:40:57Z",
+      "elapsed_ms": 3242,
+      "command": "/Users/zjsng/go/bin/cli-printing-press verify-skill --dir /Users/zjsng/printing-press/.runstate/traveloka-cli-7d625453/runs/20261002-002131-9ff082f4/working/traveloka-pp-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T04:41:00Z",
+      "elapsed_ms": 1277,
+      "command": "/Users/zjsng/go/bin/cli-printing-press scorecard --dir /Users/zjsng/printing-press/.runstate/traveloka-cli-7d625453/runs/20261002-002131-9ff082f4/working/traveloka-pp-cli --write-manifest /Users/zjsng/printing-press/.runstate/traveloka-cli-7d625453/runs/20261002-002131-9ff082f4/working/traveloka-pp-cli/.printing-press.json --research-dir /Users/zjsng/printing-press/.runstate/traveloka-cli-7d625453/runs/20261002-002131-9ff082f4 --spec /Users/zjsng/printing-press/.runstate/traveloka-cli-7d625453/runs/20261002-002131-9ff082f4/working/traveloka-pp-cli/spec.yaml --live-check"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "traveloka-pp-mcp",
+  "display_name": "Traveloka",
+  "version": "0.1.0",
+  "description": "Research dated flights and hotel stays with source price bases, complete itineraries and comparable quote snapshots.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/traveloka-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/traveloka-pp-mcp",
+      "args": [],
+      "env": {
+        "TRAVELOKA_SESSION_FILE": "${user_config.traveloka_session_file}"
+      }
+    }
+  },
+  "user_config": {
+    "traveloka_session_file": {
+      "type": "string",
+      "title": "TRAVELOKA_SESSION_FILE",
+      "description": "Observed core guest-session cookie names for generator metadata. The delivered session importer preserves the complete scoped cookie jar and captured operation profiles; these names do not imply other cookies are unnecessary.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

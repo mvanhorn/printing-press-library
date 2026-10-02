@@ -1,0 +1,41 @@
+{
+  "source_files_compared": 219,
+  "source_drift": [],
+  "extra_or_missing_source_files": false,
+  "all_three_acceptance_copies_byte_identical": true,
+  "cli_checks": [
+    {
+      "args": [
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 27,
+      "stderr_bytes": 0
+    },
+    {
+      "args": [
+        "doctor",
+        "--dry-run",
+        "--agent",
+        "--home",
+        "/private/tmp/traveloka-delivery-check",
+        "--no-learn"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 73,
+      "stderr_bytes": 0
+    },
+    {
+      "args": [
+        "flights",
+        "search",
+        "--help"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 4251,
+      "stderr_bytes": 0
+    }
+  ],
+  "mcp_executable": true,
+  "source_fingerprint": "ee7bed075277eac02d4f0d0c21e0f894104ff95970db43b1d332ea03bda6e7b1"
+}

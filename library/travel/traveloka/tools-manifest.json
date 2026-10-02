@@ -1,0 +1,62 @@
+{
+  "api_name": "traveloka",
+  "base_url": "https://www.traveloka.com",
+  "description": "Research dated flights and hotel stays with source price bases, complete itineraries and comparable quote snapshots.",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome",
+  "mcp": {
+    "orchestration": "endpoint-mirror"
+  },
+  "auth": {
+    "type": "cookie",
+    "env_vars": [
+      "TRAVELOKA_SESSION_FILE"
+    ],
+    "env_var_specs": [
+      {
+        "name": "TRAVELOKA_SESSION_FILE",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": false,
+        "description": "Path to a private Traveloka-only cookie and request-profile session file. This is a file path, never a raw Cookie header."
+      }
+    ],
+    "cookie_domain": ".traveloka.com",
+    "cookies": [
+      "tv_cs",
+      "clientSessionId"
+    ],
+    "requires_browser_session": true,
+    "browser_session_validation_path": "/api/v2/airport/search-nexus",
+    "browser_session_validation_method": "POST"
+  },
+  "required_headers": [],
+  "tools": [],
+  "novel_features": [
+    {
+      "name": "Explicit flight date grid",
+      "command": "flights date-grid",
+      "description": "Compare retrieved trip totals across a bounded list of explicit departure and return dates."
+    },
+    {
+      "name": "Explicit hotel stay grid",
+      "command": "hotels date-grid",
+      "description": "Compare source stay totals for one property across equal-length stays with fixed occupancy."
+    },
+    {
+      "name": "Flight trade-off frontier",
+      "command": "flights shortlist",
+      "description": "Keep retrieved flight offers that trade price against stops and elapsed time."
+    },
+    {
+      "name": "Same-room cancellation price difference",
+      "command": "hotels flexibility",
+      "description": "See the stay-price difference between comparable cancellable and nonrefundable room rates."
+    },
+    {
+      "name": "Quote snapshot changes",
+      "command": "quotes diff",
+      "description": "Compare matched-offer price and policy changes between two explicit retrieval snapshots."
+    }
+  ]
+}

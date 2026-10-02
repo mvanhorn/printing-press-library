@@ -1,0 +1,12 @@
+{
+  "descriptions": {
+    "airport_lookup": "Resolve ranked airport and city matches from explicit source search JSON. Required: data; optional client-interface and fields projection. Returns the source location hierarchy and IDs. Prefer resolve for validated query, kind, market and locale inputs.",
+    "flight_initial": "Start a flight inventory search from explicit dated route and passenger data. Required: data; optional client-interface and fields projection. Returns a raw incremental search reply. Prefer flights_search to coordinate polling, complete itineraries and bounded source prices.",
+    "flight_poll": "Read incremental flight inventory or return options under a selected outbound context. Required: data from the matching source search; optional client-interface and fields projection. Returns the raw source search update. Prefer flights_search for the coordinated one-way or return workflow.",
+    "flight_prefetch": "Retrieve source prices for selected flight journeys using search preparation. Required: data with boolean isPrefetch=true; optional client-interface and fields projection. Returns the raw source price reply. Prefer flights_search for validated dated offers and party trip totals.",
+    "hotel_catalog": "Read hotel property inventory for an explicit stay and occupancy search. Required: operation-specific data; optional client-interface and fields projection. Returns raw source property offers. Prefer hotels_search for validated dates, adults, children, rooms and preserved stay-price bases.",
+    "hotel_features": "Read hotel autocomplete feature metadata from explicit source data. Required: data; optional client-interface and fields projection. Returns the raw source feature reply. Use resolve when the task is to find ranked destinations or properties.",
+    "hotel_lookup": "Resolve ranked hotel destinations and properties from explicit source search data. Required: data; optional client-interface and fields projection. Returns the source location hierarchy and IDs. Prefer resolve for query, kind and shopper-context validation.",
+    "hotel_rooms": "Read room and rate-plan inventory for an explicit property, stay and occupancy context. Required: operation-specific data; optional client-interface and fields projection. Returns raw source rates and exposed terms. Prefer hotels_rooms for normalized stay totals, occupancy, meals, cancellation and payment policies."
+  }
+}

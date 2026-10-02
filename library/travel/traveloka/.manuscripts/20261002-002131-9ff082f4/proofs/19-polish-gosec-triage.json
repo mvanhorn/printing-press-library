@@ -1,0 +1,464 @@
+{
+  "raw_before": 88,
+  "raw_after": 76,
+  "novel_unresolved_before": 12,
+  "novel_unresolved_after": 0,
+  "remaining_findings": [
+    {
+      "file": "internal/client/chrome.go",
+      "line": "193",
+      "rule_id": "G402",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/platform/gate.go",
+      "line": "22",
+      "rule_id": "G101",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/client/client.go",
+      "line": "1570",
+      "rule_id": "G101",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/teach.go",
+      "line": "210",
+      "rule_id": "G703",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/client/cookiejar.go",
+      "line": "335",
+      "rule_id": "G124",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/client/cookiejar.go",
+      "line": "144",
+      "rule_id": "G124",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1461",
+      "rule_id": "G124",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1419",
+      "rule_id": "G124",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1917",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1915",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1913",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1911",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1909",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1907",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1905",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1903",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1901",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1899",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1897",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1895",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1893",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1891",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1889",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1887",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1742",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1716",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1500",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "976",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "512",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "502",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "492",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "489",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "424",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "421",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "414",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1368",
+      "rule_id": "G204",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "3454-3457",
+      "rule_id": "G201",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "3151-3154",
+      "rule_id": "G201",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "1191",
+      "rule_id": "G201",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "1167",
+      "rule_id": "G201",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/store/learnings.go",
+      "line": "609",
+      "rule_id": "G202",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/platform/migration.go",
+      "line": "156",
+      "rule_id": "G202",
+      "reason": "Framework-supplied migration; SQL VACUUM destination uses explicit apostrophe escaping. Generator follow-up may use a bound filename expression."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "253",
+      "rule_id": "G304",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/platform/ratelimit.go",
+      "line": "148",
+      "rule_id": "G304",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/platform/profile.go",
+      "line": "510",
+      "rule_id": "G304",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/learn/teach_log.go",
+      "line": "112",
+      "rule_id": "G304",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/learn/playbooks.go",
+      "line": "73",
+      "rule_id": "G304",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/config/config.go",
+      "line": "254",
+      "rule_id": "G304",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/client/cookiejar.go",
+      "line": "267",
+      "rule_id": "G304",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/teach_playbook.go",
+      "line": "376",
+      "rule_id": "G304",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/teach.go",
+      "line": "150",
+      "rule_id": "G304",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/teach.go",
+      "line": "127",
+      "rule_id": "G304",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/feedback.go",
+      "line": "204",
+      "rule_id": "G304",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/feedback.go",
+      "line": "66",
+      "rule_id": "G304",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1386",
+      "rule_id": "G304",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1033",
+      "rule_id": "G304",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1025",
+      "rule_id": "G304",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "940",
+      "rule_id": "G304",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/learn/journal.go",
+      "line": "265",
+      "rule_id": "G117",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/platform/profile.go",
+      "line": "302",
+      "rule_id": "G302",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cliutil/testenv/testenv.go",
+      "line": "76",
+      "rule_id": "G302",
+      "reason": "Reserved framework test isolation;0700 applies to an ephemeral directory and owner execute permission is required."
+    },
+    {
+      "file": "internal/cliutil/testenv/sandbox_unix.go",
+      "line": "15",
+      "rule_id": "G302",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/client/client.go",
+      "line": "810",
+      "rule_id": "G302",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "3242",
+      "rule_id": "G104",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "2985",
+      "rule_id": "G104",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/learn/journal.go",
+      "line": "278",
+      "rule_id": "G104",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/client/client.go",
+      "line": "1478",
+      "rule_id": "G104",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/client/chrome.go",
+      "line": "248",
+      "rule_id": "G104",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/client/chrome.go",
+      "line": "202",
+      "rule_id": "G104",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/client/chrome.go",
+      "line": "195",
+      "rule_id": "G104",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/client/chrome.go",
+      "line": "190",
+      "rule_id": "G104",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/client/chrome.go",
+      "line": "155",
+      "rule_id": "G104",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/client/chrome.go",
+      "line": "151",
+      "rule_id": "G104",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/client/chrome.go",
+      "line": "141",
+      "rule_id": "G104",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/client/chrome.go",
+      "line": "124",
+      "rule_id": "G104",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    },
+    {
+      "file": "internal/cli/auth.go",
+      "line": "1140",
+      "rule_id": "G104",
+      "reason": "Generator-emitted file; unchanged framework finding is a Printing Press retro candidate."
+    }
+  ]
+}

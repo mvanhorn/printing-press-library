@@ -1,0 +1,11 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/traveloka-pp-cli
+/traveloka-pp-cli.exe
+/traveloka-pp-mcp
+/traveloka-pp-mcp.exe
+/bin/
+/build/
+/dist/
+
+# Disposable public live-matrix fixtures and confined test state.
+/.printing-press-fixtures/
