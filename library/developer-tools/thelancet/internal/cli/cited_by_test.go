@@ -20,10 +20,17 @@ func TestSafeTerminalTextRemovesControlCharacters(t *testing.T) {
 
 func TestSafeTerminalTextRemovesBidirectionalFormatting(t *testing.T) {
 	got := safeTerminalText("first\u202esecond\u2066third\u2069")
-	if got != "first second third" {
+	if got != "firstsecondthird" {
 		t.Fatalf("safeTerminalText retained bidirectional formatting: %q", got)
 	}
-	if strings.ContainsFunc(got, func(r rune) bool { return unicode.Is(unicode.Cf, r) }) {
-		t.Fatalf("safeTerminalText retained a Unicode format character: %q", got)
+	if strings.ContainsFunc(got, func(r rune) bool { return unicode.Is(unicode.Bidi_Control, r) }) {
+		t.Fatalf("safeTerminalText retained a bidirectional control: %q", got)
+	}
+}
+
+func TestSafeTerminalTextPreservesLegitimateJoiners(t *testing.T) {
+	want := "joining\u200demoji and non\u200cjoining text"
+	if got := safeTerminalText(want); got != want {
+		t.Fatalf("safeTerminalText changed legitimate joiners: got %q, want %q", got, want)
 	}
 }

@@ -100,7 +100,10 @@ func newCitedByCmd(flags *rootFlags) *cobra.Command {
 
 func safeTerminalText(s string) string {
 	s = strings.Map(func(r rune) rune {
-		if unicode.IsControl(r) || unicode.Is(unicode.Cf, r) {
+		if unicode.Is(unicode.Bidi_Control, r) {
+			return -1
+		}
+		if unicode.IsControl(r) {
 			return ' '
 		}
 		return r
