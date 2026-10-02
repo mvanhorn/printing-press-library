@@ -168,6 +168,17 @@ func extractSynthesisEpisode(entries []JournalEntry, queryFamily, sessionKey str
 // synthesizes byte-identical payloads.
 func synthesisStepCmd(e JournalEntry) string {
 	parts := append([]string(nil), e.Cmd...)
+	// The journal deliberately omits positional values. Preserve a usable
+	// choreography by asking the confirmer to supply each command's public
+	// argument from the current request, rather than inventing an ID.
+	switch strings.Join(e.Cmd, " ") {
+	case "postings list":
+		parts = append(parts, "{board.name}")
+	case "postings get":
+		parts = append(parts, "{board.name}", "{posting.id}")
+	case "search":
+		parts = append(parts, "{query}")
+	}
 	names := make([]string, 0, len(e.ArgvShape))
 	for name := range e.ArgvShape {
 		names = append(names, name)

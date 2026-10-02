@@ -21,6 +21,10 @@ func TestValidateAshbyPlaybookAllowsOnlyReadOnlyArgvCommands(t *testing.T) {
 		{name: "list", command: "ashby-pp-cli postings list {board.name} --remote --limit 5"},
 		{name: "get", command: "postings get ashby {posting.id} --json"},
 		{name: "search", command: "search engineer --board ashby --limit=5"},
+		{name: "flag before positional", command: "postings list --limit 5 ashby"},
+		{name: "synthesized list", command: "postings list {board.name} --limit <int> --location <str>"},
+		{name: "synthesized get", command: "postings get {board.name} --json {posting.id}"},
+		{name: "synthesized search", command: "search --board <str> {query}"},
 		{name: "arbitrary executable", command: "rm -rf data", wantErr: true},
 		{name: "write command", command: "ashby-pp-cli sync ashby", wantErr: true},
 		{name: "semicolon", command: "postings list ashby; touch owned", wantErr: true},
@@ -29,6 +33,11 @@ func TestValidateAshbyPlaybookAllowsOnlyReadOnlyArgvCommands(t *testing.T) {
 		{name: "output file", command: "postings list ashby --deliver file:owned", wantErr: true},
 		{name: "config injection", command: "postings list ashby --config malicious.toml", wantErr: true},
 		{name: "flag smuggled as positional", command: "postings get --home /tmp", wantErr: true},
+		{name: "synthesized hint as positional", command: "postings list <str>", wantErr: true},
+		{name: "redacted hint", command: "postings list ashby --query <redacted>", wantErr: true},
+		{name: "extra positional", command: "postings list ashby other", wantErr: true},
+		{name: "missing positional after flag", command: "postings list --limit 5", wantErr: true},
+		{name: "flag without value", command: "postings list ashby --limit", wantErr: true},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

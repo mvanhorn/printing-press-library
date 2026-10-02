@@ -157,6 +157,38 @@ func TestSynthesis_HappyPathCreatesQuarantinedCandidate(t *testing.T) {
 	}
 }
 
+func TestSynthesis_AshbyReadCommandsIncludeReviewablePositionals(t *testing.T) {
+	tests := []struct {
+		name      string
+		cmd       []string
+		argvShape map[string]string
+		want      string
+	}{
+		{"list", []string{"postings", "list"}, map[string]string{"limit": "int"}, "postings list {board.name} --limit <int>"},
+		{"get", []string{"postings", "get"}, map[string]string{"json": "bool"}, "postings get {board.name} {posting.id} --json"},
+		{"search", []string{"search"}, map[string]string{"board": "str"}, "search {query} --board <str>"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			withJournalHome(t)
+			s := openSynthesisStore(t)
+			entries := []learn.JournalEntry{
+				{SessionKey: "sess-a", Cmd: []string{"recall"}, ExitCode: 0, QueryFamily: synthesisFamily},
+				{SessionKey: "sess-a", Cmd: tt.cmd, ArgvShape: tt.argvShape, ExitCode: 0},
+			}
+			writeRawSegment(t, "journal-20260102.jsonl", synthesisLines(t, entries...)...)
+			row, recorded, err := learn.SynthesizePlaybookCandidate(s, synthesisFamily, "sess-a")
+			if err != nil || !recorded {
+				t.Fatalf("synthesize: recorded=%v err=%v", recorded, err)
+			}
+			pb, _ := decodeSynthesisPayload(t, row.Payload)
+			if len(pb.Steps) != 1 || pb.Steps[0].Cmd != tt.want {
+				t.Fatalf("steps=%+v, want %q", pb.Steps, tt.want)
+			}
+		})
+	}
+}
+
 func TestSynthesis_AbortConditions(t *testing.T) {
 	step := func(session string) learn.JournalEntry {
 		return learn.JournalEntry{SessionKey: session, Cmd: []string{"items", "list"}, ExitCode: 0}

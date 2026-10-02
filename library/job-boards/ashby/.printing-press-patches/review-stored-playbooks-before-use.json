@@ -15,10 +15,12 @@
     "internal/cli/teach_playbook_test.go",
     "internal/cli/learnings_candidates.go",
     "internal/cli/learnings_candidates_test.go",
+    "internal/learn/synthesize.go",
+    "internal/learn/synthesize_test.go",
     "internal/learn/match.go",
     "internal/learn/match_test.go",
     "internal/learn/playbooks.go",
     "internal/learn/recall.go"
   ],
-  "validated_outcome": "Offline tests reject shell syntax and write commands before persistence, keep unsafe candidates quarantined, and omit unsafe saved steps during recall."
+  "validated_outcome": "Offline tests reject shell syntax and write commands before persistence, accept reviewed journal argument placeholders and valid flag order, keep unsafe candidates quarantined, and omit unsafe saved steps during recall."
 }

@@ -42,7 +42,7 @@ func validateAshbyPlaybook(playbook learn.Playbook) error {
 }
 
 func validateAshbyPlaybookCommand(command string) error {
-	if strings.ContainsAny(command, "\r\n\t;&|><`$\\\"'") {
+	if strings.ContainsAny(command, "\r\n\t;&|`$\\\"'") {
 		return fmt.Errorf("cmd contains shell syntax or quoting")
 	}
 	fields := strings.Fields(command)
@@ -68,18 +68,10 @@ func validateAshbyPlaybookCommand(command string) error {
 	default:
 		return fmt.Errorf("cmd must use an Ashby read-only command (postings list, postings get, or search)")
 	}
-	if len(fields) < positionalCount {
-		return fmt.Errorf("%s requires %d positional argument(s)", path, positionalCount)
-	}
-	for _, value := range fields[:positionalCount] {
-		if err := validateAshbyPlaybookValue(value); err != nil {
-			return fmt.Errorf("invalid %s argument: %w", path, err)
-		}
-	}
-	return validateAshbyPlaybookFlags(path, fields[positionalCount:])
+	return validateAshbyPlaybookArguments(path, positionalCount, fields)
 }
 
-func validateAshbyPlaybookFlags(path string, fields []string) error {
+func validateAshbyPlaybookArguments(path string, positionalCount int, fields []string) error {
 	booleanFlags := map[string]bool{
 		"--agent": true, "--compact": true, "--csv": true, "--dry-run": true,
 		"--human-friendly": true, "--json": true, "--no-cache": true,
@@ -102,9 +94,17 @@ func validateAshbyPlaybookFlags(path string, fields []string) error {
 		valueFlags["--limit"] = true
 	}
 
+	positionals := 0
 	for len(fields) > 0 {
 		field := fields[0]
 		fields = fields[1:]
+		if !strings.HasPrefix(field, "-") {
+			if err := validateAshbyPlaybookValue(field, false); err != nil {
+				return fmt.Errorf("invalid %s argument: %w", path, err)
+			}
+			positionals++
+			continue
+		}
 		name, inlineValue, hasInlineValue := strings.Cut(field, "=")
 		if booleanFlags[name] {
 			if hasInlineValue && inlineValue != "true" && inlineValue != "false" {
@@ -122,19 +122,25 @@ func validateAshbyPlaybookFlags(path string, fields []string) error {
 			}
 			value, fields = fields[0], fields[1:]
 		}
-		if err := validateAshbyPlaybookValue(value); err != nil {
+		if err := validateAshbyPlaybookValue(value, true); err != nil {
 			return fmt.Errorf("invalid value for %s: %w", name, err)
 		}
-		if name == "--data-source" && value != "auto" && value != "live" && value != "local" {
+		if name == "--data-source" && value != "auto" && value != "live" && value != "local" && value != "<str>" {
 			return fmt.Errorf("invalid value for --data-source")
 		}
+	}
+	if positionals != positionalCount {
+		return fmt.Errorf("%s requires %d positional argument(s)", path, positionalCount)
 	}
 	return nil
 }
 
-func validateAshbyPlaybookValue(value string) error {
+func validateAshbyPlaybookValue(value string, allowSynthSlot bool) error {
 	if value == "" {
 		return fmt.Errorf("value is empty")
+	}
+	if allowSynthSlot && (value == "<str>" || value == "<int>") {
+		return nil
 	}
 	if strings.HasPrefix(value, "-") {
 		return fmt.Errorf("value must not be parsed as a flag")

@@ -138,6 +138,21 @@ func TestLearningsConfirm_PlaybookCandidateMaterializesAtConfidence2(t *testing.
 	}
 }
 
+func TestLearningsConfirm_SynthesizedReadOnlyCandidate(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+	id := seedCandidate(t, dbPath, store.CandidateClassPlaybookCandidate,
+		`{"playbook_json":"{\"steps\":[{\"cmd\":\"postings list {board.name} --limit <int>\"},{\"cmd\":\"postings get {board.name} {posting.id} --json\"}]}"}`,
+		"sig-synth-pb", "fam-synth", "")
+
+	if _, _, err := runRootArgs(t, "learnings", "confirm", itoa64(id), "--db", dbPath); err != nil {
+		t.Fatalf("confirm synthesized candidate: %v", err)
+	}
+	if status := getCandidateStatus(t, dbPath, id); status != store.CandidateStatusConfirmed {
+		t.Fatalf("synthesized candidate status=%q, want confirmed", status)
+	}
+}
+
 func TestLearningsConfirm_RejectsUnsafePlaybookCandidate(t *testing.T) {
 	home := withTempLearnHome(t)
 	dbPath := filepath.Join(home, "data.db")
