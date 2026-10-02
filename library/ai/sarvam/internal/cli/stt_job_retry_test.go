@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/ai/sarvam/internal/platform"
 )
 
 // TestNovelSttJobRetryHelpWires smoke-tests that the stt-job retry command
@@ -55,6 +57,21 @@ func TestPrepareSTTRetryFilesValidatesEveryInputBeforeJobCreation(t *testing.T) 
 	defer closePreparedSTTRetryFiles(prepared)
 	if len(prepared) != 1 || prepared[0].Name != "present.wav" || prepared[0].Size != 5 {
 		t.Fatalf("prepareSTTRetryFiles() = %#v", prepared)
+	}
+}
+
+func TestSTTRetryCheckpointUsesVerifiedProfileState(t *testing.T) {
+	profileState := filepath.Join(t.TempDir(), "client-state")
+	flags := &rootFlags{platformSession: &platform.Session{Paths: platform.Paths{StateDir: profileState}}}
+	checkpointPath, err := sttRetryCheckpointPath("job-1", flags)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if filepath.Dir(checkpointPath) != profileState {
+		t.Fatalf("checkpoint path %q escaped selected client profile", checkpointPath)
+	}
+	if _, err := sttRetryCheckpointPath("job-1", &rootFlags{platformSession: &platform.Session{}}); err == nil {
+		t.Fatal("accepted a verified client profile without a state directory")
 	}
 }
 

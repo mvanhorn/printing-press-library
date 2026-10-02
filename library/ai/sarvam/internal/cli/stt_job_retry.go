@@ -80,7 +80,7 @@ func newNovelSttJobRetryCmd(flags *rootFlags) *cobra.Command {
 				return apiErr(err)
 			}
 			defer closePreparedSTTRetryFiles(preparedFiles)
-			checkpointPath, err := sttRetryCheckpointPath(jobID)
+			checkpointPath, err := sttRetryCheckpointPath(jobID, flags)
 			if err != nil {
 				return configErr(fmt.Errorf("preparing retry checkpoint: %w", err))
 			}

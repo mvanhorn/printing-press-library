@@ -183,10 +183,19 @@ func pendingSTTRetryFiles(files []preparedSTTRetryFile, uploaded []string) []pre
 	return pending
 }
 
-func sttRetryCheckpointPath(originalJobID string) (string, error) {
-	dir, err := cliutil.StateDir()
-	if err != nil {
-		return "", err
+func sttRetryCheckpointPath(originalJobID string, flags *rootFlags) (string, error) {
+	var dir string
+	if flags != nil && flags.platformSession != nil {
+		dir = flags.platformSession.Paths.StateDir
+		if dir == "" {
+			return "", errors.New("verified client profile has no state directory")
+		}
+	} else {
+		var err error
+		dir, err = cliutil.StateDir()
+		if err != nil {
+			return "", err
+		}
 	}
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return "", fmt.Errorf("creating retry state directory: %w", err)
