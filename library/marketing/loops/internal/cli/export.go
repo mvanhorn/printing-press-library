@@ -237,6 +237,9 @@ func rejectUnsafeExportTarget(path string) error {
 	if !info.Mode().IsRegular() {
 		return errors.New("output path must be a regular file, not a symlink or special file")
 	}
+	if info.Mode().Perm()&0o200 == 0 {
+		return errors.New("output path is read-only; choose a writable file or a new path")
+	}
 	return nil
 }
 

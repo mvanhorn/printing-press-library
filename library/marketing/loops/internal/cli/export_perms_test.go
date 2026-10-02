@@ -71,6 +71,27 @@ func TestOpenExportOutputRejectsSymlinkWithoutChangingTarget(t *testing.T) {
 	}
 }
 
+func TestOpenExportOutputRejectsReadOnlyTarget(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("POSIX permission bits")
+	}
+	dir := t.TempDir()
+	path := filepath.Join(dir, "output.jsonl")
+	if err := os.WriteFile(path, []byte("original"), 0o400); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(path, 0o400); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := openExportOutput(path); err == nil {
+		t.Fatal("read-only output was accepted")
+	}
+	got, err := os.ReadFile(path)
+	if err != nil || string(got) != "original" {
+		t.Fatalf("read-only target changed: %q (%v)", got, err)
+	}
+}
+
 func TestExportCommitRejectsLateSymlink(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("symlink permissions depend on Windows developer mode")
