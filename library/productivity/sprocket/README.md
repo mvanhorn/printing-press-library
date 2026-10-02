@@ -132,11 +132,12 @@ To save a token without putting it in the process argument list, pipe it to
 loopback only and requires a separate `PP_MCP_HTTP_TOKEN` bearer token. Use an
 authenticated TLS tunnel or reverse proxy for remote access.
 
-When `--db` is omitted, local records and sync state are separated by config
-path, club URL, and an opaque token digest. Rotating a token starts a new local
+When `--db` is omitted, CLI and MCP local records and sync state are separated
+by config path, club URL, and an opaque token digest. MCP search and SQL use the
+same account-specific database as CLI sync. Rotating a token starts a new local
 cache. Existing data in the old shared default database remains on disk but is
 not read automatically; run `sprocket-pp-cli sync` to fill the new cache. An
-explicit `--db` path can be used when a stable advanced location is required.
+explicit CLI `--db` path can be used when a stable advanced location is required.
 
 ## Choose your club
 

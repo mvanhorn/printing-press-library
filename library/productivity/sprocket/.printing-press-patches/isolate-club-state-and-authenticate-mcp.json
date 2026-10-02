@@ -4,7 +4,7 @@
   "applied_at": "2026-10-01",
   "base_run_id": "20260617-211906-50f83ca4",
   "base_printing_press_version": "4.24.0",
-  "summary": "Keep Sprocket local data separate for each config, club, and credential while requiring bearer authentication on loopback HTTP MCP and accepting saved tokens only through standard input.",
+  "summary": "Keep CLI and MCP local data separate for each config, club, and credential while requiring bearer authentication on loopback HTTP MCP and accepting saved tokens only through standard input.",
   "reason": "Sprocket is multi-tenant. A shared local database can mix account data, unauthenticated HTTP MCP exposes account tools, and command-line token arguments appear in process lists. Schedule output must also unwrap the provider's declared events array for human tables.",
   "files": [
     "cmd/sprocket-pp-mcp/main.go",
@@ -24,7 +24,9 @@
     "internal/cli/since.go",
     "internal/cli/sprocket_schedule_test.go",
     "internal/cli/sync.go",
-    "internal/client/client.go"
+    "internal/client/client.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/account_scope_test.go"
   ],
-  "validated_outcome": "Offline tests cover account and club scope separation, stdin token persistence, bearer-protected MCP, resolved loopback binds, and schedule event envelopes."
+  "validated_outcome": "Offline tests cover CLI and MCP account scope separation, legacy shared-cache exclusion, stdin token persistence, bearer-protected MCP, resolved loopback binds, and schedule event envelopes."
 }

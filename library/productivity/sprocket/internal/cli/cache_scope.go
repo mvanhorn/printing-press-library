@@ -20,7 +20,14 @@ import (
 // deliberately starts a fresh scope; users who need a stable advanced location
 // can provide --db explicitly.
 func scopedDefaultDBPath(name string, flags *rootFlags) (string, error) {
-	cfg, err := config.Load(configPathFromFlags(flags))
+	return AccountScopedDBPath(name, configPathFromFlags(flags))
+}
+
+// AccountScopedDBPath is shared with the MCP server so its search and SQL
+// tools read the same account's local data as the CLI. The config path may be
+// empty to use the usual SPROCKET_CONFIG or default path resolution.
+func AccountScopedDBPath(name, configPath string) (string, error) {
+	cfg, err := config.Load(configPath)
 	if err != nil {
 		return "", fmt.Errorf("resolving account-scoped database: %w", err)
 	}
