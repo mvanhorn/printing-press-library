@@ -128,7 +128,11 @@ func executeTrashChunk(ctx context.Context, c *client.Client, db *store.Store, c
 						results <- res{id: id, skip: true, itemState: itemState}
 						continue
 					}
-					if (recovery || pass > 0) && (!recorded || itemState != store.MailApplyItemStatePending) {
+					// Pending proves no mutation ran, including a request Gmail
+					// explicitly rejected with 429. Only started or legacy items
+					// need a live-state check before another write.
+					knownUnsent := recorded && itemState == store.MailApplyItemStatePending
+					if (recovery || pass > 0) && !knownUnsent {
 						labels, found, err := fetchMessageLabelIDs(ctx, c, id)
 						if err != nil {
 							results <- res{id: id, err: err, itemState: itemState}

@@ -51,6 +51,7 @@ type fakeGmail struct {
 	modifyFailures          map[string]int
 	modifyAmbiguousFailures map[string]int
 	trashAmbiguousFailures  map[string]int
+	trashRateLimitFailures  map[string]int
 	getFailuresAfterTrash   map[string]int
 	nextLabelSeq            int
 }
@@ -93,6 +94,12 @@ func (f *fakeGmail) failNextTrashAfterApplying(id string) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	f.trashAmbiguousFailures[id]++
+}
+
+func (f *fakeGmail) rateLimitNextTrash(id string, count int) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.trashRateLimitFailures[id] += count
 }
 
 func (f *fakeGmail) failNextGetsAfterTrash(id string, count int) {
@@ -257,6 +264,12 @@ func (f *fakeGmail) handler() http.Handler {
 
 		case strings.HasSuffix(path, "/trash") && r.Method == "POST":
 			id := strings.TrimSuffix(strings.TrimPrefix(path, "/messages/"), "/trash")
+			if f.trashRateLimitFailures[id] > 0 {
+				f.trashRateLimitFailures[id]--
+				w.Header().Set("Retry-After", "0")
+				http.Error(w, `{"error":{"code":429,"message":"injected rate limit"}}`, http.StatusTooManyRequests)
+				return
+			}
 			cur, ok := f.labels[id]
 			if !ok {
 				http.Error(w, `{"error":{"code":404,"message":"not found"}}`, http.StatusNotFound)
@@ -331,6 +344,7 @@ func newEngineFixture(t *testing.T) *engineFixture {
 		modifyFailures:          map[string]int{},
 		modifyAmbiguousFailures: map[string]int{},
 		trashAmbiguousFailures:  map[string]int{},
+		trashRateLimitFailures:  map[string]int{},
 		getFailuresAfterTrash:   map[string]int{},
 		meta:                    map[string]fakeMsg{},
 		labelDefs: []gmailLabel{
@@ -678,6 +692,45 @@ func TestCleanupRecover_RechecksAmbiguousItemAfterMetadataFailures(t *testing.T)
 	chunks, err = db.ListMailApplyChunks(applyID)
 	if err != nil || chunks[0].State != store.MailChunkStateDone {
 		t.Fatalf("recovered chunk = %+v, %v; want done", chunks, err)
+	}
+}
+
+func TestCleanupRecover_RetriesDefinitelyRejectedRateLimitedTrash(t *testing.T) {
+	fx := newEngineFixture(t)
+	sha, nonce, _ := planForTrash(t, fx)
+	// Keep the fake test's 429s local to the three chunk passes. The
+	// client itself must not add delayed retries in this test.
+	t.Setenv(cliutil.DogfoodEnvVar, "1")
+	fx.fake.rateLimitNextTrash("m1", cleanupChunkRetryCeiling)
+
+	out, stderr, code := fx.runCLI(t, "cleanup", "apply", "--plan", sha, "--token", nonce)
+	if code != 3 {
+		t.Fatalf("apply exit = %d, want partial (3)\nstdout: %s\nstderr: %s", code, out, stderr)
+	}
+	apply := mustParseJSON(t, out)
+	applyID := int64(apply["apply_id"].(float64))
+	db := fx.openStore(t)
+	states, err := db.ListMailApplyItemStates(applyID, 0)
+	if err != nil || states["m1"] != store.MailApplyItemStatePending {
+		t.Fatalf("rate-limited item state = %+v, %v; want pending", states, err)
+	}
+	chunks, err := db.ListMailApplyChunks(applyID)
+	if err != nil || len(chunks) != 1 || chunks[0].State != store.MailChunkStateApplying {
+		t.Fatalf("rate-limited chunk = %+v, %v; want applying", chunks, err)
+	}
+	if hasLabel(fx.fake.getLabels("m1"), "TRASH") {
+		t.Fatal("rate-limited trash changed the mailbox")
+	}
+	fx.fake.resetLog()
+	out, stderr, code = fx.runCLI(t, "cleanup", "recover")
+	if code != 0 {
+		t.Fatalf("recover exit = %d\nstdout: %s\nstderr: %s", code, out, stderr)
+	}
+	if got := fx.fake.countRequests("POST /gmail/v1/users/me/messages/m1/trash"); got != 1 {
+		t.Fatalf("recovery sent %d trash requests, want one", got)
+	}
+	if !hasLabel(fx.fake.getLabels("m1"), "TRASH") {
+		t.Fatal("recovery skipped a definitely rejected trash")
 	}
 }
 
