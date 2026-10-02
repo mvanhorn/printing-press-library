@@ -1,8 +1,12 @@
 # Snipd CLI
 
+Created by Maxime Delavergne (@maxswinguy). Deleted-snip reconciliation contributed by Cathryn Lavery (@cathrynlavery).
+
 **Turn your Snipd snips into a local, ranked, full-text-searchable corpus — search a concept across every note, quote, and transcript, pull the exact quote, and synthesize across shows from the command line, plus an MCP for agents.**
 
 Your snips are trapped in a mobile app. This CLI pulls them into a local SQLite mirror with a full-text index, then lets you search, quote, filter, and aggregate them in kilobytes instead of scrolling an app. The same commands are exposed as MCP tools so an agent can reason over your own listening.
+
+When `pull` successfully refreshes an episode, it removes snips that the episode's current export no longer contains. Other episodes stay intact. An export or storage error does not trigger deletion reconciliation.
 
 ## Install
 

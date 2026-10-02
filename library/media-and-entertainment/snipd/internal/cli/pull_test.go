@@ -6,10 +6,13 @@ package cli
 
 import (
 	"bytes"
+	"encoding/json"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/snipd/internal/snipd"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/snipd/internal/store"
 )
 
 // TestNovelPullHelpWires smoke-tests that the pull command
@@ -108,5 +111,115 @@ func TestTsLater(t *testing.T) {
 		if got := tsLater(tc.a, tc.b); got != tc.want {
 			t.Errorf("%s: tsLater(%q, %q) = %v, want %v", tc.name, tc.a, tc.b, got, tc.want)
 		}
+	}
+}
+
+func TestStoreAndReconcileSnipsRemovesDeletedEpisodeSnips(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "snipd.db"))
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	defer func() { _ = db.Close() }()
+
+	episodes := []snipd.Episode{
+		{EpisodeID: "episode-1", Title: "Episode One"},
+		{EpisodeID: "episode-2", Title: "Episode Two"},
+	}
+	initial := []snipd.Snip{
+		{SnipID: "keep", EpisodeID: "episode-1", Note: "retained insight"},
+		{SnipID: "deleted", EpisodeID: "episode-1", Note: "obsolete searchable phrase"},
+		{SnipID: "other-episode", EpisodeID: "episode-2", Note: "outside refreshed partition"},
+	}
+	if err := storeAndReconcileSnips(db, episodes, initial); err != nil {
+		t.Fatalf("initial export: %v", err)
+	}
+	refreshed := []snipd.Snip{
+		{SnipID: "keep", EpisodeID: "episode-1", Note: "retained insight updated"},
+	}
+	if err := storeAndReconcileSnips(db, episodes[:1], refreshed); err != nil {
+		t.Fatalf("refreshed export: %v", err)
+	}
+
+	count, err := db.Count("snips")
+	if err != nil {
+		t.Fatalf("count snips: %v", err)
+	}
+	if count != 2 {
+		t.Fatalf("snip count = %d, want retained snip plus untouched other episode", count)
+	}
+	matches, err := db.Search("obsolete", 10, "snips")
+	if err != nil {
+		t.Fatalf("search stale phrase: %v", err)
+	}
+	if len(matches) != 0 {
+		t.Fatalf("stale FTS matches = %d, want 0", len(matches))
+	}
+	kept, err := db.Get("snips", "keep")
+	if err != nil {
+		t.Fatalf("get retained snip: %v", err)
+	}
+	var decoded snipd.Snip
+	if err := json.Unmarshal(kept, &decoded); err != nil {
+		t.Fatalf("decode retained snip: %v", err)
+	}
+	if decoded.Note != "retained insight updated" {
+		t.Fatalf("retained note = %q, want refreshed value", decoded.Note)
+	}
+	if _, err := db.Get("snips", "other-episode"); err != nil {
+		t.Fatalf("unrefreshed episode snip was removed: %v", err)
+	}
+}
+
+func TestStoreAndReconcileSnipsHandlesEpisodeWithNoRemainingSnips(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "snipd.db"))
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	defer func() { _ = db.Close() }()
+	episodes := []snipd.Episode{{EpisodeID: "episode-1"}}
+	if err := storeAndReconcileSnips(db, episodes, []snipd.Snip{{SnipID: "last", EpisodeID: "episode-1"}}); err != nil {
+		t.Fatalf("initial export: %v", err)
+	}
+	if err := storeAndReconcileSnips(db, episodes, nil); err != nil {
+		t.Fatalf("empty refreshed export: %v", err)
+	}
+	count, err := db.Count("snips")
+	if err != nil {
+		t.Fatalf("count snips: %v", err)
+	}
+	if count != 0 {
+		t.Fatalf("snip count = %d, want 0", count)
+	}
+}
+
+func TestValidateExportBatchRejectsIncompleteDeletionSet(t *testing.T) {
+	expected := []snipd.MetaEpisode{{EpisodeID: "episode-1", TotalSnipCount: 2}}
+	complete := []snipd.Episode{{EpisodeID: "episode-1", SnipCount: 2}}
+	snips := []snipd.Snip{{SnipID: "one", EpisodeID: "episode-1"}, {SnipID: "two", EpisodeID: "episode-1"}}
+	if err := validateExportBatch(expected, complete, snips); err != nil {
+		t.Fatalf("complete batch rejected: %v", err)
+	}
+	for _, tc := range []struct {
+		name     string
+		episodes []snipd.Episode
+		snips    []snipd.Snip
+	}{
+		{"missing episode", nil, nil},
+		{"truncated snip list", []snipd.Episode{{EpisodeID: "episode-1", SnipCount: 1}}, snips[:1]},
+		{"inconsistent parsed snips", complete, snips[:1]},
+		{"duplicate episode", append(complete, complete[0]), snips},
+		{"unexpected episode", []snipd.Episode{{EpisodeID: "episode-2", SnipCount: 2}}, snips},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if err := validateExportBatch(expected, tc.episodes, tc.snips); err == nil {
+				t.Fatal("incomplete export accepted as an authoritative deletion set")
+			}
+		})
+	}
+	if err := validateExportBatch(
+		[]snipd.MetaEpisode{{EpisodeID: "episode-1", TotalSnipCount: 0}},
+		[]snipd.Episode{{EpisodeID: "episode-1", SnipCount: 0}}, nil,
+	); err != nil {
+		t.Fatalf("genuinely empty episode rejected: %v", err)
 	}
 }

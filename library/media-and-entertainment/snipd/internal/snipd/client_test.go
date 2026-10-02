@@ -112,3 +112,21 @@ func TestParseZipRoundTrip(t *testing.T) {
 		t.Errorf("snip id = %q", snips[0].SnipID)
 	}
 }
+
+func TestParseZipRejectsMalformedEpisodeTemplate(t *testing.T) {
+	var buf bytes.Buffer
+	zw := zip.NewWriter(&buf)
+	f, err := zw.Create("episodes/episode-1_full_content.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.Write([]byte("This is valid markdown but not a rendered Snipd template.")); err != nil {
+		t.Fatal(err)
+	}
+	if err := zw.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := ParseZip(buf.Bytes()); err == nil {
+		t.Fatal("malformed episode accepted as an empty export")
+	}
+}

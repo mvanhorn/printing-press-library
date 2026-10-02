@@ -219,6 +219,13 @@ func ParseZip(zipBytes []byte) ([]Episode, []Snip, error) {
 		if err != nil {
 			return nil, nil, fmt.Errorf("reading %s: %w", f.Name, err)
 		}
+		// The server must render our labelled episode template. Without
+		// these markers, ParseEpisode could mistake malformed markdown for
+		// a valid empty episode and a refresh could erase cached snips.
+		if !bytes.Contains(data, []byte("episode_title=<<episode_title>>")) ||
+			!bytes.Contains(data, []byte("show_title=<<show_title>>")) {
+			return nil, nil, fmt.Errorf("episode %s export is missing template fields", episodeID)
+		}
 		ep, sn := ParseEpisode(episodeID, string(data))
 		eps = append(eps, ep)
 		snips = append(snips, sn...)
