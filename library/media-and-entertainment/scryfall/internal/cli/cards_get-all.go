@@ -77,7 +77,7 @@ func newCardsGetAllCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": prov.Source})
 		},
 	}
 	cmd.Flags().StringVar(&flagPage, "page", "", "The page number to return, default 1.")

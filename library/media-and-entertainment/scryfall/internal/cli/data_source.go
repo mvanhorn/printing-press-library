@@ -682,7 +682,7 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 func validateScryfallLocalRead(path string, params map[string]string) error {
 	// The local mirror stores JSON resources. It cannot reproduce alternate
 	// image or text representations, nor face/version rendering options.
-	if strings.HasPrefix(path, "/cards/") || strings.HasPrefix(path, "/sets") {
+	if path == "/cards" || strings.HasPrefix(path, "/cards/") || strings.HasPrefix(path, "/sets") {
 		if format := strings.TrimSpace(params["format"]); format != "" && !strings.EqualFold(format, "json") {
 			return fmt.Errorf("local data cannot reproduce Scryfall %q format; use --data-source live", format)
 		}
@@ -719,7 +719,25 @@ func resolveScryfallAlternateLocalDetail(ctx context.Context, db *store.Store, r
 		return nil, fmt.Errorf("resource %q with ID %q not found in local store. Run 'scryfall-pp-cli sync' first", resourceType, id)
 	}
 
-	rows, err := db.DB().QueryContext(ctx, `SELECT data FROM resources WHERE resource_type = ?`, resourceType)
+	query := `SELECT data FROM resources WHERE resource_type = ?`
+	args := []any{resourceType}
+	// Older read-only mirrors may not have the v10 index until the next sync.
+	// Keep their existing lookup behavior; current mirrors use the indexed key.
+	version, err := db.SchemaVersion()
+	if err != nil {
+		return nil, fmt.Errorf("reading local store schema: %w", err)
+	}
+	if version >= 10 {
+		kind, value := scryfallLocalAlias(resourceType, path, params)
+		// SQLite's lower() used by the one-time v9 backfill only folds
+		// ASCII. Keep Unicode names on the exact JSON matcher so a case
+		// difference cannot hide a valid card in an upgraded mirror.
+		if kind != "" && asciiAliasValue(value) {
+			query = `SELECT r.data FROM resource_alt_keys a JOIN resources r ON r.resource_type = a.resource_type AND r.id = a.resource_id WHERE a.resource_type = ? AND a.kind = ? AND a.value = ?`
+			args = append(args, kind, strings.ToLower(value))
+		}
+	}
+	rows, err := db.DB().QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("querying local store for %s: %w", description, err)
 	}
@@ -749,6 +767,48 @@ func resolveScryfallAlternateLocalDetail(ctx context.Context, db *store.Store, r
 		return nil, fmt.Errorf("%s is ambiguous in local data (%d matches); use a primary Scryfall UUID or --data-source live", description, matchCount)
 	}
 	return match, nil
+}
+
+func asciiAliasValue(value string) bool {
+	for _, r := range value {
+		if r > 127 {
+			return false
+		}
+	}
+	return true
+}
+
+func scryfallLocalAlias(resourceType, path string, params map[string]string) (string, string) {
+	segments := strings.Split(strings.Trim(path, "/"), "/")
+	if resourceType == "cards" && len(segments) >= 2 && segments[0] == "cards" {
+		switch segments[1] {
+		case "named":
+			return "name", strings.TrimSpace(params["exact"])
+		case "arena":
+			return "arena_id", lastPathSegment(segments)
+		case "mtgo":
+			return "mtgo_id", lastPathSegment(segments)
+		case "multiverse":
+			return "multiverse_ids", lastPathSegment(segments)
+		case "tcgplayer":
+			return "tcgplayer_id", lastPathSegment(segments)
+		case "cardmarket":
+			return "cardmarket_id", lastPathSegment(segments)
+		default:
+			if len(segments) == 3 {
+				return "set_collector", segments[1] + "\x00" + segments[2]
+			}
+		}
+	}
+	if resourceType == "sets" && len(segments) >= 2 && segments[0] == "sets" {
+		if len(segments) == 3 && segments[1] == "tcgplayer" {
+			return "tcgplayer_id", lastPathSegment(segments)
+		}
+		if len(segments) == 2 {
+			return "code", segments[1]
+		}
+	}
+	return "", ""
 }
 
 type localDetailMatcher func(map[string]any) bool

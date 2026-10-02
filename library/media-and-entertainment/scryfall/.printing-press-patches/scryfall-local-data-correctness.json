@@ -9,13 +9,18 @@
   "files": [
     "internal/cli/data_source.go",
     "internal/cli/data_source_scryfall_test.go",
+    "internal/cli/cards_get-by-code-by-number.go",
+    "internal/cli/cards_get-all.go",
     "internal/cli/sets_get-all.go",
+    "internal/store/store.go",
+    "internal/store/scryfall_alt_keys.go",
+    "internal/store/scryfall_alt_keys_test.go",
     "internal/cli/version.go",
     "internal/cli/version_test.go",
     "README.md",
     "NOTICE",
     ".printing-press.json"
   ],
-  "validated_outcome": "Offline tests cover rejected card search, alternate identifiers, local set listing, and version output.",
+  "validated_outcome": "Offline tests cover rejected card search, indexed alternate identifiers and v9 mirror migration, local set listing, and version output.",
   "safety": "No provider calls in tests; ambiguous alternate identifiers fail explicitly. The public release version remains unchanged."
 }

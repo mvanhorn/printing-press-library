@@ -3,7 +3,7 @@
 
 
 Created by [@veltri-23](https://github.com/veltri-23) (Hunter Veltri).
-Local data correctness fixes contributed by [Cathryn Lavery](https://github.com/cathrynlavery).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 

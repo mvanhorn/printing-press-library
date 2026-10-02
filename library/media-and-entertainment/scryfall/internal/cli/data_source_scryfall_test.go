@@ -190,3 +190,34 @@ func TestSetsGetAllListsSyncedSetsLocally(t *testing.T) {
 		t.Fatalf("sets get-all returned %d local sets, want 2 (output=%s)", len(envelope.Results), stdout.String())
 	}
 }
+
+func TestCardsGetByCodeByNumberUsesLocalIndex(t *testing.T) {
+	seedScryfallLocalStore(t)
+	flags := &rootFlags{asJSON: true, dataSource: "local"}
+	cmd := newCardsGetByCodeByNumberCmd(flags)
+	cmd.SetContext(context.Background())
+	var stdout bytes.Buffer
+	cmd.SetOut(&stdout)
+	cmd.SetErr(io.Discard)
+	if err := cmd.RunE(cmd, []string{"LEA", "1"}); err != nil {
+		t.Fatalf("cards get-by-code-by-number local: %v", err)
+	}
+	if !strings.Contains(stdout.String(), `"card-alpha"`) || !strings.Contains(stdout.String(), `"local"`) {
+		t.Fatalf("unexpected local command output: %s", stdout.String())
+	}
+}
+
+func TestCardsGetAllRejectsNonJSONLocalFormat(t *testing.T) {
+	seedScryfallLocalStore(t)
+	flags := &rootFlags{asJSON: true, dataSource: "local"}
+	cmd := newCardsGetAllCmd(flags)
+	cmd.SetContext(context.Background())
+	if err := cmd.Flags().Set("format", "image"); err != nil {
+		t.Fatal(err)
+	}
+	cmd.SetOut(io.Discard)
+	cmd.SetErr(io.Discard)
+	if err := cmd.RunE(cmd, nil); err == nil || !strings.Contains(err.Error(), `cannot reproduce Scryfall "image" format`) {
+		t.Fatalf("cards get-all --format image --data-source local error = %v", err)
+	}
+}

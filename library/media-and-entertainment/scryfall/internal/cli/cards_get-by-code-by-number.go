@@ -49,7 +49,7 @@ func newCardsGetByCodeByNumberCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			params := map[string]string{}
-			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "live", "cards", false, path, params, nil, "", cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "cards", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -94,7 +94,7 @@ func newCardsGetByCodeByNumberCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": prov.Source})
 		},
 	}
 

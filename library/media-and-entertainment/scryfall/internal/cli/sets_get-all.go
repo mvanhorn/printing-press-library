@@ -79,7 +79,7 @@ func newSetsGetAllCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": prov.Source})
 		},
 	}
 	cmd.Flags().StringVar(&flagFormat, "format", "", "The data format to return. This method only supports `json`.")

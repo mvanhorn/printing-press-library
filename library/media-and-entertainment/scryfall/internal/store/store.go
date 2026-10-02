@@ -48,13 +48,13 @@ func IsUUID(s string) bool {
 
 // StoreSchemaVersion is the on-disk schema version this binary understands.
 // It is stamped into SQLite's PRAGMA user_version on fresh databases and
-// checked on every open. Learn-enabled CLIs advance to v9 for the
-// learn_candidates and learn_events tables (CLI-side capture and
-// measurement), on top of the v8 learning_playbooks table for
+// checked on every open. Scryfall advances to v10 for indexed alternate
+// route keys, on top of v9 learn_candidates and learn_events tables,
+// and the v8 learning_playbooks table for
 // hand-authored choreography keyed by query family and the v6 canonical
 // learn-loop tables ported from prediction-goat (including the v3
 // resources_fts rowid rehash and v4 resources_fts content extraction).
-const StoreSchemaVersion = 9
+const StoreSchemaVersion = 10
 
 // resourcesFTSContentSchemaVersion pins the schema bump that rewrote
 // resources_fts content from raw JSON to searchable leaf values. Keep this
@@ -396,6 +396,16 @@ func (s *Store) migrate(ctx context.Context) error {
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_resources_type ON resources(resource_type)`,
 		`CREATE INDEX IF NOT EXISTS idx_resources_synced ON resources(synced_at)`,
+		`CREATE TABLE IF NOT EXISTS resource_alt_keys (
+			resource_type TEXT NOT NULL,
+			kind TEXT NOT NULL,
+			value TEXT NOT NULL,
+			resource_id TEXT NOT NULL,
+			PRIMARY KEY (resource_type, kind, value, resource_id)
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_resource_alt_keys_resource ON resource_alt_keys(resource_type, resource_id)`,
+		`CREATE TRIGGER IF NOT EXISTS resource_alt_keys_delete AFTER DELETE ON resources
+		 BEGIN DELETE FROM resource_alt_keys WHERE resource_type = OLD.resource_type AND resource_id = OLD.id; END`,
 		`CREATE TABLE IF NOT EXISTS sync_state (
 			resource_type TEXT PRIMARY KEY,
 			last_cursor TEXT,
@@ -608,6 +618,11 @@ func (s *Store) migrate(ctx context.Context) error {
 		}
 		if err := s.migrateExtras(ctx, conn); err != nil {
 			return fmt.Errorf("running extra migrations: %w", err)
+		}
+		if current < 10 {
+			if err := migrateScryfallAlternateKeys(ctx, conn); err != nil {
+				return fmt.Errorf("migrating Scryfall alternate keys: %w", err)
+			}
 		}
 		if current < resourcesFTSContentSchemaVersion {
 			if err := s.migrateResourcesFTSContent(ctx, conn); err != nil {
@@ -907,6 +922,11 @@ func (s *Store) upsertGenericResourceTx(tx *sql.Tx, resourceType, id string, dat
 	)
 	if err != nil {
 		return err
+	}
+	if resourceType == "cards" || resourceType == "sets" {
+		if err := upsertScryfallAlternateKeys(tx, resourceType, id, data); err != nil {
+			return err
+		}
 	}
 
 	ftsRowid := ftsRowID(resourceType, id)
