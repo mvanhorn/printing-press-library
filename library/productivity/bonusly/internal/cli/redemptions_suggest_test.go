@@ -6,12 +6,8 @@ package cli
 
 import (
 	"bytes"
-	"context"
 	"strings"
 	"testing"
-
-	"github.com/mvanhorn/printing-press-library/library/productivity/bonusly/internal/store"
-	"github.com/spf13/cobra"
 )
 
 // TestNovelRedemptionsSuggestHelpWires smoke-tests that the redemptions
@@ -147,7 +143,7 @@ func TestLooksLikeCompletedRedemption(t *testing.T) {
 	}{
 		{"fulfilled", true},
 		{"delivered", true},
-		{"", true},                  // unknown/empty -- not excluded by design
+		{"", true},                    // unknown/empty -- not excluded by design
 		{"some_new_state_2027", true}, // unrecognized -- not excluded by design
 		{"pending", false},
 		{"PENDING", false}, // case-insensitive
@@ -188,102 +184,15 @@ func TestNovelRedemptionsSuggestNegativeLimitRejected(t *testing.T) {
 	}
 }
 
-// TestNovelRedemptionsSuggestRejectsDataSourceLive covers the --data-source
-// compatibility guard: this command's core value (ranked redemption
-// history) is inherently local-derived, so an explicit --data-source live
-// request must be rejected clearly rather than silently served from local
-// data anyway. Runs before any client/database access, so no mirror or
-// credentials are needed for this test.
-func TestNovelRedemptionsSuggestRejectsDataSourceLive(t *testing.T) {
-	cmd := RootCmd()
-	cmd.SetArgs([]string{"redemptions", "suggest", "--data-source", "live"})
+func TestNovelRedemptionsSuggestRejectsLocalDataSource(t *testing.T) {
+	cmd := newNovelRedemptionsSuggestCmd(&rootFlags{dataSource: "local"})
+	cmd.SetArgs(nil)
 	var out bytes.Buffer
 	cmd.SetOut(&out)
 	cmd.SetErr(&out)
-	err := cmd.Execute()
-	if err == nil {
-		t.Fatalf("redemptions suggest --data-source live succeeded, want a rejection error")
+	if err := cmd.Execute(); err == nil || !strings.Contains(err.Error(), "no local data source") {
+		t.Fatalf("local history must be rejected before client access, got %v", err)
 	}
-	if !strings.Contains(err.Error(), "no live equivalent for this command") {
-		t.Fatalf("unexpected error for --data-source live: %v", err)
-	}
-}
-
-// newRedemptionsSuggestTestCmd returns a bare *cobra.Command with a real
-// context set. A zero-value &cobra.Command{} has a nil c.ctx until cobra's
-// own Execute()/ExecuteContext() sets one -- Command.Context() has no
-// nil-guard (just `return c.ctx`), so passing that nil context.Context into
-// database/sql's QueryContext machinery deadlocks (the goroutine panics
-// inside db.conn() dereferencing the nil ctx, and the test's deferred
-// db.Close() cleanup then blocks forever on the same mutex db.conn() never
-// released before panicking) rather than failing fast. Discovered via this
-// file's own tests hanging past `go test`'s default timeout.
-func newRedemptionsSuggestTestCmd() *cobra.Command {
-	cmd := &cobra.Command{Use: "bonusly-pp-cli"}
-	cmd.SetContext(context.Background())
-	return cmd
-}
-
-// TestLatestBalanceHistorySnapshot covers the balance_history fallback
-// query directly against a real temp SQLite store (reusing the
-// newSyncHintTestStore helper from sync_hint_test.go): no table/no rows
-// returns a blank recordedAt rather than an error, and a populated table
-// returns the most recent row by recorded_at -- not insertion order.
-func TestLatestBalanceHistorySnapshot(t *testing.T) {
-	t.Run("no balance_history table yet returns no snapshot", func(t *testing.T) {
-		db := newSyncHintTestStore(t)
-		cmd := newRedemptionsSuggestTestCmd()
-		earning, giving, recordedAt := latestBalanceHistorySnapshot(cmd, db)
-		if recordedAt != "" || earning != nil || giving != nil {
-			t.Fatalf("got (%v, %v, %q), want (nil, nil, \"\") when balance_history does not exist", earning, giving, recordedAt)
-		}
-	})
-
-	t.Run("returns the most recent row by recorded_at, not insertion order", func(t *testing.T) {
-		db := newSyncHintTestStore(t)
-		if err := store.EnsureBonuslyBalanceHistory(context.Background(), db.DB()); err != nil {
-			t.Fatalf("EnsureBonuslyBalanceHistory: %v", err)
-		}
-		// Insert the newer snapshot first to prove ORDER BY recorded_at
-		// DESC drives the result, not insertion/rowid order.
-		if _, err := db.DB().Exec(
-			`INSERT INTO balance_history (recorded_at, giving_balance, earning_balance, monthly_budget) VALUES (?, ?, ?, ?)`,
-			"2026-09-10 12:00:00", 100, 250, 500,
-		); err != nil {
-			t.Fatalf("seed newer snapshot: %v", err)
-		}
-		if _, err := db.DB().Exec(
-			`INSERT INTO balance_history (recorded_at, giving_balance, earning_balance, monthly_budget) VALUES (?, ?, ?, ?)`,
-			"2026-09-01 09:00:00", 80, 200, 500,
-		); err != nil {
-			t.Fatalf("seed older snapshot: %v", err)
-		}
-
-		cmd := newRedemptionsSuggestTestCmd()
-		earning, giving, recordedAt := latestBalanceHistorySnapshot(cmd, db)
-		// The sqlite driver round-trips a DATETIME-typed column through its
-		// own time formatting (observed as RFC3339 rather than the literal
-		// string bound in), so assert on the date component rather than an
-		// exact string match -- what matters here is that the *newer* row
-		// won, not the driver's serialization format.
-		if recordedAt == "" || !strings.Contains(recordedAt, "2026-09-10") {
-			t.Fatalf("recordedAt = %q, want it to reflect the newer 2026-09-10 snapshot", recordedAt)
-		}
-		if earning == nil || *earning != 250 {
-			t.Fatalf("earning = %v, want 250", earning)
-		}
-		if giving == nil || *giving != 100 {
-			t.Fatalf("giving = %v, want 100", giving)
-		}
-	})
-
-	t.Run("nil db returns no snapshot rather than panicking", func(t *testing.T) {
-		cmd := newRedemptionsSuggestTestCmd()
-		earning, giving, recordedAt := latestBalanceHistorySnapshot(cmd, nil)
-		if recordedAt != "" || earning != nil || giving != nil {
-			t.Fatalf("got (%v, %v, %q), want (nil, nil, \"\") for a nil db", earning, giving, recordedAt)
-		}
-	})
 }
 
 // TestParseBonuslyBalanceFields covers both accepted response shapes

@@ -1,8 +1,10 @@
 # Bonusly CLI
 
+Created by Allen Lew (@enlewof). Redemption suggestion account isolation contributed by Cathryn Lavery (@cathrynlavery).
+
 **The recognition analytics Bonusly reserves for admins -- rebuilt from data any employee can already read.**
 
-Bonusly's own Analytics API and admin reports compute participation, spend, and recognition-equity insights, but they require an admin scope most employees don't have. This CLI mirrors exactly the data a regular employee CAN read -- the company feed, org chart, your own balance and redemptions -- into a local SQLite database, then computes that same category of insight offline: budget pacing, burn-rate forecasting, neglected-teammate detection, and company-values trends. No admin access required, and it works when you're offline.
+Bonusly's own Analytics API and admin reports compute participation, spend, and recognition-equity insights, but they require an admin scope most employees don't have. This CLI mirrors exactly the data a regular employee CAN read -- the company feed, org chart, your own balance and redemptions -- into a local SQLite database, then computes that same category of insight offline: budget pacing, burn-rate forecasting, neglected-teammate detection, and company-values trends. No admin access required. Most analytics work offline; `redemptions suggest` needs live account access to keep account histories separate.
 
 ## Install
 
@@ -204,7 +206,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   bonusly-pp-cli redemptions forecast --agent
   ```
-- **`redemptions suggest`** — Suggest rewards to redeem again from your own history, next to your current point balance. Bonusly exposes no live rewards-catalog endpoint with prices, so this can't rank by afford-ability.
+- **`redemptions suggest`**: Suggest rewards to redeem again from the selected account's live history, next to its current point balance. This command needs live access because the shared local mirror does not record which account owns each row. Bonusly exposes no live rewards-catalog endpoint with prices, so this cannot rank by affordability.
 
   _Use this when you're ready to redeem and want a memory jog for what you've liked before, alongside your current balance._
 
