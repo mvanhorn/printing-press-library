@@ -141,7 +141,6 @@ func tailKnownResources() []string {
 		"campaign-groups",
 		"campaigns",
 		"components",
-		"contacts",
 		"dedicated-sending-ips",
 		"event-patterns",
 		"lists",

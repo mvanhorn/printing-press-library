@@ -25,7 +25,6 @@ var resourceReadPaths = map[string]string{ // #nosec G101 -- endpoint paths, not
 	"campaign-groups":       "/v1/campaign-groups",
 	"campaigns":             "/v1/campaigns",
 	"components":            "/v1/components",
-	"contacts":              "/v1/contacts/find",
 	"dedicated-sending-ips": "/v1/dedicated-sending-ips",
 	"event-patterns":        "/v1/event-patterns",
 	"lists":                 "/v1/lists",
@@ -62,19 +61,18 @@ var resourceWritePaths = map[string]string{ // #nosec G101 -- endpoint paths, no
 }
 
 var resourceReadConfigs = map[string]resourceReadConfig{
-	"audience-segments":     {responsePath: "data", paginationType: "cursor", cursorParam: "cursor", limitParam: "perPage", nextCursorPath: "pagination.nextCursor", hasMoreField: "", pageSize: 100},
-	"campaign-groups":       {responsePath: "data", paginationType: "cursor", cursorParam: "cursor", limitParam: "perPage", nextCursorPath: "pagination.nextCursor", hasMoreField: "", pageSize: 100},
-	"campaigns":             {responsePath: "data", paginationType: "cursor", cursorParam: "cursor", limitParam: "perPage", nextCursorPath: "pagination.nextCursor", hasMoreField: "", pageSize: 100},
-	"components":            {responsePath: "data", paginationType: "cursor", cursorParam: "cursor", limitParam: "perPage", nextCursorPath: "pagination.nextCursor", hasMoreField: "", pageSize: 100},
-	"contacts":              {responsePath: "", pageSize: 100},
+	"audience-segments":     {responsePath: "data", paginationType: "cursor", cursorParam: "cursor", limitParam: "perPage", nextCursorPath: "pagination.nextCursor", hasMoreField: "", pageSize: 50},
+	"campaign-groups":       {responsePath: "data", paginationType: "cursor", cursorParam: "cursor", limitParam: "perPage", nextCursorPath: "pagination.nextCursor", hasMoreField: "", pageSize: 50},
+	"campaigns":             {responsePath: "data", paginationType: "cursor", cursorParam: "cursor", limitParam: "perPage", nextCursorPath: "pagination.nextCursor", hasMoreField: "", pageSize: 50},
+	"components":            {responsePath: "data", paginationType: "cursor", cursorParam: "cursor", limitParam: "perPage", nextCursorPath: "pagination.nextCursor", hasMoreField: "", pageSize: 50},
 	"dedicated-sending-ips": {responsePath: "", pageSize: 100},
-	"event-patterns":        {responsePath: "data", paginationType: "cursor", cursorParam: "cursor", limitParam: "perPage", nextCursorPath: "pagination.nextCursor", hasMoreField: "", pageSize: 100},
+	"event-patterns":        {responsePath: "data", paginationType: "cursor", cursorParam: "cursor", limitParam: "perPage", nextCursorPath: "pagination.nextCursor", hasMoreField: "", pageSize: 50},
 	"lists":                 {responsePath: "", pageSize: 100},
-	"themes":                {responsePath: "data", paginationType: "cursor", cursorParam: "cursor", limitParam: "perPage", nextCursorPath: "pagination.nextCursor", hasMoreField: "", pageSize: 100},
-	"transactional":         {responsePath: "data", paginationType: "cursor", cursorParam: "cursor", limitParam: "perPage", nextCursorPath: "pagination.nextCursor", hasMoreField: "", pageSize: 100},
-	"transactional-emails":  {responsePath: "data", paginationType: "cursor", cursorParam: "cursor", limitParam: "perPage", nextCursorPath: "pagination.nextCursor", hasMoreField: "", pageSize: 100},
-	"transactional-groups":  {responsePath: "data", paginationType: "cursor", cursorParam: "cursor", limitParam: "perPage", nextCursorPath: "pagination.nextCursor", hasMoreField: "", pageSize: 100},
-	"workflows":             {responsePath: "data", paginationType: "cursor", cursorParam: "cursor", limitParam: "perPage", nextCursorPath: "pagination.nextCursor", hasMoreField: "", pageSize: 100},
+	"themes":                {responsePath: "data", paginationType: "cursor", cursorParam: "cursor", limitParam: "perPage", nextCursorPath: "pagination.nextCursor", hasMoreField: "", pageSize: 50},
+	"transactional":         {responsePath: "data", paginationType: "cursor", cursorParam: "cursor", limitParam: "perPage", nextCursorPath: "pagination.nextCursor", hasMoreField: "", pageSize: 50},
+	"transactional-emails":  {responsePath: "data", paginationType: "cursor", cursorParam: "cursor", limitParam: "perPage", nextCursorPath: "pagination.nextCursor", hasMoreField: "", pageSize: 50},
+	"transactional-groups":  {responsePath: "data", paginationType: "cursor", cursorParam: "cursor", limitParam: "perPage", nextCursorPath: "pagination.nextCursor", hasMoreField: "", pageSize: 50},
+	"workflows":             {responsePath: "data", paginationType: "cursor", cursorParam: "cursor", limitParam: "perPage", nextCursorPath: "pagination.nextCursor", hasMoreField: "", pageSize: 50},
 }
 
 func resourceReadPath(resource string) (string, error) {
@@ -266,10 +264,10 @@ func resourcePageParams(config resourceReadConfig, cursor string, page int, rema
 	params := map[string]string{}
 	pageSize := config.pageSize
 	if pageSize <= 0 {
-		pageSize = 100
+		pageSize = 50
 	}
 	stride := pageSize
-	if remaining > 0 && remaining < pageSize && config.paginationType != "page" {
+	if remaining >= 10 && remaining < pageSize && config.paginationType != "page" {
 		pageSize = remaining
 	}
 	if config.limitParam != "" {

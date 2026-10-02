@@ -72,7 +72,7 @@ The event and transactional endpoints use Loops' `Idempotency-Key`. A mode-0700 
 
 The generated MCP server exposes read tools. Its shared HTTP client rejects Loops writes without the CLI's explicit mutation intent, so use the CLI for reviewed changes and sends.
 
-Bulk `import` previews by default and can write non-send resources with `--execute --team`. It refuses event and transactional bulk sends because each send needs its own key. `workflow archive`, `sync`, and `export` read Loops data and write private local files; see [COMMANDS.md](COMMANDS.md) for their effects.
+Bulk `import` previews by default and can write non-send resources with `--execute --team`. It refuses event and transactional bulk sends because each send needs its own key. `workflow archive`, `sync`, and `export` read Loops data and write private local files. Sync, export, and tail exclude contacts because Loops has no bulk contact listing; use `contacts find` with an explicit identifier. See [COMMANDS.md](COMMANDS.md) for command effects.
 
 ## Verification status
 

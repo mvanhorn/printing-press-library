@@ -22,14 +22,15 @@ func TestOpenExportOutputTightensExistingMode(t *testing.T) {
 	if err := os.WriteFile(path, []byte("old"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	f, err := openExportOutput(path)
+	out, err := openExportOutput(path)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := f.Write([]byte("new")); err != nil {
+	defer out.abort()
+	if _, err := out.file.Write([]byte("new")); err != nil {
 		t.Fatal(err)
 	}
-	if err := f.Close(); err != nil {
+	if err := out.commit(); err != nil {
 		t.Fatal(err)
 	}
 	info, err := os.Stat(path)
@@ -45,5 +46,57 @@ func TestOpenExportOutputTightensExistingMode(t *testing.T) {
 	}
 	if string(got) != "new" {
 		t.Fatalf("body = %q", got)
+	}
+}
+
+func TestOpenExportOutputRejectsSymlinkWithoutChangingTarget(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("symlink permissions depend on Windows developer mode")
+	}
+	dir := t.TempDir()
+	target := filepath.Join(dir, "target.jsonl")
+	link := filepath.Join(dir, "output.jsonl")
+	if err := os.WriteFile(target, []byte("original"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(target, link); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := openExportOutput(link); err == nil {
+		t.Fatal("symlink output was accepted")
+	}
+	got, err := os.ReadFile(target)
+	if err != nil || string(got) != "original" {
+		t.Fatalf("symlink target changed: %q (%v)", got, err)
+	}
+}
+
+func TestExportCommitRejectsLateSymlink(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("symlink permissions depend on Windows developer mode")
+	}
+	dir := t.TempDir()
+	target := filepath.Join(dir, "target.jsonl")
+	link := filepath.Join(dir, "output.jsonl")
+	if err := os.WriteFile(target, []byte("original"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	out, err := openExportOutput(link)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer out.abort()
+	if _, err := out.file.Write([]byte("new")); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(target, link); err != nil {
+		t.Fatal(err)
+	}
+	if err := out.commit(); err == nil {
+		t.Fatal("late symlink output was accepted")
+	}
+	got, err := os.ReadFile(target)
+	if err != nil || string(got) != "original" {
+		t.Fatalf("symlink target changed: %q (%v)", got, err)
 	}
 }

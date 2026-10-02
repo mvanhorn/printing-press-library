@@ -69,6 +69,8 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 not declare temporal sync filters, so sync performs full pagination unless an
 explicit resource declares its own incremental filter.
 Once synced, use the 'search' command for instant full-text search.
+Loops does not expose a bulk contact listing, so contacts are not syncable.
+Use contacts find with a specific email or user ID for contact reads.
 
 Exit codes & warnings:
   Resources the API denies access to (HTTP 403, or HTTP 400 with an
@@ -114,6 +116,14 @@ Resource scoping:
 			if err != nil {
 				return usageErr(err)
 			}
+			if len(resources) == 0 {
+				resources = defaultSyncResources()
+			}
+			for _, resource := range resources {
+				if resource == "contacts" {
+					return usageErr(errors.New("Loops has no bulk contact listing; sync contacts is unavailable; use contacts find with an explicit identifier"))
+				}
+			}
 
 			c, err := flags.newClient()
 			if err != nil {
@@ -135,11 +145,6 @@ Resource scoping:
 			machineFormat := wantsMachineOutput(flags)
 			if machineFormat {
 				syncEventWriter = cmd.ErrOrStderr()
-			}
-
-			// If no specific resources, sync top-level resources
-			if len(resources) == 0 {
-				resources = defaultSyncResources()
 			}
 
 			// Reject --resource-param keys that don't match a known resource.
@@ -1099,7 +1104,7 @@ func determinePaginationDefaults(resource string) paginationDefaults {
 			cursorType:     "cursor",
 			nextCursorPath: "pagination.nextCursor",
 			limitParam:     "perPage",
-			limit:          100,
+			limit:          50,
 		}
 	case "campaign-groups":
 		return paginationDefaults{
@@ -1107,7 +1112,7 @@ func determinePaginationDefaults(resource string) paginationDefaults {
 			cursorType:     "cursor",
 			nextCursorPath: "pagination.nextCursor",
 			limitParam:     "perPage",
-			limit:          100,
+			limit:          50,
 		}
 	case "campaigns":
 		return paginationDefaults{
@@ -1115,7 +1120,7 @@ func determinePaginationDefaults(resource string) paginationDefaults {
 			cursorType:     "cursor",
 			nextCursorPath: "pagination.nextCursor",
 			limitParam:     "perPage",
-			limit:          100,
+			limit:          50,
 		}
 	case "components":
 		return paginationDefaults{
@@ -1123,7 +1128,7 @@ func determinePaginationDefaults(resource string) paginationDefaults {
 			cursorType:     "cursor",
 			nextCursorPath: "pagination.nextCursor",
 			limitParam:     "perPage",
-			limit:          100,
+			limit:          50,
 		}
 	case "event-patterns":
 		return paginationDefaults{
@@ -1131,7 +1136,7 @@ func determinePaginationDefaults(resource string) paginationDefaults {
 			cursorType:     "cursor",
 			nextCursorPath: "pagination.nextCursor",
 			limitParam:     "perPage",
-			limit:          100,
+			limit:          50,
 		}
 	case "themes":
 		return paginationDefaults{
@@ -1139,7 +1144,7 @@ func determinePaginationDefaults(resource string) paginationDefaults {
 			cursorType:     "cursor",
 			nextCursorPath: "pagination.nextCursor",
 			limitParam:     "perPage",
-			limit:          100,
+			limit:          50,
 		}
 	case "transactional":
 		return paginationDefaults{
@@ -1147,7 +1152,7 @@ func determinePaginationDefaults(resource string) paginationDefaults {
 			cursorType:     "cursor",
 			nextCursorPath: "pagination.nextCursor",
 			limitParam:     "perPage",
-			limit:          100,
+			limit:          50,
 		}
 	case "transactional-emails":
 		return paginationDefaults{
@@ -1155,7 +1160,7 @@ func determinePaginationDefaults(resource string) paginationDefaults {
 			cursorType:     "cursor",
 			nextCursorPath: "pagination.nextCursor",
 			limitParam:     "perPage",
-			limit:          100,
+			limit:          50,
 		}
 	case "transactional-groups":
 		return paginationDefaults{
@@ -1163,7 +1168,7 @@ func determinePaginationDefaults(resource string) paginationDefaults {
 			cursorType:     "cursor",
 			nextCursorPath: "pagination.nextCursor",
 			limitParam:     "perPage",
-			limit:          100,
+			limit:          50,
 		}
 	case "workflows":
 		return paginationDefaults{
@@ -1171,7 +1176,7 @@ func determinePaginationDefaults(resource string) paginationDefaults {
 			cursorType:     "cursor",
 			nextCursorPath: "pagination.nextCursor",
 			limitParam:     "perPage",
-			limit:          100,
+			limit:          50,
 		}
 	}
 	return paginationDefaults{
@@ -1179,7 +1184,7 @@ func determinePaginationDefaults(resource string) paginationDefaults {
 		cursorType:     "cursor",
 		nextCursorPath: "",
 		limitParam:     "perPage",
-		limit:          100,
+		limit:          50,
 	}
 }
 
@@ -2112,7 +2117,6 @@ func defaultSyncResources() []string {
 		"campaign-groups",
 		"campaigns",
 		"components",
-		"contacts",
 		"event-patterns",
 		"lists",
 		"themes",
@@ -2132,7 +2136,6 @@ func knownSyncResourceNames() []string {
 		"campaign-groups",
 		"campaigns",
 		"components",
-		"contacts",
 		"event-patterns",
 		"lists",
 		"themes",
@@ -2170,7 +2173,6 @@ func syncResourcePath(resource string) (string, error) {
 		"campaign-groups":      "/v1/campaign-groups",
 		"campaigns":            "/v1/campaigns",
 		"components":           "/v1/components",
-		"contacts":             "/v1/contacts/properties",
 		"event-patterns":       "/v1/event-patterns",
 		"lists":                "/v1/lists",
 		"themes":               "/v1/themes",
@@ -2320,7 +2322,6 @@ var flatReconcileModes = map[string]string{
 	"campaign-groups":      "flat_global",
 	"campaigns":            "flat_global",
 	"components":           "flat_global",
-	"contacts":             "flat_global",
 	"event-patterns":       "flat_global",
 	"lists":                "flat_global",
 	"themes":               "flat_global",

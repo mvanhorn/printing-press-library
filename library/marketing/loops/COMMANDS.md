@@ -155,4 +155,4 @@ Parent group commands display help and read no account data. Their children and 
 | `loops-pp-cli workflows mailing-list` | Reads command help; no API call |
 | `loops-pp-cli workflows nodes` | Reads command help; no API call |
 
-Bulk `import` has the same `--execute --team` gate as other writes. It cannot bulk-send events or transactional email because each send needs its own idempotency key. API GET commands may return detailed account records; use `--agent`, `--select`, and `--no-cache` when only a few fields are needed.
+Bulk `import` has the same `--execute --team` gate as other writes. It cannot bulk-send events or transactional email because each send needs its own idempotency key. `sync`, `export`, and `tail` exclude contacts: Loops provides contact lookup by identifier, not a bulk contact list. API GET commands may return detailed account records; use `--agent`, `--select`, and `--no-cache` when only a few fields are needed.

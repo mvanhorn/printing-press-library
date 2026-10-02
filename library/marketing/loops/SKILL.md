@@ -49,7 +49,7 @@ loops-pp-cli contacts find --email person@example.test --agent --data-source liv
 printf '%s' '{"eventName":"synthetic_event","email":"person@example.test"}' | loops-pp-cli events --stdin --idempotency-key SYNTHETIC_KEY --agent
 ```
 
-The final command previews a send with synthetic data; it does not send. Real recipient payloads should be supplied through stdin or a private file. The complete API surface includes contacts, lists, segments, campaigns, metrics, event patterns, workflows, transactional email, message content, themes, components, and uploads. Loops does not expose a bulk contacts list; product usage cohorts require another approved source such as PostHog. Keep PostHog and Loops credentials separate and do not infer first use until product events exist.
+The final command previews a send with synthetic data; it does not send. Real recipient payloads should be supplied through stdin or a private file. The complete API surface includes contacts, lists, segments, campaigns, metrics, event patterns, workflows, transactional email, message content, themes, components, and uploads. Loops does not expose a bulk contacts list: `sync`, `export`, and `tail` exclude contacts. Use `contacts find` with an explicit identifier. Product usage cohorts require another approved source such as PostHog. Keep PostHog and Loops credentials separate and do not infer first use until product events exist.
 
 ## Verification
 

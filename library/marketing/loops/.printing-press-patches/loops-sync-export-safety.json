@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "loops-sync-export-safety",
+  "applied_at": "2026-10-02",
+  "base_run_id": "20261002-173515",
+  "base_printing_press_version": "4.33.0",
+  "summary": "Use valid Loops page sizes, exclude unsupported bulk contact reads, and write exports through private atomic files.",
+  "reason": "Loops limits perPage to 50 and contacts/find requires an identifier. The generated bulk readers inferred an invalid contact list; opening an export target directly could follow a symlink.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/resource_paths.go",
+    "internal/cli/tail.go",
+    "internal/cli/export.go",
+    "internal/cli/export_perms_test.go",
+    "internal/cli/loops_sync_export_test.go",
+    "README.md",
+    "SKILL.md",
+    "COMMANDS.md"
+  ]
+}

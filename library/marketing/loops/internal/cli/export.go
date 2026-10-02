@@ -6,6 +6,7 @@ package cli
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -27,7 +28,8 @@ func newExportCmd(flags *rootFlags) *cobra.Command {
 		Short: "Export data to JSONL or JSON for backup, migration, or analysis",
 		Long: `Export paginated API data to a local file. Supports JSONL (one JSON object
 per line, streaming-friendly) and JSON (array). JSONL is recommended for
-large datasets as it has no memory pressure.`,
+large datasets as it has no memory pressure. Loops has no bulk contact listing,
+so contacts cannot be exported as an account backup.`,
 		Example: `  # Export all items as JSONL (streaming, recommended for large datasets)
   loops-pp-cli export <resource> --format jsonl --output data.jsonl
 
@@ -38,12 +40,14 @@ large datasets as it has no memory pressure.`,
   loops-pp-cli export <resource> --format jsonl | jq '.id'`,
 		Args: cobra.RangeArgs(1, 2),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			if args[0] == "contacts" {
+				return usageErr(fmt.Errorf("Loops has no bulk contact listing; export contacts is unavailable; use contacts find with an explicit identifier"))
+			}
 			validResources := map[string]bool{
 				"audience-segments":     true,
 				"campaign-groups":       true,
 				"campaigns":             true,
 				"components":            true,
-				"contacts":              true,
 				"dedicated-sending-ips": true,
 				"event-patterns":        true,
 				"lists":                 true,
@@ -58,7 +62,6 @@ large datasets as it has no memory pressure.`,
 				"campaign-groups",
 				"campaigns",
 				"components",
-				"contacts",
 				"dedicated-sending-ips",
 				"event-patterns",
 				"lists",
@@ -94,19 +97,14 @@ large datasets as it has no memory pressure.`,
 			}
 
 			var writer *bufio.Writer
-			var outFile *os.File
+			var output *exportOutput
 			if outputFile != "" {
-				f, err := openExportOutput(outputFile)
+				output, err = openExportOutput(outputFile)
 				if err != nil {
 					return err
 				}
-				outFile = f
-				writer = bufio.NewWriter(f)
-				defer func() {
-					if err != nil && outFile != nil {
-						_ = outFile.Close()
-					}
-				}()
+				writer = bufio.NewWriter(output.file)
+				defer output.abort()
 			} else {
 				writer = bufio.NewWriter(os.Stdout)
 			}
@@ -114,11 +112,8 @@ large datasets as it has no memory pressure.`,
 				if err := writer.Flush(); err != nil {
 					return fmt.Errorf("flushing export: %w", err)
 				}
-				if outFile != nil {
-					if err := outFile.Close(); err != nil {
-						return fmt.Errorf("closing export file: %w", err)
-					}
-					outFile = nil
+				if output != nil {
+					return output.commit()
 				}
 				return nil
 			}
@@ -211,7 +206,7 @@ large datasets as it has no memory pressure.`,
 				return err
 			}
 			if outputFile != "" {
-				fmt.Fprintf(os.Stderr, "Exported %d records to %s\n", count, outputFile)
+				fmt.Fprintf(os.Stderr, "Exported %d records to private file\n", count)
 			}
 			return nil
 		},
@@ -225,22 +220,77 @@ large datasets as it has no memory pressure.`,
 	return cmd
 }
 
-// openExportOutput creates or truncates path as a private file. OpenFile's
-// mode applies only when the file is created; an existing 0644 file would
-// stay world-readable across the truncate, so the mode is set again after open.
-func openExportOutput(path string) (*os.File, error) {
+type exportOutput struct {
+	file *os.File
+	temp string
+	path string
+}
+
+func rejectUnsafeExportTarget(path string) error {
+	info, err := os.Lstat(path)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("checking output target: %w", err)
+	}
+	if !info.Mode().IsRegular() {
+		return errors.New("output path must be a regular file, not a symlink or special file")
+	}
+	return nil
+}
+
+// openExportOutput writes to a private sibling file. commit atomically replaces
+// a regular target; a symlink is never opened or followed.
+func openExportOutput(path string) (*exportOutput, error) {
 	if dir := filepath.Dir(path); dir != "" && dir != "." {
 		if err := os.MkdirAll(dir, 0o700); err != nil {
 			return nil, fmt.Errorf("creating output directory: %w", err)
 		}
 	}
-	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	if err := rejectUnsafeExportTarget(path); err != nil {
+		return nil, err
+	}
+	f, err := os.CreateTemp(filepath.Dir(path), ".loops-export-*.tmp")
 	if err != nil {
-		return nil, fmt.Errorf("creating output file: %w", err)
+		return nil, fmt.Errorf("creating private output file: %w", err)
 	}
 	if err := f.Chmod(0o600); err != nil {
 		_ = f.Close()
+		_ = os.Remove(f.Name())
 		return nil, fmt.Errorf("setting output file permissions: %w", err)
 	}
-	return f, nil
+	return &exportOutput{file: f, temp: f.Name(), path: path}, nil
+}
+
+func (out *exportOutput) commit() error {
+	if out.file == nil {
+		return errors.New("export output already closed")
+	}
+	if err := out.file.Sync(); err != nil {
+		return fmt.Errorf("syncing export file: %w", err)
+	}
+	if err := out.file.Close(); err != nil {
+		return fmt.Errorf("closing export file: %w", err)
+	}
+	out.file = nil
+	if err := rejectUnsafeExportTarget(out.path); err != nil {
+		return err
+	}
+	if err := os.Rename(out.temp, out.path); err != nil {
+		return fmt.Errorf("committing export file: %w", err)
+	}
+	out.temp = ""
+	return nil
+}
+
+func (out *exportOutput) abort() {
+	if out.file != nil {
+		_ = out.file.Close()
+		out.file = nil
+	}
+	if out.temp != "" {
+		_ = os.Remove(out.temp)
+		out.temp = ""
+	}
 }
