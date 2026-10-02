@@ -17,6 +17,7 @@ import (
 	"sync/atomic"
 	"testing"
 
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/snipd/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/snipd/internal/snipd"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/snipd/internal/store"
 )
@@ -272,10 +273,14 @@ func TestFallbackSnipDoesNotPruneUUIDKeyedRows(t *testing.T) {
 }
 
 func snipExportZIP(t *testing.T, ids ...string) []byte {
+	return snipExportZIPForEpisode(t, "episode-1", ids...)
+}
+
+func snipExportZIPForEpisode(t *testing.T, episodeID string, ids ...string) []byte {
 	t.Helper()
 	var buf bytes.Buffer
 	zw := zip.NewWriter(&buf)
-	f, err := zw.Create("episodes/episode-1_full_content.md")
+	f, err := zw.Create("episodes/" + episodeID + "_full_content.md")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -290,6 +295,53 @@ func snipExportZIP(t *testing.T, ids ...string) []byte {
 		t.Fatal(err)
 	}
 	return buf.Bytes()
+}
+
+func TestPullCursorStaysAtInitialMetadataSnapshot(t *testing.T) {
+	firstZIP := snipExportZIPForEpisode(t, "episode-1", "11111111-2222-3333-4444-555555555555")
+	secondZIP := snipExportZIPForEpisode(t, "episode-2")
+	var getCount atomic.Int32
+	var postCount atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			if getCount.Add(1) == 1 {
+				fmt.Fprint(w, `{"episode_batches":[{"index":1,"episodes":[{"episode_id":"episode-1","total_snip_count":1,"latest_snip_update_ts":"2026-10-01T00:01:00Z"}]},{"index":2,"episodes":[{"episode_id":"episode-2","total_snip_count":1,"latest_snip_update_ts":"2026-10-01T00:02:00Z"}]}]}`)
+			} else {
+				// The first episode was edited after its export, while the
+				// second batch also changed count and forced this refresh.
+				fmt.Fprint(w, `{"episode_batches":[{"index":1,"episodes":[{"episode_id":"episode-1","total_snip_count":1,"latest_snip_update_ts":"2026-10-01T00:03:00Z"}]},{"index":2,"episodes":[{"episode_id":"episode-2","total_snip_count":0,"latest_snip_update_ts":"2026-10-01T00:04:00Z"}]}]}`)
+			}
+			return
+		}
+		if postCount.Add(1) == 1 {
+			w.Write(firstZIP)
+		} else {
+			w.Write(secondZIP)
+		}
+	}))
+	defer server.Close()
+	restore, err := cliutil.SetHomeOverride(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer restore()
+	t.Setenv("SNIPD_BASE_URL", server.URL)
+	t.Setenv("SNIPD_TOKEN", "synthetic-test-token")
+	cmd := RootCmd()
+	cmd.SetArgs([]string{"--config", filepath.Join(t.TempDir(), "config.toml"), "--json", "pull", "--db", filepath.Join(t.TempDir(), "mirror.db")})
+	var output bytes.Buffer
+	cmd.SetOut(&output)
+	cmd.SetErr(&output)
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("local pull: %v (%s)", err, output.String())
+	}
+	var result pullResult
+	if err := json.Unmarshal(output.Bytes(), &result); err != nil {
+		t.Fatalf("decode pull result: %v (%s)", err, output.String())
+	}
+	if result.Cursor != "2026-10-01T00:02:00Z" || getCount.Load() != 2 || postCount.Load() != 2 {
+		t.Fatalf("cursor=%q GET=%d POST=%d, want initial snapshot cursor and 2/2 calls", result.Cursor, getCount.Load(), postCount.Load())
+	}
 }
 
 func TestFetchValidatedBatchRefreshesDriftedMetadata(t *testing.T) {

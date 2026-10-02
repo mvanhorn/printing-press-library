@@ -368,18 +368,18 @@ func newNovelPullCmd(flags *rootFlags) *cobra.Command {
 				eids := make([]string, 0, take)
 				for _, e := range fetched {
 					eids = append(eids, e.EpisodeID)
+					// The initial metadata is the pull's cursor snapshot. A
+					// later metadata refresh may observe an edit to an earlier
+					// batch that has already been exported; advancing past it
+					// would make the next incremental pull skip that edit.
+					if tsLater(e.LatestSnipUpdateTS, newestCursor) {
+						newestCursor = e.LatestSnipUpdateTS
+					}
 				}
 
-				eps, snips, current, err := fetchValidatedBatch(ctx, c, updatedAfter, fetched)
+				eps, snips, _, err := fetchValidatedBatch(ctx, c, updatedAfter, fetched)
 				if err != nil {
 					return fmt.Errorf("fetching and validating batch %d export: %w", batch.Index, err)
-				}
-				// Advance only over episodes actually exported, using refreshed
-				// metadata when a user edit changed the catalog mid-pull.
-				for _, episode := range current {
-					if tsLater(episode.LatestSnipUpdateTS, newestCursor) {
-						newestCursor = episode.LatestSnipUpdateTS
-					}
 				}
 
 				for _, ep := range eps {
