@@ -303,8 +303,10 @@ func isCobraUsageError(err error) bool {
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "loops-pp-cli",
-		Short: "Manage loops resources via the loops API",
-		Long: `Manage loops resources via the loops API.
+		Short: "Manage Loops audiences and email with explicit send safety",
+		Long: `Inspect Loops audiences, campaigns, workflows, and email from an agent or script.
+The CLI covers all 68 operations in the official Loops OpenAPI 1.22.2 spec.
+Writes preview with private values redacted and require explicit execution.
 
 Highlights (not in the official API docs):
   • team verify   Verify the selected API team before a change, preview writes without private values, and journal send attempts.

@@ -17,6 +17,7 @@
     "internal/client/client_verify_short_circuit_test.go",
     "internal/client/platform_rate_limit_test.go",
     ".printing-press.json",
-    "tools-manifest.json"
+    "tools-manifest.json",
+    "manifest.json"
   ]
 }

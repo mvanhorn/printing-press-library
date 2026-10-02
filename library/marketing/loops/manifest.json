@@ -3,7 +3,7 @@
   "name": "loops-pp-mcp",
   "display_name": "Loops",
   "version": "1.22.2",
-  "description": "This is the OpenAPI Spec for the [Loops API](https://loops.so/docs/api).",
+  "description": "Agent-ready Loops CLI for contacts, audiences, campaigns, workflows, events, and transactional email, with team checks and explicit send approval.",
   "author": {
     "name": "CLI Printing Press"
   },

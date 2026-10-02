@@ -30,7 +30,7 @@ go install github.com/mvanhorn/printing-press-library/library/marketing/loops/cm
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-This is the OpenAPI Spec for the [Loops API](https://loops.so/docs/api).
+This CLI covers all 68 operations in the [Loops API](https://loops.so/docs/api-reference/intro) and adds agent-safe team verification, lifecycle inventory, and campaign preflight checks. It previews writes with private values redacted and requires explicit execution for sends and changes.
 
 ## Safe sequence
 

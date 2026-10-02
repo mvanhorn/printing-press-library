@@ -1,6 +1,6 @@
 # Loops Printing Press CLI
 
-A CLI generated from the complete official Loops OpenAPI 1.22.2 specification with Printing Press 4.33.0. It exposes all 68 documented API operations and adds three agent checks: `team verify`, `audit lifecycle`, and `campaigns preflight`. No account data or credentials are included in this package.
+Work with Loops from scripts and agents: inspect contacts and audiences, prepare campaigns and workflows, and review events or transactional email sends before execution. This Printing Press CLI covers all 68 operations in the official Loops OpenAPI 1.22.2 specification and adds three agent checks: `team verify`, `audit lifecycle`, and `campaigns preflight`. Every API mutation starts with a redacted preview. No account data or credentials are included in this package.
 
 Created by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 

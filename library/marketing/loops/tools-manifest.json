@@ -1,7 +1,7 @@
 {
   "api_name": "loops",
   "base_url": "https://app.loops.so/api",
-  "description": "This is the OpenAPI Spec for the [Loops API](https://loops.so/docs/api).",
+  "description": "Agent-ready Loops CLI for contacts, audiences, campaigns, workflows, events, and transactional email, with team checks and explicit send approval.",
   "mcp_ready": "partial",
   "http_transport": "standard",
   "mcp": {
