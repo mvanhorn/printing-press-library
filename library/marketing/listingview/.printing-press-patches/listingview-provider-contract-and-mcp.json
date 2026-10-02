@@ -4,8 +4,8 @@
   "applied_at": "2026-10-01",
   "base_run_id": "20260627-031657-1bc0ab62",
   "base_printing_press_version": "4.26.1",
-  "summary": "Use the captured ListingView keyword fields and listing dates in niche scoring, remove unsupported generic imports, preserve provider API errors, send mutations once, and require bearer authentication plus a safe listener for HTTP MCP.",
-  "reason": "Incorrect fields hide niche metrics, unsupported import routes can send unintended writes, provider failures should not appear as offline cache failures, and remote MCP tools must authenticate callers.",
+  "summary": "Use the captured ListingView keyword fields and listing dates in niche scoring, remove unsupported generic imports, preserve provider API errors, avoid ambiguous write retries, and require environment-supplied bearer authentication plus a safe listener for HTTP MCP.",
+  "reason": "Incorrect fields hide niche metrics, unsupported import routes can send unintended writes, provider failures should not appear as offline cache failures, and remote MCP tools must authenticate callers without putting tokens in process arguments.",
   "files": [
     "cmd/listingview-pp-mcp/main.go",
     "cmd/listingview-pp-mcp/main_test.go",

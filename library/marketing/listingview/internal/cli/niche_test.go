@@ -7,6 +7,9 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -71,5 +74,56 @@ func TestListingAgeMonthsSupportsCapturedDateListed(t *testing.T) {
 	listing = map[string]json.RawMessage{"dateListed": json.RawMessage(`"not-a-date"`)}
 	if got := listingAgeMonths(listing, now); got != 0 {
 		t.Fatalf("invalid listing date age = %v, want 0", got)
+	}
+}
+
+func TestNicheCommandUsesProviderResponsesForVerdict(t *testing.T) {
+	t.Setenv("LISTINGVIEW_COOKIES", "")
+	t.Setenv("PRINTING_PRESS_VERIFY", "")
+	t.Setenv("PRINTING_PRESS_DOGFOOD", "")
+	requests := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests++
+		if r.Method != http.MethodPost {
+			t.Errorf("method = %s, want POST", r.Method)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		switch r.URL.Path {
+		case lvProxyPrefix + "getFilteredKeywords":
+			var body map[string]any
+			if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+				t.Errorf("decode keyword request: %v", err)
+			}
+			if body["sort_column"] != nicheKeywordSortColumn || body["search"] != "retro cat mom sweatshirt" {
+				t.Errorf("keyword request = %#v", body)
+			}
+			_, _ = w.Write([]byte(`{"statusCode":200,"data":{"keywords":[{"searchVolume":"1200","competition":100,"competitionShops":35,"avgPrice":24.5}]}}`))
+		case lvProxyPrefix + "getFilteredListings":
+			_, _ = w.Write([]byte(`{"statusCode":200,"data":{"listings":[{"ageInMonths":6,"price":22},{"ageInMonths":24,"price":26}]}}`))
+		default:
+			t.Errorf("unexpected provider path %s", r.URL.Path)
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	t.Cleanup(server.Close)
+	t.Setenv("LISTINGVIEW_BASE_URL", server.URL)
+
+	var out, errOut bytes.Buffer
+	cmd := RootCmd()
+	cmd.SetOut(&out)
+	cmd.SetErr(&errOut)
+	cmd.SetArgs([]string{"niche", "retro cat mom sweatshirt", "--json", "--no-cache", "--config", filepath.Join(t.TempDir(), "missing.toml"), "--db", filepath.Join(t.TempDir(), "niche.sqlite")})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("niche command: %v; stderr=%s", err, errOut.String())
+	}
+	if requests != 2 {
+		t.Fatalf("provider requests = %d, want keywords and listings", requests)
+	}
+	var got nicheView
+	if err := json.Unmarshal(out.Bytes(), &got); err != nil {
+		t.Fatalf("parse niche output: %v; output=%s", err, out.String())
+	}
+	if got.Verdict != "GO" || got.SearchVolume != 1200 || got.CompetingListings != 100 || got.TopSellerSamples != 2 || got.WinnablePct != 50 {
+		t.Fatalf("provider-shaped niche verdict = %+v", got)
 	}
 }

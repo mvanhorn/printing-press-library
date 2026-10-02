@@ -41,7 +41,6 @@ func main() {
 
 	transport := flag.String("transport", defaultTransport(), "MCP transport: stdio | http")
 	addr := flag.String("addr", defaultHTTPAddr, "bind address for http transport (host:port or :port)")
-	httpToken := flag.String("http-token", "", "bearer token required from HTTP transport callers (or set PP_MCP_HTTP_TOKEN)")
 	tlsCert := flag.String("tls-cert", "", "TLS certificate file; required with --tls-key for non-loopback HTTP transport")
 	tlsKey := flag.String("tls-key", "", "TLS private key file; required with --tls-cert for non-loopback HTTP transport")
 	flag.Parse()
@@ -54,12 +53,9 @@ func main() {
 		}
 	case "http":
 		httpSrv := server.NewStreamableHTTPServer(s)
-		token := strings.TrimSpace(*httpToken)
+		token := strings.TrimSpace(os.Getenv("PP_MCP_HTTP_TOKEN"))
 		if token == "" {
-			token = strings.TrimSpace(os.Getenv("PP_MCP_HTTP_TOKEN"))
-		}
-		if token == "" {
-			fmt.Fprintln(os.Stderr, "refusing to serve MCP over HTTP without a caller token: set --http-token (or PP_MCP_HTTP_TOKEN)")
+			fmt.Fprintln(os.Stderr, "refusing to serve MCP over HTTP without a caller token: set PP_MCP_HTTP_TOKEN")
 			os.Exit(2)
 		}
 		useTLS := *tlsCert != "" || *tlsKey != ""

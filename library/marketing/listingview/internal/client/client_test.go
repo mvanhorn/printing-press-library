@@ -67,6 +67,32 @@ func TestMutatingPostDoesNotRetryTransportError(t *testing.T) {
 	}
 }
 
+func TestMutatingPostRetriesExplicitRateLimit(t *testing.T) {
+	t.Setenv("PRINTING_PRESS_VERIFY", "")
+	t.Setenv("PRINTING_PRESS_DOGFOOD", "")
+	requests := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests++
+		if requests == 1 {
+			w.Header().Set("Retry-After", "1")
+			w.WriteHeader(http.StatusTooManyRequests)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true}`))
+	}))
+	t.Cleanup(server.Close)
+	c := New(&config.Config{BaseURL: server.URL}, 3*time.Second, 0)
+	c.HTTPClient = server.Client()
+	c.NoCache = true
+	if _, _, err := c.Post(context.Background(), "/toggle", map[string]any{"id": 1}); err != nil {
+		t.Fatalf("Post after explicit rate limit: %v", err)
+	}
+	if requests != 2 {
+		t.Fatalf("mutating POST made %d attempts, want one rate-limit retry", requests)
+	}
+}
+
 func TestTruncateBody(t *testing.T) {
 	t.Parallel()
 

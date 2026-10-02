@@ -519,7 +519,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 	// PATCH(ambiguous-write-retries-disabled): keep authentication and
 	// rate-limit recovery available; only ambiguous
 	// transport/server failures must not replay an unprotected write.
-	canRetryAmbiguousFailure := readOnlyIntent || method == http.MethodGet || method == http.MethodHead || method == http.MethodOptions
+	canRetryAmbiguousFailure := retrySafeRequest(method, readOnlyIntent)
 
 	// Verify-mode transport-layer gate. When the verifier (or any consumer
 	// that sets PRINTING_PRESS_VERIFY=1) drives a mutating verb without
@@ -569,9 +569,9 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 	}
 
 	maxRetries := clientMaxRetries()
-	if !retrySafeRequest(method, readOnlyIntent) {
-		maxRetries = 0
-	}
+	// A 429 response explicitly refused the request, so a bounded retry is
+	// safe even for writes. Transport failures and 5xx remain ambiguous and
+	// are never retried for writes below.
 	var lastErr error
 
 	for attempt := 0; attempt <= maxRetries; attempt++ {
