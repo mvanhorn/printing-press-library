@@ -56,6 +56,21 @@ func TestSelectCascadeIndexesRejectsTiedIncompatibleGroups(t *testing.T) {
 	}
 }
 
+func TestSelectCascadeIndexesDeduplicatesBeforeChoosingGroup(t *testing.T) {
+	names := []string{"cosine-a", "euclidean", "euclidean", "cosine-b"}
+	calls := map[string]int{}
+	valid, _, failures, err := selectCascadeIndexes(names, func(name string) (pineconeIndexShape, error) {
+		calls[name]++
+		if name == "euclidean" {
+			return pineconeIndexShape{Dimension: 1024, Metric: "euclidean"}, nil
+		}
+		return pineconeIndexShape{Dimension: 1024, Metric: "cosine"}, nil
+	})
+	if err != nil || strings.Join(valid, ",") != "cosine-a,cosine-b" || len(failures) != 1 || failures[0].Index != "euclidean" || calls["euclidean"] != 1 {
+		t.Fatalf("duplicates distorted selection: valid=%v failures=%#v calls=%v error=%v", valid, failures, calls, err)
+	}
+}
+
 // TestNovelCascadeHelpWires smoke-tests that the cascade command
 // resolves at runtime and renders useful --help output. Catches wiring
 // regressions (missing AddCommand, panicking RunE on --help, etc.) before

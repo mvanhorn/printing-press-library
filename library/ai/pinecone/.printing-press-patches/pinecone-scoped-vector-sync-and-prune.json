@@ -4,8 +4,8 @@
   "applied_at": "2026-10-01",
   "base_run_id": "20260813-214420-550eb813",
   "base_printing_press_version": "4.30.2",
-  "summary": "Hydrate vector-list IDs under a verified index and namespace, resume scoped continuation cursors, recheck live vector timestamps before pruning while skipping already absent IDs, choose the unique largest compatible cascade group without shared host mutation, and honor selected local database paths.",
-  "reason": "Vector IDs and continuation cursors can collide across indexes or namespaces, stale local timestamps can delete freshly updated live vectors, mixed scoring metrics cannot be ranked together, a shared host map can race across indexes, and a selected database path must govern local reads and writes.",
+  "summary": "Hydrate vector-list IDs under a verified index and namespace, resume scoped continuation cursors, recheck live vector timestamps before pruning while cleaning confirmed-absent local rows, deduplicate indexes before choosing the unique largest compatible cascade group, and honor selected local database paths.",
+  "reason": "Vector IDs and continuation cursors can collide across indexes or namespaces, stale local timestamps can delete freshly updated live vectors, already absent IDs can remain in offline search, duplicate index names can distort compatibility selection, a shared host map can race across indexes, and a selected database path must govern local reads and writes.",
   "files": [
     "NOTICE",
     "README.md",
@@ -27,6 +27,7 @@
     "internal/cli/sync.go",
     "internal/cli/usage.go",
     "internal/store/store.go",
+    "internal/store/vector_cleanup.go",
     "internal/store/vector_scope_test.go"
   ]
 }

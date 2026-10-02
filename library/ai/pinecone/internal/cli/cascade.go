@@ -44,8 +44,13 @@ func selectCascadeIndexes(names []string, describe func(string) (pineconeIndexSh
 	}
 	groups := make(map[string]*shapeGroup)
 	ordered := make([]*shapeGroup, 0)
+	seenNames := make(map[string]bool, len(names))
 	var failures []textQueryFailure
 	for _, name := range names {
+		if seenNames[name] {
+			continue
+		}
+		seenNames[name] = true
 		shape, err := describe(name)
 		if err == nil && (shape.Dimension <= 0 || shape.Metric == "") {
 			err = fmt.Errorf("index %q did not report a comparable dimension and scoring metric", name)

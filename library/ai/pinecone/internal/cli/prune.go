@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/ai/pinecone/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -28,8 +29,10 @@ type prunePlan struct {
 }
 
 type localPruneVector struct {
-	ID   string
-	Meta map[string]any
+	ID        string
+	StorageID string
+	RawData   string
+	Meta      map[string]any
 }
 
 func explicitStringField(obj map[string]any, keys ...string) (string, bool) {
@@ -51,7 +54,7 @@ func explicitStringField(obj map[string]any, keys ...string) (string, bool) {
 // namespace. Older/unscoped mirror rows are deliberately ignored because
 // sending their IDs to another namespace can delete an unrelated live vector.
 func loadScopedPruneVectors(ctx context.Context, db *sql.DB, indexName, namespace string) ([]localPruneVector, error) {
-	rows, err := db.QueryContext(ctx, `SELECT data FROM resources WHERE resource_type = 'vectors'`)
+	rows, err := db.QueryContext(ctx, `SELECT id, data FROM resources WHERE resource_type = 'vectors'`)
 	if err != nil {
 		return nil, fmt.Errorf("querying vectors: %w", err)
 	}
@@ -59,8 +62,8 @@ func loadScopedPruneVectors(ctx context.Context, db *sql.DB, indexName, namespac
 
 	var vectors []localPruneVector
 	for rows.Next() {
-		var data string
-		if err := rows.Scan(&data); err != nil {
+		var storageID, data string
+		if err := rows.Scan(&storageID, &data); err != nil {
 			return nil, fmt.Errorf("scanning vector: %w", err)
 		}
 		var obj map[string]any
@@ -77,7 +80,7 @@ func loadScopedPruneVectors(ctx context.Context, db *sql.DB, indexName, namespac
 			continue
 		}
 		metadata, _ := obj["metadata"].(map[string]any)
-		vectors = append(vectors, localPruneVector{ID: id, Meta: metadata})
+		vectors = append(vectors, localPruneVector{ID: id, StorageID: storageID, RawData: data, Meta: metadata})
 	}
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("iterating vectors: %w", err)
@@ -144,13 +147,15 @@ Do NOT use this command for arbitrary filter/ID deletion; use 'delete'.`,
 			}
 
 			var stale []string
+			seenStale := make(map[string]bool)
 			for _, v := range vecs {
 				t, ok := pruneTimestamp(v.Meta)
 				if !ok {
 					continue
 				}
-				if t.Before(cutoffTime) {
+				if t.Before(cutoffTime) && !seenStale[v.ID] {
 					stale = append(stale, v.ID)
+					seenStale[v.ID] = true
 				}
 			}
 			if limit > 0 && len(stale) > limit {
@@ -201,6 +206,21 @@ Do NOT use this command for arbitrary filter/ID deletion; use 'delete'.`,
 					deleted += end - i
 				}
 				plan.Deleted = deleted
+				if len(missing) > 0 {
+					missingSet := make(map[string]bool, len(missing))
+					for _, id := range missing {
+						missingSet[id] = true
+					}
+					var rows []store.ScopedVectorRow
+					for _, vector := range vecs {
+						if missingSet[vector.ID] {
+							rows = append(rows, store.ScopedVectorRow{StorageID: vector.StorageID, BareID: vector.ID, ExpectedData: vector.RawData})
+						}
+					}
+					if _, err := s.DeleteScopedVectorRows(ctx, indexName, namespace, rows); err != nil {
+						return fmt.Errorf("removing confirmed-absent vectors from local mirror: %w", err)
+					}
+				}
 				if _, err := db.ExecContext(ctx,
 					`INSERT INTO pp_prune_runs (index_name, namespace, ran_at, deleted, ids) VALUES (?, ?, ?, ?, ?)`,
 					indexName, namespace, time.Now().UTC().Format(time.RFC3339), deleted, mustJSON(stale),
