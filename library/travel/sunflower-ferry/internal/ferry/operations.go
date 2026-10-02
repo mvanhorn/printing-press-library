@@ -27,6 +27,9 @@ func hiddenForm(b []byte, expected string) (url.Values, error) {
 	if e != nil {
 		return nil, e
 	}
+	if strings.Contains(strings.ToLower(text(doc)), "reservation system is not available for maintenance") {
+		return nil, fmt.Errorf("official booking system is under maintenance; no fare or sailing lookup submitted")
+	}
 	for _, f := range elements(doc, "form") {
 		u, e := url.Parse(attr(f, "action"))
 		if e != nil {
@@ -460,7 +463,8 @@ func ParseCabins(b []byte) ([]Cabin, error) {
 		basis := "source room capacity; booking minimum and eligibility are not inferred"
 		lowType := strings.ToLower(roomtype)
 		coreName := strings.ToLower(strings.TrimSpace(strings.Split(name, "(")[0]))
-		if strings.Contains(lowType, "shared room") || strings.Contains(lowType, "dormitory") || coreName == "tourist" || coreName == "tourist room" || coreName == "tourist bed" {
+		lowCapacity := strings.ToLower(cap)
+		if strings.Contains(lowType, "shared room") || strings.Contains(lowType, "dormitory") || strings.Contains(lowCapacity, "by each section") || strings.Contains(lowCapacity, "per compartment") || coreName == "private bed" && strings.Contains(lowCapacity, "all seats reserved") || coreName == "private bed / all seats reserved" || coreName == "tourist" || coreName == "tourist room" || coreName == "tourist bed" {
 			category = "dormitory"
 			basis = "seat/section or shared-room capacity; preserve source wording"
 		} else if strings.Contains(lowType, "semi-private") {
@@ -642,14 +646,18 @@ func ParsePorts(b []byte, r Route) ([]Terminal, error) {
 }
 func terminalNameMatches(name string, p Port) bool {
 	n := strings.ReplaceAll(slug(name), "-", "")
-	switch p.ID {
-	case "osaka-terminal1":
-		return strings.Contains(n, "osaka") && strings.Contains(n, "terminal1")
-	case "osaka-terminal2":
-		return strings.Contains(n, "osaka") && strings.Contains(n, "terminal2")
-	default:
-		return strings.Contains(n, strings.ReplaceAll(p.ID, "-", ""))
+	// Only observed official headings identify a terminal. A changed title
+	// fails closed rather than accepting another terminal number or a name
+	// that merely mentions the expected destination.
+	known := map[string]string{
+		"sunflowerterminalosakaterminal1": "osaka-terminal1",
+		"sunflowerterminalosakaterminal2": "osaka-terminal2",
+		"beppukankoko":                    "beppu",
+		"kobeportrokkoisland":             "kobe",
+		"oitaport":                        "oita",
+		"kagoshimashibushiport":           "shibushi",
 	}
+	return p.ID != "" && known[n] == p.ID
 }
 func (c *Client) Ports(ctx context.Context, r Route) ([]Terminal, error) {
 	b, e := c.fetch(ctx, PublicBase+"/en/route/"+r.ID+"/boarding/", nil)

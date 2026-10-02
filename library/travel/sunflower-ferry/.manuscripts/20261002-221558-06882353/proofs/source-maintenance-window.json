@@ -1,0 +1,12 @@
+{
+  "observed_at": "2026-10-02T18:32:49.313736+00:00",
+  "source_url": "https://www.ferry-sunflower.co.jp/faq/",
+  "source_section": "インターネット予約について",
+  "source_excerpt": "※定期メンテナンスのため、毎日午前3時～午前5時までは、サービスを停止させていただいております。",
+  "daily_maintenance_jst": {
+    "start": "03:00",
+    "end": "05:00"
+  },
+  "recovery_guaranteed": false,
+  "actual_recovery_requires_live_check": true
+}

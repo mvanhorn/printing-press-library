@@ -1,0 +1,90 @@
+{
+  "passed": true,
+  "routes": [
+    {
+      "route": "osaka-beppu",
+      "private_named_categories": [
+        [
+          "Private single twin (4 rooms)",
+          "semi_private"
+        ],
+        [
+          "Private twin (4 rooms)",
+          "semi_private"
+        ],
+        [
+          "Private single (2 lots)",
+          "dormitory"
+        ],
+        [
+          "Private bed group (12 rooms in 3 compartments)",
+          "private"
+        ],
+        [
+          "Private bed group barrier-free (1 room)",
+          "private"
+        ],
+        [
+          "Private beds (14 rooms) Private bed ladies (1 room)",
+          "dormitory"
+        ]
+      ],
+      "source": {
+        "observed_at": "2026-10-03T03:05:01+09:00",
+        "source_urls": [
+          "https://www.ferry-sunflower.co.jp/en/route/osaka-beppu/cabin/"
+        ],
+        "source_language": "en",
+        "request_count": 1,
+        "response_bytes": 149923,
+        "elapsed_ms": 726
+      }
+    },
+    {
+      "route": "kobe-oita",
+      "private_named_categories": [
+        [
+          "Private bed",
+          "dormitory"
+        ]
+      ],
+      "source": {
+        "observed_at": "2026-10-03T03:05:01+09:00",
+        "source_urls": [
+          "https://www.ferry-sunflower.co.jp/en/route/kobe-oita/cabin/"
+        ],
+        "source_language": "en",
+        "request_count": 1,
+        "response_bytes": 26168,
+        "elapsed_ms": 504
+      }
+    },
+    {
+      "route": "osaka-shibushi",
+      "private_named_categories": [
+        [
+          "Private Single (7person\u00d71room + 9person\u00d71room)",
+          "dormitory"
+        ],
+        [
+          "Private Bed (11room)",
+          "dormitory"
+        ],
+        [
+          "Private Bed (for Group)(4section x 1room)",
+          "dormitory"
+        ]
+      ],
+      "source": {
+        "observed_at": "2026-10-03T03:05:02+09:00",
+        "source_urls": [
+          "https://www.ferry-sunflower.co.jp/en/route/osaka-shibushi/cabin/"
+        ],
+        "source_language": "en",
+        "request_count": 1,
+        "response_bytes": 35088,
+        "elapsed_ms": 499
+      }
+    }
+  ]
+}

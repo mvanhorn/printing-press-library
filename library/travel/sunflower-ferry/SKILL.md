@@ -30,6 +30,8 @@ Treat every cabin price as the source's displayed price for the exact entered on
 
 Planning JSON has `data`, source `meta` and warnings; `--agent` wraps this document in `results`. Use `--select data.quote.sailings`, `--select data.calendar`, or `--select data.cabins` as appropriate. Domain facts are already bounded, so agent compact mode preserves their uncertainty/provenance. Inspect `meta.observed_at` and source URLs. Offline route metadata identifies its reference verification date; dynamic fares, calendars and access pages are fetched live. No source session or credential is persisted.
 
+The [official FAQ](https://www.ferry-sunflower.co.jp/faq/) lists daily booking-system maintenance from 03:00 to 05:00 JST. During source maintenance, `quote` and `sailings` return an explicit error; inventory remains unknown. Try the read-only lookup again after the published window and confirm actual recovery.
+
 `conditions` distinguishes the carried-item definition (sum of three dimensions ≤2 m and per-item weight ≤30 kg) from the aggregate free carried-baggage weight (≤20 kg). The English cancellation summary omits the day-before band; the linked Japanese common passenger conditions supply normal-ticket rates/minimums. Confirm agency/campaign/vehicle conditions. English check-in guidance recommends 60 minutes and may refuse boarding within 30 minutes; confirm earlier vehicle/seasonal requirements. Access times/fares are undated reference guidance. Never promise inventory, eligibility, punctuality or final price.
 
 ## Prerequisites: Install the CLI

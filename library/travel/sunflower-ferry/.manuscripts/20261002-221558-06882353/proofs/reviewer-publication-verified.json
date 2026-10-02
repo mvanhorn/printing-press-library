@@ -1,0 +1,18 @@
+{
+  "command": [
+    "go",
+    "test",
+    "-overlay",
+    "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/reviewer-publication-managed-overlay.json",
+    "./internal/ferry",
+    "-run",
+    "TestReviewerPublication|TestPrivateCabinIdentityDoesNotUseDescriptionSubstrings|TestTerminalIdentitySurvivesReorderedSourceBoxes|TestCabinAndPortEvidence",
+    "-count=1"
+  ],
+  "cwd": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.publish-repo-sunflower-ferry-cli-5b9b5abe/library/travel/sunflower-ferry",
+  "exit": 0,
+  "stdout": "ok  \tgithub.com/mvanhorn/printing-press-library/library/travel/sunflower-ferry/internal/ferry\t0.447s\n",
+  "stderr": "",
+  "source_files_edited": false,
+  "provider_requests": 0
+}

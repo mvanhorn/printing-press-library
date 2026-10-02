@@ -250,6 +250,24 @@ func TestPrivateCabinIdentityDoesNotUseDescriptionSubstrings(t *testing.T) {
 	if len(wanted) != 0 {
 		t.Fatal("source room cases missing", wanted)
 	}
+	for _, route := range []string{"kobe-oita", "osaka-shibushi"} {
+		rooms, err := ParseCabins(fixture(t, route+"-cabin.html"))
+		if err != nil {
+			t.Fatal(route, err)
+		}
+		shared := 0
+		for _, room := range rooms {
+			if strings.HasPrefix(room.Name, "Private") {
+				shared++
+				if room.Category != "dormitory" || room.MinOccupancy != nil || room.MaxOccupancy != nil {
+					t.Fatalf("%s shared section became private: %+v", route, room)
+				}
+			}
+		}
+		if shared == 0 {
+			t.Fatal("shared source cases missing", route)
+		}
+	}
 }
 func TestTerminalIdentitySurvivesReorderedSourceBoxes(t *testing.T) {
 	box := func(p Terminal) string {
@@ -272,6 +290,16 @@ func TestTerminalIdentitySurvivesReorderedSourceBoxes(t *testing.T) {
 		if _, err := ParsePorts([]byte(`<article>`+box(original[0])+box(original[0])+`</article>`), r); err == nil {
 			t.Fatal("duplicate terminal guessed", r.ID)
 		}
+		misleading := strings.ReplaceAll(reversed, html.EscapeString(original[0].SourceName), "Not "+html.EscapeString(original[0].SourceName))
+		if _, err := ParsePorts([]byte(misleading), r); err == nil {
+			t.Fatal("negated terminal guessed", r.ID)
+		}
+	}
+	if terminalNameMatches("sunflower terminal (osaka) Terminal10", Registry[0].Origin) {
+		t.Fatal("Terminal10 mistaken for Terminal1")
+	}
+	if terminalNameMatches("Not Oita Port", Registry[1].Destination) {
+		t.Fatal("negative destination name accepted")
 	}
 }
 func TestConditionsDeriveRefundMinimumAndBaggageDefinitions(t *testing.T) {
@@ -328,6 +356,22 @@ func TestValidationAndReservationBoundary(t *testing.T) {
 type roundTripFunc func(*http.Request) (*http.Response, error)
 
 func (f roundTripFunc) RoundTrip(r *http.Request) (*http.Response, error) { return f(r) }
+
+func TestSourceMaintenanceStopsBeforeAnonymousPost(t *testing.T) {
+	c := New(2)
+	c.http.Transport = &boundedTransport{client: c, next: roundTripFunc(func(r *http.Request) (*http.Response, error) {
+		if r.Method != http.MethodGet || r.URL.String() != BookingURL {
+			t.Fatal("maintenance reached a planning POST", r.Method, r.URL)
+		}
+		body := `<html><body><h1>Under maintenance.</h1><p>We are sorry, but reservation system is not available for maintenance.</p></body></html>`
+		return &http.Response{StatusCode: 200, Header: http.Header{}, Body: io.NopCloser(strings.NewReader(body)), Request: r}, nil
+	})}
+	q, err := c.Quote(context.Background(), Registry[0], "21", time.Now().In(JST).AddDate(0, 0, 2).Format("2006-01-02"), Party{Adults: 1, Mode: "foot"})
+	if err == nil || !strings.Contains(err.Error(), "under maintenance") || c.requests != 1 || len(q.Sailings) != 0 {
+		t.Fatal("maintenance response was mistaken for inventory or retried", err, c.requests, q)
+	}
+}
+
 func TestRateLimitAndBodyCapsReturnErrors(t *testing.T) {
 	c := New(2)
 	c.http.Transport = &boundedTransport{client: c, next: roundTripFunc(func(r *http.Request) (*http.Response, error) {

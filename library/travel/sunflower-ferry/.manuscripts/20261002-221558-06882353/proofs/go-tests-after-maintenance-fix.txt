@@ -1,0 +1,20 @@
+?   	github.com/mvanhorn/printing-press-library/library/travel/sunflower-ferry/cmd/sunflower-ferry-pp-cli	[no test files]
+ok  	github.com/mvanhorn/printing-press-library/library/travel/sunflower-ferry/cmd/sunflower-ferry-pp-mcp	0.219s
+?   	github.com/mvanhorn/printing-press-library/library/travel/sunflower-ferry/internal/cache	[no test files]
+ok  	github.com/mvanhorn/printing-press-library/library/travel/sunflower-ferry/internal/cli	(cached)
+?   	github.com/mvanhorn/printing-press-library/library/travel/sunflower-ferry/internal/cli/playbooks	[no test files]
+ok  	github.com/mvanhorn/printing-press-library/library/travel/sunflower-ferry/internal/client	(cached)
+ok  	github.com/mvanhorn/printing-press-library/library/travel/sunflower-ferry/internal/cliutil	(cached)
+?   	github.com/mvanhorn/printing-press-library/library/travel/sunflower-ferry/internal/cliutil/testenv	[no test files]
+?   	github.com/mvanhorn/printing-press-library/library/travel/sunflower-ferry/internal/config	[no test files]
+ok  	github.com/mvanhorn/printing-press-library/library/travel/sunflower-ferry/internal/ferry	(cached)
+ok  	github.com/mvanhorn/printing-press-library/library/travel/sunflower-ferry/internal/learn	(cached)
+ok  	github.com/mvanhorn/printing-press-library/library/travel/sunflower-ferry/internal/learn/entities	(cached)
+ok  	github.com/mvanhorn/printing-press-library/library/travel/sunflower-ferry/internal/learn/lookups	(cached)
+ok  	github.com/mvanhorn/printing-press-library/library/travel/sunflower-ferry/internal/learn/patterns	(cached)
+ok  	github.com/mvanhorn/printing-press-library/library/travel/sunflower-ferry/internal/mcp	(cached)
+ok  	github.com/mvanhorn/printing-press-library/library/travel/sunflower-ferry/internal/mcp/bound	(cached)
+ok  	github.com/mvanhorn/printing-press-library/library/travel/sunflower-ferry/internal/mcp/cobratree	(cached)
+ok  	github.com/mvanhorn/printing-press-library/library/travel/sunflower-ferry/internal/platform	(cached)
+ok  	github.com/mvanhorn/printing-press-library/library/travel/sunflower-ferry/internal/store	(cached)
+?   	github.com/mvanhorn/printing-press-library/library/travel/sunflower-ferry/internal/types	[no test files]
