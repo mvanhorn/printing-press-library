@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "ondata-cache-refresh-with-offline-fallback",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260517-193731",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Refresh cached ondata Parquet files after 24 hours while retaining a usable stale copy when refresh fails.",
+  "reason": "Indefinite caching hides published cadastral updates, but a failed network refresh must not break offline lookups or replace good cached data with an empty, invalid or oversized response.",
+  "files": [
+    "internal/ondata/ondata.go",
+    "internal/ondata/ondata_test.go",
+    ".printing-press.json",
+    "README.md",
+    "NOTICE"
+  ],
+  "validated_outcome": "Offline tests cover valid expired cache replacement, failed, empty, invalid and oversized refresh fallback, chunked download limits, and unsafe dataset filenames."
+}

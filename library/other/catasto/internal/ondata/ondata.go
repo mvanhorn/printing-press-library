@@ -361,7 +361,15 @@ func (c *Client) fetch(ctx context.Context, fileName string) (string, error) {
 // Validate every row through the same typed decoder used by lookups before a
 // downloaded file can replace the offline copy. Read in batches to keep memory
 // bounded even when a regional Parquet file approaches the download limit.
-func validateDownloadedParquet(path, fileName string) error {
+func validateDownloadedParquet(path, fileName string) (err error) {
+	// parquet-go can panic while mapping an incompatible downloaded schema
+	// onto the typed rows. Treat that as a rejected refresh, preserving the
+	// existing offline file instead of terminating the lookup.
+	defer func() {
+		if recovered := recover(); recovered != nil {
+			err = fmt.Errorf("Parquet decoder rejected incompatible schema: %v", recovered)
+		}
+	}()
 	f, err := os.Open(path)
 	if err != nil {
 		return err
@@ -375,19 +383,26 @@ func validateDownloadedParquet(path, fileName string) error {
 	if err != nil {
 		return err
 	}
-	columns := make(map[string]bool)
-	for _, column := range pf.Schema().Columns() {
-		if len(column) == 1 {
-			columns[column[0]] = true
-		}
-	}
-	required := []string{"comune", "foglio", "particella", "x", "y"}
+	textKinds := []parquet.Kind{parquet.ByteArray, parquet.FixedLenByteArray}
+	required := map[string][]parquet.Kind{"comune": textKinds, "foglio": textKinds, "particella": textKinds, "x": {parquet.Int32, parquet.Int64}, "y": {parquet.Int32, parquet.Int64}}
 	if fileName == IndexFileName {
-		required = []string{"comune", "file", "CODISTAT", "DENOMINAZIONE_IT"}
+		required = map[string][]parquet.Kind{"comune": textKinds, "file": textKinds, "CODISTAT": textKinds, "DENOMINAZIONE_IT": textKinds}
 	}
-	for _, column := range required {
-		if !columns[column] {
+	for column, kinds := range required {
+		leaf, ok := pf.Schema().Lookup(column)
+		if !ok {
 			return fmt.Errorf("missing Parquet column %s", column)
+		}
+		got := leaf.Node.Type().Kind()
+		compatible := false
+		for _, kind := range kinds {
+			if got == kind {
+				compatible = true
+				break
+			}
+		}
+		if !compatible {
+			return fmt.Errorf("Parquet column %s has incompatible type %s", column, got)
 		}
 	}
 	if fileName == IndexFileName {

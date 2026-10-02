@@ -26,6 +26,21 @@ func indexParquetBytes(t *testing.T) []byte {
 	return buf.Bytes()
 }
 
+func incompatibleIndexParquetBytes(t *testing.T) []byte {
+	t.Helper()
+	type incompatibleIndex struct {
+		Comune          int64  `parquet:"comune"`
+		File            string `parquet:"file"`
+		CODISTAT        string `parquet:"CODISTAT"`
+		DenominazioneIT string `parquet:"DENOMINAZIONE_IT"`
+	}
+	var buf bytes.Buffer
+	if err := parquet.Write(&buf, []incompatibleIndex{{Comune: 123, File: "12_Lazio.parquet"}}); err != nil {
+		t.Fatal(err)
+	}
+	return buf.Bytes()
+}
+
 func TestNormalizeNumericForms(t *testing.T) {
 	cases := []struct {
 		in   string
@@ -106,6 +121,33 @@ func TestFetchKeepsStaleCacheWhenDownloadIsInvalid(t *testing.T) {
 	got, err := os.ReadFile(local)
 	if err != nil || !bytes.Equal(got, good) {
 		t.Fatalf("invalid refresh changed cached data: len=%d err=%v", len(got), err)
+	}
+}
+
+func TestFetchKeepsStaleCacheWhenParquetTypesAreIncompatible(t *testing.T) {
+	dir := t.TempDir()
+	local := filepath.Join(dir, IndexFileName)
+	good := indexParquetBytes(t)
+	if err := os.WriteFile(local, good, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	old := time.Now().Add(-2 * time.Hour)
+	if err := os.Chtimes(local, old, old); err != nil {
+		t.Fatal(err)
+	}
+	wrong := incompatibleIndexParquetBytes(t)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write(wrong)
+	}))
+	defer server.Close()
+	c := &Client{HTTP: server.Client(), CacheDir: dir, SourceURL: server.URL, CacheTTL: time.Hour}
+	gotPath, err := c.fetch(context.Background(), IndexFileName)
+	if err != nil || gotPath != local {
+		t.Fatalf("incompatible refresh lost cached file: path=%q err=%v", gotPath, err)
+	}
+	got, err := os.ReadFile(local)
+	if err != nil || !bytes.Equal(got, good) {
+		t.Fatalf("incompatible refresh changed cached data: len=%d err=%v", len(got), err)
 	}
 }
 
