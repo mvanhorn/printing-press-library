@@ -5,6 +5,7 @@ package subjects
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -139,6 +140,8 @@ func (r *Runner) Run(ctx context.Context, query string) ([]byte, []Attempt, erro
 		case looksLikeHTML(body):
 			// A 200 with an HTML body is Overpass's overload page.
 			a.Err = "overloaded: " + extractOverpassError(body)
+		case !validOverpassJSON(body):
+			a.Err = "invalid Overpass JSON response"
 		default:
 			attempts = append(attempts, a)
 			return body, attempts, nil
@@ -154,6 +157,17 @@ func (r *Runner) Run(ctx context.Context, query string) ([]byte, []Attempt, erro
 		return nil, attempts, fmt.Errorf("every Overpass mirror refused the query (%d tried) and at least one throttled the client: %w", len(attempts), throttled)
 	}
 	return nil, attempts, fmt.Errorf("every Overpass mirror refused the query (%d tried); run `overpass-pp-cli mirrors` to see which are healthy", len(attempts))
+}
+
+func validOverpassJSON(body []byte) bool {
+	var envelope struct {
+		Elements json.RawMessage `json:"elements"`
+	}
+	if err := json.Unmarshal(body, &envelope); err != nil || envelope.Elements == nil {
+		return false
+	}
+	var elements []json.RawMessage
+	return json.Unmarshal(envelope.Elements, &elements) == nil && elements != nil
 }
 
 func (r *Runner) post(ctx context.Context, mirror, query string) ([]byte, int, error) {

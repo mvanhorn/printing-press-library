@@ -8,6 +8,8 @@ Learn more at [Overpass](https://wiki.openstreetmap.org/wiki/Overpass_API).
 
 Created by [@justinwfu](https://github.com/justinwfu) (justinwfu).
 
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `overpass-pp-cli` binary and the `pp-overpass` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
@@ -110,6 +112,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 </details>
 
+HTTP MCP requires `--http-token` or `PP_MCP_HTTP_TOKEN`, including on loopback. Binding beyond loopback also requires `--tls-cert` and `--tls-key`. The default HTTP address is `127.0.0.1:7777`. Stdio use is unchanged.
+
 ## Authentication
 
 No credential at all. Both Overpass and Nominatim are keyless; they only require a descriptive User-Agent, which this CLI sends. Nominatim permits about one request per second and Overpass allocates a small number of concurrent slots per mirror, so the CLI paces itself and fails over rather than hammering one host.
@@ -172,7 +176,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   overpass-pp-cli types --group architecture
   ```
-- **`route`** — Finds subjects inside a corridor between two places, so a drive can be planned around what is worth stopping for.
+- **`route`** — Finds subjects inside a corridor between two places and orders stops by progress along the route, so a drive can be planned around what is worth stopping for.
 
   _Reach for this when planning a drive or day trip and the question is what to stop for on the way._
 

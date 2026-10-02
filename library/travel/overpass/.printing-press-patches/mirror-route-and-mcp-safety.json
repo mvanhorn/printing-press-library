@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "mirror-route-and-mcp-safety",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260726-090225",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Protect HTTP MCP, reject malformed Overpass mirror responses, and order route stops by projected progress.",
+  "reason": "An unauthenticated HTTP MCP bind exposed tools, a malformed mirror response could stop failover, and radial distance could misorder off-route stops.",
+  "files": [
+    "cmd/overpass-pp-mcp/main.go",
+    "cmd/overpass-pp-mcp/main_test.go",
+    "internal/cli/route.go",
+    "internal/cli/route_test.go",
+    "internal/cli/version.go",
+    "internal/cli/version_test.go",
+    "internal/subjects/mirrors.go",
+    "internal/subjects/mirrors_test.go",
+    ".printing-press.json",
+    "README.md",
+    "NOTICE"
+  ],
+  "validated_outcome": "Offline tests cover MCP bind and bearer rules, mirror failover, route ordering, and version output capture. The public stamped release version is preserved."
+}

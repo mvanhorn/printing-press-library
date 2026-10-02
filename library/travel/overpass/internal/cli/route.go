@@ -11,6 +11,7 @@ package cli
 
 import (
 	"fmt"
+	"math"
 	"sort"
 	"strings"
 
@@ -111,7 +112,12 @@ judge that — check it before committing to a detour.
 				if off < 0 {
 					off = 0
 				}
-				stops = append(stops, stop{Subject: s, AlongKM: dStart, OffLineKM: off})
+				along := projectedRouteProgressKM(
+					start.Latitude, start.Longitude,
+					end.Latitude, end.Longitude,
+					s.Latitude, s.Longitude,
+				)
+				stops = append(stops, stop{Subject: s, AlongKM: along, OffLineKM: off})
 			}
 			sort.SliceStable(stops, func(i, j int) bool { return stops[i].AlongKM < stops[j].AlongKM })
 
@@ -167,4 +173,35 @@ judge that — check it before committing to a detour.
 	cmd.Flags().IntVar(&limit, "limit", 60, "Maximum results to return (0 for no limit)")
 	cmd.Flags().IntVar(&timeout, "query-timeout", 40, "Overpass server-side timeout in seconds")
 	return cmd
+}
+
+func projectedRouteProgressKM(startLat, startLon, endLat, endLon, pointLat, pointLon float64) float64 {
+	const earthKM = 6371.0
+	total := subjects.HaversineKM(startLat, startLon, endLat, endLon)
+	if total == 0 {
+		return 0
+	}
+	distanceFromStart := subjects.HaversineKM(startLat, startLon, pointLat, pointLon) / earthKM
+	routeBearing := initialBearingRadians(startLat, startLon, endLat, endLon)
+	pointBearing := initialBearingRadians(startLat, startLon, pointLat, pointLon)
+	along := math.Atan2(
+		math.Sin(distanceFromStart)*math.Cos(pointBearing-routeBearing),
+		math.Cos(distanceFromStart),
+	) * earthKM
+	if along < 0 {
+		return 0
+	}
+	if along > total {
+		return total
+	}
+	return along
+}
+
+func initialBearingRadians(fromLat, fromLon, toLat, toLon float64) float64 {
+	toRadians := func(degrees float64) float64 { return degrees * math.Pi / 180 }
+	lat1, lat2 := toRadians(fromLat), toRadians(toLat)
+	deltaLon := toRadians(toLon - fromLon)
+	y := math.Sin(deltaLon) * math.Cos(lat2)
+	x := math.Cos(lat1)*math.Sin(lat2) - math.Sin(lat1)*math.Cos(lat2)*math.Cos(deltaLon)
+	return math.Atan2(y, x)
 }

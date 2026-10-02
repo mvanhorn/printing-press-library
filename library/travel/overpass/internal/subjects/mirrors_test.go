@@ -85,6 +85,39 @@ func TestRunFailsOverFromA200HTMLPage(t *testing.T) {
 	}
 }
 
+func TestRunFailsOverFromMalformedJSON(t *testing.T) {
+	malformedCalls := 0
+	malformed := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		malformedCalls++
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"elements":[`))
+	}))
+	defer malformed.Close()
+
+	healthyCalls := 0
+	healthy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		healthyCalls++
+		_, _ = w.Write([]byte(`{"elements":[{"type":"node","id":1,"lat":1,"lon":2,"tags":{}}]}`))
+	}))
+	defer healthy.Close()
+
+	r := NewRunner(5 * time.Second)
+	r.Mirrors = []string{malformed.URL, healthy.URL}
+	body, attempts, err := r.Run(context.Background(), "[out:json];out;")
+	if err != nil {
+		t.Fatalf("failover did not recover: %v", err)
+	}
+	if malformedCalls != 1 || healthyCalls != 1 {
+		t.Fatalf("mirror calls = malformed:%d healthy:%d, want 1 each", malformedCalls, healthyCalls)
+	}
+	if len(attempts) != 2 || !strings.Contains(attempts[0].Err, "invalid Overpass JSON") || attempts[1].Err != "" {
+		t.Fatalf("attempts = %+v, want malformed failure then healthy success", attempts)
+	}
+	if !validOverpassJSON(body) {
+		t.Fatalf("returned body is not a valid Overpass envelope: %s", body)
+	}
+}
+
 func TestRunFailsOverFromNon200(t *testing.T) {
 	bad := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusTooManyRequests)
