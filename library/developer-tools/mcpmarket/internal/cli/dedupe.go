@@ -77,7 +77,7 @@ func newNovelDedupeCmd(flags *rootFlags) *cobra.Command {
 			defer cancel()
 
 			categorySlug := slugifyCategory(flagCategory)
-			items, err := fetchItemList(ctx, c, "/categories/"+categorySlug, nil)
+			items, err := fetchItemList(ctx, c, mcpMarketResourcePath("categories", categorySlug), nil)
 			if err != nil {
 				return apiErr(err)
 			}

@@ -111,7 +111,7 @@ func newNovelServerCategoryCmd(flags *rootFlags) *cobra.Command {
 			}
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
-			items, err := fetchItemList(ctx, c, "/categories/"+slugifyCategory(args[0]), nil)
+			items, err := fetchItemList(ctx, c, mcpMarketResourcePath("categories", slugifyCategory(args[0])), nil)
 			if err != nil {
 				return apiErr(err)
 			}

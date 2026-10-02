@@ -28,7 +28,7 @@ type stackEntry struct {
 // applicationCategory field is schema.org's generic type, not the MCP Market
 // category slug the similar-tools endpoint requires.
 func serverCategorySlug(ctx context.Context, c *client.Client, slug string) (string, error) {
-	raw, err := c.Get(ctx, "/server/"+slug, nil)
+	raw, err := c.Get(ctx, mcpMarketResourcePath("server", slug), nil)
 	if err != nil {
 		return "", err
 	}

@@ -40,7 +40,7 @@ func newNovelWatchCategoryCmd(flags *rootFlags) *cobra.Command {
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
 
-			items, err := fetchItemList(ctx, c, "/categories/"+categorySlug, nil)
+			items, err := fetchItemList(ctx, c, mcpMarketResourcePath("categories", categorySlug), nil)
 			if err != nil {
 				return apiErr(err)
 			}

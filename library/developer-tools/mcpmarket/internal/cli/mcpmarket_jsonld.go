@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/mcpmarket/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/mcpmarket/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/mcpmarket/internal/store"
 )
 
@@ -21,6 +22,11 @@ type mcpMarketListItem struct {
 }
 
 var jsonLDScriptPattern = regexp.MustCompile(`(?is)<script[^>]*type="application/ld\+json"[^>]*>(.*?)</script>`)
+
+// mcpMarketResourcePath keeps a user-supplied identifier inside one URL path segment.
+func mcpMarketResourcePath(resource, id string) string {
+	return "/" + resource + "/" + cliutil.EscapePathParam(id)
+}
 
 // fetchAllJSONLD does a raw GET against path and returns every parsed
 // <script type="application/ld+json"> block on the page, in document order.
