@@ -101,6 +101,9 @@ Resource scoping:
   # Latest-only: refresh head of each resource, no historical backfill
   bmw-cardata-pp-cli sync --latest-only`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if flags.dataSource == "local" {
+				return usageErr(fmt.Errorf("--data-source local cannot sync from the live BMW CarData API"))
+			}
 			userParams, err := parseSyncUserParams(paramFlags, resourceParamFlags, globalParamFlags)
 			if err != nil {
 				return usageErr(err)

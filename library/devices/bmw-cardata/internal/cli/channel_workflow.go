@@ -40,6 +40,9 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
   # Full re-archive (ignore previous sync state)
   bmw-cardata-pp-cli workflow archive --full`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if flags.dataSource == "local" {
+				return usageErr(fmt.Errorf("--data-source local cannot archive from the live BMW CarData API"))
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err

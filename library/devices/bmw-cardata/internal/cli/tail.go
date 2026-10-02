@@ -40,6 +40,9 @@ native streaming instead of polling.`,
   # Pipe to jq for filtering
   bmw-cardata-pp-cli tail events --interval 30s | jq 'select(.type == "error")'`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if flags.dataSource == "local" {
+				return usageErr(fmt.Errorf("--data-source local cannot tail the live BMW CarData API"))
+			}
 			if len(args) > 0 {
 				resource = args[0]
 			}

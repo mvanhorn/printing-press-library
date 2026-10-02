@@ -35,6 +35,9 @@ but do not stop the import.`,
   cat data.jsonl | bmw-cardata-pp-cli import <resource> --input -`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if flags.dataSource == "local" {
+				return usageErr(fmt.Errorf("--data-source local cannot import records through the live BMW CarData API"))
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
