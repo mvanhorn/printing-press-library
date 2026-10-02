@@ -4,10 +4,14 @@
 package main
 
 import (
+	"crypto/subtle"
 	"flag"
 	"fmt"
+	"net"
+	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/mark3labs/mcp-go/server"
 	mcptools "github.com/mvanhorn/printing-press-library/library/ai/rightbrain/internal/mcp"
@@ -20,7 +24,7 @@ import (
 // guidance that production agents need a remote option.
 
 const (
-	defaultHTTPAddr = ":7777"
+	defaultHTTPAddr = "127.0.0.1:7777"
 )
 
 // version is the printed MCP server's version, overridable at build time via ldflags.
@@ -40,6 +44,9 @@ func main() {
 
 	transport := flag.String("transport", defaultTransport(), "MCP transport: stdio | http")
 	addr := flag.String("addr", defaultHTTPAddr, "bind address for http transport (host:port or :port)")
+	httpToken := flag.String("http-token", "", "bearer token required from HTTP transport callers (or set PP_MCP_HTTP_TOKEN)")
+	tlsCert := flag.String("tls-cert", "", "TLS certificate file for non-loopback HTTP transport")
+	tlsKey := flag.String("tls-key", "", "TLS private key file for non-loopback HTTP transport")
 	flag.Parse()
 
 	switch strings.ToLower(*transport) {
@@ -49,9 +56,41 @@ func main() {
 			os.Exit(1)
 		}
 	case "http":
-		httpSrv := server.NewStreamableHTTPServer(s)
-		fmt.Fprintf(os.Stderr, "rightbrain-pp-mcp serving MCP over streamable HTTP at %s\n", *addr)
-		if err := httpSrv.Start(*addr); err != nil {
+		token := strings.TrimSpace(*httpToken)
+		if token == "" {
+			token = strings.TrimSpace(os.Getenv("PP_MCP_HTTP_TOKEN"))
+		}
+		useTLS, err := validateHTTPTransport(*addr, token, *tlsCert, *tlsKey)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "refusing unsafe MCP HTTP configuration: %v\n", err)
+			os.Exit(2)
+		}
+		listener, err := net.Listen("tcp", *addr)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
+			os.Exit(1)
+		}
+		if err := validateBoundListener(listener.Addr(), useTLS); err != nil {
+			_ = listener.Close()
+			fmt.Fprintf(os.Stderr, "refusing unsafe MCP HTTP configuration: %v\n", err)
+			os.Exit(2)
+		}
+		httpSrv := &http.Server{
+			Handler:           requireHTTPToken(token, server.NewStreamableHTTPServer(s)),
+			ReadHeaderTimeout: 5 * time.Second,
+			IdleTimeout:       60 * time.Second,
+		}
+		protocol := "HTTP"
+		if useTLS {
+			protocol = "HTTPS"
+		}
+		fmt.Fprintf(os.Stderr, "rightbrain-pp-mcp serving MCP over authenticated %s at %s\n", protocol, listener.Addr())
+		if useTLS {
+			err = httpSrv.ServeTLS(listener, *tlsCert, *tlsKey)
+		} else {
+			err = httpSrv.Serve(listener)
+		}
+		if err != nil {
 			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
 			os.Exit(1)
 		}
@@ -59,6 +98,60 @@ func main() {
 		fmt.Fprintf(os.Stderr, "unknown --transport %q (supported: stdio, http)\n", *transport)
 		os.Exit(2)
 	}
+}
+
+func validateHTTPTransport(addr, token, tlsCert, tlsKey string) (bool, error) {
+	if token == "" {
+		return false, fmt.Errorf("set --http-token or PP_MCP_HTTP_TOKEN")
+	}
+	useTLS := tlsCert != "" || tlsKey != ""
+	if useTLS && (tlsCert == "" || tlsKey == "") {
+		return false, fmt.Errorf("both --tls-cert and --tls-key are required")
+	}
+	if !isLoopbackAddr(addr) && !isLocalhostAddr(addr) && !useTLS {
+		return false, fmt.Errorf("non-loopback bind %q requires TLS", addr)
+	}
+	return useTLS, nil
+}
+
+func isLoopbackAddr(addr string) bool {
+	host, _, err := net.SplitHostPort(addr)
+	if err != nil {
+		return false
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
+}
+
+func isLocalhostAddr(addr string) bool {
+	host, _, err := net.SplitHostPort(addr)
+	return err == nil && strings.EqualFold(host, "localhost")
+}
+
+// Check the resolved listener, then pass that listener to Serve. This avoids
+// a second hostname lookup that could bind a different interface.
+func validateBoundListener(addr net.Addr, useTLS bool) error {
+	if useTLS {
+		return nil
+	}
+	tcp, ok := addr.(*net.TCPAddr)
+	if !ok || !tcp.IP.IsLoopback() {
+		return fmt.Errorf("non-loopback bind %q requires TLS", addr)
+	}
+	return nil
+}
+
+func requireHTTPToken(token string, next http.Handler) http.Handler {
+	expected := "Bearer " + token
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if subtle.ConstantTimeCompare([]byte(r.Header.Get("Authorization")), []byte(expected)) != 1 {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			_, _ = w.Write([]byte(`{"error":"unauthorized"}`))
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 // defaultTransport reads PP_MCP_TRANSPORT env when set, otherwise falls back

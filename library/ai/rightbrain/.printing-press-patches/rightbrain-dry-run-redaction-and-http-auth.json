@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "rightbrain-dry-run-redaction-and-http-auth",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260731-211113-96771397",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Redact nested secret fields in dry-run previews and require a bearer token plus TLS for non-loopback MCP HTTP.",
+  "reason": "A dry-run must not print webhook credentials, and unauthenticated remote MCP could expose project data or invoke credentialed tools.",
+  "files": [
+    "cmd/rightbrain-pp-mcp/main.go",
+    "cmd/rightbrain-pp-mcp/main_test.go",
+    "internal/client/client.go",
+    "internal/client/client_test.go"
+  ]
+}

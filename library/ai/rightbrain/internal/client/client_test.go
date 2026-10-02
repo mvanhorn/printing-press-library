@@ -130,3 +130,29 @@ func TestGetWithHeadersValuesPreservesRepeatedQueryParams(t *testing.T) {
 		t.Fatalf("GetWithHeadersValues returned error: %v", err)
 	}
 }
+
+func TestRedactSensitiveJSONRecursively(t *testing.T) {
+	input := map[string]any{
+		"name":        "keep-me",
+		"auth_secret": "distinctive-webhook-secret",
+		"nested": map[string]any{
+			"access-token": "access-value",
+			"children":     []any{map[string]any{"private_key": "key-value", "safe": "visible"}},
+		},
+	}
+	got := redactSensitiveJSON(input).(map[string]any)
+	if got["name"] != "keep-me" || got["auth_secret"] != redactedJSONValue {
+		t.Fatalf("top-level redaction = %#v", got)
+	}
+	nested := got["nested"].(map[string]any)
+	if nested["access-token"] != redactedJSONValue {
+		t.Fatalf("nested token was not redacted: %#v", nested)
+	}
+	child := nested["children"].([]any)[0].(map[string]any)
+	if child["private_key"] != redactedJSONValue || child["safe"] != "visible" {
+		t.Fatalf("array child redaction = %#v", child)
+	}
+	if input["auth_secret"] != "distinctive-webhook-secret" {
+		t.Fatal("redaction mutated the original request body")
+	}
+}

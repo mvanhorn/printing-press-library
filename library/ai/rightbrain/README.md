@@ -7,6 +7,7 @@ Rightbrain's own CLI covers login and task CRUD; the rest of the platform has no
 Learn more at [Rightbrain](https://docs.rightbrain.ai/api).
 
 Created by [@papaonlegs](https://github.com/papaonlegs) (Farouk Umar).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 

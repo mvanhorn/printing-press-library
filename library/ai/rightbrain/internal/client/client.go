@@ -894,8 +894,9 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 	}
 	_ = queryPrinted
 	if body != nil {
-		var pretty json.RawMessage
+		var pretty any
 		if json.Unmarshal(body, &pretty) == nil {
+			pretty = redactSensitiveJSON(pretty)
 			enc := json.NewEncoder(os.Stderr)
 			enc.SetIndent("  ", "  ")
 			fmt.Fprintf(os.Stderr, "  Body:\n")
@@ -907,6 +908,44 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 	}
 	fmt.Fprintf(os.Stderr, "\n(dry run - no request sent)\n")
 	return json.RawMessage(`{"dry_run": true}`), 0, nil
+}
+
+const redactedJSONValue = "[REDACTED]"
+
+// redactSensitiveJSON returns a recursively redacted copy of decoded JSON for
+// diagnostics. Request previews must never print credentials merely because a
+// write endpoint models them as ordinary body fields.
+func redactSensitiveJSON(value any) any {
+	switch typed := value.(type) {
+	case map[string]any:
+		redacted := make(map[string]any, len(typed))
+		for key, child := range typed {
+			if isSensitiveJSONKey(key) {
+				redacted[key] = redactedJSONValue
+				continue
+			}
+			redacted[key] = redactSensitiveJSON(child)
+		}
+		return redacted
+	case []any:
+		redacted := make([]any, len(typed))
+		for i, child := range typed {
+			redacted[i] = redactSensitiveJSON(child)
+		}
+		return redacted
+	default:
+		return value
+	}
+}
+
+func isSensitiveJSONKey(key string) bool {
+	normalized := strings.NewReplacer("-", "", "_", "", ".", "").Replace(strings.ToLower(key))
+	for _, marker := range []string{"secret", "token", "password", "authorization", "credential", "privatekey", "apikey"} {
+		if strings.Contains(normalized, marker) {
+			return true
+		}
+	}
+	return false
 }
 
 func (c *Client) ConfiguredTimeout() time.Duration {
