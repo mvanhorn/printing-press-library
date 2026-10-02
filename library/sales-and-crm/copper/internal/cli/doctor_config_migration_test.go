@@ -45,3 +45,29 @@ func TestDoctorWarnsWhenLegacyJSONStillHoldsCredentials(t *testing.T) {
 		t.Fatalf("doctor hid an unreadable legacy JSON path: %q", warning)
 	}
 }
+
+func TestDoctorDoesNotProbeDefaultJSONForExplicitProfile(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("XDG_CONFIG_HOME", filepath.Join(home, "config"))
+	defaultDir := filepath.Join(home, "config", "copper-pp-cli")
+	if err := os.MkdirAll(defaultDir, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(defaultDir, "config.json"), []byte(`{"api_key":"synthetic-other-profile"}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	explicitPath := filepath.Join(home, "separate-profile.toml")
+	if err := os.WriteFile(explicitPath, []byte("base_url = \"https://preferred.example\"\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := config.Load(explicitPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	report := map[string]any{}
+	collectCredentialsLocationReport(report, cfg)
+	if warning, ok := report["credentials_location_warning"]; ok {
+		t.Fatalf("doctor inspected unrelated default profile: %v", warning)
+	}
+}

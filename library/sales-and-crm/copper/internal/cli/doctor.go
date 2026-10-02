@@ -515,6 +515,9 @@ func legacyCredentialProbePaths(cfg *config.Config) []string {
 		// belong to an unrelated CLI sharing that directory.
 		add(cfg.Path)
 		add(cfg.LegacySourcePath())
+		if cfg.ExplicitConfigFile() {
+			return paths
+		}
 	}
 	if legacyPath, err := config.LegacyConfigPath(); err == nil {
 		add(legacyPath)

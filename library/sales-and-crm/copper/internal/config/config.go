@@ -27,6 +27,8 @@ type Config struct {
 	// credential-source fallback below reports where config-stored
 	// credentials actually live. Unexported: never persisted.
 	configOwner string
+	// explicitConfigFile prevents doctor from probing an unrelated default profile.
+	explicitConfigFile bool
 	// legacySourcePath records the legacy config path when Load fell
 	// back to it. Used by save() to scrub credential fields from the
 	// old location after relocation. Unexported: never persisted.
@@ -54,6 +56,7 @@ func Load(configPath string) (*Config, error) {
 		return nil, err
 	}
 	cfg.Path = path
+	cfg.explicitConfigFile = explicitConfigFile
 
 	if explicitConfigFile {
 		if err := readConfigFile(path, cfg, "config-kind path"); err != nil && !os.IsNotExist(err) {
@@ -103,27 +106,23 @@ func Load(configPath string) (*Config, error) {
 				}
 			}
 		}
-		// An older JSON file can coexist with a non-secret TOML settings
-		// file. Keep TOML settings, but recover credential fields that have
-		// not yet been moved to credentials.toml and remember JSON for scrub.
+		// An older JSON file can coexist with TOML settings. Import its typed
+		// credentials only when TOML has no typed credentials, so fields from
+		// different accounts cannot be combined. Remember JSON for later scrub.
 		if sourcePath == path && resolvedJSONPath != path {
 			legacyData, legacyErr := os.ReadFile(filepath.Clean(resolvedJSONPath)) // #nosec G304 -- app-owned config compatibility path.
 			if legacyErr == nil {
+				cfg.legacySourcePath = resolvedJSONPath
 				var legacy Config
 				if err := parseConfigData(legacyData, &legacy, resolvedJSONPath, "legacy config path"); err != nil {
-					return nil, err
+					fmt.Fprintf(os.Stderr, "warning: cannot inspect older config JSON at %s; credential migration remains pending\n", resolvedJSONPath)
+				} else if !cfg.hasCredentialFields() && legacy.hasCredentialFields() {
+					cfg.applyCredentials(legacy.credentials())
+					cfg.CredentialSource = "legacy config path"
 				}
-				hadCredentials := cfg.hasCredentialFields()
-				if cfg.mergeMissingCredentialFields(&legacy) {
-					if hadCredentials {
-						cfg.CredentialSource = "multiple config files"
-					} else {
-						cfg.CredentialSource = "legacy config path"
-					}
-				}
-				cfg.legacySourcePath = resolvedJSONPath
 			} else if !os.IsNotExist(legacyErr) {
-				return nil, legacyErr
+				cfg.legacySourcePath = resolvedJSONPath
+				fmt.Fprintf(os.Stderr, "warning: cannot inspect older config JSON at %s; credential migration remains pending\n", resolvedJSONPath)
 			}
 		}
 	}
@@ -237,6 +236,8 @@ func LegacyJSONConfigPath() (string, error) {
 }
 
 func (c *Config) LegacySourcePath() string { return c.legacySourcePath }
+
+func (c *Config) ExplicitConfigFile() bool { return c.explicitConfigFile }
 
 func readConfigFile(path string, cfg *Config, owner string) error {
 	data, err := os.ReadFile(path)
@@ -371,28 +372,6 @@ func (c *Config) applyCredentials(creds *cliutil.Credentials) {
 	c.ClientSecret = creds.ClientSecret
 	c.CopperApiKey = creds.CopperApiKey
 	c.CopperUserEmail = creds.CopperUserEmail
-}
-
-func (c *Config) mergeMissingCredentialFields(source *Config) bool {
-	merged := false
-	fill := func(target *string, value string) {
-		if *target == "" && value != "" {
-			*target = value
-			merged = true
-		}
-	}
-	fill(&c.AuthHeaderVal, source.AuthHeaderVal)
-	fill(&c.AccessToken, source.AccessToken)
-	fill(&c.RefreshToken, source.RefreshToken)
-	fill(&c.ClientID, source.ClientID)
-	fill(&c.ClientSecret, source.ClientSecret)
-	fill(&c.CopperApiKey, source.CopperApiKey)
-	fill(&c.CopperUserEmail, source.CopperUserEmail)
-	if c.TokenExpiry.IsZero() && !source.TokenExpiry.IsZero() {
-		c.TokenExpiry = source.TokenExpiry
-		merged = true
-	}
-	return merged
 }
 
 func (c *Config) saveCredentialsFirst() error {

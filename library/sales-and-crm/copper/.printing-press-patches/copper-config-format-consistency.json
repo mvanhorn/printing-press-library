@@ -5,7 +5,7 @@
   "base_run_id": "20260623-105449-202981ca",
   "base_printing_press_version": "4.25.0",
   "summary": "Use config.toml while migrating older config.json files safely.",
-  "reason": "Documentation and credential migration expect TOML, but the published runtime resolved and wrote JSON. Keep the older JSON files readable, preserve TOML settings when both formats exist, recover missing JSON credential fields, scrub old credential fields after the next auth save, and report an incomplete migration if scrub fails. Malformed active JSON must fail clearly.",
+  "reason": "Documentation and credential migration expect TOML, but the published runtime resolved and wrote JSON. Keep older JSON files readable and preserve TOML settings when both formats exist. Import typed credentials as one set from the older JSON only when TOML has none, so credentials from different accounts cannot mix. Keep active TOML usable if coexisting JSON cannot be read or parsed, warn about unverified scrub, and report an incomplete migration if auth save cannot scrub it. Malformed active JSON must fail clearly. Doctor must inspect only the selected profile when a config path is explicit.",
   "files": [
     ".printing-press.json",
     "NOTICE",
@@ -17,5 +17,5 @@
     "internal/cliutil/credentials_test.go",
     "internal/mcp/tools_test.go"
   ],
-  "validated_outcome": "Offline tests cover coexisting TOML and JSON precedence, credential-field scrub, incomplete-save errors, and doctor warnings for old or unreadable JSON; Go tests, vet, build, skill verification, and diff check pass."
+  "validated_outcome": "Offline tests cover coexisting TOML and JSON precedence, single-source typed credentials, malformed stale JSON with active TOML, credential-field scrub, incomplete-save errors, and doctor warnings scoped to the selected profile; Go tests, vet, build, skill verification, and diff check pass."
 }
