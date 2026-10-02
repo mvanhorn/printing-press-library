@@ -1,2 +1,2 @@
-migrated MCP surface in /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/working/airport-limousine-pp-cli
+migrated MCP surface in <run-dir>/working/airport-limousine-pp-cli
 

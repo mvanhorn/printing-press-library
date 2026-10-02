@@ -60,6 +60,17 @@ func newNovelConditionsCmd(flags *rootFlags) *cobra.Command {
 			}
 		}
 		if topic == "baggage" || topic == "all" {
+			jpData, e := p.Data(ctx, "/ja/guide/terms/baggage/__data.json")
+			if e != nil {
+				return limousineError(e)
+			}
+			jpContent := limousine.M(jpData["content"])
+			jpFacts := limousine.JapaneseBaggage(limousine.S(jpContent["content"]))
+			for i := range jpFacts {
+				jpFacts[i].SourceUpdatedAt = limousine.S(jpContent["updatedAt"])
+			}
+			rows = append(jpFacts, rows...)
+			sources = append(sources, limousine.Origin+"/ja/guide/terms/baggage/")
 			body, e := p.Fetch(ctx, "GET", "/en/", "")
 			if e != nil {
 				return limousineError(e)

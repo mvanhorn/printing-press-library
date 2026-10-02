@@ -522,3 +522,5 @@ Parse `$ARGUMENTS`:
 4. If ambiguous, drill into subcommand help: `airport-limousine-pp-cli <command> --help`.
 
 The four page tools in MCP return bounded canonical titles and links. Embedded page application data, reservation state and seat inventory are omitted. Structured airport planning uses the same read-only commands as the CLI.
+
+Treat general baggage limits as general rules. `conditions --topic baggage` reads the Japanese route exception and returns the Shibuya–Narita LCB count before the English general count, with explicit scope and route IDs.

@@ -1,5 +1,5 @@
 {
-  "dir": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/working/airport-limousine-pp-cli",
+  "dir": "<run-dir>/working/airport-limousine-pp-cli",
   "workflows": [
     {
       "name": "Resolve exact airport terminals and a published fare",

@@ -30,7 +30,7 @@ go build -o airport-limousine-pp-cli ./cmd/airport-limousine-pp-cli
 
 
 
-/Users/zjsng/go/bin/cli-printing-press tools-audit /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/working/airport-limousine-pp-cli
+<home>/go/bin/cli-printing-press tools-audit <run-dir>/working/airport-limousine-pp-cli
 tools-audit: no pending findings (2 accepted)
 since last run: 0 resolved, 0 new
 

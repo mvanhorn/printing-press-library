@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "e1371394793e5bfe227a5ae4f0376ebdaf69a51e71e3a3cd5e1424c410608af9",
+  "source_fingerprint": "dfd205071f3f5485e3c5f32d1c7cea2c72601de6a70435ee126a91c3b6164995",
   "source_files": {
     "cmd/airport-limousine-pp-cli/main.go": "12190d0f92b0a3721f67ad1eef571cd2d2b551500af404e4fb19dc82e4e15d71",
     "cmd/airport-limousine-pp-mcp/main.go": "60ed8e9b9fb570a3ebc192b2a7159e7671410e24efdb32353031edc65c559883",
@@ -21,7 +21,7 @@
     "internal/cli/agent_context.go": "fad62d7f062dc7948906c00344ce3276530564c7aa08ae822a55dac4e016cfb9",
     "internal/cli/api_discovery.go": "488d7e39b7195683c16d2eda5066fba94a866d0ebb3b0e6cd4fdcab633a62d71",
     "internal/cli/channel_workflow.go": "512069fa4be3b6577abb11823e1fbbeeeffc1998bfb890e46a74856297b8ba45",
-    "internal/cli/conditions.go": "45b6caeac009334e16b0b2b3c268ab56c1caa845791492b440b6804f40f77eba",
+    "internal/cli/conditions.go": "9e169a860ea6c7a9ae18de160966e15071883d89f8de4e69a41e92970d26dbe2",
     "internal/cli/conditions_test.go": "fdce63caf82145fe38310b45a2a4eddce9a31ec2122aa3e80b45613c9f784446",
     "internal/cli/data_source.go": "4f93ae114fa819c84b12c83b2c0ba49586926ecb831c821acd750cd0459696fb",
     "internal/cli/deliver.go": "a2feb9872fcc4b748396eb31d8bcf96f9f510f2f75532ae8b5408a6866ebe68b",
@@ -144,9 +144,10 @@
     "internal/learn/teach_log.go": "3dd38d5bc3998309d133788776e1968b34a14f25c1b591eca7cb8b3dc1d74dee",
     "internal/learn/teach_log_test.go": "82e94d2a7859cd4a02280b3bc6ae77d1e740d5f5e37f235210a63bc57b2bc74b",
     "internal/learn/teach_test.go": "9ef2ec0a6b65b0d369e1862a1d3546c765d2d80eeb48fc3f523bd30269db363d",
-    "internal/limousine/client.go": "fca1c202722641e5e8079f7ff0fdbc92870be96b67510465b032f556ca06e513",
+    "internal/limousine/baggage_scope_test.go": "4a5af9ab4b76a684f650b5fc8a7bb38b09032b7ed32fd6cf6f9760d711c5fd96",
+    "internal/limousine/client.go": "39a4093e0f2763510010d75d6c46ba8c45e9d470d8306ea4de962c1386e91852",
     "internal/limousine/client_test.go": "0d02902d83d33b83e4d689967f51b98c8910f6bd663ddf1d23fef0c88b357e51",
-    "internal/limousine/conditions.go": "a67ea9c84c57c157dcd21e449d1416fb139d4b7a1d72e199536f58c2e925d190",
+    "internal/limousine/conditions.go": "995981e7bb8d35365968dbc358cce50269aabf87bb2fbab56e7f7787b992901a",
     "internal/limousine/models.go": "1449c1848240d3dd586cf3a4a2986be9e257f8c24e30ccf7c007266cb4856d40",
     "internal/limousine/pages.go": "04dacddb2d60cd0c9e3b318154fedcb095ef4efb734cd17a581ab74412259d03",
     "internal/limousine/pages_test.go": "7ce091f6e7e7312fe7ec6a7fa98ed695a2b387e39fa6c9cf683029959b2c3676",

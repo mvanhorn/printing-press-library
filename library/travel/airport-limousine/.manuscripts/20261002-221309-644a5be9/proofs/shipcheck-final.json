@@ -12,7 +12,7 @@
       "verdict": "PASS",
       "started_at": "2026-10-02T15:54:04Z",
       "elapsed_ms": 10470,
-      "command": "/Users/zjsng/go/bin/cli-printing-press verify --dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/working/airport-limousine-pp-cli --write-manifest /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/working/airport-limousine-pp-cli/.printing-press.json --spec /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/research/airport-limousine-spec.yaml --fix"
+      "command": "<home>/go/bin/cli-printing-press verify --dir <run-dir>/working/airport-limousine-pp-cli --write-manifest <run-dir>/working/airport-limousine-pp-cli/.printing-press.json --spec <run-dir>/research/airport-limousine-spec.yaml --fix"
     },
     {
       "name": "validate-narrative",
@@ -21,7 +21,7 @@
       "verdict": "PASS",
       "started_at": "2026-10-02T15:54:14Z",
       "elapsed_ms": 179,
-      "command": "/Users/zjsng/go/bin/cli-printing-press validate-narrative --strict --full-examples --research /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/research.json --binary /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/working/airport-limousine-pp-cli/build/stage/bin/airport-limousine-pp-cli"
+      "command": "<home>/go/bin/cli-printing-press validate-narrative --strict --full-examples --research <run-dir>/research.json --binary <run-dir>/working/airport-limousine-pp-cli/build/stage/bin/airport-limousine-pp-cli"
     },
     {
       "name": "dogfood",
@@ -30,7 +30,7 @@
       "verdict": "PASS",
       "started_at": "2026-10-02T15:54:15Z",
       "elapsed_ms": 2615,
-      "command": "/Users/zjsng/go/bin/cli-printing-press dogfood --dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/working/airport-limousine-pp-cli --spec /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/research/airport-limousine-spec.yaml --research-dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9"
+      "command": "<home>/go/bin/cli-printing-press dogfood --dir <run-dir>/working/airport-limousine-pp-cli --spec <run-dir>/research/airport-limousine-spec.yaml --research-dir <run-dir>"
     },
     {
       "name": "workflow-verify",
@@ -39,7 +39,7 @@
       "verdict": "FAIL",
       "started_at": "2026-10-02T15:54:17Z",
       "elapsed_ms": 3268,
-      "command": "/Users/zjsng/go/bin/cli-printing-press workflow-verify --dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/working/airport-limousine-pp-cli"
+      "command": "<home>/go/bin/cli-printing-press workflow-verify --dir <run-dir>/working/airport-limousine-pp-cli"
     },
     {
       "name": "apify-audit",
@@ -48,7 +48,7 @@
       "verdict": "PASS",
       "started_at": "2026-10-02T15:54:20Z",
       "elapsed_ms": 53,
-      "command": "/Users/zjsng/go/bin/cli-printing-press apify-audit --dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/working/airport-limousine-pp-cli --research-dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9"
+      "command": "<home>/go/bin/cli-printing-press apify-audit --dir <run-dir>/working/airport-limousine-pp-cli --research-dir <run-dir>"
     },
     {
       "name": "verify-skill",
@@ -57,7 +57,7 @@
       "verdict": "PASS",
       "started_at": "2026-10-02T15:54:20Z",
       "elapsed_ms": 1719,
-      "command": "/Users/zjsng/go/bin/cli-printing-press verify-skill --dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/working/airport-limousine-pp-cli"
+      "command": "<home>/go/bin/cli-printing-press verify-skill --dir <run-dir>/working/airport-limousine-pp-cli"
     },
     {
       "name": "scorecard",
@@ -66,7 +66,7 @@
       "verdict": "PASS",
       "started_at": "2026-10-02T15:54:22Z",
       "elapsed_ms": 2681,
-      "command": "/Users/zjsng/go/bin/cli-printing-press scorecard --dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/working/airport-limousine-pp-cli --write-manifest /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/working/airport-limousine-pp-cli/.printing-press.json --research-dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9 --spec /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/research/airport-limousine-spec.yaml --live-check"
+      "command": "<home>/go/bin/cli-printing-press scorecard --dir <run-dir>/working/airport-limousine-pp-cli --write-manifest <run-dir>/working/airport-limousine-pp-cli/.printing-press.json --research-dir <run-dir> --spec <run-dir>/research/airport-limousine-spec.yaml --live-check"
     }
   ]
 }

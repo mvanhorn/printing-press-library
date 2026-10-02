@@ -61,7 +61,7 @@ func (p *Provider) Fetch(ctx context.Context, method, path, body string) ([]byte
 	if p.Requests >= 8 {
 		return nil, fmt.Errorf("provider request cap (8) reached")
 	}
-	if !strings.HasPrefix(path, "/en/") || strings.Contains(path, "..") {
+	if (!strings.HasPrefix(path, "/en/") && path != "/ja/guide/terms/baggage/" && path != "/ja/guide/terms/baggage/__data.json") || strings.Contains(path, "..") {
 		return nil, fmt.Errorf("unsupported provider path")
 	}
 	if err := p.Limiter.Wait(ctx); err != nil {

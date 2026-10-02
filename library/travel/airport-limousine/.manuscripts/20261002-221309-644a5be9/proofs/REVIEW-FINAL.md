@@ -18,7 +18,7 @@ The Fetch counter and limiter cover the original request only. The HTTP client p
 Independent deterministic reproduction uses the real Provider.New redirect policy and a fake RoundTripper, with no network and no implementation edits. The overlay test is saved under `proofs/reviewer/`:
 
 ```bash
-go test -overlay /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/proofs/reviewer/redirect-overlay.json ./internal/limousine -run TestReviewRedirectBudgetCountsWireRequests -count=1 -v
+go test -overlay <run-dir>/proofs/reviewer/redirect-overlay.json ./internal/limousine -run TestReviewRedirectBudgetCountsWireRequests -count=1 -v
 ```
 
 Current result: `wire_requests=9 reported_requests=3 last_error=<nil>`; test fails. The transport follows only redirects allowed by the existing HTTPS-origin policy. Count and pace redirects under the same budget before permitting them, or reject redirects if that matches the supported source contract. Reuse this overlay test to verify the fix.

@@ -1,6 +1,6 @@
 {
   "cli": "airport-limousine-pp-cli",
-  "library_dir": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/library/airport-limousine",
+  "library_dir": "<cli-dir>",
   "preserved_patches": [],
   "promoted": true
 }
