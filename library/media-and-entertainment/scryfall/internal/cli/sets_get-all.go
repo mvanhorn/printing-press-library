@@ -34,7 +34,7 @@ func newSetsGetAllCmd(flags *rootFlags) *cobra.Command {
 			if flagPretty != false {
 				params["pretty"] = formatCLIParamValue(flagPretty)
 			}
-			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "sets", false, path, params, nil, "data", cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "sets", true, path, params, nil, "data", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

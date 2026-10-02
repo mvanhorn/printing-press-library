@@ -204,7 +204,7 @@ func resolveReadWithStrategyResponsePathAndJSONGuard(ctx context.Context, c *cli
 		// Network error — try local fallback
 		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, flags, hintWriter, resourceType, isList, path, params, networkFallbackReason)
 		if fallbackErr != nil {
-			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'scryfall-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
+			return nil, DataProvenance{}, fmt.Errorf("API unreachable and local fallback failed: %v\n\nOriginal error: %w", fallbackErr, err)
 		}
 		return fallbackData, attachFreshness(fallbackProv, flags), nil
 	}
@@ -284,7 +284,7 @@ func resolvePaginatedReadWithStrategyAndJSONGuard(ctx context.Context, c *client
 		}
 		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, flags, hintWriter, resourceType, true, path, params, networkFallbackReason)
 		if fallbackErr != nil {
-			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'scryfall-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
+			return nil, DataProvenance{}, fmt.Errorf("API unreachable and local fallback failed: %v\n\nOriginal error: %w", fallbackErr, err)
 		}
 		return fallbackData, attachFreshness(fallbackProv, flags), nil
 	}
@@ -599,10 +599,11 @@ func mutationResponseHasID(resourceType string, data json.RawMessage) bool {
 	return store.ExtractResourceID(resourceType, obj) != ""
 }
 
-// resolveLocal reads data from the local SQLite store.
-// Note: local reads return ALL synced data for the resource type. Endpoint-specific
-// filters (query params, path scoping like /teams/{id}/users) are NOT applied locally.
-// The provenance metadata includes "unscoped":true when params were present but not applied.
+// resolveLocal reads data from the local SQLite store. Collection reads normally
+// return every synced record for the resource type. Scryfall search/autocomplete
+// semantics are deliberately rejected because returning the full card cache for
+// a filtered request is unsafe: a caller must never mistake unrelated cards for
+// successful search results during an outage.
 func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, resourceType string, isList bool, path string, params map[string]string, reason string) (json.RawMessage, DataProvenance, error) {
 	db, err := openStoreForRead(ctx, "scryfall-pp-cli")
 	if err != nil {
@@ -618,6 +619,10 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 	}
 
 	prov := localProvenance(db, resourceType, reason)
+
+	if err := validateScryfallLocalRead(path, params); err != nil {
+		return nil, DataProvenance{}, err
+	}
 
 	// Warn if endpoint had filters that local reads can't reproduce
 	if len(params) > 0 {
@@ -650,18 +655,183 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 		return data, prov, nil
 	}
 
-	// Get by ID — extract the last path segment as the ID
+	// Try the primary stored ID first, then endpoint-specific alternate keys.
+	// Scryfall stores cards and sets by UUID, while several supported routes use
+	// numeric marketplace IDs, set codes, or names instead.
 	parts := strings.Split(strings.TrimRight(path, "/"), "/")
 	id := parts[len(parts)-1]
 
 	item, err := db.Get(resourceType, id)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, DataProvenance{}, fmt.Errorf("resource %q with ID %q not found in local store. Run 'scryfall-pp-cli sync' first", resourceType, id)
+		if !errors.Is(err, sql.ErrNoRows) {
+			return nil, DataProvenance{}, fmt.Errorf("querying local store: %w", err)
 		}
-		return nil, DataProvenance{}, fmt.Errorf("querying local store: %w", err)
+		item, err = resolveScryfallAlternateLocalDetail(ctx, db, resourceType, path, params)
+		if err != nil {
+			return nil, DataProvenance{}, err
+		}
 	}
 	return item, prov, nil
+}
+
+// validateScryfallLocalRead rejects filtered operations whose live semantics
+// cannot be reproduced from the generic local mirror. In particular, Scryfall's
+// card-search query language supports operators, comparisons, and ordering that
+// a plain cache scan cannot implement faithfully. Explicit failure is safer than
+// returning every cached card as if it matched.
+func validateScryfallLocalRead(path string, params map[string]string) error {
+	// The local mirror stores JSON resources. It cannot reproduce alternate
+	// image or text representations, nor face/version rendering options.
+	if strings.HasPrefix(path, "/cards/") || strings.HasPrefix(path, "/sets") {
+		if format := strings.TrimSpace(params["format"]); format != "" && !strings.EqualFold(format, "json") {
+			return fmt.Errorf("local data cannot reproduce Scryfall %q format; use --data-source live", format)
+		}
+		if strings.TrimSpace(params["face"]) != "" || strings.TrimSpace(params["version"]) != "" {
+			return fmt.Errorf("local data cannot reproduce Scryfall face or version options; use --data-source live")
+		}
+	}
+	switch strings.TrimRight(path, "/") {
+	case "/cards/search":
+		query := strings.TrimSpace(params["q"])
+		if query == "" {
+			query = "<empty>"
+		}
+		return fmt.Errorf("local data cannot safely reproduce Scryfall card search query %q; retry with --data-source live when the API is reachable", query)
+	case "/cards/autocomplete":
+		return fmt.Errorf("local data cannot safely reproduce Scryfall card autocomplete; retry with --data-source live when the API is reachable")
+	case "/cards/random":
+		return fmt.Errorf("local data cannot safely reproduce Scryfall random-card selection; retry with --data-source live when the API is reachable")
+	default:
+		return nil
+	}
+}
+
+// resolveScryfallAlternateLocalDetail resolves the alternate identifiers used
+// by Scryfall detail routes after the primary UUID lookup has missed.
+func resolveScryfallAlternateLocalDetail(ctx context.Context, db *store.Store, resourceType, path string, params map[string]string) (json.RawMessage, error) {
+	matcher, description, err := scryfallLocalDetailMatcher(resourceType, path, params)
+	if err != nil {
+		return nil, err
+	}
+	if matcher == nil {
+		parts := strings.Split(strings.TrimRight(path, "/"), "/")
+		id := parts[len(parts)-1]
+		return nil, fmt.Errorf("resource %q with ID %q not found in local store. Run 'scryfall-pp-cli sync' first", resourceType, id)
+	}
+
+	rows, err := db.DB().QueryContext(ctx, `SELECT data FROM resources WHERE resource_type = ?`, resourceType)
+	if err != nil {
+		return nil, fmt.Errorf("querying local store for %s: %w", description, err)
+	}
+	defer rows.Close()
+	var match json.RawMessage
+	matchCount := 0
+	for rows.Next() {
+		var data string
+		if err := rows.Scan(&data); err != nil {
+			return nil, fmt.Errorf("reading local store for %s: %w", description, err)
+		}
+		item := json.RawMessage(data)
+		object, decodeErr := store.DecodeJSONObject(item)
+		if decodeErr != nil || !matcher(object) {
+			continue
+		}
+		match = item
+		matchCount++
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("reading local store for %s: %w", description, err)
+	}
+	if matchCount == 0 {
+		return nil, fmt.Errorf("%s not found in local store. Run 'scryfall-pp-cli sync' first", description)
+	}
+	if matchCount > 1 {
+		return nil, fmt.Errorf("%s is ambiguous in local data (%d matches); use a primary Scryfall UUID or --data-source live", description, matchCount)
+	}
+	return match, nil
+}
+
+type localDetailMatcher func(map[string]any) bool
+
+func scryfallLocalDetailMatcher(resourceType, path string, params map[string]string) (localDetailMatcher, string, error) {
+	segments := strings.Split(strings.Trim(path, "/"), "/")
+	if resourceType == "cards" && len(segments) >= 2 && segments[0] == "cards" {
+		switch segments[1] {
+		case "named":
+			exact := strings.TrimSpace(params["exact"])
+			if exact == "" {
+				return nil, "", fmt.Errorf("local data cannot safely reproduce Scryfall fuzzy-name lookup; provide --exact or use --data-source live")
+			}
+			setCode := strings.TrimSpace(params["set"])
+			return func(object map[string]any) bool {
+				if !localFieldMatches(object["name"], exact, true) {
+					return false
+				}
+				return setCode == "" || localFieldMatches(object["set"], setCode, true)
+			}, fmt.Sprintf("card named %q", exact), nil
+		case "arena":
+			return scalarLocalMatcher("arena_id", lastPathSegment(segments)), fmt.Sprintf("card with arena_id %q", lastPathSegment(segments)), nil
+		case "mtgo":
+			return scalarLocalMatcher("mtgo_id", lastPathSegment(segments)), fmt.Sprintf("card with mtgo_id %q", lastPathSegment(segments)), nil
+		case "multiverse":
+			return scalarLocalMatcher("multiverse_ids", lastPathSegment(segments)), fmt.Sprintf("card with multiverse_id %q", lastPathSegment(segments)), nil
+		case "tcgplayer":
+			return scalarLocalMatcher("tcgplayer_id", lastPathSegment(segments)), fmt.Sprintf("card with tcgplayer_id %q", lastPathSegment(segments)), nil
+		case "cardmarket":
+			return scalarLocalMatcher("cardmarket_id", lastPathSegment(segments)), fmt.Sprintf("card with cardmarket_id %q", lastPathSegment(segments)), nil
+		}
+		if len(segments) == 3 {
+			setCode, collectorNumber := segments[1], segments[2]
+			return func(object map[string]any) bool {
+				return localFieldMatches(object["set"], setCode, true) && localFieldMatches(object["collector_number"], collectorNumber, true)
+			}, fmt.Sprintf("card %q/%q", setCode, collectorNumber), nil
+		}
+	}
+
+	if resourceType == "sets" && len(segments) >= 2 && segments[0] == "sets" {
+		if len(segments) == 3 && segments[1] == "tcgplayer" {
+			id := lastPathSegment(segments)
+			return scalarLocalMatcher("tcgplayer_id", id), fmt.Sprintf("set with tcgplayer_id %q", id), nil
+		}
+		if len(segments) == 2 {
+			code := segments[1]
+			return func(object map[string]any) bool {
+				return localFieldMatches(object["code"], code, true) || localFieldMatches(object["mtgo_code"], code, true)
+			}, fmt.Sprintf("set with code %q", code), nil
+		}
+	}
+
+	return nil, "", nil
+}
+
+func scalarLocalMatcher(field, value string) localDetailMatcher {
+	return func(object map[string]any) bool {
+		return localFieldMatches(object[field], value, false)
+	}
+}
+
+func localFieldMatches(value any, wanted string, foldCase bool) bool {
+	switch values := value.(type) {
+	case []any:
+		for _, candidate := range values {
+			if localFieldMatches(candidate, wanted, foldCase) {
+				return true
+			}
+		}
+		return false
+	}
+	actual := store.ResourceIDString(value)
+	if foldCase {
+		return strings.EqualFold(actual, wanted)
+	}
+	return actual == wanted
+}
+
+func lastPathSegment(segments []string) string {
+	if len(segments) == 0 {
+		return ""
+	}
+	return segments[len(segments)-1]
 }
 
 // Ensure time import is used (compilation guard).

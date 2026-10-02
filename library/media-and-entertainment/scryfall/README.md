@@ -3,6 +3,7 @@
 
 
 Created by [@veltri-23](https://github.com/veltri-23) (Hunter Veltri).
+Local data correctness fixes contributed by [Cathryn Lavery](https://github.com/cathrynlavery).
 
 ## Install
 
@@ -296,8 +297,10 @@ This CLI is designed for AI agent consumption:
 - **Explicit retries** - add `--idempotent` to create retries when a no-op success is acceptable
 - **Confirmable** - `--yes` for explicit confirmation of destructive actions
 - **Piped input** - write commands can accept structured input when their help lists `--stdin`
-- **Offline-friendly** - sync/search commands can use the local SQLite store when available
+- **Offline-friendly** - synced data supports local browsing and the CLI's local search command
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
+
+Scryfall's `cards search`, `cards autocomplete`, and `cards get-random` need the live API. The local mirror cannot reproduce their results accurately, so they return an error when only local data is available. Exact card names, supported alternate card IDs, and set codes can resolve from synced data. Image/text formats and card face/version options also need the live API.
 
 Exit codes: `0` success, `2` usage error, `3` not found, `5` API error, `7` rate limited, `10` config error.
 
