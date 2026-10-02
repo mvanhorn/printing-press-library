@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "sarvam-mcpb-auth-prompt-provenance",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260814-164825-7ec4499e",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Keep Sarvam MCPB prompts aligned with runtime authentication.",
+  "reason": "The MCPB needs a required, sensitive API key prompt and an optional client profile. A manifest refresh reads these rich auth specs, while a full reprint repopulates them from its input spec, which must retain this contract.",
+  "files": [
+    ".printing-press.json"
+  ]
+}
