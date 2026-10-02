@@ -129,7 +129,7 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 					return err
 				}
 				// A direct API token cannot authenticate a prior OAuth stream.
-				if err := os.Remove(cardataSessionPath(fresh)); err != nil && !os.IsNotExist(err) {
+				if err := removeCardataSession(fresh); err != nil {
 					return err
 				}
 				cfg = fresh
@@ -173,7 +173,7 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 					return err
 				}
 				// Device-code login also writes a usable streaming sidecar.
-				if err := os.Remove(cardataSessionPath(fresh)); err != nil && !os.IsNotExist(err) {
+				if err := removeCardataSession(fresh); err != nil {
 					return err
 				}
 				cfg = fresh

@@ -367,13 +367,25 @@ func TestLogoutRemovesExistingSidecarBesideConfigAlias(t *testing.T) {
 	if selected.Path != alias {
 		t.Fatalf("selected config path = %q, want alias", selected.Path)
 	}
-	if err := writeCardataSession(selected, "client", &cardataToken{
-		AccessToken: "access", RefreshToken: "refresh", IDToken: testIDToken(time.Now().Add(time.Hour)), GCID: "gcid",
-	}, selected.TokenExpiry); err != nil {
+	legacySession, err := json.Marshal(map[string]string{
+		"client_id": "client", "access_token": "access", "refresh_token": "refresh",
+		"id_token": testIDToken(time.Now().Add(time.Hour)), "gcid": "gcid",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := config.WritePrivateFile(cardataSessionPath(selected), legacySession); err != nil {
+		t.Fatal(err)
+	}
+	sharedPath, err := cardataSharedSessionPath(selected)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := config.WritePrivateFile(sharedPath, legacySession); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := loadCardataSession(selected); err != nil {
-		t.Fatalf("existing alias-side session was lost: %v", err)
+		t.Fatalf("shared session was not readable: %v", err)
 	}
 	cmd := newAuthLogoutCmd(&rootFlags{configPath: alias})
 	cmd.SetOut(io.Discard)
@@ -384,12 +396,144 @@ func TestLogoutRemovesExistingSidecarBesideConfigAlias(t *testing.T) {
 	if _, err := os.Stat(cardataSessionPath(selected)); !os.IsNotExist(err) {
 		t.Fatalf("old alias-side session remains after logout: %v", err)
 	}
+	if _, err := os.Stat(sharedPath); !os.IsNotExist(err) {
+		t.Fatalf("shared session remains after logout: %v", err)
+	}
 	reloaded, err := config.Load(target)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if reloaded.AccessToken != "" || reloaded.RefreshToken != "" {
 		t.Fatal("logout left OAuth credentials in symlink target")
+	}
+}
+
+func TestLegacyAliasSessionMigratesForTargetStream(t *testing.T) {
+	t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "")
+	now := time.Now().UTC()
+	dir := t.TempDir()
+	target := filepath.Join(dir, "target", "config.toml")
+	initial, err := config.Load(target)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := initial.SaveTokens("client", "", "access", "refresh", now.Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	aliasDir := filepath.Join(dir, "alias")
+	if err := os.MkdirAll(aliasDir, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	alias := filepath.Join(aliasDir, "config.toml")
+	if err := os.Symlink(target, alias); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	selected, err := config.Load(alias)
+	if err != nil {
+		t.Fatal(err)
+	}
+	idToken := testIDToken(now.Add(time.Hour))
+	legacySession, err := json.Marshal(map[string]string{"client_id": "client", "id_token": idToken, "gcid": "gcid"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := config.WritePrivateFile(cardataSessionPath(selected), legacySession); err != nil {
+		t.Fatal(err)
+	}
+	sharedPath, err := cardataSharedSessionPath(selected)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(sharedPath); !os.IsNotExist(err) {
+		t.Fatalf("shared sidecar unexpectedly exists before migration: %v", err)
+	}
+	fromAlias, err := currentCardataStreamSession(context.Background(), selected, now, "http://invalid.example")
+	if err != nil || fromAlias["id_token"] != idToken {
+		t.Fatalf("alias stream lost its valid session: %v", err)
+	}
+	if _, err := os.Stat(cardataSessionPath(selected)); !os.IsNotExist(err) {
+		t.Fatalf("legacy sidecar remained after migration: %v", err)
+	}
+	info, err := os.Stat(sharedPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if info.Mode().Perm() != 0o600 {
+		t.Fatalf("shared sidecar permissions = %v", info.Mode().Perm())
+	}
+	fromTarget, err := config.Load(target)
+	if err != nil {
+		t.Fatal(err)
+	}
+	targetSession, err := currentCardataStreamSession(context.Background(), fromTarget, now, "http://invalid.example")
+	if err != nil || targetSession["id_token"] != idToken {
+		t.Fatalf("target stream did not share migrated session: %v", err)
+	}
+}
+
+func TestSidecarMigrationSelectsUsableSession(t *testing.T) {
+	t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "")
+	now := time.Now().UTC()
+	dir := t.TempDir()
+	target := filepath.Join(dir, "target", "config.toml")
+	initial, err := config.Load(target)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := initial.SaveTokens("client", "", "access", "refresh", now.Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	aliasDir := filepath.Join(dir, "alias")
+	if err := os.MkdirAll(aliasDir, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	alias := filepath.Join(aliasDir, "config.toml")
+	if err := os.Symlink(target, alias); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	selected, err := config.Load(alias)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sharedToken := testIDToken(now.Add(time.Hour))
+	for _, item := range []struct{ path, idToken string }{
+		{cardataSessionPath(selected), testIDToken(now.Add(-time.Hour))},
+		{filepath.Join(filepath.Dir(target), "cardata_session.json"), sharedToken},
+	} {
+		data, err := json.Marshal(map[string]string{"client_id": "client", "id_token": item.idToken, "gcid": "gcid"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := config.WritePrivateFile(item.path, data); err != nil {
+			t.Fatal(err)
+		}
+	}
+	session, err := currentCardataStreamSession(context.Background(), selected, now, "http://invalid.example")
+	if err != nil || session["id_token"] != sharedToken {
+		t.Fatalf("stale alias replaced shared session: %v", err)
+	}
+	if _, err := os.Stat(cardataSessionPath(selected)); !os.IsNotExist(err) {
+		t.Fatalf("stale alias sidecar remained: %v", err)
+	}
+	newAliasToken := testIDToken(now.Add(2 * time.Hour))
+	for _, item := range []struct{ path, idToken string }{
+		{cardataSessionPath(selected), newAliasToken},
+		{filepath.Join(filepath.Dir(target), "cardata_session.json"), testIDToken(now.Add(-time.Hour))},
+	} {
+		data, err := json.Marshal(map[string]string{"client_id": "client", "id_token": item.idToken, "gcid": "gcid"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := config.WritePrivateFile(item.path, data); err != nil {
+			t.Fatal(err)
+		}
+	}
+	session, err = currentCardataStreamSession(context.Background(), selected, now, "http://invalid.example")
+	if err != nil || session["id_token"] != newAliasToken {
+		t.Fatalf("valid alias did not repair expired shared session: %v", err)
+	}
+	if _, err := os.Stat(cardataSessionPath(selected)); !os.IsNotExist(err) {
+		t.Fatalf("promoted alias sidecar remained: %v", err)
 	}
 }
 
