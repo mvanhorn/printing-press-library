@@ -160,20 +160,16 @@ func (r *Runner) Run(ctx context.Context, query string) ([]byte, []Attempt, erro
 }
 
 func validOverpassJSON(body []byte) bool {
-	var envelope struct {
-		Elements json.RawMessage `json:"elements"`
+	var response struct {
+		Elements []Element `json:"elements"`
+		Remark   string    `json:"remark"`
 	}
-	if err := json.Unmarshal(body, &envelope); err != nil || envelope.Elements == nil {
+	// Use the same element type as ParseElements without building subjects.
+	// A malformed element should trigger failover before a caller parses it.
+	if err := json.Unmarshal(body, &response); err != nil || response.Elements == nil {
 		return false
 	}
-	var elements []json.RawMessage
-	if err := json.Unmarshal(envelope.Elements, &elements); err != nil || elements == nil {
-		return false
-	}
-	// A valid array can still contain elements the caller cannot decode.
-	// Check with the same parser used after failover before accepting a mirror.
-	_, _, err := ParseElements(body, nil)
-	return err == nil
+	return response.Remark == "" || len(response.Elements) > 0
 }
 
 func (r *Runner) post(ctx context.Context, mirror, query string) ([]byte, int, error) {

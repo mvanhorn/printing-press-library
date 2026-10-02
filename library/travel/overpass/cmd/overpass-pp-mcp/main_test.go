@@ -72,14 +72,27 @@ func TestHTTPTokenGuard(t *testing.T) {
 }
 
 func TestLoopbackAddressValidation(t *testing.T) {
-	for _, addr := range []string{"127.0.0.1:7777", "[::1]:7777", "localhost:7777", "LOCALHOST:7777"} {
+	for _, addr := range []string{"127.0.0.1:7777", "[::1]:7777"} {
 		if !isLoopbackAddr(addr) {
 			t.Errorf("isLoopbackAddr(%q) = false, want true", addr)
 		}
 	}
-	for _, addr := range []string{"localhost.evil.com:7777", ":7777", "0.0.0.0:7777", "bad"} {
+	for _, addr := range []string{"localhost:7777", "localhost.evil.com:7777", ":7777", "0.0.0.0:7777", "bad"} {
 		if isLoopbackAddr(addr) {
 			t.Errorf("isLoopbackAddr(%q) = true, want false", addr)
+		}
+	}
+}
+
+func TestHTTPBindAddressNormalizesLocalhost(t *testing.T) {
+	for _, addr := range []string{"localhost:7777", "LOCALHOST:7777"} {
+		if got := httpBindAddr(addr); got != "127.0.0.1:7777" {
+			t.Errorf("httpBindAddr(%q) = %q, want literal loopback", addr, got)
+		}
+	}
+	for _, addr := range []string{"localhost.evil.com:7777", "0.0.0.0:7777", "[::1]:7777"} {
+		if got := httpBindAddr(addr); got != addr {
+			t.Errorf("httpBindAddr(%q) = %q, want unchanged", addr, got)
 		}
 	}
 }

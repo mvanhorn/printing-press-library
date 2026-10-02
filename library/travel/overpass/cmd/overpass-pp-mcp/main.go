@@ -53,22 +53,23 @@ func main() {
 			os.Exit(1)
 		}
 	case "http":
+		bindAddr := httpBindAddr(*addr)
 		token := strings.TrimSpace(*httpToken)
 		if token == "" {
 			token = strings.TrimSpace(os.Getenv("PP_MCP_HTTP_TOKEN"))
 		}
-		useTLS, err := validateHTTPTransport(*addr, token, *tlsCert, *tlsKey)
+		useTLS, err := validateHTTPTransport(bindAddr, token, *tlsCert, *tlsKey)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "refusing unsafe MCP HTTP configuration: %v\n", err)
 			os.Exit(2)
 		}
 		mcpHandler := server.NewStreamableHTTPServer(s)
 		httpSrv := &http.Server{
-			Addr:              *addr,
+			Addr:              bindAddr,
 			Handler:           requireHTTPToken(token, mcpHandler),
 			ReadHeaderTimeout: 5 * time.Second,
 		}
-		fmt.Fprintf(os.Stderr, "overpass-pp-mcp serving MCP over authenticated %s at %s\n", tlsLabel(useTLS), *addr)
+		fmt.Fprintf(os.Stderr, "overpass-pp-mcp serving MCP over authenticated %s at %s\n", tlsLabel(useTLS), bindAddr)
 		var serveErr error
 		if useTLS {
 			serveErr = httpSrv.ListenAndServeTLS(*tlsCert, *tlsKey)
@@ -93,10 +94,20 @@ func validateHTTPTransport(addr, token, tlsCert, tlsKey string) (bool, error) {
 	if useTLS && (tlsCert == "" || tlsKey == "") {
 		return false, fmt.Errorf("both --tls-cert and --tls-key are required when TLS is enabled")
 	}
-	if !isLoopbackAddr(addr) && !useTLS {
+	if !isLoopbackAddr(httpBindAddr(addr)) && !useTLS {
 		return false, fmt.Errorf("non-loopback bind %q requires TLS", addr)
 	}
 	return useTLS, nil
+}
+
+// httpBindAddr turns the conventional local hostname into a literal loopback
+// bind, so a hosts-file or DNS change cannot expose plaintext HTTP elsewhere.
+func httpBindAddr(addr string) string {
+	host, port, err := net.SplitHostPort(addr)
+	if err == nil && strings.EqualFold(host, "localhost") {
+		return net.JoinHostPort("127.0.0.1", port)
+	}
+	return addr
 }
 
 func requireHTTPToken(token string, next http.Handler) http.Handler {
@@ -116,9 +127,6 @@ func isLoopbackAddr(addr string) bool {
 	host, _, err := net.SplitHostPort(addr)
 	if err != nil || host == "" {
 		return false
-	}
-	if strings.EqualFold(host, "localhost") {
-		return true
 	}
 	ip := net.ParseIP(host)
 	return ip != nil && ip.IsLoopback()
