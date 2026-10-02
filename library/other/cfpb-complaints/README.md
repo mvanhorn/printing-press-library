@@ -8,7 +8,7 @@ Created by [@Avanderheyde](https://github.com/Avanderheyde) (avanderheyde).
 
 Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
-Complaint sync stores each published complaint as a separate local record and follows the search API's size and offset pages. A complete scan from offset zero removes the old local row that stored an entire search response. For a custom starting point, pass `--param from=N`; the offset advances on later pages. A saved resume offset takes priority on later runs. Custom `size` must be from 1 to 1000.
+Complaint sync stores each published complaint as a separate local record and follows the search API's size and offset pages. After a complete scan, the old local response row is removed once every complaint inside it has its own row. For a custom starting point, pass `--param from=N`; the offset advances on later pages. A saved resume offset takes priority on later runs. Custom `size` must be from 1 to 1000.
 
 ## Install
 

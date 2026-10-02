@@ -218,7 +218,7 @@ func TestSyncDataResearchRemovesOnlyLegacyEnvelopeAfterCompleteSync(t *testing.T
 	}
 	defer db.Close()
 	const resource = "data-research"
-	legacy := []byte(`{"hits":{"hits":[{"_id":"old","_source":{"complaint_id":"old"}}]}}`)
+	legacy := []byte(`{"hits":{"hits":[{"_id":"complaint-0","_source":{"complaint_id":"complaint-0"}}]}}`)
 	if err := db.Upsert(resource, resource, legacy); err != nil {
 		t.Fatal(err)
 	}
@@ -248,7 +248,7 @@ func TestSyncDataResearchRemovesOnlyLegacyEnvelopeAfterCompleteSync(t *testing.T
 	if err := db.Upsert(resource, resource, []byte(`{"_id":"data-research","_source":{"complaint_id":"data-research"}}`)); err != nil {
 		t.Fatal(err)
 	}
-	if err := db.DeleteLegacyCFPBEnvelope(); err != nil {
+	if err := db.DeleteLegacyCFPBEnvelopeIfCovered(); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := db.Get(resource, resource); err != nil {
@@ -263,7 +263,7 @@ func TestSyncDataResearchPartialRangeKeepsLegacyEnvelope(t *testing.T) {
 	}
 	defer db.Close()
 	const resource = "data-research"
-	legacy := []byte(`{"hits":{"hits":[{"_id":"old","_source":{"complaint_id":"old"}}]}}`)
+	legacy := []byte(`{"hits":{"hits":[{"_id":"complaint-0","_source":{"complaint_id":"complaint-0"}}]}}`)
 	if err := db.Upsert(resource, resource, legacy); err != nil {
 		t.Fatal(err)
 	}
@@ -275,5 +275,33 @@ func TestSyncDataResearchPartialRangeKeepsLegacyEnvelope(t *testing.T) {
 	}
 	if _, err := db.Get(resource, resource); err != nil {
 		t.Fatalf("partial-range sync removed legacy copy of earlier complaints: %v", err)
+	}
+}
+
+func TestSyncDataResearchResumedFullScanRemovesCoveredLegacyEnvelope(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	const resource = "data-research"
+	legacy := []byte(`{"hits":{"hits":[{"_id":"complaint-0","_source":{"complaint_id":"complaint-0"}}]}}`)
+	if err := db.Upsert(resource, resource, legacy); err != nil {
+		t.Fatal(err)
+	}
+	c := &cfpbSyncTestClient{total: 1001}
+	first := syncResource(context.Background(), c, db, resource, "", false, 1, false, false, &syncUserParams{}, io.Discard)
+	if first.Err != nil || first.Count != 1000 {
+		t.Fatalf("first capped run failed: %+v", first)
+	}
+	if _, err := db.Get(resource, resource); err != nil {
+		t.Fatalf("capped run removed legacy envelope: %v", err)
+	}
+	second := syncResource(context.Background(), c, db, resource, "", false, 0, false, false, &syncUserParams{}, io.Discard)
+	if second.Err != nil || second.Count != 1 {
+		t.Fatalf("resume failed: %+v", second)
+	}
+	if _, err := db.Get(resource, resource); !errors.Is(err, sql.ErrNoRows) {
+		t.Fatalf("covered legacy envelope remained after resumed scan: %v", err)
 	}
 }

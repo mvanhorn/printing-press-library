@@ -472,7 +472,6 @@ func syncResource(ctx context.Context, c interface {
 			}
 		}
 	}
-	startedAtBeginning := cursor == "" || cursor == "0"
 	var progressCount int64
 	pagesFetched := 0
 	lastNextCursor := ""
@@ -802,11 +801,11 @@ func syncResource(ctx context.Context, c interface {
 		cursor = nextCursor
 	}
 
-	if resource == "data-research" && outcome.complete && startedAtBeginning {
+	if resource == "data-research" && outcome.complete {
 		// The former sync stored the entire search response under this ID.
-		// Remove only after a valid scan from offset zero reaches the end.
-		// A complete scan of a later range has not replaced earlier rows.
-		if err := db.DeleteLegacyCFPBEnvelope(); err != nil {
+		// Retire it only when all embedded complaints have separate rows,
+		// including after a scan resumed from an earlier capped run.
+		if err := db.DeleteLegacyCFPBEnvelopeIfCovered(); err != nil {
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("removing legacy CFPB response envelope: %w", err), Duration: time.Since(started)}
 		}
 	}
