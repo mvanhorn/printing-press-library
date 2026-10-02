@@ -262,7 +262,7 @@ elif (any row in Mismatches[] when --debug-mismatches was passed):
        (different canonical resolved from query_entities)
 
 else:  // Found == false, no playbook, no notes
-    -> cold start; run discovery normally; teach the answer afterward (Step 4).
+    -> cold start; run discovery normally; teach a safe structural mapping afterward when possible (Step 4).
        If the family has no playbook yet, that teach auto-synthesizes a
        playbook candidate from this session's journal - you do not need to
        record one by hand.
@@ -285,9 +285,9 @@ Graceful degradation: if `learnings confirm` is an unknown command, you are driv
 - `lookup_refresh_available` (top-level): an entity in the query has no lookup row yet, but synced data could provide one. Run `dndbeyond-pp-cli sync` to refresh entity lookups.
 - Top-level `no_learnings_for_query_family`: the table had no rows above the Jaccard floor. Pure cold start.
 
-### Step 4: `teach &` after finalizing your response - always
+### Step 4: teach a safe new mapping after finalizing your response
 
-After resolving a query the store could not answer, teach the final resource mapping when the structural query contains no personal or account identifiers. The teach is the anchor of the loop: it triggers playbook synthesis for a family without a playbook, and same-referent phrasings fold into one family so near-duplicate teaches do not fragment the store. Submit dynamic query and resource values through an argument-array runner, without shell interpolation:
+After resolving a query the store could not answer, teach the final resource mapping only when you can form a structural query without personal or account identifiers. Skip teaching when you cannot strip those identifiers. Confirm or reject a recalled candidate instead of teaching it again. The teach is the anchor of the loop: it triggers playbook synthesis for a family without a playbook, and same-referent phrasings fold into one family so near-duplicate teaches do not fragment the store. Submit dynamic query and resource values through an argument-array runner, without shell interpolation, and check that the command completes:
 
 ```bash
 dndbeyond-pp-cli teach --query "find spell rules" --resource-type spell --resource example-id

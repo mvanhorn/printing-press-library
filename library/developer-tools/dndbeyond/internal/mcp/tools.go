@@ -21,6 +21,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/dndbeyond/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/dndbeyond/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/dndbeyond/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/dndbeyond/internal/learn"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/dndbeyond/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/dndbeyond/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/dndbeyond/internal/platform"
@@ -825,11 +826,12 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		paths["cache_dir"] = dir
 	}
 	ctx := map[string]any{
-		"api":         "cli-neutral",
-		"description": "Read public D&D Beyond rules pages from the terminal.",
-		"archetype":   "content",
-		"tool_count":  5,
-		"paths":       paths,
+		"api":            "cli-neutral",
+		"learn_protocol": learn.RecallFirstProtocol,
+		"description":    "Read public D&D Beyond rules pages from the terminal.",
+		"archetype":      "content",
+		"tool_count":     5,
+		"paths":          paths,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion cli-neutral-pp-cli binary.",
 		"resources": []map[string]any{

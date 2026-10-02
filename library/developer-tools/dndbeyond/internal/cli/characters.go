@@ -607,7 +607,14 @@ func canonicalCharacterKey(key string) string {
 }
 
 func isSensitiveCharacterKey(key string) bool {
-	canonical := strings.ToLower(strings.ReplaceAll(canonicalCharacterKey(key), "_", ""))
+	// PDF widgets and nested JSON may separate credential words with dots,
+	// slashes, spaces, or other punctuation. Ignore those separators here.
+	canonical := strings.Map(func(r rune) rune {
+		if r >= 'a' && r <= 'z' || r >= '0' && r <= '9' {
+			return r
+		}
+		return -1
+	}, strings.ToLower(key))
 	if characterSensitiveKeys[canonical] {
 		return true
 	}

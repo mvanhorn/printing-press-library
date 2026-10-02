@@ -10,6 +10,7 @@
     ".goreleaser.yaml",
     ".printing-press.json",
     "NOTICE",
+    "AGENTS.md",
     "README.md",
     "SKILL.md",
     "internal/cli/channel_workflow.go",
@@ -20,7 +21,9 @@
     "internal/learn/playbooks.go",
     "internal/learn/protocol.go",
     "internal/learn/recall.go",
-    "internal/learn/recall_canonical_test.go"
+    "internal/learn/recall_canonical_test.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/tools_test.go"
   ],
   "validated_outcome": "Offline Go tests, vet, builds, skill verification, JSON validation, and diff checks pass; no provider calls were made."
 }

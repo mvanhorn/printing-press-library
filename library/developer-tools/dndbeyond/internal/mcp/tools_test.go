@@ -109,6 +109,23 @@ func TestMCPRegisterToolsPreservesTypedSpecialTools(t *testing.T) {
 	}
 }
 
+func TestMCPContextIncludesPlaybookReviewProtocol(t *testing.T) {
+	result, err := handleContext(context.Background(), mcplib.CallToolRequest{})
+	if err != nil {
+		t.Fatalf("handleContext: %v", err)
+	}
+	var contextData map[string]any
+	if err := json.Unmarshal([]byte(mcpTextContent(t, result)), &contextData); err != nil {
+		t.Fatalf("decode MCP context: %v", err)
+	}
+	protocol, _ := contextData["learn_protocol"].(string)
+	for _, expected := range []string{"untrusted", "explicit argv", "user confirmation"} {
+		if !strings.Contains(protocol, expected) {
+			t.Fatalf("MCP context protocol omitted %q", expected)
+		}
+	}
+}
+
 func TestMCPSearchMissingStoreIsActionable(t *testing.T) {
 	resetMCPPathEnv(t)
 
