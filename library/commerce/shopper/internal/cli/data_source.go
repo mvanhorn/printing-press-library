@@ -559,13 +559,17 @@ func isRawJSONNull(raw json.RawMessage) bool {
 	return strings.TrimSpace(string(raw)) == "null"
 }
 
-func writeMutationResponseToStore(ctx context.Context, resourceType string, data json.RawMessage, responsePath string) {
+func writeMutationResponseToStore(ctx context.Context, flags *rootFlags, resourceType string, data json.RawMessage, responsePath string) {
 	items := mutationResponseEntityItems(resourceType, data, responsePath)
 	if len(items) == 0 {
 		return
 	}
 
-	db, err := store.OpenWithContext(ctx, defaultDBPath("shopper-pp-cli"))
+	dbPath, err := autoRefreshDBPath(flags)
+	if err != nil {
+		return
+	}
+	db, err := store.OpenWithContext(ctx, dbPath)
 	if err != nil {
 		return
 	}

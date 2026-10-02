@@ -127,6 +127,7 @@ func TestAutoRefreshNoLearnDoesNotOpenStore(t *testing.T) {
 }
 
 func TestAutoRefreshDBPathUsesActiveProfileStore(t *testing.T) {
+	t.Setenv("SHOPPER_DATA_DIR", "")
 	home := t.TempDir()
 	restore, err := cliutil.SetHomeOverride(home)
 	if err != nil {
@@ -181,6 +182,9 @@ func TestAutoRefreshDBPathUsesActiveProfileStore(t *testing.T) {
 }
 
 func TestAutoRefreshAndLocalReadUseSameProfileStore(t *testing.T) {
+	t.Setenv("SHOPPER_DATA_DIR", "")
+	t.Setenv("SHOPPER_CONFIG_DIR", "")
+	t.Setenv("SHOPPER_CONFIG", "")
 	home := t.TempDir()
 	restore, err := cliutil.SetHomeOverride(home)
 	if err != nil {
@@ -238,6 +242,20 @@ func TestAutoRefreshAndLocalReadUseSameProfileStore(t *testing.T) {
 	}
 	if !strings.Contains(string(data), "profile-new") || strings.Contains(string(data), "global-only") {
 		t.Fatalf("local read selected wrong store: %s", data)
+	}
+	writeMutationResponseToStore(context.Background(), flags, "cart", json.RawMessage(`{"id":"profile-cart"}`), "")
+	cartData, _, err := resolveLocal(context.Background(), flags, io.Discard, "cart", true, "/cart", nil, "test")
+	if err != nil || !strings.Contains(string(cartData), "profile-cart") {
+		t.Fatalf("profile mutation was not readable from profile store: data=%s err=%v", cartData, err)
+	}
+	globalStore, err := store.OpenWithContext(context.Background(), defaultPath)
+	if err != nil {
+		t.Fatalf("reopen global store: %v", err)
+	}
+	defer globalStore.Close()
+	globalCartCount, err := globalStore.Count("cart")
+	if err != nil || globalCartCount != 0 {
+		t.Fatalf("mutation leaked to global store: count=%d err=%v", globalCartCount, err)
 	}
 }
 
