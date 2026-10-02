@@ -538,6 +538,9 @@ func currentCardataStreamSession(ctx context.Context, cfg *config.Config, now ti
 	if cfg.ClientID == "" {
 		return nil, fmt.Errorf("%w: streaming needs a saved OAuth client ID; run 'auth login'", ErrCardataLoginRequired)
 	}
+	if cfg.BmwCardataAccessToken != "" || strings.HasPrefix(cfg.AuthSource, "env:") {
+		return nil, fmt.Errorf("%w: streaming needs a saved OAuth login, not a direct API token", ErrCardataLoginRequired)
+	}
 	if err := migrateLegacyCardataSession(ctx, cfg, now); err != nil {
 		return nil, err
 	}
@@ -548,7 +551,7 @@ func currentCardataStreamSession(ctx context.Context, cfg *config.Config, now ti
 	}
 	session, err = loadCardataSession(cfg)
 	if err != nil || session["gcid"] == "" || !validCardataIDToken(session["id_token"], now) {
-		return nil, fmt.Errorf("%w: streaming session needs a current ID token; run 'stream --config <original-alias> <vin>' once to migrate an older symlink-side session, or run 'auth login' with streaming scope", ErrCardataLoginRequired)
+		return nil, fmt.Errorf("%w: streaming session needs a current ID token; run 'stream --config <original-alias> <vin>' once if its saved OAuth tokens still match, or run 'auth login' with streaming scope", ErrCardataLoginRequired)
 	}
 	return session, nil
 }
@@ -569,13 +572,23 @@ func cardataSharedSessionPath(cfg *config.Config) (string, error) {
 	return filepath.Join(filepath.Dir(target), "cardata_session.json"), nil
 }
 
-func removeCardataSession(cfg *config.Config, previousClientID string) error {
+func removeCardataSession(cfg, previous *config.Config) error {
 	shared, err := cardataSharedSessionPath(cfg)
 	if err != nil {
 		return err
 	}
-	if err := os.Remove(shared); err != nil && !os.IsNotExist(err) {
-		return err
+	sharedData, readErr := os.ReadFile(shared)
+	if readErr != nil && !os.IsNotExist(readErr) {
+		return readErr
+	}
+	sharedSession, sharedOK := parseCardataSession(sharedData)
+	sharedOK = sharedOK && provenCardataSession(sharedSession, previous)
+	if sharedOK {
+		if err := os.Remove(shared); err != nil && !os.IsNotExist(err) {
+			return err
+		}
+	} else if readErr == nil {
+		fmt.Fprintln(os.Stderr, "warning: the saved streaming session was left in place because its account could not be verified; review it manually")
 	}
 	aliases, err := knownCardataLegacySessions(cfg)
 	if err != nil {
@@ -595,7 +608,11 @@ func removeCardataSession(cfg *config.Config, previousClientID string) error {
 		if err != nil {
 			return err
 		}
-		if legacy != selectedLegacy && (previousClientID == "" || cardataSessionClientID(data) != previousClientID) {
+		legacySession, ok := parseCardataSession(data)
+		matchedShared := sharedOK && ok && sameCardataSessionAccount(sharedSession, legacySession)
+		matchedSelected := legacy == selectedLegacy && ok && provenCardataSession(legacySession, previous)
+		if !matchedShared && !matchedSelected {
+			fmt.Fprintln(os.Stderr, "warning: a legacy streaming session beside a config alias was left in place because its account could not be verified; review it manually")
 			continue
 		}
 		if err := os.Remove(legacy); err != nil && !os.IsNotExist(err) {
@@ -645,15 +662,46 @@ func knownCardataLegacySessions(cfg *config.Config) ([]string, error) {
 	return sessions, nil
 }
 
-func cardataSessionClientID(data []byte) string {
+func parseCardataSession(data []byte) (map[string]string, bool) {
 	var session map[string]string
 	if json.Unmarshal(data, &session) != nil {
-		return ""
+		return nil, false
 	}
-	return session["client_id"]
+	return session, true
+}
+
+func provenCardataSession(session map[string]string, cfg *config.Config) bool {
+	if cfg == nil || cfg.ClientID == "" || session["client_id"] != cfg.ClientID ||
+		cfg.BmwCardataAccessToken != "" || strings.HasPrefix(cfg.AuthSource, "env:") {
+		return false
+	}
+	return (cfg.AccessToken != "" && session["access_token"] != "" && session["access_token"] == cfg.AccessToken) ||
+		(cfg.RefreshToken != "" && session["refresh_token"] != "" && session["refresh_token"] == cfg.RefreshToken)
+}
+
+func sameCardataSessionAccount(first, second map[string]string) bool {
+	if first["client_id"] == "" || first["client_id"] != second["client_id"] ||
+		first["gcid"] == "" || first["gcid"] != second["gcid"] {
+		return false
+	}
+	return (first["access_token"] != "" && first["access_token"] == second["access_token"]) ||
+		(first["refresh_token"] != "" && first["refresh_token"] == second["refresh_token"])
 }
 
 func retireKnownCardataSessions(cfg *config.Config) error {
+	shared, err := cardataSharedSessionPath(cfg)
+	if err != nil {
+		return err
+	}
+	sharedData, err := os.ReadFile(shared)
+	if err != nil {
+		return err
+	}
+	sharedSession, sharedOK := parseCardataSession(sharedData)
+	sharedOK = sharedOK && provenCardataSession(sharedSession, cfg)
+	if !sharedOK {
+		return fmt.Errorf("saved streaming session does not match the selected OAuth login")
+	}
 	aliases, err := knownCardataLegacySessions(cfg)
 	if err != nil {
 		return err
@@ -666,7 +714,9 @@ func retireKnownCardataSessions(cfg *config.Config) error {
 		if err != nil {
 			return err
 		}
-		if cardataSessionClientID(data) != cfg.ClientID {
+		legacySession, ok := parseCardataSession(data)
+		if !sharedOK || !ok || !sameCardataSessionAccount(sharedSession, legacySession) {
+			fmt.Fprintln(os.Stderr, "warning: a legacy streaming session beside a config alias was left in place because its account could not be verified; review it manually")
 			continue
 		}
 		if err := os.Remove(legacy); err != nil && !os.IsNotExist(err) {
@@ -750,10 +800,7 @@ func migrateLegacyCardataSessionLocked(cfg *config.Config, now time.Time) error 
 			}
 			continue
 		}
-		var session map[string]string
-		if err := json.Unmarshal(data, &session); err != nil {
-			return err
-		}
+		session, _ := parseCardataSession(data)
 		if selected != nil && (session["id_token"] != selectedIDToken || session["gcid"] != selectedGCID) {
 			return fmt.Errorf("conflicting valid streaming sessions beside config aliases; run 'auth login' again to create one shared session")
 		}
@@ -773,15 +820,11 @@ func migrateLegacyCardataSessionLocked(cfg *config.Config, now time.Time) error 
 }
 
 func usableCardataSession(data []byte, cfg *config.Config, now time.Time) bool {
-	if cfg.ClientID == "" {
+	session, ok := parseCardataSession(data)
+	if !ok || !provenCardataSession(session, cfg) {
 		return false
 	}
-	var session map[string]string
-	if json.Unmarshal(data, &session) != nil {
-		return false
-	}
-	return session["gcid"] != "" && validCardataIDToken(session["id_token"], now) &&
-		session["client_id"] == cfg.ClientID
+	return session["gcid"] != "" && validCardataIDToken(session["id_token"], now)
 }
 
 // writeCardataSession persists the streaming credentials (GCID + id_token)
@@ -830,8 +873,8 @@ func loadCardataSession(cfg *config.Config) (map[string]string, error) {
 			out[k] = s
 		}
 	}
-	if cfg.ClientID == "" || out["client_id"] != cfg.ClientID {
-		return nil, fmt.Errorf("streaming session belongs to another client")
+	if !provenCardataSession(out, cfg) {
+		return nil, fmt.Errorf("streaming session does not match the saved OAuth login")
 	}
 	return out, nil
 }

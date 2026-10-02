@@ -250,7 +250,7 @@ func TestRefreshCardataAccessTokenDropsExpiredStreamingToken(t *testing.T) {
 	if err := cfg.SaveTokens("client-id", "", "old-access", "old-refresh", now.Add(-time.Hour)); err != nil {
 		t.Fatal(err)
 	}
-	if err := writeCardataSession(cfg, cfg.ClientID, &cardataToken{IDToken: testIDToken(now.Add(-time.Minute)), GCID: "gcid"}, now.Add(-time.Hour)); err != nil {
+	if err := writeCardataSession(cfg, cfg.ClientID, &cardataToken{AccessToken: cfg.AccessToken, RefreshToken: cfg.RefreshToken, IDToken: testIDToken(now.Add(-time.Minute)), GCID: "gcid"}, now.Add(-time.Hour)); err != nil {
 		t.Fatal(err)
 	}
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
@@ -279,7 +279,7 @@ func TestCurrentCardataStreamSessionRenewsExpiredIDToken(t *testing.T) {
 	if err := cfg.SaveTokens("client-id", "", "valid-access", "refresh", now.Add(time.Hour)); err != nil {
 		t.Fatal(err)
 	}
-	if err := writeCardataSession(cfg, cfg.ClientID, &cardataToken{IDToken: testIDToken(now.Add(-time.Minute)), GCID: "gcid"}, now.Add(time.Hour)); err != nil {
+	if err := writeCardataSession(cfg, cfg.ClientID, &cardataToken{AccessToken: cfg.AccessToken, RefreshToken: cfg.RefreshToken, IDToken: testIDToken(now.Add(-time.Minute)), GCID: "gcid"}, now.Add(time.Hour)); err != nil {
 		t.Fatal(err)
 	}
 	newID := testIDToken(now.Add(2 * time.Hour))
@@ -308,7 +308,7 @@ func TestCurrentCardataStreamSessionRejectsMissingReplacementIDToken(t *testing.
 	if err := cfg.SaveTokens("client-id", "", "access", "refresh", now.Add(time.Hour)); err != nil {
 		t.Fatal(err)
 	}
-	if err := writeCardataSession(cfg, cfg.ClientID, &cardataToken{IDToken: testIDToken(now.Add(-time.Minute)), GCID: "gcid"}, cfg.TokenExpiry); err != nil {
+	if err := writeCardataSession(cfg, cfg.ClientID, &cardataToken{AccessToken: cfg.AccessToken, RefreshToken: cfg.RefreshToken, IDToken: testIDToken(now.Add(-time.Minute)), GCID: "gcid"}, cfg.TokenExpiry); err != nil {
 		t.Fatal(err)
 	}
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
@@ -532,7 +532,7 @@ func TestLegacyAliasSessionMigratesForTargetStream(t *testing.T) {
 		t.Fatal(err)
 	}
 	idToken := testIDToken(now.Add(time.Hour))
-	legacySession, err := json.Marshal(map[string]string{"client_id": "client", "id_token": idToken, "gcid": "gcid"})
+	legacySession, err := json.Marshal(map[string]string{"client_id": "client", "access_token": "access", "refresh_token": "refresh", "id_token": idToken, "gcid": "gcid"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -599,7 +599,7 @@ func TestTargetFirstStreamMigratesKnownConfigAlias(t *testing.T) {
 				t.Skipf("symlinks unavailable: %v", err)
 			}
 			idToken := testIDToken(now.Add(time.Hour))
-			legacyData, err := json.Marshal(map[string]string{"client_id": "client", "id_token": idToken, "gcid": "gcid"})
+			legacyData, err := json.Marshal(map[string]string{"client_id": "client", "access_token": "access", "refresh_token": "refresh", "id_token": idToken, "gcid": "gcid"})
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -658,7 +658,8 @@ func TestTargetFirstStreamRejectsConflictingKnownAliases(t *testing.T) {
 			t.Skipf("symlinks unavailable: %v", err)
 		}
 		data, err := json.Marshal(map[string]string{
-			"client_id": "client", "id_token": testIDToken(now.Add(time.Duration(i+1) * time.Hour)), "gcid": "gcid",
+			"client_id": "client", "access_token": "access", "refresh_token": "refresh",
+			"id_token": testIDToken(now.Add(time.Duration(i+1) * time.Hour)), "gcid": "gcid",
 		})
 		if err != nil {
 			t.Fatal(err)
@@ -710,11 +711,18 @@ func TestLogoutThroughTargetRemovesKnownAliasSession(t *testing.T) {
 		t.Skipf("symlinks unavailable: %v", err)
 	}
 	legacy := filepath.Join(filepath.Dir(alias), "cardata_session.json")
-	data, err := json.Marshal(map[string]string{"client_id": "client", "id_token": testIDToken(time.Now().Add(time.Hour)), "gcid": "gcid"})
+	data, err := json.Marshal(map[string]string{"client_id": "client", "access_token": "access", "refresh_token": "refresh", "id_token": testIDToken(time.Now().Add(time.Hour)), "gcid": "gcid"})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if err := config.WritePrivateFile(legacy, data); err != nil {
+		t.Fatal(err)
+	}
+	shared, err := cardataSharedSessionPath(cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := config.WritePrivateFile(shared, data); err != nil {
 		t.Fatal(err)
 	}
 	cmd := newAuthLogoutCmd(&rootFlags{configPath: target})
@@ -725,6 +733,167 @@ func TestLogoutThroughTargetRemovesKnownAliasSession(t *testing.T) {
 	}
 	if _, err := os.Stat(legacy); !os.IsNotExist(err) {
 		t.Fatalf("logout through target left known alias-side credentials: %v", err)
+	}
+}
+
+func TestSameClientDifferentAccountAliasIsNeitherMigratedNorDeleted(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+	t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "")
+	t.Setenv("BMW_CARDATA_CONFIG", "")
+	now := time.Now().UTC()
+	target := filepath.Join(home, "target", "config.toml")
+	cfg, err := config.Load(target)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := cfg.SaveTokens("shared-client", "", "account-a-access", "account-a-refresh", now.Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	alias := filepath.Join(home, ".config", "bmw-cardata-pp-cli", "config.toml")
+	if err := os.MkdirAll(filepath.Dir(alias), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(target, alias); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	legacy := filepath.Join(filepath.Dir(alias), "cardata_session.json")
+	otherAccount, err := json.Marshal(map[string]string{
+		"client_id": "shared-client", "gcid": "account-b", "id_token": testIDToken(now.Add(time.Hour)),
+		"access_token": "account-b-access", "refresh_token": "account-b-refresh",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := config.WritePrivateFile(legacy, otherAccount); err != nil {
+		t.Fatal(err)
+	}
+	if err := migrateLegacyCardataSession(context.Background(), cfg, now); err != nil {
+		t.Fatal(err)
+	}
+	shared, err := cardataSharedSessionPath(cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(shared); !os.IsNotExist(err) {
+		t.Fatalf("another account's sidecar was migrated: %v", err)
+	}
+	if err := writeCardataSession(cfg, cfg.ClientID, &cardataToken{
+		AccessToken: cfg.AccessToken, RefreshToken: cfg.RefreshToken,
+		IDToken: testIDToken(now.Add(time.Hour)), GCID: "account-a",
+	}, now.Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	if data, err := os.ReadFile(legacy); err != nil || !bytes.Equal(data, otherAccount) {
+		t.Fatalf("new login changed another account's alias sidecar: %v", err)
+	}
+	cmd := newAuthLogoutCmd(&rootFlags{configPath: target})
+	cmd.SetOut(io.Discard)
+	cmd.SetContext(context.Background())
+	if err := cmd.RunE(cmd, nil); err != nil {
+		t.Fatal(err)
+	}
+	if data, err := os.ReadFile(legacy); err != nil || !bytes.Equal(data, otherAccount) {
+		t.Fatalf("logout deleted another account's alias sidecar: %v", err)
+	}
+}
+
+func TestSharedSessionWithSameClientWrongTokensIsRejected(t *testing.T) {
+	t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "")
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+	cfg, err := config.Load(configPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := cfg.SaveTokens("shared-client", "", "account-a-access", "account-a-refresh", time.Now().Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	shared, err := cardataSharedSessionPath(cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct{ name, access, refresh string }{
+		{"different-account", "account-b-access", "account-b-refresh"},
+		{"missing-token-proof", "", ""},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			data, err := json.Marshal(map[string]string{
+				"client_id": "shared-client", "gcid": "account-b", "id_token": testIDToken(time.Now().Add(time.Hour)),
+				"access_token": tc.access, "refresh_token": tc.refresh,
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := config.WritePrivateFile(shared, data); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := loadCardataSession(cfg); err == nil {
+				t.Fatal("reused an unproven shared session")
+			}
+		})
+	}
+}
+
+func TestLogoutPreservesUnprovenSharedAccountSession(t *testing.T) {
+	t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "")
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+	cfg, err := config.Load(configPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := cfg.SaveTokens("shared-client", "", "account-a-access", "account-a-refresh", time.Now().Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	shared, err := cardataSharedSessionPath(cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	otherAccount, err := json.Marshal(map[string]string{
+		"client_id": "shared-client", "gcid": "account-b", "id_token": testIDToken(time.Now().Add(time.Hour)),
+		"access_token": "account-b-access", "refresh_token": "account-b-refresh",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := config.WritePrivateFile(shared, otherAccount); err != nil {
+		t.Fatal(err)
+	}
+	cmd := newAuthLogoutCmd(&rootFlags{configPath: configPath})
+	cmd.SetOut(io.Discard)
+	cmd.SetContext(context.Background())
+	if err := cmd.RunE(cmd, nil); err != nil {
+		t.Fatal(err)
+	}
+	if data, err := os.ReadFile(shared); err != nil || !bytes.Equal(data, otherAccount) {
+		t.Fatalf("logout deleted another account's shared session: %v", err)
+	}
+}
+
+func TestDirectEnvironmentTokenCannotReuseSavedStreamingSession(t *testing.T) {
+	t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "")
+	now := time.Now().UTC()
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+	cfg, err := config.Load(configPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := cfg.SaveTokens("client", "", "saved-access", "saved-refresh", now.Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	if err := writeCardataSession(cfg, cfg.ClientID, &cardataToken{
+		AccessToken: cfg.AccessToken, RefreshToken: cfg.RefreshToken,
+		IDToken: testIDToken(now.Add(time.Hour)), GCID: "saved-gcid",
+	}, now.Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "different-account-direct-token")
+	withOverride, err := config.Load(configPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := currentCardataStreamSession(context.Background(), withOverride, now, "http://invalid.example"); !errors.Is(err, ErrCardataLoginRequired) {
+		t.Fatalf("environment token reused a different saved streaming identity: %v", err)
 	}
 }
 
@@ -757,7 +926,7 @@ func TestSidecarMigrationSelectsUsableSession(t *testing.T) {
 		{cardataSessionPath(selected), testIDToken(now.Add(-time.Hour))},
 		{filepath.Join(filepath.Dir(target), "cardata_session.json"), sharedToken},
 	} {
-		data, err := json.Marshal(map[string]string{"client_id": "client", "id_token": item.idToken, "gcid": "gcid"})
+		data, err := json.Marshal(map[string]string{"client_id": "client", "access_token": "access", "refresh_token": "refresh", "id_token": item.idToken, "gcid": "gcid"})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -777,7 +946,7 @@ func TestSidecarMigrationSelectsUsableSession(t *testing.T) {
 		{cardataSessionPath(selected), newAliasToken},
 		{filepath.Join(filepath.Dir(target), "cardata_session.json"), testIDToken(now.Add(-time.Hour))},
 	} {
-		data, err := json.Marshal(map[string]string{"client_id": "client", "id_token": item.idToken, "gcid": "gcid"})
+		data, err := json.Marshal(map[string]string{"client_id": "client", "access_token": "access", "refresh_token": "refresh", "id_token": item.idToken, "gcid": "gcid"})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -980,7 +1149,7 @@ func TestCurrentCardataStreamSessionRechecksIdentityUnderLock(t *testing.T) {
 	if err := initial.SaveTokens("client-id", "", "valid-access", "old-refresh", now.Add(time.Hour)); err != nil {
 		t.Fatal(err)
 	}
-	if err := writeCardataSession(initial, initial.ClientID, &cardataToken{IDToken: testIDToken(now.Add(-time.Minute)), GCID: "gcid"}, initial.TokenExpiry); err != nil {
+	if err := writeCardataSession(initial, initial.ClientID, &cardataToken{AccessToken: initial.AccessToken, RefreshToken: initial.RefreshToken, IDToken: testIDToken(now.Add(-time.Minute)), GCID: "gcid"}, initial.TokenExpiry); err != nil {
 		t.Fatal(err)
 	}
 	first, err := config.Load(configPath)
@@ -1058,7 +1227,7 @@ func TestSetTokenClearsOldOAuthExpiryAndStreamingSession(t *testing.T) {
 	if err := cfg.SaveTokens("client-id", "", "old-access", "old-refresh", time.Now().Add(-time.Hour)); err != nil {
 		t.Fatal(err)
 	}
-	if err := writeCardataSession(cfg, cfg.ClientID, &cardataToken{IDToken: testIDToken(time.Now().Add(time.Hour)), GCID: "gcid"}, cfg.TokenExpiry); err != nil {
+	if err := writeCardataSession(cfg, cfg.ClientID, &cardataToken{AccessToken: cfg.AccessToken, RefreshToken: cfg.RefreshToken, IDToken: testIDToken(time.Now().Add(time.Hour)), GCID: "gcid"}, cfg.TokenExpiry); err != nil {
 		t.Fatal(err)
 	}
 	cmd := newAuthSetTokenCmd(&rootFlags{configPath: configPath})
@@ -1107,7 +1276,7 @@ func TestStreamVerifyModeNeverRefreshesExpiredCredentials(t *testing.T) {
 	if err := cfg.SaveTokens("client-id", "", "expired-access", "refresh", time.Now().Add(-time.Hour)); err != nil {
 		t.Fatal(err)
 	}
-	if err := writeCardataSession(cfg, cfg.ClientID, &cardataToken{IDToken: testIDToken(time.Now().Add(-time.Hour)), GCID: "gcid"}, cfg.TokenExpiry); err != nil {
+	if err := writeCardataSession(cfg, cfg.ClientID, &cardataToken{AccessToken: cfg.AccessToken, RefreshToken: cfg.RefreshToken, IDToken: testIDToken(time.Now().Add(-time.Hour)), GCID: "gcid"}, cfg.TokenExpiry); err != nil {
 		t.Fatal(err)
 	}
 	var calls atomic.Int32
