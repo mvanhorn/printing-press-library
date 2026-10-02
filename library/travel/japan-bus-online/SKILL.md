@@ -74,7 +74,7 @@ Public searches need no credentials. Run `japan-bus-online-pp-cli doctor --json`
 
 Retry later on HTTP 429; errors preserve the failure rather than returning empty inventory. Source HTML may change: report parser failures and use the canonical page. The CLI never advances the booking form, submits passenger information or creates a reservation.
 
-For source maintenance and verification, read AGENTS.md in the CLI directory.
+For source maintenance, preserve the provider identity, fare/capacity and overnight-date contracts described above; run the repository verification checks after changes.
 
 ## Unique Capabilities
 
