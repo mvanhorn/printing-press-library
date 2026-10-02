@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "cf501c00b5ebd46f4a4561e17b768a338f1d9ccb8415e7b0e9ce40d6e75f3e53",
+  "source_fingerprint": "2ca66504c85c6391f7c5cbd5d8bc0df5644776ae430e7d6b83af3c593679c06a",
   "source_files": {
     "cmd/driveplaza-pp-cli/main.go": "a66bf6e76815b3e6ff1a0dc41596afceec3a2cd4526888b54cd1241aa071e029",
     "cmd/driveplaza-pp-mcp/main.go": "6317e441d4ee9032402f104caa680ae7aa5d9a033a72881ce61895265f5784aa",
@@ -100,7 +100,8 @@
     "internal/cliutil/text.go": "684b994811cab732d76da4a1e22f3c880108b465b4feacb36accc3f33eef9e54",
     "internal/cliutil/verifyenv.go": "5b7d3b4c92ff277883b8676f5c4f1db6e92af5b195b906944f0311f4265baa76",
     "internal/config/config.go": "92c4ffb815581fdc4c97d83b3a4cbd28b2cba7931d78980483d5b92b0a621d8e",
-    "internal/driveplaza/parse.go": "69d37efc2999234c6d83a71dd2178ea7e24645193b97cabdadfe351d8909cb8a",
+    "internal/driveplaza/parse.go": "51cb3f094ea966077f354a0ec9ec5cbf1c6001f572608c4e179017df6ab22b67",
+    "internal/driveplaza/route_panels_test.go": "4de76f198f0008afc99ed4bb4bbe4596cc1dd2d835fdd6fa39544c1dc461d9da",
     "internal/driveplaza/source.go": "df5344516302121bd5fecfb1fa5b628ca6c073c458beac61a9c2595b96e09359",
     "internal/driveplaza/source_test.go": "da88b5b4322b77174b3691aa3b6d08423e6442581194e2f16182caa47586384e",
     "internal/learn/derive.go": "478c16a3172be911eb6b430fb8b058e1838f5a7a8da8303e57f2447227f20fbc",

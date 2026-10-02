@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "checked_at": "2026-10-02T12:58:44.528982+00:00",
+  "command": "driveplaza-pp-cli route --from nerima --to sendai-minami --at 2026-10-10T08:00 --detail --agent --no-learn",
+  "upstream_requests": 1,
+  "alternatives": [
+    {
+      "id": "route-1",
+      "directional_stops": 19,
+      "forecasts": 5,
+      "warnings": 1
+    },
+    {
+      "id": "route-2",
+      "directional_stops": 18,
+      "forecasts": 5,
+      "warnings": 1
+    },
+    {
+      "id": "route-3",
+      "directional_stops": 23,
+      "forecasts": 5,
+      "warnings": 1
+    }
+  ],
+  "raw_response": "Subprocess stdout kept private in memory; only outcome/counts persisted."
+}

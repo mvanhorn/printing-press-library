@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "driveplaza-route-panels-preserve-alternative-details",
+  "applied_at": "2026-10-02",
+  "base_run_id": "20261002-003344-620149db",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Match each route summary only to its immediate route-level detail panel.",
+  "reason": "Provider detail panels nest ETC/ETC2 toll tabs with the same class; recursive selection must not shift later alternatives or erase their stops, forecast links and restrictions.",
+  "files": [
+    "internal/driveplaza/parse.go",
+    "internal/driveplaza/route_panels_test.go"
+  ],
+  "call_sites": [
+    "Summary rows correspond to immediate route panels."
+  ],
+  "validated_outcome": "The minimal two-alternative nested-tab fixture fails under the old selector and passes after the fix; all three alternatives in the archived real provider page retain stops, forecast URLs and warnings.",
+  "upstream_issue": "https://github.com/mvanhorn/printing-press-library/pull/2235#discussion_r4165851197"
+}

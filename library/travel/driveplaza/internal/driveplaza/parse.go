@@ -349,7 +349,16 @@ func parseRoutes(b []byte, detail bool, en string) ([]RouteAlternative, error) {
 	if table == nil {
 		return nil, fmt.Errorf("no source route alternatives; check exact English IC names, schedule and route restrictions at%s/dp/SearchTopEN", en)
 	}
-	panels := all(first(doc, byClass("js-doubleTabContent")), byClass("ui-tabbox"))
+	// Summary rows correspond to immediate route panels. Nested ui-tabbox
+	// elements are toll tabs within a route and must not consume an alternative.
+	panels := []*html.Node{}
+	if content := first(doc, byClass("js-doubleTabContent")); content != nil {
+		for panel := content.FirstChild; panel != nil; panel = panel.NextSibling {
+			if byClass("ui-tabbox")(panel) {
+				panels = append(panels, panel)
+			}
+		}
+	}
 	out := []RouteAlternative{}
 	for _, tr := range all(table, tag("tr")) {
 		td := all(tr, tag("td"))
