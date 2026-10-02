@@ -644,6 +644,74 @@ func TestForeignSharedSidecarCannotSupplyStreamingIdentity(t *testing.T) {
 	}
 }
 
+func TestStreamingWithoutClientIDCannotUseOrMigrateSidecar(t *testing.T) {
+	t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "")
+	now := time.Now().UTC()
+	dir := t.TempDir()
+	target := filepath.Join(dir, "target", "config.toml")
+	initial, err := config.Load(target)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := initial.SaveTokens("", "", "file-access", "refresh", now.Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	aliasDir := filepath.Join(dir, "alias")
+	if err := os.MkdirAll(aliasDir, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	alias := filepath.Join(aliasDir, "config.toml")
+	if err := os.Symlink(target, alias); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	selected, err := config.Load(alias)
+	if err != nil {
+		t.Fatal(err)
+	}
+	foreignSession, err := json.Marshal(map[string]string{
+		"client_id": "other-client", "gcid": "gcid", "id_token": testIDToken(now.Add(time.Hour)),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := config.WritePrivateFile(cardataSessionPath(selected), foreignSession); err != nil {
+		t.Fatal(err)
+	}
+	shared, err := cardataSharedSessionPath(selected)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var calls atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		calls.Add(1)
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer server.Close()
+	for _, phase := range []string{"legacy", "shared"} {
+		if phase == "shared" {
+			if _, err := os.Stat(shared); !os.IsNotExist(err) {
+				t.Fatalf("legacy sidecar was migrated without a client ID: %v", err)
+			}
+			if err := config.WritePrivateFile(shared, foreignSession); err != nil {
+				t.Fatal(err)
+			}
+		}
+		session, err := currentCardataStreamSession(context.Background(), selected, now, server.URL)
+		if session != nil || !errors.Is(err, ErrCardataLoginRequired) {
+			t.Fatalf("%s sidecar supplied identity without client ID: %v", phase, err)
+		}
+	}
+	if calls.Load() != 0 {
+		t.Fatalf("stream called provider %d times without client ID", calls.Load())
+	}
+	if err := RefreshCardataAccessTokenIfNeeded(context.Background(), selected, now, server.URL); err != nil {
+		t.Fatalf("ordinary API access was blocked without client ID: %v", err)
+	}
+	if selected.AuthHeader() != "Bearer file-access" {
+		t.Fatal("ordinary API credential became unavailable")
+	}
+}
+
 func TestCurrentCardataStreamSessionRechecksIdentityUnderLock(t *testing.T) {
 	t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "")
 	now := time.Now().UTC()

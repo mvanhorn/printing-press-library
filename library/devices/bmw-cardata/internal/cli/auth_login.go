@@ -534,6 +534,9 @@ func currentCardataStreamSession(ctx context.Context, cfg *config.Config, now ti
 		}
 		*cfg = *fresh
 	}
+	if cfg.ClientID == "" {
+		return nil, fmt.Errorf("%w: streaming needs a saved OAuth client ID; run 'auth login'", ErrCardataLoginRequired)
+	}
 	if err := migrateLegacyCardataSession(ctx, cfg, now); err != nil {
 		return nil, err
 	}
@@ -611,6 +614,10 @@ func migrateLegacyCardataSession(ctx context.Context, cfg *config.Config, now ti
 }
 
 func migrateLegacyCardataSessionLocked(cfg *config.Config, now time.Time) error {
+	if cfg.ClientID == "" {
+		// A sidecar cannot be linked to an OAuth account without its client ID.
+		return nil
+	}
 	shared, err := cardataSharedSessionPath(cfg)
 	if err != nil {
 		return err
@@ -669,12 +676,15 @@ func migrateLegacyCardataSessionLocked(cfg *config.Config, now time.Time) error 
 }
 
 func usableCardataSession(data []byte, cfg *config.Config, now time.Time) bool {
+	if cfg.ClientID == "" {
+		return false
+	}
 	var session map[string]string
 	if json.Unmarshal(data, &session) != nil {
 		return false
 	}
 	return session["gcid"] != "" && validCardataIDToken(session["id_token"], now) &&
-		(cfg.ClientID == "" || session["client_id"] == cfg.ClientID)
+		session["client_id"] == cfg.ClientID
 }
 
 // writeCardataSession persists the streaming credentials (GCID + id_token)
@@ -743,7 +753,7 @@ func loadCardataSession(cfg *config.Config) (map[string]string, error) {
 			out[k] = s
 		}
 	}
-	if cfg.ClientID != "" && out["client_id"] != cfg.ClientID {
+	if cfg.ClientID == "" || out["client_id"] != cfg.ClientID {
 		return nil, fmt.Errorf("streaming session belongs to another client")
 	}
 	return out, nil
