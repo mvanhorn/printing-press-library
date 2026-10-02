@@ -1,6 +1,7 @@
 # Swiggy CLI
 
-Created by Som Samantray (@SomSamantray). MCP tool envelope and Windows credential-permission fixes contributed by Cathryn Lavery (@cathrynlavery).
+Created by Som Samantray (@SomSamantray).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 **Every Swiggy Builders Club tool, one persistent OAuth session, and a local order history no Swiggy surface shows you.**
 
