@@ -22,7 +22,7 @@ func newNovelChatResumeCmd(flags *rootFlags) *cobra.Command {
 		Use:         "resume <conversation-id> <message>",
 		Short:       "Continue a past chat thread from local history with full context",
 		Example:     "  sarvam-pp-cli chat resume 20260814_2d09e061 'what was our conclusion?'",
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "id=20260814_2d09e061-f89b-400e-8d64-89cfbe4e8e7d;msg=what was our conclusion?", "pp:typed-exit-codes": "0,3"},
+		Annotations: map[string]string{"mcp:read-only": "false", "pp:happy-args": "id=20260814_2d09e061-f89b-400e-8d64-89cfbe4e8e7d;msg=what was our conclusion?", "pp:typed-exit-codes": "0,3"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
@@ -73,34 +73,17 @@ func newNovelChatResumeCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return notFoundErr(fmt.Errorf("conversation %q not found in local history", conversationID))
 			}
-			var stored struct {
-				ID      string `json:"id"`
-				Choices []struct {
-					Message struct {
-						Content string `json:"content"`
-						Role    string `json:"role"`
-					} `json:"message"`
-				} `json:"choices"`
+			record, err := decodeStoredChatConversation(raw)
+			if err != nil {
+				return apiErr(err)
 			}
-			if err := json.Unmarshal(raw, &stored); err != nil {
-				return apiErr(fmt.Errorf("parsing stored conversation: %w", err))
+			messages, err := buildChatResumeMessages(record, userMessage)
+			if err != nil {
+				return apiErr(err)
 			}
-			var priorAssistant string
-			for _, c := range stored.Choices {
-				if c.Message.Content != "" {
-					priorAssistant = c.Message.Content
-				}
+			if !cmd.Flags().Changed("model") && record.Model != "" {
+				flagModel = record.Model
 			}
-
-			// Build the continuation request: prior assistant reply provides
-			// context, the user's new message continues the thread.
-			messages := []map[string]any{}
-			if priorAssistant != "" {
-				messages = append(messages,
-					map[string]any{"role": "system", "content": "You are continuing a previous conversation. The assistant's last reply was: " + priorAssistant},
-				)
-			}
-			messages = append(messages, map[string]any{"role": "user", "content": userMessage})
 
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
@@ -128,15 +111,21 @@ func newNovelChatResumeCmd(flags *rootFlags) *cobra.Command {
 			if err := json.Unmarshal(data, &resp); err != nil {
 				return apiErr(fmt.Errorf("parsing chat response: %w", err))
 			}
+			if resp.ID == "" {
+				return apiErr(fmt.Errorf("chat response has no conversation id"))
+			}
+			if persistErr := persistChatConversation(cmd.Context(), data, messages, flagModel); persistErr != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: resumed chat succeeded but local history was not saved: %v\n", persistErr)
+			}
 			reply := ""
 			if len(resp.Choices) > 0 {
 				reply = resp.Choices[0].Message.Content
 			}
 
 			result := map[string]any{
-				"conversation_id": conversationID,
-				"model":           flagModel,
-				"reply":           reply,
+				"conversation_id":     conversationID,
+				"model":               flagModel,
+				"reply":               reply,
 				"new_conversation_id": resp.ID,
 			}
 			if !wantsHumanTable(cmd.OutOrStdout(), flags) {

@@ -143,7 +143,9 @@ func newTextToSpeechTextToSpeechCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
-				writeMutationResponseToStore(cmd.Context(), "text-to-speech", data, "audios")
+				if persistErr := persistTTSHistory(cmd.Context(), data, body); persistErr != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: text-to-speech succeeded but local history was not saved: %v\n", persistErr)
+				}
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")

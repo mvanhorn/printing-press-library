@@ -39,7 +39,7 @@ func newChatPromotedCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Creates a model response for the given chat conversation. Serves sarvam-105b and sarvam-105b-conversations models.",
 		Long:        "Creates a model response for the given chat conversation. Serves sarvam-105b and sarvam-105b-conversations models.",
 		Example:     "  sarvam-pp-cli chat --model sarvam-105b",
-		Annotations: map[string]string{"pp:endpoint": "chat.completions", "pp:method": "POST", "pp:path": "/v1/chat/completions"},
+		Annotations: map[string]string{"pp:endpoint": "chat.completions", "pp:method": "POST", "pp:path": "/v1/chat/completions", "mcp:read-only": "false"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with a required flag/body prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
@@ -201,7 +201,11 @@ func newChatPromotedCmd(flags *rootFlags) *cobra.Command {
 				partialFailure = detectPartialFailure(data)
 			}
 			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
-				writeMutationResponseToStore(cmd.Context(), "chat", data, "choices")
+				messages, _ := bodyMap["messages"].([]any)
+				model, _ := bodyMap["model"].(string)
+				if persistErr := persistChatConversation(cmd.Context(), data, messages, model); persistErr != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: chat succeeded but local history was not saved: %v\n", persistErr)
+				}
 			}
 			outputData := data
 			// Print provenance to stderr for human-facing output only.

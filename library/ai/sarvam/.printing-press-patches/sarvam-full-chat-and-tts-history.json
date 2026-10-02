@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "sarvam-full-chat-and-tts-history",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260814-164825-7ec4499e",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Save chat request context with the response so resume sends the full conversation, and save TTS request metadata without duplicating base64 audio.",
+  "reason": "The published chat resume command only reconstructed the last assistant reply, and generic mutation storage skipped Sarvam chat and TTS responses because their identities do not match generic resource shapes.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "internal/cli/chat_history.go",
+    "internal/cli/chat_history_integration_test.go",
+    "internal/cli/chat_resume.go",
+    "internal/cli/chat_resume_test.go",
+    "internal/cli/promoted_chat.go",
+    "internal/cli/text-to-speech_text_to_speech.go",
+    "internal/cli/tts_history.go",
+    "internal/cli/tts_history_test.go"
+  ]
+}

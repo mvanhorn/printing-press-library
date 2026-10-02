@@ -6,6 +6,7 @@ package cli
 
 import (
 	"bytes"
+	"encoding/json"
 	"strings"
 	"testing"
 )
@@ -28,5 +29,55 @@ func TestNovelChatResumeHelpWires(t *testing.T) {
 		if !strings.Contains(help, want) {
 			t.Fatalf("chat resume --help missing %q in output:\n%s", want, help)
 		}
+	}
+}
+
+func TestChatConversationRecordPreservesRequestContext(t *testing.T) {
+	response := json.RawMessage(`{"id":"chat-next","model":"sarvam-105b","choices":[{"message":{"role":"assistant","content":"The conclusion was 42."}}]}`)
+	messages := []any{
+		map[string]any{"role": "system", "content": "Be concise."},
+		map[string]any{"role": "user", "content": "What is the answer?"},
+	}
+	record, err := newChatConversationRecord(response, messages, "sarvam-105b")
+	if err != nil {
+		t.Fatalf("newChatConversationRecord() error = %v", err)
+	}
+	if record.ID != "chat-next" || record.Model != "sarvam-105b" || len(record.Messages) != 2 {
+		t.Fatalf("record = %#v", record)
+	}
+
+	resumed, err := buildChatResumeMessages(record, "Why?")
+	if err != nil {
+		t.Fatalf("buildChatResumeMessages() error = %v", err)
+	}
+	if len(resumed) != 4 {
+		t.Fatalf("resumed messages = %#v, want four full-context messages", resumed)
+	}
+	for i, wantRole := range []string{"system", "user", "assistant", "user"} {
+		message, ok := resumed[i].(map[string]any)
+		if !ok || message["role"] != wantRole {
+			t.Fatalf("resumed message %d = %#v, want role %q", i, resumed[i], wantRole)
+		}
+	}
+}
+
+func TestDecodeStoredChatConversationSupportsLegacyResponse(t *testing.T) {
+	raw := json.RawMessage(`{"id":"legacy-chat","model":"sarvam-105b","choices":[{"message":{"role":"assistant","content":"Earlier reply"}}]}`)
+	record, err := decodeStoredChatConversation(raw)
+	if err != nil {
+		t.Fatalf("decodeStoredChatConversation() error = %v", err)
+	}
+	resumed, err := buildChatResumeMessages(record, "Continue")
+	if err != nil {
+		t.Fatalf("buildChatResumeMessages() error = %v", err)
+	}
+	if len(resumed) != 2 {
+		t.Fatalf("legacy resumed messages = %#v, want assistant plus user", resumed)
+	}
+}
+
+func TestNewChatConversationRecordRequiresResponseID(t *testing.T) {
+	if _, err := newChatConversationRecord(json.RawMessage(`{"choices":[]}`), []any{}, "sarvam-105b"); err == nil {
+		t.Fatal("newChatConversationRecord() unexpectedly accepted a response without id")
 	}
 }
