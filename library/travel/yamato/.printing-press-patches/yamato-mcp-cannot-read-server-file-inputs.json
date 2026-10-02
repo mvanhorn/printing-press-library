@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "yamato-mcp-cannot-read-server-file-inputs",
+  "applied_at": "2026-10-02",
+  "base_run_id": "20261002-001822-d8273d21",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Keep server-side playbook and notes file inputs outside the MCP schema and structured argument allowlist.",
+  "reason": "MCP callers run as the server account; forwarding filesystem read flags can disclose server files through stored playbook notes.",
+  "files": [
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/cobratree/typemap.go",
+    "internal/mcp/cobratree/server_file_inputs_test.go"
+  ],
+  "validated_outcome": "All three file-input flags are hidden and rejected before shell-out; inline notes remain available."
+}

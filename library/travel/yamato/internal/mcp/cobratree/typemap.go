@@ -204,7 +204,7 @@ func blockedStructuredArgsForCommand(cmd *cobra.Command) map[string]bool {
 	for name := range reservedStructuredArgs {
 		blocked[name] = true
 	}
-	for name := range blockedDestinationFlags {
+	for name := range blockedFilesystemFlags {
 		blocked[name] = true
 	}
 	if cmd == nil {

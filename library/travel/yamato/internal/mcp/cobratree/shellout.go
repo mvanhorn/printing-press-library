@@ -191,15 +191,17 @@ var reservedStructuredArgs = map[string]bool{
 	"args": true,
 }
 
-// MCP runs commands as the server account. Letting clients choose filesystem
-// destinations would let a tool write or truncate anything that account can
-// reach.
-var blockedDestinationFlags = map[string]bool{
-	"audit-dir":    true,
-	"db":           true,
-	"o":            true,
-	"output":       true,
-	"receipt-file": true,
+// MCP runs commands as the server account. Clients cannot choose server-side
+// file inputs or destinations. Inline notes and playbook JSON remain available.
+var blockedFilesystemFlags = map[string]bool{
+	"audit-dir":           true,
+	"db":                  true,
+	"notes-file":          true,
+	"o":                   true,
+	"output":              true,
+	"playbook-file":       true,
+	"playbook-notes-file": true,
+	"receipt-file":        true,
 }
 
 // blockedRootFlags are root-level CLI flags that an MCP client must not be

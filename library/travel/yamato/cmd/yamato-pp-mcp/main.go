@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/travel/yamato/internal/cli"
@@ -84,8 +85,10 @@ func main() {
 		}
 		inner := server.NewStreamableHTTPServer(s)
 		httpSrv := &http.Server{
-			Addr:    bindAddr,
-			Handler: requireBearerAuth(token, inner),
+			Addr:              bindAddr,
+			Handler:           requireBearerAuth(token, inner),
+			ReadHeaderTimeout: 10 * time.Second,
+			IdleTimeout:       2 * time.Minute,
 		}
 		fmt.Fprintf(os.Stderr, "yamato-pp-mcp serving MCP over streamable HTTP at %s (Authorization: Bearer $%s)\n", bindAddr, httpTokenEnvVar)
 		if *tlsCert != "" {

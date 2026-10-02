@@ -144,17 +144,23 @@ func writeDownloadUnder(dir, name string, body []byte) error {
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return fmt.Errorf("creating download dir: %w", err)
 	}
-	tmp := path + ".tmp"
-	if err := os.WriteFile(tmp, body, 0o600); err != nil {
+	f, err := os.CreateTemp(dir, "."+name+"-*.tmp")
+	if err != nil {
+		return fmt.Errorf("creating private download: %w", err)
+	}
+	tmp := f.Name()
+	defer os.Remove(tmp)
+	if _, err := f.Write(body); err != nil {
+		_ = f.Close()
 		return fmt.Errorf("writing download: %w", err)
 	}
+	if err := f.Close(); err != nil {
+		return fmt.Errorf("closing download: %w", err)
+	}
 	if err := os.Rename(tmp, path); err != nil {
-		_ = os.Remove(tmp)
 		return fmt.Errorf("replacing download: %w", err)
 	}
-	if err := os.Chmod(path, 0o600); err != nil {
-		return fmt.Errorf("setting download permissions: %w", err)
-	}
+	// CreateTemp sets 0600 before writing; rename preserves those permissions.
 	return nil
 }
 
