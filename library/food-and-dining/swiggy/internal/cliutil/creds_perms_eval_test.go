@@ -36,3 +36,18 @@ func TestEvalCredsSecurity(t *testing.T) {
 		})
 	}
 }
+
+func TestEvalCredsSecurityRejectsNullDACLWithFlags(t *testing.T) {
+	const me = "S-1-5-21-1-2-3-1000"
+	// Windows permits concatenated protection and inheritance flags before or
+	// after the NULL ACL marker. None of them makes a NULL DACL private.
+	for _, flags := range []string{"P", "AR", "AI", "PAI", "PARAI"} {
+		for _, nullFlags := range []string{flags + "NO_ACCESS_CONTROL", "NO_ACCESS_CONTROL" + flags} {
+			t.Run(nullFlags, func(t *testing.T) {
+				if err := evalCredsSecurity("O:"+me+"D:"+nullFlags, me); err == nil {
+					t.Fatal("NULL DACL accepted")
+				}
+			})
+		}
+	}
+}

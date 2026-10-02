@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "null-dacl-control-flags",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260913-115332-8cbd64e9",
+  "base_printing_press_version": "4.32.1",
+  "summary": "Reject Windows credential files with NULL DACLs under combined security-control flags.",
+  "reason": "Checking only the start of the SDDL flag prefix could mistake a world-accessible NULL DACL for an empty restrictive ACL. The native descriptor must also reject an absent DACL.",
+  "files": [
+    "internal/cliutil/creds_perms_eval.go",
+    "internal/cliutil/creds_perms_eval_test.go",
+    "internal/cliutil/creds_perms_windows.go",
+    "README.md",
+    "NOTICE"
+  ],
+  "validated_outcome": "Synthetic ACL tests cover combined control flags. macOS tests and Windows amd64/arm64 cross-builds pass; native Windows execution is unverified.",
+  "safety": "Credential files with ambiguous or absent access controls are rejected rather than accepted."
+}

@@ -40,6 +40,15 @@ func VerifyCredsPerms(path string) error {
 	if err != nil {
 		return fmt.Errorf("cannot read credentials/token file ACL: %w", err)
 	}
+	// A NULL DACL grants everyone access. Check the native descriptor too,
+	// before rendering control-flag combinations to SDDL.
+	dacl, _, err := sd.DACL()
+	if err != nil {
+		return fmt.Errorf("cannot read credentials/token file DACL: %w", err)
+	}
+	if dacl == nil {
+		return fmt.Errorf("token file has a NULL DACL (world-accessible)")
+	}
 	me, err := currentUserSID()
 	if err != nil {
 		return fmt.Errorf("cannot resolve current user SID: %w", err)
