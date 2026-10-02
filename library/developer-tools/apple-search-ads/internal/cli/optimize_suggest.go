@@ -117,7 +117,10 @@ ROAS mode requires revenue data; keywords with no revenue in the lookback period
 			}
 
 			if fetchFailed > 0 {
-				return fmt.Errorf("%d of %d campaign keyword report(s) failed; check stderr for details", fetchFailed, fetchAttempted)
+				if err := printJSONFiltered(cmd.OutOrStdout(), allSuggestions, flags); err != nil {
+					return err
+				}
+				return partialFailureErr(fmt.Errorf("%d of %d campaign keyword report(s) failed; check stderr for details", fetchFailed, fetchAttempted))
 			}
 
 			var applyErr error

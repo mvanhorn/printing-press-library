@@ -264,6 +264,45 @@ func TestOptimizeSuggestPartialApplyOutputsSuggestions(t *testing.T) {
 	}
 }
 
+func TestOptimizeSuggestPartialFetchOutputsSuggestionsWithoutApplying(t *testing.T) {
+	var writes int
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.Method == http.MethodGet && r.URL.Path == "/campaigns":
+			_, _ = w.Write([]byte(`{"data":[{"id":"camp1"},{"id":"camp2"}]}`))
+		case r.Method == http.MethodPost && r.URL.Path == "/reports/campaigns/camp1/keywords":
+			_, _ = w.Write(reportFixture())
+		case r.Method == http.MethodPost && r.URL.Path == "/reports/campaigns/camp2/keywords":
+			w.WriteHeader(http.StatusBadRequest)
+			_, _ = w.Write([]byte(`{"error":"unavailable"}`))
+		case r.Method == http.MethodPut:
+			writes++
+			w.WriteHeader(http.StatusOK)
+		default:
+			http.Error(w, "unexpected request", http.StatusNotFound)
+		}
+	}))
+	defer server.Close()
+	t.Setenv("APPLE_SEARCH_ADS_BASE_URL", server.URL)
+	t.Setenv("APPLE_SEARCH_ADS_TOKEN", "test-token")
+	var stdout, stderr bytes.Buffer
+	cmd := newRootCmd(&rootFlags{})
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&stderr)
+	cmd.SetArgs([]string{"optimize", "suggest", "--metric", "cpa", "--target", "2", "--apply", "--no-cache", "--config", filepath.Join(t.TempDir(), "missing.toml")})
+	err := cmd.Execute()
+	if err == nil || ExitCode(err) != 6 || writes != 0 {
+		t.Fatalf("partial fetch: err=%v exit=%d writes=%d stderr=%q", err, ExitCode(err), writes, stderr.String())
+	}
+	var suggestions []bidSuggestion
+	if err := json.Unmarshal(stdout.Bytes(), &suggestions); err != nil || len(suggestions) != 1 || suggestions[0].CampaignID != "camp1" {
+		t.Fatalf("partial fetch suggestions: rows=%+v err=%v stdout=%q", suggestions, err, stdout.String())
+	}
+	if !strings.Contains(stderr.String(), "camp2") {
+		t.Fatalf("failed campaign missing from stderr: %q", stderr.String())
+	}
+}
+
 func TestBuildBidSuggestions_ROAS_NoRevenue(t *testing.T) {
 	// yoga mat has revenue=0; ROAS mode must skip it.
 	kws := extractKeywordsFromReportPayload(reportFixture())
