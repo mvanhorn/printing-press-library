@@ -1712,6 +1712,18 @@ var resourceIDFieldOverrides = map[string]string{
 	"text-to-speech": "name",
 }
 
+// Some Sarvam response items use request- or job-scoped identifiers without
+// a generic id. Keep these fallbacks resource-scoped, after stable IDs and
+// declared overrides, so a foreign request_id cannot key an unrelated row.
+var resourceIDAlternativeFields = map[string][]string{
+	"doc-ai":         {"job_id", "upload_id"},
+	"speech-to-text": {"request_id", "job_id"},
+	"text-lid":       {"request_id"},
+	"text-to-speech": {"dictionary_id", "request_id"},
+	"translate":      {"request_id"},
+	"transliterate":  {"request_id"},
+}
+
 // Generic ID fields are split around the resource-specific suffix probe.
 // Stable vendor identifiers win first; then fields derived from the resource
 // name (accountId, workspaceId); descriptive fallbacks are last. Keeping name
@@ -1754,6 +1766,14 @@ func ExtractResourceID(resourceType string, obj map[string]any) string {
 	}
 	if s := suffixIDFieldFallback(resourceType, obj); s != "" {
 		return s
+	}
+	for _, key := range resourceIDAlternativeFields[resourceType] {
+		if v := lookupFieldValue(obj, key); v != nil {
+			s := ResourceIDString(v)
+			if s != "" && s != "<nil>" {
+				return s
+			}
+		}
 	}
 	for _, key := range genericDescriptiveIDFieldFallbacks {
 		if v := lookupFieldValue(obj, key); v != nil {
