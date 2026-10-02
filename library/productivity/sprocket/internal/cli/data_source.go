@@ -80,8 +80,11 @@ func isNetworkError(err error) bool {
 
 // openStoreForRead opens the local SQLite store for reading.
 // Returns nil, nil if the database file does not exist (no sync has been run).
-func openStoreForRead(ctx context.Context, cliName string) (*store.Store, error) {
-	dbPath := defaultDBPath(cliName)
+func openStoreForRead(ctx context.Context, flags *rootFlags, cliName string) (*store.Store, error) {
+	dbPath, err := scopedDefaultDBPath(cliName, flags)
+	if err != nil {
+		return nil, err
+	}
 	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
 		return nil, nil
 	}
@@ -158,7 +161,7 @@ func resolveReadWithStrategy(ctx context.Context, c *client.Client, flags *rootF
 	default: // "auto"
 		data, err := c.GetWithHeaders(ctx, path, params, headers)
 		if err == nil {
-			writeThroughCache(ctx, resourceType, data)
+			writeThroughCache(ctx, flags, resourceType, data)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
 		if !isNetworkError(err) {
@@ -212,7 +215,7 @@ func resolvePaginatedReadWithStrategy(ctx context.Context, c *client.Client, fla
 	default: // "auto"
 		data, err := paginatedGet(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField)
 		if err == nil {
-			writeThroughCache(ctx, resourceType, data)
+			writeThroughCache(ctx, flags, resourceType, data)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
 		if !isNetworkError(err) {
@@ -271,8 +274,12 @@ var writeThroughNestedEnvelopeKeys = []string{"data", "Data", "result", "Result"
 // writeThroughCache upserts live API results into the local SQLite store so
 // FTS search covers everything the user has looked up — not just explicit syncs.
 // Best-effort: failures are silently ignored (the live result already succeeded).
-func writeThroughCache(ctx context.Context, resourceType string, data json.RawMessage) {
-	db, err := store.OpenWithContext(ctx, defaultDBPath("sprocket-pp-cli"))
+func writeThroughCache(ctx context.Context, flags *rootFlags, resourceType string, data json.RawMessage) {
+	dbPath, err := scopedDefaultDBPath("sprocket-pp-cli", flags)
+	if err != nil {
+		return
+	}
+	db, err := store.OpenWithContext(ctx, dbPath)
 	if err != nil {
 		return
 	}
@@ -441,13 +448,17 @@ func isRawJSONNull(raw json.RawMessage) bool {
 	return strings.TrimSpace(string(raw)) == "null"
 }
 
-func writeMutationResponseToStore(ctx context.Context, resourceType string, data json.RawMessage, responsePath string) {
+func writeMutationResponseToStore(ctx context.Context, flags *rootFlags, resourceType string, data json.RawMessage, responsePath string) {
 	items := mutationResponseEntityItems(resourceType, data, responsePath)
 	if len(items) == 0 {
 		return
 	}
 
-	db, err := store.OpenWithContext(ctx, defaultDBPath("sprocket-pp-cli"))
+	dbPath, err := scopedDefaultDBPath("sprocket-pp-cli", flags)
+	if err != nil {
+		return
+	}
+	db, err := store.OpenWithContext(ctx, dbPath)
 	if err != nil {
 		return
 	}
@@ -548,7 +559,7 @@ func mutationResponseHasID(resourceType string, data json.RawMessage) bool {
 // filters (query params, path scoping like /teams/{id}/users) are NOT applied locally.
 // The provenance metadata includes "unscoped":true when params were present but not applied.
 func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, resourceType string, isList bool, path string, params map[string]string, reason string) (json.RawMessage, DataProvenance, error) {
-	db, err := openStoreForRead(ctx, "sprocket-pp-cli")
+	db, err := openStoreForRead(ctx, flags, "sprocket-pp-cli")
 	if err != nil {
 		return nil, DataProvenance{}, fmt.Errorf("opening local database: %w\nRun 'sprocket-pp-cli sync' first.", err)
 	}

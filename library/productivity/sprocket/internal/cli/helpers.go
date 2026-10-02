@@ -572,7 +572,7 @@ func classifyAPIError(err error, flags *rootFlags) error {
 			"\n      Run 'sprocket-pp-cli doctor' to check auth status."+
 			"\n      Response: "+cliutil.SanitizeErrorBody(msg), err))
 	case strings.Contains(msg, "HTTP 401"):
-		return authErr(fmt.Errorf("%w\nhint: check your token. Set it with: sprocket-pp-cli auth set-token <token>"+
+		return authErr(fmt.Errorf("%w\nhint: check your token. Pipe it to: sprocket-pp-cli auth set-token"+
 			"\n      or: export SPROCKET_TOKEN=<your-token>"+
 			"\n      See API docs: https://jfcsoccer.sprocketsports.com"+
 			"\n      Run 'sprocket-pp-cli doctor' to check auth status.", err))

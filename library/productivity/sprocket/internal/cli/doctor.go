@@ -237,7 +237,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			// Surfaces rows + last_synced_at per resource, schema version,
 			// and a fresh/stale/unknown verdict so agents can introspect
 			// whether to trust the cached data before issuing queries.
-			report["cache"] = collectCacheReport(cmd.Context(), "")
+			report["cache"] = collectCacheReport(cmd.Context(), flags, "")
 
 			// Verify mode state. Surfaced so an operator who unintentionally
 			// inherits PRINTING_PRESS_VERIFY=1 (parent shell, CI runner, container
@@ -380,9 +380,14 @@ func doctorExitForFailOn(failOn string, report map[string]any) error {
 // staleAfterSpec is the CLI's configured threshold (e.g. "6h"); empty means
 // use the runtime default. The default is deliberately conservative (6h)
 // because the alternative is no freshness story at all.
-func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]any {
+func collectCacheReport(ctx context.Context, flags *rootFlags, staleAfterSpec string) map[string]any {
 	report := map[string]any{}
-	dbPath := defaultDBPath("sprocket-pp-cli")
+	dbPath, scopeErr := scopedDefaultDBPath("sprocket-pp-cli", flags)
+	if scopeErr != nil {
+		report["status"] = "error"
+		report["error"] = scopeErr.Error()
+		return report
+	}
 	report["db_path"] = dbPath
 
 	fi, err := os.Stat(dbPath)

@@ -87,9 +87,10 @@ func newScheduleListCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
-				// Check if response contains an array (directly or wrapped in "data")
-				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				// Check if the response contains an array directly or under the
+				// endpoint's declared events envelope (with data retained for
+				// compatibility with older deployments).
+				if items, ok := scheduleListItems(data); ok && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
 					} else {
@@ -97,20 +98,6 @@ func newScheduleListCmd(flags *rootFlags) *cobra.Command {
 							return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "schedule", partialFailure.Message))
 						}
 						return nil
-					}
-				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
-					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
-						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
-							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
-						} else {
-							if partialFailure != nil && !flags.allowPartialFailure {
-								return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "schedule", partialFailure.Message))
-							}
-							return nil
-						}
 					}
 				}
 			}
@@ -202,4 +189,25 @@ func newScheduleListCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd
+}
+
+func scheduleListItems(data json.RawMessage) ([]map[string]any, bool) {
+	var items []map[string]any
+	if json.Unmarshal(data, &items) == nil {
+		return items, true
+	}
+	var wrapped map[string]json.RawMessage
+	if json.Unmarshal(data, &wrapped) != nil {
+		return nil, false
+	}
+	for _, key := range []string{"events", "data"} {
+		raw, ok := wrapped[key]
+		if !ok {
+			continue
+		}
+		if json.Unmarshal(raw, &items) == nil {
+			return items, true
+		}
+	}
+	return nil, false
 }

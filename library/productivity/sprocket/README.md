@@ -7,6 +7,7 @@ Sprocket Sports CLI wraps your club's Sprocket dashboard API so you can answer t
 Learn more at [Sprocket Sports](https://jfcsoccer.sprocketsports.com).
 
 Created by [@stellato](https://github.com/stellato) (Greg Stellato).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 
@@ -125,6 +126,17 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 ## Authentication
 
 Sprocket Sports uses OAuth2/OIDC (Duende IdentityServer at login.sprocketsports.com) and the API takes a Bearer access token. This CLI authenticates with that token: set SPROCKET_TOKEN to the access_token from your logged-in dashboard session. To find it: open your club dashboard in Chrome, open DevTools, go to Application > Session Storage, find the 'oidc.user:...sprocket-sports' entry, and copy its access_token value. Tokens are short-lived (about an hour), so re-copy when commands start returning 401.
+
+To save a token without putting it in the process argument list, pipe it to
+`sprocket-pp-cli auth set-token` through standard input. HTTP MCP is bound to
+loopback only and requires a separate `PP_MCP_HTTP_TOKEN` bearer token. Use an
+authenticated TLS tunnel or reverse proxy for remote access.
+
+When `--db` is omitted, local records and sync state are separated by config
+path, club URL, and an opaque token digest. Rotating a token starts a new local
+cache. Existing data in the old shared default database remains on disk but is
+not read automatically; run `sprocket-pp-cli sync` to fill the new cache. An
+explicit `--db` path can be used when a stable advanced location is required.
 
 ## Choose your club
 

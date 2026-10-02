@@ -4,10 +4,15 @@
 package main
 
 import (
+	"crypto/subtle"
 	"flag"
 	"fmt"
+	"net"
+	"net/http"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/mark3labs/mcp-go/server"
 	mcptools "github.com/mvanhorn/printing-press-library/library/productivity/sprocket/internal/mcp"
@@ -20,7 +25,8 @@ import (
 // guidance that production agents need a remote option.
 
 const (
-	defaultHTTPAddr = ":7777"
+	defaultHTTPAddr = "127.0.0.1:7777"
+	httpTokenEnv    = "PP_MCP_HTTP_TOKEN"
 )
 
 // version is the printed MCP server's version, overridable at build time via ldflags.
@@ -46,9 +52,17 @@ func main() {
 			os.Exit(1)
 		}
 	case "http":
-		httpSrv := server.NewStreamableHTTPServer(s)
+		if err := validateHTTPAddr(*addr); err != nil {
+			fmt.Fprintf(os.Stderr, "unsafe MCP HTTP bind: %v\n", err)
+			os.Exit(2)
+		}
+		token := os.Getenv(httpTokenEnv)
+		if token == "" {
+			fmt.Fprintf(os.Stderr, "MCP HTTP requires %s to authenticate clients\n", httpTokenEnv)
+			os.Exit(2)
+		}
 		fmt.Fprintf(os.Stderr, "sprocket-pp-mcp serving MCP over streamable HTTP at %s\n", *addr)
-		if err := httpSrv.Start(*addr); err != nil {
+		if err := serveAuthenticatedHTTP(s, *addr, token); err != nil {
 			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
 			os.Exit(1)
 		}
@@ -56,6 +70,72 @@ func main() {
 		fmt.Fprintf(os.Stderr, "unknown --transport %q (supported: stdio, http)\n", *transport)
 		os.Exit(2)
 	}
+}
+
+func validateHTTPAddr(addr string) error {
+	host, port, err := net.SplitHostPort(addr)
+	if err != nil {
+		return fmt.Errorf("invalid --addr %q: %w", addr, err)
+	}
+	portNumber, err := strconv.Atoi(port)
+	if err != nil || portNumber < 1 || portNumber > 65535 {
+		return fmt.Errorf("invalid port %q", port)
+	}
+	if strings.EqualFold(host, "localhost") {
+		return nil
+	}
+	ip := net.ParseIP(host)
+	if ip == nil || !ip.IsLoopback() {
+		return fmt.Errorf("%q is not loopback; expose this server remotely only through an authenticated TLS reverse proxy or tunnel", host)
+	}
+	return nil
+}
+
+func serveAuthenticatedHTTP(mcpServer *server.MCPServer, addr, token string) error {
+	listener, err := net.Listen("tcp", addr)
+	if err != nil {
+		return err
+	}
+	if err := validateBoundListener(listener.Addr()); err != nil {
+		_ = listener.Close()
+		return err
+	}
+
+	mux := http.NewServeMux()
+	httpServer := &http.Server{
+		Addr:              addr,
+		Handler:           mux,
+		ReadHeaderTimeout: 10 * time.Second,
+	}
+	httpTransport := server.NewStreamableHTTPServer(
+		mcpServer,
+		server.WithStreamableHTTPServer(httpServer),
+	)
+	mux.Handle("/mcp", requireBearerToken(token, httpTransport))
+	return httpServer.Serve(listener)
+}
+
+// Check the address after resolution and serve on this same listener. A
+// localhost hosts-file change must not expose plaintext MCP outside loopback.
+func validateBoundListener(addr net.Addr) error {
+	tcp, ok := addr.(*net.TCPAddr)
+	if !ok || !tcp.IP.IsLoopback() {
+		return fmt.Errorf("resolved MCP bind %q is not loopback", addr)
+	}
+	return nil
+}
+
+func requireBearerToken(token string, next http.Handler) http.Handler {
+	want := []byte("Bearer " + token)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		got := []byte(r.Header.Get("Authorization"))
+		if len(got) != len(want) || subtle.ConstantTimeCompare(got, want) != 1 {
+			w.Header().Set("WWW-Authenticate", "Bearer")
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 // defaultTransport reads PP_MCP_TRANSPORT env when set, otherwise falls back

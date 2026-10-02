@@ -37,7 +37,11 @@ Data must be synced first with the sync command.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			out := cmd.OutOrStdout()
 			if dbPath == "" {
-				dbPath = defaultDBPath("sprocket-pp-cli")
+				var err error
+				dbPath, err = scopedDefaultDBPath("sprocket-pp-cli", flags)
+				if err != nil {
+					return err
+				}
 			}
 
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)

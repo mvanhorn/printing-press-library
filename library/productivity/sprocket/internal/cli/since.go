@@ -49,7 +49,11 @@ func newNovelSinceCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			snapPath, err := sinceSnapshotPath(clubKeyFromBaseURL(c.RequestBaseURL()))
+			scopeKey, err := cacheScopeKeyForFlags(flags)
+			if err != nil {
+				return err
+			}
+			snapPath, err := sinceSnapshotPath(clubKeyFromBaseURL(c.RequestBaseURL()), scopeKey)
 			if err != nil {
 				return err
 			}
@@ -178,12 +182,12 @@ func clubKeyFromBaseURL(baseURL string) string {
 	return key
 }
 
-func sinceSnapshotPath(clubKey string) (string, error) {
+func sinceSnapshotPath(clubKey, scopeKey string) (string, error) {
 	dir, err := os.UserConfigDir()
 	if err != nil {
 		return "", fmt.Errorf("resolving config dir: %w", err)
 	}
-	return filepath.Join(dir, "sprocket-pp-cli", "since-snapshot-"+clubKey+".json"), nil
+	return filepath.Join(dir, "sprocket-pp-cli", "since-snapshot-"+clubKey+"-"+scopeKey+".json"), nil
 }
 
 func loadSnapshot(path string) (map[string]snapEvent, bool, error) {

@@ -121,7 +121,11 @@ In local mode: searches locally synced data only.`,
 
 			// Local FTS search
 			if dbPath == "" {
-				dbPath = defaultDBPath("sprocket-pp-cli")
+				var err error
+				dbPath, err = scopedDefaultDBPath("sprocket-pp-cli", flags)
+				if err != nil {
+					return err
+				}
 			}
 
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)
@@ -176,7 +180,7 @@ In local mode: searches locally synced data only.`,
 
 	cmd.Flags().StringVar(&resourceType, "type", "", "Filter by resource type")
 	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum results to return")
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/sprocket-pp-cli/data.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: account-scoped local data directory)")
 
 	return cmd
 }

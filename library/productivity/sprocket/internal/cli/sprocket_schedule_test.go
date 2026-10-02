@@ -420,10 +420,10 @@ func TestAwayRowMarksCancelled(t *testing.T) {
 
 func TestClubKeyFromBaseURL(t *testing.T) {
 	cases := map[string]string{
-		"https://jfcsoccer.sprocketsports.com":      "jfcsoccer-sprocketsports-com",
-		"https://otherclub.sprocketsports.com/":     "otherclub-sprocketsports-com",
-		"jfcsoccer.sprocketsports.com":              "jfcsoccer-sprocketsports-com",
-		"":                                          "default",
+		"https://jfcsoccer.sprocketsports.com":  "jfcsoccer-sprocketsports-com",
+		"https://otherclub.sprocketsports.com/": "otherclub-sprocketsports-com",
+		"jfcsoccer.sprocketsports.com":          "jfcsoccer-sprocketsports-com",
+		"":                                      "default",
 	}
 	for in, want := range cases {
 		if got := clubKeyFromBaseURL(in); got != want {
@@ -431,8 +431,8 @@ func TestClubKeyFromBaseURL(t *testing.T) {
 		}
 	}
 	// Distinct clubs must yield distinct snapshot paths.
-	a, _ := sinceSnapshotPath(clubKeyFromBaseURL("https://jfcsoccer.sprocketsports.com"))
-	b, _ := sinceSnapshotPath(clubKeyFromBaseURL("https://otherclub.sprocketsports.com"))
+	a, _ := sinceSnapshotPath(clubKeyFromBaseURL("https://jfcsoccer.sprocketsports.com"), "scope-a")
+	b, _ := sinceSnapshotPath(clubKeyFromBaseURL("https://otherclub.sprocketsports.com"), "scope-a")
 	if a == b {
 		t.Errorf("distinct clubs must use distinct snapshot files: %q", a)
 	}

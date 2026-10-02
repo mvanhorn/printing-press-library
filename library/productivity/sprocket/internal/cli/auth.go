@@ -8,10 +8,14 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/productivity/sprocket/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/sprocket/internal/config"
 	"github.com/spf13/cobra"
+	"io"
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 )
+
+const maxTokenInputBytes = 64 << 10
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
@@ -43,7 +47,7 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 			fmt.Fprintln(w, "")
 			fmt.Fprintln(w, "Then set:")
 			fmt.Fprintln(w, "  export SPROCKET_TOKEN=\"<your-token>\"")
-			fmt.Fprintln(w, "  sprocket-pp-cli auth set-token <token>")
+			_, _ = io.WriteString(w, "  printf '%s' \"$SPROCKET_TOKEN\" | sprocket-pp-cli auth set-token\n")
 			if !launch {
 				return nil
 			}
@@ -116,7 +120,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintln(w, "")
 				fmt.Fprintln(w, "Set your token:")
 				fmt.Fprintln(w, "  export SPROCKET_TOKEN=\"your-token-here\"")
-				fmt.Fprintf(w, "  sprocket-pp-cli auth set-token <token>\n")
+				fmt.Fprintf(w, "  printf '%%s' \"$SPROCKET_TOKEN\" | sprocket-pp-cli auth set-token\n")
 				return authErr(fmt.Errorf("no credentials configured"))
 			}
 
@@ -130,11 +134,26 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 
 func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:     "set-token <token>",
-		Short:   "Save an API token to the config file",
-		Example: "  sprocket-pp-cli auth set-token YOUR_TOKEN_HERE",
-		Args:    cobra.ExactArgs(1),
+		Use:     "set-token",
+		Short:   "Read an API token from stdin and save it to the config file",
+		Example: "  printf '%s' \"$SPROCKET_TOKEN\" | sprocket-pp-cli auth set-token",
+		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			input, err := io.ReadAll(io.LimitReader(cmd.InOrStdin(), maxTokenInputBytes+1))
+			if err != nil {
+				return configErr(fmt.Errorf("reading token from stdin: %w", err))
+			}
+			if len(input) > maxTokenInputBytes {
+				return usageErr(fmt.Errorf("token input exceeds %d bytes", maxTokenInputBytes))
+			}
+			token := strings.TrimSpace(string(input))
+			if token == "" {
+				return usageErr(fmt.Errorf("token is required on stdin"))
+			}
+			if strings.ContainsAny(token, "\r\n") {
+				return usageErr(fmt.Errorf("token must be a single line"))
+			}
+
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)
@@ -147,7 +166,7 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 			// log line): a masked-tail variant could leak token bytes through
 			// scripted dogfood that captures stderr.
 			cfg.AuthHeaderVal = ""
-			if err := cfg.SaveTokens("", "", args[0], "", cfg.TokenExpiry); err != nil {
+			if err := cfg.SaveTokens("", "", token, "", cfg.TokenExpiry); err != nil {
 				return configErr(fmt.Errorf("saving token: %w", err))
 			}
 

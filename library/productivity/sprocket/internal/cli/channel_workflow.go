@@ -40,6 +40,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
   # Full re-archive (ignore previous sync state)
   sprocket-pp-cli workflow archive --full`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			var err error
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -47,7 +48,10 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			c.NoCache = true
 
 			if dbPath == "" {
-				dbPath = defaultDBPath("sprocket-pp-cli")
+				dbPath, err = scopedDefaultDBPath("sprocket-pp-cli", flags)
+				if err != nil {
+					return err
+				}
 			}
 			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
@@ -101,7 +105,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 		},
 	}
 
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/sprocket-pp-cli/data.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: account-scoped local data directory)")
 	cmd.Flags().BoolVar(&full, "full", false, "Full re-archive (ignore previous sync state)")
 
 	return cmd
@@ -121,7 +125,11 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
   sprocket-pp-cli workflow status --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dbPath == "" {
-				dbPath = defaultDBPath("sprocket-pp-cli")
+				var err error
+				dbPath, err = scopedDefaultDBPath("sprocket-pp-cli", flags)
+				if err != nil {
+					return err
+				}
 			}
 			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
