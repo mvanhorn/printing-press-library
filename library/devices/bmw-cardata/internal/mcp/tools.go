@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"os"
@@ -501,9 +502,8 @@ func newMCPClient() (*client.Client, error) {
 }
 
 func newMCPClientWithTokenURL(tokenURL string) (*client.Client, error) {
-	// Refresh tokens may be single-use. Serialize load/refresh/save so
-	// concurrent MCP tool calls do not race with the same persisted token;
-	// followers reload the credential saved by the first caller.
+	// Serialize calls within this server too. The refresh helper also takes
+	// a file lock so CLI and other MCP processes cannot rotate together.
 	mcpOAuthRefreshMu.Lock()
 	defer mcpOAuthRefreshMu.Unlock()
 
@@ -520,7 +520,13 @@ func newMCPClientWithTokenURL(tokenURL string) (*client.Client, error) {
 		// OAuth responses can include provider-controlled details. Keep MCP
 		// errors actionable without reflecting response bodies or credentials
 		// into an agent transcript.
-		return nil, fmt.Errorf("BMW CarData OAuth credential refresh failed; run 'bmw-cardata-pp-cli auth login' again")
+		if errors.Is(err, cli.ErrCardataLoginRequired) {
+			return nil, fmt.Errorf("BMW CarData OAuth credential expired; run 'bmw-cardata-pp-cli auth login' again")
+		}
+		if errors.Is(err, cli.ErrCardataRefreshUnavailable) {
+			return nil, fmt.Errorf("BMW CarData OAuth refresh is temporarily unavailable; retry shortly")
+		}
+		return nil, fmt.Errorf("BMW CarData OAuth refresh failed; check local config access and retry")
 	}
 	c := client.New(cfg, 60*time.Second, defaultMCPRateLimit)
 	// Agents calling through MCP need fresh data every call. The on-disk

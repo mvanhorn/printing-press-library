@@ -125,6 +125,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 BMW CarData uses an OAuth2 Device Code Flow with PKCE. First, generate a client_id in the BMW CarData portal (My BMW > BMW CarData > Create CarData Client; tick 'Request access to CarData API', and 'CarData Stream' if you want streaming) and save it — the portal hides it on reload. Then run `bmw-cardata-pp-cli auth login`, open the printed verification URL, log in to BMW, and approve. The CLI stores the access and refresh tokens locally and refreshes them automatically. You can also export BMW_CARDATA_CLIENT_ID and run auth login non-interactively. Requires an EU vehicle with an active SIM, a ConnectedDrive contract, and the vehicle mapped to your account as the primary user.
 
+The `stream` command checks the streaming ID token before connecting and renews it when possible. If BMW does not return a usable replacement, run `auth login` again with the streaming scope. A temporary token service error asks you to retry instead of replacing your saved login.
+
 ## Quick Start
 
 ```bash

@@ -102,7 +102,7 @@ func TestNewMCPClientHonorsCustomConfigPath(t *testing.T) {
 
 func TestNewMCPClientSanitizesRefreshErrors(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		http.Error(w, "sensitive-provider-details", http.StatusBadRequest)
+		http.Error(w, "sensitive-provider-details", http.StatusServiceUnavailable)
 	}))
 	t.Cleanup(server.Close)
 
@@ -123,8 +123,28 @@ func TestNewMCPClientSanitizesRefreshErrors(t *testing.T) {
 	if strings.Contains(err.Error(), "sensitive-provider-details") || strings.Contains(err.Error(), "old-refresh") {
 		t.Fatalf("MCP refresh error exposed provider or credential details: %v", err)
 	}
-	if !strings.Contains(err.Error(), "auth login") {
-		t.Fatalf("MCP refresh error is not actionable: %v", err)
+	if !strings.Contains(err.Error(), "retry shortly") || strings.Contains(err.Error(), "auth login") {
+		t.Fatalf("temporary MCP refresh error gave wrong advice: %v", err)
+	}
+}
+
+func TestNewMCPClientPromptsLoginForRejectedRefreshCredential(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error":"invalid_grant","error_description":"private-provider-detail"}`))
+	}))
+	defer server.Close()
+	t.Setenv("HOME", t.TempDir())
+	cfg, err := config.Load("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := cfg.SaveTokens("client-id", "", "expired-access", "old-refresh", time.Now().Add(-time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	_, err = newMCPClientWithTokenURL(server.URL)
+	if err == nil || !strings.Contains(err.Error(), "auth login") || strings.Contains(err.Error(), "private-provider-detail") {
+		t.Fatalf("rejected credential error was not safe and actionable: %v", err)
 	}
 }
 

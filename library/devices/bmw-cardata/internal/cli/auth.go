@@ -4,10 +4,12 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/devices/bmw-cardata/internal/config"
 	"github.com/spf13/cobra"
 	"os"
+	"time"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
@@ -114,15 +116,26 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 				return configErr(err)
 			}
 
-			// Clear any legacy auth_header so AuthHeader() falls through to
-			// the newly-saved credential. Without this, a pre-existing
-			// auth_header value (common after regenerate) shadows the saved
-			// token and set-token silently has no effect. Silent clear (no
-			// log line): a masked-tail variant could leak token bytes through
-			// scripted dogfood that captures stderr.
-			cfg.AuthHeaderVal = ""
-			if err := cfg.SaveTokens("", "", args[0], "", cfg.TokenExpiry); err != nil {
-				return configErr(fmt.Errorf("saving token: %w", err))
+			lockCtx, cancel := context.WithTimeout(cmd.Context(), 30*time.Second)
+			defer cancel()
+			if err := withCardataRefreshLock(lockCtx, cfg.Path, func() error {
+				fresh, err := config.Load(cfg.Path)
+				if err != nil {
+					return err
+				}
+				// A legacy auth_header must not shadow the newly saved token.
+				fresh.AuthHeaderVal = ""
+				if err := fresh.SaveTokens("", "", args[0], "", time.Time{}); err != nil {
+					return err
+				}
+				// A direct API token cannot authenticate a prior OAuth stream.
+				if err := os.Remove(cardataSessionPath(fresh)); err != nil && !os.IsNotExist(err) {
+					return err
+				}
+				cfg = fresh
+				return nil
+			}); err != nil {
+				return configErr(fmt.Errorf("saving direct token: %w", err))
 			}
 
 			// JSON envelope: {saved, config_path}.
@@ -149,15 +162,24 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 				return configErr(err)
 			}
 
-			if err := cfg.ClearTokens(); err != nil {
-				return configErr(fmt.Errorf("clearing tokens: %w", err))
-			}
-			// Device-code login also writes cardata_session.json (access,
-			// refresh, and id tokens for MQTT). ClearTokens only wipes the
-			// config/credentials files; remove the sidecar so logout does
-			// not leave usable OAuth credentials on disk.
-			if err := os.Remove(cardataSessionPath(cfg)); err != nil && !os.IsNotExist(err) {
-				return configErr(fmt.Errorf("clearing streaming session: %w", err))
+			lockCtx, cancel := context.WithTimeout(cmd.Context(), 30*time.Second)
+			defer cancel()
+			if err := withCardataRefreshLock(lockCtx, cfg.Path, func() error {
+				fresh, err := config.Load(cfg.Path)
+				if err != nil {
+					return err
+				}
+				if err := fresh.ClearTokens(); err != nil {
+					return err
+				}
+				// Device-code login also writes a usable streaming sidecar.
+				if err := os.Remove(cardataSessionPath(fresh)); err != nil && !os.IsNotExist(err) {
+					return err
+				}
+				cfg = fresh
+				return nil
+			}); err != nil {
+				return configErr(fmt.Errorf("clearing credentials: %w", err))
 			}
 
 			// Identify which (if any) auth env var is still exported so the

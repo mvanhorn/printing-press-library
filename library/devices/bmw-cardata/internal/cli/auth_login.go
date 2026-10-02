@@ -8,6 +8,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -35,6 +36,13 @@ const (
 	CardataTokenURL     = "https://customer.bmwgroup.com/gcdm/oauth/token"
 	cardataDefaultScope = "authenticate_user openid cardata:api:read cardata:streaming:read"
 )
+
+// ErrCardataLoginRequired means the saved OAuth credential cannot be renewed.
+// A timeout or server error is deliberately not classified this way.
+var ErrCardataLoginRequired = errors.New("BMW CarData login required")
+
+// ErrCardataRefreshUnavailable marks a retryable network or provider failure.
+var ErrCardataRefreshUnavailable = errors.New("BMW CarData refresh temporarily unavailable")
 
 // newAuthLoginCmd implements the OAuth2 Device Authorization Grant with PKCE
 // (S256). It is the primary onboarding path: the user generates a client_id
@@ -162,11 +170,17 @@ the CLI polls until the login completes and stores the tokens locally.`,
 					return configErr(fmt.Errorf("loading config to save tokens: %w", err))
 				}
 				expiry := time.Now().Add(time.Duration(tok.ExpiresIn) * time.Second)
-				if err := cfg.SaveTokens(clientID, "", tok.AccessToken, tok.RefreshToken, expiry); err != nil {
-					return configErr(fmt.Errorf("saving tokens: %w", err))
-				}
-				if err := writeCardataSession(cfg, clientID, tok, expiry); err != nil {
-					fmt.Fprintf(os.Stderr, "warning: could not save streaming session: %v\n", err)
+				if err := withCardataRefreshLock(ctx, cfg.Path, func() error {
+					fresh, err := config.Load(cfg.Path)
+					if err != nil {
+						return err
+					}
+					if err := saveCardataOAuthTokens(fresh, clientID, "", tok, expiry); err != nil {
+						return err
+					}
+					return writeCardataSession(fresh, clientID, tok, expiry)
+				}); err != nil {
+					return configErr(fmt.Errorf("saving login credentials: %w", err))
 				}
 				fmt.Fprintf(cmd.OutOrStdout(), "\nLogin successful. Tokens saved to %s\n", cfg.Path)
 				fmt.Fprintf(cmd.OutOrStdout(), "Verify with: bmw-cardata-pp-cli doctor\n")
@@ -221,12 +235,15 @@ func cardataPostForm(ctx context.Context, target string, vals url.Values) ([]byt
 	}
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	resp, err := http.DefaultClient.Do(req)
+	// OAuth form bodies contain reusable credentials. Never replay them to a
+	// redirect target, even if the provider returns a 307 or 308 response.
+	httpClient := &http.Client{CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, 0, err
 	}
 	defer resp.Body.Close()
-	body, _ := io.ReadAll(resp.Body)
+	body, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
 	return body, resp.StatusCode, nil
 }
 
@@ -243,14 +260,14 @@ func cardataRequestDeviceCode(ctx context.Context, clientID, scope, challenge st
 		return nil, err
 	}
 	if status != 200 {
-		return nil, fmt.Errorf("device-code endpoint returned HTTP %d: %s", status, truncateBody(body))
+		return nil, fmt.Errorf("device-code endpoint returned HTTP %d", status)
 	}
 	var dc cardataDeviceCode
 	if err := json.Unmarshal(body, &dc); err != nil {
 		return nil, fmt.Errorf("parsing device-code response: %w", err)
 	}
 	if dc.DeviceCode == "" {
-		return nil, fmt.Errorf("device-code response missing device_code: %s", truncateBody(body))
+		return nil, fmt.Errorf("device-code response missing device_code")
 	}
 	return &dc, nil
 }
@@ -271,18 +288,21 @@ func cardataPollToken(ctx context.Context, clientID, deviceCode, verifier string
 		Error            string `json:"error"`
 		ErrorDescription string `json:"error_description"`
 	}
-	if json.Unmarshal(body, &ee) == nil && ee.Error != "" {
-		return nil, fmt.Errorf("%s: %s (HTTP %d)", ee.Error, ee.ErrorDescription, status)
+	if json.Unmarshal(body, &ee) == nil {
+		switch ee.Error {
+		case "authorization_pending", "slow_down":
+			return nil, fmt.Errorf("%s (HTTP %d)", ee.Error, status)
+		}
 	}
 	if status != 200 {
-		return nil, fmt.Errorf("token endpoint returned HTTP %d: %s", status, truncateBody(body))
+		return nil, fmt.Errorf("token endpoint returned HTTP %d", status)
 	}
 	var tok cardataToken
 	if err := json.Unmarshal(body, &tok); err != nil {
 		return nil, fmt.Errorf("parsing token response: %w", err)
 	}
 	if tok.AccessToken == "" {
-		return nil, fmt.Errorf("token response missing access_token: %s", truncateBody(body))
+		return nil, fmt.Errorf("token response missing access_token")
 	}
 	if tok.GCID == "" {
 		tok.GCID = gcidFromJWT(tok.IDToken)
@@ -298,43 +318,85 @@ func cardataPollToken(ctx context.Context, clientID, deviceCode, verifier string
 // this flow: the CLI must not silently replace a credential supplied through
 // BMW_CARDATA_ACCESS_TOKEN or the legacy cardata_access_token config field.
 func RefreshCardataAccessTokenIfNeeded(ctx context.Context, cfg *config.Config, now time.Time, target string) error {
+	return refreshCardataAccessToken(ctx, cfg, now, target, false)
+}
+
+func saveCardataOAuthTokens(cfg *config.Config, clientID, clientSecret string, tok *cardataToken, expiry time.Time) error {
+	// The legacy auth_header takes precedence in Config.AuthHeader, so a
+	// successful OAuth login must clear it before writing the new token.
+	cfg.AuthHeaderVal = ""
+	return cfg.SaveTokens(clientID, clientSecret, tok.AccessToken, tok.RefreshToken, expiry)
+}
+
+func refreshCardataAccessToken(ctx context.Context, cfg *config.Config, now time.Time, target string, force bool) error {
 	if cfg.BmwCardataAccessToken != "" || strings.HasPrefix(cfg.AuthSource, "env:") {
+		if force {
+			return fmt.Errorf("%w: a direct API token cannot renew the streaming session", ErrCardataLoginRequired)
+		}
 		return nil
 	}
-	if cfg.TokenExpiry.IsZero() || cfg.TokenExpiry.After(now.Add(time.Minute)) {
+	if !force && (cfg.TokenExpiry.IsZero() || cfg.TokenExpiry.After(now.Add(time.Minute))) {
 		return nil
 	}
-	if cfg.ClientID == "" || cfg.RefreshToken == "" {
-		return fmt.Errorf("BMW CarData OAuth token expired and cannot be refreshed; run 'auth login' again")
-	}
-
-	tok, err := cardataRefreshToken(ctx, target, cfg.ClientID, cfg.ClientSecret, cfg.RefreshToken)
-	if err != nil {
-		return fmt.Errorf("refreshing BMW CarData OAuth token: %w", err)
-	}
-	if tok.RefreshToken == "" {
-		tok.RefreshToken = cfg.RefreshToken
-	}
-	expiry := now.Add(time.Duration(tok.ExpiresIn) * time.Second)
-	if err := cfg.SaveTokens(cfg.ClientID, cfg.ClientSecret, tok.AccessToken, tok.RefreshToken, expiry); err != nil {
-		return fmt.Errorf("saving refreshed BMW CarData OAuth token: %w", err)
-	}
-
-	// Refresh responses need not repeat the streaming identity fields. Preserve
-	// them from the existing sidecar while updating the shared access/refresh
-	// credentials and expiry used by later MQTT sessions.
-	if session, sessionErr := loadCardataSession(cfg); sessionErr == nil {
-		if tok.IDToken == "" {
-			tok.IDToken = session["id_token"]
+	return withCardataRefreshLock(ctx, cfg.Path, func() error {
+		fresh, err := config.Load(cfg.Path)
+		if err != nil {
+			return fmt.Errorf("reloading OAuth config under lock: %w", err)
+		}
+		if fresh.BmwCardataAccessToken != "" || strings.HasPrefix(fresh.AuthSource, "env:") {
+			*cfg = *fresh
+			if force {
+				return fmt.Errorf("%w: a direct API token cannot renew the streaming session", ErrCardataLoginRequired)
+			}
+			return nil
+		}
+		if force {
+			// Another process may have renewed the streaming identity while
+			// this caller waited for the file lock.
+			latestSession, _ := loadCardataSession(fresh)
+			if validCardataIDToken(latestSession["id_token"], now) &&
+				(fresh.TokenExpiry.IsZero() || fresh.TokenExpiry.After(now.Add(time.Minute))) {
+				*cfg = *fresh
+				return nil
+			}
+		}
+		if !force && (fresh.TokenExpiry.IsZero() || fresh.TokenExpiry.After(now.Add(time.Minute))) {
+			*cfg = *fresh
+			return nil
+		}
+		if fresh.ClientID == "" || fresh.RefreshToken == "" {
+			return fmt.Errorf("%w: saved OAuth token cannot be refreshed; run 'auth login' again", ErrCardataLoginRequired)
+		}
+		oldSession, _ := loadCardataSession(fresh)
+		tok, err := cardataRefreshToken(ctx, target, fresh.ClientID, fresh.ClientSecret, fresh.RefreshToken)
+		if err != nil {
+			return fmt.Errorf("refreshing BMW CarData OAuth token: %w", err)
+		}
+		if tok.RefreshToken == "" {
+			tok.RefreshToken = fresh.RefreshToken
+		}
+		if tok.IDToken == "" && validCardataIDToken(oldSession["id_token"], now) {
+			tok.IDToken = oldSession["id_token"]
 		}
 		if tok.GCID == "" {
-			tok.GCID = session["gcid"]
+			tok.GCID = oldSession["gcid"]
 		}
-	}
-	if err := writeCardataSession(cfg, cfg.ClientID, tok, expiry); err != nil {
-		fmt.Fprintf(os.Stderr, "warning: could not update streaming session after token refresh: %v\n", err)
-	}
-	return nil
+		expiry := now.Add(time.Duration(tok.ExpiresIn) * time.Second)
+		if err := saveCardataOAuthTokens(fresh, fresh.ClientID, fresh.ClientSecret, tok, expiry); err != nil {
+			return fmt.Errorf("saving refreshed BMW CarData OAuth token: %w", err)
+		}
+		*cfg = *fresh
+		if err := writeCardataSession(fresh, fresh.ClientID, tok, expiry); err != nil {
+			if force {
+				return fmt.Errorf("saving refreshed BMW CarData streaming session: %w", err)
+			}
+			fmt.Fprintf(os.Stderr, "warning: could not update streaming session after token refresh: %v\n", err)
+		}
+		if force && !validCardataIDToken(tok.IDToken, now) {
+			return fmt.Errorf("%w: refreshed OAuth credential has no current streaming ID token; run 'auth login' again", ErrCardataLoginRequired)
+		}
+		return nil
+	})
 }
 
 func cardataRefreshToken(ctx context.Context, target, clientID, clientSecret, refreshToken string) (*cardataToken, error) {
@@ -348,9 +410,24 @@ func cardataRefreshToken(ctx context.Context, target, clientID, clientSecret, re
 	}
 	body, status, err := cardataPostForm(ctx, target, values)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %v", ErrCardataRefreshUnavailable, err)
 	}
 	if status != http.StatusOK {
+		var response struct {
+			Error string `json:"error"`
+		}
+		if json.Unmarshal(body, &response) == nil {
+			switch response.Error {
+			case "invalid_grant", "invalid_client", "unauthorized_client":
+				return nil, fmt.Errorf("%w: token endpoint rejected the saved credential (HTTP %d)", ErrCardataLoginRequired, status)
+			}
+		}
+		if status == http.StatusUnauthorized || status == http.StatusForbidden {
+			return nil, fmt.Errorf("%w: token endpoint rejected the saved credential (HTTP %d)", ErrCardataLoginRequired, status)
+		}
+		if status == http.StatusRequestTimeout || status == http.StatusTooManyRequests || status >= 500 {
+			return nil, fmt.Errorf("%w: token endpoint returned HTTP %d", ErrCardataRefreshUnavailable, status)
+		}
 		return nil, fmt.Errorf("token endpoint returned HTTP %d", status)
 	}
 	var tok cardataToken
@@ -367,13 +444,6 @@ func cardataRefreshToken(ctx context.Context, target, clientID, clientSecret, re
 		}
 	}
 	return &tok, nil
-}
-
-func truncateBody(b []byte) string {
-	if len(b) > 300 {
-		return string(b[:300]) + "..."
-	}
-	return string(b)
 }
 
 // openBrowser opens url in the user's default browser on macOS, Linux, and
@@ -428,6 +498,39 @@ func gcidFromJWT(jwt string) string {
 	return ""
 }
 
+func validCardataIDToken(token string, now time.Time) bool {
+	parts := strings.Split(token, ".")
+	if len(parts) != 3 {
+		return false
+	}
+	payload, err := base64.RawURLEncoding.DecodeString(parts[1])
+	if err != nil {
+		return false
+	}
+	var claims struct {
+		Exp int64 `json:"exp"`
+	}
+	if json.Unmarshal(payload, &claims) != nil || claims.Exp <= 0 {
+		return false
+	}
+	return time.Unix(claims.Exp, 0).After(now.Add(time.Minute))
+}
+
+// currentCardataStreamSession renews credentials before MQTT connects. The ID
+// token has its own expiry, which can differ from the API access token expiry.
+func currentCardataStreamSession(ctx context.Context, cfg *config.Config, now time.Time, target string) (map[string]string, error) {
+	session, err := loadCardataSession(cfg)
+	needIDToken := err != nil || !validCardataIDToken(session["id_token"], now)
+	if err := refreshCardataAccessToken(ctx, cfg, now, target, needIDToken); err != nil {
+		return nil, err
+	}
+	session, err = loadCardataSession(cfg)
+	if err != nil || session["gcid"] == "" || !validCardataIDToken(session["id_token"], now) {
+		return nil, fmt.Errorf("%w: streaming session needs a current ID token; run 'auth login' with streaming scope", ErrCardataLoginRequired)
+	}
+	return session, nil
+}
+
 // cardataSessionPath returns the sidecar session file path next to the config.
 func cardataSessionPath(cfg *config.Config) string {
 	return filepath.Join(filepath.Dir(cfg.Path), "cardata_session.json")
@@ -448,7 +551,7 @@ func writeCardataSession(cfg *config.Config, clientID string, tok *cardataToken,
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(cardataSessionPath(cfg), buf, 0o600)
+	return config.WritePrivateFile(cardataSessionPath(cfg), buf)
 }
 
 // loadCardataSession reads the streaming session sidecar.

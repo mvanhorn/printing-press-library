@@ -63,13 +63,19 @@ in real time). Requires:
 				return usageErr(fmt.Errorf("a VIN is required"))
 			}
 			vin := args[0]
+			if cliutil.IsVerifyEnv() {
+				fmt.Fprintf(cmd.OutOrStdout(), "would stream MQTT v5 for %s from %s:%s\n", vin, cardataStreamHost, cardataStreamPort)
+				return nil
+			}
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(fmt.Errorf("loading config: %w", err))
 			}
-			sess, err := loadCardataSession(cfg)
+			refreshCtx, refreshCancel := context.WithTimeout(cmd.Context(), flags.timeout)
+			defer refreshCancel()
+			sess, err := currentCardataStreamSession(refreshCtx, cfg, time.Now(), CardataTokenURL)
 			if err != nil {
-				return authErr(fmt.Errorf("no streaming session found; run 'auth login' first (with the streaming scope): %w", err))
+				return authErr(err)
 			}
 			gcid := sess["gcid"]
 			idToken := sess["id_token"]
@@ -77,11 +83,6 @@ in real time). Requires:
 				return authErr(fmt.Errorf("streaming session missing GCID/id_token; re-run 'auth login' with the streaming scope"))
 			}
 			dbPath := resolveDBPath(flagDB)
-
-			if cliutil.IsVerifyEnv() {
-				fmt.Fprintf(cmd.OutOrStdout(), "would stream MQTT v5 for %s from %s:%s\n", vin, cardataStreamHost, cardataStreamPort)
-				return nil
-			}
 
 			topic := gcid + "/" + vin
 			ctx, cancel := context.WithCancel(cmd.Context())

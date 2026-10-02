@@ -257,7 +257,7 @@ func (c *Config) save() error {
 	if err != nil {
 		return fmt.Errorf("marshaling config: %w", err)
 	}
-	if err := os.WriteFile(c.Path, data, 0o600); err != nil {
+	if err := WritePrivateFile(c.Path, data); err != nil {
 		return err
 	}
 	c.fileConfig = &persisted
