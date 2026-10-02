@@ -57,10 +57,14 @@ func TestCodeOrchResolvePathRejectsAmbiguousOrMissingIDs(t *testing.T) {
 	}
 }
 
-func TestCodeOrchResolvePathEncodesDotSegments(t *testing.T) {
+func TestCodeOrchResolvePathRejectsDotSegmentsAndEncodesReservedCharacters(t *testing.T) {
 	ep := codeOrchEndpoint{ID: "single", Path: "/apps/{id}", Positional: []string{"id"}}
+	for _, id := range []string{".", ".."} {
+		if path, err := codeOrchResolvePath(ep, map[string]any{"id": id}); err == nil {
+			t.Fatalf("dot-only ID %q accepted as %q", id, path)
+		}
+	}
 	for _, tc := range []struct{ id, want string }{
-		{"..", "/apps/%2E%2E"},
 		{"a/b", "/apps/a%2Fb"},
 		{"a?b", "/apps/a%3Fb"},
 	} {

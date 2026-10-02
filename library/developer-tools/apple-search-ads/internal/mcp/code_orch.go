@@ -979,7 +979,7 @@ func codeOrchPathSegment(value any) (string, error) {
 		return "", fmt.Errorf("value is empty")
 	}
 	if raw == "." || raw == ".." {
-		return strings.Repeat("%2E", len(raw)), nil
+		return "", fmt.Errorf("dot-only path segment is not a valid ID")
 	}
 	return neturl.PathEscape(raw), nil
 }

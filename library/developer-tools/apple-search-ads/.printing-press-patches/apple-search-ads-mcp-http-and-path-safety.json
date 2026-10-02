@@ -13,5 +13,5 @@
     "internal/mcp/code_orch_path_test.go",
     "README.md"
   ],
-  "validated_outcome": "HTTP MCP requires a bearer token and TLS outside loopback; path placeholders are required, independently encoded, and ordered when repeated."
+  "validated_outcome": "HTTP MCP requires a bearer token and TLS outside loopback; path placeholders are required, independently encoded, reject dot-only IDs, and are ordered when repeated."
 }
