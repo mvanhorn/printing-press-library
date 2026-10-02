@@ -14,7 +14,7 @@ func sttJobPathSegment(jobID string) (string, error) {
 		return "", fmt.Errorf("job ID is empty")
 	}
 	if jobID == "." || jobID == ".." {
-		return strings.Repeat("%2E", len(jobID)), nil
+		return "", fmt.Errorf("dot-only job ID is invalid")
 	}
 	return url.PathEscape(jobID), nil
 }

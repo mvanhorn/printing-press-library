@@ -57,9 +57,9 @@ func TestSTTRetryEscapesOriginalAndReplacementJobIDs(t *testing.T) {
 	}
 }
 
-func TestSTTJobPathSegmentEncodesDotSegments(t *testing.T) {
+func TestSTTJobPathSegmentRejectsDotSegmentsAndEncodesReservedCharacters(t *testing.T) {
 	for _, tc := range []struct{ id, want string }{
-		{".", "%2E"}, {"..", "%2E%2E"}, {"a/b", "a%2Fb"},
+		{"a/b", "a%2Fb"},
 		{"a?b", "a%3Fb"}, {"a#b", "a%23b"},
 	} {
 		got, err := sttJobPathSegment(tc.id)
@@ -69,6 +69,11 @@ func TestSTTJobPathSegmentEncodesDotSegments(t *testing.T) {
 	}
 	if _, err := sttJobPathSegment(" "); err == nil {
 		t.Fatal("blank job ID accepted")
+	}
+	for _, id := range []string{".", ".."} {
+		if _, err := sttJobPathSegment(id); err == nil {
+			t.Fatalf("dot-only job ID %q accepted", id)
+		}
 	}
 }
 
