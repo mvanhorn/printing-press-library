@@ -202,6 +202,8 @@ These capabilities aren't available in any other tool for this API.
 
 ### Find the best PDF tool and see what it's related to
 
+`server search` queries the live catalog. The root-level `search` command searches locally synced data.
+
 ```bash
 mcpmarket-pp-cli server search "pdf" --limit 1 --json --select name,url
 ```
