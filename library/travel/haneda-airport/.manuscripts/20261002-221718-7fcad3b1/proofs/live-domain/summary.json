@@ -1,0 +1,432 @@
+{
+  "date_jst": "2026-10-03",
+  "observed_at": "2026-10-03T01:19:55.270239+09:00",
+  "status": "pass",
+  "checks": [
+    {
+      "name": "all-four-boards",
+      "args": [
+        "flights",
+        "search",
+        "--kind",
+        "all",
+        "--direction",
+        "both",
+        "--date",
+        "2026-10-03",
+        "--limit",
+        "5"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.547,
+      "output_bytes": 14638,
+      "budget": {
+        "request_count": 8,
+        "response_bytes": 1592421,
+        "max_requests": 20,
+        "max_body_bytes": 4194304,
+        "max_total_bytes": 16777216
+      }
+    },
+    {
+      "name": "detail-primary",
+      "args": [
+        "flights",
+        "detail",
+        "NH849",
+        "--kind",
+        "international",
+        "--direction",
+        "departure",
+        "--date",
+        "2026-10-03"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.596,
+      "output_bytes": 4446,
+      "budget": {
+        "request_count": 3,
+        "response_bytes": 110357,
+        "max_requests": 20,
+        "max_body_bytes": 4194304,
+        "max_total_bytes": 16777216
+      }
+    },
+    {
+      "name": "detail-marketing",
+      "args": [
+        "flights",
+        "detail",
+        "UA8003",
+        "--kind",
+        "international",
+        "--direction",
+        "departure",
+        "--date",
+        "2026-10-03"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.62,
+      "output_bytes": 4618,
+      "budget": {
+        "request_count": 4,
+        "response_bytes": 377565,
+        "max_requests": 20,
+        "max_body_bytes": 4194304,
+        "max_total_bytes": 16777216
+      }
+    },
+    {
+      "name": "detail-padded",
+      "args": [
+        "flights",
+        "detail",
+        "NH0849",
+        "--kind",
+        "international",
+        "--direction",
+        "departure",
+        "--date",
+        "2026-10-03"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.204,
+      "output_bytes": 4618,
+      "budget": {
+        "request_count": 4,
+        "response_bytes": 377565,
+        "max_requests": 20,
+        "max_body_bytes": 4194304,
+        "max_total_bytes": 16777216
+      }
+    },
+    {
+      "name": "codeshare-terminal-plan",
+      "args": [
+        "plan",
+        "UA8003",
+        "--kind",
+        "international",
+        "--direction",
+        "departure",
+        "--date",
+        "2026-10-03"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.301,
+      "output_bytes": 5450,
+      "budget": {
+        "request_count": 4,
+        "response_bytes": 377565,
+        "max_requests": 20,
+        "max_body_bytes": 4194304,
+        "max_total_bytes": 16777216
+      }
+    },
+    {
+      "name": "source-disruptions",
+      "args": [
+        "flights",
+        "disruptions",
+        "--kind",
+        "all",
+        "--direction",
+        "both",
+        "--date",
+        "2026-10-03",
+        "--limit",
+        "5"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.469,
+      "output_bytes": 75611,
+      "budget": {
+        "request_count": 9,
+        "response_bytes": 1617729,
+        "max_requests": 20,
+        "max_body_bytes": 4194304,
+        "max_total_bytes": 16777216
+      }
+    },
+    {
+      "name": "rollover",
+      "args": [
+        "flights",
+        "rollover",
+        "--kind",
+        "international",
+        "--direction",
+        "both",
+        "--date",
+        "2026-10-03",
+        "--limit",
+        "5"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.335,
+      "output_bytes": 3990,
+      "budget": {
+        "request_count": 4,
+        "response_bytes": 547045,
+        "max_requests": 20,
+        "max_body_bytes": 4194304,
+        "max_total_bytes": 16777216
+      }
+    },
+    {
+      "name": "japanese-airport",
+      "args": [
+        "catalog",
+        "airports",
+        "--kind",
+        "domestic",
+        "--query",
+        "\u672d\u5e4c",
+        "--limit",
+        "5"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.044,
+      "output_bytes": 609,
+      "budget": {
+        "request_count": 1,
+        "response_bytes": 34843,
+        "max_requests": 20,
+        "max_body_bytes": 4194304,
+        "max_total_bytes": 16777216
+      }
+    },
+    {
+      "name": "airline-identifiers",
+      "args": [
+        "catalog",
+        "airlines",
+        "--kind",
+        "international",
+        "--query",
+        "ANA",
+        "--limit",
+        "5"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.048,
+      "output_bytes": 1303,
+      "budget": {
+        "request_count": 1,
+        "response_bytes": 57259,
+        "max_requests": 20,
+        "max_body_bytes": 4194304,
+        "max_total_bytes": 16777216
+      }
+    },
+    {
+      "name": "published-schedules",
+      "args": [
+        "schedule",
+        "search",
+        "--kind",
+        "all",
+        "--direction",
+        "both",
+        "--limit",
+        "5"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.888,
+      "output_bytes": 8715,
+      "budget": {
+        "request_count": 8,
+        "response_bytes": 2742395,
+        "max_requests": 20,
+        "max_body_bytes": 4194304,
+        "max_total_bytes": 16777216
+      }
+    },
+    {
+      "name": "mismatch-is-empty",
+      "args": [
+        "flights",
+        "search",
+        "--kind",
+        "international",
+        "--flight",
+        "NH99999",
+        "--date",
+        "2026-10-03",
+        "--limit",
+        "5"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.851,
+      "output_bytes": 1922,
+      "budget": {
+        "request_count": 3,
+        "response_bytes": 377465,
+        "max_requests": 20,
+        "max_body_bytes": 4194304,
+        "max_total_bytes": 16777216
+      }
+    },
+    {
+      "name": "reject-empty-status",
+      "args": [
+        "flights",
+        "search",
+        "--status",
+        "canceled,"
+      ],
+      "exit_code": 2,
+      "elapsed_seconds": 0.012,
+      "output_bytes": 0,
+      "budget": null
+    },
+    {
+      "name": "reject-board-id-in-schedule",
+      "args": [
+        "schedule",
+        "search",
+        "--flight",
+        "hnd:international:departure:20261003:NH849"
+      ],
+      "exit_code": 2,
+      "elapsed_seconds": 0.012,
+      "output_bytes": 0,
+      "budget": null
+    },
+    {
+      "name": "save-before",
+      "args": [
+        "snapshot",
+        "save",
+        "--kind",
+        "all",
+        "--direction",
+        "both",
+        "--date",
+        "2026-10-03",
+        "--file",
+        "<isolated-press-home>/.runstate/haneda-airport-cli-d80cde97/runs/20261002-221718-7fcad3b1/proofs/live-domain/before.json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.658,
+      "output_bytes": 2123,
+      "budget": {
+        "request_count": 8,
+        "response_bytes": 1592421,
+        "max_requests": 20,
+        "max_body_bytes": 4194304,
+        "max_total_bytes": 16777216
+      }
+    },
+    {
+      "name": "save-after",
+      "args": [
+        "snapshot",
+        "save",
+        "--kind",
+        "all",
+        "--direction",
+        "both",
+        "--date",
+        "2026-10-03",
+        "--file",
+        "<isolated-press-home>/.runstate/haneda-airport-cli-d80cde97/runs/20261002-221718-7fcad3b1/proofs/live-domain/after.json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.278,
+      "output_bytes": 2122,
+      "budget": {
+        "request_count": 8,
+        "response_bytes": 1592421,
+        "max_requests": 20,
+        "max_body_bytes": 4194304,
+        "max_total_bytes": 16777216
+      }
+    },
+    {
+      "name": "offline-codeshare",
+      "args": [
+        "snapshot",
+        "search",
+        "--file",
+        "<isolated-press-home>/.runstate/haneda-airport-cli-d80cde97/runs/20261002-221718-7fcad3b1/proofs/live-domain/after.json",
+        "--flight",
+        "UA8003",
+        "--limit",
+        "5"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.039,
+      "output_bytes": 5357,
+      "budget": {
+        "request_count": 0,
+        "response_bytes": 0,
+        "max_requests": 0,
+        "max_body_bytes": 0,
+        "max_total_bytes": 0
+      }
+    },
+    {
+      "name": "offline-material-diff",
+      "args": [
+        "snapshot",
+        "diff",
+        "--before",
+        "<isolated-press-home>/.runstate/haneda-airport-cli-d80cde97/runs/20261002-221718-7fcad3b1/proofs/live-domain/before.json",
+        "--after",
+        "<isolated-press-home>/.runstate/haneda-airport-cli-d80cde97/runs/20261002-221718-7fcad3b1/proofs/live-domain/after.json",
+        "--limit",
+        "5"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.069,
+      "output_bytes": 778,
+      "budget": {
+        "request_count": 0,
+        "response_bytes": 0,
+        "max_requests": 0,
+        "max_body_bytes": 0,
+        "max_total_bytes": 0
+      }
+    }
+  ],
+  "all_source_totals": [
+    {
+      "kind": "domestic",
+      "direction": "departure",
+      "url": "https://www.tokyo-haneda.com/en/app/api/v2/flight/search",
+      "reported_at": "2026-10-03T01:19:56+09:00",
+      "updated_at": null,
+      "timestamp_semantics": "response-reported time; per-flight update and actual-time semantics are unpublished",
+      "source_total": 503
+    },
+    {
+      "kind": "domestic",
+      "direction": "arrival",
+      "url": "https://www.tokyo-haneda.com/en/app/api/v2/flight/search",
+      "reported_at": "2026-10-03T01:19:57+09:00",
+      "updated_at": null,
+      "timestamp_semantics": "response-reported time; per-flight update and actual-time semantics are unpublished",
+      "source_total": 503
+    },
+    {
+      "kind": "international",
+      "direction": "departure",
+      "url": "https://www.tokyo-haneda.com/en/app/api/v2/flight/search",
+      "reported_at": "2026-10-03T01:19:59+09:00",
+      "updated_at": null,
+      "timestamp_semantics": "response-reported time; per-flight update and actual-time semantics are unpublished",
+      "source_total": 166
+    },
+    {
+      "kind": "international",
+      "direction": "arrival",
+      "url": "https://www.tokyo-haneda.com/en/app/api/v2/flight/search",
+      "reported_at": "2026-10-03T01:20:00+09:00",
+      "updated_at": null,
+      "timestamp_semantics": "response-reported time; per-flight update and actual-time semantics are unpublished",
+      "source_total": 163
+    }
+  ],
+  "snapshot_changes": 0
+}

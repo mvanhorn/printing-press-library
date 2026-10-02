@@ -1,0 +1,11 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/haneda-airport-pp-cli
+/haneda-airport-pp-cli.exe
+/haneda-airport-pp-mcp
+/haneda-airport-pp-mcp.exe
+/bin/
+/build/
+/dist/
+
+# Local audit ledger is not a public artifact.
+.printing-press-pii-polish.json

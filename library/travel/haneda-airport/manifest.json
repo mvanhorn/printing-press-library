@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "haneda-airport-pp-mcp",
+  "display_name": "Haneda Airport",
+  "version": "0.1.0",
+  "description": "Query first-party Haneda flight boards with precise dates, codeshares and terminal handoffs.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/haneda-airport-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/haneda-airport-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

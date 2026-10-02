@@ -1,0 +1,55 @@
+version: 2
+project_name: haneda-airport-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: haneda-airport-pp-cli
+    main: ./cmd/haneda-airport-pp-cli
+    binary: haneda-airport-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/haneda-airport/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: haneda-airport-pp-mcp
+    main: ./cmd/haneda-airport-pp-mcp
+    binary: haneda-airport-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: haneda-airport-pp-cli
+    repository:
+      owner: zjsng
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Query first-party Haneda flight boards with precise dates, codeshares and terminal handoffs."
+    install: |
+      bin.install "haneda-airport-pp-cli"
+      bin.install "haneda-airport-pp-mcp"

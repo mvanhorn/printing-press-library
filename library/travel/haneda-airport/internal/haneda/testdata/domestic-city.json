@@ -1,0 +1,1497 @@
+{
+  "ja": {
+    "items": [
+      {
+        "text": "北海道",
+        "children": [
+          {
+            "text": "函館",
+            "value": "HKD",
+            "airportCode": "HKD"
+          },
+          {
+            "text": "釧路",
+            "value": "KUH",
+            "airportCode": "KUH"
+          },
+          {
+            "text": "札幌（新千歳）",
+            "value": "SPK",
+            "airportCode": "CTS"
+          },
+          {
+            "text": "帯広",
+            "value": "OBO",
+            "airportCode": "OBO"
+          },
+          {
+            "text": "旭川",
+            "value": "AKJ",
+            "airportCode": "AKJ"
+          },
+          {
+            "text": "稚内",
+            "value": "WKJ",
+            "airportCode": "WKJ"
+          },
+          {
+            "text": "女満別",
+            "value": "MMB",
+            "airportCode": "MMB"
+          },
+          {
+            "text": "中標津",
+            "value": "SHB",
+            "airportCode": "SHB"
+          },
+          {
+            "text": "紋別",
+            "value": "MBE",
+            "airportCode": "MBE"
+          }
+        ]
+      },
+      {
+        "text": "東北",
+        "children": [
+          {
+            "text": "青森",
+            "value": "AOJ",
+            "airportCode": "AOJ"
+          },
+          {
+            "text": "秋田",
+            "value": "AXT",
+            "airportCode": "AXT"
+          },
+          {
+            "text": "山形",
+            "value": "GAJ",
+            "airportCode": "GAJ"
+          },
+          {
+            "text": "大館能代",
+            "value": "ONJ",
+            "airportCode": "ONJ"
+          },
+          {
+            "text": "三沢",
+            "value": "MSJ",
+            "airportCode": "MSJ"
+          },
+          {
+            "text": "庄内",
+            "value": "SYO",
+            "airportCode": "SYO"
+          }
+        ]
+      },
+      {
+        "text": "関東",
+        "children": [
+          {
+            "text": "八丈島",
+            "value": "HAC",
+            "airportCode": "HAC"
+          }
+        ]
+      },
+      {
+        "text": "中部",
+        "children": [
+          {
+            "text": "富山",
+            "value": "TOY",
+            "airportCode": "TOY"
+          },
+          {
+            "text": "能登",
+            "value": "NTQ",
+            "airportCode": "NTQ"
+          },
+          {
+            "text": "小松",
+            "value": "KMQ",
+            "airportCode": "KMQ"
+          },
+          {
+            "text": "名古屋（中部）",
+            "value": "NGO",
+            "airportCode": "NGO"
+          }
+        ]
+      },
+      {
+        "text": "近畿",
+        "children": [
+          {
+            "text": "神戸",
+            "value": "UKB",
+            "airportCode": "UKB"
+          },
+          {
+            "text": "大阪（伊丹）",
+            "value": "ITM",
+            "airportCode": "ITM"
+          },
+          {
+            "text": "大阪（関空）",
+            "value": "KIX",
+            "airportCode": "KIX"
+          },
+          {
+            "text": "南紀白浜",
+            "value": "SHM",
+            "airportCode": "SHM"
+          }
+        ]
+      },
+      {
+        "text": "四国",
+        "children": [
+          {
+            "text": "高松",
+            "value": "TAK",
+            "airportCode": "TAK"
+          },
+          {
+            "text": "高知",
+            "value": "KCZ",
+            "airportCode": "KCZ"
+          },
+          {
+            "text": "徳島",
+            "value": "TKS",
+            "airportCode": "TKS"
+          },
+          {
+            "text": "松山",
+            "value": "MYJ",
+            "airportCode": "MYJ"
+          }
+        ]
+      },
+      {
+        "text": "中国",
+        "children": [
+          {
+            "text": "岡山",
+            "value": "OKJ",
+            "airportCode": "OKJ"
+          },
+          {
+            "text": "鳥取",
+            "value": "TTJ",
+            "airportCode": "TTJ"
+          },
+          {
+            "text": "広島",
+            "value": "HIJ",
+            "airportCode": "HIJ"
+          },
+          {
+            "text": "萩・石見",
+            "value": "IWJ",
+            "airportCode": "IWJ"
+          },
+          {
+            "text": "山口宇部",
+            "value": "UBJ",
+            "airportCode": "UBJ"
+          },
+          {
+            "text": "米子",
+            "value": "YGJ",
+            "airportCode": "YGJ"
+          },
+          {
+            "text": "出雲",
+            "value": "IZO",
+            "airportCode": "IZO"
+          },
+          {
+            "text": "岩国",
+            "value": "IWK",
+            "airportCode": "IWK"
+          }
+        ]
+      },
+      {
+        "text": "九州",
+        "children": [
+          {
+            "text": "福岡",
+            "value": "FUK",
+            "airportCode": "FUK"
+          },
+          {
+            "text": "大分",
+            "value": "OIT",
+            "airportCode": "OIT"
+          },
+          {
+            "text": "宮崎",
+            "value": "KMI",
+            "airportCode": "KMI"
+          },
+          {
+            "text": "北九州",
+            "value": "KKJ",
+            "airportCode": "KKJ"
+          },
+          {
+            "text": "鹿児島",
+            "value": "KOJ",
+            "airportCode": "KOJ"
+          },
+          {
+            "text": "熊本",
+            "value": "KMJ",
+            "airportCode": "KMJ"
+          },
+          {
+            "text": "佐賀",
+            "value": "HSG",
+            "airportCode": "HSG"
+          },
+          {
+            "text": "長崎",
+            "value": "NGS",
+            "airportCode": "NGS"
+          },
+          {
+            "text": "奄美",
+            "value": "ASJ",
+            "airportCode": "ASJ"
+          }
+        ]
+      },
+      {
+        "text": "沖縄",
+        "children": [
+          {
+            "text": "沖縄（那覇）",
+            "value": "OKA",
+            "airportCode": "OKA"
+          },
+          {
+            "text": "久米島",
+            "value": "UEO",
+            "airportCode": "UEO"
+          },
+          {
+            "text": "宮古",
+            "value": "MMY",
+            "airportCode": "MMY"
+          },
+          {
+            "text": "宮古（下地島）",
+            "value": "SHI",
+            "airportCode": "SHI"
+          },
+          {
+            "text": "石垣",
+            "value": "ISG",
+            "airportCode": "ISG"
+          }
+        ]
+      }
+    ]
+  },
+  "en": {
+    "items": [
+      {
+        "text": "Hokkaido",
+        "children": [
+          {
+            "text": "Hakodate",
+            "value": "HKD",
+            "airportCode": "HKD"
+          },
+          {
+            "text": "Kushiro",
+            "value": "KUH",
+            "airportCode": "KUH"
+          },
+          {
+            "text": "Sapporo (New Chitose)",
+            "value": "SPK",
+            "airportCode": "CTS"
+          },
+          {
+            "text": "Obihiro",
+            "value": "OBO",
+            "airportCode": "OBO"
+          },
+          {
+            "text": "Asahikawa",
+            "value": "AKJ",
+            "airportCode": "AKJ"
+          },
+          {
+            "text": "Wakkanai",
+            "value": "WKJ",
+            "airportCode": "WKJ"
+          },
+          {
+            "text": "Memanbetsu",
+            "value": "MMB",
+            "airportCode": "MMB"
+          },
+          {
+            "text": "Nakashibetsu",
+            "value": "SHB",
+            "airportCode": "SHB"
+          },
+          {
+            "text": "Monbetsu",
+            "value": "MBE",
+            "airportCode": "MBE"
+          }
+        ]
+      },
+      {
+        "text": "Tohoku",
+        "children": [
+          {
+            "text": "Aomori",
+            "value": "AOJ",
+            "airportCode": "AOJ"
+          },
+          {
+            "text": "Akita",
+            "value": "AXT",
+            "airportCode": "AXT"
+          },
+          {
+            "text": "Yamagata",
+            "value": "GAJ",
+            "airportCode": "GAJ"
+          },
+          {
+            "text": "Odate-Noshiro",
+            "value": "ONJ",
+            "airportCode": "ONJ"
+          },
+          {
+            "text": "Misawa",
+            "value": "MSJ",
+            "airportCode": "MSJ"
+          },
+          {
+            "text": "Shonai",
+            "value": "SYO",
+            "airportCode": "SYO"
+          }
+        ]
+      },
+      {
+        "text": "Kanto",
+        "children": [
+          {
+            "text": "Hachijojima",
+            "value": "HAC",
+            "airportCode": "HAC"
+          }
+        ]
+      },
+      {
+        "text": "Chubu",
+        "children": [
+          {
+            "text": "Toyama",
+            "value": "TOY",
+            "airportCode": "TOY"
+          },
+          {
+            "text": "Noto",
+            "value": "NTQ",
+            "airportCode": "NTQ"
+          },
+          {
+            "text": "Komatsu",
+            "value": "KMQ",
+            "airportCode": "KMQ"
+          },
+          {
+            "text": "Nagoya(CHUBU)",
+            "value": "NGO",
+            "airportCode": "NGO"
+          }
+        ]
+      },
+      {
+        "text": "Kinki",
+        "children": [
+          {
+            "text": "Kobe",
+            "value": "UKB",
+            "airportCode": "UKB"
+          },
+          {
+            "text": "Osaka(ITAMI)",
+            "value": "ITM",
+            "airportCode": "ITM"
+          },
+          {
+            "text": "Osaka(KANKU)",
+            "value": "KIX",
+            "airportCode": "KIX"
+          },
+          {
+            "text": "Nanki-Shirahama",
+            "value": "SHM",
+            "airportCode": "SHM"
+          }
+        ]
+      },
+      {
+        "text": "Shikoku",
+        "children": [
+          {
+            "text": "Takamatsu",
+            "value": "TAK",
+            "airportCode": "TAK"
+          },
+          {
+            "text": "Kochi",
+            "value": "KCZ",
+            "airportCode": "KCZ"
+          },
+          {
+            "text": "Tokushima",
+            "value": "TKS",
+            "airportCode": "TKS"
+          },
+          {
+            "text": "Matsuyama",
+            "value": "MYJ",
+            "airportCode": "MYJ"
+          }
+        ]
+      },
+      {
+        "text": "Chugoku",
+        "children": [
+          {
+            "text": "Okayama",
+            "value": "OKJ",
+            "airportCode": "OKJ"
+          },
+          {
+            "text": "Tottori",
+            "value": "TTJ",
+            "airportCode": "TTJ"
+          },
+          {
+            "text": "Hiroshima",
+            "value": "HIJ",
+            "airportCode": "HIJ"
+          },
+          {
+            "text": "Hagi-Iwami",
+            "value": "IWJ",
+            "airportCode": "IWJ"
+          },
+          {
+            "text": "Yamaguchi-Ube",
+            "value": "UBJ",
+            "airportCode": "UBJ"
+          },
+          {
+            "text": "Yonago",
+            "value": "YGJ",
+            "airportCode": "YGJ"
+          },
+          {
+            "text": "Izumo",
+            "value": "IZO",
+            "airportCode": "IZO"
+          },
+          {
+            "text": "Iwakuni",
+            "value": "IWK",
+            "airportCode": "IWK"
+          }
+        ]
+      },
+      {
+        "text": "Kyushu",
+        "children": [
+          {
+            "text": "Fukuoka",
+            "value": "FUK",
+            "airportCode": "FUK"
+          },
+          {
+            "text": "Oita",
+            "value": "OIT",
+            "airportCode": "OIT"
+          },
+          {
+            "text": "Miyazaki",
+            "value": "KMI",
+            "airportCode": "KMI"
+          },
+          {
+            "text": "Kitakyushu",
+            "value": "KKJ",
+            "airportCode": "KKJ"
+          },
+          {
+            "text": "Kagoshima",
+            "value": "KOJ",
+            "airportCode": "KOJ"
+          },
+          {
+            "text": "Kumamoto",
+            "value": "KMJ",
+            "airportCode": "KMJ"
+          },
+          {
+            "text": "Saga",
+            "value": "HSG",
+            "airportCode": "HSG"
+          },
+          {
+            "text": "Nagasaki",
+            "value": "NGS",
+            "airportCode": "NGS"
+          },
+          {
+            "text": "Amami",
+            "value": "ASJ",
+            "airportCode": "ASJ"
+          }
+        ]
+      },
+      {
+        "text": "Okinawa",
+        "children": [
+          {
+            "text": "Okinawa(NAHA)",
+            "value": "OKA",
+            "airportCode": "OKA"
+          },
+          {
+            "text": "Kume Island",
+            "value": "UEO",
+            "airportCode": "UEO"
+          },
+          {
+            "text": "Miyako",
+            "value": "MMY",
+            "airportCode": "MMY"
+          },
+          {
+            "text": "Miyako(Shimojishima)",
+            "value": "SHI",
+            "airportCode": "SHI"
+          },
+          {
+            "text": "Ishigaki",
+            "value": "ISG",
+            "airportCode": "ISG"
+          }
+        ]
+      }
+    ]
+  },
+  "ko": {
+    "items": [
+      {
+        "text": "홋카이도",
+        "children": [
+          {
+            "text": "하코다테",
+            "value": "HKD",
+            "airportCode": "HKD"
+          },
+          {
+            "text": "쿠시로",
+            "value": "KUH",
+            "airportCode": "KUH"
+          },
+          {
+            "text": "삿포로 (신 치토세)",
+            "value": "SPK",
+            "airportCode": "CTS"
+          },
+          {
+            "text": "오비 히로",
+            "value": "OBO",
+            "airportCode": "OBO"
+          },
+          {
+            "text": "아사히카와",
+            "value": "AKJ",
+            "airportCode": "AKJ"
+          },
+          {
+            "text": "왓 카나이",
+            "value": "WKJ",
+            "airportCode": "WKJ"
+          },
+          {
+            "text": "메만 베쓰",
+            "value": "MMB",
+            "airportCode": "MMB"
+          },
+          {
+            "text": "나카시 베쓰",
+            "value": "SHB",
+            "airportCode": "SHB"
+          },
+          {
+            "text": "몬 베츠",
+            "value": "MBE",
+            "airportCode": "MBE"
+          }
+        ]
+      },
+      {
+        "text": "동북",
+        "children": [
+          {
+            "text": "아오모리",
+            "value": "AOJ",
+            "airportCode": "AOJ"
+          },
+          {
+            "text": "아키타",
+            "value": "AXT",
+            "airportCode": "AXT"
+          },
+          {
+            "text": "야마가타",
+            "value": "GAJ",
+            "airportCode": "GAJ"
+          },
+          {
+            "text": "다 꼬리 노시",
+            "value": "ONJ",
+            "airportCode": "ONJ"
+          },
+          {
+            "text": "미사",
+            "value": "MSJ",
+            "airportCode": "MSJ"
+          },
+          {
+            "text": "쇼 나이",
+            "value": "SYO",
+            "airportCode": "SYO"
+          }
+        ]
+      },
+      {
+        "text": "관동",
+        "children": [
+          {
+            "text": "하치 죠 지마",
+            "value": "HAC",
+            "airportCode": "HAC"
+          }
+        ]
+      },
+      {
+        "text": "중부",
+        "children": [
+          {
+            "text": "도야마",
+            "value": "TOY",
+            "airportCode": "TOY"
+          },
+          {
+            "text": "와",
+            "value": "NTQ",
+            "airportCode": "NTQ"
+          },
+          {
+            "text": "코마츠",
+            "value": "KMQ",
+            "airportCode": "KMQ"
+          },
+          {
+            "text": "나고야 (중부)",
+            "value": "NGO",
+            "airportCode": "NGO"
+          }
+        ]
+      },
+      {
+        "text": "킨키",
+        "children": [
+          {
+            "text": "고베",
+            "value": "UKB",
+            "airportCode": "UKB"
+          },
+          {
+            "text": "오사카 (이타미)",
+            "value": "ITM",
+            "airportCode": "ITM"
+          },
+          {
+            "text": "오사카 (간사이 공항)",
+            "value": "KIX",
+            "airportCode": "KIX"
+          },
+          {
+            "text": "난키 시라하마",
+            "value": "SHM",
+            "airportCode": "SHM"
+          }
+        ]
+      },
+      {
+        "text": "시코쿠",
+        "children": [
+          {
+            "text": "다카마쓰",
+            "value": "TAK",
+            "airportCode": "TAK"
+          },
+          {
+            "text": "고치",
+            "value": "KCZ",
+            "airportCode": "KCZ"
+          },
+          {
+            "text": "도쿠시마",
+            "value": "TKS",
+            "airportCode": "TKS"
+          },
+          {
+            "text": "마츠야마",
+            "value": "MYJ",
+            "airportCode": "MYJ"
+          }
+        ]
+      },
+      {
+        "text": "중국",
+        "children": [
+          {
+            "text": "오카야마",
+            "value": "OKJ",
+            "airportCode": "OKJ"
+          },
+          {
+            "text": "돗토리",
+            "value": "TTJ",
+            "airportCode": "TTJ"
+          },
+          {
+            "text": "히로시마",
+            "value": "HIJ",
+            "airportCode": "HIJ"
+          },
+          {
+            "text": "하기 · 이와 미",
+            "value": "IWJ",
+            "airportCode": "IWJ"
+          },
+          {
+            "text": "야마구치 우베",
+            "value": "UBJ",
+            "airportCode": "UBJ"
+          },
+          {
+            "text": "요나고",
+            "value": "YGJ",
+            "airportCode": "YGJ"
+          },
+          {
+            "text": "이즈모",
+            "value": "IZO",
+            "airportCode": "IZO"
+          },
+          {
+            "text": "이와쿠니",
+            "value": "IWK",
+            "airportCode": "IWK"
+          }
+        ]
+      },
+      {
+        "text": "규슈",
+        "children": [
+          {
+            "text": "후쿠오카",
+            "value": "FUK",
+            "airportCode": "FUK"
+          },
+          {
+            "text": "오이타",
+            "value": "OIT",
+            "airportCode": "OIT"
+          },
+          {
+            "text": "미야자키",
+            "value": "KMI",
+            "airportCode": "KMI"
+          },
+          {
+            "text": "기타큐슈",
+            "value": "KKJ",
+            "airportCode": "KKJ"
+          },
+          {
+            "text": "가고시마",
+            "value": "KOJ",
+            "airportCode": "KOJ"
+          },
+          {
+            "text": "쿠마모토",
+            "value": "KMJ",
+            "airportCode": "KMJ"
+          },
+          {
+            "text": "사가",
+            "value": "HSG",
+            "airportCode": "HSG"
+          },
+          {
+            "text": "나가사키",
+            "value": "NGS",
+            "airportCode": "NGS"
+          },
+          {
+            "text": "아마미",
+            "value": "ASJ",
+            "airportCode": "ASJ"
+          }
+        ]
+      },
+      {
+        "text": "오키나와",
+        "children": [
+          {
+            "text": "오키나와 (나하)",
+            "value": "OKA",
+            "airportCode": "OKA"
+          },
+          {
+            "text": "구메섬",
+            "value": "UEO",
+            "airportCode": "UEO"
+          },
+          {
+            "text": "미야코",
+            "value": "MMY",
+            "airportCode": "MMY"
+          },
+          {
+            "text": "미야코（시모지섬）",
+            "value": "SHI",
+            "airportCode": "SHI"
+          },
+          {
+            "text": "돌담",
+            "value": "ISG",
+            "airportCode": "ISG"
+          }
+        ]
+      }
+    ]
+  },
+  "zh-Hans": {
+    "items": [
+      {
+        "text": "北海道",
+        "children": [
+          {
+            "text": "函馆",
+            "value": "HKD",
+            "airportCode": "HKD"
+          },
+          {
+            "text": "钏路",
+            "value": "KUH",
+            "airportCode": "KUH"
+          },
+          {
+            "text": "札幌（新千岁）",
+            "value": "SPK",
+            "airportCode": "CTS"
+          },
+          {
+            "text": "带广",
+            "value": "OBO",
+            "airportCode": "OBO"
+          },
+          {
+            "text": "旭川",
+            "value": "AKJ",
+            "airportCode": "AKJ"
+          },
+          {
+            "text": "稚内",
+            "value": "WKJ",
+            "airportCode": "WKJ"
+          },
+          {
+            "text": "女满别",
+            "value": "MMB",
+            "airportCode": "MMB"
+          },
+          {
+            "text": "中标津",
+            "value": "SHB",
+            "airportCode": "SHB"
+          },
+          {
+            "text": "纹别",
+            "value": "MBE",
+            "airportCode": "MBE"
+          }
+        ]
+      },
+      {
+        "text": "东北",
+        "children": [
+          {
+            "text": "青森",
+            "value": "AOJ",
+            "airportCode": "AOJ"
+          },
+          {
+            "text": "秋田",
+            "value": "AXT",
+            "airportCode": "AXT"
+          },
+          {
+            "text": "山形",
+            "value": "GAJ",
+            "airportCode": "GAJ"
+          },
+          {
+            "text": "大馆能代",
+            "value": "ONJ",
+            "airportCode": "ONJ"
+          },
+          {
+            "text": "三泽",
+            "value": "MSJ",
+            "airportCode": "MSJ"
+          },
+          {
+            "text": "庄内",
+            "value": "SYO",
+            "airportCode": "SYO"
+          }
+        ]
+      },
+      {
+        "text": "关东",
+        "children": [
+          {
+            "text": "八岛",
+            "value": "HAC",
+            "airportCode": "HAC"
+          }
+        ]
+      },
+      {
+        "text": "中部",
+        "children": [
+          {
+            "text": "富山",
+            "value": "TOY",
+            "airportCode": "TOY"
+          },
+          {
+            "text": "能登",
+            "value": "NTQ",
+            "airportCode": "NTQ"
+          },
+          {
+            "text": "小松",
+            "value": "KMQ",
+            "airportCode": "KMQ"
+          },
+          {
+            "text": "中部国际",
+            "value": "NGO",
+            "airportCode": "NGO"
+          }
+        ]
+      },
+      {
+        "text": "近纪",
+        "children": [
+          {
+            "text": "神户",
+            "value": "UKB",
+            "airportCode": "UKB"
+          },
+          {
+            "text": "大阪伊丹国际",
+            "value": "ITM",
+            "airportCode": "ITM"
+          },
+          {
+            "text": "关西国际",
+            "value": "KIX",
+            "airportCode": "KIX"
+          },
+          {
+            "text": "南树白滨",
+            "value": "SHM",
+            "airportCode": "SHM"
+          }
+        ]
+      },
+      {
+        "text": "四国",
+        "children": [
+          {
+            "text": "高松",
+            "value": "TAK",
+            "airportCode": "TAK"
+          },
+          {
+            "text": "高知",
+            "value": "KCZ",
+            "airportCode": "KCZ"
+          },
+          {
+            "text": "德岛",
+            "value": "TKS",
+            "airportCode": "TKS"
+          },
+          {
+            "text": "松山",
+            "value": "MYJ",
+            "airportCode": "MYJ"
+          }
+        ]
+      },
+      {
+        "text": "中国",
+        "children": [
+          {
+            "text": "冈山",
+            "value": "OKJ",
+            "airportCode": "OKJ"
+          },
+          {
+            "text": "鸟取",
+            "value": "TTJ",
+            "airportCode": "TTJ"
+          },
+          {
+            "text": "广岛",
+            "value": "HIJ",
+            "airportCode": "HIJ"
+          },
+          {
+            "text": "萩・石见",
+            "value": "IWJ",
+            "airportCode": "IWJ"
+          },
+          {
+            "text": "山口宇部",
+            "value": "UBJ",
+            "airportCode": "UBJ"
+          },
+          {
+            "text": "米子",
+            "value": "YGJ",
+            "airportCode": "YGJ"
+          },
+          {
+            "text": "出云",
+            "value": "IZO",
+            "airportCode": "IZO"
+          },
+          {
+            "text": "岩国",
+            "value": "IWK",
+            "airportCode": "IWK"
+          }
+        ]
+      },
+      {
+        "text": "九州",
+        "children": [
+          {
+            "text": "福冈",
+            "value": "FUK",
+            "airportCode": "FUK"
+          },
+          {
+            "text": "大分",
+            "value": "OIT",
+            "airportCode": "OIT"
+          },
+          {
+            "text": "宫崎",
+            "value": "KMI",
+            "airportCode": "KMI"
+          },
+          {
+            "text": "北九州",
+            "value": "KKJ",
+            "airportCode": "KKJ"
+          },
+          {
+            "text": "鹿儿岛",
+            "value": "KOJ",
+            "airportCode": "KOJ"
+          },
+          {
+            "text": "熊本",
+            "value": "KMJ",
+            "airportCode": "KMJ"
+          },
+          {
+            "text": "佐贺",
+            "value": "HSG",
+            "airportCode": "HSG"
+          },
+          {
+            "text": "长崎",
+            "value": "NGS",
+            "airportCode": "NGS"
+          },
+          {
+            "text": "奄美",
+            "value": "ASJ",
+            "airportCode": "ASJ"
+          }
+        ]
+      },
+      {
+        "text": "冲绳",
+        "children": [
+          {
+            "text": "冲绳（那霸）",
+            "value": "OKA",
+            "airportCode": "OKA"
+          },
+          {
+            "text": "久米岛",
+            "value": "UEO",
+            "airportCode": "UEO"
+          },
+          {
+            "text": "宫古",
+            "value": "MMY",
+            "airportCode": "MMY"
+          },
+          {
+            "text": "宫古（下地岛）",
+            "value": "SHI",
+            "airportCode": "SHI"
+          },
+          {
+            "text": "石垣",
+            "value": "ISG",
+            "airportCode": "ISG"
+          }
+        ]
+      }
+    ]
+  },
+  "zh-Hant": {
+    "items": [
+      {
+        "text": "北海道",
+        "children": [
+          {
+            "text": "函館",
+            "value": "HKD",
+            "airportCode": "HKD"
+          },
+          {
+            "text": "釧路",
+            "value": "KUH",
+            "airportCode": "KUH"
+          },
+          {
+            "text": "札幌（新千歲）",
+            "value": "SPK",
+            "airportCode": "CTS"
+          },
+          {
+            "text": "帶廣",
+            "value": "OBO",
+            "airportCode": "OBO"
+          },
+          {
+            "text": "旭川",
+            "value": "AKJ",
+            "airportCode": "AKJ"
+          },
+          {
+            "text": "稚內",
+            "value": "WKJ",
+            "airportCode": "WKJ"
+          },
+          {
+            "text": "女滿別",
+            "value": "MMB",
+            "airportCode": "MMB"
+          },
+          {
+            "text": "中標津",
+            "value": "SHB",
+            "airportCode": "SHB"
+          },
+          {
+            "text": "紋別",
+            "value": "MBE",
+            "airportCode": "MBE"
+          }
+        ]
+      },
+      {
+        "text": "東北",
+        "children": [
+          {
+            "text": "青森",
+            "value": "AOJ",
+            "airportCode": "AOJ"
+          },
+          {
+            "text": "秋田",
+            "value": "AXT",
+            "airportCode": "AXT"
+          },
+          {
+            "text": "山形",
+            "value": "GAJ",
+            "airportCode": "GAJ"
+          },
+          {
+            "text": "大館能代",
+            "value": "ONJ",
+            "airportCode": "ONJ"
+          },
+          {
+            "text": "三澤",
+            "value": "MSJ",
+            "airportCode": "MSJ"
+          },
+          {
+            "text": "莊內",
+            "value": "SYO",
+            "airportCode": "SYO"
+          }
+        ]
+      },
+      {
+        "text": "關東",
+        "children": [
+          {
+            "text": "八島",
+            "value": "HAC",
+            "airportCode": "HAC"
+          }
+        ]
+      },
+      {
+        "text": "中部",
+        "children": [
+          {
+            "text": "富山",
+            "value": "TOY",
+            "airportCode": "TOY"
+          },
+          {
+            "text": "能登",
+            "value": "NTQ",
+            "airportCode": "NTQ"
+          },
+          {
+            "text": "小松",
+            "value": "KMQ",
+            "airportCode": "KMQ"
+          },
+          {
+            "text": "中部國際",
+            "value": "NGO",
+            "airportCode": "NGO"
+          }
+        ]
+      },
+      {
+        "text": "近紀",
+        "children": [
+          {
+            "text": "神戶",
+            "value": "UKB",
+            "airportCode": "UKB"
+          },
+          {
+            "text": "大阪（伊丹）",
+            "value": "ITM",
+            "airportCode": "ITM"
+          },
+          {
+            "text": "關西國際",
+            "value": "KIX",
+            "airportCode": "KIX"
+          },
+          {
+            "text": "南樹白濱",
+            "value": "SHM",
+            "airportCode": "SHM"
+          }
+        ]
+      },
+      {
+        "text": "四國",
+        "children": [
+          {
+            "text": "高松",
+            "value": "TAK",
+            "airportCode": "TAK"
+          },
+          {
+            "text": "高知",
+            "value": "KCZ",
+            "airportCode": "KCZ"
+          },
+          {
+            "text": "德島",
+            "value": "TKS",
+            "airportCode": "TKS"
+          },
+          {
+            "text": "松山",
+            "value": "MYJ",
+            "airportCode": "MYJ"
+          }
+        ]
+      },
+      {
+        "text": "中國",
+        "children": [
+          {
+            "text": "岡山",
+            "value": "OKJ",
+            "airportCode": "OKJ"
+          },
+          {
+            "text": "鳥取",
+            "value": "TTJ",
+            "airportCode": "TTJ"
+          },
+          {
+            "text": "廣島",
+            "value": "HIJ",
+            "airportCode": "HIJ"
+          },
+          {
+            "text": "萩・石見",
+            "value": "IWJ",
+            "airportCode": "IWJ"
+          },
+          {
+            "text": "山口宇部",
+            "value": "UBJ",
+            "airportCode": "UBJ"
+          },
+          {
+            "text": "米子",
+            "value": "YGJ",
+            "airportCode": "YGJ"
+          },
+          {
+            "text": "出雲",
+            "value": "IZO",
+            "airportCode": "IZO"
+          },
+          {
+            "text": "岩國",
+            "value": "IWK",
+            "airportCode": "IWK"
+          }
+        ]
+      },
+      {
+        "text": "九州",
+        "children": [
+          {
+            "text": "福岡",
+            "value": "FUK",
+            "airportCode": "FUK"
+          },
+          {
+            "text": "大分",
+            "value": "OIT",
+            "airportCode": "OIT"
+          },
+          {
+            "text": "宮崎",
+            "value": "KMI",
+            "airportCode": "KMI"
+          },
+          {
+            "text": "北九州",
+            "value": "KKJ",
+            "airportCode": "KKJ"
+          },
+          {
+            "text": "鹿兒島",
+            "value": "KOJ",
+            "airportCode": "KOJ"
+          },
+          {
+            "text": "熊本",
+            "value": "KMJ",
+            "airportCode": "KMJ"
+          },
+          {
+            "text": "佐賀",
+            "value": "HSG",
+            "airportCode": "HSG"
+          },
+          {
+            "text": "長崎",
+            "value": "NGS",
+            "airportCode": "NGS"
+          },
+          {
+            "text": "奄美",
+            "value": "ASJ",
+            "airportCode": "ASJ"
+          }
+        ]
+      },
+      {
+        "text": "沖繩",
+        "children": [
+          {
+            "text": "沖繩（那霸）",
+            "value": "OKA",
+            "airportCode": "OKA"
+          },
+          {
+            "text": "久米島",
+            "value": "UEO",
+            "airportCode": "UEO"
+          },
+          {
+            "text": "宮古",
+            "value": "MMY",
+            "airportCode": "MMY"
+          },
+          {
+            "text": "宫古（下地岛）",
+            "value": "SHI",
+            "airportCode": "SHI"
+          },
+          {
+            "text": "石垣",
+            "value": "ISG",
+            "airportCode": "ISG"
+          }
+        ]
+      }
+    ]
+  }
+}

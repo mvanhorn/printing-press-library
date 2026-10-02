@@ -1,0 +1,1 @@
+Public Haneda source fixtures captured 2026-10-02 JST. Board/monthly rows are bounded subsets; board count is adjusted to that subset for parser tests. These are historical test inputs, not live travel facts. Test cases also mutate copies to exercise error, missing-field and rollover behavior. Full runtime source contracts and untouched captures remain in run discovery evidence.

@@ -1,0 +1,67 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "command": [
+        "flights",
+        "search",
+        "--help"
+      ],
+      "exit": 0,
+      "stdout_bytes": 3895
+    },
+    {
+      "command": [
+        "flights",
+        "search",
+        "--dry-run",
+        "--json"
+      ],
+      "exit": 0,
+      "stdout_bytes": 89
+    },
+    {
+      "command": [
+        "catalog",
+        "airports",
+        "--help"
+      ],
+      "exit": 0,
+      "stdout_bytes": 2871
+    },
+    {
+      "command": [
+        "catalog",
+        "airports",
+        "--dry-run",
+        "--json"
+      ],
+      "exit": 0,
+      "stdout_bytes": 93
+    },
+    {
+      "command": [
+        "schedule",
+        "search",
+        "--help"
+      ],
+      "exit": 0,
+      "stdout_bytes": 3465
+    },
+    {
+      "command": [
+        "schedule",
+        "search",
+        "--dry-run",
+        "--json"
+      ],
+      "exit": 0,
+      "stdout_bytes": 91
+    }
+  ],
+  "live_assertions": [
+    "bounded source board, source-reported JST timestamp, explicit unknown actual/operator",
+    "CTS versus SPK with Japanese name",
+    "NH849 published periods, weekdays and feed update timestamp"
+  ]
+}

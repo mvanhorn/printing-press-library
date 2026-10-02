@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "verdict": "PASS",
+  "started_at": "2026-10-02T17:16:51Z",
+  "elapsed_ms": 16262,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T17:16:51Z",
+      "elapsed_ms": 4053,
+      "command": "<isolated-press-home>/tooling/bin/cli-printing-press verify --dir <source-checkout> --write-manifest <source-checkout>/.printing-press.json --spec <isolated-press-home>/.runstate/haneda-airport-cli-d80cde97/runs/20261002-221718-7fcad3b1/research/haneda-airport-enriched-spec.yaml --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T17:16:55Z",
+      "elapsed_ms": 791,
+      "command": "<isolated-press-home>/tooling/bin/cli-printing-press validate-narrative --strict --full-examples --research <isolated-press-home>/.runstate/haneda-airport-cli-d80cde97/runs/20261002-221718-7fcad3b1/research.json --binary <source-checkout>/build/stage/bin/haneda-airport-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T17:16:56Z",
+      "elapsed_ms": 1773,
+      "command": "<isolated-press-home>/tooling/bin/cli-printing-press dogfood --dir <source-checkout> --spec <isolated-press-home>/.runstate/haneda-airport-cli-d80cde97/runs/20261002-221718-7fcad3b1/research/haneda-airport-enriched-spec.yaml --research-dir <isolated-press-home>/.runstate/haneda-airport-cli-d80cde97/runs/20261002-221718-7fcad3b1"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T17:16:58Z",
+      "elapsed_ms": 14,
+      "command": "<isolated-press-home>/tooling/bin/cli-printing-press workflow-verify --dir <source-checkout>"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T17:16:58Z",
+      "elapsed_ms": 42,
+      "command": "<isolated-press-home>/tooling/bin/cli-printing-press apify-audit --dir <source-checkout> --research-dir <isolated-press-home>/.runstate/haneda-airport-cli-d80cde97/runs/20261002-221718-7fcad3b1"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T17:16:58Z",
+      "elapsed_ms": 4657,
+      "command": "<isolated-press-home>/tooling/bin/cli-printing-press verify-skill --dir <source-checkout>"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T17:17:02Z",
+      "elapsed_ms": 4928,
+      "command": "<isolated-press-home>/tooling/bin/cli-printing-press scorecard --dir <source-checkout> --write-manifest <source-checkout>/.printing-press.json --research-dir <isolated-press-home>/.runstate/haneda-airport-cli-d80cde97/runs/20261002-221718-7fcad3b1 --spec <isolated-press-home>/.runstate/haneda-airport-cli-d80cde97/runs/20261002-221718-7fcad3b1/research/haneda-airport-enriched-spec.yaml --live-check"
+    }
+  ]
+}

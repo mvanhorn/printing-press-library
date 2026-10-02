@@ -1,0 +1,200 @@
+{
+  "count": 3,
+  "date": {
+    "date": "2026/10/02 23:49:36",
+    "display_date": "2026-10-02 23:49"
+  },
+  "flightlists": [
+    {
+      "flightType": "international",
+      "direction": "departure",
+      "area_name": "BANGKOK",
+      "via_area_name": "",
+      "airlines": [
+        {
+          "airline": "ANA",
+          "icon_url": "/site_resource/flight/img/logo/ANA.png",
+          "link_url": "https://www.ana.co.jp/en/jp/",
+          "flightNumber": "NH849"
+        },
+        {
+          "airline": "ACA",
+          "icon_url": "/site_resource/flight/img/logo/ACA.png",
+          "link_url": "https://www.aircanada.com/home/ca/en/aco/flights",
+          "flightNumber": "AC6273"
+        },
+        {
+          "airline": "THA",
+          "icon_url": "/site_resource/flight/img/logo/THA.png",
+          "link_url": "https://www.thaiairways.com/en/index.page",
+          "flightNumber": "TG6106"
+        },
+        {
+          "airline": "UAL",
+          "icon_url": "/site_resource/flight/img/logo/UAL.png",
+          "link_url": "https://www.united.com/en/us",
+          "flightNumber": "UA8003"
+        }
+      ],
+      "date": {
+        "key": "20261002",
+        "display_date": "2026/10/02",
+        "change_date": "2026/10/01"
+      },
+      "on_time": "00:05",
+      "change_time": "23:59",
+      "terminal": {
+        "terminal": "T2",
+        "hm_facility_id": "s=eyJvbmxpbmUvZ2V0RGlyZWN0aW9uc0Zyb21UbyI6eyJtdWx0aXBvaW50Um91dGluZyI6dHJ1ZX0sIm9ubGluZS9wb2lWaWV3Ijp7Im11bHRpcG9pbnRSb3V0aW5nIjp0cnVlfSwibWFwUmVuZGVyZXIiOnsidnAiOnsibGF0IjozNS41NTI1OTksImxuZyI6MTM5Ljc4ODU1OCwiem9vbSI6MTUuNTQ3Njg2LCJiZWFyaW5nIjowLCJwaXRjaCI6MH0sIm9yZCI6M319"
+      },
+      "status": {
+        "color": "4",
+        "text": "Departed",
+        "category": "departed",
+        "reason": ""
+      },
+      "options": [
+        {
+          "type": "checkin",
+          "title": "Check-In Counter",
+          "items": []
+        },
+        {
+          "type": "gateDep",
+          "title": "Gate No.",
+          "items": [
+            {
+              "name": "67",
+              "pm_facility_id": "focus=mapicon-33490",
+              "pm_map_url_scheme": "hanedaapp2://map/focus=mapicon-33490",
+              "pm_map_deep_link": "https://navigator.tokyo-haneda.com/app/link/map?focus=mapicon-33490",
+              "hm_facility_id": "poiId=5965"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "flightType": "international",
+      "direction": "departure",
+      "area_name": "SINGAPORE",
+      "via_area_name": "",
+      "airlines": [
+        {
+          "airline": "TGW",
+          "icon_url": "/site_resource/flight/img/logo/TGW.png",
+          "link_url": "https://www.flyscoot.com/en",
+          "flightNumber": "TR883"
+        },
+        {
+          "airline": "SIA",
+          "icon_url": "/site_resource/flight/img/logo/SIA.png",
+          "link_url": "https://www.singaporeair.com/en_UK/jp/home#/book/bookflight",
+          "flightNumber": "SQ8681"
+        }
+      ],
+      "date": {
+        "key": "20261002",
+        "display_date": "2026/10/02",
+        "change_date": "-"
+      },
+      "on_time": "02:20",
+      "change_time": "-",
+      "terminal": {
+        "terminal": "T3",
+        "hm_facility_id": "s=eyJvbmxpbmUvZ2V0RGlyZWN0aW9uc0Zyb21UbyI6eyJtdWx0aXBvaW50Um91dGluZyI6dHJ1ZX0sIm9ubGluZS9wb2lWaWV3Ijp7Im11bHRpcG9pbnRSb3V0aW5nIjp0cnVlfSwibWFwUmVuZGVyZXIiOnsidnAiOnsibGF0IjozNS41NDU2MjQsImxuZyI6MTM5Ljc2ODk4Mywiem9vbSI6MTUuMzM2MDE1LCJiZWFyaW5nIjowLCJwaXRjaCI6MH0sIm9yZCI6NH19"
+      },
+      "status": {
+        "color": "2",
+        "text": "Canceled",
+        "category": "canceled",
+        "reason": ""
+      },
+      "options": [
+        {
+          "type": "checkin",
+          "title": "Check-In Counter",
+          "items": [
+            {
+              "name": "D",
+              "pm_facility_id": "focus=mapicon-8544",
+              "pm_map_url_scheme": "hanedaapp2://map/focus=mapicon-8544",
+              "pm_map_deep_link": "https://navigator.tokyo-haneda.com/app/link/map?focus=mapicon-8544",
+              "hm_facility_id": "poiId=2358"
+            }
+          ]
+        },
+        {
+          "type": "gateDep",
+          "title": "Gate No.",
+          "items": [
+            {
+              "name": "105",
+              "pm_facility_id": "focus=mapicon-10541",
+              "pm_map_url_scheme": "hanedaapp2://map/focus=mapicon-10541",
+              "pm_map_deep_link": "https://navigator.tokyo-haneda.com/app/link/map?focus=mapicon-10541",
+              "hm_facility_id": "poiId=2334"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "flightType": "international",
+      "direction": "departure",
+      "area_name": "JAKARTA",
+      "via_area_name": "",
+      "airlines": [
+        {
+          "airline": "ANA",
+          "icon_url": "/site_resource/flight/img/logo/ANA.png",
+          "link_url": "https://www.ana.co.jp/en/jp/",
+          "flightNumber": "NH871"
+        },
+        {
+          "airline": "UAL",
+          "icon_url": "/site_resource/flight/img/logo/UAL.png",
+          "link_url": "https://www.united.com/en/us",
+          "flightNumber": "UA7902"
+        }
+      ],
+      "date": {
+        "key": "20261002",
+        "display_date": "2026/10/02",
+        "change_date": "-"
+      },
+      "on_time": "23:30",
+      "change_time": "-",
+      "terminal": {
+        "terminal": "T2",
+        "hm_facility_id": "s=eyJvbmxpbmUvZ2V0RGlyZWN0aW9uc0Zyb21UbyI6eyJtdWx0aXBvaW50Um91dGluZyI6dHJ1ZX0sIm9ubGluZS9wb2lWaWV3Ijp7Im11bHRpcG9pbnRSb3V0aW5nIjp0cnVlfSwibWFwUmVuZGVyZXIiOnsidnAiOnsibGF0IjozNS41NTI1OTksImxuZyI6MTM5Ljc4ODU1OCwiem9vbSI6MTUuNTQ3Njg2LCJiZWFyaW5nIjowLCJwaXRjaCI6MH0sIm9yZCI6M319"
+      },
+      "status": {
+        "color": "1",
+        "text": "Final boarding call",
+        "category": "",
+        "reason": ""
+      },
+      "options": [
+        {
+          "type": "checkin",
+          "title": "Check-In Counter",
+          "items": []
+        },
+        {
+          "type": "gateDep",
+          "title": "Gate No.",
+          "items": [
+            {
+              "name": "68",
+              "pm_facility_id": "focus=mapicon-10477",
+              "pm_map_url_scheme": "hanedaapp2://map/focus=mapicon-10477",
+              "pm_map_deep_link": "https://navigator.tokyo-haneda.com/app/link/map?focus=mapicon-10477",
+              "hm_facility_id": "poiId=1621"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

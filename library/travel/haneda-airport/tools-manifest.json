@@ -1,0 +1,176 @@
+{
+  "api_name": "haneda-airport",
+  "base_url": "https://www.tokyo-haneda.com",
+  "description": "Query first-party Haneda flight boards with precise dates, codeshares and terminal handoffs.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "source_airlines-domestic",
+      "description": "Read the raw first-party airlines-domestic JSON source. Returns the CompanyListSearchJson.",
+      "method": "GET",
+      "path": "/site_resource/flight/data/dms/company_list_search.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "source_airlines-international",
+      "description": "Read the raw first-party airlines-international JSON source. Returns the CompanyListSearchJson2.",
+      "method": "GET",
+      "path": "/site_resource/flight/data/int/company_list_search.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "source_airports-domestic",
+      "description": "Read the raw first-party airports-domestic JSON source. Returns the CityListSearchJson.",
+      "method": "GET",
+      "path": "/site_resource/flight/data/dms/city_list_search.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "source_airports-international",
+      "description": "Read the raw first-party airports-international JSON source. Returns the CityListSearchJson2.",
+      "method": "GET",
+      "path": "/site_resource/flight/data/int/city_list_search.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "source_board",
+      "description": "Read the raw first-party board JSON source. Required: search-date. Optional: airline-codes (default: []), airport-codes (default: []), direction-code (default: 1) (plus 4 more). Returns array of SearchFlightlist.",
+      "method": "POST",
+      "path": "/en/app/api/v2/flight/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "airline-codes",
+          "wire_name": "airlineCodes",
+          "type": "array",
+          "location": "body"
+        },
+        {
+          "name": "airport-codes",
+          "wire_name": "airportCodes",
+          "type": "array",
+          "location": "body"
+        },
+        {
+          "name": "direction-code",
+          "wire_name": "arrivalType",
+          "type": "int",
+          "location": "body",
+          "description": "Provider arrivalType: 1 departure, 2 arrival."
+        },
+        {
+          "name": "exact-match",
+          "wire_name": "exactMatch",
+          "type": "bool",
+          "location": "body"
+        },
+        {
+          "name": "flight-number",
+          "wire_name": "flightNumber",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "kind-code",
+          "wire_name": "flightType",
+          "type": "int",
+          "location": "body",
+          "description": "Provider flightType: 1 domestic, 2 international."
+        },
+        {
+          "name": "search-date",
+          "wire_name": "searchDt",
+          "type": "string",
+          "location": "body",
+          "description": "JST service date in YYYYMMDD.",
+          "required": true
+        },
+        {
+          "name": "status-codes",
+          "wire_name": "status",
+          "type": "array",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "source_disruption-summary",
+      "description": "Read the raw first-party disruption-summary JSON source. Returns the FlightStatusJson.",
+      "method": "GET",
+      "path": "/en/app_resource/flight/flightStatus/flight_status.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "source_schedule-domestic-arrivals",
+      "description": "Read the raw first-party schedule-domestic-arrivals JSON source. Returns array of HdacfascJsonFlightInfo.",
+      "method": "GET",
+      "path": "/app_resource/flight/data/dms/hdacfasc.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "source_schedule-domestic-departures",
+      "description": "Read the raw first-party schedule-domestic-departures JSON source. Returns array of HdacfdscJsonFlightInfo.",
+      "method": "GET",
+      "path": "/app_resource/flight/data/dms/hdacfdsc.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "source_schedule-international-arrivals",
+      "description": "Read the raw first-party schedule-international-arrivals JSON source. Returns array of HdacfascJsonFlightInfo2.",
+      "method": "GET",
+      "path": "/app_resource/flight/data/int/hdacfasc.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "source_schedule-international-departures",
+      "description": "Read the raw first-party schedule-international-departures JSON source. Returns array of HdacfdscJsonFlightInfo2.",
+      "method": "GET",
+      "path": "/app_resource/flight/data/int/hdacfdsc.json",
+      "no_auth": true,
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Snapshot save",
+      "command": "snapshot save",
+      "description": "Preserve timestamped scoped boards locally."
+    },
+    {
+      "name": "Offline search",
+      "command": "snapshot search",
+      "description": "Filter a saved board without network access."
+    },
+    {
+      "name": "Material changes",
+      "command": "snapshot diff",
+      "description": "See changed status, time and terminal facilities."
+    },
+    {
+      "name": "Terminal briefing",
+      "command": "plan",
+      "description": "Find the source terminal, gates and check-in handoffs."
+    },
+    {
+      "name": "Midnight rollover",
+      "command": "flights rollover",
+      "description": "Inspect adjacent service days and cross-midnight changes."
+    }
+  ]
+}

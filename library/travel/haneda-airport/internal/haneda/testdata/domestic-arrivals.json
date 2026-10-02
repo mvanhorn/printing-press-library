@@ -1,0 +1,168 @@
+{
+  "count": 3,
+  "date": {
+    "date": "2026/10/02 23:49:36",
+    "display_date": "2026-10-02 23:49"
+  },
+  "flightlists": [
+    {
+      "flightType": "domestic",
+      "direction": "arrival",
+      "area_name": "Osaka(KANKU)",
+      "via_area_name": "",
+      "airlines": [
+        {
+          "airline": "ANA",
+          "icon_url": "/site_resource/flight/img/logo/ANA.png",
+          "link_url": "https://www.ana.co.jp/en/jp/",
+          "flightNumber": "NH990"
+        }
+      ],
+      "date": {
+        "key": "20261002",
+        "display_date": "2026/10/02",
+        "change_date": "2026/10/02"
+      },
+      "on_time": "07:55",
+      "change_time": "07:40",
+      "terminal": {
+        "terminal": "T2",
+        "hm_facility_id": "s=eyJvbmxpbmUvZ2V0RGlyZWN0aW9uc0Zyb21UbyI6eyJtdWx0aXBvaW50Um91dGluZyI6dHJ1ZX0sIm9ubGluZS9wb2lWaWV3Ijp7Im11bHRpcG9pbnRSb3V0aW5nIjp0cnVlfSwibWFwUmVuZGVyZXIiOnsidnAiOnsibGF0IjozNS41NTI1OTksImxuZyI6MTM5Ljc4ODU1OCwiem9vbSI6MTUuNTQ3Njg2LCJiZWFyaW5nIjowLCJwaXRjaCI6MH0sIm9yZCI6M319"
+      },
+      "status": {
+        "color": "4",
+        "text": "Arrived",
+        "category": "arrived",
+        "reason": ""
+      },
+      "options": [
+        {
+          "type": "exitGate",
+          "title": "Gate",
+          "items": [
+            {
+              "name": "1",
+              "pm_facility_id": "focus=mapicon-9619",
+              "pm_map_url_scheme": "hanedaapp2://map/focus=mapicon-9619",
+              "pm_map_deep_link": "https://navigator.tokyo-haneda.com/app/link/map?focus=mapicon-9619",
+              "hm_facility_id": "poiId=322"
+            },
+            {
+              "name": "2",
+              "pm_facility_id": "focus=mapicon-9618",
+              "pm_map_url_scheme": "hanedaapp2://map/focus=mapicon-9618",
+              "pm_map_deep_link": "https://navigator.tokyo-haneda.com/app/link/map?focus=mapicon-9618",
+              "hm_facility_id": "poiId=321"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "flightType": "domestic",
+      "direction": "arrival",
+      "area_name": "Fukuoka",
+      "via_area_name": "",
+      "airlines": [
+        {
+          "airline": "ANA",
+          "icon_url": "/site_resource/flight/img/logo/ANA.png",
+          "link_url": "https://www.ana.co.jp/en/jp/",
+          "flightNumber": "NH254"
+        }
+      ],
+      "date": {
+        "key": "20261002",
+        "display_date": "2026/10/02",
+        "change_date": "-"
+      },
+      "on_time": "14:50",
+      "change_time": "-",
+      "terminal": {
+        "terminal": "T2",
+        "hm_facility_id": "s=eyJvbmxpbmUvZ2V0RGlyZWN0aW9uc0Zyb21UbyI6eyJtdWx0aXBvaW50Um91dGluZyI6dHJ1ZX0sIm9ubGluZS9wb2lWaWV3Ijp7Im11bHRpcG9pbnRSb3V0aW5nIjp0cnVlfSwibWFwUmVuZGVyZXIiOnsidnAiOnsibGF0IjozNS41NTI1OTksImxuZyI6MTM5Ljc4ODU1OCwiem9vbSI6MTUuNTQ3Njg2LCJiZWFyaW5nIjowLCJwaXRjaCI6MH0sIm9yZCI6M319"
+      },
+      "status": {
+        "color": "2",
+        "text": "Canceled",
+        "category": "canceled",
+        "reason": "Aircraft Maintenance"
+      },
+      "options": [
+        {
+          "type": "exitGate",
+          "title": "Gate",
+          "items": [
+            {
+              "name": "1",
+              "pm_facility_id": "focus=mapicon-9619",
+              "pm_map_url_scheme": "hanedaapp2://map/focus=mapicon-9619",
+              "pm_map_deep_link": "https://navigator.tokyo-haneda.com/app/link/map?focus=mapicon-9619",
+              "hm_facility_id": "poiId=322"
+            },
+            {
+              "name": "2",
+              "pm_facility_id": "focus=mapicon-9618",
+              "pm_map_url_scheme": "hanedaapp2://map/focus=mapicon-9618",
+              "pm_map_deep_link": "https://navigator.tokyo-haneda.com/app/link/map?focus=mapicon-9618",
+              "hm_facility_id": "poiId=321"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "flightType": "domestic",
+      "direction": "arrival",
+      "area_name": "Sapporo (New Chitose)",
+      "via_area_name": "",
+      "airlines": [
+        {
+          "airline": "JAL",
+          "icon_url": "/site_resource/flight/img/logo/JAL.png",
+          "link_url": "https://www.jal.co.jp/jp/en/?city=TYO",
+          "flightNumber": "JL528"
+        }
+      ],
+      "date": {
+        "key": "20261002",
+        "display_date": "2026/10/02",
+        "change_date": "-"
+      },
+      "on_time": "22:55",
+      "change_time": "-",
+      "terminal": {
+        "terminal": "T1",
+        "hm_facility_id": "s=eyJvbmxpbmUvZ2V0RGlyZWN0aW9uc0Zyb21UbyI6eyJtdWx0aXBvaW50Um91dGluZyI6dHJ1ZX0sIm9ubGluZS9wb2lWaWV3Ijp7Im11bHRpcG9pbnRSb3V0aW5nIjp0cnVlfSwibWFwUmVuZGVyZXIiOnsidnAiOnsibGF0IjozNS41NDkwMTIsImxuZyI6MTM5Ljc4NDExNywiem9vbSI6MTUuNTQ3Njg2LCJiZWFyaW5nIjowLCJwaXRjaCI6MH0sIm9yZCI6M319"
+      },
+      "status": {
+        "color": 1,
+        "text": "到着時刻未定",
+        "category": "delayed",
+        "reason": "Aircraft Arrival Delay"
+      },
+      "options": [
+        {
+          "type": "exitGate",
+          "title": "Gate",
+          "items": [
+            {
+              "name": "1",
+              "pm_facility_id": "focus=mapicon-9503",
+              "pm_map_url_scheme": "hanedaapp2://map/focus=mapicon-9503",
+              "pm_map_deep_link": "https://navigator.tokyo-haneda.com/app/link/map?focus=mapicon-9503",
+              "hm_facility_id": "poiId=322"
+            },
+            {
+              "name": "3",
+              "pm_facility_id": "focus=mapicon-9501",
+              "pm_map_url_scheme": "hanedaapp2://map/focus=mapicon-9501",
+              "pm_map_deep_link": "https://navigator.tokyo-haneda.com/app/link/map?focus=mapicon-9501",
+              "hm_facility_id": "poiId=320"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

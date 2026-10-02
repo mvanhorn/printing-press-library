@@ -1,0 +1,2086 @@
+{
+  "ja": {
+    "items": [
+      {
+        "text": "東アジア方面",
+        "children": [
+          {
+            "text": "ソウル（金浦）",
+            "value": "GMP",
+            "airportCode": "GMP",
+            "timeDiff": {
+              "hour": 0,
+              "gmt": "GMT+0900"
+            }
+          },
+          {
+            "text": "ソウル（仁川）",
+            "value": "ICN",
+            "airportCode": "ICN",
+            "timeDiff": {
+              "hour": 0,
+              "gmt": "GMT+0900"
+            }
+          },
+          {
+            "text": "清州",
+            "value": "CJJ",
+            "airportCode": "CJJ",
+            "timeDiff": {
+              "hour": "",
+              "gmt": ""
+            }
+          },
+          {
+            "text": "広州",
+            "value": "CAN",
+            "airportCode": "CAN",
+            "timeDiff": {
+              "hour": -1,
+              "gmt": "GMT+0800"
+            }
+          },
+          {
+            "text": "香港",
+            "value": "HKG",
+            "airportCode": "HKG",
+            "timeDiff": {
+              "hour": -1,
+              "gmt": "GMT+0800"
+            }
+          },
+          {
+            "text": "深圳",
+            "value": "SZX",
+            "airportCode": "SZX",
+            "timeDiff": {
+              "hour": -1,
+              "gmt": "GMT+0800"
+            }
+          },
+          {
+            "text": "上海（虹橋）",
+            "value": "SHA",
+            "airportCode": "SHA",
+            "timeDiff": {
+              "hour": -1,
+              "gmt": "GMT+0800"
+            }
+          },
+          {
+            "text": "上海（浦東）",
+            "value": "PVG",
+            "airportCode": "PVG",
+            "timeDiff": {
+              "hour": -1,
+              "gmt": "GMT+0800"
+            }
+          },
+          {
+            "text": "天津",
+            "value": "TSN",
+            "airportCode": "TSN",
+            "timeDiff": {
+              "hour": -1,
+              "gmt": "GMT+0800"
+            }
+          },
+          {
+            "text": "青島",
+            "value": "TAO",
+            "airportCode": "TAO",
+            "timeDiff": {
+              "hour": -1,
+              "gmt": "GMT+0800"
+            }
+          },
+          {
+            "text": "大連",
+            "value": "DLC",
+            "airportCode": "DLC",
+            "timeDiff": {
+              "hour": -1,
+              "gmt": "GMT+0800"
+            }
+          },
+          {
+            "text": "北京（首都）",
+            "value": "PEK",
+            "airportCode": "PEK",
+            "timeDiff": {
+              "hour": -1,
+              "gmt": "GMT+0800"
+            }
+          },
+          {
+            "text": "北京（大興）",
+            "value": "PKX",
+            "airportCode": "PKX",
+            "timeDiff": {
+              "hour": -1,
+              "gmt": "GMT+0800"
+            }
+          },
+          {
+            "text": "台北（松山）",
+            "value": "TSA",
+            "airportCode": "TSA",
+            "timeDiff": {
+              "hour": -1,
+              "gmt": "GMT+0800"
+            }
+          },
+          {
+            "text": "台北（桃園）",
+            "value": "TPE",
+            "airportCode": "TPE",
+            "timeDiff": {
+              "hour": -1,
+              "gmt": "GMT+0800"
+            }
+          }
+        ]
+      },
+      {
+        "text": "東南アジア方面",
+        "children": [
+          {
+            "text": "クアラルンプール",
+            "value": "KUL",
+            "airportCode": "KUL",
+            "timeDiff": {
+              "hour": -1,
+              "gmt": "GMT+0800"
+            }
+          },
+          {
+            "text": "コタキナバル",
+            "value": "BKI",
+            "airportCode": "BKI",
+            "timeDiff": {
+              "hour": -1,
+              "gmt": "GMT＋0800"
+            }
+          },
+          {
+            "text": "シンガポール",
+            "value": "SIN",
+            "airportCode": "SIN",
+            "timeDiff": {
+              "hour": -1,
+              "gmt": "GMT+0800"
+            }
+          },
+          {
+            "text": "ジャカルタ",
+            "value": "CGK",
+            "airportCode": "CGK",
+            "timeDiff": {
+              "hour": -2,
+              "gmt": "GMT+0700"
+            }
+          },
+          {
+            "text": "ハノイ",
+            "value": "HAN",
+            "airportCode": "HAN",
+            "timeDiff": {
+              "hour": -2,
+              "gmt": "GMT+0700"
+            }
+          },
+          {
+            "text": "ダナン",
+            "value": "DAD",
+            "airportCode": "DAD",
+            "timeDiff": {
+              "hour": -2,
+              "gmt": "GMT+0700"
+            }
+          },
+          {
+            "text": "ホーチミン",
+            "value": "SGN",
+            "airportCode": "SGN",
+            "timeDiff": {
+              "hour": -2,
+              "gmt": "GMT+0700"
+            }
+          },
+          {
+            "text": "バンコク（BKK）",
+            "value": "BKK",
+            "airportCode": "BKK",
+            "timeDiff": {
+              "hour": -2,
+              "gmt": "GMT+0700"
+            }
+          },
+          {
+            "text": "マニラ",
+            "value": "MNL",
+            "airportCode": "MNL",
+            "timeDiff": {
+              "hour": -1,
+              "gmt": "GMT+0800"
+            }
+          }
+        ]
+      },
+      {
+        "text": "オセアニア\/ミクロネシア方面",
+        "children": [
+          {
+            "text": "ブリスベン",
+            "value": "BNE",
+            "airportCode": "BNE",
+            "timeDiff": {
+              "hour": 1,
+              "gmt": "GMT+1000"
+            }
+          },
+          {
+            "text": "メルボルン",
+            "value": "MEL",
+            "airportCode": "MEL",
+            "timeDiff": {
+              "hour": 1,
+              "gmt": "GMT+1000"
+            }
+          },
+          {
+            "text": "シドニー",
+            "value": "SYD",
+            "airportCode": "SYD",
+            "timeDiff": {
+              "hour": 1,
+              "gmt": "GMT+1000"
+            }
+          },
+          {
+            "text": "ケアンズ",
+            "value": "CNS",
+            "airportCode": "CNS",
+            "timeDiff": {
+              "hour": 1,
+              "gmt": "GMT+1000"
+            }
+          }
+        ]
+      },
+      {
+        "text": "北米方面",
+        "children": [
+          {
+            "text": "ホノルル",
+            "value": "HNL",
+            "airportCode": "HNL",
+            "timeDiff": {
+              "hour": -19,
+              "gmt": "GMT-1000"
+            }
+          },
+          {
+            "text": "コナ",
+            "value": "KOA",
+            "airportCode": "KOA",
+            "timeDiff": {
+              "hour": -19,
+              "gmt": "GMT-1000"
+            }
+          },
+          {
+            "text": "グアム",
+            "value": "GUM",
+            "airportCode": "GUM",
+            "timeDiff": {
+              "hour": 1,
+              "gmt": "GMT+1000"
+            }
+          },
+          {
+            "text": "ポートランド",
+            "value": "PDX",
+            "airportCode": "PDX",
+            "timeDiff": {
+              "hour": -16,
+              "gmt": "GMT-0700"
+            }
+          },
+          {
+            "text": "サンフランシスコ",
+            "value": "SFO",
+            "airportCode": "SFO",
+            "timeDiff": {
+              "hour": -16,
+              "gmt": "GMT-0700"
+            }
+          },
+          {
+            "text": "サンノゼ",
+            "value": "SJC",
+            "airportCode": "SJC",
+            "timeDiff": {
+              "hour": -16,
+              "gmt": "GMT-0700"
+            }
+          },
+          {
+            "text": "シアトル",
+            "value": "SEA",
+            "airportCode": "SEA",
+            "timeDiff": {
+              "hour": -16,
+              "gmt": "GMT-0700"
+            }
+          },
+          {
+            "text": "ロサンゼルス",
+            "value": "LAX",
+            "airportCode": "LAX",
+            "timeDiff": {
+              "hour": -16,
+              "gmt": "GMT-0700"
+            }
+          },
+          {
+            "text": "ニューアーク",
+            "value": "EWR",
+            "airportCode": "EWR",
+            "timeDiff": {
+              "hour": -13,
+              "gmt": "GMT-0400"
+            }
+          },
+          {
+            "text": "ニューヨーク（JFK)",
+            "value": "JFK",
+            "airportCode": "JFK",
+            "timeDiff": {
+              "hour": -13,
+              "gmt": "GMT-0400"
+            }
+          },
+          {
+            "text": "ミネアポリス",
+            "value": "MSP",
+            "airportCode": "MSP",
+            "timeDiff": {
+              "hour": -14,
+              "gmt": "GMT-0500"
+            }
+          },
+          {
+            "text": "ヒューストン",
+            "value": "IAH",
+            "airportCode": "IAH",
+            "timeDiff": {
+              "hour": -14,
+              "gmt": "GMT-0500"
+            }
+          },
+          {
+            "text": "シカゴ（ORD）",
+            "value": "ORD",
+            "airportCode": "ORD",
+            "timeDiff": {
+              "hour": -14,
+              "gmt": "GMT-0500"
+            }
+          },
+          {
+            "text": "ソルトレイクシティ",
+            "value": "SLC",
+            "airportCode": "SLC",
+            "timeDiff": {
+              "hour": -15,
+              "gmt": "GMT-0600"
+            }
+          },
+          {
+            "text": "ダラス（DFW）",
+            "value": "DFW",
+            "airportCode": "DFW",
+            "timeDiff": {
+              "hour": -14,
+              "gmt": "GMT-0500"
+            }
+          },
+          {
+            "text": "デトロイト",
+            "value": "DTW",
+            "airportCode": "DTW",
+            "timeDiff": {
+              "hour": -13,
+              "gmt": "GMT-0400"
+            }
+          },
+          {
+            "text": "アトランタ",
+            "value": "ATL",
+            "airportCode": "ATL",
+            "timeDiff": {
+              "hour": -13,
+              "gmt": "GMT-0400"
+            }
+          },
+          {
+            "text": "ワシントンDC",
+            "value": "IAD",
+            "airportCode": "IAD",
+            "timeDiff": {
+              "hour": -13,
+              "gmt": "GMT-0400"
+            }
+          },
+          {
+            "text": "トロント",
+            "value": "YYZ",
+            "airportCode": "YYZ",
+            "timeDiff": {
+              "hour": -13,
+              "gmt": "GMT-0400"
+            }
+          },
+          {
+            "text": "バンクーバー",
+            "value": "YVR",
+            "airportCode": "YVR",
+            "timeDiff": {
+              "hour": -16,
+              "gmt": "GMT-0700"
+            }
+          }
+        ]
+      },
+      {
+        "text": "ヨーロッパ方面",
+        "children": [
+          {
+            "text": "パリ（CDG）",
+            "value": "CDG",
+            "airportCode": "CDG",
+            "timeDiff": {
+              "hour": -7,
+              "gmt": "GMT+0200"
+            }
+          },
+          {
+            "text": "フランクフルト",
+            "value": "FRA",
+            "airportCode": "FRA",
+            "timeDiff": {
+              "hour": -7,
+              "gmt": "GMT+0200"
+            }
+          },
+          {
+            "text": "ミュンヘン",
+            "value": "MUC",
+            "airportCode": "MUC",
+            "timeDiff": {
+              "hour": -7,
+              "gmt": "GMT+0200"
+            }
+          },
+          {
+            "text": "コペンハーゲン",
+            "value": "CPH",
+            "airportCode": "CPH",
+            "timeDiff": {
+              "hour": -7,
+              "gmt": "GMT+0200"
+            }
+          },
+          {
+            "text": "ミラノ(MXP)",
+            "value": "MXP",
+            "airportCode": "MXP",
+            "timeDiff": {
+              "hour": -7,
+              "gmt": "GMT+0200"
+            }
+          },
+          {
+            "text": "ローマ（FCO）",
+            "value": "FCO",
+            "airportCode": "FCO",
+            "timeDiff": {
+              "hour": -7,
+              "gmt": "GMT+0200"
+            }
+          },
+          {
+            "text": "ウィーン",
+            "value": "VIE",
+            "airportCode": "VIE",
+            "timeDiff": {
+              "hour": -7,
+              "gmt": "GMT+0200"
+            }
+          },
+          {
+            "text": "ヘルシンキ",
+            "value": "HEL",
+            "airportCode": "HEL",
+            "timeDiff": {
+              "hour": -6,
+              "gmt": "GMT+0300"
+            }
+          },
+          {
+            "text": "イスタンブール",
+            "value": "IST",
+            "airportCode": "IST",
+            "timeDiff": {
+              "hour": -6,
+              "gmt": "GMT+0300"
+            }
+          },
+          {
+            "text": "モスクワ(DME)",
+            "value": "DME",
+            "airportCode": "DME",
+            "timeDiff": {
+              "hour": -6,
+              "gmt": "GMT+0300"
+            }
+          },
+          {
+            "text": "モスクワ(SVO)",
+            "value": "SVO",
+            "airportCode": "SVO",
+            "timeDiff": {
+              "hour": -6,
+              "gmt": "GMT+0300"
+            }
+          },
+          {
+            "text": "ウラジオストック",
+            "value": "VVO",
+            "airportCode": "VVO",
+            "timeDiff": {
+              "hour": 1,
+              "gmt": "GMT+1000"
+            }
+          },
+          {
+            "text": "ロンドン（LHR）",
+            "value": "LHR",
+            "airportCode": "LHR",
+            "timeDiff": {
+              "hour": -8,
+              "gmt": "GMT+0100"
+            }
+          },
+          {
+            "text": "ストックホルム（ARN）",
+            "value": "ARN",
+            "airportCode": "ARN",
+            "timeDiff": {
+              "hour": -7,
+              "gmt": "GMT＋0100"
+            }
+          }
+        ]
+      },
+      {
+        "text": "中近東\/アフリカ方面",
+        "children": [
+          {
+            "text": "デリー",
+            "value": "DEL",
+            "airportCode": "DEL",
+            "timeDiff": {
+              "hour": -3.5,
+              "gmt": "GMT+0530"
+            }
+          },
+          {
+            "text": "ドーハ",
+            "value": "DOH",
+            "airportCode": "DOH",
+            "timeDiff": {
+              "hour": -6,
+              "gmt": "GMT+0300"
+            }
+          },
+          {
+            "text": "ドバイ",
+            "value": "DXB",
+            "airportCode": "DXB",
+            "timeDiff": {
+              "hour": -5,
+              "gmt": "GMT+0400"
+            }
+          },
+          {
+            "text": "ムンバイ",
+            "value": "BOM",
+            "airportCode": "BOM",
+            "timeDiff": {
+              "hour": -3.5,
+              "gmt": "GMT＋0530"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "en": {
+    "items": [
+      {
+        "text": "East Asia-Bound",
+        "children": [
+          {
+            "text": "SEOUL(GMP)",
+            "value": "GMP",
+            "airportCode": "GMP"
+          },
+          {
+            "text": "SEOUL(ICN)",
+            "value": "ICN",
+            "airportCode": "ICN"
+          },
+          {
+            "text": "CHEONGJU",
+            "value": "CJJ",
+            "airportCode": "CJJ"
+          },
+          {
+            "text": "GUANGZHOU",
+            "value": "CAN",
+            "airportCode": "CAN"
+          },
+          {
+            "text": "HONG KONG",
+            "value": "HKG",
+            "airportCode": "HKG"
+          },
+          {
+            "text": "SHENZHEN",
+            "value": "SZX",
+            "airportCode": "SZX"
+          },
+          {
+            "text": "SHANGHAI(SHA)",
+            "value": "SHA",
+            "airportCode": "SHA"
+          },
+          {
+            "text": "SHANGHAI(PVG)",
+            "value": "PVG",
+            "airportCode": "PVG"
+          },
+          {
+            "text": "TIANJIN",
+            "value": "TSN",
+            "airportCode": "TSN"
+          },
+          {
+            "text": "QINGDAO",
+            "value": "TAO",
+            "airportCode": "TAO"
+          },
+          {
+            "text": "DALIAN",
+            "value": "DLC",
+            "airportCode": "DLC"
+          },
+          {
+            "text": "BEIJING(PEK)",
+            "value": "PEK",
+            "airportCode": "PEK"
+          },
+          {
+            "text": "BEIJING(PKX)",
+            "value": "PKX",
+            "airportCode": "PKX"
+          },
+          {
+            "text": "TAIPEI(TSA)",
+            "value": "TSA",
+            "airportCode": "TSA"
+          },
+          {
+            "text": "TAIPEI(TPE)",
+            "value": "TPE",
+            "airportCode": "TPE"
+          }
+        ]
+      },
+      {
+        "text": "Southeast Asia-Bound",
+        "children": [
+          {
+            "text": "KUALA LUMPUR",
+            "value": "KUL",
+            "airportCode": "KUL"
+          },
+          {
+            "text": "KOTA KINABALU",
+            "value": "BKI",
+            "airportCode": "BKI"
+          },
+          {
+            "text": "SINGAPORE",
+            "value": "SIN",
+            "airportCode": "SIN"
+          },
+          {
+            "text": "JAKARTA",
+            "value": "CGK",
+            "airportCode": "CGK"
+          },
+          {
+            "text": "HANOI",
+            "value": "HAN",
+            "airportCode": "HAN"
+          },
+          {
+            "text": "DA NANG",
+            "value": "DAD",
+            "airportCode": "DAD"
+          },
+          {
+            "text": "HO CHI MINH CITY",
+            "value": "SGN",
+            "airportCode": "SGN"
+          },
+          {
+            "text": "BANGKOK",
+            "value": "BKK",
+            "airportCode": "BKK"
+          },
+          {
+            "text": "MANILA",
+            "value": "MNL",
+            "airportCode": "MNL"
+          }
+        ]
+      },
+      {
+        "text": "Oceania and Micronesia-Bound",
+        "children": [
+          {
+            "text": "BRISBANE",
+            "value": "BNE",
+            "airportCode": "BNE"
+          },
+          {
+            "text": "MELBOURNE",
+            "value": "MEL",
+            "airportCode": "MEL"
+          },
+          {
+            "text": "SYDNEY",
+            "value": "SYD",
+            "airportCode": "SYD"
+          },
+          {
+            "text": "CAIRNS",
+            "value": "CNS",
+            "airportCode": "CNS"
+          }
+        ]
+      },
+      {
+        "text": "The Americas-Bound",
+        "children": [
+          {
+            "text": "HONOLULU",
+            "value": "HNL",
+            "airportCode": "HNL"
+          },
+          {
+            "text": "KONA",
+            "value": "KOA",
+            "airportCode": "KOA"
+          },
+          {
+            "text": "GUAM",
+            "value": "GUM",
+            "airportCode": "GUM"
+          },
+          {
+            "text": "PORTLAND",
+            "value": "PDX",
+            "airportCode": "PDX"
+          },
+          {
+            "text": "SAN FRANCISCO",
+            "value": "SFO",
+            "airportCode": "SFO"
+          },
+          {
+            "text": "SAN JOSE",
+            "value": "SJC",
+            "airportCode": "SJC"
+          },
+          {
+            "text": "SEATTLE",
+            "value": "SEA",
+            "airportCode": "SEA"
+          },
+          {
+            "text": "SALT LAKE CITY",
+            "value": "SLC",
+            "airportCode": "SLC"
+          },
+          {
+            "text": "LOS ANGELES",
+            "value": "LAX",
+            "airportCode": "LAX"
+          },
+          {
+            "text": "NEWARK",
+            "value": "EWR",
+            "airportCode": "EWR"
+          },
+          {
+            "text": "NEW YORK(JFK)",
+            "value": "JFK",
+            "airportCode": "JFK"
+          },
+          {
+            "text": "MINNEAPOLIS",
+            "value": "MSP",
+            "airportCode": "MSP"
+          },
+          {
+            "text": "HOUSTON",
+            "value": "IAH",
+            "airportCode": "IAH"
+          },
+          {
+            "text": "CHICAGO(ORD)",
+            "value": "ORD",
+            "airportCode": "ORD"
+          },
+          {
+            "text": "DALLAS(DFW)",
+            "value": "DFW",
+            "airportCode": "DFW"
+          },
+          {
+            "text": "DETROIT",
+            "value": "DTW",
+            "airportCode": "DTW"
+          },
+          {
+            "text": "ATLANTA",
+            "value": "ATL",
+            "airportCode": "ATL"
+          },
+          {
+            "text": "WASHINGTON(IAD)",
+            "value": "IAD",
+            "airportCode": "IAD"
+          },
+          {
+            "text": "TORONTO",
+            "value": "YYZ",
+            "airportCode": "YYZ"
+          },
+          {
+            "text": "VANCOUVER",
+            "value": "YVR",
+            "airportCode": "YVR"
+          }
+        ]
+      },
+      {
+        "text": "Europe-Bound",
+        "children": [
+          {
+            "text": "PARIS(CDG)",
+            "value": "CDG",
+            "airportCode": "CDG"
+          },
+          {
+            "text": "FRANKFURT",
+            "value": "FRA",
+            "airportCode": "FRA"
+          },
+          {
+            "text": "MUNICH",
+            "value": "MUC",
+            "airportCode": "MUC"
+          },
+          {
+            "text": "COPENHAGEN",
+            "value": "CPH",
+            "airportCode": "CPH"
+          },
+          {
+            "text": "MILAN(MXP)",
+            "value": "MXP",
+            "airportCode": "MXP"
+          },
+          {
+            "text": "ROME(FCO)",
+            "value": "FCO",
+            "airportCode": "FCO"
+          },
+          {
+            "text": "VIENNA",
+            "value": "VIE",
+            "airportCode": "VIE"
+          },
+          {
+            "text": "HELSINKI",
+            "value": "HEL",
+            "airportCode": "HEL"
+          },
+          {
+            "text": "ISTANBUL",
+            "value": "IST",
+            "airportCode": "IST"
+          },
+          {
+            "text": "MOSCOW(DME)",
+            "value": "DME",
+            "airportCode": "DME"
+          },
+          {
+            "text": "MOSCOW(SVO)",
+            "value": "SVO",
+            "airportCode": "SVO"
+          },
+          {
+            "text": "VLADIVOSTOK",
+            "value": "VVO",
+            "airportCode": "VVO"
+          },
+          {
+            "text": "LONDON(LHR)",
+            "value": "LHR",
+            "airportCode": "LHR"
+          },
+          {
+            "text": "STOCKHOLM(ARN)",
+            "value": "ARN",
+            "airportCode": "ARN"
+          }
+        ]
+      },
+      {
+        "text": "Middle-East and Africa-Bound",
+        "children": [
+          {
+            "text": "DELHI",
+            "value": "DEL",
+            "airportCode": "DEL"
+          },
+          {
+            "text": "DOHA",
+            "value": "DOH",
+            "airportCode": "DOH"
+          },
+          {
+            "text": "DUBAI",
+            "value": "DXB",
+            "airportCode": "DXB"
+          },
+          {
+            "text": "MUMBAI",
+            "value": "BOM",
+            "airportCode": "BOM"
+          }
+        ]
+      }
+    ]
+  },
+  "ko": {
+    "items": [
+      {
+        "text": "동아시아 방면",
+        "children": [
+          {
+            "text": "서울\/김포",
+            "value": "GMP",
+            "airportCode": "GMP"
+          },
+          {
+            "text": "서울\/인천",
+            "value": "ICN",
+            "airportCode": "ICN"
+          },
+          {
+            "text": "청주",
+            "value": "CJJ",
+            "airportCode": "CJJ"
+          },
+          {
+            "text": "광저우",
+            "value": "CAN",
+            "airportCode": "CAN"
+          },
+          {
+            "text": "홍콩",
+            "value": "HKG",
+            "airportCode": "HKG"
+          },
+          {
+            "text": "선전",
+            "value": "SZX",
+            "airportCode": "SZX"
+          },
+          {
+            "text": "상하이\/홍차오",
+            "value": "SHA",
+            "airportCode": "SHA"
+          },
+          {
+            "text": "상하이\/푸동",
+            "value": "PVG",
+            "airportCode": "PVG"
+          },
+          {
+            "text": "천진",
+            "value": "TSN",
+            "airportCode": "TSN"
+          },
+          {
+            "text": "칭다오",
+            "value": "TAO",
+            "airportCode": "TAO"
+          },
+          {
+            "text": "다롄",
+            "value": "DLC",
+            "airportCode": "DLC"
+          },
+          {
+            "text": "베이징(수도)",
+            "value": "PEK",
+            "airportCode": "PEK"
+          },
+          {
+            "text": "베이징(닥싱)",
+            "value": "PKX",
+            "airportCode": "PKX"
+          },
+          {
+            "text": "타이베이\/송산",
+            "value": "TSA",
+            "airportCode": "TSA"
+          },
+          {
+            "text": "타이베이\/도원",
+            "value": "TPE",
+            "airportCode": "TPE"
+          }
+        ]
+      },
+      {
+        "text": "동남아시아 방면",
+        "children": [
+          {
+            "text": "쿠알라 룸푸르",
+            "value": "KUL",
+            "airportCode": "KUL"
+          },
+          {
+            "text": "코타키나발루",
+            "value": "BKI",
+            "airportCode": "BKI"
+          },
+          {
+            "text": "싱가포르",
+            "value": "SIN",
+            "airportCode": "SIN"
+          },
+          {
+            "text": "자카르타",
+            "value": "CGK",
+            "airportCode": "CGK"
+          },
+          {
+            "text": "하노이",
+            "value": "HAN",
+            "airportCode": "HAN"
+          },
+          {
+            "text": "다낭",
+            "value": "DAD",
+            "airportCode": "DAD"
+          },
+          {
+            "text": "호치민",
+            "value": "SGN",
+            "airportCode": "SGN"
+          },
+          {
+            "text": "방콕",
+            "value": "BKK",
+            "airportCode": "BKK"
+          },
+          {
+            "text": "마닐라",
+            "value": "MNL",
+            "airportCode": "MNL"
+          }
+        ]
+      },
+      {
+        "text": "오세아니아\/미크로네시아 방면",
+        "children": [
+          {
+            "text": "브리즈번",
+            "value": "BNE",
+            "airportCode": "BNE"
+          },
+          {
+            "text": "멜버른",
+            "value": "MEL",
+            "airportCode": "MEL"
+          },
+          {
+            "text": "시드니",
+            "value": "SYD",
+            "airportCode": "SYD"
+          },
+          {
+            "text": "케언즈",
+            "value": "CNS",
+            "airportCode": "CNS"
+          }
+        ]
+      },
+      {
+        "text": "북미 방면",
+        "children": [
+          {
+            "text": "호놀룰루",
+            "value": "HNL",
+            "airportCode": "HNL"
+          },
+          {
+            "text": "코나",
+            "value": "KOA",
+            "airportCode": "KOA"
+          },
+          {
+            "text": "괌",
+            "value": "GUM",
+            "airportCode": "GUM"
+          },
+          {
+            "text": "포틀랜드",
+            "value": "PDX",
+            "airportCode": "PDX"
+          },
+          {
+            "text": "샌프란시스코",
+            "value": "SFO",
+            "airportCode": "SFO"
+          },
+          {
+            "text": "산호세",
+            "value": "SJC",
+            "airportCode": "SJC"
+          },
+          {
+            "text": "시애틀",
+            "value": "SEA",
+            "airportCode": "SEA"
+          },
+          {
+            "text": "솔트레이크시티",
+            "value": "SLC",
+            "airportCode": "SLC"
+          },
+          {
+            "text": "로스 앤젤레스",
+            "value": "LAX",
+            "airportCode": "LAX"
+          },
+          {
+            "text": "뉴 어크",
+            "value": "EWR",
+            "airportCode": "EWR"
+          },
+          {
+            "text": "뉴욕",
+            "value": "JFK",
+            "airportCode": "JFK"
+          },
+          {
+            "text": "미니애폴리스",
+            "value": "MSP",
+            "airportCode": "MSP"
+          },
+          {
+            "text": "휴스턴",
+            "value": "IAH",
+            "airportCode": "IAH"
+          },
+          {
+            "text": "시카고",
+            "value": "ORD",
+            "airportCode": "ORD"
+          },
+          {
+            "text": "달라스(DFW)",
+            "value": "DFW",
+            "airportCode": "DFW"
+          },
+          {
+            "text": "디트로이트",
+            "value": "DTW",
+            "airportCode": "DTW"
+          },
+          {
+            "text": "애틀랜타",
+            "value": "ATL",
+            "airportCode": "ATL"
+          },
+          {
+            "text": "워싱턴(IAD)",
+            "value": "IAD",
+            "airportCode": "IAD"
+          },
+          {
+            "text": "토론토",
+            "value": "YYZ",
+            "airportCode": "YYZ"
+          },
+          {
+            "text": "밴쿠버",
+            "value": "YVR",
+            "airportCode": "YVR"
+          }
+        ]
+      },
+      {
+        "text": "유럽 방면",
+        "children": [
+          {
+            "text": "파리",
+            "value": "CDG",
+            "airportCode": "CDG"
+          },
+          {
+            "text": "프랑크푸르트",
+            "value": "FRA",
+            "airportCode": "FRA"
+          },
+          {
+            "text": "뮌헨",
+            "value": "MUC",
+            "airportCode": "MUC"
+          },
+          {
+            "text": "코펜하겐",
+            "value": "CPH",
+            "airportCode": "CPH"
+          },
+          {
+            "text": "밀라노(MXP)",
+            "value": "MXP",
+            "airportCode": "MXP"
+          },
+          {
+            "text": "로마(FCO)",
+            "value": "FCO",
+            "airportCode": "FCO"
+          },
+          {
+            "text": "비엔나",
+            "value": "VIE",
+            "airportCode": "VIE"
+          },
+          {
+            "text": "헬싱키",
+            "value": "HEL",
+            "airportCode": "HEL"
+          },
+          {
+            "text": "이스탄불",
+            "value": "IST",
+            "airportCode": "IST"
+          },
+          {
+            "text": "모스크바(DME)",
+            "value": "DME",
+            "airportCode": "DME"
+          },
+          {
+            "text": "모스크바(SVO)",
+            "value": "SVO",
+            "airportCode": "SVO"
+          },
+          {
+            "text": "블라디보스토크",
+            "value": "VVO",
+            "airportCode": "VVO"
+          },
+          {
+            "text": "런던",
+            "value": "LHR",
+            "airportCode": "LHR"
+          },
+          {
+            "text": "스톡홀름",
+            "value": "ARN",
+            "airportCode": "ARN"
+          }
+        ]
+      },
+      {
+        "text": "중근동\/아프리카 방면",
+        "children": [
+          {
+            "text": "델리",
+            "value": "DEL",
+            "airportCode": "DEL"
+          },
+          {
+            "text": "도하",
+            "value": "DOH",
+            "airportCode": "DOH"
+          },
+          {
+            "text": "두바이",
+            "value": "DXB",
+            "airportCode": "DXB"
+          },
+          {
+            "text": "뭄바이",
+            "value": "BOM",
+            "airportCode": "BOM"
+          }
+        ]
+      }
+    ]
+  },
+  "zh-Hans": {
+    "items": [
+      {
+        "text": "东亚地区",
+        "children": [
+          {
+            "text": "首尔／金浦",
+            "value": "GMP",
+            "airportCode": "GMP"
+          },
+          {
+            "text": "首尔／仁川",
+            "value": "ICN",
+            "airportCode": "ICN"
+          },
+          {
+            "text": "清州",
+            "value": "CJJ",
+            "airportCode": "CJJ"
+          },
+          {
+            "text": "広州",
+            "value": "CAN",
+            "airportCode": "CAN"
+          },
+          {
+            "text": "香港",
+            "value": "HKG",
+            "airportCode": "HKG"
+          },
+          {
+            "text": "深圳",
+            "value": "SZX",
+            "airportCode": "SZX"
+          },
+          {
+            "text": "上海／虹桥",
+            "value": "SHA",
+            "airportCode": "SHA"
+          },
+          {
+            "text": "上海／浦东",
+            "value": "PVG",
+            "airportCode": "PVG"
+          },
+          {
+            "text": "天津",
+            "value": "TSN",
+            "airportCode": "TSN"
+          },
+          {
+            "text": "青岛",
+            "value": "TAO",
+            "airportCode": "TAO"
+          },
+          {
+            "text": "大连",
+            "value": "DLC",
+            "airportCode": "DLC"
+          },
+          {
+            "text": "北京(首都)",
+            "value": "PEK",
+            "airportCode": "PEK"
+          },
+          {
+            "text": "北京(大兴)",
+            "value": "PKX",
+            "airportCode": "PKX"
+          },
+          {
+            "text": "台北／松山",
+            "value": "TSA",
+            "airportCode": "TSA"
+          },
+          {
+            "text": "台北／桃园",
+            "value": "TPE",
+            "airportCode": "TPE"
+          }
+        ]
+      },
+      {
+        "text": "东南亚地区",
+        "children": [
+          {
+            "text": "吉隆坡",
+            "value": "KUL",
+            "airportCode": "KUL"
+          },
+          {
+            "text": "亚庇",
+            "value": "BKI",
+            "airportCode": "BKI"
+          },
+          {
+            "text": "新加坡",
+            "value": "SIN",
+            "airportCode": "SIN"
+          },
+          {
+            "text": "雅加达",
+            "value": "CGK",
+            "airportCode": "CGK"
+          },
+          {
+            "text": "河内",
+            "value": "HAN",
+            "airportCode": "HAN"
+          },
+          {
+            "text": "岘港",
+            "value": "DAD",
+            "airportCode": "DAD"
+          },
+          {
+            "text": "胡志明市",
+            "value": "SGN",
+            "airportCode": "SGN"
+          },
+          {
+            "text": "曼谷",
+            "value": "BKK",
+            "airportCode": "BKK"
+          },
+          {
+            "text": "马尼拉",
+            "value": "MNL",
+            "airportCode": "MNL"
+          }
+        ]
+      },
+      {
+        "text": "大洋洲／密克罗尼西亚地区",
+        "children": [
+          {
+            "text": "布里斯班",
+            "value": "BNE",
+            "airportCode": "BNE"
+          },
+          {
+            "text": "墨尔本",
+            "value": "MEL",
+            "airportCode": "MEL"
+          },
+          {
+            "text": "悉尼",
+            "value": "SYD",
+            "airportCode": "SYD"
+          },
+          {
+            "text": "凯恩斯",
+            "value": "CNS",
+            "airportCode": "CNS"
+          }
+        ]
+      },
+      {
+        "text": "美洲地区",
+        "children": [
+          {
+            "text": "火奴鲁鲁",
+            "value": "HNL",
+            "airportCode": "HNL"
+          },
+          {
+            "text": "科纳",
+            "value": "KOA",
+            "airportCode": "KOA"
+          },
+          {
+            "text": "关岛",
+            "value": "GUM",
+            "airportCode": "GUM"
+          },
+          {
+            "text": "波特兰",
+            "value": "PDX",
+            "airportCode": "PDX"
+          },
+          {
+            "text": "旧金山",
+            "value": "SFO",
+            "airportCode": "SFO"
+          },
+          {
+            "text": "圣荷西",
+            "value": "SJC",
+            "airportCode": "SJC"
+          },
+          {
+            "text": "西雅图",
+            "value": "SEA",
+            "airportCode": "SEA"
+          },
+          {
+            "text": "盐湖城",
+            "value": "SLC",
+            "airportCode": "SLC"
+          },
+          {
+            "text": "洛杉机",
+            "value": "LAX",
+            "airportCode": "LAX"
+          },
+          {
+            "text": "纽瓦克",
+            "value": "EWR",
+            "airportCode": "EWR"
+          },
+          {
+            "text": "纽约",
+            "value": "JFK",
+            "airportCode": "JFK"
+          },
+          {
+            "text": "明尼阿波利斯",
+            "value": "MSP",
+            "airportCode": "MSP"
+          },
+          {
+            "text": "休斯顿",
+            "value": "IAH",
+            "airportCode": "IAH"
+          },
+          {
+            "text": "芝加哥",
+            "value": "ORD",
+            "airportCode": "ORD"
+          },
+          {
+            "text": "达拉斯(DFW)",
+            "value": "DFW",
+            "airportCode": "DFW"
+          },
+          {
+            "text": "底特律",
+            "value": "DTW",
+            "airportCode": "DTW"
+          },
+          {
+            "text": "亚特兰大",
+            "value": "ATL",
+            "airportCode": "ATL"
+          },
+          {
+            "text": "华盛顿(IAD)",
+            "value": "IAD",
+            "airportCode": "IAD"
+          },
+          {
+            "text": "多伦多",
+            "value": "YYZ",
+            "airportCode": "YYZ"
+          },
+          {
+            "text": "温哥华市",
+            "value": "YVR",
+            "airportCode": "YVR"
+          }
+        ]
+      },
+      {
+        "text": "欧洲地区",
+        "children": [
+          {
+            "text": "巴黎",
+            "value": "CDG",
+            "airportCode": "CDG"
+          },
+          {
+            "text": "法兰克福",
+            "value": "FRA",
+            "airportCode": "FRA"
+          },
+          {
+            "text": "慕尼黑",
+            "value": "MUC",
+            "airportCode": "MUC"
+          },
+          {
+            "text": "哥本哈根",
+            "value": "CPH",
+            "airportCode": "CPH"
+          },
+          {
+            "text": "米兰(MXP)",
+            "value": "MXP",
+            "airportCode": "MXP"
+          },
+          {
+            "text": "罗马(FCO)",
+            "value": "FCO",
+            "airportCode": "FCO"
+          },
+          {
+            "text": "维也纳",
+            "value": "VIE",
+            "airportCode": "VIE"
+          },
+          {
+            "text": "赫尔辛基",
+            "value": "HEL",
+            "airportCode": "HEL"
+          },
+          {
+            "text": "伊斯坦布尔",
+            "value": "IST",
+            "airportCode": "IST"
+          },
+          {
+            "text": "莫斯科(DME)",
+            "value": "DME",
+            "airportCode": "DME"
+          },
+          {
+            "text": "莫斯科(SVO)",
+            "value": "SVO",
+            "airportCode": "SVO"
+          },
+          {
+            "text": "海参崴",
+            "value": "VVO",
+            "airportCode": "VVO"
+          },
+          {
+            "text": "伦敦",
+            "value": "LHR",
+            "airportCode": "LHR"
+          },
+          {
+            "text": "斯德哥尔摩",
+            "value": "ARN",
+            "airportCode": "ARN"
+          }
+        ]
+      },
+      {
+        "text": "中近东／非洲地区",
+        "children": [
+          {
+            "text": "德里",
+            "value": "DEL",
+            "airportCode": "DEL"
+          },
+          {
+            "text": "多哈",
+            "value": "DOH",
+            "airportCode": "DOH"
+          },
+          {
+            "text": "杜拜",
+            "value": "DXB",
+            "airportCode": "DXB"
+          },
+          {
+            "text": "孟买",
+            "value": "BOM",
+            "airportCode": "BOM"
+          }
+        ]
+      }
+    ]
+  },
+  "zh-Hant": {
+    "items": [
+      {
+        "text": "東亞地區",
+        "children": [
+          {
+            "text": "首爾 \/ 金浦",
+            "value": "GMP",
+            "airportCode": "GMP"
+          },
+          {
+            "text": "首爾 \/ 仁川",
+            "value": "ICN",
+            "airportCode": "ICN"
+          },
+          {
+            "text": "清州",
+            "value": "CJJ",
+            "airportCode": "CJJ"
+          },
+          {
+            "text": "廣州",
+            "value": "CAN",
+            "airportCode": "CAN"
+          },
+          {
+            "text": "香港",
+            "value": "HKG",
+            "airportCode": "HKG"
+          },
+          {
+            "text": "深圳",
+            "value": "SZX",
+            "airportCode": "SZX"
+          },
+          {
+            "text": "上海 \/ 虹橋",
+            "value": "SHA",
+            "airportCode": "SHA"
+          },
+          {
+            "text": "上海 \/ 浦東",
+            "value": "PVG",
+            "airportCode": "PVG"
+          },
+          {
+            "text": "天津",
+            "value": "TSN",
+            "airportCode": "TSN"
+          },
+          {
+            "text": "青島",
+            "value": "TAO",
+            "airportCode": "TAO"
+          },
+          {
+            "text": "大連",
+            "value": "DLC",
+            "airportCode": "DLC"
+          },
+          {
+            "text": "北京",
+            "value": "PEK",
+            "airportCode": "PEK"
+          },
+          {
+            "text": "北京(大興)",
+            "value": "PKX",
+            "airportCode": "PKX"
+          },
+          {
+            "text": "台北 \/ 松山",
+            "value": "TSA",
+            "airportCode": "TSA"
+          },
+          {
+            "text": "台北 \/ 桃園",
+            "value": "TPE",
+            "airportCode": "TPE"
+          }
+        ]
+      },
+      {
+        "text": "東南亞地區",
+        "children": [
+          {
+            "text": "吉隆坡",
+            "value": "KUL",
+            "airportCode": "KUL"
+          },
+          {
+            "text": "亞庇",
+            "value": "BKI",
+            "airportCode": "BKI"
+          },
+          {
+            "text": "新加坡",
+            "value": "SIN",
+            "airportCode": "SIN"
+          },
+          {
+            "text": "雅加達",
+            "value": "CGK",
+            "airportCode": "CGK"
+          },
+          {
+            "text": "河內",
+            "value": "HAN",
+            "airportCode": "HAN"
+          },
+          {
+            "text": "峴港",
+            "value": "DAD",
+            "airportCode": "DAD"
+          },
+          {
+            "text": "胡志明市",
+            "value": "SGN",
+            "airportCode": "SGN"
+          },
+          {
+            "text": "曼谷",
+            "value": "BKK",
+            "airportCode": "BKK"
+          },
+          {
+            "text": "馬尼拉",
+            "value": "MNL",
+            "airportCode": "MNL"
+          }
+        ]
+      },
+      {
+        "text": "大洋洲 \/ 密克羅尼亞西亞地區",
+        "children": [
+          {
+            "text": "布里斯班",
+            "value": "BNE",
+            "airportCode": "BNE"
+          },
+          {
+            "text": "墨爾本",
+            "value": "MEL",
+            "airportCode": "MEL"
+          },
+          {
+            "text": "雪梨",
+            "value": "SYD",
+            "airportCode": "SYD"
+          },
+          {
+            "text": "凱恩斯",
+            "value": "CNS",
+            "airportCode": "CNS"
+          }
+        ]
+      },
+      {
+        "text": "美洲地區",
+        "children": [
+          {
+            "text": "火奴魯魯",
+            "value": "HNL",
+            "airportCode": "HNL"
+          },
+          {
+            "text": "科納",
+            "value": "KOA",
+            "airportCode": "KOA"
+          },
+          {
+            "text": "關島",
+            "value": "GUM",
+            "airportCode": "GUM"
+          },
+          {
+            "text": "波特蘭",
+            "value": "PDX",
+            "airportCode": "PDX"
+          },
+          {
+            "text": "舊金山",
+            "value": "SFO",
+            "airportCode": "SFO"
+          },
+          {
+            "text": "聖荷西",
+            "value": "SJC",
+            "airportCode": "SJC"
+          },
+          {
+            "text": "西雅圖",
+            "value": "SEA",
+            "airportCode": "SEA"
+          },
+          {
+            "text": "鹽湖城",
+            "value": "SLC",
+            "airportCode": "SLC"
+          },
+          {
+            "text": "洛杉機",
+            "value": "LAX",
+            "airportCode": "LAX"
+          },
+          {
+            "text": "紐瓦克",
+            "value": "EWR",
+            "airportCode": "EWR"
+          },
+          {
+            "text": "紐約",
+            "value": "JFK",
+            "airportCode": "JFK"
+          },
+          {
+            "text": "明尼阿波利斯",
+            "value": "MSP",
+            "airportCode": "MSP"
+          },
+          {
+            "text": "休斯頓",
+            "value": "IAH",
+            "airportCode": "IAH"
+          },
+          {
+            "text": "芝加哥",
+            "value": "ORD",
+            "airportCode": "ORD"
+          },
+          {
+            "text": "達拉斯(DFW)",
+            "value": "DFW",
+            "airportCode": "DFW"
+          },
+          {
+            "text": "底特律",
+            "value": "DTW",
+            "airportCode": "DTW"
+          },
+          {
+            "text": "亞特蘭大",
+            "value": "ATL",
+            "airportCode": "ATL"
+          },
+          {
+            "text": "華盛頓(IAD)",
+            "value": "IAD",
+            "airportCode": "IAD"
+          },
+          {
+            "text": "多倫多",
+            "value": "YYZ",
+            "airportCode": "YYZ"
+          },
+          {
+            "text": "溫哥華市",
+            "value": "YVR",
+            "airportCode": "YVR"
+          }
+        ]
+      },
+      {
+        "text": "歐洲地區",
+        "children": [
+          {
+            "text": "巴黎",
+            "value": "CDG",
+            "airportCode": "CDG"
+          },
+          {
+            "text": "法蘭克福",
+            "value": "FRA",
+            "airportCode": "FRA"
+          },
+          {
+            "text": "慕尼黑",
+            "value": "MUC",
+            "airportCode": "MUC"
+          },
+          {
+            "text": "哥本哈根",
+            "value": "CPH",
+            "airportCode": "CPH"
+          },
+          {
+            "text": "米蘭(MXP)",
+            "value": "MXP",
+            "airportCode": "MXP"
+          },
+          {
+            "text": "羅馬(FCO)",
+            "value": "FCO",
+            "airportCode": "FCO"
+          },
+          {
+            "text": "維也納",
+            "value": "VIE",
+            "airportCode": "VIE"
+          },
+          {
+            "text": "赫爾辛基",
+            "value": "HEL",
+            "airportCode": "HEL"
+          },
+          {
+            "text": "伊斯坦布爾",
+            "value": "IST",
+            "airportCode": "IST"
+          },
+          {
+            "text": "莫斯科(DME)",
+            "value": "DME",
+            "airportCode": "DME"
+          },
+          {
+            "text": "莫斯科(SVO)",
+            "value": "SVO",
+            "airportCode": "SVO"
+          },
+          {
+            "text": "海參崴",
+            "value": "VVO",
+            "airportCode": "VVO"
+          },
+          {
+            "text": "倫敦",
+            "value": "LHR",
+            "airportCode": "LHR"
+          },
+          {
+            "text": "斯德哥爾摩",
+            "value": "ARN",
+            "airportCode": "ARN"
+          }
+        ]
+      },
+      {
+        "text": "中近東 \/ 非洲地區",
+        "children": [
+          {
+            "text": "德里",
+            "value": "DEL",
+            "airportCode": "DEL"
+          },
+          {
+            "text": "多哈",
+            "value": "DOH",
+            "airportCode": "DOH"
+          },
+          {
+            "text": "杜拜",
+            "value": "DXB",
+            "airportCode": "DXB"
+          },
+          {
+            "text": "孟買",
+            "value": "BOM",
+            "airportCode": "BOM"
+          }
+        ]
+      }
+    ]
+  }
+}

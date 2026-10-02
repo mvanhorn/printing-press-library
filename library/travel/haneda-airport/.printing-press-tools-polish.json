@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-10-02T17:16:28.814281Z",
+  "cli_dir": "\u003ccli-dir\u003e/haneda-airport-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated platform client-list command; the client parent supplies scope and the precise action needs no downstream rewrite. Template description enrichment is a retro candidate."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 868,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated learning-list command; it accurately lists the local recorded learnings in its learning parent. Template filter/return enrichment is a retro candidate."
+    }
+  ]
+}

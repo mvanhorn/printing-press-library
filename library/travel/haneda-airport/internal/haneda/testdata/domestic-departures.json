@@ -1,0 +1,170 @@
+{
+  "count": 2,
+  "date": {
+    "date": "2026/10/02 23:49:37",
+    "display_date": "2026-10-02 23:49"
+  },
+  "flightlists": [
+    {
+      "flightType": "domestic",
+      "direction": "departure",
+      "area_name": "Okinawa(NAHA)",
+      "via_area_name": "",
+      "airlines": [
+        {
+          "airline": "SNJ",
+          "icon_url": "/site_resource/flight/img/logo/SNJ.png",
+          "link_url": "https://www.solaseedair.jp/",
+          "flightNumber": "6J21"
+        },
+        {
+          "airline": "ANA",
+          "icon_url": "/site_resource/flight/img/logo/ANA.png",
+          "link_url": "https://www.ana.co.jp/en/jp/",
+          "flightNumber": "NH2421"
+        }
+      ],
+      "date": {
+        "key": "20261002",
+        "display_date": "2026/10/02",
+        "change_date": "2026/10/02"
+      },
+      "on_time": "06:10",
+      "change_time": "06:14",
+      "terminal": {
+        "terminal": "T2",
+        "hm_facility_id": "s=eyJvbmxpbmUvZ2V0RGlyZWN0aW9uc0Zyb21UbyI6eyJtdWx0aXBvaW50Um91dGluZyI6dHJ1ZX0sIm9ubGluZS9wb2lWaWV3Ijp7Im11bHRpcG9pbnRSb3V0aW5nIjp0cnVlfSwibWFwUmVuZGVyZXIiOnsidnAiOnsibGF0IjozNS41NTI1OTksImxuZyI6MTM5Ljc4ODU1OCwiem9vbSI6MTUuNTQ3Njg2LCJiZWFyaW5nIjowLCJwaXRjaCI6MH0sIm9yZCI6M319"
+      },
+      "status": {
+        "color": "4",
+        "text": "Departed",
+        "category": "departed",
+        "reason": ""
+      },
+      "options": [
+        {
+          "type": "checkpoint",
+          "title": "Security Check",
+          "items": [
+            {
+              "name": "A",
+              "pm_facility_id": "focus=mapicon-9627",
+              "pm_map_url_scheme": "hanedaapp2://map/focus=mapicon-9627",
+              "pm_map_deep_link": "https://navigator.tokyo-haneda.com/app/link/map?focus=mapicon-9627",
+              "hm_facility_id": "poiId=1511"
+            },
+            {
+              "name": "B",
+              "pm_facility_id": "focus=mapicon-9626",
+              "pm_map_url_scheme": "hanedaapp2://map/focus=mapicon-9626",
+              "pm_map_deep_link": "https://navigator.tokyo-haneda.com/app/link/map?focus=mapicon-9626",
+              "hm_facility_id": "poiId=1510"
+            }
+          ]
+        },
+        {
+          "type": "gate",
+          "title": "Gate",
+          "items": [
+            {
+              "name": "54",
+              "pm_facility_id": "focus=mapicon-10462",
+              "pm_map_url_scheme": "hanedaapp2://map/focus=mapicon-10462",
+              "pm_map_deep_link": "https://navigator.tokyo-haneda.com/app/link/map?focus=mapicon-10462",
+              "hm_facility_id": "poiId=1636"
+            }
+          ]
+        },
+        {
+          "type": "dmsCheckin",
+          "title": "国内線チェックイン",
+          "items": [
+            {
+              "name": "Solaseed Air Check-In",
+              "pm_facility_id": "focus=mapicon-8757",
+              "pm_map_url_scheme": "hanedaapp2://map/focus=mapicon-8757",
+              "pm_map_deep_link": "https://navigator.tokyo-haneda.com/app/link/map?focus=mapicon-8757"
+            },
+            {
+              "name": "ANA Check-In",
+              "pm_facility_id": "focus=mapicon-9002",
+              "pm_map_url_scheme": "hanedaapp2://map/focus=mapicon-9002",
+              "pm_map_deep_link": "https://navigator.tokyo-haneda.com/app/link/map?focus=mapicon-9002"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "flightType": "domestic",
+      "direction": "departure",
+      "area_name": "Osaka(ITAMI)",
+      "via_area_name": "",
+      "airlines": [
+        {
+          "airline": "JAL",
+          "icon_url": "/site_resource/flight/img/logo/JAL.png",
+          "link_url": "https://www.jal.co.jp/jp/en/?city=TYO",
+          "flightNumber": "JL127"
+        }
+      ],
+      "date": {
+        "key": "20261002",
+        "display_date": "2026/10/02",
+        "change_date": "-"
+      },
+      "on_time": "16:30",
+      "change_time": "-",
+      "terminal": {
+        "terminal": "T1",
+        "hm_facility_id": "s=eyJvbmxpbmUvZ2V0RGlyZWN0aW9uc0Zyb21UbyI6eyJtdWx0aXBvaW50Um91dGluZyI6dHJ1ZX0sIm9ubGluZS9wb2lWaWV3Ijp7Im11bHRpcG9pbnRSb3V0aW5nIjp0cnVlfSwibWFwUmVuZGVyZXIiOnsidnAiOnsibGF0IjozNS41NDkwMTIsImxuZyI6MTM5Ljc4NDExNywiem9vbSI6MTUuNTQ3Njg2LCJiZWFyaW5nIjowLCJwaXRjaCI6MH0sIm9yZCI6M319"
+      },
+      "status": {
+        "color": "2",
+        "text": "Canceled",
+        "category": "canceled",
+        "reason": "Other"
+      },
+      "options": [
+        {
+          "type": "checkpoint",
+          "title": "Security Check",
+          "items": [
+            {
+              "name": "F",
+              "pm_facility_id": "focus=mapicon-9570",
+              "pm_map_url_scheme": "hanedaapp2://map/focus=mapicon-9570",
+              "pm_map_deep_link": "https://navigator.tokyo-haneda.com/app/link/map?focus=mapicon-9570",
+              "hm_facility_id": "poiId=735"
+            }
+          ]
+        },
+        {
+          "type": "gate",
+          "title": "Gate",
+          "items": [
+            {
+              "name": "18",
+              "pm_facility_id": "focus=mapicon-10441",
+              "pm_map_url_scheme": "hanedaapp2://map/focus=mapicon-10441",
+              "pm_map_deep_link": "https://navigator.tokyo-haneda.com/app/link/map?focus=mapicon-10441",
+              "hm_facility_id": "poiId=488"
+            }
+          ]
+        },
+        {
+          "type": "dmsCheckin",
+          "title": "国内線チェックイン",
+          "items": [
+            {
+              "name": "JAL Check-In",
+              "pm_facility_id": "focus=mapicon-7500",
+              "pm_map_url_scheme": "hanedaapp2://map/focus=mapicon-7500",
+              "pm_map_deep_link": "https://navigator.tokyo-haneda.com/app/link/map?focus=mapicon-7500"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,212 @@
+{
+  "api_name": "haneda-airport",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-02T15:01:04.208766Z",
+  "novel_features": [
+    {
+      "name": "Snapshot save",
+      "command": "snapshot save",
+      "description": "Preserve timestamped scoped boards locally.",
+      "rationale": "Historical observations are explicit user-owned state.",
+      "example": "haneda-airport-pp-cli snapshot save --file /tmp/haneda-board.json --kind international --direction departure",
+      "why_it_matters": "Preserve timestamped scoped boards locally.",
+      "group": "Flight planning and observations"
+    },
+    {
+      "name": "Offline search",
+      "command": "snapshot search",
+      "description": "Filter a saved board without network access.",
+      "rationale": "Saved source groups keep their provenance.",
+      "example": "haneda-airport-pp-cli snapshot search --file /tmp/haneda-board.json --flight NH849 --limit 5",
+      "why_it_matters": "Filter a saved board without network access.",
+      "group": "Flight planning and observations"
+    },
+    {
+      "name": "Material changes",
+      "command": "snapshot diff",
+      "description": "See changed status, time and terminal facilities.",
+      "rationale": "Stable group identity permits comparison of compatible observations.",
+      "example": "haneda-airport-pp-cli snapshot diff --before /tmp/haneda-before.json --after /tmp/haneda-after.json",
+      "why_it_matters": "See changed status, time and terminal facilities.",
+      "group": "Flight planning and observations"
+    },
+    {
+      "name": "Terminal briefing",
+      "command": "plan",
+      "description": "Find the source terminal, gates and check-in handoffs.",
+      "rationale": "One flight is joined with source facility and floor links.",
+      "example": "haneda-airport-pp-cli plan NH849 --kind international --agent",
+      "why_it_matters": "Find the source terminal, gates and check-in handoffs.",
+      "group": "Flight planning and observations"
+    },
+    {
+      "name": "Midnight rollover",
+      "command": "flights rollover",
+      "description": "Inspect adjacent service days and cross-midnight changes.",
+      "rationale": "Explicit source dates prevent misleading delay arithmetic.",
+      "example": "haneda-airport-pp-cli flights rollover --kind international --direction departure --limit 5",
+      "why_it_matters": "Inspect adjacent service days and cross-midnight changes.",
+      "group": "Flight planning and observations"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Snapshot save",
+      "command": "snapshot save",
+      "description": "Preserve timestamped scoped boards locally.",
+      "rationale": "Historical observations are explicit user-owned state.",
+      "example": "haneda-airport-pp-cli snapshot save --file /tmp/haneda-board.json --kind international --direction departure",
+      "why_it_matters": "Preserve timestamped scoped boards locally.",
+      "group": "Flight planning and observations"
+    },
+    {
+      "name": "Offline search",
+      "command": "snapshot search",
+      "description": "Filter a saved board without network access.",
+      "rationale": "Saved source groups keep their provenance.",
+      "example": "haneda-airport-pp-cli snapshot search --file /tmp/haneda-board.json --flight NH849 --limit 5",
+      "why_it_matters": "Filter a saved board without network access.",
+      "group": "Flight planning and observations"
+    },
+    {
+      "name": "Material changes",
+      "command": "snapshot diff",
+      "description": "See changed status, time and terminal facilities.",
+      "rationale": "Stable group identity permits comparison of compatible observations.",
+      "example": "haneda-airport-pp-cli snapshot diff --before /tmp/haneda-before.json --after /tmp/haneda-after.json",
+      "why_it_matters": "See changed status, time and terminal facilities.",
+      "group": "Flight planning and observations"
+    },
+    {
+      "name": "Terminal briefing",
+      "command": "plan",
+      "description": "Find the source terminal, gates and check-in handoffs.",
+      "rationale": "One flight is joined with source facility and floor links.",
+      "example": "haneda-airport-pp-cli plan NH849 --kind international --agent",
+      "why_it_matters": "Find the source terminal, gates and check-in handoffs.",
+      "group": "Flight planning and observations"
+    },
+    {
+      "name": "Midnight rollover",
+      "command": "flights rollover",
+      "description": "Inspect adjacent service days and cross-midnight changes.",
+      "rationale": "Explicit source dates prevent misleading delay arithmetic.",
+      "example": "haneda-airport-pp-cli flights rollover --kind international --direction departure --limit 5",
+      "why_it_matters": "Inspect adjacent service days and cross-midnight changes.",
+      "group": "Flight planning and observations"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Haneda Airport",
+    "headline": "Query first-party Haneda flight boards with precise dates, codeshares and terminal handoffs.",
+    "value_prop": "Read domestic and international arrivals and departures, inspect source disruptions and published schedules, and compare your saved observations. Explicit source timestamps and unknown fields keep terminal planning grounded in what the airport actually reports.",
+    "auth_narrative": "The supported source paths are anonymous. No API key, login, reservation or browser runtime is required.",
+    "quickstart": [
+      {
+        "command": "haneda-airport-pp-cli doctor --dry-run",
+        "comment": "Check the generated runtime safely."
+      },
+      {
+        "command": "haneda-airport-pp-cli flights search --kind international --direction departure --limit 5 --agent",
+        "comment": "Read a small current JST departure board."
+      },
+      {
+        "command": "haneda-airport-pp-cli catalog airports --kind domestic --query 札幌 --agent",
+        "comment": "Resolve Japanese airport names and provider codes."
+      },
+      {
+        "command": "haneda-airport-pp-cli plan NH849 --kind international --agent",
+        "comment": "Resolve a flight and its terminal facilities."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Date outside provider search coverage",
+        "fix": "Use today in JST for domestic boards; international boards permit yesterday through three calendar months."
+      },
+      {
+        "symptom": "No gate, counter, operating carrier or actual time",
+        "fix": "Treat the explicit unknown field as unavailable and follow the canonical airport/airline link."
+      },
+      {
+        "symptom": "Saved board looks old",
+        "fix": "Fetch a new observation with haneda-airport-pp-cli flights search or snapshot save."
+      }
+    ],
+    "when_to_use": "Use for dated Haneda public flight status, codeshare lookup, delays/cancellations, terminal planning and published schedule inspection. Use saved snapshots for explicit offline observations and change comparison.",
+    "anti_triggers": [
+      "No seat or fare inventory, booking, payment or account operations.",
+      "No guaranteed connections or inferred operating-carrier/actual-time claims."
+    ],
+    "recipes": [
+      {
+        "title": "Small flight board",
+        "command": "haneda-airport-pp-cli flights search --kind international --limit 5 --agent --select flights.id,flights.source_primary_flight,flights.scheduled_at,flights.status,sources.reported_at,observed_at",
+        "explanation": "Keep useful flight facts and source time in compact agent output."
+      },
+      {
+        "title": "Domestic arrivals",
+        "command": "haneda-airport-pp-cli flights search --kind domestic --direction arrival --destination CTS --limit 5 --agent",
+        "explanation": "Airport and source city aliases are resolved without changing codeshare identity."
+      },
+      {
+        "title": "Disruptions",
+        "command": "haneda-airport-pp-cli flights disruptions --kind international --direction both --limit 10 --agent",
+        "explanation": "Separate airport summary counts from the returned delayed/canceled/diverted flight groups."
+      },
+      {
+        "title": "Monthly schedule",
+        "command": "haneda-airport-pp-cli schedule search --kind international --flight NH849 --limit 5 --agent",
+        "explanation": "Inspect published periods and operating weekdays with explicit feed coverage."
+      },
+      {
+        "title": "Codeshare detail",
+        "command": "haneda-airport-pp-cli flights detail UA8003 --kind international --direction departure --limit 5 --agent",
+        "explanation": "Resolve a marketing number through the source-primary-only endpoint and bounded board fallback; retain the original listed group."
+      },
+      {
+        "title": "Padded terminal lookup",
+        "command": "haneda-airport-pp-cli plan NH0849 --kind international --direction departure --agent",
+        "explanation": "Find the same primary group with a zero-padded number and use source terminal/facility handoffs."
+      },
+      {
+        "title": "Midnight and adjacent days",
+        "command": "haneda-airport-pp-cli flights rollover --kind international --direction both --limit 5 --agent",
+        "explanation": "Inspect explicit service and revised dates. Empty output means this observation contained no matching rollover evidence."
+      },
+      {
+        "title": "Preserve an observation",
+        "command": "haneda-airport-pp-cli snapshot save --kind international --direction both --file ./haneda-before.json --agent",
+        "explanation": "Write a complete local observation; choose a new filename if it already exists. No provider state is changed."
+      },
+      {
+        "title": "Search a saved group",
+        "command": "haneda-airport-pp-cli snapshot search --file ./haneda-before.json --flight UA8003 --limit 5 --agent",
+        "explanation": "After saving the preceding observation, resolve its marketing group offline with its original time and age."
+      },
+      {
+        "title": "Compare observations",
+        "command": "haneda-airport-pp-cli snapshot diff --before ./haneda-before.json --after ./haneda-after.json --limit 5 --agent",
+        "explanation": "First save a second board to haneda-after.json with the same date/kind/direction. No changes is a valid result; disappearance is not inferred cancellation."
+      },
+      {
+        "title": "Resolve an airline",
+        "command": "haneda-airport-pp-cli catalog airlines --kind international --query ANA --limit 5 --agent",
+        "explanation": "Retain provider airline identifiers, IATA flight prefixes, Japanese names and canonical airline URLs."
+      }
+    ],
+    "trigger_phrases": [
+      "Haneda flight status",
+      "Haneda arrivals and departures",
+      "Haneda terminal and gate",
+      "Haneda codeshare lookup",
+      "use haneda-airport",
+      "run haneda-airport"
+    ]
+  }
+}

@@ -1,0 +1,2152 @@
+{
+  "ja": {
+    "items": [
+      {
+        "text": "ANA",
+        "value": "ANA",
+        "value02": "NH",
+        "url": "https:\/\/www.ana.co.jp\/"
+      },
+      {
+        "text": "日本航空",
+        "value": "JAL",
+        "value02": "JL",
+        "url": "https:\/\/www.jal.co.jp\/jp\/ja\/"
+      },
+      {
+        "text": "ピーチ・アビエーション",
+        "value": "APJ",
+        "value02": "MM",
+        "url": "https:\/\/www.flypeach.com\/"
+      },
+      {
+        "text": "アエロフロート・ロシア航空",
+        "value": "AFL",
+        "value02": "SU",
+        "url": "https:\/\/www.aeroflot.ru\/ru-ja"
+      },
+      {
+        "text": "アシアナ航空",
+        "value": "AAR",
+        "value02": "OZ",
+        "url": "https:\/\/flyasiana.com\/C\/JP\/JA\/index"
+      },
+      {
+        "text": "アメリカン航空",
+        "value": "AAL",
+        "value02": "AA",
+        "url": "https:\/\/www.americanairlines.jp\/intl\/jp\/index.jsp?locale=ja_JP"
+      },
+      {
+        "text": "アラスカ航空",
+        "value": "ASA",
+        "value02": "AS",
+        "url": "https:\/\/www.alaskaair.com\/"
+      },
+      {
+        "text": "厦門航空",
+        "value": "CXA",
+        "value02": "MF",
+        "url": "https:\/\/www.xiamenair.com\/ja-jp\/"
+      },
+      {
+        "text": "ITAエアウェイズ",
+        "value": "ITY",
+        "value02": "AZ",
+        "url": "https:\/\/www.ita-airways.com\/jp\/ja\/homepage"
+      },
+      {
+        "text": "ヴァージンオーストラリア航空",
+        "value": "VOZ",
+        "value02": "VA",
+        "url": "https:\/\/www.virginaustralia.com\/jp\/en\/book\/haneda"
+      },
+      {
+        "text": "エア・インディア",
+        "value": "AIC",
+        "value02": "AI",
+        "url": "https:\/\/www.airindia.com\/"
+      },
+      {
+        "text": "エア・カナダ",
+        "value": "ACA",
+        "value02": "AC",
+        "url": "https:\/\/www.aircanada.com\/home\/jp\/ja\/aco\/flights"
+      },
+      {
+        "text": "エアアジアＸ",
+        "value": "XAX",
+        "value02": "D7",
+        "url": "https:\/\/www.airasia.com\/ja\/jp"
+      },
+      {
+        "text": "エジプト航空",
+        "value": "MSR",
+        "value02": "MS",
+        "url": "https:\/\/www.egyptair.com\/en\/pages\/homepage.aspx"
+      },
+      {
+        "text": "S7航空",
+        "value": "SBI",
+        "value02": "S7",
+        "url": "https:\/\/www.s7.ru\/ru\/"
+      },
+      {
+        "text": "エールフランス",
+        "value": "AFR",
+        "value02": "AF",
+        "url": "https:\/\/wwws.airfrance.co.jp\/ja"
+      },
+      {
+        "text": "エチオピア航空",
+        "value": "ETH",
+        "value02": "ET",
+        "url": "https:\/\/www.ethiopianairlines.com\/jp\/ja"
+      },
+      {
+        "text": "エバー航空",
+        "value": "EVA",
+        "value02": "BR",
+        "url": "https:\/\/www.evaair.com\/ja-jp\/index.html"
+      },
+      {
+        "text": "エミレーツ航空",
+        "value": "UAE",
+        "value02": "EK",
+        "url": "https:\/\/www.emirates.com\/jp\/japanese\/"
+      },
+      {
+        "text": "奥凱航空",
+        "value": "OKA",
+        "value02": "BK",
+        "url": "https:\/\/www.okair.net\/welcome.html#\/japan"
+      },
+      {
+        "text": "オーストリア航空",
+        "value": "AUA",
+        "value02": "OS",
+        "url": "https:\/\/www.austrian.com\/"
+      },
+      {
+        "text": "カタール航空",
+        "value": "QTR",
+        "value02": "QR",
+        "url": "https:\/\/www.qatarairways.com\/ja-jp\/homepage.html"
+      },
+      {
+        "text": "ガルーダ・インドネシア航空",
+        "value": "GIA",
+        "value02": "GA",
+        "url": "https:\/\/www.garuda-indonesia.com\/jp\/ja"
+      },
+      {
+        "text": "カンタス航空",
+        "value": "QFA",
+        "value02": "QF",
+        "url": "https:\/\/www.qantas.com\/"
+      },
+      {
+        "text": "吉祥航空",
+        "value": "DKH",
+        "value02": "HO",
+        "url": "https:\/\/global.juneyaoair.com\/"
+      },
+      {
+        "text": "キャセイパシフィック",
+        "value": "CPA",
+        "value02": "CX",
+        "url": "https:\/\/www.cathaypacific.com\/cx\/ja_JP.html"
+      },
+      {
+        "text": "KLMオランダ航空",
+        "value": "KLM",
+        "value02": "KL",
+        "url": "https:\/\/www.klm.com\/home\/jp\/ja"
+      },
+      {
+        "text": "上海航空 (中国東方航空)",
+        "value": "CSH",
+        "value02": "FM",
+        "url": "https:\/\/jp.ceair.com\/ja\/"
+      },
+      {
+        "text": "春秋航空",
+        "value": "CQH",
+        "value02": "9C",
+        "url": "https:\/\/www.ch.com\/"
+      },
+      {
+        "text": "シンガポール航空",
+        "value": "SIA",
+        "value02": "SQ",
+        "url": "https:\/\/www.singaporeair.com\/ja_JP\/jp\/home#\/book\/bookflight"
+      },
+      {
+        "text": "深セン航空",
+        "value": "CSZ",
+        "value02": "ZH",
+        "url": "https:\/\/global.shenzhenair.com\/zhair\/ibe\/common\/flightSearch.do"
+      },
+      {
+        "text": "スカンジナビア航空",
+        "value": "SAS",
+        "value02": "SK",
+        "url": "https:\/\/www.flysas.com\/jp-ja\/"
+      },
+      {
+        "text": "スクート",
+        "value": "TGW",
+        "value02": "TR",
+        "url": "https:\/\/www.flyscoot.com\/jp"
+      },
+      {
+        "text": "スリランカ航空",
+        "value": "ALK",
+        "value02": "UL",
+        "url": "https:\/\/www.srilankan.com\/ja_jp\/jp"
+      },
+      {
+        "text": "ターキッシュ エアラインズ",
+        "value": "THY",
+        "value02": "TK",
+        "url": "https:\/\/www.turkishairlines.com\/ja-int\/index.html"
+      },
+      {
+        "text": "タイガーエア台湾",
+        "value": "TTW",
+        "value02": "IT",
+        "url": "https:\/\/www.tigerairtw.com\/jp\/"
+      },
+      {
+        "text": "大韓航空",
+        "value": "KAL",
+        "value02": "KE",
+        "url": "https:\/\/www.koreanair.com\/"
+      },
+      {
+        "text": "タイ国際航空",
+        "value": "THA",
+        "value02": "TG",
+        "url": "https:\/\/www.thaiairways.com\/ja_JP\/index.page"
+      },
+      {
+        "text": "チャイナ エアライン",
+        "value": "CAL",
+        "value02": "CI",
+        "url": "https:\/\/www.china-airlines.com\/jp\/jp\/"
+      },
+      {
+        "text": "中国国際航空",
+        "value": "CCA",
+        "value02": "CA",
+        "url": "http:\/\/www.airchina.com\/"
+      },
+      {
+        "text": "中国東方航空",
+        "value": "CES",
+        "value02": "MU",
+        "url": "https:\/\/jp.ceair.com\/ja\/"
+      },
+      {
+        "text": "中国南方航空",
+        "value": "CSN",
+        "value02": "CZ",
+        "url": "https:\/\/www.csair.com\/jp\/ja\/index.shtml"
+      },
+      {
+        "text": "デルタ航空",
+        "value": "DAL",
+        "value02": "DL",
+        "url": "https:\/\/ja.delta.com\/"
+      },
+      {
+        "text": "天津航空",
+        "value": "GCR",
+        "value02": "GS",
+        "url": "https:\/\/www.tianjin-air.com\/"
+      },
+      {
+        "text": "ニュージーランド航空",
+        "value": "ANZ",
+        "value02": "NZ",
+        "url": "https:\/\/www.airnewzealand.jp\/"
+      },
+      {
+        "text": "海南航空",
+        "value": "CHH",
+        "value02": "HU",
+        "url": "https:\/\/www.hainanairlines.com\/JP\/JP\/Home"
+      },
+      {
+        "text": "ハワイアン航空",
+        "value": "HAL",
+        "value02": "HA",
+        "url": "https:\/\/www.hawaiianairlines.com\/ja-jp\/"
+      },
+      {
+        "text": "バンコクエアウェイズ",
+        "value": "BKP",
+        "value02": "PG",
+        "url": "http:\/\/www.bangkokair.jp\/"
+      },
+      {
+        "text": "フィジーエアウェイズ",
+        "value": "FJI",
+        "value02": "FJ",
+        "url": "https:\/\/www.fijiairways.com\/ja-jp\/"
+      },
+      {
+        "text": "フィリピン航空",
+        "value": "PAL",
+        "value02": "PR",
+        "url": "https:\/\/www.philippineairlines.com\/jp\/en\/home.html"
+      },
+      {
+        "text": "フィンエアー",
+        "value": "FIN",
+        "value02": "AY",
+        "url": "https:\/\/www.finnair.com\/jp-ja"
+      },
+      {
+        "text": "ブリティッシュエアウェイズ",
+        "value": "BAW",
+        "value02": "BA",
+        "url": "https:\/\/www.britishairways.com\/travel\/home\/public\/ja_jp\/"
+      },
+      {
+        "text": "ベトジェットエア",
+        "value": "VJC",
+        "value02": "VJ",
+        "url": "https:\/\/www.vietjetair.com\/Sites\/Web\/ja-JP\/Home"
+      },
+      {
+        "text": "ベトナム航空",
+        "value": "HVN",
+        "value02": "VN",
+        "url": "https:\/\/www.vietnamairlines.com\/jp\/ja\/home"
+      },
+      {
+        "text": "香港エクスプレス航空",
+        "value": "HKE",
+        "value02": "UO",
+        "url": "https:\/\/www.hkexpress.com\/ja"
+      },
+      {
+        "text": "マレーシア航空",
+        "value": "MAS",
+        "value02": "MH",
+        "url": "https:\/\/www.malaysiaairlines.com\/jp\/ja.html"
+      },
+      {
+        "text": "南アフリカ航空",
+        "value": "SAA",
+        "value02": "SA",
+        "url": "https:\/\/www.flysaa.com\/"
+      },
+      {
+        "text": "ユナイテッド航空",
+        "value": "UAL",
+        "value02": "UA",
+        "url": "https:\/\/www.united.com\/ja\/jp"
+      },
+      {
+        "text": "LATAM航空 (LAN)",
+        "value": "LAN",
+        "value02": "LA",
+        "url": "https:\/\/www.latam.com\/en_un\/"
+      },
+      {
+        "text": "LATAM航空 (TAM)",
+        "value": "TAM",
+        "value02": "JJ",
+        "url": "https:\/\/www.latam.com\/en_un\/"
+      },
+      {
+        "text": "ルフトハンザドイツ航空",
+        "value": "DLH",
+        "value02": "LH",
+        "url": "https:\/\/www.lufthansa.com\/jp\/ja\/homepage"
+      },
+      {
+        "text": "イベリア航空",
+        "value": "IBE",
+        "value02": "IB",
+        "url": "https:\/\/www.iberia.com\/jp\/"
+      },
+      {
+        "text": "インディゴ",
+        "value": "IGO",
+        "value02": "6E",
+        "url": ""
+      },
+      {
+        "text": "ヴァージン・アトランティック航空",
+        "value": "VIR",
+        "value02": "VS",
+        "url": ""
+      },
+      {
+        "text": "エア・アスタナ",
+        "value": "KZR",
+        "value02": "KC",
+        "url": "https:\/\/airastana.com\/global-en"
+      },
+      {
+        "text": "エアロK航空",
+        "value": "EOK",
+        "value02": "RF",
+        "url": "https:\/\/www.aerok.com\/ja-JP"
+      },
+      {
+        "text": "エルアル　イスラエル航空",
+        "value": "ELY",
+        "value02": "LY",
+        "url": ""
+      },
+      {
+        "text": "サウジアラビア航空",
+        "value": "SVA",
+        "value02": "SV",
+        "url": ""
+      },
+      {
+        "text": "山東航空",
+        "value": "CDG",
+        "value02": "SC",
+        "url": ""
+      },
+      {
+        "text": "四川航空",
+        "value": "CSC",
+        "value02": "3U",
+        "url": ""
+      },
+      {
+        "text": "フレックスフライト",
+        "value": "FXT",
+        "value02": "W2",
+        "url": ""
+      }
+    ]
+  },
+  "en": {
+    "items": [
+      {
+        "text": "ANA",
+        "value": "ANA",
+        "value02": "NH",
+        "url": "https:\/\/www.ana.co.jp\/en\/jp\/"
+      },
+      {
+        "text": "Japan Airlines",
+        "value": "JAL",
+        "value02": "JL",
+        "url": "https:\/\/www.jal.co.jp\/jp\/en\/?city=TYO"
+      },
+      {
+        "text": "Peach Aviation",
+        "value": "APJ",
+        "value02": "MM",
+        "url": "https:\/\/www.flypeach.com\/en"
+      },
+      {
+        "text": "Aeroflot Russian Airlines",
+        "value": "AFL",
+        "value02": "SU",
+        "url": "https:\/\/www.aeroflot.ru\/ru-en"
+      },
+      {
+        "text": "Air Asia X",
+        "value": "XAX",
+        "value02": "D7",
+        "url": "https:\/\/www.airasia.com\/en\/gb"
+      },
+      {
+        "text": "Air India",
+        "value": "AIC",
+        "value02": "AI",
+        "url": "https:\/\/www.airindia.com\/"
+      },
+      {
+        "text": "Air Canada",
+        "value": "ACA",
+        "value02": "AC",
+        "url": "https:\/\/www.aircanada.com\/home\/ca\/en\/aco\/flights"
+      },
+      {
+        "text": "Air China",
+        "value": "CCA",
+        "value02": "CA",
+        "url": "https:\/\/www.airchina.jp\/JP\/GB\/Home"
+      },
+      {
+        "text": "Air France",
+        "value": "AFR",
+        "value02": "AF",
+        "url": "https:\/\/www.airfrance.com.cn\/en"
+      },
+      {
+        "text": "Air New Zealand",
+        "value": "ANZ",
+        "value02": "NZ",
+        "url": "https:\/\/www.airnewzealand.com\/"
+      },
+      {
+        "text": "Alaska Airlines",
+        "value": "ASA",
+        "value02": "AS",
+        "url": "https:\/\/www.alaskaair.com\/"
+      },
+      {
+        "text": "American Airlines",
+        "value": "AAL",
+        "value02": "AA",
+        "url": "https:\/\/www.aa.com\/homePage.do?locale=en_US"
+      },
+      {
+        "text": "Asiana Airlines",
+        "value": "AAR",
+        "value02": "OZ",
+        "url": "https:\/\/flyasiana.com\/C\/JP\/EN\/index"
+      },
+      {
+        "text": "Austrian Airlines",
+        "value": "AUA",
+        "value02": "OS",
+        "url": "https:\/\/www.austrian.com\/"
+      },
+      {
+        "text": "Bangkok Airways",
+        "value": "BKP",
+        "value02": "PG",
+        "url": "https:\/\/www.bangkokair.com\/"
+      },
+      {
+        "text": "British Airways",
+        "value": "BAW",
+        "value02": "BA",
+        "url": "https:\/\/www.britishairways.com\/travel\/home\/public\/en_gb\/"
+      },
+      {
+        "text": "Cathay Pacific Airways",
+        "value": "CPA",
+        "value02": "CX",
+        "url": "https:\/\/www.cathaypacific.com\/cx\/en_JP.html"
+      },
+      {
+        "text": "China Airlines",
+        "value": "CAL",
+        "value02": "CI",
+        "url": "https:\/\/www.china-airlines.com\/jp\/en"
+      },
+      {
+        "text": "China Eastern Airlines",
+        "value": "CES",
+        "value02": "MU",
+        "url": "https:\/\/us.ceair.com\/en\/"
+      },
+      {
+        "text": "China Southern Airlines",
+        "value": "CSN",
+        "value02": "CZ",
+        "url": "https:\/\/www.csair.com\/us\/en\/"
+      },
+      {
+        "text": "Delta Air Lines",
+        "value": "DAL",
+        "value02": "DL",
+        "url": "https:\/\/www.delta.com\/"
+      },
+      {
+        "text": "EGYPTAIR",
+        "value": "MSR",
+        "value02": "MS",
+        "url": "https:\/\/www.egyptair.com\/en\/pages\/homepage.aspx"
+      },
+      {
+        "text": "Emirates",
+        "value": "UAE",
+        "value02": "EK",
+        "url": "https:\/\/www.emirates.com\/english\/"
+      },
+      {
+        "text": "Ethiopian Airlones",
+        "value": "ETH",
+        "value02": "ET",
+        "url": "https:\/\/www.ethiopianairlines.com\/aa"
+      },
+      {
+        "text": "Eva Air",
+        "value": "EVA",
+        "value02": "BR",
+        "url": "https:\/\/www.evaair.com\/en-global\/index.html"
+      },
+      {
+        "text": "Fiji Airways",
+        "value": "FJI",
+        "value02": "FJ",
+        "url": "https:\/\/www.fijiairways.com\/en-jp\/"
+      },
+      {
+        "text": "Finnair",
+        "value": "FIN",
+        "value02": "AY",
+        "url": "https:\/\/www.finnair.com\/en"
+      },
+      {
+        "text": "Garuda Indonesia",
+        "value": "GIA",
+        "value02": "GA",
+        "url": "https:\/\/www.garuda-indonesia.com\/sg\/en"
+      },
+      {
+        "text": "Hainan Airlines",
+        "value": "CHH",
+        "value02": "HU",
+        "url": "https:\/\/www.hainanairlines.com\/GB\/GB\/Home"
+      },
+      {
+        "text": "Hawaiian Airlines",
+        "value": "HAL",
+        "value02": "HA",
+        "url": "https:\/\/www.hawaiianairlines.com\/"
+      },
+      {
+        "text": "HK Express",
+        "value": "HKE",
+        "value02": "UO",
+        "url": "https:\/\/www.hkexpress.com\/"
+      },
+      {
+        "text": "ITA Airways",
+        "value": "ITY",
+        "value02": "AZ",
+        "url": "https:\/\/www.ita-airways.com\/gb\/en\/homepage"
+      },
+      {
+        "text": "Juneyao Airlines",
+        "value": "DKH",
+        "value02": "HO",
+        "url": "https:\/\/global.juneyaoair.com\/"
+      },
+      {
+        "text": "KLM-Royal Dutch Airlines",
+        "value": "KLM",
+        "value02": "KL",
+        "url": "https:\/\/www.klm.com\/home\/jp\/en"
+      },
+      {
+        "text": "Korean Air",
+        "value": "KAL",
+        "value02": "KE",
+        "url": "https:\/\/www.koreanair.com\/"
+      },
+      {
+        "text": "LATAM Airlines (LAN)",
+        "value": "LAN",
+        "value02": "LA",
+        "url": "https:\/\/www.latam.com\/en_un\/"
+      },
+      {
+        "text": "LATAM Airlines (TAM)",
+        "value": "TAM",
+        "value02": "JJ",
+        "url": "https:\/\/www.latam.com\/en_un\/"
+      },
+      {
+        "text": "Lufthansa German Airlines",
+        "value": "DLH",
+        "value02": "LH",
+        "url": "https:\/\/www.lufthansa.com\/gb\/en\/homepage"
+      },
+      {
+        "text": "Malaysia Airlines",
+        "value": "MAS",
+        "value02": "MH",
+        "url": "https:\/\/www.malaysiaairlines.com\/jp\/en.html"
+      },
+      {
+        "text": "Okay Airways",
+        "value": "OKA",
+        "value02": "BK",
+        "url": "https:\/\/www.okair.net\/#\/"
+      },
+      {
+        "text": "Philippine Airlines",
+        "value": "PAL",
+        "value02": "PR",
+        "url": "https:\/\/www.philippineairlines.com\/gb\/en\/home.html"
+      },
+      {
+        "text": "Qantas Airways Limited",
+        "value": "QFA",
+        "value02": "QF",
+        "url": "https:\/\/www.qantas.com\/jp\/en.html"
+      },
+      {
+        "text": "Qatar Airways",
+        "value": "QTR",
+        "value02": "QR",
+        "url": "https:\/\/www.qatarairways.com\/en-qa\/homepage.html"
+      },
+      {
+        "text": "Scandinavian Airlines",
+        "value": "SAS",
+        "value02": "SK",
+        "url": "https:\/\/www.flysas.com\/en\/"
+      },
+      {
+        "text": "Scoot",
+        "value": "TGW",
+        "value02": "TR",
+        "url": "https:\/\/www.flyscoot.com\/en"
+      },
+      {
+        "text": "Shanghai Airlines",
+        "value": "CSH",
+        "value02": "FM",
+        "url": "https:\/\/us.ceair.com\/en\/"
+      },
+      {
+        "text": "S7 Airlines",
+        "value": "SBI",
+        "value02": "S7",
+        "url": "https:\/\/www.s7.ru\/en\/"
+      },
+      {
+        "text": "Singapore Airlines",
+        "value": "SIA",
+        "value02": "SQ",
+        "url": "https:\/\/www.singaporeair.com\/en_UK\/jp\/home#\/book\/bookflight"
+      },
+      {
+        "text": "Shenzhen Airlines",
+        "value": "CSZ",
+        "value02": "ZH",
+        "url": "https:\/\/global.shenzhenair.com\/zhair\/ibe\/common\/flightSearch.do"
+      },
+      {
+        "text": "South Africa Airways",
+        "value": "SAA",
+        "value02": "SA",
+        "url": "https:\/\/www.flysaa.com\/"
+      },
+      {
+        "text": "Spring Airlines",
+        "value": "CQH",
+        "value02": "9C",
+        "url": "https:\/\/en.ch.com\/"
+      },
+      {
+        "text": "SriLanKan Air",
+        "value": "ALK",
+        "value02": "UL",
+        "url": "https:\/\/www.srilankan.com\/en_uk\/go"
+      },
+      {
+        "text": "Thai Airways International",
+        "value": "THA",
+        "value02": "TG",
+        "url": "https:\/\/www.thaiairways.com\/en\/index.page"
+      },
+      {
+        "text": "Tianjin Airlines",
+        "value": "GCR",
+        "value02": "GS",
+        "url": "https:\/\/www.tianjin-air.com\/"
+      },
+      {
+        "text": "Tigerair Taiwan",
+        "value": "TTW",
+        "value02": "IT",
+        "url": "https:\/\/www.tigerairtw.com\/en\/"
+      },
+      {
+        "text": "Turkish Airlines",
+        "value": "THY",
+        "value02": "TK",
+        "url": "https:\/\/www.turkishairlines.com\/en-int\/index.html"
+      },
+      {
+        "text": "United Airlines",
+        "value": "UAL",
+        "value02": "UA",
+        "url": "https:\/\/www.united.com\/en\/us"
+      },
+      {
+        "text": "VietJet Air",
+        "value": "VJC",
+        "value02": "VJ",
+        "url": "https:\/\/www.vietjetair.com\/Sites\/Web\/en-US\/Home"
+      },
+      {
+        "text": "Vietnam Airlines",
+        "value": "HVN",
+        "value02": "VN",
+        "url": "https:\/\/www.vietnamairlines.com\/gb\/en\/Home"
+      },
+      {
+        "text": "Virgin Australia Airlines",
+        "value": "VOZ",
+        "value02": "VA",
+        "url": "https:\/\/www.virginaustralia.com"
+      },
+      {
+        "text": "XIAMEN AIRLINES",
+        "value": "CXA",
+        "value02": "MF",
+        "url": "https:\/\/www.xiamenair.com\/en-cn\/"
+      },
+      {
+        "text": "Aero K Airlines",
+        "value": "EOK",
+        "value02": "RF",
+        "url": "https:\/\/www.aerok.com\/en-US"
+      },
+      {
+        "text": "Air Astana",
+        "value": "KZR",
+        "value02": "KC",
+        "url": "https:\/\/airastana.com\/global-en"
+      },
+      {
+        "text": "EL AL ISRAEL",
+        "value": "ELY",
+        "value02": "LY",
+        "url": ""
+      },
+      {
+        "text": "Flexflight",
+        "value": "FXT",
+        "value02": "W2",
+        "url": ""
+      },
+      {
+        "text": "Iberia",
+        "value": "IBE",
+        "value02": "IB",
+        "url": "https:\/\/www.iberia.com\/gb\/?language=en"
+      },
+      {
+        "text": "IndiGo",
+        "value": "IGO",
+        "value02": "6E",
+        "url": ""
+      },
+      {
+        "text": "Saudi Arabian Airlines",
+        "value": "SVA",
+        "value02": "SV",
+        "url": ""
+      },
+      {
+        "text": "Shandong Airlines",
+        "value": "CDG",
+        "value02": "SC",
+        "url": ""
+      },
+      {
+        "text": "Sichuan Airlines",
+        "value": "CSC",
+        "value02": "3U",
+        "url": ""
+      },
+      {
+        "text": "Virgin Atlantic Airways",
+        "value": "VIR",
+        "value02": "VS",
+        "url": ""
+      }
+    ]
+  },
+  "ko": {
+    "items": [
+      {
+        "text": "전일본공수",
+        "value": "ANA",
+        "value02": "NH",
+        "url": "https:\/\/www.ana.co.jp\/en\/jp\/"
+      },
+      {
+        "text": "일본항공",
+        "value": "JAL",
+        "value02": "JL",
+        "url": "https:\/\/www.jal.co.jp\/kr\/ko\/?city=SEL"
+      },
+      {
+        "text": "피치 항공",
+        "value": "APJ",
+        "value02": "MM",
+        "url": "https:\/\/www.flypeach.com\/kr"
+      },
+      {
+        "text": "Aeroflot Russian Airlines",
+        "value": "AFL",
+        "value02": "SU",
+        "url": "https:\/\/www.aeroflot.ru\/kr-ko"
+      },
+      {
+        "text": "Air Asia X",
+        "value": "XAX",
+        "value02": "D7",
+        "url": "https:\/\/www.airasia.com\/ko\/kr"
+      },
+      {
+        "text": "Air India",
+        "value": "AIC",
+        "value02": "AI",
+        "url": "https:\/\/www.airindia.com\/"
+      },
+      {
+        "text": "Air Canada",
+        "value": "ACA",
+        "value02": "AC",
+        "url": "https:\/\/www.aircanada.com\/home\/kr\/ko\/aco\/flights"
+      },
+      {
+        "text": "Air China",
+        "value": "CCA",
+        "value02": "CA",
+        "url": "https:\/\/www.airchina.kr\/KR\/KO\/Home"
+      },
+      {
+        "text": "Air France",
+        "value": "AFR",
+        "value02": "AF",
+        "url": "https:\/\/wwws.airfrance.co.kr"
+      },
+      {
+        "text": "Air New Zealand",
+        "value": "ANZ",
+        "value02": "NZ",
+        "url": "https:\/\/www.airnewzealand.co.kr\/"
+      },
+      {
+        "text": "Alaska Airlines",
+        "value": "ASA",
+        "value02": "AS",
+        "url": "https:\/\/www.alaskaair.com\/"
+      },
+      {
+        "text": "American Airlines",
+        "value": "AAL",
+        "value02": "AA",
+        "url": "https:\/\/www.american-airlines.co.kr\/intl\/kr\/"
+      },
+      {
+        "text": "Asiana Airlines",
+        "value": "AAR",
+        "value02": "OZ",
+        "url": "https:\/\/flyasiana.com\/C\/KR\/KO\/index"
+      },
+      {
+        "text": "Austrian Airlines",
+        "value": "AUA",
+        "value02": "OS",
+        "url": "https:\/\/www.austrian.com\/"
+      },
+      {
+        "text": "Bangkok Airways",
+        "value": "BKP",
+        "value02": "PG",
+        "url": "https:\/\/www.bangkokair.com\/"
+      },
+      {
+        "text": "British Airways",
+        "value": "BAW",
+        "value02": "BA",
+        "url": "https:\/\/www.britishairways.com\/travel\/home\/public\/en_kr\/"
+      },
+      {
+        "text": "Cathay Pacific Airways",
+        "value": "CPA",
+        "value02": "CX",
+        "url": "https:\/\/www.cathaypacific.com\/cx\/ko_KR.html"
+      },
+      {
+        "text": "China Airlines",
+        "value": "CAL",
+        "value02": "CI",
+        "url": "https:\/\/www.china-airlines.com\/kr\/ko"
+      },
+      {
+        "text": "China Eastern Airlines",
+        "value": "CES",
+        "value02": "MU",
+        "url": "https:\/\/kr.ceair.com\/ko\/"
+      },
+      {
+        "text": "China Southern Airlines",
+        "value": "CSN",
+        "value02": "CZ",
+        "url": "https:\/\/www.csair.com\/kr\/ko\/"
+      },
+      {
+        "text": "Delta Air Lines",
+        "value": "DAL",
+        "value02": "DL",
+        "url": "https:\/\/ko.delta.com\/kr\/ko"
+      },
+      {
+        "text": "EGYPTAIR",
+        "value": "MSR",
+        "value02": "MS",
+        "url": "https:\/\/www.egyptair.com\/en\/pages\/homepage.aspx"
+      },
+      {
+        "text": "Emirates",
+        "value": "UAE",
+        "value02": "EK",
+        "url": "https:\/\/www.emirates.com\/kr\/korean\/"
+      },
+      {
+        "text": "Ethiopian Airlones",
+        "value": "ETH",
+        "value02": "ET",
+        "url": "https:\/\/www.ethiopianairlines.com\/kr\/"
+      },
+      {
+        "text": "Eva Air",
+        "value": "EVA",
+        "value02": "BR",
+        "url": "https:\/\/www.evaair.com\/ko-kr\/index.html"
+      },
+      {
+        "text": "Fiji Airways",
+        "value": "FJI",
+        "value02": "FJ",
+        "url": "https:\/\/www.fijiairways.com\/en-jp\/"
+      },
+      {
+        "text": "Finnair",
+        "value": "FIN",
+        "value02": "AY",
+        "url": "https:\/\/www.finnair.com\/kr-ko"
+      },
+      {
+        "text": "Garuda Indonesia",
+        "value": "GIA",
+        "value02": "GA",
+        "url": "https:\/\/www.garuda-indonesia.com\/kr\/ko"
+      },
+      {
+        "text": "Hainan Airlines",
+        "value": "CHH",
+        "value02": "HU",
+        "url": "https:\/\/www.hainanairlines.com\/GB\/GB\/Home"
+      },
+      {
+        "text": "Hawaiian Airlines",
+        "value": "HAL",
+        "value02": "HA",
+        "url": "https:\/\/www.hawaiianairlines.com\/ko-kr\/"
+      },
+      {
+        "text": "HK Express",
+        "value": "HKE",
+        "value02": "UO",
+        "url": "https:\/\/www.hkexpress.com\/ko"
+      },
+      {
+        "text": "ITA Airways",
+        "value": "ITY",
+        "value02": "AZ",
+        "url": "https:\/\/www.ita-airways.com\/gb\/en\/homepage"
+      },
+      {
+        "text": "Juneyao Airlines",
+        "value": "DKH",
+        "value02": "HO",
+        "url": "https:\/\/global.juneyaoair.com\/"
+      },
+      {
+        "text": "KLM-Royal Dutch Airlines",
+        "value": "KLM",
+        "value02": "KL",
+        "url": "https:\/\/www.klm.com\/home\/kr\/ko"
+      },
+      {
+        "text": "Korean Air",
+        "value": "KAL",
+        "value02": "KE",
+        "url": "https:\/\/www.koreanair.com\/"
+      },
+      {
+        "text": "LATAM Airlines (LAN)",
+        "value": "LAN",
+        "value02": "LA",
+        "url": "https:\/\/www.latam.com\/en_un\/"
+      },
+      {
+        "text": "LATAM Airlines (TAM)",
+        "value": "TAM",
+        "value02": "JJ",
+        "url": "https:\/\/www.latam.com\/en_un\/"
+      },
+      {
+        "text": "Lufthansa German Airlines",
+        "value": "DLH",
+        "value02": "LH",
+        "url": "https:\/\/www.lufthansa.com\/kr\/ko\/homepage"
+      },
+      {
+        "text": "Malaysia Airlines",
+        "value": "MAS",
+        "value02": "MH",
+        "url": "https:\/\/www.malaysiaairlines.com\/kr\/ko.html"
+      },
+      {
+        "text": "Okay Airways",
+        "value": "OKA",
+        "value02": "BK",
+        "url": "https:\/\/www.okair.net\/#\/"
+      },
+      {
+        "text": "Philippine Airlines",
+        "value": "PAL",
+        "value02": "PR",
+        "url": "http:\/\/www.philippineair.co.kr\/ko\/"
+      },
+      {
+        "text": "Qantas Airways Limited",
+        "value": "QFA",
+        "value02": "QF",
+        "url": "https:\/\/www.qantas.com\/kr\/en.html"
+      },
+      {
+        "text": "Qatar Airways",
+        "value": "QTR",
+        "value02": "QR",
+        "url": "https:\/\/www.qatarairways.com\/ko-kr\/homepage.html"
+      },
+      {
+        "text": "Scandinavian Airlines",
+        "value": "SAS",
+        "value02": "SK",
+        "url": "https:\/\/www.flysas.com\/en\/"
+      },
+      {
+        "text": "Scoot",
+        "value": "TGW",
+        "value02": "TR",
+        "url": "https:\/\/www.flyscoot.com\/ko"
+      },
+      {
+        "text": "Shanghai Airlines",
+        "value": "CSH",
+        "value02": "FM",
+        "url": "https:\/\/kr.ceair.com\/ko\/"
+      },
+      {
+        "text": "S7 Airlines",
+        "value": "SBI",
+        "value02": "S7",
+        "url": "https:\/\/www.s7.ru\/en\/"
+      },
+      {
+        "text": "Singapore Airlines",
+        "value": "SIA",
+        "value02": "SQ",
+        "url": "https:\/\/www.singaporeair.com\/ko_KR\/kr\/home#\/book\/bookflight"
+      },
+      {
+        "text": "Shenzhen Airlines",
+        "value": "CSZ",
+        "value02": "ZH",
+        "url": "https:\/\/global.shenzhenair.com\/zhair\/ibe\/common\/flightSearch.do"
+      },
+      {
+        "text": "South Africa Airways",
+        "value": "SAA",
+        "value02": "SA",
+        "url": "https:\/\/www.flysaa.com\/"
+      },
+      {
+        "text": "Spring Airlines",
+        "value": "CQH",
+        "value02": "9C",
+        "url": "https:\/\/kr.ch.com\/"
+      },
+      {
+        "text": "SriLanKan Air",
+        "value": "ALK",
+        "value02": "UL",
+        "url": "https:\/\/www.srilankan.com\/en_uk\/go"
+      },
+      {
+        "text": "Thai Airways International",
+        "value": "THA",
+        "value02": "TG",
+        "url": "https:\/\/www.thaiairways.com\/ko_KR\/index.page"
+      },
+      {
+        "text": "Tianjin Airlines",
+        "value": "GCR",
+        "value02": "GS",
+        "url": "https:\/\/www.tianjin-air.com\/"
+      },
+      {
+        "text": "Tigerair Taiwan",
+        "value": "TTW",
+        "value02": "IT",
+        "url": "https:\/\/www.tigerairtw.com\/kr\/"
+      },
+      {
+        "text": "Turkish Airlines",
+        "value": "THY",
+        "value02": "TK",
+        "url": "https:\/\/www.turkishairlines.com\/ko-int\/index.html"
+      },
+      {
+        "text": "United Airlines",
+        "value": "UAL",
+        "value02": "UA",
+        "url": "https:\/\/www.united.com\/ko\/kr"
+      },
+      {
+        "text": "VietJet Air",
+        "value": "VJC",
+        "value02": "VJ",
+        "url": "https:\/\/www.vietjetair.com\/Sites\/Web\/ko-KR\/Home"
+      },
+      {
+        "text": "Vietnam Airlines",
+        "value": "HVN",
+        "value02": "VN",
+        "url": "https:\/\/www.vietnamairlines.com\/kr\/ko\/home"
+      },
+      {
+        "text": "Virgin Australia Airlines",
+        "value": "VOZ",
+        "value02": "VA",
+        "url": "https:\/\/www.virginaustralia.com"
+      },
+      {
+        "text": "XIAMEN AIRLINES",
+        "value": "CXA",
+        "value02": "MF",
+        "url": "https:\/\/www.xiamenair.com\/ko-kr\/"
+      },
+      {
+        "text": "Aero K Airlines",
+        "value": "EOK",
+        "value02": "RF",
+        "url": "https:\/\/www.aerok.com\/ko-KR"
+      },
+      {
+        "text": "Air Astana",
+        "value": "KZR",
+        "value02": "KC",
+        "url": "https:\/\/airastana.com\/kor-ko"
+      },
+      {
+        "text": "EL AL ISRAEL",
+        "value": "ELY",
+        "value02": "LY",
+        "url": ""
+      },
+      {
+        "text": "Flexflight",
+        "value": "FXT",
+        "value02": "W2",
+        "url": ""
+      },
+      {
+        "text": "Iberia",
+        "value": "IBE",
+        "value02": "IB",
+        "url": ""
+      },
+      {
+        "text": "IndiGo",
+        "value": "IGO",
+        "value02": "6E",
+        "url": ""
+      },
+      {
+        "text": "Saudi Arabian Airlines",
+        "value": "SVA",
+        "value02": "SV",
+        "url": ""
+      },
+      {
+        "text": "Shandong Airlines",
+        "value": "CDG",
+        "value02": "SC",
+        "url": ""
+      },
+      {
+        "text": "Sichuan Airlines",
+        "value": "CSC",
+        "value02": "3U",
+        "url": ""
+      },
+      {
+        "text": "Virgin Atlantic Airways",
+        "value": "VIR",
+        "value02": "VS",
+        "url": ""
+      }
+    ]
+  },
+  "zh-Hans": {
+    "items": [
+      {
+        "text": "全日空航空公司",
+        "value": "ANA",
+        "value02": "NH",
+        "url": "https:\/\/www.ana.co.jp\/en\/jp\/"
+      },
+      {
+        "text": "日本航空公司",
+        "value": "JAL",
+        "value02": "JL",
+        "url": "https:\/\/www.jal.co.jp\/cn\/zhcn\/?city=BJS"
+      },
+      {
+        "text": "楽桃航空",
+        "value": "APJ",
+        "value02": "MM",
+        "url": "https:\/\/www.flypeach.com\/cn"
+      },
+      {
+        "text": "Aeroflot Russian Airlines",
+        "value": "AFL",
+        "value02": "SU",
+        "url": "https:\/\/www.aeroflot.ru\/ru-zh"
+      },
+      {
+        "text": "Air Asia X",
+        "value": "XAX",
+        "value02": "D7",
+        "url": "https:\/\/www.airasia.com\/zh\/cn"
+      },
+      {
+        "text": "Air India",
+        "value": "AIC",
+        "value02": "AI",
+        "url": "https:\/\/www.airindia.com\/"
+      },
+      {
+        "text": "Air Canada",
+        "value": "ACA",
+        "value02": "AC",
+        "url": "https:\/\/www.aircanada.com\/home\/cn\/zh\/aco\/flights"
+      },
+      {
+        "text": "Air China",
+        "value": "CCA",
+        "value02": "CA",
+        "url": "http:\/\/www.airchina.com.cn\/"
+      },
+      {
+        "text": "Air France",
+        "value": "AFR",
+        "value02": "AF",
+        "url": "https:\/\/www.airfrance.com.cn"
+      },
+      {
+        "text": "Air New Zealand",
+        "value": "ANZ",
+        "value02": "NZ",
+        "url": "https:\/\/www.airnewzealand.cn\/"
+      },
+      {
+        "text": "Alaska Airlines",
+        "value": "ASA",
+        "value02": "AS",
+        "url": "https:\/\/www.alaskaair.com\/"
+      },
+      {
+        "text": "American Airlines",
+        "value": "AAL",
+        "value02": "AA",
+        "url": "https:\/\/www.americanairlines.cn\/intl\/cn\/"
+      },
+      {
+        "text": "Asiana Airlines",
+        "value": "AAR",
+        "value02": "OZ",
+        "url": "https:\/\/flyasiana.com\/C\/CN\/CH\/index"
+      },
+      {
+        "text": "Austrian Airlines",
+        "value": "AUA",
+        "value02": "OS",
+        "url": "https:\/\/www.austrian.com\/"
+      },
+      {
+        "text": "Bangkok Airways",
+        "value": "BKP",
+        "value02": "PG",
+        "url": "https:\/\/cn.bangkokair.com\/"
+      },
+      {
+        "text": "British Airways",
+        "value": "BAW",
+        "value02": "BA",
+        "url": "https:\/\/www.britishairways.com\/travel\/home\/public\/zh_cn\/"
+      },
+      {
+        "text": "Cathay Pacific Airways",
+        "value": "CPA",
+        "value02": "CX",
+        "url": "https:\/\/www.cathaypacific.com\/cx\/sc_CN.html"
+      },
+      {
+        "text": "China Airlines",
+        "value": "CAL",
+        "value02": "CI",
+        "url": "https:\/\/www.china-airlines.com\/cn\/zh"
+      },
+      {
+        "text": "China Eastern Airlines",
+        "value": "CES",
+        "value02": "MU",
+        "url": "https:\/\/www.ceair.com\/"
+      },
+      {
+        "text": "China Southern Airlines",
+        "value": "CSN",
+        "value02": "CZ",
+        "url": "https:\/\/www.csair.com\/tw\/zh\/"
+      },
+      {
+        "text": "Delta Air Lines",
+        "value": "DAL",
+        "value02": "DL",
+        "url": "https:\/\/zh.delta.com\/cn\/zh"
+      },
+      {
+        "text": "EGYPTAIR",
+        "value": "MSR",
+        "value02": "MS",
+        "url": "https:\/\/www.egyptair.com\/en\/pages\/homepage.aspx"
+      },
+      {
+        "text": "Emirates",
+        "value": "UAE",
+        "value02": "EK",
+        "url": "https:\/\/www.emirates.com\/cn\/chinese\/"
+      },
+      {
+        "text": "Ethiopian Airlones",
+        "value": "ETH",
+        "value02": "ET",
+        "url": "https:\/\/www.ethiopianairlines.com\/cn\/zh"
+      },
+      {
+        "text": "Eva Air",
+        "value": "EVA",
+        "value02": "BR",
+        "url": "https:\/\/www.evaair.com\/sc-cn\/index.html"
+      },
+      {
+        "text": "Fiji Airways",
+        "value": "FJI",
+        "value02": "FJ",
+        "url": "https:\/\/www.fijiairways.com\/sc-cn\/"
+      },
+      {
+        "text": "Finnair",
+        "value": "FIN",
+        "value02": "AY",
+        "url": "https:\/\/www.finnair.com\/cn-zh"
+      },
+      {
+        "text": "Garuda Indonesia",
+        "value": "GIA",
+        "value02": "GA",
+        "url": "https:\/\/www.garuda-indonesia.com\/cn\/cn"
+      },
+      {
+        "text": "Hainan Airlines",
+        "value": "CHH",
+        "value02": "HU",
+        "url": "https:\/\/www.hainanairlines.com\/CN\/CN\/Home"
+      },
+      {
+        "text": "Hawaiian Airlines",
+        "value": "HAL",
+        "value02": "HA",
+        "url": "https:\/\/www.hawaiianairlines.com\/"
+      },
+      {
+        "text": "HK Express",
+        "value": "HKE",
+        "value02": "UO",
+        "url": "https:\/\/www.hkexpress.com\/zh-CN"
+      },
+      {
+        "text": "ITA Airways",
+        "value": "ITY",
+        "value02": "AZ",
+        "url": "https:\/\/www.ita-airways.com\/gb\/en\/homepage"
+      },
+      {
+        "text": "Juneyao Airlines",
+        "value": "DKH",
+        "value02": "HO",
+        "url": "http:\/\/www.juneyaoair.com\/"
+      },
+      {
+        "text": "KLM-Royal Dutch Airlines",
+        "value": "KLM",
+        "value02": "KL",
+        "url": "https:\/\/www.klm.com\/home\/cn\/cn"
+      },
+      {
+        "text": "Korean Air",
+        "value": "KAL",
+        "value02": "KE",
+        "url": "https:\/\/www.koreanair.com\/"
+      },
+      {
+        "text": "LATAM Airlines (LAN)",
+        "value": "LAN",
+        "value02": "LA",
+        "url": "https:\/\/www.latam.com\/en_un\/"
+      },
+      {
+        "text": "LATAM Airlines (TAM)",
+        "value": "TAM",
+        "value02": "JJ",
+        "url": "https:\/\/www.latam.com\/en_un\/"
+      },
+      {
+        "text": "Lufthansa German Airlines",
+        "value": "DLH",
+        "value02": "LH",
+        "url": "https:\/\/www.lufthansa.com\/cn\/zh\/homepage"
+      },
+      {
+        "text": "Malaysia Airlines",
+        "value": "MAS",
+        "value02": "MH",
+        "url": "https:\/\/www.malaysiaairlines.com\/cn\/zh_CN.html"
+      },
+      {
+        "text": "Okay Airways",
+        "value": "OKA",
+        "value02": "BK",
+        "url": "https:\/\/www.okair.net\/#\/"
+      },
+      {
+        "text": "Philippine Airlines",
+        "value": "PAL",
+        "value02": "PR",
+        "url": "https:\/\/www.philippineairlines.com\/cn\/en\/home.html"
+      },
+      {
+        "text": "Qantas Airways Limited",
+        "value": "QFA",
+        "value02": "QF",
+        "url": "https:\/\/www.qantas.com\/cn\/zh_CN.html"
+      },
+      {
+        "text": "Qatar Airways",
+        "value": "QTR",
+        "value02": "QR",
+        "url": "https:\/\/www.qatarairways.com\/zh-cn\/homepage.html"
+      },
+      {
+        "text": "Scandinavian Airlines",
+        "value": "SAS",
+        "value02": "SK",
+        "url": "https:\/\/www.flysas.com\/cn-zh\/"
+      },
+      {
+        "text": "Scoot",
+        "value": "TGW",
+        "value02": "TR",
+        "url": "https:\/\/www.flyscoot.com\/zh"
+      },
+      {
+        "text": "Shanghai Airlines",
+        "value": "CSH",
+        "value02": "FM",
+        "url": "https:\/\/www.ceair.com\/"
+      },
+      {
+        "text": "S7 Airlines",
+        "value": "SBI",
+        "value02": "S7",
+        "url": "https:\/\/www.s7.ru\/zh\/"
+      },
+      {
+        "text": "Singapore Airlines",
+        "value": "SIA",
+        "value02": "SQ",
+        "url": "https:\/\/www.singaporeair.com\/zh_CN\/cn\/home#\/book\/bookflight"
+      },
+      {
+        "text": "Shenzhen Airlines",
+        "value": "CSZ",
+        "value02": "ZH",
+        "url": "http:\/\/www.shenzhenair.com\/"
+      },
+      {
+        "text": "South Africa Airways",
+        "value": "SAA",
+        "value02": "SA",
+        "url": "https:\/\/www.flysaa.com\/"
+      },
+      {
+        "text": "Spring Airlines",
+        "value": "CQH",
+        "value02": "9C",
+        "url": "https:\/\/www.ch.com\/"
+      },
+      {
+        "text": "SriLanKan Air",
+        "value": "ALK",
+        "value02": "UL",
+        "url": "https:\/\/www.srilankan.com\/zh_cn\/cn"
+      },
+      {
+        "text": "Thai Airways International",
+        "value": "THA",
+        "value02": "TG",
+        "url": "https:\/\/www.thaiairways.com\/zh_CN\/index.page"
+      },
+      {
+        "text": "Tianjin Airlines",
+        "value": "GCR",
+        "value02": "GS",
+        "url": "https:\/\/www.tianjin-air.com\/"
+      },
+      {
+        "text": "Tigerair Taiwan",
+        "value": "TTW",
+        "value02": "IT",
+        "url": "https:\/\/www.tigerairtw.com\/en\/"
+      },
+      {
+        "text": "Turkish Airlines",
+        "value": "THY",
+        "value02": "TK",
+        "url": "https:\/\/www.turkishairlines.com\/zh-int\/index.html"
+      },
+      {
+        "text": "United Airlines",
+        "value": "UAL",
+        "value02": "UA",
+        "url": "https:\/\/www.united.com\/zh-hans\/cn"
+      },
+      {
+        "text": "VietJet Air",
+        "value": "VJC",
+        "value02": "VJ",
+        "url": "https:\/\/www.vietjetair.com\/Sites\/Web\/zh-CN\/Home"
+      },
+      {
+        "text": "Vietnam Airlines",
+        "value": "HVN",
+        "value02": "VN",
+        "url": "https:\/\/www.vietnamairlines.com\/cn\/zh\/home"
+      },
+      {
+        "text": "Virgin Australia Airlines",
+        "value": "VOZ",
+        "value02": "VA",
+        "url": "https:\/\/www.virginaustralia.com"
+      },
+      {
+        "text": "XIAMEN AIRLINES",
+        "value": "CXA",
+        "value02": "MF",
+        "url": "https:\/\/www.xiamenair.com\/zh-cn\/home.html"
+      },
+      {
+        "text": "Aero K Airlines",
+        "value": "EOK",
+        "value02": "RF",
+        "url": "https:\/\/www.aerok.com\/zh-CN"
+      },
+      {
+        "text": "Air Astana",
+        "value": "KZR",
+        "value02": "KC",
+        "url": "https:\/\/airastana.com\/chn-zh"
+      },
+      {
+        "text": "EL AL ISRAEL",
+        "value": "ELY",
+        "value02": "LY",
+        "url": ""
+      },
+      {
+        "text": "Flexflight",
+        "value": "FXT",
+        "value02": "W2",
+        "url": ""
+      },
+      {
+        "text": "Iberia",
+        "value": "IBE",
+        "value02": "IB",
+        "url": "https:\/\/www.iberia.com\/cn\/?language=zh"
+      },
+      {
+        "text": "IndiGo",
+        "value": "IGO",
+        "value02": "6E",
+        "url": ""
+      },
+      {
+        "text": "Saudi Arabian Airlines",
+        "value": "SVA",
+        "value02": "SV",
+        "url": ""
+      },
+      {
+        "text": "Shandong Airlines",
+        "value": "CDG",
+        "value02": "SC",
+        "url": ""
+      },
+      {
+        "text": "Sichuan Airlines",
+        "value": "CSC",
+        "value02": "3U",
+        "url": ""
+      },
+      {
+        "text": "Virgin Atlantic Airways",
+        "value": "VIR",
+        "value02": "VS",
+        "url": ""
+      }
+    ]
+  },
+  "zh-Hant": {
+    "items": [
+      {
+        "text": "全日空",
+        "value": "ANA",
+        "value02": "NH",
+        "url": "https:\/\/www.ana.co.jp\/en\/jp\/"
+      },
+      {
+        "text": "日本航空",
+        "value": "JAL",
+        "value02": "JL",
+        "url": "https:\/\/www.jal.co.jp\/tw\/zhtw\/?city=TPE"
+      },
+      {
+        "text": "樂桃航空",
+        "value": "APJ",
+        "value02": "MM",
+        "url": "https:\/\/www.flypeach.com\/tw"
+      },
+      {
+        "text": "Aeroflot Russian Airlines",
+        "value": "AFL",
+        "value02": "SU",
+        "url": "https:\/\/www.aeroflot.ru\/ru-en"
+      },
+      {
+        "text": "Air Asia X",
+        "value": "XAX",
+        "value02": "D7",
+        "url": "https:\/\/www.airasia.com\/zh\/tw"
+      },
+      {
+        "text": "Air India",
+        "value": "AIC",
+        "value02": "AI",
+        "url": "https:\/\/www.airindia.com\/"
+      },
+      {
+        "text": "Air Canada",
+        "value": "ACA",
+        "value02": "AC",
+        "url": "https:\/\/www.aircanada.com\/home\/tw\/zh\/aco\/flights"
+      },
+      {
+        "text": "Air China",
+        "value": "CCA",
+        "value02": "CA",
+        "url": "https:\/\/www.airchina.com.tw\/TW\/TW\/Home"
+      },
+      {
+        "text": "Air France",
+        "value": "AFR",
+        "value02": "AF",
+        "url": "https:\/\/wwws.airfrance.com.tw"
+      },
+      {
+        "text": "Air New Zealand",
+        "value": "ANZ",
+        "value02": "NZ",
+        "url": "https:\/\/www.airnewzealand.tw\/"
+      },
+      {
+        "text": "Alaska Airlines",
+        "value": "ASA",
+        "value02": "AS",
+        "url": "https:\/\/www.alaskaair.com\/"
+      },
+      {
+        "text": "American Airlines",
+        "value": "AAL",
+        "value02": "AA",
+        "url": "https:\/\/www.aa.com\/i18n\/index.jsp?locale=zh_HK"
+      },
+      {
+        "text": "Asiana Airlines",
+        "value": "AAR",
+        "value02": "OZ",
+        "url": "https:\/\/flyasiana.com\/C\/HK\/ZH\/index"
+      },
+      {
+        "text": "Austrian Airlines",
+        "value": "AUA",
+        "value02": "OS",
+        "url": "https:\/\/www.austrian.com\/"
+      },
+      {
+        "text": "Bangkok Airways",
+        "value": "BKP",
+        "value02": "PG",
+        "url": "https:\/\/tw.bangkokair.com\/"
+      },
+      {
+        "text": "British Airways",
+        "value": "BAW",
+        "value02": "BA",
+        "url": "https:\/\/www.britishairways.com\/travel\/home\/public\/en_tw\/"
+      },
+      {
+        "text": "Cathay Pacific Airways",
+        "value": "CPA",
+        "value02": "CX",
+        "url": "https:\/\/www.cathaypacific.com\/cx\/zh_HK.html"
+      },
+      {
+        "text": "China Airlines",
+        "value": "CAL",
+        "value02": "CI",
+        "url": "https:\/\/www.china-airlines.com\/tw\/zh"
+      },
+      {
+        "text": "China Eastern Airlines",
+        "value": "CES",
+        "value02": "MU",
+        "url": "https:\/\/tw.ceair.com\/hk\/"
+      },
+      {
+        "text": "China Southern Airlines",
+        "value": "CSN",
+        "value02": "CZ",
+        "url": "https:\/\/www.csair.com\/tw\/tc\/"
+      },
+      {
+        "text": "Delta Air Lines",
+        "value": "DAL",
+        "value02": "DL",
+        "url": "https:\/\/zt.delta.com\/apac\/zt"
+      },
+      {
+        "text": "EGYPTAIR",
+        "value": "MSR",
+        "value02": "MS",
+        "url": "https:\/\/www.egyptair.com\/en\/pages\/homepage.aspx"
+      },
+      {
+        "text": "Emirates",
+        "value": "UAE",
+        "value02": "EK",
+        "url": "https:\/\/www.emirates.com\/tw\/chinese\/"
+      },
+      {
+        "text": "Ethiopian Airlones",
+        "value": "ETH",
+        "value02": "ET",
+        "url": "https:\/\/www.ethiopianairlines.com\/aa"
+      },
+      {
+        "text": "Eva Air",
+        "value": "EVA",
+        "value02": "BR",
+        "url": "https:\/\/www.evaair.com\/zh-tw\/index.html"
+      },
+      {
+        "text": "Fiji Airways",
+        "value": "FJI",
+        "value02": "FJ",
+        "url": "https:\/\/www.fijiairways.com\/zh-tw\/"
+      },
+      {
+        "text": "Finnair",
+        "value": "FIN",
+        "value02": "AY",
+        "url": "https:\/\/www.finnair.com\/hk-zh"
+      },
+      {
+        "text": "Garuda Indonesia",
+        "value": "GIA",
+        "value02": "GA",
+        "url": "https:\/\/www.garuda-indonesia.com\/hk\/zh"
+      },
+      {
+        "text": "Hainan Airlines",
+        "value": "CHH",
+        "value02": "HU",
+        "url": "https:\/\/www.hainanairlines.com\/TW\/TW\/Home"
+      },
+      {
+        "text": "Hawaiian Airlines",
+        "value": "HAL",
+        "value02": "HA",
+        "url": "https:\/\/www.hawaiianairlines.com\/"
+      },
+      {
+        "text": "HK Express",
+        "value": "HKE",
+        "value02": "UO",
+        "url": "https:\/\/www.hkexpress.com\/zh-HK"
+      },
+      {
+        "text": "ITA Airways",
+        "value": "ITY",
+        "value02": "AZ",
+        "url": "https:\/\/www.ita-airways.com\/gb\/en\/homepage"
+      },
+      {
+        "text": "Juneyao Airlines",
+        "value": "DKH",
+        "value02": "HO",
+        "url": "https:\/\/global.juneyaoair.com\/"
+      },
+      {
+        "text": "KLM-Royal Dutch Airlines",
+        "value": "KLM",
+        "value02": "KL",
+        "url": "https:\/\/www.klm.com\/home\/tw\/tw"
+      },
+      {
+        "text": "Korean Air",
+        "value": "KAL",
+        "value02": "KE",
+        "url": "https:\/\/www.koreanair.com\/"
+      },
+      {
+        "text": "LATAM Airlines (LAN)",
+        "value": "LAN",
+        "value02": "LA",
+        "url": "https:\/\/www.latam.com\/en_un\/"
+      },
+      {
+        "text": "LATAM Airlines (TAM)",
+        "value": "TAM",
+        "value02": "JJ",
+        "url": "https:\/\/www.latam.com\/en_un\/"
+      },
+      {
+        "text": "Lufthansa German Airlines",
+        "value": "DLH",
+        "value02": "LH",
+        "url": "https:\/\/www.lufthansa.com\/tw\/hk\/homepage"
+      },
+      {
+        "text": "Malaysia Airlines",
+        "value": "MAS",
+        "value02": "MH",
+        "url": "https:\/\/www.malaysiaairlines.com\/hk\/zh_HK.html"
+      },
+      {
+        "text": "Okay Airways",
+        "value": "OKA",
+        "value02": "BK",
+        "url": "https:\/\/www.okair.net\/#\/"
+      },
+      {
+        "text": "Philippine Airlines",
+        "value": "PAL",
+        "value02": "PR",
+        "url": "https:\/\/www.philippineairlines.com\/tw\/en\/home.html"
+      },
+      {
+        "text": "Qantas Airways Limited",
+        "value": "QFA",
+        "value02": "QF",
+        "url": "https:\/\/www.qantas.com\/tw\/zh_TW.html"
+      },
+      {
+        "text": "Qatar Airways",
+        "value": "QTR",
+        "value02": "QR",
+        "url": "https:\/\/www.qatarairways.com\/zh-hk\/homepage.html"
+      },
+      {
+        "text": "Scandinavian Airlines",
+        "value": "SAS",
+        "value02": "SK",
+        "url": "https:\/\/www.flysas.com\/en\/"
+      },
+      {
+        "text": "Scoot",
+        "value": "TGW",
+        "value02": "TR",
+        "url": "https:\/\/www.flyscoot.com\/zhtw"
+      },
+      {
+        "text": "Shanghai Airlines",
+        "value": "CSH",
+        "value02": "FM",
+        "url": "https:\/\/tw.ceair.com\/hk\/"
+      },
+      {
+        "text": "S7 Airlines",
+        "value": "SBI",
+        "value02": "S7",
+        "url": "https:\/\/www.s7.ru\/en\/"
+      },
+      {
+        "text": "Singapore Airlines",
+        "value": "SIA",
+        "value02": "SQ",
+        "url": "https:\/\/www.singaporeair.com\/zh_TW\/tw\/home#\/book\/bookflight"
+      },
+      {
+        "text": "Shenzhen Airlines",
+        "value": "CSZ",
+        "value02": "ZH",
+        "url": "https:\/\/global.shenzhenair.com\/zhair\/ibe\/common\/flightSearch.do"
+      },
+      {
+        "text": "South Africa Airways",
+        "value": "SAA",
+        "value02": "SA",
+        "url": "https:\/\/www.flysaa.com\/"
+      },
+      {
+        "text": "Spring Airlines",
+        "value": "CQH",
+        "value02": "9C",
+        "url": "https:\/\/hk.ch.com\/"
+      },
+      {
+        "text": "SriLanKan Air",
+        "value": "ALK",
+        "value02": "UL",
+        "url": "https:\/\/www.srilankan.com\/zh_cn\/tw"
+      },
+      {
+        "text": "Thai Airways International",
+        "value": "THA",
+        "value02": "TG",
+        "url": "https:\/\/www.thaiairways.com\/zh_TW\/index.page"
+      },
+      {
+        "text": "Tianjin Airlines",
+        "value": "GCR",
+        "value02": "GS",
+        "url": "https:\/\/www.tianjin-air.com\/"
+      },
+      {
+        "text": "Tigerair Taiwan",
+        "value": "TTW",
+        "value02": "IT",
+        "url": "https:\/\/www.tigerairtw.com\/zh-tw\/"
+      },
+      {
+        "text": "Turkish Airlines",
+        "value": "THY",
+        "value02": "TK",
+        "url": "https:\/\/www.turkishairlines.com\/zh-int\/index.html"
+      },
+      {
+        "text": "United Airlines",
+        "value": "UAL",
+        "value02": "UA",
+        "url": "https:\/\/www.united.com\/zh-hant\/tw"
+      },
+      {
+        "text": "VietJet Air",
+        "value": "VJC",
+        "value02": "VJ",
+        "url": "https:\/\/www.vietjetair.com\/Sites\/Web\/zh-TW\/Home"
+      },
+      {
+        "text": "Vietnam Airlines",
+        "value": "HVN",
+        "value02": "VN",
+        "url": "https:\/\/www.vietnamairlines.com\/tw\/zh-tw\/home"
+      },
+      {
+        "text": "Virgin Australia Airlines",
+        "value": "VOZ",
+        "value02": "VA",
+        "url": "https:\/\/www.virginaustralia.com"
+      },
+      {
+        "text": "XIAMEN AIRLINES",
+        "value": "CXA",
+        "value02": "MF",
+        "url": "https:\/\/www.xiamenair.com\/tw-tw\/"
+      },
+      {
+        "text": "Aero K Airlines",
+        "value": "EOK",
+        "value02": "RF",
+        "url": "https:\/\/www.aerok.com\/zh-TW"
+      },
+      {
+        "text": "Air Astana",
+        "value": "KZR",
+        "value02": "KC",
+        "url": "https:\/\/airastana.com\/chn-en"
+      },
+      {
+        "text": "EL AL ISRAEL",
+        "value": "ELY",
+        "value02": "LY",
+        "url": ""
+      },
+      {
+        "text": "Flexflight",
+        "value": "FXT",
+        "value02": "W2",
+        "url": ""
+      },
+      {
+        "text": "Iberia",
+        "value": "IBE",
+        "value02": "IB",
+        "url": ""
+      },
+      {
+        "text": "IndiGo",
+        "value": "IGO",
+        "value02": "6E",
+        "url": ""
+      },
+      {
+        "text": "Saudi Arabian Airlines",
+        "value": "SVA",
+        "value02": "SV",
+        "url": ""
+      },
+      {
+        "text": "Shandong Airlines",
+        "value": "CDG",
+        "value02": "SC",
+        "url": ""
+      },
+      {
+        "text": "Sichuan Airlines",
+        "value": "CSC",
+        "value02": "3U",
+        "url": ""
+      },
+      {
+        "text": "Virgin Atlantic Airways",
+        "value": "VIR",
+        "value02": "VS",
+        "url": ""
+      }
+    ]
+  }
+}

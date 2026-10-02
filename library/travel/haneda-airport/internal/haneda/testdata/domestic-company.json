@@ -1,0 +1,202 @@
+{
+  "ja": {
+    "items": [
+      {
+        "text": "日本航空",
+        "value": "JAL",
+        "value02": "JL",
+        "url": "https:\/\/www.jal.co.jp\/jp\/ja\/"
+      },
+      {
+        "text": "ANA",
+        "value": "ANA",
+        "value02": "NH",
+        "url": "https:\/\/www.ana.co.jp\/"
+      },
+      {
+        "text": "スカイマーク",
+        "value": "SKY",
+        "value02": "BC",
+        "url": "https:\/\/www.skymark.co.jp\/ja\/"
+      },
+      {
+        "text": "エア・ドゥ",
+        "value": "ADO",
+        "value02": "HD",
+        "url": "https:\/\/www.airdo.jp\/"
+      },
+      {
+        "text": "ソラシド エア",
+        "value": "SNJ",
+        "value02": "6J",
+        "url": "https:\/\/www.solaseedair.jp\/"
+      },
+      {
+        "text": "スターフライヤー",
+        "value": "SFJ",
+        "value02": "7G",
+        "url": "https:\/\/www.starflyer.jp\/"
+      }
+    ]
+  },
+  "en": {
+    "items": [
+      {
+        "text": "Japan Airlines",
+        "value": "JAL",
+        "value02": "JL",
+        "url": "https:\/\/www.jal.co.jp\/jp\/en\/?city=TYO"
+      },
+      {
+        "text": "ANA",
+        "value": "ANA",
+        "value02": "NH",
+        "url": "https:\/\/www.ana.co.jp\/en\/jp\/"
+      },
+      {
+        "text": "SKYMARK",
+        "value": "SKY",
+        "value02": "BC",
+        "url": "https:\/\/www.skymark.co.jp\/ja\/"
+      },
+      {
+        "text": "AIR DO",
+        "value": "ADO",
+        "value02": "HD",
+        "url": "https:\/\/www.airdo.jp\/"
+      },
+      {
+        "text": "Solaseed Air",
+        "value": "SNJ",
+        "value02": "6J",
+        "url": "https:\/\/www.solaseedair.jp\/"
+      },
+      {
+        "text": "Star Flyer",
+        "value": "SFJ",
+        "value02": "7G",
+        "url": "https:\/\/www.starflyer.jp\/"
+      }
+    ]
+  },
+  "ko": {
+    "items": [
+      {
+        "text": "일본항공",
+        "value": "JAL",
+        "value02": "JL",
+        "url": "https:\/\/www.jal.co.jp\/jp\/en\/?city=TYO"
+      },
+      {
+        "text": "전일본공수",
+        "value": "ANA",
+        "value02": "NH",
+        "url": "https:\/\/www.ana.co.jp\/en\/jp\/"
+      },
+      {
+        "text": "스카이마크",
+        "value": "SKY",
+        "value02": "BC",
+        "url": "https:\/\/www.skymark.co.jp\/ja\/"
+      },
+      {
+        "text": "에어두",
+        "value": "ADO",
+        "value02": "HD",
+        "url": "https:\/\/www.airdo.jp\/"
+      },
+      {
+        "text": "솔라시드에어",
+        "value": "SNJ",
+        "value02": "6J",
+        "url": "https:\/\/www.solaseedair.jp\/"
+      },
+      {
+        "text": "스타플라이어",
+        "value": "SFJ",
+        "value02": "7G",
+        "url": "https:\/\/www.starflyer.jp\/"
+      }
+    ]
+  },
+  "zh-Hans": {
+    "items": [
+      {
+        "text": "日本航空公司",
+        "value": "JAL",
+        "value02": "JL",
+        "url": "https:\/\/www.jal.co.jp\/jp\/en\/?city=TYO"
+      },
+      {
+        "text": "全日空航空公司",
+        "value": "ANA",
+        "value02": "NH",
+        "url": "https:\/\/www.ana.co.jp\/en\/jp\/"
+      },
+      {
+        "text": "日本天界航空",
+        "value": "SKY",
+        "value02": "BC",
+        "url": "https:\/\/www.skymark.co.jp\/ja\/"
+      },
+      {
+        "text": "AIR DO",
+        "value": "ADO",
+        "value02": "HD",
+        "url": "https:\/\/www.airdo.jp\/"
+      },
+      {
+        "text": "Solaseed Air",
+        "value": "SNJ",
+        "value02": "6J",
+        "url": "https:\/\/www.solaseedair.jp\/"
+      },
+      {
+        "text": "星悦航空",
+        "value": "SFJ",
+        "value02": "7G",
+        "url": "https:\/\/www.starflyer.jp\/"
+      }
+    ]
+  },
+  "zh-Hant": {
+    "items": [
+      {
+        "text": "日本航空",
+        "value": "JAL",
+        "value02": "JL",
+        "url": "https:\/\/www.jal.co.jp\/jp\/en\/?city=TYO"
+      },
+      {
+        "text": "全日空",
+        "value": "ANA",
+        "value02": "NH",
+        "url": "https:\/\/www.ana.co.jp\/en\/jp\/"
+      },
+      {
+        "text": "天馬航空",
+        "value": "SKY",
+        "value02": "BC",
+        "url": "https:\/\/www.skymark.co.jp\/ja\/"
+      },
+      {
+        "text": "AIR DO",
+        "value": "ADO",
+        "value02": "HD",
+        "url": "https:\/\/www.airdo.jp\/"
+      },
+      {
+        "text": "亞洲天網航空",
+        "value": "SNJ",
+        "value02": "6J",
+        "url": "https:\/\/www.solaseedair.jp\/"
+      },
+      {
+        "text": "星悅航空",
+        "value": "SFJ",
+        "value02": "7G",
+        "url": "https:\/\/www.starflyer.jp\/"
+      }
+    ]
+  }
+}

@@ -1,0 +1,859 @@
+name: haneda-airport
+description: Discovered API spec for tokyo-haneda
+version: 0.1.0
+base_url: https://www.tokyo-haneda.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/haneda-airport-pp-cli/config.toml
+resources:
+    app_resource:
+        description: Operations on hdacfdsc.json
+        endpoints:
+            list_hdacfasc.json:
+                method: GET
+                path: /app_resource/flight/data/dms/hdacfasc.json
+                description: GET /app_resource/flight/data/dms/hdacfasc.json
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: HdacfascJsonFlightInfo
+                pagination: null
+                response_path: flight_info
+            list_hdacfasc.json_2:
+                method: GET
+                path: /app_resource/flight/data/int/hdacfasc.json
+                description: GET /app_resource/flight/data/int/hdacfasc.json
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: HdacfascJsonFlightInfo2
+                pagination: null
+                response_path: flight_info
+            list_hdacfdsc.json:
+                method: GET
+                path: /app_resource/flight/data/dms/hdacfdsc.json
+                description: GET /app_resource/flight/data/dms/hdacfdsc.json
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: HdacfdscJsonFlightInfo
+                pagination: null
+                response_path: flight_info
+            list_hdacfdsc.json_2:
+                method: GET
+                path: /app_resource/flight/data/int/hdacfdsc.json
+                description: GET /app_resource/flight/data/int/hdacfdsc.json
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: HdacfdscJsonFlightInfo2
+                pagination: null
+                response_path: flight_info
+    en:
+        description: Operations on search
+        endpoints:
+            create_search:
+                method: POST
+                path: /en/app/api/v2/flight/search
+                description: POST /en/app/api/v2/flight/search
+                params: []
+                body:
+                    - name: airlineCodes
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: airportCodes
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: arrivalType
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: exactMatch
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: flightNumber
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: flightType
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: searchDt
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: status
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: array
+                    item: SearchFlightlist
+                pagination: null
+                response_path: flightlists
+            list_flight_status.json:
+                method: GET
+                path: /en/app_resource/flight/flightStatus/flight_status.json
+                description: GET /en/app_resource/flight/flightStatus/flight_status.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: FlightStatusJson
+                pagination: null
+    site_resource:
+        description: Operations on city_list_search.json
+        endpoints:
+            list_city_list_search.json:
+                method: GET
+                path: /site_resource/flight/data/dms/city_list_search.json
+                description: GET /site_resource/flight/data/dms/city_list_search.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: CityListSearchJson
+                pagination: null
+            list_city_list_search.json_2:
+                method: GET
+                path: /site_resource/flight/data/int/city_list_search.json
+                description: GET /site_resource/flight/data/int/city_list_search.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: CityListSearchJson2
+                pagination: null
+            list_company_list_search.json:
+                method: GET
+                path: /site_resource/flight/data/dms/company_list_search.json
+                description: GET /site_resource/flight/data/dms/company_list_search.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: CompanyListSearchJson
+                pagination: null
+            list_company_list_search.json_2:
+                method: GET
+                path: /site_resource/flight/data/int/company_list_search.json
+                description: GET /site_resource/flight/data/int/company_list_search.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: CompanyListSearchJson2
+                pagination: null
+types:
+    Airline:
+        fields:
+            - name: airline
+              type: string
+            - name: flightNumber
+              type: string
+            - name: icon_url
+              type: string
+            - name: link_url
+              type: string
+              format: url
+    Arrival:
+        fields:
+            - name: regions
+              type: array
+    Arrival2:
+        fields:
+            - name: regions
+              type: array
+    CityListSearchJson:
+        fields:
+            - name: en
+              type: ref:En
+            - name: ja
+              type: ref:Ja
+            - name: ko
+              type: ref:Ko
+            - name: zh-Hans
+              type: ref:ZhHans
+            - name: zh-Hant
+              type: ref:ZhHant
+    CityListSearchJson2:
+        fields:
+            - name: en
+              type: ref:En3
+            - name: ja
+              type: ref:Ja3
+            - name: ko
+              type: ref:Ko3
+            - name: zh-Hans
+              type: ref:ZhHans3
+            - name: zh-Hant
+              type: ref:ZhHant3
+    CompanyListSearchJson:
+        fields:
+            - name: en
+              type: ref:En2
+            - name: ja
+              type: ref:Ja2
+            - name: ko
+              type: ref:Ko2
+            - name: zh-Hans
+              type: ref:ZhHans2
+            - name: zh-Hant
+              type: ref:ZhHant2
+    CompanyListSearchJson2:
+        fields:
+            - name: en
+              type: ref:En4
+            - name: ja
+              type: ref:Ja4
+            - name: ko
+              type: ref:Ko4
+            - name: zh-Hans
+              type: ref:ZhHans4
+            - name: zh-Hant
+              type: ref:ZhHant4
+    Date:
+        fields:
+            - name: change_date
+              type: string
+            - name: display_date
+              type: string
+            - name: key
+              type: string
+    Departure:
+        fields:
+            - name: regions
+              type: array
+    Departure2:
+        fields:
+            - name: regions
+              type: array
+    DomesticFlights:
+        fields:
+            - name: arrival
+              type: ref:Arrival
+            - name: departure
+              type: ref:Departure
+    En:
+        fields:
+            - name: items
+              type: '[]ref:Item'
+    En2:
+        fields:
+            - name: items
+              type: '[]ref:Item6'
+    En3:
+        fields:
+            - name: items
+              type: '[]ref:Item11'
+    En4:
+        fields:
+            - name: items
+              type: '[]ref:Item16'
+    FlightStatusJson:
+        fields:
+            - name: domesticFlights
+              type: ref:DomesticFlights
+            - name: domesticTotalCount
+              type: integer
+            - name: gettingAt
+              type: string
+            - name: internationalFlights
+              type: ref:InternationalFlights
+            - name: internationalTotalCount
+              type: integer
+            - name: isOverLimit
+              type: bool
+            - name: modalPattern
+              type: string
+    HangKongHuiShe:
+        fields:
+            - name: 便名
+              type: string
+            - name: ＡＬコード
+              type: string
+            - name: ＡＬ和名称
+              type: string
+            - name: ＡＬ英名称
+              type: string
+    HangKongHuiShe2:
+        fields:
+            - name: 便名
+              type: string
+            - name: ＡＬコード
+              type: string
+            - name: ＡＬ和名称
+              type: string
+            - name: ＡＬ英名称
+              type: string
+    HangKongHuiShe3:
+        fields:
+            - name: 便名
+              type: string
+            - name: ＡＬコード
+              type: string
+            - name: ＡＬ和名称
+              type: string
+            - name: ＡＬ英名称
+              type: string
+    HangKongHuiShe4:
+        fields:
+            - name: 便名
+              type: string
+            - name: ＡＬコード
+              type: string
+            - name: ＡＬ和名称
+              type: string
+            - name: ＡＬ英名称
+              type: string
+    HdacfascJsonFlightInfo:
+        fields:
+            - name: 出発地方面コード
+              type: string
+            - name: 出発地方面和名称
+              type: string
+            - name: 出発地方面英名称
+              type: string
+            - name: 出発地空港コード
+              type: string
+            - name: 出発地空港和名称
+              type: string
+            - name: 出発地空港英名称
+              type: string
+            - name: 経由地空港コード
+              type: string
+            - name: 経由地空港和名称
+              type: string
+            - name: 経由地空港英名称
+              type: string
+            - name: 航空会社
+              type: '[]ref:HangKongHuiShe2'
+            - name: 行先地空港コード
+              type: string
+            - name: 行先地空港和名称
+              type: string
+            - name: 行先地空港英名称
+              type: string
+            - name: 運航曜日
+              type: ref:YunHangYaoRi2
+            - name: 運航終了日
+              type: string
+            - name: 運航開始日
+              type: string
+            - name: ＳＴＡ
+              type: string
+            - name: ＳＴＤ
+              type: string
+    HdacfascJsonFlightInfo2:
+        fields:
+            - name: 出発地方面コード
+              type: string
+            - name: 出発地方面和名称
+              type: string
+            - name: 出発地方面英名称
+              type: string
+            - name: 出発地空港コード
+              type: string
+            - name: 出発地空港和名称
+              type: string
+            - name: 出発地空港英名称
+              type: string
+            - name: 経由地空港コード
+              type: string
+            - name: 経由地空港和名称
+              type: string
+            - name: 経由地空港英名称
+              type: string
+            - name: 航空会社
+              type: '[]ref:HangKongHuiShe4'
+            - name: 行先地空港コード
+              type: string
+            - name: 行先地空港和名称
+              type: string
+            - name: 行先地空港英名称
+              type: string
+            - name: 運航曜日
+              type: ref:YunHangYaoRi4
+            - name: 運航終了日
+              type: string
+            - name: 運航開始日
+              type: string
+            - name: ＳＴＡ
+              type: string
+            - name: ＳＴＤ
+              type: string
+    HdacfdscJsonFlightInfo:
+        fields:
+            - name: 出発地空港コード
+              type: string
+            - name: 出発地空港和名称
+              type: string
+            - name: 出発地空港英名称
+              type: string
+            - name: 経由地空港コード
+              type: string
+            - name: 経由地空港和名称
+              type: string
+            - name: 経由地空港英名称
+              type: string
+            - name: 航空会社
+              type: '[]ref:HangKongHuiShe'
+            - name: 行先地方面コード
+              type: string
+            - name: 行先地方面和名称
+              type: string
+            - name: 行先地方面英名称
+              type: string
+            - name: 行先地空港コード
+              type: string
+            - name: 行先地空港和名称
+              type: string
+            - name: 行先地空港英名称
+              type: string
+            - name: 運航曜日
+              type: ref:YunHangYaoRi
+            - name: 運航終了日
+              type: string
+            - name: 運航開始日
+              type: string
+            - name: ＳＴＡ
+              type: string
+            - name: ＳＴＤ
+              type: string
+    HdacfdscJsonFlightInfo2:
+        fields:
+            - name: 出発地空港コード
+              type: string
+            - name: 出発地空港和名称
+              type: string
+            - name: 出発地空港英名称
+              type: string
+            - name: 経由地空港コード
+              type: string
+            - name: 経由地空港和名称
+              type: string
+            - name: 経由地空港英名称
+              type: string
+            - name: 航空会社
+              type: '[]ref:HangKongHuiShe3'
+            - name: 行先地方面コード
+              type: string
+            - name: 行先地方面和名称
+              type: string
+            - name: 行先地方面英名称
+              type: string
+            - name: 行先地空港コード
+              type: string
+            - name: 行先地空港和名称
+              type: string
+            - name: 行先地空港英名称
+              type: string
+            - name: 運航曜日
+              type: ref:YunHangYaoRi3
+            - name: 運航終了日
+              type: string
+            - name: 運航開始日
+              type: string
+            - name: ＳＴＡ
+              type: string
+            - name: ＳＴＤ
+              type: string
+    InternationalFlights:
+        fields:
+            - name: arrival
+              type: ref:Arrival2
+            - name: departure
+              type: ref:Departure2
+    Item:
+        fields:
+            - name: children
+              type: array
+            - name: text
+              type: string
+    Item2:
+        fields:
+            - name: children
+              type: array
+            - name: text
+              type: string
+    Item3:
+        fields:
+            - name: children
+              type: array
+            - name: text
+              type: string
+    Item4:
+        fields:
+            - name: children
+              type: array
+            - name: text
+              type: string
+    Item5:
+        fields:
+            - name: children
+              type: array
+            - name: text
+              type: string
+    Item6:
+        fields:
+            - name: text
+              type: string
+            - name: url
+              type: string
+              format: url
+            - name: value
+              type: string
+            - name: value02
+              type: string
+    Item7:
+        fields:
+            - name: text
+              type: string
+            - name: url
+              type: string
+              format: url
+            - name: value
+              type: string
+            - name: value02
+              type: string
+    Item8:
+        fields:
+            - name: text
+              type: string
+            - name: url
+              type: string
+              format: url
+            - name: value
+              type: string
+            - name: value02
+              type: string
+    Item9:
+        fields:
+            - name: text
+              type: string
+            - name: url
+              type: string
+              format: url
+            - name: value
+              type: string
+            - name: value02
+              type: string
+    Item10:
+        fields:
+            - name: text
+              type: string
+            - name: url
+              type: string
+              format: url
+            - name: value
+              type: string
+            - name: value02
+              type: string
+    Item11:
+        fields:
+            - name: children
+              type: array
+            - name: text
+              type: string
+    Item12:
+        fields:
+            - name: children
+              type: array
+            - name: text
+              type: string
+    Item13:
+        fields:
+            - name: children
+              type: array
+            - name: text
+              type: string
+    Item14:
+        fields:
+            - name: children
+              type: array
+            - name: text
+              type: string
+    Item15:
+        fields:
+            - name: children
+              type: array
+            - name: text
+              type: string
+    Item16:
+        fields:
+            - name: text
+              type: string
+            - name: url
+              type: string
+              format: url
+            - name: value
+              type: string
+            - name: value02
+              type: string
+    Item17:
+        fields:
+            - name: text
+              type: string
+            - name: url
+              type: string
+              format: url
+            - name: value
+              type: string
+            - name: value02
+              type: string
+    Item18:
+        fields:
+            - name: text
+              type: string
+            - name: url
+              type: string
+              format: url
+            - name: value
+              type: string
+            - name: value02
+              type: string
+    Item19:
+        fields:
+            - name: text
+              type: string
+            - name: url
+              type: string
+              format: url
+            - name: value
+              type: string
+            - name: value02
+              type: string
+    Item20:
+        fields:
+            - name: text
+              type: string
+            - name: url
+              type: string
+              format: url
+            - name: value
+              type: string
+            - name: value02
+              type: string
+    Ja:
+        fields:
+            - name: items
+              type: '[]ref:Item2'
+    Ja2:
+        fields:
+            - name: items
+              type: '[]ref:Item7'
+    Ja3:
+        fields:
+            - name: items
+              type: '[]ref:Item12'
+    Ja4:
+        fields:
+            - name: items
+              type: '[]ref:Item17'
+    Ko:
+        fields:
+            - name: items
+              type: '[]ref:Item3'
+    Ko2:
+        fields:
+            - name: items
+              type: '[]ref:Item8'
+    Ko3:
+        fields:
+            - name: items
+              type: '[]ref:Item13'
+    Ko4:
+        fields:
+            - name: items
+              type: '[]ref:Item18'
+    Option:
+        fields:
+            - name: items
+              type: array
+            - name: title
+              type: string
+            - name: type
+              type: string
+    SearchFlightlist:
+        fields:
+            - name: airlines
+              type: '[]ref:Airline'
+            - name: area_name
+              type: string
+            - name: change_time
+              type: string
+            - name: date
+              type: ref:Date
+            - name: direction
+              type: string
+            - name: flightType
+              type: string
+            - name: on_time
+              type: string
+            - name: options
+              type: '[]ref:Option'
+            - name: status
+              type: ref:Status
+            - name: terminal
+              type: ref:Terminal
+            - name: via_area_name
+              type: string
+    Status:
+        fields:
+            - name: category
+              type: string
+            - name: color
+              type: string
+            - name: reason
+              type: string
+            - name: text
+              type: string
+    Terminal:
+        fields:
+            - name: hm_facility_id
+              type: string
+            - name: terminal
+              type: string
+    YunHangYaoRi:
+        fields:
+            - name: 土曜日
+              type: string
+            - name: 日曜日
+              type: string
+            - name: 月曜日
+              type: string
+            - name: 木曜日
+              type: string
+            - name: 毎日
+              type: string
+            - name: 水曜日
+              type: string
+            - name: 火曜日
+              type: string
+            - name: 金曜日
+              type: string
+    YunHangYaoRi2:
+        fields:
+            - name: 土曜日
+              type: string
+            - name: 日曜日
+              type: string
+            - name: 月曜日
+              type: string
+            - name: 木曜日
+              type: string
+            - name: 毎日
+              type: string
+            - name: 水曜日
+              type: string
+            - name: 火曜日
+              type: string
+            - name: 金曜日
+              type: string
+    YunHangYaoRi3:
+        fields:
+            - name: 土曜日
+              type: string
+            - name: 日曜日
+              type: string
+            - name: 月曜日
+              type: string
+            - name: 木曜日
+              type: string
+            - name: 毎日
+              type: string
+            - name: 水曜日
+              type: string
+            - name: 火曜日
+              type: string
+            - name: 金曜日
+              type: string
+    YunHangYaoRi4:
+        fields:
+            - name: 土曜日
+              type: string
+            - name: 日曜日
+              type: string
+            - name: 月曜日
+              type: string
+            - name: 木曜日
+              type: string
+            - name: 毎日
+              type: string
+            - name: 水曜日
+              type: string
+            - name: 火曜日
+              type: string
+            - name: 金曜日
+              type: string
+    ZhHans:
+        fields:
+            - name: items
+              type: '[]ref:Item4'
+    ZhHans2:
+        fields:
+            - name: items
+              type: '[]ref:Item9'
+    ZhHans3:
+        fields:
+            - name: items
+              type: '[]ref:Item14'
+    ZhHans4:
+        fields:
+            - name: items
+              type: '[]ref:Item19'
+    ZhHant:
+        fields:
+            - name: items
+              type: '[]ref:Item5'
+    ZhHant2:
+        fields:
+            - name: items
+              type: '[]ref:Item10'
+    ZhHant3:
+        fields:
+            - name: items
+              type: '[]ref:Item15'
+    ZhHant4:
+        fields:
+            - name: items
+              type: '[]ref:Item20'

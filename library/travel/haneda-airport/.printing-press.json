@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-02T17:33:22.84902Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "haneda-airport",
+  "display_name": "Haneda Airport",
+  "cli_name": "haneda-airport-pp-cli",
+  "creator": {
+    "name": "zjsng",
+    "handle": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "haneda-airport-enriched-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:1315bc39eaa45019d345c342db99e088947f8fedfa6290cb4e7125df3203601c",
+  "run_id": "20261002-221718-7fcad3b1",
+  "category": "travel",
+  "description": "Query first-party Haneda flight boards with precise dates, codeshares and terminal handoffs.",
+  "mcp_binary": "haneda-airport-pp-mcp",
+  "mcp_tool_count": 10,
+  "mcp_public_tool_count": 10,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Snapshot save",
+      "command": "snapshot save",
+      "description": "Preserve timestamped scoped boards locally."
+    },
+    {
+      "name": "Offline search",
+      "command": "snapshot search",
+      "description": "Filter a saved board without network access."
+    },
+    {
+      "name": "Material changes",
+      "command": "snapshot diff",
+      "description": "See changed status, time and terminal facilities."
+    },
+    {
+      "name": "Terminal briefing",
+      "command": "plan",
+      "description": "Find the source terminal, gates and check-in handoffs."
+    },
+    {
+      "name": "Midnight rollover",
+      "command": "flights rollover",
+      "description": "Inspect adjacent service days and cross-midnight changes."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Snapshot save",
+      "command": "snapshot save",
+      "description": "Preserve timestamped scoped boards locally."
+    },
+    {
+      "name": "Offline search",
+      "command": "snapshot search",
+      "description": "Filter a saved board without network access."
+    },
+    {
+      "name": "Material changes",
+      "command": "snapshot diff",
+      "description": "See changed status, time and terminal facilities."
+    },
+    {
+      "name": "Terminal briefing",
+      "command": "plan",
+      "description": "Find the source terminal, gates and check-in handoffs."
+    },
+    {
+      "name": "Midnight rollover",
+      "command": "flights rollover",
+      "description": "Inspect adjacent service days and cross-midnight changes."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 30,
+    "total": 30,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 84,
+      "grade": "A",
+      "total": 84
+    }
+  }
+}

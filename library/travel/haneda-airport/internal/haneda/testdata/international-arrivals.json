@@ -1,0 +1,213 @@
+{
+  "count": 4,
+  "date": {
+    "date": "2026/10/02 23:49:36",
+    "display_date": "2026-10-02 23:49"
+  },
+  "flightlists": [
+    {
+      "flightType": "international",
+      "direction": "arrival",
+      "area_name": "DOHA",
+      "via_area_name": "",
+      "airlines": [
+        {
+          "airline": "QTR",
+          "icon_url": "/site_resource/flight/img/logo/QTR.png",
+          "link_url": "https://www.qatarairways.com/en-qa/homepage.html",
+          "flightNumber": "QR812"
+        },
+        {
+          "airline": "JAL",
+          "icon_url": "/site_resource/flight/img/logo/JAL.png",
+          "link_url": "https://www.jal.co.jp/jp/en/?city=TYO",
+          "flightNumber": "JL4824"
+        },
+        {
+          "airline": "LAN",
+          "icon_url": "/site_resource/flight/img/logo/LAN.png",
+          "link_url": "https://www.latam.com/en_un/",
+          "flightNumber": "LA6041"
+        }
+      ],
+      "date": {
+        "key": "20261002",
+        "display_date": "2026/10/02",
+        "change_date": "2026/10/01"
+      },
+      "on_time": "00:05",
+      "change_time": "23:57",
+      "terminal": {
+        "terminal": "T3",
+        "hm_facility_id": "s=eyJvbmxpbmUvZ2V0RGlyZWN0aW9uc0Zyb21UbyI6eyJtdWx0aXBvaW50Um91dGluZyI6dHJ1ZX0sIm9ubGluZS9wb2lWaWV3Ijp7Im11bHRpcG9pbnRSb3V0aW5nIjp0cnVlfSwibWFwUmVuZGVyZXIiOnsidnAiOnsibGF0IjozNS41NDU2MjQsImxuZyI6MTM5Ljc2ODk4Mywiem9vbSI6MTUuMzM2MDE1LCJiZWFyaW5nIjowLCJwaXRjaCI6MH0sIm9yZCI6NH19"
+      },
+      "status": {
+        "color": "4",
+        "text": "Arrived",
+        "category": "arrived",
+        "reason": ""
+      },
+      "options": [
+        {
+          "type": "modelCode",
+          "title": "Aircraft",
+          "items": [
+            {
+              "name": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "flightType": "international",
+      "direction": "arrival",
+      "area_name": "SINGAPORE",
+      "via_area_name": "",
+      "airlines": [
+        {
+          "airline": "TGW",
+          "icon_url": "/site_resource/flight/img/logo/TGW.png",
+          "link_url": "https://www.flyscoot.com/en",
+          "flightNumber": "TR882"
+        },
+        {
+          "airline": "SIA",
+          "icon_url": "/site_resource/flight/img/logo/SIA.png",
+          "link_url": "https://www.singaporeair.com/en_UK/jp/home#/book/bookflight",
+          "flightNumber": "SQ8680"
+        }
+      ],
+      "date": {
+        "key": "20261002",
+        "display_date": "2026/10/02",
+        "change_date": "-"
+      },
+      "on_time": "01:05",
+      "change_time": "-",
+      "terminal": {
+        "terminal": "T3",
+        "hm_facility_id": "s=eyJvbmxpbmUvZ2V0RGlyZWN0aW9uc0Zyb21UbyI6eyJtdWx0aXBvaW50Um91dGluZyI6dHJ1ZX0sIm9ubGluZS9wb2lWaWV3Ijp7Im11bHRpcG9pbnRSb3V0aW5nIjp0cnVlfSwibWFwUmVuZGVyZXIiOnsidnAiOnsibGF0IjozNS41NDU2MjQsImxuZyI6MTM5Ljc2ODk4Mywiem9vbSI6MTUuMzM2MDE1LCJiZWFyaW5nIjowLCJwaXRjaCI6MH0sIm9yZCI6NH19"
+      },
+      "status": {
+        "color": "2",
+        "text": "Canceled",
+        "category": "canceled",
+        "reason": ""
+      },
+      "options": [
+        {
+          "type": "modelCode",
+          "title": "Aircraft",
+          "items": [
+            {
+              "name": "788"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "flightType": "international",
+      "direction": "arrival",
+      "area_name": "DALLAS(DFW)",
+      "via_area_name": "",
+      "airlines": [
+        {
+          "airline": "AAL",
+          "icon_url": "/site_resource/flight/img/logo/AAL.png",
+          "link_url": "https://www.aa.com/homePage.do?locale=en_US",
+          "flightNumber": "AA175"
+        },
+        {
+          "airline": "JAL",
+          "icon_url": "/site_resource/flight/img/logo/JAL.png",
+          "link_url": "https://www.jal.co.jp/jp/en/?city=TYO",
+          "flightNumber": "JL7013"
+        }
+      ],
+      "date": {
+        "key": "20261002",
+        "display_date": "2026/10/02",
+        "change_date": "2026/10/02"
+      },
+      "on_time": "14:20",
+      "change_time": "23:57",
+      "terminal": {
+        "terminal": "T3",
+        "hm_facility_id": "s=eyJvbmxpbmUvZ2V0RGlyZWN0aW9uc0Zyb21UbyI6eyJtdWx0aXBvaW50Um91dGluZyI6dHJ1ZX0sIm9ubGluZS9wb2lWaWV3Ijp7Im11bHRpcG9pbnRSb3V0aW5nIjp0cnVlfSwibWFwUmVuZGVyZXIiOnsidnAiOnsibGF0IjozNS41NDU2MjQsImxuZyI6MTM5Ljc2ODk4Mywiem9vbSI6MTUuMzM2MDE1LCJiZWFyaW5nIjowLCJwaXRjaCI6MH0sIm9yZCI6NH19"
+      },
+      "status": {
+        "color": "3",
+        "text": "Delayed",
+        "category": "delayed",
+        "reason": ""
+      },
+      "options": [
+        {
+          "type": "modelCode",
+          "title": "Aircraft",
+          "items": [
+            {
+              "name": "77W"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "flightType": "international",
+      "direction": "arrival",
+      "area_name": "BANGKOK",
+      "via_area_name": "",
+      "airlines": [
+        {
+          "airline": "THA",
+          "icon_url": "/site_resource/flight/img/logo/THA.png",
+          "link_url": "https://www.thaiairways.com/en/index.page",
+          "flightNumber": "TG660"
+        },
+        {
+          "airline": "ANA",
+          "icon_url": "/site_resource/flight/img/logo/ANA.png",
+          "link_url": "https://www.ana.co.jp/en/jp/",
+          "flightNumber": "NH5966"
+        },
+        {
+          "airline": "THY",
+          "icon_url": "/site_resource/flight/img/logo/THY.png",
+          "link_url": "https://www.turkishairlines.com/en-int/index.html",
+          "flightNumber": "TK7106"
+        }
+      ],
+      "date": {
+        "key": "20261002",
+        "display_date": "2026/10/02",
+        "change_date": "2026/10/02"
+      },
+      "on_time": "21:10",
+      "change_time": "21:22",
+      "terminal": {
+        "terminal": "T3",
+        "hm_facility_id": "s=eyJvbmxpbmUvZ2V0RGlyZWN0aW9uc0Zyb21UbyI6eyJtdWx0aXBvaW50Um91dGluZyI6dHJ1ZX0sIm9ubGluZS9wb2lWaWV3Ijp7Im11bHRpcG9pbnRSb3V0aW5nIjp0cnVlfSwibWFwUmVuZGVyZXIiOnsidnAiOnsibGF0IjozNS41NDU2MjQsImxuZyI6MTM5Ljc2ODk4Mywiem9vbSI6MTUuMzM2MDE1LCJiZWFyaW5nIjowLCJwaXRjaCI6MH0sIm9yZCI6NH19"
+      },
+      "status": {
+        "color": "1",
+        "text": "Baggage Available",
+        "category": "",
+        "reason": ""
+      },
+      "options": [
+        {
+          "type": "modelCode",
+          "title": "Aircraft",
+          "items": [
+            {
+              "name": "359"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

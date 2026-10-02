@@ -1,0 +1,20 @@
+?   	haneda-airport-pp-cli/cmd/haneda-airport-pp-cli	[no test files]
+?   	haneda-airport-pp-cli/cmd/haneda-airport-pp-mcp	[no test files]
+?   	haneda-airport-pp-cli/internal/cache	[no test files]
+ok  	haneda-airport-pp-cli/internal/cli	19.908s
+?   	haneda-airport-pp-cli/internal/cli/playbooks	[no test files]
+ok  	haneda-airport-pp-cli/internal/client	1.649s
+ok  	haneda-airport-pp-cli/internal/cliutil	13.616s
+?   	haneda-airport-pp-cli/internal/cliutil/testenv	[no test files]
+?   	haneda-airport-pp-cli/internal/config	[no test files]
+ok  	haneda-airport-pp-cli/internal/haneda	2.160s
+ok  	haneda-airport-pp-cli/internal/learn	2.891s
+ok  	haneda-airport-pp-cli/internal/learn/entities	5.502s
+ok  	haneda-airport-pp-cli/internal/learn/lookups	1.658s
+ok  	haneda-airport-pp-cli/internal/learn/patterns	3.014s
+ok  	haneda-airport-pp-cli/internal/mcp	3.528s
+ok  	haneda-airport-pp-cli/internal/mcp/bound	3.837s
+ok  	haneda-airport-pp-cli/internal/mcp/cobratree	12.688s
+ok  	haneda-airport-pp-cli/internal/platform	4.805s
+ok  	haneda-airport-pp-cli/internal/store	5.216s
+?   	haneda-airport-pp-cli/internal/types	[no test files]

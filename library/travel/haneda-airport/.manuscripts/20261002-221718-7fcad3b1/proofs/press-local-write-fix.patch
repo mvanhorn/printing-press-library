@@ -1,0 +1,55 @@
+--- v4.32.5/internal/pipeline/live_dogfood.go
++++ isolated/internal/pipeline/live_dogfood.go
+@@ -709,6 +709,32 @@
+ 	unclassified bool
+ }
+ 
++// liveDogfoodUseDryRun separates private fixture permission from public MCP
++// hints. Only an explicitly approved default local fixture may execute.
++func liveDogfoodUseDryRun(command liveDogfoodCommand, allowDestructive bool) bool {
++	if !liveDogfoodCommandMutation(command).mutating || !commandSupportsDryRun(command.Help) {
++		return false
++	}
++	if !allowDestructive || !annotationIsTrueValue(command.Annotations["pp:fixture-local-write"]) {
++		return true
++	}
++	if method := strings.ToUpper(strings.TrimSpace(command.Annotations[endpointMethodAnnotation])); method == "POST" || method == "PUT" || method == "PATCH" || method == "DELETE" {
++		return true
++	}
++	args, ok, _ := liveDogfoodHappyArgsParsed(command)
++	if !ok {
++		return true
++	}
++	for _, arg := range args {
++		for _, name := range []string{"--file", "--overwrite", "--deliver"} {
++			if arg == name || strings.HasPrefix(arg, name+"=") {
++				return true
++			}
++		}
++	}
++	return false
++}
++
+ func liveDogfoodCommandMutation(command liveDogfoodCommand) commandMutationClassification {
+ 	return commandMutation(command.Annotations, command.Path)
+ }
+@@ -718,6 +744,10 @@
+ 		return commandMutationClassification{}
+ 	}
+ 	if annotationIsTrueValue(annotations[mcpLocalWriteAnnotation]) {
++		return commandMutationClassification{mutating: true}
++	}
++	// Private fixture classification does not change the public MCP hints.
++	if annotationIsTrueValue(annotations["pp:fixture-local-write"]) {
+ 		return commandMutationClassification{mutating: true}
+ 	}
+ 	if method := strings.ToUpper(strings.TrimSpace(annotations[endpointMethodAnnotation])); method != "" {
+@@ -1642,7 +1672,7 @@
+ 	successCodes := liveDogfoodSuccessExitCodes(command)
+ 	mutation := liveDogfoodCommandMutation(command)
+ 	mutating := mutation.mutating
+-	useDryRun := mutating && commandSupportsDryRun(command.Help)
++	useDryRun := liveDogfoodUseDryRun(command, ctx.allowDestructive)
+ 	appendDryRunJSON := func(args []string, argsOK bool, stdin []byte, skipReason string) {
+ 		if dryRunJSON := probeLiveDogfoodDryRunJSON(command, ctx, mutation, args, stdin, argsOK, skipReason); dryRunJSON != nil {
+ 			results = append(results, *dryRunJSON)

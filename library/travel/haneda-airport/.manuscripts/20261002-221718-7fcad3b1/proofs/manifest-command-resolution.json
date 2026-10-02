@@ -1,0 +1,74 @@
+[
+  {
+    "path": "flights search",
+    "exit_code": 0,
+    "usage": "haneda-airport-pp-cli flights search [flags]",
+    "resolved": true
+  },
+  {
+    "path": "flights detail",
+    "exit_code": 0,
+    "usage": "haneda-airport-pp-cli flights detail [flight-or-id] [flags]",
+    "resolved": true
+  },
+  {
+    "path": "flights disruptions",
+    "exit_code": 0,
+    "usage": "haneda-airport-pp-cli flights disruptions [flags]",
+    "resolved": true
+  },
+  {
+    "path": "catalog airports",
+    "exit_code": 0,
+    "usage": "haneda-airport-pp-cli catalog airports [flags]",
+    "resolved": true
+  },
+  {
+    "path": "catalog airlines",
+    "exit_code": 0,
+    "usage": "haneda-airport-pp-cli catalog airlines [flags]",
+    "resolved": true
+  },
+  {
+    "path": "schedule search",
+    "exit_code": 0,
+    "usage": "haneda-airport-pp-cli schedule search [flags]",
+    "resolved": true
+  },
+  {
+    "path": "flights search",
+    "exit_code": 0,
+    "usage": "haneda-airport-pp-cli flights search [flags]",
+    "resolved": true
+  },
+  {
+    "path": "snapshot save",
+    "exit_code": 0,
+    "usage": "haneda-airport-pp-cli snapshot save [flags]",
+    "resolved": true
+  },
+  {
+    "path": "snapshot search",
+    "exit_code": 0,
+    "usage": "haneda-airport-pp-cli snapshot search [flags]",
+    "resolved": true
+  },
+  {
+    "path": "snapshot diff",
+    "exit_code": 0,
+    "usage": "haneda-airport-pp-cli snapshot diff [flags]",
+    "resolved": true
+  },
+  {
+    "path": "plan",
+    "exit_code": 0,
+    "usage": "haneda-airport-pp-cli plan [flight-or-id] [flags]",
+    "resolved": true
+  },
+  {
+    "path": "flights rollover",
+    "exit_code": 0,
+    "usage": "haneda-airport-pp-cli flights rollover [flags]",
+    "resolved": true
+  }
+]
