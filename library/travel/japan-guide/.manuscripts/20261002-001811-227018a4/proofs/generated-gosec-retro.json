@@ -1,0 +1,188 @@
+[
+  {
+    "file": "internal/client/client.go",
+    "line": "454",
+    "rule": "G119",
+    "details": "Sensitive headers should not be re-added in redirect policy callbacks"
+  },
+  {
+    "file": "internal/platform/gate.go",
+    "line": "22",
+    "rule": "G101",
+    "details": "Potential hardcoded credentials"
+  },
+  {
+    "file": "cmd/japan-guide-pp-mcp/main.go",
+    "line": "36",
+    "rule": "G101",
+    "details": "Potential hardcoded credentials"
+  },
+  {
+    "file": "internal/cli/teach.go",
+    "line": "210",
+    "rule": "G703",
+    "details": "Path traversal via taint analysis"
+  },
+  {
+    "file": "internal/store/store.go",
+    "line": "3450-3453",
+    "rule": "G201",
+    "details": "SQL string formatting"
+  },
+  {
+    "file": "internal/store/store.go",
+    "line": "3147-3150",
+    "rule": "G201",
+    "details": "SQL string formatting"
+  },
+  {
+    "file": "internal/store/store.go",
+    "line": "1191",
+    "rule": "G201",
+    "details": "SQL string formatting"
+  },
+  {
+    "file": "internal/store/store.go",
+    "line": "1167",
+    "rule": "G201",
+    "details": "SQL string formatting"
+  },
+  {
+    "file": "internal/store/learnings.go",
+    "line": "609",
+    "rule": "G202",
+    "details": "SQL string concatenation"
+  },
+  {
+    "file": "internal/platform/migration.go",
+    "line": "156",
+    "rule": "G202",
+    "details": "SQL string concatenation"
+  },
+  {
+    "file": "internal/store/store.go",
+    "line": "253",
+    "rule": "G304",
+    "details": "Potential file inclusion via variable"
+  },
+  {
+    "file": "internal/platform/ratelimit.go",
+    "line": "148",
+    "rule": "G304",
+    "details": "Potential file inclusion via variable"
+  },
+  {
+    "file": "internal/platform/profile.go",
+    "line": "510",
+    "rule": "G304",
+    "details": "Potential file inclusion via variable"
+  },
+  {
+    "file": "internal/learn/teach_log.go",
+    "line": "112",
+    "rule": "G304",
+    "details": "Potential file inclusion via variable"
+  },
+  {
+    "file": "internal/learn/playbooks.go",
+    "line": "73",
+    "rule": "G304",
+    "details": "Potential file inclusion via variable"
+  },
+  {
+    "file": "internal/config/config.go",
+    "line": "104",
+    "rule": "G304",
+    "details": "Potential file inclusion via variable"
+  },
+  {
+    "file": "internal/cli/teach_playbook.go",
+    "line": "376",
+    "rule": "G304",
+    "details": "Potential file inclusion via variable"
+  },
+  {
+    "file": "internal/cli/teach.go",
+    "line": "150",
+    "rule": "G304",
+    "details": "Potential file inclusion via variable"
+  },
+  {
+    "file": "internal/cli/teach.go",
+    "line": "127",
+    "rule": "G304",
+    "details": "Potential file inclusion via variable"
+  },
+  {
+    "file": "internal/cli/feedback.go",
+    "line": "204",
+    "rule": "G304",
+    "details": "Potential file inclusion via variable"
+  },
+  {
+    "file": "internal/cli/feedback.go",
+    "line": "66",
+    "rule": "G304",
+    "details": "Potential file inclusion via variable"
+  },
+  {
+    "file": "cmd/japan-guide-pp-mcp/main.go",
+    "line": "86-89",
+    "rule": "G112",
+    "details": "Potential Slowloris Attack because ReadHeaderTimeout is not configured in the http.Server"
+  },
+  {
+    "file": "internal/learn/journal.go",
+    "line": "265",
+    "rule": "G117",
+    "details": "Marshaled struct field \"SessionKey\" (JSON key \"session_key\") matches secret pattern"
+  },
+  {
+    "file": "internal/platform/profile.go",
+    "line": "302",
+    "rule": "G302",
+    "details": "Expect file permissions to be 0600 or less"
+  },
+  {
+    "file": "internal/cliutil/testenv/testenv.go",
+    "line": "76",
+    "rule": "G302",
+    "details": "Expect file permissions to be 0600 or less"
+  },
+  {
+    "file": "internal/cliutil/testenv/sandbox_unix.go",
+    "line": "15",
+    "rule": "G302",
+    "details": "Expect file permissions to be 0600 or less"
+  },
+  {
+    "file": "internal/client/client.go",
+    "line": "800",
+    "rule": "G302",
+    "details": "Expect file permissions to be 0600 or less"
+  },
+  {
+    "file": "internal/store/store.go",
+    "line": "3238",
+    "rule": "G104",
+    "details": "Errors unhandled"
+  },
+  {
+    "file": "internal/store/store.go",
+    "line": "2981",
+    "rule": "G104",
+    "details": "Errors unhandled"
+  },
+  {
+    "file": "internal/learn/journal.go",
+    "line": "278",
+    "rule": "G104",
+    "details": "Errors unhandled"
+  },
+  {
+    "file": "internal/client/client.go",
+    "line": "1504",
+    "rule": "G104",
+    "details": "Errors unhandled"
+  }
+]

@@ -1,0 +1,27 @@
+workflows:
+  - name: Discover a destination and inspect a temple
+    primary: true
+    steps:
+      - command: guide destinations --region=kanto --limit=3 --no-learn
+        extract:
+          destination_id: $.items[0].id
+        mode: live
+        expect_fields: [items, scanned_records, metrics]
+      - command: guide attractions ${destination_id} --interest=temples --limit=3 --no-learn
+        extract:
+          attraction_id: $.items[0].id
+        mode: live
+        expect_fields: [items, total_matches, metrics]
+      - command: guide inspect ${attraction_id} --no-learn
+        mode: live
+        expect_fields: [item, metrics]
+  - name: Discover and inspect a published source plan
+    steps:
+      - command: guide itineraries --query=Kanto --limit=1 --no-learn
+        extract:
+          itinerary_id: $.items[0].id
+        mode: live
+        expect_fields: [items, total_matches]
+      - command: guide itinerary ${itinerary_id} --no-learn
+        mode: live
+        expect_fields: [stops, source_updated, source_url]

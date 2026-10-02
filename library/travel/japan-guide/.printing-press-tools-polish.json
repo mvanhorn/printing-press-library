@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-10-01T19:33:48.576218Z",
+  "cli_dir": "\u003ccli-dir\u003e/japan-guide-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "Generated profile list command has no required input and returns configured client profiles; its group provides the context. DO-NOT-EDIT generated file; richer defaults belong in the platform template."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 868,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Generated learnings list accurately lists locally recorded learning rows; the parent command and runtime help identify the store. DO-NOT-EDIT generated file; optional description expansion belongs in the learning template."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 0,
+    "captured": "2026-10-01T18:08:38.13277Z"
+  }
+}

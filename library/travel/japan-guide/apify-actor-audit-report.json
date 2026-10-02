@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/japan-guide-cli",
+  "research_dir": "\u003ccli-dir\u003e/20261002-001811-227018a4",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

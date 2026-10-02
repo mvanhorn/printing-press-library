@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "verdict": "PASS",
+  "started_at": "2026-10-01T19:30:18Z",
+  "elapsed_ms": 19327,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T19:30:18Z",
+      "elapsed_ms": 3545,
+      "command": "cli-printing-press verify --dir <cli-dir> --write-manifest <cli-dir>/.printing-press.json --spec <press-home>/.runstate/japan-guide/runs/20261002-001811-227018a4/research/japan-guide.yaml"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T19:30:22Z",
+      "elapsed_ms": 383,
+      "command": "cli-printing-press validate-narrative --strict --full-examples --research <press-home>/.runstate/japan-guide/runs/20261002-001811-227018a4/research.json --binary <cli-dir>/build/stage/bin/japan-guide-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T19:30:22Z",
+      "elapsed_ms": 2242,
+      "command": "cli-printing-press dogfood --dir <cli-dir> --spec <press-home>/.runstate/japan-guide/runs/20261002-001811-227018a4/research/japan-guide.yaml --research-dir <press-home>/.runstate/japan-guide/runs/20261002-001811-227018a4"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T19:30:24Z",
+      "elapsed_ms": 7098,
+      "command": "cli-printing-press workflow-verify --dir <cli-dir>"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T19:30:31Z",
+      "elapsed_ms": 31,
+      "command": "cli-printing-press apify-audit --dir <cli-dir> --research-dir <press-home>/.runstate/japan-guide/runs/20261002-001811-227018a4"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T19:30:31Z",
+      "elapsed_ms": 1039,
+      "command": "cli-printing-press verify-skill --dir <cli-dir>"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T19:30:32Z",
+      "elapsed_ms": 4986,
+      "command": "cli-printing-press scorecard --dir <cli-dir> --write-manifest <cli-dir>/.printing-press.json --research-dir <press-home>/.runstate/japan-guide/runs/20261002-001811-227018a4 --spec <press-home>/.runstate/japan-guide/runs/20261002-001811-227018a4/research/japan-guide.yaml --live-check"
+    }
+  ]
+}

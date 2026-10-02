@@ -1,0 +1,96 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-01T19:39:55.853023Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "japan-guide",
+  "display_name": "Japan Guide",
+  "cli_name": "japan-guide-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "japan-guide.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:f8e9512a3ba4ceb109ac4636e423c7a597530449d8859d1c5d0efb775a098cd7",
+  "run_id": "20261002-001811-227018a4",
+  "category": "travel",
+  "description": "Source-linked Japan sightseeing facts in compact JSON.",
+  "mcp_binary": "japan-guide-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Small-list planning comparison",
+      "command": "guide compare",
+      "description": "Compare scoped visit facts for up to five source pages and retain per-item failures."
+    },
+    {
+      "name": "Scoped schedules",
+      "command": "guide inspect",
+      "description": "Keep shrine, museum and garden schedules attached to their own facilities."
+    },
+    {
+      "name": "Explicit opening uncertainty",
+      "command": "guide inspect",
+      "description": "Return source schedules with open_now explicitly unknown."
+    },
+    {
+      "name": "Offline facts with freshness",
+      "command": "guide inspect",
+      "description": "Read saved compact facts while retaining their original source and retrieval dates."
+    },
+    {
+      "name": "Resource budgets",
+      "command": "guide destinations",
+      "description": "Return a bounded destination page with request, byte and elapsed-time metrics."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Small-list planning comparison",
+      "command": "guide compare",
+      "description": "Compare scoped visit facts for up to five source pages and retain per-item failures."
+    },
+    {
+      "name": "Scoped schedules",
+      "command": "guide inspect",
+      "description": "Keep shrine, museum and garden schedules attached to their own facilities."
+    },
+    {
+      "name": "Explicit opening uncertainty",
+      "command": "guide inspect",
+      "description": "Return source schedules with open_now explicitly unknown."
+    },
+    {
+      "name": "Offline facts with freshness",
+      "command": "guide inspect",
+      "description": "Read saved compact facts while retaining their original source and retrieval dates."
+    },
+    {
+      "name": "Resource budgets",
+      "command": "guide destinations",
+      "description": "Return a bounded destination page with request, byte and elapsed-time metrics."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 24,
+    "total": 24,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 80,
+      "grade": "A",
+      "total": 80
+    }
+  }
+}

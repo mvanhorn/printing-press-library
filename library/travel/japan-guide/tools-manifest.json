@@ -1,0 +1,51 @@
+{
+  "api_name": "japan-guide",
+  "base_url": "https://www.japan-guide.com",
+  "description": "Source-linked Japan sightseeing facts in compact JSON.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "source_directory",
+      "description": "Source destination link directory.",
+      "method": "GET",
+      "path": "/e/e623a.html",
+      "no_auth": true,
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Small-list planning comparison",
+      "command": "guide compare",
+      "description": "Compare scoped visit facts for up to five source pages and retain per-item failures."
+    },
+    {
+      "name": "Scoped schedules",
+      "command": "guide inspect",
+      "description": "Keep shrine, museum and garden schedules attached to their own facilities."
+    },
+    {
+      "name": "Explicit opening uncertainty",
+      "command": "guide inspect",
+      "description": "Return source schedules with open_now explicitly unknown."
+    },
+    {
+      "name": "Offline facts with freshness",
+      "command": "guide inspect",
+      "description": "Read saved compact facts while retaining their original source and retrieval dates."
+    },
+    {
+      "name": "Resource budgets",
+      "command": "guide destinations",
+      "description": "Return a bounded destination page with request, byte and elapsed-time metrics."
+    }
+  ]
+}

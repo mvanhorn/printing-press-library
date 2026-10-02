@@ -1,0 +1,96 @@
+{
+  "round": 3,
+  "reviewed_at": "2026-10-01T19:12:15.971455+00:00",
+  "baseline": "evidence/review-fixes.json",
+  "verdict": "PASS",
+  "remaining_application_findings": [],
+  "independent_catalog": {
+    "total_tools": 23,
+    "raw_endpoint_exposed": false,
+    "guide_tools": [
+      {
+        "name": "guide_attractions",
+        "description": "Find a destination's attractions and source interest tags",
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        }
+      },
+      {
+        "name": "guide_compare",
+        "description": "Compare facts for up to five space-separated page IDs; preserve partial failures",
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        }
+      },
+      {
+        "name": "guide_destinations",
+        "description": "Find destinations by region and editorial recommendation",
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        }
+      },
+      {
+        "name": "guide_inspect",
+        "description": "Inspect scoped visit facts; optionally save an extracted local snapshot",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": true,
+          "idempotentHint": false,
+          "openWorldHint": true
+        }
+      },
+      {
+        "name": "guide_interests",
+        "description": "List source travel interests and canonical links",
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        }
+      },
+      {
+        "name": "guide_itineraries",
+        "description": "Discover source itinerary links",
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        }
+      },
+      {
+        "name": "guide_itinerary",
+        "description": "Inspect source itinerary day or stop labels and canonical links",
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        }
+      }
+    ]
+  },
+  "isolated_copy_runtime_probe": "zero-rate-quoted: error=<nil> calls=2 result=2\nsave-error-type: typed=true old_snapshot_unchanged=true output_bytes=0\ncache-write-failure: uid=501 exit=1 error=save extracted facts for e3001: open <temporary-path> permission denied output= stderr=Error: save extracted facts for e3001: open <temporary-path> permission denied\n\nauto-network-fallback: error=<nil> output={\"meta\":{\"source\":\"local\"},\"results\":{\"data_source\":\"offline_snapshot\",\"item\":{\"access\":null,\"access_url\":\"\",\"dated_notes\":null,\"event_calendar\":null,\"extraction_limitations\":null,\"facts_truncated\":false,\"freshness\":\"offline_snapshot\",\"id\":\"e3001\",\"japanese_name\":null,\"kind\":\"\",\"name\":\"Old snapshot\",\"open_now\":null,\"opening_uncertainty\":\"\",\"planning_notices\":null,\"retrieved_at\":\"2025-01-01T01:02:03Z\",\"seasonal_notes\":null,\"source_updated\":null,\"source_url\":\"\",\"url\":\"https://www.japan-guide.com/e/e3001.html\",\"visit_information\":null},\"live_failure\":\"fetch https://www.japan-guide.com/e/e3001.html: Get \\\"https://www.japan-guide.com/e/e3001.html\\\": source network unavailable; check network access or retry later\",\"metrics\":{\"elapsed_ms\":0,\"upstream_bytes\":0,\"upstream_requests\":1},\"retrieved_at\":\"2025-01-01T01:02:03Z\",\"source\":\"Japan Guide\"}}\n\nthrottle: exit=7 typed=true error=rate limited: HTTP 429 for https://www.japan-guide.com/e/e3001.html; retry after 7s\n",
+  "output_review": {
+    "eligible_samples": 5,
+    "path": "evidence/output-review-samples-round2.json",
+    "status": "PASS",
+    "normal_output_paths_unchanged_in_round3": true
+  },
+  "retro_candidates": [
+    "R1 shared variadic mirror; local workaround verified",
+    "R2 universal narrative default; local prose/resync guard corrected",
+    "R3 unconditional SQL sync workflow prose; documented generator candidate"
+  ],
+  "privacy": "No raw HTML, scripts, cookies, credentials or third-party keys retained."
+}

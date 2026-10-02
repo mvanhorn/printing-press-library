@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/japan-guide-pp-cli
+/japan-guide-pp-cli.exe
+/japan-guide-pp-mcp
+/japan-guide-pp-mcp.exe
+/bin/
+/build/
+/dist/

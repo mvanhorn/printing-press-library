@@ -1,0 +1,99 @@
+{
+  "live_check": {
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "features": [
+      {
+        "name": "Small-list planning comparison",
+        "command": "guide compare",
+        "example": "japan-guide-pp-cli guide compare e3001 e3002 --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Scoped schedules",
+        "command": "guide inspect",
+        "example": "japan-guide-pp-cli guide inspect e3002 --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Explicit opening uncertainty",
+        "command": "guide inspect",
+        "example": "japan-guide-pp-cli guide inspect e3001 --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Offline facts with freshness",
+        "command": "guide inspect",
+        "example": "japan-guide-pp-cli guide inspect e3001 --cache --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Resource budgets",
+        "command": "guide destinations",
+        "example": "japan-guide-pp-cli guide destinations --region kanto --limit 5 --agent",
+        "status": "pass"
+      }
+    ],
+    "binary_refresh": {
+      "action": "fresh",
+      "stage_path": "<cli-dir>/build/stage/bin/japan-guide-pp-cli",
+      "binary_path": "<cli-dir>/build/stage/bin/japan-guide-pp-cli",
+      "reason": "staged binary is newer than Go sources"
+    },
+    "ran_at": "2026-10-01T19:15:54.883623Z",
+    "status": "available",
+    "checked": 5,
+    "evaluated": 5,
+    "pass_rate_pct": 100
+  },
+  "scorecard": {
+    "api_name": "japan-guide",
+    "steinberger": {
+      "output_modes": 10,
+      "auth": 10,
+      "error_handling": 8,
+      "terminal_ux": 9,
+      "readme": 7,
+      "doctor": 10,
+      "agent_native": 10,
+      "mcp_quality": 7,
+      "mcp_description_quality": 0,
+      "mcp_token_efficiency": 10,
+      "mcp_remote_transport": 10,
+      "mcp_tool_design": 0,
+      "mcp_surface_strategy": 0,
+      "local_cache": 10,
+      "cache_freshness": 3,
+      "breadth": 7,
+      "vision": 7,
+      "workflows": 8,
+      "insight": 2,
+      "agent_workflow_readiness": 9,
+      "path_validity": 10,
+      "auth_protocol": 0,
+      "data_pipeline_integrity": 7,
+      "sync_correctness": 7,
+      "type_fidelity": 5,
+      "dead_code": 0,
+      "live_api_verification": 0,
+      "total": 80,
+      "percentage": 80,
+      "calibration_note": "Score raised from 76 to 80 based on verify pass rate"
+    },
+    "competitor_scores": null,
+    "overall_grade": "A",
+    "gap_report": [
+      "insight scored 2/10 - needs improvement",
+      "dead_code scored 0/5 - needs improvement",
+      "MCP: 1 tools (1 public, 0 auth-required) \u2014 readiness: full"
+    ],
+    "unscored_dimensions": [
+      "mcp_description_quality",
+      "mcp_tool_design",
+      "mcp_surface_strategy",
+      "auth_protocol",
+      "live_api_verification"
+    ]
+  }
+}

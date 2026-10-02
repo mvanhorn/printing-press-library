@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "public_tools": 23,
+  "guide_tools": [
+    "guide_attractions",
+    "guide_compare",
+    "guide_destinations",
+    "guide_inspect",
+    "guide_interests",
+    "guide_itineraries",
+    "guide_itinerary"
+  ],
+  "raw_endpoint_exposed": false,
+  "inspection_read_only_hint": false,
+  "other_guide_tools_read_only": true,
+  "two_page_comparison": "PASS",
+  "six_page_rejection": "PASS"
+}

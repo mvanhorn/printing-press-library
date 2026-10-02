@@ -1,0 +1,152 @@
+{
+  "api_name": "japan-guide",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "0001-01-01T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Small-list planning comparison",
+      "command": "guide compare",
+      "description": "Compare scoped visit facts for up to five source pages and retain per-item failures.",
+      "rationale": "Requires bounded extracted source facts and explicit provenance rather than a raw HTML response.",
+      "example": "japan-guide-pp-cli guide compare e3001 e3002 --agent",
+      "why_it_matters": "Compare a small shortlist using source facts.",
+      "group": "Planning facts"
+    },
+    {
+      "name": "Scoped schedules",
+      "command": "guide inspect",
+      "description": "Keep shrine, museum and garden schedules attached to their own facilities.",
+      "rationale": "Requires bounded extracted source facts and explicit provenance rather than a raw HTML response.",
+      "example": "japan-guide-pp-cli guide inspect e3002 --agent",
+      "why_it_matters": "Use facility-specific admission and closure facts.",
+      "group": "Planning facts"
+    },
+    {
+      "name": "Explicit opening uncertainty",
+      "command": "guide inspect",
+      "description": "Return source schedules with open_now explicitly unknown.",
+      "rationale": "Requires bounded extracted source facts and explicit provenance rather than a raw HTML response.",
+      "example": "japan-guide-pp-cli guide inspect e3001 --agent",
+      "why_it_matters": "Avoid interpreting editorial schedules as live operating status.",
+      "group": "Planning facts"
+    },
+    {
+      "name": "Offline facts with freshness",
+      "command": "guide inspect",
+      "description": "Read saved compact facts while retaining their original source and retrieval dates.",
+      "rationale": "Requires bounded extracted source facts and explicit provenance rather than a raw HTML response.",
+      "example": "japan-guide-pp-cli guide inspect e3001 --cache --agent",
+      "why_it_matters": "Save a source snapshot before an offline planning session.",
+      "group": "Planning facts"
+    },
+    {
+      "name": "Resource budgets",
+      "command": "guide destinations",
+      "description": "Return a bounded destination page with request, byte and elapsed-time metrics.",
+      "rationale": "Requires bounded extracted source facts and explicit provenance rather than a raw HTML response.",
+      "example": "japan-guide-pp-cli guide destinations --region kanto --limit 5 --agent",
+      "why_it_matters": "Limit output and inspect single-page source coverage.",
+      "group": "Planning facts"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Small-list planning comparison",
+      "command": "guide compare",
+      "description": "Compare scoped visit facts for up to five source pages and retain per-item failures.",
+      "rationale": "Requires bounded extracted source facts and explicit provenance rather than a raw HTML response.",
+      "example": "japan-guide-pp-cli guide compare e3001 e3002 --agent",
+      "why_it_matters": "Compare a small shortlist using source facts.",
+      "group": "Planning facts"
+    },
+    {
+      "name": "Scoped schedules",
+      "command": "guide inspect",
+      "description": "Keep shrine, museum and garden schedules attached to their own facilities.",
+      "rationale": "Requires bounded extracted source facts and explicit provenance rather than a raw HTML response.",
+      "example": "japan-guide-pp-cli guide inspect e3002 --agent",
+      "why_it_matters": "Use facility-specific admission and closure facts.",
+      "group": "Planning facts"
+    },
+    {
+      "name": "Explicit opening uncertainty",
+      "command": "guide inspect",
+      "description": "Return source schedules with open_now explicitly unknown.",
+      "rationale": "Requires bounded extracted source facts and explicit provenance rather than a raw HTML response.",
+      "example": "japan-guide-pp-cli guide inspect e3001 --agent",
+      "why_it_matters": "Avoid interpreting editorial schedules as live operating status.",
+      "group": "Planning facts"
+    },
+    {
+      "name": "Offline facts with freshness",
+      "command": "guide inspect",
+      "description": "Read saved compact facts while retaining their original source and retrieval dates.",
+      "rationale": "Requires bounded extracted source facts and explicit provenance rather than a raw HTML response.",
+      "example": "japan-guide-pp-cli guide inspect e3001 --cache --agent",
+      "why_it_matters": "Save a source snapshot before an offline planning session.",
+      "group": "Planning facts"
+    },
+    {
+      "name": "Resource budgets",
+      "command": "guide destinations",
+      "description": "Return a bounded destination page with request, byte and elapsed-time metrics.",
+      "rationale": "Requires bounded extracted source facts and explicit provenance rather than a raw HTML response.",
+      "example": "japan-guide-pp-cli guide destinations --region kanto --limit 5 --agent",
+      "why_it_matters": "Limit output and inspect single-page source coverage.",
+      "group": "Planning facts"
+    }
+  ],
+  "narrative": {
+    "display_name": "Japan Guide",
+    "headline": "Source-linked Japan sightseeing facts in compact JSON.",
+    "value_prop": "Discover destinations and attractions, inspect scoped visit facts, and follow source itinerary links. Preserve seasonal qualifiers and source freshness.",
+    "auth_narrative": "Supported public guide pages require no account or API key.",
+    "quickstart": [
+      {
+        "command": "japan-guide-pp-cli doctor --dry-run",
+        "comment": "Check local setup"
+      },
+      {
+        "command": "japan-guide-pp-cli guide destinations --region kanto --limit 5 --agent",
+        "comment": "Find source destinations"
+      },
+      {
+        "command": "japan-guide-pp-cli guide inspect e3001 --agent",
+        "comment": "Inspect Sensoji visit facts"
+      }
+    ],
+    "when_to_use": "Use for Japan Guide single-source sightseeing planning and source factual visit information. Live facts include source update dates and opening uncertainty.",
+    "anti_triggers": [
+      "Real bookings, payments or ticket availability",
+      "Computed live opening status or operational guarantees"
+    ],
+    "recipes": [
+      {
+        "title": "Tokyo temples",
+        "command": "japan-guide-pp-cli guide attractions e2164 --interest temples --limit 5 --agent --select items",
+        "explanation": "Filter source attraction tags."
+      },
+      {
+        "title": "Compare facts",
+        "command": "japan-guide-pp-cli guide compare e3001 e3002 --agent",
+        "explanation": "Inspect a short list with per-item errors."
+      },
+      {
+        "title": "Source itinerary",
+        "command": "japan-guide-pp-cli guide itineraries --destination e2164 --agent",
+        "explanation": "Return source plans and canonical links."
+      }
+    ],
+    "trigger_phrases": [
+      "Japan Guide destinations",
+      "Japan Guide visit facts",
+      "Japan Guide itinerary",
+      "use japan-guide",
+      "run japan-guide"
+    ]
+  }
+}

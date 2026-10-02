@@ -1,0 +1,66 @@
+{
+  "catalog": {
+    "count": 23,
+    "raw_endpoint_exposed": false,
+    "guide_hints": {
+      "guide_attractions": true,
+      "guide_compare": true,
+      "guide_destinations": true,
+      "guide_inspect": false,
+      "guide_interests": true,
+      "guide_itineraries": true,
+      "guide_itinerary": true
+    }
+  },
+  "dry_runs": [
+    {
+      "args": [
+        "guide",
+        "inspect",
+        "e3001",
+        "--cache",
+        "--cache-dir",
+        "<temporary-path>",
+        "--agent",
+        "--dry-run",
+        "--no-learn"
+      ],
+      "exit": 0,
+      "json": {
+        "dry_run": true,
+        "action": "guide inspect",
+        "would": "run guide inspect; no changes made"
+      },
+      "stdout_newlines": 1,
+      "stderr": ""
+    },
+    {
+      "args": [
+        "source",
+        "--json",
+        "--dry-run",
+        "--no-learn"
+      ],
+      "exit": 0,
+      "json": {
+        "dry_run": true,
+        "action": "source",
+        "would": "run source; no changes made"
+      },
+      "stdout_newlines": 1,
+      "stderr": ""
+    }
+  ],
+  "snapshot_directory_created": false,
+  "reviewed_at": "2026-10-01T19:31:18.531455+00:00",
+  "verdict": "PASS",
+  "focused_tests": {
+    "names": [
+      "TestGuideDryRunJSONDoesNotRequestSource",
+      "TestGuideDryRunsAndUsageAreNetworkFree"
+    ],
+    "result": "PASS",
+    "observed_upstream_requests": 0
+  },
+  "baseline": "evidence/review-fixes.json"
+}

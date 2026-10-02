@@ -1,0 +1,39 @@
+{
+  "round": 3,
+  "application_findings_addressed": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "A5",
+    "A6",
+    "A7",
+    "A8",
+    "A9"
+  ],
+  "retro_workaround": "R1 fixed in hand-authored compare; R2 local prose removed and AGENTS records resync guard. R3: README/SKILL/AGENTS explicitly state guide snapshots are not SQL rows and there is no sync command.",
+  "source_hashes": {
+    "internal/guide/guide.go": "9c67818775c03c5b9a038fb687a8e2986ebfa93830d8103b3612b86d6a07614c",
+    "internal/guide/guide_test.go": "1e736f41277473d4e105d836a94e44deb663292c31c177e3404fc20b3c225569",
+    "internal/cli/guide.go": "046c3a71d01c0bafe902520bece1f8f3cb40a7e4b8bbce61440e8a13f98464de",
+    "internal/cli/guide_test.go": "e1dd08f02b5e6942409c924ad1a5e53fab8b0dab8a650bac9cec8ebdb258b364",
+    "internal/mcp/tools.go": "4b06f0cf62ceafcc5a7842774e5717832da7ac35b2d184c509b9150c47e19ad5",
+    "README.md": "b18e93a8486d56a0679aa43c8aef51886f6f96c10a8e7a37e17d62dc5b82e523",
+    "SKILL.md": "1d805046eb14b251fe9bc55b486c615e46c21aa59512e952e260666591f304da",
+    "AGENTS.md": "7ded77f71b93158ad3d73d82fdd28225566142146f10cd70c5cd4881d366597d",
+    "spec.yaml": "f8e9512a3ba4ceb109ac4636e423c7a597530449d8859d1c5d0efb775a098cd7",
+    "workflow_verify.yaml": "b73c57a66a2436391b124ae616def4618cd944af90e76abed0573eccb9e07914",
+    "mcp-descriptions.json": "9d0682a27913f5ba26834070524d2333908e5d76ae40920cd7c7d5ed473f7aa1"
+  },
+  "evidence": [
+    "evidence/live-acceptance.json",
+    "evidence/mcp-acceptance.json",
+    "evidence/auto-fallback.json",
+    "evidence/review-fixes-tests.log",
+    "evidence/shipcheck-final.json",
+    "evidence/gosec-after.json",
+    "evidence/review-round3-tests.log",
+    "evidence/mcp-catalog-polish.json",
+    "evidence/mcp-check-final.log"
+  ]
+}

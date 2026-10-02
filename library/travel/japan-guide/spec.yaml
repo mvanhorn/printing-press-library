@@ -1,0 +1,31 @@
+name: japan-guide
+version: 0.1.0
+description: Source-linked Japan sightseeing facts in compact JSON.
+cli_description: Source-linked Japan sightseeing facts in compact JSON.
+category: travel
+base_url: https://www.japan-guide.com
+health_check_path: /e/e623a.html
+http_transport: standard
+mcp:
+  endpoint_tools: hidden
+auth:
+  type: none
+learn:
+  entity_lookup_seeds:
+    destination:
+      - canonical: Tokyo
+        aliases: [tokyo, 東京]
+      - canonical: Kyoto
+        aliases: [kyoto, 京都]
+resources:
+  source:
+    description: Public source links; use guide commands for bounded planning facts
+    endpoints:
+      directory:
+        method: GET
+        path: /e/e623a.html
+        description: Source destination link directory
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/e]

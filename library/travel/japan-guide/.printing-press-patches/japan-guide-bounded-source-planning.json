@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "japan-guide-bounded-source-planning",
+  "applied_at": "2026-10-02",
+  "base_run_id": "20261002-001811-227018a4",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Preserve bounded, source-cited Japan Guide planning commands with facility identity, dated qualifiers, explicit opening uncertainty and original offline freshness.",
+  "reason": "Japan Guide publishes structured editorial HTML, with multiple facility schedules, source interest icons and notices outside the main article. A raw link endpoint cannot retain those domain facts or distinguish source schedules from live operating status; source selectors must be rediscovered when the site changes.",
+  "files": [
+    "internal/guide/guide.go",
+    "internal/guide/guide_test.go",
+    "internal/cli/guide.go",
+    "internal/cli/guide_test.go"
+  ],
+  "validated_outcome": "Deterministic domain and CLI protocol tests pass, including charset, facility scope, event identity, original cache freshness, typed throttling, partial failures and fatal snapshot-save errors after successful live acquisition. Actual MCP catalog classifies snapshot-saving inspection as may-write and the other six guide tools as read-only. Real-source acceptance is recorded in .manuscripts/20261002-001811-227018a4/proofs/source-live-acceptance.json."
+}

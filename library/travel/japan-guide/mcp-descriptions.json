@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "source_directory": "Internal Japan Guide destination HTML reader with no input parameters. Endpoint mirrors are hidden; use guide_destinations for bounded parsed source records and planning facts."
+  }
+}

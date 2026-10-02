@@ -1,0 +1,410 @@
+{
+  "status": "PASS",
+  "source": "https://www.japan-guide.com/",
+  "checked_at": "2026-10-01T19:10:59Z",
+  "case_count": 20,
+  "cases": [
+    {
+      "case": "destinations",
+      "status": "PASS",
+      "command": [
+        "guide",
+        "destinations",
+        "--region",
+        "kanto",
+        "--limit",
+        "5",
+        "--agent",
+        "--no-learn"
+      ],
+      "json_bytes": 2020,
+      "wall_ms": 1734,
+      "metrics": {
+        "elapsed_ms": 1721,
+        "upstream_bytes": 638820,
+        "upstream_requests": 1
+      }
+    },
+    {
+      "case": "temples",
+      "status": "PASS",
+      "command": [
+        "guide",
+        "attractions",
+        "e2164",
+        "--interest",
+        "temples",
+        "--limit",
+        "5",
+        "--agent",
+        "--no-learn"
+      ],
+      "json_bytes": 1823,
+      "wall_ms": 1206,
+      "metrics": {
+        "elapsed_ms": 1187,
+        "upstream_bytes": 639519,
+        "upstream_requests": 1
+      }
+    },
+    {
+      "case": "no-match",
+      "status": "PASS",
+      "command": [
+        "guide",
+        "attractions",
+        "e2164",
+        "--query",
+        "no-such-place-xyz",
+        "--agent",
+        "--no-learn"
+      ],
+      "json_bytes": 578,
+      "wall_ms": 1154,
+      "metrics": {
+        "elapsed_ms": 1136,
+        "upstream_bytes": 639519,
+        "upstream_requests": 1
+      }
+    },
+    {
+      "case": "category-identity",
+      "status": "PASS",
+      "command": [
+        "guide",
+        "attractions",
+        "e2164",
+        "--offset",
+        "50",
+        "--limit",
+        "50",
+        "--agent",
+        "--no-learn"
+      ],
+      "json_bytes": 15937,
+      "wall_ms": 1231,
+      "metrics": {
+        "elapsed_ms": 1212,
+        "upstream_bytes": 639519,
+        "upstream_requests": 1
+      }
+    },
+    {
+      "case": "selected-temples",
+      "status": "PASS",
+      "command": [
+        "guide",
+        "attractions",
+        "e2164",
+        "--interest",
+        "temples",
+        "--limit",
+        "3",
+        "--select",
+        "items",
+        "--agent",
+        "--no-learn"
+      ],
+      "json_bytes": 1080,
+      "wall_ms": 1175,
+      "metrics": null
+    },
+    {
+      "case": "interests",
+      "status": "PASS",
+      "command": [
+        "guide",
+        "interests",
+        "--query",
+        "temples",
+        "--limit",
+        "3",
+        "--agent",
+        "--no-learn"
+      ],
+      "json_bytes": 631,
+      "wall_ms": 1953,
+      "metrics": {
+        "elapsed_ms": 1934,
+        "upstream_bytes": 103459,
+        "upstream_requests": 1
+      }
+    },
+    {
+      "case": "sensoji",
+      "status": "PASS",
+      "command": [
+        "guide",
+        "inspect",
+        "e3001",
+        "--cache",
+        "--cache-dir",
+        "<cli-dir>/evidence/facts-cache",
+        "--agent",
+        "--no-learn"
+      ],
+      "json_bytes": 1598,
+      "wall_ms": 1424,
+      "metrics": {
+        "elapsed_ms": 1405,
+        "upstream_bytes": 257299,
+        "upstream_requests": 1
+      }
+    },
+    {
+      "case": "offline",
+      "status": "PASS",
+      "command": [
+        "guide",
+        "inspect",
+        "e3001",
+        "--offline",
+        "--cache-dir",
+        "<cli-dir>/evidence/facts-cache",
+        "--agent",
+        "--no-learn"
+      ],
+      "json_bytes": 1615,
+      "wall_ms": 13,
+      "metrics": {
+        "elapsed_ms": 0,
+        "upstream_bytes": 0,
+        "upstream_requests": 0
+      }
+    },
+    {
+      "case": "meiji",
+      "status": "PASS",
+      "command": [
+        "guide",
+        "inspect",
+        "e3002",
+        "--agent",
+        "--no-learn"
+      ],
+      "json_bytes": 2217,
+      "wall_ms": 937,
+      "metrics": {
+        "elapsed_ms": 922,
+        "upstream_bytes": 263079,
+        "upstream_requests": 1
+      }
+    },
+    {
+      "case": "construction",
+      "status": "PASS",
+      "command": [
+        "guide",
+        "inspect",
+        "e3911",
+        "--agent",
+        "--no-learn"
+      ],
+      "json_bytes": 2173,
+      "wall_ms": 959,
+      "metrics": {
+        "elapsed_ms": 941,
+        "upstream_bytes": 263040,
+        "upstream_requests": 1
+      }
+    },
+    {
+      "case": "event",
+      "status": "PASS",
+      "command": [
+        "guide",
+        "inspect",
+        "e3063",
+        "--agent",
+        "--no-learn"
+      ],
+      "json_bytes": 2003,
+      "wall_ms": 960,
+      "metrics": {
+        "elapsed_ms": 943,
+        "upstream_bytes": 251585,
+        "upstream_requests": 1
+      }
+    },
+    {
+      "case": "marathon",
+      "status": "PASS",
+      "command": [
+        "guide",
+        "inspect",
+        "e2264",
+        "--agent",
+        "--no-learn"
+      ],
+      "json_bytes": 1285,
+      "wall_ms": 952,
+      "metrics": {
+        "elapsed_ms": 941,
+        "upstream_bytes": 245784,
+        "upstream_requests": 1
+      }
+    },
+    {
+      "case": "jidai",
+      "status": "PASS",
+      "command": [
+        "guide",
+        "inspect",
+        "e3960",
+        "--agent",
+        "--no-learn"
+      ],
+      "json_bytes": 2348,
+      "wall_ms": 955,
+      "metrics": {
+        "elapsed_ms": 939,
+        "upstream_bytes": 258745,
+        "upstream_requests": 1
+      }
+    },
+    {
+      "case": "interest-detail",
+      "status": "PASS",
+      "command": [
+        "guide",
+        "inspect",
+        "e2058",
+        "--agent",
+        "--no-learn"
+      ],
+      "json_bytes": 947,
+      "wall_ms": 908,
+      "metrics": {
+        "elapsed_ms": 889,
+        "upstream_bytes": 162338,
+        "upstream_requests": 1
+      }
+    },
+    {
+      "case": "itinerary-index",
+      "status": "PASS",
+      "command": [
+        "guide",
+        "itineraries",
+        "--limit",
+        "5",
+        "--agent",
+        "--no-learn"
+      ],
+      "json_bytes": 1391,
+      "wall_ms": 2122,
+      "metrics": {
+        "elapsed_ms": 2104,
+        "upstream_bytes": 120874,
+        "upstream_requests": 1
+      }
+    },
+    {
+      "case": "local-itineraries",
+      "status": "PASS",
+      "command": [
+        "guide",
+        "itineraries",
+        "--destination",
+        "e2164",
+        "--limit",
+        "5",
+        "--agent",
+        "--no-learn"
+      ],
+      "json_bytes": 1586,
+      "wall_ms": 1239,
+      "metrics": {
+        "elapsed_ms": 1220,
+        "upstream_bytes": 639519,
+        "upstream_requests": 1
+      }
+    },
+    {
+      "case": "regional-plan",
+      "status": "PASS",
+      "command": [
+        "guide",
+        "itinerary",
+        "e2400_kanto",
+        "--agent",
+        "--no-learn"
+      ],
+      "json_bytes": 1821,
+      "wall_ms": 900,
+      "metrics": {
+        "elapsed_ms": 881,
+        "upstream_bytes": 113877,
+        "upstream_requests": 1
+      }
+    },
+    {
+      "case": "local-plan",
+      "status": "PASS",
+      "command": [
+        "guide",
+        "itinerary",
+        "e3051_west_tokyo_full",
+        "--agent",
+        "--no-learn"
+      ],
+      "json_bytes": 1418,
+      "wall_ms": 960,
+      "metrics": {
+        "elapsed_ms": 941,
+        "upstream_bytes": 260542,
+        "upstream_requests": 1
+      }
+    },
+    {
+      "case": "compare-partial",
+      "status": "PASS",
+      "command": [
+        "guide",
+        "compare",
+        "e3001",
+        "e999999",
+        "--agent",
+        "--no-learn"
+      ],
+      "json_bytes": 1778,
+      "wall_ms": 1277,
+      "metrics": {
+        "elapsed_ms": 1256,
+        "upstream_bytes": 257299,
+        "upstream_requests": 2
+      }
+    },
+    {
+      "case": "compare-quoted",
+      "status": "PASS",
+      "command": [
+        "guide",
+        "compare",
+        "e3001 e3002",
+        "--rate-limit",
+        "0",
+        "--agent",
+        "--no-learn"
+      ],
+      "json_bytes": 3659,
+      "wall_ms": 1239,
+      "metrics": {
+        "elapsed_ms": 1225,
+        "upstream_bytes": 519985,
+        "upstream_requests": 2
+      }
+    }
+  ],
+  "resource_measurement": {
+    "representative_command": "guide destinations --region kanto --limit 5 --agent",
+    "maximum_resident_bytes": 28442624,
+    "json_bytes": 2020,
+    "metrics": {
+      "elapsed_ms": 1740,
+      "upstream_bytes": 638820,
+      "upstream_requests": 1
+    }
+  },
+  "raw_samples": "Kept private; case results, measurements and source URLs retained."
+}
