@@ -7,6 +7,7 @@ ListingView's keyword, listing, shop, and tag research — backed by a local SQL
 Learn more at [ListingView](https://app.listingview.io).
 
 Created by [@vcolombo](https://github.com/vcolombo) (Vincent Colombo).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 
@@ -123,6 +124,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 ```
 
 </details>
+
+For the HTTP MCP transport, set `PP_MCP_HTTP_TOKEN` or pass `--http-token`. It binds to `127.0.0.1:7777` by default. A non-loopback address also requires `--tls-cert` and `--tls-key`.
 
 ## Authentication
 

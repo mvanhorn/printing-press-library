@@ -66,7 +66,7 @@ func TestFirstNonZero(t *testing.T) {
 }
 
 func TestListAndFieldHelpers(t *testing.T) {
-	raw := json.RawMessage(`{"keywords":[{"keyword":"sticker","volume":"5764996.14","competingListings":194268}]}`)
+	raw := json.RawMessage(`{"keywords":[{"keyword":"sticker","searchVolume":"5764996.14","competition":194268}]}`)
 	var data map[string]json.RawMessage
 	if err := json.Unmarshal(raw, &data); err != nil {
 		t.Fatal(err)
@@ -79,11 +79,11 @@ func TestListAndFieldHelpers(t *testing.T) {
 		t.Fatalf("strOf keyword = %q, want sticker", got)
 	}
 	// numOf must tolerate a JSON-string-encoded number.
-	if got := numOf(kws[0], "volume"); got != 5764996.14 {
-		t.Fatalf("numOf volume = %v, want 5764996.14", got)
+	if got := numOf(kws[0], "searchVolume"); got != 5764996.14 {
+		t.Fatalf("numOf searchVolume = %v, want 5764996.14", got)
 	}
-	if got := numOf(kws[0], "competingListings"); got != 194268 {
-		t.Fatalf("numOf competingListings = %v, want 194268", got)
+	if got := numOf(kws[0], "competition"); got != 194268 {
+		t.Fatalf("numOf competition = %v, want 194268", got)
 	}
 }
 

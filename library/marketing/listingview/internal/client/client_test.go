@@ -6,6 +6,7 @@ package client
 import (
 	"bytes"
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -16,6 +17,55 @@ import (
 
 	"github.com/mvanhorn/printing-press-library/library/marketing/listingview/internal/config"
 )
+
+type transportErrorRoundTripper struct {
+	calls int
+}
+
+func (r *transportErrorRoundTripper) RoundTrip(*http.Request) (*http.Response, error) {
+	r.calls++
+	return nil, errors.New("response lost after request write")
+}
+
+func TestRetrySafeRequest(t *testing.T) {
+	tests := []struct {
+		method         string
+		readOnlyIntent bool
+		want           bool
+	}{
+		{http.MethodGet, false, true},
+		{http.MethodHead, false, true},
+		{http.MethodOptions, false, true},
+		{http.MethodPost, true, true},
+		{http.MethodPost, false, false},
+		{http.MethodPatch, false, false},
+		{http.MethodDelete, false, false},
+	}
+	for _, tt := range tests {
+		if got := retrySafeRequest(tt.method, tt.readOnlyIntent); got != tt.want {
+			t.Errorf("retrySafeRequest(%q, %v) = %v, want %v", tt.method, tt.readOnlyIntent, got, tt.want)
+		}
+	}
+}
+
+func TestMutatingPostDoesNotRetryTransportError(t *testing.T) {
+	t.Setenv("PRINTING_PRESS_VERIFY", "")
+	t.Setenv("PRINTING_PRESS_DOGFOOD", "")
+	rt := &transportErrorRoundTripper{}
+	c := New(&config.Config{
+		BaseURL:            "https://example.test",
+		ListingviewCookies: "session=secret",
+	}, time.Second, 0)
+	c.HTTPClient = &http.Client{Transport: rt}
+	c.NoCache = true
+
+	if _, _, err := c.Post(context.Background(), "/toggle", map[string]any{"id": 1}); err == nil {
+		t.Fatal("Post() error = nil, want transport error")
+	}
+	if rt.calls != 1 {
+		t.Fatalf("mutating POST made %d attempts, want exactly 1", rt.calls)
+	}
+}
 
 func TestTruncateBody(t *testing.T) {
 	t.Parallel()

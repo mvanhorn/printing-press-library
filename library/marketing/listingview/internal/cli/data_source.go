@@ -56,6 +56,10 @@ func isNetworkError(err error) bool {
 	if err == nil {
 		return false
 	}
+	var apiErr *client.APIError
+	if errors.As(err, &apiErr) {
+		return false
+	}
 	var urlErr *url.Error
 	if As(err, &urlErr) {
 		// url.Error wraps the underlying network error

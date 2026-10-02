@@ -3,11 +3,15 @@
 package cli
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
+	"time"
 
 	"github.com/spf13/cobra"
 )
+
+const nicheKeywordSortColumn = "searchVolume"
 
 type nicheView struct {
 	Term                  string   `json:"term"`
@@ -56,7 +60,7 @@ func newNovelNicheCmd(flags *rootFlags) *cobra.Command {
 
 			// Keyword demand/competition.
 			kwData, err := callProxyPOST(ctx, c, "getFilteredKeywords", map[string]any{
-				"search": term, "sort_column": "volume", "sort_order": "desc", "page": 1, "limit": 1, "filters": map[string]any{},
+				"search": term, "sort_column": nicheKeywordSortColumn, "sort_order": "desc", "page": 1, "limit": 1, "filters": map[string]any{},
 			})
 			if err != nil {
 				return classifyAPIError(err, flags)
@@ -64,10 +68,7 @@ func newNovelNicheCmd(flags *rootFlags) *cobra.Command {
 			view := nicheView{Term: term, Signals: []string{}}
 			if kws := listOf(kwData, "keywords"); len(kws) > 0 {
 				k := kws[0]
-				view.SearchVolume = numOf(k, "volume")
-				view.CompetingListings = numOf(k, "competingListings")
-				view.CompetingShops = numOf(k, "competingShops")
-				view.AvgPrice = numOf(k, "averagePrice")
+				applyNicheKeywordMetrics(&view, k)
 				if view.CompetingListings > 0 {
 					view.OpportunityRatio = round2(view.SearchVolume / view.CompetingListings)
 				}
@@ -91,12 +92,12 @@ func newNovelNicheCmd(flags *rootFlags) *cobra.Command {
 				return classifyAPIError(err, flags)
 			}
 			listings := listOf(lData, "listings")
-			view.TopSellerSamples = len(listings)
 			if len(listings) > 0 {
 				var ageSum float64
 				var ageCount, recent int
+				now := time.Now()
 				for _, l := range listings {
-					age := numOf(l, "ageInMonths")
+					age := listingAgeMonths(l, now)
 					if age > 0 {
 						ageSum += age
 						ageCount++
@@ -105,9 +106,12 @@ func newNovelNicheCmd(flags *rootFlags) *cobra.Command {
 						}
 					}
 				}
+				view.TopSellerSamples = ageCount
 				if ageCount > 0 {
 					view.TopSellerAvgAgeMonths = round2(ageSum / float64(ageCount))
 					view.WinnablePct = round2(float64(recent) / float64(ageCount) * 100)
+				} else {
+					view.Signals = append(view.Signals, "top listings did not include usable listing dates")
 				}
 			} else {
 				view.Signals = append(view.Signals, "no top listings found for this term")
@@ -119,6 +123,34 @@ func newNovelNicheCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&dbPath, "db", "", "Local store path for snapshot history (defaults to the standard location).")
 	return cmd
+}
+
+func applyNicheKeywordMetrics(view *nicheView, keyword map[string]json.RawMessage) {
+	view.SearchVolume = numOf(keyword, "searchVolume")
+	view.CompetingListings = numOf(keyword, "competition")
+	view.CompetingShops = numOf(keyword, "competitionShops")
+	view.AvgPrice = numOf(keyword, "avgPrice")
+}
+
+func listingAgeMonths(listing map[string]json.RawMessage, now time.Time) float64 {
+	if age := numOf(listing, "ageInMonths"); age > 0 {
+		return age
+	}
+	listedText := strOf(listing, "dateListed")
+	if listedText == "" {
+		return 0
+	}
+	for _, layout := range []string{time.RFC3339, "2006-01-02"} {
+		listed, err := time.Parse(layout, listedText)
+		if err != nil {
+			continue
+		}
+		if !listed.Before(now) {
+			return 0
+		}
+		return now.Sub(listed).Hours() / 24 / 30.4375
+	}
+	return 0
 }
 
 func nicheVerdict(v nicheView) (string, []string) {
