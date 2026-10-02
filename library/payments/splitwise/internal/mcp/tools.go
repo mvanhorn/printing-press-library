@@ -5,7 +5,9 @@ package mcp
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -714,7 +716,15 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			return mcplib.NewToolResultText(result), nil
 		}
 		if pageConfig.CursorParam != "" {
-			return mcpToolPageResultTextWithPlatform(method, data, pageConfig, mcpCursor, platformSession), nil
+			scope, dataHash := "", ""
+			if pageConfig.LocalOnly {
+				scope = localPageScope(method, path, params)
+				dataHash = hashMCPPageData(data)
+				if err := bound.ValidateLocalCursor(mcpCursor, scope, dataHash); err != nil {
+					return mcpToolError(err.Error()), nil
+				}
+			}
+			return mcpToolPageResultTextWithPlatform(method, data, pageConfig, mcpCursor, platformSession, scope, dataHash), nil
 		}
 		return mcpToolResultTextWithPlatform(method, data, platformSession), nil
 	}
@@ -743,19 +753,46 @@ func mcpToolError(message string) *mcplib.CallToolResult {
 }
 
 func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string) *mcplib.CallToolResult {
-	return mcpToolPageResultTextWithPlatform(method, data, pageConfig, cursor, nil)
+	return mcpToolPageResultTextWithPlatform(method, data, pageConfig, cursor, nil, "", "")
 }
 
-func mcpToolPageResultTextWithPlatform(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string, platformSession *platform.Session) *mcplib.CallToolResult {
+func mcpToolPageResultTextWithPlatform(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string, platformSession *platform.Session, scope, dataHash string) *mcplib.CallToolResult {
+	budget := bound.MaxBytes
+	var metadata any
+	if platformSession != nil {
+		metadata = platformSession.OutputMetadata()
+		metadataJSON, _ := json.Marshal(metadata)
+		budget -= len(metadataJSON) + 1024 // reserve wrapper and metadata overhead
+		if budget < 1024 {
+			budget = 1024
+		}
+	}
 	result := bound.EndpointPageResponse(method, data, bound.PageOptions{
 		Cursor:         cursor,
 		CursorParam:    pageConfig.CursorParam,
 		NextCursorPath: pageConfig.NextCursorPath,
+		Scope:          scope,
+		DataHash:       dataHash,
+		BudgetBytes:    budget,
 	})
 	if platformSession != nil {
-		result = bound.WithMetadata(result, platformSession.OutputMetadata())
+		result = bound.WithMetadata(result, metadata)
 	}
 	return mcplib.NewToolResultText(result)
+}
+
+func localPageScope(method, path string, params map[string]string) string {
+	request, _ := json.Marshal(struct {
+		Method string            `json:"method"`
+		Path   string            `json:"path"`
+		Params map[string]string `json:"params"`
+	}{Method: method, Path: path, Params: params})
+	return hashMCPPageData(request)
+}
+
+func hashMCPPageData(data []byte) string {
+	digest := sha256.Sum256(data)
+	return hex.EncodeToString(digest[:])
 }
 
 func newMCPClient(ctx context.Context) (*client.Client, *platform.Session, error) {

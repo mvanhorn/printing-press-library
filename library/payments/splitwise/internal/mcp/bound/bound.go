@@ -46,12 +46,37 @@ type PageOptions struct {
 	Cursor         string
 	CursorParam    string
 	NextCursorPath string
+	Scope          string
+	DataHash       string
+	BudgetBytes    int
 }
 
 type endpointCursor struct {
 	Version        int    `json:"v"`
 	Offset         int    `json:"o,omitempty"`
 	UpstreamCursor string `json:"u,omitempty"`
+	ItemByteOffset int    `json:"b,omitempty"`
+	Scope          string `json:"s,omitempty"`
+	DataHash       string `json:"h,omitempty"`
+}
+
+// ValidateLocalCursor refuses a cursor from another list or from an earlier
+// version of a changing list, instead of silently skipping shifted rows.
+func ValidateLocalCursor(cursor, scope, dataHash string) error {
+	if cursor == "" {
+		return nil
+	}
+	state, err := decodeEndpointCursor(cursor)
+	if err != nil {
+		return err
+	}
+	if scope == "" || dataHash == "" || state.Scope != scope || state.UpstreamCursor != "" {
+		return fmt.Errorf("cursor belongs to a different list; restart without a cursor")
+	}
+	if state.DataHash != dataHash {
+		return fmt.Errorf("list changed since the previous page; restart without a cursor")
+	}
+	return nil
 }
 
 // EndpointResponse renders a typed endpoint response within the MCP result
@@ -337,7 +362,11 @@ func boundedListEnvelope(field string, items []json.RawMessage, originalBytes in
 }
 
 func boundedPageListEnvelope(field string, items []json.RawMessage, original json.RawMessage, note string, opts PageOptions, base map[string]json.RawMessage, nextUpstream string) []byte {
-	state := endpointCursor{Version: 1}
+	budget := MaxBytes
+	if opts.BudgetBytes > 0 && opts.BudgetBytes < budget {
+		budget = opts.BudgetBytes
+	}
+	state := endpointCursor{Version: 1, Scope: opts.Scope, DataHash: opts.DataHash}
 	if opts.Cursor != "" {
 		if decoded, err := decodeEndpointCursor(opts.Cursor); err == nil {
 			state = decoded
@@ -351,9 +380,9 @@ func boundedPageListEnvelope(field string, items []json.RawMessage, original jso
 		start = len(items)
 	}
 
-	build := func(subset []json.RawMessage, itemPreview string, nextCursor string) any {
+	build := func(subset []json.RawMessage, fragment *pageItemFragment, nextCursor string) any {
 		var out map[string]any
-		if base == nil {
+		if fragment != nil || base == nil {
 			out = map[string]any{}
 		} else {
 			out = make(map[string]any, len(base)+8)
@@ -371,8 +400,13 @@ func boundedPageListEnvelope(field string, items []json.RawMessage, original jso
 		}
 		out[field] = subset
 		out["returned_count"] = len(subset)
-		if itemPreview != "" {
-			out["item_preview"] = itemPreview
+		if fragment != nil {
+			out["item_index"] = start
+			out["item_fragment_offset"] = fragment.Offset
+			out["item_fragment_bytes"] = fragment.Bytes
+			out["item_total_bytes"] = fragment.TotalBytes
+			out["item_fragment_base64"] = fragment.Base64
+			out["item_fragment_complete"] = fragment.Offset+fragment.Bytes == fragment.TotalBytes
 		}
 		if nextCursor != "" {
 			out["truncated"] = true
@@ -385,8 +419,8 @@ func boundedPageListEnvelope(field string, items []json.RawMessage, original jso
 		return out
 	}
 
-	out := fitJSONPageItems(items, start, state.UpstreamCursor, nextUpstream, build)
-	if len(out) > MaxBytes {
+	out := fitJSONPageItems(items, start, state, nextUpstream, budget, build)
+	if len(out) > budget {
 		return []byte(previewEnvelope(original, endpointPreviewNote))
 	}
 	return out
@@ -410,7 +444,14 @@ func fitJSONItems(items []json.RawMessage, build func([]json.RawMessage) any) []
 	return out
 }
 
-func fitJSONPageItems(items []json.RawMessage, start int, currentUpstream, nextUpstream string, build func([]json.RawMessage, string, string) any) []byte {
+type pageItemFragment struct {
+	Offset     int
+	Bytes      int
+	TotalBytes int
+	Base64     string
+}
+
+func fitJSONPageItems(items []json.RawMessage, start int, state endpointCursor, nextUpstream string, budget int, build func([]json.RawMessage, *pageItemFragment, string) any) []byte {
 	remaining := len(items) - start
 	if remaining < 0 {
 		remaining = 0
@@ -419,45 +460,57 @@ func fitJSONPageItems(items []json.RawMessage, start int, currentUpstream, nextU
 	if limit > MaxItems {
 		limit = MaxItems
 	}
-	for n := limit; n > 0; n-- {
-		next := nextPageCursor(start+n, len(items), currentUpstream, nextUpstream)
-		out, err := json.Marshal(build(items[start:start+n], "", next))
-		if err != nil {
-			continue
-		}
-		if len(out) <= MaxBytes {
-			return out
+	if state.ItemByteOffset == 0 {
+		for n := limit; n > 0; n-- {
+			next := nextPageCursor(start+n, len(items), state, nextUpstream)
+			out, err := json.Marshal(build(items[start:start+n], nil, next))
+			if err != nil {
+				continue
+			}
+			if len(out) <= budget {
+				return out
+			}
 		}
 	}
 	if start < len(items) {
-		next := nextPageCursor(start+1, len(items), currentUpstream, nextUpstream)
-		previewLimit := maxPreviewBytes
-		for previewLimit >= 0 {
-			out, err := json.Marshal(build(nil, previewString(items[start], previewLimit), next))
-			if err == nil && len(out) <= MaxBytes {
+		item := items[start]
+		offset := state.ItemByteOffset
+		if offset >= len(item) {
+			return []byte(previewEnvelope(item, "invalid item fragment cursor; restart without a cursor"))
+		}
+		chunkBytes := len(item) - offset
+		if chunkBytes > 30000 {
+			chunkBytes = 30000
+		}
+		for chunkBytes > 0 {
+			fragment := &pageItemFragment{Offset: offset, Bytes: chunkBytes, TotalBytes: len(item), Base64: base64.StdEncoding.EncodeToString(item[offset : offset+chunkBytes])}
+			var next string
+			if offset+chunkBytes < len(item) {
+				continuation := state
+				continuation.Offset = start
+				continuation.ItemByteOffset = offset + chunkBytes
+				next = encodeEndpointCursor(continuation)
+			} else {
+				next = nextPageCursor(start+1, len(items), state, nextUpstream)
+			}
+			out, err := json.Marshal(build(nil, fragment, next))
+			if err == nil && len(out) <= budget {
 				return out
 			}
-			if previewLimit == 0 {
-				break
-			}
-			if previewLimit < 512 {
-				previewLimit = 0
-			} else {
-				previewLimit -= 512
-			}
+			chunkBytes /= 2
 		}
 	}
-	next := nextPageCursor(len(items), len(items), currentUpstream, nextUpstream)
-	out, _ := json.Marshal(build(nil, "", next))
+	next := nextPageCursor(len(items), len(items), state, nextUpstream)
+	out, _ := json.Marshal(build(nil, nil, next))
 	return out
 }
 
-func nextPageCursor(nextOffset, itemCount int, currentUpstream, nextUpstream string) string {
-	state := endpointCursor{Version: 1}
+func nextPageCursor(nextOffset, itemCount int, previous endpointCursor, nextUpstream string) string {
+	state := endpointCursor{Version: 1, Scope: previous.Scope, DataHash: previous.DataHash}
 	switch {
 	case nextOffset < itemCount:
 		state.Offset = nextOffset
-		state.UpstreamCursor = currentUpstream
+		state.UpstreamCursor = previous.UpstreamCursor
 	case nextUpstream != "":
 		state.UpstreamCursor = nextUpstream
 	default:

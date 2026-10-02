@@ -4,7 +4,9 @@
 package bound
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"strconv"
 	"strings"
@@ -282,7 +284,7 @@ func TestEndpointPageResponseDoesNotContinueWithEchoedUpstreamCursor(t *testing.
 	}
 }
 
-func TestEndpointPageResponseOversizedFirstItemReturnsPreviewAndAdvances(t *testing.T) {
+func TestEndpointPageResponseOversizedFirstItemCanBeReassembled(t *testing.T) {
 	items := []map[string]string{
 		{"id": "too-large", "payload": strings.Repeat("x", MaxBytes+10000)},
 		{"id": "next", "payload": "small"},
@@ -292,39 +294,78 @@ func TestEndpointPageResponseOversizedFirstItemReturnsPreviewAndAdvances(t *test
 		t.Fatalf("marshal fixture: %v", err)
 	}
 
-	firstText := EndpointPageResponse("GET", data, PageOptions{CursorParam: "cursor"})
-	if len(firstText) > MaxBytes {
-		t.Fatalf("bounded result length = %d, want <= %d", len(firstText), MaxBytes)
+	var cursor string
+	var assembled []byte
+	foundNext := false
+	for page := 0; page < 10; page++ {
+		text := EndpointPageResponse("GET", data, PageOptions{CursorParam: "cursor", Cursor: cursor})
+		if len(text) > MaxBytes {
+			t.Fatalf("bounded page length = %d, want <= %d", len(text), MaxBytes)
+		}
+		var envelope struct {
+			Items                []map[string]string `json:"items"`
+			ItemIndex            int                 `json:"item_index"`
+			ItemFragmentOffset   int                 `json:"item_fragment_offset"`
+			ItemFragmentBytes    int                 `json:"item_fragment_bytes"`
+			ItemTotalBytes       int                 `json:"item_total_bytes"`
+			ItemFragmentBase64   string              `json:"item_fragment_base64"`
+			ItemFragmentComplete bool                `json:"item_fragment_complete"`
+			NextCursor           string              `json:"next_cursor"`
+		}
+		if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+			t.Fatalf("decode page %d: %v", page, err)
+		}
+		if envelope.ItemFragmentBase64 != "" {
+			fragment, err := base64.StdEncoding.DecodeString(envelope.ItemFragmentBase64)
+			if err != nil || len(fragment) != envelope.ItemFragmentBytes || envelope.ItemFragmentOffset != len(assembled) || envelope.ItemIndex != 0 {
+				t.Fatalf("invalid item fragment on page %d: %v", page, err)
+			}
+			assembled = append(assembled, fragment...)
+			if envelope.ItemFragmentComplete && len(assembled) != envelope.ItemTotalBytes {
+				t.Fatal("item fragment completed before all bytes were returned")
+			}
+		} else if len(envelope.Items) > 0 {
+			foundNext = envelope.Items[0]["id"] == "next"
+		}
+		cursor = envelope.NextCursor
+		if cursor == "" {
+			break
+		}
 	}
+	var expected []json.RawMessage
+	if err := json.Unmarshal(data, &expected); err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(assembled, expected[0]) || !foundNext || cursor != "" {
+		t.Fatalf("oversized item was not completely resumable: assembled=%d expected=%d next=%v cursor=%q", len(assembled), len(expected[0]), foundNext, cursor)
+	}
+}
 
-	var first struct {
-		Items         []json.RawMessage `json:"items"`
-		ItemPreview   string            `json:"item_preview"`
-		ReturnedCount int               `json:"returned_count"`
-		NextCursor    string            `json:"next_cursor"`
+func TestEndpointPageResponseReservesPlatformMetadataBudget(t *testing.T) {
+	items := make([]map[string]string, 80)
+	for i := range items {
+		items[i] = map[string]string{"id": strconv.Itoa(i), "payload": strings.Repeat("x", 1200)}
 	}
-	if err := json.Unmarshal([]byte(firstText), &first); err != nil {
-		t.Fatalf("first page must remain valid JSON: %v\n%s", err, firstText)
+	data, err := json.Marshal(map[string]any{"groups": items})
+	if err != nil {
+		t.Fatal(err)
 	}
-	if len(first.Items) != 0 || first.ReturnedCount != 0 {
-		t.Fatalf("oversized first item should not claim to return a full item: %s", firstText)
+	page := EndpointPageResponse("GET", data, PageOptions{CursorParam: "local", BudgetBytes: 30000})
+	result := WithMetadata(page, map[string]any{"detail": strings.Repeat("m", 2000)})
+	if len(result) > MaxBytes {
+		t.Fatalf("wrapped page exceeded budget: %d", len(result))
 	}
-	if first.ItemPreview == "" {
-		t.Fatalf("oversized first item should include item_preview: %s", firstText)
+	var wrapped struct {
+		Data struct {
+			NextCursor string `json:"next_cursor"`
+			Resumable  *bool  `json:"resumable"`
+		} `json:"data"`
 	}
-	if first.NextCursor == "" {
-		t.Fatalf("oversized first item should advance with next_cursor: %s", firstText)
+	if err := json.Unmarshal([]byte(result), &wrapped); err != nil {
+		t.Fatal(err)
 	}
-
-	secondText := EndpointPageResponse("GET", data, PageOptions{CursorParam: "cursor", Cursor: first.NextCursor})
-	var second struct {
-		Items []map[string]string `json:"items"`
-	}
-	if err := json.Unmarshal([]byte(secondText), &second); err != nil {
-		t.Fatalf("second page must remain valid JSON: %v\n%s", err, secondText)
-	}
-	if len(second.Items) == 0 || second.Items[0]["id"] != "next" {
-		t.Fatalf("second page should advance past oversized item, got %s", secondText)
+	if wrapped.Data.NextCursor == "" || wrapped.Data.Resumable != nil {
+		t.Fatalf("platform metadata removed local continuation: %s", result)
 	}
 }
 

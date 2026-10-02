@@ -113,6 +113,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 </details>
 
+Typed MCP category, comment, currency, friend, and group lists return `next_cursor` when more data is available. Continue with the same tool and arguments plus that cursor. If the list changed, restart without a cursor. An item too large for one result is returned as numbered `item_fragment_base64` chunks; decode and join the chunks by `item_index` and `item_fragment_offset` before parsing the item as JSON.
+
 ## Authentication
 
 Splitwise authenticates with a personal API key used as an HTTP Bearer token. Register an app at https://secure.splitwise.com/apps to get your key, then set SPLITWISE_API_KEY. The Splitwise API also offers OAuth 2.0 (authorization-code) for multi-user apps, but this CLI authenticates as a single user with a personal API key only — there is no OAuth login flow in the binary.
