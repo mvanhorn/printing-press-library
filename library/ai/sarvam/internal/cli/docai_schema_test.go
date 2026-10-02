@@ -30,3 +30,27 @@ func TestNovelDocaiSchemaHelpWires(t *testing.T) {
 		}
 	}
 }
+
+func TestDocaiSchemaMCPReadOnlyHintsMatchWrites(t *testing.T) {
+	schema := newNovelDocaiSchemaCmd(&rootFlags{})
+	for _, tc := range []struct {
+		name     string
+		readOnly string
+	}{
+		{name: "save", readOnly: "false"},
+		{name: "delete", readOnly: "false"},
+		{name: "list", readOnly: "true"},
+		{name: "get", readOnly: "true"},
+		{name: "diff", readOnly: "true"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			command, _, err := schema.Find([]string{tc.name})
+			if err != nil || command == nil || command.Name() != tc.name {
+				t.Fatalf("finding schema %s: err=%v", tc.name, err)
+			}
+			if got := command.Annotations["mcp:read-only"]; got != tc.readOnly {
+				t.Fatalf("schema %s mcp:read-only=%q, want %q", tc.name, got, tc.readOnly)
+			}
+		})
+	}
+}

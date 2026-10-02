@@ -48,7 +48,7 @@ func newNovelDocaiSchemaCmd(flags *rootFlags) *cobra.Command {
 		Use:         "save",
 		Short:       "Save an extraction schema locally",
 		Example:     "  sarvam-pp-cli docai schema save invoice-v1 --file schema.json",
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2,3"},
+		Annotations: map[string]string{"mcp:read-only": "false", "pp:typed-exit-codes": "0,2,3"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
@@ -261,7 +261,7 @@ func newNovelDocaiSchemaCmd(flags *rootFlags) *cobra.Command {
 		Use:         "delete",
 		Short:       "Delete a saved extraction schema",
 		Example:     "  sarvam-pp-cli docai schema delete invoice-v1",
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,3"},
+		Annotations: map[string]string{"mcp:read-only": "false", "pp:typed-exit-codes": "0,3"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "sarvam-docai-schema-mcp-write-hints",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260814-164825-7ec4499e",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Mark local DocAI schema save and delete commands as writes in MCP tool metadata.",
+  "reason": "Both commands change the local schema store, but read-only MCP hints can cause hosts to run them without write confirmation.",
+  "files": [
+    "internal/cli/docai_schema.go",
+    "internal/cli/docai_schema_test.go"
+  ]
+}
