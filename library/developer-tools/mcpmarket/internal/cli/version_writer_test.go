@@ -5,7 +5,11 @@ package cli
 import (
 	"bytes"
 	"fmt"
+	"path/filepath"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/mcpmarket/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/mcpmarket/internal/cliutil/testenv"
 )
 
 func TestVersionCommandUsesConfiguredWriter(t *testing.T) {
@@ -17,5 +21,22 @@ func TestVersionCommandUsesConfiguredWriter(t *testing.T) {
 	}
 	if got, want := output.String(), fmt.Sprintf("version %s\n", version); got != want {
 		t.Fatalf("version output = %q, want %q", got, want)
+	}
+}
+
+func TestVersionDeliveryCaptureThroughRoot(t *testing.T) {
+	testenv.Isolate(t, cliutil.ConfigDir)
+	t.Setenv(mcpBoundProfileEnv, "")
+	flags := &rootFlags{}
+	root := newRootCmd(flags)
+	root.SetArgs([]string{"version", "--deliver", "file:" + filepath.Join(t.TempDir(), "version.txt")})
+	if err := root.Execute(); err != nil {
+		t.Fatal(err)
+	}
+	if flags.deliverBuf == nil {
+		t.Fatal("root did not configure delivery capture")
+	}
+	if got, want := flags.deliverBuf.String(), fmt.Sprintf("mcpmarket-pp-cli %s\n", version); got != want {
+		t.Fatalf("captured version = %q, want %q", got, want)
 	}
 }
