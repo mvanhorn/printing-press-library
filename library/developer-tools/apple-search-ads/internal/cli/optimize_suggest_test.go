@@ -3,8 +3,13 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"math"
+	"net/http"
+	"net/http/httptest"
+	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -217,6 +222,45 @@ func TestApplyDryRunGate(t *testing.T) {
 			t.Errorf("flagApply=%v dryRun=%v: want apply=%v, got %v",
 				tc.flagApply, tc.dryRun, tc.wantApply, got)
 		}
+	}
+}
+
+func TestOptimizeSuggestPartialApplyOutputsSuggestions(t *testing.T) {
+	var applied int
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.Method == http.MethodPost && r.URL.Path == "/reports/campaigns/camp1/keywords":
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write(reportFixture())
+		case r.Method == http.MethodPut && strings.HasSuffix(r.URL.Path, "/targetingkeywords/111"):
+			applied++
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(`{}`))
+		case r.Method == http.MethodPut && strings.HasSuffix(r.URL.Path, "/targetingkeywords/222"):
+			w.WriteHeader(http.StatusBadRequest)
+			_, _ = w.Write([]byte(`{"error":"rejected"}`))
+		default:
+			http.Error(w, "unexpected request", http.StatusNotFound)
+		}
+	}))
+	defer server.Close()
+	t.Setenv("APPLE_SEARCH_ADS_BASE_URL", server.URL)
+	t.Setenv("APPLE_SEARCH_ADS_TOKEN", "test-token")
+	var stdout, stderr bytes.Buffer
+	cmd := newRootCmd(&rootFlags{})
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&stderr)
+	cmd.SetArgs([]string{"optimize", "suggest", "--metric", "taps", "--target", "300", "--campaign-id", "camp1", "--apply", "--no-cache", "--config", filepath.Join(t.TempDir(), "missing.toml")})
+	err := cmd.Execute()
+	if err == nil || ExitCode(err) != 6 || applied != 1 {
+		t.Fatalf("partial apply: err=%v exit=%d applied=%d stderr=%q", err, ExitCode(err), applied, stderr.String())
+	}
+	var suggestions []bidSuggestion
+	if err := json.Unmarshal(stdout.Bytes(), &suggestions); err != nil || len(suggestions) != 2 {
+		t.Fatalf("suggestions output: rows=%d err=%v stdout=%q", len(suggestions), err, stdout.String())
+	}
+	if !strings.Contains(stderr.String(), "222") {
+		t.Fatalf("failed keyword missing from stderr: %q", stderr.String())
 	}
 }
 

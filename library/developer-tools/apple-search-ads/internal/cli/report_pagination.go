@@ -55,7 +55,9 @@ func fetchAllReportingPayload(ctx context.Context, c *client.Client, path string
 		}
 		data, _, postErr := c.Post(ctx, path, body)
 		return data, postErr
-	}, extractReportingRowsRaw)
+	}, func(data json.RawMessage) ([]json.RawMessage, error) {
+		return extractOffsetPage(data, c.DryRun, extractReportingRowsRaw)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -72,11 +74,20 @@ func fetchAllOffsetItems(ctx context.Context, c *client.Client, path string, pag
 			"offset": fmt.Sprintf("%d", offset),
 			"limit":  fmt.Sprintf("%d", limit),
 		})
-	}, extractGenericItemsRaw)
+	}, func(data json.RawMessage) ([]json.RawMessage, error) {
+		return extractOffsetPage(data, c.DryRun, extractGenericItemsRaw)
+	})
 	if err != nil {
 		return nil, err
 	}
 	return json.Marshal(map[string]any{"data": items})
+}
+
+func extractOffsetPage(data json.RawMessage, dryRun bool, extract offsetPageExtractor) ([]json.RawMessage, error) {
+	if dryRun && isDryRunResponse(data) {
+		return nil, nil
+	}
+	return extract(data)
 }
 
 func cloneReportBody(base map[string]any, offset, limit int) (map[string]any, error) {

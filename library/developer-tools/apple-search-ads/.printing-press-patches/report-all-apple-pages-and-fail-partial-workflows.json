@@ -4,8 +4,8 @@
   "applied_at": "2026-10-01",
   "base_run_id": "20260529-060535",
   "base_printing_press_version": "4.19.0",
-  "summary": "Fetch every Apple Search Ads report and list page for analytics, bid suggestions, and keyword auto-promotion; return an error when a page or write fails so incomplete work is not reported as success.",
-  "reason": "A single page can omit campaigns, keywords, or search terms, and partial failures during optimization or promotion must be visible to callers.",
+  "summary": "Fetch every Apple Search Ads report and list page for analytics, bid suggestions, and keyword auto-promotion; preserve dry-run previews and report partial failures alongside the available results.",
+  "reason": "A single page can omit campaigns, keywords, or search terms. Dry-run has no API page to parse, and partial writes must remain visible with the suggestions needed for reconciliation.",
   "files": [
     "internal/cli/report_pagination.go",
     "internal/cli/report_pagination_test.go",

@@ -1,8 +1,10 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"path/filepath"
 	"reflect"
 	"testing"
 )
@@ -67,5 +69,46 @@ func TestCloneReportBodyDoesNotMutateCaller(t *testing.T) {
 	original := base["selector"].(map[string]any)["pagination"].(map[string]int)
 	if original["offset"] != 0 || original["limit"] != 1 {
 		t.Fatalf("caller body mutated: %#v", original)
+	}
+}
+
+func TestExtractOffsetPageDryRunSentinel(t *testing.T) {
+	sentinel := json.RawMessage(`{"dry_run":true}`)
+	rows, err := extractOffsetPage(sentinel, true, extractReportingRowsRaw)
+	if err != nil || len(rows) != 0 {
+		t.Fatalf("dry-run reporting page: rows=%v err=%v", rows, err)
+	}
+	rows, err = extractOffsetPage(sentinel, true, extractGenericItemsRaw)
+	if err != nil || len(rows) != 0 {
+		t.Fatalf("dry-run item page: rows=%v err=%v", rows, err)
+	}
+	if _, err := extractOffsetPage(sentinel, false, extractReportingRowsRaw); err == nil {
+		t.Fatal("live reporting response missing rows must fail")
+	}
+	if _, err := extractOffsetPage(sentinel, false, extractGenericItemsRaw); err == nil {
+		t.Fatal("live item response missing items must fail")
+	}
+}
+
+func TestPaginatedWorkflowDryRunsDoNotRequireAPIResults(t *testing.T) {
+	t.Setenv("APPLE_SEARCH_ADS_BASE_URL", "http://127.0.0.1:1")
+	t.Setenv("APPLE_SEARCH_ADS_TOKEN", "test-token")
+	for _, args := range [][]string{
+		{"keywords", "auto-promote", "--campaign-id", "camp1"},
+		{"optimize", "suggest", "--metric", "cpa", "--target", "2", "--campaign-id", "camp1"},
+	} {
+		t.Run(args[0]+"-"+args[1], func(t *testing.T) {
+			var stdout, stderr bytes.Buffer
+			cmd := newRootCmd(&rootFlags{})
+			cmd.SetOut(&stdout)
+			cmd.SetErr(&stderr)
+			cmd.SetArgs(append(args, "--dry-run", "--no-cache", "--config", filepath.Join(t.TempDir(), "missing.toml")))
+			if err := cmd.Execute(); err != nil {
+				t.Fatalf("dry-run command failed: %v stderr=%q", err, stderr.String())
+			}
+			if !json.Valid(stdout.Bytes()) {
+				t.Fatalf("dry-run output is not JSON: %q", stdout.String())
+			}
+		})
 	}
 }
