@@ -385,6 +385,9 @@ func upsertPlaybookFromTeach(ctx context.Context, s *store.Store, learnCfg *enti
 		if perr != nil {
 			return perr
 		}
+		if err := validateBooksyPlaybook(&pb); err != nil {
+			return err
+		}
 		out, merr := learn.MarshalPlaybook(pb)
 		if merr != nil {
 			return fmt.Errorf("teach: re-marshal inline playbook: %w", merr)
@@ -506,6 +509,12 @@ when learnings exist.`,
 			})
 			if err != nil {
 				return fmt.Errorf("recall: %w", err)
+			}
+			if result.Playbook != nil {
+				if err := validateBooksyPlaybook(&result.Playbook.Playbook); err != nil {
+					result.Playbook = nil
+					result.Warnings = append(result.Warnings, "unsafe_playbook_omitted")
+				}
 			}
 			envelope.Found = result.Found
 			envelope.Normalized = result.Normalized

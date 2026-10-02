@@ -31,7 +31,7 @@ func TestTeachPlaybook_HappyPath(t *testing.T) {
 	dbPath := filepath.Join(home, "data.db")
 
 	playbookPath := writePlaybookFile(t, home, "p.json",
-		`{"steps":[{"cmd":"items list {category.id}"}],"entity_slots":["$CATEGORY"]}`)
+		`{"steps":[{"cmd":"businesses get {category.id}"}],"entity_slots":["$CATEGORY"]}`)
 	notesPath := writePlaybookFile(t, home, "n.md",
 		"the items-by-source endpoint needs source_type=2; duplicate labels")
 
@@ -74,7 +74,7 @@ func TestTeachPlaybook_HappyPath(t *testing.T) {
 	if !strings.Contains(rows[0].NotesText, "source_type=2") {
 		t.Errorf("notes_text not stored: %q", rows[0].NotesText)
 	}
-	if !strings.Contains(rows[0].PlaybookJSON, "items list") {
+	if !strings.Contains(rows[0].PlaybookJSON, "businesses") {
 		t.Errorf("playbook_json not stored: %q", rows[0].PlaybookJSON)
 	}
 }
@@ -88,7 +88,7 @@ func TestTeachPlaybook_InlineJSON(t *testing.T) {
 	stdout, stderr, err := runRootArgs(t,
 		"teach-playbook",
 		"--query", "list all widgets in inventory and their top stats",
-		"--playbook-json", `{"steps":[{"cmd":"items list {category.id}"}],"entity_slots":["$CATEGORY"]}`,
+		"--playbook-json", `{"steps":[{"cmd":"businesses get {category.id}"}],"entity_slots":["$CATEGORY"]}`,
 		"--db", dbPath,
 		"--agent",
 	)
@@ -116,7 +116,7 @@ func TestTeachPlaybook_InlineJSON(t *testing.T) {
 	if len(rows) != 1 {
 		t.Fatalf("want 1 playbook row, got %d", len(rows))
 	}
-	if !strings.Contains(rows[0].PlaybookJSON, "items list") {
+	if !strings.Contains(rows[0].PlaybookJSON, "businesses") {
 		t.Errorf("playbook_json not stored from inline flag: %q", rows[0].PlaybookJSON)
 	}
 }
@@ -282,7 +282,7 @@ func TestTeachPlaybook_RespectsNoLearn(t *testing.T) {
 func TestPlaybookAmend_HappyPath_ExistingPlaybook(t *testing.T) {
 	home := withTempLearnHome(t)
 	dbPath := filepath.Join(home, "data.db")
-	pbPath := writePlaybookFile(t, home, "p.json", `{"steps":[{"cmd":"x"}],"query_family_examples":["foo bar baz"]}`)
+	pbPath := writePlaybookFile(t, home, "p.json", `{"steps":[{"cmd":"businesses search"}],"query_family_examples":["foo bar baz"]}`)
 
 	// Seed an existing playbook for "foo bar baz" family via teach-playbook
 	if _, _, err := runRootArgs(t,
@@ -449,7 +449,7 @@ func TestPlaybookList_Empty(t *testing.T) {
 func TestPlaybookList_WithRows(t *testing.T) {
 	home := withTempLearnHome(t)
 	dbPath := filepath.Join(home, "data.db")
-	pbPath := writePlaybookFile(t, home, "p.json", `{"steps":[{"cmd":"x"}]}`)
+	pbPath := writePlaybookFile(t, home, "p.json", `{"steps":[{"cmd":"businesses search"}]}`)
 
 	if _, _, err := runRootArgs(t,
 		"teach-playbook",

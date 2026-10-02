@@ -43,12 +43,14 @@ type Playbook struct {
 
 // PlaybookStep is one entry in the choreography. Mutually exclusive
 // shapes:
-//   - cmd: CLI command string with entity slots like "{team.id}",
-//     replayed against the printed CLI. Optional pagination hint.
+//   - argv: validated arguments for the fixed printed CLI executable, with
+//     entity slots like "{business.id}". Legacy cmd strings are accepted only
+//     after CLI schema validation converts them to argv; never use a shell.
 //   - client_side: post-process the previous step's result (rank_by,
 //     filter, etc.). Args carry the parameters.
 type PlaybookStep struct {
 	Cmd        string         `json:"cmd,omitempty"`
+	Argv       []string       `json:"argv,omitempty"`
 	ClientSide string         `json:"client_side,omitempty"`
 	Args       map[string]any `json:"args,omitempty"`
 	Purpose    string         `json:"purpose,omitempty"`

@@ -589,7 +589,7 @@ func TestTeachCommand_IntegratedPlaybookFile(t *testing.T) {
 	dbPath := filepath.Join(home, "data.db")
 
 	pbPath := writePlaybookFile(t, home, "pb.json",
-		`{"steps":[{"cmd":"items list {category.id}"}],"entity_slots":["$CATEGORY"]}`)
+		`{"steps":[{"cmd":"businesses get {category.id}"}],"entity_slots":["$CATEGORY"]}`)
 	notesPath := writePlaybookFile(t, home, "notes.md",
 		"the items-by-source endpoint needs source_type=2; duplicate labels")
 
@@ -632,7 +632,7 @@ func TestTeachCommand_IntegratedPlaybookFile(t *testing.T) {
 	if len(pb) != 1 {
 		t.Fatalf("expected 1 playbook row, got %d", len(pb))
 	}
-	if !strings.Contains(pb[0].PlaybookJSON, "items list") {
+	if !strings.Contains(pb[0].PlaybookJSON, "businesses") {
 		t.Errorf("playbook_json not stored: %q", pb[0].PlaybookJSON)
 	}
 	if !strings.Contains(pb[0].NotesText, "source_type=2") {
@@ -681,7 +681,7 @@ func TestTeachCommand_IntegratedPlaybookFileOnly(t *testing.T) {
 	home := withTempLearnHome(t)
 	dbPath := filepath.Join(home, "data.db")
 	pbPath := writePlaybookFile(t, home, "pb.json",
-		`{"steps":[{"cmd":"items list"}]}`)
+		`{"steps":[{"cmd":"businesses search"}]}`)
 
 	_, _, err := runRootArgs(t,
 		"teach",
@@ -1157,7 +1157,7 @@ func TestTeachCommand_PlaybookJSONInline(t *testing.T) {
 		"teach",
 		"--query", "list all widgets and their top stats",
 		"--resource", "widget-42", "--resource-type", "items",
-		"--playbook-json", `{"steps":[{"cmd":"items list {category.id}"}]}`,
+		"--playbook-json", `{"steps":[{"cmd":"businesses get {category.id}"}]}`,
 		"--db", dbPath,
 	)
 	if err != nil {
@@ -1174,7 +1174,7 @@ func TestTeachCommand_PlaybookJSONInline(t *testing.T) {
 	if len(pb) != 1 {
 		t.Fatalf("expected 1 playbook from inline JSON, got %d", len(pb))
 	}
-	if !strings.Contains(pb[0].PlaybookJSON, "items list") {
+	if !strings.Contains(pb[0].PlaybookJSON, "businesses") {
 		t.Errorf("inline playbook_json not stored: %q", pb[0].PlaybookJSON)
 	}
 }

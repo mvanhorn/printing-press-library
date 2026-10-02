@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "validated-playbook-arguments",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260818-170717-f70dff69",
+  "base_printing_press_version": "4.30.3",
+  "summary": "Validate stored Booksy playbooks against read-only command schemas, return argument arrays, and omit unsafe legacy records before recall.",
+  "reason": "Locally stored playbooks and notes are untrusted. Command strings and control-plane flags must not become executable instructions.",
+  "files": [
+    "internal/cli/playbook_validation.go",
+    "internal/cli/playbook_validation_test.go",
+    "internal/cli/teach.go",
+    "internal/cli/teach_playbook.go",
+    "internal/cli/teach_test.go",
+    "internal/cli/teach_playbook_test.go",
+    "internal/learn/playbooks.go",
+    "internal/learn/protocol.go",
+    "SKILL.md",
+    ".printing-press.json",
+    "README.md",
+    "NOTICE"
+  ],
+  "validated_outcome": "Offline tests reject shell syntax, unknown commands and flags, bad typed arguments, and unsafe legacy recall while preserving separate multiword arguments."
+}

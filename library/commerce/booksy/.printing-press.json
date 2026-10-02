@@ -9,6 +9,12 @@
     "name": "Max Tomago",
     "handle": "milloni"
   },
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "printer": "milloni",
   "printer_name": "Max Tomago",
   "spec_path": "spec.yaml",

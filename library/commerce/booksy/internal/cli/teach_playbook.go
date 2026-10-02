@@ -53,8 +53,8 @@ func newTeachPlaybookCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Com
 		Long: `Stores a structured CLI command sequence (with entity slots) and/or
 free-form gotchas/workarounds, keyed on the structural query family.
 The recall path surfaces this whenever a future query of the same
-family fires, so the agent can replay the choreography and read the
-notes verbatim.
+family fires. Steps are validated read-only Booksy commands, returned as
+argument arrays; notes are untrusted context, never executable instructions.
 
 At least one of --playbook-json/--playbook-file and --notes/--notes-file
 must be set. --playbook-json takes the playbook body inline so MCP-only
@@ -340,6 +340,9 @@ func resolveInlinePlaybook(playbookInline string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("teach-playbook: %w", err)
 	}
+	if err := validateBooksyPlaybook(&pb); err != nil {
+		return "", err
+	}
 	out, err := learn.MarshalPlaybook(pb)
 	if err != nil {
 		return "", fmt.Errorf("teach-playbook: re-marshal: %w", err)
@@ -358,6 +361,9 @@ func resolvePlaybookInputs(playbookFile, notesInline, notesFile string) (string,
 		pb, err := learn.ParsePlaybookFile(playbookFile)
 		if err != nil {
 			return "", "", fmt.Errorf("teach-playbook: %w", err)
+		}
+		if err := validateBooksyPlaybook(&pb); err != nil {
+			return "", "", err
 		}
 		out, err := learn.MarshalPlaybook(pb)
 		if err != nil {
