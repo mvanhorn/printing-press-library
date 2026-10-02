@@ -35,7 +35,8 @@ const (
 	IndexFileName    = "index.parquet"
 	defaultTimeout   = 30 * time.Second
 	defaultCacheTTL  = 24 * time.Hour
-	parquetSizeHint  = 1 << 30 // 1GB upper bound on a regional file
+	parquetSizeHint  = 1 << 30  // 1GB upper bound on a regional file
+	indexSizeLimit   = 16 << 20 // index is normally around 50KB
 	streamBufferSize = 16 << 20
 )
 
@@ -318,16 +319,27 @@ func (c *Client) fetch(ctx context.Context, fileName string) (string, error) {
 	if resp.StatusCode != http.StatusOK {
 		return useStaleOnFailure(fmt.Errorf("GET %s: HTTP %d", url, resp.StatusCode))
 	}
+	limit := int64(parquetSizeHint)
+	if fileName == IndexFileName {
+		limit = indexSizeLimit
+	}
+	if resp.ContentLength > limit {
+		return useStaleOnFailure(fmt.Errorf("cadastral dataset %s exceeds %d bytes", fileName, limit))
+	}
 	tmp, err := os.CreateTemp(c.CacheDir, fileName+".part-*")
 	if err != nil {
 		return useStaleOnFailure(err)
 	}
-	n, err := io.Copy(tmp, resp.Body)
-	if err != nil || n == 0 {
+	n, err := io.Copy(tmp, io.LimitReader(resp.Body, limit+1))
+	if err != nil || n == 0 || n > limit {
 		tmp.Close()
 		os.Remove(tmp.Name())
 		if err == nil {
-			err = fmt.Errorf("empty cadastral dataset %s", fileName)
+			if n == 0 {
+				err = fmt.Errorf("empty cadastral dataset %s", fileName)
+			} else {
+				err = fmt.Errorf("cadastral dataset %s exceeds %d bytes", fileName, limit)
+			}
 		}
 		return useStaleOnFailure(err)
 	}
@@ -335,11 +347,77 @@ func (c *Client) fetch(ctx context.Context, fileName string) (string, error) {
 		os.Remove(tmp.Name())
 		return useStaleOnFailure(err)
 	}
+	if err := validateDownloadedParquet(tmp.Name(), fileName); err != nil {
+		os.Remove(tmp.Name())
+		return useStaleOnFailure(fmt.Errorf("invalid cadastral dataset %s: %w", fileName, err))
+	}
 	if err := os.Rename(tmp.Name(), local); err != nil {
 		os.Remove(tmp.Name())
 		return useStaleOnFailure(err)
 	}
 	return local, nil
+}
+
+// Validate every row through the same typed decoder used by lookups before a
+// downloaded file can replace the offline copy. Read in batches to keep memory
+// bounded even when a regional Parquet file approaches the download limit.
+func validateDownloadedParquet(path, fileName string) error {
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	fi, err := f.Stat()
+	if err != nil {
+		return err
+	}
+	pf, err := parquet.OpenFile(f, fi.Size())
+	if err != nil {
+		return err
+	}
+	columns := make(map[string]bool)
+	for _, column := range pf.Schema().Columns() {
+		if len(column) == 1 {
+			columns[column[0]] = true
+		}
+	}
+	required := []string{"comune", "foglio", "particella", "x", "y"}
+	if fileName == IndexFileName {
+		required = []string{"comune", "file", "CODISTAT", "DENOMINAZIONE_IT"}
+	}
+	for _, column := range required {
+		if !columns[column] {
+			return fmt.Errorf("missing Parquet column %s", column)
+		}
+	}
+	if fileName == IndexFileName {
+		return validateParquetRows[IndexEntry](pf)
+	}
+	return validateParquetRows[ParcelRow](pf)
+}
+
+func validateParquetRows[T any](pf *parquet.File) error {
+	reader := parquet.NewGenericReader[T](pf)
+	defer reader.Close()
+	rows := make([]T, 1024)
+	total := 0
+	for {
+		n, err := reader.Read(rows)
+		total += n
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return err
+		}
+		if n == 0 {
+			return fmt.Errorf("Parquet reader made no progress")
+		}
+	}
+	if total == 0 {
+		return fmt.Errorf("Parquet file has no rows")
+	}
+	return nil
 }
 
 // readParquet reads an entire Parquet file into a slice of T.
