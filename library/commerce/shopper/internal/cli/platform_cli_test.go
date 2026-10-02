@@ -81,12 +81,14 @@ func TestPlatformStoreSelectorIsNotADataPathOverride(t *testing.T) {
 
 func TestOptionalArtifactCommandsSelectProfileWithoutLiveGate(t *testing.T) {
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
-	t.Setenv("XDG_DATA_HOME", t.TempDir())
+	xdgDataRoot := t.TempDir()
+	t.Setenv("XDG_DATA_HOME", xdgDataRoot)
 	t.Setenv("XDG_CACHE_HOME", t.TempDir())
 	t.Setenv("XDG_STATE_HOME", t.TempDir())
 	t.Setenv("PRINTING_PRESS_CLIENT_PROFILE", "tenant-a")
 	t.Setenv("SHOPPER_DATA_DIR", "")
 	t.Setenv("SHOPPER_STATE_DIR", "")
+	t.Setenv("SHOPPER_HOME", "")
 	t.Setenv("SHOPPER_FEEDBACK_ENDPOINT", "")
 	t.Setenv("SHOPPER_FEEDBACK_AUTO_SEND", "")
 	if err := platform.SaveProfile(&platform.Profile{
@@ -118,6 +120,9 @@ func TestOptionalArtifactCommandsSelectProfileWithoutLiveGate(t *testing.T) {
 	globalDir, err := cliutil.DataDir()
 	if err != nil {
 		t.Fatal(err)
+	}
+	if rel, err := filepath.Rel(xdgDataRoot, globalDir); err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) || filepath.IsAbs(rel) {
+		t.Fatalf("global test data directory escaped temp root: %q", globalDir)
 	}
 	globalData := filepath.Join(globalDir, "feedback.jsonl")
 	if _, err := os.Stat(globalData); err == nil {
