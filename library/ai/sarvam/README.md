@@ -121,7 +121,7 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 </details>
 
-For HTTP MCP, set `PP_MCP_HTTP_TOKEN` in the server process environment and run `sarvam-pp-mcp --transport http --addr 127.0.0.1:7777`. The server requires a bearer token for every request. A non-loopback bind also requires `--tls-cert` and `--tls-key`. Keep the token out of command arguments.
+For HTTP MCP, set `PP_MCP_HTTP_TOKEN` in the server process environment and run `sarvam-pp-mcp --transport http --addr 127.0.0.1:7777`. Configure the HTTP MCP client to connect to `http://127.0.0.1:7777/mcp` and send `Authorization: Bearer <the-token>` with every request. A non-loopback bind also requires `--tls-cert` and `--tls-key`; use an HTTPS URL for that client. Keep the token out of command arguments.
 
 ## Authentication
 

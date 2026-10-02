@@ -148,6 +148,11 @@ func isLoopbackAddr(addr string) bool {
 	if err != nil || host == "" {
 		return false
 	}
+	if strings.EqualFold(host, "localhost") {
+		// The actual bound IP is checked after Listen, so a local hostname
+		// that resolves elsewhere still cannot serve plaintext remotely.
+		return true
+	}
 	ip := net.ParseIP(host)
 	return ip != nil && ip.IsLoopback()
 }
