@@ -13,6 +13,7 @@
     "NOTICE",
     "README.md",
     "AGENTS.md",
+    "release_version.go",
     "cmd/gfonts-pp-cli/main.go",
     "cmd/gfonts-pp-cli/main_test.go",
     "go.mod",
@@ -32,5 +33,5 @@
     "internal/client/client.go",
     "internal/client/client_test.go"
   ],
-  "validated_outcome": "Offline Go tests cover cache safety, bounded responses, command-level read, size, and file-write failures, safe output names from remote metadata, and the existing subcommand version flag; vet, build, skill verification, JSON validation, and diff checks pass without a Google Fonts request."
+  "validated_outcome": "Offline Go tests cover cache safety, bounded responses, command-level read, size, and file-write failures, safe output names from remote metadata, and source and release version behavior; vet, build, skill verification, release-ledger guard, JSON validation, and diff checks pass without a Google Fonts request."
 }
