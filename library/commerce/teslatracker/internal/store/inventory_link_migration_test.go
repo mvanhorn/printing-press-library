@@ -42,19 +42,6 @@ func TestUpgradeRekeysLegacyInventoryLinkWithoutTouchingVehicle(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			wantLearningID := oldLearningID
-			if fullInventoryTarget {
-				result, err = s.DB().Exec(`INSERT INTO search_learnings
-					(query_pattern, resource_type, resource_id, action, source, confidence)
-					VALUES ('find this Model 3', 'inventory', ?, 'boost', 'taught', 3)`, vin)
-				if err != nil {
-					t.Fatal(err)
-				}
-				wantLearningID, err = result.LastInsertId()
-				if err != nil {
-					t.Fatal(err)
-				}
-			}
 			if _, err := s.DB().Exec(`INSERT INTO learn_events
 				(ts, event, matched_row_id, surface) VALUES ('2026-10-01', 'recall_hit', ?, 'cli')`, oldLearningID); err != nil {
 				t.Fatal(err)
@@ -114,8 +101,8 @@ func TestUpgradeRekeysLegacyInventoryLinkWithoutTouchingVehicle(t *testing.T) {
 			if err := s.DB().QueryRow(`SELECT COUNT(*) FROM search_learnings WHERE resource_type = 'inventory' AND resource_id = 'Model 3'`).Scan(&learningCount); err != nil || learningCount != 0 {
 				t.Fatalf("legacy learned lookup count = %d, %v", learningCount, err)
 			}
-			if err := s.DB().QueryRow(`SELECT matched_row_id FROM learn_events WHERE event = 'recall_hit'`).Scan(&eventLearningID); err != nil || eventLearningID != wantLearningID {
-				t.Fatalf("learned event row = %d, want %d, err=%v", eventLearningID, wantLearningID, err)
+			if err := s.DB().QueryRow(`SELECT matched_row_id FROM learn_events WHERE event = 'recall_hit'`).Scan(&eventLearningID); err != nil || eventLearningID != oldLearningID {
+				t.Fatalf("learned event row = %d, want %d, err=%v", eventLearningID, oldLearningID, err)
 			}
 		})
 	}
@@ -151,6 +138,18 @@ func TestUpgradeKeepsLegacyLinkForAmbiguousLearning(t *testing.T) {
 				}
 			},
 		},
+		{
+			name: "same-resource duplicate learning metadata",
+			setup: func(t *testing.T, s *Store) {
+				t.Helper()
+				if _, err := s.DB().Exec(`INSERT INTO search_learnings
+					(query_pattern, resource_type, resource_id, action, source, confidence, notes, alias_target)
+					VALUES ('find Model 3', 'inventory', 'Model 3', 'boost', 'taught', 5, 'old note', 'old alias'),
+					       ('find Model 3', 'inventory', ?, 'boost', 'taught', 2, 'new note', 'new alias')`, vin); err != nil {
+					t.Fatal(err)
+				}
+			},
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			dbPath := filepath.Join(t.TempDir(), "inventory.db")
@@ -180,6 +179,13 @@ func TestUpgradeKeepsLegacyLinkForAmbiguousLearning(t *testing.T) {
 			var refs int
 			if err := s.DB().QueryRow(`SELECT COUNT(*) FROM search_learnings WHERE resource_id = 'Model 3'`).Scan(&refs); err != nil || refs != 1 {
 				t.Fatalf("old-ID learned references after upgrade = %d, %v", refs, err)
+			}
+			if tc.name == "same-resource duplicate learning metadata" {
+				var confidence int
+				var notes, alias string
+				if err := s.DB().QueryRow(`SELECT confidence, notes, alias_target FROM search_learnings WHERE resource_id = 'Model 3'`).Scan(&confidence, &notes, &alias); err != nil || confidence != 5 || notes != "old note" || alias != "old alias" {
+					t.Fatalf("old learning metadata after upgrade = confidence %d, notes %q, alias %q, err=%v", confidence, notes, alias, err)
+				}
 			}
 		})
 	}

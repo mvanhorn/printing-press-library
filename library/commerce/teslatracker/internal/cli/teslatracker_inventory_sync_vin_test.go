@@ -46,7 +46,7 @@ func TestSyncInventoryHTMLLinkCanBeReadByVIN(t *testing.T) {
 		t.Fatalf("stored link: %s, %v", item, err)
 	}
 
-	full := json.RawMessage(`{"vin":"5YJ3E1EA7KF317000","model":"Model 3","mileage":27000}`)
+	full := json.RawMessage(`{"vin":"5YJ3E1EA7KF317000","model":"Model 3","mileage":27000,"image":"detail.png"}`)
 	if err := db.Upsert("inventory", "5YJ3E1EA7KF317000", full); err != nil {
 		t.Fatal(err)
 	}
@@ -68,7 +68,10 @@ func TestSyncInventoryHTMLLinkCanBeReadByVIN(t *testing.T) {
 	if err := json.Unmarshal(item, &detail); err != nil || detail.VIN != "5YJ3E1EA7KF317000" || detail.Name != "Updated Model 3" || detail.Mileage != 27000 || detail.URL != "https://teslatracker.com/inventory/5YJ3E1EA7KF317000" {
 		t.Fatalf("full detail after link sync: %s, %v", item, err)
 	}
-	updatedLink := json.RawMessage(`{"url":"https://teslatracker.com/inventory/5YJ3E1EA7KF317000","name":"Newest Model 3","slug":"newest-model-3"}`)
+	if err := db.Upsert("inventory", "5YJ3E1EA7KF317000", full); err != nil {
+		t.Fatal(err)
+	}
+	updatedLink := json.RawMessage(`{"url":"https://teslatracker.com/inventory/5YJ3E1EA7KF317000","name":"Newest Model 3","slug":"newest-model-3","image":""}`)
 	if _, _, err := db.UpsertBatch("inventory", []json.RawMessage{updatedLink}); err != nil {
 		t.Fatal(err)
 	}
@@ -77,9 +80,10 @@ func TestSyncInventoryHTMLLinkCanBeReadByVIN(t *testing.T) {
 		VIN     string `json:"vin"`
 		Name    string `json:"name"`
 		Slug    string `json:"slug"`
+		Image   string `json:"image"`
 		Mileage int    `json:"mileage"`
 	}
-	if err != nil || json.Unmarshal(item, &current) != nil || current.VIN != "5YJ3E1EA7KF317000" || current.Name != "Newest Model 3" || current.Slug != "newest-model-3" || current.Mileage != 27000 {
+	if err != nil || json.Unmarshal(item, &current) != nil || current.VIN != "5YJ3E1EA7KF317000" || current.Name != "Newest Model 3" || current.Slug != "newest-model-3" || current.Image != "detail.png" || current.Mileage != 27000 {
 		t.Fatalf("updated listing metadata with detail preserved: %s, %v", item, err)
 	}
 	vins, err := vinsFromLinks(context.Background(), db.DB())

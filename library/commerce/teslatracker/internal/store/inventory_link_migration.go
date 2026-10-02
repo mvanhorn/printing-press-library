@@ -52,17 +52,19 @@ func migrateInventoryLinkIDs(ctx context.Context, conn *sql.Conn) error {
 		if unscoped > 0 {
 			continue
 		}
-		var crossTypeConflict int
+		// Two learnings with the same query/action can carry different
+		// confidence, notes, aliases, and history. Keep both references and
+		// the old link instead of choosing which metadata to discard.
+		var duplicateLearning int
 		if err := conn.QueryRowContext(ctx,
 			`SELECT COUNT(*) FROM search_learnings old
 			 JOIN search_learnings target ON target.query_pattern = old.query_pattern
 			  AND target.action = old.action AND target.resource_id = ?
-			 WHERE old.resource_type = 'inventory' AND old.resource_id = ?
-			  AND COALESCE(target.resource_type, '') != 'inventory'`,
-			link.vin, link.id).Scan(&crossTypeConflict); err != nil {
+			 WHERE old.resource_type = 'inventory' AND old.resource_id = ?`,
+			link.vin, link.id).Scan(&duplicateLearning); err != nil {
 			return fmt.Errorf("checking learned-reference collisions: %w", err)
 		}
-		if crossTypeConflict > 0 {
+		if duplicateLearning > 0 {
 			continue
 		}
 
@@ -119,45 +121,10 @@ func migrateInventoryLinkIDs(ctx context.Context, conn *sql.Conn) error {
 }
 
 func migrateInventoryLearningIDs(ctx context.Context, conn *sql.Conn, oldID, vin string) error {
-	// The unique index on (query_pattern, resource_id, action) can already
-	// contain a VIN-keyed learning. Update non-conflicting rows first.
 	if _, err := conn.ExecContext(ctx,
-		`UPDATE OR IGNORE search_learnings SET resource_id = ?
+		`UPDATE search_learnings SET resource_id = ?
 		 WHERE resource_type = 'inventory' AND resource_id = ?`, vin, oldID); err != nil {
 		return fmt.Errorf("rekeying inventory learnings: %w", err)
-	}
-	rows, err := conn.QueryContext(ctx,
-		`SELECT old.id, target.id FROM search_learnings old
-		 JOIN search_learnings target ON target.query_pattern = old.query_pattern
-		  AND target.action = old.action AND target.resource_id = ?
-		 WHERE old.resource_type = 'inventory' AND old.resource_id = ?`, vin, oldID)
-	if err != nil {
-		return fmt.Errorf("reading duplicate inventory learnings: %w", err)
-	}
-	var duplicates [][2]int64
-	for rows.Next() {
-		var pair [2]int64
-		if err := rows.Scan(&pair[0], &pair[1]); err != nil {
-			_ = rows.Close()
-			return err
-		}
-		duplicates = append(duplicates, pair)
-	}
-	if err := rows.Err(); err != nil {
-		_ = rows.Close()
-		return err
-	}
-	if err := rows.Close(); err != nil {
-		return err
-	}
-	for _, pair := range duplicates {
-		if _, err := conn.ExecContext(ctx,
-			`UPDATE learn_events SET matched_row_id = ? WHERE matched_row_id = ?`, pair[1], pair[0]); err != nil {
-			return fmt.Errorf("repointing duplicate learning events: %w", err)
-		}
-		if _, err := conn.ExecContext(ctx, `DELETE FROM search_learnings WHERE id = ?`, pair[0]); err != nil {
-			return fmt.Errorf("removing duplicate inventory learning: %w", err)
-		}
 	}
 	return nil
 }
@@ -220,7 +187,10 @@ func mergeListingFieldsIntoDetail(id string, existing json.RawMessage, link map[
 	}
 	for _, key := range []string{"url", "name", "slug", "text", "image", "rank"} {
 		value, ok := link[key]
-		if !ok {
+		if !ok || value == nil {
+			continue
+		}
+		if text, ok := value.(string); ok && text == "" {
 			continue
 		}
 		raw, err := json.Marshal(value)
