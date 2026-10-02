@@ -49,6 +49,8 @@ func openRecallTestDB(t *testing.T) *sql.DB {
 		)`,
 		`CREATE INDEX idx_learn_query ON search_learnings(query_pattern)`,
 		`CREATE UNIQUE INDEX idx_learn_unique ON search_learnings(query_pattern, resource_id, action)`,
+		`CREATE TABLE resource_id_aliases (resource_type TEXT NOT NULL, old_id TEXT NOT NULL, new_id TEXT NOT NULL,
+			PRIMARY KEY (resource_type, old_id))`,
 		`CREATE TABLE search_patterns (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			query_template TEXT NOT NULL,
@@ -117,6 +119,54 @@ func seedLearning(t *testing.T, db *sql.DB, qp, entitiesJSON, resourceID, rt, ac
 		VALUES (?, ?, ?, ?, '', ?, ?, 'taught', CURRENT_TIMESTAMP)`,
 		qp, entitiesJSON, resourceID, rt, action, confidence); err != nil {
 		t.Fatalf("seed learning: %v", err)
+	}
+}
+
+func TestRecallInventoryAliasPreservesBothTaughtRows(t *testing.T) {
+	const vin = "5YJ3E1EA7KF317000"
+	db := openRecallTestDB(t)
+	seedRecallResource(t, db, "inventory", vin, `{"vin":"5YJ3E1EA7KF317000","name":"Alpha widget"}`)
+	if _, err := db.Exec(`INSERT INTO resource_id_aliases (resource_type, old_id, new_id) VALUES ('inventory', 'Model 3', ?)`, vin); err != nil {
+		t.Fatal(err)
+	}
+	seedLearning(t, db, "widget", `["Alpha"]`, "Model 3", "inventory", "boost", 5)
+	seedLearning(t, db, "widget", `["Alpha"]`, vin, "inventory", "boost", 2)
+	got, err := Recall(context.Background(), db, "Alpha widget", Opts{
+		EntityConfig: testConfig(), ResourceTypeFields: map[string][]string{"inventory": {"name"}},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got.Results) != 2 || got.Results[0].ResourceID != vin || got.Results[1].ResourceID != vin ||
+		got.Results[0].LearningID == got.Results[1].LearningID || got.Results[0].Confidence != 5 || got.Results[1].Confidence != 2 {
+		t.Fatalf("both learned rows must resolve to one VIN without losing metadata: %+v", got.Results)
+	}
+}
+
+func TestRecallHistoricalInventoryPatternUsesAlias(t *testing.T) {
+	const vin = "5YJ3E1EA7KF317000"
+	db := openRecallTestDB(t)
+	seedRecallResource(t, db, "inventory", vin, `{"vin":"5YJ3E1EA7KF317000","name":"Alpha widget"}`)
+	// Two colliding taught rows remain in the store. The pattern query
+	// has a different shape so its exact historical ID is exercised too.
+	seedLearning(t, db, "widget", `["Alpha"]`, "Model 3", "inventory", "boost", 5)
+	seedLearning(t, db, "widget", `["Alpha"]`, vin, "inventory", "boost", 2)
+	for _, query := range []string{
+		`INSERT INTO resource_id_aliases (resource_type, old_id, new_id) VALUES ('inventory', 'Model 3', '5YJ3E1EA7KF317000')`,
+		`INSERT INTO entity_lookups (kind, canonical, value) VALUES ('model_name', 'Alpha', 'Model 3')`,
+		`INSERT INTO search_patterns (query_template, resource_template, resource_type, strategy, entity_kind, source)
+		 VALUES ('{entity} car', '{entity:model_name}', 'inventory', 'substitute', 'model_name', 'taught')`,
+	} {
+		if _, err := db.Exec(query); err != nil {
+			t.Fatal(err)
+		}
+	}
+	got, err := Recall(context.Background(), db, "Alpha car", Opts{EntityConfig: testConfig()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got.Results) != 1 || got.Results[0].ResourceID != vin || got.Results[0].Source != SourcePattern {
+		t.Fatalf("historical pattern should verify canonical VIN: %+v", got.Results)
 	}
 }
 

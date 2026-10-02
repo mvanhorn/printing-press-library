@@ -58,6 +58,8 @@ func openRecallCanonicalTestDB(t *testing.T) *sql.DB {
 			notes TEXT
 		)`,
 		`CREATE UNIQUE INDEX idx_learn_unique ON search_learnings(query_pattern, resource_id, action)`,
+		`CREATE TABLE resource_id_aliases (resource_type TEXT NOT NULL, old_id TEXT NOT NULL, new_id TEXT NOT NULL,
+			PRIMARY KEY (resource_type, old_id))`,
 		`CREATE TABLE search_patterns (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			query_template TEXT NOT NULL,

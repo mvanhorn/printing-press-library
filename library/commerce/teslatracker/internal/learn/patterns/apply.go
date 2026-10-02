@@ -62,6 +62,9 @@ type Opts struct {
 	Limit           int
 	NoVerify        bool
 	AdditionalKinds []string
+	// ResolveAlias maps a historical exact resource ID before verification.
+	// Prefix searches keep their original matching behavior.
+	ResolveAlias func(resourceType, candidate string) string
 }
 
 // Apply walks search_patterns, finds patterns whose query_template
@@ -149,6 +152,9 @@ func Apply(ctx context.Context, db *sql.DB, query, nonEntityNormalized string, q
 			candidate, ok := substituteCandidate(db, resourceTmpl, entityKind, ent, allKinds)
 			if !ok {
 				continue
+			}
+			if strategy == StrategySubstitute && opts.ResolveAlias != nil {
+				candidate = opts.ResolveAlias(resourceType, candidate)
 			}
 			h, verified := verifyCandidate(ctx, db, candidate, resourceType, strategy, opts.NoVerify)
 			if !verified {

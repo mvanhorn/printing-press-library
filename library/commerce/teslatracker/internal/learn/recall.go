@@ -150,6 +150,27 @@ type Opts struct {
 	PatternKinds         []string
 }
 
+func inventoryIDAliases(ctx context.Context, db *sql.DB) (map[string]string, error) {
+	rows, err := db.QueryContext(ctx,
+		`SELECT old_id, new_id FROM resource_id_aliases WHERE resource_type = 'inventory'`)
+	if err != nil {
+		return nil, fmt.Errorf("recall inventory aliases: %w", err)
+	}
+	defer rows.Close()
+	aliases := make(map[string]string)
+	for rows.Next() {
+		var oldID, newID string
+		if err := rows.Scan(&oldID, &newID); err != nil {
+			return nil, fmt.Errorf("recall inventory alias scan: %w", err)
+		}
+		aliases[oldID] = newID
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("recall inventory alias rows: %w", err)
+	}
+	return aliases, nil
+}
+
 // Recall is the entity-aware read path. db is the open *sql.DB
 // pointing at the local SQLite store with the v6 learn schema; the
 // per-CLI entity extractor config is carried on opts.EntityConfig
@@ -256,6 +277,10 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 		_ = lookups.RecordMisses(ctx, db, unresolvedEntities)
 	}
 	result.UnresolvedEntities = append([]string(nil), unresolvedEntities...)
+	aliases, err := inventoryIDAliases(ctx, db)
+	if err != nil {
+		return result, err
+	}
 
 	rows, err := db.QueryContext(ctx, `SELECT id, query_pattern, COALESCE(query_entities, ''),
 		COALESCE(venue, ''), COALESCE(resource_type, ''), resource_id, action,
@@ -295,6 +320,11 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 		if err := rows.Scan(&learningID, &queryPattern, &storedEntities, &venue, &resourceType,
 			&resourceID, &action, &aliasTarget, &source, &confidence, &createdAt, &lastObserved); err != nil {
 			return result, fmt.Errorf("recall scan: %w", err)
+		}
+		if resourceType == "inventory" {
+			if canonical, ok := aliases[resourceID]; ok {
+				resourceID = canonical
+			}
 		}
 
 		storedNorm := Normalize(queryPattern, cfg)
@@ -495,6 +525,14 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 		JaccardMin:      jMin,
 		Limit:           limit,
 		AdditionalKinds: opts.PatternKinds,
+		ResolveAlias: func(resourceType, candidate string) string {
+			if resourceType == "inventory" {
+				if canonical, ok := aliases[candidate]; ok {
+					return canonical
+				}
+			}
+			return candidate
+		},
 	})
 	if len(patternHits) > 0 {
 		existing := make(map[string]struct{}, len(hits))

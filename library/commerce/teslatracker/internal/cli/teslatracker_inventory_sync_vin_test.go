@@ -86,6 +86,18 @@ func TestSyncInventoryHTMLLinkCanBeReadByVIN(t *testing.T) {
 	if err != nil || json.Unmarshal(item, &current) != nil || current.VIN != "5YJ3E1EA7KF317000" || current.Name != "Newest Model 3" || current.Slug != "newest-model-3" || current.Image != "detail.png" || current.Mileage != 27000 {
 		t.Fatalf("updated listing metadata with detail preserved: %s, %v", item, err)
 	}
+	clearedLink := json.RawMessage(`{"url":"https://teslatracker.com/inventory/5YJ3E1EA7KF317000","name":"","text":"","image":""}`)
+	if _, _, err := db.UpsertBatch("inventory", []json.RawMessage{clearedLink}); err != nil {
+		t.Fatal(err)
+	}
+	item, err = db.Get("inventory", "5YJ3E1EA7KF317000")
+	var cleared struct {
+		Name, Text, Image string
+		Mileage           int
+	}
+	if err != nil || json.Unmarshal(item, &cleared) != nil || cleared.Name != "" || cleared.Text != "" || cleared.Image != "detail.png" || cleared.Mileage != 27000 {
+		t.Fatalf("cleared listing text with detail image preserved: %s, %v", item, err)
+	}
 	vins, err := vinsFromLinks(context.Background(), db.DB())
 	if err != nil || len(vins) != 1 || vins[0] != "5YJ3E1EA7KF317000" {
 		t.Fatalf("VINs for hydrate after detail-preserving sync: %v, %v", vins, err)

@@ -20,6 +20,7 @@ func migrateInventoryLinkIDs(ctx context.Context, conn *sql.Conn) error {
 		fields        map[string]any
 	}
 	var links []legacyLink
+	seenIDs := make(map[string]map[string]struct{})
 	for rows.Next() {
 		var id, data string
 		if err := rows.Scan(&id, &data); err != nil {
@@ -27,10 +28,26 @@ func migrateInventoryLinkIDs(ctx context.Context, conn *sql.Conn) error {
 			return err
 		}
 		obj, err := DecodeJSONObject(json.RawMessage(data))
-		if err != nil || !isLegacyInventoryLinkID(id, obj) {
+		if err != nil {
 			continue
 		}
-		links = append(links, legacyLink{id: id, vin: inventoryLinkVIN(obj), data: data, fields: obj})
+		vin := inventoryLinkVIN(obj)
+		if vin == "" {
+			vin = ResourceIDString(obj["vin"])
+		}
+		if vin != "" {
+			for _, key := range []string{"name", "slug"} {
+				if descriptiveID := ResourceIDString(obj[key]); descriptiveID != "" {
+					if seenIDs[descriptiveID] == nil {
+						seenIDs[descriptiveID] = make(map[string]struct{})
+					}
+					seenIDs[descriptiveID][vin] = struct{}{}
+				}
+			}
+		}
+		if isLegacyInventoryLinkID(id, obj) {
+			links = append(links, legacyLink{id: id, vin: vin, data: data, fields: obj})
+		}
 	}
 	if err := rows.Err(); err != nil {
 		_ = rows.Close()
@@ -41,6 +58,10 @@ func migrateInventoryLinkIDs(ctx context.Context, conn *sql.Conn) error {
 	}
 
 	for _, link := range links {
+		if len(seenIDs[link.id]) > 1 {
+			// A display name reused by several VINs has no safe target.
+			continue
+		}
 		// An unscoped taught reference cannot be attributed to inventory.
 		// Leave its old row in place rather than strand the learned target.
 		var unscoped int
@@ -52,24 +73,19 @@ func migrateInventoryLinkIDs(ctx context.Context, conn *sql.Conn) error {
 		if unscoped > 0 {
 			continue
 		}
-		// Two learnings with the same query/action can carry different
-		// confidence, notes, aliases, and history. Keep both references and
-		// the old link instead of choosing which metadata to discard.
-		var duplicateLearning int
-		if err := conn.QueryRowContext(ctx,
-			`SELECT COUNT(*) FROM search_learnings old
-			 JOIN search_learnings target ON target.query_pattern = old.query_pattern
-			  AND target.action = old.action AND target.resource_id = ?
-			 WHERE old.resource_type = 'inventory' AND old.resource_id = ?`,
-			link.vin, link.id).Scan(&duplicateLearning); err != nil {
-			return fmt.Errorf("checking learned-reference collisions: %w", err)
+		var existingAlias string
+		err := conn.QueryRowContext(ctx,
+			`SELECT new_id FROM resource_id_aliases WHERE resource_type = 'inventory' AND old_id = ?`,
+			link.id).Scan(&existingAlias)
+		if err != nil && err != sql.ErrNoRows {
+			return fmt.Errorf("checking inventory ID alias: %w", err)
 		}
-		if duplicateLearning > 0 {
+		if existingAlias != "" && existingAlias != link.vin {
 			continue
 		}
 
 		var targetData string
-		err := conn.QueryRowContext(ctx,
+		err = conn.QueryRowContext(ctx,
 			`SELECT data FROM resources WHERE resource_type = 'inventory' AND id = ?`, link.vin).Scan(&targetData)
 		switch err {
 		case nil:
@@ -113,18 +129,12 @@ func migrateInventoryLinkIDs(ctx context.Context, conn *sql.Conn) error {
 			ftsRowID("inventory", link.vin), link.vin, searchableResourceContent(json.RawMessage(targetData))); err != nil {
 			return fmt.Errorf("indexing VIN inventory row: %w", err)
 		}
-		if err := migrateInventoryLearningIDs(ctx, conn, link.id, link.vin); err != nil {
-			return err
+		if _, err := conn.ExecContext(ctx,
+			`INSERT INTO resource_id_aliases (resource_type, old_id, new_id)
+			 VALUES ('inventory', ?, ?) ON CONFLICT (resource_type, old_id) DO NOTHING`,
+			link.id, link.vin); err != nil {
+			return fmt.Errorf("recording inventory ID alias: %w", err)
 		}
-	}
-	return nil
-}
-
-func migrateInventoryLearningIDs(ctx context.Context, conn *sql.Conn, oldID, vin string) error {
-	if _, err := conn.ExecContext(ctx,
-		`UPDATE search_learnings SET resource_id = ?
-		 WHERE resource_type = 'inventory' AND resource_id = ?`, vin, oldID); err != nil {
-		return fmt.Errorf("rekeying inventory learnings: %w", err)
 	}
 	return nil
 }
@@ -147,7 +157,9 @@ func isLegacyInventoryLinkID(id string, obj map[string]any) bool {
 	}
 	for _, key := range genericDescriptiveIDFieldFallbacks {
 		if value := ResourceIDString(obj[key]); value != "" {
-			return id == value
+			if id == value {
+				return true
+			}
 		}
 	}
 	return false
@@ -190,8 +202,10 @@ func mergeListingFieldsIntoDetail(id string, existing json.RawMessage, link map[
 		if !ok || value == nil {
 			continue
 		}
-		if text, ok := value.(string); ok && text == "" {
-			continue
+		if key == "image" {
+			if image, ok := value.(string); ok && image == "" {
+				continue
+			}
 		}
 		raw, err := json.Marshal(value)
 		if err != nil {

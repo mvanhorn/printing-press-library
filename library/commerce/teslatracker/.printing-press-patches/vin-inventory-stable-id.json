@@ -5,7 +5,7 @@
   "base_run_id": "20260813-144423-eaf11561",
   "base_printing_press_version": "4.30.2",
   "summary": "Key synced inventory listing links by VIN and rekey legacy links.",
-  "reason": "Inventory sync extracts HTML links with URL and slug fields, not a vin field; parse their vehicle URL before using a descriptive name as the storage key, migrate old links and taught references, and refresh listing metadata without losing cached full details.",
+  "reason": "Inventory sync extracts HTML links with URL and slug fields, not a vin field; parse their vehicle URL before using a descriptive name as the storage key, migrate safe old links, resolve inventory learning aliases without changing their metadata, and refresh listing metadata without losing cached full details.",
   "files": [
     ".printing-press.json",
     "NOTICE",
@@ -14,7 +14,11 @@
     "internal/store/inventory_vin_test.go",
     "internal/store/inventory_link_migration.go",
     "internal/store/inventory_link_migration_test.go",
+    "internal/learn/recall.go",
+    "internal/learn/recall_test.go",
+    "internal/learn/recall_canonical_test.go",
+    "internal/learn/patterns/apply.go",
     "internal/cli/teslatracker_inventory_sync_vin_test.go"
   ],
-  "validated_outcome": "A normal HTML sync supports local VIN lookup; a v9 store rekeys safe old links and taught references, leaves ambiguous references intact, and preserves hydrated vehicle or full detail records; later sync refreshes listing metadata; full Go tests, vet, builds, skill verification, and diff check pass."
+  "validated_outcome": "A normal HTML sync supports local VIN lookup; a v9 store rekeys safe old links while preserving learning rows and resolving exact old inventory IDs to VINs, skips ambiguous names and unscoped references, and preserves hydrated vehicle or full detail records; later sync refreshes listing metadata; full Go tests, vet, builds, skill verification, and diff check pass."
 }

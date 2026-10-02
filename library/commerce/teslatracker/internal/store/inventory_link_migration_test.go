@@ -95,11 +95,12 @@ func TestUpgradeRekeysLegacyInventoryLinkWithoutTouchingVehicle(t *testing.T) {
 				t.Fatalf("inventory search rows after upgrade = %d, %v", indexed, err)
 			}
 			var learningCount, eventLearningID int64
-			if err := s.DB().QueryRow(`SELECT COUNT(*) FROM search_learnings WHERE resource_type = 'inventory' AND resource_id = ?`, vin).Scan(&learningCount); err != nil || learningCount != 1 {
-				t.Fatalf("VIN-keyed learned lookup count = %d, %v", learningCount, err)
+			if err := s.DB().QueryRow(`SELECT COUNT(*) FROM search_learnings WHERE resource_type = 'inventory' AND resource_id = 'Model 3'`).Scan(&learningCount); err != nil || learningCount != 1 {
+				t.Fatalf("preserved learned lookup count = %d, %v", learningCount, err)
 			}
-			if err := s.DB().QueryRow(`SELECT COUNT(*) FROM search_learnings WHERE resource_type = 'inventory' AND resource_id = 'Model 3'`).Scan(&learningCount); err != nil || learningCount != 0 {
-				t.Fatalf("legacy learned lookup count = %d, %v", learningCount, err)
+			var alias string
+			if err := s.DB().QueryRow(`SELECT new_id FROM resource_id_aliases WHERE resource_type = 'inventory' AND old_id = 'Model 3'`).Scan(&alias); err != nil || alias != vin {
+				t.Fatalf("inventory ID alias = %q, %v", alias, err)
 			}
 			if err := s.DB().QueryRow(`SELECT matched_row_id FROM learn_events WHERE event = 'recall_hit'`).Scan(&eventLearningID); err != nil || eventLearningID != oldLearningID {
 				t.Fatalf("learned event row = %d, want %d, err=%v", eventLearningID, oldLearningID, err)
@@ -108,7 +109,7 @@ func TestUpgradeRekeysLegacyInventoryLinkWithoutTouchingVehicle(t *testing.T) {
 	}
 }
 
-func TestUpgradeKeepsLegacyLinkForAmbiguousLearning(t *testing.T) {
+func TestUpgradePreservesLearningsAndSkipsUnscopedReference(t *testing.T) {
 	const vin = "5YJ3E1EA7KF317000"
 	link := json.RawMessage(`{"name":"Model 3","url":"https://teslatracker.com/inventory/5YJ3E1EA7KF317000"}`)
 	for _, tc := range []struct {
@@ -148,6 +149,11 @@ func TestUpgradeKeepsLegacyLinkForAmbiguousLearning(t *testing.T) {
 					       ('find Model 3', 'inventory', ?, 'boost', 'taught', 2, 'new note', 'new alias')`, vin); err != nil {
 					t.Fatal(err)
 				}
+				if _, err := s.DB().Exec(`INSERT INTO learn_events (ts, event, matched_row_id, surface)
+					SELECT '2026-10-01', 'recall_hit', id, 'cli' FROM search_learnings
+					WHERE resource_id IN ('Model 3', ?)`, vin); err != nil {
+					t.Fatal(err)
+				}
 			},
 		},
 	} {
@@ -173,8 +179,21 @@ func TestUpgradeKeepsLegacyLinkForAmbiguousLearning(t *testing.T) {
 			}
 			defer s.Close()
 			got, err := s.Get("inventory", "Model 3")
-			if err != nil || string(got) != string(link) {
-				t.Fatalf("legacy link after conservative upgrade = %s, %v", got, err)
+			if tc.name == "unscoped old ID" {
+				if err != nil || string(got) != string(link) {
+					t.Fatalf("unscoped legacy link changed = %s, %v", got, err)
+				}
+			} else {
+				if err == nil {
+					t.Fatalf("legacy link survived safe rekey = %s", got)
+				}
+				if _, err := s.Get("inventory", vin); err != nil {
+					t.Fatalf("VIN inventory link missing: %v", err)
+				}
+				var alias string
+				if err := s.DB().QueryRow(`SELECT new_id FROM resource_id_aliases WHERE resource_type = 'inventory' AND old_id = 'Model 3'`).Scan(&alias); err != nil || alias != vin {
+					t.Fatalf("inventory alias = %q, %v", alias, err)
+				}
 			}
 			var refs int
 			if err := s.DB().QueryRow(`SELECT COUNT(*) FROM search_learnings WHERE resource_id = 'Model 3'`).Scan(&refs); err != nil || refs != 1 {
@@ -186,7 +205,60 @@ func TestUpgradeKeepsLegacyLinkForAmbiguousLearning(t *testing.T) {
 				if err := s.DB().QueryRow(`SELECT confidence, notes, alias_target FROM search_learnings WHERE resource_id = 'Model 3'`).Scan(&confidence, &notes, &alias); err != nil || confidence != 5 || notes != "old note" || alias != "old alias" {
 					t.Fatalf("old learning metadata after upgrade = confidence %d, notes %q, alias %q, err=%v", confidence, notes, alias, err)
 				}
+				if err := s.DB().QueryRow(`SELECT confidence, notes, alias_target FROM search_learnings WHERE resource_id = ?`, vin).Scan(&confidence, &notes, &alias); err != nil || confidence != 2 || notes != "new note" || alias != "new alias" {
+					t.Fatalf("VIN learning metadata after upgrade = confidence %d, notes %q, alias %q, err=%v", confidence, notes, alias, err)
+				}
+				var linkedEvents int
+				if err := s.DB().QueryRow(`SELECT COUNT(*) FROM learn_events e
+					JOIN search_learnings l ON e.matched_row_id = l.id
+					WHERE l.resource_id IN ('Model 3', ?)`, vin).Scan(&linkedEvents); err != nil || linkedEvents != 2 {
+					t.Fatalf("preserved learning event links = %d, %v", linkedEvents, err)
+				}
 			}
 		})
+	}
+}
+
+func TestLegacyInventoryLinkCanUseSlugEvenWithName(t *testing.T) {
+	obj := map[string]any{
+		"name": "Model 3", "slug": "model-3",
+		"url": "https://teslatracker.com/inventory/5YJ3E1EA7KF317000",
+	}
+	if !isLegacyInventoryLinkID("model-3", obj) {
+		t.Fatal("slug-keyed legacy link was missed")
+	}
+}
+
+func TestUpgradeSkipsDisplayNameSharedByTwoVINs(t *testing.T) {
+	const otherVIN = "5YJ3E1EA7KF318000"
+	dbPath := filepath.Join(t.TempDir(), "inventory.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	legacy := json.RawMessage(`{"name":"Model 3","url":"https://teslatracker.com/inventory/5YJ3E1EA7KF317000"}`)
+	if err := s.Upsert("inventory", "Model 3", legacy); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.Upsert("inventory", otherVIN, json.RawMessage(`{"vin":"5YJ3E1EA7KF318000","name":"Model 3"}`)); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.DB().Exec(`PRAGMA user_version = 9`); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.Close(); err != nil {
+		t.Fatal(err)
+	}
+	s, err = Open(dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	if got, err := s.Get("inventory", "Model 3"); err != nil || string(got) != string(legacy) {
+		t.Fatalf("ambiguous legacy listing = %s, %v", got, err)
+	}
+	var aliasCount int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM resource_id_aliases WHERE resource_type = 'inventory' AND old_id = 'Model 3'`).Scan(&aliasCount); err != nil || aliasCount != 0 {
+		t.Fatalf("ambiguous alias count = %d, %v", aliasCount, err)
 	}
 }

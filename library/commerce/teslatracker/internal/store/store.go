@@ -469,6 +469,14 @@ func (s *Store) migrate(ctx context.Context) error {
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_learn_query ON search_learnings(query_pattern)`,
 		`CREATE UNIQUE INDEX IF NOT EXISTS idx_learn_unique ON search_learnings(query_pattern, resource_id, action)`,
+		// Keep learned inventory references valid after a legacy display-name
+		// link is rekeyed to its VIN. Aliases never affect other resources.
+		`CREATE TABLE IF NOT EXISTS resource_id_aliases (
+			resource_type TEXT NOT NULL,
+			old_id TEXT NOT NULL,
+			new_id TEXT NOT NULL,
+			PRIMARY KEY (resource_type, old_id)
+		)`,
 		// entity_lookups: canonical-to-value reference data for the
 		// pattern substitution engine in internal/learn/patterns. Seeded
 		// at migration time by the consumer (e.g., a CLI may register
