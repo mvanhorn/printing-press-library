@@ -4,6 +4,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 	"path/filepath"
@@ -13,7 +14,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/monitoring/utah-pmn/internal/store"
 )
 
-func TestNoticesListsCachedPMNRowsInLocalMode(t *testing.T) {
+func TestNoticesRefusesOfflineLocationSearch(t *testing.T) {
 	dataDir := t.TempDir()
 	t.Setenv("UTAH_PMN_DATA_DIR", dataDir)
 	t.Setenv("UTAH_PMN_CONFIG", filepath.Join(t.TempDir(), "missing-config.json"))
@@ -23,7 +24,7 @@ func TestNoticesListsCachedPMNRowsInLocalMode(t *testing.T) {
 		t.Fatalf("open store: %v", err)
 	}
 	stored, skipped, err := db.UpsertBatch("notices", []json.RawMessage{
-		json.RawMessage(`{"noticeId": 42, "meetingCity": "Delta", "meetingTitle": "Land use hearing"}`),
+		json.RawMessage(`{"noticeId": 42, "meetingCity": "Hinckley", "meetingTitle": "Nearby land use hearing"}`),
 	})
 	if err != nil {
 		t.Fatalf("seed notices: %v", err)
@@ -40,80 +41,67 @@ func TestNoticesListsCachedPMNRowsInLocalMode(t *testing.T) {
 	cmd.SetOut(&stdout)
 	cmd.SetErr(io.Discard)
 	cmd.SetArgs([]string{"--json", "--data-source", "local", "notices", "--location", "Delta"})
-	if err := cmd.Execute(); err != nil {
-		t.Fatalf("execute local notices: %v", err)
+	if err := cmd.Execute(); err == nil || !strings.Contains(err.Error(), "PMN searches nearby locations") {
+		t.Fatalf("local notices error = %v, want nearby-search refusal", err)
 	}
-	if got := stdout.String(); !strings.Contains(got, `"noticeId": 42`) {
-		t.Fatalf("local notices output %q does not contain cached notice", got)
-	}
-}
-
-func TestNoticesFiltersCachedPMNRows(t *testing.T) {
-	dataDir := t.TempDir()
-	t.Setenv("UTAH_PMN_DATA_DIR", dataDir)
-	t.Setenv("UTAH_PMN_CONFIG", filepath.Join(t.TempDir(), "missing-config.json"))
-
-	db, err := store.Open(filepath.Join(dataDir, "data.db"))
-	if err != nil {
-		t.Fatalf("open store: %v", err)
-	}
-	_, _, err = db.UpsertBatch("notices", []json.RawMessage{
-		json.RawMessage(`{"noticeId":101,"meetingCity":"Delta","meetingZip":"84624","meetingStartTime":"2026-06-15","meetingTitle":"wanted"}`),
-		json.RawMessage(`{"noticeId":202,"meetingCity":"Fillmore","meetingZip":"84631","meetingStartTime":"2026-06-20","meetingTitle":"wrong city"}`),
-		json.RawMessage(`{"noticeId":303,"meetingCity":"Delta","meetingZip":"84624","meetingStartTime":"2026-07-01","meetingTitle":"wrong date"}`),
-		json.RawMessage(`{"noticeId":404,"meetingCity":"Delta","meetingZip":"84624","meetingStartTime":"2026-06-16","meetingTitle":"over limit"}`),
-	})
-	if err != nil {
-		t.Fatalf("seed notices: %v", err)
-	}
-	if err := db.Close(); err != nil {
-		t.Fatalf("close seed store: %v", err)
-	}
-
-	cmd := RootCmd()
-	var stdout bytes.Buffer
-	cmd.SetOut(&stdout)
-	cmd.SetErr(io.Discard)
-	cmd.SetArgs([]string{"--json", "--data-source", "local", "notices", "--location", "Delta", "--start", "2026-06-01", "--end", "2026-06-30", "--limit", "1"})
-	if err := cmd.Execute(); err != nil {
-		t.Fatalf("execute local notices: %v", err)
-	}
-	got := stdout.String()
-	if !strings.Contains(got, `"noticeId": 101`) || strings.Contains(got, `"noticeId": 202`) || strings.Contains(got, `"noticeId": 303`) || strings.Contains(got, `"noticeId": 404`) {
-		t.Fatalf("filtered local notices output = %s", got)
+	if stdout.Len() != 0 {
+		t.Fatalf("local notices unexpectedly returned %q", stdout.String())
 	}
 }
 
-func TestNoticesPreservesNumericMeetingTimesInLocalMode(t *testing.T) {
+func TestFilterCachedNoticesUsesUtahCalendarDatesAndDefaultLimit(t *testing.T) {
+	items := []json.RawMessage{
+		json.RawMessage(`{"noticeId":1,"meetingStartTime":1781577000000}`), // June 15, 20:30 in Utah; June 16 UTC.
+		json.RawMessage(`{"noticeId":2,"meetingStartTime":"2026-06-15"}`),
+		json.RawMessage(`{"noticeId":3,"meetingStartTime":"2026-06-16"}`),
+	}
+	got, err := filterCachedNotices(items, map[string]string{"startDate": "2026-06-15", "endDate": "2026-06-15"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 2 || !bytes.Contains(got[0], []byte(`"noticeId":2`)) || !bytes.Contains(got[1], []byte(`"noticeId":1`)) {
+		t.Fatalf("Utah June 15 results = %s, want formatted and late-night numeric notices", got)
+	}
+
+	items = make([]json.RawMessage, 51)
+	for i := range items {
+		items[i] = json.RawMessage(`{"noticeId":1,"meetingStartTime":"2026-06-15"}`)
+	}
+	got, err = filterCachedNotices(items, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 50 {
+		t.Fatalf("default local notice limit = %d, want 50", len(got))
+	}
+}
+
+func TestResolveLocalNoticesDistinguishesEmptyCacheFromEmptyFilter(t *testing.T) {
 	dataDir := t.TempDir()
 	t.Setenv("UTAH_PMN_DATA_DIR", dataDir)
-	t.Setenv("UTAH_PMN_CONFIG", filepath.Join(t.TempDir(), "missing-config.json"))
-
 	db, err := store.Open(filepath.Join(dataDir, "data.db"))
 	if err != nil {
-		t.Fatalf("open store: %v", err)
-	}
-	_, _, err = db.UpsertBatch("notices", []json.RawMessage{
-		json.RawMessage(`{"noticeId":901,"meetingCity":"Delta","meetingZip":"84624","meetingStartTime":1781481600000,"meetingTitle":"numeric date"}`),
-		json.RawMessage(`{"noticeId":902,"meetingCity":"Delta","meetingZip":"84624","meetingStartTime":"2026-06-16","meetingTitle":"formatted date"}`),
-	})
-	if err != nil {
-		t.Fatalf("seed notices: %v", err)
+		t.Fatal(err)
 	}
 	if err := db.Close(); err != nil {
-		t.Fatalf("close seed store: %v", err)
+		t.Fatal(err)
 	}
-
-	cmd := RootCmd()
-	var stdout bytes.Buffer
-	cmd.SetOut(&stdout)
-	cmd.SetErr(io.Discard)
-	cmd.SetArgs([]string{"--json", "--data-source", "local", "notices", "--location", "Delta", "--start", "2026-06-15", "--end", "2026-06-16"})
-	if err := cmd.Execute(); err != nil {
-		t.Fatalf("execute local notices: %v", err)
+	flags := &rootFlags{dataSource: "local"}
+	if _, _, err := resolveLocal(context.Background(), flags, io.Discard, "notices", true, "/getUpcomingNotices.json", nil, "user_requested"); err == nil || !strings.Contains(err.Error(), "no local data") {
+		t.Fatalf("empty cache error = %v, want no local data", err)
 	}
-	got := stdout.String()
-	if !strings.Contains(got, `"noticeId": 901`) || !strings.Contains(got, `"noticeId": 902`) {
-		t.Fatalf("local notices output dropped a compatible cached date shape: %s", got)
+	db, err = store.Open(filepath.Join(dataDir, "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := db.UpsertBatch("notices", []json.RawMessage{json.RawMessage(`{"noticeId":1,"meetingStartTime":"2026-06-15"}`)}); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatal(err)
+	}
+	data, _, err := resolveLocal(context.Background(), flags, io.Discard, "notices", true, "/getUpcomingNotices.json", map[string]string{"startDate": "2026-07-01"}, "user_requested")
+	if err != nil || string(data) != "[]" {
+		t.Fatalf("filtered cache result = %s, %v; want [] and nil", data, err)
 	}
 }

@@ -95,6 +95,31 @@ func TestNovelSinceBehavior(t *testing.T) {
 	}
 }
 
+func TestRecordNoticesRollsBackWholeBatchOnFailure(t *testing.T) {
+	ctx := context.Background()
+	db, err := store.OpenWithContext(ctx, filepath.Join(t.TempDir(), "since-batch.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	if err := ensurePMNTables(ctx, db.DB()); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.DB().ExecContext(ctx, `CREATE TRIGGER reject_second_notice BEFORE INSERT ON pmn_seen_notices WHEN NEW.notice_id = 2 BEGIN SELECT RAISE(ABORT, 'injected write failure'); END`); err != nil {
+		t.Fatal(err)
+	}
+	if err := recordNotices(ctx, db.DB(), []pmnNotice{{NoticeID: 1}, {NoticeID: 2}}, "2026-06-01T00:00:00Z"); err == nil {
+		t.Fatal("recordNotices succeeded despite rejected second notice")
+	}
+	var count int
+	if err := db.DB().QueryRowContext(ctx, `SELECT COUNT(*) FROM pmn_seen_notices`).Scan(&count); err != nil {
+		t.Fatal(err)
+	}
+	if count != 0 {
+		t.Fatalf("partially recorded %d notices after failed batch", count)
+	}
+}
+
 func TestNovelSinceDoesNotRecordNoticesWhenOutputFails(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

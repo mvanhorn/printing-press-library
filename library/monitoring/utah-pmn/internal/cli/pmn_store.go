@@ -48,6 +48,25 @@ func recordNotice(ctx context.Context, db *sql.DB, n pmnNotice, now string) erro
 	return err
 }
 
+// recordNotices records a delivered batch together, so a failed write leaves
+// every notice in the batch fresh for the next run.
+func recordNotices(ctx context.Context, db *sql.DB, notices []pmnNotice, now string) error {
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	for _, n := range notices {
+		if _, err := tx.ExecContext(ctx,
+			`INSERT OR IGNORE INTO pmn_seen_notices (notice_id, first_seen, public_body, meeting_start, meeting_title)
+			 VALUES (?, ?, ?, ?, ?)`,
+			n.NoticeID, now, n.PublicBodyName, n.MeetingStartTime, n.MeetingTitle); err != nil {
+			return err
+		}
+	}
+	return tx.Commit()
+}
+
 // watchList returns the saved body watchlist (lowercased names).
 func watchList(ctx context.Context, db *sql.DB) ([]string, error) {
 	rows, err := db.QueryContext(ctx, `SELECT name FROM pmn_watch_bodies ORDER BY name`)

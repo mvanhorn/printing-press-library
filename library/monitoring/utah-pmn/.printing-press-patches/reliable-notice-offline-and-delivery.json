@@ -4,8 +4,8 @@
   "applied_at": "2026-10-01",
   "base_run_id": "20260626-230015-d1a83064",
   "base_printing_press_version": "4.25.0",
-  "summary": "Preserve notice filters and date formats offline, cache PMN notice IDs, detect truncated sweeps, and mark notices seen only after output and delivery succeed.",
-  "reason": "Unfiltered cache results, silently incomplete sweeps, and early seen-state writes can hide notices or lose a failed delivery.",
+  "summary": "Filter cached notices by Utah meeting date and limit, reject location searches the cache cannot faithfully answer, cache PMN notice IDs, detect truncated sweeps, and mark delivered notice batches seen atomically.",
+  "reason": "Inexact nearby searches, UTC date boundaries, silently incomplete sweeps, and partial seen-state writes can hide notices or lose a failed delivery.",
   "files": [
     "internal/cli/promoted_notices.go",
     "internal/cli/promoted_notices_test.go",
@@ -21,5 +21,5 @@
     "README.md",
     "NOTICE"
   ],
-  "validated_outcome": "Offline tests cover filtered cached notices, numeric and formatted meeting dates, noticeId lookup, truncation detection, failed output, and delivery ordering."
+  "validated_outcome": "Offline tests cover location-search refusal, empty caches, Utah numeric and formatted meeting dates, default limit, noticeId lookup, truncation detection, failed output, delivery ordering, and atomic seen-state rollback."
 }

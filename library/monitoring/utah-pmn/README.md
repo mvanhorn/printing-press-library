@@ -8,7 +8,7 @@ Created by [@pgradeff](https://github.com/pgradeff) (Paul Gradeff).
 
 Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
-Cached notice lists now honor location, meeting dates, and result limits. County sweeps report an error when the requested limit could hide more notices. The `since` command records notices as seen only after output and any requested delivery succeed.
+Cached notice lists honor Utah meeting dates and the result limit. Location searches require the live service: PMN searches nearby places, and cached notice rows do not retain the location query that found them. If the service is unavailable, `notices --location` reports that it cannot answer from the cache. County sweeps report an error when the requested limit could hide more notices. The `since` command records a delivered batch as seen only after output and any requested delivery succeed.
 
 ## Install
 

@@ -104,10 +104,8 @@ func newNovelSinceCmd(flags *rootFlags) *cobra.Command {
 					if err := ensurePMNTables(context.Background(), commitDB.DB()); err != nil {
 						return fmt.Errorf("preparing tables to record delivered notices: %w", err)
 					}
-					for _, n := range fresh {
-						if err := recordNotice(context.Background(), commitDB.DB(), n, now); err != nil {
-							return fmt.Errorf("recording notice: %w", err)
-						}
+					if err := recordNotices(context.Background(), commitDB.DB(), fresh, now); err != nil {
+						return fmt.Errorf("recording delivered notices: %w", err)
 					}
 					return nil
 				}
