@@ -31,7 +31,7 @@ var logiDownloadHostRe = regexp.MustCompile(`(?i)^download[0-9]*\.logi\.com$`)
 
 func validateLogitechDownloadURL(u *url.URL) error {
 	if u == nil || !strings.EqualFold(u.Scheme, "https") || !logiDownloadHostRe.MatchString(u.Hostname()) {
-		return fmt.Errorf("refusing download redirect outside HTTPS Logitech download hosts: %v", u)
+		return fmt.Errorf("refusing download redirect outside HTTPS Logitech download hosts")
 	}
 	return nil
 }
@@ -42,11 +42,29 @@ func newLogitechDownloadClient() *http.Client {
 	}}
 }
 
-// createNewDownloadFile atomically claims a previously unused destination.
-// O_EXCL prevents both overwriting an existing file and following a symlink
-// that appeared between filename validation and the open.
-func createNewDownloadFile(dest string) (*os.File, error) {
-	return os.OpenFile(dest, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600) // #nosec G304 -- dest is a validated basename joined under the caller-selected --save directory
+// saveNewDownload writes to an unpredictable temporary name in the target
+// directory. Linking the completed file claims the destination atomically
+// without replacing a file or symlink another process created meanwhile.
+func saveNewDownload(dest string, src io.Reader) error {
+	out, err := os.CreateTemp(filepath.Dir(dest), ".logitech-download-*")
+	if err != nil {
+		return err
+	}
+	defer os.Remove(out.Name())
+	if _, err := io.Copy(out, src); err != nil {
+		_ = out.Close()
+		return fmt.Errorf("writing temporary download: %w", err)
+	}
+	if err := out.Close(); err != nil {
+		return fmt.Errorf("closing temporary download: %w", err)
+	}
+	if err := os.Link(out.Name(), dest); err != nil {
+		if os.IsExist(err) {
+			return fmt.Errorf("refusing to overwrite existing download %s", dest)
+		}
+		return fmt.Errorf("publishing download %s: %w", dest, err)
+	}
+	return nil
 }
 
 type downloadLink struct {
@@ -166,24 +184,10 @@ func newNovelDownloadCmd(flags *rootFlags) *cobra.Command {
 					return apiErr(fmt.Errorf("refusing unsafe download filename %q from %s", name, links[i].URL))
 				}
 				dest := filepath.Join(saveDir, name)
-				out, err := createNewDownloadFile(dest)
-				if err != nil {
-					_ = resp.Body.Close()
-					if os.IsExist(err) {
-						return fmt.Errorf("refusing to overwrite existing download %s", dest)
-					}
-					return fmt.Errorf("creating new download %s: %w", dest, err)
-				}
-				_, copyErr := io.Copy(out, resp.Body)
-				closeErr := out.Close()
+				err = saveNewDownload(dest, resp.Body)
 				_ = resp.Body.Close()
-				if copyErr != nil {
-					_ = os.Remove(dest)
-					return fmt.Errorf("writing %s: %w", dest, copyErr)
-				}
-				if closeErr != nil {
-					_ = os.Remove(dest)
-					return fmt.Errorf("closing %s: %w", dest, closeErr)
+				if err != nil {
+					return err
 				}
 				links[i].SavedTo = dest
 			}

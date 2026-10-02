@@ -6,6 +6,8 @@ package cli
 
 import (
 	"bytes"
+	"errors"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -68,7 +70,7 @@ func TestLogitechDownloadRedirectBoundary(t *testing.T) {
 	}
 }
 
-func TestCreateNewDownloadFileRejectsExistingTargets(t *testing.T) {
+func TestSaveNewDownloadRejectsExistingTargets(t *testing.T) {
 	t.Parallel()
 
 	dir := t.TempDir()
@@ -76,9 +78,8 @@ func TestCreateNewDownloadFileRejectsExistingTargets(t *testing.T) {
 	if err := os.WriteFile(existing, []byte("keep-existing"), 0o600); err != nil {
 		t.Fatalf("seed existing file: %v", err)
 	}
-	if f, err := createNewDownloadFile(existing); err == nil {
-		_ = f.Close()
-		t.Fatal("exclusive create unexpectedly replaced an existing file")
+	if err := saveNewDownload(existing, strings.NewReader("new-download")); err == nil {
+		t.Fatal("publish unexpectedly replaced an existing file")
 	}
 	if got, err := os.ReadFile(existing); err != nil || string(got) != "keep-existing" {
 		t.Fatalf("existing file changed: contents=%q err=%v", got, err)
@@ -92,11 +93,59 @@ func TestCreateNewDownloadFileRejectsExistingTargets(t *testing.T) {
 	if err := os.Symlink(target, symlink); err != nil {
 		t.Skipf("symlink unsupported in this environment: %v", err)
 	}
-	if f, err := createNewDownloadFile(symlink); err == nil {
-		_ = f.Close()
-		t.Fatal("exclusive create unexpectedly followed an existing symlink")
+	if err := saveNewDownload(symlink, strings.NewReader("new-download")); err == nil {
+		t.Fatal("publish unexpectedly followed an existing symlink")
 	}
 	if got, err := os.ReadFile(target); err != nil || string(got) != "keep-target" {
 		t.Fatalf("symlink target changed: contents=%q err=%v", got, err)
+	}
+}
+
+type replacementDuringRead struct {
+	dest  string
+	wrote bool
+}
+
+func (r *replacementDuringRead) Read(p []byte) (int, error) {
+	if r.wrote {
+		return 0, io.EOF
+	}
+	r.wrote = true
+	if err := os.WriteFile(r.dest, []byte("replacement"), 0o600); err != nil {
+		return 0, err
+	}
+	return copy(p, []byte("download")), io.EOF
+}
+
+func TestSaveNewDownloadPreservesDestinationCreatedDuringCopy(t *testing.T) {
+	t.Parallel()
+	dest := filepath.Join(t.TempDir(), "manual.pdf")
+	if err := saveNewDownload(dest, &replacementDuringRead{dest: dest}); err == nil || !strings.Contains(err.Error(), "refusing to overwrite") {
+		t.Fatalf("download replaced an intervening file: %v", err)
+	}
+	if got, err := os.ReadFile(dest); err != nil || string(got) != "replacement" {
+		t.Fatalf("intervening file changed: contents=%q err=%v", got, err)
+	}
+}
+
+type failingDownloadReader struct{}
+
+func (failingDownloadReader) Read([]byte) (int, error) {
+	return 0, errors.New("synthetic read failure")
+}
+
+func TestSaveNewDownloadLeavesNoDestinationOnCopyFailure(t *testing.T) {
+	t.Parallel()
+	dir := t.TempDir()
+	dest := filepath.Join(dir, "manual.pdf")
+	if err := saveNewDownload(dest, failingDownloadReader{}); err == nil {
+		t.Fatal("copy failure was hidden")
+	}
+	if _, err := os.Lstat(dest); !os.IsNotExist(err) {
+		t.Fatalf("failed download published a destination: %v", err)
+	}
+	entries, err := os.ReadDir(dir)
+	if err != nil || len(entries) != 0 {
+		t.Fatalf("failed download left temporary files: entries=%v err=%v", entries, err)
 	}
 }

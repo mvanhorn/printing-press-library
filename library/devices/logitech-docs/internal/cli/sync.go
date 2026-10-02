@@ -2492,6 +2492,7 @@ func syncOneParent(
 		if rerr != nil {
 			fmt.Fprintf(syncEvents, `{"event":"reconcile_error","resource":"%s","scope":"%s","error":%q}`+"\n", dep.Name, outcome.scopeVal, rerr.Error())
 			rep.failure = fmt.Errorf("reconciling %s partition %s: %w", dep.Name, outcome.scopeVal, rerr)
+			rep.integrityFailure = true
 		} else {
 			// Always emit on a proven-complete sweep, even when deleted==0, so a
 			// clean run is observable (distinguishable from "reconcile never ran").

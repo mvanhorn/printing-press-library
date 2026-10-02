@@ -15,5 +15,5 @@
     "README.md",
     "NOTICE"
   ],
-  "validated_outcome": "Offline tests reject off-host redirects and existing or symlinked download targets, and propagate flat and dependent sync reconciliation failures."
+  "validated_outcome": "Offline tests reject off-host redirects and existing or symlinked download targets, preserve a file created during download, and propagate flat and dependent sync reconciliation failures even when other parents succeed."
 }

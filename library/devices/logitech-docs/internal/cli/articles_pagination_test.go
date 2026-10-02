@@ -409,6 +409,7 @@ func TestDependentReconcileFailureIsReturnedAndNotCheckpointed(t *testing.T) {
 	db := openTestStore(t)
 	if _, _, err := db.UpsertBatch(dep.ParentTable, []json.RawMessage{
 		json.RawMessage(`{"id":777,"name":"Test Section"}`),
+		json.RawMessage(`{"id":888,"name":"Other Section"}`),
 	}); err != nil {
 		t.Fatalf("seed parent table: %v", err)
 	}
@@ -417,17 +418,18 @@ func TestDependentReconcileFailureIsReturnedAndNotCheckpointed(t *testing.T) {
 	}); err != nil {
 		t.Fatalf("seed stale dependent: %v", err)
 	}
-	if _, err := db.DB().Exec(`CREATE TRIGGER fail_article_reconcile BEFORE DELETE ON articles BEGIN SELECT RAISE(ABORT, 'forced reconcile failure'); END`); err != nil {
+	if _, err := db.DB().Exec(`CREATE TRIGGER fail_article_reconcile BEFORE DELETE ON resources WHEN OLD.resource_type = 'articles' AND json_extract(OLD.data, '$.id') = 99 BEGIN SELECT RAISE(ABORT, 'forced reconcile failure'); END`); err != nil {
 		t.Fatalf("create failing reconcile trigger: %v", err)
 	}
 
 	c := &recordingClient{pages: []json.RawMessage{
 		json.RawMessage(`{"articles":[{"id":11,"title":"current","section_id":777}],"meta":{"has_more":false,"after_cursor":""}}`),
+		json.RawMessage(`{"articles":[{"id":22,"title":"current","section_id":888}],"meta":{"has_more":false,"after_cursor":""}}`),
 	}}
 	var events bytes.Buffer
 	res := syncDependentResource(context.Background(), c, db, dep, "", true, 0, false, true, &syncUserParams{}, &events, 1)
-	if res.Err == nil && res.Warn == nil {
-		t.Fatalf("reconcile failure was reported as clean success: %#v", res)
+	if res.Err == nil || !res.IntegrityFailure || res.Count != 2 {
+		t.Fatalf("one failed partition among successful parents must be an integrity error: %#v", res)
 	}
 	resultText := fmt.Sprint(res.Err, res.Warn)
 	if !strings.Contains(resultText, "reconciling articles partition 777") {
