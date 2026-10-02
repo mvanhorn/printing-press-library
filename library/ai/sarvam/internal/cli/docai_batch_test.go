@@ -38,6 +38,15 @@ func TestDocaiBatchFailureReason(t *testing.T) {
 	}
 }
 
+func TestDocaiResultFileNamePreservesSourceExtension(t *testing.T) {
+	if got, want := docaiResultFileName("/tmp/invoice.pdf"), "invoice.pdf.json"; got != want {
+		t.Fatalf("docaiResultFileName() = %q, want %q", got, want)
+	}
+	if docaiResultFileName("invoice.pdf") == docaiResultFileName("invoice.png") {
+		t.Fatal("distinct source extensions produced the same result filename")
+	}
+}
+
 // TestNovelDocaiBatchHelpWires smoke-tests that the docai batch command
 // resolves at runtime and renders useful --help output. Catches wiring
 // regressions (missing AddCommand, panicking RunE on --help, etc.) before

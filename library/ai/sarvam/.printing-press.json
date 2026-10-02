@@ -4,6 +4,16 @@
   "printing_press_version": "4.30.2",
   "api_name": "sarvam",
   "cli_name": "sarvam-pp-cli",
+  "creator": {
+    "handle": "SomSamantray",
+    "name": "Som Samantray"
+  },
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "printer": "SomSamantray",
   "printer_name": "Som Samantray",
   "spec_path": "sarvam-openapi.yaml",
