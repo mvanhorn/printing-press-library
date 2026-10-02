@@ -576,6 +576,16 @@ func syncResource(ctx context.Context, c interface {
 			}
 			break
 		}
+		if !resourceSupportsPagination(resource) && (hasMore || nextCursor != "") {
+			// The spec declares no paginator for this endpoint. A response
+			// advertising another page is not a complete archive, even when
+			// its current page has no items. Do not guess a cursor parameter.
+			outcome.reason = "pagination_unhandled"
+			if !humanFriendly {
+				fmt.Fprintf(syncEvents, `{"event":"sync_warning","resource":"%s","reason":"pagination_unhandled","message":"API advertised another page but this endpoint declares no paginator; archive is incomplete."}`+"\n", resource)
+			}
+			break
+		}
 
 		if len(items) == 0 {
 			if isEmptyPageResponse(data, responsePathForResource(resource, path)...) {
@@ -743,18 +753,7 @@ func syncResource(ctx context.Context, c interface {
 
 		// Determine if there are more pages.
 		if !resourceSupportsPagination(resource) {
-			if hasMore || nextCursor != "" {
-				// The spec declares no paginator for this endpoint. If a live
-				// response nevertheless advertises another page, the first page
-				// is not a complete archive and guessing a cursor parameter would
-				// risk silently skipping data.
-				outcome.reason = "pagination_unhandled"
-				if !humanFriendly {
-					fmt.Fprintf(syncEvents, `{"event":"sync_warning","resource":"%s","reason":"pagination_unhandled","message":"API advertised another page but this endpoint declares no paginator; archive is incomplete."}`+"\n", resource)
-				}
-			} else {
-				outcome.complete = true
-			}
+			outcome.complete = true
 			break
 		}
 		if !hasMore || len(items) < pageSize.limit {
@@ -1011,7 +1010,11 @@ func extractPageItems(data json.RawMessage, cursorParam string, responsePaths ..
 		return items, nextCursor, hasMore
 	}
 
-	return nil, "", false
+	// An empty or unfamiliar items wrapper can still advertise a next page.
+	// Preserve that metadata so archive does not mistake it for a complete
+	// empty response.
+	nextCursor, hasMore := extractPaginationFromEnvelope(envelope, cursorParam)
+	return nil, nextCursor, hasMore
 }
 
 func extractItemsFromEnvelope(envelope map[string]json.RawMessage) ([]json.RawMessage, bool) {

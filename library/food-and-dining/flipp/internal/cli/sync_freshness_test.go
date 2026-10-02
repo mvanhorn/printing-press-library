@@ -185,3 +185,15 @@ func TestSyncResourceRejectsMissingLocation(t *testing.T) {
 		t.Fatalf("missing-location result = %#v, want postal-code error", res)
 	}
 }
+
+func TestEmptyPageAdvertisingAnotherPageIsIncomplete(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	res := syncResource(context.Background(), stubSyncClient{body: json.RawMessage(`{"items":[],"has_more":true,"next_cursor":"page-2"}`)}, db, "flyers", "", false, 0, false, false, flippSyncLocationParams("10001", "en-us"), io.Discard)
+	if res.Err != nil || res.Complete || res.IncompleteReason != "pagination_unhandled" {
+		t.Fatalf("empty advertised next page = %#v, want incomplete", res)
+	}
+}
