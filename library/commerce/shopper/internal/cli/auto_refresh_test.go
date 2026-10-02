@@ -8,11 +8,16 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/cliutil"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
+	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/platform"
+	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/store"
 )
 
 // captureStderr returns the bytes written to os.Stderr while fn runs. Used
@@ -116,5 +121,76 @@ func TestAutoRefreshNoLearnDoesNotOpenStore(t *testing.T) {
 	}
 	if len(entries) != 0 {
 		t.Fatalf("--no-learn created local-store files: %v", entries)
+	}
+}
+
+func TestAutoRefreshDBPathUsesActiveProfileStore(t *testing.T) {
+	home := t.TempDir()
+	restore, err := cliutil.SetHomeOverride(home)
+	if err != nil {
+		t.Fatalf("set home override: %v", err)
+	}
+	t.Cleanup(restore)
+
+	defaultPath := defaultDBPath("shopper-pp-cli")
+	profilePath := filepath.Join(home, "profiles", "tenant-a", "data.db")
+	for _, fixture := range []struct {
+		path string
+		at   time.Time
+	}{
+		{path: defaultPath, at: time.Now()},
+		{path: profilePath, at: time.Now().Add(-48 * time.Hour)},
+	} {
+		db, openErr := store.OpenWithContext(context.Background(), fixture.path)
+		if openErr != nil {
+			t.Fatalf("open fixture store %s: %v", fixture.path, openErr)
+		}
+		if saveErr := db.SaveSyncStateAt("orders", "", 1, fixture.at); saveErr != nil {
+			_ = db.Close()
+			t.Fatalf("seed fixture store %s: %v", fixture.path, saveErr)
+		}
+		if closeErr := db.Close(); closeErr != nil {
+			t.Fatalf("close fixture store %s: %v", fixture.path, closeErr)
+		}
+	}
+
+	flags := &rootFlags{
+		platformSession: &platform.Session{Paths: platform.Paths{DataFile: profilePath}},
+	}
+	selectedPath, err := autoRefreshDBPath(flags)
+	if err != nil {
+		t.Fatalf("select auto-refresh DB path: %v", err)
+	}
+	if selectedPath != profilePath {
+		t.Fatalf("auto-refresh DB path = %q, want active profile %q", selectedPath, profilePath)
+	}
+	selected, err := store.OpenWithContext(context.Background(), selectedPath)
+	if err != nil {
+		t.Fatalf("open selected store: %v", err)
+	}
+	defer selected.Close()
+	decision, err := cliutil.EnsureFresh(context.Background(), selected.DB(), []string{"orders"}, cachePolicy())
+	if err != nil {
+		t.Fatalf("freshness decision: %v", err)
+	}
+	if decision != cliutil.DecisionStaleAPI {
+		t.Fatalf("active profile decision = %s, want stale-api", decision)
+	}
+}
+
+func TestAutoRefreshDBPathFallsBackWithoutProfile(t *testing.T) {
+	got, err := autoRefreshDBPath(&rootFlags{})
+	if err != nil {
+		t.Fatalf("select default auto-refresh DB path: %v", err)
+	}
+	if want := defaultDBPath("shopper-pp-cli"); got != want {
+		t.Fatalf("auto-refresh DB path = %q, want default %q", got, want)
+	}
+}
+
+func TestAutoRefreshDBPathRejectsProfileWithoutStore(t *testing.T) {
+	_, err := autoRefreshDBPath(&rootFlags{platformSession: &platform.Session{}})
+	if err == nil || !strings.Contains(err.Error(), "no data-file path") {
+		t.Fatalf("error = %v, want missing profile store path", err)
 	}
 }

@@ -4,10 +4,13 @@
 package cli
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/config"
@@ -42,9 +45,9 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 			w := cmd.OutOrStdout()
 			fmt.Fprintln(w, "See API docs: https://siteapi.shopper.com.br")
 			fmt.Fprintln(w, "")
-			fmt.Fprintln(w, "Then set:")
-			fmt.Fprintln(w, "  export SHOPPER_TOKEN=\"your-token-here\"")
-			fmt.Fprintln(w, "  shopper-pp-cli auth set-token <token>")
+			fmt.Fprintln(w, "Then save the token without putting it in argv:")
+			fmt.Fprintln(w, "  shopper-pp-cli auth set-token --stdin")
+			fmt.Fprintln(w, "Or provide SHOPPER_TOKEN through your environment or secret manager.")
 			if !launch {
 				return nil
 			}
@@ -115,9 +118,9 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			if !authed {
 				fmt.Fprintln(w, red("Not authenticated"))
 				fmt.Fprintln(w, "")
-				fmt.Fprintln(w, "Set your token:")
-				fmt.Fprintln(w, "  export SHOPPER_TOKEN=\"your-token-here\"")
-				fmt.Fprintf(w, "  shopper-pp-cli auth set-token <token>\n")
+				fmt.Fprintln(w, "Save your token without putting it in argv:")
+				fmt.Fprintf(w, "  shopper-pp-cli auth set-token --stdin\n")
+				fmt.Fprintln(w, "Or provide SHOPPER_TOKEN through your environment or secret manager.")
 				return authErr(fmt.Errorf("no credentials configured"))
 			}
 
@@ -130,12 +133,37 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 }
 
 func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
-	return &cobra.Command{
-		Use:     "set-token <token>",
+	var fromStdin bool
+	cmd := &cobra.Command{
+		Use:     "set-token [token]",
 		Short:   "Save an API token to the credentials file",
-		Example: "  shopper-pp-cli auth set-token YOUR_TOKEN_HERE",
-		Args:    cobra.ExactArgs(1),
+		Example: "  shopper-pp-cli auth set-token --stdin",
+		Args: func(cmd *cobra.Command, args []string) error {
+			if fromStdin {
+				if len(args) != 0 {
+					return usageErr(fmt.Errorf("--stdin and a positional token are mutually exclusive"))
+				}
+				return nil
+			}
+			if len(args) != 1 {
+				return usageErr(fmt.Errorf("provide one token argument or use --stdin"))
+			}
+			return nil
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			token := ""
+			if fromStdin {
+				line, readErr := bufio.NewReader(cmd.InOrStdin()).ReadString('\n')
+				if readErr != nil && readErr != io.EOF {
+					return configErr(fmt.Errorf("reading token from stdin: %w", readErr))
+				}
+				token = strings.TrimSpace(line)
+				if token == "" {
+					return usageErr(fmt.Errorf("stdin did not contain a token"))
+				}
+			} else {
+				token = args[0]
+			}
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)
@@ -148,7 +176,7 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 			// log line): a masked-tail variant could leak token bytes through
 			// scripted dogfood that captures stderr.
 			cfg.AuthHeaderVal = ""
-			if err := cfg.SaveTokens("", "", args[0], "", cfg.TokenExpiry); err != nil {
+			if err := cfg.SaveTokens("", "", token, "", cfg.TokenExpiry); err != nil {
 				return configErr(fmt.Errorf("saving token: %w", err))
 			}
 
@@ -168,6 +196,8 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
+	cmd.Flags().BoolVar(&fromStdin, "stdin", false, "Read the token from standard input instead of a process argument")
+	return cmd
 }
 
 func credentialSavePath(cfg *config.Config) string {

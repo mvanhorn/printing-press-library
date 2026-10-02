@@ -7,7 +7,10 @@ shopper-pp-cli covers all six Shopper storefronts (Compra Programada, Fresh, Pet
 Learn more at [Shopper](https://siteapi.shopper.com.br).
 
 Created by [@educrvz](https://github.com/educrvz) (educrvz).
-Contributors: [@henriquedc-ai](https://github.com/henriquedc-ai) (Henrique Dantas), [@tmchow](https://github.com/tmchow) (Trevin Chow).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+Other contributors: [@henriquedc-ai](https://github.com/henriquedc-ai) (Henrique Dantas), [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
+Auto-refresh checks the active client profile's own data store. `auth set-token --stdin` accepts a token from standard input so it need not appear in process arguments or shell history.
 
 ## Install
 
@@ -546,7 +549,7 @@ If you use agentcookie to sync secrets across machines, this CLI auto-adopts age
 - Run the `list` command to see available items
 
 ### API-specific
-- **401 Unauthorized on any command** — Run 'shopper-pp-cli auth set-token <token>' with a fresh JWT from browser DevTools → Network → Authorization header
+- **401 Unauthorized on any command** — Pass a fresh JWT from your secret manager to `shopper-pp-cli auth set-token --stdin`, or provide `SHOPPER_TOKEN` through your environment.
 - **cart list-summary returns wrong store data** — Pass --store explicitly: programada, fresh, unica, pet, now, or now-bebidas. The default is programada.
 - **unica/pet orders missing from 'orders spend'** — orders spend queries all stores by default; if a store shows no data, your account has no orders there
 - **delivery calendar shows no available dates** — Run --store with a subscription store (programada/fresh/pet). now/now-bebidas use a different ultra-fast delivery flow.

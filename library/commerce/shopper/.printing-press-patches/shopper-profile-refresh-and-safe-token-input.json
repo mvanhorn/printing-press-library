@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "shopper-profile-refresh-and-safe-token-input",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260803-082038-a3b929d1",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Check auto-refresh against the active client profile's data store and accept a persisted JWT through standard input.",
+  "reason": "A global store can mask stale profile data, while passing a token as a process argument exposes it in process listings and shell history.",
+  "files": [
+    "internal/cli/auto_refresh.go",
+    "internal/cli/auto_refresh_test.go",
+    "internal/cli/auth.go",
+    "internal/cli/auth_set_token_test.go",
+    ".printing-press.json",
+    "README.md",
+    "NOTICE"
+  ],
+  "validated_outcome": "Offline tests select the active profile store, reject missing profile store paths, and persist a token from stdin without printing it."
+}

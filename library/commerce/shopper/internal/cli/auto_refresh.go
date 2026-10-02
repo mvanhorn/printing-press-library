@@ -131,7 +131,14 @@ func autoRefreshIfStale(ctx context.Context, flags *rootFlags, resources []strin
 		meta.Reason = "env_opt_out"
 		return meta
 	}
-	dbPath := defaultDBPath("shopper-pp-cli")
+	dbPath, err := autoRefreshDBPath(flags)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "warning: auto-refresh skipped (store path: %v)\n", err)
+		meta.Decision = "error"
+		meta.Reason = "open_store"
+		meta.Error = err.Error()
+		return meta
+	}
 	db, err := store.OpenWithContext(ctx, dbPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "warning: auto-refresh skipped (open: %v)\n", err)
@@ -168,6 +175,16 @@ func autoRefreshIfStale(ctx context.Context, flags *rootFlags, resources []strin
 	}
 	meta.Reason = "refreshed"
 	return meta
+}
+
+func autoRefreshDBPath(flags *rootFlags) (string, error) {
+	if flags != nil && flags.platformSession != nil {
+		if dataFile := strings.TrimSpace(flags.platformSession.Paths.DataFile); dataFile != "" {
+			return dataFile, nil
+		}
+		return "", fmt.Errorf("active client profile has no data-file path")
+	}
+	return defaultDBPath("shopper-pp-cli"), nil
 }
 
 // emitCacheRefreshFailedEvent writes a structured one-line JSON event to
