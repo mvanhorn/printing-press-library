@@ -6,6 +6,7 @@
 package store
 
 import (
+	"database/sql"
 	"errors"
 	"path/filepath"
 	"testing"
@@ -20,6 +21,47 @@ func openCleanupTestStore(t *testing.T) *Store {
 	}
 	t.Cleanup(func() { _ = s.Close() })
 	return s
+}
+
+func TestMailLedgerUntrashSnapshotMigratesExistingStore(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "old.db")
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = raw.Exec(`CREATE TABLE mail_ledger_entries (
+		ledger_id TEXT NOT NULL, id TEXT NOT NULL, kind TEXT NOT NULL,
+		delta_add TEXT NOT NULL DEFAULT '[]', delta_remove TEXT NOT NULL DEFAULT '[]',
+		pre_placement TEXT NOT NULL DEFAULT '[]', old_name TEXT NOT NULL DEFAULT '',
+		new_name TEXT NOT NULL DEFAULT '', undone TEXT NOT NULL DEFAULT '',
+		created_at TEXT NOT NULL DEFAULT '', PRIMARY KEY (ledger_id, id)
+	)`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := raw.Exec(`INSERT INTO mail_ledger_entries (ledger_id, id, kind) VALUES ('old', 'm1', 'trash')`); err != nil {
+		t.Fatal(err)
+	}
+	if err := raw.Close(); err != nil {
+		t.Fatal(err)
+	}
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("upgrading existing store: %v", err)
+	}
+	defer s.Close()
+	entries, err := s.ListMailLedgerEntries("old")
+	if err != nil || len(entries) != 1 || entries[0].HasUntrashSnapshot {
+		t.Fatalf("old ledger row after upgrade = %+v, %v", entries, err)
+	}
+	if err := s.SetMailLedgerEntryUntrashDone("old", "m1", []string{"UNREAD"}); err != nil {
+		t.Fatal(err)
+	}
+	entries, err = s.ListMailLedgerEntries("old")
+	if err != nil || len(entries) != 1 || !entries[0].HasUntrashSnapshot || entries[0].Undone != "untrash_done" ||
+		len(entries[0].UntrashLabels) != 1 || entries[0].UntrashLabels[0] != "UNREAD" {
+		t.Fatalf("untrash snapshot after upgrade = %+v, %v", entries, err)
+	}
 }
 
 func TestAuthorizeMailApply_AtomicNonceLifecycle(t *testing.T) {

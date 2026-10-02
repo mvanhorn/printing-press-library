@@ -352,15 +352,17 @@ type MailLedger struct {
 
 // MailLedgerEntry is one per-id introduced-delta record.
 type MailLedgerEntry struct {
-	LedgerID     string   `json:"ledger_id"`
-	ID           string   `json:"id"`
-	Kind         string   `json:"kind"` // trash | label | label_rename
-	DeltaAdd     []string `json:"delta_add"`
-	DeltaRemove  []string `json:"delta_remove"`
-	PrePlacement []string `json:"pre_placement"`
-	OldName      string   `json:"old_name,omitempty"`
-	NewName      string   `json:"new_name,omitempty"`
-	Undone       string   `json:"undone,omitempty"` // '' | untrash_pending | untrash_done | undone | conflict
+	LedgerID           string   `json:"ledger_id"`
+	ID                 string   `json:"id"`
+	Kind               string   `json:"kind"` // trash | label | label_rename
+	DeltaAdd           []string `json:"delta_add"`
+	DeltaRemove        []string `json:"delta_remove"`
+	PrePlacement       []string `json:"pre_placement"`
+	OldName            string   `json:"old_name,omitempty"`
+	NewName            string   `json:"new_name,omitempty"`
+	Undone             string   `json:"undone,omitempty"` // '' | untrash_pending | untrash_done | undone | conflict
+	UntrashLabels      []string `json:"-"`                // labels returned by a confirmed untrash
+	HasUntrashSnapshot bool     `json:"-"`                // distinguishes an empty snapshot from an old row
 }
 
 // CreateMailLedger inserts the ledger group row.
@@ -436,7 +438,7 @@ func (s *Store) GetMailLedger(ledgerID string) (MailLedger, error) {
 // ListMailLedgerEntries returns a ledger's entries in insertion (id) order.
 func (s *Store) ListMailLedgerEntries(ledgerID string) ([]MailLedgerEntry, error) {
 	rows, err := s.db.Query(
-		`SELECT ledger_id, id, kind, delta_add, delta_remove, pre_placement, old_name, new_name, undone
+		`SELECT ledger_id, id, kind, delta_add, delta_remove, pre_placement, old_name, new_name, undone, untrash_labels
 		 FROM mail_ledger_entries WHERE ledger_id = ? ORDER BY id ASC`, ledgerID,
 	)
 	if err != nil {
@@ -446,16 +448,33 @@ func (s *Store) ListMailLedgerEntries(ledgerID string) ([]MailLedgerEntry, error
 	var out []MailLedgerEntry
 	for rows.Next() {
 		var e MailLedgerEntry
-		var add, remove, pre string
-		if err := rows.Scan(&e.LedgerID, &e.ID, &e.Kind, &add, &remove, &pre, &e.OldName, &e.NewName, &e.Undone); err != nil {
+		var add, remove, pre, untrashLabels string
+		if err := rows.Scan(&e.LedgerID, &e.ID, &e.Kind, &add, &remove, &pre, &e.OldName, &e.NewName, &e.Undone, &untrashLabels); err != nil {
 			return nil, err
 		}
 		e.DeltaAdd = unmarshalLabelIDs(add)
 		e.DeltaRemove = unmarshalLabelIDs(remove)
 		e.PrePlacement = unmarshalLabelIDs(pre)
+		e.HasUntrashSnapshot = untrashLabels != ""
+		if e.HasUntrashSnapshot {
+			e.UntrashLabels = unmarshalLabelIDs(untrashLabels)
+		}
 		out = append(out, e)
 	}
 	return out, rows.Err()
+}
+
+// SetMailLedgerEntryUntrashDone atomically records the confirmed untrash and
+// its returned labels. Recovery may restore placement only while those labels
+// still match the live message.
+func (s *Store) SetMailLedgerEntryUntrashDone(ledgerID, id string, labels []string) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	_, err := s.db.Exec(
+		`UPDATE mail_ledger_entries SET undone = 'untrash_done', untrash_labels = ? WHERE ledger_id = ? AND id = ?`,
+		marshalLabelIDs(labels), ledgerID, id,
+	)
+	return err
 }
 
 // HasLaterTrashLedgerEntry reports whether a subsequently created ledger

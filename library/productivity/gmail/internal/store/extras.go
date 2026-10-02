@@ -146,6 +146,7 @@ func (s *Store) migrateExtras(ctx context.Context, conn *sql.Conn) error {
 			old_name TEXT NOT NULL DEFAULT '',
 			new_name TEXT NOT NULL DEFAULT '',
 			undone TEXT NOT NULL DEFAULT '',
+			untrash_labels TEXT NOT NULL DEFAULT '',
 			created_at TEXT NOT NULL DEFAULT '',
 			PRIMARY KEY (ledger_id, id)
 		)`,
@@ -210,6 +211,9 @@ func (s *Store) migrateExtras(ctx context.Context, conn *sql.Conn) error {
 		if err := s.ensureColumn(ctx, conn, "mail_meta", col.name, col.decl); err != nil {
 			return err
 		}
+	}
+	if err := s.ensureColumn(ctx, conn, "mail_ledger_entries", "untrash_labels", "TEXT NOT NULL DEFAULT ''"); err != nil {
+		return err
 	}
 	return nil
 }

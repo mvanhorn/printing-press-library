@@ -349,6 +349,12 @@ func executeApplyChunks(ctx context.Context, c *client.Client, db *store.Store, 
 				fmt.Sprintf("authorization failed mid-apply on chunk %d; run 'accounts auth' then 'cleanup recover'", ch.ChunkNo))
 			return res, out.authAbort
 		}
+		if ch.Kind == "trash" && len(out.failedIDs) > 0 {
+			// A live re-check may also fail. Keep ambiguous items in an
+			// applying chunk so a later recover can inspect them again.
+			res.Chunks.Pending++
+			continue
+		}
 
 		if err := db.SetMailApplyChunkState(applyID, ch.ChunkNo, store.MailChunkStateDone); err != nil {
 			return res, err

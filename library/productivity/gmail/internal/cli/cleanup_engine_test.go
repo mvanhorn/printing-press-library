@@ -39,18 +39,20 @@ type fakeMsg struct {
 
 // fakeGmail is a concurrency-safe in-memory Gmail API double.
 type fakeGmail struct {
-	mu                     sync.Mutex
-	profileEmail           string
-	historyID              string
-	labels                 map[string][]string // message id -> labelIds
-	meta                   map[string]fakeMsg
-	order                  []string // listing order (newest first)
-	labelDefs              []gmailLabel
-	historyRecords         []map[string]any
-	requests               []string
-	modifyFailures         map[string]int
-	trashAmbiguousFailures map[string]int
-	nextLabelSeq           int
+	mu                      sync.Mutex
+	profileEmail            string
+	historyID               string
+	labels                  map[string][]string // message id -> labelIds
+	meta                    map[string]fakeMsg
+	order                   []string // listing order (newest first)
+	labelDefs               []gmailLabel
+	historyRecords          []map[string]any
+	requests                []string
+	modifyFailures          map[string]int
+	modifyAmbiguousFailures map[string]int
+	trashAmbiguousFailures  map[string]int
+	getFailuresAfterTrash   map[string]int
+	nextLabelSeq            int
 }
 
 func (f *fakeGmail) log(r *http.Request) {
@@ -81,10 +83,22 @@ func (f *fakeGmail) failNextModify(id string) {
 	f.modifyFailures[id]++
 }
 
+func (f *fakeGmail) failNextModifyAfterApplying(id string) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.modifyAmbiguousFailures[id]++
+}
+
 func (f *fakeGmail) failNextTrashAfterApplying(id string) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	f.trashAmbiguousFailures[id]++
+}
+
+func (f *fakeGmail) failNextGetsAfterTrash(id string, count int) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.getFailuresAfterTrash[id] += count
 }
 
 func (f *fakeGmail) getLabels(id string) []string {
@@ -230,6 +244,11 @@ func (f *fakeGmail) handler() http.Handler {
 
 		case strings.HasPrefix(path, "/messages/") && r.Method == "GET":
 			id := strings.TrimPrefix(path, "/messages/")
+			if hasLabel(f.labels[id], "TRASH") && f.getFailuresAfterTrash[id] > 0 {
+				f.getFailuresAfterTrash[id]--
+				http.Error(w, `{"error":{"code":400,"message":"injected metadata failure"}}`, http.StatusBadRequest)
+				return
+			}
 			if _, ok := f.labels[id]; !ok {
 				http.Error(w, `{"error":{"code":404,"message":"not found"}}`, http.StatusNotFound)
 				return
@@ -279,6 +298,11 @@ func (f *fakeGmail) handler() http.Handler {
 			}
 			_ = json.NewDecoder(r.Body).Decode(&body)
 			f.labels[id] = applyLabelDelta(cur, body.Add, body.Remove)
+			if f.modifyAmbiguousFailures[id] > 0 {
+				f.modifyAmbiguousFailures[id]--
+				http.Error(w, `{"error":{"code":503,"message":"injected post-commit failure"}}`, http.StatusServiceUnavailable)
+				return
+			}
 			writeJSON(w, f.messageJSON(id))
 
 		default:
@@ -301,12 +325,14 @@ const engineTestEmail = "cleanup@example.com"
 func newEngineFixture(t *testing.T) *engineFixture {
 	t.Helper()
 	fake := &fakeGmail{
-		profileEmail:           engineTestEmail,
-		historyID:              "1000",
-		labels:                 map[string][]string{},
-		modifyFailures:         map[string]int{},
-		trashAmbiguousFailures: map[string]int{},
-		meta:                   map[string]fakeMsg{},
+		profileEmail:            engineTestEmail,
+		historyID:               "1000",
+		labels:                  map[string][]string{},
+		modifyFailures:          map[string]int{},
+		modifyAmbiguousFailures: map[string]int{},
+		trashAmbiguousFailures:  map[string]int{},
+		getFailuresAfterTrash:   map[string]int{},
+		meta:                    map[string]fakeMsg{},
 		labelDefs: []gmailLabel{
 			{ID: "Label_1", Name: "Newsletters", Type: "user"},
 			{ID: "UNREAD", Name: "UNREAD", Type: "system"},
@@ -619,6 +645,42 @@ func TestCleanupApply_DoesNotResendAfterAmbiguousTrashResponse(t *testing.T) {
 	}
 }
 
+func TestCleanupRecover_RechecksAmbiguousItemAfterMetadataFailures(t *testing.T) {
+	fx := newEngineFixture(t)
+	sha, nonce, _ := planForTrash(t, fx)
+	fx.fake.failNextTrashAfterApplying("m1")
+	fx.fake.failNextGetsAfterTrash("m1", 2)
+
+	out, stderr, code := fx.runCLI(t, "cleanup", "apply", "--plan", sha, "--token", nonce)
+	if code != 3 {
+		t.Fatalf("apply exit = %d, want partial (3)\nstdout: %s\nstderr: %s", code, out, stderr)
+	}
+	apply := mustParseJSON(t, out)
+	applyID := int64(apply["apply_id"].(float64))
+	ledgerID := apply["ledger_id"].(string)
+	db := fx.openStore(t)
+	chunks, err := db.ListMailApplyChunks(applyID)
+	if err != nil || len(chunks) != 1 || chunks[0].State != store.MailChunkStateApplying {
+		t.Fatalf("unresolved chunk = %+v, %v; want applying", chunks, err)
+	}
+	fx.fake.resetLog()
+	out, stderr, code = fx.runCLI(t, "cleanup", "recover")
+	if code != 0 {
+		t.Fatalf("recover exit = %d\nstdout: %s\nstderr: %s", code, out, stderr)
+	}
+	if got := fx.fake.countRequests("POST /gmail/v1/users/me/messages/m1/trash"); got != 0 {
+		t.Fatalf("recovery resent ambiguous trash %d times", got)
+	}
+	entries, err := db.ListMailLedgerEntries(ledgerID)
+	if err != nil || len(entries) != 4 {
+		t.Fatalf("recovered ledger entries = %+v, %v; want all four", entries, err)
+	}
+	chunks, err = db.ListMailApplyChunks(applyID)
+	if err != nil || chunks[0].State != store.MailChunkStateDone {
+		t.Fatalf("recovered chunk = %+v, %v; want done", chunks, err)
+	}
+}
+
 func TestUndoTrash_PendingWithTrashPresentDoesNotResend(t *testing.T) {
 	fx := newEngineFixture(t)
 	db := fx.openStore(t)
@@ -650,6 +712,10 @@ func TestUndoTrash_PendingWithTrashPresentDoesNotResend(t *testing.T) {
 	}
 	if !hasLabel(fx.fake.getLabels("m1"), "TRASH") {
 		t.Fatal("uncertain undo reversed a later trash")
+	}
+	entries, err := db.ListMailLedgerEntries(ledgerID)
+	if err != nil || len(entries) != 1 || entries[0].Undone != "untrash_pending" {
+		t.Fatalf("uncertain status was lost: entries=%+v err=%v", entries, err)
 	}
 }
 
@@ -684,6 +750,10 @@ func TestUndoTrash_PendingAfterManualUntrashDoesNotRestorePlacement(t *testing.T
 	}
 	if hasLabel(fx.fake.getLabels("m1"), "INBOX") || hasLabel(fx.fake.getLabels("m1"), "CATEGORY_PROMOTIONS") {
 		t.Fatal("uncertain undo restored labels after a possible manual untrash")
+	}
+	entries, err := db.ListMailLedgerEntries(ledgerID)
+	if err != nil || len(entries) != 1 || entries[0].Undone != "untrash_pending" {
+		t.Fatalf("uncertain status was lost: entries=%+v err=%v", entries, err)
 	}
 }
 
@@ -746,6 +816,191 @@ func TestUndoTrash_ResumesPlacementRestoreAfterFailure(t *testing.T) {
 	}
 	if entries[0].Undone != "undone" {
 		t.Fatalf("entry after resumed undo = %+v, want undone", entries[0])
+	}
+}
+
+func TestUndoTrash_ConfirmedUntrashDoesNotUndoManualMove(t *testing.T) {
+	fx := newEngineFixture(t)
+	db := fx.openStore(t)
+	const ledgerID = "partialundo_move"
+	if err := db.CreateMailLedger(store.MailLedger{LedgerID: ledgerID, Account: "test", Action: "trash"}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.InsertMailLedgerEntries([]store.MailLedgerEntry{{
+		LedgerID: ledgerID, ID: "m1", Kind: "trash", DeltaAdd: []string{"TRASH"},
+		PrePlacement: []string{"INBOX", "CATEGORY_PROMOTIONS"},
+	}}); err != nil {
+		t.Fatal(err)
+	}
+	fx.fake.setLabels("m1", []string{"CATEGORY_PROMOTIONS", "UNREAD", "TRASH"})
+	fx.fake.failNextModify("m1")
+	if _, _, code := fx.runCLI(t, "undo", "--ledger", ledgerID); code != 3 {
+		t.Fatalf("first undo exit = %d, want partial (3)", code)
+	}
+	// The user moves the message after the confirmed untrash and failed
+	// placement restore. A retry must not put it back in the old category.
+	fx.fake.setLabels("m1", []string{"CATEGORY_UPDATES", "UNREAD"})
+	fx.fake.resetLog()
+	out, stderr, code := fx.runCLI(t, "undo", "--ledger", ledgerID)
+	if code != 0 {
+		t.Fatalf("retry exit = %d\nstdout: %s\nstderr: %s", code, out, stderr)
+	}
+	if got := fx.fake.countRequests("POST /gmail/v1/users/me/messages/m1/"); got != 0 {
+		t.Fatalf("retry made %d mutation requests after manual move", got)
+	}
+	labels := fx.fake.getLabels("m1")
+	if hasLabel(labels, "INBOX") || hasLabel(labels, "CATEGORY_PROMOTIONS") || !hasLabel(labels, "CATEGORY_UPDATES") {
+		t.Fatalf("retry changed manual placement: %v", labels)
+	}
+	entries, err := db.ListMailLedgerEntries(ledgerID)
+	if err != nil || len(entries) != 1 || entries[0].Undone != "untrash_done" {
+		t.Fatalf("confirmed untrash status was lost: entries=%+v err=%v", entries, err)
+	}
+}
+
+func TestUndoTrash_ResumesAfterUntrashDoneStampBeforePlacementRestore(t *testing.T) {
+	fx := newEngineFixture(t)
+	db := fx.openStore(t)
+	const ledgerID = "partialundo_crash"
+	if err := db.CreateMailLedger(store.MailLedger{LedgerID: ledgerID, Account: "test", Action: "trash"}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.InsertMailLedgerEntries([]store.MailLedgerEntry{{
+		LedgerID: ledgerID, ID: "m1", Kind: "trash", DeltaAdd: []string{"TRASH"},
+		PrePlacement: []string{"INBOX", "CATEGORY_PROMOTIONS"},
+	}}); err != nil {
+		t.Fatal(err)
+	}
+	postUntrash := []string{"CATEGORY_PROMOTIONS", "UNREAD"}
+	if err := db.SetMailLedgerEntryUntrashDone(ledgerID, "m1", postUntrash); err != nil {
+		t.Fatal(err)
+	}
+	fx.fake.setLabels("m1", postUntrash)
+	fx.fake.resetLog()
+	out, stderr, code := fx.runCLI(t, "undo", "--ledger", ledgerID)
+	if code != 0 {
+		t.Fatalf("recovery exit = %d\nstdout: %s\nstderr: %s", code, out, stderr)
+	}
+	if got := fx.fake.countRequests("POST /gmail/v1/users/me/messages/m1/untrash"); got != 0 {
+		t.Fatalf("recovery resent untrash %d times", got)
+	}
+	if !hasLabel(fx.fake.getLabels("m1"), "INBOX") {
+		t.Fatal("recovery did not restore missing INBOX label")
+	}
+}
+
+func TestUndoTrash_FinalizesAfterPlacementWriteButBeforeLedgerStamp(t *testing.T) {
+	fx := newEngineFixture(t)
+	db := fx.openStore(t)
+	const ledgerID = "partialundo_stamp"
+	if err := db.CreateMailLedger(store.MailLedger{LedgerID: ledgerID, Account: "test", Action: "trash"}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.InsertMailLedgerEntries([]store.MailLedgerEntry{{
+		LedgerID: ledgerID, ID: "m1", Kind: "trash", DeltaAdd: []string{"TRASH"},
+		PrePlacement: []string{"INBOX", "CATEGORY_PROMOTIONS"},
+	}}); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.SetMailLedgerEntryUntrashDone(ledgerID, "m1", []string{"CATEGORY_PROMOTIONS", "UNREAD"}); err != nil {
+		t.Fatal(err)
+	}
+	// The placement write succeeded, but the process died before stamping
+	// the final ledger outcome.
+	fx.fake.setLabels("m1", []string{"UNREAD", "CATEGORY_PROMOTIONS", "INBOX"})
+	fx.fake.resetLog()
+	out, stderr, code := fx.runCLI(t, "undo", "--ledger", ledgerID)
+	if code != 0 {
+		t.Fatalf("recovery exit = %d\nstdout: %s\nstderr: %s", code, out, stderr)
+	}
+	if got := fx.fake.countRequests("POST /gmail/v1/users/me/messages/m1/"); got != 0 {
+		t.Fatalf("recovery resent %d mutation requests", got)
+	}
+	entries, err := db.ListMailLedgerEntries(ledgerID)
+	if err != nil || len(entries) != 1 || entries[0].Undone != "undone" {
+		t.Fatalf("final ledger state = %+v, %v", entries, err)
+	}
+}
+
+func TestUndoTrash_DoesNotResendAmbiguousPlacementWrite(t *testing.T) {
+	fx := newEngineFixture(t)
+	db := fx.openStore(t)
+	const ledgerID = "partialundo_modify"
+	if err := db.CreateMailLedger(store.MailLedger{LedgerID: ledgerID, Account: "test", Action: "trash"}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.InsertMailLedgerEntries([]store.MailLedgerEntry{{
+		LedgerID: ledgerID, ID: "m1", Kind: "trash", DeltaAdd: []string{"TRASH"},
+		PrePlacement: []string{"INBOX", "CATEGORY_PROMOTIONS"},
+	}}); err != nil {
+		t.Fatal(err)
+	}
+	fx.fake.setLabels("m1", []string{"CATEGORY_PROMOTIONS", "UNREAD", "TRASH"})
+	fx.fake.failNextModifyAfterApplying("m1")
+	fx.fake.resetLog()
+	out, stderr, code := fx.runCLI(t, "undo", "--ledger", ledgerID)
+	if code != 3 {
+		t.Fatalf("first undo exit = %d, want partial (3)\nstdout: %s\nstderr: %s", code, out, stderr)
+	}
+	if got := fx.fake.countRequests("POST /gmail/v1/users/me/messages/m1/modify"); got != 1 {
+		t.Fatalf("ambiguous placement write sent %d times, want one", got)
+	}
+	entries, err := db.ListMailLedgerEntries(ledgerID)
+	if err != nil || len(entries) != 1 || entries[0].Undone != "untrash_done" {
+		t.Fatalf("partial ledger = %+v, %v", entries, err)
+	}
+	fx.fake.resetLog()
+	out, stderr, code = fx.runCLI(t, "undo", "--ledger", ledgerID)
+	if code != 0 {
+		t.Fatalf("retry exit = %d\nstdout: %s\nstderr: %s", code, out, stderr)
+	}
+	if got := fx.fake.countRequests("POST /gmail/v1/users/me/messages/m1/"); got != 0 {
+		t.Fatalf("retry sent %d mutation requests", got)
+	}
+	entries, err = db.ListMailLedgerEntries(ledgerID)
+	if err != nil || len(entries) != 1 || entries[0].Undone != "undone" {
+		t.Fatalf("completed ledger = %+v, %v", entries, err)
+	}
+}
+
+func TestUndoTrash_StampFailureAfterUntrashDoesNotRestoreOrResend(t *testing.T) {
+	fx := newEngineFixture(t)
+	db := fx.openStore(t)
+	const ledgerID = "partialundo_dbfail"
+	if err := db.CreateMailLedger(store.MailLedger{LedgerID: ledgerID, Account: "test", Action: "trash"}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.InsertMailLedgerEntries([]store.MailLedgerEntry{{
+		LedgerID: ledgerID, ID: "m1", Kind: "trash", DeltaAdd: []string{"TRASH"},
+		PrePlacement: []string{"INBOX", "CATEGORY_PROMOTIONS"},
+	}}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.DB().Exec(`CREATE TRIGGER reject_untrash_done BEFORE UPDATE OF undone ON mail_ledger_entries
+		WHEN NEW.undone = 'untrash_done' BEGIN SELECT RAISE(ABORT, 'injected stamp failure'); END`); err != nil {
+		t.Fatal(err)
+	}
+	fx.fake.setLabels("m1", []string{"CATEGORY_PROMOTIONS", "UNREAD", "TRASH"})
+	fx.fake.resetLog()
+	if _, _, code := fx.runCLI(t, "undo", "--ledger", ledgerID); code != 3 {
+		t.Fatalf("first undo exit = %d, want partial (3)", code)
+	}
+	if got := fx.fake.countRequests("POST /gmail/v1/users/me/messages/m1/untrash"); got != 1 {
+		t.Fatalf("first undo untrash calls = %d, want one", got)
+	}
+	if got := fx.fake.countRequests("POST /gmail/v1/users/me/messages/m1/modify"); got != 0 {
+		t.Fatalf("placement restored %d times without a durable confirmation", got)
+	}
+	entries, err := db.ListMailLedgerEntries(ledgerID)
+	if err != nil || len(entries) != 1 || entries[0].Undone != "untrash_pending" {
+		t.Fatalf("uncertain ledger state = %+v, %v", entries, err)
+	}
+	fx.fake.resetLog()
+	if _, _, code := fx.runCLI(t, "undo", "--ledger", ledgerID); code != 0 {
+		t.Fatalf("retry exit = %d, want review conflict (0)", code)
+	}
+	if got := fx.fake.countRequests("POST /gmail/v1/users/me/messages/m1/"); got != 0 {
+		t.Fatalf("retry sent %d mutation requests after failed confirmation stamp", got)
 	}
 }
 

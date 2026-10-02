@@ -17,5 +17,5 @@
     "internal/store/mailcleanup.go",
     "internal/store/mailcleanup_test.go"
   ],
-  "validated_outcome": "Offline fake-Gmail tests cover crash recovery, partial undo, later cleanups, and a post-commit error that must not send a second trash request. No live Gmail API call was made."
+  "validated_outcome": "Offline fake-Gmail tests cover crash recovery, partial undo, later cleanups, manual moves after untrash, ledger stamp failures, and post-commit errors that must not resend trash or placement writes. An existing-store migration test covers the untrash label snapshot. No live Gmail API call was made."
 }
