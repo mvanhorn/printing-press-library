@@ -13,7 +13,7 @@ func TestBuildMCPBlockKeepsHTTPServerAuthSeparateFromAPIAuth(t *testing.T) {
 	if err := json.Unmarshal([]byte(`{
 		"mcp_binary":"ashby-pp-mcp",
 		"auth_type":"none",
-		"auth_env_vars":["PRINTING_PRESS_CLIENT_PROFILE","PP_MCP_HTTP_TOKEN"],
+		"auth_env_vars":["PRINTING_PRESS_CLIENT_PROFILE"],
 		"mcp_http_auth_type":"bearer_token",
 		"mcp_http_auth_env_vars":["PP_MCP_HTTP_TOKEN"]
 	}`), &source); err != nil {
@@ -47,6 +47,12 @@ func TestBuildMCPBlockKeepsHTTPServerAuthSeparateFromAPIAuth(t *testing.T) {
 	}
 	if published["auth_type"] != "none" || published["http_auth_type"] != "bearer_token" {
 		t.Fatalf("catalog auth fields conflated: %s", raw)
+	}
+	// Repeated env names from old manifests must not produce duplicates.
+	source.MCPHTTPAuthEnvVars = append(source.MCPHTTPAuthEnvVars, "PRINTING_PRESS_CLIENT_PROFILE")
+	stable := buildMCPBlock(source, nil, cliDir)
+	if len(stable.EnvVars) != 2 || stable.EnvVars[0] != "PRINTING_PRESS_CLIENT_PROFILE" || stable.EnvVars[1] != "PP_MCP_HTTP_TOKEN" {
+		t.Fatalf("catalog env vars are not a stable union: %#v", stable.EnvVars)
 	}
 
 	// An older manifest may omit the HTTP fields during a later catalog

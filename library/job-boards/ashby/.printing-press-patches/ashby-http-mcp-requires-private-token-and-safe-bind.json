@@ -12,5 +12,5 @@
     ".printing-press.json",
     "README.md"
   ],
-  "validated_outcome": "Synthetic tests cover token rejection and acceptance, loopback-only plaintext, TLS configuration, and actual bound-address checks."
+  "validated_outcome": "Synthetic tests cover token rejection and acceptance, loopback-only plaintext, TLS configuration, and actual bound-address checks; catalog generator and MCPB manifest checks preserve API-only auth while listing the HTTP token."
 }

@@ -846,6 +846,17 @@ func titleCaseSlug(slug string) string {
 // preserved (prior) signals; full-block preservation for legacy CLIs
 // happens upstream in buildEntry.
 func buildMCPBlock(pp printingPressManifest, prior *MCPBlock, cliDir string) *MCPBlock {
+	// Keep API-auth provenance separate, then publish the stable union for
+	// existing catalog readers that only know mcp.env_vars.
+	envVars := make([]string, 0, len(pp.AuthEnvVars)+len(pp.MCPHTTPAuthEnvVars))
+	seenEnvVars := make(map[string]bool)
+	for _, name := range append(append([]string{}, pp.AuthEnvVars...), pp.MCPHTTPAuthEnvVars...) {
+		if name == "" || seenEnvVars[name] {
+			continue
+		}
+		seenEnvVars[name] = true
+		envVars = append(envVars, name)
+	}
 	mcp := &MCPBlock{
 		Binary:     pp.MCPBinary,
 		Transports: detectMCPTransports(cliDir, pp.MCPBinary),
@@ -854,7 +865,7 @@ func buildMCPBlock(pp printingPressManifest, prior *MCPBlock, cliDir string) *MC
 		// rather than `null`; this matches the historical hand-edited
 		// registry shape where every MCP entry has an env_vars array
 		// regardless of whether it's populated.
-		EnvVars: append([]string{}, pp.AuthEnvVars...),
+		EnvVars: envVars,
 	}
 	switch {
 	case pp.MCPPublicToolCount != nil:
