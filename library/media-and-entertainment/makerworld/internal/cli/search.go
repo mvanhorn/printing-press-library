@@ -64,10 +64,10 @@ func extractSearchResults(data json.RawMessage) []json.RawMessage {
 	if json.Unmarshal(data, &items) == nil {
 		return items
 	}
-	// Try common wrapper paths: data, results, items
+	// Try common wrapper paths. MakerWorld design search uses "hits".
 	var wrapped map[string]json.RawMessage
 	if json.Unmarshal(data, &wrapped) == nil {
-		for _, key := range []string{"data", "results", "items", "records", "entries"} {
+		for _, key := range []string{"hits", "data", "results", "items", "records", "entries"} {
 			if inner, ok := wrapped[key]; ok {
 				if json.Unmarshal(inner, &items) == nil {
 					return items
@@ -111,14 +111,20 @@ In local mode: searches locally synced data only.`,
 				return cmd.Help()
 			}
 			query := args[0]
-			// This API has a search endpoint: GET /search-service/homepage/nav
+			// This API has a design search endpoint. The homepage navigation
+			// endpoint returns categories, not keyword-matched models.
 			if flags.dataSource != "local" {
 				c, err := flags.newClient()
 				if err != nil {
 					return err
 				}
-				data, getErr := c.Get(cmd.Context(), "/search-service/homepage/nav", map[string]string{
-					"q": query,
+				data, getErr := c.Get(cmd.Context(), "/search-service/select/design2", map[string]string{
+					"keyword":          query,
+					"orderBy":          "score",
+					"designType":       "0",
+					"isFromSearchList": "false",
+					"offset":           "0",
+					"limit":            formatCLIParamValue(limit),
 				})
 				if getErr == nil {
 					// Live search succeeded

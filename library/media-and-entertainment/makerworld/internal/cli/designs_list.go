@@ -46,7 +46,7 @@ func newDesignsListCmd(flags *rootFlags) *cobra.Command {
 				"navKey": formatCLIParamValue(flagNavKey),
 				"offset": formatCLIParamValue(flagOffset),
 				"limit":  formatCLIParamValue(flagLimit),
-			}, nil, flagAll, "", "offset", "", "", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "offset", "offset", "limit", "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

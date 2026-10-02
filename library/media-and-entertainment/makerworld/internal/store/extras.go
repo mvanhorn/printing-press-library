@@ -6,6 +6,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 )
 
 // migrateExtras runs after the generated store migrations and before the
@@ -75,6 +76,45 @@ func (s *Store) RecordDesignSnapshots(ctx context.Context, syncAt string, rows [
 	}
 	defer tx.Rollback()
 
+	if err := insertDesignSnapshots(ctx, tx, syncAt, rows); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
+// SaveCompletedDesignSync commits a completed designs watermark and its
+// analytics snapshot together. If either write fails, neither becomes visible,
+// so a retry cannot lose the failed run's comparison baseline.
+func (s *Store) SaveCompletedDesignSync(ctx context.Context, count int, rows []SnapshotRow) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	syncAt := time.Now().UTC().Format(time.RFC3339Nano)
+	if err := insertDesignSnapshots(ctx, tx, syncAt, rows); err != nil {
+		return err
+	}
+	if _, err := tx.ExecContext(ctx,
+		`INSERT INTO sync_state (resource_type, last_cursor, last_synced_at, total_count)
+		 VALUES ('designs', '', ?, ?)
+		 ON CONFLICT(resource_type) DO UPDATE SET last_cursor = excluded.last_cursor,
+		 last_synced_at = excluded.last_synced_at, total_count = excluded.total_count`,
+		syncAt, count,
+	); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
+func insertDesignSnapshots(ctx context.Context, tx *sql.Tx, syncAt string, rows []SnapshotRow) error {
+	if syncAt == "" || len(rows) == 0 {
+		return nil
+	}
 	stmt, err := tx.PrepareContext(ctx, `INSERT OR IGNORE INTO design_snapshots
 		(sync_at, design_id, title, creator_id, creator_name, like_count, download_count, print_count, collection_count, comment_count)
 		VALUES (?,?,?,?,?,?,?,?,?,?)`)
@@ -88,5 +128,5 @@ func (s *Store) RecordDesignSnapshots(ctx context.Context, syncAt string, rows [
 			return err
 		}
 	}
-	return tx.Commit()
+	return nil
 }

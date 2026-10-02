@@ -37,7 +37,7 @@ func (c *designsPageClient) Get(_ context.Context, path string, params map[strin
 	if limit <= 0 {
 		limit = 100
 	}
-	offset, _ := strconv.Atoi(params["after"])
+	offset, _ := strconv.Atoi(params["offset"])
 	remaining := c.total - offset
 	if remaining < 0 {
 		remaining = 0
@@ -163,6 +163,97 @@ func TestDesignsSyncMaxPagesFirstRunLeavesLastSyncedAtUnset(t *testing.T) {
 	}
 	if got := db.GetLastSyncedAt("designs"); got != "" {
 		t.Fatalf("GetLastSyncedAt after incomplete first sync = %q, want empty", got)
+	}
+}
+
+func TestCompletedDesignSyncsRecordDistinctSnapshots(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer db.Close()
+
+	client := &designsPageClient{total: 2}
+	for i := 0; i < 2; i++ {
+		res := syncResource(context.Background(), client, db, "designs", "", true, 0, false, nil, io.Discard)
+		if res.Err != nil {
+			t.Fatalf("completed sync %d: %v", i+1, res.Err)
+		}
+	}
+
+	var snapshots int
+	if err := db.DB().QueryRow(`SELECT COUNT(DISTINCT sync_at) FROM design_snapshots`).Scan(&snapshots); err != nil {
+		t.Fatalf("count snapshots: %v", err)
+	}
+	if snapshots != 2 {
+		t.Fatalf("distinct completed-sync snapshots = %d, want 2", snapshots)
+	}
+}
+
+func TestCompletedDesignSyncSnapshotFailureDoesNotAdvanceWatermark(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer db.Close()
+
+	client := &designsPageClient{total: 2}
+	res := syncResource(context.Background(), client, db, "designs", "", true, 0, false, nil, io.Discard)
+	if res.Err != nil {
+		t.Fatalf("initial sync: %v", res.Err)
+	}
+	_, baseline, _, err := db.GetSyncState("designs")
+	if err != nil {
+		t.Fatalf("get initial sync state: %v", err)
+	}
+	if baseline.IsZero() {
+		t.Fatal("initial sync did not advance last_synced_at")
+	}
+
+	if _, err := db.DB().Exec(`CREATE TRIGGER fail_design_snapshot
+		BEFORE INSERT ON design_snapshots
+		BEGIN SELECT RAISE(FAIL, 'forced snapshot failure'); END`); err != nil {
+		t.Fatalf("create failure trigger: %v", err)
+	}
+
+	res = syncResource(context.Background(), client, db, "designs", "", true, 0, false, nil, io.Discard)
+	if res.Err == nil || !strings.Contains(res.Err.Error(), "saving completed design state and snapshot") {
+		t.Fatalf("sync error = %v, want atomic snapshot failure", res.Err)
+	}
+	_, watermark, _, err := db.GetSyncState("designs")
+	if err != nil {
+		t.Fatalf("get failed sync state: %v", err)
+	}
+	if !watermark.Equal(baseline) {
+		t.Fatalf("failed snapshot changed last_synced_at from %v to %v", baseline, watermark)
+	}
+	var snapshots int
+	if err := db.DB().QueryRow(`SELECT COUNT(*) FROM design_snapshots`).Scan(&snapshots); err != nil {
+		t.Fatalf("count failed snapshots: %v", err)
+	}
+	if snapshots != 2 {
+		t.Fatalf("failed transaction changed snapshot rows to %d, want initial 2", snapshots)
+	}
+
+	if _, err := db.DB().Exec(`DROP TRIGGER fail_design_snapshot`); err != nil {
+		t.Fatalf("drop failure trigger: %v", err)
+	}
+	res = syncResource(context.Background(), client, db, "designs", "", true, 0, false, nil, io.Discard)
+	if res.Err != nil {
+		t.Fatalf("retry sync: %v", res.Err)
+	}
+	_, watermark, _, err = db.GetSyncState("designs")
+	if err != nil {
+		t.Fatalf("get retry sync state: %v", err)
+	}
+	if !watermark.After(baseline) {
+		t.Fatalf("successful retry watermark = %v, want after %v", watermark, baseline)
+	}
+	if err := db.DB().QueryRow(`SELECT COUNT(DISTINCT sync_at) FROM design_snapshots`).Scan(&snapshots); err != nil {
+		t.Fatalf("count retry snapshots: %v", err)
+	}
+	if snapshots != 2 {
+		t.Fatalf("retry distinct snapshot count = %d, want 2", snapshots)
 	}
 }
 

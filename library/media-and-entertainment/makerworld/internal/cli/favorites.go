@@ -66,6 +66,9 @@ func newNovelFavoritesCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			// Favorites are account-scoped. Never read or write the shared response
+			// cache for this request, because its bearer token is a per-request header.
+			c.NoCache = true
 			data, err := c.GetWithHeaders(ctx, "/design-service/my/design/like", map[string]string{
 				"offset": strconv.Itoa(flagOffset),
 				"limit":  strconv.Itoa(flagLimit),

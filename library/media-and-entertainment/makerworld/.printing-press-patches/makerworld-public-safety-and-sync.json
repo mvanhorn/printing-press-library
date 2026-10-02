@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "makerworld-public-safety-and-sync",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260615-230103-a70cae73",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Route catalog search to the design search endpoint, advance offset-based pages, bypass shared caching for account favorites, save completed design snapshots atomically with sync state, and require authenticated safe HTTP MCP transport.",
+  "reason": "Incorrect search and pagination can omit models, shared favorites caching can mix accounts, failed snapshots can lose trend baselines, and unauthenticated HTTP MCP can expose credentialed tools.",
+  "files": [
+    "cmd/makerworld-pp-mcp/main.go",
+    "cmd/makerworld-pp-mcp/main_test.go",
+    "internal/cli/designs_list.go",
+    "internal/cli/favorites.go",
+    "internal/cli/makerworld_review_fixes_test.go",
+    "internal/cli/search.go",
+    "internal/cli/sync.go",
+    "internal/cli/sync_max_pages_watermark_test.go",
+    "internal/store/extras.go"
+  ]
+}

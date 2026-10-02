@@ -717,7 +717,17 @@ func syncResource(ctx context.Context, c interface {
 	if incompleteExit {
 		_ = db.SaveSyncCheckpoint(resource, incompleteCursor, totalCount)
 	} else {
-		_ = db.SaveSyncState(resource, "", totalCount)
+		if resource == "designs" {
+			rows, err := loadDesignRows(ctx, db.DB())
+			if err != nil {
+				return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("loading completed design mirror for snapshot: %w", err), Duration: time.Since(started)}
+			}
+			if err := db.SaveCompletedDesignSync(ctx, totalCount, toSnapshotRows(rows)); err != nil {
+				return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("saving completed design state and snapshot: %w", err), Duration: time.Since(started)}
+			}
+		} else if err := db.SaveSyncState(resource, "", totalCount); err != nil {
+			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("saving completed sync state: %w", err), Duration: time.Since(started)}
+		}
 	}
 
 	// F4b symptom probe: if items were consumed and successfully
@@ -754,7 +764,7 @@ type paginationDefaults struct {
 // Values are detected from the API spec by the profiler at generation time.
 func determinePaginationDefaults() paginationDefaults {
 	return paginationDefaults{
-		cursorParam: "after",
+		cursorParam: "offset",
 		cursorType:  "offset",
 		limitParam:  "limit",
 		limit:       100,
