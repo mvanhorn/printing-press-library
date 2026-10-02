@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/travel/japan-guide/internal/cli"
@@ -83,10 +84,7 @@ func main() {
 			os.Exit(1)
 		}
 		inner := server.NewStreamableHTTPServer(s)
-		httpSrv := &http.Server{
-			Addr:    bindAddr,
-			Handler: requireBearerAuth(token, inner),
-		}
+		httpSrv := newHTTPServer(bindAddr, token, inner)
 		fmt.Fprintf(os.Stderr, "japan-guide-pp-mcp serving MCP over streamable HTTP at %s (Authorization: Bearer $%s)\n", bindAddr, httpTokenEnvVar)
 		if *tlsCert != "" {
 			err = httpSrv.ListenAndServeTLS(*tlsCert, *tlsKey)
@@ -100,6 +98,16 @@ func main() {
 	default:
 		fmt.Fprintf(os.Stderr, "unknown --transport %q (supported: stdio, http)\n", *transport)
 		os.Exit(2)
+	}
+}
+
+func newHTTPServer(addr, token string, inner http.Handler) *http.Server {
+	return &http.Server{
+		Addr:              addr,
+		Handler:           requireBearerAuth(token, inner),
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       30 * time.Second,
+		IdleTimeout:       time.Minute,
 	}
 }
 

@@ -196,6 +196,7 @@ var reservedStructuredArgs = map[string]bool{
 // reach.
 var blockedDestinationFlags = map[string]bool{
 	"audit-dir":    true,
+	"cache-dir":    true,
 	"db":           true,
 	"o":            true,
 	"output":       true,

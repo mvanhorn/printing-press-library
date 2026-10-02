@@ -12,7 +12,7 @@ metadata:
 
 # Japan Guide
 
-This build is local and unpublished. Build from the checkout using the README Install section. The canonical public-library installer instructions below apply after publication; until then use the locally built binary. Public source reads require no account or API key.
+Public source reads require no account or API key.
 
 ## Prerequisites: Install the CLI
 
@@ -148,9 +148,11 @@ Inspection's machine-format dry-run returns one simulation object (`dry_run`, `a
 
 Comparisons return successful items plus non-throttle `fetch_failures`, with a stderr warning. All-source failure is an error. Rate limits return a typed 429 error and retry guidance rather than empty data. Layout errors and network errors name the source; follow its canonical URL and retry or select another supported source page. `--timeout` bounds the whole command.
 
+MCP snapshot caching uses the server-owned cache root. The MCP tool rejects caller-supplied `cache-dir`; direct CLI invocations retain `--cache-dir`.
+
 ## Automatic learning
 
-Follow the local `AGENTS.md` recall/teach contract. Recall once before discovery; a cold store can be skipped for the session. Treat learning candidates as trials requiring verification. Teach structural queries with identifiers removed. For deterministic calls, add `--no-learn` or set `JAPAN_GUIDE_NO_LEARN=true`.
+Recall once before discovery; a cold store can be skipped for the session. Treat learning candidates as trials requiring verification. Teach structural queries with identifiers removed. For deterministic calls, add `--no-learn` or set `JAPAN_GUIDE_NO_LEARN=true`.
 
 ## Agent Feedback
 

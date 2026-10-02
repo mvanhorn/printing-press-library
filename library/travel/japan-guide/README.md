@@ -24,7 +24,7 @@ go build -o japan-guide-pp-mcp ./cmd/japan-guide-pp-mcp
 
 Place the binaries on your PATH for the examples below. An MCP host can run `japan-guide-pp-mcp` over stdio; its public tools mirror the live Cobra command tree.
 
-Inspection's MCP hint permits a local write because `--cache` can replace an extracted-facts snapshot. The other six guide tools read source pages only. Guide facts are not SQL rows; this CLI has no sync command. Use guide inspection/comparison for page facts and the generated SQL tool only for the local framework store.
+Inspection's MCP hint permits a local write because `--cache` can replace an extracted-facts snapshot. MCP callers use the server's cache root; `cache-dir` overrides are rejected before CLI execution. Direct CLI operators can use `--cache-dir`. The other six guide tools read source pages only. Guide facts are not SQL rows; this CLI has no sync command. Use guide inspection/comparison for page facts and the generated SQL tool only for the local framework store.
 
 Inspection's `--dry-run --json` or `--dry-run --agent` returns one simulation object with `dry_run`, `action` and `would`; it makes no source request or snapshot write.
 

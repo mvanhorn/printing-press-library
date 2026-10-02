@@ -41,11 +41,11 @@ const (
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
 	installFreshTenantGate(s)
-	// SQL tool — ad-hoc analysis on synced data without API calls
+	// SQL tool — read-only access to the existing local framework store.
 	s.AddTool(
 		mcplib.NewTool("sql",
-			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='source'.")),
+			mcplib.WithDescription("Run read-only SQL against local database. Query the existing framework store and learnings. Guide facts are extracted JSON snapshots outside this database; use guide inspect or guide compare for source facts."),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT) against the existing local framework store, e.g. SELECT COUNT(*) FROM search_learnings. Guide facts are not SQL resources.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
