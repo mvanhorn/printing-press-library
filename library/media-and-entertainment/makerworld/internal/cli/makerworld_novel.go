@@ -138,22 +138,8 @@ func toSnapshotRows(rows []designRow) []store.SnapshotRow {
 // latestTwoSnapshots returns the two most recent distinct snapshot sync
 // timestamps (newest first). Fewer than two means deltas cannot be computed yet.
 func latestTwoSnapshots(ctx context.Context, sqlDB *sql.DB) (current, previous string, err error) {
-	rows, err := sqlDB.QueryContext(ctx, `SELECT DISTINCT sync_at FROM design_snapshots ORDER BY sync_at DESC LIMIT 2`)
+	stamps, err := store.RecentDesignSnapshotTimes(ctx, sqlDB)
 	if err != nil {
-		return "", "", err
-	}
-	defer rows.Close()
-	var stamps []string
-	for rows.Next() {
-		var s sql.NullString
-		if err := rows.Scan(&s); err != nil {
-			return "", "", fmt.Errorf("scanning snapshot timestamp: %w", err)
-		}
-		if s.Valid {
-			stamps = append(stamps, s.String)
-		}
-	}
-	if err := rows.Err(); err != nil {
 		return "", "", err
 	}
 	switch len(stamps) {

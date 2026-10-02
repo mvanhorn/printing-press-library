@@ -220,6 +220,9 @@ func TestCompletedDesignSyncSnapshotFailureDoesNotAdvanceWatermark(t *testing.T)
 	if res.Err == nil || !strings.Contains(res.Err.Error(), "saving completed design state and snapshot") {
 		t.Fatalf("sync error = %v, want atomic snapshot failure", res.Err)
 	}
+	if !res.Fatal {
+		t.Fatal("failed completed snapshot must fail the sync even when other resources succeed")
+	}
 	_, watermark, _, err := db.GetSyncState("designs")
 	if err != nil {
 		t.Fatalf("get failed sync state: %v", err)

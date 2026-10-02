@@ -6,6 +6,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"sort"
 	"time"
 )
 
@@ -79,6 +80,9 @@ func (s *Store) RecordDesignSnapshots(ctx context.Context, syncAt string, rows [
 	if err := insertDesignSnapshots(ctx, tx, syncAt, rows); err != nil {
 		return err
 	}
+	if err := retainRecentDesignSnapshots(ctx, tx); err != nil {
+		return err
+	}
 	return tx.Commit()
 }
 
@@ -97,6 +101,9 @@ func (s *Store) SaveCompletedDesignSync(ctx context.Context, count int, rows []S
 
 	syncAt := time.Now().UTC().Format(time.RFC3339Nano)
 	if err := insertDesignSnapshots(ctx, tx, syncAt, rows); err != nil {
+		return err
+	}
+	if err := retainRecentDesignSnapshots(ctx, tx); err != nil {
 		return err
 	}
 	if _, err := tx.ExecContext(ctx,
@@ -125,6 +132,58 @@ func insertDesignSnapshots(ctx context.Context, tx *sql.Tx, syncAt string, rows 
 	for _, r := range rows {
 		if _, err := stmt.ExecContext(ctx, syncAt, r.DesignID, r.Title, r.CreatorID, r.CreatorName,
 			r.Like, r.Download, r.Print, r.Collection, r.Comment); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+type snapshotQuerier interface {
+	QueryContext(context.Context, string, ...any) (*sql.Rows, error)
+}
+
+// RecentDesignSnapshotTimes returns snapshot batches in actual time order.
+// RFC3339Nano's variable-width fractional seconds are not text-sortable.
+func RecentDesignSnapshotTimes(ctx context.Context, db snapshotQuerier) ([]string, error) {
+	rows, err := db.QueryContext(ctx, `SELECT DISTINCT sync_at FROM design_snapshots`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var stamps []string
+	for rows.Next() {
+		var stamp string
+		if err := rows.Scan(&stamp); err != nil {
+			return nil, err
+		}
+		stamps = append(stamps, stamp)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	sort.Slice(stamps, func(i, j int) bool {
+		left, leftErr := time.Parse(time.RFC3339Nano, stamps[i])
+		right, rightErr := time.Parse(time.RFC3339Nano, stamps[j])
+		if leftErr == nil && rightErr == nil && !left.Equal(right) {
+			return left.After(right)
+		}
+		return stamps[i] > stamps[j]
+	})
+	return stamps, nil
+}
+
+// Movers and designer deltas compare only the latest two complete batches.
+// Retain them in the same transaction as the new batch and its watermark.
+func retainRecentDesignSnapshots(ctx context.Context, tx *sql.Tx) error {
+	stamps, err := RecentDesignSnapshotTimes(ctx, tx)
+	if err != nil {
+		return err
+	}
+	if len(stamps) <= 2 {
+		return nil
+	}
+	for _, stamp := range stamps[2:] {
+		if _, err := tx.ExecContext(ctx, `DELETE FROM design_snapshots WHERE sync_at = ?`, stamp); err != nil {
 			return err
 		}
 	}

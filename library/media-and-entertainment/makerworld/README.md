@@ -162,7 +162,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   makerworld-pp-cli designers deltas --limit 50 --agent
   ```
-- **`movers`** — Rank models by the biggest jump in likes, downloads, or prints between your two most recent syncs.
+- **`movers`** — Rank models by the biggest jump in likes, downloads, or prints between your two most recent syncs. The local store keeps those two trend snapshots and removes older snapshots after a completed sync.
 
   _Pick this over 'browse --nav Trending' when the question is what is rising right now, not what is popular overall._
 

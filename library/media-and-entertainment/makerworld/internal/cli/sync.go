@@ -35,6 +35,7 @@ type syncResult struct {
 	Resource string
 	Count    int
 	Err      error
+	Fatal    bool // A completed sync could not be recorded safely.
 	Warn     error
 	Duration time.Duration
 }
@@ -242,7 +243,7 @@ Resource scoping:
 						fmt.Fprintf(os.Stderr, "  %s: error: %v\n", res.Resource, res.Err)
 					}
 					errCount++
-					if criticalResources[res.Resource] {
+					if res.Fatal || criticalResources[res.Resource] {
 						criticalErrCount++
 					}
 				} else if res.Warn != nil {
@@ -266,7 +267,7 @@ Resource scoping:
 						fmt.Fprintf(os.Stderr, "  %s: error: %v\n", res.Resource, res.Err)
 					}
 					errCount++
-					if criticalResources[res.Resource] {
+					if res.Fatal || criticalResources[res.Resource] {
 						criticalErrCount++
 					}
 				} else if res.Warn != nil {
@@ -720,13 +721,13 @@ func syncResource(ctx context.Context, c interface {
 		if resource == "designs" {
 			rows, err := loadDesignRows(ctx, db.DB())
 			if err != nil {
-				return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("loading completed design mirror for snapshot: %w", err), Duration: time.Since(started)}
+				return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("loading completed design mirror for snapshot: %w", err), Fatal: true, Duration: time.Since(started)}
 			}
 			if err := db.SaveCompletedDesignSync(ctx, totalCount, toSnapshotRows(rows)); err != nil {
-				return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("saving completed design state and snapshot: %w", err), Duration: time.Since(started)}
+				return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("saving completed design state and snapshot: %w", err), Fatal: true, Duration: time.Since(started)}
 			}
 		} else if err := db.SaveSyncState(resource, "", totalCount); err != nil {
-			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("saving completed sync state: %w", err), Duration: time.Since(started)}
+			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("saving completed sync state: %w", err), Fatal: true, Duration: time.Since(started)}
 		}
 	}
 
