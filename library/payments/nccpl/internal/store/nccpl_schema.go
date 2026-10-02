@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"sort"
 	"time"
 )
 
@@ -142,9 +143,23 @@ func SaveNCCPLDate(ctx context.Context, s *Store, resource, date string, rows []
 	// Retired keys are found by differencing the stored key set in Go rather than by
 	// emitting one DELETE ... row_key NOT IN (?, ?, ...): a var-margins date carries
 	// ~1,100 symbols, and a snapshot must never fail to mirror because it was large.
-	stale, err := nccplStaleRowKeys(ctx, tx, resource, date, fresh)
+	stored, err := nccplStoredRows(ctx, tx, resource, date)
 	if err != nil {
 		return err
+	}
+	stale := make([]string, 0)
+	existing := make(map[string]bool, len(stored))
+	staleVintages := make(map[string][]string)
+	for _, old := range stored {
+		if _, kept := fresh[old.Key]; kept {
+			existing[old.Key] = true
+			continue
+		}
+		stale = append(stale, old.Key)
+		staleVintages[old.Payload] = append(staleVintages[old.Payload], old.ObservedAt)
+	}
+	for _, vintages := range staleVintages {
+		sort.Strings(vintages)
 	}
 	if len(stale) > 0 {
 		delStmt, err := tx.PrepareContext(ctx,
@@ -172,13 +187,20 @@ ON CONFLICT(resource, date, row_key) DO UPDATE SET
 	}
 	defer func() { _ = obsStmt.Close() }()
 
-	// observed_at is deliberately NOT updated on conflict. It records when this
-	// value was FIRST seen, which is what establishes ex-ante availability; a
-	// re-sync must not silently move the vintage forward. Deleting a retired key
-	// above does not touch this: a key present in both snapshots is never deleted,
-	// so it keeps the vintage of the fetch that first served it.
+	// observed_at is deliberately NOT updated on conflict. An unchanged payload
+	// whose key changed during the row-hash migration also keeps its original
+	// vintage. A changed payload has a new identity and gets this fetch's stamp;
+	// assigning the old stamp would falsely claim the revised value was known
+	// earlier. Matching consumes each old duplicate once.
 	for _, r := range rows {
-		if _, err := obsStmt.ExecContext(ctx, resource, date, r.Key, r.Payload, stamp); err != nil {
+		rowStamp := stamp
+		if !existing[r.Key] {
+			if vintages := staleVintages[r.Payload]; len(vintages) > 0 {
+				rowStamp = vintages[0]
+				staleVintages[r.Payload] = vintages[1:]
+			}
+		}
+		if _, err := obsStmt.ExecContext(ctx, resource, date, r.Key, r.Payload, rowStamp); err != nil {
 			return fmt.Errorf("nccpl save: obs %s/%s/%s: %w", resource, date, r.Key, err)
 		}
 	}
@@ -199,33 +221,38 @@ ON CONFLICT(resource, date) DO UPDATE SET
 	return nil
 }
 
-// nccplStaleRowKeys returns the stored row_keys for (resource, date) that the incoming
-// snapshot no longer carries -- the rows the source has stopped publishing.
-func nccplStaleRowKeys(ctx context.Context, tx *sql.Tx, resource, date string, fresh map[string]struct{}) ([]string, error) {
+type nccplStoredRow struct {
+	Key        string
+	Payload    string
+	ObservedAt string
+}
+
+// nccplStoredRows loads one date's current snapshot before the mirror deletes
+// retired keys, so unchanged payloads can keep their observation vintage when
+// a new key format replaces an old one.
+func nccplStoredRows(ctx context.Context, tx *sql.Tx, resource, date string) ([]nccplStoredRow, error) {
 	rows, err := tx.QueryContext(ctx,
-		`SELECT row_key FROM nccpl_obs WHERE resource = ? AND date = ?`, resource, date)
+		`SELECT row_key, payload, observed_at FROM nccpl_obs WHERE resource = ? AND date = ?`, resource, date)
 	if err != nil {
-		return nil, fmt.Errorf("nccpl save: stored keys %s/%s: %w", resource, date, err)
+		return nil, fmt.Errorf("nccpl save: stored rows %s/%s: %w", resource, date, err)
 	}
-	stale := make([]string, 0)
+	stored := make([]nccplStoredRow, 0)
 	for rows.Next() {
-		var k string
-		if err := rows.Scan(&k); err != nil {
+		var row nccplStoredRow
+		if err := rows.Scan(&row.Key, &row.Payload, &row.ObservedAt); err != nil {
 			_ = rows.Close()
-			return nil, fmt.Errorf("nccpl save: stored key scan %s/%s: %w", resource, date, err)
+			return nil, fmt.Errorf("nccpl save: stored row scan %s/%s: %w", resource, date, err)
 		}
-		if _, kept := fresh[k]; !kept {
-			stale = append(stale, k)
-		}
+		stored = append(stored, row)
 	}
 	if err := rows.Err(); err != nil {
 		_ = rows.Close()
-		return nil, fmt.Errorf("nccpl save: stored key iterate %s/%s: %w", resource, date, err)
+		return nil, fmt.Errorf("nccpl save: stored row iterate %s/%s: %w", resource, date, err)
 	}
 	if err := rows.Close(); err != nil {
-		return nil, fmt.Errorf("nccpl save: stored key close %s/%s: %w", resource, date, err)
+		return nil, fmt.Errorf("nccpl save: stored row close %s/%s: %w", resource, date, err)
 	}
-	return stale, nil
+	return stored, nil
 }
 
 // nccplSaveEmptySnapshot records a fetch that returned no rows.

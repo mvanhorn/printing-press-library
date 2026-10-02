@@ -5,14 +5,17 @@
   "base_run_id": "20260905-000548-4451d26d",
   "base_printing_press_version": "4.31.7",
   "summary": "Skip external resources in NCCPL contract checks and keep refreshed row IDs stable across source ordering changes.",
-  "reason": "The external flows resource has no NCCPL contract endpoint, and ordinal or partial-field keys can change when otherwise identical source rows move. Full row hashes distinguish them while the date snapshot refresh removes old keys.",
+  "reason": "The external flows resource has no NCCPL contract endpoint, and ordinal or partial-field keys can change when otherwise identical source rows move. Full row hashes distinguish them, duplicate occurrence counts ignore unrelated row positions, and unchanged payloads keep their observation vintage when old keys migrate.",
   "files": [
     ".printing-press.json",
     "NOTICE",
     "README.md",
     "internal/cli/nccpl_contractcheck.go",
     "internal/cli/nccpl_resources.go",
-    "internal/cli/nccpl_logic_test.go"
+    "internal/cli/nccpl_ingest.go",
+    "internal/cli/nccpl_logic_test.go",
+    "internal/store/nccpl_schema.go",
+    "internal/store/nccpl_refresh_test.go"
   ],
-  "validated_outcome": "Offline Go tests, vet, build, skill verification, and diff check pass."
+  "validated_outcome": "Offline tests verify external resource exclusion, order-independent duplicate IDs, unchanged legacy payload vintage preservation, and fresh vintages for revised values."
 }

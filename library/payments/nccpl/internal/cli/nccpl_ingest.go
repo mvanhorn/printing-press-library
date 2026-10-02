@@ -315,13 +315,13 @@ func nccplRowsFromEnvelope(raw []byte, res nccplResource) ([]store.NCCPLRow, err
 		return nil, err
 	}
 	rows := make([]store.NCCPLRow, 0, len(objs))
-	seen := map[string]bool{}
-	for i, o := range objs {
+	seen := map[string]int{}
+	for _, o := range objs {
 		enc, err := json.Marshal(o)
 		if err != nil {
 			continue
 		}
-		rows = append(rows, store.NCCPLRow{Key: nccplRowKey(res, o, i, seen), Payload: string(enc)})
+		rows = append(rows, store.NCCPLRow{Key: nccplRowKey(res, o, seen), Payload: string(enc)})
 	}
 	return rows, nil
 }

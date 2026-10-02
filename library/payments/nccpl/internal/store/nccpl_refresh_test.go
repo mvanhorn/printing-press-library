@@ -155,6 +155,90 @@ func TestSaveNCCPLDateRefreshKeepsVintageOfSurvivors(t *testing.T) {
 	}
 }
 
+func TestSaveNCCPLDateMigratesUnchangedPayloadVintage(t *testing.T) {
+	ctx := context.Background()
+	s := newNCCPLTestStore(t)
+	date := "2026-09-04"
+	first := time.Date(2026, 9, 5, 12, 0, 0, 0, time.UTC)
+	refresh := first.Add(24 * time.Hour)
+	revision := refresh.Add(24 * time.Hour)
+	oldPayload := `{"client_type":"FI","segment":"EQUITY","value":1}`
+	otherPayload := `{"client_type":"FI","segment":"BOND","value":2}`
+	if err := SaveNCCPLDate(ctx, s, "fipi", date, []NCCPLRow{
+		{Key: "FI|EQUITY", Payload: oldPayload},
+		{Key: "FI|BOND", Payload: otherPayload},
+	}, first); err != nil {
+		t.Fatal(err)
+	}
+	if err := SaveNCCPLDate(ctx, s, "fipi", date, []NCCPLRow{
+		{Key: "FI|EQUITY#new-hash", Payload: oldPayload},
+		{Key: "FI|BOND#new-hash", Payload: otherPayload},
+	}, refresh); err != nil {
+		t.Fatal(err)
+	}
+	obs, err := NCCPLObservations(ctx, s, "fipi", date, date)
+	if err != nil || len(obs) != 2 {
+		t.Fatalf("migrated observations: %v, rows %d", err, len(obs))
+	}
+	for _, row := range obs {
+		if row.ObservedAt != first.Format(time.RFC3339) {
+			t.Errorf("unchanged payload %q lost first-observed vintage: %s", row.Key, row.ObservedAt)
+		}
+	}
+
+	// A revised value must not inherit the original value's vintage.
+	if err := SaveNCCPLDate(ctx, s, "fipi", date, []NCCPLRow{
+		{Key: "FI|EQUITY#revised-hash", Payload: `{"client_type":"FI","segment":"EQUITY","value":3}`},
+		{Key: "FI|BOND#new-hash", Payload: otherPayload},
+	}, revision); err != nil {
+		t.Fatal(err)
+	}
+	obs, err = NCCPLObservations(ctx, s, "fipi", date, date)
+	if err != nil || len(obs) != 2 {
+		t.Fatalf("revised observations: %v, rows %d", err, len(obs))
+	}
+	for _, row := range obs {
+		want := first.Format(time.RFC3339)
+		if row.Key == "FI|EQUITY#revised-hash" {
+			want = revision.Format(time.RFC3339)
+		}
+		if row.ObservedAt != want {
+			t.Errorf("%s vintage = %s, want %s", row.Key, row.ObservedAt, want)
+		}
+	}
+	assertCoverageMatchesStore(t, s, "fipi", date)
+}
+
+func TestSaveNCCPLDateMigratesIdenticalLegacyDuplicates(t *testing.T) {
+	ctx := context.Background()
+	s := newNCCPLTestStore(t)
+	date := "2026-09-04"
+	first := time.Date(2026, 9, 5, 12, 0, 0, 0, time.UTC)
+	payload := `{"client_type":"FI","segment":"EQUITY","value":1}`
+	if err := SaveNCCPLDate(ctx, s, "fipi", date, []NCCPLRow{
+		{Key: "FI|EQUITY", Payload: payload},
+		{Key: "FI|EQUITY#3", Payload: payload},
+	}, first); err != nil {
+		t.Fatal(err)
+	}
+	if err := SaveNCCPLDate(ctx, s, "fipi", date, []NCCPLRow{
+		{Key: "FI|EQUITY#hash", Payload: payload},
+		{Key: "FI|EQUITY#hash#1", Payload: payload},
+	}, first.Add(24*time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	obs, err := NCCPLObservations(ctx, s, "fipi", date, date)
+	if err != nil || len(obs) != 2 {
+		t.Fatalf("migrated duplicate observations: %v, rows %d", err, len(obs))
+	}
+	for _, row := range obs {
+		if row.ObservedAt != first.Format(time.RFC3339) {
+			t.Errorf("duplicate %q lost first-observed vintage: %s", row.Key, row.ObservedAt)
+		}
+	}
+	assertCoverageMatchesStore(t, s, "fipi", date)
+}
+
 // The zero-row decision, pinned.
 //
 // An empty snapshot over a date that already holds rows does NOT delete them. From the

@@ -89,29 +89,36 @@ func TestNCCPLSessionDatesSkipsWeekends(t *testing.T) {
 
 func TestNCCPLRowKeyStableAndCollisionSafe(t *testing.T) {
 	r, _ := nccplResourceByName("fipi")
-	seen := map[string]bool{}
+	seen := map[string]int{}
 	rowA := map[string]any{"client_type": "FI", "segment": "EQUITY", "value": 1}
 	rowB := map[string]any{"client_type": "FI", "segment": "EQUITY", "value": 2}
-	k1 := nccplRowKey(r, rowA, 0, seen)
+	k1 := nccplRowKey(r, rowA, seen)
 	if !strings.HasPrefix(k1, "FI|EQUITY#") {
 		t.Errorf("key = %q, want readable prefix plus row hash", k1)
 	}
-	k2 := nccplRowKey(r, rowB, 1, seen)
+	k2 := nccplRowKey(r, rowB, seen)
 	if k2 == k1 {
 		t.Errorf("rows sharing declared key fields must have distinct keys")
 	}
-	reordered := map[string]bool{}
-	if got := nccplRowKey(r, rowB, 0, reordered); got != k2 {
+	reordered := map[string]int{}
+	if got := nccplRowKey(r, rowB, reordered); got != k2 {
 		t.Errorf("row B key changed after reorder: %q != %q", got, k2)
 	}
-	if got := nccplRowKey(r, rowA, 1, reordered); got != k1 {
+	if got := nccplRowKey(r, rowA, reordered); got != k1 {
 		t.Errorf("row A key changed after reorder: %q != %q", got, k1)
 	}
-	duplicate := nccplRowKey(r, rowA, 2, seen)
+	duplicate := nccplRowKey(r, rowA, seen)
 	if duplicate == k1 {
 		t.Error("exact duplicate row must not overwrite its sibling")
 	}
-	k3 := nccplRowKey(r, map[string]any{"unrelated": 1}, 7, seen)
+	unrelated := map[string]any{"unrelated": 1}
+	withUnrelated := map[string]int{}
+	_ = nccplRowKey(r, rowA, withUnrelated)
+	_ = nccplRowKey(r, unrelated, withUnrelated)
+	if got := nccplRowKey(r, rowA, withUnrelated); got != duplicate {
+		t.Errorf("duplicate key changed when an unrelated row moved ahead: %q != %q", got, duplicate)
+	}
+	k3 := nccplRowKey(r, unrelated, seen)
 	if !strings.HasPrefix(k3, "row#") {
 		t.Errorf("fallback key = %q, want row hash", k3)
 	}
