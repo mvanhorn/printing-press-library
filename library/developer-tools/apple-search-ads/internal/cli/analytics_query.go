@@ -256,7 +256,7 @@ to run offline aggregations without consuming API quota.`,
 				}
 			}
 
-			data, _, err := c.Post(cmd.Context(), "/reports/campaigns", reqBody)
+			data, err := fetchAllReportingPayload(cmd.Context(), c, "/reports/campaigns", reqBody, 1000)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -265,10 +265,6 @@ to run offline aggregations without consuming API quota.`,
 			if err != nil {
 				return fmt.Errorf("parsing reporting response: %w", err)
 			}
-			if len(rows) >= 1000 {
-				fmt.Fprintln(cmd.ErrOrStderr(), "warning: reporting response hit the 1000-row limit; the cache may be incomplete — consider narrowing the date range or filtering by campaign")
-			}
-
 			dbPath := flagDBPath
 			if dbPath == "" {
 				dbPath = defaultAnalyticsDBPath()

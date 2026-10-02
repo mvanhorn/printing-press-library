@@ -119,10 +119,9 @@ func TestParseReportingRows_CampaignFields(t *testing.T) {
 	}
 }
 
-// TestParseReportingRows_PaginationSentinel builds a 1000-row response and
-// verifies that len(rows) >= 1000 is the correct sentinel for the sync-cache
-// truncation warning ("reporting response hit the 1000-row limit").
-func TestParseReportingRows_PaginationSentinel(t *testing.T) {
+// TestParseReportingRows_FullPage verifies that a full API page is parsed
+// without loss before the pagination helper fetches the next offset.
+func TestParseReportingRows_FullPage(t *testing.T) {
 	var sb strings.Builder
 	sb.WriteString(`{"data":{"reportingDataResponse":{"row":[`)
 	for i := 0; i < 1000; i++ {
@@ -141,8 +140,5 @@ func TestParseReportingRows_PaginationSentinel(t *testing.T) {
 	}
 	if len(rows) != 1000 {
 		t.Fatalf("want 1000 rows, got %d", len(rows))
-	}
-	if !(len(rows) >= 1000) {
-		t.Error("sentinel len >= 1000 should be true at capacity")
 	}
 }

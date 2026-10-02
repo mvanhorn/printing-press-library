@@ -175,9 +175,8 @@ func TestBuildBidSuggestions_ROAS_Cap2x(t *testing.T) {
 	}
 }
 
-// TestFetchFailureAllCampaigns verifies the condition that triggers a non-zero exit
-// when every campaign fetch attempt fails. The closure increments fetchFailed and
-// fetchAttempted; the command returns an error when fetchFailed == fetchAttempted > 0.
+// TestFetchFailureAllCampaigns verifies that any incomplete report set triggers
+// a non-zero exit, preventing --apply from mutating against partial inputs.
 func TestFetchFailureAllCampaigns(t *testing.T) {
 	cases := []struct {
 		failed, attempted int
@@ -186,11 +185,11 @@ func TestFetchFailureAllCampaigns(t *testing.T) {
 		{3, 3, true},  // all failed → non-zero exit
 		{1, 1, true},  // single campaign failed
 		{0, 3, false}, // none failed
-		{2, 3, false}, // partial failure — some suggestions may exist
+		{2, 3, true},  // partial failure must block apply and fail the command
 		{0, 0, false}, // no attempts (empty campaign list handled earlier)
 	}
 	for _, tc := range cases {
-		got := tc.attempted > 0 && tc.failed == tc.attempted
+		got := tc.failed > 0
 		if got != tc.wantErr {
 			t.Errorf("failed=%d attempted=%d: want err=%v, got %v", tc.failed, tc.attempted, tc.wantErr, got)
 		}

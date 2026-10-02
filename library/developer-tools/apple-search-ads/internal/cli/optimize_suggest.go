@@ -88,16 +88,13 @@ ROAS mode requires revenue data; keywords with no revenue in the lookback period
 
 			fetchSuggestions := func(cid string) {
 				fetchAttempted++
-				data, _, err := c.Post(cmd.Context(), "/reports/campaigns/"+cid+"/keywords", reportBody)
+				data, err := fetchAllReportingPayload(cmd.Context(), c, "/reports/campaigns/"+cid+"/keywords", reportBody, 1000)
 				if err != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "warning: campaign %s: failed to fetch keyword report: %v\n", cid, err)
 					fetchFailed++
 					return
 				}
 				keywords := extractKeywordsFromReportPayload(data)
-				if len(keywords) >= 1000 {
-					fmt.Fprintf(cmd.ErrOrStderr(), "warning: campaign %s hit the 1000-keyword report limit; results may be truncated\n", cid)
-				}
 				sug, _ := buildBidSuggestions(keywords, cid, flagMetric, flagTarget)
 				allSuggestions = append(allSuggestions, sug...)
 			}
@@ -105,7 +102,7 @@ ROAS mode requires revenue data; keywords with no revenue in the lookback period
 			if flagCampaignID != "" {
 				fetchSuggestions(flagCampaignID)
 			} else {
-				campaignsData, err := c.Get(cmd.Context(), "/campaigns", map[string]string{"limit": "1000"})
+				campaignsData, err := fetchAllOffsetItems(cmd.Context(), c, "/campaigns", 1000)
 				if err != nil {
 					return classifyAPIError(err, flags)
 				}
@@ -119,13 +116,13 @@ ROAS mode requires revenue data; keywords with no revenue in the lookback period
 				}
 			}
 
-			if fetchAttempted > 0 && fetchFailed == fetchAttempted {
+			if fetchFailed > 0 {
 				return fmt.Errorf("%d of %d campaign keyword report(s) failed; check stderr for details", fetchFailed, fetchAttempted)
 			}
 
 			if flagApply && !dryRunOK(flags) && len(allSuggestions) > 0 {
 				if err := applyBidSuggestionsWithClient(cmd.Context(), c, allSuggestions, flagCurrency, cmd.ErrOrStderr()); err != nil {
-					fmt.Fprintf(cmd.ErrOrStderr(), "warning: some bids could not be applied: %v\n", err)
+					return err
 				}
 			}
 
@@ -311,7 +308,6 @@ type keywordPerf struct {
 	revenue   float64
 }
 
-
 func optimizeStringField(m map[string]interface{}, keys ...string) string {
 	for _, k := range keys {
 		if v, ok := m[k]; ok {
@@ -398,12 +394,14 @@ func applyBidSuggestionsWithClient(ctx context.Context, c *client.Client, sugges
 	if currency == "" {
 		currency = "USD"
 	}
-	var applied int
+	var applied, failed int
 	for _, s := range suggestions {
 		if s.ChangeDirection == "hold" {
 			continue
 		}
 		if s.CampaignID == "" || s.AdGroupID == "" || s.KeywordID == "" {
+			fmt.Fprintf(stderr, "warning: cannot apply suggestion with incomplete identifiers (campaign=%q ad_group=%q keyword=%q)\n", s.CampaignID, s.AdGroupID, s.KeywordID)
+			failed++
 			continue
 		}
 		path := fmt.Sprintf("/campaigns/%s/adgroups/%s/targetingkeywords/%s",
@@ -416,10 +414,14 @@ func applyBidSuggestionsWithClient(ctx context.Context, c *client.Client, sugges
 		}
 		if _, _, err := c.Put(ctx, path, body); err != nil {
 			fmt.Fprintf(stderr, "warning: could not update keyword %s: %v\n", s.KeywordID, err)
+			failed++
 		} else {
 			applied++
 		}
 	}
 	fmt.Fprintf(stderr, "applied %d bid updates\n", applied)
+	if failed > 0 {
+		return partialFailureErr(fmt.Errorf("%d bid update(s) failed after %d succeeded", failed, applied))
+	}
 	return nil
 }

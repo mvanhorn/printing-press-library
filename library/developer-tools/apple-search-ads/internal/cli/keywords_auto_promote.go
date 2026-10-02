@@ -60,21 +60,19 @@ Use --dry-run to preview what would be promoted without making API changes.`,
 			}
 
 			// Fetch ad groups for this campaign.
-			adGroupsData, err := c.Get(cmd.Context(), "/campaigns/"+flagCampaignID+"/adgroups", map[string]string{"limit": "100"})
+			adGroupsData, err := fetchAllOffsetItems(cmd.Context(), c, "/campaigns/"+flagCampaignID+"/adgroups", 100)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
 
 			adGroupIDs := extractAdGroupIDs(adGroupsData)
-			if len(adGroupIDs) >= 100 {
-				fmt.Fprintln(cmd.ErrOrStderr(), "warning: ad group list hit the 100-ad-group limit; search terms in ad groups beyond 100 may be silently skipped")
-			}
 			if len(adGroupIDs) == 0 {
 				fmt.Fprintln(cmd.ErrOrStderr(), "No ad groups found for campaign", flagCampaignID)
 				return printJSONFiltered(cmd.OutOrStdout(), promoteResult{}, flags)
 			}
 
 			var result promoteResult
+			var fetchFailures, createFailures int
 			isDryRun := flags != nil && flags.dryRun
 
 			endTime := time.Now().UTC()
@@ -95,12 +93,13 @@ Use --dry-run to preview what would be promoted without making API changes.`,
 					"returnRowTotals":            false,
 					"returnRecordsWithNoMetrics": false,
 				}
-				stData, _, err := c.Post(cmd.Context(), "/reports/campaigns/"+flagCampaignID+"/adgroups/"+agID+"/searchterms", reqBody)
+				stData, err := fetchAllReportingPayload(cmd.Context(), c, "/reports/campaigns/"+flagCampaignID+"/adgroups/"+agID+"/searchterms", reqBody, 1000)
 				if err != nil {
 					// Try the search terms endpoint directly.
-					stData, err = c.Get(cmd.Context(), "/campaigns/"+flagCampaignID+"/adgroups/"+agID+"/searchterms", map[string]string{"limit": "500"})
+					stData, err = fetchAllOffsetItems(cmd.Context(), c, "/campaigns/"+flagCampaignID+"/adgroups/"+agID+"/searchterms", 500)
 					if err != nil {
 						fmt.Fprintf(cmd.ErrOrStderr(), "warning: ad group %s: failed to fetch search terms (report and fallback endpoints both failed): %v\n", agID, err)
+						fetchFailures++
 						continue
 					}
 				}
@@ -145,6 +144,7 @@ Use --dry-run to preview what would be promoted without making API changes.`,
 						_, _, createErr := c.Post(cmd.Context(), "/campaigns/"+flagCampaignID+"/adgroups/"+agID+"/targetingkeywords", kwBody)
 						if createErr != nil {
 							result.Skipped++
+							createFailures++
 							fmt.Fprintf(cmd.ErrOrStderr(), "warning: could not promote %q: %v\n", term.text, createErr)
 							continue
 						}
@@ -166,7 +166,13 @@ Use --dry-run to preview what would be promoted without making API changes.`,
 				}
 			}
 
-			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
+			if err := printJSONFiltered(cmd.OutOrStdout(), result, flags); err != nil {
+				return err
+			}
+			if fetchFailures+createFailures > 0 {
+				return partialFailureErr(fmt.Errorf("auto-promotion completed with %d fetch failure(s) and %d keyword creation failure(s)", fetchFailures, createFailures))
+			}
+			return nil
 		},
 	}
 

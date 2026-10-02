@@ -9,6 +9,12 @@
     "handle": "rk-labs-tech",
     "name": "Ryan Kelley"
   },
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "owner": "rk-labs-tech",
   "printer": "rk-labs-tech",
   "printer_name": "Ryan Kelley",

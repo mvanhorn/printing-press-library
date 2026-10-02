@@ -1,5 +1,8 @@
 # Apple Search Ads CLI
 
+Created by [@rk-labs-tech](https://github.com/rk-labs-tech) (Ryan Kelley).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 **Every Apple Search Ads feature, plus local cost analytics, bid optimization, and cross-org templating no Python CLI offers.**
 
 apple-search-ads-pp-cli is a native Go CLI covering all campaign, keyword, and reporting operations plus a local SQLite cache for offline analytics. UA teams get bid optimization suggestions, budget pacing forecasts, and cross-org template sync without hitting API rate limits.
