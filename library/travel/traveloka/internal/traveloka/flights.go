@@ -161,6 +161,11 @@ func (c *Client) SearchFlights(ctx context.Context, q Query) (*Snapshot, error) 
 	if err := ctx.Err(); err != nil {
 		return nil, sourceHTTPError(ctx, err, 0, "flight retrieval canceled before completion", c.secrets)
 	}
+	sourceComplete := complete
+	if len(s.Offers) == 0 && evaluated < len(out.rows) {
+		complete = false
+		s.Warnings = append(s.Warnings, "No offers were found among the evaluated outbound candidates; unsearched candidates may have valid return flights.")
+	}
 	s.SearchComplete = complete
 	s.Coverage["returns"] = returnCoverage
 	s.Coverage["prefetch_attempted"] = attempted
@@ -174,7 +179,7 @@ func (c *Client) SearchFlights(ctx context.Context, q Query) (*Snapshot, error) 
 	if failed > 0 {
 		s.Warnings = append(s.Warnings, "Some source prefetches failed; coverage.prefetch_failures records the omitted candidates.")
 	}
-	if !complete {
+	if !sourceComplete {
 		s.Warnings = append(s.Warnings, "Source search did not complete within the bounded polling window.")
 	}
 	if len(s.Offers) == 0 && firstFailure != nil {

@@ -239,6 +239,7 @@ func TestBlockedStructuredArgsOnlyDropsInheritedRootFlags(t *testing.T) {
 	root.PersistentFlags().String("audit-dir", "", "root audit dir")
 	root.PersistentFlags().String("profile", "", "root profile")
 	root.PersistentFlags().String("receipt-file", "", "root receipt file")
+	root.PersistentFlags().String("session-file", "", "private session")
 	root.PersistentFlags().String("config", "", "root config")
 	root.PersistentFlags().String("json", "", "format output")
 
@@ -246,6 +247,7 @@ func TestBlockedStructuredArgsOnlyDropsInheritedRootFlags(t *testing.T) {
 	child.Flags().StringP("output", "o", "", "local output")
 	child.Flags().String("profile", "", "command profile")
 	child.Flags().String("db", "", "local sqlite path")
+	child.Flags().String("save-snapshot", "", "public snapshot destination")
 	root.AddCommand(child)
 
 	blocked := blockedStructuredArgsForCommand(child)
@@ -523,15 +525,20 @@ func TestToolOptionsHideBlockedRootFlagsButKeepLocalCollisions(t *testing.T) {
 	if _, ok := props["query"]; !ok {
 		t.Fatalf("positional <query> missing from schema: %#v", props)
 	}
-	for _, hidden := range []string{"args", "audit-dir", "db", "o", "output", "receipt-file"} {
+	for _, hidden := range []string{"args", "audit-dir", "db", "o", "output", "receipt-file", "session-file", "save-snapshot"} {
 		if _, ok := props[hidden]; ok {
 			t.Fatalf("blocked parameter %q should not be exposed as a flag schema: %#v", hidden, props)
 		}
 	}
 	allowed := allowedStructuredArgsForCommand(child, blocked, positionals, true)
-	for _, hidden := range []string{"audit-dir", "db", "o", "output", "receipt-file"} {
+	for _, hidden := range []string{"audit-dir", "db", "o", "output", "receipt-file", "session-file", "save-snapshot"} {
 		if allowed[hidden] {
 			t.Fatalf("blocked parameter %q should not be accepted by structured args: %#v", hidden, allowed)
+		}
+	}
+	for _, flag := range []string{"session-file", "save-snapshot"} {
+		if err := validateMCPArgumentNames(map[string]any{flag: "/private/tmp/example.json"}, allowed); err == nil {
+			t.Fatalf("accepted private path parameter %s", flag)
 		}
 	}
 }

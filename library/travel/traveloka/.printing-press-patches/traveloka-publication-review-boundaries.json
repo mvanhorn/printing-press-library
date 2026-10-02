@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "traveloka-publication-review-boundaries",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261002-002131-9ff082f4",
+  "base_printing_press_version": "4.32.5",
+  "summary": "MCP inherits host session/output paths, bounded empty flight candidates remain incomplete, and shared sessions serialize credential refresh transactions.",
+  "reason": "Mirrored flags must not select host private paths; candidate limits cannot prove absence of return inventory; atomic writes alone lose cross-process refreshes.",
+  "files": [
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/cobratree/shellout_test.go",
+    "internal/mcp/platform_gate_test.go",
+    "internal/traveloka/core_flows_test.go",
+    "internal/traveloka/flights.go",
+    "internal/traveloka/http.go",
+    "internal/traveloka/http_test.go",
+    "internal/traveloka/session.go"
+  ],
+  "validated_outcome": "Focused Traveloka and MCP regressions pass, including two clients opened before refresh, overlapping requests and actual registered schemas."
+}

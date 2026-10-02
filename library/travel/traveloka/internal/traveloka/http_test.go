@@ -620,3 +620,94 @@ func TestSimulatedHTTPDeadlineAndCancellationPreserveSafeCauses(t *testing.T) {
 		}
 	}
 }
+
+func TestSimulatedSharedSessionReloadsBeforeRefreshing(t *testing.T) {
+	first, path := testHTTPClient(t)
+	stale, err := NewClient(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	shop := Shopper{Market: "SG", Locale: "en-SG", Currency: "SGD"}
+	first.SetHTTPTransport(simulatedTransport(func(r *http.Request) (*http.Response, error) {
+		return simulatedResponse(r, 200, `{"data":{},"sentinel":{"token":"example-first-refresh"}}`, http.Header{"Set-Cookie": []string{"first=example-first-cookie; Domain=traveloka.com; Path=/; Secure"}}), nil
+	}))
+	if _, err = first.Post(context.Background(), flightInitial, map[string]any{}, shop); err != nil {
+		t.Fatal(err)
+	}
+	stale.SetHTTPTransport(simulatedTransport(func(r *http.Request) (*http.Response, error) {
+		b, _ := io.ReadAll(r.Body)
+		var envelope map[string]any
+		if err := decodeJSON(b, &envelope); err != nil {
+			t.Fatal(err)
+		}
+		if sourceObject(envelope["sentinel"])["token"] != "example-first-refresh" || !strings.Contains(r.Header.Get("Cookie"), "first=example-first-cookie") {
+			t.Fatal("second client replayed stale credentials")
+		}
+		return simulatedResponse(r, 200, `{"data":{},"sentinel":{"token":"example-second-refresh"}}`, http.Header{"Set-Cookie": []string{"second=example-second-cookie; Domain=traveloka.com; Path=/; Secure"}}), nil
+	}))
+	if _, err = stale.Post(context.Background(), flightInitial, map[string]any{}, shop); err != nil {
+		t.Fatal(err)
+	}
+	final, err := NewClient(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	names := map[string]bool{}
+	for _, cookie := range final.session.Cookies {
+		names[cookie.Name] = true
+	}
+	if !names["first"] || !names["second"] || sourceObject(final.session.Profiles[flightInitial].Body["sentinel"])["token"] != "example-second-refresh" {
+		t.Fatal("refresh erased another client's credentials")
+	}
+}
+
+func TestSimulatedSessionTransactionsSerializeAcrossClients(t *testing.T) {
+	first, path := testHTTPClient(t)
+	second, err := NewClient(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	entered := make(chan struct{}, 2)
+	release := make(chan struct{})
+	first.SetHTTPTransport(simulatedTransport(func(r *http.Request) (*http.Response, error) {
+		entered <- struct{}{}
+		<-release
+		return simulatedResponse(r, 200, `{"data":{}}`, http.Header{}), nil
+	}))
+	second.SetHTTPTransport(simulatedTransport(func(r *http.Request) (*http.Response, error) {
+		entered <- struct{}{}
+		return simulatedResponse(r, 200, `{"data":{}}`, http.Header{}), nil
+	}))
+	results := make(chan error, 2)
+	call := func(c *Client) {
+		_, err := c.Post(context.Background(), flightInitial, map[string]any{}, Shopper{Market: "SG", Locale: "en-SG", Currency: "SGD"})
+		results <- err
+	}
+	go call(first)
+	select {
+	case <-entered:
+	case <-time.After(time.Second):
+		t.Fatal("first request did not start")
+	}
+	go call(second)
+	overlap := false
+	select {
+	case <-entered:
+		overlap = true
+	case <-time.After(40 * time.Millisecond):
+	}
+	close(release)
+	for i := 0; i < 2; i++ {
+		select {
+		case err := <-results:
+			if err != nil {
+				t.Fatal(err)
+			}
+		case <-time.After(time.Second):
+			t.Fatal("session transaction did not release lock")
+		}
+	}
+	if overlap {
+		t.Fatal("two clients sent requests concurrently using the same private session")
+	}
+}

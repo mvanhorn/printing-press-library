@@ -195,11 +195,13 @@ var reservedStructuredArgs = map[string]bool{
 // destinations would let a tool write or truncate anything that account can
 // reach.
 var blockedDestinationFlags = map[string]bool{
-	"audit-dir":    true,
-	"db":           true,
-	"o":            true,
-	"output":       true,
-	"receipt-file": true,
+	"audit-dir":     true,
+	"db":            true,
+	"o":             true,
+	"output":        true,
+	"receipt-file":  true,
+	"save-snapshot": true,
+	"session-file":  true,
 }
 
 // blockedRootFlags are root-level CLI flags that an MCP client must not be

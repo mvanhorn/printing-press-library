@@ -6,7 +6,7 @@
   "failed": 0,
   "skipped": 86,
   "coverage_hollow": false,
-  "source_fingerprint": "c57254a053b3b9a6c76dd2a8c0319aa14be06112a00e7e2ad8919df1e04288ac",
+  "source_fingerprint": "5b90faca3c190087f260ac9af1c47bddb78ca3778aabd36c027092f9de6f5d10",
   "capture": {
     "http_verified": true,
     "browser_closed": true,
@@ -15,6 +15,7 @@
   "public_request_fixtures": 8,
   "private_values_in_fixtures": 0,
   "raw_transcript_removed": true,
+  "reused_capture_for_review_followup": true,
   "matching_raw_fixture_currencies": [
     "SGD"
   ]

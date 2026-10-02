@@ -154,3 +154,15 @@ func TestMCPUngatedInvocationUsesRealVerifier(t *testing.T) {
 		t.Fatalf("ungated handler was blocked by the tenant gate: %#v", result)
 	}
 }
+
+func TestMCPRegisteredSchemasInheritHostPrivatePaths(t *testing.T) {
+	s := server.NewMCPServer("host-path-conformance", "test")
+	RegisterTools(s)
+	for name, entry := range s.ListTools() {
+		for _, flag := range []string{"session-file", "save-snapshot"} {
+			if _, ok := entry.Tool.InputSchema.Properties[flag]; ok {
+				t.Errorf("%s exposes host path parameter %s", name, flag)
+			}
+		}
+	}
+}

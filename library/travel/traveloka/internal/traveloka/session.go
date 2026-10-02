@@ -3,6 +3,7 @@ package traveloka
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/travel/traveloka/internal/cliutil"
 	"io"
 	"net/http"
 	"net/url"
@@ -184,6 +185,20 @@ func ImportSession(cookiesFile, requestsFile, outputFile string) (*SessionInfo, 
 	return &SessionInfo{outputFile, session.CapturedAt, len(cookies), len(session.Profiles)}, nil
 }
 func writePrivateSession(path string, session *privateSession) error {
+	if path == "" {
+		return fmt.Errorf("private session path is required")
+	}
+	if err := os.MkdirAll(filepath.Dir(path), 0700); err != nil {
+		return err
+	}
+	parent, err := filepath.EvalSymlinks(filepath.Dir(path))
+	if err != nil {
+		return err
+	}
+	path = filepath.Join(parent, filepath.Base(path))
+	return cliutil.WithFileLock(path, func() error { return writePrivateSessionUnlocked(path, session) })
+}
+func writePrivateSessionUnlocked(path string, session *privateSession) error {
 	if path == "" {
 		return fmt.Errorf("private session path is required")
 	}

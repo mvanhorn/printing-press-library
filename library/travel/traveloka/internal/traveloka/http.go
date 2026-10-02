@@ -3,6 +3,7 @@ package traveloka
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"io"
@@ -10,6 +11,7 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -25,6 +27,7 @@ type Client struct {
 	mu          sync.Mutex
 	session     *privateSession
 	sessionFile string
+	diskHash    [32]byte
 	http        *http.Client
 	jar         http.CookieJar
 	limiter     *cliutil.AdaptiveLimiter
@@ -38,6 +41,11 @@ func NewClient(sessionFile string) (*Client, error) {
 	}
 	if !info.Mode().IsRegular() || info.Mode().Perm()&0077 != 0 {
 		return nil, apiError("AUTH_REQUIRED", "private session must be a regular file with mode 0600", 0, false)
+	}
+	// Resolve parent aliases so all clients lock the same stable sidecar.
+	sessionFile, err = filepath.EvalSymlinks(sessionFile)
+	if err != nil {
+		return nil, apiError("AUTH_REQUIRED", "cannot resolve private Traveloka session", 0, false)
 	}
 	b, err := readBoundedFile(sessionFile)
 	if err != nil {
@@ -84,7 +92,7 @@ func NewClient(sessionFile string) (*Client, error) {
 	if !availableCookies {
 		return nil, apiError("AUTH_REQUIRED", "Traveloka cookies expired; refresh using auth capture", 0, false)
 	}
-	c := &Client{session: &session, sessionFile: sessionFile, limiter: cliutil.NewAdaptiveLimiter(2), jar: jar}
+	c := &Client{session: &session, sessionFile: sessionFile, diskHash: sha256.Sum256(b), limiter: cliutil.NewAdaptiveLimiter(2), jar: jar}
 	// Keep scope/expiry selection in the jar. Serialize values explicitly because
 	// net/http AddCookie would rewrite legitimate browser-exported JSON values.
 	c.http = &http.Client{Timeout: requestTimeout, CheckRedirect: func(req *http.Request, via []*http.Request) error {
@@ -126,7 +134,48 @@ func (c *Client) Post(ctx context.Context, path string, data map[string]any, sho
 
 // PostWithEnvelope preserves the private captured envelope while accepting only
 // the public projection and observed desktop-interface request fields.
+// Hold the process-shared lock through loading the latest credentials, sending
+// the request and persisting refreshes. Atomic rename alone cannot protect a
+// read/refresh/write transaction from another CLI or MCP process.
 func (c *Client) PostWithEnvelope(ctx context.Context, path string, data map[string]any, shop Shopper, overrides map[string]any) (map[string]any, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	var result map[string]any
+	err := cliutil.WithFileLock(c.sessionFile, func() error {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		b, err := readBoundedFile(c.sessionFile)
+		if err != nil {
+			return apiError("AUTH_REQUIRED", "cannot read private Traveloka session", 0, false)
+		}
+		if sha256.Sum256(b) != c.diskHash {
+			latest, err := NewClient(c.sessionFile)
+			if err != nil {
+				return err
+			}
+			c.session, c.jar, c.diskHash = latest.session, latest.jar, latest.diskHash
+			c.secrets = append(c.secrets, latest.secrets...)
+		}
+		result, err = c.postWithEnvelopeLocked(ctx, path, data, shop, overrides)
+		return err
+	})
+	return result, err
+}
+
+func (c *Client) persistSessionLocked() error {
+	if err := writePrivateSessionUnlocked(c.sessionFile, c.session); err != nil {
+		return err
+	}
+	b, err := json.Marshal(c.session)
+	if err != nil {
+		return err
+	}
+	c.diskHash = sha256.Sum256(b)
+	return nil
+}
+
+func (c *Client) postWithEnvelopeLocked(ctx context.Context, path string, data map[string]any, shop Shopper, overrides map[string]any) (map[string]any, error) {
 	if _, ok := operations[path]; !ok {
 		return nil, apiError("UNSUPPORTED_OPERATION", "operation is not in the Traveloka read-only allowlist", 0, false)
 	}
@@ -146,8 +195,6 @@ func (c *Client) PostWithEnvelope(ctx context.Context, path string, data map[str
 	if err != nil {
 		return nil, err
 	}
-	c.mu.Lock()
-	defer c.mu.Unlock()
 	profile, ok := c.session.Profiles[path]
 	if !ok {
 		return nil, apiError("AUTH_REQUIRED", "session lacks this operation; refresh using auth capture", 0, false)
@@ -259,7 +306,7 @@ func (c *Client) PostWithEnvelope(ctx context.Context, path string, data map[str
 		if changed {
 			profile.Body["sentinel"] = merged
 			c.session.Profiles[path] = profile
-			if err := writePrivateSession(c.sessionFile, c.session); err != nil {
+			if err := c.persistSessionLocked(); err != nil {
 				return nil, apiError("UPSTREAM_ERROR", "cannot persist refreshed private session", resp.StatusCode, false)
 			}
 		}
@@ -328,7 +375,7 @@ func (c *Client) collectResponseCookies(cookies []*http.Cookie, requestURL *url.
 		changed = true
 	}
 	if changed {
-		return writePrivateSession(c.sessionFile, c.session)
+		return c.persistSessionLocked()
 	}
 	return nil
 }

@@ -551,3 +551,33 @@ func TestSimulatedCoreSourceFailuresAndCurrencyMismatch(t *testing.T) {
 		})
 	}
 }
+
+func TestSimulatedRoundTripEmptyCandidateBoundIsIncomplete(t *testing.T) {
+	c := simulatedCoreClient(t)
+	q := coreFlightQuery()
+	q.ReturnDate = time.Now().AddDate(0, 3, 5).Format("2006-01-02")
+	q.MaxCandidates = 1
+	c.SetHTTPTransport(simulatedTransport(func(r *http.Request) (*http.Response, error) {
+		data := coreRequestData(t, r)
+		if r.URL.Path == flightInitialPath {
+			return coreResponse(t, r, coreFlightResult([]any{coreFlightRow("cheap", "SIN", "CGK", "10000"), coreFlightRow("has-return", "SIN", "CGK", "20000")}, true)), nil
+		}
+		if sourceInt(data["journeyIndex"]) == nil {
+			t.Fatal("missing return journey index")
+		}
+		if sourceList(data["selectedFlights"])[0] != "cheap" {
+			t.Fatal("candidate bound exceeded")
+		}
+		return coreResponse(t, r, coreFlightResult([]any{}, true)), nil
+	}))
+	s, err := c.SearchFlights(context.Background(), q)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if s.Status != "incomplete" || s.SearchComplete || len(s.Offers) != 0 || s.Coverage["outbound_candidates_truncated"] != true {
+		t.Fatalf("bounded empty result overstated inventory: %#v", s)
+	}
+	if len(s.Warnings) == 0 {
+		t.Fatal("missing bounded coverage warning")
+	}
+}
