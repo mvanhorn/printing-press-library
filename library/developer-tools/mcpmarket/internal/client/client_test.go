@@ -56,6 +56,42 @@ func TestTruncateBody(t *testing.T) {
 	}
 }
 
+func TestRedirectPolicyStaysOnConfiguredOrigin(t *testing.T) {
+	c := New(&config.Config{BaseURL: "https://mcpmarket.com"}, time.Second, 0)
+	policy := c.HTTPClient.CheckRedirect
+	if policy == nil {
+		t.Fatal("redirect policy is not configured")
+	}
+
+	request := func(rawURL string) *http.Request {
+		t.Helper()
+		req, err := http.NewRequest(http.MethodGet, rawURL, nil)
+		if err != nil {
+			t.Fatalf("new request: %v", err)
+		}
+		return req
+	}
+	via := []*http.Request{request("https://mcpmarket.com/server")}
+	for _, rawURL := range []string{
+		"https://mcpmarket.com:443/leaderboards",
+		"https://MCPMARKET.COM/daily",
+	} {
+		if err := policy(request(rawURL), via); err != nil {
+			t.Errorf("same-origin redirect %q rejected: %v", rawURL, err)
+		}
+	}
+	for _, rawURL := range []string{
+		"http://mcpmarket.com/server",
+		"https://www.mcpmarket.com/server",
+		"https://mcpmarket.com:444/server",
+		"http://127.0.0.1/internal",
+	} {
+		if err := policy(request(rawURL), via); err == nil {
+			t.Errorf("cross-origin redirect %q accepted", rawURL)
+		}
+	}
+}
+
 func TestTruncateBody_UTF8RuneAtBoundary(t *testing.T) {
 	t.Parallel()
 

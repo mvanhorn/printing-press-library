@@ -292,7 +292,9 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 		cacheDir:   cacheDir,
 		limiter:    newRateLimiter(rateLimit),
 	}
-	// CheckRedirect re-derives auth on each hop. Go's default replays the
+	// CheckRedirect holds every hop to the configured origin, then re-derives
+	// auth. An open redirect must not make this client request another host.
+	// Go's default replays the
 	// original Authorization header verbatim, which breaks nonce-bound
 	// schemes (OAuth 1.0a PLAINTEXT, SigV4, Hawk): the duplicate nonce
 	// trips the server's replay detector with a 401. c.authHeader()
@@ -308,18 +310,37 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 			// "Moved Permanently" body back to the caller.
 			return errors.New("stopped after 10 redirects")
 		}
-		// Same-host gate mirrors Go's shouldCopyHeaderOnRedirect: a
-		// cross-domain 3xx (open redirect or partner handoff) must not
-		// receive the auth credential, even though we are inside
-		// CheckRedirect where Go's automatic stripping has already run.
-		if req.URL.Host == via[0].URL.Host {
-			if h, err := c.authHeader(req.Context()); err == nil && h != "" {
-				req.Header.Set("Authorization", h)
-			}
+		if !sameOrigin(req.URL, via[0].URL) {
+			return fmt.Errorf("refusing cross-origin redirect")
+		}
+		if h, err := c.authHeader(req.Context()); err == nil && h != "" {
+			req.Header.Set("Authorization", h)
 		}
 		return nil
 	}
 	return c
+}
+
+func sameOrigin(a, b *url.URL) bool {
+	if a == nil || b == nil || a.Scheme == "" || b.Scheme == "" || a.Hostname() == "" || b.Hostname() == "" {
+		return false
+	}
+	return strings.EqualFold(a.Scheme, b.Scheme) &&
+		strings.EqualFold(a.Hostname(), b.Hostname()) &&
+		effectivePort(a) == effectivePort(b)
+}
+
+func effectivePort(u *url.URL) string {
+	if port := u.Port(); port != "" {
+		return port
+	}
+	if strings.EqualFold(u.Scheme, "https") {
+		return "443"
+	}
+	if strings.EqualFold(u.Scheme, "http") {
+		return "80"
+	}
+	return ""
 }
 
 // RateLimit returns the current effective rate limit in req/s. Returns 0 if disabled.
