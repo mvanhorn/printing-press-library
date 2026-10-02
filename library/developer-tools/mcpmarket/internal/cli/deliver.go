@@ -8,9 +8,10 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/mcpmarket/internal/cliutil"
 )
 
 // DeliverSink describes where command output should be routed when
@@ -71,20 +72,11 @@ func Deliver(sink DeliverSink, body []byte, compact bool) error {
 }
 
 func deliverFile(path string, body []byte) error {
-	// Atomic write: tmp + rename. Protects agents from seeing a partial
-	// file if the process is interrupted mid-write.
-	dir := filepath.Dir(path)
-	if dir != "" && dir != "." {
-		if err := os.MkdirAll(dir, 0o700); err != nil {
-			return fmt.Errorf("creating deliver dir: %w", err)
-		}
-	}
-	tmp := path + ".tmp"
-	if err := os.WriteFile(tmp, body, 0o600); err != nil {
-		return fmt.Errorf("writing deliver tmp: %w", err)
-	}
-	if err := os.Rename(tmp, path); err != nil {
-		return fmt.Errorf("replacing deliver file: %w", err)
+	// Use an unpredictable, exclusively-created temporary file in the target
+	// directory, then rename it into place. This remains atomic without
+	// following a pre-planted <path>.tmp symlink.
+	if err := cliutil.AtomicWritePrivateFile(path, body, 0o600, 0o700); err != nil {
+		return fmt.Errorf("delivering file: %w", err)
 	}
 	return nil
 }

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "mcpmarket-private-atomic-writes",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260827-211137-37906ad0",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Use the existing private atomic-write helper for delivered files and saved run profiles.",
+  "reason": "Predictable .tmp paths can follow a planted symlink and overwrite an unrelated file, while unique exclusive temporary files keep the write atomic and private.",
+  "files": [
+    "internal/cli/deliver.go",
+    "internal/cli/deliver_test.go",
+    "internal/cli/profile.go",
+    "internal/cli/profile_atomic_test.go"
+  ]
+}

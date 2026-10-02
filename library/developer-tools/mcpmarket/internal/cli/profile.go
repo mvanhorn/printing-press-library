@@ -84,11 +84,10 @@ func saveProfileStore(s *profileStore) error {
 	if err != nil {
 		return fmt.Errorf("marshaling profiles: %w", err)
 	}
-	tmp := p + ".tmp"
-	if err := os.WriteFile(tmp, data, 0o600); err != nil {
+	if err := cliutil.AtomicWritePrivateFile(p, data, 0o600, 0o700); err != nil {
 		return fmt.Errorf("writing profiles: %w", err)
 	}
-	return os.Rename(tmp, p)
+	return nil
 }
 
 // GetProfile returns a profile by name, or (nil, nil) if not found.
