@@ -135,30 +135,33 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("get-categories_list",
 			mcplib.WithDescription("Returns a list of all categories Splitwise allows for expenses. There are parent categories that represent groups of categories with subcategories for more specific categorization. When creating expenses, you must use a subcategory, not a parent category. If you intend for an expense to be represented by the parent category and nothing more specific, please use the 'Other' subcategory. (public)"),
+			mcplib.WithString("cursor", mcplib.Description("Opaque cursor returned by a previous page")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/get_categories", true, false, nil, mcpPageConfig{}, []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/get_categories", true, false, nil, mcpPageConfig{CursorParam: "local", LocalOnly: true}, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("get-comments_list",
 			mcplib.WithDescription("Get expense comments. Required: expense_id. Returns array of Comment."),
 			mcplib.WithNumber("expense_id", mcplib.Required(), mcplib.Description("Expense id")),
+			mcplib.WithString("cursor", mcplib.Description("Opaque cursor returned by a previous page")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/get_comments", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "expense_id", WireName: "expense_id", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/get_comments", true, false, nil, mcpPageConfig{CursorParam: "local", LocalOnly: true}, []mcpParamBinding{{PublicName: "expense_id", WireName: "expense_id", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("get-currencies_list",
 			mcplib.WithDescription("Returns a list of all currencies allowed by the system. These are mostly ISO 4217 codes, but we do sometimes use pending codes or unofficial, colloquial codes (like BTC instead of XBT for Bitcoin). (public)"),
+			mcplib.WithString("cursor", mcplib.Description("Opaque cursor returned by a previous page")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/get_currencies", true, false, nil, mcpPageConfig{}, []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/get_currencies", true, false, nil, mcpPageConfig{CursorParam: "local", LocalOnly: true}, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("get-current-user_list",
@@ -209,11 +212,12 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("get-friends_list",
 			mcplib.WithDescription("**Note**: `group` objects only include group balances with that friend. Returns array of GetFriendsListItem."),
+			mcplib.WithString("cursor", mcplib.Description("Opaque cursor returned by a previous page")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/get_friends", true, false, nil, mcpPageConfig{}, []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/get_friends", true, false, nil, mcpPageConfig{CursorParam: "local", LocalOnly: true}, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("get-group_get",
@@ -228,11 +232,12 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("get-groups_list",
 			mcplib.WithDescription("**Note**: Expenses that are not associated with a group are listed in a group with ID 0. Returns array of Group."),
+			mcplib.WithString("cursor", mcplib.Description("Opaque cursor returned by a previous page")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/get_groups", true, false, nil, mcpPageConfig{}, []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/get_groups", true, false, nil, mcpPageConfig{CursorParam: "local", LocalOnly: true}, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("get-notifications_list",
@@ -373,6 +378,7 @@ type mcpParamBinding struct {
 type mcpPageConfig struct {
 	CursorParam    string
 	NextCursorPath string
+	LocalOnly      bool
 }
 
 func formatMCPParamValue(v any) string {
@@ -454,6 +460,9 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 				upstreamCursor, err := bound.UpstreamCursor(s)
 				if err != nil {
 					return mcpToolError(err.Error()), nil
+				}
+				if pageConfig.LocalOnly && upstreamCursor != "" {
+					return mcpToolError("cursor is not valid for this locally paged list"), nil
 				}
 				if upstreamCursor != "" {
 					params[pageConfig.CursorParam] = upstreamCursor

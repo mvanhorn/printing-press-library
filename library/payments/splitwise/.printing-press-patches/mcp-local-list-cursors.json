@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "mcp-local-list-cursors",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260904-131606-b6e44bce",
+  "base_printing_press_version": "4.31.7",
+  "summary": "MCP list tools without provider paging must offer a local continuation cursor whenever output bounding would omit items.",
+  "reason": "Splitwise groups, friends, categories, comments, and currencies can exceed the MCP output budget. A bounded first page without a cursor silently hides the rest of the list; local cursors must be consumed by MCP and never forwarded to Splitwise. The output regression test must retain trailing TSV delimiters because an empty last cell is significant.",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/mcp/tools_test.go",
+    "internal/cli/hand_output_test.go"
+  ],
+  "validated_outcome": "Offline mock-server test resumes after 50 items and verifies the cursor never appears in the upstream request. The full suite also preserves empty trailing TSV cells while parsing command output.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/2515"
+}

@@ -57,7 +57,8 @@ func TestHandCommandsCSVNeverFlattenObjects(t *testing.T) {
 				if json.Unmarshal([]byte(trimmed), &doc) == nil {
 					return
 				}
-				r := csv.NewReader(strings.NewReader(trimmed))
+				// A trailing tab is an empty final TSV cell, not whitespace to discard.
+				r := csv.NewReader(strings.NewReader(strings.TrimRight(out, "\r\n")))
 				if mode == "--plain" {
 					r.Comma = '\t'
 				}

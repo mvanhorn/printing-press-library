@@ -2,6 +2,9 @@
 
 **Every Splitwise feature, plus an offline SQLite ledger that powers balance, debt-aging, spend analytics, fairness, and full-text search no other Splitwise tool has.**
 
+Created by [@vinnyp](https://github.com/vinnyp) (Vinny Pasceri).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 splitwise-pp-cli wraps the full Splitwise API — expenses, groups, friends, comments, settle-ups — and keeps a local copy of your whole ledger. That local store powers a net `balances` view, `debts --aged` (who never pays you back), `spend` rollups by category or month, offline `search`, a group `ledger` with running balances, `fairness` and `net` for who's carrying cost and how balances collapse across groups, and a `settle-up` plan that minimizes transfers. `brief` gives an agent one bounded state digest, and `reconcile` verifies the local store still matches Splitwise before you trust any of it. Fuzzy name resolution means you never paste a numeric ID.
 
 ## Install

@@ -6,6 +6,8 @@ package mcp
 import (
 	"context"
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -18,6 +20,59 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/payments/splitwise/internal/store"
 )
+
+func TestLocalListCursorResumesWithoutForwardingToSplitwise(t *testing.T) {
+	resetMCPPathEnv(t)
+	t.Setenv("SPLITWISE_API_KEY", "local-test-token")
+	items := make([]map[string]int, 80)
+	for i := range items {
+		items[i] = map[string]int{"id": i}
+	}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/get_groups" || r.URL.RawQuery != "" {
+			t.Errorf("unexpected upstream request: %s", r.URL.RequestURI())
+		}
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(map[string]any{"groups": items}); err != nil {
+			t.Errorf("encode response: %v", err)
+		}
+	}))
+	defer server.Close()
+	t.Setenv("SPLITWISE_BASE_URL", server.URL)
+
+	handler := makeAPIHandler("GET", "/get_groups", true, false, nil, mcpPageConfig{CursorParam: "local", LocalOnly: true}, nil, nil)
+	var cursor string
+	for page, wantFirst := range []int{0, 50} {
+		args := map[string]any{}
+		if cursor != "" {
+			args["cursor"] = cursor
+		}
+		result, err := handler(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{Arguments: args}})
+		if err != nil || result == nil || result.IsError {
+			t.Fatalf("page %d failed: result=%v err=%v", page, result, err)
+		}
+		var envelope struct {
+			Groups     []map[string]int `json:"groups"`
+			NextCursor string           `json:"next_cursor"`
+		}
+		if err := json.Unmarshal([]byte(mcpTextContent(t, result)), &envelope); err != nil {
+			t.Fatalf("parse page %d: %v", page, err)
+		}
+		if len(envelope.Groups) == 0 || envelope.Groups[0]["id"] != wantFirst {
+			t.Fatalf("page %d starts at %v, want %d", page, envelope.Groups, wantFirst)
+		}
+		if page == 0 && envelope.NextCursor == "" {
+			t.Fatal("first page omitted continuation cursor")
+		}
+		if page == 1 && envelope.NextCursor != "" {
+			t.Fatalf("last page unexpectedly has continuation cursor: %s", envelope.NextCursor)
+		}
+		cursor = envelope.NextCursor
+	}
+	if cursor != "" {
+		t.Fatalf("last page cursor = %q, want empty", cursor)
+	}
+}
 
 func TestMCPPathResolutionMatchesCLIResolverWithHomeEnv(t *testing.T) {
 	resetMCPPathEnv(t)
