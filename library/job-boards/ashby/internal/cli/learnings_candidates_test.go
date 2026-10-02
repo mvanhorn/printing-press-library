@@ -96,7 +96,7 @@ func TestLearningsConfirm_PlaybookCandidateMaterializesAtConfidence2(t *testing.
 	dbPath := filepath.Join(home, "data.db")
 
 	id := seedCandidate(t, dbPath, store.CandidateClassPlaybookCandidate,
-		`{"playbook_json":"{\"steps\":[{\"cmd\":\"records list --limit 5\"}]}","notes_text":"start narrow"}`,
+		`{"playbook_json":"{\"steps\":[{\"cmd\":\"postings list ashby --limit 5\"}]}","notes_text":"start narrow"}`,
 		"sig-conf-pb", "fam-confirm", "")
 
 	stdout, stderr, err := runRootArgs(t, "learnings", "confirm", itoa64(id), "--db", dbPath)
@@ -126,7 +126,7 @@ func TestLearningsConfirm_PlaybookCandidateMaterializesAtConfidence2(t *testing.
 	if pb.Confidence != 2 {
 		t.Errorf("materialized playbook must land at confidence 2, got %d", pb.Confidence)
 	}
-	if !strings.Contains(pb.PlaybookJSON, "records list --limit 5") {
+	if !strings.Contains(pb.PlaybookJSON, "postings list ashby --limit 5") {
 		t.Errorf("playbook content mismatch: %q", pb.PlaybookJSON)
 	}
 	row, ok, err := s.GetCandidate(id)
@@ -135,6 +135,30 @@ func TestLearningsConfirm_PlaybookCandidateMaterializesAtConfidence2(t *testing.
 	}
 	if row.Status != store.CandidateStatusConfirmed {
 		t.Errorf("candidate must be confirmed, got %q", row.Status)
+	}
+}
+
+func TestLearningsConfirm_RejectsUnsafePlaybookCandidate(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+	id := seedCandidate(t, dbPath, store.CandidateClassPlaybookCandidate,
+		`{"playbook_json":"{\"steps\":[{\"cmd\":\"postings list ashby; touch owned\"}]}"}`,
+		"sig-unsafe-pb", "fam-unsafe", "")
+
+	_, _, err := runRootArgs(t, "learnings", "confirm", itoa64(id), "--db", dbPath)
+	if err == nil || !strings.Contains(err.Error(), "unsafe playbook") {
+		t.Fatalf("confirm error=%v, want unsafe-playbook rejection", err)
+	}
+	if status := getCandidateStatus(t, dbPath, id); status != store.CandidateStatusOpen {
+		t.Fatalf("unsafe candidate status=%q, want open quarantine", status)
+	}
+	s, err := store.OpenWithContext(context.Background(), dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	if _, ok, err := s.GetPlaybookByFamily("fam-unsafe"); err != nil || ok {
+		t.Fatalf("unsafe candidate materialized: err=%v ok=%v", err, ok)
 	}
 }
 
@@ -167,7 +191,7 @@ func TestLearningsReject_ConfirmedPlaybookCandidateKeepsMaterializedRow(t *testi
 	dbPath := filepath.Join(home, "data.db")
 
 	id := seedCandidate(t, dbPath, store.CandidateClassPlaybookCandidate,
-		`{"playbook_json":"{\"steps\":[{\"cmd\":\"records list\"}]}"}`,
+		`{"playbook_json":"{\"steps\":[{\"cmd\":\"postings list ashby\"}]}"}`,
 		"sig-rej-pb", "fam-rollback", "")
 
 	if _, _, err := runRootArgs(t, "learnings", "confirm", itoa64(id), "--db", dbPath); err != nil {

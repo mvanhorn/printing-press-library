@@ -43,8 +43,8 @@ type Playbook struct {
 
 // PlaybookStep is one entry in the choreography. Mutually exclusive
 // shapes:
-//   - cmd: CLI command string with entity slots like "{team.id}",
-//     replayed against the printed CLI. Optional pagination hint.
+//   - cmd: CLI command string with entity slots like "{team.id}".
+//     Callers must validate and explicitly review it before execution.
 //   - client_side: post-process the previous step's result (rank_by,
 //     filter, etc.). Args carry the parameters.
 type PlaybookStep struct {
@@ -59,11 +59,13 @@ type PlaybookStep struct {
 // map: $TEAM -> {id, abbr, displayName, canonical}. Unresolvable slots
 // stay as the raw query token. The recall envelope embeds this.
 type ResolvedPlaybook struct {
-	Playbook      Playbook                  `json:"playbook"`
-	SlotsResolved map[string]map[string]any `json:"slots_resolved,omitempty"`
-	Notes         string                    `json:"notes,omitempty"`
-	QueryFamily   string                    `json:"query_family"`
-	Confidence    int                       `json:"confidence,omitempty"`
+	Playbook       Playbook                  `json:"playbook"`
+	SlotsResolved  map[string]map[string]any `json:"slots_resolved,omitempty"`
+	Notes          string                    `json:"notes,omitempty"`
+	QueryFamily    string                    `json:"query_family"`
+	Confidence     int                       `json:"confidence,omitempty"`
+	Trust          string                    `json:"trust"`
+	ReviewRequired bool                      `json:"review_required"`
 }
 
 // ParsePlaybookFile reads a JSON playbook file from disk and returns

@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "review-stored-playbooks-before-use",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260824-211633-3511b2d3",
+  "base_printing_press_version": "4.31.1",
+  "summary": "Ashby playbooks must contain only declarative read-only command steps and remain untrusted guidance at recall.",
+  "reason": "A saved or candidate playbook can outlive the session that wrote it. Validate before storing, confirming, and returning steps so old shell syntax, write commands, or arbitrary executables cannot be replayed as trusted instructions.",
+  "files": [
+    "internal/cli/playbook_safety.go",
+    "internal/cli/playbook_safety_test.go",
+    "internal/cli/teach.go",
+    "internal/cli/teach_test.go",
+    "internal/cli/teach_playbook.go",
+    "internal/cli/teach_playbook_test.go",
+    "internal/cli/learnings_candidates.go",
+    "internal/cli/learnings_candidates_test.go",
+    "internal/learn/match.go",
+    "internal/learn/match_test.go",
+    "internal/learn/playbooks.go",
+    "internal/learn/recall.go"
+  ],
+  "validated_outcome": "Offline tests reject shell syntax and write commands before persistence, keep unsafe candidates quarantined, and omit unsafe saved steps during recall."
+}

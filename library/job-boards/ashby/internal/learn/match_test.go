@@ -178,6 +178,7 @@ func TestEnvelopeWarningCodesStable(t *testing.T) {
 		{"ambiguous_alias", WarningAmbiguousAlias, "ambiguous_alias"},
 		{"lookup_refresh_available", TopWarningLookupRefreshAvailable, "lookup_refresh_available"},
 		{"candidates_present", TopWarningCandidatesPresent, "candidates_present"},
+		{"unsafe_playbook_rejected", TopWarningUnsafePlaybookRejected, "unsafe_playbook_rejected"},
 	}
 	for _, tc := range cases {
 		if tc.got != tc.want {

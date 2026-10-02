@@ -314,6 +314,20 @@ func confirmAndMaterializeCandidate(s *store.Store, row store.CandidateRow) (sto
 		if strings.TrimSpace(p.PlaybookJSON) == "" && strings.TrimSpace(p.NotesText) == "" {
 			return store.CandidateRow{}, nil, fmt.Errorf("candidate %d payload carries no playbook content", row.ID)
 		}
+		if strings.TrimSpace(p.PlaybookJSON) != "" {
+			playbook, err := learn.ParsePlaybook([]byte(p.PlaybookJSON), fmt.Sprintf("candidate %d", row.ID))
+			if err != nil {
+				return store.CandidateRow{}, nil, err
+			}
+			if err := validateAshbyPlaybook(playbook); err != nil {
+				return store.CandidateRow{}, nil, fmt.Errorf("candidate %d contains an unsafe playbook: %w", row.ID, err)
+			}
+			canonical, err := learn.MarshalPlaybook(playbook)
+			if err != nil {
+				return store.CandidateRow{}, nil, err
+			}
+			p.PlaybookJSON = canonical
+		}
 		confirmed, pbID, inserted, err := s.ConfirmCandidateWithPlaybook(row.ID, store.UpsertPlaybookInput{
 			QueryFamily:  family,
 			PlaybookJSON: p.PlaybookJSON,

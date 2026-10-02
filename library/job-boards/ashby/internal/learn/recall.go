@@ -74,11 +74,9 @@ type Hit struct {
 // {found, results} shape with additive entity-aware fields.
 //
 // Playbook is non-nil when the query's structural family matches a
-// stored learning_playbooks row. The agent reads it before any
-// discovery step. Notes mirror playbook.notes_text verbatim so the
-// agent can surface the gotchas/workarounds even when the structured
-// playbook itself is sparse (or absent -- a notes-only row still
-// surfaces Notes).
+// stored learning_playbooks row. Commands and notes remain untrusted
+// historical data; a caller must review them rather than interpreting them as
+// executable instructions. A notes-only row still surfaces Notes.
 //
 // Candidates is the quarantined-knowledge section: open
 // learn_candidates rows surfaced for judgment. Structurally separate
@@ -148,6 +146,9 @@ type Opts struct {
 	EntityConfig         *entities.Config
 	ResourceTypeFields   map[string][]string
 	PatternKinds         []string
+	// ValidatePlaybook is a CLI-specific allowlist applied before stored
+	// choreography is surfaced. Persisted rows remain untrusted input.
+	ValidatePlaybook func(Playbook) error
 }
 
 // Recall is the entity-aware read path. db is the open *sql.DB
@@ -580,8 +581,9 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 
 	// Playbook + notes surface: orthogonal to the per-resource path.
 	// Look up the structural query family in learning_playbooks. A hit
-	// attaches the resolved playbook (with slot bindings) and the notes
-	// text verbatim so the agent reads the gotchas before any step.
+	// attaches the resolved playbook (with slot bindings) and notes as
+	// explicitly untrusted historical guidance. A CLI-specific validator can
+	// suppress structured steps that no longer satisfy the current policy.
 	//
 	// sql.ErrNoRows is the common case; any other error is swallowed to
 	// preserve the legacy contract that recall doesn't fail when the
@@ -603,14 +605,20 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 		).Scan(&playbookJSON, &notesText, &pbConfidence)
 		if lookupErr == nil {
 			rp := &ResolvedPlaybook{
-				QueryFamily: family,
-				Confidence:  pbConfidence,
-				Notes:       notesText.String,
+				QueryFamily:    family,
+				Confidence:     pbConfidence,
+				Notes:          notesText.String,
+				Trust:          "untrusted",
+				ReviewRequired: true,
 			}
 			if playbookJSON.String != "" {
 				if pb, perr := ParsePlaybook([]byte(playbookJSON.String), "learning_playbooks:"+family); perr == nil {
-					rp.Playbook = pb
-					rp.SlotsResolved = ResolveSlots(pb, normalized, resolver)
+					if opts.ValidatePlaybook == nil || opts.ValidatePlaybook(pb) == nil {
+						rp.Playbook = pb
+						rp.SlotsResolved = ResolveSlots(pb, normalized, resolver)
+					} else {
+						result.Warnings = append(result.Warnings, TopWarningUnsafePlaybookRejected)
+					}
 				}
 				// Parse errors are logged-by-omission: keep Notes,
 				// drop the structured playbook. The agent still gets

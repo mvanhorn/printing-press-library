@@ -385,6 +385,9 @@ func upsertPlaybookFromTeach(ctx context.Context, s *store.Store, learnCfg *enti
 		if perr != nil {
 			return perr
 		}
+		if err := validateAshbyPlaybook(pb); err != nil {
+			return fmt.Errorf("unsafe playbook: %w", err)
+		}
 		out, merr := learn.MarshalPlaybook(pb)
 		if merr != nil {
 			return fmt.Errorf("teach: re-marshal inline playbook: %w", merr)
@@ -499,10 +502,11 @@ when learnings exist.`,
 			defer s.Close()
 
 			result, err := learn.Recall(cmd.Context(), s.DB(), query, learn.Opts{
-				EntityConfig:    learnCfg,
-				MinConfidence:   minConf,
-				Limit:           limit,
-				DebugMismatches: debugMismatches,
+				EntityConfig:     learnCfg,
+				MinConfidence:    minConf,
+				Limit:            limit,
+				DebugMismatches:  debugMismatches,
+				ValidatePlaybook: validateAshbyPlaybook,
 			})
 			if err != nil {
 				return fmt.Errorf("recall: %w", err)

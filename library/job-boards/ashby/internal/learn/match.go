@@ -71,6 +71,9 @@ const (
 	// absent AND the candidates key is omitted entirely, keeping the
 	// envelope byte-stable for stores with nothing pending.
 	TopWarningCandidatesPresent = "candidates_present"
+	// TopWarningUnsafePlaybookRejected means a persisted playbook failed the
+	// caller's current safety policy and its command steps were omitted.
+	TopWarningUnsafePlaybookRejected = "unsafe_playbook_rejected"
 )
 
 // Jaccard returns the token-set Jaccard coefficient of two string
