@@ -81,6 +81,8 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 	var resourceType string
 	var limit int
 	var dbPath string
+	var postalCode string
+	var locale string
 	searchResponsePaths := []string{}
 
 	cmd := &cobra.Command{
@@ -94,20 +96,25 @@ otherwise searches local data. Falls back to local on network failure.
 In live mode: uses the API search endpoint only.
 In local mode: searches locally synced data only.`,
 		Example: `  # Search (uses API endpoint if available, local FTS otherwise)
-  flipp-pp-cli search "error timeout"
+  flipp-pp-cli search "error timeout" --zip 85001
 
-  # Force local search only
-  flipp-pp-cli search "status" --data-source local
-  # Search a specific resource type locally
-  flipp-pp-cli search "status" --type flyers --data-source local
-  # JSON output for piping
-  flipp-pp-cli search "critical" --json --limit 20`,
+	  # Force local search only
+	  flipp-pp-cli search "status" --zip 85001 --data-source local
+	  # Search a specific resource type locally
+	  flipp-pp-cli search "status" --type flyers --zip 85001 --data-source local
+	  # JSON output for piping
+	  flipp-pp-cli search "critical" --zip 85001 --json --limit 20`,
 		Annotations: map[string]string{"mcp:hidden": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			query := args[0]
+			postalCode, locale = store.NormalizeFlippLocation(postalCode, locale)
+			if postalCode == "" {
+				_ = cmd.Usage()
+				return usageErr(fmt.Errorf("--zip is required to select the Flipp market"))
+			}
 			// This API has a search endpoint: GET /items/search
 			if flags.dataSource != "local" {
 				c, err := flags.newClient()
@@ -115,7 +122,9 @@ In local mode: searches locally synced data only.`,
 					return err
 				}
 				data, getErr := c.Get(cmd.Context(), "/items/search", map[string]string{
-					"q": query,
+					"q":           query,
+					"postal_code": postalCode,
+					"locale":      locale,
 				})
 				if getErr == nil {
 					// Live search succeeded
@@ -142,7 +151,11 @@ In local mode: searches locally synced data only.`,
 			}
 			defer db.Close()
 
-			maybeEmitSyncHints(cmd, db, resourceType, flags.maxAge)
+			hintResource := resourceType
+			if resourceRequiresFlippLocation(resourceType) {
+				hintResource = flippSyncStateKey(resourceType, postalCode, locale)
+			}
+			maybeEmitSyncHints(cmd, db, hintResource, flags.maxAge)
 
 			var results []json.RawMessage
 			switch resourceType {
@@ -156,7 +169,7 @@ In local mode: searches locally synced data only.`,
 				seen := make(map[string]bool)
 				_ = seen // prevent unused error when no FTS tables exist
 				{
-					partial, searchErr := db.Search(query, limit)
+					partial, searchErr := db.SearchScoped(query, postalCode, locale, limit)
 					if searchErr != nil {
 						return fmt.Errorf("search resources_fts failed: %w", searchErr)
 					}
@@ -169,8 +182,12 @@ In local mode: searches locally synced data only.`,
 					}
 				}
 			default:
-				// Unrecognized type -- filter generic resources by type.
-				results, err = db.Search(query, limit, resourceType)
+				// Location-backed resources must stay inside the selected market.
+				if resourceRequiresFlippLocation(resourceType) {
+					results, err = db.SearchScoped(query, postalCode, locale, limit, resourceType)
+				} else {
+					results, err = db.Search(query, limit, resourceType)
+				}
 			}
 			if err != nil {
 				return fmt.Errorf("search failed: %w", err)
@@ -189,6 +206,8 @@ In local mode: searches locally synced data only.`,
 	cmd.Flags().StringVar(&resourceType, "type", "", "Filter by resource type")
 	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum results to return")
 	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
+	cmd.Flags().StringVar(&postalCode, "zip", "", "ZIP or postal code used to scope live and local results (required)")
+	cmd.Flags().StringVar(&locale, "locale", defaultFlippLocale, "Flipp locale for live and local results")
 
 	return cmd
 }

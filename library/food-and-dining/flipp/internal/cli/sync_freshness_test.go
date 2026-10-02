@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -78,27 +79,28 @@ func TestFullSyncFetchFailureDoesNotStampFreshness(t *testing.T) {
 	defer db.Close()
 
 	old := time.Date(2026, 1, 2, 3, 4, 5, 0, time.UTC)
-	seedLastSynced(t, db, "flyers", old, "resume-me")
+	stateKey := flippSyncStateKey("flyers", "85001", "en-us")
+	seedLastSynced(t, db, stateKey, old, "resume-me")
 
-	if err := db.ResetSyncCursor("flyers"); err != nil {
+	if err := db.ResetSyncCursor(stateKey); err != nil {
 		t.Fatalf("ResetSyncCursor: %v", err)
 	}
-	cursor, _, _, err := db.GetSyncState("flyers")
+	cursor, _, _, err := db.GetSyncState(stateKey)
 	if err != nil {
 		t.Fatalf("GetSyncState after reset: %v", err)
 	}
 	if cursor != "" {
 		t.Fatalf("cursor after reset = %q, want empty", cursor)
 	}
-	if got := lastSyncedAt(t, db, "flyers"); !got.Equal(old) {
+	if got := lastSyncedAt(t, db, stateKey); !got.Equal(old) {
 		t.Fatalf("ResetSyncCursor advanced last_synced_at: got %v want %v", got, old)
 	}
 
-	res := syncResource(context.Background(), stubSyncClient{err: fmt.Errorf("fetching flyers: 500")}, db, "flyers", "", true, 0, false, false, nil, io.Discard)
+	res := syncResource(context.Background(), stubSyncClient{err: fmt.Errorf("fetching flyers: 500")}, db, "flyers", "", true, 0, false, false, flippSyncLocationParams("85001", "en-us"), io.Discard)
 	if res.Err == nil {
 		t.Fatal("expected fetch error")
 	}
-	if got := lastSyncedAt(t, db, "flyers"); !got.Equal(old) {
+	if got := lastSyncedAt(t, db, stateKey); !got.Equal(old) {
 		t.Fatalf("failed --full sync advanced last_synced_at: got %v want %v", got, old)
 	}
 }
@@ -111,16 +113,20 @@ func TestIncompleteNonJSONSyncDoesNotStampFreshness(t *testing.T) {
 	defer db.Close()
 
 	old := time.Date(2026, 3, 4, 5, 6, 7, 0, time.UTC)
-	seedLastSynced(t, db, "flyers", old, "")
+	stateKey := flippSyncStateKey("flyers", "85001", "en-us")
+	seedLastSynced(t, db, stateKey, old, "")
 
-	res := syncResource(context.Background(), stubSyncClient{body: json.RawMessage(`<html>not json</html>`)}, db, "flyers", "", false, 0, false, false, nil, io.Discard)
+	res := syncResource(context.Background(), stubSyncClient{body: json.RawMessage(`<html>not json</html>`)}, db, "flyers", "", false, 0, false, false, flippSyncLocationParams("85001", "en-us"), io.Discard)
 	if res.Err != nil {
 		t.Fatalf("non-JSON 200 should not fail the resource: %v", res.Err)
 	}
 	if res.Count != 0 {
 		t.Fatalf("stored count = %d, want 0", res.Count)
 	}
-	if got := lastSyncedAt(t, db, "flyers"); !got.Equal(old) {
+	if res.Complete {
+		t.Fatal("non-JSON response must not count as a complete archive enumeration")
+	}
+	if got := lastSyncedAt(t, db, stateKey); !got.Equal(old) {
 		t.Fatalf("incomplete non-JSON sync advanced last_synced_at: got %v want %v", got, old)
 	}
 }
@@ -133,21 +139,49 @@ func TestCompletedJSONSyncStampsFreshness(t *testing.T) {
 	defer db.Close()
 
 	old := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
-	seedLastSynced(t, db, "flyers", old, "")
+	stateKey := flippSyncStateKey("flyers", "85001", "en-us")
+	seedLastSynced(t, db, stateKey, old, "")
 	before := time.Now().UTC().Add(-time.Second)
 
-	res := syncResource(context.Background(), stubSyncClient{body: json.RawMessage(`[{"id":"f1","name":"Weekly"}]`)}, db, "flyers", "", false, 0, false, false, nil, io.Discard)
+	res := syncResource(context.Background(), stubSyncClient{body: json.RawMessage(`[{"id":"f1","name":"Weekly"}]`)}, db, "flyers", "", false, 0, false, false, flippSyncLocationParams("85001", "en-us"), io.Discard)
 	if res.Err != nil {
 		t.Fatalf("sync: %v", res.Err)
 	}
 	if res.Count != 1 {
 		t.Fatalf("stored count = %d, want 1", res.Count)
 	}
-	got := lastSyncedAt(t, db, "flyers")
+	if !res.Complete {
+		t.Fatalf("completed resource should be archive-complete, reason %q", res.IncompleteReason)
+	}
+	got := lastSyncedAt(t, db, stateKey)
 	if !got.After(before) {
 		t.Fatalf("completed sync last_synced_at = %v, want after %v", got, before)
 	}
 	if got.Equal(old) {
 		t.Fatal("completed sync left last_synced_at at the seeded timestamp")
+	}
+	var raw string
+	if err := db.DB().QueryRow(`SELECT data FROM resources WHERE resource_type = 'flyers'`).Scan(&raw); err != nil {
+		t.Fatalf("read stored flyer: %v", err)
+	}
+	var stored map[string]any
+	if err := json.Unmarshal([]byte(raw), &stored); err != nil {
+		t.Fatalf("decode stored flyer: %v", err)
+	}
+	if stored["_sync_postal_code"] != "85001" || stored["_sync_locale"] != "en-us" {
+		t.Fatalf("stored location provenance = %#v", stored)
+	}
+}
+
+func TestSyncResourceRejectsMissingLocation(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	res := syncResource(context.Background(), stubSyncClient{body: json.RawMessage(`[]`)}, db, "flyers", "", false, 0, false, false, nil, io.Discard)
+	if res.Err == nil || !strings.Contains(res.Err.Error(), "postal code") {
+		t.Fatalf("missing-location result = %#v, want postal-code error", res)
 	}
 }

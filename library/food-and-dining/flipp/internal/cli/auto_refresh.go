@@ -85,7 +85,12 @@ func autoRefreshIfStale(ctx context.Context, flags *rootFlags, resources []strin
 	}
 	defer db.Close()
 
-	decision, err := cliutil.EnsureFresh(ctx, db.DB(), resources, policy)
+	freshnessResources := make([]string, 0, len(resources))
+	for _, resource := range resources {
+		freshnessResources = append(freshnessResources,
+			flippSyncStateKey(resource, flags.locationPostalCode, flags.locationLocale))
+	}
+	decision, err := cliutil.EnsureFresh(ctx, db.DB(), freshnessResources, policy)
 	meta.Decision = decision.String()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "warning: auto-refresh decision failed: %v\n", err)
@@ -176,13 +181,14 @@ func runAutoRefresh(ctx context.Context, flags *rootFlags, db *store.Store, reso
 	}
 	c.NoCache = true
 	var failures []string
+	params := flippSyncLocationParams(flags.locationPostalCode, flags.locationLocale)
 	for _, resource := range resources {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
 		default:
 		}
-		result := syncResource(ctx, c, db, resource, "", false, 1, true, false, nil, os.Stderr)
+		result := syncResource(ctx, c, db, resource, "", false, 1, true, false, params, os.Stderr)
 		if result.Err != nil {
 			failures = append(failures, fmt.Sprintf("%s: %v", resource, result.Err))
 		}

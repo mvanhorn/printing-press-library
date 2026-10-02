@@ -88,6 +88,60 @@ func TestStoreWrite_NoSQLITE_BUSY_HighConcurrency(t *testing.T) {
 	}
 }
 
+func TestUpsertBatch_PreservesSameFlippIDAcrossLocations(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	items := []json.RawMessage{
+		json.RawMessage(`{"id":"shared","name":"East coffee","_sync_postal_code":"10001","_sync_locale":"EN-US"}`),
+		json.RawMessage(`{"id":"shared","name":"West coffee","_sync_postal_code":"94105","_sync_locale":"en-us"}`),
+	}
+	for _, item := range items {
+		stored, failures, err := s.UpsertBatch("flyers", []json.RawMessage{item})
+		if err != nil || stored != 1 || failures != 0 {
+			t.Fatalf("UpsertBatch stored=%d failures=%d err=%v", stored, failures, err)
+		}
+	}
+
+	var resourceCount, flyerCount int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM resources WHERE resource_type = 'flyers'`).Scan(&resourceCount); err != nil {
+		t.Fatalf("count resources: %v", err)
+	}
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM flyers`).Scan(&flyerCount); err != nil {
+		t.Fatalf("count flyer projections: %v", err)
+	}
+	if resourceCount != 2 || flyerCount != 2 {
+		t.Fatalf("location rows resources=%d flyers=%d, want 2 and 2", resourceCount, flyerCount)
+	}
+
+	for _, test := range []struct {
+		postalCode, want, reject string
+	}{
+		{postalCode: "10001", want: "East coffee", reject: "West coffee"},
+		{postalCode: "94105", want: "West coffee", reject: "East coffee"},
+	} {
+		item, err := s.GetScoped("flyers", "shared", test.postalCode, "en-us")
+		if err != nil {
+			t.Fatalf("GetScoped(%s): %v", test.postalCode, err)
+		}
+		if !strings.Contains(string(item), test.want) || strings.Contains(string(item), test.reject) {
+			t.Fatalf("GetScoped(%s) = %s", test.postalCode, item)
+		}
+		listed, err := s.ListScoped("flyers", test.postalCode, "en-us", 0)
+		if err != nil || len(listed) != 1 || !strings.Contains(string(listed[0]), test.want) {
+			t.Fatalf("ListScoped(%s) = %q, err=%v", test.postalCode, listed, err)
+		}
+		matches, err := s.SearchScoped("coffee", test.postalCode, "en-us", 10, "flyers")
+		if err != nil || len(matches) != 1 || !strings.Contains(string(matches[0]), test.want) {
+			t.Fatalf("SearchScoped(%s) = %q, err=%v", test.postalCode, matches, err)
+		}
+	}
+}
+
 // TestStoreWrite_PanicReleasesLock confirms that a panic inside a locked
 // section unwinds via defer s.writeMu.Unlock() so subsequent writers can
 // proceed. A leaked lock would deadlock the second call indefinitely.

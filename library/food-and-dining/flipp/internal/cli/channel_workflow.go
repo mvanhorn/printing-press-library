@@ -6,6 +6,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/flipp/internal/store"
@@ -27,6 +28,8 @@ func newWorkflowCmd(flags *rootFlags) *cobra.Command {
 func newWorkflowArchiveCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	var full bool
+	var postalCode string
+	var locale string
 
 	cmd := &cobra.Command{
 		Use:   "archive",
@@ -35,11 +38,14 @@ func newWorkflowArchiveCmd(flags *rootFlags) *cobra.Command {
 local SQLite database. Supports incremental sync (only new data since last run)
 and full resync. After archiving, use 'search' for instant full-text search.`,
 		Example: `  # Archive all resources
-  flipp-pp-cli workflow archive
+  flipp-pp-cli workflow archive --postal-code 85001
 
   # Full re-archive (ignore previous sync state)
-  flipp-pp-cli workflow archive --full`,
+  flipp-pp-cli workflow archive --postal-code 85001 --full`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if strings.TrimSpace(postalCode) == "" {
+				return usageErr(fmt.Errorf("--postal-code is required so archived data is tied to the intended location"))
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -55,8 +61,11 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			}
 			defer s.Close()
 
-			resources := []string{}
+			resources := defaultSyncResources()
 			totalSynced := 0
+			successfulResources := 0
+			var failures []string
+			locationParams := flippSyncLocationParams(postalCode, locale)
 			syncEventWriter := cmd.OutOrStdout()
 			if flags.asJSON {
 				syncEventWriter = cmd.ErrOrStderr()
@@ -65,46 +74,87 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			// --full clears the cursor here because syncResource reads
 			// existingCursor unconditionally; its full param only gates the
 			// since filter, not cursor reset. Mirrors newSyncCmd's pattern.
-			if full {
-				for _, resource := range resources {
-					_ = s.SaveSyncState(resource, "", 0)
+			if full && !c.DryRun {
+				if err := resetFlippArchiveCursors(s, resources, locationParams); err != nil {
+					return err
 				}
 			}
 
 			for _, resource := range resources {
-				res := syncResource(cmd.Context(), c, s, resource, "", full, 100, false, false, nil, syncEventWriter)
+				res := syncResource(cmd.Context(), c, s, resource, "", full, 0, false, false, locationParams, syncEventWriter)
 				if res.Err != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: error: %v\n", resource, res.Err)
+					failures = append(failures, resource+": "+res.Err.Error())
 					continue
 				}
 				if res.Warn != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: warning: %v\n", resource, res.Warn)
+					failures = append(failures, resource+": "+res.Warn.Error())
+					continue
+				}
+				if !res.Complete && !c.DryRun {
+					failures = append(failures, resource+": incomplete enumeration ("+res.IncompleteReason+")")
+					continue
+				}
+				if c.DryRun {
+					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: previewed\n", resource)
 					continue
 				}
 				totalSynced += res.Count
+				successfulResources++
 				fmt.Fprintf(cmd.ErrOrStderr(), "  %s: %d synced\n", resource, res.Count)
 			}
 
 			if flags.asJSON {
 				enc := json.NewEncoder(cmd.OutOrStdout())
 				enc.SetIndent("", "  ")
-				return enc.Encode(map[string]any{
-					"resources_synced": len(resources),
-					"total_items":      totalSynced,
-					"store_path":       dbPath,
-					"timestamp":        time.Now().UTC().Format(time.RFC3339),
-				})
+				if err := enc.Encode(map[string]any{
+					"dry_run":             c.DryRun,
+					"resources_requested": len(resources),
+					"resources_synced":    successfulResources,
+					"total_items":         totalSynced,
+					"store_path":          dbPath,
+					"postal_code":         postalCode,
+					"locale":              locale,
+					"failures":            failures,
+					"timestamp":           time.Now().UTC().Format(time.RFC3339),
+				}); err != nil {
+					return err
+				}
+				if len(failures) > 0 {
+					return fmt.Errorf("archive incomplete: %s", strings.Join(failures, "; "))
+				}
+				return nil
 			}
 
-			fmt.Fprintf(cmd.OutOrStdout(), "Archived %d items across %d resources to %s\n", totalSynced, len(resources), dbPath)
+			if c.DryRun {
+				fmt.Fprintf(cmd.OutOrStdout(), "Dry run: would archive %d resources for %s (%s) to %s\n", len(resources), postalCode, locale, dbPath)
+				return nil
+			}
+			fmt.Fprintf(cmd.OutOrStdout(), "Archived %d items across %d resources for %s (%s) to %s\n", totalSynced, successfulResources, postalCode, locale, dbPath)
+			if len(failures) > 0 {
+				return fmt.Errorf("archive incomplete: %s", strings.Join(failures, "; "))
+			}
 			return nil
 		},
 	}
 
 	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 	cmd.Flags().BoolVar(&full, "full", false, "Full re-archive (ignore previous sync state)")
+	cmd.Flags().StringVar(&postalCode, "postal-code", "", "ZIP or postal code that scopes all archived Flipp data (required)")
+	cmd.Flags().StringVar(&locale, "locale", defaultFlippLocale, "Flipp locale for archived data (for example en-us, en-ca, or fr-ca)")
 
 	return cmd
+}
+
+func resetFlippArchiveCursors(s *store.Store, resources []string, params *syncUserParams) error {
+	for _, resource := range resources {
+		stateKey := flippSyncStateKeyFromParams(resource, params)
+		if err := s.ResetSyncCursor(stateKey); err != nil {
+			return fmt.Errorf("resetting %s archive cursor: %w", resource, err)
+		}
+	}
+	return nil
 }
 
 func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {

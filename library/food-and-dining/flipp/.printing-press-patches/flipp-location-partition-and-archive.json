@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "flipp-location-partition-and-archive",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260627-124259-5ec5d802",
+  "base_printing_press_version": "4.27.0",
+  "summary": "Partition Flipp flyer and merchant storage, sync checkpoints, local reads, searches, MCP search, and archive by explicit postal code and locale.",
+  "reason": "The same API ID can describe different markets; a default postal code or unscoped database key can overwrite one market with another, and an archive that requests no resources falsely reports success.",
+  "files": [
+    "internal/cli/auto_refresh.go",
+    "internal/cli/channel_workflow.go",
+    "internal/cli/channel_workflow_test.go",
+    "internal/cli/data_source.go",
+    "internal/cli/root.go",
+    "internal/cli/search.go",
+    "internal/cli/search_location_test.go",
+    "internal/cli/sync.go",
+    "internal/cli/sync_freshness_test.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/tools_test.go",
+    "internal/store/schema_version_test.go",
+    "internal/store/store.go",
+    "internal/store/upsert_batch_test.go"
+  ]
+}

@@ -96,12 +96,16 @@ func openStoreForRead(ctx context.Context, cliName string) (*store.Store, error)
 
 // localProvenance builds a DataProvenance for local data reads.
 func localProvenance(db *store.Store, resourceType, reason string) DataProvenance {
+	return localProvenanceWithStateKey(db, resourceType, resourceType, reason)
+}
+
+func localProvenanceWithStateKey(db *store.Store, resourceType, syncStateKey, reason string) DataProvenance {
 	prov := DataProvenance{
 		Source:       "local",
 		Reason:       reason,
 		ResourceType: resourceType,
 	}
-	_, lastSynced, _, err := db.GetSyncState(resourceType)
+	_, lastSynced, _, err := db.GetSyncState(syncStateKey)
 	if err == nil && !lastSynced.IsZero() {
 		prov.SyncedAt = &lastSynced
 	}
@@ -194,7 +198,7 @@ func resolveReadWithStrategyResponsePathAndJSONGuard(ctx context.Context, c *cli
 				}
 			}
 			data = applyResponsePath(data, responsePath)
-			writeThroughCache(ctx, resourceType, data)
+			writeThroughCache(ctx, resourceType, data, params)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
 		if !isNetworkError(err) {
@@ -257,7 +261,7 @@ func resolvePaginatedReadWithStrategy(ctx context.Context, c *client.Client, fla
 			if err := assertLiveJSONBody(data); err != nil {
 				return nil, DataProvenance{}, err
 			}
-			writeThroughCache(ctx, resourceType, data)
+			writeThroughCache(ctx, resourceType, data, params)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
 		if !isNetworkError(err) {
@@ -316,12 +320,27 @@ var writeThroughNestedEnvelopeKeys = []string{"data", "Data", "result", "Result"
 // writeThroughCache upserts live API results into the local SQLite store so
 // FTS search covers everything the user has looked up — not just explicit syncs.
 // Best-effort: failures are silently ignored (the live result already succeeded).
-func writeThroughCache(ctx context.Context, resourceType string, data json.RawMessage) {
+func writeThroughCache(ctx context.Context, resourceType string, data json.RawMessage, params map[string]string) {
 	db, err := store.OpenWithContext(ctx, defaultDBPath("flipp-pp-cli"))
 	if err != nil {
 		return
 	}
 	defer db.Close()
+
+	upsert := func(items []json.RawMessage) {
+		if resourceRequiresFlippLocation(resourceType) {
+			postalCode, locale := store.NormalizeFlippLocation(params["postal_code"], params["locale"])
+			if postalCode == "" {
+				return
+			}
+			var err error
+			items, err = annotateFlippSyncLocation(items, postalCode, locale)
+			if err != nil {
+				return
+			}
+		}
+		_, _, _ = db.UpsertBatch(resourceType, items)
+	}
 
 	// Collect items to upsert from various response shapes
 	var items []json.RawMessage
@@ -379,7 +398,7 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 					}
 				}
 				if !looksLikeListEnvelope {
-					_, _, _ = db.UpsertBatch(resourceType, []json.RawMessage{data})
+					upsert([]json.RawMessage{data})
 					return
 				}
 			}
@@ -387,7 +406,7 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 	}
 
 	if len(items) > 0 {
-		_, _, _ = db.UpsertBatch(resourceType, items)
+		upsert(items)
 	}
 }
 
@@ -581,9 +600,8 @@ func mutationResponseHasID(resourceType string, data json.RawMessage) bool {
 }
 
 // resolveLocal reads data from the local SQLite store.
-// Note: local reads return ALL synced data for the resource type. Endpoint-specific
-// filters (query params, path scoping like /teams/{id}/users) are NOT applied locally.
-// The provenance metadata includes "unscoped":true when params were present but not applied.
+// Flipp flyer and merchant reads are always scoped to the requested postal code
+// and locale. Other endpoint-specific filters are not reproduced locally.
 func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, resourceType string, isList bool, path string, params map[string]string, reason string) (json.RawMessage, DataProvenance, error) {
 	db, err := openStoreForRead(ctx, "flipp-pp-cli")
 	if err != nil {
@@ -594,19 +612,45 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 	}
 	defer db.Close()
 
-	if flags != nil {
-		emitSyncHints(hintWriter, db, resourceType, flags.maxAge)
+	postalCode, locale := "", ""
+	syncStateKey := resourceType
+	locationScoped := resourceRequiresFlippLocation(resourceType)
+	if locationScoped {
+		postalCode, locale = store.NormalizeFlippLocation(params["postal_code"], params["locale"])
+		if postalCode == "" {
+			return nil, DataProvenance{}, fmt.Errorf("postal code is required for local %s data", resourceType)
+		}
+		syncStateKey = flippSyncStateKey(resourceType, postalCode, locale)
 	}
 
-	prov := localProvenance(db, resourceType, reason)
+	if flags != nil {
+		emitSyncHints(hintWriter, db, syncStateKey, flags.maxAge)
+	}
 
-	// Warn if endpoint had filters that local reads can't reproduce
-	if len(params) > 0 {
-		fmt.Fprintf(os.Stderr, "warning: local data is unfiltered — endpoint filters are not applied to cached data\n")
+	prov := localProvenanceWithStateKey(db, resourceType, syncStateKey, reason)
+
+	// Location is reproduced above; any additional endpoint filters remain
+	// best-effort and are called out explicitly.
+	unappliedParams := len(params)
+	if locationScoped {
+		if _, ok := params["postal_code"]; ok {
+			unappliedParams--
+		}
+		if _, ok := params["locale"]; ok {
+			unappliedParams--
+		}
+	}
+	if unappliedParams > 0 {
+		fmt.Fprintf(os.Stderr, "warning: local data applies location only — additional endpoint filters are not applied to cached data\n")
 	}
 
 	if isList {
-		raw, err := db.List(resourceType, 0) // 0 = no limit, return all synced data
+		var raw []json.RawMessage
+		if locationScoped {
+			raw, err = db.ListScoped(resourceType, postalCode, locale, 0)
+		} else {
+			raw, err = db.List(resourceType, 0) // 0 = no limit, return all synced data
+		}
 		if err != nil {
 			return nil, DataProvenance{}, fmt.Errorf("querying local store: %w", err)
 		}
@@ -635,7 +679,12 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 	parts := strings.Split(strings.TrimRight(path, "/"), "/")
 	id := parts[len(parts)-1]
 
-	item, err := db.Get(resourceType, id)
+	var item json.RawMessage
+	if locationScoped {
+		item, err = db.GetScoped(resourceType, id, postalCode, locale)
+	} else {
+		item, err = db.Get(resourceType, id)
+	}
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, DataProvenance{}, fmt.Errorf("resource %q with ID %q not found in local store. Run 'flipp-pp-cli sync' first", resourceType, id)

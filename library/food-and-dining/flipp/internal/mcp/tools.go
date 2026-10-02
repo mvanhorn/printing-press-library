@@ -105,8 +105,10 @@ func RegisterTools(s *server.MCPServer) {
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
 		mcplib.NewTool("search",
-			mcplib.WithDescription("Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first."),
+			mcplib.WithDescription("Full-text search across synced data for one Flipp market. Faster than paginating list endpoints. Requires sync first."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)")),
+			mcplib.WithString("zip", mcplib.Required(), mcplib.Description("ZIP or postal code selecting the market for local results")),
+			mcplib.WithString("locale", mcplib.Description("Flipp locale for local results (default en-us)")),
 			mcplib.WithNumber("limit", mcplib.Description("Max results (default 25)")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -473,6 +475,15 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 	if v, ok := args["limit"].(float64); ok && v > 0 {
 		limit = int(v)
 	}
+	postalCode, ok := args["zip"].(string)
+	if !ok || strings.TrimSpace(postalCode) == "" {
+		return mcplib.NewToolResultError("zip is required to select the Flipp market"), nil
+	}
+	locale := "en-us"
+	if value, ok := args["locale"].(string); ok && strings.TrimSpace(value) != "" {
+		locale = value
+	}
+	postalCode, locale = store.NormalizeFlippLocation(postalCode, locale)
 
 	path, err := mcpDBPath()
 	if err != nil {
@@ -484,7 +495,7 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 	}
 	defer db.Close()
 
-	results, err := db.Search(query, limit)
+	results, err := db.SearchScoped(query, postalCode, locale, limit)
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("search failed: %v", err)), nil
 	}

@@ -6,6 +6,7 @@ package store
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"path/filepath"
@@ -712,6 +713,129 @@ func TestMigrate_ResourcesFTSContentSchemaVersionNoRebuild(t *testing.T) {
 	}
 	if content != "sentinel fts" {
 		t.Fatalf("resources_fts content = %s, want sentinel row preserved", content)
+	}
+}
+
+func TestMigrate_FlippLocationScopeUpgrade(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	statements := []string{
+		`CREATE TABLE resources (
+			id TEXT NOT NULL, resource_type TEXT NOT NULL, data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (resource_type, id))`,
+		resourcesFTSCreateSQL,
+		`CREATE TABLE flyers (
+			id TEXT PRIMARY KEY, data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP)`,
+		`CREATE TABLE sync_state (
+			resource_type TEXT PRIMARY KEY, last_cursor TEXT,
+			last_synced_at DATETIME, total_count INTEGER DEFAULT 0)`,
+		`INSERT INTO resources (id, resource_type, data) VALUES
+			('shared', 'flyers', '{"id":"shared","name":"East coffee","_sync_postal_code":"10001","_sync_locale":"en-us"}')`,
+		`INSERT INTO flyers (id, data) VALUES
+			('shared', '{"id":"shared","name":"East coffee","_sync_postal_code":"10001","_sync_locale":"en-us"}')`,
+		`INSERT INTO sync_state (resource_type, last_cursor, last_synced_at, total_count)
+			VALUES ('flyers', 'legacy-cursor', CURRENT_TIMESTAMP, 1)`,
+		fmt.Sprintf(`PRAGMA user_version = %d`, resourcesFTSContentSchemaVersion),
+	}
+	for _, statement := range statements {
+		if _, err := raw.Exec(statement); err != nil {
+			raw.Close()
+			t.Fatalf("seed v4 database with %q: %v", statement, err)
+		}
+	}
+	if _, err := raw.Exec(`INSERT INTO resources_fts (rowid, id, resource_type, content)
+		VALUES (?, 'shared', 'flyers', 'East coffee')`, ftsRowID("flyers", "shared")); err != nil {
+		raw.Close()
+		t.Fatalf("seed resources_fts: %v", err)
+	}
+	if err := raw.Close(); err != nil {
+		t.Fatalf("close raw: %v", err)
+	}
+
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open upgraded db: %v", err)
+	}
+	defer s.Close()
+
+	if version, err := s.SchemaVersion(); err != nil || version != StoreSchemaVersion {
+		t.Fatalf("schema version = %d, err=%v, want %d", version, err, StoreSchemaVersion)
+	}
+	item, err := s.GetScoped("flyers", "shared", "10001", "en-us")
+	if err != nil || !strings.Contains(string(item), "East coffee") {
+		t.Fatalf("GetScoped after migration = %s, err=%v", item, err)
+	}
+	var bareResources, bareFlyers, bareState int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM resources WHERE resource_type='flyers' AND id='shared'`).Scan(&bareResources); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM flyers WHERE id='shared'`).Scan(&bareFlyers); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM sync_state WHERE resource_type='flyers'`).Scan(&bareState); err != nil {
+		t.Fatal(err)
+	}
+	if bareResources != 0 || bareFlyers != 0 || bareState != 0 {
+		t.Fatalf("legacy rows remain: resources=%d flyers=%d sync_state=%d", bareResources, bareFlyers, bareState)
+	}
+	matches, err := s.SearchScoped("coffee", "10001", "en-us", 10, "flyers")
+	if err != nil || len(matches) != 1 || !strings.Contains(string(matches[0]), "East coffee") {
+		t.Fatalf("SearchScoped after migration = %q, err=%v", matches, err)
+	}
+}
+
+func TestMigrate_FlippLocationCollisionPreservesBothRows(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	const current = `{"id":"shared","name":"Current coffee","_sync_postal_code":"10001","_sync_locale":"en-us"}`
+	const legacy = `{"id":"shared","name":"Legacy coffee","_sync_postal_code":"10001","_sync_locale":"en-us"}`
+	if _, _, err := s.UpsertBatch("flyers", []json.RawMessage{json.RawMessage(current)}); err != nil {
+		t.Fatal(err)
+	}
+	for _, statement := range []string{
+		`INSERT INTO resources (id, resource_type, data) VALUES ('shared', 'flyers', '` + legacy + `')`,
+		`INSERT INTO flyers (id, data) VALUES ('shared', '` + legacy + `')`,
+		`INSERT INTO resources_fts (rowid, id, resource_type, content) VALUES (` + fmt.Sprint(ftsRowID("flyers", "shared")) + `, 'shared', 'flyers', 'Legacy coffee')`,
+		`INSERT INTO sync_state (resource_type, last_cursor, last_synced_at, total_count) VALUES ('flyers', 'old', '2026-01-01T00:00:00Z', 1)`,
+		`PRAGMA user_version = 4`,
+	} {
+		if _, err := s.DB().Exec(statement); err != nil {
+			s.Close()
+			t.Fatalf("seed collision: %v", err)
+		}
+	}
+	if err := s.Close(); err != nil {
+		t.Fatal(err)
+	}
+	s, err = Open(dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	item, err := s.GetScoped("flyers", "shared", "10001", "en-us")
+	if err != nil || !strings.Contains(string(item), "Current coffee") {
+		t.Fatalf("scoped row overwritten: %s, %v", item, err)
+	}
+	var old string
+	if err := s.DB().QueryRow(`SELECT data FROM resources WHERE resource_type='flyers' AND id='shared'`).Scan(&old); err != nil || !strings.Contains(old, "Legacy coffee") {
+		t.Fatalf("legacy row lost: %s, %v", old, err)
+	}
+	listed, err := s.ListScoped("flyers", "10001", "en-us", 0)
+	if err != nil || len(listed) != 1 || !strings.Contains(string(listed[0]), "Current coffee") {
+		t.Fatalf("scoped list includes legacy collision: %q, %v", listed, err)
+	}
+	matches, err := s.SearchScoped("coffee", "10001", "en-us", 10, "flyers")
+	if err != nil || len(matches) != 1 || !strings.Contains(string(matches[0]), "Current coffee") {
+		t.Fatalf("scoped search includes legacy collision: %q, %v", matches, err)
 	}
 }
 

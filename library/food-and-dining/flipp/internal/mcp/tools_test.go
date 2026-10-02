@@ -112,7 +112,7 @@ func TestMCPRegisterToolsPreservesTypedSpecialTools(t *testing.T) {
 	if !ok {
 		t.Fatalf("typed search tool missing from registered tools: %#v", tools)
 	}
-	if !strings.Contains(searchTool.Tool.Description, "Full-text search across all synced data") {
+	if !strings.Contains(searchTool.Tool.Description, "Full-text search across synced data for one Flipp market") {
 		t.Fatalf("search tool appears to have been overwritten by command mirror: %q", searchTool.Tool.Description)
 	}
 	sqlTool, ok := tools["sql"]
@@ -128,7 +128,7 @@ func TestMCPSearchMissingStoreIsActionable(t *testing.T) {
 	resetMCPPathEnv(t)
 
 	result, err := handleSearch(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
-		Arguments: map[string]any{"query": "alpha"},
+		Arguments: map[string]any{"query": "alpha", "zip": "85001"},
 	}})
 	if err != nil {
 		t.Fatalf("handleSearch returned transport error: %v", err)
@@ -159,7 +159,7 @@ func TestMCPSearchEmptyStoreReturnsActionableEnvelope(t *testing.T) {
 	}
 
 	result, err := handleSearch(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
-		Arguments: map[string]any{"query": "alpha"},
+		Arguments: map[string]any{"query": "alpha", "zip": "85001"},
 	}})
 	if err != nil {
 		t.Fatalf("handleSearch returned transport error: %v", err)
@@ -192,6 +192,65 @@ func TestMCPSearchEmptyStoreReturnsActionableEnvelope(t *testing.T) {
 	}
 	if !strings.Contains(envelope.NextStep, "sync") {
 		t.Fatalf("empty-store next_step should mention sync: %s", text)
+	}
+}
+
+func TestMCPSearchRequiresZIP(t *testing.T) {
+	result, err := handleSearch(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
+		Arguments: map[string]any{"query": "coffee"},
+	}})
+	if err != nil {
+		t.Fatalf("handleSearch returned transport error: %v", err)
+	}
+	if result == nil || !result.IsError {
+		t.Fatalf("handleSearch missing ZIP IsError = %v, want true", result != nil && result.IsError)
+	}
+	if text := mcpTextContent(t, result); !strings.Contains(text, "zip is required") {
+		t.Fatalf("missing ZIP error = %q", text)
+	}
+}
+
+func TestMCPSearchScopesResultsByLocation(t *testing.T) {
+	resetMCPPathEnv(t)
+	path, err := mcpDBPath()
+	if err != nil {
+		t.Fatalf("mcpDBPath() error = %v", err)
+	}
+	db, err := store.Open(path)
+	if err != nil {
+		t.Fatalf("creating store: %v", err)
+	}
+	for _, item := range []json.RawMessage{
+		json.RawMessage(`{"id":"shared","name":"East coffee","_sync_postal_code":"10001","_sync_locale":"en-us"}`),
+		json.RawMessage(`{"id":"shared","name":"West coffee","_sync_postal_code":"94105","_sync_locale":"en-us"}`),
+	} {
+		if stored, failures, err := db.UpsertBatch("flyers", []json.RawMessage{item}); err != nil || stored != 1 || failures != 0 {
+			t.Fatalf("UpsertBatch stored=%d failures=%d err=%v", stored, failures, err)
+		}
+	}
+	if err := db.Close(); err != nil {
+		t.Fatalf("closing store: %v", err)
+	}
+
+	for _, test := range []struct {
+		zip, want, reject string
+	}{
+		{zip: "10001", want: "East coffee", reject: "West coffee"},
+		{zip: "94105", want: "West coffee", reject: "East coffee"},
+	} {
+		result, err := handleSearch(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
+			Arguments: map[string]any{"query": "coffee", "zip": test.zip},
+		}})
+		if err != nil {
+			t.Fatalf("handleSearch(%s) transport error: %v", test.zip, err)
+		}
+		if result == nil || result.IsError {
+			t.Fatalf("handleSearch(%s) IsError = %v", test.zip, result != nil && result.IsError)
+		}
+		text := mcpTextContent(t, result)
+		if !strings.Contains(text, test.want) || strings.Contains(text, test.reject) {
+			t.Fatalf("handleSearch(%s) returned wrong market: %s", test.zip, text)
+		}
 	}
 }
 

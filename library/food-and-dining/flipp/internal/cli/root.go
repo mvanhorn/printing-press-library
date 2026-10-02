@@ -41,6 +41,10 @@ type rootFlags struct {
 	maxAge        time.Duration
 	dataSource    string
 	freshnessMeta any
+	// locationPostalCode and locationLocale capture the current leaf command's
+	// Flipp scope so bounded auto-refresh cannot silently fetch another region.
+	locationPostalCode string
+	locationLocale     string
 
 	// deliverBuf captures command output when --deliver is set to a
 	// non-stdout sink. Flushed to the sink after Execute returns.
@@ -244,6 +248,12 @@ See README.md or the bundled SKILL.md for recipes.`,
 		// runs a bounded API refresh. Failures become stderr warnings;
 		// the command proceeds with the stale cache either way.
 		if resources, isRead := readCommandResources[cmd.CommandPath()]; isRead {
+			if flag := cmd.Flags().Lookup("zip"); flag != nil {
+				flags.locationPostalCode, _ = cmd.Flags().GetString("zip")
+			}
+			if flag := cmd.Flags().Lookup("locale"); flag != nil {
+				flags.locationLocale, _ = cmd.Flags().GetString("locale")
+			}
 			flags.freshnessMeta = autoRefreshIfStale(cmd.Context(), flags, resources)
 		}
 		return nil

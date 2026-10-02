@@ -34,11 +34,13 @@ var unresolvedPathKeyRE = regexp.MustCompile(`\{[a-zA-Z_][a-zA-Z0-9_]*\}`)
 
 // syncResult holds the outcome of syncing a single resource.
 type syncResult struct {
-	Resource string
-	Count    int
-	Err      error
-	Warn     error
-	Duration time.Duration
+	Resource         string
+	Count            int
+	Err              error
+	Warn             error
+	Complete         bool
+	IncompleteReason string
+	Duration         time.Duration
 }
 
 func newSyncCmd(flags *rootFlags) *cobra.Command {
@@ -51,6 +53,8 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var maxPages int
 	var latestOnly bool
 	var strict bool
+	var postalCode string
+	var locale string
 	var paramFlags []string
 	var resourceParamFlags []string
 	var globalParamFlags []string
@@ -87,27 +91,31 @@ Resource scoping:
   the dependent by name; the parent table must already be populated
   from a prior sync.`,
 		Example: `  # Sync all resources
-  flipp-pp-cli sync
+  flipp-pp-cli sync --postal-code 85001
 
   # Sync specific resources only
-  flipp-pp-cli sync --resources channels,messages
+  flipp-pp-cli sync --postal-code 85001 --resources flyers,merchants
 
   # Full resync (ignore previous checkpoint)
-  flipp-pp-cli sync --full
+  flipp-pp-cli sync --postal-code 85001 --full
 
   # Incremental sync: only records from the last 7 days
-  flipp-pp-cli sync --since 7d
+  flipp-pp-cli sync --postal-code 85001 --since 7d
 
   # Parallel sync with 8 workers
-  flipp-pp-cli sync --concurrency 8
+  flipp-pp-cli sync --postal-code 85001 --concurrency 8
 
   # Latest-only: refresh head of each resource, no historical backfill
-  flipp-pp-cli sync --latest-only`,
+  flipp-pp-cli sync --postal-code 85001 --latest-only`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			userParams, err := parseSyncUserParams(paramFlags, resourceParamFlags, globalParamFlags)
 			if err != nil {
 				return usageErr(err)
 			}
+			if strings.TrimSpace(postalCode) == "" {
+				return usageErr(fmt.Errorf("--postal-code is required so synced data is tied to the intended location"))
+			}
+			applyFlippSyncLocation(userParams, postalCode, locale)
 
 			c, err := flags.newClient()
 			if err != nil {
@@ -161,7 +169,7 @@ Resource scoping:
 			// Skip under --dry-run: a preview must not mutate sync-state (issue #2935).
 			if full && !c.DryRun {
 				for _, resource := range resources {
-					_ = db.ResetSyncCursor(resource)
+					_ = db.ResetSyncCursor(flippSyncStateKeyFromParams(resource, userParams))
 				}
 			}
 
@@ -184,9 +192,10 @@ Resource scoping:
 					// a preview must not mutate sync-state (issue #2935).
 					if !c.DryRun {
 						for _, resource := range resources {
-							existing, _, _, _ := db.GetSyncState(resource)
+							stateKey := flippSyncStateKeyFromParams(resource, userParams)
+							existing, _, _, _ := db.GetSyncState(stateKey)
 							if existing != "" {
-								_ = db.ResetSyncCursor(resource)
+								_ = db.ResetSyncCursor(stateKey)
 							}
 						}
 					}
@@ -300,8 +309,8 @@ Resource scoping:
 						totalSynced, totalResources, elapsed.Seconds())
 				}
 			} else {
-				fmt.Fprintf(syncEventWriter, `{"event":"sync_summary","total_records":%d,"resources":%d,"success":%d,"warned":%d,"errored":%d,"duration_ms":%d}`+"\n",
-					totalSynced, totalResources, successCount, warnCount, errCount, elapsed.Milliseconds())
+				fmt.Fprintf(syncEventWriter, `{"event":"sync_summary","postal_code":%q,"locale":%q,"total_records":%d,"resources":%d,"success":%d,"warned":%d,"errored":%d,"duration_ms":%d}`+"\n",
+					postalCode, locale, totalSynced, totalResources, successCount, warnCount, errCount, elapsed.Milliseconds())
 			}
 
 			// Exit-code policy:
@@ -349,6 +358,8 @@ Resource scoping:
 	cmd.Flags().IntVar(&maxPages, "max-pages", 0, "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)")
 	cmd.Flags().BoolVar(&latestOnly, "latest-only", false, "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).")
 	cmd.Flags().BoolVar(&strict, "strict", false, "Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).")
+	cmd.Flags().StringVar(&postalCode, "postal-code", "", "ZIP or postal code that scopes all synced Flipp data (required)")
+	cmd.Flags().StringVar(&locale, "locale", defaultFlippLocale, "Flipp locale for synced data (for example en-us, en-ca, or fr-ca)")
 	cmd.Flags().StringArrayVar(&paramFlags, "param", nil, "Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=<id> does not double up on /parents/<id>/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.")
 	cmd.Flags().StringArrayVar(&resourceParamFlags, "resource-param", nil, "Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.")
 	cmd.Flags().StringArrayVar(&globalParamFlags, "global-param", nil, "Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.")
@@ -415,9 +426,10 @@ func syncResource(ctx context.Context, c interface {
 	}
 
 	var totalCount int
+	syncStateKey := flippSyncStateKeyFromParams(resource, userParams)
 
 	// Resume cursor from sync_state (unless --full cleared it)
-	existingCursor, lastSynced, _, _ := db.GetSyncState(resource)
+	existingCursor, lastSynced, _, _ := db.GetSyncState(syncStateKey)
 	if full {
 		existingCursor = ""
 	} else if storedCount, err := db.Count(resource); err == nil && storedCount == 0 {
@@ -480,11 +492,6 @@ func syncResource(ctx context.Context, c interface {
 
 	for {
 		params := map[string]string{}
-		switch resource {
-		case "flyers", "merchants":
-			params["postal_code"] = "85001"
-			params["locale"] = defaultFlippLocale
-		}
 
 		if resourceSupportsPagination(resource) {
 			params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
@@ -501,6 +508,9 @@ func syncResource(ctx context.Context, c interface {
 		// win over spec-derived defaults (e.g. forcing mine=true on a list
 		// endpoint whose OpenAPI spec marks the filter optional).
 		userParams.applyTo(resource, params, false)
+		if resourceRequiresFlippLocation(resource) && strings.TrimSpace(params["postal_code"]) == "" {
+			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("%s sync requires a postal code", resource), Duration: time.Since(started)}
+		}
 
 		data, err := c.Get(ctx, path, params)
 		if err != nil {
@@ -597,6 +607,12 @@ func syncResource(ctx context.Context, c interface {
 		// "primary_key_unresolved" the first time any single item
 		// fails, and the F4b "stored_count_zero_after_extraction"
 		// probe when extraction succeeded but rows still didn't land.
+		if resourceRequiresFlippLocation(resource) {
+			items, err = annotateFlippSyncLocation(items, params["postal_code"], params["locale"])
+			if err != nil {
+				return syncResult{Resource: resource, Count: totalCount, Err: err, Duration: time.Since(started)}
+			}
+		}
 		stored, extractFailures, err := upsertResourceBatch(db, resource, items)
 		if err != nil {
 			if !humanFriendly {
@@ -749,7 +765,7 @@ func syncResource(ctx context.Context, c interface {
 		}
 
 		// Save cursor after each page for resumability
-		if err := db.SaveSyncState(resource, nextCursor, totalCount); err != nil {
+		if err := db.SaveSyncState(syncStateKey, nextCursor, totalCount); err != nil {
 			// Non-fatal: log and continue
 			fmt.Fprintf(os.Stderr, "\nwarning: failed to save sync state for %s: %v\n", resource, err)
 		}
@@ -795,7 +811,7 @@ func syncResource(ctx context.Context, c interface {
 		if capExitHit {
 			finalCursor = capExitCursor
 		}
-		_ = db.SaveSyncState(resource, finalCursor, totalCount)
+		_ = db.SaveSyncState(syncStateKey, finalCursor, totalCount)
 	}
 
 	// F4b symptom probe: if items were consumed and successfully
@@ -826,7 +842,7 @@ func syncResource(ctx context.Context, c interface {
 		}
 	}
 
-	return syncResult{Resource: resource, Count: totalCount, Duration: time.Since(started)}
+	return syncResult{Resource: resource, Count: totalCount, Complete: outcome.complete, IncompleteReason: outcome.reason, Duration: time.Since(started)}
 }
 
 // paginationDefaults holds the resolved pagination parameter names and page size.
@@ -1608,6 +1624,73 @@ func parseSinceDuration(s string) (time.Time, error) {
 
 func defaultSyncResources() []string {
 	return []string{"flyers", "merchants"}
+}
+
+func resourceRequiresFlippLocation(resource string) bool {
+	return resource == "flyers" || resource == "merchants"
+}
+
+func applyFlippSyncLocation(params *syncUserParams, postalCode, locale string) {
+	if params == nil {
+		return
+	}
+	postalCode, locale = store.NormalizeFlippLocation(postalCode, locale)
+	for _, resource := range defaultSyncResources() {
+		if params.perResource[resource] == nil {
+			params.perResource[resource] = map[string]string{}
+		}
+		params.perResource[resource]["postal_code"] = postalCode
+		params.perResource[resource]["locale"] = locale
+	}
+}
+
+func flippSyncLocationParams(postalCode, locale string) *syncUserParams {
+	params := &syncUserParams{
+		flatGlobal:  map[string]string{},
+		trueGlobal:  map[string]string{},
+		perResource: map[string]map[string]string{},
+	}
+	applyFlippSyncLocation(params, postalCode, locale)
+	return params
+}
+
+func flippSyncStateKey(resource, postalCode, locale string) string {
+	if !resourceRequiresFlippLocation(resource) {
+		return resource
+	}
+	postalCode, locale = store.NormalizeFlippLocation(postalCode, locale)
+	if postalCode == "" {
+		return resource
+	}
+	return resource + "?postal_code=" + url.QueryEscape(postalCode) + "&locale=" + url.QueryEscape(locale)
+}
+
+func flippSyncStateKeyFromParams(resource string, userParams *syncUserParams) string {
+	if !resourceRequiresFlippLocation(resource) {
+		return resource
+	}
+	params := map[string]string{}
+	userParams.applyTo(resource, params, false)
+	return flippSyncStateKey(resource, params["postal_code"], params["locale"])
+}
+
+func annotateFlippSyncLocation(items []json.RawMessage, postalCode, locale string) ([]json.RawMessage, error) {
+	postalCode, locale = store.NormalizeFlippLocation(postalCode, locale)
+	annotated := make([]json.RawMessage, 0, len(items))
+	for index, item := range items {
+		obj, err := store.DecodeJSONObject(item)
+		if err != nil {
+			return nil, fmt.Errorf("annotating Flipp sync location for item %d: %w", index, err)
+		}
+		obj["_sync_postal_code"] = postalCode
+		obj["_sync_locale"] = locale
+		data, err := json.Marshal(obj)
+		if err != nil {
+			return nil, fmt.Errorf("encoding Flipp sync location for item %d: %w", index, err)
+		}
+		annotated = append(annotated, data)
+	}
+	return annotated, nil
 }
 
 // knownSyncResourceNames returns every resource name sync will accept —

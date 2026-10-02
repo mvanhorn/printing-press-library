@@ -48,9 +48,9 @@ func IsUUID(s string) bool {
 
 // StoreSchemaVersion is the on-disk schema version this binary understands.
 // It is stamped into SQLite's PRAGMA user_version on fresh databases and
-// checked on every open. Non-learn CLIs advance to v4 for the
-// resources_fts content extraction.
-const StoreSchemaVersion = 4
+// checked on every open. Version 5 scopes Flipp flyer and merchant identities
+// by postal code and locale so syncing one market cannot replace another.
+const StoreSchemaVersion = 5
 
 // resourcesFTSContentSchemaVersion pins the schema bump that rewrote
 // resources_fts content from raw JSON to searchable leaf values. Keep this
@@ -461,9 +461,24 @@ func (s *Store) migrate(ctx context.Context) error {
 		if err := s.migrateExtras(ctx, conn); err != nil {
 			return fmt.Errorf("running extra migrations: %w", err)
 		}
+		locationIDsChanged := false
+		if current < 5 {
+			var err error
+			locationIDsChanged, err = s.migrateFlippLocationScope(ctx, conn)
+			if err != nil {
+				return fmt.Errorf("migrating Flipp location scope: %w", err)
+			}
+		}
 		if current < resourcesFTSContentSchemaVersion {
 			if err := s.migrateResourcesFTSContent(ctx, conn); err != nil {
 				return fmt.Errorf("migrating resources FTS content: %w", err)
+			}
+		} else if locationIDsChanged {
+			// Location scoping changes resource IDs, which are part of the FTS
+			// join and rowid derivation. Rebuild even though the content schema
+			// itself did not change.
+			if err := s.migrateResourcesFTSContent(ctx, conn); err != nil {
+				return fmt.Errorf("rebuilding resources FTS for Flipp location scope: %w", err)
 			}
 		}
 		// Stamp the schema version. On a fresh DB this writes the current
@@ -570,6 +585,152 @@ func (s *Store) migrateResourcesFTSContent(ctx context.Context, conn *sql.Conn) 
 		return fmt.Errorf("rebuilding resources_fts: %w", err)
 	}
 	return nil
+}
+
+// migrateFlippLocationScope upgrades rows written before location was part of
+// flyer and merchant identity. Rows without recorded location metadata stay
+// untouched because there is no safe market to assign them to. Bare sync-state
+// rows are removed: their cursor and freshness cannot be attributed to a
+// specific location and must not make another market appear current.
+func (s *Store) migrateFlippLocationScope(ctx context.Context, conn *sql.Conn) (bool, error) {
+	exists, err := tableExists(ctx, conn, "resources")
+	if err != nil || !exists {
+		return false, err
+	}
+	locationIDsChanged := false
+	skippedFlyers := make(map[string]bool)
+
+	type resourceRow struct {
+		id, resourceType, data string
+		syncedAt, updatedAt    any
+	}
+	rows, err := conn.QueryContext(ctx, `SELECT id, resource_type, data, synced_at, updated_at
+		FROM resources WHERE resource_type IN ('flyers', 'merchants')`)
+	if err != nil {
+		return false, fmt.Errorf("querying location-scoped resources: %w", err)
+	}
+	var pending []resourceRow
+	for rows.Next() {
+		var row resourceRow
+		if err := rows.Scan(&row.id, &row.resourceType, &row.data, &row.syncedAt, &row.updatedAt); err != nil {
+			rows.Close()
+			return false, fmt.Errorf("scanning location-scoped resource: %w", err)
+		}
+		pending = append(pending, row)
+	}
+	if err := rows.Err(); err != nil {
+		rows.Close()
+		return false, fmt.Errorf("reading location-scoped resources: %w", err)
+	}
+	if err := rows.Close(); err != nil {
+		return false, fmt.Errorf("closing location-scoped resources: %w", err)
+	}
+
+	for _, row := range pending {
+		obj, err := DecodeJSONObject(json.RawMessage(row.data))
+		if err != nil {
+			continue
+		}
+		scopedID := resourceStorageID(row.resourceType, BareResourceID(row.id), obj)
+		if scopedID == row.id {
+			continue
+		}
+		var collision int
+		if err := conn.QueryRowContext(ctx, `SELECT COUNT(*) FROM resources WHERE resource_type = ? AND id = ?`, row.resourceType, scopedID).Scan(&collision); err != nil {
+			return false, fmt.Errorf("checking scoped resource collision: %w", err)
+		}
+		if collision > 0 {
+			// Keep both versions when an older unscoped row collides with an
+			// already scoped row. Scoped reads hide the legacy row, and no
+			// detail is overwritten during this automatic upgrade.
+			if row.resourceType == "flyers" {
+				skippedFlyers[row.id] = true
+			}
+			continue
+		}
+		locationIDsChanged = true
+		if _, err := conn.ExecContext(ctx, `INSERT INTO resources
+			(id, resource_type, data, synced_at, updated_at) VALUES (?, ?, ?, ?, ?)
+			ON CONFLICT(resource_type, id) DO UPDATE SET data=excluded.data,
+			synced_at=excluded.synced_at, updated_at=excluded.updated_at`,
+			scopedID, row.resourceType, row.data, row.syncedAt, row.updatedAt); err != nil {
+			return false, fmt.Errorf("writing scoped resource %s/%s: %w", row.resourceType, scopedID, err)
+		}
+		if _, err := conn.ExecContext(ctx,
+			`DELETE FROM resources WHERE resource_type = ? AND id = ?`, row.resourceType, row.id); err != nil {
+			return false, fmt.Errorf("removing unscoped resource %s/%s: %w", row.resourceType, row.id, err)
+		}
+	}
+
+	flyersExist, err := tableExists(ctx, conn, "flyers")
+	if err != nil {
+		return false, err
+	}
+	if flyersExist {
+		rows, err := conn.QueryContext(ctx, `SELECT id, data FROM flyers`)
+		if err != nil {
+			return false, fmt.Errorf("querying flyer projections: %w", err)
+		}
+		type flyerRow struct{ id, data string }
+		var flyers []flyerRow
+		for rows.Next() {
+			var row flyerRow
+			if err := rows.Scan(&row.id, &row.data); err != nil {
+				rows.Close()
+				return false, fmt.Errorf("scanning flyer projection: %w", err)
+			}
+			flyers = append(flyers, row)
+		}
+		if err := rows.Err(); err != nil {
+			rows.Close()
+			return false, fmt.Errorf("reading flyer projections: %w", err)
+		}
+		if err := rows.Close(); err != nil {
+			return false, fmt.Errorf("closing flyer projections: %w", err)
+		}
+		for _, row := range flyers {
+			if skippedFlyers[row.id] {
+				continue
+			}
+			obj, err := DecodeJSONObject(json.RawMessage(row.data))
+			if err != nil {
+				continue
+			}
+			scopedID := resourceStorageID("flyers", BareResourceID(row.id), obj)
+			if scopedID == row.id {
+				continue
+			}
+			var collision int
+			if err := conn.QueryRowContext(ctx, `SELECT COUNT(*) FROM flyers WHERE id = ?`, scopedID).Scan(&collision); err != nil {
+				return false, fmt.Errorf("checking scoped flyer projection %s: %w", scopedID, err)
+			}
+			if collision > 0 {
+				// Preserve legacy projection details on a collision. Scoped
+				// reads use the already-scoped projection.
+				continue
+			}
+			if _, err := conn.ExecContext(ctx, `UPDATE flyers SET id = ? WHERE id = ?`, scopedID, row.id); err != nil {
+				return false, fmt.Errorf("scoping flyer projection %s: %w", row.id, err)
+			}
+		}
+	}
+
+	if syncStateExists, err := tableExists(ctx, conn, "sync_state"); err != nil {
+		return false, err
+	} else if syncStateExists {
+		var hasResourceType int
+		if err := conn.QueryRowContext(ctx,
+			`SELECT COUNT(*) FROM pragma_table_info('sync_state') WHERE name = 'resource_type'`,
+		).Scan(&hasResourceType); err != nil {
+			return false, fmt.Errorf("checking Flipp sync-state shape: %w", err)
+		}
+		if hasResourceType > 0 {
+			if _, err := conn.ExecContext(ctx, `DELETE FROM sync_state WHERE resource_type IN ('flyers', 'merchants')`); err != nil {
+				return false, fmt.Errorf("clearing ambiguous Flipp sync state: %w", err)
+			}
+		}
+	}
+	return locationIDsChanged, nil
 }
 
 func tableExists(ctx context.Context, conn *sql.Conn, name string) (bool, error) {
@@ -810,11 +971,57 @@ func (s *Store) Get(resourceType, id string) (json.RawMessage, error) {
 	return json.RawMessage(data), nil
 }
 
+// GetScoped returns a Flipp resource by its API ID within one postal-code and
+// locale partition. It never falls back to an unscoped row.
+func (s *Store) GetScoped(resourceType, id, postalCode, locale string) (json.RawMessage, error) {
+	postalCode, locale = NormalizeFlippLocation(postalCode, locale)
+	if postalCode == "" {
+		return nil, fmt.Errorf("postal code is required for scoped %s lookup", resourceType)
+	}
+	return s.Get(resourceType, flippLocationStorageID(id, postalCode, locale))
+}
+
 // List returns resources of the given type. A positive limit caps the result
 // count; zero or negative means no limit.
 func (s *Store) List(resourceType string, limit int) ([]json.RawMessage, error) {
 	query := `SELECT data FROM resources WHERE resource_type = ? ORDER BY updated_at DESC`
 	args := []any{resourceType}
+	if limit > 0 {
+		query += ` LIMIT ?`
+		args = append(args, limit)
+	}
+	rows, err := s.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var results []json.RawMessage
+	for rows.Next() {
+		var data string
+		if err := rows.Scan(&data); err != nil {
+			return nil, err
+		}
+		results = append(results, json.RawMessage(data))
+	}
+	return results, rows.Err()
+}
+
+// ListScoped returns only rows synced for one Flipp market. Location metadata
+// predicates are explicit even though the storage ID is also scoped, keeping
+// the read contract inspectable and preventing malformed keys from leaking
+// another market's data.
+func (s *Store) ListScoped(resourceType, postalCode, locale string, limit int) ([]json.RawMessage, error) {
+	postalCode, locale = NormalizeFlippLocation(postalCode, locale)
+	if postalCode == "" {
+		return nil, fmt.Errorf("postal code is required for scoped %s list", resourceType)
+	}
+	query := `SELECT data FROM resources WHERE resource_type = ?
+		AND instr(id, char(0)) > 0
+		AND UPPER(TRIM(json_extract(data, '$._sync_postal_code'))) = ?
+		AND LOWER(TRIM(json_extract(data, '$._sync_locale'))) = ?
+		ORDER BY updated_at DESC`
+	args := []any{resourceType, postalCode, locale}
 	if limit > 0 {
 		query += ` LIMIT ?`
 		args = append(args, limit)
@@ -881,6 +1088,55 @@ func (s *Store) Search(query string, limit int, resourceTypes ...string) ([]json
 		 LIMIT ?`,
 		matchQuery, limit,
 	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var results []json.RawMessage
+	for rows.Next() {
+		var data string
+		if err := rows.Scan(&data); err != nil {
+			return nil, err
+		}
+		results = append(results, json.RawMessage(data))
+	}
+	return results, rows.Err()
+}
+
+// SearchScoped performs FTS only within one Flipp postal-code and locale
+// partition. The JSON predicates are applied before LIMIT so matches from a
+// different market cannot displace relevant local rows.
+func (s *Store) SearchScoped(query, postalCode, locale string, limit int, resourceTypes ...string) ([]json.RawMessage, error) {
+	postalCode, locale = NormalizeFlippLocation(postalCode, locale)
+	if postalCode == "" {
+		return nil, fmt.Errorf("postal code is required for scoped search")
+	}
+	if limit <= 0 {
+		limit = 50
+	}
+	matchQuery := ftsMatchQuery(query)
+	if matchQuery == "" {
+		return nil, nil
+	}
+	resourceType := ""
+	if len(resourceTypes) > 0 {
+		resourceType = strings.TrimSpace(resourceTypes[0])
+	}
+	querySQL := `SELECT r.data FROM resources r
+		JOIN resources_fts f ON r.id = f.id AND r.resource_type = f.resource_type
+		WHERE resources_fts MATCH ?
+		AND instr(r.id, char(0)) > 0
+		AND UPPER(TRIM(json_extract(r.data, '$._sync_postal_code'))) = ?
+		AND LOWER(TRIM(json_extract(r.data, '$._sync_locale'))) = ?`
+	args := []any{matchQuery, postalCode, locale}
+	if resourceType != "" {
+		querySQL += ` AND r.resource_type = ?`
+		args = append(args, resourceType)
+	}
+	querySQL += ` ORDER BY f.rank LIMIT ?`
+	args = append(args, limit)
+	rows, err := s.db.Query(querySQL, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -1374,22 +1630,50 @@ func scalarIDString(value any) string {
 }
 
 func resourceStorageID(resourceType, id string, obj map[string]any) string {
+	storageID := id
 	parentKey := resourceParentKeyColumns[resourceType]
-	if parentKey == "" {
-		return id
+	if parentKey != "" {
+		parentValue := ResourceIDString(lookupFieldValue(obj, parentKey))
+		if parentValue != "" && parentValue != "<nil>" {
+			storageID += string([]byte{0}) + parentValue
+		}
 	}
-	parentValue := ResourceIDString(lookupFieldValue(obj, parentKey))
-	if parentValue == "" || parentValue == "<nil>" {
-		return id
+	if IsFlippLocationScopedResource(resourceType) {
+		postalCode := ResourceIDString(lookupFieldValue(obj, "_sync_postal_code"))
+		locale := ResourceIDString(lookupFieldValue(obj, "_sync_locale"))
+		postalCode, locale = NormalizeFlippLocation(postalCode, locale)
+		if postalCode != "" {
+			storageID = flippLocationStorageID(storageID, postalCode, locale)
+		}
 	}
-	return id + string([]byte{0}) + parentValue
+	return storageID
 }
 
-// BareResourceID strips the NUL-delimited parent suffix that resourceStorageID
-// appends to dependent resource types, returning the bare entity id. ListIDs
-// returns composite keys for parent-keyed resources, so callers comparing those
-// ids against bare API ids must run them through this first. For non-composite
-// ids it returns the input unchanged, so it is safe to apply to every id.
+// IsFlippLocationScopedResource reports whether resource identity varies by
+// the market supplied to Flipp's list endpoints.
+func IsFlippLocationScopedResource(resourceType string) bool {
+	return resourceType == "flyers" || resourceType == "merchants"
+}
+
+// NormalizeFlippLocation makes command flags, stored metadata, and SQLite
+// predicates agree on one stable representation.
+func NormalizeFlippLocation(postalCode, locale string) (string, string) {
+	postalCode = strings.ToUpper(strings.TrimSpace(postalCode))
+	locale = strings.ToLower(strings.TrimSpace(locale))
+	if locale == "" {
+		locale = "en-us"
+	}
+	return postalCode, locale
+}
+
+func flippLocationStorageID(id, postalCode, locale string) string {
+	return id + string([]byte{0}) + postalCode + string([]byte{0}) + locale
+}
+
+// BareResourceID strips the NUL-delimited scope suffix that resourceStorageID
+// appends for dependent or location-partitioned resources, returning the bare
+// entity id. Callers comparing storage keys against API ids must run them
+// through this first. Non-composite ids are returned unchanged.
 func BareResourceID(storageID string) string {
 	if i := strings.IndexByte(storageID, 0); i >= 0 {
 		return storageID[:i]
