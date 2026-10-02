@@ -7,8 +7,10 @@
   "summary": "Write streaming Sarvam exports to an owner-only temporary file and replace the destination only after a complete export.",
   "reason": "The export command used os.Create, which could expose pronunciation dictionaries through broad file permissions, overwrite an existing export before a failed request, or follow a destination symlink.",
   "files": [
+    "README.md",
     "internal/cli/export.go",
     "internal/cli/export_private_test.go",
-    "internal/cli/private_output.go"
+    "internal/cli/private_output.go",
+    "internal/cliutil/paths.go"
   ]
 }

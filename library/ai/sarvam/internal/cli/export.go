@@ -26,7 +26,8 @@ func newExportCmd(flags *rootFlags) *cobra.Command {
 		Short: "Export data to JSONL or JSON for backup, migration, or analysis",
 		Long: `Export paginated API data to a local file. Supports JSONL (one JSON object
 per line, streaming-friendly) and JSON (array). JSONL is recommended for
-large datasets as it has no memory pressure.`,
+large datasets as it has no memory pressure. When --output is set, its parent
+directory must be writable so the completed export can replace the destination.`,
 		Example: `  # Export all items as JSONL (streaming, recommended for large datasets)
   sarvam-pp-cli export <resource> --format jsonl --output data.jsonl
 
@@ -101,7 +102,7 @@ large datasets as it has no memory pressure.`,
 					outFile = nil
 				}
 				if tempPath != "" {
-					if err := os.Rename(tempPath, outputFile); err != nil {
+					if err := cliutil.RenamePrivateFileWithRetry(tempPath, outputFile); err != nil {
 						return fmt.Errorf("replacing output file: %w", err)
 					}
 				}

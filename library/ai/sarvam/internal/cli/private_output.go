@@ -8,6 +8,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/mvanhorn/printing-press-library/library/ai/sarvam/internal/cliutil"
 )
 
 func privateOutputPath(dir, name string) (string, error) {
@@ -33,7 +35,7 @@ func writePrivateOutputFile(path string, data []byte) error {
 	if err := f.Close(); err != nil {
 		return err
 	}
-	return os.Rename(tempPath, path)
+	return cliutil.RenamePrivateFileWithRetry(tempPath, path)
 }
 
 func createPrivateOutputTempFile(path string) (*os.File, error) {

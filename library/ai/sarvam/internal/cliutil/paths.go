@@ -150,7 +150,7 @@ func AtomicWritePrivateFile(path string, data []byte, fileMode, dirMode os.FileM
 		_ = os.Remove(tmpPath)
 		return fmt.Errorf("closing temporary private file: %w", err)
 	}
-	if err := renamePrivateFileWithRetry(tmpPath, path); err != nil {
+	if err := RenamePrivateFileWithRetry(tmpPath, path); err != nil {
 		_ = os.Remove(tmpPath)
 		return fmt.Errorf("publishing private file: %w", err)
 	}
@@ -159,7 +159,9 @@ func AtomicWritePrivateFile(path string, data []byte, fileMode, dirMode os.FileM
 
 const privateFileRenameAttempts = 12
 
-func renamePrivateFileWithRetry(tmpPath, path string) error {
+// RenamePrivateFileWithRetry publishes a completed private file, retrying
+// transient Windows sharing failures while leaving other errors untouched.
+func RenamePrivateFileWithRetry(tmpPath, path string) error {
 	return renamePrivateFileWithRetryFunc(os.Rename, tmpPath, path)
 }
 

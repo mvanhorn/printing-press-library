@@ -281,6 +281,10 @@ Pick up an assistant conversation where it left off, with full context
 
 Run `sarvam-pp-cli --help` for the full command reference and flag list.
 
+For `export --output`, the parent directory must be writable. The CLI writes an
+owner-only temporary file there and replaces the destination after the export
+completes, so a failed request leaves the previous file intact.
+
 ## Paths & environment variables
 
 This CLI separates local files into four path kinds:
