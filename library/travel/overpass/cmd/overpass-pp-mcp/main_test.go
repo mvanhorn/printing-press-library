@@ -3,6 +3,7 @@
 package main
 
 import (
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -84,15 +85,20 @@ func TestLoopbackAddressValidation(t *testing.T) {
 	}
 }
 
-func TestHTTPBindAddressNormalizesLocalhost(t *testing.T) {
-	for _, addr := range []string{"localhost:7777", "LOCALHOST:7777"} {
-		if got := httpBindAddr(addr); got != "127.0.0.1:7777" {
-			t.Errorf("httpBindAddr(%q) = %q, want literal loopback", addr, got)
+func TestHTTPBoundListenerRequiresLoopbackWithoutTLS(t *testing.T) {
+	for _, ip := range []string{"127.0.0.1", "::1"} {
+		addr := &net.TCPAddr{IP: net.ParseIP(ip), Port: 7777}
+		if err := validateBoundListener(addr, false); err != nil {
+			t.Errorf("loopback %s rejected: %v", ip, err)
 		}
 	}
-	for _, addr := range []string{"localhost.evil.com:7777", "0.0.0.0:7777", "[::1]:7777"} {
-		if got := httpBindAddr(addr); got != addr {
-			t.Errorf("httpBindAddr(%q) = %q, want unchanged", addr, got)
+	for _, ip := range []string{"0.0.0.0", "192.0.2.1", "::"} {
+		addr := &net.TCPAddr{IP: net.ParseIP(ip), Port: 7777}
+		if err := validateBoundListener(addr, false); err == nil {
+			t.Errorf("non-loopback %s accepted without TLS", ip)
+		}
+		if err := validateBoundListener(addr, true); err != nil {
+			t.Errorf("TLS bind %s rejected: %v", ip, err)
 		}
 	}
 }

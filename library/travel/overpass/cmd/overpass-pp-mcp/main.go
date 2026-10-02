@@ -53,28 +53,37 @@ func main() {
 			os.Exit(1)
 		}
 	case "http":
-		bindAddr := httpBindAddr(*addr)
 		token := strings.TrimSpace(*httpToken)
 		if token == "" {
 			token = strings.TrimSpace(os.Getenv("PP_MCP_HTTP_TOKEN"))
 		}
-		useTLS, err := validateHTTPTransport(bindAddr, token, *tlsCert, *tlsKey)
+		useTLS, err := validateHTTPTransport(*addr, token, *tlsCert, *tlsKey)
 		if err != nil {
+			fmt.Fprintf(os.Stderr, "refusing unsafe MCP HTTP configuration: %v\n", err)
+			os.Exit(2)
+		}
+		listener, err := net.Listen("tcp", *addr)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
+			os.Exit(1)
+		}
+		if err := validateBoundListener(listener.Addr(), useTLS); err != nil {
+			_ = listener.Close()
 			fmt.Fprintf(os.Stderr, "refusing unsafe MCP HTTP configuration: %v\n", err)
 			os.Exit(2)
 		}
 		mcpHandler := server.NewStreamableHTTPServer(s)
 		httpSrv := &http.Server{
-			Addr:              bindAddr,
+			Addr:              *addr,
 			Handler:           requireHTTPToken(token, mcpHandler),
 			ReadHeaderTimeout: 5 * time.Second,
 		}
-		fmt.Fprintf(os.Stderr, "overpass-pp-mcp serving MCP over authenticated %s at %s\n", tlsLabel(useTLS), bindAddr)
+		fmt.Fprintf(os.Stderr, "overpass-pp-mcp serving MCP over authenticated %s at %s\n", tlsLabel(useTLS), listener.Addr())
 		var serveErr error
 		if useTLS {
-			serveErr = httpSrv.ListenAndServeTLS(*tlsCert, *tlsKey)
+			serveErr = httpSrv.ServeTLS(listener, *tlsCert, *tlsKey)
 		} else {
-			serveErr = httpSrv.ListenAndServe()
+			serveErr = httpSrv.Serve(listener)
 		}
 		if serveErr != nil {
 			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", serveErr)
@@ -94,20 +103,28 @@ func validateHTTPTransport(addr, token, tlsCert, tlsKey string) (bool, error) {
 	if useTLS && (tlsCert == "" || tlsKey == "") {
 		return false, fmt.Errorf("both --tls-cert and --tls-key are required when TLS is enabled")
 	}
-	if !isLoopbackAddr(httpBindAddr(addr)) && !useTLS {
+	if !isLoopbackAddr(addr) && !isLocalhostAddr(addr) && !useTLS {
 		return false, fmt.Errorf("non-loopback bind %q requires TLS", addr)
 	}
 	return useTLS, nil
 }
 
-// httpBindAddr turns the conventional local hostname into a literal loopback
-// bind, so a hosts-file or DNS change cannot expose plaintext HTTP elsewhere.
-func httpBindAddr(addr string) string {
-	host, port, err := net.SplitHostPort(addr)
-	if err == nil && strings.EqualFold(host, "localhost") {
-		return net.JoinHostPort("127.0.0.1", port)
+func isLocalhostAddr(addr string) bool {
+	host, _, err := net.SplitHostPort(addr)
+	return err == nil && strings.EqualFold(host, "localhost")
+}
+
+// The listener is checked after name resolution and then handed directly to
+// Serve, so localhost can use either IP family without a second DNS lookup.
+func validateBoundListener(addr net.Addr, useTLS bool) error {
+	if useTLS {
+		return nil
 	}
-	return addr
+	tcp, ok := addr.(*net.TCPAddr)
+	if !ok || !tcp.IP.IsLoopback() {
+		return fmt.Errorf("non-loopback bind %q requires TLS", addr)
+	}
+	return nil
 }
 
 func requireHTTPToken(token string, next http.Handler) http.Handler {
