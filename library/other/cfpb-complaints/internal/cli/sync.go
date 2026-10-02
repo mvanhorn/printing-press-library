@@ -451,6 +451,23 @@ func syncResource(ctx context.Context, c interface {
 
 	cursor := existingCursor
 	pageSize := determinePaginationDefaults(resource)
+	if resource == "data-research" {
+		overrides := map[string]string{}
+		userParams.applyTo(resource, overrides, false)
+		if raw, ok := overrides["size"]; ok {
+			size, parseErr := strconv.Atoi(strings.TrimSpace(raw))
+			if parseErr != nil || size < 1 || size > 1000 {
+				return syncResult{Resource: resource, Err: fmt.Errorf("CFPB complaint page size must be an integer from 1 to 1000"), Duration: time.Since(started)}
+			}
+		}
+		if raw, ok := overrides["from"]; ok {
+			offset, parseErr := strconv.Atoi(strings.TrimSpace(raw))
+			if parseErr != nil || offset < 0 || offset > int(^uint(0)>>1)-1000 {
+				return syncResult{Resource: resource, Err: fmt.Errorf("CFPB complaint starting offset must be a non-negative integer below the supported range"), Duration: time.Since(started)}
+			}
+			cursor = strconv.Itoa(offset)
+		}
+	}
 	var progressCount int64
 	pagesFetched := 0
 	lastNextCursor := ""
@@ -496,6 +513,14 @@ func syncResource(ctx context.Context, c interface {
 		// win over spec-derived defaults (e.g. forcing mine=true on a list
 		// endpoint whose OpenAPI spec marks the filter optional).
 		userParams.applyTo(resource, params, false)
+		if resource == "data-research" {
+			// An operator's from= value starts this sync; it must not replace
+			// the advancing cursor on every subsequent request.
+			delete(params, pageSize.cursorParam)
+			if cursor != "" {
+				params[pageSize.cursorParam] = cursor
+			}
+		}
 		effectiveLimit := effectivePaginationLimit(pageSize, params)
 
 		data, err := c.Get(ctx, path, params)
@@ -523,6 +548,16 @@ func syncResource(ctx context.Context, c interface {
 				fmt.Fprintf(syncEvents, `{"event":"sync_dryrun","resource":"%s"}`+"\n", resource)
 			}
 			return syncResult{Resource: resource, Count: 0, Duration: time.Since(started)}
+		}
+		if resource == "data-research" {
+			hits, ok := responsePayloadAtPath(data, "hits.hits")
+			if !ok || isJSONNull(hits) {
+				return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("CFPB complaint response has no hits.hits array"), Duration: time.Since(started)}
+			}
+			var complaintRows []json.RawMessage
+			if err := json.Unmarshal(hits, &complaintRows); err != nil {
+				return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("CFPB complaint response has invalid hits.hits array: %w", err), Duration: time.Since(started)}
+			}
 		}
 
 		// Try to extract items from the response.
@@ -760,6 +795,14 @@ func syncResource(ctx context.Context, c interface {
 		}
 
 		cursor = nextCursor
+	}
+
+	if resource == "data-research" && outcome.complete {
+		// The former sync stored the entire search response under this ID.
+		// Remove only that envelope after a valid, complete replacement sync.
+		if err := db.DeleteLegacyCFPBEnvelope(); err != nil {
+			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("removing legacy CFPB response envelope: %w", err), Duration: time.Since(started)}
+		}
 	}
 
 	// Flat tenant-scoped reconcile: prune local rows the API no longer returns

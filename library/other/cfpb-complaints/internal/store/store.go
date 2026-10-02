@@ -962,6 +962,36 @@ func (s *Store) ReplaceResourceKey(resourceType, oldID, newID string, data json.
 	return tx.Commit()
 }
 
+// DeleteLegacyCFPBEnvelope removes the old synthetic row only when it still
+// contains a CFPB search envelope. A real complaint with the same ID is kept.
+func (s *Store) DeleteLegacyCFPBEnvelope() error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	const resource = "data-research"
+	result, err := tx.Exec(`DELETE FROM resources
+		WHERE resource_type = ? AND id = ?
+		AND CASE WHEN json_valid(data) THEN json_type(data, '$.hits.hits') = 'array' ELSE 0 END`, resource, resource)
+	if err != nil {
+		return err
+	}
+	deleted, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if deleted > 0 {
+		if _, err := tx.Exec(`DELETE FROM resources_fts WHERE rowid = ?`, ftsRowID(resource, resource)); err != nil {
+			return err
+		}
+	}
+	return tx.Commit()
+}
+
 // Propagates sql.ErrNoRows on a miss so callers can distinguish absence from
 // other scan errors via errors.Is.
 func (s *Store) Get(resourceType, id string) (json.RawMessage, error) {

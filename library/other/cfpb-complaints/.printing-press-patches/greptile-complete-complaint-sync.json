@@ -14,6 +14,6 @@
     "README.md",
     "NOTICE"
   ],
-  "validated_outcome": "Offline tests store individual complaint hits, follow default and custom page sizes, and avoid persisting the outer response envelope.",
+  "validated_outcome": "Offline tests store individual complaint hits, follow default and custom page sizes, advance from a supplied starting offset, reject invalid size and offset values before requests, and remove only the old response envelope after a complete sync.",
   "safety": "The port retains the public store's transaction rollback behavior. It does not copy the private change that reports uncommitted rows as stored after an upsert failure."
 }

@@ -4,7 +4,9 @@ package cli
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -141,5 +143,94 @@ func TestSyncDataResearchExtractsHitsAndPaginatesByOffset(t *testing.T) {
 	}
 	if envelopes != 0 {
 		t.Fatalf("stored %d outer response envelopes, want 0", envelopes)
+	}
+}
+
+func TestSyncDataResearchStartingOffsetAdvances(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	c := &cfpbSyncTestClient{total: 1001}
+	params := &syncUserParams{flatGlobal: map[string]string{"size": "500", "from": "500"}}
+	result := syncResource(context.Background(), c, db, "data-research", "", true, 0, false, false, params, io.Discard)
+	if result.Err != nil || result.Warn != nil || result.Count != 501 {
+		t.Fatalf("offset sync did not reach the last page: %+v", result)
+	}
+	if len(c.calls) != 2 || c.calls[0]["from"] != "500" || c.calls[1]["from"] != "1000" {
+		t.Fatalf("starting offset was repeated or did not advance: %v", c.calls)
+	}
+}
+
+func TestSyncDataResearchRejectsInvalidPaginationBeforeFetch(t *testing.T) {
+	for _, tc := range []struct {
+		name, key, value string
+	}{
+		{"zero size", "size", "0"},
+		{"negative size", "size", "-1"},
+		{"non-numeric size", "size", "many"},
+		{"oversized page", "size", "1001"},
+		{"negative offset", "from", "-1"},
+		{"non-numeric offset", "from", "later"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer db.Close()
+			c := &cfpbSyncTestClient{total: 1}
+			result := syncResource(context.Background(), c, db, "data-research", "", true, 0, false, false,
+				&syncUserParams{flatGlobal: map[string]string{tc.key: tc.value}}, io.Discard)
+			if result.Err == nil || len(c.calls) != 0 {
+				t.Fatalf("invalid pagination reached API: err=%v calls=%v", result.Err, c.calls)
+			}
+		})
+	}
+}
+
+func TestSyncDataResearchRemovesOnlyLegacyEnvelopeAfterCompleteSync(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	const resource = "data-research"
+	legacy := []byte(`{"hits":{"hits":[{"_id":"old","_source":{"complaint_id":"old"}}]}}`)
+	if err := db.Upsert(resource, resource, legacy); err != nil {
+		t.Fatal(err)
+	}
+	c := &cfpbSyncTestClient{total: 1001}
+	partial := syncResource(context.Background(), c, db, resource, "", true, 1, false, false, &syncUserParams{}, io.Discard)
+	if partial.Err != nil {
+		t.Fatal(partial.Err)
+	}
+	if _, err := db.Get(resource, resource); err != nil {
+		t.Fatalf("incomplete sync removed legacy envelope: %v", err)
+	}
+	// The CLI clears sync state before --full; this direct helper test does it here.
+	if err := db.SaveSyncState(resource, "", 0); err != nil {
+		t.Fatal(err)
+	}
+	complete := syncResource(context.Background(), c, db, resource, "", true, 0, false, false, &syncUserParams{}, io.Discard)
+	if complete.Err != nil || complete.Count != 1001 {
+		t.Fatalf("replacement sync failed: %+v", complete)
+	}
+	if _, err := db.Get(resource, resource); !errors.Is(err, sql.ErrNoRows) {
+		t.Fatalf("legacy envelope remains after complete sync: %v", err)
+	}
+	if count, err := db.Count(resource); err != nil || count != 1001 {
+		t.Fatalf("stored complaint count includes legacy envelope: count=%d err=%v", count, err)
+	}
+	// A real complaint with the same ID must not be removed by cleanup.
+	if err := db.Upsert(resource, resource, []byte(`{"_id":"data-research","_source":{"complaint_id":"data-research"}}`)); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.DeleteLegacyCFPBEnvelope(); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.Get(resource, resource); err != nil {
+		t.Fatalf("cleanup removed a non-envelope complaint: %v", err)
 	}
 }
