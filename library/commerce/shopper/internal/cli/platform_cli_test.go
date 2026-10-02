@@ -15,6 +15,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/platform"
 	"github.com/spf13/cobra"
 )
@@ -114,9 +115,30 @@ func TestOptionalArtifactCommandsSelectProfileWithoutLiveGate(t *testing.T) {
 	if err != nil || !strings.Contains(string(data), "profile-only-feedback") {
 		t.Fatalf("feedback did not use selected profile: err=%v", err)
 	}
-	globalData := filepath.Join(os.Getenv("XDG_DATA_HOME"), "shopper-pp-cli", "feedback.jsonl")
+	globalDir, err := cliutil.DataDir()
+	if err != nil {
+		t.Fatal(err)
+	}
+	globalData := filepath.Join(globalDir, "feedback.jsonl")
 	if _, err := os.Stat(globalData); err == nil {
 		t.Fatal("profile feedback leaked into global data")
+	}
+	if err := os.MkdirAll(globalDir, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(globalData, []byte(`{"text":"global-only-feedback","cli":"shopper-pp-cli","version":"test","timestamp":"2026-10-01T00:00:00Z"}`+"\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	listRoot := RootCmd()
+	listRoot.SetArgs([]string{"feedback", "list"})
+	var listOutput bytes.Buffer
+	listRoot.SetOut(&listOutput)
+	listRoot.SetErr(&bytes.Buffer{})
+	if err := listRoot.Execute(); err != nil {
+		t.Fatalf("feedback list profile selection: %v", err)
+	}
+	if !strings.Contains(listOutput.String(), "profile-only-feedback") || strings.Contains(listOutput.String(), "global-only-feedback") {
+		t.Fatalf("feedback list crossed profile boundary: %s", listOutput.String())
 	}
 	flags := &rootFlags{clientProfileName: "tenant-a"}
 	if err := prepareOptionalArtifactProfile(flags); err != nil {

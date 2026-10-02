@@ -334,7 +334,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 					return err
 				}
 			}
-		} else if parts := strings.Fields(cmd.CommandPath()); len(parts) == 2 && (parts[1] == "feedback" || parts[1] == "agent-context") {
+		} else if parts := strings.Fields(cmd.CommandPath()); len(parts) >= 2 && (parts[1] == "feedback" || (len(parts) == 2 && parts[1] == "agent-context")) {
 			if err := prepareOptionalArtifactProfile(flags); err != nil {
 				return err
 			}
