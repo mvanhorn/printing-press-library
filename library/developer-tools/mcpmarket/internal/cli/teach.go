@@ -247,6 +247,11 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 			hasPlaybookInput := strings.TrimSpace(playbookFile) != "" || strings.TrimSpace(playbookJSONInline) != "" || strings.TrimSpace(playbookNotesInline) != "" || strings.TrimSpace(playbookNotesFile) != ""
 			var resolvedPlaybookJSON, resolvedPlaybookNotes string
 			if flags.rejectPII {
+				coreInputs := []string{query, notes, venueArg, resourceType}
+				coreInputs = append(coreInputs, resources...)
+				if piiErr := rejectDetectedPII(cmd, "teach", coreInputs...); piiErr != nil {
+					return piiErr
+				}
 				if hasPlaybookInput {
 					var resolveErr error
 					resolvedPlaybookJSON, resolvedPlaybookNotes, resolveErr = resolvePlaybookInputs(playbookFile, playbookNotesInline, playbookNotesFile)
@@ -254,14 +259,13 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 						resolvedPlaybookJSON, resolveErr = resolveInlinePlaybook(playbookJSONInline)
 					}
 					if resolveErr != nil {
-						writeTeachErrLog("teach: invalid playbook input")
-						return silentCodeErr(2)
+						// Optional playbook failure must not discard the primary
+						// resource learning. Nothing from that playbook is saved.
+						writeTeachErrLog("teach: optional playbook input invalid; resource learning continued")
+						hasPlaybookInput = false
+					} else if piiErr := rejectDetectedPII(cmd, "teach", resolvedPlaybookJSON, resolvedPlaybookNotes); piiErr != nil {
+						return piiErr
 					}
-				}
-				persistedInputs := []string{query, notes, resolvedPlaybookJSON, resolvedPlaybookNotes, venueArg, resourceType}
-				persistedInputs = append(persistedInputs, resources...)
-				if piiErr := rejectDetectedPII(cmd, "teach", persistedInputs...); piiErr != nil {
-					return piiErr
 				}
 			}
 			// PII guard (R18): scan the freeform query for obvious

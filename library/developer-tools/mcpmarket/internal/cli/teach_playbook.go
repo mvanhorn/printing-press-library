@@ -13,6 +13,7 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -93,7 +94,7 @@ never needs to be shell-escaped or heredoc'd into the command line.`,
 			playbookJSON, notes, err := resolvePlaybookInputs(playbookFile, notesText, notesFile)
 			if err != nil {
 				if flags.rejectPII {
-					return usageErr(fmt.Errorf("invalid playbook input"))
+					return usageErr(safePlaybookInputError(err, playbookFile, notesFile))
 				}
 				return err
 			}
@@ -101,7 +102,7 @@ never needs to be shell-escaped or heredoc'd into the command line.`,
 				playbookJSON, err = resolveInlinePlaybook(playbookJSONInline)
 				if err != nil {
 					if flags.rejectPII {
-						return usageErr(fmt.Errorf("invalid playbook input"))
+						return usageErr(fmt.Errorf("invalid --playbook-json: check JSON syntax and field types"))
 					}
 					return err
 				}
@@ -168,6 +169,30 @@ never needs to be shell-escaped or heredoc'd into the command line.`,
 	cmd.Flags().StringVar(&notesFile, "notes-file", "", "Path to a markdown file with the notes")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: standard cache location)")
 	return cmd
+}
+
+// safePlaybookInputError gives actionable input guidance without echoing a
+// file path or parser content that might itself contain personal text.
+func safePlaybookInputError(err error, playbookFile, notesFile string) error {
+	var pathErr *os.PathError
+	if errors.As(err, &pathErr) {
+		flagName := "--playbook-file"
+		if notesFile != "" && pathErr.Path == notesFile {
+			flagName = "--notes-file"
+		}
+		switch {
+		case errors.Is(err, os.ErrNotExist):
+			return fmt.Errorf("cannot read %s: file not found", flagName)
+		case errors.Is(err, os.ErrPermission):
+			return fmt.Errorf("cannot read %s: permission denied", flagName)
+		default:
+			return fmt.Errorf("cannot read %s: file read failed", flagName)
+		}
+	}
+	if playbookFile != "" {
+		return fmt.Errorf("invalid --playbook-file: check JSON syntax and field types")
+	}
+	return fmt.Errorf("invalid playbook input")
 }
 
 // newPlaybookCmd is the inspection + amendment parent. `playbook list`

@@ -101,3 +101,93 @@ func TestRejectPIIOptInAllowsCleanIntegratedTeach(t *testing.T) {
 		t.Fatalf("clean playbook missing: rows=%#v error=%v", playbooks, err)
 	}
 }
+
+func TestRejectPIIEnvironmentOverridesProfileAndFlagFalse(t *testing.T) {
+	withTempLearnHome(t)
+	t.Setenv("MCPMARKET_REJECT_PII", "1")
+	if err := saveProfileStore(&profileStore{Profiles: map[string]Profile{
+		"weak": {Name: "weak", Values: map[string]string{"reject-pii": "false"}},
+	}}); err != nil {
+		t.Fatal(err)
+	}
+	for _, args := range [][]string{
+		{"--profile", "weak"},
+		{"--reject-pii=false"},
+	} {
+		dbPath := filepath.Join(t.TempDir(), "learn.db")
+		cmdArgs := append([]string{"teach", "--query", "orders for qa@example.invalid", "--resource-type", "server", "--resource", "one", "--db", dbPath}, args...)
+		_, stderr, err := runRootArgs(t, cmdArgs...)
+		if err == nil || !strings.Contains(stderr, "email PII rule") {
+			t.Fatalf("environment rejection was bypassed by %v: err=%v stderr=%q", args, err, stderr)
+		}
+		if _, err := os.Stat(dbPath); !os.IsNotExist(err) {
+			t.Fatalf("rejected teaching created explicit database: %v", err)
+		}
+	}
+}
+
+func TestRejectPIIOptionalPlaybookFailurePreservesCleanTeach(t *testing.T) {
+	home := withTempLearnHome(t)
+	t.Setenv("MCPMARKET_REJECT_PII", "1")
+	for _, tc := range []struct {
+		name string
+		args []string
+	}{
+		{name: "missing notes file", args: []string{"--playbook-notes-file", filepath.Join(home, "missing-notes.md")}},
+		{name: "malformed inline JSON", args: []string{"--playbook-json", `{not-json}`}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			dbPath := filepath.Join(t.TempDir(), "learn.db")
+			args := append([]string{"teach", "--query", "list clean servers", "--resource-type", "server", "--resource", "one", "--db", dbPath}, tc.args...)
+			_, _, err := runRootArgs(t, args...)
+			if err != nil {
+				t.Fatalf("optional playbook failure discarded a clean teach: %v", err)
+			}
+			s, err := store.OpenWithContext(context.Background(), dbPath)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer s.Close()
+			rows, err := listLearningsRows(context.Background(), s, store.ListLearningsFilter{})
+			if err != nil || len(rows) != 1 || rows[0].ResourceID != "one" {
+				t.Fatalf("clean resource learning missing: rows=%#v error=%v", rows, err)
+			}
+			playbooks, err := s.ListPlaybooks()
+			if err != nil || len(playbooks) != 0 {
+				t.Fatalf("invalid optional playbook was stored: rows=%#v error=%v", playbooks, err)
+			}
+		})
+	}
+}
+
+func TestRejectPIIDefaultDatabaseContainsNoRejectedLearning(t *testing.T) {
+	withTempLearnHome(t)
+	t.Setenv("MCPMARKET_REJECT_PII", "1")
+	_, stderr, err := runRootArgs(t,
+		"teach", "--query", "orders for qa@example.invalid", "--resource-type", "server", "--resource", "one",
+	)
+	if err == nil || !strings.Contains(stderr, "email PII rule") {
+		t.Fatalf("default database rejected input unexpectedly: err=%v stderr=%q", err, stderr)
+	}
+	s, err := store.OpenWithContext(context.Background(), defaultDBPath("mcpmarket-pp-cli"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	rows, err := listLearningsRows(context.Background(), s, store.ListLearningsFilter{})
+	if err != nil || len(rows) != 0 {
+		t.Fatalf("rejected learning reached default database: rows=%#v error=%v", rows, err)
+	}
+}
+
+func TestRejectPIIPlaybookReadErrorNamesFlagWithoutPath(t *testing.T) {
+	home := withTempLearnHome(t)
+	t.Setenv("MCPMARKET_REJECT_PII", "1")
+	missingNotes := filepath.Join(home, "qa@example.invalid-notes.md")
+	_, _, err := runRootArgs(t,
+		"teach-playbook", "--query", "list clean servers", "--notes-file", missingNotes,
+	)
+	if err == nil || !strings.Contains(err.Error(), "--notes-file: file not found") || strings.Contains(err.Error(), missingNotes) {
+		t.Fatalf("unsafe or unhelpful notes error: %v", err)
+	}
+}

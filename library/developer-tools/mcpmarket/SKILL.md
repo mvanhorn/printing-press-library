@@ -378,7 +378,7 @@ mcpmarket-pp-cli teach --query-file /tmp/mcpmarket-query.txt --resource-type <ty
 
 Silent on success. Errors only land in `teach.log` under the resolved state dir. Teach the **most specific** resource - if the user asked a broad question and you walked through parent records to find the specific answer, teach the leaf id, not the parent. The CLI uses seeded `entity_lookups` for cross-alias resolution at recall time, so a teach under one alias (e.g., "Niners") satisfies future queries under another alias (e.g., "49ers", "San Francisco") automatically.
 
-PII rule: teach the structural question with identifiers stripped - never include names, emails, phone numbers, account ids, or other personal identifiers in taught queries or notes. By default the CLI warns on obvious email/phone shapes in `teach` queries and still saves them. Set `MCPMARKET_REJECT_PII=1` for this agent session, or pass `--reject-pii`, to refuse detected email/phone shapes across all teaching and playbook amendment commands before saving. This is a limited pattern check; strip other personal details yourself.
+PII rule: teach the structural question with identifiers stripped - never include names, emails, phone numbers, account ids, or other personal identifiers in taught queries or notes. By default the CLI warns on obvious email/phone shapes in `teach` queries and still saves them. Set `MCPMARKET_REJECT_PII=1` for this agent session, or pass `--reject-pii`, to refuse detected email/phone shapes across all teaching and playbook amendment commands before saving. The environment setting cannot be disabled by a saved run profile or flag. This is a limited pattern check; strip other personal details yourself.
 
 ### Step 5: playbooks - optional flags, automatic synthesis
 

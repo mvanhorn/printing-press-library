@@ -334,7 +334,7 @@ This CLI caches per-question discovery so repeat queries skip the walk and struc
 
 Pass `--no-learn` or set `MCPMARKET_NO_LEARN=true` to disable the loop for deterministic flows.
 
-By default, `teach` warns when a query looks like an email address or phone number and still saves it. Set `MCPMARKET_REJECT_PII=1` for an agent session, or pass `--reject-pii` to a teaching command, to refuse detected email and phone patterns before writing local learning or playbook data. This covers `teach`, `teach-pattern`, `teach-lookup`, `teach-playbook`, and `playbook amend`. The check only recognizes obvious patterns, so remove other personal details yourself.
+By default, `teach` warns when a query looks like an email address or phone number and still saves it. Set `MCPMARKET_REJECT_PII=1` for an agent session, or pass `--reject-pii` to a teaching command, to refuse detected email and phone patterns before writing local learning or playbook data. The environment setting stays active even if a saved run profile or flag says false. This covers `teach`, `teach-pattern`, `teach-lookup`, `teach-playbook`, and `playbook amend`. An unreadable optional playbook is skipped while a clean resource learning still succeeds. The check only recognizes obvious patterns, so remove other personal details yourself.
 
 The local store's schema version stamp is one-way: once this version of `mcpmarket-pp-cli` opens the database, older binaries refuse it with a version error — upgrade the binary rather than downgrading.
 

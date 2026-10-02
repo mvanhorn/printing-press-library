@@ -298,6 +298,11 @@ See README.md or the bundled SKILL.md for recipes.`,
 				return err
 			}
 		}
+		// A session-wide privacy setting is an enforcement floor. A saved
+		// profile or explicit --reject-pii=false cannot turn it off.
+		if os.Getenv("MCPMARKET_REJECT_PII") == "1" {
+			flags.rejectPII = true
+		}
 		if platformCommandNeedsGate(cmd) {
 			if err := preparePlatformSession(flags); err != nil {
 				return err
