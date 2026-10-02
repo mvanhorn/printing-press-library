@@ -69,3 +69,33 @@ func TestRefreshFilterYearBounds(t *testing.T) {
 		})
 	}
 }
+
+func TestRefreshSortKeepsRollingWindowNewestFirst(t *testing.T) {
+	cases := []struct {
+		name     string
+		fromYear int
+		toYear   int
+		want     string
+	}{
+		{"unbounded", 0, 0, "publication_date:desc"},
+		{"rolling lower bound", 2022, 0, "publication_date:desc"},
+		{"bounded historical range", 2010, 2015, "publication_date:asc"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			db, err := sql.Open("sqlite", ":memory:")
+			if err != nil {
+				t.Fatalf("open: %v", err)
+			}
+			defer db.Close()
+			f := &recordingFetcher{}
+			journ := []Journal{{Slug: "lancet", ISSN: "0140-6736", Display: "The Lancet"}}
+			if _, err := Refresh(context.Background(), f, db, journ, tc.fromYear, tc.toYear, 1, nil); err != nil {
+				t.Fatalf("Refresh: %v", err)
+			}
+			if got := f.params[0]["sort"]; got != tc.want {
+				t.Fatalf("sort = %q, want %q", got, tc.want)
+			}
+		})
+	}
+}

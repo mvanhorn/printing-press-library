@@ -24,8 +24,8 @@ func TestLookup(t *testing.T) {
 		wantLen int
 		wantOK  bool
 	}{
-		{"", 1, true},          // empty defaults to flagship
-		{"lancet", 1, true},    // flagship
+		{"", 1, true},       // empty defaults to flagship
+		{"lancet", 1, true}, // flagship
 		{"lancet-oncology", 1, true},
 		{"0140-6736", 1, true}, // by ISSN
 		{"all", len(journals), true},
@@ -114,6 +114,36 @@ func TestRankAuthors(t *testing.T) {
 	// Alice has two works (100 + 10 = 110), should rank first.
 	if rows[0].AuthorName != "Alice" || rows[0].TotalCitations != 110 {
 		t.Errorf("top author = %+v, want Alice with 110 citations", rows[0])
+	}
+}
+
+func TestStoreWorksRefreshesExistingMetadata(t *testing.T) {
+	db, err := sql.Open("sqlite", ":memory:")
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer db.Close()
+	ctx := context.Background()
+	if err := EnsureSchema(ctx, db); err != nil {
+		t.Fatalf("schema: %v", err)
+	}
+	old := decodedWork{ID: "W1", DOI: "10.1/old", Title: "Old", Year: 2020, Date: "2020-01-01", Cited: 1, Topic: "Old topic"}
+	updated := decodedWork{ID: "W1", DOI: "10.1/new", Title: "New", Year: 2025, Date: "2025-02-03", Cited: 9, IsOA: true, Topic: "New topic"}
+	if _, err := StoreWorks(ctx, db, []decodedWork{old}, "old-issn", "Old Journal"); err != nil {
+		t.Fatalf("store old: %v", err)
+	}
+	if _, err := StoreWorks(ctx, db, []decodedWork{updated}, "new-issn", "New Journal"); err != nil {
+		t.Fatalf("store update: %v", err)
+	}
+	var doi, title, issn, journal, date, topic string
+	var year, cited, oa int
+	if err := db.QueryRowContext(ctx, `SELECT doi,title,journal_issn,journal_name,pub_year,pub_date,cited_count,is_oa,topic FROM lancet_works WHERE work_id='W1'`).Scan(
+		&doi, &title, &issn, &journal, &year, &date, &cited, &oa, &topic,
+	); err != nil {
+		t.Fatalf("query: %v", err)
+	}
+	if doi != updated.DOI || title != updated.Title || issn != "new-issn" || journal != "New Journal" || year != updated.Year || date != updated.Date || cited != updated.Cited || oa != 1 || topic != updated.Topic {
+		t.Fatalf("metadata was not refreshed: doi=%q title=%q issn=%q journal=%q year=%d date=%q cited=%d oa=%d topic=%q", doi, title, issn, journal, year, date, cited, oa, topic)
 	}
 }
 

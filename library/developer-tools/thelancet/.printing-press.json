@@ -8,6 +8,12 @@
     "name": "laci141",
     "handle": "laci141"
   },
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "description": "Search Lancet articles offline and analyze author impact, institutional networks, and editorial trends — powered by the free OpenAlex scholarly graph.",
   "display_name": "The Lancet",
   "generated_at": "2026-06-17T08:37:40.0869496Z",

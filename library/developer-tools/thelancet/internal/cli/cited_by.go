@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"unicode"
 
 	"github.com/spf13/cobra"
 )
@@ -88,11 +89,21 @@ func newCitedByCmd(flags *rootFlags) *cobra.Command {
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "%d works cite %s (showing %d)\n\n", page.Meta.Count, workID, len(page.Results))
 			for _, r := range page.Results {
-				fmt.Fprintf(cmd.OutOrStdout(), "[%d cites] %s (%d)\n", r.CitedByCount, r.Title, r.PublicationYear)
+				fmt.Fprintf(cmd.OutOrStdout(), "[%d cites] %s (%d)\n", r.CitedByCount, safeTerminalText(r.Title), r.PublicationYear)
 			}
 			return nil
 		},
 	}
 	cmd.Flags().IntVar(&limit, "limit", 25, "Maximum citing works to return")
 	return cmd
+}
+
+func safeTerminalText(s string) string {
+	s = strings.Map(func(r rune) rune {
+		if unicode.IsControl(r) {
+			return ' '
+		}
+		return r
+	}, s)
+	return strings.Join(strings.Fields(s), " ")
 }

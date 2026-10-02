@@ -78,7 +78,16 @@ func upsertWork(ctx context.Context, tx *sql.Tx, w decodedWork, issn, journalNam
 			(work_id, doi, title, journal_issn, journal_name, pub_year, pub_date, cited_count, is_oa, topic, synced_at)
 		VALUES (?,?,?,?,?,?,?,?,?,?,?)
 		ON CONFLICT(work_id) DO UPDATE SET
-			cited_count=excluded.cited_count, topic=excluded.topic, synced_at=excluded.synced_at`,
+			doi=excluded.doi,
+			title=excluded.title,
+			journal_issn=excluded.journal_issn,
+			journal_name=excluded.journal_name,
+			pub_year=excluded.pub_year,
+			pub_date=excluded.pub_date,
+			cited_count=excluded.cited_count,
+			is_oa=excluded.is_oa,
+			topic=excluded.topic,
+			synced_at=excluded.synced_at`,
 		w.ID, w.DOI, w.Title, issn, journalName, w.Year, w.Date, w.Cited, boolToInt(w.IsOA), w.Topic, syncedAt,
 	); err != nil {
 		return err

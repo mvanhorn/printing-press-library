@@ -130,12 +130,11 @@ func Refresh(ctx context.Context, c Fetcher, db *sql.DB, journ []Journal, fromYe
 	if err := EnsureSchema(ctx, db); err != nil {
 		return nil, err
 	}
-	// When a lower-bound year is set the caller wants historical coverage for
-	// the time-window analytics (drift, affiliation-growth), so fill oldest
-	// works first. With no bound, newest-first is the useful default for
-	// search/curate/rank-authors.
+	// A rolling lower bound has no fixed end and must keep the newest works
+	// when maxPages caps the result set. Only a fully bounded historical range
+	// fills oldest-first for time-window analytics.
 	sortOrder := "publication_date:desc"
-	if fromYear > 0 {
+	if fromYear > 0 && toYear > 0 {
 		sortOrder = "publication_date:asc"
 	}
 	var results []RefreshResult
