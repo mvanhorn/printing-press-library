@@ -81,3 +81,14 @@ func TestSTTJobStatusMarkerMatchesFailedStatePredicate(t *testing.T) {
 		}
 	}
 }
+
+func TestSTTJobReportPreservesZeroSuccessWhileRunning(t *testing.T) {
+	running := buildSTTJobReportView("job-1", sttJobStatusPayload{JobState: "running", TotalFiles: 10})
+	if running.SuccessfulFiles != 0 {
+		t.Fatalf("running success count=%d, want provider zero", running.SuccessfulFiles)
+	}
+	completed := buildSTTJobReportView("job-1", sttJobStatusPayload{JobState: "completed", TotalFiles: 10, FailedFiles: 2})
+	if completed.SuccessfulFiles != 8 {
+		t.Fatalf("completed success count=%d, want eight", completed.SuccessfulFiles)
+	}
+}

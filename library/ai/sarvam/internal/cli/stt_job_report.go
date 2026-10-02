@@ -91,24 +91,7 @@ func newNovelSttJobReportCmd(flags *rootFlags) *cobra.Command {
 				return apiErr(fmt.Errorf("parsing job status: %w", err))
 			}
 
-			view := sttJobReportView{
-				JobID:           jobID,
-				JobState:        status.JobState,
-				TotalFiles:      status.TotalFiles,
-				SuccessfulFiles: status.SuccessfulFiles,
-				FailedFiles:     status.FailedFiles,
-				FileDetails:     sttJobReportFileDetails(status.JobDetails),
-				FailedFileNames: sttJobInputFileNames(status.JobDetails, true),
-			}
-			if view.TotalFiles == 0 {
-				view.TotalFiles = len(view.FileDetails)
-			}
-			if view.FailedFiles == 0 && len(view.FailedFileNames) > 0 {
-				view.FailedFiles = len(view.FailedFileNames)
-			}
-			if view.SuccessfulFiles == 0 && view.TotalFiles >= view.FailedFiles {
-				view.SuccessfulFiles = view.TotalFiles - view.FailedFiles
-			}
+			view := buildSTTJobReportView(jobID, status)
 
 			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
 				if err := printJSONFiltered(cmd.OutOrStdout(), view, flags); err != nil {
@@ -130,6 +113,29 @@ func newNovelSttJobReportCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	return cmd
+}
+
+func buildSTTJobReportView(jobID string, status sttJobStatusPayload) sttJobReportView {
+	view := sttJobReportView{
+		JobID:           jobID,
+		JobState:        status.JobState,
+		TotalFiles:      status.TotalFiles,
+		SuccessfulFiles: status.SuccessfulFiles,
+		FailedFiles:     status.FailedFiles,
+		FileDetails:     sttJobReportFileDetails(status.JobDetails),
+		FailedFileNames: sttJobInputFileNames(status.JobDetails, true),
+	}
+	if view.TotalFiles == 0 {
+		view.TotalFiles = len(view.FileDetails)
+	}
+	if view.FailedFiles == 0 && len(view.FailedFileNames) > 0 {
+		view.FailedFiles = len(view.FailedFileNames)
+	}
+	state := strings.ToLower(strings.TrimSpace(view.JobState))
+	if view.SuccessfulFiles == 0 && view.TotalFiles >= view.FailedFiles && (state == "completed" || state == "partially_completed") {
+		view.SuccessfulFiles = view.TotalFiles - view.FailedFiles
+	}
+	return view
 }
 
 func sttJobDetailInputs(detail sttJobAPIDetail) []sttJobFileReference {

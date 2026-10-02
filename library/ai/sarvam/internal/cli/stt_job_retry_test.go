@@ -6,6 +6,8 @@ package cli
 
 import (
 	"bytes"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,6 +15,70 @@ import (
 
 	"github.com/mvanhorn/printing-press-library/library/ai/sarvam/internal/platform"
 )
+
+func TestSTTRetryPresignedTransportErrorDoesNotLeakURL(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "audio.wav"), []byte("audio"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/speech-to-text/job/v1/old/status":
+			_, _ = w.Write([]byte(`{"job_state":"failed","failed_files_count":1,"job_details":[{"inputs":[{"file_name":"audio.wav"}],"state":"failed"}]}`))
+		case "/speech-to-text/job/v1":
+			_, _ = w.Write([]byte(`{"job_id":"replacement"}`))
+		case "/speech-to-text/job/v1/upload-files":
+			_, _ = w.Write([]byte(`{"upload_urls":{"audio.wav":{"file_url":"https://127.0.0.1:1/audio?sig=fixture-signed-token"}}}`))
+		default:
+			http.Error(w, "unexpected request", http.StatusNotFound)
+		}
+	}))
+	defer server.Close()
+	t.Setenv("SARVAM_BASE_URL", server.URL)
+	t.Setenv("SARVAM_API_KEY", "sk_test_fixture")
+	t.Setenv("XDG_STATE_HOME", t.TempDir())
+	var stdout, stderr bytes.Buffer
+	cmd := RootCmd()
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&stderr)
+	cmd.SetArgs([]string{"stt-job", "retry", "old", "--dir", dir, "--config", filepath.Join(t.TempDir(), "missing.toml")})
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatalf("retry unexpectedly succeeded: stdout=%q stderr=%q", stdout.String(), stderr.String())
+	}
+	if !strings.Contains(err.Error(), "presigned upload request") {
+		t.Fatalf("retry did not reach signed upload transport: %v", err)
+	}
+	if strings.Contains(err.Error(), "fixture-signed-token") || strings.Contains(stderr.String(), "fixture-signed-token") {
+		t.Fatal("signed upload URL leaked through retry error")
+	}
+}
+
+func TestSTTRetryMissingInitialInputDoesNotClaimCheckpoint(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet || r.URL.Path != "/speech-to-text/job/v1/old/status" {
+			http.Error(w, "unexpected request", http.StatusBadRequest)
+			return
+		}
+		_, _ = w.Write([]byte(`{"job_state":"failed","failed_files_count":1,"job_details":[{"inputs":[{"file_name":"missing.wav"}],"state":"failed"}]}`))
+	}))
+	defer server.Close()
+	t.Setenv("SARVAM_BASE_URL", server.URL)
+	t.Setenv("SARVAM_API_KEY", "sk_test_fixture")
+	t.Setenv("XDG_STATE_HOME", t.TempDir())
+	cmd := RootCmd()
+	cmd.SetArgs([]string{"stt-job", "retry", "old", "--dir", t.TempDir(), "--config", filepath.Join(t.TempDir(), "missing.toml")})
+	if err := cmd.Execute(); err == nil {
+		t.Fatal("missing initial input was accepted")
+	}
+	checkpointPath, err := sttRetryCheckpointPath("old", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(checkpointPath); !os.IsNotExist(err) {
+		t.Fatalf("missing input left a checkpoint claim: stat error=%v", err)
+	}
+}
 
 // TestNovelSttJobRetryHelpWires smoke-tests that the stt-job retry command
 // resolves at runtime and renders useful --help output. Catches wiring
@@ -99,11 +165,19 @@ func TestSTTRetryCheckpointResumesReplacementAndTracksUploads(t *testing.T) {
 	if !resumed || got.ReplacementJobID != "replacement-job" || len(got.UploadedFiles) != 1 {
 		t.Fatalf("resumed checkpoint = %#v, resumed = %v", got, resumed)
 	}
-	prepared := []preparedSTTRetryFile{{Name: "one.wav"}, {Name: "two.wav"}}
-	pending := pendingSTTRetryFiles(prepared, got.UploadedFiles)
-	if len(pending) != 1 || pending[0].Name != "two.wav" {
-		t.Fatalf("pendingSTTRetryFiles() = %#v", pending)
+	pending := pendingSTTRetryFileNames(files, got.UploadedFiles)
+	if len(pending) != 1 || pending[0] != "two.wav" {
+		t.Fatalf("pendingSTTRetryFileNames() = %#v", pending)
 	}
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "two.wav"), []byte("audio"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	prepared, err := prepareSTTRetryFiles(dir, pending)
+	if err != nil {
+		t.Fatalf("missing already-uploaded input blocked resumption: %v", err)
+	}
+	closePreparedSTTRetryFiles(prepared)
 
 	if _, _, err := acquireSTTRetryCheckpoint(path, "old-job", []string{"different.wav"}); err == nil {
 		t.Fatal("acquireSTTRetryCheckpoint() accepted a different pending file set")
@@ -118,6 +192,47 @@ func TestSTTRetryCheckpointResumesReplacementAndTracksUploads(t *testing.T) {
 	}
 	if !resumed || !completed.Started || completed.ReplacementJobID != "replacement-job" {
 		t.Fatalf("completed checkpoint = %#v, resumed = %v", completed, resumed)
+	}
+}
+
+func TestPreparedSTTRetryFileRejectsChangedSize(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "audio.wav")
+	if err := os.WriteFile(path, []byte("audio"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	prepared, err := prepareSTTRetryFiles(dir, []string{"audio.wav"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer closePreparedSTTRetryFiles(prepared)
+	if err := validatePreparedSTTRetryFileSize(prepared[0]); err != nil {
+		t.Fatalf("unchanged file rejected: %v", err)
+	}
+	file, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := file.Write([]byte("more")); err != nil {
+		t.Fatal(err)
+	}
+	if err := file.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if err := validatePreparedSTTRetryFileSize(prepared[0]); err == nil {
+		t.Fatal("changed input size was accepted for upload checkpoint")
+	}
+}
+
+func TestUnsavedSTTRetryIDRequiresManualReconciliation(t *testing.T) {
+	err := unsavedSTTRetryIDError("replacement-1", "/state/retry.json", os.ErrPermission)
+	for _, want := range []string{"replacement-1", "reconcile", "/state/retry.json"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Fatalf("error %q missing %q", err, want)
+		}
+	}
+	if strings.Contains(err.Error(), "resumable") || strings.Contains(err.Error(), "rerun this command") {
+		t.Fatalf("error falsely promises automatic resumption: %q", err)
 	}
 }
 

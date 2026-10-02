@@ -75,11 +75,6 @@ func newNovelSttJobRetryCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintln(cmd.OutOrStdout(), "no failed files to retry")
 				return nil
 			}
-			preparedFiles, err := prepareSTTRetryFiles(flagDir, filesToRetry)
-			if err != nil {
-				return apiErr(err)
-			}
-			defer closePreparedSTTRetryFiles(preparedFiles)
 			checkpointPath, err := sttRetryCheckpointPath(jobID, flags)
 			if err != nil {
 				return configErr(fmt.Errorf("preparing retry checkpoint: %w", err))
@@ -93,13 +88,39 @@ func newNovelSttJobRetryCmd(flags *rootFlags) *cobra.Command {
 					fmt.Fprintf(cmd.ErrOrStderr(), "warning: retry lock could not be removed: %v\n", err)
 				}
 			}()
-			checkpoint, resumed, err := acquireSTTRetryCheckpoint(checkpointPath, jobID, filesToRetry)
+			// A new attempt must validate every local input before claiming a
+			// checkpoint. Otherwise a missing file would leave an empty claim
+			// that blocks every later retry. Existing attempts only need files
+			// that their checkpoint has not recorded as uploaded.
+			_, checkpointExists, err := loadSTTRetryCheckpoint(checkpointPath, jobID, filesToRetry)
 			if err != nil {
 				return configErr(err)
 			}
+			var preparedFiles []preparedSTTRetryFile
+			if !checkpointExists {
+				preparedFiles, err = prepareSTTRetryFiles(flagDir, filesToRetry)
+				if err != nil {
+					return apiErr(err)
+				}
+			}
+			checkpoint, resumed, err := acquireSTTRetryCheckpoint(checkpointPath, jobID, filesToRetry)
+			if err != nil {
+				closePreparedSTTRetryFiles(preparedFiles)
+				return configErr(err)
+			}
 			if checkpoint.Started {
+				closePreparedSTTRetryFiles(preparedFiles)
 				return writeSTTRetryResult(cmd, flags, jobID, checkpoint.ReplacementJobID, filesToRetry, true, "already_started")
 			}
+			remainingNames := pendingSTTRetryFileNames(filesToRetry, checkpoint.UploadedFiles)
+			if checkpointExists || resumed {
+				closePreparedSTTRetryFiles(preparedFiles)
+				preparedFiles, err = prepareSTTRetryFiles(flagDir, remainingNames)
+				if err != nil {
+					return apiErr(err)
+				}
+			}
+			defer closePreparedSTTRetryFiles(preparedFiles)
 
 			// 2. Initiate a replacement only when no resumable one exists. The
 			// checkpoint is claimed first, so concurrent/rerun invocations never
@@ -126,21 +147,19 @@ func newNovelSttJobRetryCmd(flags *rootFlags) *cobra.Command {
 				}
 				checkpoint.ReplacementJobID = initResp.JobID
 				if err := saveSTTRetryCheckpoint(checkpointPath, checkpoint); err != nil {
-					return pendingSTTRetryError(initResp.JobID, checkpointPath, configErr(fmt.Errorf("saving retry checkpoint: %w", err)))
+					return unsavedSTTRetryIDError(initResp.JobID, checkpointPath, err)
 				}
 			}
 			newJobID := checkpoint.ReplacementJobID
 
 			// 3. Get presigned URLs only for files not already recorded as
 			// uploaded by a previous attempt.
-			remaining := pendingSTTRetryFiles(preparedFiles, checkpoint.UploadedFiles)
 			var uploadResp struct {
 				UploadURLs map[string]struct {
 					FileURL string `json:"file_url"`
 				} `json:"upload_urls"`
 			}
-			if len(remaining) > 0 {
-				remainingNames := sttRetryFileNames(remaining)
+			if len(preparedFiles) > 0 {
 				uploadData, _, err := c.Post(ctx, "/speech-to-text/job/v1/upload-files", map[string]any{
 					"job_id": newJobID,
 					"files":  remainingNames,
@@ -155,7 +174,7 @@ func newNovelSttJobRetryCmd(flags *rootFlags) *cobra.Command {
 
 			// 4. Upload each remaining file and checkpoint progress. Open file
 			// descriptors were validated before the replacement was created.
-			for _, prepared := range remaining {
+			for _, prepared := range preparedFiles {
 				fname := prepared.Name
 				info, ok := uploadResp.UploadURLs[fname]
 				if !ok || info.FileURL == "" {
@@ -167,21 +186,27 @@ func newNovelSttJobRetryCmd(flags *rootFlags) *cobra.Command {
 				if _, err := prepared.File.Seek(0, io.SeekStart); err != nil {
 					return pendingSTTRetryError(newJobID, checkpointPath, apiErr(fmt.Errorf("rewinding %s: %w", prepared.Path, err)))
 				}
+				if err := validatePreparedSTTRetryFileSize(prepared); err != nil {
+					return pendingSTTRetryError(newJobID, checkpointPath, apiErr(err))
+				}
 				req, err := http.NewRequestWithContext(ctx, http.MethodPut, info.FileURL, prepared.File)
 				if err != nil {
-					return pendingSTTRetryError(newJobID, checkpointPath, apiErr(fmt.Errorf("building upload request for %s: %w", fname, err)))
+					return pendingSTTRetryError(newJobID, checkpointPath, apiErr(fmt.Errorf("building presigned upload request for %s failed", fname)))
 				}
 				req.ContentLength = prepared.Size
 				req.Header.Set("Content-Type", "application/octet-stream")
 				uploadClient := presignedUploadHTTPClient(c.HTTPClient, flags.timeout)
 				resp, err := uploadClient.Do(req)
 				if err != nil {
-					return pendingSTTRetryError(newJobID, checkpointPath, apiErr(fmt.Errorf("uploading %s: %w", fname, err)))
+					return pendingSTTRetryError(newJobID, checkpointPath, apiErr(fmt.Errorf("presigned upload request for %s failed", fname)))
 				}
 				_, _ = io.Copy(io.Discard, resp.Body)
 				_ = resp.Body.Close()
 				if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 					return pendingSTTRetryError(newJobID, checkpointPath, apiErr(fmt.Errorf("uploading %s: HTTP %d", fname, resp.StatusCode)))
+				}
+				if err := validatePreparedSTTRetryFileSize(prepared); err != nil {
+					return pendingSTTRetryError(newJobID, checkpointPath, apiErr(err))
 				}
 				checkpoint.UploadedFiles = append(checkpoint.UploadedFiles, fname)
 				if err := saveSTTRetryCheckpoint(checkpointPath, checkpoint); err != nil {

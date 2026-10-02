@@ -161,26 +161,29 @@ func closePreparedSTTRetryFiles(files []preparedSTTRetryFile) {
 	}
 }
 
-func sttRetryFileNames(files []preparedSTTRetryFile) []string {
-	names := make([]string, 0, len(files))
-	for _, file := range files {
-		names = append(names, file.Name)
-	}
-	return names
-}
-
-func pendingSTTRetryFiles(files []preparedSTTRetryFile, uploaded []string) []preparedSTTRetryFile {
+func pendingSTTRetryFileNames(files, uploaded []string) []string {
 	done := make(map[string]struct{}, len(uploaded))
 	for _, name := range uploaded {
 		done[name] = struct{}{}
 	}
-	pending := make([]preparedSTTRetryFile, 0, len(files))
-	for _, file := range files {
-		if _, ok := done[file.Name]; !ok {
-			pending = append(pending, file)
+	pending := make([]string, 0, len(files))
+	for _, name := range files {
+		if _, ok := done[name]; !ok {
+			pending = append(pending, name)
 		}
 	}
 	return pending
+}
+
+func validatePreparedSTTRetryFileSize(prepared preparedSTTRetryFile) error {
+	info, err := prepared.File.Stat()
+	if err != nil {
+		return fmt.Errorf("stating retry input %q: %w", prepared.Name, err)
+	}
+	if !info.Mode().IsRegular() || info.Size() != prepared.Size {
+		return fmt.Errorf("retry input %q changed size before upload completed; refusing to mark it uploaded", prepared.Name)
+	}
+	return nil
 }
 
 func sttRetryCheckpointPath(originalJobID string, flags *rootFlags) (string, error) {
@@ -303,6 +306,10 @@ func pendingSTTRetryError(replacementJobID, checkpointPath string, err error) er
 		return fmt.Errorf("%w; retry initiation has an unknown outcome recorded at %s, so reruns will refuse to create a duplicate until it is reconciled", err, checkpointPath)
 	}
 	return fmt.Errorf("%w; replacement job %s remains resumable from %s — rerun this command", err, replacementJobID, checkpointPath)
+}
+
+func unsavedSTTRetryIDError(replacementJobID, checkpointPath string, err error) error {
+	return configErr(fmt.Errorf("replacement job %s was created but its ID could not be saved: %w; inspect provider jobs and reconcile checkpoint %s before rerunning", replacementJobID, err, checkpointPath))
 }
 
 func sameSTTRetryFileSet(a, b []string) bool {
