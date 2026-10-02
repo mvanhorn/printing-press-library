@@ -269,6 +269,36 @@ func TestForgetLearnings(t *testing.T) {
 	}
 }
 
+func TestInventoryAliasCanListAndForgetByRecalledVIN(t *testing.T) {
+	s := openLearnings(t)
+	const vin = "5YJ3E1EA7KF317000"
+	if _, err := s.DB().Exec(`INSERT INTO resource_id_aliases (resource_type, old_id, new_id)
+		VALUES ('inventory', 'Model 3', ?)`, vin); err != nil {
+		t.Fatal(err)
+	}
+	for _, id := range []string{"Model 3", vin} {
+		if _, _, err := s.UpsertLearning(context.Background(), store.UpsertLearningInput{
+			Query: "Alpha widget", ResourceID: id, ResourceType: "inventory", Action: store.LearningActionBoost,
+		}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	rows, err := s.ListLearnings(context.Background(), store.ListLearningsFilter{ResourceID: vin})
+	if err != nil || len(rows) != 2 {
+		t.Fatalf("list by recalled VIN = %d rows, %v", len(rows), err)
+	}
+	n, err := s.ForgetLearnings(context.Background(), store.ForgetLearningsFilter{
+		Query: "Alpha widget", ResourceID: vin,
+	})
+	if err != nil || n != 2 {
+		t.Fatalf("forget by recalled VIN deleted %d rows, %v", n, err)
+	}
+	rows, err = s.ListLearnings(context.Background(), store.ListLearningsFilter{ResourceID: vin})
+	if err != nil || len(rows) != 0 {
+		t.Fatalf("taught rows still visible after forget: %d, %v", len(rows), err)
+	}
+}
+
 // stubApplier is a minimal in-memory bundle for testing the rerank Apply
 // pass without depending on the topic/compare hit structs.
 type stubApplier struct {

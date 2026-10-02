@@ -14,11 +14,13 @@
     "internal/store/inventory_vin_test.go",
     "internal/store/inventory_link_migration.go",
     "internal/store/inventory_link_migration_test.go",
+    "internal/store/learnings.go",
+    "internal/store/learnings_test.go",
     "internal/learn/recall.go",
     "internal/learn/recall_test.go",
     "internal/learn/recall_canonical_test.go",
     "internal/learn/patterns/apply.go",
     "internal/cli/teslatracker_inventory_sync_vin_test.go"
   ],
-  "validated_outcome": "A normal HTML sync supports local VIN lookup; a v9 store rekeys safe old links while preserving learning rows and resolving exact old inventory IDs to VINs, skips ambiguous names and unscoped references, and preserves hydrated vehicle or full detail records; later sync refreshes listing metadata; full Go tests, vet, builds, skill verification, and diff check pass."
+  "validated_outcome": "A normal HTML sync supports local VIN lookup; a v9 store rekeys safe old links while preserving learning rows and resolving exact old inventory IDs to VINs, including list and forget by VIN; it skips ambiguous names and unscoped references, and preserves hydrated vehicle or full detail records; later sync refreshes listing metadata; full Go tests, vet, builds, skill verification, and diff check pass."
 }

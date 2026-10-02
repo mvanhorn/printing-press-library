@@ -425,6 +425,12 @@ type ListLearningsFilter struct {
 	MinConfidence int
 }
 
+// An inventory learning may retain its old display-name ID while recall
+// presents the stable VIN. Match both IDs when a user filters by VIN.
+const learningResourceIDFilter = `(resource_id = ? OR
+	(resource_type = 'inventory' AND resource_id IN
+	 (SELECT old_id FROM resource_id_aliases WHERE resource_type = 'inventory' AND new_id = ?)))`
+
 // ListLearnings returns rows ordered by last_observed_at DESC. The query
 // filter applies a normalized LIKE match against query_pattern so a
 // filter value of "portugal" matches a row taught for "portugal world
@@ -441,8 +447,8 @@ func (s *Store) ListLearnings(ctx context.Context, f ListLearningsFilter) ([]Lea
 		args = append(args, f.Source)
 	}
 	if f.ResourceID != "" {
-		clauses = append(clauses, "resource_id = ?")
-		args = append(args, f.ResourceID)
+		clauses = append(clauses, learningResourceIDFilter)
+		args = append(args, f.ResourceID, f.ResourceID)
 	}
 	if f.Action != "" {
 		clauses = append(clauses, "action = ?")
@@ -525,8 +531,8 @@ func (s *Store) ForgetLearnings(ctx context.Context, f ForgetLearningsFilter) (i
 	clauses := []string{"query_pattern = ?"}
 	args := []any{pattern}
 	if f.ResourceID != "" {
-		clauses = append(clauses, "resource_id = ?")
-		args = append(args, f.ResourceID)
+		clauses = append(clauses, learningResourceIDFilter)
+		args = append(args, f.ResourceID, f.ResourceID)
 	}
 	if f.Action != "" {
 		clauses = append(clauses, "action = ?")
