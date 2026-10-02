@@ -351,7 +351,12 @@ func refreshCardataAccessToken(ctx context.Context, cfg *config.Config, now time
 			return nil
 		}
 		if err := migrateLegacyCardataSessionLocked(fresh, now); err != nil {
-			return fmt.Errorf("migrating streaming session: %w", err)
+			if force {
+				return fmt.Errorf("migrating streaming session: %w", err)
+			}
+			// An optional old streaming sidecar must not block ordinary API
+			// token refresh. Streaming will still refuse unusable sidecars.
+			fmt.Fprintln(os.Stderr, "warning: old streaming session could not be migrated; refreshing API credentials anyway")
 		}
 		if force {
 			// Another process may have renewed the streaming identity while
@@ -522,6 +527,13 @@ func validCardataIDToken(token string, now time.Time) bool {
 // currentCardataStreamSession renews credentials before MQTT connects. The ID
 // token has its own expiry, which can differ from the API access token expiry.
 func currentCardataStreamSession(ctx context.Context, cfg *config.Config, now time.Time, target string) (map[string]string, error) {
+	if cfg.Path != "" {
+		fresh, err := config.Load(cfg.Path)
+		if err != nil {
+			return nil, err
+		}
+		*cfg = *fresh
+	}
 	if err := migrateLegacyCardataSession(ctx, cfg, now); err != nil {
 		return nil, err
 	}
@@ -586,7 +598,15 @@ func migrateLegacyCardataSession(ctx context.Context, cfg *config.Config, now ti
 		return err
 	}
 	return withCardataRefreshLock(ctx, cfg.Path, func() error {
-		return migrateLegacyCardataSessionLocked(cfg, now)
+		fresh, err := config.Load(cfg.Path)
+		if err != nil {
+			return err
+		}
+		if err := migrateLegacyCardataSessionLocked(fresh, now); err != nil {
+			return err
+		}
+		*cfg = *fresh
+		return nil
 	})
 }
 
@@ -702,16 +722,14 @@ func writeCardataSession(cfg *config.Config, clientID string, tok *cardataToken,
 	return os.Remove(legacy)
 }
 
-// loadCardataSession reads the streaming session sidecar.
+// loadCardataSession reads only the shared sidecar. Legacy alias data must be
+// migrated under the refresh lock before any streaming identity is reused.
 func loadCardataSession(cfg *config.Config) (map[string]string, error) {
 	shared, err := cardataSharedSessionPath(cfg)
 	if err != nil {
 		return nil, err
 	}
 	data, err := os.ReadFile(shared)
-	if os.IsNotExist(err) && shared != cardataSessionPath(cfg) {
-		data, err = os.ReadFile(cardataSessionPath(cfg))
-	}
 	if err != nil {
 		return nil, err
 	}
@@ -724,6 +742,9 @@ func loadCardataSession(cfg *config.Config) (map[string]string, error) {
 		if s, ok := v.(string); ok {
 			out[k] = s
 		}
+	}
+	if cfg.ClientID != "" && out["client_id"] != cfg.ClientID {
+		return nil, fmt.Errorf("streaming session belongs to another client")
 	}
 	return out, nil
 }

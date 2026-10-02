@@ -537,6 +537,113 @@ func TestSidecarMigrationSelectsUsableSession(t *testing.T) {
 	}
 }
 
+func TestUnusableAliasSidecarDoesNotBlockAPIRefresh(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		data func(time.Time) []byte
+	}{
+		{"malformed", func(time.Time) []byte { return []byte("{invalid") }},
+		{"foreign-client", func(now time.Time) []byte {
+			data, _ := json.Marshal(map[string]string{"client_id": "other-client", "gcid": "gcid", "id_token": testIDToken(now.Add(time.Hour))})
+			return data
+		}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "")
+			now := time.Now().UTC()
+			dir := t.TempDir()
+			target := filepath.Join(dir, "target", "config.toml")
+			initial, err := config.Load(target)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := initial.SaveTokens("client", "", "old-access", "old-refresh", now.Add(-time.Hour)); err != nil {
+				t.Fatal(err)
+			}
+			aliasDir := filepath.Join(dir, "alias")
+			if err := os.MkdirAll(aliasDir, 0o700); err != nil {
+				t.Fatal(err)
+			}
+			alias := filepath.Join(aliasDir, "config.toml")
+			if err := os.Symlink(target, alias); err != nil {
+				t.Skipf("symlinks unavailable: %v", err)
+			}
+			selected, err := config.Load(alias)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := config.WritePrivateFile(cardataSessionPath(selected), tc.data(now)); err != nil {
+				t.Fatal(err)
+			}
+			var calls atomic.Int32
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				calls.Add(1)
+				_, _ = w.Write([]byte(`{"access_token":"new-access","refresh_token":"new-refresh","expires_in":3600}`))
+			}))
+			defer server.Close()
+			if session, err := currentCardataStreamSession(context.Background(), selected, now, server.URL); err == nil || session != nil {
+				t.Fatal("stream accepted unusable alias-side session")
+			}
+			if calls.Load() != 0 {
+				t.Fatal("stream called provider before rejecting unusable alias-side session")
+			}
+			if err := RefreshCardataAccessTokenIfNeeded(context.Background(), selected, now, server.URL); err != nil {
+				t.Fatalf("API token refresh was blocked by optional sidecar: %v", err)
+			}
+			if calls.Load() != 1 {
+				t.Fatalf("API refresh calls = %d, want 1", calls.Load())
+			}
+			reloaded, err := config.Load(target)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if reloaded.AccessToken != "new-access" || reloaded.RefreshToken != "new-refresh" {
+				t.Fatal("ordinary OAuth refresh did not persist new credentials")
+			}
+		})
+	}
+}
+
+func TestForeignSharedSidecarCannotSupplyStreamingIdentity(t *testing.T) {
+	t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "")
+	now := time.Now().UTC()
+	cfg, err := config.Load(filepath.Join(t.TempDir(), "config.toml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := cfg.SaveTokens("current-client", "", "access", "refresh", now.Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	shared, err := cardataSharedSessionPath(cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	foreignID := testIDToken(now.Add(2 * time.Hour))
+	data, err := json.Marshal(map[string]string{"client_id": "other-client", "gcid": "gcid", "id_token": foreignID})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := config.WritePrivateFile(shared, data); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := loadCardataSession(cfg); err == nil {
+		t.Fatal("foreign streaming sidecar was accepted")
+	}
+	var calls atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		calls.Add(1)
+		_, _ = w.Write([]byte(`{"access_token":"renewed-access","refresh_token":"renewed-refresh","expires_in":3600}`))
+	}))
+	defer server.Close()
+	session, err := currentCardataStreamSession(context.Background(), cfg, now, server.URL)
+	if session != nil || !errors.Is(err, ErrCardataLoginRequired) {
+		t.Fatalf("foreign ID token supplied stream: %v", err)
+	}
+	if calls.Load() != 1 {
+		t.Fatalf("forced refresh calls = %d, want 1", calls.Load())
+	}
+}
+
 func TestCurrentCardataStreamSessionRechecksIdentityUnderLock(t *testing.T) {
 	t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "")
 	now := time.Now().UTC()
