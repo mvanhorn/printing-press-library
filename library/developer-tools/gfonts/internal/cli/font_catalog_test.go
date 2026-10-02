@@ -1,6 +1,10 @@
-package main
+package cli
 
-import "testing"
+import (
+	"os"
+	"path/filepath"
+	"testing"
+)
 
 func TestCategoryKey(t *testing.T) {
 	t.Parallel()
@@ -25,10 +29,10 @@ func TestCategoryKey(t *testing.T) {
 func TestCategoriesMatch(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
-		name    string
-		stored  string
-		query   string
-		want    bool
+		name   string
+		stored string
+		query  string
+		want   bool
 	}{
 		{name: "hyphen slug matches stored display name", stored: "Sans Serif", query: "sans-serif", want: true},
 		{name: "stored display name still matches", stored: "Sans Serif", query: "Sans Serif", want: true},
@@ -60,9 +64,9 @@ func TestFilterByCategory(t *testing.T) {
 		},
 	}
 	cases := []struct {
-		name     string
-		query    string
-		want     []string
+		name  string
+		query string
+		want  []string
 	}{
 		{name: "hyphen slug matches fonts with Category Sans Serif", query: "sans-serif", want: []string{"Inter"}},
 		{name: "stored display name still matches", query: "Sans Serif", want: []string{"Inter"}},
@@ -94,4 +98,35 @@ func families(fonts []Font) []string {
 		out[i] = f.Family
 	}
 	return out
+}
+
+func TestWriteMetadataCacheReplacesSymlinkWithoutFollowingIt(t *testing.T) {
+	dir := t.TempDir()
+	target := filepath.Join(dir, "target")
+	if err := os.WriteFile(target, []byte("keep"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	cache := filepath.Join(dir, "cache", "metadata.json")
+	if err := os.Mkdir(filepath.Dir(cache), 0700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(target, cache); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	if err := writeMetadataCache(cache, []byte(`{"familyMetadataList":[{}]}`)); err != nil {
+		t.Fatalf("writeMetadataCache: %v", err)
+	}
+	if got, err := os.ReadFile(target); err != nil || string(got) != "keep" {
+		t.Fatalf("symlink target changed: data=%q err=%v", got, err)
+	}
+	if info, err := os.Lstat(cache); err != nil || !info.Mode().IsRegular() {
+		t.Fatalf("cache was not replaced with a regular file: info=%v err=%v", info, err)
+	}
+}
+
+func TestWriteFontFileReportsCreationFailure(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "missing", "font.ttf")
+	if err := writeFontFile(path, []byte("font")); err == nil {
+		t.Fatal("writeFontFile unexpectedly succeeded for a missing parent")
+	}
 }

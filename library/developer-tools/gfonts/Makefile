@@ -1,7 +1,8 @@
 .PHONY: build install clean test version
 
 VERSION := $(shell git describe --tags --always 2>/dev/null || echo dev)
-LDFLAGS := -s -w -X main.version=$(VERSION)
+VERSION_SYMBOL := github.com/mvanhorn/printing-press-library/library/developer-tools/gfonts/internal/cli.version
+LDFLAGS := -s -w -X $(VERSION_SYMBOL)=$(VERSION)
 BINARY := gfonts-pp-cli
 PREFIX ?= $(HOME)/.local/bin
 

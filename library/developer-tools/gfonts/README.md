@@ -2,33 +2,26 @@
 
 A fast, zero-auth CLI for searching, browsing, and downloading fonts from [Google Fonts](https://fonts.google.com). No API key required — just install and go.
 
+Created by [@neal-kyle](https://github.com/neal-kyle) (neal-kyle).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
+Metadata is cached privately under your user cache directory. Downloads now report failed files and exit with an error when any requested file cannot be saved.
+
 ## Install
 
-### Quick install (builds from source)
+### Printing Press installer
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/neal-kyle/gfonts/main/install.sh | bash
+npx -y @mvanhorn/printing-press-library install gfonts --cli-only
+gfonts-pp-cli --version
 ```
 
-Requires [Go](https://go.dev/dl/) installed. The script clones the repo, builds the binary, and installs it to `~/.local/bin`.
-
-> **Private repo?** `curl` can't access private repos. Use `gh` instead:
-> ```bash
-> gh repo clone neal-kyle/gfonts && cd gfonts && make install
-> ```
-
-### Manual install
+### Build from this catalog checkout
 
 ```bash
-git clone https://github.com/neal-kyle/gfonts.git
-cd gfonts
-make install
-```
-
-Or build directly:
-
-```bash
-go build -o gfonts .
+cd library/developer-tools/gfonts
+go build -o gfonts-pp-cli ./cmd/gfonts-pp-cli
+./gfonts-pp-cli --version
 ```
 
 ## Usage
@@ -37,60 +30,60 @@ go build -o gfonts .
 
 ```bash
 # Search by name, category, or designer
-gfonts search "serif"
-gfonts search "playfair"
-gfonts search "Sorkin"
+gfonts-pp-cli search "serif"
+gfonts-pp-cli search "playfair"
+gfonts-pp-cli search "Sorkin"
 ```
 
 ### Browse and filter
 
 ```bash
 # Top fonts by popularity
-gfonts list
+gfonts-pp-cli list
 
 # Filter by category
-gfonts list --category serif
-gfonts list --category sans-serif --sort trending --limit 10
+gfonts-pp-cli list --category serif
+gfonts-pp-cli list --category sans-serif --sort trending --limit 10
 
 # Sort options: popularity (default), alpha, date, trending
-gfonts list --sort alpha --limit 25
+gfonts-pp-cli list --sort alpha --limit 25
 ```
 
 ### Font details
 
 ```bash
-gfonts info "Playfair Display"
-gfonts info "inter"           # case-insensitive, fuzzy match
+gfonts-pp-cli info "Playfair Display"
+gfonts-pp-cli info "inter"           # case-insensitive, fuzzy match
 ```
 
 ### Download fonts
 
 ```bash
 # Preview available files without downloading
-gfonts download "Inter" --show
+gfonts-pp-cli download "Inter" --show
 
 # Download all variants
-gfonts download "Cormorant Garamond"
+gfonts-pp-cli download "Cormorant Garamond"
 
 # Download specific variant to a custom directory
-gfonts download "Inter" --variant regular --output ./my-fonts
-gfonts download "Playfair Display" --variant 700italic
+gfonts-pp-cli download "Inter" --variant regular --output ./my-fonts
+gfonts-pp-cli download "Playfair Display" --variant 700italic
 ```
 
 ### Discover
 
 ```bash
 # Trending/popular fonts
-gfonts trending
-gfonts trending 25
+gfonts-pp-cli trending
+gfonts-pp-cli trending 25
 
 # All categories with counts
-gfonts categories
+gfonts-pp-cli categories
 
 # Random font (great for inspiration)
-gfonts random
-gfonts random --category serif
-gfonts random --category display
+gfonts-pp-cli random
+gfonts-pp-cli random --category serif
+gfonts-pp-cli random --category display
 ```
 
 ## Commands
@@ -107,7 +100,7 @@ gfonts random --category display
 
 ## How it works
 
-gfonts uses Google Fonts' public metadata endpoint — the same one that powers the [fonts.google.com](https://fonts.google.com) website. No API key, no OAuth, no Google Cloud project needed.
+`gfonts-pp-cli` uses Google Fonts' public metadata endpoint — the same one that powers [fonts.google.com](https://fonts.google.com). No API key, OAuth flow, or Google Cloud project is needed.
 
 - **Metadata** is fetched from `fonts.google.com/metadata/fonts` and cached locally for 24 hours
 - **Font files** are downloaded from Google's CDN via the CSS2 API
@@ -123,17 +116,13 @@ gfonts uses Google Fonts' public metadata endpoint — the same one that powers 
 | Serif | 349 |
 | Monospace | 51 |
 
-## Hermes Agent Skill
+## Agent skill
 
-This repo includes an agent skill (`skills/gfonts/SKILL.md`) that teaches AI agents how to use gfonts. The install script auto-detects installed agents and offers to install the skill for:
+The catalog ships an agent skill for this CLI. Install it with:
 
-- **Hermes** — `~/.hermes/skills/creative/gfonts/SKILL.md`
-- **Claude Code** — `~/.claude/commands/gfonts.md`
-- **Codex** — `~/.codex/instructions.md`
-- **OpenCode** — `~/.opencode/gfonts.md`
-- **Agents** (generic) — `~/.agents/skills/gfonts/SKILL.md`
-
-You can also install manually by copying `skills/gfonts/SKILL.md` to your agent's skill directory.
+```bash
+npx skills add mvanhorn/printing-press-library -g -y --skill pp-gfonts
+```
 
 ## License
 
