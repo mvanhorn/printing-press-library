@@ -43,18 +43,6 @@ func Load(configPath string) (*Config, error) {
 		home, _ := os.UserHomeDir()
 		path = filepath.Join(home, ".config", "bmw-cardata-pp-cli", "config.toml")
 	}
-	// A file symlink needs the target's sidecar and refresh lock. Preserve the
-	// selected path for ordinary files, even when an ancestor directory is a
-	// symlink (for example /var on macOS).
-	if info, err := os.Lstat(path); err == nil && info.Mode()&os.ModeSymlink != 0 {
-		resolved, err := CanonicalPath(path)
-		if err != nil {
-			return nil, fmt.Errorf("resolving config symlink: %w", err)
-		}
-		path = resolved
-	} else if err != nil && !os.IsNotExist(err) {
-		return nil, fmt.Errorf("checking config path: %w", err)
-	}
 	cfg.Path = path
 
 	// Try to load config file

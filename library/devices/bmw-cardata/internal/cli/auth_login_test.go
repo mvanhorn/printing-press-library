@@ -307,17 +307,6 @@ func TestRefreshCardataAccessTokenSerializesConfigAliases(t *testing.T) {
 	if firstPath != secondPath {
 		t.Fatal("aliases do not share a config target")
 	}
-	firstSession, err := config.CanonicalPath(cardataSessionPath(first))
-	if err != nil {
-		t.Fatal(err)
-	}
-	secondSession, err := config.CanonicalPath(cardataSessionPath(second))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if firstSession != secondSession {
-		t.Fatal("aliases do not share a streaming session target")
-	}
 	var calls atomic.Int32
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		calls.Add(1)
@@ -349,6 +338,58 @@ func TestRefreshCardataAccessTokenSerializesConfigAliases(t *testing.T) {
 	}
 	if info, err := os.Lstat(alias); err != nil || info.Mode()&os.ModeSymlink == 0 {
 		t.Fatalf("refresh replaced config alias: %v", err)
+	}
+}
+
+func TestLogoutRemovesExistingSidecarBesideConfigAlias(t *testing.T) {
+	t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "")
+	dir := t.TempDir()
+	target := filepath.Join(dir, "target", "config.toml")
+	initial, err := config.Load(target)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := initial.SaveTokens("client", "", "access", "refresh", time.Now().Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	aliasDir := filepath.Join(dir, "alias")
+	if err := os.MkdirAll(aliasDir, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	alias := filepath.Join(aliasDir, "config.toml")
+	if err := os.Symlink(target, alias); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	selected, err := config.Load(alias)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if selected.Path != alias {
+		t.Fatalf("selected config path = %q, want alias", selected.Path)
+	}
+	if err := writeCardataSession(selected, "client", &cardataToken{
+		AccessToken: "access", RefreshToken: "refresh", IDToken: testIDToken(time.Now().Add(time.Hour)), GCID: "gcid",
+	}, selected.TokenExpiry); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := loadCardataSession(selected); err != nil {
+		t.Fatalf("existing alias-side session was lost: %v", err)
+	}
+	cmd := newAuthLogoutCmd(&rootFlags{configPath: alias})
+	cmd.SetOut(io.Discard)
+	cmd.SetContext(context.Background())
+	if err := cmd.RunE(cmd, nil); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(cardataSessionPath(selected)); !os.IsNotExist(err) {
+		t.Fatalf("old alias-side session remains after logout: %v", err)
+	}
+	reloaded, err := config.Load(target)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if reloaded.AccessToken != "" || reloaded.RefreshToken != "" {
+		t.Fatal("logout left OAuth credentials in symlink target")
 	}
 }
 

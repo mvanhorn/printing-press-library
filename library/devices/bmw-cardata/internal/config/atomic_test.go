@@ -28,12 +28,8 @@ func TestSaveTokensPreservesConfigSymlinkAndPrivateTarget(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	canonicalTarget, err := CanonicalPath(target)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if cfg.Path != canonicalTarget {
-		t.Fatalf("alias path resolved to %q, want target %q", cfg.Path, canonicalTarget)
+	if cfg.Path != alias {
+		t.Fatalf("config path = %q, want selected alias %q", cfg.Path, alias)
 	}
 	if err := cfg.SaveTokens("client", "", "rotated", "refresh-2", time.Now().Add(time.Hour)); err != nil {
 		t.Fatal(err)
