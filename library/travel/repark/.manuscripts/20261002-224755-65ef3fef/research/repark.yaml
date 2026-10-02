@@ -1,0 +1,120 @@
+name: repark
+description: "Find Japanese Repark parking, assess vacancy and declared vehicle limits, and read source price rules."
+cli_description: "Find Repark parking with live source vacancy, declared vehicle limits, and verified price estimates."
+version: "0.1.0"
+category: travel
+printer: zjsng
+base_url: "https://www.repark.jp"
+http_transport: standard
+health_check_path: "/parking_user/time/result/calculation/?park=REP0022209"
+auth:
+  type: none
+mcp:
+  transport: [stdio]
+config:
+  format: toml
+  path: "~/.config/repark-pp-cli/config.toml"
+# Parking commands are live read-through; source inventory caching is intentionally disabled.
+learn:
+  ticker_patterns: ["^REP[0-9]{7}$"]
+  entity_lookup_seeds:
+    parking:
+      - canonical: 上汐４丁目第３
+        aliases: ["REP0022209", "上汐4丁目第3"]
+resources:
+  site:
+    description: "Source interfaces for maintainers; prefer parking commands for planning facts"
+    endpoints:
+      detail-page:
+        example: "  repark-pp-cli site detail-page --park REP0022209 --json"
+        method: GET
+        path: "/parking_user/time/result/detail/"
+        description: "Fetch the source lot detail document"
+        happy_args: "--park=REP0022209"
+        params:
+          - name: park
+            type: string
+            required: true
+            description: "Canonical REP lot ID"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: object
+          item: LotPage
+      markers:
+        example: "  repark-pp-cli site markers --range=C34.663534,135.516310N34.664W135.515S34.663E135.517 --json"
+        method: GET
+        path: "/ajax/time_markers.json"
+        description: "Fetch source markers for an explicit bounded map window"
+        happy_args: "--range=C34.663534,135.516310N34.664W135.515S34.663E135.517"
+        params:
+          - name: range
+            type: string
+            required: true
+            description: "Provider map bounds C lat,lon N north W west S south E east"
+        response:
+          type: array
+          item: MarkerRow
+      calculator-form:
+        example: "  repark-pp-cli site calculator-form --park REP0022209 --json"
+        method: GET
+        path: "/parking_user/time/result/calculation/"
+        description: "Inspect whether the source calculator form is present"
+        happy_args: "--park=REP0022209"
+        params:
+          - name: park
+            type: string
+            required: true
+            description: "Canonical REP lot ID"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: object
+          item: LotPage
+types:
+  LotPage:
+    fields:
+      - name: title
+        type: string
+  MarkerRow:
+    fields:
+      - name: park_code
+        type: string
+      - name: park_name
+        type: string
+      - name: full_address
+        type: string
+      - name: latitude
+        type: string
+      - name: longitude
+        type: string
+      - name: capacity
+        type: string
+      - name: status
+        type: string
+      - name: height_limit
+        type: string
+      - name: width_limit
+        type: string
+      - name: length_limit
+        type: string
+      - name: weight_limit
+        type: string
+      - name: limit_note
+        type: string
+      - name: charge_note
+        type: string
+      - name: open_type
+        type: string
+      - name: open_start_time
+        type: string
+      - name: open_end_time
+        type: string
+      - name: open_time_note
+        type: string
+      - name: import_date
+        type: string
+      - name: updated_at
+        type: string

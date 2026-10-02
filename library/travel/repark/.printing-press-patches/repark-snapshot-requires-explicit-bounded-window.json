@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261002-224755-65ef3fef",
+  "base_printing_press_version": "4.32.5",
+  "id": "repark-snapshot-requires-explicit-bounded-window",
+  "summary": "Snapshot only a user-supplied validated Repark marker window into the typed local store.",
+  "reason": "A bare generated sync must not silently succeed without a provider request or select an implicit driver location. Explicit flags override a supplied REPARK_SYNC_RANGE; no window is preset.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/repark_sync.go",
+    "internal/cli/repark_sync_test.go",
+    "internal/cli/helpers.go"
+  ],
+  "validated_outcome": "Missing/oversized windows fail before IO; an explicit public window stores source rows and supports subsequent local search; source and CLI tests pass."
+}

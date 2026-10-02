@@ -1,0 +1,117 @@
+[
+  {
+    "park_code": "REP0022209",
+    "park_name": "上汐４丁目第３",
+    "full_address": "大阪府大阪市天王寺区上汐４丁目５ー２９",
+    "latitude": "34.663533711788",
+    "longitude": "135.51630984015",
+    "capacity": "4",
+    "status": "0",
+    "height_limit": "2",
+    "length_limit": "5",
+    "width_limit": "1.9",
+    "weight_limit": "2",
+    "limit_note": "",
+    "open_type": "1",
+    "open_start_time": "",
+    "open_end_time": "",
+    "open_time_note": "",
+    "charge_note": "最大料金<br>【全日】8:00～20:00以内 最大料金1800円<br>【全日】20:00～8:00以内 最大料金600円<br>※最大料金は繰り返し適用となります。",
+    "attention": "",
+    "import_date": "2026-10-02 23:42:02",
+    "updated_at": "2026-08-03 11:00:38",
+    "service_code": "10111100000000111",
+    "charges": [
+      {
+        "name": "全日",
+        "charges": [
+          {
+            "time": "08:00-20:00 ",
+            "charge": "30分/300円",
+            "note": ""
+          },
+          {
+            "time": "20:00-08:00 ",
+            "charge": "60分/100円",
+            "note": ""
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "park_code": "REP0029431",
+    "park_name": "生玉前町",
+    "full_address": "大阪府大阪市天王寺区生玉前町４‐１４",
+    "latitude": "34.662703228588",
+    "longitude": "135.51533495936",
+    "capacity": "7",
+    "status": "0",
+    "height_limit": "2",
+    "length_limit": "5",
+    "width_limit": "1.9",
+    "weight_limit": "2",
+    "limit_note": "",
+    "open_type": "1",
+    "open_start_time": "",
+    "open_end_time": "",
+    "open_time_note": "",
+    "charge_note": "最大料金<br>【全日】20:00～8:00以内 最大料金550円<br>【全日】最大料金入庫後24時間以内1900円<br>※最大料金は繰り返し適用となります。",
+    "attention": "",
+    "import_date": "2026-10-02 23:42:02",
+    "updated_at": "2026-10-02 04:50:04",
+    "service_code": "10111100000000001",
+    "charges": [
+      {
+        "name": "全日",
+        "charges": [
+          {
+            "time": "08:00-20:00 ",
+            "charge": "15分/330円",
+            "note": ""
+          },
+          {
+            "time": "20:00-08:00 ",
+            "charge": "15分/330円",
+            "note": ""
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "park_code": "REP0007108",
+    "park_name": "生玉寺町第２",
+    "full_address": "大阪府大阪市天王寺区生玉寺町１－１６",
+    "latitude": "34.662525459317",
+    "longitude": "135.51474612844",
+    "capacity": "10",
+    "status": "0",
+    "height_limit": "2",
+    "length_limit": "5",
+    "width_limit": "1.9",
+    "weight_limit": "2",
+    "limit_note": "",
+    "open_type": "1",
+    "open_start_time": "",
+    "open_end_time": "",
+    "open_time_note": "",
+    "charge_note": "最大料金<br>【全日】最大料金入庫後6時間以内900円<br>【全日】最大料金入庫後24時間以内1200円<br>※最大料金は繰り返し適用となります。",
+    "attention": "",
+    "import_date": "2026-10-02 23:42:02",
+    "updated_at": "2026-08-03 10:59:04",
+    "service_code": "00111100000000000",
+    "charges": [
+      {
+        "name": "全日",
+        "charges": [
+          {
+            "time": "00:00-24:00 ",
+            "charge": "20分/200円",
+            "note": ""
+          }
+        ]
+      }
+    ]
+  }
+]

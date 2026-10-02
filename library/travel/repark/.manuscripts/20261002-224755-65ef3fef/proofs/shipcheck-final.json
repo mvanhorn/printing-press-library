@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "verdict": "PASS",
+  "started_at": "2026-10-02T16:08:33Z",
+  "elapsed_ms": 23855,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T16:08:33Z",
+      "elapsed_ms": 3118,
+      "command": "/Users/zjsng/go/bin/cli-printing-press verify --dir /Users/zjsng/Projects/Personal/Coding/repark-cli --write-manifest /Users/zjsng/Projects/Personal/Coding/repark-cli/.printing-press.json --spec /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/repark/.runstate/repark-cli-6f3b9709/runs/20261002-224755-65ef3fef/research/repark.yaml --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T16:08:36Z",
+      "elapsed_ms": 156,
+      "command": "/Users/zjsng/go/bin/cli-printing-press validate-narrative --strict --full-examples --research /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/repark/.runstate/repark-cli-6f3b9709/runs/20261002-224755-65ef3fef/research.json --binary /Users/zjsng/Projects/Personal/Coding/repark-cli/build/stage/bin/repark-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T16:08:37Z",
+      "elapsed_ms": 2879,
+      "command": "/Users/zjsng/go/bin/cli-printing-press dogfood --dir /Users/zjsng/Projects/Personal/Coding/repark-cli --spec /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/repark/.runstate/repark-cli-6f3b9709/runs/20261002-224755-65ef3fef/research/repark.yaml --research-dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/repark/.runstate/repark-cli-6f3b9709/runs/20261002-224755-65ef3fef"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T16:08:39Z",
+      "elapsed_ms": 11470,
+      "command": "/Users/zjsng/go/bin/cli-printing-press workflow-verify --dir /Users/zjsng/Projects/Personal/Coding/repark-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T16:08:51Z",
+      "elapsed_ms": 87,
+      "command": "/Users/zjsng/go/bin/cli-printing-press apify-audit --dir /Users/zjsng/Projects/Personal/Coding/repark-cli --research-dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/repark/.runstate/repark-cli-6f3b9709/runs/20261002-224755-65ef3fef"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T16:08:51Z",
+      "elapsed_ms": 3394,
+      "command": "/Users/zjsng/go/bin/cli-printing-press verify-skill --dir /Users/zjsng/Projects/Personal/Coding/repark-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T16:08:54Z",
+      "elapsed_ms": 2748,
+      "command": "/Users/zjsng/go/bin/cli-printing-press scorecard --dir /Users/zjsng/Projects/Personal/Coding/repark-cli --write-manifest /Users/zjsng/Projects/Personal/Coding/repark-cli/.printing-press.json --research-dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/repark/.runstate/repark-cli-6f3b9709/runs/20261002-224755-65ef3fef --spec /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/repark/.runstate/repark-cli-6f3b9709/runs/20261002-224755-65ef3fef/research/repark.yaml --live-check"
+    }
+  ]
+}

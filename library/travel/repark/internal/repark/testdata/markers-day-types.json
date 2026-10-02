@@ -1,0 +1,57 @@
+[
+  {
+    "park_code": "REP0008912",
+    "park_name": "東平２丁目",
+    "full_address": "大阪府大阪市中央区東平２丁目２ー４",
+    "latitude": "34.667861060841",
+    "longitude": "135.51825114667",
+    "capacity": "4",
+    "status": "1",
+    "height_limit": "2",
+    "length_limit": "5",
+    "width_limit": "1.9",
+    "weight_limit": "2",
+    "limit_note": "",
+    "open_type": "1",
+    "open_start_time": "",
+    "open_end_time": "",
+    "open_time_note": "",
+    "charge_note": "最大料金<br>【月～土】8:00～19:00以内 最大料金1800円<br>【月～土】19:00～8:00以内 最大料金400円<br>【日祝】8:00～19:00以内 最大料金1100円<br>【日祝】19:00～8:00以内 最大料金400円<br>※最大料金は入庫時の曜日・祝日により異なります。<br>※最大料金は繰り返し適用となります。",
+    "attention": "",
+    "import_date": "2026-10-03 00:17:05",
+    "updated_at": "2026-08-30 04:50:03",
+    "service_code": "00111100000000000",
+    "charges": {
+      "1": {
+        "name": "月～土",
+        "charges": [
+          {
+            "time": "08:00-19:00 ",
+            "charge": "20分/220円",
+            "note": ""
+          },
+          {
+            "time": "19:00-08:00 ",
+            "charge": "60分/110円",
+            "note": ""
+          }
+        ]
+      },
+      "4": {
+        "name": "日祝",
+        "charges": [
+          {
+            "time": "08:00-19:00 ",
+            "charge": "20分/220円",
+            "note": ""
+          },
+          {
+            "time": "19:00-08:00 ",
+            "charge": "60分/110円",
+            "note": ""
+          }
+        ]
+      }
+    }
+  }
+]

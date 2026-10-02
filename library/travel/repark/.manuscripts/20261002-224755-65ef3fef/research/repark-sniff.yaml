@@ -1,0 +1,39 @@
+name: repark
+description: Discovered API spec for repark
+version: 0.1.0
+base_url: https://www.repark.jp
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/repark-pp-cli/config.toml
+resources:
+    parking_user:
+        description: Operations on detail
+        endpoints:
+            list_detail:
+                method: GET
+                path: /parking_user/time/result/detail/
+                description: Fetch structured links from /parking_user/time/result/detail/
+                params:
+                    - name: park
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+types: {}

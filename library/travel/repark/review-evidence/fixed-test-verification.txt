@@ -1,0 +1,3 @@
+Independent fixed-source verification: go test ./internal/repark ./internal/cli
+Result: PASS with approved loopback networking.
+TestBaySpecificCapsRemainUnparsedAndVariationUnknown, TestParkingRefusesLocalSourceBeforeFetch, and TestReparkSyncRequiresBoundedSuppliedWindow all passed.

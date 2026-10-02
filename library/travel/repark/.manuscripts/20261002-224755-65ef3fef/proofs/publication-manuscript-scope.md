@@ -1,0 +1,5 @@
+# Public manuscript scope
+
+Research, source contract analysis, current acceptance, independent review, security triage and measured verification summaries are the public manuscript. Raw source HTML/JavaScript bodies are retained locally under discovery/bundles/raw-response-bodies/. Historical failed/pristine generated trees and raw live observations are retained byte-for-byte under sources/, using the supported Printing Press publishable-manuscript exclusions. No source or local archive data was deleted. Complete native document/HTTP observations remain available in the local archive; public evidence includes their authored analysis and source URLs, and meaningful source-derived fixtures remain in the shipped module tests.
+
+Source calculations were simulations only, with explicit bay/JST inputs. All six parking leaves and five approved capabilities passed fresh full live acceptance at publication. Default source bounds, no inferred driver location, source tariff uncertainty and fit/vacancy separation remain unchanged.

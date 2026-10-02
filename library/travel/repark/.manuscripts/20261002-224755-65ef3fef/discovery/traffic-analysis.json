@@ -1,0 +1,43 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://www.repark.jp/parking_user/time/result/detail/?park=REP0022209",
+    "entry_count": 1,
+    "api_entry_count": 0,
+    "noise_entry_count": 1,
+    "host_distribution": {
+      "www.repark.jp": 1
+    },
+    "time_start": "2026-10-02T14:54:05.107265Z",
+    "time_end": "2026-10-02T14:54:05.107265Z"
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.65,
+    "reasons": [
+      "no browser-only reachability signals observed"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "ssr_embedded_data",
+      "confidence": 0.85,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "www.repark.jp",
+          "path": "/parking_user/time/result/detail/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML contains embedded structured data"
+        }
+      ],
+      "details": {
+        "signature": "application/ld+json"
+      }
+    }
+  ],
+  "auth": {},
+  "endpoint_clusters": []
+}

@@ -1,0 +1,6 @@
+{
+  "cli": "repark-pp-cli",
+  "library_dir": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/repark/library/repark",
+  "preserved_patches": [],
+  "promoted": true
+}

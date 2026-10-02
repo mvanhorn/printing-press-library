@@ -1,0 +1,29 @@
+{
+  "timestamp": "2026-10-02T16:41:46.2475Z",
+  "cli_dir": "\u003ccli-dir\u003e/20261002-224755-65ef3fef",
+  "findings": [
+    {
+      "kind": "zip-plus-4",
+      "file": "proofs/live-early/search.json",
+      "line": 15,
+      "column": 136,
+      "matched_span": "92100-0005",
+      "status": "accepted",
+      "note": "Published public-station map anchor from Repark; no customer or driver address. This URL-encoding shape is a detector false positive.",
+      "category": "api_provider_data",
+      "evidence_context": "Public Repark source_urls map redirect for the supplied 東京駅 query. The plc parameter is the public Tokyo Station address: 日本、〒100-0005 東京都千代田区丸の内１丁目９ 東京駅. Encoded postal-marker suffix %92 plus 100-0005 triggers the US ZIP detector. Source context:       \"https://www.repark.jp/parking_user/time/map.html?lat=35.6812996\\u0026lon=139.7670658\\u0026plc=%E6%97%A5%E6%9C%AC%E3%80%81%E3%80%92100-0005+%E6%9D%B1%E4%BA%AC%E9%83%BD%E5%8D%83%E4%BB%A3%E7%94%B0%E5%8C%BA%E4%B8%B8%E3%81%AE%E5%86%85%EF%BC%91%E4%B8%81%E7%9B%AE%EF%BC%99+%E6%9D%B1%E4%BA%AC%E9%A7%85\\u0026st=1\","
+    },
+    {
+      "kind": "zip-plus-4",
+      "file": "proofs/performance-search.json",
+      "line": 9,
+      "column": 136,
+      "matched_span": "92100-0005",
+      "status": "accepted",
+      "note": "Published public-station map anchor from Repark; no customer or driver address. This URL-encoding shape is a detector false positive.",
+      "category": "api_provider_data",
+      "evidence_context": "Public Repark source_urls map redirect for the supplied 東京駅 query. The plc parameter is the public Tokyo Station address: 日本、〒100-0005 東京都千代田区丸の内１丁目９ 東京駅. Encoded postal-marker suffix %92 plus 100-0005 triggers the US ZIP detector. Source context:       \"https://www.repark.jp/parking_user/time/map.html?lat=35.6812996\\u0026lon=139.7670658\\u0026plc=%E6%97%A5%E6%9C%AC%E3%80%81%E3%80%92100-0005+%E6%9D%B1%E4%BA%AC%E9%83%BD%E5%8D%83%E4%BB%A3%E7%94%B0%E5%8C%BA%E4%B8%B8%E3%81%AE%E5%86%85%EF%BC%91%E4%B8%81%E7%9B%AE%EF%BC%99+%E6%9D%B1%E4%BA%AC%E9%A7%85\\u0026st=1\","
+    }
+  ],
+  "findings_count_before": 2
+}

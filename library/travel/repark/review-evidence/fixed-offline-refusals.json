@@ -1,0 +1,84 @@
+[
+  {
+    "command": [
+      "parking",
+      "detail",
+      "REP0022209"
+    ],
+    "exit": 2,
+    "elapsed_seconds": 0.558,
+    "stdout": "",
+    "stderr": "Error: no local data source for this command (requested \"local\"); use --data-source live or --data-source auto\n",
+    "passed": true
+  },
+  {
+    "command": [
+      "parking",
+      "nearby",
+      "--park",
+      "REP0022209"
+    ],
+    "exit": 2,
+    "elapsed_seconds": 0.009,
+    "stdout": "",
+    "stderr": "Error: no local data source for this command (requested \"local\"); use --data-source live or --data-source auto\n",
+    "passed": true
+  },
+  {
+    "command": [
+      "parking",
+      "search",
+      "東京駅"
+    ],
+    "exit": 2,
+    "elapsed_seconds": 0.008,
+    "stdout": "",
+    "stderr": "Error: no local data source for this command (requested \"local\"); use --data-source live or --data-source auto\n",
+    "passed": true
+  },
+  {
+    "command": [
+      "parking",
+      "compare",
+      "REP0022209",
+      "REP0029431"
+    ],
+    "exit": 2,
+    "elapsed_seconds": 0.009,
+    "stdout": "",
+    "stderr": "Error: no local data source for this command (requested \"local\"); use --data-source live or --data-source auto\n",
+    "passed": true
+  },
+  {
+    "command": [
+      "parking",
+      "quote",
+      "REP0022209",
+      "--bay",
+      "1",
+      "--start",
+      "2026-10-03T08:00",
+      "--end",
+      "2026-10-03T12:00"
+    ],
+    "exit": 2,
+    "elapsed_seconds": 0.008,
+    "stdout": "",
+    "stderr": "Error: no local data source for this command (requested \"local\"); use --data-source live or --data-source auto\n",
+    "passed": true
+  },
+  {
+    "case": "missing-range",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "Error: sync requires an explicit bounded marker window: --param 'range=C34.663534,135.516310N34.664W135.515S34.663E135.517'; use parking commands for live planning facts\n",
+    "passed": true
+  },
+  {
+    "case": "large-range",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "Error: source snapshot range extends more than 2 km from the supplied center; reduce its bounds\n",
+    "passed": true
+  }
+]

@@ -1,0 +1,88 @@
+{
+  "api_name": "repark",
+  "base_url": "https://www.repark.jp",
+  "description": "Find Repark parking with live source vacancy, declared vehicle limits, and verified price estimates.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "site_calculator-form",
+      "description": "Inspect whether the source calculator form is present. Required: park. Returns the LotPage.",
+      "method": "GET",
+      "path": "/parking_user/time/result/calculation/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "park",
+          "type": "string",
+          "location": "query",
+          "description": "Canonical REP lot ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site_detail-page",
+      "description": "Fetch the source lot detail document. Required: park. Returns the LotPage.",
+      "method": "GET",
+      "path": "/parking_user/time/result/detail/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "park",
+          "type": "string",
+          "location": "query",
+          "description": "Canonical REP lot ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site_markers",
+      "description": "Fetch source markers for an explicit bounded map window. Required: range. Returns array of MarkerRow.",
+      "method": "GET",
+      "path": "/ajax/time_markers.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "range",
+          "type": "string",
+          "location": "query",
+          "description": "Provider map bounds C lat,lon N north W west S south E east",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Compare lots",
+      "command": "parking compare",
+      "description": "Compare source rates, maximum rules, opening hours and vehicle limits across chosen lot IDs."
+    },
+    {
+      "name": "Declared fit",
+      "command": "parking nearby",
+      "description": "Assess supplied dimensions independently from remaining bay suitability."
+    },
+    {
+      "name": "Vacancy shortlist",
+      "command": "parking nearby",
+      "description": "Filter source vacancy categories within an explicit search radius."
+    },
+    {
+      "name": "Auditable tariff facts",
+      "command": "parking detail",
+      "description": "Read day type, rate windows and maximum rules alongside exact source conditions."
+    },
+    {
+      "name": "Source capability boundaries",
+      "command": "parking capabilities",
+      "description": "Inspect source support, measurement unknowns and bounded request policy."
+    }
+  ]
+}

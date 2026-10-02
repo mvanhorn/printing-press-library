@@ -1,0 +1,20 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/repark-pp-cli
+/repark-pp-cli.exe
+/repark-pp-mcp
+/repark-pp-mcp.exe
+/repark-cli
+/bin/
+/build/
+/dist/
+
+# Build-specific disposable state
+.press*
+.reachability.html
+
+# Local audit decisions remain available to promotion but are not source.
+.printing-press-tools-polish.json
+.printing-press-pii-polish.json
+/dogfood-results.json
+/workflow-verify-report.json
+/apify-actor-audit-report.json

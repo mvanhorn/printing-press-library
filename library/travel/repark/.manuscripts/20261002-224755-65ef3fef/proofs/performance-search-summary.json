@@ -1,0 +1,8 @@
+{
+  "command": "parking search \u6771\u4eac\u99c5 --limit 3 --json",
+  "exit": 0,
+  "elapsed_seconds": 1.233,
+  "output_bytes": 10478,
+  "peak_rss_bytes": 28377088,
+  "peak_rss_mib": 27.06
+}

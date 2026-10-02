@@ -1,0 +1,106 @@
+{
+  "meta": {
+    "source": "live",
+    "observed_at": "2026-10-03T00:36:13+09:00",
+    "requests": 1,
+    "request_budget": 1,
+    "source_urls": [
+      "https://www.repark.jp/parking_user/time/result/detail/?park=REP0022209"
+    ],
+    "coverage": "provider coverage unverified",
+    "notes": [
+      "Occupancy includes compact and size-restricted four-wheel bays and excludes motorcycles; available does not establish fit for the remaining bays.",
+      "Source import_date and updated_at are preserved raw; their timezone and relation to occupancy measurement are unverified.",
+      "Displayed amounts are preserved in JPY. tax_included is null unless the source explicitly states tax inclusion; no tax is added."
+    ]
+  },
+  "results": {
+    "id": "REP0022209",
+    "name": "上汐４丁目第３",
+    "address": "大阪府大阪市天王寺区上汐４丁目５ー２９",
+    "coordinates": {
+      "latitude": 34.663533711788,
+      "longitude": 135.51630984015
+    },
+    "capacity_spaces": 4,
+    "hours": {
+      "source_text": "24時間",
+      "open_24_hours": true
+    },
+    "occupancy": {
+      "category": "available",
+      "label_ja": "空車",
+      "source_code": "0",
+      "observed_at": "2026-10-03T00:36:13+09:00",
+      "measurement_time": null,
+      "exact_available_spaces": null
+    },
+    "vehicle_limits": {
+      "height_m": 2,
+      "length_m": 5,
+      "width_m": 1.9,
+      "weight_t": 2,
+      "source_text": "高さ2m、長さ5m、幅1.9m、重量2t",
+      "varies_by_bay": false
+    },
+    "declared_fit": {
+      "status": "not_assessed",
+      "published_limit_conflicts": [],
+      "unknown_supplied_limits": [],
+      "remaining_bay_fit": "unknown",
+      "guaranteed": false
+    },
+    "rates": [
+      {
+        "day_type": "全日",
+        "start_time": "08:00",
+        "end_time": "20:00",
+        "crosses_midnight": false,
+        "interval_minutes": 30,
+        "amount_jpy": 300,
+        "source_text": "08:00-20:00 30分/300円"
+      },
+      {
+        "day_type": "全日",
+        "start_time": "20:00",
+        "end_time": "08:00",
+        "crosses_midnight": true,
+        "interval_minutes": 60,
+        "amount_jpy": 100,
+        "source_text": "20:00-08:00 60分/100円"
+      }
+    ],
+    "source_rate_text": "料金体系 最大料金について ＞ 全日 08:00-20:00 30分/300円 20:00-08:00 60分/100円 最大料金 【全日】8:00～20:00以内 最大料金1800円 【全日】20:00～8:00以内 最大料金600円 ※最大料金は繰り返し適用となります。",
+    "pricing_parse_status": "rate_bands_normalized_maximum_conditions_preserved",
+    "maximum_charges": [
+      {
+        "day_type": "全日",
+        "kind": "time_window",
+        "amount_jpy": 1800,
+        "start_time": "08:00",
+        "end_time": "20:00",
+        "crosses_midnight": false,
+        "elapsed_hours": null,
+        "application": "repeating",
+        "source_text": "【全日】8:00～20:00以内 最大料金1800円"
+      },
+      {
+        "day_type": "全日",
+        "kind": "time_window",
+        "amount_jpy": 600,
+        "start_time": "20:00",
+        "end_time": "08:00",
+        "crosses_midnight": true,
+        "elapsed_hours": null,
+        "application": "repeating",
+        "source_text": "【全日】20:00～8:00以内 最大料金600円"
+      }
+    ],
+    "maximum_application": "repeating",
+    "source_charge_note": "最大料金\n【全日】8:00～20:00以内 最大料金1800円\n【全日】20:00～8:00以内 最大料金600円\n※最大料金は繰り返し適用となります。",
+    "tax_included": null,
+    "source_url": "https://www.repark.jp/parking_user/time/result/detail/?park=REP0022209",
+    "calculator_url": "https://www.repark.jp/parking_user/time/result/calculation/?park=REP0022209",
+    "observed_at": "2026-10-03T00:36:13+09:00"
+  }
+}

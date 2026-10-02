@@ -1,0 +1,45 @@
+{
+  "meta": {
+    "coverage": "provider coverage unverified",
+    "notes": [
+      "Occupancy includes compact and size-restricted four-wheel bays and excludes motorcycles; available does not establish fit for the remaining bays.",
+      "Source import_date and updated_at are preserved raw; their timezone and relation to occupancy measurement are unverified.",
+      "Displayed amounts are preserved in JPY. tax_included is null unless the source explicitly states tax inclusion; no tax is added."
+    ],
+    "observed_at": "2026-10-03T00:36:14+09:00",
+    "request_budget": 1,
+    "requests": 1,
+    "source": "live",
+    "source_urls": [
+      "https://www.repark.jp/ajax/time_markers.json?range=C34.66353400%2C135.51631000N34.66805889W135.51080866S34.65900911E135.52181134"
+    ]
+  },
+  "results": {
+    "lots": [
+      {
+        "id": "REP0022209",
+        "name": "上汐４丁目第３",
+        "occupancy": {
+          "category": "available",
+          "label_ja": "空車",
+          "source_code": "0",
+          "observed_at": "2026-10-03T00:36:14+09:00",
+          "measurement_time": null,
+          "exact_available_spaces": null
+        }
+      },
+      {
+        "id": "REP0029431",
+        "name": "生玉前町",
+        "occupancy": {
+          "category": "available",
+          "label_ja": "空車",
+          "source_code": "0",
+          "observed_at": "2026-10-03T00:36:14+09:00",
+          "measurement_time": null,
+          "exact_available_spaces": null
+        }
+      }
+    ]
+  }
+}

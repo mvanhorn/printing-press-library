@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "coverage": "provider coverage unverified",
+    "notes": [
+      "Occupancy includes compact and size-restricted four-wheel bays and excludes motorcycles; available does not establish fit for the remaining bays.",
+      "Source import_date and updated_at are preserved raw; their timezone and relation to occupancy measurement are unverified.",
+      "Displayed amounts are preserved in JPY. tax_included is null unless the source explicitly states tax inclusion; no tax is added."
+    ],
+    "observed_at": "2026-10-03T00:38:21+09:00",
+    "request_budget": 3,
+    "requests": 1,
+    "source": "live",
+    "source_urls": [
+      "https://www.repark.jp/parking_user/time/freeword/?st=1\u0026word=%E5%AD%98%E5%9C%A8%E3%81%97%E3%81%AA%E3%81%84%E9%A7%85REVIEW0000"
+    ]
+  },
+  "results": {
+    "anchor": null,
+    "anchor_kind": "source_unresolved",
+    "lots": [],
+    "max_scan_records": 500,
+    "note": "The provider did not establish a unique coordinate anchor. Refine the Japanese place/address or use parking nearby with explicit coordinates.",
+    "output_truncated": false,
+    "query": "存在しない駅REVIEW0000",
+    "radius_m": 1000,
+    "scan_truncated": false,
+    "scanned_records": 0,
+    "source_rows": 0,
+    "status": "needs_refinement"
+  }
+}

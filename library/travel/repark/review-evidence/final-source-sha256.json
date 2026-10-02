@@ -1,0 +1,22 @@
+{
+  "internal/repark/client.go": "780a279aa7ebbd72c529a869f95a36dc09b1a3253adb0f9f9a1aa0c8570059bc",
+  "internal/repark/model.go": "a41eba90b3b7c8ea24c5ba3118c2768bd6049c3bbd4992ed0810420e4354f355",
+  "internal/repark/parse.go": "ad6920bc635f7bd9c9b85ccdef59027b416d70294ac8256935771cfb7833b60b",
+  "internal/repark/repark_test.go": "7d3e5dd777483f70438c7dba690594a174af8578c9e158ca86fec8666bc2ea23",
+  "internal/cli/parking_runtime.go": "a90a2c2d75a9cfe5bd2e5a73bc2ec91659bbe8990a41d5afaa70e31f2f26633d",
+  "internal/cli/parking_capabilities_runtime.go": "bc878c4c8f30f50ae897f17b38da3ed155c9b305db8e37bc949bd991fc29c948",
+  "internal/cli/repark_sync.go": "d7755ac67e26b1ac934155938a1622a50385e1b9dd46dce5ea6a110fb3c29248",
+  "internal/cli/sync.go": "60826d26ba227fc980444d7fc82c0e13ab73118a7187206390ff2689584898e7",
+  "README.md": "d9c8d035fde478bace2383101d1e0f74e6eafebbcc6a16b72c67ec665e19c382",
+  "SKILL.md": "4e7596aa93de08a41fe338a3813facc540202b6e3fed26a5c0a456878acd4afd",
+  "AGENTS.md": "714da4d6ba938deef6bb1f8d54940a76c1a870cbf0a9e55c1db70a45e40a2f9a",
+  "internal/cli/repark_sync_test.go": "7a4317c4945e6cc2284de7366b1e1e2510d2d40453b3fd0279535aed0d622314",
+  "workflow_verify.yaml": "282c39db83978a778f0627306b83b291fb1b3a29094e96c6be064cba63728a5d",
+  "internal/cli/parking.go": "9bf844ca7d3c58516bbedc26f6fbc089e8e3c18e3c3151833734d460bd7301ee",
+  "internal/cli/site_detail-page.go": "4b248d51eda35d55f874d26fd9dd121dbea198a148f4bd8c3a2f5e471088c912",
+  "internal/cli/site_calculator-form.go": "a14e8e681963f8c1d2a44a2f37dc0ae775a45d41f5900aea6972170b810f4052",
+  "internal/cli/site_markers.go": "0db9d97814ceadf84280ba3d3768b4fcfb0414fb7d3c09f899ba8adf15e97188",
+  "internal/mcp/tools.go": "a58840a765442929f2edda4b9fd039083cba7b28ad5b4f3a0223e2800ae98c33",
+  "mcp-descriptions.json": "fc5cf15d3ba9ceb32214b90388210a55aca82b2df54ff2669ba8f1f6fe72a689",
+  "spec.yaml": "19d6d578aec80eb921d2d7a0c486457edb2a422d114a034f3a7578a9efbcaa99"
+}

@@ -1,0 +1,4 @@
+{"event":"sync_start","resource":"site"}
+{"event":"sync_progress","resource":"site","fetched":1,"rate_rps":2.0}
+{"event":"sync_complete","resource":"site","total":1,"duration_ms":346}
+{"event":"sync_summary","total_records":1,"resources":1,"success":1,"warned":0,"errored":0,"duration_ms":346}

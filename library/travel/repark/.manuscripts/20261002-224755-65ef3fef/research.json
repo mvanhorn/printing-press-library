@@ -1,0 +1,164 @@
+{
+  "api_name": "repark",
+  "novelty_score": 7,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-02T14:57:23.178377Z",
+  "novel_features": [
+    {
+      "name": "Compare lots",
+      "command": "parking compare",
+      "description": "Compare source rates, maximum rules, opening hours and vehicle limits across chosen lot IDs.",
+      "rationale": "Combines source facts with explicit planning assumptions and separate uncertainty.",
+      "example": "repark-pp-cli parking compare REP0022209 REP0029431 --agent",
+      "why_it_matters": "Compare source rates, maximum rules, opening hours and vehicle limits across chosen lot IDs.",
+      "group": "Parking planning"
+    },
+    {
+      "name": "Declared fit",
+      "command": "parking nearby",
+      "description": "Assess supplied dimensions independently from remaining bay suitability.",
+      "rationale": "Combines source facts with explicit planning assumptions and separate uncertainty.",
+      "example": "repark-pp-cli parking nearby --lat 34.663534 --lon 135.516310 --height 2.1 --agent",
+      "why_it_matters": "Assess supplied dimensions independently from remaining bay suitability.",
+      "group": "Parking planning"
+    },
+    {
+      "name": "Vacancy shortlist",
+      "command": "parking nearby",
+      "description": "Filter source vacancy categories within an explicit search radius.",
+      "rationale": "Combines source facts with explicit planning assumptions and separate uncertainty.",
+      "example": "repark-pp-cli parking nearby --park REP0022209 --available-only --agent",
+      "why_it_matters": "Filter source vacancy categories within an explicit search radius.",
+      "group": "Parking planning"
+    },
+    {
+      "name": "Auditable tariff facts",
+      "command": "parking detail",
+      "description": "Read day type, rate windows and maximum rules alongside exact source conditions.",
+      "rationale": "Combines source facts with explicit planning assumptions and separate uncertainty.",
+      "example": "repark-pp-cli parking detail REP0022209 --agent",
+      "why_it_matters": "Read day type, rate windows and maximum rules alongside exact source conditions.",
+      "group": "Parking planning"
+    },
+    {
+      "name": "Source capability boundaries",
+      "command": "parking capabilities",
+      "description": "Inspect source support, measurement unknowns and bounded request policy.",
+      "rationale": "Combines source facts with explicit planning assumptions and separate uncertainty.",
+      "example": "repark-pp-cli parking capabilities --agent",
+      "why_it_matters": "Inspect source support, measurement unknowns and bounded request policy.",
+      "group": "Parking planning"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Compare lots",
+      "command": "parking compare",
+      "description": "Compare source rates, maximum rules, opening hours and vehicle limits across chosen lot IDs.",
+      "rationale": "Combines source facts with explicit planning assumptions and separate uncertainty.",
+      "example": "repark-pp-cli parking compare REP0022209 REP0029431 --agent",
+      "why_it_matters": "Compare source rates, maximum rules, opening hours and vehicle limits across chosen lot IDs.",
+      "group": "Parking planning"
+    },
+    {
+      "name": "Declared fit",
+      "command": "parking nearby",
+      "description": "Assess supplied dimensions independently from remaining bay suitability.",
+      "rationale": "Combines source facts with explicit planning assumptions and separate uncertainty.",
+      "example": "repark-pp-cli parking nearby --lat 34.663534 --lon 135.516310 --height 2.1 --agent",
+      "why_it_matters": "Assess supplied dimensions independently from remaining bay suitability.",
+      "group": "Parking planning"
+    },
+    {
+      "name": "Vacancy shortlist",
+      "command": "parking nearby",
+      "description": "Filter source vacancy categories within an explicit search radius.",
+      "rationale": "Combines source facts with explicit planning assumptions and separate uncertainty.",
+      "example": "repark-pp-cli parking nearby --park REP0022209 --available-only --agent",
+      "why_it_matters": "Filter source vacancy categories within an explicit search radius.",
+      "group": "Parking planning"
+    },
+    {
+      "name": "Auditable tariff facts",
+      "command": "parking detail",
+      "description": "Read day type, rate windows and maximum rules alongside exact source conditions.",
+      "rationale": "Combines source facts with explicit planning assumptions and separate uncertainty.",
+      "example": "repark-pp-cli parking detail REP0022209 --agent",
+      "why_it_matters": "Read day type, rate windows and maximum rules alongside exact source conditions.",
+      "group": "Parking planning"
+    },
+    {
+      "name": "Source capability boundaries",
+      "command": "parking capabilities",
+      "description": "Inspect source support, measurement unknowns and bounded request policy.",
+      "rationale": "Combines source facts with explicit planning assumptions and separate uncertainty.",
+      "example": "repark-pp-cli parking capabilities --agent",
+      "why_it_matters": "Inspect source support, measurement unknowns and bounded request policy.",
+      "group": "Parking planning"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "三井のリパーク (Repark)",
+    "headline": "Find Repark parking with live source vacancy, declared vehicle limits, and verified price estimates.",
+    "value_prop": "Search named places or explicit coordinates, inspect source day and night rules, and compare chosen lots. Vacancy and declared vehicle fit remain separate; quotes come from the provider calculator.",
+    "auth_narrative": "Public discovery and calculator simulation use no account, token or browser at runtime.",
+    "quickstart": [
+      {
+        "command": "repark-pp-cli doctor --dry-run",
+        "comment": "Check local setup without a network request."
+      },
+      {
+        "command": "repark-pp-cli parking search 東京駅 --limit 3 --agent",
+        "comment": "Resolve a named place through the source."
+      },
+      {
+        "command": "repark-pp-cli parking detail REP0022209 --agent",
+        "comment": "Inspect source rates and vehicle limits."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "A location query is ambiguous or yields no anchor.",
+        "fix": "Use explicit --lat and --lon with parking nearby, or refine the Japanese place/address."
+      },
+      {
+        "symptom": "The calculator form is absent or rejects a bay.",
+        "fix": "Read the source detail and calculator URL; choose an actual marked bay. No local total is substituted."
+      }
+    ],
+    "when_to_use": "Use for Repark time parking discovery by place or explicit coordinates, lot comparison, declared vehicle limits and provider fee estimates. Include exact JST entry/exit times and bay for a quote.",
+    "anti_triggers": [
+      "Reservations or payments",
+      "Guaranteed availability or remaining-bay fit",
+      "Other parking providers or personal live location"
+    ],
+    "recipes": [
+      {
+        "title": "Source facts",
+        "command": "repark-pp-cli parking detail REP0022209 --agent --select id,name,occupancy,rates,maximum_charges",
+        "explanation": "Narrow detailed output to source identity and tariff facts."
+      },
+      {
+        "title": "Vehicle fit",
+        "command": "repark-pp-cli parking nearby --park REP0022209 --height 2.1 --limit 3 --agent",
+        "explanation": "See declared limit conflicts separately from vacancy."
+      },
+      {
+        "title": "Source quote",
+        "command": "repark-pp-cli parking quote REP0022209 --bay 1 --start 2026-10-03T08:00 --end 2026-10-03T12:00 --agent",
+        "explanation": "Get a provider estimate for a future exact JST interval."
+      }
+    ],
+    "trigger_phrases": [
+      "find Repark parking near Tokyo Station",
+      "check Repark vehicle height limits",
+      "estimate Repark parking cost",
+      "use repark",
+      "run repark"
+    ]
+  }
+}

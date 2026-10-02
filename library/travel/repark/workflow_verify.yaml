@@ -1,0 +1,21 @@
+workflows:
+  - name: discover-inspect-source-quote
+    primary: true
+    steps:
+      - command: parking nearby --park REP0022209 --limit 1
+        mode: live
+        extract:
+          lot_id: $.results.lots[0].id
+        expect_fields:
+          - results
+          - meta
+      - command: parking detail ${lot_id}
+        mode: live
+        expect_fields:
+          - results
+          - meta
+      - command: parking quote ${lot_id} --bay 1 --start 2026-10-03T08:00 --end 2026-10-03T12:00
+        mode: live
+        expect_fields:
+          - results
+          - meta

@@ -1,0 +1,2 @@
+go test ./internal/cli -run 'TestReparkSync|TestParkingRefusesLocalSourceBeforeFetch' -count=1
+PASS

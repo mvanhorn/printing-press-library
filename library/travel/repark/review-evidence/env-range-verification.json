@@ -1,0 +1,52 @@
+[
+  {
+    "flag": "--param",
+    "value": "range=",
+    "exit": 2,
+    "stderr": "Error: sync requires an explicit bounded marker window: --param 'range=C34.663534,135.516310N34.664W135.515S34.663E135.517'; use parking commands for live planning facts\n",
+    "passed": true
+  },
+  {
+    "flag": "--param",
+    "value": "range=invalid",
+    "exit": 2,
+    "stderr": "Error: sync requires an explicit bounded marker window: --param 'range=C34.663534,135.516310N34.664W135.515S34.663E135.517'; use parking commands for live planning facts\n",
+    "passed": true
+  },
+  {
+    "flag": "--resource-param",
+    "value": "site:range=",
+    "exit": 2,
+    "stderr": "Error: sync requires an explicit bounded marker window: --param 'range=C34.663534,135.516310N34.664W135.515S34.663E135.517'; use parking commands for live planning facts\n",
+    "passed": true
+  },
+  {
+    "flag": "--resource-param",
+    "value": "site:range=invalid",
+    "exit": 2,
+    "stderr": "Error: sync requires an explicit bounded marker window: --param 'range=C34.663534,135.516310N34.664W135.515S34.663E135.517'; use parking commands for live planning facts\n",
+    "passed": true
+  },
+  {
+    "flag": "--global-param",
+    "value": "range=",
+    "exit": 2,
+    "stderr": "Error: sync requires an explicit bounded marker window: --param 'range=C34.663534,135.516310N34.664W135.515S34.663E135.517'; use parking commands for live planning facts\n",
+    "passed": true
+  },
+  {
+    "flag": "--global-param",
+    "value": "range=invalid",
+    "exit": 2,
+    "stderr": "Error: sync requires an explicit bounded marker window: --param 'range=C34.663534,135.516310N34.664W135.515S34.663E135.517'; use parking commands for live planning facts\n",
+    "passed": true
+  },
+  {
+    "case": "valid-environment-snapshot",
+    "exit": 0,
+    "elapsed_seconds": 0.279,
+    "stdout": "{\n  \"duration_ms\": 262,\n  \"errored\": 0,\n  \"resources\": 1,\n  \"success\": 1,\n  \"total_records\": 1,\n  \"warned\": 0\n}\n",
+    "stderr": "{\"event\":\"sync_start\",\"resource\":\"site\"}\n{\"event\":\"sync_progress\",\"resource\":\"site\",\"fetched\":1,\"rate_rps\":2.0}\n{\"event\":\"sync_complete\",\"resource\":\"site\",\"total\":1,\"duration_ms\":262}\n{\"event\":\"sync_summary\",\"total_records\":1,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":262}\n",
+    "passed": true
+  }
+]

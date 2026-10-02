@@ -1,0 +1,11 @@
+
+Verification verdict FAIL (pass rate 100%, threshold 80%). Running fix loop (max 3 iterations)...
+
+2026/10/03 00:01:02 fix loop: execution failure for parking requires manual fix
+2026/10/03 00:01:02 fix loop: skip exec_fail for parking: manual execution fix required
+2026/10/03 00:01:02 fix loop: execution failure for playbook requires manual fix
+2026/10/03 00:01:02 fix loop: skip exec_fail for playbook: manual execution fix required
+2026/10/03 00:01:02 fix loop: execution failure for profile requires manual fix
+2026/10/03 00:01:02 fix loop: skip exec_fail for profile: manual execution fix required
+2026/10/03 00:01:02 fix loop: execution failure for workflow requires manual fix
+2026/10/03 00:01:02 fix loop: skip exec_fail for workflow: manual execution fix required

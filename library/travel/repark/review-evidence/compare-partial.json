@@ -1,0 +1,160 @@
+{
+  "meta": {
+    "coverage": "partial: failed lots excluded",
+    "notes": [
+      "Occupancy includes compact and size-restricted four-wheel bays and excludes motorcycles; available does not establish fit for the remaining bays.",
+      "Source import_date and updated_at are preserved raw; their timezone and relation to occupancy measurement are unverified.",
+      "Displayed amounts are preserved in JPY. tax_included is null unless the source explicitly states tax inclusion; no tax is added."
+    ],
+    "observed_at": "2026-10-03T00:38:22+09:00",
+    "request_budget": 2,
+    "requests": 2,
+    "source": "live",
+    "source_urls": [
+      "https://www.repark.jp/parking_user/time/result/detail/?park=REP0008912",
+      "https://www.repark.jp/parking_user/time/result/detail/?park=REP9999999"
+    ]
+  },
+  "results": {
+    "fetch_failures": [
+      {
+        "error": "parking source did not find the requested lot",
+        "id": "REP9999999"
+      }
+    ],
+    "lots": [
+      {
+        "address": "大阪府大阪市中央区東平２丁目２ー４",
+        "capacity_spaces": 4,
+        "coordinates": {
+          "latitude": 34.667861060841,
+          "longitude": 135.51825114667
+        },
+        "declared_fit": {
+          "guaranteed": false,
+          "published_limit_conflicts": [
+            "height_m"
+          ],
+          "remaining_bay_fit": "unknown",
+          "status": "exceeds_published_limits",
+          "unknown_supplied_limits": []
+        },
+        "hours": {
+          "open_24_hours": true,
+          "source_text": "24時間"
+        },
+        "id": "REP0008912",
+        "maximum_application": "repeating",
+        "maximum_charges": [
+          {
+            "amount_jpy": 1800,
+            "application": "repeating",
+            "crosses_midnight": false,
+            "day_type": "月～土",
+            "elapsed_hours": null,
+            "end_time": "19:00",
+            "kind": "time_window",
+            "source_text": "【月～土】8:00～19:00以内 最大料金1800円",
+            "start_time": "08:00"
+          },
+          {
+            "amount_jpy": 400,
+            "application": "repeating",
+            "crosses_midnight": true,
+            "day_type": "月～土",
+            "elapsed_hours": null,
+            "end_time": "08:00",
+            "kind": "time_window",
+            "source_text": "【月～土】19:00～8:00以内 最大料金400円",
+            "start_time": "19:00"
+          },
+          {
+            "amount_jpy": 1100,
+            "application": "repeating",
+            "crosses_midnight": false,
+            "day_type": "日祝",
+            "elapsed_hours": null,
+            "end_time": "19:00",
+            "kind": "time_window",
+            "source_text": "【日祝】8:00～19:00以内 最大料金1100円",
+            "start_time": "08:00"
+          },
+          {
+            "amount_jpy": 400,
+            "application": "repeating",
+            "crosses_midnight": true,
+            "day_type": "日祝",
+            "elapsed_hours": null,
+            "end_time": "08:00",
+            "kind": "time_window",
+            "source_text": "【日祝】19:00～8:00以内 最大料金400円",
+            "start_time": "19:00"
+          }
+        ],
+        "name": "東平２丁目",
+        "observed_at": "2026-10-03T00:38:21+09:00",
+        "occupancy": {
+          "category": "crowded",
+          "exact_available_spaces": null,
+          "label_ja": "混雑",
+          "measurement_time": null,
+          "observed_at": "2026-10-03T00:38:21+09:00",
+          "source_code": "1"
+        },
+        "pricing_parse_status": "rate_bands_normalized_maximum_conditions_preserved",
+        "rates": [
+          {
+            "amount_jpy": 220,
+            "crosses_midnight": false,
+            "day_type": "月～土",
+            "end_time": "19:00",
+            "interval_minutes": 20,
+            "source_text": "08:00-19:00 20分/220円",
+            "start_time": "08:00"
+          },
+          {
+            "amount_jpy": 110,
+            "crosses_midnight": true,
+            "day_type": "月～土",
+            "end_time": "08:00",
+            "interval_minutes": 60,
+            "source_text": "19:00-08:00 60分/110円",
+            "start_time": "19:00"
+          },
+          {
+            "amount_jpy": 220,
+            "crosses_midnight": false,
+            "day_type": "日祝",
+            "end_time": "19:00",
+            "interval_minutes": 20,
+            "source_text": "08:00-19:00 20分/220円",
+            "start_time": "08:00"
+          },
+          {
+            "amount_jpy": 110,
+            "crosses_midnight": true,
+            "day_type": "日祝",
+            "end_time": "08:00",
+            "interval_minutes": 60,
+            "source_text": "19:00-08:00 60分/110円",
+            "start_time": "19:00"
+          }
+        ],
+        "source_charge_note": "最大料金\n【月～土】8:00～19:00以内 最大料金1800円\n【月～土】19:00～8:00以内 最大料金400円\n【日祝】8:00～19:00以内 最大料金1100円\n【日祝】19:00～8:00以内 最大料金400円\n※最大料金は入庫時の曜日・祝日により異なります。\n※最大料金は繰り返し適用となります。",
+        "source_rate_text": "料金体系 最大料金について ＞ 月～土 08:00-19:00 20分/220円 19:00-08:00 60分/110円 日祝 08:00-19:00 20分/220円 19:00-08:00 60分/110円 最大料金 【月～土】8:00～19:00以内 最大料金1800円 【月～土】19:00～8:00以内 最大料金400円 【日祝】8:00～19:00以内 最大料金1100円 【日祝】19:00～8:00以内 最大料金400円 ※最大料金は入庫時の曜日・祝日により異なります。 ※最大料金は繰り返し適用となります。",
+        "source_url": "https://www.repark.jp/parking_user/time/result/detail/?park=REP0008912",
+        "tax_included": null,
+        "vehicle_limits": {
+          "height_m": 2,
+          "length_m": 5,
+          "source_text": "高さ2m、長さ5m、幅1.9m、重量2t",
+          "varies_by_bay": false,
+          "weight_t": 2,
+          "width_m": 1.9
+        }
+      }
+    ],
+    "requested_lots": 2,
+    "successful_lots": 1
+  }
+}

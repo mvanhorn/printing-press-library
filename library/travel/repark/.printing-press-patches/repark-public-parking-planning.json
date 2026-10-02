@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261002-224755-65ef3fef",
+  "base_printing_press_version": "4.32.5",
+  "id": "repark-public-parking-planning",
+  "summary": "Keep parking decisions source-backed, bounded, and explicit about vacancy, fit and tariff uncertainty.",
+  "reason": "Raw HTML and marker interfaces alone do not preserve parking semantics, indexed day types, bay cap exceptions or safe source-simulator input/echo checks.",
+  "files": [
+    "internal/repark/client.go",
+    "internal/repark/model.go",
+    "internal/repark/parse.go",
+    "internal/repark/repark_test.go",
+    "internal/cli/parking_runtime.go",
+    "internal/cli/parking_capabilities_runtime.go",
+    "internal/cli/parking_projection_test.go",
+    "internal/cli/parking.go",
+    "internal/cli/parking_compare.go",
+    "internal/cli/parking_detail.go",
+    "internal/cli/parking_nearby.go",
+    "internal/cli/parking_capabilities.go",
+    "internal/cli/root.go",
+    "internal/cli/site_detail-page.go",
+    "internal/cli/site_calculator-form.go",
+    "internal/cli/site_markers.go",
+    "mcp-descriptions.json",
+    "workflow_verify.yaml"
+  ],
+  "validated_outcome": "All six parking leaves and all five approved capabilities have positive full live coverage; source parser/client tests and independent review close bay-cap and bay-variation ambiguity."
+}

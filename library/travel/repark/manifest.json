@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "repark-pp-mcp",
+  "display_name": "三井のリパーク (Repark)",
+  "version": "0.1.0",
+  "description": "Find Repark parking with live source vacancy, declared vehicle limits, and verified price estimates.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/repark-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/repark-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+# Repark full live acceptance
+
+Level: Full Dogfood (explicitly approved by the batch brief). Runner verdict PASS. Every active required row passed: 113/113, zero failures, and no hollow approved features. All six planning/source-simulation parking leaves returned successful positive happy-path output. Help, JSON fidelity, output modes and applicable input/error probes passed. The runner separately recorded 100 framework/safety skips; these are not counted as successful live rows.
+
+The first full matrix recorded 98/105 active passes and seven help/fixture failures. Truthful help Examples were added to the parking group and all three generated raw-source commands, also retained in the endpoint spec. The nearby first example now agrees with its explicit lot-anchor fixture; coordinate mode remains available and separately verified. Search declares a query placeholder so the runner recognizes legitimate no-match/refinement behavior. No special sentinel logic or runtime bypass was introduced. The next matrix passed 113/113. Independent review then corrected typed MCP HTML descriptions from extracted page text to bounded raw HTML/preview; the final full matrix regenerated acceptance after that source edit.
+
+Final marker: phase5-acceptance.json, created by the Printing Press binary, not hand-authored. It is bound to the final source fingerprint. Final matrix: dogfood-live-full-final.json. Source-normalized detail, nearby/search, comparison, current category vacancy vs unguaranteed remaining-bay fit, tariff applicability/caps, and explicit bay/JST source quote are positively covered. Unverified source measurement time, exact free-space count, bay suitability, source timestamp semantics, coverage, tax wording and future price changes remain disclosed.
+
+Source calls are public reads and a provider fee simulation. No payment, reservation, account change, driver geolocation, or inferred complete local total occurred.

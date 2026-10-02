@@ -1,0 +1,23 @@
+[
+  {
+    "kind": "missing-read-only",
+    "command": "search",
+    "file": "parking_runtime.go",
+    "line": 225,
+    "evidence": "name matches read heuristic; no mcp:read-only annotation"
+  },
+  {
+    "kind": "thin-short",
+    "command": "list",
+    "file": "platform_client.go",
+    "line": 517,
+    "evidence": "List client profiles"
+  },
+  {
+    "kind": "thin-short",
+    "command": "list",
+    "file": "teach.go",
+    "line": 868,
+    "evidence": "List recorded learnings"
+  }
+]

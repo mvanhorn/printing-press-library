@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-02T16:30:49.563694Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "repark",
+  "display_name": "三井のリパーク (Repark)",
+  "cli_name": "repark-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "Jet Sng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "Jet Sng",
+  "spec_path": "repark.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:19d6d578aec80eb921d2d7a0c486457edb2a422d114a034f3a7578a9efbcaa99",
+  "run_id": "20261002-224755-65ef3fef",
+  "category": "travel",
+  "description": "Find Repark parking with live source vacancy, declared vehicle limits, and verified price estimates.",
+  "mcp_binary": "repark-pp-mcp",
+  "mcp_tool_count": 3,
+  "mcp_public_tool_count": 3,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Compare lots",
+      "command": "parking compare",
+      "description": "Compare source rates, maximum rules, opening hours and vehicle limits across chosen lot IDs."
+    },
+    {
+      "name": "Declared fit",
+      "command": "parking nearby",
+      "description": "Assess supplied dimensions independently from remaining bay suitability."
+    },
+    {
+      "name": "Vacancy shortlist",
+      "command": "parking nearby",
+      "description": "Filter source vacancy categories within an explicit search radius."
+    },
+    {
+      "name": "Auditable tariff facts",
+      "command": "parking detail",
+      "description": "Read day type, rate windows and maximum rules alongside exact source conditions."
+    },
+    {
+      "name": "Source capability boundaries",
+      "command": "parking capabilities",
+      "description": "Inspect source support, measurement unknowns and bounded request policy."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Compare lots",
+      "command": "parking compare",
+      "description": "Compare source rates, maximum rules, opening hours and vehicle limits across chosen lot IDs."
+    },
+    {
+      "name": "Declared fit",
+      "command": "parking nearby",
+      "description": "Assess supplied dimensions independently from remaining bay suitability."
+    },
+    {
+      "name": "Vacancy shortlist",
+      "command": "parking nearby",
+      "description": "Filter source vacancy categories within an explicit search radius."
+    },
+    {
+      "name": "Auditable tariff facts",
+      "command": "parking detail",
+      "description": "Read day type, rate windows and maximum rules alongside exact source conditions."
+    },
+    {
+      "name": "Source capability boundaries",
+      "command": "parking capabilities",
+      "description": "Inspect source support, measurement unknowns and bounded request policy."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 31,
+    "total": 31,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 91,
+      "grade": "A",
+      "total": 91
+    }
+  }
+}

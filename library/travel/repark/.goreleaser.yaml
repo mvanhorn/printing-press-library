@@ -1,0 +1,55 @@
+version: 2
+project_name: repark-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: repark-pp-cli
+    main: ./cmd/repark-pp-cli
+    binary: repark-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/repark/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: repark-pp-mcp
+    main: ./cmd/repark-pp-mcp
+    binary: repark-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: repark-pp-cli
+    repository:
+      owner: zjsng
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Find Repark parking with live source vacancy, declared vehicle limits, and verified price estimates."
+    install: |
+      bin.install "repark-pp-cli"
+      bin.install "repark-pp-mcp"

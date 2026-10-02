@@ -1,0 +1,74 @@
+info: learn: defaulting self-learning loop on (opt out with learn.disabled: true)
+WARNING: spec.Printer is empty; README printer attribution will be omitted. Set `git config github.user` (your GitHub @handle) to populate this correctly before publishing.
+Force regen merged 0 preserved files / 0 AddCommand calls
+PASS go mod tidy
+PASS ensure safe golang.org/x/net
+PASS ensure safe golang.org/x/text
+PASS ensure safe github.com/enetx/http
+FAIL go test ./...
+Error: validating post-merge generated project: gate "go test ./..." failed: exit status 1
+?   	repark-pp-cli/cmd/repark-pp-cli	[no test files]
+?   	repark-pp-cli/cmd/repark-pp-mcp	[no test files]
+?   	repark-pp-cli/internal/cache	[no test files]
+--- FAIL: TestLearnConfig_SpecSynonymsRegisteredBothSides (0.00s)
+    learn_init_test.go:170: read side: spec synonym "repark" -> "mitsui repark" not folded ("mitsui repark" vs "mitsui mitsui repark")
+Error: MCP tool arguments may not switch the server-bound client profile
+Error: existing source differs from the requested migration; refusing to overwrite trusted identity configuration
+{"event":"output_metadata","meta":{"truncated":false}}
+warning: repark-pp-cli: playbook init: empty_examples.json has no query_family_examples; skipping (would be unreachable at recall time)
+warning: repark-pp-cli: playbook init: parse broken.json: parse playbook broken.json: invalid character 't' looking for beginning of object key string
+repark-pp-cli 0.0.0-dev
+warning: --select "c" matched no fields; valid fields: a, b
+warning: --select "c" matched no fields; valid fields: a, b
+warning: --select "missing" matched no fields; valid fields: items
+FAIL
+FAIL	repark-pp-cli/internal/cli	1.423s
+?   	repark-pp-cli/internal/cli/playbooks	[no test files]
+ok  	repark-pp-cli/internal/client	3.363s
+ok  	repark-pp-cli/internal/cliutil	13.804s
+?   	repark-pp-cli/internal/cliutil/testenv	[no test files]
+?   	repark-pp-cli/internal/config	[no test files]
+ok  	repark-pp-cli/internal/learn	1.309s
+ok  	repark-pp-cli/internal/learn/entities	3.148s
+ok  	repark-pp-cli/internal/learn/lookups	1.624s
+ok  	repark-pp-cli/internal/learn/patterns	4.793s
+ok  	repark-pp-cli/internal/mcp	2.860s
+ok  	repark-pp-cli/internal/mcp/bound	3.539s
+ok  	repark-pp-cli/internal/mcp/cobratree	8.173s
+ok  	repark-pp-cli/internal/platform	4.064s
+ok  	repark-pp-cli/internal/store	6.033s
+?   	repark-pp-cli/internal/types	[no test files]
+FAIL; snapshot preserved at /Users/zjsng/Projects/Personal/Coding/repark-cli.preserve-1790953098383495000
+validating post-merge generated project: gate "go test ./..." failed: exit status 1
+?   	repark-pp-cli/cmd/repark-pp-cli	[no test files]
+?   	repark-pp-cli/cmd/repark-pp-mcp	[no test files]
+?   	repark-pp-cli/internal/cache	[no test files]
+--- FAIL: TestLearnConfig_SpecSynonymsRegisteredBothSides (0.00s)
+    learn_init_test.go:170: read side: spec synonym "repark" -> "mitsui repark" not folded ("mitsui repark" vs "mitsui mitsui repark")
+Error: MCP tool arguments may not switch the server-bound client profile
+Error: existing source differs from the requested migration; refusing to overwrite trusted identity configuration
+{"event":"output_metadata","meta":{"truncated":false}}
+warning: repark-pp-cli: playbook init: empty_examples.json has no query_family_examples; skipping (would be unreachable at recall time)
+warning: repark-pp-cli: playbook init: parse broken.json: parse playbook broken.json: invalid character 't' looking for beginning of object key string
+repark-pp-cli 0.0.0-dev
+warning: --select "c" matched no fields; valid fields: a, b
+warning: --select "c" matched no fields; valid fields: a, b
+warning: --select "missing" matched no fields; valid fields: items
+FAIL
+FAIL	repark-pp-cli/internal/cli	1.423s
+?   	repark-pp-cli/internal/cli/playbooks	[no test files]
+ok  	repark-pp-cli/internal/client	3.363s
+ok  	repark-pp-cli/internal/cliutil	13.804s
+?   	repark-pp-cli/internal/cliutil/testenv	[no test files]
+?   	repark-pp-cli/internal/config	[no test files]
+ok  	repark-pp-cli/internal/learn	1.309s
+ok  	repark-pp-cli/internal/learn/entities	3.148s
+ok  	repark-pp-cli/internal/learn/lookups	1.624s
+ok  	repark-pp-cli/internal/learn/patterns	4.793s
+ok  	repark-pp-cli/internal/mcp	2.860s
+ok  	repark-pp-cli/internal/mcp/bound	3.539s
+ok  	repark-pp-cli/internal/mcp/cobratree	8.173s
+ok  	repark-pp-cli/internal/platform	4.064s
+ok  	repark-pp-cli/internal/store	6.033s
+?   	repark-pp-cli/internal/types	[no test files]
+FAIL; snapshot preserved at /Users/zjsng/Projects/Personal/Coding/repark-cli.preserve-1790953098383495000

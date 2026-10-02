@@ -1,0 +1,20 @@
+?   	repark-pp-cli/cmd/repark-pp-cli	[no test files]
+?   	repark-pp-cli/cmd/repark-pp-mcp	[no test files]
+?   	repark-pp-cli/internal/cache	[no test files]
+ok  	repark-pp-cli/internal/cli	2.276s
+?   	repark-pp-cli/internal/cli/playbooks	[no test files]
+ok  	repark-pp-cli/internal/client	1.686s
+ok  	repark-pp-cli/internal/cliutil	12.989s
+?   	repark-pp-cli/internal/cliutil/testenv	[no test files]
+?   	repark-pp-cli/internal/config	[no test files]
+ok  	repark-pp-cli/internal/learn	1.619s
+ok  	repark-pp-cli/internal/learn/entities	1.679s
+ok  	repark-pp-cli/internal/learn/lookups	2.265s
+ok  	repark-pp-cli/internal/learn/patterns	2.528s
+ok  	repark-pp-cli/internal/mcp	3.052s
+ok  	repark-pp-cli/internal/mcp/bound	3.770s
+ok  	repark-pp-cli/internal/mcp/cobratree	8.147s
+ok  	repark-pp-cli/internal/platform	4.297s
+ok  	repark-pp-cli/internal/repark	4.602s
+ok  	repark-pp-cli/internal/store	4.119s
+?   	repark-pp-cli/internal/types	[no test files]

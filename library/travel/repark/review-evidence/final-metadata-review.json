@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "checked": [
+    "nearby first example aligned with lot-anchor happy args; explicit coordinates retained",
+    "search query usage and literal read-only annotation",
+    "parking parent and raw source examples agree with source contracts/spec",
+    "typed MCP HTML descriptions match bounded raw HTML/preview behavior",
+    "marker description distinguishes raw source data from normalized planning"
+  ],
+  "findings": []
+}

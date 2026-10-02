@@ -1,0 +1,3 @@
+Independent review: go test ./internal/repark ./internal/cli
+Result: PASS under approved loopback networking
+Initial sandbox-only attempt could not bind httptest; tool restriction, not code/source failure.

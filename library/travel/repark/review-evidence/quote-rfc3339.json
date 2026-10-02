@@ -1,0 +1,41 @@
+{
+  "meta": {
+    "coverage": "provider coverage unverified",
+    "notes": [
+      "Occupancy includes compact and size-restricted four-wheel bays and excludes motorcycles; available does not establish fit for the remaining bays.",
+      "Source import_date and updated_at are preserved raw; their timezone and relation to occupancy measurement are unverified.",
+      "Displayed amounts are preserved in JPY. tax_included is null unless the source explicitly states tax inclusion; no tax is added."
+    ],
+    "observed_at": "2026-10-03T00:38:35+09:00",
+    "request_budget": 3,
+    "requests": 3,
+    "source": "live",
+    "source_urls": [
+      "https://www.repark.jp/parking_user/time/result/detail/?park=REP0022209",
+      "https://www.repark.jp/parking_user/time/result/calculation/?park=REP0022209",
+      "https://www.repark.jp/parking_user/time/result/calculation/?park=REP0022209"
+    ]
+  },
+  "results": {
+    "bay": 1,
+    "discounts_included": false,
+    "duration_minutes": 720,
+    "end_jst": "2026-10-04T08:00:00+09:00",
+    "estimated_amount_jpy": 600,
+    "final_billed_charge_guaranteed": false,
+    "id": "REP0022209",
+    "name": "上汐４丁目第３",
+    "observed_at": "2026-10-03T00:38:35+09:00",
+    "rate_basis": "current source rates; historical and future tariff changes unknown",
+    "source_cautions": [
+      "※現時点（日付）での料金情報に基づいて計算された駐車料金になります。 駐車場の料金情報は予告なく変更される場合がございます。",
+      "※店舗や各種施設等の提携駐車場における特別料金や割引料金等は反映されていませんのでご注意下さい。",
+      "※駐車料金結果は、実際にお客様へご請求させて頂く駐車料金を保証するものではございませんのでご了承下さい。",
+      "※ご利用可能時間は通常48時間以内です。駐車場規定の時間を超えて利用をご希望の場合は、事前にご相談ください。"
+    ],
+    "source_result_text": "2026年10月3日20時0分から 2026年10月4日8時0分までの駐車料金は 600 円 です。",
+    "source_url": "https://www.repark.jp/parking_user/time/result/calculation/?park=REP0022209",
+    "start_jst": "2026-10-03T20:00:00+09:00",
+    "tax_included": null
+  }
+}
