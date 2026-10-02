@@ -1,8 +1,12 @@
 # Swiggy CLI
 
+Created by Som Samantray (@SomSamantray). MCP tool envelope fix contributed by Cathryn Lavery (@cathrynlavery).
+
 **Every Swiggy Builders Club tool, one persistent OAuth session, and a local order history no Swiggy surface shows you.**
 
 Wraps all 51 official Swiggy MCP tools across Food, Instamart, and Dineout into one CLI that respects Swiggy's own session-reuse rules instead of tripping rate limits. Adds cross-domain spend history, a safe-retry guard for non-idempotent order placement, and a UPI payment-wait command on top.
+
+MCP orchestration sends each operation in a `tools/call` envelope. Verification mode can run the 24 explicitly read-only operations and keeps all other operations behind the mutation guard.
 
 ## Install
 

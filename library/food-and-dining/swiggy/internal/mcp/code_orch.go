@@ -101,7 +101,9 @@ type codeOrchEndpoint struct {
 	// root with HTTP 422 "Invalid json".
 	BodyIsArray bool
 	Mutating    bool
-	keywords    []string
+	// ReadOnly is affirmative: unclassified POST operations remain mutations.
+	ReadOnly bool
+	keywords []string
 }
 
 type codeOrchParamBinding struct {
@@ -184,6 +186,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		QueryParams:    []codeOrchParamBinding{},
 		HeaderParams:   []codeOrchParamBinding{},
 		Mutating:       false,
+		ReadOnly:       true,
 		keywords:       codeOrchKeywords("dineout", "get_available_slots", "Swiggy Dineout (Reservations): Check available time slots for TABLE BOOKING at a restaurant", "/dineout"),
 	},
 	{
@@ -196,6 +199,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		QueryParams:    []codeOrchParamBinding{},
 		HeaderParams:   []codeOrchParamBinding{},
 		Mutating:       false,
+		ReadOnly:       true,
 		keywords:       codeOrchKeywords("dineout", "get_booking_status", "Swiggy Dineout (Reservations): Get booking status and details for a dineout reservation", "/dineout"),
 	},
 	{
@@ -208,6 +212,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		QueryParams:    []codeOrchParamBinding{},
 		HeaderParams:   []codeOrchParamBinding{},
 		Mutating:       false,
+		ReadOnly:       true,
 		keywords:       codeOrchKeywords("dineout", "get_payment_options", "Fetch the live payment methods currently available for the cart", "/dineout"),
 	},
 	{
@@ -220,6 +225,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		QueryParams:    []codeOrchParamBinding{},
 		HeaderParams:   []codeOrchParamBinding{},
 		Mutating:       false,
+		ReadOnly:       true,
 		keywords:       codeOrchKeywords("dineout", "get_restaurant_details", "Swiggy Dineout (Reservations): Get details about a specific restaurant for TABLE BOOKING", "/dineout"),
 	},
 	{
@@ -232,6 +238,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		QueryParams:    []codeOrchParamBinding{},
 		HeaderParams:   []codeOrchParamBinding{},
 		Mutating:       false,
+		ReadOnly:       true,
 		keywords:       codeOrchKeywords("dineout", "get_saved_locations", "Swiggy Dineout (Reservations): Get user's saved addresses for restaurant search", "/dineout"),
 	},
 	{
@@ -256,6 +263,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		QueryParams:    []codeOrchParamBinding{},
 		HeaderParams:   []codeOrchParamBinding{},
 		Mutating:       false,
+		ReadOnly:       true,
 		keywords:       codeOrchKeywords("dineout", "search_restaurants_dineout", "Swiggy Dineout (Reservations): find restaurants to BOOK A TABLE at", "/dineout"),
 	},
 	{
@@ -328,6 +336,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		QueryParams:    []codeOrchParamBinding{},
 		HeaderParams:   []codeOrchParamBinding{},
 		Mutating:       false,
+		ReadOnly:       true,
 		keywords:       codeOrchKeywords("food", "fetch_food_coupons", "Get available coupons and offers for food delivery order", "/food"),
 	},
 	{
@@ -352,6 +361,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		QueryParams:    []codeOrchParamBinding{},
 		HeaderParams:   []codeOrchParamBinding{},
 		Mutating:       false,
+		ReadOnly:       true,
 		keywords:       codeOrchKeywords("food", "get_addresses", "Swiggy (Instamart/Food): Get saved delivery addresses for the authenticated Swiggy user", "/food"),
 	},
 	{
@@ -364,6 +374,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		QueryParams:    []codeOrchParamBinding{},
 		HeaderParams:   []codeOrchParamBinding{},
 		Mutating:       false,
+		ReadOnly:       true,
 		keywords:       codeOrchKeywords("food", "get_food_cart", "Get current food delivery cart with all items", "/food"),
 	},
 	{
@@ -376,6 +387,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		QueryParams:    []codeOrchParamBinding{},
 		HeaderParams:   []codeOrchParamBinding{},
 		Mutating:       false,
+		ReadOnly:       true,
 		keywords:       codeOrchKeywords("food", "get_food_delivery_status", "Get the latest delivery ETA and terminal delivery state for a Food order", "/food"),
 	},
 	{
@@ -388,6 +400,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		QueryParams:    []codeOrchParamBinding{},
 		HeaderParams:   []codeOrchParamBinding{},
 		Mutating:       false,
+		ReadOnly:       true,
 		keywords:       codeOrchKeywords("food", "get_food_order_details", "Get detailed information about a specific food delivery order", "/food"),
 	},
 	{
@@ -400,6 +413,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		QueryParams:    []codeOrchParamBinding{},
 		HeaderParams:   []codeOrchParamBinding{},
 		Mutating:       false,
+		ReadOnly:       true,
 		keywords:       codeOrchKeywords("food", "get_food_orders", "Swiggy Food order history - Use this to fetch ORDER HISTORY, past orders, or active orders", "/food"),
 	},
 	{
@@ -412,6 +426,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		QueryParams:    []codeOrchParamBinding{},
 		HeaderParams:   []codeOrchParamBinding{},
 		Mutating:       false,
+		ReadOnly:       true,
 		keywords:       codeOrchKeywords("food", "get_payment_options", "Fetch the live payment methods currently available for the cart", "/food"),
 	},
 	{
@@ -424,6 +439,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		QueryParams:    []codeOrchParamBinding{},
 		HeaderParams:   []codeOrchParamBinding{},
 		Mutating:       false,
+		ReadOnly:       true,
 		keywords:       codeOrchKeywords("food", "get_restaurant_menu", "Browse a restaurant's complete menu as a flat, deduplicated list of dishes", "/food"),
 	},
 	{
@@ -460,6 +476,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		QueryParams:    []codeOrchParamBinding{},
 		HeaderParams:   []codeOrchParamBinding{},
 		Mutating:       false,
+		ReadOnly:       true,
 		keywords:       codeOrchKeywords("food", "search_menu", "Search for dishes and menu items to order for food delivery", "/food"),
 	},
 	{
@@ -472,6 +489,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		QueryParams:    []codeOrchParamBinding{},
 		HeaderParams:   []codeOrchParamBinding{},
 		Mutating:       false,
+		ReadOnly:       true,
 		keywords:       codeOrchKeywords("food", "search_restaurants", "Search and order food from restaurants for delivery", "/food"),
 	},
 	{
@@ -592,6 +610,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		QueryParams:    []codeOrchParamBinding{},
 		HeaderParams:   []codeOrchParamBinding{},
 		Mutating:       false,
+		ReadOnly:       true,
 		keywords:       codeOrchKeywords("instamart", "get_addresses", "Swiggy (Instamart/Food): Get saved delivery addresses for the authenticated Swiggy user", "/im"),
 	},
 	{
@@ -604,6 +623,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		QueryParams:    []codeOrchParamBinding{},
 		HeaderParams:   []codeOrchParamBinding{},
 		Mutating:       false,
+		ReadOnly:       true,
 		keywords:       codeOrchKeywords("instamart", "get_cart", "Swiggy Instamart (Grocery): Get current Swiggy Instamart grocery cart with all items and bill breakdown", "/im"),
 	},
 	{
@@ -616,6 +636,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		QueryParams:    []codeOrchParamBinding{},
 		HeaderParams:   []codeOrchParamBinding{},
 		Mutating:       false,
+		ReadOnly:       true,
 		keywords:       codeOrchKeywords("instamart", "get_delivery_status", "Usage notes - Use for structured delivery ETA refreshes after an Instamart order is placed.", "/im"),
 	},
 	{
@@ -628,6 +649,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		QueryParams:    []codeOrchParamBinding{},
 		HeaderParams:   []codeOrchParamBinding{},
 		Mutating:       false,
+		ReadOnly:       true,
 		keywords:       codeOrchKeywords("instamart", "get_order_details", "Get detailed information for a specific Swiggy Instamart order by order ID", "/im"),
 	},
 	{
@@ -640,6 +662,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		QueryParams:    []codeOrchParamBinding{},
 		HeaderParams:   []codeOrchParamBinding{},
 		Mutating:       false,
+		ReadOnly:       true,
 		keywords:       codeOrchKeywords("instamart", "get_orders", "Swiggy Instamart order history - Use this to fetch ORDER HISTORY, past orders, or order preferences", "/im"),
 	},
 	{
@@ -652,6 +675,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		QueryParams:    []codeOrchParamBinding{},
 		HeaderParams:   []codeOrchParamBinding{},
 		Mutating:       false,
+		ReadOnly:       true,
 		keywords:       codeOrchKeywords("instamart", "get_payment_options", "Fetch the live payment methods currently available for the cart", "/im"),
 	},
 	{
@@ -664,6 +688,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		QueryParams:    []codeOrchParamBinding{},
 		HeaderParams:   []codeOrchParamBinding{},
 		Mutating:       false,
+		ReadOnly:       true,
 		keywords:       codeOrchKeywords("instamart", "list_coupons", "Swiggy Instamart (Grocery): List available coupons for the current cart", "/im"),
 	},
 	{
@@ -688,6 +713,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		QueryParams:    []codeOrchParamBinding{},
 		HeaderParams:   []codeOrchParamBinding{},
 		Mutating:       false,
+		ReadOnly:       true,
 		keywords:       codeOrchKeywords("instamart", "search_products", "Search for products available at the selected address", "/im"),
 	},
 	{
@@ -978,10 +1004,16 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 		}
 	case "POST":
 		body := writeBody()
-		if len(hdrs) > 0 {
-			data, _, err = c.PostWithHeaders(ctx, path, body, hdrs)
+		// Swiggy routes every domain POST by the tools/call name, not
+		// by its shared /food, /instamart, or /dineout path.
+		_, toolName, ok := strings.Cut(ep.ID, ".")
+		if !ok || toolName == "" {
+			return mcplib.NewToolResultError("invalid Swiggy endpoint identifier"), nil
+		}
+		if ep.ReadOnly {
+			data, _, err = c.MCPToolQuery(ctx, path, toolName, query, body)
 		} else {
-			data, _, err = c.Post(ctx, path, body)
+			data, _, err = c.MCPToolCall(ctx, path, toolName, body)
 		}
 	case "PUT":
 		body := writeBody()
