@@ -32,7 +32,7 @@ func TestCaptureSnapshotSameDayRefreshReplacesOnlyRequestedTypes(t *testing.T) {
 		}
 	}
 
-	date, captured, err := s.CaptureSnapshot(ctx)
+	date, captured, err := s.CaptureSnapshot(ctx, "server", "skill")
 	if err != nil {
 		t.Fatalf("initial capture: %v", err)
 	}

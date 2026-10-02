@@ -16,26 +16,24 @@ type SnapshotRow struct {
 }
 
 // CaptureSnapshot copies the current contents of the resources table for the
-// given resource types into resource_snapshots, stamped with today's date
-// (UTC). Calling it more than once on the same day replaces today's rows in
-// the requested scope, so removed resources do not linger in that snapshot.
-func (s *Store) CaptureSnapshot(ctx context.Context, resourceTypes ...string) (date string, captured int, err error) {
+// explicitly requested resource types into resource_snapshots, stamped with
+// today's date (UTC). Calling it more than once on the same day replaces
+// today's rows in that scope, so removed resources do not linger.
+func (s *Store) CaptureSnapshot(ctx context.Context, resourceType string, otherResourceTypes ...string) (date string, captured int, err error) {
 	date = time.Now().UTC().Format("2006-01-02")
 	now := time.Now().UTC().Format(time.RFC3339)
 
-	scopeClause := ""
+	resourceTypes := append([]string{resourceType}, otherResourceTypes...)
 	scopePlaceholders := ""
 	scopeArgs := []any{}
-	if len(resourceTypes) > 0 {
-		for i, resourceType := range resourceTypes {
-			if i > 0 {
-				scopePlaceholders += ","
-			}
-			scopePlaceholders += "?"
-			scopeArgs = append(scopeArgs, resourceType)
+	for i, resourceType := range resourceTypes {
+		if i > 0 {
+			scopePlaceholders += ","
 		}
-		scopeClause = ` WHERE resource_type IN (` + scopePlaceholders + `)`
+		scopePlaceholders += "?"
+		scopeArgs = append(scopeArgs, resourceType)
 	}
+	scopeClause := ` WHERE resource_type IN (` + scopePlaceholders + `)`
 
 	s.lockForWrite()
 	defer s.unlockAfterWrite()
@@ -77,12 +75,8 @@ func (s *Store) CaptureSnapshot(ctx context.Context, resourceTypes ...string) (d
 	// resource removed from the current catalog does not survive in a refreshed
 	// same-day snapshot. A scoped capture deliberately preserves snapshot rows
 	// belonging to other resource types.
-	deleteQuery := `DELETE FROM resource_snapshots WHERE snapshot_date = ?`
-	deleteArgs := []any{date}
-	if scopePlaceholders != "" {
-		deleteQuery += ` AND resource_type IN (` + scopePlaceholders + `)`
-		deleteArgs = append(deleteArgs, scopeArgs...)
-	}
+	deleteQuery := `DELETE FROM resource_snapshots WHERE snapshot_date = ? AND resource_type IN (` + scopePlaceholders + `)`
+	deleteArgs := append([]any{date}, scopeArgs...)
 	if _, err := tx.ExecContext(ctx, deleteQuery, deleteArgs...); err != nil {
 		return date, 0, err
 	}
