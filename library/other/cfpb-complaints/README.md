@@ -4,6 +4,12 @@ Search published CFPB consumer complaint records and aggregations.
 
 Build reproducible complaint cohorts, company pulses, peer comparisons, emerging-theme tables, and narrative evidence packets without presenting raw complaint counts as quality scores.
 
+Created by [@Avanderheyde](https://github.com/Avanderheyde) (avanderheyde).
+
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
+Complaint sync stores each published complaint as a separate local record and follows the search API's size and offset pages. This avoids treating an entire search response as one complaint or stopping after the first page.
+
 ## Install
 
 The recommended path installs both the `cfpb-complaints-pp-cli` binary and the `pp-cfpb-complaints` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

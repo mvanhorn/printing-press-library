@@ -496,6 +496,7 @@ func syncResource(ctx context.Context, c interface {
 		// win over spec-derived defaults (e.g. forcing mine=true on a list
 		// endpoint whose OpenAPI spec marks the filter optional).
 		userParams.applyTo(resource, params, false)
+		effectiveLimit := effectivePaginationLimit(pageSize, params)
 
 		data, err := c.Get(ctx, path, params)
 		if err != nil {
@@ -534,7 +535,7 @@ func syncResource(ctx context.Context, c interface {
 		// 1 even though more pages exist (the original symptom in #1296).
 		// Guard on cursorType, not cursorParam name, so all canonical
 		// spellings (page / page_number / pageNumber / page[number]) work.
-		if pageSize.cursorType == "page" && nextCursor == "" && len(items) >= pageSize.limit && pageAllowsPageIntFallback(data) {
+		if pageSize.cursorType == "page" && nextCursor == "" && len(items) >= effectiveLimit && pageAllowsPageIntFallback(data) {
 			currentPage, _ := strconv.Atoi(cursor)
 			if currentPage < 1 {
 				currentPage = 1
@@ -542,9 +543,9 @@ func syncResource(ctx context.Context, c interface {
 			nextCursor = strconv.Itoa(currentPage + 1)
 			hasMore = true
 		}
-		if pageSize.cursorType == "offset" && nextCursor == "" && len(items) >= pageSize.limit && pageAllowsPageIntFallback(data) {
+		if pageSize.cursorType == "offset" && nextCursor == "" && len(items) >= effectiveLimit && pageAllowsPageIntFallback(data) {
 			currentOffset, _ := strconv.Atoi(cursor)
-			nextCursor = strconv.Itoa(currentOffset + pageSize.limit)
+			nextCursor = strconv.Itoa(currentOffset + effectiveLimit)
 			hasMore = true
 		}
 
@@ -652,7 +653,7 @@ func syncResource(ctx context.Context, c interface {
 				}
 			}
 		}
-		if resourceSupportsPagination(resource) && nextCursor == "" && pageSize.cursorParam != "offset" && fetchedThisPage >= pageSize.limit && pageMayHaveMore(data, responsePathForResource(resource, path)...) {
+		if resourceSupportsPagination(resource) && nextCursor == "" && pageSize.cursorParam != "offset" && fetchedThisPage >= effectiveLimit && pageMayHaveMore(data, responsePathForResource(resource, path)...) {
 			emitSyncMissingPaginationCursorWarning(syncEvents, humanFriendly, resource, "")
 		}
 
@@ -681,14 +682,14 @@ func syncResource(ctx context.Context, c interface {
 		// sync_error output in the same stream.
 		if maxPages > 0 && pagesFetched >= maxPages {
 			truncatedByCap := resourceSupportsPagination(resource) && hasMore
-			truncatedByCap = truncatedByCap && !shortPageEndsPagination(pageSize.cursorType, fetchedThisPage, pageSize.limit)
+			truncatedByCap = truncatedByCap && !shortPageEndsPagination(pageSize.cursorType, fetchedThisPage, effectiveLimit)
 			if truncatedByCap {
 				capExitCursor = nextCursor
 			}
 			if truncatedByCap && capExitCursor == "" {
 				if pageSize.cursorType == "offset" {
 					currentOffset, _ := strconv.Atoi(cursor)
-					capExitCursor = strconv.Itoa(currentOffset + pageSize.limit)
+					capExitCursor = strconv.Itoa(currentOffset + effectiveLimit)
 				} else {
 					truncatedByCap = false
 				}
@@ -734,7 +735,7 @@ func syncResource(ctx context.Context, c interface {
 			outcome.complete = true // resource declares no pagination: one page is the whole set
 			break
 		}
-		if !hasMore || shortPageEndsPagination(pageSize.cursorType, fetchedThisPage, pageSize.limit) {
+		if !hasMore || shortPageEndsPagination(pageSize.cursorType, fetchedThisPage, effectiveLimit) {
 			outcome.complete = true
 			break
 		}
@@ -743,7 +744,7 @@ func syncResource(ctx context.Context, c interface {
 				// Cursor-based APIs return the next cursor in the envelope.
 				// Offset-based APIs carry their pagination position client-side.
 				currentOffset, _ := strconv.Atoi(cursor)
-				nextCursor = strconv.Itoa(currentOffset + pageSize.limit)
+				nextCursor = strconv.Itoa(currentOffset + effectiveLimit)
 			} else {
 				// A cursor-based API reporting has_more without a next cursor
 				// cannot advance safely; stop instead of looping silently.
@@ -845,6 +846,17 @@ type paginationDefaults struct {
 	limit       int
 }
 
+func effectivePaginationLimit(defaults paginationDefaults, params map[string]string) int {
+	if defaults.limitParam == "" {
+		return defaults.limit
+	}
+	limit, err := strconv.Atoi(strings.TrimSpace(params[defaults.limitParam]))
+	if err != nil || limit <= 0 {
+		return defaults.limit
+	}
+	return limit
+}
+
 func shortPageEndsPagination(cursorType string, fetched, limit int) bool {
 	return cursorType != "cursor" && cursorType != "page_token" && fetched < limit
 }
@@ -857,6 +869,13 @@ func cursorPageHasContinuation(cursorType string, hasMore bool, nextCursor strin
 // Values are detected from the API spec by the profiler at generation time.
 func determinePaginationDefaults(resource string) paginationDefaults {
 	switch resource {
+	case "data-research":
+		return paginationDefaults{
+			cursorParam: "from",
+			cursorType:  "offset",
+			limitParam:  "size",
+			limit:       1000,
+		}
 	}
 	return paginationDefaults{
 		cursorParam: "after",
@@ -868,6 +887,8 @@ func determinePaginationDefaults(resource string) paginationDefaults {
 
 func resourceSupportsPagination(resource string) bool {
 	switch resource {
+	case "data-research":
+		return true
 	}
 	return false
 }
@@ -1853,6 +1874,8 @@ var dataEnvelopeKeys = []string{"data", "Data", "result", "Result"}
 
 func responsePathForResource(resource, path string) []string {
 	switch resource + "\x00" + path {
+	case "data-research\x00/data-research/consumer-complaints/search/api/v1/":
+		return []string{"hits.hits"}
 	}
 	return nil
 }

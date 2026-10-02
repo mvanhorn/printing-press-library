@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "greptile-complete-complaint-sync",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260717-002908-c6f34c82",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Store individual CFPB complaint hits and paginate the search endpoint with its size and from parameters.",
+  "reason": "The generic sync stored the outer search response as one synthetic row and stopped after its first page.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/sync_cfpb_test.go",
+    "internal/store/store.go",
+    ".printing-press.json",
+    "README.md",
+    "NOTICE"
+  ],
+  "validated_outcome": "Offline tests store individual complaint hits, follow default and custom page sizes, and avoid persisting the outer response envelope.",
+  "safety": "The port retains the public store's transaction rollback behavior. It does not copy the private change that reports uncommitted rows as stored after an upsert failure."
+}
