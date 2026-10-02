@@ -1,0 +1,61 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "name": "cabins-beppu-fixed",
+      "exit": 0,
+      "source": {
+        "observed_at": "2026-10-03T02:56:52+09:00",
+        "source_urls": [
+          "https://www.ferry-sunflower.co.jp/en/route/osaka-beppu/cabin/"
+        ],
+        "source_language": "en",
+        "request_count": 1,
+        "response_bytes": 149923,
+        "elapsed_ms": 438
+      }
+    },
+    {
+      "name": "ports-beppu-fixed",
+      "exit": 0,
+      "source": {
+        "observed_at": "2026-10-03T02:56:52+09:00",
+        "source_urls": [
+          "https://www.ferry-sunflower.co.jp/en/route/osaka-beppu/boarding/"
+        ],
+        "source_language": "en",
+        "request_count": 1,
+        "response_bytes": 27120,
+        "elapsed_ms": 383
+      }
+    },
+    {
+      "name": "ports-kobe-fixed",
+      "exit": 0,
+      "source": {
+        "observed_at": "2026-10-03T02:56:53+09:00",
+        "source_urls": [
+          "https://www.ferry-sunflower.co.jp/en/route/kobe-oita/boarding/"
+        ],
+        "source_language": "en",
+        "request_count": 1,
+        "response_bytes": 27688,
+        "elapsed_ms": 569
+      }
+    },
+    {
+      "name": "ports-shibushi-fixed",
+      "exit": 0,
+      "source": {
+        "observed_at": "2026-10-03T02:56:53+09:00",
+        "source_urls": [
+          "https://www.ferry-sunflower.co.jp/en/route/osaka-shibushi/boarding/"
+        ],
+        "source_language": "en",
+        "request_count": 1,
+        "response_bytes": 30376,
+        "elapsed_ms": 401
+      }
+    }
+  ]
+}

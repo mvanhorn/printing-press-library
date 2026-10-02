@@ -438,6 +438,7 @@ type Cabin struct {
 }
 
 var occupancyRE = regexp.MustCompile(`(?i)(\d+)\s*(?:-|to)\s*(\d+)\s*(?:-?person|persons)`)
+var fixedOccupancyRE = regexp.MustCompile(`(?i)^(\d+)\s*(?:persons?|people)\b`)
 
 func ParseCabins(b []byte) ([]Cabin, error) {
 	doc, e := parseHTML(b)
@@ -456,17 +457,23 @@ func ParseCabins(b []byte) ([]Cabin, error) {
 		}
 		key := name
 		category := "private"
-		basis := "private room occupancy"
-		low := strings.ToLower(name + " " + roomtype)
-		if strings.Contains(low, "private bed") || strings.Contains(low, "tourist") || strings.Contains(low, "private single") {
+		basis := "source room capacity; booking minimum and eligibility are not inferred"
+		lowType := strings.ToLower(roomtype)
+		coreName := strings.ToLower(strings.TrimSpace(strings.Split(name, "(")[0]))
+		if strings.Contains(lowType, "shared room") || strings.Contains(lowType, "dormitory") || coreName == "tourist" || coreName == "tourist room" || coreName == "tourist bed" {
 			category = "dormitory"
 			basis = "seat/section or shared-room capacity; preserve source wording"
+		} else if strings.Contains(lowType, "semi-private") {
+			category = "semi_private"
 		}
 		item := Cabin{ID: anchor + "/" + slug(name), Name: name, Category: category, RoomType: roomtype, OccupancySource: short(cap, 170), OccupancyBasis: basis}
-		if m := occupancyRE.FindStringSubmatch(cap); m != nil && category == "private" {
+		if m := occupancyRE.FindStringSubmatch(cap); m != nil && category != "dormitory" {
 			min, _ := strconv.Atoi(m[1])
 			max, _ := strconv.Atoi(m[2])
 			item.MinOccupancy = &min
+			item.MaxOccupancy = &max
+		} else if m := fixedOccupancyRE.FindStringSubmatch(cap); m != nil && category != "dormitory" {
+			max, _ := strconv.Atoi(m[1])
 			item.MaxOccupancy = &max
 		}
 		if i, ok := index[key]; ok {
@@ -607,9 +614,42 @@ func ParsePorts(b []byte, r Route) ([]Terminal, error) {
 	if len(out) != 2 {
 		return nil, fmt.Errorf("official port page shape changed: expected two addressed terminals")
 	}
-	out[0].Port = r.Origin
-	out[1].Port = r.Destination
-	return out, nil
+	var origin, destination *Terminal
+	for i := range out {
+		isOrigin := terminalNameMatches(out[i].SourceName, r.Origin)
+		isDestination := terminalNameMatches(out[i].SourceName, r.Destination)
+		if isOrigin == isDestination {
+			return nil, fmt.Errorf("official terminal name is unknown or ambiguous; no address assigned")
+		}
+		if isOrigin {
+			if origin != nil {
+				return nil, fmt.Errorf("official port page repeats the origin terminal; no address assigned")
+			}
+			out[i].Port = r.Origin
+			origin = &out[i]
+		} else {
+			if destination != nil {
+				return nil, fmt.Errorf("official port page repeats the destination terminal; no address assigned")
+			}
+			out[i].Port = r.Destination
+			destination = &out[i]
+		}
+	}
+	if origin == nil || destination == nil {
+		return nil, fmt.Errorf("official port page does not identify both route terminals")
+	}
+	return []Terminal{*origin, *destination}, nil
+}
+func terminalNameMatches(name string, p Port) bool {
+	n := strings.ReplaceAll(slug(name), "-", "")
+	switch p.ID {
+	case "osaka-terminal1":
+		return strings.Contains(n, "osaka") && strings.Contains(n, "terminal1")
+	case "osaka-terminal2":
+		return strings.Contains(n, "osaka") && strings.Contains(n, "terminal2")
+	default:
+		return strings.Contains(n, strings.ReplaceAll(p.ID, "-", ""))
+	}
 }
 func (c *Client) Ports(ctx context.Context, r Route) ([]Terminal, error) {
 	b, e := c.fetch(ctx, PublicBase+"/en/route/"+r.ID+"/boarding/", nil)

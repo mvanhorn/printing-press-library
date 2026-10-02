@@ -123,10 +123,11 @@ Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple S
 <details>
 <summary>Manual JSON config (advanced)</summary>
 
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install both binaries and configure MCP manually. The planning tools execute the companion CLI, so both must be discoverable on PATH.
 
 
 ```bash
+go install github.com/mvanhorn/printing-press-library/library/travel/sunflower-ferry/cmd/sunflower-ferry-pp-cli@latest
 go install github.com/mvanhorn/printing-press-library/library/travel/sunflower-ferry/cmd/sunflower-ferry-pp-mcp@latest
 ```
 

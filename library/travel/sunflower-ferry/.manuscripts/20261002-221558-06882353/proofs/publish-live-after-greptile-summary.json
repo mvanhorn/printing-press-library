@@ -1,0 +1,10 @@
+{
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 120,
+  "passed": 120,
+  "failed": 0,
+  "skipped": 94,
+  "unverified": 94,
+  "ran_at": "2026-10-02T17:54:43.822679Z"
+}

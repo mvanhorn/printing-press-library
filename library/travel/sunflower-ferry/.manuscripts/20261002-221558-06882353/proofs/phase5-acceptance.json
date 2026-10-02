@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "fb2abb9be10e54e987077b53ec08c96765480ad65c8a9165d3cdb2fdde98c8f6",
+  "source_fingerprint": "0baca8f666e24d238924f88f448c3c7000c2ddba411f0d03d96d6fb580da4b30",
   "source_files": {
     "cmd/sunflower-ferry-pp-cli/main.go": "c6c39697fedfff6e8276632caf224783ebba575e50c0c45733a88ab8b5789713",
     "cmd/sunflower-ferry-pp-mcp/http_auth_test.go": "c8ef84e0ae609a934cd9f76ab69b98457de8b98727c379de0e77c057b71c2e04",
@@ -101,11 +101,11 @@
     "internal/cliutil/text.go": "684b994811cab732d76da4a1e22f3c880108b465b4feacb36accc3f33eef9e54",
     "internal/cliutil/verifyenv.go": "5b7d3b4c92ff277883b8676f5c4f1db6e92af5b195b906944f0311f4265baa76",
     "internal/config/config.go": "03d3eb89974e387e24b3807515d2264e73e04f9a3b54cbd78d08fc5985b5f23e",
-    "internal/ferry/ferry_test.go": "033843af593a66085acf93fdec71cc29f8589024b96a8e84cc97cbc647e8b06d",
+    "internal/ferry/ferry_test.go": "1bd808d7cadae1d4dd58e4545a4c0f436a5ff2b6291988898c846d8aa116e5f6",
     "internal/ferry/html.go": "f4be4060faef251bebd7998dee23863b6bda9585daa26952aee932773724b72d",
     "internal/ferry/http.go": "4c7911719ed309648507db91d3fc094486e99a06dad779a8b1977f83ba76cc6a",
     "internal/ferry/model.go": "10a2058660118900f4b4cbb729d1a985856e14f980efe1a6d098ba03790e7583",
-    "internal/ferry/operations.go": "f3f1cbc2fbfc6e9a040b0a2557b01ab4be7d8705498aca3bbbf1a2e02a817648",
+    "internal/ferry/operations.go": "49f0f5038206a5f9911b728824b84917a0fb0fbbc365c1180d29c13fb9321577",
     "internal/learn/derive.go": "c2de0916b838aa4fe6bbd5e907951536ee636567ce3f825c71ca53eb3a8c76f3",
     "internal/learn/derive_test.go": "327e6d8a38643f6d4f0700d17f9f8f1aac5314ebc914a6e75b1ece03f79d47ed",
     "internal/learn/doc.go": "3c3f15b5905e1c1448b5d158e37df72f9fdfd5b2cf39c3e11ac4847f9e6f5b8b",

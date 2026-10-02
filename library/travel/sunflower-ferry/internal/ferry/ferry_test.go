@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"html"
 	"io"
 	"net/http"
 	"net/url"
@@ -219,6 +220,58 @@ func TestCabinAndPortEvidence(t *testing.T) {
 	}
 	if Registry[0].Origin.ID == Registry[2].Origin.ID {
 		t.Fatal("distinct Osaka terminals merged")
+	}
+}
+func TestPrivateCabinIdentityDoesNotUseDescriptionSubstrings(t *testing.T) {
+	rooms, err := ParseCabins(fixture(t, "osaka-beppu-cabin.html"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	wanted := map[string]struct {
+		category string
+		max      int
+	}{
+		"Private single twin (4 rooms)":                  {"semi_private", 2},
+		"Private twin (4 rooms)":                         {"semi_private", 2},
+		"Private bed group (12 rooms in 3 compartments)": {"private", 4},
+		"Private bed group barrier-free (1 room)":        {"private", 6},
+	}
+	for _, room := range rooms {
+		if w, ok := wanted[room.Name]; ok {
+			if room.Category != w.category || room.MaxOccupancy == nil || *room.MaxOccupancy != w.max {
+				t.Fatalf("source privacy/capacity lost: %+v", room)
+			}
+			delete(wanted, room.Name)
+		}
+		if strings.HasPrefix(room.Name, "Private single (2 lots)") && (room.Category != "dormitory" || room.MaxOccupancy != nil) {
+			t.Fatalf("shared section became private: %+v", room)
+		}
+	}
+	if len(wanted) != 0 {
+		t.Fatal("source room cases missing", wanted)
+	}
+}
+func TestTerminalIdentitySurvivesReorderedSourceBoxes(t *testing.T) {
+	box := func(p Terminal) string {
+		return `<div class="tabBox"><h2>` + html.EscapeString(p.SourceName) + `</h2><table><tr><th>Address</th><td>` + html.EscapeString(p.Address) + `</td></tr></table></div>`
+	}
+	for _, r := range Registry {
+		original, err := ParsePorts(fixture(t, r.ID+"-boarding.html"), r)
+		if err != nil {
+			t.Fatal(r.ID, err)
+		}
+		reversed := `<article>` + box(original[1]) + box(original[0]) + `</article>`
+		got, err := ParsePorts([]byte(reversed), r)
+		if err != nil || got[0].Port.ID != r.Origin.ID || got[0].Address != original[0].Address || got[1].Port.ID != r.Destination.ID || got[1].Address != original[1].Address {
+			t.Fatal("source order changed identity", r.ID, err, got)
+		}
+		unknown := strings.ReplaceAll(reversed, html.EscapeString(original[0].SourceName), "Unidentified terminal")
+		if _, err := ParsePorts([]byte(unknown), r); err == nil {
+			t.Fatal("unidentified terminal guessed", r.ID)
+		}
+		if _, err := ParsePorts([]byte(`<article>`+box(original[0])+box(original[0])+`</article>`), r); err == nil {
+			t.Fatal("duplicate terminal guessed", r.ID)
+		}
 	}
 }
 func TestConditionsDeriveRefundMinimumAndBaggageDefinitions(t *testing.T) {
