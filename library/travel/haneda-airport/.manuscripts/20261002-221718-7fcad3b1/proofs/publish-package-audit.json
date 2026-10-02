@@ -3,7 +3,9 @@
   "verdict": "PASS",
   "raw_capture_option": false,
   "removed_staging_files": [
+    "FINAL-REPORT.md",
     "haneda-airport-cli",
+    ".printing-press-pii-polish.json",
     "review/independent-probe-results.jsonl",
     "review/age-probe-mode-board.json",
     "review/independent-review.md",
@@ -16,6 +18,7 @@
     "review/age-probe.json",
     "review/probe-source.go.txt",
     "review/fix-verification/snapshot-legacy-mode-final.json",
+    "review/fix-verification/pr2241-offline.json",
     "review/fix-verification/malformed-csv.json",
     "review/fix-verification/snapshot-facility-flag-final.json",
     "review/fix-verification/flights-detail-NH0849.json",
@@ -25,6 +28,7 @@
     "review/fix-verification/include-facilities-doc.json",
     "review/fix-verification/missing-list.json",
     "review/fix-verification/flights-detail-UA8003.json",
+    "review/fix-verification/final-public-mcp-hints.json",
     "review/fix-verification/malformed-clock.json",
     "review/fix-verification/age-default.json",
     "review/fix-verification/missing-coverage.json",
@@ -129,12 +133,14 @@
     ".manuscripts/20261002-221718-7fcad3b1/proofs/polish-shipcheck.json",
     ".manuscripts/20261002-221718-7fcad3b1/proofs/shipcheck.json",
     ".manuscripts/20261002-221718-7fcad3b1/proofs/shipcheck-final.json",
+    ".manuscripts/20261002-221718-7fcad3b1/proofs/publish-fixed-shipcheck.json",
     ".manuscripts/20261002-221718-7fcad3b1/proofs/review-skill.json",
     ".manuscripts/20261002-221718-7fcad3b1/proofs/generate.log",
     ".manuscripts/20261002-221718-7fcad3b1/proofs/polish-gosec-after.json",
     ".manuscripts/20261002-221718-7fcad3b1/proofs/live-domain/summary.json"
   ],
   "tier1_tokens": 0,
-  "tier2_review": "The two email-shaped matches occur only in generated synthetic test fixtures. Name-shaped matches are public airport/airline vocabulary, standard licensing attributions, command labels, or generated synthetic test examples. No personal workspace or account data was captured.",
-  "public_tree_contains_response_dumps": false
+  "tier2_review": "Generated synthetic fixtures, public airport/airline terms and licensing attributions only. No personal workspace or account data.",
+  "public_tree_contains_response_dumps": false,
+  "review_fixes": "Covered-scope offline search, full facility/map diff, newest origin-aware compatible pair."
 }

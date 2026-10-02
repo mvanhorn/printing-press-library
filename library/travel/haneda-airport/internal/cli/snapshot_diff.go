@@ -3,8 +3,6 @@ package cli
 
 import (
 	"fmt"
-	"path/filepath"
-	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/travel/haneda-airport/internal/haneda"
 	"github.com/spf13/cobra"
@@ -14,7 +12,7 @@ import (
 func newNovelSnapshotDiffCmd(flags *rootFlags) *cobra.Command {
 	var before, after string
 	var limit, offset int
-	cmd := &cobra.Command{Use: "diff", Short: "Compare status, times and facilities between compatible saved scopes", Long: "Compare --before and --after, or the latest two cached snapshots with matching date/kind/direction. Fewer than two observations yield an empty baseline. Coverage mismatch is an error; a disappearing service is no_longer_reported and never inferred canceled.", Annotations: hanedaAnnotations("computed"), Example: "  haneda-airport-pp-cli snapshot diff --limit 20 --agent"}
+	cmd := &cobra.Command{Use: "diff", Short: "Compare status, times and facilities between compatible saved scopes", Long: "Compare --before and --after, or the latest compatible cached pair with matching origin/date/kind/direction. Automatic selection reads at most 64 MiB of saved files. Fewer than two compatible observations yield an empty baseline. Coverage mismatch is an error; a disappearing service is no_longer_reported and never inferred canceled.", Annotations: hanedaAnnotations("computed"), Example: "  haneda-airport-pp-cli snapshot diff --limit 20 --agent"}
 	cmd.Flags().StringVar(&before, "before", "", "Earlier complete observation file; pair with --after")
 	cmd.Flags().StringVar(&after, "after", "", "Later compatible observation file; pair with --before")
 	cmd.Flags().IntVar(&limit, "limit", 20, "Maximum changed service groups returned (1–200)")
@@ -41,20 +39,12 @@ func newNovelSnapshotDiffCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return configErr(err)
 			}
-			if len(paths) > 0 {
-				after = paths[0]
-				suffix := strings.SplitN(filepath.Base(after), "_", 2)
-				if len(suffix) == 2 {
-					for _, p := range paths[1:] {
-						if strings.HasSuffix(filepath.Base(p), "_"+suffix[1]) {
-							before = p
-							break
-						}
-					}
-				}
+			before, after, err = hanedaLatestCompatiblePair(paths)
+			if err != nil {
+				return configErr(err)
 			}
 			if before == "" {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"changes": []haneda.Change{}, "total_changes": 0, "baseline_sufficient": false, "budget": haneda.Budget{}, "notes": []string{"At least two compatible saved observations are needed. Run snapshot save again for the same date/kind/direction, or provide --before and --after."}}, flags)
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"changes": []haneda.Change{}, "total_changes": 0, "baseline_sufficient": false, "budget": haneda.Budget{}, "notes": []string{"At least two compatible saved observations are needed. Run snapshot save again for the same origin/date/kind/direction, or provide --before and --after."}}, flags)
 			}
 		}
 		a, err := haneda.LoadSnapshot(before)

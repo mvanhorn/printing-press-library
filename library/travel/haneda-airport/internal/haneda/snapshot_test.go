@@ -132,3 +132,50 @@ func TestDiffSnapshotsAbsenceChangesAndCoverage(t *testing.T) {
 		t.Fatal("reversed observation order accepted")
 	}
 }
+
+func TestSnapshotQueryDistinguishesUncoveredScopesFromEmptyMatches(t *testing.T) {
+	s := testSnapshot(t)
+	for _, tc := range []struct {
+		name, kind, direction, date string
+		covered                     bool
+	}{
+		{"saved scope", "international", "departure", "2026-10-02", true},
+		{"other kind", "domestic", "departure", "2026-10-02", false},
+		{"broader kind", "all", "departure", "2026-10-02", false},
+		{"other direction", "international", "arrival", "2026-10-02", false},
+		{"broader direction", "international", "both", "2026-10-02", false},
+		{"other request date", "international", "departure", "2026-10-03", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			err := ValidateSnapshotQuery(s, Query{Kind: tc.kind, Direction: tc.direction, Date: tc.date})
+			if (err == nil) != tc.covered {
+				t.Fatalf("covered=%t: %v", tc.covered, err)
+			}
+		})
+	}
+	s.Board.Coverage.Kind, s.Board.Coverage.Direction = "all", "both"
+	if err := ValidateSnapshotQuery(s, Query{Kind: "domestic", Direction: "arrival", Date: "2026-10-02"}); err != nil {
+		t.Fatalf("a saved superset covers the narrowed scope: %v", err)
+	}
+}
+
+func TestDiffSnapshotProviderFacilityAndMapChanges(t *testing.T) {
+	before := testSnapshot(t)
+	before.Board.Flights[0].Facilities = []Facility{{Type: "gate", Title: "Published gate", Name: "144", MapURL: ptr(Origin + "/map-before")}}
+	for _, tc := range []struct {
+		name   string
+		change func(*Facility)
+	}{
+		{"facility name", func(f *Facility) { f.Name = "145" }},
+		{"map handoff", func(f *Facility) { f.MapURL = ptr(Origin + "/map-after") }},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			after := cloneSnapshot(before)
+			tc.change(&after.Board.Flights[0].Facilities[0])
+			r, err := DiffSnapshots(before, after)
+			if err != nil || len(r.Changes) != 1 || len(r.Changes[0].Fields) != 1 || r.Changes[0].Fields[0].Field != "facilities" {
+				t.Fatalf("provider facility change without separate gate/counter change: %+v, %v", r, err)
+			}
+		})
+	}
+}

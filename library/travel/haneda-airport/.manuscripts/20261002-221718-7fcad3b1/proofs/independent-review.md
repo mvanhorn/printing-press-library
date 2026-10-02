@@ -103,6 +103,17 @@ The independent socket-free replay results remain in `review/independent-probe-r
 
 This supplement closes the local review gates. Publication and merge actions remain the parent task's responsibility.
 
+## Supplemental PR #2241 snapshot fix verification
+
+**Verdict: PASS.** The three requested snapshot findings are closed in the reviewed source. No new finding remains in these changes.
+
+- Saved search validates explicit kind/direction against the complete saved scope and requires explicit `--date` to equal `coverage.requested_date`. Defaults inherit the saved scope and retain adjacent service-day rows. Independent CLI fixtures confirmed that an adjacent row remains visible by default, the explicit request day may correctly return zero rows, and asking for the adjacent day fails with exit 2 rather than claiming complete coverage. Covered-empty queries still succeed with zero requests.
+- Material diff now compares the full provider `facilities` entries. Independent name-only, title-only, type-only and map-URL-only mutations each produce one `facilities` field change without requiring a separate gate/counter change.
+- Automatic diff pairs validated origin/date/kind/direction content, canonicalizes legacy empty board mode, skips a newest unpaired origin, and prefers the newest compatible cached pair when origins compete. Different request dates do not pair. Eight distinct 8-MiB observations reach the 64-MiB selection boundary successfully; a ninth is rejected with exit 10 and explicit-path guidance. Cache filenames in these fixtures deliberately had misleading scope suffixes, so selection depended on validated content.
+- `go test -count=1 ./internal/haneda -run 'Snapshot|Diff'` and `go test -count=1 ./internal/cli -run 'TestHanedaSnapshot'` passed independently. The CLI regressions used the normal approved local-socket access required by their httptest server.
+- A separately built current-source CLI passed 20 additional offline checks. The provider URL pointed at an unreachable loopback port; every successful search/diff output reported zero requests. These are artificial reviewer fixtures, not live travel data. Results: `review/fix-verification/pr2241-offline.json`.
+- The revised README, SKILL and command help accurately state the saved-scope guard, adjacent-day defaults, full facility/map diff and bounded compatible-pair selection.
+
 ```text
 ---OUTPUT-REVIEW-RESULT---
 status: PASS

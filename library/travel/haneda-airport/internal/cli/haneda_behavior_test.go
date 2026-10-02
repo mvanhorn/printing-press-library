@@ -260,6 +260,99 @@ func TestHanedaSnapshotCLICompleteOfflineAndDiff(t *testing.T) {
 	}
 }
 
+func TestHanedaSnapshotCLIRejectsUncoveredExplicitScope(t *testing.T) {
+	testenv.Isolate(t)
+	server, requests := hanedaMock(t)
+	defer server.Close()
+	t.Setenv("HANEDA_AIRPORT_BASE_URL", server.URL)
+	path := filepath.Join(t.TempDir(), "board.json")
+	if _, stderr, err := runHanedaTest("snapshot", "save", "--kind", "international", "--direction", "departure", "--file", path, "--json"); err != nil {
+		t.Fatal(err, stderr)
+	}
+	initialRequests := *requests
+	for _, filter := range [][]string{
+		{"--kind", "domestic"}, {"--kind", "all"}, {"--direction", "arrival"}, {"--direction", "both"},
+		{"--date", time.Now().In(haneda.JST).AddDate(0, 0, 1).Format("2006-01-02")},
+	} {
+		args := append([]string{"snapshot", "search", "--file", path, "--json"}, filter...)
+		_, _, err := runHanedaTest(args...)
+		if err == nil || !strings.Contains(err.Error(), "not covered") {
+			t.Fatalf("uncovered query %v must be an error: %v", filter, err)
+		}
+	}
+	d, stderr, err := runHanedaTest("snapshot", "search", "--file", path, "--flight", "ZZ9999", "--json")
+	if err != nil || d["total_matches"] != float64(0) {
+		t.Fatalf("a covered scope with no matching flight is a real empty result: %+v %v %s", d, err, stderr)
+	}
+	if *requests != initialRequests {
+		t.Fatal("saved-scope validation made network requests")
+	}
+}
+
+func TestHanedaSnapshotDefaultDiffFindsOlderCompatibleOriginPair(t *testing.T) {
+	testenv.Isolate(t)
+	server, requests := hanedaMock(t)
+	defer server.Close()
+	t.Setenv("HANEDA_AIRPORT_BASE_URL", server.URL)
+	path := filepath.Join(t.TempDir(), "source.json")
+	if _, stderr, err := runHanedaTest("snapshot", "save", "--file", path, "--json"); err != nil {
+		t.Fatal(err, stderr)
+	}
+	s, err := haneda.LoadSnapshot(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	dir, err := hanedaSnapshotDir()
+	if err != nil {
+		t.Fatal(err)
+	}
+	start := time.Now().In(haneda.JST).Add(-time.Minute)
+	for i := 1; i <= 3; i++ {
+		s.Board.ObservedAt = start.Add(time.Duration(i) * time.Second).Format(time.RFC3339)
+		s.Board.Coverage.Origin = "https://older-source.example"
+		if i == 2 {
+			s.Board.Coverage.QueryMode = "board" // The old v1 empty mode remains compatible.
+			s.Board.Flights[0].BoardingGates = []string{"changed-gate"}
+		}
+		if i == 3 {
+			s.Board.Coverage.Origin = "https://newest-source.example"
+		}
+		file := filepath.Join(dir, fmt.Sprintf("hnd-snapshot-%d_international_departure_%s.json", i, s.Board.Coverage.RequestedDate))
+		if err := haneda.SaveSnapshot(file, s, false); err != nil {
+			t.Fatal(err)
+		}
+	}
+	initialRequests := *requests
+	d, stderr, err := runHanedaTest("snapshot", "diff", "--json")
+	if err != nil {
+		t.Fatalf("default pairing must skip the newest unpaired origin: %v %s", err, stderr)
+	}
+	cmp := d["comparison"].(map[string]any)
+	if d["baseline_sufficient"] != true || cmp["coverage"].(map[string]any)["origin"] != "https://older-source.example" || len(cmp["changes"].([]any)) != 1 {
+		t.Fatalf("wrong compatible baseline: %+v", d)
+	}
+	if *requests != initialRequests {
+		t.Fatal("automatic saved snapshot pairing made network requests")
+	}
+
+	// Completing an older pair first must not conceal a newer compatible pair.
+	pairDir := t.TempDir()
+	paths := []string{}
+	for i, origin := range []string{"https://latest.example", "https://older.example", "https://older.example", "https://latest.example"} {
+		s.Board.Coverage.Origin = origin
+		s.Board.ObservedAt = start.Add(time.Duration(10-i) * time.Second).Format(time.RFC3339)
+		file := filepath.Join(pairDir, fmt.Sprintf("hnd-snapshot-%d.json", 4-i))
+		if err := haneda.SaveSnapshot(file, s, false); err != nil {
+			t.Fatal(err)
+		}
+		paths = append(paths, file)
+	}
+	before, after, err := hanedaLatestCompatiblePair(paths)
+	if err != nil || before != paths[3] || after != paths[0] {
+		t.Fatalf("the newest compatible cache pair must win: %q %q %v", before, after, err)
+	}
+}
+
 func TestHanedaUsageAndEmptyLocalBaseline(t *testing.T) {
 	testenv.Isolate(t)
 	for _, args := range [][]string{{"flights", "search", "--date", "2026-02-30", "--json"}, {"flights", "search", "--limit", "0", "--json"}, {"flights", "search", "--status", "canceled,", "--json"}, {"flights", "detail", "--json"}, {"snapshot", "diff", "--before", "missing", "--json"}, {"snapshot", "diff", "--data-source", "live", "--json"}, {"schedule", "search", "--kind", "invalid", "--json"}, {"schedule", "search", "--flight", "hnd:international:departure:20261003:NH849", "--json"}} {

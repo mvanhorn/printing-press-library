@@ -14,7 +14,7 @@ func newNovelSnapshotSearchCmd(flags *rootFlags) *cobra.Command {
 	q := haneda.Query{}
 	var file string
 	var maxAge time.Duration
-	cmd := &cobra.Command{Use: "search", Short: "Search a saved observation without network requests", Long: "Read --file or the latest snapshot in the CLI cache. Its original coverage, source timestamps and age remain visible. With no saved snapshot, return an explicit empty local state. An explicit --date narrows to that service day.", Annotations: hanedaAnnotations("local"), Example: "  haneda-airport-pp-cli snapshot search --flight NH849 --limit 5 --agent"}
+	cmd := &cobra.Command{Use: "search", Short: "Search a saved observation without network requests", Long: "Read --file or the latest snapshot in the CLI cache. Its original coverage, source timestamps and age remain visible. With no saved snapshot, return an explicit empty local state. Explicit kind/direction/date requests must be covered by the saved scope. An explicit --date must match the saved request date and narrows to that service day.", Annotations: hanedaAnnotations("local"), Example: "  haneda-airport-pp-cli snapshot search --flight NH849 --limit 5 --agent"}
 	hanedaQueryFlags(cmd, &q, true)
 	cmd.Flags().StringVar(&file, "file", "", "Input snapshot file; default reads the latest cached observation")
 	cmd.Flags().DurationVar(&maxAge, "max-age", 5*time.Minute, "Saved observation age threshold for stale_snapshot (must be positive)")
@@ -63,6 +63,9 @@ func newNovelSnapshotSearchCmd(flags *rootFlags) *cobra.Command {
 			q.Date = s.Board.Coverage.RequestedDate
 		} else {
 			q.ServiceDayOnly = true
+		}
+		if err := haneda.ValidateSnapshotQuery(s, q); err != nil {
+			return usageErr(err)
 		}
 		r := s.Board
 		r.Budget = haneda.Budget{}

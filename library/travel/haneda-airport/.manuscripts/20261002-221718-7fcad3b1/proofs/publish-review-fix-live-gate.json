@@ -1,0 +1,5 @@
+{
+  "verdict": "PASS",
+  "head_before_fixes": "8562968f9c0b5da9b3ff584ae18145785a165c96",
+  "checks": "Uncovered scope, provider facility/map changes, origin-aware newest compatible cache pair regression cases passed. Fresh full live dogfood passed."
+}

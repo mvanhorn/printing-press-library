@@ -230,6 +230,31 @@ type Diff struct {
 	Notes            []string `json:"notes"`
 }
 
+// ValidateSnapshotQuery refuses to treat an unobserved scope as an empty match.
+// Adjacent service-day rows remain available unless an explicit date narrows
+// to the snapshot's source request day; that observation is not a full board
+// for some other request date merely because it contains a rollover row.
+func ValidateSnapshotQuery(s Snapshot, q Query) error {
+	c := s.Board.Coverage
+	if q.Date != "" && q.Date != c.RequestedDate {
+		return fmt.Errorf("requested date %s is not covered by snapshot request date %s; choose a matching snapshot or query live data", q.Date, c.RequestedDate)
+	}
+	covered := map[string]bool{}
+	for _, kind := range kinds(c.Kind) {
+		for _, direction := range directions(c.Direction) {
+			covered[kind+"|"+direction] = true
+		}
+	}
+	for _, kind := range kinds(q.Kind) {
+		for _, direction := range directions(q.Direction) {
+			if !covered[kind+"|"+direction] {
+				return fmt.Errorf("requested %s/%s is not covered by snapshot %s/%s; choose a matching snapshot or query live data", kind, direction, c.Kind, c.Direction)
+			}
+		}
+	}
+	return nil
+}
+
 // DiffSnapshots compares compatible complete observations and never labels disappearance as cancellation.
 func DiffSnapshots(before, after Snapshot) (Diff, error) {
 	r := Diff{Coverage: before.Board.Coverage, BeforeObservedAt: before.Board.ObservedAt, AfterObservedAt: after.Board.ObservedAt, Changes: []Change{}, Notes: []string{"A service absent from the later source is no_longer_reported, not proof of cancellation. Only source-declared status changes establish a reported cancellation."}}
@@ -270,7 +295,7 @@ func DiffSnapshots(before, after Snapshot) (Diff, error) {
 		fields := []struct {
 			name          string
 			before, after any
-		}{{"status", p.Status, f.Status}, {"scheduled_at", p.ScheduledAt, f.ScheduledAt}, {"revised_at", p.RevisedAt, f.RevisedAt}, {"actual_at", p.ActualAt, f.ActualAt}, {"terminal", p.Terminal, f.Terminal}, {"boarding_gates", p.BoardingGates, f.BoardingGates}, {"checkin_counters", p.CheckinCounters, f.CheckinCounters}, {"security_checks", p.SecurityChecks, f.SecurityChecks}, {"arrival_exits", p.ArrivalExits, f.ArrivalExits}, {"listed_flights", p.ListedFlights, f.ListedFlights}, {"other_airport", p.Airport, f.Airport}}
+		}{{"status", p.Status, f.Status}, {"scheduled_at", p.ScheduledAt, f.ScheduledAt}, {"revised_at", p.RevisedAt, f.RevisedAt}, {"actual_at", p.ActualAt, f.ActualAt}, {"terminal", p.Terminal, f.Terminal}, {"boarding_gates", p.BoardingGates, f.BoardingGates}, {"checkin_counters", p.CheckinCounters, f.CheckinCounters}, {"security_checks", p.SecurityChecks, f.SecurityChecks}, {"arrival_exits", p.ArrivalExits, f.ArrivalExits}, {"facilities", p.Facilities, f.Facilities}, {"listed_flights", p.ListedFlights, f.ListedFlights}, {"other_airport", p.Airport, f.Airport}}
 		for _, v := range fields {
 			if !reflect.DeepEqual(v.before, v.after) {
 				changes = append(changes, FieldChange{Field: v.name, Before: v.before, After: v.after})

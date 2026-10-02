@@ -8,8 +8,10 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/travel/haneda-airport/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/travel/haneda-airport/internal/haneda"
 )
 
 func hanedaSnapshotDir() (string, error) {
@@ -49,4 +51,49 @@ func hanedaLatestPaths() ([]string, error) {
 	}
 	sort.Sort(sort.Reverse(sort.StringSlice(paths)))
 	return paths, nil
+}
+
+// Find a compatible pair by validated content, including origin. A newest
+// unpaired scope does not hide an older usable pair; byte work stays bounded.
+func hanedaLatestCompatiblePair(paths []string) (before, after string, err error) {
+	type observation struct {
+		path  string
+		at    time.Time
+		index int
+	}
+	seen := map[haneda.Coverage]observation{}
+	var bytes int64
+	bestIndex := len(paths)
+	for index, path := range paths {
+		info, err := os.Stat(path)
+		if err != nil {
+			return "", "", err
+		}
+		bytes += info.Size()
+		if bytes > 64<<20 {
+			return "", "", fmt.Errorf("automatic snapshot pairing exceeds 64 MiB; choose explicit --before and --after")
+		}
+		s, err := haneda.LoadSnapshot(path)
+		if err != nil {
+			return "", "", fmt.Errorf("read cached snapshot %s: %w", filepath.Base(path), err)
+		}
+		key := s.Board.Coverage
+		key.QueryMode = "board" // Empty v1 mode and explicit board mode are compatible.
+		at, _ := time.Parse(time.RFC3339, s.Board.ObservedAt)
+		if previous, ok := seen[key]; ok {
+			if previous.index < bestIndex {
+				before, after = path, previous.path
+				if at.After(previous.at) {
+					before, after = previous.path, path
+				}
+				bestIndex = previous.index
+			}
+			if bestIndex == 0 {
+				return before, after, nil
+			}
+			continue
+		}
+		seen[key] = observation{path: path, at: at, index: index}
+	}
+	return before, after, nil
 }
