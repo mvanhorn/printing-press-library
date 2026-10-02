@@ -176,7 +176,7 @@ These capabilities aren't available in any other tool for this API.
   sarvam-pp-cli chat resume 20260814_2d09e061 "what was our conclusion?"
   ```
 
-  Successful text-to-speech requests also save the request text and audio count in local history. Audio data is not copied into SQLite.
+  Completed text-only streamed chats can also be resumed. Incomplete streams and streamed tool calls are not saved because their full context cannot be reconstructed safely. Successful text-to-speech requests save their request text in local history. Audio data is not copied into SQLite.
 - **`subs`** — Emit .srt/.vtt subtitles from timestamped transcriptions in local history
 
   _Use to turn a timestamped transcription into subtitles without a throwaway script. Saved subtitles are private to your local account by default._

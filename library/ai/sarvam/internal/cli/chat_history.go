@@ -4,9 +4,11 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/ai/sarvam/internal/store"
 )
@@ -22,6 +24,11 @@ type chatConversationRecord struct {
 }
 
 func newChatConversationRecord(response json.RawMessage, messages []any, model string) (chatConversationRecord, error) {
+	var err error
+	response, err = chatResponseForHistory(response)
+	if err != nil {
+		return chatConversationRecord{}, err
+	}
 	var envelope struct {
 		ID string `json:"id"`
 	}
@@ -37,6 +44,65 @@ func newChatConversationRecord(response json.RawMessage, messages []any, model s
 		Messages: append([]any(nil), messages...),
 		Response: append(json.RawMessage(nil), response...),
 	}, nil
+}
+
+// Sarvam streams chat completions as SSE chunks. Only a completed stream with
+// a plain text first choice can be reconstructed into a resumable assistant
+// message. Reasoning tokens are intentionally not added to the conversation.
+func chatResponseForHistory(response json.RawMessage) (json.RawMessage, error) {
+	trimmed := bytes.TrimSpace(response)
+	if bytes.HasPrefix(trimmed, []byte("{")) {
+		return response, nil
+	}
+	var id string
+	var content strings.Builder
+	completed := false
+	for _, line := range bytes.Split(trimmed, []byte("\n")) {
+		line = bytes.TrimSpace(line)
+		if !bytes.HasPrefix(line, []byte("data:")) {
+			continue
+		}
+		payload := bytes.TrimSpace(line[len("data:"):])
+		if bytes.Equal(payload, []byte("[DONE]")) {
+			completed = true
+			break
+		}
+		var chunk struct {
+			ID      string `json:"id"`
+			Choices []struct {
+				Index int `json:"index"`
+				Delta struct {
+					Content   string          `json:"content"`
+					ToolCalls json.RawMessage `json:"tool_calls"`
+				} `json:"delta"`
+			} `json:"choices"`
+		}
+		if err := json.Unmarshal(payload, &chunk); err != nil {
+			return nil, fmt.Errorf("parsing streamed chat chunk: %w", err)
+		}
+		if chunk.ID != "" {
+			if id != "" && id != chunk.ID {
+				return nil, fmt.Errorf("streamed chat changed conversation id")
+			}
+			id = chunk.ID
+		}
+		for _, choice := range chunk.Choices {
+			if choice.Index != 0 {
+				continue
+			}
+			if len(choice.Delta.ToolCalls) > 0 && !bytes.Equal(choice.Delta.ToolCalls, []byte("null")) && !bytes.Equal(choice.Delta.ToolCalls, []byte("[]")) {
+				return nil, fmt.Errorf("streamed chat with tool calls cannot be saved for resume")
+			}
+			content.WriteString(choice.Delta.Content)
+		}
+	}
+	if !completed || id == "" || content.Len() == 0 {
+		return nil, fmt.Errorf("streamed chat has no complete text reply to save")
+	}
+	return json.Marshal(map[string]any{
+		"id":      id,
+		"choices": []any{map[string]any{"message": map[string]any{"role": "assistant", "content": content.String()}}},
+	})
 }
 
 func persistChatConversation(ctx context.Context, response json.RawMessage, messages []any, model string) error {

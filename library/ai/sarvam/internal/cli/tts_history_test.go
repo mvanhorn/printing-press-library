@@ -21,7 +21,7 @@ func TestTTSHistoryKeepsRequestMetadataWithoutAudioPayload(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if record.RequestID != "tts-1" || record.AudioCount != 1 {
+	if record.RequestID != "tts-1" {
 		t.Fatalf("record = %#v", record)
 	}
 	if string(record.Request) == "" || string(record.Request) == "null" {

@@ -12,15 +12,13 @@ import (
 )
 
 type ttsHistoryRecord struct {
-	RequestID  string          `json:"request_id"`
-	Request    json.RawMessage `json:"request"`
-	AudioCount int             `json:"audio_count"`
+	RequestID string          `json:"request_id"`
+	Request   json.RawMessage `json:"request"`
 }
 
 func newTTSHistoryRecord(response json.RawMessage, request any) (ttsHistoryRecord, error) {
 	var envelope struct {
-		RequestID string   `json:"request_id"`
-		Audios    []string `json:"audios"`
+		RequestID string `json:"request_id"`
 	}
 	if err := json.Unmarshal(response, &envelope); err != nil {
 		return ttsHistoryRecord{}, fmt.Errorf("parsing TTS response: %w", err)
@@ -33,9 +31,8 @@ func newTTSHistoryRecord(response json.RawMessage, request any) (ttsHistoryRecor
 		return ttsHistoryRecord{}, fmt.Errorf("encoding TTS request history: %w", err)
 	}
 	return ttsHistoryRecord{
-		RequestID:  envelope.RequestID,
-		Request:    requestJSON,
-		AudioCount: len(envelope.Audios),
+		RequestID: envelope.RequestID,
+		Request:   requestJSON,
 	}, nil
 }
 

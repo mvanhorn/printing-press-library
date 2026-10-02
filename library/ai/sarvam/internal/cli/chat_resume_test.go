@@ -81,3 +81,33 @@ func TestNewChatConversationRecordRequiresResponseID(t *testing.T) {
 		t.Fatal("newChatConversationRecord() unexpectedly accepted a response without id")
 	}
 }
+
+func TestStreamingChatHistoryReconstructsCompletedText(t *testing.T) {
+	response := json.RawMessage(": stream opened\n\nevent: message\n" +
+		"data: {\"id\":\"stream-1\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"The\"}}]}\n\n" +
+		"data: {\"id\":\"stream-1\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" answer\"}}]}\n\n" +
+		"data: {\"id\":\"stream-1\",\"choices\":[]}\n\n" +
+		"data: [DONE]\n\n")
+	record, err := newChatConversationRecord(response, []any{map[string]any{"role": "user", "content": "Question"}}, "sarvam-105b")
+	if err != nil {
+		t.Fatal(err)
+	}
+	resumed, err := buildChatResumeMessages(record, "Why?")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(resumed) != 3 || resumed[1].(map[string]any)["content"] != "The answer" {
+		t.Fatalf("streamed reply was not reconstructed: %#v", resumed)
+	}
+}
+
+func TestStreamingChatHistoryRejectsIncompleteOrToolCallStreams(t *testing.T) {
+	for _, response := range []string{
+		"data: {\"id\":\"stream-1\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"partial\"}}]}\n\n",
+		"data: {\"id\":\"stream-1\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0}]}}]}\n\ndata: [DONE]\n\n",
+	} {
+		if _, err := newChatConversationRecord(json.RawMessage(response), []any{}, "sarvam-105b"); err == nil {
+			t.Fatal("incomplete streamed context was accepted for resume")
+		}
+	}
+}
