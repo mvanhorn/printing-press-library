@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "sarvam-mcpb-bundle-manifest",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260814-164825-7ec4499e",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Add the MCPB manifest so Sarvam's public release can build Claude Desktop bundles.",
+  "reason": "The release workflow skips Sarvam MCPB assets without manifest.json. The MCP runtime uses the API key directly and does not require a client profile during startup.",
+  "files": [
+    "manifest.json",
+    "README.md"
+  ]
+}

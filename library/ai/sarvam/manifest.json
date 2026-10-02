@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "sarvam-pp-mcp",
+  "display_name": "Sarvam AI",
+  "version": "0.0.0",
+  "description": "Translate, speak, transcribe, chat, and extract documents with Sarvam AI.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/sarvam-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/sarvam-pp-mcp",
+      "args": [],
+      "env": {
+        "SARVAM_API_KEY": "${user_config.sarvam_api_key}",
+        "PRINTING_PRESS_CLIENT_PROFILE": "${user_config.printing_press_client_profile}"
+      }
+    }
+  },
+  "user_config": {
+    "sarvam_api_key": {
+      "type": "string",
+      "title": "SARVAM_API_KEY",
+      "description": "Sarvam AI API subscription key.",
+      "required": true,
+      "sensitive": true
+    },
+    "printing_press_client_profile": {
+      "type": "string",
+      "title": "Client profile (optional)",
+      "description": "Optional Printing Press client profile name, if your setup uses one.",
+      "required": false,
+      "sensitive": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

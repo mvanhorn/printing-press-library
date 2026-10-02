@@ -90,7 +90,7 @@ To install:
 
 1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/sarvam-current).
 2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `SARVAM_API_KEY` when Claude Desktop prompts you.
+3. Fill in `SARVAM_API_KEY` when Claude Desktop prompts you. Leave the optional client profile blank unless your setup uses one.
 
 Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
 
