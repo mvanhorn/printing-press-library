@@ -129,7 +129,18 @@ func TestChatStreamOutputsCompletedReplyAndSavesResumeContext(t *testing.T) {
 	}
 	var printed struct {
 		Results struct {
-			Stream string `json:"stream"`
+			ID      string `json:"id"`
+			Stream  string `json:"stream"`
+			Choices []struct {
+				Index        int    `json:"index"`
+				FinishReason string `json:"finish_reason"`
+				Message      struct {
+					Content string `json:"content"`
+				} `json:"message"`
+			} `json:"choices"`
+			Usage struct {
+				TotalTokens int `json:"total_tokens"`
+			} `json:"usage"`
 		} `json:"results"`
 	}
 	if err := json.Unmarshal(output.Bytes(), &printed); err != nil {
@@ -139,6 +150,26 @@ func TestChatStreamOutputsCompletedReplyAndSavesResumeContext(t *testing.T) {
 		if !strings.Contains(printed.Results.Stream, want) {
 			t.Fatalf("stream output omitted %q", want)
 		}
+	}
+	if printed.Results.ID != "chat-stream" || len(printed.Results.Choices) != 2 || printed.Results.Choices[0].Message.Content != "First answer" || printed.Results.Choices[1].Message.Content != "Other answer" || printed.Results.Choices[1].FinishReason != "stop" || printed.Results.Usage.TotalTokens != 42 {
+		t.Fatalf("stream output lost structured choices or metadata: %#v", printed.Results)
+	}
+	selected := RootCmd()
+	selected.SetArgs([]string{"chat", "--messages", `[{"role":"user","content":"First question"}]`, "--model", "sarvam-105b", "--stream", "--n", "2", "--select", "id,choices", "--config", filepath.Join(t.TempDir(), "missing.toml")})
+	var selectedOutput bytes.Buffer
+	selected.SetOut(&selectedOutput)
+	selected.SetErr(&selectedOutput)
+	if err := selected.Execute(); err != nil {
+		t.Fatalf("chat --stream --select failed: %v", err)
+	}
+	var projection struct {
+		Results struct {
+			ID      string            `json:"id"`
+			Choices []json.RawMessage `json:"choices"`
+		} `json:"results"`
+	}
+	if err := json.Unmarshal(selectedOutput.Bytes(), &projection); err != nil || projection.Results.ID != "chat-stream" || len(projection.Results.Choices) != 2 {
+		t.Fatalf("selected stream fields missing: %s (error: %v)", selectedOutput.String(), err)
 	}
 
 	db, err := store.OpenReadOnly(defaultDBPath("sarvam-pp-cli"))

@@ -4,9 +4,12 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
+	"sort"
+	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/ai/sarvam/internal/cliutil"
 	"github.com/spf13/cobra"
@@ -210,9 +213,9 @@ func newChatPromotedCmd(flags *rootFlags) *cobra.Command {
 			outputData := data
 			if bodyStream && !json.Valid(data) {
 				// The transport returns SSE bytes, while the shared CLI output
-				// pipeline requires JSON. Preserve the entire event stream so
-				// callers can inspect every choice and its response metadata.
-				outputData, err = json.Marshal(map[string]any{"stream": string(data)})
+				// pipeline requires JSON. Keep both the complete event stream
+				// and structured fields for callers that select id or choices.
+				outputData, err = streamedChatOutput(data)
 				if err != nil {
 					return fmt.Errorf("encoding streamed chat output: %w", err)
 				}
@@ -292,4 +295,93 @@ func newChatPromotedCmd(flags *rootFlags) *cobra.Command {
 	addNovelCommandIfAbsent(cmd, newNovelChatResumeCmd(flags))
 
 	return cmd
+}
+
+// streamedChatOutput reconstructs the fields machine callers commonly select
+// while retaining every original SSE event, including fields that cannot be
+// safely merged across deltas. Malformed or incomplete streams remain visible
+// as raw event text without presenting a partial completion as final.
+func streamedChatOutput(response []byte) (json.RawMessage, error) {
+	result := map[string]any{"stream": string(response)}
+	type choiceState struct {
+		role         string
+		content      strings.Builder
+		finishReason json.RawMessage
+	}
+	choices := map[int]*choiceState{}
+	var id string
+	var usage json.RawMessage
+	completed := false
+	for _, line := range bytes.Split(response, []byte("\n")) {
+		line = bytes.TrimSpace(line)
+		if !bytes.HasPrefix(line, []byte("data:")) {
+			continue
+		}
+		payload := bytes.TrimSpace(line[len("data:"):])
+		if bytes.Equal(payload, []byte("[DONE]")) {
+			completed = true
+			break
+		}
+		var chunk struct {
+			ID      string          `json:"id"`
+			Usage   json.RawMessage `json:"usage"`
+			Choices []struct {
+				Index        int             `json:"index"`
+				FinishReason json.RawMessage `json:"finish_reason"`
+				Delta        struct {
+					Role    string `json:"role"`
+					Content string `json:"content"`
+				} `json:"delta"`
+			} `json:"choices"`
+		}
+		if err := json.Unmarshal(payload, &chunk); err != nil || (id != "" && chunk.ID != "" && id != chunk.ID) {
+			return json.Marshal(result)
+		}
+		if chunk.ID != "" {
+			id = chunk.ID
+		}
+		if len(chunk.Usage) > 0 && !bytes.Equal(chunk.Usage, []byte("null")) {
+			usage = chunk.Usage
+		}
+		for _, part := range chunk.Choices {
+			state := choices[part.Index]
+			if state == nil {
+				state = &choiceState{}
+				choices[part.Index] = state
+			}
+			if part.Delta.Role != "" {
+				state.role = part.Delta.Role
+			}
+			state.content.WriteString(part.Delta.Content)
+			if len(part.FinishReason) > 0 && !bytes.Equal(part.FinishReason, []byte("null")) {
+				state.finishReason = part.FinishReason
+			}
+		}
+	}
+	if completed && id != "" {
+		result["id"] = id
+		indices := make([]int, 0, len(choices))
+		for index := range choices {
+			indices = append(indices, index)
+		}
+		sort.Ints(indices)
+		structured := make([]map[string]any, 0, len(indices))
+		for _, index := range indices {
+			state := choices[index]
+			role := state.role
+			if role == "" {
+				role = "assistant"
+			}
+			choice := map[string]any{"index": index, "message": map[string]any{"role": role, "content": state.content.String()}}
+			if len(state.finishReason) > 0 {
+				choice["finish_reason"] = state.finishReason
+			}
+			structured = append(structured, choice)
+		}
+		result["choices"] = structured
+		if len(usage) > 0 {
+			result["usage"] = usage
+		}
+	}
+	return json.Marshal(result)
 }
