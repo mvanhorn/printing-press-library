@@ -1,0 +1,16 @@
+package mcp
+import (
+ "testing"
+ "github.com/mark3labs/mcp-go/server"
+ "jr-east-status-pp-cli/internal/cli"
+ "jr-east-status-pp-cli/internal/mcp/cobratree"
+)
+func TestReviewerRegisteredSourceGuideReturnsFacts(t *testing.T){
+ s:=server.NewMCPServer("jr-east-review","test");RegisterTools(s)
+ if s.GetTool("sources_guide")!=nil{t.Fatal("raw HTML typed source tool remains exposed")}
+ for _,cmd:=range []string{"sources","areas","lines","status","impact","planned","certificates","coverage"}{
+  name:=cobratree.ToolNameForCommand(s,cli.RootCmd(),cmd);entry:=s.GetTool(name)
+  if name==""||entry==nil||entry.Tool.Meta==nil||entry.Tool.Meta.AdditionalFields["pp:tenant-gate"]!="child-cli"{t.Fatalf("bounded CLI mirror missing for %s: tool=%s entry=%+v",cmd,name,entry)}
+  t.Logf("registered %s via %s",cmd,name)
+ }
+}

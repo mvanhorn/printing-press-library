@@ -1,0 +1,46 @@
+package cli
+import (
+ "bytes"
+ "context"
+ "encoding/json"
+ "fmt"
+ "io"
+ "net/http"
+ "strings"
+ "testing"
+ "time"
+ "jr-east-status-pp-cli/internal/jreast"
+)
+type reviewerTransport func(*http.Request) (*http.Response,error)
+func(f reviewerTransport) RoundTrip(r *http.Request)(*http.Response,error){return f(r)}
+func reviewerResponse(body string)(*http.Response,error){return &http.Response{StatusCode:200,Header:make(http.Header),Body:io.NopCloser(strings.NewReader(body))},nil}
+func reviewerReplaceTransport(t *testing.T,f reviewerTransport){old:=http.DefaultTransport;http.DefaultTransport=f;t.Cleanup(func(){http.DefaultTransport=old})}
+func TestReviewerClosedSourceClassification(t *testing.T){
+ if jreast.ReportingCoverage(time.Now()).ReportingState!="open"{t.Skip("Requires local reporting clock open to exercise a cached/explicit source closure")}
+ reviewerReplaceTransport(t,func(r *http.Request)(*http.Response,error){if strings.Contains(r.URL.Path,"/e/"){return reviewerResponse("<p>Information is provided from 04:00 to 02:00</p>")};return reviewerResponse("<p>情報提供時間は4:00～翌2:00となっています。</p>")})
+ f:=&rootFlags{agent:true,asJSON:true,compact:true,noInput:true,timeout:2*time.Second}
+ c:=newNovelImpactCmd(f);c.SetContext(context.Background()); var b,e bytes.Buffer;c.SetOut(&b);c.SetErr(&e);if err:=c.Flags().Parse([]string{"--lines=kanto:yamanoteline"});err!=nil{t.Fatal(err)}
+ err:=c.RunE(c,nil);var d jreast.Envelope[jreast.Line];if e:=json.Unmarshal(b.Bytes(),&d);e!=nil{t.Fatal(e)}
+ if len(d.Results)!=1||d.Results[0].Assessment!="outside_reporting_hours"||err!=nil{t.Fatalf("explicit closed source classified as %s; error=%v, source_states=%+v",d.Results[0].Assessment,err,d.Meta.Sources)}
+}
+func TestReviewerPlannedTruncationSignal(t *testing.T){
+ now:=time.Now().In(jreast.JST);var work strings.Builder
+ for i:=0;i<7;i++{fmt.Fprintf(&work,"<section class=mb80><h2>小海線の工事%d</h2><table>",i);for j:=0;j<13;j++{fmt.Fprintf(&work,"<tr><td>10月%d日</td><td>小淵沢～小海間</td></tr>",j+1)};work.WriteString("</table></section>")}
+ reviewerReplaceTransport(t,func(r *http.Request)(*http.Response,error){if r.URL.Host=="www.jreast.co.jp"{return reviewerResponse(work.String())};if strings.Contains(r.URL.Path,"/e/"){return reviewerResponse(fmt.Sprintf(`<p>Current as of: %s</p><div class="rosenBox"><span class="rosen_color koumiline"></span><span class="name">Koumi Line</span><div class="status"><img alt="Normal operation"></div></div>`,now.Format("01/02/2006 at 15:04")))};return reviewerResponse(fmt.Sprintf(`<p>%d年%d月%d日 %d時%d分 現在</p><li class="traininfo-routes__table__item"><span class="traininfo-routes__name">小海線</span><a href="/train_info/line.aspx?gid=1&amp;lineid=koumiline"><p class="traininfo-routes__status"><span>平常運転</span></p></a></li>`,now.Year(),now.Month(),now.Day(),now.Hour(),now.Minute()))})
+ f:=&rootFlags{asJSON:true,noInput:true,timeout:3*time.Second};c:=newNovelPlannedCmd(f);c.SetContext(context.Background());var b bytes.Buffer;c.SetOut(&b);if err:=c.Flags().Parse([]string{"--line=koumiline","--limit=6"});err!=nil{t.Fatal(err)};if err:=c.RunE(c,nil);err!=nil{t.Fatal(err)}
+ var d jreast.Envelope[jreast.Planned];if err:=json.Unmarshal(b.Bytes(),&d);err!=nil{t.Fatal(err)}
+ if !d.Meta.Truncated{t.Fatalf("meta.truncated=false with %d of 7 notices and %d of 13 table rows retained",len(d.Results),len(d.Results[0].Tables))}
+}
+func TestReviewerNativeTimeoutHonored(t *testing.T){
+ reviewerReplaceTransport(t,func(r *http.Request)(*http.Response,error){select{case <-r.Context().Done():return nil,r.Context().Err();case <-time.After(time.Second):return reviewerResponse("bad")}})
+ f:=&rootFlags{asJSON:true,noInput:true,timeout:20*time.Millisecond};c:=newNovelStatusCmd(f);c.SetContext(context.Background());if err:=c.Flags().Parse([]string{"--line=sobuline"});err!=nil{t.Fatal(err)};start:=time.Now();err:=c.RunE(c,nil);if err==nil||time.Since(start)>200*time.Millisecond{t.Fatalf("timeout ineffective: elapsed=%s err=%v",time.Since(start),err)}
+}
+
+func TestReviewerClosedExpressImpactStopsAtOriginalSource(t *testing.T){
+ calls:=0
+ reviewerReplaceTransport(t,func(r *http.Request)(*http.Response,error){calls++;if strings.Contains(r.URL.Path,"/e/"){return &http.Response{StatusCode:403,Header:make(http.Header),Body:io.NopCloser(strings.NewReader("Access Denied"))},nil};return reviewerResponse("<p>情報提供時間は4:00～翌2:00となっています。</p>")})
+ f:=&rootFlags{agent:true,asJSON:true,compact:true,noInput:true,timeout:3*time.Second};c:=newNovelImpactCmd(f);c.SetContext(context.Background());var b,e bytes.Buffer;c.SetOut(&b);c.SetErr(&e)
+ if err:=c.Flags().Parse([]string{"--lines=express:wakashio_sazamani"});err!=nil{t.Fatal(err)}
+ err:=c.RunE(c,nil);var out jreast.Envelope[jreast.Line];if e:=json.Unmarshal(b.Bytes(),&out);e!=nil{t.Fatal(e)}
+ if calls!=1||err!=nil||len(out.Results)!=1||out.Results[0].Assessment!="outside_reporting_hours"||len(out.Meta.FetchFailures)!=0{t.Fatalf("authoritative closure still fetched detail/English: requests=%d err=%v assessment=%s failures=%+v",calls,err,out.Results[0].Assessment,out.Meta.FetchFailures)}
+}

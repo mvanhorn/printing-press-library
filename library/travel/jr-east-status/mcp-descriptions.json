@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "sources_guide": "Read the anonymous JR East English service-guide page. No parameters are required. The generated typed handler returns guide HTML; use the companion CLI sources command for extracted links and native lines/status commands for current operational facts."
+  }
+}

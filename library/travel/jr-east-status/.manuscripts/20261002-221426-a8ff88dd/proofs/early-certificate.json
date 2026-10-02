@@ -1,0 +1,100 @@
+{
+  "meta": {
+    "source": "live",
+    "observed_at": "2026-10-03T00:21:55+09:00",
+    "coverage": {
+      "timezone": "Asia/Tokyo (UTC+09:00)",
+      "reporting_hours": "04:00–02:00 following day JST",
+      "reporting_state": "open",
+      "reporting_service_day": "2026-10-02",
+      "english_delay_threshold": "anticipated or actual delay in excess of 30 minutes",
+      "japanese_delay_threshold": "anticipated or actual delay of 30 minutes or more",
+      "threshold_language_difference": true,
+      "actual_delay_minutes": null,
+      "normal_label_meaning": "General source label; does not establish zero delay or an individual train's punctuality.",
+      "brt_coverage": "Long suspensions only; other BRT lateness is outside this reporting coverage.",
+      "source_url": "https://traininfo.jreast.co.jp/train_info/e/"
+    },
+    "request_count": 1,
+    "max_requests": 1,
+    "sources": [
+      {
+        "url": "https://traininfo.jreast.co.jp/delay_certificate/",
+        "language": "ja",
+        "observed_at": "2026-10-03T00:21:55+09:00",
+        "source_updated_at": "2026-10-03T00:05:00+09:00",
+        "freshness": "fresh",
+        "age_seconds": 1015,
+        "reporting_state": "open",
+        "scanned_rows": 17
+      }
+    ],
+    "fetch_failures": [],
+    "note": "Local conventional trains only, approximately five-minute-plus delays. Publication follows confirmation near 07:00/10:00/16:00/21:00 and 02:00 following day JST; a missing link is not a zero-delay proof. Confirm travelled section at section_coverage_url.",
+    "truncated": false
+  },
+  "results": [
+    {
+      "source_certificate_code": "05",
+      "source_line_ids": [
+        "yamanoteline"
+      ],
+      "name_ja": "山手線",
+      "published_slot_count": 4,
+      "slots": [
+        {
+          "slot_id": "01",
+          "slot_window_jst": "first train–07:00",
+          "publication_state": "not_published_or_below_threshold",
+          "display_delay_minutes": null,
+          "display_is_lower_bound": false,
+          "actual_train_delay_minutes": null
+        },
+        {
+          "slot_id": "02",
+          "slot_window_jst": "07:00–10:00",
+          "publication_state": "published",
+          "display_delay_minutes": 10,
+          "display_is_lower_bound": false,
+          "actual_train_delay_minutes": null,
+          "source_date_jst": "2026-10-02",
+          "published_url": "https://traininfo.jreast.co.jp/delay_certificate/pop.aspx?D=20261002\u0026R=05\u0026T=02"
+        },
+        {
+          "slot_id": "03",
+          "slot_window_jst": "10:00–16:00",
+          "publication_state": "published",
+          "display_delay_minutes": 20,
+          "display_is_lower_bound": false,
+          "actual_train_delay_minutes": null,
+          "source_date_jst": "2026-10-02",
+          "published_url": "https://traininfo.jreast.co.jp/delay_certificate/pop.aspx?D=20261002\u0026R=05\u0026T=03"
+        },
+        {
+          "slot_id": "04",
+          "slot_window_jst": "16:00–21:00",
+          "publication_state": "published",
+          "display_delay_minutes": 20,
+          "display_is_lower_bound": false,
+          "actual_train_delay_minutes": null,
+          "source_date_jst": "2026-10-02",
+          "published_url": "https://traininfo.jreast.co.jp/delay_certificate/pop.aspx?D=20261002\u0026R=05\u0026T=04"
+        },
+        {
+          "slot_id": "05",
+          "slot_window_jst": "21:00–last train (may cross midnight)",
+          "publication_state": "published",
+          "display_delay_minutes": 20,
+          "display_is_lower_bound": false,
+          "actual_train_delay_minutes": null,
+          "source_date_jst": "2026-10-02",
+          "published_url": "https://traininfo.jreast.co.jp/delay_certificate/pop.aspx?D=20261002\u0026R=05\u0026T=05"
+        }
+      ],
+      "section_coverage_url": "https://traininfo.jreast.co.jp/delay_certificate/e/rosen.html",
+      "source_url": "https://traininfo.jreast.co.jp/delay_certificate/",
+      "english_source_url": "https://traininfo.jreast.co.jp/delay_certificate/e/",
+      "meaning": "Maximum delay on the covered route/time slot, rounded by the source; does not establish individual train delay or boarding."
+    }
+  ]
+}

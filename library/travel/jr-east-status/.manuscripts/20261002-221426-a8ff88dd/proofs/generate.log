@@ -1,0 +1,138 @@
+info: learn: defaulting self-learning loop on (opt out with learn.disabled: true)
+WARNING: spec.Printer is empty; README printer attribution will be omitted. Set `git config github.user` (your GitHub @handle) to populate this correctly before publishing.
+Force regen merged 0 preserved files / 0 AddCommand calls
+PASS go mod tidy
+PASS ensure safe golang.org/x/net
+PASS ensure safe golang.org/x/text
+PASS ensure safe github.com/enetx/http
+FAIL go test ./...
+Error: validating post-merge generated project: gate "go test ./..." failed: exit status 1
+?   	jr-east-status-pp-cli/cmd/jr-east-status-pp-cli	[no test files]
+?   	jr-east-status-pp-cli/cmd/jr-east-status-pp-mcp	[no test files]
+?   	jr-east-status-pp-cli/internal/cache	[no test files]
+ok  	jr-east-status-pp-cli/internal/cli	0.934s
+?   	jr-east-status-pp-cli/internal/cli/playbooks	[no test files]
+--- FAIL: TestPlatformRateLimitRetriesSafeRequestAndRecordsMetadata (0.00s)
+panic: httptest: failed to listen on a port: listen tcp6 [::1]:0: bind: operation not permitted [recovered, repanicked]
+
+goroutine 71 [running]:
+testing.tRunner.func1.2({0x10344b730, 0x2932a391b8f0})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2123 +0x1a0
+testing.tRunner.func1()
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2126 +0x2c8
+panic({0x10344b730?, 0x2932a391b8f0?})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/runtime/panic.go:859 +0x120
+net/http/httptest.newLocalListener()
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:226 +0xd4
+net/http/httptest.NewUnstartedServer(...)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:284
+net/http/httptest.NewTLSServer({0x1034a2d90, 0x2932a391b8b0})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:459 +0x28
+jr-east-status-pp-cli/internal/client.TestPlatformRateLimitRetriesSafeRequestAndRecordsMetadata(0x2932a39d1688)
+	/Users/zjsng/Projects/Personal/Coding/jr-east-status-cli/internal/client/platform_rate_limit_test.go:21 +0x8c
+testing.tRunner(0x2932a39d1688, 0x1034a7500)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2193 +0xc4
+created by testing.(*T).Run in goroutine 1
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2258 +0x3b8
+FAIL	jr-east-status-pp-cli/internal/client	2.161s
+--- FAIL: TestProbeReachable_200 (0.00s)
+panic: httptest: failed to listen on a port: listen tcp6 [::1]:0: bind: operation not permitted [recovered, repanicked]
+
+goroutine 102 [running]:
+testing.tRunner.func1.2({0x101076748, 0x1579710341c0})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2123 +0x1a0
+testing.tRunner.func1()
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2126 +0x2c8
+panic({0x101076748?, 0x1579710341c0?})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/runtime/panic.go:859 +0x120
+net/http/httptest.newLocalListener()
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:226 +0xd4
+net/http/httptest.NewUnstartedServer(...)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:284
+net/http/httptest.NewServer({0x1010cbd48, 0x1010d05e8})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:267 +0x28
+jr-east-status-pp-cli/internal/cliutil.TestProbeReachable_200(0x15797103e908)
+	/Users/zjsng/Projects/Personal/Coding/jr-east-status-cli/internal/cliutil/cliutil_test.go:469 +0x3c
+testing.tRunner(0x15797103e908, 0x1010d03d8)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2193 +0xc4
+created by testing.(*T).Run in goroutine 1
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2258 +0x3b8
+FAIL	jr-east-status-pp-cli/internal/cliutil	0.881s
+?   	jr-east-status-pp-cli/internal/cliutil/testenv	[no test files]
+?   	jr-east-status-pp-cli/internal/config	[no test files]
+ok  	jr-east-status-pp-cli/internal/learn	1.624s
+ok  	jr-east-status-pp-cli/internal/learn/entities	1.705s
+ok  	jr-east-status-pp-cli/internal/learn/lookups	5.274s
+ok  	jr-east-status-pp-cli/internal/learn/patterns	2.644s
+ok  	jr-east-status-pp-cli/internal/mcp	4.330s
+ok  	jr-east-status-pp-cli/internal/mcp/bound	3.400s
+ok  	jr-east-status-pp-cli/internal/mcp/cobratree	8.186s
+ok  	jr-east-status-pp-cli/internal/platform	4.830s
+ok  	jr-east-status-pp-cli/internal/store	4.588s
+?   	jr-east-status-pp-cli/internal/types	[no test files]
+FAIL; snapshot preserved at /Users/zjsng/Projects/Personal/Coding/jr-east-status-cli.preserve-1790953062025143000
+validating post-merge generated project: gate "go test ./..." failed: exit status 1
+?   	jr-east-status-pp-cli/cmd/jr-east-status-pp-cli	[no test files]
+?   	jr-east-status-pp-cli/cmd/jr-east-status-pp-mcp	[no test files]
+?   	jr-east-status-pp-cli/internal/cache	[no test files]
+ok  	jr-east-status-pp-cli/internal/cli	0.934s
+?   	jr-east-status-pp-cli/internal/cli/playbooks	[no test files]
+--- FAIL: TestPlatformRateLimitRetriesSafeRequestAndRecordsMetadata (0.00s)
+panic: httptest: failed to listen on a port: listen tcp6 [::1]:0: bind: operation not permitted [recovered, repanicked]
+
+goroutine 71 [running]:
+testing.tRunner.func1.2({0x10344b730, 0x2932a391b8f0})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2123 +0x1a0
+testing.tRunner.func1()
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2126 +0x2c8
+panic({0x10344b730?, 0x2932a391b8f0?})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/runtime/panic.go:859 +0x120
+net/http/httptest.newLocalListener()
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:226 +0xd4
+net/http/httptest.NewUnstartedServer(...)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:284
+net/http/httptest.NewTLSServer({0x1034a2d90, 0x2932a391b8b0})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:459 +0x28
+jr-east-status-pp-cli/internal/client.TestPlatformRateLimitRetriesSafeRequestAndRecordsMetadata(0x2932a39d1688)
+	/Users/zjsng/Projects/Personal/Coding/jr-east-status-cli/internal/client/platform_rate_limit_test.go:21 +0x8c
+testing.tRunner(0x2932a39d1688, 0x1034a7500)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2193 +0xc4
+created by testing.(*T).Run in goroutine 1
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2258 +0x3b8
+FAIL	jr-east-status-pp-cli/internal/client	2.161s
+--- FAIL: TestProbeReachable_200 (0.00s)
+panic: httptest: failed to listen on a port: listen tcp6 [::1]:0: bind: operation not permitted [recovered, repanicked]
+
+goroutine 102 [running]:
+testing.tRunner.func1.2({0x101076748, 0x1579710341c0})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2123 +0x1a0
+testing.tRunner.func1()
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2126 +0x2c8
+panic({0x101076748?, 0x1579710341c0?})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/runtime/panic.go:859 +0x120
+net/http/httptest.newLocalListener()
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:226 +0xd4
+net/http/httptest.NewUnstartedServer(...)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:284
+net/http/httptest.NewServer({0x1010cbd48, 0x1010d05e8})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/net/http/httptest/server.go:267 +0x28
+jr-east-status-pp-cli/internal/cliutil.TestProbeReachable_200(0x15797103e908)
+	/Users/zjsng/Projects/Personal/Coding/jr-east-status-cli/internal/cliutil/cliutil_test.go:469 +0x3c
+testing.tRunner(0x15797103e908, 0x1010d03d8)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2193 +0xc4
+created by testing.(*T).Run in goroutine 1
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2258 +0x3b8
+FAIL	jr-east-status-pp-cli/internal/cliutil	0.881s
+?   	jr-east-status-pp-cli/internal/cliutil/testenv	[no test files]
+?   	jr-east-status-pp-cli/internal/config	[no test files]
+ok  	jr-east-status-pp-cli/internal/learn	1.624s
+ok  	jr-east-status-pp-cli/internal/learn/entities	1.705s
+ok  	jr-east-status-pp-cli/internal/learn/lookups	5.274s
+ok  	jr-east-status-pp-cli/internal/learn/patterns	2.644s
+ok  	jr-east-status-pp-cli/internal/mcp	4.330s
+ok  	jr-east-status-pp-cli/internal/mcp/bound	3.400s
+ok  	jr-east-status-pp-cli/internal/mcp/cobratree	8.186s
+ok  	jr-east-status-pp-cli/internal/platform	4.830s
+ok  	jr-east-status-pp-cli/internal/store	4.588s
+?   	jr-east-status-pp-cli/internal/types	[no test files]
+FAIL; snapshot preserved at /Users/zjsng/Projects/Personal/Coding/jr-east-status-cli.preserve-1790953062025143000

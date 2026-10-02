@@ -1,0 +1,172 @@
+{
+  "api_name": "jr-east-status",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-02T14:56:56.422347Z",
+  "novel_features": [
+    {
+      "name": "Bilingual line facts",
+      "command": "status",
+      "description": "Reconcile native Japanese IDs with English row labels, keeping multiple notices and source uncertainty.",
+      "rationale": "Combines first-party source evidence with explicit coverage rather than a bare page fetch.",
+      "example": "jr-east-status-pp-cli status --line sobuline --region kanto --agent",
+      "why_it_matters": "Reconcile native Japanese IDs with English row labels, keeping multiple notices and source uncertainty.",
+      "group": "Source-aware decisions"
+    },
+    {
+      "name": "Itinerary line impact",
+      "command": "impact",
+      "description": "Compare selected itinerary lines with per-region source timing and affected sections.",
+      "rationale": "Combines first-party source evidence with explicit coverage rather than a bare page fetch.",
+      "example": "jr-east-status-pp-cli impact --lines kanto:yamanoteline,kanto:sobuline --agent",
+      "why_it_matters": "Compare selected itinerary lines with per-region source timing and affected sections.",
+      "group": "Source-aware decisions"
+    },
+    {
+      "name": "Planned closure handoffs",
+      "command": "planned",
+      "description": "Inspect construction evidence without promoting future notices to current service suspension.",
+      "rationale": "Combines first-party source evidence with explicit coverage rather than a bare page fetch.",
+      "example": "jr-east-status-pp-cli planned --line koumiline --region kanto --agent",
+      "why_it_matters": "Inspect construction evidence without promoting future notices to current service suspension.",
+      "group": "Planning handoffs"
+    },
+    {
+      "name": "Published certificate routing",
+      "command": "certificates",
+      "description": "Return actual published route/time-slot links and source coverage limits.",
+      "rationale": "Combines first-party source evidence with explicit coverage rather than a bare page fetch.",
+      "example": "jr-east-status-pp-cli certificates --line yamanoteline --agent",
+      "why_it_matters": "Return actual published route/time-slot links and source coverage limits.",
+      "group": "Planning handoffs"
+    },
+    {
+      "name": "Reporting coverage classifier",
+      "command": "coverage",
+      "description": "Explain reporting hours, threshold conflicts, midnight service-day rollover and remaining unknowns.",
+      "rationale": "Combines first-party source evidence with explicit coverage rather than a bare page fetch.",
+      "example": "jr-east-status-pp-cli coverage --agent",
+      "why_it_matters": "Explain reporting hours, threshold conflicts, midnight service-day rollover and remaining unknowns.",
+      "group": "Source-aware decisions"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Bilingual line facts",
+      "command": "status",
+      "description": "Reconcile native Japanese IDs with English row labels, keeping multiple notices and source uncertainty.",
+      "rationale": "Combines first-party source evidence with explicit coverage rather than a bare page fetch.",
+      "example": "jr-east-status-pp-cli status --line sobuline --region kanto --agent",
+      "why_it_matters": "Reconcile native Japanese IDs with English row labels, keeping multiple notices and source uncertainty.",
+      "group": "Source-aware decisions"
+    },
+    {
+      "name": "Itinerary line impact",
+      "command": "impact",
+      "description": "Compare selected itinerary lines with per-region source timing and affected sections.",
+      "rationale": "Combines first-party source evidence with explicit coverage rather than a bare page fetch.",
+      "example": "jr-east-status-pp-cli impact --lines kanto:yamanoteline,kanto:sobuline --agent",
+      "why_it_matters": "Compare selected itinerary lines with per-region source timing and affected sections.",
+      "group": "Source-aware decisions"
+    },
+    {
+      "name": "Planned closure handoffs",
+      "command": "planned",
+      "description": "Inspect construction evidence without promoting future notices to current service suspension.",
+      "rationale": "Combines first-party source evidence with explicit coverage rather than a bare page fetch.",
+      "example": "jr-east-status-pp-cli planned --line koumiline --region kanto --agent",
+      "why_it_matters": "Inspect construction evidence without promoting future notices to current service suspension.",
+      "group": "Planning handoffs"
+    },
+    {
+      "name": "Published certificate routing",
+      "command": "certificates",
+      "description": "Return actual published route/time-slot links and source coverage limits.",
+      "rationale": "Combines first-party source evidence with explicit coverage rather than a bare page fetch.",
+      "example": "jr-east-status-pp-cli certificates --line yamanoteline --agent",
+      "why_it_matters": "Return actual published route/time-slot links and source coverage limits.",
+      "group": "Planning handoffs"
+    },
+    {
+      "name": "Reporting coverage classifier",
+      "command": "coverage",
+      "description": "Explain reporting hours, threshold conflicts, midnight service-day rollover and remaining unknowns.",
+      "rationale": "Combines first-party source evidence with explicit coverage rather than a bare page fetch.",
+      "example": "jr-east-status-pp-cli coverage --agent",
+      "why_it_matters": "Explain reporting hours, threshold conflicts, midnight service-day rollover and remaining unknowns.",
+      "group": "Source-aware decisions"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "JR East Status",
+    "headline": "Compare JR East line impacts with bilingual identity, source freshness and reporting limits.",
+    "value_prop": "Discover lines and inspect suspensions, affected sections and planned notices. Compare itinerary lines and follow currently published certificate links with explicit unknowns.",
+    "auth_narrative": "Anonymous first-party source reads; no key or login required.",
+    "quickstart": [
+      {
+        "command": "jr-east-status-pp-cli doctor --dry-run",
+        "comment": "Check the local install."
+      },
+      {
+        "command": "jr-east-status-pp-cli areas --agent",
+        "comment": "Discover region/service summaries."
+      },
+      {
+        "command": "jr-east-status-pp-cli lines --region kanto --query Yamanote --agent",
+        "comment": "Resolve native IDs."
+      },
+      {
+        "command": "jr-east-status-pp-cli status --line sobuline --region kanto --agent",
+        "comment": "Inspect source-backed line facts."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Source unavailable or stale",
+        "fix": "Retry once later or open the reported source URL; do not infer normal operation."
+      },
+      {
+        "symptom": "Certificate cell is a dash",
+        "fix": "Use the source handoff; a missing published link does not establish zero delay."
+      }
+    ],
+    "when_to_use": "Use for JR East regional and line service status checks, affected sections, itinerary line comparison and published certificate handoffs. Read source timing and coverage before making planning claims.",
+    "anti_triggers": [
+      "Exact train lateness or train positions",
+      "Reservations, refunds, push notifications or account actions"
+    ],
+    "recipes": [
+      {
+        "title": "Itinerary impact",
+        "command": "jr-east-status-pp-cli impact --lines kanto:yamanoteline,kanto:sobuline --agent",
+        "explanation": "Compare selected lines with coverage and timestamps."
+      },
+      {
+        "title": "Compact line discovery",
+        "command": "jr-east-status-pp-cli lines --region kanto --query Narita --agent --select id,name_ja,name_en",
+        "explanation": "Keep only line identifiers and bilingual names."
+      },
+      {
+        "title": "Published certificate",
+        "command": "jr-east-status-pp-cli certificates --line yamanoteline --agent",
+        "explanation": "Follow published links; delay is a route maximum."
+      },
+      {
+        "title": "Planned closure",
+        "command": "jr-east-status-pp-cli planned --line koumiline --region kanto --agent",
+        "explanation": "Inspect scheduled-work evidence and official handoff."
+      }
+    ],
+    "trigger_phrases": [
+      "check JR East delays",
+      "compare JR East itinerary lines",
+      "JR East delay certificate",
+      "use jr-east-status",
+      "run jr-east-status"
+    ]
+  }
+}

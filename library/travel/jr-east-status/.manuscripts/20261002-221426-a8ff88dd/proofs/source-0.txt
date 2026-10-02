@@ -1,0 +1,221 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Train Status Information | JR-EAST</title>
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="robots" content="index,follow">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1">
+    <meta name="format-detection" content="telephone=no">
+
+    <meta property="og:title" content="Train Status Information | JR-EAST">
+    <meta property="og:description" content="">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://traininfo.jreast.co.jp/train_info/e/service.aspx">
+    <meta property="og:site_name" content="JR-EAST - East Japan Railway Company">
+
+    <link rel="shortcut icon" href="https://www.jreast.co.jp/favicon.ico">
+    <link rel="canonical" href="https://traininfo.jreast.co.jp/train_info/e/">
+
+    <!--共通CSS-->
+    <link rel="stylesheet" href="/material/css/common.css" media="all">
+    <link rel="stylesheet" href="/material/css/style.css" media="all">
+    <link rel="stylesheet" href="/material/css/multi_header.css" media="all">
+    <link rel="stylesheet" href="/material/css/multi_footer.css" media="all">
+
+    <!--共通JS-->
+    <script src="/material/js/assets/common.js"></script>
+    <script src="/material/js/assets/multi_header.js"></script>
+    <script src="/material/js/assets/multi_footer.js"></script>
+
+    <!-- Google Tag Manager -->
+<script> (function(w,d,s,l,i){w[l]=w[l]|| [];w[l].push({'gtm.start':
+new Date().getTime(), event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-T6RWTC');</script>
+<!-- End Google Tag Manager -->
+
+    <!--個別CSS-->
+    <link rel="stylesheet" href="/train_info/css/train_info_mtd.css" media="all">
+    <link rel="stylesheet" href="/train_info/css/gdpr.css" media="all">
+
+    <!--個別JS-->
+    <script src="/train_info/js/train_info_multi.js"></script>
+    <script src="/train_info/e/js/gdpr.js"></script>
+
+</head>
+<body id="service_e">
+    <noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-T6RWTC"
+height="0"width="0"style="display:none;visibility:hidden"></iframe></noscript>
+    <noscript>
+        <div class="noscriptBox">
+            <p>To view this content, JavaScript must be enabled.</p>
+        </div>
+    </noscript>
+
+    <!--JR東共通ヘッダー-->
+    <header id="multi_header"></header>
+    <!--//JR東共通ヘッダー-->
+
+    <div id="mainContents">
+
+        <div id="mainVisual" class="main3">
+            <div id="breadcrumb">
+                <ul class="bread">
+                    <li><a href="https://www.jreast.co.jp/multi/">Home</a></li>
+                    <li><a href="https://www.jreast.co.jp/multi/pass/">Find Your Pass</a></li>
+                    <li>Train Status Information</li>
+                </ul>
+                <!--//#breadcrumb-->
+            </div>
+            <div class="mainVisual_in">
+                <h1 class="heading01">Train Status Information</h1>
+            </div>
+            <!--//#mainVisual-->
+        </div>
+
+        <main id="contents">
+            <section class="container bgGray pt40 sp_pt30">
+                <section class="contentsWrapper">
+                    <section id="operation_info_box" class="lang_multi">
+                        <!--運行情報・遅延証明書-->
+                        <div class="operation_box">
+                            <script type="text/javascript" src="/train_info/e/infotop.aspx"></script>
+                            <ul class="operation_box_btn">
+                                <li id="btn_reload">
+                                    <a href="#" onclick="location.reload()" title="Update">Update</a>
+                                </li>
+                                <li id="btn_delay_certificate">
+                                    <a href="/delay_certificate/e/">Delay certificate</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <p class="operation_infoText_multi">This screen does not update automatically.</p>
+                        <p class="linkRight ta-r"><a href="https://www.jreast.co.jp/multi/ticket/changes.html">Ticket Exchange Refund Policy</a></p>
+                        <!--//運行情報・遅延証明書-->
+                    </section>
+                </section>
+                <section class="contentsWrapper">
+                    <section class="top_wrapper">
+                        
+                        <p class="pt25 pb30 sp_pb15">From 4 am until 2 am the following day, this page will report train information regarding anticipated and actual delays in excess of 30 minutes of trains operated by JR-EAST, including the Tohoku, Joetsu, Hokuriku, Yamagata and Akita Shinkansen. Although we update this page regularly, actual train operations may differ from information shown here. Use this information as a guide only.<br>We are not responsible for any damages that may result by you, the customer, taking action based on this information.<br>AI translation service is used in a part of this page. Therefore, there is a possibility that the result of translation provided by this automatic AI translation service may contain some inaccurate information not reflecting the original intention in Japanese language. We disclaims any guarantees for results of those translation.</p>
+                    </section>
+                    <section class="wrapper pb80 sp_pb40">
+                        <!--TOPナビ-->
+                        <div class="trainInfo_top_nav">
+                            <ul class="cardsBox_linkList">
+                                <li class="cardsBox_link">
+                                    <a href="/train_info/e/kanto.aspx">
+                                        <p class="nav_icon">
+                                            <img src="/train_info/img/ico_kanto.svg" alt="">
+                                        </p>
+                                        <div class="nav_txt">
+                                            <p class="link_name">Kanto Area</p>
+                                            <p>Ibaraki, Tochigi, Gunma, Saitama, Tokyo, Chiba, Kanagawa, and Yamanashi area</p>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="cardsBox_link">
+                                    <a href="/train_info/e/tohoku.aspx">
+                                        <p class="nav_icon">
+                                            <img src="/train_info/img/ico_tohoku.svg" alt="">
+                                        </p>
+                                        <div class="nav_txt">
+                                            <p class="link_name">Tohoku Area</p>
+                                            <p>Conventional lines in Aomori, Iwate, Akita, Miyagi, Yamagata, and Fukushima area</p>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="cardsBox_link">
+                                    <a href="/train_info/e/shinetsu.aspx">
+                                        <p class="nav_icon">
+                                            <img src="/train_info/img/ico_shinetsu.svg" alt="">
+                                        </p>
+                                        <div class="nav_txt">
+                                            <p class="link_name">Shinetsu Area</p>
+                                            <p>Niigata and Nagano area </p>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="cardsBox_link">
+                                    <a href="/train_info/e/chyokyori.aspx">
+                                        <p class="nav_icon">
+                                            <img src="/train_info/img/ico_chyokyori.svg" alt="">
+                                        </p>
+                                        <div class="nav_txt">
+                                            <p class="link_name">Express, Night train</p>
+                                            <p>Night train, sleeping car</p>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="cardsBox_link">
+                                    <a href="/train_info/e/shinkansen.aspx">
+                                        <p class="nav_icon">
+                                            <img src="/train_info/img/ico_shinkansen.svg" alt="">
+                                        </p>
+                                        <div class="nav_txt">
+                                            <p class="link_name">Shinkansen</p>
+                                            <p>Tohoku Shinkansen Jouetsu Shinkansen Hokuriku Shinkansen Yamagata Shinkansen Akita Shinkansen</p>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="cardsBox_link">
+                                    <a href="https://www.jreast.co.jp/en/railway_information_portal/index.html">
+                                        <p class="nav_icon">
+                                            <img src="/train_info/img/train_info_icon.svg" alt="">
+                                        </p>
+                                        <div class="nav_txt">
+                                            <p class="link_name">Railway information portal site</p>
+                                            <p>Click here for official operation information of major railway companies</p>
+                                        </div>
+                                    </a>
+                                </li> 
+                            </ul>
+                            <div class="cardsBox aboutArea_map">
+                                <p class="accBtn">About areas</p>
+                                <p class="accIn">
+                                    <img src="/train_info/e/img/img_secmap.png" alt="">
+                                </p>
+                            </div>
+                        </div>
+                        <!--//TOPナビ-->
+                    </section>
+                    <!--アプリ・ソーシャルメディア-->
+                    <section id="appWrap" class="wrapper"></section>
+                    <!--//アプリ・ソーシャルメディア-->
+                </section>
+            </section>
+
+            <div class="pdf_linkBox aiC">
+                <p class="pdf_img">
+                    <a href="https://get.adobe.com/reader/" target="_blank" rel="noopener">
+                        <img src="/material/img/bnr-adobereader.png" alt="Get Adobe Reader(Opens in a new window.)">
+                    </a>
+                </p>
+                <div class="pdf_text">
+                    <p class="linkBlank">
+                        <a href="https://get.adobe.com/reader/" target="_blank" rel="noopener" title="Download Adobe Reader to view PDF files.">Download Adobe Reader to view PDF files.<span class="screen-reader-text">Opens in a new window.</span></a>
+                    </p>
+                </div>
+            </div>
+        </main>
+
+        <p id="btn_pageTop">
+            <a href="#">
+                <img src="/material/img/ico_multi_pagetop.svg" alt="">
+            </a>
+        </p>
+
+        <!--JR東共通フッター-->
+        <footer id="multi_footer"></footer>
+        <!--//JR東共通フッター-->
+
+        <!--//#mainContents-->
+    </div>
+    
+</body>
+</html>

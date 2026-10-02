@@ -1,0 +1,10 @@
+dogfood: using spec /Users/zjsng/Projects/Personal/Coding/jr-east-status-cli/spec.yaml (bundled)
+dogfood: synced .printing-press.json (novel_features) from novel_features_built
+dogfood: synced README.md (Unique Features) from novel_features_built
+dogfood: synced SKILL.md (Unique Capabilities) from novel_features_built
+dogfood: synced README.md (Quick Start) from research.json narrative
+dogfood: synced README.md (Authentication) from research.json narrative
+dogfood: synced README.md (Troubleshooting) from research.json narrative
+dogfood: synced README.md (Recipes) from research.json narrative
+dogfood: synced SKILL.md (Recipes) from research.json narrative
+Error: dogfood failed

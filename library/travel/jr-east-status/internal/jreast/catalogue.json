@@ -1,0 +1,444 @@
+{
+  "kanto": {
+    "yamanoteline": {
+      "ja": "山手線",
+      "en": "Yamanote Line"
+    },
+    "ueno-tokyoline": {
+      "ja": "上野東京ライン",
+      "en": "Ueno-Tōkyō Line"
+    },
+    "shonan-shinjukuline": {
+      "ja": "湘南新宿ライン",
+      "en": "Shōnan-Shinjuku Line"
+    },
+    "sotetsuline": {
+      "ja": "相鉄線直通列車",
+      "en": "Through service to Sotetsu Line"
+    },
+    "tokaidoline": {
+      "ja": "東海道線",
+      "en": "Tōkaidō Line"
+    },
+    "keihin-tohokuline": {
+      "ja": "京浜東北線",
+      "en": "Keihin-Tōhoku Line"
+    },
+    "yokosukaline": {
+      "ja": "横須賀線",
+      "en": "Yokosuka Line"
+    },
+    "nambuline": {
+      "ja": "南武線",
+      "en": "Nambu Line"
+    },
+    "yokohamaline": {
+      "ja": "横浜線",
+      "en": "Yokohama Line"
+    },
+    "itoline": {
+      "ja": "伊東線",
+      "en": "Itō Line"
+    },
+    "sagamiline": {
+      "ja": "相模線",
+      "en": "Sagami Line"
+    },
+    "tsurumiline": {
+      "ja": "鶴見線",
+      "en": "Tsurumi Line"
+    },
+    "utsunomiyaline": {
+      "ja": "宇都宮線",
+      "en": "Utsunomiya Line"
+    },
+    "takasakiline": {
+      "ja": "高崎線",
+      "en": "Takasaki Line"
+    },
+    "saikyoline": {
+      "ja": "埼京線",
+      "en": "Saikyō Line"
+    },
+    "kawagoeline": {
+      "ja": "川越線",
+      "en": "Kawagoe Line"
+    },
+    "musashinoline": {
+      "ja": "武蔵野線",
+      "en": "Musashino Line"
+    },
+    "joetsuline": {
+      "ja": "上越線",
+      "en": "Jōetsu Line"
+    },
+    "shin-etsuline_kanto": {
+      "ja": "信越本線",
+      "en": "Shin-etsu Line"
+    },
+    "agatsumaline": {
+      "ja": "吾妻線",
+      "en": "Agatsuma Line"
+    },
+    "karasuyamaline": {
+      "ja": "烏山線",
+      "en": "Karasuyama Line"
+    },
+    "hachikoline": {
+      "ja": "八高線",
+      "en": "Hachikō Line"
+    },
+    "nikkoline": {
+      "ja": "日光線",
+      "en": "Nikkō Line"
+    },
+    "ryomoline": {
+      "ja": "両毛線",
+      "en": "Ryōmō Line"
+    },
+    "chuoline_rapidservice": {
+      "ja": "中央線快速電車",
+      "en": "Chūō Line(Rapid Service)"
+    },
+    "chuo_sobuline_local": {
+      "ja": "中央・総武各駅停車",
+      "en": "Chūō,Sōbu Line(Local)"
+    },
+    "chuoline": {
+      "ja": "中央本線",
+      "en": "Chūō Line"
+    },
+    "itsukaichiline": {
+      "ja": "五日市線",
+      "en": "Itsukaichi Line"
+    },
+    "omeline": {
+      "ja": "青梅線",
+      "en": "Ōme Line"
+    },
+    "koumiline": {
+      "ja": "小海線",
+      "en": "Koumi Line"
+    },
+    "jobanline": {
+      "ja": "常磐線",
+      "en": "Jōban Line"
+    },
+    "jobanline_rapidservice": {
+      "ja": "常磐線快速電車",
+      "en": "Jōban Line(Rapid Service)"
+    },
+    "jobanline_local": {
+      "ja": "常磐線各駅停車",
+      "en": "Jōban Line(Local Train)"
+    },
+    "suigunline": {
+      "ja": "水郡線",
+      "en": "Suigun Line"
+    },
+    "mitoline": {
+      "ja": "水戸線",
+      "en": "Mito Line"
+    },
+    "sobuline_rapidservice": {
+      "ja": "総武快速線",
+      "en": "Sōbu Line(Rapid Service)"
+    },
+    "sobuline": {
+      "ja": "総武本線",
+      "en": "Sōbu Line"
+    },
+    "keiyoline": {
+      "ja": "京葉線",
+      "en": "Keiyō Line"
+    },
+    "uchiboline": {
+      "ja": "内房線",
+      "en": "Uchibō Line"
+    },
+    "kashimaline": {
+      "ja": "鹿島線",
+      "en": "Kashima Line"
+    },
+    "kururiline": {
+      "ja": "久留里線",
+      "en": "Kururi Line"
+    },
+    "sotoboline": {
+      "ja": "外房線",
+      "en": "Sotobō Line"
+    },
+    "toganeline": {
+      "ja": "東金線",
+      "en": "Tōgane Line"
+    },
+    "naritaline": {
+      "ja": "成田線",
+      "en": "Narita Line"
+    },
+    "monorail": {
+      "ja": "東京モノレール線",
+      "en": "Tokyo Monorail"
+    }
+  },
+  "tohoku": {
+    "uetsuline": {
+      "ja": "羽越本線",
+      "en": "Uetsu Line"
+    },
+    "ouline": {
+      "ja": "奥羽本線",
+      "en": "Ōu Line"
+    },
+    "ouline_yamagataline": {
+      "ja": "奥羽本線（山形線）",
+      "en": "Ōu Line(Yamagata Line)"
+    },
+    "jobanline": {
+      "ja": "常磐線",
+      "en": "Jōban Line"
+    },
+    "senzanline": {
+      "ja": "仙山線",
+      "en": "Senzan Line"
+    },
+    "sensekiline": {
+      "ja": "仙石線",
+      "en": "Senseki Line"
+    },
+    "senseki-tohokuline": {
+      "ja": "仙石東北ライン",
+      "en": "Senseki-Tōhoku Line"
+    },
+    "tohokuline": {
+      "ja": "東北本線",
+      "en": "Tōhoku Line"
+    },
+    "ban-etsu-westline": {
+      "ja": "磐越西線",
+      "en": "Ban-etsu-West Line"
+    },
+    "aterazawaline": {
+      "ja": "左沢線",
+      "en": "Aterazawa Line"
+    },
+    "ishinomakiline": {
+      "ja": "石巻線",
+      "en": "Ishinomaki Line"
+    },
+    "ofunatoline": {
+      "ja": "大船渡線",
+      "en": "Ōfunato Line"
+    },
+    "ofunatoline_brt": {
+      "ja": "大船渡線ＢＲＴ",
+      "en": "Ōfunato Line BRT"
+    },
+    "ominatoline": {
+      "ja": "大湊線",
+      "en": "Ōminato Line"
+    },
+    "ogaline": {
+      "ja": "男鹿線",
+      "en": "Oga Line"
+    },
+    "kamaishiline": {
+      "ja": "釜石線",
+      "en": "Kamaishi Line"
+    },
+    "kitakamiline": {
+      "ja": "北上線",
+      "en": "Kitakami Line"
+    },
+    "kesennumaline": {
+      "ja": "気仙沼線",
+      "en": "Kesennuma Line"
+    },
+    "kesennumaline_brt": {
+      "ja": "気仙沼線ＢＲＴ",
+      "en": "Kesennuma Line BRT"
+    },
+    "gonoline": {
+      "ja": "五能線",
+      "en": "Gonō Line"
+    },
+    "suigunline": {
+      "ja": "水郡線",
+      "en": "Suigun Line"
+    },
+    "tazawakoline": {
+      "ja": "田沢湖線",
+      "en": "Tazawako Line"
+    },
+    "tadamiline": {
+      "ja": "只見線",
+      "en": "Tadami Line"
+    },
+    "tsugaruline": {
+      "ja": "津軽線",
+      "en": "Tsugaru Line"
+    },
+    "hachinoheline": {
+      "ja": "八戸線",
+      "en": "Hachinohe Line"
+    },
+    "hanawaline": {
+      "ja": "花輪線",
+      "en": "Hanawa Line"
+    },
+    "ban-etsu-eastline": {
+      "ja": "磐越東線",
+      "en": "Ban-etsu-East Line"
+    },
+    "yamadaline": {
+      "ja": "山田線",
+      "en": "Yamada Line"
+    },
+    "yonesakaline": {
+      "ja": "米坂線",
+      "en": "Yonesaka Line"
+    },
+    "riku-westline": {
+      "ja": "陸羽西線",
+      "en": "Rikū-West Line"
+    },
+    "riku-eastline": {
+      "ja": "陸羽東線",
+      "en": "Rikū-East Line"
+    }
+  },
+  "shinetsu": {
+    "uetsuline": {
+      "ja": "羽越本線",
+      "en": "Uetsu Line"
+    },
+    "shin-etsuline_shin-etsu": {
+      "ja": "信越本線",
+      "en": "Shin-etsu Line"
+    },
+    "joetsuline": {
+      "ja": "上越線",
+      "en": "Jōetsu Line"
+    },
+    "shinonoiline": {
+      "ja": "篠ノ井線",
+      "en": "Shinonoi Line"
+    },
+    "chuoline": {
+      "ja": "中央本線",
+      "en": "Chūō Line"
+    },
+    "hakushinline": {
+      "ja": "白新線",
+      "en": "Hakushin Line"
+    },
+    "ban-etsu-westline": {
+      "ja": "磐越西線",
+      "en": "Ban-etsu-West Line"
+    },
+    "iiyamaline": {
+      "ja": "飯山線",
+      "en": "Iiyama Line"
+    },
+    "echigoline": {
+      "ja": "越後線",
+      "en": "Echigo Line"
+    },
+    "oitoline": {
+      "ja": "大糸線",
+      "en": "Ōito Line"
+    },
+    "koumiline": {
+      "ja": "小海線",
+      "en": "Koumi Line"
+    },
+    "tadamiline": {
+      "ja": "只見線",
+      "en": "Tadami Line"
+    },
+    "yahikoline": {
+      "ja": "弥彦線",
+      "en": "Yahiko Line"
+    },
+    "yonesakaline": {
+      "ja": "米坂線",
+      "en": "Yonesaka Line"
+    }
+  },
+  "express": {
+    "nex": {
+      "ja": "成田エクスプレス",
+      "en": "NEX"
+    },
+    "hitachi_tokiwa": {
+      "ja": "ひたち・ときわ",
+      "en": "HITACHI,TOKIWA"
+    },
+    "azusa_kaiji_fujiexcursion": {
+      "ja": "あずさ・かいじ・富士回遊",
+      "en": "Azusa,Kaiji,FUJI EXCURSION"
+    },
+    "shinano": {
+      "ja": "しなの",
+      "en": "Shinano"
+    },
+    "wakashio_sazamani": {
+      "ja": "わかしお・さざなみ",
+      "en": "Wakashio,Sazanami"
+    },
+    "shiosai": {
+      "ja": "しおさい",
+      "en": "Shiosai"
+    },
+    "nikko_kinugawa": {
+      "ja": "日光・きぬがわ",
+      "en": "Nikko,Kinugawa"
+    },
+    "kusatsu_shima_akagi": {
+      "ja": "草津・四万・あかぎ",
+      "en": "Akagi,Kusatsu,Shima"
+    },
+    "odoriko_shonan": {
+      "ja": "踊り子・湘南",
+      "en": "Odoriko,Shonan"
+    },
+    "inaho_shirayuki": {
+      "ja": "いなほ・しらゆき",
+      "en": "Inaho,Shirayuki"
+    },
+    "tsugaru": {
+      "ja": "つがる",
+      "en": "Tsugaru"
+    },
+    "sunriseseto_izumo": {
+      "ja": "サンライズ瀬戸・出雲",
+      "en": "Sunrise Seto,Izumo"
+    },
+    "other": {
+      "ja": "臨時列車",
+      "en": "Special train"
+    }
+  },
+  "shinkansen": {
+    "tohokushinkansen": {
+      "ja": "東北新幹線",
+      "en": "Tōhoku Shinkansen"
+    },
+    "yamagatashinkansen": {
+      "ja": "山形新幹線",
+      "en": "Yamagata Shinkansen"
+    },
+    "akitashinkansen": {
+      "ja": "秋田新幹線",
+      "en": "Akita Shinkansen"
+    },
+    "hokurikushinkansen": {
+      "ja": "北陸新幹線",
+      "en": "Hokuriku Shinkansen"
+    },
+    "joetsushinkansen": {
+      "ja": "上越新幹線",
+      "en": "Jōetsu Shinkansen"
+    }
+  }
+}

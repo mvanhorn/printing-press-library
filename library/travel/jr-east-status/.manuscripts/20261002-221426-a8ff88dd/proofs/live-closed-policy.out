@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "coverage": {
+      "actual_delay_minutes": null,
+      "brt_coverage": "Long suspensions only; other BRT lateness is outside this reporting coverage.",
+      "english_delay_threshold": "anticipated or actual delay in excess of 30 minutes",
+      "japanese_delay_threshold": "anticipated or actual delay of 30 minutes or more",
+      "normal_label_meaning": "General source label; does not establish zero delay or an individual train's punctuality.",
+      "reporting_hours": "04:00–02:00 following day JST",
+      "reporting_service_day": "2026-10-02",
+      "reporting_state": "outside_reporting_hours",
+      "source_url": "https://traininfo.jreast.co.jp/train_info/e/",
+      "threshold_language_difference": true,
+      "timezone": "Asia/Tokyo (UTC+09:00)"
+    },
+    "fetch_failures": [],
+    "max_requests": 0,
+    "note": "Observed source policy, not a live delay check. Page timestamps differ from incident update times. English uses AI translation. Certificates are route maxima and do not prove boarding.",
+    "observed_at": "2026-10-03T02:00:00+09:00",
+    "request_count": 0,
+    "source": "computed",
+    "sources": [],
+    "truncated": false
+  },
+  "results": [
+    {
+      "actual_delay_minutes": null,
+      "brt_coverage": "Long suspensions only; other BRT lateness is outside this reporting coverage.",
+      "english_delay_threshold": "anticipated or actual delay in excess of 30 minutes",
+      "japanese_delay_threshold": "anticipated or actual delay of 30 minutes or more",
+      "normal_label_meaning": "General source label; does not establish zero delay or an individual train's punctuality.",
+      "reporting_hours": "04:00–02:00 following day JST",
+      "reporting_service_day": "2026-10-02",
+      "reporting_state": "outside_reporting_hours",
+      "source_url": "https://traininfo.jreast.co.jp/train_info/e/",
+      "threshold_language_difference": true,
+      "timezone": "Asia/Tokyo (UTC+09:00)"
+    }
+  ]
+}

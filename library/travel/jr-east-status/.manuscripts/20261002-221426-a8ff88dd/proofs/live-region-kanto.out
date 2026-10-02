@@ -1,0 +1,1270 @@
+{
+  "meta": {
+    "source": "live",
+    "observed_at": "2026-10-03T01:37:54+09:00",
+    "coverage": {
+      "timezone": "Asia/Tokyo (UTC+09:00)",
+      "reporting_hours": "04:00–02:00 following day JST",
+      "reporting_state": "open",
+      "reporting_service_day": "2026-10-02",
+      "english_delay_threshold": "anticipated or actual delay in excess of 30 minutes",
+      "japanese_delay_threshold": "anticipated or actual delay of 30 minutes or more",
+      "threshold_language_difference": true,
+      "actual_delay_minutes": null,
+      "normal_label_meaning": "General source label; does not establish zero delay or an individual train's punctuality.",
+      "brt_coverage": "Long suspensions only; other BRT lateness is outside this reporting coverage.",
+      "source_url": "https://traininfo.jreast.co.jp/train_info/e/"
+    },
+    "request_count": 2,
+    "max_requests": 2,
+    "sources": [
+      {
+        "url": "https://traininfo.jreast.co.jp/train_info/kanto.aspx",
+        "language": "ja",
+        "observed_at": "2026-10-03T01:37:54+09:00",
+        "source_updated_at": "2026-10-03T01:37:00+09:00",
+        "freshness": "fresh",
+        "age_seconds": 54,
+        "reporting_state": "open",
+        "scanned_rows": 59
+      },
+      {
+        "url": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx",
+        "language": "en",
+        "observed_at": "2026-10-03T01:37:54+09:00",
+        "source_updated_at": "2026-10-03T01:37:00+09:00",
+        "freshness": "fresh",
+        "age_seconds": 54,
+        "reporting_state": "open",
+        "scanned_rows": 59
+      }
+    ],
+    "fetch_failures": [],
+    "truncated": false
+  },
+  "results": [
+    {
+      "identity_source": "live_source",
+      "id": "kanto:yamanoteline",
+      "source_id": "yamanoteline",
+      "region": "kanto",
+      "name_ja": "山手線",
+      "name_en": "Yamanote Line",
+      "line_code": "JY",
+      "source_groups": [
+        {
+          "id": "direction_yamate",
+          "name_ja": "山手線",
+          "name_en": "Yamanote Line"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=yamanoteline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:ueno-tokyoline",
+      "source_id": "ueno-tokyoline",
+      "region": "kanto",
+      "name_ja": "上野東京ライン",
+      "name_en": "Ueno-Tōkyō Line",
+      "source_groups": [
+        {
+          "id": "direction_chokutsu",
+          "name_ja": "直通サービス",
+          "name_en": "Direct train"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=ueno-tokyoline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:shonan-shinjukuline",
+      "source_id": "shonan-shinjukuline",
+      "region": "kanto",
+      "name_ja": "湘南新宿ライン",
+      "name_en": "Shōnan-Shinjuku Line",
+      "line_code": "JS",
+      "source_groups": [
+        {
+          "id": "direction_chokutsu",
+          "name_ja": "直通サービス",
+          "name_en": "Direct train"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=shonan-shinjukuline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:sotetsuline",
+      "source_id": "sotetsuline",
+      "region": "kanto",
+      "name_ja": "相鉄線直通列車",
+      "name_en": "Through service to Sotetsu Line",
+      "source_groups": [
+        {
+          "id": "direction_chokutsu",
+          "name_ja": "直通サービス",
+          "name_en": "Direct train"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=sotetsuline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:tokaidoline",
+      "source_id": "tokaidoline",
+      "region": "kanto",
+      "name_ja": "東海道線",
+      "name_en": "Tōkaidō Line",
+      "line_code": "JT",
+      "source_groups": [
+        {
+          "id": "direction_tokaido",
+          "name_ja": "東海道方面",
+          "name_en": "Bound for Tokaido"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=tokaidoline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:keihin-tohokuline",
+      "source_id": "keihin-tohokuline",
+      "region": "kanto",
+      "name_ja": "京浜東北線",
+      "name_en": "Keihin-Tōhoku Line",
+      "line_code": "JK",
+      "source_groups": [
+        {
+          "id": "direction_tokaido",
+          "name_ja": "東海道方面",
+          "name_en": "Bound for Tokaido"
+        },
+        {
+          "id": "direction_tohoku",
+          "name_ja": "東北・高崎方面",
+          "name_en": "Bound for Tohoku and Takasaki"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=keihin-tohokuline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:yokosukaline",
+      "source_id": "yokosukaline",
+      "region": "kanto",
+      "name_ja": "横須賀線",
+      "name_en": "Yokosuka Line",
+      "line_code": "JO",
+      "source_groups": [
+        {
+          "id": "direction_tokaido",
+          "name_ja": "東海道方面",
+          "name_en": "Bound for Tokaido"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=yokosukaline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:nambuline",
+      "source_id": "nambuline",
+      "region": "kanto",
+      "name_ja": "南武線",
+      "name_en": "Nambu Line",
+      "line_code": "JN",
+      "source_groups": [
+        {
+          "id": "direction_tokaido",
+          "name_ja": "東海道方面",
+          "name_en": "Bound for Tokaido"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=nambuline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:yokohamaline",
+      "source_id": "yokohamaline",
+      "region": "kanto",
+      "name_ja": "横浜線",
+      "name_en": "Yokohama Line",
+      "line_code": "JH",
+      "source_groups": [
+        {
+          "id": "direction_tokaido",
+          "name_ja": "東海道方面",
+          "name_en": "Bound for Tokaido"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=yokohamaline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:itoline",
+      "source_id": "itoline",
+      "region": "kanto",
+      "name_ja": "伊東線",
+      "name_en": "Itō Line",
+      "source_groups": [
+        {
+          "id": "direction_tokaido",
+          "name_ja": "東海道方面",
+          "name_en": "Bound for Tokaido"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=itoline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:sagamiline",
+      "source_id": "sagamiline",
+      "region": "kanto",
+      "name_ja": "相模線",
+      "name_en": "Sagami Line",
+      "source_groups": [
+        {
+          "id": "direction_tokaido",
+          "name_ja": "東海道方面",
+          "name_en": "Bound for Tokaido"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=sagamiline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:tsurumiline",
+      "source_id": "tsurumiline",
+      "region": "kanto",
+      "name_ja": "鶴見線",
+      "name_en": "Tsurumi Line",
+      "line_code": "JI",
+      "source_groups": [
+        {
+          "id": "direction_tokaido",
+          "name_ja": "東海道方面",
+          "name_en": "Bound for Tokaido"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=tsurumiline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:utsunomiyaline",
+      "source_id": "utsunomiyaline",
+      "region": "kanto",
+      "name_ja": "宇都宮線",
+      "name_en": "Utsunomiya Line",
+      "line_code": "JU",
+      "source_groups": [
+        {
+          "id": "direction_tohoku",
+          "name_ja": "東北・高崎方面",
+          "name_en": "Bound for Tohoku and Takasaki"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=utsunomiyaline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:takasakiline",
+      "source_id": "takasakiline",
+      "region": "kanto",
+      "name_ja": "高崎線",
+      "name_en": "Takasaki Line",
+      "line_code": "JU",
+      "source_groups": [
+        {
+          "id": "direction_tohoku",
+          "name_ja": "東北・高崎方面",
+          "name_en": "Bound for Tohoku and Takasaki"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=takasakiline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:saikyoline",
+      "source_id": "saikyoline",
+      "region": "kanto",
+      "name_ja": "埼京線",
+      "name_en": "Saikyō Line",
+      "line_code": "JA",
+      "source_groups": [
+        {
+          "id": "direction_tohoku",
+          "name_ja": "東北・高崎方面",
+          "name_en": "Bound for Tohoku and Takasaki"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=saikyoline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:kawagoeline",
+      "source_id": "kawagoeline",
+      "region": "kanto",
+      "name_ja": "川越線",
+      "name_en": "Kawagoe Line",
+      "source_groups": [
+        {
+          "id": "direction_tohoku",
+          "name_ja": "東北・高崎方面",
+          "name_en": "Bound for Tohoku and Takasaki"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=kawagoeline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:musashinoline",
+      "source_id": "musashinoline",
+      "region": "kanto",
+      "name_ja": "武蔵野線",
+      "name_en": "Musashino Line",
+      "line_code": "JM",
+      "source_groups": [
+        {
+          "id": "direction_tohoku",
+          "name_ja": "東北・高崎方面",
+          "name_en": "Bound for Tohoku and Takasaki"
+        },
+        {
+          "id": "direction_chuo",
+          "name_ja": "中央方面",
+          "name_en": "Bound for Chuo"
+        },
+        {
+          "id": "direction_soubu",
+          "name_ja": "総武方面",
+          "name_en": "Bound for Sobu"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=musashinoline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:joetsuline",
+      "source_id": "joetsuline",
+      "region": "kanto",
+      "name_ja": "上越線",
+      "name_en": "Jōetsu Line",
+      "source_groups": [
+        {
+          "id": "direction_tohoku",
+          "name_ja": "東北・高崎方面",
+          "name_en": "Bound for Tohoku and Takasaki"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=joetsuline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:shin-etsuline_kanto",
+      "source_id": "shin-etsuline_kanto",
+      "region": "kanto",
+      "name_ja": "信越本線",
+      "name_en": "Shin-etsu Line",
+      "source_groups": [
+        {
+          "id": "direction_tohoku",
+          "name_ja": "東北・高崎方面",
+          "name_en": "Bound for Tohoku and Takasaki"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=shin-etsuline_kanto",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:agatsumaline",
+      "source_id": "agatsumaline",
+      "region": "kanto",
+      "name_ja": "吾妻線",
+      "name_en": "Agatsuma Line",
+      "source_groups": [
+        {
+          "id": "direction_tohoku",
+          "name_ja": "東北・高崎方面",
+          "name_en": "Bound for Tohoku and Takasaki"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=agatsumaline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:karasuyamaline",
+      "source_id": "karasuyamaline",
+      "region": "kanto",
+      "name_ja": "烏山線",
+      "name_en": "Karasuyama Line",
+      "source_groups": [
+        {
+          "id": "direction_tohoku",
+          "name_ja": "東北・高崎方面",
+          "name_en": "Bound for Tohoku and Takasaki"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=karasuyamaline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:hachikoline",
+      "source_id": "hachikoline",
+      "region": "kanto",
+      "name_ja": "八高線",
+      "name_en": "Hachikō Line",
+      "source_groups": [
+        {
+          "id": "direction_tohoku",
+          "name_ja": "東北・高崎方面",
+          "name_en": "Bound for Tohoku and Takasaki"
+        },
+        {
+          "id": "direction_chuo",
+          "name_ja": "中央方面",
+          "name_en": "Bound for Chuo"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=hachikoline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:nikkoline",
+      "source_id": "nikkoline",
+      "region": "kanto",
+      "name_ja": "日光線",
+      "name_en": "Nikkō Line",
+      "source_groups": [
+        {
+          "id": "direction_tohoku",
+          "name_ja": "東北・高崎方面",
+          "name_en": "Bound for Tohoku and Takasaki"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=nikkoline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:ryomoline",
+      "source_id": "ryomoline",
+      "region": "kanto",
+      "name_ja": "両毛線",
+      "name_en": "Ryōmō Line",
+      "source_groups": [
+        {
+          "id": "direction_tohoku",
+          "name_ja": "東北・高崎方面",
+          "name_en": "Bound for Tohoku and Takasaki"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=ryomoline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:chuoline_rapidservice",
+      "source_id": "chuoline_rapidservice",
+      "region": "kanto",
+      "name_ja": "中央線快速電車",
+      "name_en": "Chūō Line(Rapid Service)",
+      "line_code": "JC",
+      "source_groups": [
+        {
+          "id": "direction_chuo",
+          "name_ja": "中央方面",
+          "name_en": "Bound for Chuo"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=chuoline_rapidservice",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:chuo_sobuline_local",
+      "source_id": "chuo_sobuline_local",
+      "region": "kanto",
+      "name_ja": "中央・総武各駅停車",
+      "name_en": "Chūō,Sōbu Line(Local)",
+      "line_code": "JB",
+      "source_groups": [
+        {
+          "id": "direction_chuo",
+          "name_ja": "中央方面",
+          "name_en": "Bound for Chuo"
+        },
+        {
+          "id": "direction_soubu",
+          "name_ja": "総武方面",
+          "name_en": "Bound for Sobu"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=chuo_sobuline_local",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:chuoline",
+      "source_id": "chuoline",
+      "region": "kanto",
+      "name_ja": "中央本線",
+      "name_en": "Chūō Line",
+      "source_groups": [
+        {
+          "id": "direction_chuo",
+          "name_ja": "中央方面",
+          "name_en": "Bound for Chuo"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=chuoline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:itsukaichiline",
+      "source_id": "itsukaichiline",
+      "region": "kanto",
+      "name_ja": "五日市線",
+      "name_en": "Itsukaichi Line",
+      "line_code": "JC",
+      "source_groups": [
+        {
+          "id": "direction_chuo",
+          "name_ja": "中央方面",
+          "name_en": "Bound for Chuo"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=itsukaichiline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:omeline",
+      "source_id": "omeline",
+      "region": "kanto",
+      "name_ja": "青梅線",
+      "name_en": "Ōme Line",
+      "line_code": "JC",
+      "source_groups": [
+        {
+          "id": "direction_chuo",
+          "name_ja": "中央方面",
+          "name_en": "Bound for Chuo"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=omeline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:koumiline",
+      "source_id": "koumiline",
+      "region": "kanto",
+      "name_ja": "小海線",
+      "name_en": "Koumi Line",
+      "source_groups": [
+        {
+          "id": "direction_chuo",
+          "name_ja": "中央方面",
+          "name_en": "Bound for Chuo"
+        }
+      ],
+      "reported_statuses": [
+        "notice"
+      ],
+      "assessment": "planned_notice",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 2,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=koumiline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:jobanline",
+      "source_id": "jobanline",
+      "region": "kanto",
+      "name_ja": "常磐線",
+      "name_en": "Jōban Line",
+      "source_groups": [
+        {
+          "id": "direction_jouban",
+          "name_ja": "常磐方面",
+          "name_en": "Bound for Joban"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=jobanline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:jobanline_rapidservice",
+      "source_id": "jobanline_rapidservice",
+      "region": "kanto",
+      "name_ja": "常磐線快速電車",
+      "name_en": "Jōban Line(Rapid Service)",
+      "line_code": "JJ",
+      "source_groups": [
+        {
+          "id": "direction_jouban",
+          "name_ja": "常磐方面",
+          "name_en": "Bound for Joban"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=jobanline_rapidservice",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:jobanline_local",
+      "source_id": "jobanline_local",
+      "region": "kanto",
+      "name_ja": "常磐線各駅停車",
+      "name_en": "Jōban Line(Local Train)",
+      "line_code": "JL",
+      "source_groups": [
+        {
+          "id": "direction_jouban",
+          "name_ja": "常磐方面",
+          "name_en": "Bound for Joban"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=jobanline_local",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:suigunline",
+      "source_id": "suigunline",
+      "region": "kanto",
+      "name_ja": "水郡線",
+      "name_en": "Suigun Line",
+      "source_groups": [
+        {
+          "id": "direction_jouban",
+          "name_ja": "常磐方面",
+          "name_en": "Bound for Joban"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=suigunline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:mitoline",
+      "source_id": "mitoline",
+      "region": "kanto",
+      "name_ja": "水戸線",
+      "name_en": "Mito Line",
+      "source_groups": [
+        {
+          "id": "direction_jouban",
+          "name_ja": "常磐方面",
+          "name_en": "Bound for Joban"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=mitoline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:sobuline_rapidservice",
+      "source_id": "sobuline_rapidservice",
+      "region": "kanto",
+      "name_ja": "総武快速線",
+      "name_en": "Sōbu Line(Rapid Service)",
+      "line_code": "JO",
+      "source_groups": [
+        {
+          "id": "direction_soubu",
+          "name_ja": "総武方面",
+          "name_en": "Bound for Sobu"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=sobuline_rapidservice",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:sobuline",
+      "source_id": "sobuline",
+      "region": "kanto",
+      "name_ja": "総武本線",
+      "name_en": "Sōbu Line",
+      "source_groups": [
+        {
+          "id": "direction_soubu",
+          "name_ja": "総武方面",
+          "name_en": "Bound for Sobu"
+        }
+      ],
+      "reported_statuses": [
+        "suspended",
+        "notice",
+        "partial_cancellation"
+      ],
+      "assessment": "reported_suspended",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 8,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=sobuline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:keiyoline",
+      "source_id": "keiyoline",
+      "region": "kanto",
+      "name_ja": "京葉線",
+      "name_en": "Keiyō Line",
+      "line_code": "JE",
+      "source_groups": [
+        {
+          "id": "direction_soubu",
+          "name_ja": "総武方面",
+          "name_en": "Bound for Sobu"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=keiyoline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:uchiboline",
+      "source_id": "uchiboline",
+      "region": "kanto",
+      "name_ja": "内房線",
+      "name_en": "Uchibō Line",
+      "source_groups": [
+        {
+          "id": "direction_soubu",
+          "name_ja": "総武方面",
+          "name_en": "Bound for Sobu"
+        }
+      ],
+      "reported_statuses": [
+        "suspended",
+        "notice",
+        "partial_cancellation"
+      ],
+      "assessment": "reported_suspended",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 8,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=uchiboline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:kashimaline",
+      "source_id": "kashimaline",
+      "region": "kanto",
+      "name_ja": "鹿島線",
+      "name_en": "Kashima Line",
+      "source_groups": [
+        {
+          "id": "direction_soubu",
+          "name_ja": "総武方面",
+          "name_en": "Bound for Sobu"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=kashimaline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:kururiline",
+      "source_id": "kururiline",
+      "region": "kanto",
+      "name_ja": "久留里線",
+      "name_en": "Kururi Line",
+      "source_groups": [
+        {
+          "id": "direction_soubu",
+          "name_ja": "総武方面",
+          "name_en": "Bound for Sobu"
+        }
+      ],
+      "reported_statuses": [
+        "suspended",
+        "notice"
+      ],
+      "assessment": "reported_suspended",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 4,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=kururiline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:sotoboline",
+      "source_id": "sotoboline",
+      "region": "kanto",
+      "name_ja": "外房線",
+      "name_en": "Sotobō Line",
+      "source_groups": [
+        {
+          "id": "direction_soubu",
+          "name_ja": "総武方面",
+          "name_en": "Bound for Sobu"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=sotoboline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:toganeline",
+      "source_id": "toganeline",
+      "region": "kanto",
+      "name_ja": "東金線",
+      "name_en": "Tōgane Line",
+      "source_groups": [
+        {
+          "id": "direction_soubu",
+          "name_ja": "総武方面",
+          "name_en": "Bound for Sobu"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=toganeline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:naritaline",
+      "source_id": "naritaline",
+      "region": "kanto",
+      "name_ja": "成田線",
+      "name_en": "Narita Line",
+      "source_groups": [
+        {
+          "id": "direction_soubu",
+          "name_ja": "総武方面",
+          "name_en": "Bound for Sobu"
+        }
+      ],
+      "reported_statuses": [
+        "suspended",
+        "notice",
+        "partial_cancellation"
+      ],
+      "assessment": "reported_suspended",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 6,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=naritaline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "kanto:monorail",
+      "source_id": "monorail",
+      "region": "kanto",
+      "name_ja": "東京モノレール線",
+      "name_en": "Tokyo Monorail",
+      "line_code": "MO",
+      "source_groups": [
+        {
+          "id": "direction_monorail",
+          "name_ja": "東京モノレール線",
+          "name_en": "Tokyo Monorail"
+        }
+      ],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=monorail",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    }
+  ]
+}

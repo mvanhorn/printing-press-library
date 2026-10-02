@@ -1,0 +1,20 @@
+?   	jr-east-status-pp-cli/cmd/jr-east-status-pp-cli	[no test files]
+?   	jr-east-status-pp-cli/cmd/jr-east-status-pp-mcp	[no test files]
+?   	jr-east-status-pp-cli/internal/cache	[no test files]
+ok  	jr-east-status-pp-cli/internal/cli	4.979s
+?   	jr-east-status-pp-cli/internal/cli/playbooks	[no test files]
+ok  	jr-east-status-pp-cli/internal/client	(cached)
+ok  	jr-east-status-pp-cli/internal/cliutil	(cached)
+?   	jr-east-status-pp-cli/internal/cliutil/testenv	[no test files]
+?   	jr-east-status-pp-cli/internal/config	[no test files]
+ok  	jr-east-status-pp-cli/internal/jreast	(cached)
+ok  	jr-east-status-pp-cli/internal/learn	1.720s
+ok  	jr-east-status-pp-cli/internal/learn/entities	(cached)
+ok  	jr-east-status-pp-cli/internal/learn/lookups	(cached)
+ok  	jr-east-status-pp-cli/internal/learn/patterns	(cached)
+ok  	jr-east-status-pp-cli/internal/mcp	1.040s
+ok  	jr-east-status-pp-cli/internal/mcp/bound	(cached)
+ok  	jr-east-status-pp-cli/internal/mcp/cobratree	(cached)
+ok  	jr-east-status-pp-cli/internal/platform	(cached)
+ok  	jr-east-status-pp-cli/internal/store	(cached)
+?   	jr-east-status-pp-cli/internal/types	[no test files]

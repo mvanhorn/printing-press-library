@@ -1,0 +1,27 @@
+[
+  {
+    "region": "kanto",
+    "source_rows": 60,
+    "unique_line_ids": 45
+  },
+  {
+    "region": "tohoku",
+    "source_rows": 37,
+    "unique_line_ids": 31
+  },
+  {
+    "region": "shinetsu",
+    "source_rows": 15,
+    "unique_line_ids": 14
+  },
+  {
+    "region": "express",
+    "source_rows": 13,
+    "unique_line_ids": 13
+  },
+  {
+    "region": "shinkansen",
+    "source_rows": 5,
+    "unique_line_ids": 5
+  }
+]

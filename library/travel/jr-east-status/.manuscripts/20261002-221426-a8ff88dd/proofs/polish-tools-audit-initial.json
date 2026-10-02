@@ -1,0 +1,23 @@
+[
+  {
+    "kind": "thin-short",
+    "command": "list",
+    "file": "platform_client.go",
+    "line": 517,
+    "evidence": "List client profiles"
+  },
+  {
+    "kind": "thin-short",
+    "command": "list",
+    "file": "teach.go",
+    "line": 868,
+    "evidence": "List recorded learnings"
+  },
+  {
+    "kind": "thin-mcp-description",
+    "command": "sources_guide",
+    "file": "tools-manifest.json",
+    "line": 0,
+    "evidence": "Read official status and certificate guide links."
+  }
+]

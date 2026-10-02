@@ -1,0 +1,6 @@
+{
+  "valid_clone_count": 16,
+  "selected_clone": "/Users/zjsng/printing-press/.publish-repo-traveloka-cli-7d625453",
+  "cli_matches": [],
+  "outcome": "public clone exists but does not contain this new CLI"
+}

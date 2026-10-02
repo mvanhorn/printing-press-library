@@ -1,0 +1,46 @@
+name: jr-east-status
+version: 0.1.0
+description: Compare JR East line impacts with bilingual identity, source freshness and reporting limits.
+cli_description: Compare JR East line impacts with bilingual identity, source freshness and reporting limits.
+category: travel
+creator:
+  handle: zjsng
+  name: zjsng
+base_url: https://traininfo.jreast.co.jp
+health_check_path: /train_info/e/service.aspx
+http_transport: standard
+required_headers:
+  - name: User-Agent
+    value: jr-east-status-pp-cli/0.1 (public status)
+  - name: Accept
+    value: text/html,application/json;q=0.9,*/*;q=0.8
+auth:
+  type: none
+mcp:
+  transport: [stdio]
+  endpoint_tools: hidden
+learn:
+  entity_lookup_seeds:
+    line:
+      - canonical: 山手線
+        aliases: [Yamanote Line, yamanoteline, JY]
+      - canonical: 総武本線
+        aliases: [Sōbu Line, sobuline]
+      - canonical: 小海線
+        aliases: [Koumi Line, koumiline]
+      - canonical: 成田線
+        aliases: [Narita Line, naritaline]
+resources:
+  sources:
+    description: Official JR East source guide links; use status for operational facts.
+    endpoints:
+      guide:
+        method: GET
+        path: /train_info/e/service.aspx
+        description: Read official status and certificate guide links.
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/train_info, /delay_certificate]
+        response:
+          type: object

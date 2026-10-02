@@ -1,0 +1,7 @@
+{
+  "generator": "cli-printing-press 4.32.5",
+  "source": "explicit verified personal identity in spec.yaml",
+  "unchanged_creator_name": "zjsng",
+  "generated_creator_handle": "zjsng",
+  "reason": "Legacy --owner seeds creator name only; regenerated canonical creator metadata with the same verified person. No creator identity or release metadata changed."
+}

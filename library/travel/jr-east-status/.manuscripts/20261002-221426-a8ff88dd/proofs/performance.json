@@ -1,0 +1,7 @@
+{
+  "command": "impact --lines kanto:yamanoteline,kanto:sobuline,shinkansen:tohokushinkansen --json --no-learn",
+  "elapsed_seconds": 2.07,
+  "max_rss_bytes_darwin": 29917184,
+  "output_bytes": 11545,
+  "source_requests": 4
+}

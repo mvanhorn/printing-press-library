@@ -1,0 +1,49 @@
+{
+  "hand_authored_go_files": [
+    "internal/cli/certificates.go",
+    "internal/cli/certificates_test.go",
+    "internal/cli/coverage.go",
+    "internal/cli/coverage_test.go",
+    "internal/cli/impact.go",
+    "internal/cli/impact_test.go",
+    "internal/cli/jr_commands.go",
+    "internal/cli/jr_commands_test.go",
+    "internal/cli/planned.go",
+    "internal/cli/planned_test.go",
+    "internal/cli/status.go",
+    "internal/cli/status_test.go",
+    "internal/client/platform_budget_test.go",
+    "internal/client/platform_rate_limit_test.go",
+    "internal/cliutil/testenv/testenv.go",
+    "internal/jreast/client.go",
+    "internal/jreast/handoffs.go",
+    "internal/jreast/html.go",
+    "internal/jreast/jreast_test.go",
+    "internal/jreast/parser.go",
+    "internal/jreast/policy.go",
+    "internal/jreast/types.go",
+    "internal/mcp/jr_surface_test.go",
+    "internal/platform/migration.go",
+    "internal/store/extras.go"
+  ],
+  "approved_novel_commands": [
+    "status",
+    "impact",
+    "planned",
+    "certificates",
+    "coverage"
+  ],
+  "discovery_commands": [
+    "areas",
+    "lines"
+  ],
+  "auxiliary_guide": "sources CLI and MCP mirror; raw typed HTML endpoint hidden",
+  "native_runtime_requests": "standard net/http; anonymous first-party GET only",
+  "reserved_package_edits": false,
+  "transcendence_rows_planned": 5,
+  "transcendence_rows_built": 5,
+  "transcendence_rows_missing": [],
+  "prior_sub60_reprint": false,
+  "partial_transcendence_override": null,
+  "public_clone_divergence_result": "validated public clone does not contain this new CLI"
+}

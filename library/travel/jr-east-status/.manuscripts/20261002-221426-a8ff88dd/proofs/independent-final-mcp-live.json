@@ -1,0 +1,43 @@
+{
+  "tool_name": "sources",
+  "raw_typed_endpoint_absent": true,
+  "tool_names": [
+    "areas",
+    "certificates",
+    "context",
+    "coverage",
+    "impact",
+    "learnings_candidates",
+    "learnings_confirm",
+    "learnings_forget",
+    "learnings_list",
+    "learnings_reject",
+    "learnings_stats",
+    "lines",
+    "planned",
+    "playbook_amend",
+    "playbook_list",
+    "recall",
+    "sources",
+    "sql",
+    "status",
+    "teach",
+    "teach_lookup",
+    "teach_pattern",
+    "teach_playbook",
+    "workflow_status"
+  ],
+  "seconds": 0.3350062910467386,
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 3,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"name\": \"Delay certificate\",\n      \"text\": \"Delay certificate\",\n      \"image\": \"https://traininfo.jreast.co.jp/train_info/e/service.aspx\",\n      \"url\": \"https://traininfo.jreast.co.jp/delay_certificate/e/\",\n      \"slug\": \"delay_certificate\"\n    },\n    {\n      \"name\": \"Kanto Area Ibaraki, Tochigi, Gunma, Saitama, Tokyo, Chiba, Kanagawa, and Yamanashi area\",\n      \"text\": \"Kanto Area Ibaraki, Tochigi, Gunma, Saitama, Tokyo, Chiba, Kanagawa, and Yamanashi area\",\n      \"image\": \"https://traininfo.jreast.co.jp/train_info/img/ico_kanto.svg\",\n      \"url\": \"https://traininfo.jreast.co.jp/train_info/e/kanto.aspx\",\n      \"slug\": \"e\"\n    },\n    {\n      \"name\": \"Tohoku Area Conventional lines in Aomori, Iwate, Akita, Miyagi, Yamagata, and Fukushima area\",\n      \"text\": \"Tohoku Area Conventional lines in Aomori, Iwate, Akita, Miyagi, Yamagata, and Fukushima area\",\n      \"image\": \"https://traininfo.jreast.co.jp/train_info/img/ico_tohoku.svg\",\n      \"url\": \"https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx\",\n      \"slug\": \"e\"\n    },\n    {\n      \"name\": \"Shinetsu Area Niigata and Nagano area\",\n      \"text\": \"Shinetsu Area Niigata and Nagano area\",\n      \"image\": \"https://traininfo.jreast.co.jp/train_info/img/ico_shinetsu.svg\",\n      \"url\": \"https://traininfo.jreast.co.jp/train_info/e/shinetsu.aspx\",\n      \"slug\": \"e\"\n    },\n    {\n      \"name\": \"Express, Night train Night train, sleeping car\",\n      \"text\": \"Express, Night train Night train, sleeping car\",\n      \"image\": \"https://traininfo.jreast.co.jp/train_info/img/ico_chyokyori.svg\",\n      \"url\": \"https://traininfo.jreast.co.jp/train_info/e/chyokyori.aspx\",\n      \"slug\": \"e\"\n    },\n    {\n      \"name\": \"Shinkansen Tohoku Shinkansen Jouetsu Shinkansen Hokuriku Shinkansen Yamagata Shinkansen Akita Shinkansen\",\n      \"text\": \"Shinkansen Tohoku Shinkansen Jouetsu Shinkansen Hokuriku Shinkansen Yamagata Shinkansen Akita Shinkansen\",\n      \"image\": \"https://traininfo.jreast.co.jp/train_info/img/ico_shinkansen.svg\",\n      \"url\": \"https://traininfo.jreast.co.jp/train_info/e/shinkansen.aspx\",\n      \"slug\": \"e\"\n    }\n  ]\n}\n"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "verdict": "PASS",
+  "started_at": "2026-10-02T17:22:54Z",
+  "elapsed_ms": 14223,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T17:22:54Z",
+      "elapsed_ms": 4724,
+      "command": "/Users/zjsng/go/bin/cli-printing-press verify --dir /Users/zjsng/Projects/Personal/Coding/jr-east-status-cli --write-manifest /Users/zjsng/Projects/Personal/Coding/jr-east-status-cli/.printing-press.json --spec /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/jr-east-status/.runstate/jr-east-status-cli-b231d4cd/runs/20261002-221426-a8ff88dd/research/jr-east-status.yaml"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T17:22:58Z",
+      "elapsed_ms": 193,
+      "command": "/Users/zjsng/go/bin/cli-printing-press validate-narrative --strict --full-examples --research /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/jr-east-status/.runstate/jr-east-status-cli-b231d4cd/runs/20261002-221426-a8ff88dd/research.json --binary /Users/zjsng/Projects/Personal/Coding/jr-east-status-cli/build/stage/bin/jr-east-status-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T17:22:58Z",
+      "elapsed_ms": 2826,
+      "command": "/Users/zjsng/go/bin/cli-printing-press dogfood --dir /Users/zjsng/Projects/Personal/Coding/jr-east-status-cli --spec /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/jr-east-status/.runstate/jr-east-status-cli-b231d4cd/runs/20261002-221426-a8ff88dd/research/jr-east-status.yaml --research-dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/jr-east-status/.runstate/jr-east-status-cli-b231d4cd/runs/20261002-221426-a8ff88dd"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T17:23:01Z",
+      "elapsed_ms": 2417,
+      "command": "/Users/zjsng/go/bin/cli-printing-press workflow-verify --dir /Users/zjsng/Projects/Personal/Coding/jr-east-status-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T17:23:04Z",
+      "elapsed_ms": 51,
+      "command": "/Users/zjsng/go/bin/cli-printing-press apify-audit --dir /Users/zjsng/Projects/Personal/Coding/jr-east-status-cli --research-dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/jr-east-status/.runstate/jr-east-status-cli-b231d4cd/runs/20261002-221426-a8ff88dd"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T17:23:04Z",
+      "elapsed_ms": 2227,
+      "command": "/Users/zjsng/go/bin/cli-printing-press verify-skill --dir /Users/zjsng/Projects/Personal/Coding/jr-east-status-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T17:23:06Z",
+      "elapsed_ms": 1782,
+      "command": "/Users/zjsng/go/bin/cli-printing-press scorecard --dir /Users/zjsng/Projects/Personal/Coding/jr-east-status-cli --write-manifest /Users/zjsng/Projects/Personal/Coding/jr-east-status-cli/.printing-press.json --research-dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/jr-east-status/.runstate/jr-east-status-cli-b231d4cd/runs/20261002-221426-a8ff88dd --spec /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/jr-east-status/.runstate/jr-east-status-cli-b231d4cd/runs/20261002-221426-a8ff88dd/research/jr-east-status.yaml --live-check"
+    }
+  ]
+}

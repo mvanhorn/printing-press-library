@@ -1,0 +1,60 @@
+{
+  "api_name": "jr-east-status",
+  "base_url": "https://traininfo.jreast.co.jp",
+  "description": "Compare JR East line impacts with bilingual identity, source freshness and reporting limits.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "jr-east-status-pp-cli/0.1 (public status)"
+    },
+    {
+      "name": "Accept",
+      "value": "text/html,application/json;q=0.9,*/*;q=0.8"
+    }
+  ],
+  "tools": [
+    {
+      "name": "sources_guide",
+      "description": "Read official status and certificate guide links.",
+      "method": "GET",
+      "path": "/train_info/e/service.aspx",
+      "no_auth": true,
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Bilingual line facts",
+      "command": "status",
+      "description": "Reconcile native Japanese IDs with English row labels, keeping multiple notices and source uncertainty."
+    },
+    {
+      "name": "Itinerary line impact",
+      "command": "impact",
+      "description": "Compare selected itinerary lines with per-region source timing and affected sections."
+    },
+    {
+      "name": "Planned closure handoffs",
+      "command": "planned",
+      "description": "Inspect construction evidence without promoting future notices to current service suspension."
+    },
+    {
+      "name": "Published certificate routing",
+      "command": "certificates",
+      "description": "Return actual published route/time-slot links and source coverage limits."
+    },
+    {
+      "name": "Reporting coverage classifier",
+      "command": "coverage",
+      "description": "Explain reporting hours, threshold conflicts, midnight service-day rollover and remaining unknowns."
+    }
+  ]
+}

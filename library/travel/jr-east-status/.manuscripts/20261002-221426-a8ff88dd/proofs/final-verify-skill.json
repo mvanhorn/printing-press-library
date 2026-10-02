@@ -1,0 +1,14 @@
+{
+  "cli_dir": "/Users/zjsng/Projects/Personal/Coding/jr-east-status-cli",
+  "skill_path": "/Users/zjsng/Projects/Personal/Coding/jr-east-status-cli/SKILL.md",
+  "checks_run": [
+    "flag-names",
+    "flag-commands",
+    "positional-args",
+    "shell-var-quotes",
+    "unknown-command",
+    "canonical-sections"
+  ],
+  "recipes_checked": 39,
+  "findings": []
+}

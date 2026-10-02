@@ -1,0 +1,26 @@
+=== RUN   TestParseRegionFreshnessAndErrors
+=== RUN   TestParseRegionFreshnessAndErrors/fresh-ja
+=== RUN   TestParseRegionFreshnessAndErrors/fresh-en
+=== RUN   TestParseRegionFreshnessAndErrors/stale
+=== RUN   TestParseRegionFreshnessAndErrors/future
+=== RUN   TestParseRegionFreshnessAndErrors/missing
+=== RUN   TestParseRegionFreshnessAndErrors/challenge
+=== RUN   TestParseRegionFreshnessAndErrors/shell
+--- PASS: TestParseRegionFreshnessAndErrors (0.00s)
+    --- PASS: TestParseRegionFreshnessAndErrors/fresh-ja (0.00s)
+    --- PASS: TestParseRegionFreshnessAndErrors/fresh-en (0.00s)
+    --- PASS: TestParseRegionFreshnessAndErrors/stale (0.00s)
+    --- PASS: TestParseRegionFreshnessAndErrors/future (0.00s)
+    --- PASS: TestParseRegionFreshnessAndErrors/missing (0.00s)
+    --- PASS: TestParseRegionFreshnessAndErrors/challenge (0.00s)
+    --- PASS: TestParseRegionFreshnessAndErrors/shell (0.00s)
+=== RUN   TestClientOriginalClosedSourceStopsTranslationFetch
+--- PASS: TestClientOriginalClosedSourceStopsTranslationFetch (0.00s)
+PASS
+ok  	jr-east-status-pp-cli/internal/jreast	0.858s
+=== RUN   TestReviewerClosedExpressImpactStopsAtOriginalSource
+    reviewer_probes_test.go:45: authoritative closure still fetched detail/English: requests=3 err=no requested component was verified; inspect meta.fetch_failures assessment=detail_source_error failures=[{Source:express:wakashio_sazamani Error:JR East source /train_info/e/chyokyori.aspx returned HTTP 403; open its source URL or retry later}]
+--- FAIL: TestReviewerClosedExpressImpactStopsAtOriginalSource (1.00s)
+FAIL
+FAIL	jr-east-status-pp-cli/internal/cli	1.973s
+FAIL

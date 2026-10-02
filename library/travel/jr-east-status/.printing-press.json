@@ -1,0 +1,103 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-02T17:29:46.7051Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "jr-east-status",
+  "display_name": "JR East Status",
+  "cli_name": "jr-east-status-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "contributors": [
+    {
+      "handle": "zjsng",
+      "name": "zjsng"
+    }
+  ],
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "jr-east-status.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:f49de3fb20e7b0c87252dcb967fd93795b08ab67c692aa76c767c0c341b99b2d",
+  "run_id": "20261002-221426-a8ff88dd",
+  "category": "travel",
+  "description": "Compare JR East line impacts with bilingual identity, source freshness and reporting limits.",
+  "mcp_binary": "jr-east-status-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Bilingual line facts",
+      "command": "status",
+      "description": "Reconcile native Japanese IDs with English row labels, keeping multiple notices and source uncertainty."
+    },
+    {
+      "name": "Itinerary line impact",
+      "command": "impact",
+      "description": "Compare selected itinerary lines with per-region source timing and affected sections."
+    },
+    {
+      "name": "Planned closure handoffs",
+      "command": "planned",
+      "description": "Inspect construction evidence without promoting future notices to current service suspension."
+    },
+    {
+      "name": "Published certificate routing",
+      "command": "certificates",
+      "description": "Return actual published route/time-slot links and source coverage limits."
+    },
+    {
+      "name": "Reporting coverage classifier",
+      "command": "coverage",
+      "description": "Explain reporting hours, threshold conflicts, midnight service-day rollover and remaining unknowns."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Bilingual line facts",
+      "command": "status",
+      "description": "Reconcile native Japanese IDs with English row labels, keeping multiple notices and source uncertainty."
+    },
+    {
+      "name": "Itinerary line impact",
+      "command": "impact",
+      "description": "Compare selected itinerary lines with per-region source timing and affected sections."
+    },
+    {
+      "name": "Planned closure handoffs",
+      "command": "planned",
+      "description": "Inspect construction evidence without promoting future notices to current service suspension."
+    },
+    {
+      "name": "Published certificate routing",
+      "command": "certificates",
+      "description": "Return actual published route/time-slot links and source coverage limits."
+    },
+    {
+      "name": "Reporting coverage classifier",
+      "command": "coverage",
+      "description": "Explain reporting hours, threshold conflicts, midnight service-day rollover and remaining unknowns."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 28,
+    "total": 28,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 81,
+      "grade": "A",
+      "total": 81
+    }
+  }
+}

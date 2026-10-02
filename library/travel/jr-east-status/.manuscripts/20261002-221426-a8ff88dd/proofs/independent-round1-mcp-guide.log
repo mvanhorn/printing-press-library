@@ -1,0 +1,29 @@
+=== RUN   TestReviewerRegisteredSourceGuideReturnsFacts
+--- FAIL: TestReviewerRegisteredSourceGuideReturnsFacts (0.00s)
+panic: interface conversion: http.RoundTripper is mcp.reviewerMCPTransport, not *http.Transport [recovered, repanicked]
+
+goroutine 25 [running]:
+testing.tRunner.func1.2({0x100e51928, 0x6189c1466d20})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2123 +0x1a0
+testing.tRunner.func1()
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2126 +0x2c8
+panic({0x100e51928?, 0x6189c1466d20?})
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/runtime/panic.go:859 +0x120
+jr-east-status-pp-cli/internal/client.newHTTPClient(0x6189c14bf298?, {0x0?, 0x0?})
+	/Users/zjsng/Projects/Personal/Coding/jr-east-status-cli/internal/client/client.go:228 +0xec
+jr-east-status-pp-cli/internal/client.New(0x6189c0fbe2a0, 0xdf8475800, 0x4000000000000000)
+	/Users/zjsng/Projects/Personal/Coding/jr-east-status-cli/internal/client/client.go:422 +0x78
+jr-east-status-pp-cli/internal/mcp.newMCPClientFromConfig({0x100f6b458, 0x1010c5ee0}, 0x6189c17b004c?)
+	/Users/zjsng/Projects/Personal/Coding/jr-east-status-cli/internal/mcp/tools.go:408 +0x44
+jr-east-status-pp-cli/internal/mcp.newMCPClient({0x100f6b458, 0x1010c5ee0})
+	/Users/zjsng/Projects/Personal/Coding/jr-east-status-cli/internal/mcp/tools.go:396 +0x54
+jr-east-status-pp-cli/internal/mcp.makeAPIHandler.func1({0x100f6b458, 0x1010c5ee0}, {{{0x0, 0x0}, {0x0}}, 0x0, {{0x10078c931, 0xd}, {0x100e94348, 0x6189c1466c90}, ...}})
+	/Users/zjsng/Projects/Personal/Coding/jr-east-status-cli/internal/mcp/tools.go:134 +0xc8
+jr-east-status-pp-cli/internal/mcp.TestReviewerRegisteredSourceGuideReturnsFacts(0x6189c11a0fc8)
+	/Users/zjsng/Projects/Personal/Coding/jr-east-status-cli/internal/mcp/reviewer_probes_test.go:17 +0x2d8
+testing.tRunner(0x6189c11a0fc8, 0x100f6d398)
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2193 +0xc4
+created by testing.(*T).Run in goroutine 1
+	/opt/homebrew/Cellar/go/1.27.1/libexec/src/testing/testing.go:2258 +0x3b8
+FAIL	jr-east-status-pp-cli/internal/mcp	0.523s
+FAIL

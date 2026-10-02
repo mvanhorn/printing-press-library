@@ -1,0 +1,12 @@
+{"bytes": 111181, "content_type": "text/html; charset=utf-8", "read_error": "<nil>", "status": 200, "url": "https://traininfo.jreast.co.jp/train_info/kanto.aspx", "body_retained_privately": true}
+{"bytes": 140407, "content_type": "text/html; charset=utf-8", "read_error": "<nil>", "status": 200, "url": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx", "body_retained_privately": true}
+{"bytes": 68181, "content_type": "text/html; charset=utf-8", "read_error": "<nil>", "status": 200, "url": "https://traininfo.jreast.co.jp/train_info/tohoku.aspx", "body_retained_privately": true}
+{"bytes": 80130, "content_type": "text/html; charset=utf-8", "read_error": "<nil>", "status": 200, "url": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx", "body_retained_privately": true}
+{"bytes": 33014, "content_type": "text/html; charset=utf-8", "read_error": "<nil>", "status": 200, "url": "https://traininfo.jreast.co.jp/train_info/shinetsu.aspx", "body_retained_privately": true}
+{"bytes": 36880, "content_type": "text/html; charset=utf-8", "read_error": "<nil>", "status": 200, "url": "https://traininfo.jreast.co.jp/train_info/e/shinetsu.aspx", "body_retained_privately": true}
+{"bytes": 28349, "content_type": "text/html; charset=utf-8", "read_error": "<nil>", "status": 200, "url": "https://traininfo.jreast.co.jp/train_info/chyokyori.aspx", "body_retained_privately": true}
+{"bytes": 37117, "content_type": "text/html; charset=utf-8", "read_error": "<nil>", "status": 200, "url": "https://traininfo.jreast.co.jp/train_info/e/chyokyori.aspx", "body_retained_privately": true}
+{"bytes": 20528, "content_type": "text/html; charset=utf-8", "read_error": "<nil>", "status": 200, "url": "https://traininfo.jreast.co.jp/train_info/shinkansen.aspx", "body_retained_privately": true}
+{"bytes": 17899, "content_type": "text/html; charset=utf-8", "read_error": "<nil>", "status": 200, "url": "https://traininfo.jreast.co.jp/train_info/e/shinkansen.aspx", "body_retained_privately": true}
+{"bytes": 23673, "content_type": "text/html; charset=utf-8", "read_error": "<nil>", "status": 200, "url": "https://traininfo.jreast.co.jp/train_info/express.aspx?group=wakashio_sazamani", "body_retained_privately": true}
+{"bytes": 23451, "content_type": "text/html; charset=utf-8", "read_error": "<nil>", "status": 200, "url": "https://traininfo.jreast.co.jp/train_info/e/express.aspx?group=wakashio_sazamani", "body_retained_privately": true}

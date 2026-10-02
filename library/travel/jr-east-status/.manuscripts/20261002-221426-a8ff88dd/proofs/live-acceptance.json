@@ -1,0 +1,139 @@
+{
+  "verdict": "PASS",
+  "assertions": "Native identity across five regions; bilingual multi-notices; section/direction; projection and absence; grouped itinerary reads and explicit partial failure; planned source dates; express service cancellation/resumption estimate; published certificate URLs/routing/date rollover; reporting closed policy; empty CSV.",
+  "cases": [
+    {
+      "case": "region-kanto",
+      "exit": 0,
+      "elapsed_ms": 775,
+      "output_bytes": 40840,
+      "source_requests": 2
+    },
+    {
+      "case": "region-tohoku",
+      "exit": 0,
+      "elapsed_ms": 782,
+      "output_bytes": 23036,
+      "source_requests": 2
+    },
+    {
+      "case": "region-shinetsu",
+      "exit": 0,
+      "elapsed_ms": 739,
+      "output_bytes": 11380,
+      "source_requests": 2
+    },
+    {
+      "case": "region-express",
+      "exit": 0,
+      "elapsed_ms": 785,
+      "output_bytes": 11098,
+      "source_requests": 2
+    },
+    {
+      "case": "region-shinkansen",
+      "exit": 0,
+      "elapsed_ms": 766,
+      "output_bytes": 5181,
+      "source_requests": 2
+    },
+    {
+      "case": "areas",
+      "exit": 0,
+      "elapsed_ms": 146,
+      "output_bytes": 3143,
+      "source_requests": 1
+    },
+    {
+      "case": "projection",
+      "exit": 0,
+      "elapsed_ms": 556,
+      "output_bytes": 1782,
+      "source_requests": 2
+    },
+    {
+      "case": "negative-query",
+      "exit": 0,
+      "elapsed_ms": 548,
+      "output_bytes": 1799,
+      "source_requests": 2
+    },
+    {
+      "case": "suspended",
+      "exit": 0,
+      "elapsed_ms": 543,
+      "output_bytes": 9349,
+      "source_requests": 2
+    },
+    {
+      "case": "impact",
+      "exit": 0,
+      "elapsed_ms": 10483,
+      "output_bytes": 11560,
+      "source_requests": 4
+    },
+    {
+      "case": "impact-partial",
+      "exit": 0,
+      "elapsed_ms": 5482,
+      "output_bytes": 10875,
+      "source_requests": 2
+    },
+    {
+      "case": "planned",
+      "exit": 0,
+      "elapsed_ms": 4275,
+      "output_bytes": 4031,
+      "source_requests": 3
+    },
+    {
+      "case": "planned-tokaido",
+      "exit": 0,
+      "elapsed_ms": 1493,
+      "output_bytes": 2676,
+      "source_requests": 3
+    },
+    {
+      "case": "express-detail",
+      "exit": 0,
+      "elapsed_ms": 2824,
+      "output_bytes": 9036,
+      "source_requests": 4
+    },
+    {
+      "case": "certificate",
+      "exit": 0,
+      "elapsed_ms": 445,
+      "output_bytes": 2616,
+      "source_requests": 1
+    },
+    {
+      "case": "through-certificate",
+      "exit": 0,
+      "elapsed_ms": 90,
+      "output_bytes": 2388,
+      "source_requests": 1
+    },
+    {
+      "case": "zero-certificate",
+      "exit": 0,
+      "elapsed_ms": 170,
+      "output_bytes": 1524,
+      "source_requests": 1
+    },
+    {
+      "case": "closed-policy",
+      "exit": 0,
+      "elapsed_ms": 11,
+      "output_bytes": 1966,
+      "source_requests": 0
+    },
+    {
+      "case": "empty-csv",
+      "exit": 0,
+      "elapsed_ms": 819,
+      "output_bytes": 10,
+      "source_requests": null
+    }
+  ]
+}

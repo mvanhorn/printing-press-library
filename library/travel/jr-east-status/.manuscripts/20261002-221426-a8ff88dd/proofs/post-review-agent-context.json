@@ -1,0 +1,934 @@
+{
+  "schema_version": "4",
+  "cli": {
+    "name": "jr-east-status-pp-cli",
+    "description": "Compare JR East line impacts with bilingual identity, source freshness and reporting limits.",
+    "version": "0.0.0-dev"
+  },
+  "auth": {
+    "mode": "none",
+    "env_vars": []
+  },
+  "paths": {
+    "config_dir": "/Users/zjsng/.config/jr-east-status-pp-cli",
+    "data_dir": "/Users/zjsng/.local/share/jr-east-status-pp-cli",
+    "state_dir": "/Users/zjsng/.local/state/jr-east-status-pp-cli",
+    "cache_dir": "/Users/zjsng/.cache/jr-east-status-pp-cli"
+  },
+  "commands": [
+    {
+      "name": "areas",
+      "use": "areas",
+      "short": "Read JR East region/service summaries and canonical source links",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:data-source": "live",
+        "pp:happy-args": "--agent=true"
+      },
+      "runnable": true
+    },
+    {
+      "name": "certificates",
+      "use": "certificates",
+      "short": "List covered lines or currently published certificate handoffs",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:data-source": "live",
+        "pp:happy-args": "--line=yamanoteline;--agent=true"
+      },
+      "flags": [
+        {
+          "name": "limit",
+          "type": "int",
+          "usage": "Maximum certificate lines returned, between 1 and 30",
+          "default": "20"
+        },
+        {
+          "name": "line",
+          "type": "string",
+          "usage": "Native ID or exact Japanese certificate line name; omit for line discovery"
+        },
+        {
+          "name": "slot",
+          "type": "string",
+          "usage": "Source time slot 01–05; omit for all five slots of the selected line"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "completion",
+      "use": "completion",
+      "short": "Generate the autocompletion script for the specified shell",
+      "subcommands": [
+        {
+          "name": "bash",
+          "use": "bash",
+          "short": "Generate the autocompletion script for bash",
+          "flags": [
+            {
+              "name": "no-descriptions",
+              "type": "bool",
+              "usage": "disable completion descriptions",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "fish",
+          "use": "fish",
+          "short": "Generate the autocompletion script for fish",
+          "flags": [
+            {
+              "name": "no-descriptions",
+              "type": "bool",
+              "usage": "disable completion descriptions",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "powershell",
+          "use": "powershell",
+          "short": "Generate the autocompletion script for powershell",
+          "flags": [
+            {
+              "name": "no-descriptions",
+              "type": "bool",
+              "usage": "disable completion descriptions",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "zsh",
+          "use": "zsh",
+          "short": "Generate the autocompletion script for zsh",
+          "flags": [
+            {
+              "name": "no-descriptions",
+              "type": "bool",
+              "usage": "disable completion descriptions",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "coverage",
+      "use": "coverage",
+      "short": "Explain reporting windows, thresholds and certificate limits",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:data-source": "computed",
+        "pp:happy-args": "--agent=true"
+      },
+      "flags": [
+        {
+          "name": "at",
+          "type": "string",
+          "usage": "Optional RFC3339 time with timezone; classifies JST reporting service day"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "doctor",
+      "use": "doctor",
+      "short": "Check CLI health",
+      "flags": [
+        {
+          "name": "fail-on",
+          "type": "string",
+          "usage": "Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: path warnings plus errors; error: errors only. Default is never."
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "feedback",
+      "use": "feedback [text]",
+      "short": "Record feedback about this CLI (local by default; upstream opt-in)",
+      "flags": [
+        {
+          "name": "send",
+          "type": "bool",
+          "usage": "POST to the configured feedback endpoint in addition to local write",
+          "default": "false"
+        },
+        {
+          "name": "stdin",
+          "type": "bool",
+          "usage": "Read feedback body from stdin rather than arguments",
+          "default": "false"
+        }
+      ],
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "list",
+          "use": "list",
+          "short": "List recent feedback entries",
+          "annotations": {
+            "mcp:read-only": "true"
+          },
+          "flags": [
+            {
+              "name": "limit",
+              "type": "int",
+              "usage": "Maximum number of recent entries to return",
+              "default": "20"
+            }
+          ],
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "help",
+      "use": "help [command]",
+      "short": "Help about any command",
+      "runnable": true
+    },
+    {
+      "name": "impact",
+      "use": "impact",
+      "short": "Compare up to eight itinerary lines with source uncertainty",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:data-source": "live",
+        "pp:happy-args": "--lines=kanto:yamanoteline,kanto:sobuline;--agent=true"
+      },
+      "flags": [
+        {
+          "name": "lines",
+          "type": "string",
+          "usage": "Comma-separated region:native-line IDs, up to eight itinerary components"
+        },
+        {
+          "name": "max-source-age",
+          "type": "string",
+          "usage": "Maximum accepted source page age; supports 1s through 24h",
+          "default": "15m"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "learnings",
+      "use": "learnings",
+      "short": "Inspect or forget the local search_learnings table",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:parent-group": "true",
+        "pp:typed-exit-codes": "0,2"
+      },
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "candidates",
+          "use": "candidates",
+          "short": "List auto-captured improvement candidates awaiting judgment",
+          "annotations": {
+            "mcp:read-only": "true"
+          },
+          "flags": [
+            {
+              "name": "class",
+              "type": "string",
+              "usage": "Filter by class (flag_alias | playbook_candidate)"
+            },
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "SQLite database file path (default: resolved data directory data.db)"
+            },
+            {
+              "name": "limit",
+              "type": "int",
+              "usage": "Maximum rows to return (default: capped)",
+              "default": "0"
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "usage": "Filter by status (open | confirmed | rejected | expired; empty for all)",
+              "default": "open"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "confirm",
+          "use": "confirm \u003cid\u003e",
+          "short": "Confirm an open candidate: print its full payload, then materialize it",
+          "annotations": {
+            "mcp:local-write": "true",
+            "pp:typed-exit-codes": "0,2"
+          },
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "SQLite database file path (default: resolved data directory data.db)"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "forget",
+          "use": "forget \u003cquery\u003e",
+          "short": "Delete learnings matching a query (use --all to wipe every rule for that query)",
+          "flags": [
+            {
+              "name": "action",
+              "type": "string",
+              "usage": "Delete only rules with this action (boost | hide | alias_of)"
+            },
+            {
+              "name": "all",
+              "type": "bool",
+              "usage": "Delete every rule for the supplied query",
+              "default": "false"
+            },
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "SQLite database file path (default: resolved data directory data.db)"
+            },
+            {
+              "name": "resource",
+              "type": "string",
+              "usage": "Delete only the rule for this resource_id"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "list",
+          "use": "list",
+          "short": "List recorded learnings",
+          "annotations": {
+            "mcp:read-only": "true"
+          },
+          "flags": [
+            {
+              "name": "action",
+              "type": "string",
+              "usage": "Filter by action (boost | hide | alias_of)"
+            },
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "SQLite database file path (default: resolved data directory data.db)"
+            },
+            {
+              "name": "limit",
+              "type": "int",
+              "usage": "Maximum rows to return",
+              "default": "200"
+            },
+            {
+              "name": "min-confidence",
+              "type": "int",
+              "usage": "Filter by minimum confidence",
+              "default": "0"
+            },
+            {
+              "name": "query",
+              "type": "string",
+              "usage": "Filter by normalized query substring"
+            },
+            {
+              "name": "resource",
+              "type": "string",
+              "usage": "Filter by resource_id"
+            },
+            {
+              "name": "source",
+              "type": "string",
+              "usage": "Filter by source (taught | manual-forget)"
+            },
+            {
+              "name": "warnings",
+              "type": "bool",
+              "usage": "Return teach-time warnings from teach.log instead of stored learning rows",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "purge",
+          "use": "purge",
+          "short": "Delete settled candidate rows (expired and confirmed; --tombstones adds rejected)",
+          "annotations": {
+            "mcp:hidden": "true"
+          },
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "SQLite database file path (default: resolved data directory data.db)"
+            },
+            {
+              "name": "tombstones",
+              "type": "bool",
+              "usage": "Also delete rejected rows (re-allows derivation of their signatures)",
+              "default": "false"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "reject",
+          "use": "reject \u003cid\u003e",
+          "short": "Reject a candidate and tombstone its derivation signature",
+          "annotations": {
+            "pp:typed-exit-codes": "0,2"
+          },
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "SQLite database file path (default: resolved data directory data.db)"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "stats",
+          "use": "stats",
+          "short": "Report learn-loop effectiveness metrics from the local events table",
+          "annotations": {
+            "mcp:read-only": "true"
+          },
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "SQLite database file path (default: resolved data directory data.db)"
+            }
+          ],
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "lines",
+      "use": "lines",
+      "short": "Discover native line IDs and bilingual names in one source region",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:data-source": "live",
+        "pp:happy-args": "--region=kanto;--query=Yamanote;--agent=true"
+      },
+      "flags": [
+        {
+          "name": "limit",
+          "type": "int",
+          "usage": "Maximum returned lines (1–100); each source page scans at most 512 rows",
+          "default": "20"
+        },
+        {
+          "name": "max-source-age",
+          "type": "string",
+          "usage": "Maximum source page age; missing or future timestamps remain unknown",
+          "default": "15m"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "usage": "Case-insensitive substring of native ID, bilingual name or line code"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "usage": "JR East service area: kanto, tohoku, shinetsu, express or shinkansen",
+          "default": "kanto"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "planned",
+      "use": "planned",
+      "short": "Read selected construction facts and official schedule handoffs",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:data-source": "live",
+        "pp:happy-args": "--line=koumiline;--region=kanto;--agent=true"
+      },
+      "flags": [
+        {
+          "name": "limit",
+          "type": "int",
+          "usage": "Maximum matching planned notices, between 1 and 6",
+          "default": "4"
+        },
+        {
+          "name": "line",
+          "type": "string",
+          "usage": "Native ID or exact name; scheduled work is distinct from current suspensions"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "usage": "Source region used to resolve the exact native line identity",
+          "default": "kanto"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "playbook",
+      "use": "playbook",
+      "short": "Inspect or amend stored CLI playbooks",
+      "annotations": {
+        "pp:parent-group": "true"
+      },
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "amend",
+          "use": "amend",
+          "short": "Append a note to an existing playbook (LLM-fired self-correction, silent)",
+          "annotations": {
+            "mcp:local-write": "true",
+            "pp:happy-args": "--query=find items in category;--add-note=example correction",
+            "pp:typed-exit-codes": "0,2"
+          },
+          "flags": [
+            {
+              "name": "add-note",
+              "type": "string",
+              "usage": "The note text to append to the family's playbook (required)"
+            },
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "Database path (default: standard cache location)"
+            },
+            {
+              "name": "query",
+              "type": "string",
+              "usage": "The exact recall query whose family should be amended (required)"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "list",
+          "use": "list",
+          "short": "List stored playbooks (query_family, content presence, last observed)",
+          "annotations": {
+            "mcp:read-only": "true"
+          },
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "Database path (default: standard cache location)"
+            }
+          ],
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "profile",
+      "use": "profile",
+      "short": "Named sets of flags saved for reuse",
+      "annotations": {
+        "pp:parent-group": "true"
+      },
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "delete",
+          "use": "delete \u003cname\u003e",
+          "short": "Remove a profile",
+          "runnable": true
+        },
+        {
+          "name": "list",
+          "use": "list",
+          "short": "List saved profiles",
+          "annotations": {
+            "mcp:read-only": "true"
+          },
+          "runnable": true
+        },
+        {
+          "name": "save",
+          "use": "save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...]",
+          "short": "Save the current invocation's non-default flags as a named profile",
+          "flags": [
+            {
+              "name": "description",
+              "type": "string",
+              "usage": "Short description shown in 'profile list'"
+            }
+          ],
+          "runnable": true
+        },
+        {
+          "name": "show",
+          "use": "show \u003cname\u003e",
+          "short": "Show a profile's values as JSON",
+          "annotations": {
+            "mcp:read-only": "true"
+          },
+          "runnable": true
+        },
+        {
+          "name": "use",
+          "use": "use \u003cname\u003e",
+          "short": "Print the flag values a profile will apply (does not execute anything)",
+          "runnable": true
+        }
+      ]
+    },
+    {
+      "name": "recall",
+      "use": "recall \u003cquery\u003e",
+      "short": "Check prior learnings for a query before running discovery (LLM-fired, pre-discovery)",
+      "annotations": {
+        "mcp:read-only": "true"
+      },
+      "flags": [
+        {
+          "name": "db",
+          "type": "string",
+          "usage": "SQLite database file path (default: resolved data directory data.db)"
+        },
+        {
+          "name": "debug-mismatches",
+          "type": "bool",
+          "usage": "Include cross-entity mismatches in the envelope under mismatches[]",
+          "default": "false"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "usage": "Maximum number of learnings to return",
+          "default": "10"
+        },
+        {
+          "name": "min-confidence",
+          "type": "int",
+          "usage": "Minimum confidence to include in results",
+          "default": "1"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "sources",
+      "use": "sources",
+      "short": "Read official status and certificate guide links.",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:method": "GET",
+        "pp:path": "/train_info/e/service.aspx"
+      },
+      "runnable": true
+    },
+    {
+      "name": "status",
+      "use": "status",
+      "short": "Inspect disruptions, directions, sections and bilingual source evidence",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:data-source": "live",
+        "pp:happy-args": "--line=sobuline;--region=kanto;--agent=true"
+      },
+      "flags": [
+        {
+          "name": "limit",
+          "type": "int",
+          "usage": "Maximum notice facts for the selected line, between 1 and 20",
+          "default": "10"
+        },
+        {
+          "name": "line",
+          "type": "string",
+          "usage": "Native ID, exact bilingual name or region:line ID; resolve IDs using lines"
+        },
+        {
+          "name": "max-source-age",
+          "type": "string",
+          "usage": "Maximum accepted source page age; supports 1s through 24h",
+          "default": "15m"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "usage": "Source area; a region prefix in --line selects the area",
+          "default": "kanto"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "teach",
+      "use": "teach",
+      "short": "Record a query -\u003e resource mapping for future recall (LLM-fired, silent)",
+      "annotations": {
+        "mcp:local-write": "true",
+        "pp:happy-args": "--query=find items in category;--resource-type=items;--resource=GROUP-category",
+        "pp:typed-exit-codes": "0,2"
+      },
+      "flags": [
+        {
+          "name": "db",
+          "type": "string",
+          "usage": "SQLite database file path (default: resolved data directory data.db)"
+        },
+        {
+          "name": "no-validate",
+          "type": "bool",
+          "usage": "Suppress teach-time resource-shape validation (warnings to teach.log)",
+          "default": "false"
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "usage": "Optional free-form note recorded in the audit log"
+        },
+        {
+          "name": "playbook-file",
+          "type": "string",
+          "usage": "Optional path to a JSON playbook recording the CLI choreography for this query family"
+        },
+        {
+          "name": "playbook-json",
+          "type": "string",
+          "usage": "Optional inline JSON playbook (mutually exclusive with --playbook-file; for agents without filesystem access)"
+        },
+        {
+          "name": "playbook-notes",
+          "type": "string",
+          "usage": "Optional inline gotchas/workarounds for this query family (stored alongside the playbook)"
+        },
+        {
+          "name": "playbook-notes-file",
+          "type": "string",
+          "usage": "Optional path to a markdown file with playbook notes"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "usage": "User's original natural-language question (required)"
+        },
+        {
+          "name": "quiet",
+          "type": "bool",
+          "usage": "Silent on success (default true — designed for background invocation)",
+          "default": "true"
+        },
+        {
+          "name": "resource",
+          "type": "stringSlice",
+          "usage": "Resource ID — repeat for multiple (required)",
+          "default": "[]"
+        },
+        {
+          "name": "resource-type",
+          "type": "string",
+          "usage": "Resource type (required; e.g. matches a row in the local resources table)"
+        },
+        {
+          "name": "venue",
+          "type": "string",
+          "usage": "Optional venue scope tag stored with the learning"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "teach-lookup",
+      "use": "teach-lookup",
+      "short": "Install a manual entity-lookup row (kind, canonical, value)",
+      "annotations": {
+        "mcp:local-write": "true",
+        "pp:happy-args": "--kind=country;--canonical=United States;--value=USA",
+        "pp:typed-exit-codes": "0,2"
+      },
+      "flags": [
+        {
+          "name": "canonical",
+          "type": "string",
+          "usage": "Canonical entity name (required)"
+        },
+        {
+          "name": "db",
+          "type": "string",
+          "usage": "SQLite database file path (default: resolved data directory data.db)"
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "usage": "Entity kind, e.g. country, team (required, must not be a computed kind)"
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "usage": "Value/alias that should resolve to the canonical (required)"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "teach-pattern",
+      "use": "teach-pattern",
+      "short": "Install a manual generalization pattern (query_template, resource_template, entity_kind)",
+      "annotations": {
+        "mcp:local-write": "true",
+        "pp:happy-args": "--query-template=items in {entity};--resource-template=GROUP-{entity:category};--resource-type=items;--entity-kind=category;--strategy=substitute",
+        "pp:typed-exit-codes": "0,2"
+      },
+      "flags": [
+        {
+          "name": "db",
+          "type": "string",
+          "usage": "SQLite database file path (default: resolved data directory data.db)"
+        },
+        {
+          "name": "entity-kind",
+          "type": "string",
+          "usage": "Entity kind name registered in entity_lookups (required)"
+        },
+        {
+          "name": "query-template",
+          "type": "string",
+          "usage": "Query template with {entity} placeholder (required)"
+        },
+        {
+          "name": "resource-template",
+          "type": "string",
+          "usage": "Resource template with typed entity slot, e.g. PREFIX-{entity:country} (required)"
+        },
+        {
+          "name": "resource-type",
+          "type": "string",
+          "usage": "Resource type for substituted IDs (required)"
+        },
+        {
+          "name": "strategy",
+          "type": "string",
+          "usage": "Substitution strategy: substitute | substitute-then-search-prefix (default substitute)"
+        },
+        {
+          "name": "venue",
+          "type": "string",
+          "usage": "Optional venue scope tag"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "teach-playbook",
+      "use": "teach-playbook",
+      "short": "Record a CLI playbook + free-text notes for a query family",
+      "annotations": {
+        "mcp:local-write": "true",
+        "pp:happy-args": "--query=find items in category;--notes=example playbook note",
+        "pp:typed-exit-codes": "0,2"
+      },
+      "flags": [
+        {
+          "name": "db",
+          "type": "string",
+          "usage": "Database path (default: standard cache location)"
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "usage": "Free-text notes (gotchas, workarounds) -- mutually exclusive with --notes-file"
+        },
+        {
+          "name": "notes-file",
+          "type": "string",
+          "usage": "Path to a markdown file with the notes"
+        },
+        {
+          "name": "playbook-file",
+          "type": "string",
+          "usage": "Path to a JSON file with the playbook (steps, entity_slots, expected_tool_calls)"
+        },
+        {
+          "name": "playbook-json",
+          "type": "string",
+          "usage": "Inline playbook JSON (steps, entity_slots, expected_tool_calls) -- mutually exclusive with --playbook-file"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "usage": "Example query that anchors the family (required)"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "version",
+      "use": "version",
+      "short": "Print version",
+      "runnable": true
+    },
+    {
+      "name": "which",
+      "use": "which [query]",
+      "short": "Find the command that implements a capability",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:typed-exit-codes": "0,2"
+      },
+      "flags": [
+        {
+          "name": "limit",
+          "type": "int",
+          "usage": "Maximum number of matches to return",
+          "default": "3"
+        }
+      ],
+      "runnable": true
+    },
+    {
+      "name": "workflow",
+      "use": "workflow",
+      "short": "Compound workflows that combine multiple API operations",
+      "annotations": {
+        "mcp:read-only": "true",
+        "pp:parent-group": "true"
+      },
+      "runnable": true,
+      "subcommands": [
+        {
+          "name": "status",
+          "use": "status",
+          "short": "Show local archive status and sync state for all resources",
+          "annotations": {
+            "mcp:read-only": "true"
+          },
+          "flags": [
+            {
+              "name": "db",
+              "type": "string",
+              "usage": "SQLite database file path (default: resolved data directory data.db)"
+            }
+          ],
+          "runnable": true
+        }
+      ]
+    }
+  ],
+  "available_profiles": [],
+  "feedback_endpoint_configured": false,
+  "learn_protocol": "1. Recall first: before answering a domain query, pass the question as an argv or MCP argument to recall --agent (never interpolate user-controlled text into a shell command line, quoted string, or heredoc: an apostrophe breaks quotes, and a body line equal to the delimiter breaks a heredoc). If a shell is required, write the question with a non-shell file tool, then QUERY=$(cat /path/to/question.txt) \u0026\u0026 recall \"$QUERY\" --agent. Apply any verified learnings, playbook steps, and notes it returns.\n2. Empty-store short-circuit: if the store has no learnings, playbooks, or candidates yet (recall finds nothing and learnings list and learnings candidates are both empty), skip recall for the rest of this session instead of taxing every query; resume recall-first once something has been taught.\n3. Candidates are try-then-confirm, never facts: entries in the recall envelope's candidates section are unverified. Follow each candidate's two-step next_action verbatim: run the trial command first, then run learnings confirm \u003cid\u003e only after the trial verified the behavior. Reject a wrong candidate with learnings reject \u003cid\u003e.\n4. Teach contract: after resolving a query the store could not answer, teach the structural query shape with identifiers stripped: never include names, emails, phone numbers, account ids, or other personal identifiers in taught queries or notes. Pass the query the same argv/MCP way as recall, or write it with a non-shell file tool then QUERY=$(cat /path/to/question.txt) \u0026\u0026 teach --query \"$QUERY\"; do not splice it into a shell command.\n5. Never re-teach what recall already surfaced as a candidate: confirm or reject that candidate instead of teaching a duplicate."
+}

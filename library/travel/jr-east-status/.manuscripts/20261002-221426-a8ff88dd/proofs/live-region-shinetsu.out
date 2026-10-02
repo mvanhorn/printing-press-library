@@ -1,0 +1,327 @@
+{
+  "meta": {
+    "source": "live",
+    "observed_at": "2026-10-03T01:37:56+09:00",
+    "coverage": {
+      "timezone": "Asia/Tokyo (UTC+09:00)",
+      "reporting_hours": "04:00–02:00 following day JST",
+      "reporting_state": "open",
+      "reporting_service_day": "2026-10-02",
+      "english_delay_threshold": "anticipated or actual delay in excess of 30 minutes",
+      "japanese_delay_threshold": "anticipated or actual delay of 30 minutes or more",
+      "threshold_language_difference": true,
+      "actual_delay_minutes": null,
+      "normal_label_meaning": "General source label; does not establish zero delay or an individual train's punctuality.",
+      "brt_coverage": "Long suspensions only; other BRT lateness is outside this reporting coverage.",
+      "source_url": "https://traininfo.jreast.co.jp/train_info/e/"
+    },
+    "request_count": 2,
+    "max_requests": 2,
+    "sources": [
+      {
+        "url": "https://traininfo.jreast.co.jp/train_info/shinetsu.aspx",
+        "language": "ja",
+        "observed_at": "2026-10-03T01:37:56+09:00",
+        "source_updated_at": "2026-10-03T01:37:00+09:00",
+        "freshness": "fresh",
+        "age_seconds": 56,
+        "reporting_state": "open",
+        "scanned_rows": 15
+      },
+      {
+        "url": "https://traininfo.jreast.co.jp/train_info/e/shinetsu.aspx",
+        "language": "en",
+        "observed_at": "2026-10-03T01:37:56+09:00",
+        "source_updated_at": "2026-10-03T01:37:00+09:00",
+        "freshness": "fresh",
+        "age_seconds": 56,
+        "reporting_state": "open",
+        "scanned_rows": 15
+      }
+    ],
+    "fetch_failures": [],
+    "truncated": false
+  },
+  "results": [
+    {
+      "identity_source": "live_source",
+      "id": "shinetsu:uetsuline",
+      "source_id": "uetsuline",
+      "region": "shinetsu",
+      "name_ja": "羽越本線",
+      "name_en": "Uetsu Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=5\u0026lineid=uetsuline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/shinetsu.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "shinetsu:shin-etsuline_shin-etsu",
+      "source_id": "shin-etsuline_shin-etsu",
+      "region": "shinetsu",
+      "name_ja": "信越本線",
+      "name_en": "Shin-etsu Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=5\u0026lineid=shin-etsuline_shin-etsu",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/shinetsu.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "shinetsu:joetsuline",
+      "source_id": "joetsuline",
+      "region": "shinetsu",
+      "name_ja": "上越線",
+      "name_en": "Jōetsu Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=5\u0026lineid=joetsuline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/shinetsu.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "shinetsu:shinonoiline",
+      "source_id": "shinonoiline",
+      "region": "shinetsu",
+      "name_ja": "篠ノ井線",
+      "name_en": "Shinonoi Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=5\u0026lineid=shinonoiline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/shinetsu.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "shinetsu:chuoline",
+      "source_id": "chuoline",
+      "region": "shinetsu",
+      "name_ja": "中央本線",
+      "name_en": "Chūō Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=5\u0026lineid=chuoline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/shinetsu.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "shinetsu:hakushinline",
+      "source_id": "hakushinline",
+      "region": "shinetsu",
+      "name_ja": "白新線",
+      "name_en": "Hakushin Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=5\u0026lineid=hakushinline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/shinetsu.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "shinetsu:ban-etsu-westline",
+      "source_id": "ban-etsu-westline",
+      "region": "shinetsu",
+      "name_ja": "磐越西線",
+      "name_en": "Ban-etsu-West Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=5\u0026lineid=ban-etsu-westline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/shinetsu.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "shinetsu:iiyamaline",
+      "source_id": "iiyamaline",
+      "region": "shinetsu",
+      "name_ja": "飯山線",
+      "name_en": "Iiyama Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=5\u0026lineid=iiyamaline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/shinetsu.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "shinetsu:echigoline",
+      "source_id": "echigoline",
+      "region": "shinetsu",
+      "name_ja": "越後線",
+      "name_en": "Echigo Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "notice"
+      ],
+      "assessment": "planned_notice",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 2,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=5\u0026lineid=echigoline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/shinetsu.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "shinetsu:oitoline",
+      "source_id": "oitoline",
+      "region": "shinetsu",
+      "name_ja": "大糸線",
+      "name_en": "Ōito Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "notice"
+      ],
+      "assessment": "planned_notice",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 2,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=5\u0026lineid=oitoline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/shinetsu.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "shinetsu:koumiline",
+      "source_id": "koumiline",
+      "region": "shinetsu",
+      "name_ja": "小海線",
+      "name_en": "Koumi Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "notice"
+      ],
+      "assessment": "planned_notice",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 2,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=5\u0026lineid=koumiline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/shinetsu.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "shinetsu:tadamiline",
+      "source_id": "tadamiline",
+      "region": "shinetsu",
+      "name_ja": "只見線",
+      "name_en": "Tadami Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "notice"
+      ],
+      "assessment": "notice",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 2,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=5\u0026lineid=tadamiline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/shinetsu.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "shinetsu:yahikoline",
+      "source_id": "yahikoline",
+      "region": "shinetsu",
+      "name_ja": "弥彦線",
+      "name_en": "Yahiko Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=5\u0026lineid=yahikoline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/shinetsu.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "shinetsu:yonesakaline",
+      "source_id": "yonesakaline",
+      "region": "shinetsu",
+      "name_ja": "米坂線",
+      "name_en": "Yonesaka Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "notice"
+      ],
+      "assessment": "notice",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 4,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=5\u0026lineid=yonesakaline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/shinetsu.aspx"
+    }
+  ]
+}

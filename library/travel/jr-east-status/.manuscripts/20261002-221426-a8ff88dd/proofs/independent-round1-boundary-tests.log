@@ -1,0 +1,20 @@
+=== RUN   TestReviewerJapaneseVoicingDistinct
+--- PASS: TestReviewerJapaneseVoicingDistinct (0.00s)
+=== RUN   TestReviewerObservedTokaidoPlannedHeading
+--- PASS: TestReviewerObservedTokaidoPlannedHeading (0.00s)
+=== RUN   TestReviewerMixedSourceYearsStayUnknown
+--- PASS: TestReviewerMixedSourceYearsStayUnknown (0.00s)
+=== RUN   TestReviewerPlannedCellClippingSignal
+    reviewer_probes_test.go:21: cell text silently clipped to 161 runes, parser reports clipped=false
+--- FAIL: TestReviewerPlannedCellClippingSignal (0.00s)
+FAIL
+FAIL	jr-east-status-pp-cli/internal/jreast	0.477s
+=== RUN   TestReviewerClosedSourceClassification
+--- PASS: TestReviewerClosedSourceClassification (0.50s)
+=== RUN   TestReviewerPlannedTruncationSignal
+--- PASS: TestReviewerPlannedTruncationSignal (1.00s)
+=== RUN   TestReviewerNativeTimeoutHonored
+--- PASS: TestReviewerNativeTimeoutHonored (0.02s)
+PASS
+ok  	jr-east-status-pp-cli/internal/cli	2.027s
+FAIL

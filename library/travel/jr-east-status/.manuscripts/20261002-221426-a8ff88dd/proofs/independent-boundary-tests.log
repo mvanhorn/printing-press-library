@@ -1,0 +1,19 @@
+=== RUN   TestReviewerJapaneseVoicingDistinct
+    reviewer_probes_test.go:4: Japanese dakuten collapsed: "わかしお・ささなみ"
+--- FAIL: TestReviewerJapaneseVoicingDistinct (0.00s)
+=== RUN   TestReviewerObservedTokaidoPlannedHeading
+    reviewer_probes_test.go:10: Observed JR East heading missed for tokaidoline (東海道線): matches=0 error=<nil>
+--- FAIL: TestReviewerObservedTokaidoPlannedHeading (0.00s)
+FAIL
+FAIL	jr-east-status-pp-cli/internal/jreast	0.413s
+=== RUN   TestReviewerClosedSourceClassification
+    reviewer_probes_test.go:24: explicit closed source classified as line_not_found; error=no requested component was verified; inspect meta.fetch_failures, source_states=[{URL:https://traininfo.jreast.co.jp/train_info/kanto.aspx Language:ja ObservedAt:2026-10-03T01:13:32+09:00 UpdatedAt: Freshness:missing_timestamp AgeSeconds:<nil> ReportingState:outside_reporting_hours ScannedRows:0} {URL:https://traininfo.jreast.co.jp/train_info/e/kanto.aspx Language:en ObservedAt:2026-10-03T01:13:32+09:00 UpdatedAt: Freshness:missing_timestamp AgeSeconds:<nil> ReportingState:outside_reporting_hours ScannedRows:0}]
+--- FAIL: TestReviewerClosedSourceClassification (0.50s)
+=== RUN   TestReviewerPlannedTruncationSignal
+    reviewer_probes_test.go:32: meta.truncated=false with 6 of 7 notices and 12 of 13 table rows retained
+--- FAIL: TestReviewerPlannedTruncationSignal (1.00s)
+=== RUN   TestReviewerNativeTimeoutHonored
+--- PASS: TestReviewerNativeTimeoutHonored (0.02s)
+FAIL
+FAIL	jr-east-status-pp-cli/internal/cli	2.039s
+FAIL

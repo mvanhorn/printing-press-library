@@ -1,0 +1,159 @@
+{
+  "meta": {
+    "source": "live",
+    "observed_at": "2026-10-03T00:21:53+09:00",
+    "coverage": {
+      "timezone": "Asia/Tokyo (UTC+09:00)",
+      "reporting_hours": "04:00–02:00 following day JST",
+      "reporting_state": "open",
+      "reporting_service_day": "2026-10-02",
+      "english_delay_threshold": "anticipated or actual delay in excess of 30 minutes",
+      "japanese_delay_threshold": "anticipated or actual delay of 30 minutes or more",
+      "threshold_language_difference": true,
+      "actual_delay_minutes": null,
+      "normal_label_meaning": "General source label; does not establish zero delay or an individual train's punctuality.",
+      "brt_coverage": "Long suspensions only; other BRT lateness is outside this reporting coverage.",
+      "source_url": "https://traininfo.jreast.co.jp/train_info/e/"
+    },
+    "request_count": 2,
+    "max_requests": 4,
+    "sources": [
+      {
+        "url": "https://traininfo.jreast.co.jp/train_info/kanto.aspx",
+        "language": "ja",
+        "observed_at": "2026-10-03T00:21:53+09:00",
+        "source_updated_at": "2026-10-03T00:19:00+09:00",
+        "freshness": "fresh",
+        "age_seconds": 173,
+        "reporting_state": "open",
+        "scanned_rows": 59
+      },
+      {
+        "url": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx",
+        "language": "en",
+        "observed_at": "2026-10-03T00:21:53+09:00",
+        "source_updated_at": "2026-10-03T00:21:00+09:00",
+        "freshness": "fresh",
+        "age_seconds": 53,
+        "reporting_state": "open",
+        "scanned_rows": 59
+      }
+    ],
+    "fetch_failures": [],
+    "note": "Affected direction comes from notice text; source_groups are navigation categories. Actual individual train delay remains unknown. English notices may use AI translation.",
+    "truncated": false
+  },
+  "results": [
+    {
+      "id": "kanto:sobuline",
+      "source_id": "sobuline",
+      "region": "kanto",
+      "name_ja": "総武本線",
+      "name_en": "Sōbu Line",
+      "source_groups": [
+        {
+          "id": "direction_soubu",
+          "name_ja": "総武方面",
+          "name_en": "Bound for Sobu"
+        }
+      ],
+      "reported_statuses": [
+        "suspended",
+        "notice",
+        "partial_cancellation"
+      ],
+      "assessment": "reported_suspended",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 4,
+      "notices": [
+        {
+          "source_group_id": "direction_soubu",
+          "status": "suspended",
+          "source_label": "運転見合わせ",
+          "language": "ja",
+          "direction": "both",
+          "affected_sections": [
+            {
+              "from": "八街",
+              "to": "成東",
+              "language": "ja"
+            }
+          ],
+          "cause": "台風25号",
+          "planned_work": false,
+          "source_date_expressions": [],
+          "calendar_year": null,
+          "time_approximate": false,
+          "replacement_transport": "unknown",
+          "source_url": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=sobuline"
+        },
+        {
+          "source_group_id": "direction_soubu",
+          "status": "notice",
+          "source_label": "お知らせ",
+          "language": "ja",
+          "direction": "unknown",
+          "affected_sections": [
+            {
+              "from": "八街",
+              "to": "成東",
+              "language": "ja"
+            }
+          ],
+          "planned_work": false,
+          "source_date_expressions": [],
+          "calendar_year": null,
+          "time_approximate": false,
+          "replacement_transport": "bus_reported",
+          "source_url": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=sobuline"
+        },
+        {
+          "source_group_id": "direction_soubu",
+          "status": "partial_cancellation",
+          "source_label": "一部運休",
+          "language": "ja",
+          "direction": "unknown",
+          "affected_sections": [
+            {
+              "from": "千葉",
+              "to": "八街",
+              "language": "ja"
+            }
+          ],
+          "cause": "台風25号",
+          "planned_work": false,
+          "source_date_expressions": [],
+          "calendar_year": null,
+          "time_approximate": false,
+          "replacement_transport": "unknown",
+          "source_url": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=sobuline"
+        },
+        {
+          "source_group_id": "direction_soubu",
+          "status": "partial_cancellation",
+          "source_label": "一部運休",
+          "language": "ja",
+          "direction": "unknown",
+          "affected_sections": [
+            {
+              "from": "成東",
+              "to": "銚子",
+              "language": "ja"
+            }
+          ],
+          "cause": "台風25号",
+          "planned_work": false,
+          "source_date_expressions": [],
+          "calendar_year": null,
+          "time_approximate": false,
+          "replacement_transport": "unknown",
+          "source_url": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=sobuline"
+        }
+      ],
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=sobuline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+    }
+  ]
+}

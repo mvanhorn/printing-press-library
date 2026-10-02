@@ -1,0 +1,668 @@
+{
+  "meta": {
+    "source": "live",
+    "observed_at": "2026-10-03T01:37:55+09:00",
+    "coverage": {
+      "timezone": "Asia/Tokyo (UTC+09:00)",
+      "reporting_hours": "04:00–02:00 following day JST",
+      "reporting_state": "open",
+      "reporting_service_day": "2026-10-02",
+      "english_delay_threshold": "anticipated or actual delay in excess of 30 minutes",
+      "japanese_delay_threshold": "anticipated or actual delay of 30 minutes or more",
+      "threshold_language_difference": true,
+      "actual_delay_minutes": null,
+      "normal_label_meaning": "General source label; does not establish zero delay or an individual train's punctuality.",
+      "brt_coverage": "Long suspensions only; other BRT lateness is outside this reporting coverage.",
+      "source_url": "https://traininfo.jreast.co.jp/train_info/e/"
+    },
+    "request_count": 2,
+    "max_requests": 2,
+    "sources": [
+      {
+        "url": "https://traininfo.jreast.co.jp/train_info/tohoku.aspx",
+        "language": "ja",
+        "observed_at": "2026-10-03T01:37:55+09:00",
+        "source_updated_at": "2026-10-03T01:37:00+09:00",
+        "freshness": "fresh",
+        "age_seconds": 55,
+        "reporting_state": "open",
+        "scanned_rows": 37
+      },
+      {
+        "url": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx",
+        "language": "en",
+        "observed_at": "2026-10-03T01:37:55+09:00",
+        "source_updated_at": "2026-10-03T01:37:00+09:00",
+        "freshness": "fresh",
+        "age_seconds": 55,
+        "reporting_state": "open",
+        "scanned_rows": 37
+      }
+    ],
+    "fetch_failures": [],
+    "truncated": false
+  },
+  "results": [
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:uetsuline",
+      "source_id": "uetsuline",
+      "region": "tohoku",
+      "name_ja": "羽越本線",
+      "name_en": "Uetsu Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=uetsuline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:ouline",
+      "source_id": "ouline",
+      "region": "tohoku",
+      "name_ja": "奥羽本線",
+      "name_en": "Ōu Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "notice"
+      ],
+      "assessment": "notice",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 8,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=ouline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:ouline_yamagataline",
+      "source_id": "ouline_yamagataline",
+      "region": "tohoku",
+      "name_ja": "奥羽本線（山形線）",
+      "name_en": "Ōu Line(Yamagata Line)",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=ouline_yamagataline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:jobanline",
+      "source_id": "jobanline",
+      "region": "tohoku",
+      "name_ja": "常磐線",
+      "name_en": "Jōban Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=jobanline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:senzanline",
+      "source_id": "senzanline",
+      "region": "tohoku",
+      "name_ja": "仙山線",
+      "name_en": "Senzan Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=senzanline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:sensekiline",
+      "source_id": "sensekiline",
+      "region": "tohoku",
+      "name_ja": "仙石線",
+      "name_en": "Senseki Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=sensekiline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:senseki-tohokuline",
+      "source_id": "senseki-tohokuline",
+      "region": "tohoku",
+      "name_ja": "仙石東北ライン",
+      "name_en": "Senseki-Tōhoku Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=senseki-tohokuline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:tohokuline",
+      "source_id": "tohokuline",
+      "region": "tohoku",
+      "name_ja": "東北本線",
+      "name_en": "Tōhoku Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=tohokuline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:ban-etsu-westline",
+      "source_id": "ban-etsu-westline",
+      "region": "tohoku",
+      "name_ja": "磐越西線",
+      "name_en": "Ban-etsu-West Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=ban-etsu-westline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:aterazawaline",
+      "source_id": "aterazawaline",
+      "region": "tohoku",
+      "name_ja": "左沢線",
+      "name_en": "Aterazawa Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "notice"
+      ],
+      "assessment": "notice",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 2,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=aterazawaline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:ishinomakiline",
+      "source_id": "ishinomakiline",
+      "region": "tohoku",
+      "name_ja": "石巻線",
+      "name_en": "Ishinomaki Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "notice"
+      ],
+      "assessment": "notice",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 2,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=ishinomakiline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:ofunatoline",
+      "source_id": "ofunatoline",
+      "region": "tohoku",
+      "name_ja": "大船渡線",
+      "name_en": "Ōfunato Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "notice"
+      ],
+      "assessment": "notice",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 2,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=ofunatoline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:ofunatoline_brt",
+      "source_id": "ofunatoline_brt",
+      "region": "tohoku",
+      "name_ja": "大船渡線ＢＲＴ",
+      "name_en": "Ōfunato Line BRT",
+      "source_groups": [],
+      "reported_statuses": [
+        "notice"
+      ],
+      "assessment": "notice",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 2,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=ofunatoline_brt",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:ominatoline",
+      "source_id": "ominatoline",
+      "region": "tohoku",
+      "name_ja": "大湊線",
+      "name_en": "Ōminato Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=ominatoline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:ogaline",
+      "source_id": "ogaline",
+      "region": "tohoku",
+      "name_ja": "男鹿線",
+      "name_en": "Oga Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "notice"
+      ],
+      "assessment": "notice",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 2,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=ogaline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:kamaishiline",
+      "source_id": "kamaishiline",
+      "region": "tohoku",
+      "name_ja": "釜石線",
+      "name_en": "Kamaishi Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "notice"
+      ],
+      "assessment": "notice",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 2,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=kamaishiline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:kitakamiline",
+      "source_id": "kitakamiline",
+      "region": "tohoku",
+      "name_ja": "北上線",
+      "name_en": "Kitakami Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "suspended",
+        "notice"
+      ],
+      "assessment": "reported_suspended",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 6,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=kitakamiline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:kesennumaline",
+      "source_id": "kesennumaline",
+      "region": "tohoku",
+      "name_ja": "気仙沼線",
+      "name_en": "Kesennuma Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "notice"
+      ],
+      "assessment": "notice",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 2,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=kesennumaline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:kesennumaline_brt",
+      "source_id": "kesennumaline_brt",
+      "region": "tohoku",
+      "name_ja": "気仙沼線ＢＲＴ",
+      "name_en": "Kesennuma Line BRT",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=kesennumaline_brt",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:gonoline",
+      "source_id": "gonoline",
+      "region": "tohoku",
+      "name_ja": "五能線",
+      "name_en": "Gonō Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=gonoline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:suigunline",
+      "source_id": "suigunline",
+      "region": "tohoku",
+      "name_ja": "水郡線",
+      "name_en": "Suigun Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=suigunline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:tazawakoline",
+      "source_id": "tazawakoline",
+      "region": "tohoku",
+      "name_ja": "田沢湖線",
+      "name_en": "Tazawako Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=tazawakoline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:tadamiline",
+      "source_id": "tadamiline",
+      "region": "tohoku",
+      "name_ja": "只見線",
+      "name_en": "Tadami Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "notice"
+      ],
+      "assessment": "notice",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 2,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=tadamiline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:tsugaruline",
+      "source_id": "tsugaruline",
+      "region": "tohoku",
+      "name_ja": "津軽線",
+      "name_en": "Tsugaru Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "notice"
+      ],
+      "assessment": "notice",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 2,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=tsugaruline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:hachinoheline",
+      "source_id": "hachinoheline",
+      "region": "tohoku",
+      "name_ja": "八戸線",
+      "name_en": "Hachinohe Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=hachinoheline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:hanawaline",
+      "source_id": "hanawaline",
+      "region": "tohoku",
+      "name_ja": "花輪線",
+      "name_en": "Hanawa Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "notice"
+      ],
+      "assessment": "notice",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 2,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=hanawaline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:ban-etsu-eastline",
+      "source_id": "ban-etsu-eastline",
+      "region": "tohoku",
+      "name_ja": "磐越東線",
+      "name_en": "Ban-etsu-East Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=ban-etsu-eastline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:yamadaline",
+      "source_id": "yamadaline",
+      "region": "tohoku",
+      "name_ja": "山田線",
+      "name_en": "Yamada Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "notice"
+      ],
+      "assessment": "notice",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 2,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=yamadaline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:yonesakaline",
+      "source_id": "yonesakaline",
+      "region": "tohoku",
+      "name_ja": "米坂線",
+      "name_en": "Yonesaka Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "notice"
+      ],
+      "assessment": "notice",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 4,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=yonesakaline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:riku-westline",
+      "source_id": "riku-westline",
+      "region": "tohoku",
+      "name_ja": "陸羽西線",
+      "name_en": "Rikū-West Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "assessment": "normal_label_only",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 0,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=riku-westline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    },
+    {
+      "identity_source": "live_source",
+      "id": "tohoku:riku-eastline",
+      "source_id": "riku-eastline",
+      "region": "tohoku",
+      "name_ja": "陸羽東線",
+      "name_en": "Rikū-East Line",
+      "source_groups": [],
+      "reported_statuses": [
+        "notice"
+      ],
+      "assessment": "notice",
+      "actual_delay_minutes": null,
+      "status_language_conflict": false,
+      "english_identity_mapped": true,
+      "notice_fact_count": 2,
+      "notices": null,
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=4\u0026lineid=riku-eastline",
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/tohoku.aspx"
+    }
+  ]
+}

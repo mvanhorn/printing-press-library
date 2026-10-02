@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "printing_press_version": "4.32.5",
+  "audit_behavior": "Installed tools-audit emits diagnostics; it does not create or consume a ledger. Decisions are recorded here without claiming binary filtering.",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; needs generator-template fix. Short identifies the list of local client profiles; domain reads use no profile credentials."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 868,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; needs generator-template fix. Short identifies inspection of the local learning rows; flags specify the optional local filters."
+    }
+  ],
+  "pending_count": 0
+}

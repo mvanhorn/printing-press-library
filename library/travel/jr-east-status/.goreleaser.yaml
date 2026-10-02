@@ -1,0 +1,55 @@
+version: 2
+project_name: jr-east-status-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: jr-east-status-pp-cli
+    main: ./cmd/jr-east-status-pp-cli
+    binary: jr-east-status-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/jr-east-status/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: jr-east-status-pp-mcp
+    main: ./cmd/jr-east-status-pp-mcp
+    binary: jr-east-status-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: jr-east-status-pp-cli
+    repository:
+      owner: zjsng
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Compare JR East line impacts with bilingual identity, source freshness and reporting limits."
+    install: |
+      bin.install "jr-east-status-pp-cli"
+      bin.install "jr-east-status-pp-mcp"

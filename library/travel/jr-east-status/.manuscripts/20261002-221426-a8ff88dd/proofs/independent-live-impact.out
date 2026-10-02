@@ -1,0 +1,122 @@
+{
+  "meta": {
+    "coverage": {
+      "actual_delay_minutes": null,
+      "brt_coverage": "Long suspensions only; other BRT lateness is outside this reporting coverage.",
+      "english_delay_threshold": "anticipated or actual delay in excess of 30 minutes",
+      "japanese_delay_threshold": "anticipated or actual delay of 30 minutes or more",
+      "normal_label_meaning": "General source label; does not establish zero delay or an individual train's punctuality.",
+      "reporting_hours": "04:00–02:00 following day JST",
+      "reporting_service_day": "2026-10-02",
+      "reporting_state": "open",
+      "source_url": "https://traininfo.jreast.co.jp/train_info/e/",
+      "threshold_language_difference": true,
+      "timezone": "Asia/Tokyo (UTC+09:00)"
+    },
+    "fetch_failures": [
+      {
+        "error": "--line \"not-a-real-line\" was not found in this source region; run lines --region \u003cregion\u003e --query \"not-a-real-line\"",
+        "source": "kanto:not-a-real-line"
+      }
+    ],
+    "max_requests": 18,
+    "note": "Line-level comparison only; sections may cover part of a line. Normal labels, stale sources and absent notices cannot establish connection feasibility or zero delay.",
+    "observed_at": "2026-10-03T01:07:42+09:00",
+    "request_count": 2,
+    "source": "live",
+    "sources": [
+      {
+        "age_seconds": 222,
+        "freshness": "fresh",
+        "language": "ja",
+        "observed_at": "2026-10-03T01:07:42+09:00",
+        "reporting_state": "open",
+        "scanned_rows": 59,
+        "source_updated_at": "2026-10-03T01:04:00+09:00",
+        "url": "https://traininfo.jreast.co.jp/train_info/kanto.aspx"
+      },
+      {
+        "age_seconds": 222,
+        "freshness": "fresh",
+        "language": "en",
+        "observed_at": "2026-10-03T01:07:42+09:00",
+        "reporting_state": "open",
+        "scanned_rows": 59,
+        "source_updated_at": "2026-10-03T01:04:00+09:00",
+        "url": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+      }
+    ],
+    "truncated": false
+  },
+  "results": [
+    {
+      "actual_delay_minutes": null,
+      "assessment": "reported_suspended",
+      "english_identity_mapped": true,
+      "id": "kanto:sobuline",
+      "identity_source": "live_source",
+      "name_en": "Sōbu Line",
+      "name_ja": "総武本線",
+      "notice_fact_count": 8,
+      "region": "kanto",
+      "reported_statuses": [
+        "suspended",
+        "notice",
+        "partial_cancellation"
+      ],
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx",
+      "source_groups": [
+        {
+          "id": "direction_soubu",
+          "name_en": "Bound for Sobu",
+          "name_ja": "総武方面"
+        }
+      ],
+      "source_id": "sobuline",
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=sobuline",
+      "status_language_conflict": false
+    },
+    {
+      "actual_delay_minutes": null,
+      "assessment": "normal_label_only",
+      "english_identity_mapped": true,
+      "id": "kanto:yamanoteline",
+      "identity_source": "live_source",
+      "name_en": "Yamanote Line",
+      "name_ja": "山手線",
+      "notice_fact_count": 0,
+      "region": "kanto",
+      "reported_statuses": [
+        "normal_label"
+      ],
+      "source_en": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx",
+      "source_groups": [
+        {
+          "id": "direction_yamate",
+          "name_en": "Yamanote Line",
+          "name_ja": "山手線"
+        }
+      ],
+      "source_id": "yamanoteline",
+      "source_ja": "https://traininfo.jreast.co.jp/train_info/line.aspx?gid=1\u0026lineid=yamanoteline",
+      "status_language_conflict": false
+    },
+    {
+      "actual_delay_minutes": null,
+      "assessment": "line_not_found",
+      "english_identity_mapped": false,
+      "id": "kanto:not-a-real-line",
+      "identity_source": "",
+      "name_en": "",
+      "name_ja": "",
+      "notice_fact_count": 0,
+      "region": "kanto",
+      "reported_statuses": [],
+      "source_en": "",
+      "source_groups": [],
+      "source_id": "not-a-real-line",
+      "source_ja": "",
+      "status_language_conflict": false
+    }
+  ]
+}

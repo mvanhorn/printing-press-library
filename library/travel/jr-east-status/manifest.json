@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "jr-east-status-pp-mcp",
+  "display_name": "JR East Status",
+  "version": "0.1.0",
+  "description": "Compare JR East line impacts with bilingual identity, source freshness and reporting limits.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/jr-east-status-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/jr-east-status-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

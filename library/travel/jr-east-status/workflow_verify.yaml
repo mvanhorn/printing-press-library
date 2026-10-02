@@ -1,0 +1,27 @@
+# Press expect_fields checks top-level keys; extract supports indexed JSON paths.
+workflows:
+  - name: discover native identity and compare itinerary lines
+    primary: true
+    steps:
+      - command: areas --no-learn
+        mode: live
+        expect_fields: [meta, results]
+      - command: lines --region kanto --query Yamanote --no-learn
+        mode: live
+        extract:
+          selected_line: results[0].id
+        expect_fields: [meta, results]
+      - command: status --line ${selected_line} --no-learn
+        mode: live
+        expect_fields: [meta, results]
+      - command: impact --lines ${selected_line},shinkansen:tohokushinkansen --no-learn
+        mode: live
+        expect_fields: [meta, results]
+  - name: planned-work and currently published certificate handoffs
+    steps:
+      - command: planned --line koumiline --region kanto --no-learn
+        mode: live
+        expect_fields: [meta, results]
+      - command: certificates --line yamanoteline --no-learn
+        mode: live
+        expect_fields: [meta, results]

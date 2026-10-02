@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/jr-east-status-cli",
+  "research_dir": "\u003ccli-dir\u003e/20261002-221426-a8ff88dd",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

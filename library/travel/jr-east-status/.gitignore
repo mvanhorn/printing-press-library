@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/jr-east-status-pp-cli
+/jr-east-status-pp-cli.exe
+/jr-east-status-pp-mcp
+/jr-east-status-pp-mcp.exe
+/bin/
+/build/
+/dist/

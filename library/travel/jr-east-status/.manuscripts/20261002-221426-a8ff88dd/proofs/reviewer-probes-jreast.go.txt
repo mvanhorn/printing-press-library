@@ -1,0 +1,34 @@
+package jreast
+import ("testing";"strings";"context";"net/http")
+func TestReviewerJapaneseVoicingDistinct(t *testing.T){
+ if Normalize("わかしお・さざなみ")==Normalize("わかしお・ささなみ"){t.Fatalf("Japanese dakuten collapsed: %q",Normalize("わかしお・さざなみ"))}
+}
+
+func TestReviewerObservedTokaidoPlannedHeading(t *testing.T){
+ r,_:=RegionByID("kanto");l,e:=FindLine(ReferenceLines(r),"tokaidoline");if e!=nil{t.Fatal(e)}
+ body:=[]byte(`<section class="mb80"><h2>東海道本線 線路切換工事に伴う列車の時刻変更について</h2><p>東海道本線では大船～藤沢間での村岡新駅（仮称）設置に伴い、11月22日（日）昼間～23日（月・祝）早朝にかけて、線路切換工事を実施します。</p></section>`)
+ out,_,e:=ParsePlanned(body,l);if e!=nil||len(out)!=1{t.Fatalf("Observed JR East heading missed for %s (%s): matches=%d error=%v",l.SourceID,l.NameJA,len(out),e)}
+}
+
+func TestReviewerMixedSourceYearsStayUnknown(t *testing.T){
+ body:=[]byte(`<section class="mb80"><h2>東海道本線の工事</h2><p>11月22日（日）～23日（月・祝）の工事。10月13日（火）～2027年1月22日（金）の間、一部列車の時刻変更。</p></section>`)
+ l:=Line{ID:"kanto:tokaidoline",NameJA:"東海道線"};out,_,e:=ParsePlanned(body,l);if e!=nil||len(out)!=1||out[0].Year!=nil{t.Fatalf("mixed years inferred globally: out=%+v error=%v",out,e)}
+ n:=facts(row{Language:"ja",Status:"notice",Text:"工事により10月13日（火）～2027年1月22日（金）に時刻変更。"});if n.Year!=nil{t.Fatalf("mixed regional notice year=%v",*n.Year)}
+ if Normalize("Tōkaidō Line")!="tokaido line"{t.Fatal("Latin macron folding regressed")}
+}
+func TestReviewerPlannedCellClippingSignal(t *testing.T){
+ body:=[]byte(`<section class="mb80"><h2>小海線の工事</h2><table><tr><td>`+strings.Repeat("あ",161)+`</td><td>小淵沢～小海間</td></tr></table></section>`)
+ out,clipped,e:=ParsePlanned(body,Line{ID:"kanto:koumiline",NameJA:"小海線"});if e!=nil||len(out)!=1{t.Fatal(out,e)};if !clipped{t.Fatalf("cell text silently clipped to %d runes, parser reports clipped=false",len([]rune(out[0].Tables[0][0])))}
+}
+
+func TestReviewerNativeBudgetValidation(t *testing.T){
+ for _,budget:=range []int{-1,0,19}{
+  c:=NewClient(budget,2);c.Limiter=nil;called:=false
+  c.HTTP.Transport=roundTripFunc(func(r *http.Request)(*http.Response,error){called=true;return response(200,"ok"),nil})
+  _,e:=c.Get(context.Background(),Origin+"/train_info/kanto.aspx")
+  if e==nil||called||c.RequestCount()!=0{t.Fatalf("invalid budget %d made request=%v count=%d error=%v",budget,called,c.RequestCount(),e)}
+ }
+ c:=NewClient(18,2);c.Limiter=nil;c.HTTP.Transport=roundTripFunc(func(r *http.Request)(*http.Response,error){return response(200,"ok"),nil})
+ for i:=0;i<18;i++{if _,e:=c.Get(context.Background(),Origin+"/train_info/kanto.aspx");e!=nil{t.Fatal(i,e)}}
+ if _,e:=c.Get(context.Background(),Origin+"/train_info/kanto.aspx");e==nil||c.RequestCount()!=18{t.Fatalf("budget overrun: count=%d error=%v",c.RequestCount(),e)}
+}

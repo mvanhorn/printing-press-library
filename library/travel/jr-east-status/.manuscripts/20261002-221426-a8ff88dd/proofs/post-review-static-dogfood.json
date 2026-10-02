@@ -1,0 +1,127 @@
+{
+  "dir": "/Users/zjsng/Projects/Personal/Coding/jr-east-status-cli",
+  "spec_path": "/Users/zjsng/Projects/Personal/Coding/jr-east-status-cli/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 24,
+    "dead": 1,
+    "items": [
+      "maxAge"
+    ]
+  },
+  "dead_functions": {
+    "total": 107,
+    "dead": 5,
+    "items": [
+      "handleBinaryResponseDelivery",
+      "readSecretFromStdin",
+      "retainCLIQueryParams",
+      "retainExplicitQueryParams",
+      "successfulNoop"
+    ]
+  },
+  "pipeline_check": {
+    "sync_calls_domain": false,
+    "search_calls_domain": false,
+    "domain_tables": 4,
+    "sync_file_emitted": false,
+    "sync_resources_present": false,
+    "detail": "sync Upsert calls not found; search methods not found; 4 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 49,
+      "registered": 49
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "total_steps": 6,
+      "mapped_steps": 4,
+      "unmapped_steps": [
+        "impact --lines ${selected_line},shinkansen:tohokushinkansen --no-learn",
+        "status --line ${selected_line} --no-learn"
+      ],
+      "detail": "4/6 workflow steps mapped to commands"
+    }
+  },
+  "novel_features_check": {
+    "planned": 5,
+    "found": 5,
+    "depth_mismatches": [
+      {
+        "command": "status",
+        "advertised": "status",
+        "actual": "workflow status"
+      }
+    ]
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 5,
+    "exempted_via_store": 1,
+    "exempted_via_computed_data_source": 1
+  },
+  "description_drift_check": {
+    "expected": "Compare JR East line impacts with bilingual identity, source freshness and reporting limits."
+  },
+  "source_client_check": {
+    "checked": 15
+  },
+  "print_json_filtered_check": {
+    "checked": 27
+  },
+  "test_presence": {
+    "checked": 3
+  },
+  "naming_check": {
+    "checked": 27
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "1 dead flags found",
+    "5 dead helper functions found",
+    "sync uses generic Upsert only",
+    "2 unmapped workflow steps: impact --lines ${selected_line},shinkansen:tohokushinkansen --no-learn, status --line ${selected_line} --no-learn",
+    "1 novel feature command-depth mismatches: status advertised as status but registered as workflow status"
+  ]
+}

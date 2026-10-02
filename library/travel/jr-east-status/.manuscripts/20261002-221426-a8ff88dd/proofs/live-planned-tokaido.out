@@ -1,0 +1,71 @@
+{
+  "meta": {
+    "coverage": {
+      "actual_delay_minutes": null,
+      "brt_coverage": "Long suspensions only; other BRT lateness is outside this reporting coverage.",
+      "english_delay_threshold": "anticipated or actual delay in excess of 30 minutes",
+      "japanese_delay_threshold": "anticipated or actual delay of 30 minutes or more",
+      "normal_label_meaning": "General source label; does not establish zero delay or an individual train's punctuality.",
+      "reporting_hours": "04:00–02:00 following day JST",
+      "reporting_service_day": "2026-10-02",
+      "reporting_state": "open",
+      "source_url": "https://traininfo.jreast.co.jp/train_info/e/",
+      "threshold_language_difference": true,
+      "timezone": "Asia/Tokyo (UTC+09:00)"
+    },
+    "fetch_failures": [],
+    "max_requests": 3,
+    "note": "Dates/times are source expressions in Japan local time. Calendar year stays unknown when absent; current service and scheduled work are separate. Complex schedules and changes require the official handoff.",
+    "observed_at": "2026-10-03T01:38:20+09:00",
+    "request_count": 3,
+    "source": "live",
+    "sources": [
+      {
+        "age_seconds": 80,
+        "freshness": "fresh",
+        "language": "ja",
+        "observed_at": "2026-10-03T01:38:20+09:00",
+        "reporting_state": "open",
+        "scanned_rows": 59,
+        "source_updated_at": "2026-10-03T01:37:00+09:00",
+        "url": "https://traininfo.jreast.co.jp/train_info/kanto.aspx"
+      },
+      {
+        "age_seconds": 80,
+        "freshness": "fresh",
+        "language": "en",
+        "observed_at": "2026-10-03T01:38:20+09:00",
+        "reporting_state": "open",
+        "scanned_rows": 59,
+        "source_updated_at": "2026-10-03T01:37:00+09:00",
+        "url": "https://traininfo.jreast.co.jp/train_info/e/kanto.aspx"
+      },
+      {
+        "age_seconds": null,
+        "freshness": "missing_timestamp",
+        "language": "ja",
+        "observed_at": "2026-10-03T01:38:20+09:00",
+        "reporting_state": "planned_notice_page",
+        "scanned_rows": 0,
+        "url": "https://www.jreast.co.jp/suspend/"
+      }
+    ],
+    "truncated": false
+  },
+  "results": [
+    {
+      "calendar_year": null,
+      "line_id": "kanto:tokaidoline",
+      "replacement_transport": "unknown",
+      "schedule_guarantee": false,
+      "source_date_expressions": [
+        "11月22日（日）",
+        "10月13日（火）",
+        "2027年1月22日（金）"
+      ],
+      "source_table_facts": [],
+      "source_title": "東海道本線 線路切換工事に伴う列車の時刻変更について",
+      "source_url": "https://www.jreast.co.jp/suspend/"
+    }
+  ]
+}
