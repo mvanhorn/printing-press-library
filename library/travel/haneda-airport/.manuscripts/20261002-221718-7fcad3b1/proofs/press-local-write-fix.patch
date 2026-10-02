@@ -53,3 +53,37 @@
  	appendDryRunJSON := func(args []string, argsOK bool, stdin []byte, skipReason string) {
  		if dryRunJSON := probeLiveDogfoodDryRunJSON(command, ctx, mutation, args, stdin, argsOK, skipReason); dryRunJSON != nil {
  			results = append(results, *dryRunJSON)
+
+--- /dev/null
++++ isolated/internal/pipeline/haneda_local_write_guard_test.go
+@@ -0,0 +1,30 @@
++package pipeline
++
++import "testing"
++
++func TestHanedaLocalWritePreviewGuard(t *testing.T) {
++	for _, c := range []struct {
++		name        string
++		annotations map[string]string
++		approved    bool
++		extra       string
++		want        bool
++	}{
++		{"fixture unapproved", map[string]string{"pp:fixture-local-write": "true"}, false, "", true},
++		{"fixture approved default", map[string]string{"pp:fixture-local-write": "true"}, true, "", false},
++		{"explicit file stays preview", map[string]string{"pp:fixture-local-write": "true"}, true, " --file /tmp/board.json", true},
++		{"explicit overwrite stays preview", map[string]string{"pp:fixture-local-write": "true"}, true, " --overwrite", true},
++		{"external delivery stays preview", map[string]string{"pp:fixture-local-write": "true"}, true, " --deliver file:/tmp/result.json", true},
++		{"public local write is not fixture permission", map[string]string{"mcp:local-write": "true"}, true, "", true},
++		{"remote approved remains preview", map[string]string{"pp:method": "POST"}, true, "", true},
++		{"remote cannot use private fixture opt-in", map[string]string{"pp:method": "POST", "pp:fixture-local-write": "true"}, true, "", true},
++		{"read remains read", map[string]string{"mcp:read-only": "true"}, true, "", false},
++	} {
++		t.Run(c.name, func(t *testing.T) {
++			cmd := liveDogfoodCommand{Path: []string{"snapshot", "save"}, Annotations: c.annotations, Help: "Usage:\n  haneda-airport-pp-cli snapshot save [flags]\n\nExamples:\n  haneda-airport-pp-cli snapshot save --kind international" + c.extra + "\n\nFlags:\n      --dry-run   Preview without writing\n      --file string   Explicit destination\n"}
++			if got := liveDogfoodUseDryRun(cmd, c.approved); got != c.want {
++				t.Fatalf("preview=%v want%v", got, c.want)
++			}
++		})
++	}
++}
