@@ -1,0 +1,412 @@
+{
+  "scope": "Measured verification summaries only; full command transcripts and response samples remain in the local source-input archive.",
+  "historical_reports": [
+    {
+      "artifact": "dogfood-live-full-final.json",
+      "level": "full",
+      "verdict": "PASS",
+      "matrix_size": 113,
+      "passed": 113,
+      "failed": 0,
+      "skipped": 100,
+      "unverified": 100,
+      "pass_rate": 100,
+      "ran_at": "2026-10-02T16:22:19.297288Z"
+    },
+    {
+      "artifact": "dogfood-live-full-fixed.json",
+      "level": "full",
+      "verdict": "PASS",
+      "matrix_size": 113,
+      "passed": 113,
+      "failed": 0,
+      "skipped": 100,
+      "unverified": 100,
+      "pass_rate": 100,
+      "ran_at": "2026-10-02T16:18:44.330122Z"
+    },
+    {
+      "artifact": "dogfood-live-full.json",
+      "level": "full",
+      "verdict": "FAIL",
+      "matrix_size": 105,
+      "passed": 98,
+      "failed": 7,
+      "skipped": 103,
+      "unverified": 103,
+      "pass_rate": 93.33333333333333,
+      "ran_at": "2026-10-02T16:12:28.790866Z"
+    },
+    {
+      "artifact": "dogfood-structural-fixed.json",
+      "verdict": "PASS",
+      "dead_flags": {
+        "total": 24,
+        "dead": 0
+      },
+      "dead_functions": {
+        "total": 107,
+        "dead": 0
+      },
+      "novel_features_check": {
+        "planned": 5,
+        "found": 5
+      },
+      "mcp_surface_parity": {
+        "state": "runtime_walking",
+        "pass": true,
+        "detail": "MCP surface mirrors the Cobra tree at runtime"
+      },
+      "issues_count": 0
+    },
+    {
+      "artifact": "dogfood-structural.json",
+      "verdict": "FAIL",
+      "dead_flags": {
+        "total": 24,
+        "dead": 0
+      },
+      "dead_functions": {
+        "total": 112,
+        "dead": 5,
+        "items": [
+          "handleBinaryResponseDelivery",
+          "readSecretFromStdin",
+          "retainCLIQueryParams",
+          "retainExplicitQueryParams",
+          "successfulNoop"
+        ]
+      },
+      "novel_features_check": {
+        "planned": 5,
+        "found": 5
+      },
+      "mcp_surface_parity": {
+        "state": "runtime_walking",
+        "pass": true,
+        "detail": "MCP surface mirrors the Cobra tree at runtime"
+      },
+      "issues_count": 5
+    },
+    {
+      "artifact": "gosec-after.json",
+      "finding_count": 30,
+      "rules": {
+        "G119": 1,
+        "G101": 1,
+        "G703": 1,
+        "G201": 4,
+        "G202": 2,
+        "G304": 12,
+        "G117": 1,
+        "G302": 4,
+        "G104": 4
+      }
+    },
+    {
+      "artifact": "gosec-before.json",
+      "finding_count": 30,
+      "rules": {
+        "G119": 1,
+        "G101": 1,
+        "G703": 1,
+        "G201": 4,
+        "G202": 2,
+        "G304": 12,
+        "G117": 1,
+        "G302": 4,
+        "G104": 4
+      }
+    },
+    {
+      "artifact": "scorecard-live.json",
+      "scorecard_grade": "A",
+      "scorecard_percentage": 91,
+      "live_check": {
+        "status": "available",
+        "passed": 5,
+        "failed": 0,
+        "skipped": 0,
+        "checked": 5,
+        "evaluated": 5,
+        "ran_at": "2026-10-02T16:10:51.003069Z"
+      }
+    },
+    {
+      "artifact": "shipcheck-final.json",
+      "passed": true,
+      "exit_code": 0,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T16:08:33Z",
+      "elapsed_ms": 23855,
+      "legs": [
+        {
+          "name": "verify",
+          "exit_code": 0,
+          "passed": true,
+          "verdict": "PASS",
+          "elapsed_ms": 3118
+        },
+        {
+          "name": "validate-narrative",
+          "exit_code": 0,
+          "passed": true,
+          "verdict": "PASS",
+          "elapsed_ms": 156
+        },
+        {
+          "name": "dogfood",
+          "exit_code": 0,
+          "passed": true,
+          "verdict": "PASS",
+          "elapsed_ms": 2879
+        },
+        {
+          "name": "workflow-verify",
+          "exit_code": 0,
+          "passed": true,
+          "verdict": "PASS",
+          "elapsed_ms": 11470
+        },
+        {
+          "name": "apify-audit",
+          "exit_code": 0,
+          "passed": true,
+          "verdict": "PASS",
+          "elapsed_ms": 87
+        },
+        {
+          "name": "verify-skill",
+          "exit_code": 0,
+          "passed": true,
+          "verdict": "PASS",
+          "elapsed_ms": 3394
+        },
+        {
+          "name": "scorecard",
+          "exit_code": 0,
+          "passed": true,
+          "verdict": "PASS",
+          "elapsed_ms": 2748
+        }
+      ]
+    },
+    {
+      "artifact": "shipcheck-post-dogfood.json",
+      "passed": true,
+      "exit_code": 0,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T16:25:25Z",
+      "elapsed_ms": 26175,
+      "legs": [
+        {
+          "name": "verify",
+          "exit_code": 0,
+          "passed": true,
+          "verdict": "PASS",
+          "elapsed_ms": 6619
+        },
+        {
+          "name": "validate-narrative",
+          "exit_code": 0,
+          "passed": true,
+          "verdict": "PASS",
+          "elapsed_ms": 146
+        },
+        {
+          "name": "dogfood",
+          "exit_code": 0,
+          "passed": true,
+          "verdict": "PASS",
+          "elapsed_ms": 3709
+        },
+        {
+          "name": "workflow-verify",
+          "exit_code": 0,
+          "passed": true,
+          "verdict": "PASS",
+          "elapsed_ms": 11325
+        },
+        {
+          "name": "apify-audit",
+          "exit_code": 0,
+          "passed": true,
+          "verdict": "PASS",
+          "elapsed_ms": 82
+        },
+        {
+          "name": "verify-skill",
+          "exit_code": 0,
+          "passed": true,
+          "verdict": "PASS",
+          "elapsed_ms": 2888
+        },
+        {
+          "name": "scorecard",
+          "exit_code": 0,
+          "passed": true,
+          "verdict": "PASS",
+          "elapsed_ms": 1404
+        }
+      ]
+    },
+    {
+      "artifact": "shipcheck.json",
+      "passed": false,
+      "exit_code": 3,
+      "verdict": "FAIL",
+      "started_at": "2026-10-02T15:54:03Z",
+      "elapsed_ms": 13256,
+      "legs": [
+        {
+          "name": "verify",
+          "exit_code": 1,
+          "passed": false,
+          "verdict": "FAIL",
+          "elapsed_ms": 3262
+        },
+        {
+          "name": "validate-narrative",
+          "exit_code": 1,
+          "passed": false,
+          "verdict": "FAIL",
+          "elapsed_ms": 663
+        },
+        {
+          "name": "dogfood",
+          "exit_code": 0,
+          "passed": true,
+          "verdict": "PASS",
+          "elapsed_ms": 2676
+        },
+        {
+          "name": "workflow-verify",
+          "exit_code": 3,
+          "passed": false,
+          "verdict": "FAIL",
+          "elapsed_ms": 1595
+        },
+        {
+          "name": "apify-audit",
+          "exit_code": 0,
+          "passed": true,
+          "verdict": "PASS",
+          "elapsed_ms": 72
+        },
+        {
+          "name": "verify-skill",
+          "exit_code": 0,
+          "passed": true,
+          "verdict": "PASS",
+          "elapsed_ms": 2736
+        },
+        {
+          "name": "scorecard",
+          "exit_code": 0,
+          "passed": true,
+          "verdict": "PASS",
+          "elapsed_ms": 2248
+        }
+      ]
+    },
+    {
+      "artifact": "verify-focused.json",
+      "mode": "mock",
+      "total": 31,
+      "passed": 31,
+      "failed": 0,
+      "critical": 0,
+      "pass_rate": 100,
+      "data_pipeline": false,
+      "verdict": "FAIL"
+    },
+    {
+      "artifact": "verify-window.json",
+      "mode": "mock",
+      "total": 31,
+      "passed": 31,
+      "failed": 0,
+      "critical": 0,
+      "pass_rate": 100,
+      "data_pipeline": true,
+      "verdict": "PASS"
+    },
+    {
+      "artifact": "workflow-corrected.json",
+      "verdict": "workflow-pass",
+      "workflows": [
+        {
+          "name": "discover-inspect-source-quote",
+          "verdict": "workflow-pass",
+          "steps": 3
+        }
+      ]
+    },
+    {
+      "artifact": "workflow-focused.json",
+      "verdict": "workflow-fail",
+      "workflows": [
+        {
+          "name": "discover-inspect-source-quote",
+          "verdict": "workflow-fail",
+          "steps": 3
+        }
+      ]
+    }
+  ],
+  "raw_artifact_sha256": {
+    "dogfood-live-full-final.json": "b633ca672a674470b76d667bc9b3c4fc7908ae09b3fd8d0b5b8860372386a859",
+    "dogfood-live-full-final.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "dogfood-live-full-fixed.json": "e41e53050223fcc57a12fd6b89b6b9fab647ff2e5d8c0e4898e91356ce6c15f2",
+    "dogfood-live-full-fixed.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "dogfood-live-full.json": "94f1e1f6ea593887cd17f73c64c02103caf3dff7691d150f91427798672825de",
+    "dogfood-live-full.stderr": "ffb7ef95986b71907e1624125157fd0c09871358aaae24f03396a802eabeae35",
+    "dogfood-structural-fixed.json": "f7bfca3765c4e202d7e8eedaaf444c6ef52e7d37087a5d07a2b493d3c84b9a77",
+    "dogfood-structural-fixed.stderr": "aeb9aa0c388282538a21a76d44d36bf4b1887db28809d625d5655e18533d5b5d",
+    "dogfood-structural.json": "f04fa36282935dd9bdd63bc8589b2f1148f63a7300d793afcd421cf3783e69a2",
+    "dogfood-structural.stderr": "cc95bd632dab6f8f71dbf4a3beb6ff532ef63e1b031a818dda88534fcec2bfd5",
+    "generate-final.log": "47bf392e2bc311ee8d5cc029c0b53f005675bb25b2979d438bcc7db7ee3834ee",
+    "generate-pristine.log": "8c8a840398137bf76cc1898d1eb725c08905b16ff046596cc4df5f79ab95b740",
+    "generate-retry.log": "0320b87e1b573a635db2f3814f643ae44d8d4c6ed97ffdf5ab7fa657d1c47a4c",
+    "generate.log": "91f0825641df6c7c5a1852ffde88d428a1dd6c6d090c5f10fc4026ac5b8af6d4",
+    "gosec-after.json": "3ae378dbf984657603e765ea67e33eab8eab5970bca67213428212811ac89e1b",
+    "gosec-before.json": "d95f40dc7d79798cee998a1ba5bd21ec80a7aafaeba6105570c65d1cf475d864",
+    "gosec-before.log": "11782d5c3a7bab5f0ef45283148f534fd815c8f285cc791ebf3168500a4e3a61",
+    "gosec-final.txt": "46cc14d17520a06b084de0c8d05f96e92cb584a04cb95baa93f187b25e7a62dc",
+    "mcp-description-sync-final.txt": "8d84da7e1ba1a894998cff9a912b481b27b8c010986882f5604e8799cd1ea98f",
+    "mcp-description-sync.txt": "8d84da7e1ba1a894998cff9a912b481b27b8c010986882f5604e8799cd1ea98f",
+    "narrative-focused.json": "e73ff5f37e09860f462db8a6ba816d923eba61c734d6fdffb660f174c4660c4a",
+    "narrative-focused.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "performance-search-time.txt": "567e797cf6db6df1a36f9147650a64337623a8d52c70904279e6b32192ffce8f",
+    "pii-audit-after.txt": "7d7f4f1872d9d8cb93ce70d0cf3c764091afecf94788a46f8961432f76d71fe6",
+    "pii-audit-archive.txt": "9ae70f87f8f1a438203e0fbc36078f775d52578c20ca3f2f6431d1191d548a1f",
+    "pii-audit-before.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+    "pii-audit-before.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pii-audit-embedded.txt": "3e8d061cbc500312b79c2235ad0cbe6804210ae1a47b9686e90d440ff46158fa",
+    "pii-audit-final.txt": "3e8d061cbc500312b79c2235ad0cbe6804210ae1a47b9686e90d440ff46158fa",
+    "promote.txt": "5e3ae24e16540e0265809b71ab148589d05330ff86df49843693bbc7bfee63c6",
+    "promoted-live-detail.json": "03be2c7c9e2ca3c115861711deca13c7f766365d65e2683075a0de4c24dad196",
+    "promoted-live-detail.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "scorecard-live.json": "8ae77343ec5c6959c2422020f11b41d815305f14df84958840fbed428109bcab",
+    "scorecard-live.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shipcheck-final.json": "a2d6e891b43b62a32664900c95a4f95855ae70e47c5e4dbef8dd483ae0909700",
+    "shipcheck-final.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shipcheck-post-dogfood.json": "c8eb261923242a855cbe5b95642bf559a0ccb4fd785021803f3f9e091af2e07e",
+    "shipcheck-post-dogfood.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shipcheck.json": "3c995257b91acb48a3a4be9b384d2628ede483d259e27a7f93ad24e836f1cf19",
+    "shipcheck.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tools-audit-after.txt": "81574e55f420ac0b444381f739cb30ce9d7ae4d16908c2af558a39c0c54bb460",
+    "tools-audit-before.json": "5f68fb0544ae99d5ec9ab588635ad812fadfe4a3179be638b0bd65f1c0ab14e9",
+    "tools-audit-before.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tools-audit-final.txt": "81574e55f420ac0b444381f739cb30ce9d7ae4d16908c2af558a39c0c54bb460",
+    "tools-audit-human-before.txt": "ffd134ccc28d28208bb28c8ef5cb0f072e9142030639df6d763e318a94533c5f",
+    "verify-focused.json": "0f0e914e8547bd948bc6d6d721aa9517879585f039f1df468ef07a9ecbcc7cde",
+    "verify-focused.stderr": "3246fc8a247c1307926acc8a44fce306af852bbabba233dd6b035a3fab53aa1c",
+    "verify-window.json": "c4c4bf590f4869a3e9b728e03af1f51a0175cd49070310c32edfe14d4a6eb948",
+    "verify-window.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "workflow-corrected.json": "ca42b0d885ac829386314ac28285f675f9d63090baa98d4b6099b3c0c3c66565",
+    "workflow-corrected.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "workflow-focused.json": "295d5a56b3d84c5afbcdce3b2e32e09425ec87ac5bfdb2ddb2488be733d65f7a",
+    "workflow-focused.stderr": "b4e75562f0a98708df69c84830567b6f3ddf0fe640010b1d700a744b6a47f127"
+  }
+}

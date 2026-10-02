@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mvanhorn/printing-press-library/library/travel/repark/internal/repark"
 	"github.com/spf13/cobra"
 )
 
@@ -42,6 +43,11 @@ func newSiteMarkersCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("required flag \"%s\" not set", "range")
 			}
 			path := "/ajax/time_markers.json"
+			if !flags.dryRun || cmd.Flags().Changed("range") {
+				if err := repark.ValidateMarkerRange(flagRange); err != nil {
+					return usageErr(err)
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err

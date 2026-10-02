@@ -1,0 +1,11 @@
+{
+  "scope": "Fresh publication live gate; raw command arguments, response samples and host paths were written privately and deleted.",
+  "verdict": "PASS",
+  "level": "full",
+  "matrix_size": 113,
+  "passed": 113,
+  "failed": 0,
+  "skipped": 100,
+  "unverified": 100,
+  "ran_at": "2026-10-02T18:11:13.636853Z"
+}

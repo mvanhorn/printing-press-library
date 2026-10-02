@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261002-224755-65ef3fef",
+  "base_printing_press_version": "4.32.5",
+  "id": "repark-raw-marker-window-bounds",
+  "summary": "Bound raw CLI and typed MCP marker requests with the same explicit Japan-window validator as sync.",
+  "reason": "The provider raw marker endpoint must not accept an arbitrary geographical sweep through either public interface. Validation occurs before client construction and provider IO; missing-input dry-run previews retain their framework behavior.",
+  "files": [
+    "internal/repark/range.go",
+    "internal/repark/range_test.go",
+    "internal/cli/site_markers.go",
+    "internal/cli/repark_markers_test.go",
+    "internal/cli/repark_sync.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/repark_markers.go",
+    "internal/mcp/repark_markers_test.go",
+    "mcp-descriptions.json"
+  ],
+  "validated_outcome": "Both registered marker interfaces reject malformed, out-of-Japan and oversized windows. A valid typed marker window passes unchanged to the endpoint handler. Targeted regression tests pass."
+}

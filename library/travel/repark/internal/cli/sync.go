@@ -109,7 +109,8 @@ Resource scoping:
 				return usageErr(err)
 			}
 
-			if !dryRunOK(flags) {
+			_, windowSupplied := resolveReparkSyncRange(userParams)
+			if !dryRunOK(flags) || windowSupplied {
 				if err := validateReparkSyncParams(userParams); err != nil {
 					return usageErr(err)
 				}

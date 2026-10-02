@@ -1,2 +1,0 @@
-pii-audit: no pending findings (2 accepted) — phase-1 scope (order-id/card/email/phone/zip/postal); ASINs and standalone names are a future detector class
-since last run: 0 resolved, 0 new

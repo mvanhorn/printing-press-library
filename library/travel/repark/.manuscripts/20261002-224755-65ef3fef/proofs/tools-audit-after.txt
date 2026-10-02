@@ -1,2 +1,0 @@
-tools-audit: no pending findings (2 accepted)
-since last run: 0 resolved, 0 new

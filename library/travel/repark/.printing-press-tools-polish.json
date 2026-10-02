@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-10-02T16:26:49.325814Z",
+  "cli_dir": "\u003ccli-dir\u003e/repark-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated framework list: lists named local client profiles; this precise phrase fully identifies its narrow action. Parameter details appear in help; profile creation and selection are separate commands."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 868,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated framework list: returns locally recorded learnings. The concrete recorded-learning noun identifies the result; teach mutation and recall query have distinct commands and annotations."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-10-02T16:17:13.991826Z"
+  }
+}

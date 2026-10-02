@@ -2,6 +2,6 @@
   "descriptions": {
     "site_detail-page": "Fetch the public source lot document for a required canonical REP park ID. The typed MCP tool returns bounded raw source HTML or a preview, without normalized rate or vehicle-limit semantics. Prefer parking_detail for source-normalized parking planning facts.",
     "site_calculator-form": "Inspect the public calculator page for a required canonical REP park ID. The typed MCP tool returns bounded raw source HTML or a preview; this GET does not compute a fee. Prefer parking_quote with an explicit bay and JST start/end to run the verified source simulation.",
-    "site_markers": "Fetch raw public marker rows for a required explicit Repark map range in C(lat,lon)N(north)W(west)S(south)E(east) notation. Returns provider JSON, including raw occupancy codes and charge groups. Prefer parking_nearby for bounded, normalized planning facts and separate fit assessment."
+    "site_markers": "Fetch raw public marker rows for a required explicit Repark map range in C(lat,lon)N(north)W(west)S(south)E(east) notation, with each bound within 2 km of the explicit center (100 m rounding allowance). Returns provider JSON, including raw occupancy codes and charge groups. Prefer parking_nearby for bounded, normalized planning facts and separate fit assessment."
   }
 }

@@ -63,13 +63,13 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("site_markers",
-			mcplib.WithDescription("Fetch raw public marker rows for a required explicit Repark map range in C(lat,lon)N(north)W(west)S(south)E(east) notation. Returns provider JSON, including raw occupancy codes and charge groups. Prefer parking_nearby for bounded, normalized planning facts and separate fit assessment. Required: range."),
+			mcplib.WithDescription("Fetch raw public marker rows for a required explicit Repark map range in C(lat,lon)N(north)W(west)S(south)E(east) notation, with each bound within 2 km of the explicit center (100 m rounding allowance). Returns provider JSON, including raw occupancy codes and charge groups. Prefer parking_nearby for bounded, normalized planning facts and separate fit assessment. Required: range."),
 			mcplib.WithString("range", mcplib.Required(), mcplib.Description("Provider map bounds C lat,lon N north W west S south E east")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/ajax/time_markers.json", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "range", WireName: "range", Location: "query"}}, []string{}),
+		boundedReparkMarkers(makeAPIHandler("GET", "/ajax/time_markers.json", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "range", WireName: "range", Location: "query"}}, []string{})),
 	)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
