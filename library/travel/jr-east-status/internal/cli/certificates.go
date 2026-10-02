@@ -4,8 +4,8 @@ package cli
 
 import (
 	"fmt"
-	"github.com/mvanhorn/printing-press-library/library/travel/jr-east-status/internal/jreast"
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/travel/jr-east-status/internal/jreast"
 	"strings"
 	"time"
 )
@@ -35,6 +35,9 @@ func newNovelCertificatesCmd(flags *rootFlags) *cobra.Command {
 		}
 		if slot != "" && line == "" {
 			return usageErr(fmt.Errorf("--slot requires --line"))
+		}
+		if slot != "" && jreast.CertificateRoute(line) != nil {
+			return usageErr(fmt.Errorf("--slot is unavailable for this route handoff; omit --slot or choose the actual travelled segment for a published slot link"))
 		}
 		ctx, cancel := jrContext(cmd, flags)
 		defer cancel()

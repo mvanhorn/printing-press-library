@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "e669e4656c5cb2ac627d80e721f656e1a21eb96996dfa540a3eb85440e4e2cae",
+  "source_fingerprint": "ff8924b63d0fe709656485c38372fbda20c9c9b06ecdd4ebbfd3966e08ca8a27",
   "source_files": {
     "cmd/jr-east-status-pp-cli/main.go": "bfacf6d761504d2595902335ab6c5d02d91bce0d0226a3f80579279696f2d49a",
     "cmd/jr-east-status-pp-mcp/main.go": "7557e30cedde3d35345334f645afe7321e1f63c8c77432cd8072812c24005ef0",
@@ -19,7 +19,7 @@
     "go.sum": "60f22f1bdcbfee46666324e3e28275169d31775db9b352ad1acdb070ff4d22f3",
     "internal/cache/cache.go": "3bc84bdc4a56f2093b015fb7dd2153b6a3cc803f029d89d1157b4f5975fe26b6",
     "internal/cli/agent_context.go": "e7b21ac6cdaa8fa289c7f558670f1f3708d55351d5a0e6e50c949a11998a82d4",
-    "internal/cli/certificates.go": "ac280c1141283b3aae9f68e661315f13f7528ae060280cb747fc0c80e99a9899",
+    "internal/cli/certificates.go": "215a86886948daa5d939f37da88ca1ab3516b9872ad797b1ed301d7aee6fa9c7",
     "internal/cli/certificates_test.go": "12c73480de07a7ff3533184ba60462775cccd6930cd098ec594c436d361a32c6",
     "internal/cli/channel_workflow.go": "24068d98c17ff1788c5b8fb7373c81cefa02beb92521f42acf1ffe3158972f78",
     "internal/cli/coverage.go": "1b0d1bd5750fcf1e0c01f2f091e4a6a23b4fba951a9c8732547ce4ad3be3f3cf",
@@ -33,8 +33,8 @@
     "internal/cli/html_extract.go": "804cd31c52bd178fe2d50f58126b0be3eacffb8f17447ba5631fd8c4bc2f4db0",
     "internal/cli/impact.go": "8de54bdd5b9057e380bc3227de3d135a9d7ab2af07544574ef34257becfd6c67",
     "internal/cli/impact_test.go": "89e4ccfc40513b29bd148f58c114c190b19b79a6f39043bce634c51ee636d5c5",
-    "internal/cli/jr_commands.go": "868122a38be1d53b5147055b7eb91a423f3afeb6c7204278886a470ad91991f0",
-    "internal/cli/jr_commands_test.go": "a1afb10a47405e8b7da3bd1240b3710a4e4fd41f684b1c140f095c467b942032",
+    "internal/cli/jr_commands.go": "26c1ec4994272344f33f1055d96b2deb3b47f1f5aec96ff51e17326f483659a5",
+    "internal/cli/jr_commands_test.go": "a0dbd10a139111e626f79c97209cb386e0762f28987bf6a1f92ff1ca581c8164",
     "internal/cli/learn_init.go": "99256f9a94a63a8e7fc973cebbff92e957c1ac96ce84c51a4d20998b9e9a9742",
     "internal/cli/learn_init_test.go": "efa794a7e33b01c5bfea09577f9ad7b7efeeaadbebcbf12ab40f1580b0bdea5c",
     "internal/cli/learnings_candidates.go": "52463ce9aaee0b0f78fd60df6fe214ee8b2fbe270d5465ccf3560470606c4aa4",

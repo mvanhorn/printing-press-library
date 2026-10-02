@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mvanhorn/printing-press-library/library/travel/jr-east-status/internal/jreast"
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/travel/jr-east-status/internal/jreast"
 )
 
 func TestJRInputValidationBeforeNetwork(t *testing.T) {
@@ -30,6 +30,9 @@ func TestJRInputValidationBeforeNetwork(t *testing.T) {
 		{"lines invalid region", newJRLinesCmd, []string{"--region=unknown"}},
 		{"certificates invalid slot", newNovelCertificatesCmd, []string{"--line=yamanoteline", "--slot=06"}},
 		{"certificates slot needs line", newNovelCertificatesCmd, []string{"--slot=02"}},
+		{"through certificate slot unavailable", newNovelCertificatesCmd, []string{"--line=ueno-tokyoline", "--slot=02"}},
+		{"Sagami certificate slot unavailable", newNovelCertificatesCmd, []string{"--line=sagamiline", "--slot=02"}},
+		{"prefixed route certificate slot unavailable", newNovelCertificatesCmd, []string{"--line=kanto:shonan-shinjukuline", "--slot=02"}},
 		{"planned missing line", newNovelPlannedCmd, nil},
 		{"coverage invalid timestamp", newNovelCoverageCmd, []string{"--at=2026-10-03"}},
 	}

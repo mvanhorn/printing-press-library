@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/travel/jr-east-status/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/travel/jr-east-status/internal/jreast"
-	"github.com/spf13/cobra"
 )
 
 func init() {
@@ -106,6 +106,7 @@ func jrMissing(cmd *cobra.Command, flags *rootFlags, name string) error {
 	return usageErr(fmt.Errorf("--%s is required; discover native IDs with lines", name))
 }
 
+// pp:data-source live
 func newJRAreasCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{Use: "areas", Short: "Read JR East region/service summaries and canonical source links", Example: "  jr-east-status-pp-cli areas --agent", Annotations: jrAnnotations("--timeout=30s", "live")}
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
@@ -138,6 +139,7 @@ func newJRAreasCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
+// pp:data-source live
 func newJRLinesCmd(flags *rootFlags) *cobra.Command {
 	var region, query, age string
 	var limit int
