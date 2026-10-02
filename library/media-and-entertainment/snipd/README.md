@@ -1,6 +1,8 @@
 # Snipd CLI
 
-Created by Maxime Delavergne (@maxswinguy). Deleted-snip reconciliation contributed by Cathryn Lavery (@cathrynlavery).
+Created by [@maxswinguy](https://github.com/maxswinguy) (Maxime Delavergne).
+
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 **Turn your Snipd snips into a local, ranked, full-text-searchable corpus — search a concept across every note, quote, and transcript, pull the exact quote, and synthesize across shows from the command line, plus an MCP for agents.**
 
