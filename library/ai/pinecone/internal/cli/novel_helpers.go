@@ -21,17 +21,14 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/ai/pinecone/internal/store"
 )
 
-// resolveIndexHost returns the data-plane base URL (https://{index_host})
-// for the named index by calling the control-plane describe-index endpoint,
-// then sets the client's Config.TemplateVars["index_host"] so subsequent
-// {index_host} paths use the verified host. If PINECONE_INDEX_HOST supplied a
-// different host, fail closed instead of letting an index name and data-plane
-// target silently disagree on a destructive operation.
-func resolveIndexHost(ctx context.Context, c *client.Client, indexName string) (string, error) {
+// verifiedIndexHost resolves a named index without mutating the shared client.
+// A cascade queries several indexes concurrently, so it must not write the
+// client's template-variable map while other requests read it.
+func verifiedIndexHost(ctx context.Context, c *client.Client, indexName string) (string, error) {
 	// Fetch the index's host from the control plane.
 	path := "https://api.pinecone.io/indexes/{index_name}"
 	path = replacePathParam(path, "index_name", indexName)
-	data, err := c.Get(ctx, path, map[string]string{})
+	data, err := c.GetNoCache(ctx, path, map[string]string{})
 	if err != nil {
 		return "", fmt.Errorf("resolving host for index %q: %w", indexName, err)
 	}
@@ -50,12 +47,24 @@ func resolveIndexHost(ctx context.Context, c *client.Client, indexName string) (
 		if configured != "" && configured != "index_host_placeholder" && !strings.EqualFold(configured, idx.Host) {
 			return "", fmt.Errorf("configured index host %q does not match index %q host %q", configured, indexName, idx.Host)
 		}
+	}
+	return idx.Host, nil
+}
+
+// resolveIndexHost also configures generated {index_host} paths. It is used
+// only by commands that operate on one index at a time.
+func resolveIndexHost(ctx context.Context, c *client.Client, indexName string) (string, error) {
+	host, err := verifiedIndexHost(ctx, c, indexName)
+	if err != nil {
+		return "", err
+	}
+	if c.Config != nil {
 		if c.Config.TemplateVars == nil {
 			c.Config.TemplateVars = map[string]string{}
 		}
-		c.Config.TemplateVars["index_host"] = idx.Host
+		c.Config.TemplateVars["index_host"] = host
 	}
-	return "https://" + idx.Host, nil
+	return "https://" + host, nil
 }
 
 func normalizePineconeHost(host string) string {
@@ -67,14 +76,14 @@ func normalizePineconeHost(host string) string {
 // dataPlanePath returns a data-plane path using the host verified by a live
 // describe-index call.
 func dataPlanePath(ctx context.Context, c *client.Client, indexName, path string) (string, error) {
-	base, err := resolveIndexHost(ctx, c, indexName)
+	host, err := verifiedIndexHost(ctx, c, indexName)
 	if err != nil {
 		return "", err
 	}
 	if !strings.HasPrefix(path, "/") {
 		path = "/" + path
 	}
-	return base + path, nil
+	return "https://" + host + path, nil
 }
 
 // apiVersionHeaders returns the required version header map.

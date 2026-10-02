@@ -6,9 +6,29 @@ package cli
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	"testing"
 )
+
+func TestSelectCascadeIndexesKeepsReachableCompatibleIndexes(t *testing.T) {
+	names := []string{"stale", "cosine-a", "euclidean", "cosine-b"}
+	valid, base, failures := selectCascadeIndexes(names, func(name string) (pineconeIndexShape, error) {
+		if name == "stale" {
+			return pineconeIndexShape{}, fmt.Errorf("index unavailable")
+		}
+		if name == "euclidean" {
+			return pineconeIndexShape{Dimension: 1024, Metric: "euclidean"}, nil
+		}
+		return pineconeIndexShape{Dimension: 1024, Metric: "cosine"}, nil
+	})
+	if strings.Join(valid, ",") != "cosine-a,cosine-b" || base.Metric != "cosine" {
+		t.Fatalf("valid indexes=%v base=%#v", valid, base)
+	}
+	if len(failures) != 2 || failures[0].Index != "stale" || failures[1].Index != "euclidean" {
+		t.Fatalf("failures=%#v, want stale and incompatible", failures)
+	}
+}
 
 // TestNovelCascadeHelpWires smoke-tests that the cascade command
 // resolves at runtime and renders useful --help output. Catches wiring

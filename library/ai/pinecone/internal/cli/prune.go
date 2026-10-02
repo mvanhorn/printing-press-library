@@ -144,18 +144,9 @@ Do NOT use this command for arbitrary filter/ID deletion; use 'delete'.`,
 
 			var stale []string
 			for _, v := range vecs {
-				ts, ok := v.Meta["timestamp"].(string)
+				t, ok := pruneTimestamp(v.Meta)
 				if !ok {
 					continue
-				}
-				t, err := time.Parse("02/01/06 3:04:05 PM", ts)
-				if err != nil {
-					// also try RFC3339
-					t2, err2 := time.Parse(time.RFC3339, ts)
-					if err2 != nil {
-						continue
-					}
-					t = t2
 				}
 				if t.Before(cutoffTime) {
 					stale = append(stale, v.ID)
@@ -177,10 +168,18 @@ Do NOT use this command for arbitrary filter/ID deletion; use 'delete'.`,
 				if err != nil {
 					return err
 				}
-				path, err := dataPlanePath(ctx, c, indexName, "/vectors/delete")
+				host, err := verifiedIndexHost(ctx, c, indexName)
 				if err != nil {
 					return err
 				}
+				base := "https://" + host
+				stale, err = verifyPruneCandidates(ctx, c, base+"/vectors/fetch", indexName, namespace, stale, cutoffTime)
+				if err != nil {
+					return err
+				}
+				plan.IDs = stale
+				plan.Count = len(stale)
+				path := base + "/vectors/delete"
 				// batch in chunks of 100
 				deleted := 0
 				for i := 0; i < len(stale); i += 100 {
@@ -198,15 +197,17 @@ Do NOT use this command for arbitrary filter/ID deletion; use 'delete'.`,
 					}
 					deleted += end - i
 				}
-				plan.Applied = true
 				plan.Deleted = deleted
-				plan.DryRun = false
 				if _, err := db.ExecContext(ctx,
 					`INSERT INTO pp_prune_runs (index_name, namespace, ran_at, deleted, ids) VALUES (?, ?, ?, ?, ?)`,
 					indexName, namespace, time.Now().UTC().Format(time.RFC3339), deleted, mustJSON(stale),
 				); err != nil {
 					return fmt.Errorf("recording prune run: %w", err)
 				}
+			}
+			if apply {
+				plan.Applied = true
+				plan.DryRun = false
 			}
 			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), plan, flags)

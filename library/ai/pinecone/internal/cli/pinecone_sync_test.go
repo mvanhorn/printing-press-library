@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"io"
@@ -12,6 +13,25 @@ import (
 
 	"github.com/mvanhorn/printing-press-library/library/ai/pinecone/internal/store"
 )
+
+func TestVectorSyncDryRunRendersWithoutConfiguredHost(t *testing.T) {
+	t.Setenv("PINECONE_API_KEY", "test-key")
+	t.Setenv("PINECONE_INDEX_HOST", "")
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	t.Setenv("XDG_CACHE_HOME", t.TempDir())
+	t.Setenv("XDG_STATE_HOME", t.TempDir())
+	var out bytes.Buffer
+	cmd := RootCmd()
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	cmd.SetArgs([]string{"sync", "--resources", "vectors", "--vector-index", "index-a", "--dry-run", "--db", filepath.Join(t.TempDir(), "sync.db"), "--config", filepath.Join(t.TempDir(), "missing.toml")})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("vector dry run failed without PINECONE_INDEX_HOST: %v", err)
+	}
+	if !strings.Contains(out.String(), `"event":"sync_dryrun"`) {
+		t.Fatalf("dry run did not complete: %q", out.String())
+	}
+}
 
 type vectorHydrationClient struct {
 	path   string
@@ -59,6 +79,14 @@ func TestHydrateScopedPineconeVectorsFailsOnPartialFetch(t *testing.T) {
 	_, err := hydrateScopedPineconeVectors(context.Background(), c, []json.RawMessage{json.RawMessage(`{"id":"missing"}`)}, "target-index", "")
 	if err == nil || !strings.Contains(err.Error(), "omitted id") {
 		t.Fatalf("error = %v, want omitted-id failure", err)
+	}
+}
+
+func TestHydrateScopedPineconeVectorsRejectsNullFetch(t *testing.T) {
+	c := &vectorHydrationClient{data: json.RawMessage(`{"vectors":{"missing":null}}`)}
+	_, err := hydrateScopedPineconeVectors(context.Background(), c, []json.RawMessage{json.RawMessage(`{"id":"missing"}`)}, "target-index", "")
+	if err == nil || !strings.Contains(err.Error(), "is null") {
+		t.Fatalf("null fetch error = %v, want failure", err)
 	}
 }
 
@@ -120,9 +148,15 @@ func TestSyncResourcePersistsPruneEligibleVector(t *testing.T) {
 type sequencedVectorClient struct {
 	responses []json.RawMessage
 	calls     *int
+	requests  []map[string]string
 }
 
-func (c *sequencedVectorClient) Get(_ context.Context, _ string, _ map[string]string) (json.RawMessage, error) {
+func (c *sequencedVectorClient) Get(_ context.Context, _ string, params map[string]string) (json.RawMessage, error) {
+	copyParams := make(map[string]string, len(params))
+	for k, v := range params {
+		copyParams[k] = v
+	}
+	c.requests = append(c.requests, copyParams)
 	i := *c.calls
 	*c.calls = i + 1
 	if i >= len(c.responses) {
@@ -153,5 +187,49 @@ func TestVectorSyncCursorIsScopedByIndexAndNamespace(t *testing.T) {
 		if err != nil || cursor != "" {
 			t.Fatalf("cursor for unrelated scope %q = %q, %v", key, cursor, err)
 		}
+	}
+}
+
+func TestVectorSyncPageCheckpointUsesScopedKey(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "sync.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	calls := 0
+	c := &sequencedVectorClient{responses: []json.RawMessage{
+		json.RawMessage(`{"vectors":[{"id":"first"}],"pagination":{"next":"page-two"}}`),
+		json.RawMessage(`{"vectors":{"first":{"metadata":{"timestamp":"2020-01-01T00:00:00Z"}}}}`),
+	}, calls: &calls}
+	params := &syncUserParams{perResource: map[string]map[string]string{"vectors": {"namespace": "production"}}, vectorIndex: "index-a", vectorNamespace: "production"}
+	result := syncResource(context.Background(), c, db, "vectors", "", true, 1, false, false, params, io.Discard)
+	if result.Err != nil {
+		t.Fatal(result.Err)
+	}
+	key := scopedSyncStateResource("vectors", params)
+	got, _, _, err := db.GetSyncState(key)
+	if err != nil || got != "page-two" {
+		t.Fatalf("scoped checkpoint = %q, %v; want page-two", got, err)
+	}
+	legacy, _, _, err := db.GetSyncState("vectors")
+	if err != nil || legacy != "" {
+		t.Fatalf("unscoped checkpoint = %q, %v; want empty", legacy, err)
+	}
+	resumeCalls := 0
+	resume := &sequencedVectorClient{responses: []json.RawMessage{json.RawMessage(`{"vectors":[],"pagination":{}}`)}, calls: &resumeCalls}
+	if result := syncResource(context.Background(), resume, db, "vectors", "", false, 1, false, false, params, io.Discard); result.Err != nil {
+		t.Fatal(result.Err)
+	}
+	if got := resume.requests[0]["paginationToken"]; got != "page-two" {
+		t.Fatalf("resume token = %q, want page-two", got)
+	}
+	otherScope := &syncUserParams{perResource: map[string]map[string]string{"vectors": {"namespace": "staging"}}, vectorIndex: "index-a", vectorNamespace: "staging"}
+	otherCalls := 0
+	other := &sequencedVectorClient{responses: []json.RawMessage{json.RawMessage(`{"vectors":[],"pagination":{}}`)}, calls: &otherCalls}
+	if result := syncResource(context.Background(), other, db, "vectors", "", false, 1, false, false, otherScope, io.Discard); result.Err != nil {
+		t.Fatal(result.Err)
+	}
+	if got := other.requests[0]["paginationToken"]; got != "" {
+		t.Fatalf("different namespace reused token %q", got)
 	}
 }

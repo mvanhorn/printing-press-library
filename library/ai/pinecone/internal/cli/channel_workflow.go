@@ -32,11 +32,12 @@ func newWorkflowArchiveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "archive",
-		Short: "Sync all resources to local store for offline access and search",
-		Long: `Archive fetches all syncable resources from the API and stores them in a
-local SQLite database. Supports incremental sync (only new data since last run)
-and full resync. After archiving, use 'search' for instant full-text search.`,
-		Example: `  # Archive all resources
+		Short: "Sync non-vector resources to local store for offline access and search",
+		Long: `Archive fetches syncable non-vector resources from the API and stores them
+in a local SQLite database. Vectors require an explicit index and namespace:
+run 'sync --resources vectors --vector-index NAME --vector-namespace NAME'
+separately. After archiving, use 'search' for instant full-text search.`,
+		Example: `  # Archive non-vector resources
   pinecone-pp-cli workflow archive
 
   # Full re-archive (ignore previous sync state)

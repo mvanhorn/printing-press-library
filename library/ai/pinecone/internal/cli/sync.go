@@ -217,6 +217,15 @@ Resource scoping:
 					if _, err := resolveIndexHost(cmd.Context(), c, vectorIndex); err != nil {
 						return err
 					}
+				} else if c.Config != nil {
+					// A preview never calls the control plane, but its list URL
+					// still needs a host to render through the shared client.
+					if c.Config.TemplateVars == nil {
+						c.Config.TemplateVars = map[string]string{}
+					}
+					if c.Config.TemplateVars["index_host"] == "" {
+						c.Config.TemplateVars["index_host"] = "index-host.example.invalid"
+					}
 				}
 			}
 
@@ -964,7 +973,7 @@ func syncResource(ctx context.Context, c interface {
 		}
 
 		// Save cursor after each page for resumability
-		if err := db.SaveSyncProgress(resource, nextCursor, totalCount); err != nil {
+		if err := db.SaveSyncProgress(stateResource, nextCursor, totalCount); err != nil {
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("saving sync progress for %s: %w", resource, err), Duration: time.Since(started)}
 		}
 

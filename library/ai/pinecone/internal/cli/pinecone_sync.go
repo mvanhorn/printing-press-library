@@ -74,6 +74,9 @@ func hydrateScopedPineconeVectors(ctx context.Context, c interface {
 		if err := json.Unmarshal(raw, &obj); err != nil {
 			return nil, fmt.Errorf("parsing hydrated vector %q: %w", id, err)
 		}
+		if obj == nil {
+			return nil, fmt.Errorf("hydrated vector %q is null", id)
+		}
 		obj["id"] = id
 		obj["index_name"] = indexName
 		obj["namespace"] = namespace
