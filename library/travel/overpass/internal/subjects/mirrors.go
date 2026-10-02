@@ -167,7 +167,13 @@ func validOverpassJSON(body []byte) bool {
 		return false
 	}
 	var elements []json.RawMessage
-	return json.Unmarshal(envelope.Elements, &elements) == nil && elements != nil
+	if err := json.Unmarshal(envelope.Elements, &elements); err != nil || elements == nil {
+		return false
+	}
+	// A valid array can still contain elements the caller cannot decode.
+	// Check with the same parser used after failover before accepting a mirror.
+	_, _, err := ParseElements(body, nil)
+	return err == nil
 }
 
 func (r *Runner) post(ctx context.Context, mirror, query string) ([]byte, int, error) {

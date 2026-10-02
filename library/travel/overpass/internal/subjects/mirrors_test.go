@@ -118,6 +118,31 @@ func TestRunFailsOverFromMalformedJSON(t *testing.T) {
 	}
 }
 
+func TestRunFailsOverFromUndecodableElement(t *testing.T) {
+	bad := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write([]byte(`{"elements":[{"type":"node","id":1,"lat":"invalid","lon":2}]}`))
+	}))
+	defer bad.Close()
+	good := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write([]byte(`{"elements":[{"type":"node","id":2,"lat":1,"lon":2}]}`))
+	}))
+	defer good.Close()
+
+	r := NewRunner(5 * time.Second)
+	r.Mirrors = []string{bad.URL, good.URL}
+	body, attempts, err := r.Run(context.Background(), "[out:json];out;")
+	if err != nil {
+		t.Fatalf("failover did not recover: %v", err)
+	}
+	if len(attempts) != 2 || !strings.Contains(attempts[0].Err, "invalid Overpass JSON") || attempts[1].Err != "" {
+		t.Fatalf("attempts = %+v, want undecodable failure then healthy success", attempts)
+	}
+	subjects, _, err := ParseElements(body, nil)
+	if err != nil || len(subjects) != 1 || subjects[0].OSMID != 2 {
+		t.Fatalf("returned mirror response = %+v, %v, want node 2", subjects, err)
+	}
+}
+
 func TestRunFailsOverFromNon200(t *testing.T) {
 	bad := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusTooManyRequests)
