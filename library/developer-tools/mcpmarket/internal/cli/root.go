@@ -38,6 +38,7 @@ type rootFlags struct {
 	// noLearn disables both teach (write) and recall (read) for this
 	// invocation. Mirrors the MCPMARKET_NO_LEARN env var.
 	noLearn                 bool
+	rejectPII               bool
 	selectFields            string
 	configPath              string
 	homePath                string
@@ -250,6 +251,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().BoolVar(&humanFriendly, "human-friendly", false, "Enable colored output and rich formatting")
 	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set agent-friendly output defaults (--json --compact --no-input --no-color)")
 	rootCmd.PersistentFlags().BoolVar(&flags.noLearn, "no-learn", false, "Disable the teach/recall learning loop for this invocation")
+	rootCmd.PersistentFlags().BoolVar(&flags.rejectPII, "reject-pii", os.Getenv("MCPMARKET_REJECT_PII") == "1", "Reject teaching inputs with detected email or phone patterns (env: MCPMARKET_REJECT_PII=1)")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
 	rootCmd.PersistentFlags().DurationVar(&flags.maxAge, "max-age", 30*time.Minute, "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables")
 	rootCmd.PersistentFlags().StringVar(&flags.runProfileName, "profile", "", "Apply values from a saved run profile; this does not select a client (see 'mcpmarket-pp-cli profile list')")

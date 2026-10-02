@@ -144,6 +144,27 @@ func learnDBPath(explicit string) string {
 	return defaultDBPath("mcpmarket-pp-cli")
 }
 
+// rejectDetectedPII is opt-in. It names the matching rule without echoing
+// personal text into stderr or the teach error log.
+func rejectDetectedPII(cmd *cobra.Command, action string, values ...string) error {
+	seen := make(map[string]struct{})
+	for _, value := range values {
+		for _, rule := range learn.ScanPII(value) {
+			seen[rule] = struct{}{}
+		}
+	}
+	if len(seen) == 0 {
+		return nil
+	}
+	for _, rule := range []string{learn.PIIRuleEmail, learn.PIIRulePhone} {
+		if _, ok := seen[rule]; ok {
+			fmt.Fprintf(cmd.ErrOrStderr(), "error: %s input matches the %s PII rule; remove personal identifiers before teaching\n", action, rule)
+		}
+	}
+	writeTeachErrLog(action + ": rejected input containing detected personal identifiers")
+	return silentCodeErr(2)
+}
+
 // newTeachCmd builds the `teach` cobra command — the LLM-facing write
 // surface. Silent on success, safe to background, errors only to
 // teach.log. Requires --resource-type so recalls can validate returned
@@ -208,20 +229,40 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 			}
 			query = resolvedQuery
 			if strings.TrimSpace(query) == "" {
-				writeTeachErrLog(fmt.Sprintf("teach: missing --query (args=%v resources=%v)", args, resources))
+				writeTeachErrLog("teach: missing --query")
 				return silentCodeErr(2)
 			}
 			if len(resources) == 0 {
-				writeTeachErrLog(fmt.Sprintf("teach: missing --resource for query=%q", query))
+				writeTeachErrLog("teach: missing --resource")
 				return silentCodeErr(2)
 			}
 			if strings.TrimSpace(resourceType) == "" {
-				writeTeachErrLog(fmt.Sprintf("teach: missing --resource-type for query=%q", query))
+				writeTeachErrLog("teach: missing --resource-type")
 				return silentCodeErr(2)
 			}
 			if strings.TrimSpace(playbookFile) != "" && strings.TrimSpace(playbookJSONInline) != "" {
-				writeTeachErrLog(fmt.Sprintf("teach: --playbook-file and --playbook-json are mutually exclusive (query=%q)", query))
+				writeTeachErrLog("teach: --playbook-file and --playbook-json are mutually exclusive")
 				return silentCodeErr(2)
+			}
+			hasPlaybookInput := strings.TrimSpace(playbookFile) != "" || strings.TrimSpace(playbookJSONInline) != "" || strings.TrimSpace(playbookNotesInline) != "" || strings.TrimSpace(playbookNotesFile) != ""
+			var resolvedPlaybookJSON, resolvedPlaybookNotes string
+			if flags.rejectPII {
+				if hasPlaybookInput {
+					var resolveErr error
+					resolvedPlaybookJSON, resolvedPlaybookNotes, resolveErr = resolvePlaybookInputs(playbookFile, playbookNotesInline, playbookNotesFile)
+					if resolveErr == nil && strings.TrimSpace(playbookJSONInline) != "" {
+						resolvedPlaybookJSON, resolveErr = resolveInlinePlaybook(playbookJSONInline)
+					}
+					if resolveErr != nil {
+						writeTeachErrLog("teach: invalid playbook input")
+						return silentCodeErr(2)
+					}
+				}
+				persistedInputs := []string{query, notes, resolvedPlaybookJSON, resolvedPlaybookNotes, venueArg, resourceType}
+				persistedInputs = append(persistedInputs, resources...)
+				if piiErr := rejectDetectedPII(cmd, "teach", persistedInputs...); piiErr != nil {
+					return piiErr
+				}
 			}
 			// PII guard (R18): scan the freeform query for obvious
 			// email/phone shapes before it persists into the learn
@@ -307,8 +348,14 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 			// teach.log but don't fail the resource learning above --
 			// the agent's primary write (resource learning) already
 			// succeeded, so degraded playbook recording is acceptable.
-			if strings.TrimSpace(playbookFile) != "" || strings.TrimSpace(playbookJSONInline) != "" || strings.TrimSpace(playbookNotesInline) != "" || strings.TrimSpace(playbookNotesFile) != "" {
-				if pbErr := upsertPlaybookFromTeach(cmd.Context(), s, learnCfg, query, playbookFile, playbookJSONInline, playbookNotesInline, playbookNotesFile, normalized); pbErr != nil {
+			if hasPlaybookInput {
+				var pbErr error
+				if flags.rejectPII {
+					pbErr = upsertResolvedPlaybookFromTeach(s, normalized, resolvedPlaybookJSON, resolvedPlaybookNotes)
+				} else {
+					pbErr = upsertPlaybookFromTeach(cmd.Context(), s, learnCfg, query, playbookFile, playbookJSONInline, playbookNotesInline, playbookNotesFile, normalized)
+				}
+				if pbErr != nil {
 					writeTeachErrLog(fmt.Sprintf("teach: playbook upsert: %v", pbErr))
 				}
 			}
@@ -404,6 +451,10 @@ func upsertPlaybookFromTeach(ctx context.Context, s *store.Store, learnCfg *enti
 		}
 		playbookJSON = out
 	}
+	return upsertResolvedPlaybookFromTeach(s, normalized, playbookJSON, notes)
+}
+
+func upsertResolvedPlaybookFromTeach(s *store.Store, normalized learn.NormalizedQuery, playbookJSON, notes string) error {
 	if playbookJSON == "" && notes == "" {
 		return nil
 	}
@@ -411,7 +462,7 @@ func upsertPlaybookFromTeach(ctx context.Context, s *store.Store, learnCfg *enti
 	if family == "" {
 		return fmt.Errorf("query normalized to empty family")
 	}
-	_, _, err = s.UpsertPlaybook(store.UpsertPlaybookInput{
+	_, _, err := s.UpsertPlaybook(store.UpsertPlaybookInput{
 		QueryFamily:  family,
 		PlaybookJSON: playbookJSON,
 		NotesText:    notes,
@@ -948,6 +999,11 @@ a whole family.`,
 			if strategy == "" {
 				strategy = patterns.StrategySubstitute
 			}
+			if flags.rejectPII {
+				if piiErr := rejectDetectedPII(cmd, "teach-pattern", queryTemplate, resourceTemplate, resourceType, venue, strategy, entityKind); piiErr != nil {
+					return piiErr
+				}
+			}
 			dbPath = learnDBPath(dbPath)
 			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
@@ -1028,6 +1084,11 @@ cannot be taught — they are derived from the canonical input.`,
 			}
 			if lookups.IsComputedKind(kind) {
 				return usageErr(fmt.Errorf("--kind %q is a computed kind and cannot be taught", kind))
+			}
+			if flags.rejectPII {
+				if piiErr := rejectDetectedPII(cmd, "teach-lookup", kind, canonical, value); piiErr != nil {
+					return piiErr
+				}
 			}
 			dbPath = learnDBPath(dbPath)
 			s, err := store.OpenWithContext(cmd.Context(), dbPath)
