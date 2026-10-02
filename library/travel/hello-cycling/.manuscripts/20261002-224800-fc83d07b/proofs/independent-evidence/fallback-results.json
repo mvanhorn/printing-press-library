@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "name": "explicit auto fallback",
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "no-cache disables fallback",
+      "exit": 5,
+      "passed": true
+    },
+    {
+      "name": "live no fallback",
+      "exit": 5,
+      "passed": true
+    },
+    {
+      "name": "sync no fallback",
+      "exit": 5,
+      "passed": true
+    },
+    {
+      "name": "changes no fallback",
+      "exit": 5,
+      "passed": true
+    }
+  ],
+  "baseline_preserved": true
+}

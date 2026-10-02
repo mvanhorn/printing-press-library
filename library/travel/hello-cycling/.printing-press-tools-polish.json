@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-10-02T16:10:14.085034Z",
+  "cli_dir": "\u003ccli-dir\u003e/hello-cycling-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "Generated client-profile list reads local profile names under its parent command; the three-word Short precisely names this simple action, and the framework supplies flag/help context."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 868,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Generated learnings list returns the local recorded learning rows; this concise Short is accurate and the parent namespace supplies scope. No provider or booking behavior is implied."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-10-02T16:07:49.100184Z"
+  }
+}

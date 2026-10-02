@@ -1,0 +1,60 @@
+{
+  "ttl": 60,
+  "data": {
+    "stations": [
+      {
+        "lat": 35.707252,
+        "lon": 139.777587,
+        "name": "新御徒町ステーション",
+        "address": "東京都台東区台東４丁目３１－１",
+        "station_id": "17",
+        "rental_uris": {
+          "ios": "https://www.hellocycling.jp/app/port/detail/17?referrer=odpt",
+          "web": "https://www.hellocycling.jp/app/port/detail/17?referrer=odpt",
+          "android": "https://www.hellocycling.jp/app/port/detail/17?referrer=odpt"
+        },
+        "parking_hoop": false,
+        "parking_type": "street_parking",
+        "contact_phone": "+8105038218282",
+        "vehicle_capacity": "8",
+        "is_charging_station": false
+      },
+      {
+        "lat": 35.758123,
+        "lon": 139.467186,
+        "name": "サイクルスポット東村山店",
+        "address": "東京都東村山市本町2-21-1",
+        "station_id": "1556",
+        "rental_uris": {
+          "ios": "https://www.hellocycling.jp/app/port/detail/1556?referrer=odpt",
+          "web": "https://www.hellocycling.jp/app/port/detail/1556?referrer=odpt",
+          "android": "https://www.hellocycling.jp/app/port/detail/1556?referrer=odpt"
+        },
+        "parking_hoop": false,
+        "parking_type": "street_parking",
+        "contact_phone": "+8105038218282",
+        "vehicle_capacity": "4",
+        "is_charging_station": false
+      },
+      {
+        "lat": 35.697315,
+        "lon": 139.704995,
+        "name": "プラーズタワー東新宿",
+        "address": "東京都新宿区歌舞伎町 2-18-5 ",
+        "station_id": "5112",
+        "rental_uris": {
+          "ios": "https://www.hellocycling.jp/app/port/detail/5112?referrer=odpt",
+          "web": "https://www.hellocycling.jp/app/port/detail/5112?referrer=odpt",
+          "android": "https://www.hellocycling.jp/app/port/detail/5112?referrer=odpt"
+        },
+        "parking_hoop": false,
+        "parking_type": "street_parking",
+        "contact_phone": "+8105038218282",
+        "vehicle_capacity": "13",
+        "is_charging_station": false
+      }
+    ]
+  },
+  "version": "2.3",
+  "last_updated": 1790952697
+}

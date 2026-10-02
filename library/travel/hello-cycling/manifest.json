@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "hello-cycling-pp-mcp",
+  "display_name": "HELLO CYCLING",
+  "version": "0.1.0",
+  "description": "Find compatible HELLO CYCLING pickup and return stations with timestamped counts and published pricing.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/hello-cycling-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/hello-cycling-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

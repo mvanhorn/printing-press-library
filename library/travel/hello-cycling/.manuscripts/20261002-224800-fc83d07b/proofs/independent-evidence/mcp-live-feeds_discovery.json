@@ -1,0 +1,12 @@
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"ttl\":60,\"data\":{\"ja\":{\"feeds\":[{\"url\":\"https://api-public.odpt.org/api/v4/gbfs/hellocycling/system_information.json\",\"name\":\"system_information\"},{\"url\":\"https://api-public.odpt.org/api/v4/gbfs/hellocycling/station_information.json\",\"name\":\"station_information\"},{\"url\":\"https://api-public.odpt.org/api/v4/gbfs/hellocycling/vehicle_types.json\",\"name\":\"vehicle_types\"},{\"url\":\"https://api-public.odpt.org/api/v4/gbfs/hellocycling/station_status.json\",\"name\":\"station_status\"}]}},\"version\":\"2.3\",\"last_updated\":1790957196}"
+      }
+    ]
+  }
+}

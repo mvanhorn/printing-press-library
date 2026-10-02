@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "verdict": "PASS",
+  "started_at": "2026-10-02T15:51:30Z",
+  "elapsed_ms": 18294,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T15:51:30Z",
+      "elapsed_ms": 3448,
+      "command": "/Users/zjsng/go/bin/cli-printing-press verify --dir /Users/zjsng/Projects/Personal/Coding/hello-cycling-cli --write-manifest /Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/.printing-press.json --spec /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/hello-cycling/.runstate/hello-cycling-cli-d9239d4e/runs/20261002-224800-fc83d07b/research/hello-cycling.yaml --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T15:51:34Z",
+      "elapsed_ms": 173,
+      "command": "/Users/zjsng/go/bin/cli-printing-press validate-narrative --strict --full-examples --research /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/hello-cycling/.runstate/hello-cycling-cli-d9239d4e/runs/20261002-224800-fc83d07b/research.json --binary /Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/build/stage/bin/hello-cycling-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T15:51:34Z",
+      "elapsed_ms": 2528,
+      "command": "/Users/zjsng/go/bin/cli-printing-press dogfood --dir /Users/zjsng/Projects/Personal/Coding/hello-cycling-cli --spec /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/hello-cycling/.runstate/hello-cycling-cli-d9239d4e/runs/20261002-224800-fc83d07b/research/hello-cycling.yaml --research-dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/hello-cycling/.runstate/hello-cycling-cli-d9239d4e/runs/20261002-224800-fc83d07b"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T15:51:36Z",
+      "elapsed_ms": 6820,
+      "command": "/Users/zjsng/go/bin/cli-printing-press workflow-verify --dir /Users/zjsng/Projects/Personal/Coding/hello-cycling-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T15:51:43Z",
+      "elapsed_ms": 34,
+      "command": "/Users/zjsng/go/bin/cli-printing-press apify-audit --dir /Users/zjsng/Projects/Personal/Coding/hello-cycling-cli --research-dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/hello-cycling/.runstate/hello-cycling-cli-d9239d4e/runs/20261002-224800-fc83d07b"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T15:51:43Z",
+      "elapsed_ms": 2229,
+      "command": "/Users/zjsng/go/bin/cli-printing-press verify-skill --dir /Users/zjsng/Projects/Personal/Coding/hello-cycling-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T15:51:45Z",
+      "elapsed_ms": 3059,
+      "command": "/Users/zjsng/go/bin/cli-printing-press scorecard --dir /Users/zjsng/Projects/Personal/Coding/hello-cycling-cli --write-manifest /Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/.printing-press.json --research-dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/hello-cycling/.runstate/hello-cycling-cli-d9239d4e/runs/20261002-224800-fc83d07b --spec /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/hello-cycling/.runstate/hello-cycling-cli-d9239d4e/runs/20261002-224800-fc83d07b/research/hello-cycling.yaml --live-check"
+    }
+  ]
+}

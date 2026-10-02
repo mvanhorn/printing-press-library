@@ -1,0 +1,19 @@
+{
+  "internal/cycling/client.go": "5391c31b2aaefc23c30aa56661cbef861e94a24fececff9803cac0aee9078661",
+  "internal/cycling/model.go": "a0113c602495acc42b9c2608c3d2a9937671ce5a4d33dea8843a351c78f1f3c4",
+  "internal/cycling/pricing.go": "3ae77519058cb2aa73121f9860724a1e3f8ffd9e1f4813a7601edb0f04c48589",
+  "internal/cycling/store.go": "9b5bdbeee1802a3b2b7ee04748cd4cc5792a36c2fd5140a094035c0dc25a120b",
+  "internal/cli/hello_cycling_commands.go": "18fe1315a84d0c188383b3bfc31d161c2152f13dfea16db18917b89296e4873b",
+  "internal/cli/hello_cycling_transport.go": "05920ce28c3c5a35aa0786b7cd502013b6473578437614b7cd874bbdfedf7927",
+  "internal/cli/stations_find.go": "ccea19ed4547349aa20950097b75828bebe01e3258112a6df7b42b53d0881dea",
+  "internal/cli/stations_show.go": "30f754a6cf78b5243ad5db82b04152c7e483375ab1b86464890918730a07c2a0",
+  "internal/cli/stations_nearby.go": "c01b380cf46fd87a57c1e0e23b8fa58f2f689220b4006eb3a06c50f43b92187a",
+  "internal/cli/stations_sync.go": "d819879b9a7031aaf2a784cd7d86e5ddec53426c7d7a3cca3a5ab782eb2af6a4",
+  "internal/cli/stations_changes.go": "03094064c875aa1c1214e6fc2613282cb6019945ed5da8edbb95c6d0f1ff33f1",
+  "internal/cli/trip_compare.go": "9279593f3ae1405cb1ec8f318fc2cd18055e81ee700dfdf42eed5469234b5a40",
+  "internal/cli/pricing_show.go": "5bdcd15b41f15b6d3a90293a3d23000d5a1aad870e3c7d10961f3ba058e537ed",
+  "internal/mcp/tools.go": "1c70f3c5ebd5a5288a711cf85eed8258a58768b1fbb269e15696dab3f0570aea",
+  "README.md": "814d31ceb26da6827239585e8bdc14d0610ffe0c30328a4549c91cdd0061b087",
+  "SKILL.md": "fa60fdbad47e160350e057b5c5170d3155703c2e244541d1243ad92902df47a4",
+  "AGENTS.md": "ed2ef397719ebdbb0c687c83e5aa549fc68ac56af8a91acd1d954aaa5886cb5f"
+}

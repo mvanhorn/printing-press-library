@@ -1,0 +1,12 @@
+{
+  "verdict": "PASS",
+  "matrix_size": 128,
+  "passed": 128,
+  "failed": 0,
+  "skipped": 81,
+  "unverified": 81,
+  "pass_rate": 100,
+  "ran_at": "2026-10-02T17:06:44.252099Z",
+  "exit_code": 0,
+  "raw_transcript_retained": false
+}

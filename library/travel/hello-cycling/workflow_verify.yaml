@@ -1,0 +1,19 @@
+workflows:
+  - name: Find a Japanese station, compare compatible endpoints and inspect published prices
+    primary: true
+    steps:
+      - command: stations find --query 東新宿 --limit 3 --no-learn
+        mode: live
+        expect_fields: [meta, results]
+      - command: stations show --id 5112 --no-learn
+        mode: live
+        expect_fields: [meta, results]
+      - command: trip compare --from-lat 35.697315 --from-lon 139.704995 --to-lat 35.707252 --to-lon 139.777587 --vehicle-type 2 --limit 3 --no-learn
+        mode: live
+        expect_fields: [meta, results]
+      - command: pricing show --area tokyo --no-learn
+        mode: live
+        expect_fields: [meta, results]
+      - command: vehicles rules --no-learn
+        mode: live
+        expect_fields: [meta, results]

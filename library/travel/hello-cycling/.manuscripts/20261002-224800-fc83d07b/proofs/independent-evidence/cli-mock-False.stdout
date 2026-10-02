@@ -1,0 +1,20 @@
+{
+  "meta": {
+    "source": "live"
+  },
+  "results": {
+    "version": "2.3",
+    "last_updated": 1790957262,
+    "ttl": 60,
+    "data": {
+      "ja": {
+        "feeds": [
+          {
+            "name": "vehicle_types",
+            "url": "https://api-public.odpt.org/api/v4/gbfs/hellocycling/vehicle_types.json"
+          }
+        ]
+      }
+    }
+  }
+}

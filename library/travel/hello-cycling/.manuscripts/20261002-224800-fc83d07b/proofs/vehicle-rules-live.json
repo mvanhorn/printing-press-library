@@ -1,0 +1,34 @@
+{
+  "meta": {
+    "attribution": "HELLO CYCLING / OpenStreet Co., Ltd. via ODPT",
+    "feed": {
+      "last_updated": 1790955998,
+      "ttl_seconds": 60,
+      "url": "https://api-public.odpt.org/api/v4/gbfs/hellocycling/vehicle_types.json",
+      "version": "2.3"
+    },
+    "license": "CC BY 4.0",
+    "license_url": "https://d1yl7kw204zjxn.cloudfront.net/gbfs/v2/public/hellocycling_gbfs_licence.txt",
+    "observed_at": "2026-10-02T15:51:28.980645Z",
+    "observed_at_jst": "2026-10-03T00:51:28+09:00",
+    "request_count": 2,
+    "response_bytes": 26287,
+    "rules": [
+      "Some vehicle models must be returned at dedicated or compatible stations; confirm the actual vehicle in the app.",
+      "Electric cycles are currently app-only. The provider requires passing its traffic-rules test and submitting proof of age 16 or older.",
+      "Electric-cycle stations must be selected using the electric-cycle filter in the official app; generic GBFS class compatibility does not prove electric-cycle eligibility."
+    ],
+    "rules_source_url": "https://www.hellocycling.jp/getting-started/types-and-stations/",
+    "scope": "Published GBFS classes only. Type 2 is a generic electric-assist bicycle; it does not identify city/sports/e-Bike models, batteries or model-specific rates.",
+    "source": "live"
+  },
+  "results": [
+    {
+      "form_factor": "bicycle",
+      "name": "hellocycling bicycle",
+      "propulsion_type": "electric_assist",
+      "return_constraint": "any_station",
+      "vehicle_type_id": "2"
+    }
+  ]
+}

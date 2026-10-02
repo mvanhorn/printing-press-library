@@ -1,0 +1,59 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "test": "CLI mock transport",
+      "passed": true,
+      "exit": 0
+    },
+    {
+      "test": "MCP mock transport",
+      "passed": true
+    },
+    {
+      "test": "CLI mock cap",
+      "passed": true,
+      "exit": 5
+    },
+    {
+      "test": "MCP mock cap",
+      "passed": true
+    },
+    {
+      "test": "MCP live feeds_discovery",
+      "passed": true,
+      "seconds": 0.367
+    },
+    {
+      "test": "MCP live feeds_vehicles",
+      "passed": true,
+      "seconds": 0.39
+    },
+    {
+      "test": "CLI live discovery",
+      "passed": true
+    },
+    {
+      "test": "CLI live vehicles",
+      "passed": true
+    }
+  ],
+  "mock_requests": [
+    {
+      "path": "/gbfs.json",
+      "accept_encoding": "identity"
+    },
+    {
+      "path": "/gbfs.json",
+      "accept_encoding": "identity"
+    },
+    {
+      "path": "/gbfs.json",
+      "accept_encoding": "identity"
+    },
+    {
+      "path": "/gbfs.json",
+      "accept_encoding": "identity"
+    }
+  ]
+}

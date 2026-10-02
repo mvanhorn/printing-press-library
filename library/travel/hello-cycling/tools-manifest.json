@@ -1,0 +1,56 @@
+{
+  "api_name": "hello-cycling",
+  "base_url": "https://api-public.odpt.org/api/v4/gbfs/hellocycling",
+  "description": "Find compatible HELLO CYCLING pickup and return stations with timestamped counts and published pricing.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "feeds_discovery",
+      "description": "Get advertised anonymous HELLO CYCLING GBFS feed URLs. Returns the Feed.",
+      "method": "GET",
+      "path": "/gbfs.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "feeds_vehicles",
+      "description": "Get generic source vehicle classes without assigning station bike models. Returns the Feed.",
+      "method": "GET",
+      "path": "/vehicle_types.json",
+      "no_auth": true,
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Nearby availability",
+      "command": "stations nearby",
+      "description": "Find nearby pickup or return choices while retaining closed, empty, full, stale and unknown states."
+    },
+    {
+      "name": "Compatible trip endpoints",
+      "command": "trip compare",
+      "description": "Compare pickup and dropoff pairs with per-type return capacity and straight-line access distances."
+    },
+    {
+      "name": "Explicit offline snapshots",
+      "command": "stations sync",
+      "description": "Save a provider snapshot for offline station discovery with original source timestamps."
+    },
+    {
+      "name": "Snapshot changes",
+      "command": "stations changes",
+      "description": "Inspect count and operational changes since an explicitly saved snapshot."
+    },
+    {
+      "name": "Regional model pricing",
+      "command": "pricing show",
+      "description": "Read current source tables including municipal exceptions without asserting a station bike price."
+    }
+  ]
+}

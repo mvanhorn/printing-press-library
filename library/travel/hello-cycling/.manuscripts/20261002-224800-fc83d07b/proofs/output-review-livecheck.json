@@ -1,0 +1,108 @@
+{
+  "live_check": {
+    "passed": 4,
+    "failed": 0,
+    "skipped": 1,
+    "features": [
+      {
+        "name": "Nearby availability",
+        "command": "stations nearby",
+        "example": "hello-cycling-pp-cli stations nearby --lat 35.697315 --lon 139.704995 --purpose pickup --vehicle-type 2 --agent",
+        "status": "pass",
+        "output_sample": "{\"meta\":{\"attribution\":\"HELLO CYCLING / OpenStreet Co., Ltd. via ODPT; normalized and locally ranked\",\"caveat\":\"Counts are source observations, not reserved availability. Confirm the actual bike, return eligibility and price in the official app; distances are straight-line, not walking or cycling routes.\",\"evaluated_at\":\"2026-10-02T15:45:19.656515Z\",\"evaluated_at_jst\":\"2026-10-03T00:45:19+09:00\",\"feeds\":{\"gbfs\":{\"last_updated\":1790955697,\"ttl_seconds\":60,\"url\":\"https://api-public.odpt.org/api/v4/gbfs/hellocycling/gbfs.json\",\"version\":\"2.3\"},\"station_information\":{\"last_updated\":1790955697,\"ttl_seconds\":60,\"url\":\"https://api-public.odpt.org/api/v4/gbfs/hellocycling/station_information.json\",\"version\":\"2.3\"},\"station_status\":{\"last_updated\":1790955697,\"ttl_seconds\":60,\"url\":\"https://api-public.odpt.org/api/v4/gbfs/hellocycling/station_status.json\",\"version\":\"2.3\"},\"vehicle_types\":{\"last_updated\":1790955697,\"ttl_seconds\":60,\"url\":\"https://api-public.odpt.org/api/v4/gbfs/hellocycling/vehicle_types.json\",\"version\":\"2.3\"}},\"license\":\"CC BY 4.0\",\"license_url\":\"https://d1yl7kw204zjxn.cloudfront.net/gbfs/v2/public/hellocycling_gbfs_licence.txt\",\"observed_at\":\"2026-10-02T15:45:19.648888Z\",\"observed_at_jst\":\"2026-10-03T00:45:19+09:00\",\"query\":{\"available_only\":false,\"latitude\":35.697315,\"longitude\":139.704995,\"purpose\":\"pickup\",\"radius_meters\":1500},\"request_count\":4,\"response_bytes\":12391334,\"source\":\"live\",\"timezone\":\"Asia/Tokyo\",\"total_matches\":25,\"warnings\":[]},\"results\":[{\"address\":\"\u003credacted\u003e\",\"age_seconds\":260,\"bikes_available\":0,\"capacity\":13,\"compatibility_note\":\"GBFS generic vehicle class only; individual model, battery, rules and price require app confirmation.\",\"distance_meters\":0,\"id\":\"5112\",\"is_installed\":true,\"is_renting\":true,\"is_returning\":true,\"last_reported_at\":\"2026-10-02T15:40:59Z\",\"latitude\":35.697315,\"longitude\":139.704995,\"name\":\"\u003credacted\u003e\",\"parking_type\":\"street_parking\",\"rental_state\":\"empty\",\"rental_uris\":{\"android\":\"https://www.hellocycling.jp/app/port/detail/5112?referrer=odpt\",\"ios\":\"https://www.hellocycling.jp/app/port/detail/5112?referrer=odpt\",\"web\":\"https://www.hellocycling.jp/app/port/detail/5112?referrer=odpt\"},\"return_spaces\":12,\"return_state\":\"available\",\"selected_type_bikes\":0,\"selected_type_return_spaces\":12,\"selected_vehicle_type\":\"2\",\"source_url\":\"https://www.hellocycling.jp/app/port/detail/5112?referrer=odpt\",\"stale\":false,\"vehicle_docks_available\":[{\"count\":12,\"vehicle_type_ids\":[\"2\"]}],\"vehicle_types_available\":[{\"count\":0,\"vehicle_type_id\":\"2\"}]},{\"address\":\"\u003credacted\u003e\",\"age_seconds\":256,\"bikes_available\":0,\"capacity\":22,\"compatibility_note\":\"GBFS generic vehicle class only; individual model, battery, rules and price require app confirmation.\",\"distance_meters\":384,\"id\":\"7125\",\"is_installed\":true,\"is_renting\":true,\"is_returning\":true,\"last_reported_at\":\"2026-10-02T15:41:03Z\",\"latitude\":35.697522,\"longitude\":139.700752,\"name\":\"\u003credacted\u003e\",\"parking_type\":\"street_parking\",\"rental_state\":\"empty\",\"rental_uris\":{\"android\":\"https://www.hellocycling.jp/app/port/detail/7125?referrer=odpt\",\"ios\":\"https://www.hellocycling.jp/app/port/detail/7125?referrer=odpt\",\"web\":\"https://www.hellocycling.jp/app/port/detail/7125?referrer=odpt\"},\"return_spaces\":21,\"return_state\":\"available\",\"selected_type_bikes\":0,\"selected_type_return_spaces\":21,\"selected_vehicle_type\":\"2\",\"source_url\":\"https://www.hellocycling.jp/app/port/detail/7125?referrer=odpt\",\"stale\":false,\"vehicle_docks_available\":[{\"count\":21,\"vehicle_type_ids\":[\"2\"]}],\"vehicle_types_available\":[{\"count\":0,\"vehicle_type_id\":\"2\"}]},{\"address\":\"\u003credacted\u003e\",\"age_seconds\":251,\"bikes_available\":0,\"capacity\":2,\"compatibility_note\":\"GBFS generic vehicle class only; individual model, battery, rules and price require app confirmation.\",\"distance_meters\":437,\"id\":\"10943\",\"is_installed\":true,\"is_renting\":true,\"is_returning\":true,\"last_reported_at\":\"2026-10-02T15:41:08Z\",\"latitude\":35.700300455005,\"longitude\":139.70813943925,\"name\":\"\u003credacted\u003e\",\"parking_type\":\"street_parking\",\"rental_state\":\"empty\",\"rental_uris\":{\"android\":\"https://www.hellocycling.jp/app/port/de…[truncated]"
+      },
+      {
+        "name": "Compatible trip endpoints",
+        "command": "trip compare",
+        "example": "hello-cycling-pp-cli trip compare --from-lat 35.697315 --from-lon 139.704995 --to-lat 35.707252 --to-lon 139.777587 --vehicle-type 2 --agent",
+        "status": "pass",
+        "output_sample": "{\"meta\":{\"attribution\":\"HELLO CYCLING / OpenStreet Co., Ltd. via ODPT; normalized and locally ranked\",\"caveat\":\"Counts are source observations, not reserved availability. Confirm the actual bike, return eligibility and price in the official app; distances are straight-line, not walking or cycling routes.\",\"coverage\":{\"availability\":\"fresh observed compatible generic class; confirm the actual vehicle in app\",\"candidate_limit_per_endpoint\":6,\"radius_meters\":1500,\"vehicle_type\":\"2\"},\"evaluated_at\":\"2026-10-02T15:45:19.182531Z\",\"evaluated_at_jst\":\"2026-10-03T00:45:19+09:00\",\"feeds\":{\"gbfs\":{\"last_updated\":1790955697,\"ttl_seconds\":60,\"url\":\"https://api-public.odpt.org/api/v4/gbfs/hellocycling/gbfs.json\",\"version\":\"2.3\"},\"station_information\":{\"last_updated\":1790955697,\"ttl_seconds\":60,\"url\":\"https://api-public.odpt.org/api/v4/gbfs/hellocycling/station_information.json\",\"version\":\"2.3\"},\"station_status\":{\"last_updated\":1790955697,\"ttl_seconds\":60,\"url\":\"https://api-public.odpt.org/api/v4/gbfs/hellocycling/station_status.json\",\"version\":\"2.3\"},\"vehicle_types\":{\"last_updated\":1790955697,\"ttl_seconds\":60,\"url\":\"https://api-public.odpt.org/api/v4/gbfs/hellocycling/vehicle_types.json\",\"version\":\"2.3\"}},\"license\":\"CC BY 4.0\",\"license_url\":\"https://d1yl7kw204zjxn.cloudfront.net/gbfs/v2/public/hellocycling_gbfs_licence.txt\",\"observed_at\":\"2026-10-02T15:45:19.174384Z\",\"observed_at_jst\":\"2026-10-03T00:45:19+09:00\",\"request_count\":4,\"response_bytes\":12391334,\"source\":\"live\",\"timezone\":\"Asia/Tokyo\",\"total_matches\":5,\"warnings\":[]},\"results\":[{\"compatibility\":\"compatible_generic_vehicle_class_observed\",\"dropoff\":{\"address\":\"\u003credacted\u003e\",\"age_seconds\":266,\"bikes_available\":2,\"capacity\":8,\"compatibility_note\":\"GBFS generic vehicle class only; individual model, battery, rules and price require app confirmation.\",\"distance_meters\":0,\"id\":\"17\",\"is_installed\":true,\"is_renting\":true,\"is_returning\":true,\"last_reported_at\":\"2026-10-02T15:40:53Z\",\"latitude\":35.707252,\"longitude\":139.777587,\"name\":\"\u003credacted\u003e\",\"parking_type\":\"street_parking\",\"rental_state\":\"available\",\"rental_uris\":{\"android\":\"https://www.hellocycling.jp/app/port/detail/17?referrer=odpt\",\"ios\":\"https://www.hellocycling.jp/app/port/detail/17?referrer=odpt\",\"web\":\"https://www.hellocycling.jp/app/port/detail/17?referrer=odpt\"},\"return_spaces\":6,\"return_state\":\"available\",\"selected_type_bikes\":2,\"selected_type_return_spaces\":6,\"selected_vehicle_type\":\"2\",\"source_url\":\"https://www.hellocycling.jp/app/port/detail/17?referrer=odpt\",\"stale\":false,\"vehicle_docks_available\":[{\"count\":6,\"vehicle_type_ids\":[\"2\"]}],\"vehicle_types_available\":[{\"count\":2,\"vehicle_type_id\":\"2\"}]},\"pickup\":{\"address\":\"\u003credacted\u003e\",\"age_seconds\":240,\"bikes_available\":11,\"capacity\":24,\"compatibility_note\":\"GBFS generic vehicle class only; individual model, battery, rules and price require app confirmation.\",\"distance_meters\":503,\"id\":\"15919\",\"is_installed\":true,\"is_renting\":true,\"is_returning\":true,\"last_reported_at\":\"2026-10-02T15:41:19Z\",\"latitude\":35.701833964045,\"longitude\":139.70471262932,\"name\":\"\u003credacted\u003e\",\"parking_type\":\"street_parking\",\"rental_state\":\"available\",\"rental_uris\":{\"android\":\"https://www.hellocycling.jp/app/port/detail/15919?referrer=odpt\",\"ios\":\"https://www.hellocycling.jp/app/port/detail/15919?referrer=odpt\",\"web\":\"https://www.hellocycling.jp/app/port/detail/15919?referrer=odpt\"},\"return_spaces\":12,\"return_state\":\"available\",\"selected_type_bikes\":11,\"selected_type_return_spaces\":12,\"selected_vehicle_type\":\"2\",\"source_url\":\"https://www.hellocycling.jp/app/port/detail/15919?referrer=odpt\",\"stale\":false,\"vehicle_docks_available\":[{\"count\":12,\"vehicle_type_ids\":[\"2\"]}],\"vehicle_types_available\":[{\"count\":11,\"vehicle_type_id\":\"2\"}]},\"total_access_distance_meters\":503},{\"compatibility\":\"compatible_generic_vehicle_class_observed\",\"dropoff\":{\"address\":\"\u003credacted\u003e\",\"age_seconds\":261,\"bikes_available\":3,\"capacity\":5,\"compatibility_note\":\"GBFS generic vehicle class only; individual model, battery, rules and price require app confirmation.\",\"distance_meters\":17,\"id\":\"4760\",\"is_installed\":true,\"is_renting\":true…[truncated]"
+      },
+      {
+        "name": "Explicit offline snapshots",
+        "command": "stations sync",
+        "example": "hello-cycling-pp-cli stations sync --agent",
+        "status": "skip",
+        "reason": "mutating example requires --allow-destructive"
+      },
+      {
+        "name": "Snapshot changes",
+        "command": "stations changes",
+        "example": "hello-cycling-pp-cli stations changes --query 新宿 --agent",
+        "status": "pass",
+        "reason": "graceful empty: Error: offline snapshot unavailable; run stations sync first: stat /var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T/printing-press-subprocess-4132141656/.local/share/hello-cycling-pp-cli/data.db: no such file or directory",
+        "output_sample": "Error: offline snapshot unavailable; run stations sync first: stat /var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T/printing-press-subprocess-4132141656/.local/share/hello-cycling-pp-cli/data.db: no such file or directory\n"
+      },
+      {
+        "name": "Regional model pricing",
+        "command": "pricing show",
+        "example": "hello-cycling-pp-cli pricing show --area tokyo --agent",
+        "status": "pass",
+        "output_sample": "{\n  \"meta\": {\n    \"constraints\": [\n      \"Confirm the exact rate in the app before starting. Area and vehicle model can change the rate, even at the same station.\",\n      \"Fractions of a minute round up. Where no initial 30-minute price is set, 15-minute pricing applies immediately.\",\n      \"Municipality exception tables override the area's base table. A 'not_set' cell is not a zero price and does not establish vehicle availability.\",\n      \"These are source-published price bands, not a ride quote. GBFS class 2 cannot identify city/sports/e-Bike models or assign these prices to a station bike.\"\n    ],\n    \"constraints_source_url\": \"https://www.hellocycling.jp/price/\",\n    \"currency\": \"JPY\",\n    \"observed_at\": \"2026-10-02T15:45:18.290611Z\",\n    \"observed_at_jst\": \"2026-10-03T00:45:18+09:00\",\n    \"request_count\": 2,\n    \"response_bytes\": 41091,\n    \"source\": \"live\",\n    \"source_url\": \"https://www.hellocycling.jp/price/tokyo/\",\n    \"timezone\": \"Asia/Tokyo\"\n  },\n  \"results\": [\n    {\n      \"area\": \"東京都\",\n      \"models\": [\n        \"シティサイクル\",\n        \"スポーツタイプ\",\n        \"e-Bikeタイプ\",\n        \"電動サイクル\"\n      ],\n      \"rows\": [\n        {\n          \"duration_label\": \"利用開始30分まで\",\n          \"rates_by_model\": {\n            \"e-Bikeタイプ\": {\n              \"setting\": \"published\",\n              \"source_text\": \"300円\",\n              \"yen\": 300\n            },\n            \"シティサイクル\": {\n              \"setting\": \"published\",\n              \"source_text\": \"160円\",\n              \"yen\": 160\n            },\n            \"スポーツタイプ\": {\n              \"setting\": \"not_set\",\n              \"source_text\": \"設定なし\",\n              \"yen\": null\n            },\n            \"電動サイクル\": {\n              \"setting\": \"not_set\",\n              \"source_text\": \"設定なし\",\n              \"yen\": null\n            }\n          }\n        },\n        {\n          \"duration_label\": \"15分ごと\",\n          \"rates_by_model\": {\n            \"e-Bikeタイプ\": {\n              \"setting\": \"published\",\n              \"source_text\": \"200円\",\n              \"yen\": 200\n            },\n            \"シティサイクル\": {\n              \"setting\": \"published\",\n              \"source_text\": \"160円\",\n              \"yen\": 160\n            },\n            \"スポーツタイプ\": {\n              \"setting\": \"published\",\n              \"source_text\": \"160円\",\n              \"yen\": 160\n            },\n            \"電動サイクル\": {\n              \"setting\": \"published\",\n              \"source_text\": \"200円\",\n              \"yen\": 200\n            }\n          }\n        },\n        {\n          \"duration_label\": \"12時間まで\",\n          \"rates_by_model\": {\n            \"e-Bikeタイプ\": {\n              \"setting\": \"published\",\n              \"source_text\": \"3,000円\",\n              \"yen\": 3000\n            },\n            \"シティサイクル\": {\n              \"setting\": \"published\",\n              \"source_text\": \"2,500円\",\n              \"yen\": 2500\n            },\n            \"スポーツタイプ\": {\n              \"setting\": \"published\",\n              \"source_text\": \"3,000円\",\n              \"yen\": 3000\n            },\n            \"電動サイクル\": {\n              \"setting\": \"published\",\n              \"source_text\": \"4,000円\",\n              \"yen\": 4000\n            }\n          }\n        },\n        {\n          \"duration_label\": \"24時間まで\",\n          \"rates_by_model\": {\n            \"e-Bikeタイプ\": {\n              \"setting\": \"not_set\",\n              \"source_text\": \"設定なし\",\n              \"yen\": null\n            },\n            \"シティサイクル\": {\n              \"setting\": \"not_set\",\n              \"source_text\": \"設定なし\",\n              \"yen\": null\n            },\n            \"スポーツタイプ\": {\n              \"setting\": \"not_set\",\n              \"source_text\": \"設定なし\",\n              \"yen\": null\n            },\n            \"電動サイクル\": {\n              \"setting\": \"not_set\",\n              \"source_text\": \"設定なし\",\n              \"yen\": null\n       …[truncated]"
+      }
+    ],
+    "binary_refresh": {
+      "action": "rebuilt",
+      "stage_path": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/build/stage/bin/hello-cycling-pp-cli",
+      "binary_path": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/build/stage/bin/hello-cycling-pp-cli",
+      "reason": "staged binary was older than Go sources"
+    },
+    "ran_at": "2026-10-02T15:45:16.197408Z",
+    "status": "available",
+    "checked": 5,
+    "evaluated": 4,
+    "pass_rate_pct": 100
+  },
+  "scorecard": {
+    "api_name": "hello-cycling",
+    "steinberger": {
+      "output_modes": 10,
+      "auth": 10,
+      "error_handling": 8,
+      "terminal_ux": 9,
+      "readme": 10,
+      "doctor": 10,
+      "agent_native": 10,
+      "mcp_quality": 8,
+      "mcp_description_quality": 10,
+      "mcp_token_efficiency": 10,
+      "mcp_remote_transport": 0,
+      "mcp_tool_design": 0,
+      "mcp_surface_strategy": 0,
+      "local_cache": 10,
+      "cache_freshness": 3,
+      "breadth": 9,
+      "vision": 7,
+      "workflows": 10,
+      "insight": 10,
+      "agent_workflow_readiness": 9,
+      "path_validity": 0,
+      "auth_protocol": 0,
+      "data_pipeline_integrity": 7,
+      "sync_correctness": 7,
+      "type_fidelity": 5,
+      "dead_code": 0,
+      "live_api_verification": 0,
+      "total": 76,
+      "percentage": 76
+    },
+    "competitor_scores": null,
+    "overall_grade": "B (2 of 23 dimensions unverified: path_validity, auth_protocol)",
+    "gap_report": [
+      "dead_code scored 0/5 - needs improvement",
+      "MCP: 2 tools (2 public, 0 auth-required) — readiness: full"
+    ],
+    "unscored_dimensions": [
+      "mcp_remote_transport",
+      "mcp_tool_design",
+      "mcp_surface_strategy",
+      "path_validity",
+      "auth_protocol",
+      "live_api_verification"
+    ],
+    "unverified_dimensions": [
+      "path_validity",
+      "auth_protocol"
+    ]
+  }
+}

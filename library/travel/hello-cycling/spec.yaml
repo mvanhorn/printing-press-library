@@ -1,0 +1,51 @@
+name: hello-cycling
+cli_description: "Find compatible HELLO CYCLING pickup and return stations with timestamped counts and published pricing."
+description: "Read-only HELLO CYCLING station planning from provider-published GBFS and first-party pricing."
+version: "0.1.0"
+category: travel
+base_url: "https://api-public.odpt.org/api/v4/gbfs/hellocycling"
+health_check_path: "/gbfs.json"
+auth:
+  type: none
+cache:
+  enabled: false
+mcp:
+  transport: [stdio]
+learn:
+  entity_lookup_seeds:
+    vehicle:
+      - canonical: hellocycling bicycle
+        aliases: [hello cycling bicycle, hello bicycle]
+  synonyms:
+    "hello cycling": "hellocycling"
+resources:
+  feeds:
+    description: "Inspect the provider-published GBFS discovery and vehicle type metadata."
+    endpoints:
+      discovery:
+        method: GET
+        path: "/gbfs.json"
+        description: "Get advertised anonymous HELLO CYCLING GBFS feed URLs."
+        response:
+          type: object
+          item: Feed
+      vehicles:
+        method: GET
+        path: "/vehicle_types.json"
+        description: "Get generic source vehicle classes without assigning station bike models."
+        response:
+          type: object
+          item: Feed
+        response_path: data
+        happy_args: ""
+types:
+  Feed:
+    fields:
+      - name: last_updated
+        type: int
+      - name: ttl
+        type: int
+      - name: version
+        type: string
+      - name: data
+        type: object

@@ -1,0 +1,49 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "name": "pair limit1",
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "local selection",
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "name": "offline-live conflict",
+      "exit": 2,
+      "passed": true
+    },
+    {
+      "name": "pricing local",
+      "exit": 2,
+      "passed": true
+    },
+    {
+      "name": "rules local",
+      "exit": 2,
+      "passed": true
+    },
+    {
+      "name": "sync local",
+      "exit": 2,
+      "passed": true
+    },
+    {
+      "name": "changes local",
+      "exit": 2,
+      "passed": true
+    }
+  ],
+  "data_dir_precedence": true,
+  "relative_escaped_path": true,
+  "oversized": {
+    "exit": 5,
+    "seconds": 0.011,
+    "max_rss_bytes": 21086208,
+    "stderr": "Error: offline snapshot exceeds size bound\n",
+    "passed": true
+  }
+}

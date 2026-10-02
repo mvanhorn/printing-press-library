@@ -1,0 +1,631 @@
+{
+	"Golang errors": {},
+	"Issues": [
+		{
+			"severity": "HIGH",
+			"confidence": "LOW",
+			"cwe": {
+				"id": "295",
+				"url": "https://cwe.mitre.org/data/definitions/295.html"
+			},
+			"rule_id": "G402",
+			"details": "TLS InsecureSkipVerify may be set to true.",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/client/chrome.go",
+			"code": "148: \t\t}\n149: \t\ttlsConn := tls.Client(conn, \u0026tls.Config{ServerName: host, InsecureSkipVerify: skipTLSVerify})\n150: \t\tif err := tlsConn.HandshakeContext(ctx); err != nil {\n",
+			"line": "149",
+			"column": "81",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "200",
+				"url": "https://cwe.mitre.org/data/definitions/200.html"
+			},
+			"rule_id": "G119",
+			"details": "Sensitive headers should not be re-added in redirect policy callbacks",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/client/client.go",
+			"code": "436: \t\t\tif h, err := c.authHeader(req.Context()); err == nil \u0026\u0026 h != \"\" {\n437: \t\t\t\treq.Header.Set(\"Authorization\", h)\n438: \t\t\t}\n",
+			"line": "437",
+			"column": "19",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "LOW",
+			"cwe": {
+				"id": "798",
+				"url": "https://cwe.mitre.org/data/definitions/798.html"
+			},
+			"rule_id": "G101",
+			"details": "Potential hardcoded credentials",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/platform/gate.go",
+			"code": "21: \tGateMismatch           GateOutcome = \"mismatch\"\n22: \tGateInvalidCredentials GateOutcome = \"invalid_credentials\"\n23: \tGateInsufficientScope  GateOutcome = \"insufficient_scope\"\n",
+			"line": "22",
+			"column": "2",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/cli/teach.go",
+			"code": "209: \t}\n210: \treturn os.WriteFile(path, []byte(strings.Join(kept, \"\\n\")+\"\\n\"), 0o600)\n211: }\n",
+			"line": "210",
+			"column": "21",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "89",
+				"url": "https://cwe.mitre.org/data/definitions/89.html"
+			},
+			"rule_id": "G201",
+			"details": "SQL string formatting",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/store/store.go",
+			"code": "3557: \t\t}\n3558: \t\tquery := fmt.Sprintf(\n3559: \t\t\t`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, '$.%s')) = LOWER(?)`,\n3560: \t\t\tfield,\n3561: \t\t)\n3562: \t\trows, err := s.db.Query(query, resourceType, input)\n",
+			"line": "3558-3561",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "89",
+				"url": "https://cwe.mitre.org/data/definitions/89.html"
+			},
+			"rule_id": "G201",
+			"details": "SQL string formatting",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/store/store.go",
+			"code": "3254: \t\t// DISTINCT for the same reason as the typed-column path above.\n3255: \t\tfallback := fmt.Sprintf(\n3256: \t\t\t`SELECT DISTINCT json_extract(data, '$.%s') FROM resources WHERE resource_type = ? AND json_extract(data, '$.%s') IS NOT NULL`,\n3257: \t\t\tfield, field,\n3258: \t\t)\n3259: \t\trows, err = s.db.Query(fallback, resourceType)\n",
+			"line": "3255-3258",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "89",
+				"url": "https://cwe.mitre.org/data/definitions/89.html"
+			},
+			"rule_id": "G201",
+			"details": "SQL string formatting",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/store/store.go",
+			"code": "1203: \t}\n1204: \tquery := fmt.Sprintf(`SELECT data FROM \"%s\"%s`, table, order)\n1205: \targs := []any{}\n",
+			"line": "1204",
+			"column": "11",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "89",
+				"url": "https://cwe.mitre.org/data/definitions/89.html"
+			},
+			"rule_id": "G201",
+			"details": "SQL string formatting",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/store/store.go",
+			"code": "1179: \tfor _, col := range []string{\"updated_at\", \"synced_at\"} {\n1180: \t\tq := fmt.Sprintf(`SELECT name FROM pragma_table_info(\"%s\") WHERE name = ?`, table)\n1181: \t\tif err := s.db.QueryRow(q, col).Scan(\u0026dummy); err == nil {\n",
+			"line": "1180",
+			"column": "8",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "89",
+				"url": "https://cwe.mitre.org/data/definitions/89.html"
+			},
+			"rule_id": "G202",
+			"details": "SQL string concatenation",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/store/learnings.go",
+			"code": "608: \t}\n609: \tq := \"DELETE FROM search_learnings WHERE \" + strings.Join(clauses, \" AND \")\n610: \tres, err := s.db.ExecContext(ctx, q, args...)\n",
+			"line": "609",
+			"column": "7",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "89",
+				"url": "https://cwe.mitre.org/data/definitions/89.html"
+			},
+			"rule_id": "G202",
+			"details": "SQL string concatenation",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/platform/migration.go",
+			"code": "155: \tquotedTarget := strings.ReplaceAll(targetPath, \"'\", \"''\")\n156: \tif _, err := source.ExecContext(ctx, \"VACUUM INTO '\"+quotedTarget+\"'\"); err != nil {\n157: \t\t_ = os.Remove(targetPath)\n",
+			"line": "156",
+			"column": "39",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/store/store.go",
+			"code": "252: \tjournalPath := dbPath + \"-journal\"\n253: \tfile, err := os.OpenFile(journalPath, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)\n254: \tif err == nil {\n",
+			"line": "253",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/platform/ratelimit.go",
+			"code": "147: \tfor {\n148: \t\tfile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)\n149: \t\tif err == nil {\n",
+			"line": "148",
+			"column": "16",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/platform/profile.go",
+			"code": "509: \t}\n510: \tfile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)\n511: \tif errors.Is(err, os.ErrExist) {\n",
+			"line": "510",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/learn/teach_log.go",
+			"code": "111: \t\trotateTeachLogIfNeeded(p)\n112: \t\tf, err := os.OpenFile(p, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o600)\n113: \t\tif err != nil {\n",
+			"line": "112",
+			"column": "13",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/learn/playbooks.go",
+			"code": "72: func ParsePlaybookFile(path string) (Playbook, error) {\n73: \tdata, err := os.ReadFile(path)\n74: \tif err != nil {\n",
+			"line": "73",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/config/config.go",
+			"code": "107: func readConfigFile(path string, cfg *Config, owner string) error {\n108: \tdata, err := os.ReadFile(path)\n109: \tif err != nil {\n",
+			"line": "108",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/cli/teach_playbook.go",
+			"code": "375: \t} else if strings.TrimSpace(notesFile) != \"\" {\n376: \t\tdata, err := os.ReadFile(notesFile)\n377: \t\tif err != nil {\n",
+			"line": "376",
+			"column": "16",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/cli/teach.go",
+			"code": "149: \t\trotateLogIfNeeded(p, learningsAuditMaxBytes)\n150: \t\tf, err := os.OpenFile(p, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o600)\n151: \t\tif err != nil {\n",
+			"line": "150",
+			"column": "13",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/cli/teach.go",
+			"code": "126: \t\trotateLogIfNeeded(p, learningsAuditMaxBytes)\n127: \t\tf, err := os.OpenFile(p, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o600)\n128: \t\tif err != nil {\n",
+			"line": "127",
+			"column": "13",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/cli/feedback.go",
+			"code": "203: \t\t\t}\n204: \t\t\tdata, err := os.ReadFile(p)\n205: \t\t\tif err != nil {\n",
+			"line": "204",
+			"column": "17",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/cli/feedback.go",
+			"code": "65: \t}\n66: \tf, err := os.OpenFile(p, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o600)\n67: \tif err != nil {\n",
+			"line": "66",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "499",
+				"url": "https://cwe.mitre.org/data/definitions/499.html"
+			},
+			"rule_id": "G117",
+			"details": "Marshaled struct field \"SessionKey\" (JSON key \"session_key\") matches secret pattern",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/learn/journal.go",
+			"code": "264: \t}\n265: \tline, err := json.Marshal(entry)\n266: \tif err != nil {\n",
+			"line": "265",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G302",
+			"details": "Expect file permissions to be 0600 or less",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/platform/profile.go",
+			"code": "301: \t}\n302: \tif err := os.Chmod(dir, 0o700); err != nil {\n303: \t\treturn err\n",
+			"line": "302",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G302",
+			"details": "Expect file permissions to be 0600 or less",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/cliutil/testenv/testenv.go",
+			"code": "75: \tdefer os.RemoveAll(home)\n76: \t_ = os.Chmod(home, 0o700)\n77: \tfor _, name := range homeVars {\n",
+			"line": "76",
+			"column": "6",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G302",
+			"details": "Expect file permissions to be 0600 or less",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/cliutil/testenv/sandbox_unix.go",
+			"code": "14: \tt.Helper()\n15: \tif err := os.Chmod(path, 0o700); err != nil {\n16: \t\tt.Fatalf(\"chmod sandbox %s: %v\", path, err)\n",
+			"line": "15",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "276",
+				"url": "https://cwe.mitre.org/data/definitions/276.html"
+			},
+			"rule_id": "G302",
+			"details": "Expect file permissions to be 0600 or less",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/client/client.go",
+			"code": "779: func ensureCachePerms(resourceDir, cacheFile string) {\n780: \t_ = os.Chmod(resourceDir, 0o700)\n781: \t_ = os.Chmod(cacheFile, 0o600)\n",
+			"line": "780",
+			"column": "6",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "LOW",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "703",
+				"url": "https://cwe.mitre.org/data/definitions/703.html"
+			},
+			"rule_id": "G104",
+			"details": "Errors unhandled",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/store/store.go",
+			"code": "3345: \tvar ts sql.NullString\n3346: \ts.db.QueryRow(\"SELECT last_synced_at FROM sync_state WHERE resource_type = ?\", resourceType).Scan(\u0026ts)\n3347: \tif ts.Valid {\n",
+			"line": "3346",
+			"column": "2",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "LOW",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "703",
+				"url": "https://cwe.mitre.org/data/definitions/703.html"
+			},
+			"rule_id": "G104",
+			"details": "Errors unhandled",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/store/store.go",
+			"code": "3088: \tvar cursor sql.NullString\n3089: \ts.db.QueryRow(\"SELECT last_cursor FROM sync_state WHERE resource_type = ?\", resourceType).Scan(\u0026cursor)\n3090: \tif cursor.Valid {\n",
+			"line": "3089",
+			"column": "2",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "LOW",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "703",
+				"url": "https://cwe.mitre.org/data/definitions/703.html"
+			},
+			"rule_id": "G104",
+			"details": "Errors unhandled",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/learn/journal.go",
+			"code": "277: \tif _, err := f.Write(append(line, '\\n')); err != nil {\n278: \t\tf.Close()\n279: \t\treturn fmt.Errorf(\"journal: write: %w\", err)\n",
+			"line": "278",
+			"column": "3",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "LOW",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "703",
+				"url": "https://cwe.mitre.org/data/definitions/703.html"
+			},
+			"rule_id": "G104",
+			"details": "Errors unhandled",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/client/client.go",
+			"code": "1429: \t\t\tfmt.Fprintf(os.Stderr, \"  Body:\\n\")\n1430: \t\t\tenc.Encode(pretty)\n1431: \t\t}\n",
+			"line": "1430",
+			"column": "4",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "LOW",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "703",
+				"url": "https://cwe.mitre.org/data/definitions/703.html"
+			},
+			"rule_id": "G104",
+			"details": "Errors unhandled",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/client/chrome.go",
+			"code": "203: \t}\n204: \tresp.Body.Close()\n205: \tif resp.StatusCode != http.StatusOK {\n",
+			"line": "204",
+			"column": "2",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "LOW",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "703",
+				"url": "https://cwe.mitre.org/data/definitions/703.html"
+			},
+			"rule_id": "G104",
+			"details": "Errors unhandled",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/client/chrome.go",
+			"code": "157: \tif err != nil {\n158: \t\tconn.Close()\n159: \t\treturn nil, err\n",
+			"line": "158",
+			"column": "3",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "LOW",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "703",
+				"url": "https://cwe.mitre.org/data/definitions/703.html"
+			},
+			"rule_id": "G104",
+			"details": "Errors unhandled",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/client/chrome.go",
+			"code": "150: \t\tif err := tlsConn.HandshakeContext(ctx); err != nil {\n151: \t\t\tconn.Close()\n152: \t\t\treturn nil, err\n",
+			"line": "151",
+			"column": "4",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "LOW",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "703",
+				"url": "https://cwe.mitre.org/data/definitions/703.html"
+			},
+			"rule_id": "G104",
+			"details": "Errors unhandled",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/client/chrome.go",
+			"code": "145: \t\tif splitErr != nil {\n146: \t\t\tconn.Close()\n147: \t\t\treturn nil, splitErr\n",
+			"line": "146",
+			"column": "4",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "LOW",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "703",
+				"url": "https://cwe.mitre.org/data/definitions/703.html"
+			},
+			"rule_id": "G104",
+			"details": "Errors unhandled",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/client/chrome.go",
+			"code": "110: \tif err := conn.HandshakeContext(ctx); err != nil {\n111: \t\traw.Close()\n112: \t\treturn nil, err\n",
+			"line": "111",
+			"column": "3",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "LOW",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "703",
+				"url": "https://cwe.mitre.org/data/definitions/703.html"
+			},
+			"rule_id": "G104",
+			"details": "Errors unhandled",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/client/chrome.go",
+			"code": "106: \tif err := conn.ApplyPreset(\u0026spec); err != nil {\n107: \t\traw.Close()\n108: \t\treturn nil, err\n",
+			"line": "107",
+			"column": "3",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "LOW",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "703",
+				"url": "https://cwe.mitre.org/data/definitions/703.html"
+			},
+			"rule_id": "G104",
+			"details": "Errors unhandled",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/client/chrome.go",
+			"code": "96: \tif err != nil {\n97: \t\traw.Close()\n98: \t\treturn nil, err\n",
+			"line": "97",
+			"column": "3",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "LOW",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "703",
+				"url": "https://cwe.mitre.org/data/definitions/703.html"
+			},
+			"rule_id": "G104",
+			"details": "Errors unhandled",
+			"file": "/Users/zjsng/Projects/Personal/Coding/hello-cycling-cli/internal/client/chrome.go",
+			"code": "79: \tif proto := conn.ConnectionState().NegotiatedProtocol; proto != \"h2\" {\n80: \t\tconn.Close()\n81: \t\treturn nil, fmt.Errorf(\"%w (got %q)\", errChromeNotH2, proto)\n",
+			"line": "80",
+			"column": "3",
+			"nosec": false,
+			"suppressions": null
+		}
+	],
+	"Stats": {
+		"files": 106,
+		"lines": 34504,
+		"nosec": 20,
+		"found": 38
+	},
+	"GosecVersion": "dev"
+}

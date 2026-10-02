@@ -1,0 +1,3 @@
+# Anonymous browser discovery
+Chrome isolated tab 448471669 opened https://www.hellocycling.jp/map/ with Japanese map/search page. CDP inspected map/assets and app.js?10; combined reload/capture took 1981 seconds, then was stopped as an optional tool path. No CAPTCHA/login/permission accepted. No further full CDP used after user requested fewer prompts.
+The public observed JS map class calls /app/top/port_json?data=data and uses name/address/lat/lng/num_bikes_rentalable/num_bikes_parkable. Exact direct replay 200 and 5112 = プラーズタワー東新宿, 35.697315/139.704995,1 rentable/11 parkable. Public GBFS 5112 corroborates it. Runtime instead uses first-party published GBFS to avoid the website feed's 42.7 MB and per-bike admin-linked data.

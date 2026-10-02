@@ -1,0 +1,16 @@
+{
+  "status": "pass",
+  "library_dir": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/hello-cycling/library/hello-cycling",
+  "archive_dir": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/hello-cycling/manuscripts/hello-cycling/20261002-224800-fc83d07b",
+  "promoted_smoke_binary": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/hello-cycling/library/hello-cycling/hello-cycling-pp-cli",
+  "promoted_smoke_exit": 0,
+  "envelope": [
+    "meta",
+    "results"
+  ],
+  "source": "local",
+  "station_ids": [
+    "5112"
+  ],
+  "no_github_writes": true
+}

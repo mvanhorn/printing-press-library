@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "source": "live"
+  },
+  "results": {
+    "vehicle_types": [
+      {
+        "name": "hellocycling bicycle",
+        "form_factor": "bicycle",
+        "wheel_count": 2,
+        "vehicle_image": "https://d1yl7kw204zjxn.cloudfront.net/gbfs/v2/public/images/YAMAHA_HELLO.png",
+        "vehicle_assets": {
+          "icon_url": "https://d1yl7kw204zjxn.cloudfront.net/gbfs/v2/public/images/YAMAHA_HELLO.png",
+          "icon_url_dark": "https://d1yl7kw204zjxn.cloudfront.net/gbfs/v2/public/images/YAMAHA_HELLO.png",
+          "icon_last_modified": "2022-04-01"
+        },
+        "propulsion_type": "electric_assist",
+        "vehicle_type_id": "2",
+        "max_range_meters": 70000,
+        "return_constraint": "any_station",
+        "max_permitted_speed": 25,
+        "default_reserve_time": 30
+      }
+    ]
+  }
+}

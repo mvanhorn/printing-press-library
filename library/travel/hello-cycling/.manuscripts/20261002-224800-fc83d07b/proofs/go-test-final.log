@@ -1,0 +1,20 @@
+?   	hello-cycling-pp-cli/cmd/hello-cycling-pp-cli	[no test files]
+?   	hello-cycling-pp-cli/cmd/hello-cycling-pp-mcp	[no test files]
+?   	hello-cycling-pp-cli/internal/cache	[no test files]
+ok  	hello-cycling-pp-cli/internal/cli	1.529s
+?   	hello-cycling-pp-cli/internal/cli/playbooks	[no test files]
+ok  	hello-cycling-pp-cli/internal/client	4.648s
+ok  	hello-cycling-pp-cli/internal/cliutil	16.095s
+?   	hello-cycling-pp-cli/internal/cliutil/testenv	[no test files]
+?   	hello-cycling-pp-cli/internal/config	[no test files]
+ok  	hello-cycling-pp-cli/internal/cycling	4.369s
+ok  	hello-cycling-pp-cli/internal/learn	5.136s
+ok  	hello-cycling-pp-cli/internal/learn/entities	0.881s
+ok  	hello-cycling-pp-cli/internal/learn/lookups	3.960s
+ok  	hello-cycling-pp-cli/internal/learn/patterns	1.714s
+ok  	hello-cycling-pp-cli/internal/mcp	2.610s
+ok  	hello-cycling-pp-cli/internal/mcp/bound	2.070s
+ok  	hello-cycling-pp-cli/internal/mcp/cobratree	9.409s
+ok  	hello-cycling-pp-cli/internal/platform	5.402s
+ok  	hello-cycling-pp-cli/internal/store	3.806s
+?   	hello-cycling-pp-cli/internal/types	[no test files]

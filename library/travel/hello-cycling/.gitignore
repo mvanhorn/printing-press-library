@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/hello-cycling-pp-cli
+/hello-cycling-pp-cli.exe
+/hello-cycling-pp-mcp
+/hello-cycling-pp-mcp.exe
+/bin/
+/build/
+/dist/

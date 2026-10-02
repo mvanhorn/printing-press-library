@@ -1,0 +1,122 @@
+{
+  "meta": {
+    "attribution": "HELLO CYCLING / OpenStreet Co., Ltd. via ODPT; normalized and locally ranked",
+    "caveat": "Counts are source observations, not reserved availability. Confirm the actual bike, return eligibility and price in the official app; distances are straight-line, not walking or cycling routes.",
+    "coverage": {
+      "availability": "fresh observed compatible generic class; confirm the actual vehicle in app",
+      "candidate_limit_per_endpoint": 2,
+      "radius_meters": 1500,
+      "vehicle_type": "2"
+    },
+    "evaluated_at": "2026-10-02T16:05:49.151982Z",
+    "evaluated_at_jst": "2026-10-03T01:05:49+09:00",
+    "feeds": {
+      "station_status": {
+        "last_updated": 1790957148,
+        "ttl_seconds": 60,
+        "url": "https://api-public.odpt.org/api/v4/gbfs/hellocycling/station_status.json",
+        "version": "2.3"
+      }
+    },
+    "license": "CC BY 4.0",
+    "license_url": "https://d1yl7kw204zjxn.cloudfront.net/gbfs/v2/public/hellocycling_gbfs_licence.txt",
+    "observed_at": "2026-10-02T16:05:48.587399Z",
+    "observed_at_jst": "2026-10-03T01:05:48+09:00",
+    "request_count": 0,
+    "response_bytes": 0,
+    "source": "local",
+    "timezone": "Asia/Tokyo",
+    "total_matches": 1,
+    "warnings": []
+  },
+  "results": [
+    {
+      "compatibility": "compatible_generic_vehicle_class_observed",
+      "dropoff": {
+        "address": "東京都",
+        "age_seconds": 1,
+        "bikes_available": 3,
+        "capacity": null,
+        "compatibility_note": "GBFS generic vehicle class only; individual model, battery, rules and price require app confirmation.",
+        "distance_meters": 100,
+        "id": "B",
+        "is_installed": true,
+        "is_renting": true,
+        "is_returning": true,
+        "last_reported_at": "2026-10-02T16:05:48Z",
+        "latitude": 35.001,
+        "longitude": 139,
+        "name": "テスト駅B",
+        "parking_type": "",
+        "rental_state": "available",
+        "rental_uris": {
+          "web": "https://www.hellocycling.jp/app/port/detail/B"
+        },
+        "return_spaces": 4,
+        "return_state": "available",
+        "selected_type_bikes": 3,
+        "selected_type_return_spaces": 4,
+        "selected_vehicle_type": "2",
+        "source_url": "https://www.hellocycling.jp/app/port/detail/B",
+        "stale": false,
+        "vehicle_docks_available": [
+          {
+            "count": 4,
+            "vehicle_type_ids": [
+              "2"
+            ]
+          }
+        ],
+        "vehicle_types_available": [
+          {
+            "count": 3,
+            "vehicle_type_id": "2"
+          }
+        ]
+      },
+      "pickup": {
+        "address": "東京都",
+        "age_seconds": 1,
+        "bikes_available": 3,
+        "capacity": null,
+        "compatibility_note": "GBFS generic vehicle class only; individual model, battery, rules and price require app confirmation.",
+        "distance_meters": 0,
+        "id": "A",
+        "is_installed": true,
+        "is_renting": true,
+        "is_returning": true,
+        "last_reported_at": "2026-10-02T16:05:48Z",
+        "latitude": 35,
+        "longitude": 139,
+        "name": "テスト駅A",
+        "parking_type": "",
+        "rental_state": "available",
+        "rental_uris": {
+          "web": "https://www.hellocycling.jp/app/port/detail/A"
+        },
+        "return_spaces": 4,
+        "return_state": "available",
+        "selected_type_bikes": 3,
+        "selected_type_return_spaces": 4,
+        "selected_vehicle_type": "2",
+        "source_url": "https://www.hellocycling.jp/app/port/detail/A",
+        "stale": false,
+        "vehicle_docks_available": [
+          {
+            "count": 4,
+            "vehicle_type_ids": [
+              "2"
+            ]
+          }
+        ],
+        "vehicle_types_available": [
+          {
+            "count": 3,
+            "vehicle_type_id": "2"
+          }
+        ]
+      },
+      "total_access_distance_meters": 100
+    }
+  ]
+}

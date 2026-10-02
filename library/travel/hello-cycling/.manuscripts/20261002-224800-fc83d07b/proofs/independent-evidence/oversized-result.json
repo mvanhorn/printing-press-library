@@ -1,0 +1,7 @@
+{
+  "exit": 5,
+  "seconds": 0.011,
+  "max_rss_bytes": 21086208,
+  "stderr": "Error: offline snapshot exceeds size bound\n",
+  "passed": true
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "command": "stations find",
+    "resolved": true
+  },
+  {
+    "command": "stations show",
+    "resolved": true
+  },
+  {
+    "command": "stations nearby",
+    "resolved": true
+  },
+  {
+    "command": "stations sync",
+    "resolved": true
+  },
+  {
+    "command": "stations changes",
+    "resolved": true
+  },
+  {
+    "command": "trip compare",
+    "resolved": true
+  },
+  {
+    "command": "vehicles rules",
+    "resolved": true
+  },
+  {
+    "command": "pricing areas",
+    "resolved": true
+  },
+  {
+    "command": "pricing show",
+    "resolved": true
+  },
+  {
+    "command": "feeds discovery",
+    "resolved": true
+  }
+]

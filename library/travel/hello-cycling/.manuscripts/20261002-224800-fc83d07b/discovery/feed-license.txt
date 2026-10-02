@@ -1,0 +1,10 @@
+
+Organization:OpenStreet Co.,Ltd
+
+Service:HELLO CYCLING
+
+License:
+Please choose one of them.
+Creative Commons Attribution 4.0 International (CC-BY4.0)
+Open Data Commons Attribution License v1.0(ODC BY 1.0)
+Open Data Commons Open Database License v1.0(ODbL 1.0)

@@ -1,0 +1,5 @@
+Error: offline snapshot exceeds size bound
+real 0.00
+user 0.00
+sys 0.00
+time: sysctl kern.clockrate: Operation not permitted

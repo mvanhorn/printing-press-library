@@ -1,0 +1,266 @@
+{
+  "meta": {
+    "attribution": "HELLO CYCLING / OpenStreet Co., Ltd. via ODPT; normalized and locally ranked",
+    "caveat": "Counts are source observations, not reserved availability. Confirm the actual bike, return eligibility and price in the official app; distances are straight-line, not walking or cycling routes.",
+    "evaluated_at": "2026-10-02T15:51:30.516961Z",
+    "evaluated_at_jst": "2026-10-03T00:51:30+09:00",
+    "feeds": {
+      "gbfs": {
+        "last_updated": 1790955998,
+        "ttl_seconds": 60,
+        "url": "https://api-public.odpt.org/api/v4/gbfs/hellocycling/gbfs.json",
+        "version": "2.3"
+      },
+      "station_information": {
+        "last_updated": 1790955997,
+        "ttl_seconds": 60,
+        "url": "https://api-public.odpt.org/api/v4/gbfs/hellocycling/station_information.json",
+        "version": "2.3"
+      },
+      "station_status": {
+        "last_updated": 1790955998,
+        "ttl_seconds": 60,
+        "url": "https://api-public.odpt.org/api/v4/gbfs/hellocycling/station_status.json",
+        "version": "2.3"
+      },
+      "vehicle_types": {
+        "last_updated": 1790955998,
+        "ttl_seconds": 60,
+        "url": "https://api-public.odpt.org/api/v4/gbfs/hellocycling/vehicle_types.json",
+        "version": "2.3"
+      }
+    },
+    "license": "CC BY 4.0",
+    "license_url": "https://d1yl7kw204zjxn.cloudfront.net/gbfs/v2/public/hellocycling_gbfs_licence.txt",
+    "observed_at": "2026-10-02T15:51:30.498978Z",
+    "observed_at_jst": "2026-10-03T00:51:30+09:00",
+    "request_count": 4,
+    "response_bytes": 12391344,
+    "source": "live",
+    "timezone": "Asia/Tokyo",
+    "total_matches": 91,
+    "warnings": []
+  },
+  "results": [
+    {
+      "address": "東京都葛飾区新宿4丁目9番6号",
+      "age_seconds": 322,
+      "bikes_available": 5,
+      "capacity": 5,
+      "compatibility_note": "GBFS generic vehicle class only; individual model, battery, rules and price require app confirmation.",
+      "distance_meters": null,
+      "id": "10407",
+      "is_installed": true,
+      "is_renting": true,
+      "is_returning": true,
+      "last_reported_at": "2026-10-02T15:46:08Z",
+      "latitude": 35.7619639,
+      "longitude": 139.8601163,
+      "name": "セブンイレブン　葛飾新宿4丁目店",
+      "parking_type": "street_parking",
+      "rental_state": "stale",
+      "rental_uris": {
+        "android": "https://www.hellocycling.jp/app/port/detail/10407?referrer=odpt",
+        "ios": "https://www.hellocycling.jp/app/port/detail/10407?referrer=odpt",
+        "web": "https://www.hellocycling.jp/app/port/detail/10407?referrer=odpt"
+      },
+      "return_spaces": 0,
+      "return_state": "stale",
+      "selected_type_bikes": 5,
+      "selected_type_return_spaces": 0,
+      "selected_vehicle_type": "",
+      "source_url": "https://www.hellocycling.jp/app/port/detail/10407?referrer=odpt",
+      "stale": true,
+      "vehicle_docks_available": [
+        {
+          "count": 0,
+          "vehicle_type_ids": [
+            "2"
+          ]
+        }
+      ],
+      "vehicle_types_available": [
+        {
+          "count": 5,
+          "vehicle_type_id": "2"
+        }
+      ]
+    },
+    {
+      "address": "東京都新宿区新宿7-27-21",
+      "age_seconds": 321,
+      "bikes_available": 0,
+      "capacity": 2,
+      "compatibility_note": "GBFS generic vehicle class only; individual model, battery, rules and price require app confirmation.",
+      "distance_meters": null,
+      "id": "10943",
+      "is_installed": true,
+      "is_renting": true,
+      "is_returning": true,
+      "last_reported_at": "2026-10-02T15:46:09Z",
+      "latitude": 35.700300455005,
+      "longitude": 139.70813943925,
+      "name": "トヨタモビリティ東京　Biz Fleet新宿",
+      "parking_type": "street_parking",
+      "rental_state": "stale",
+      "rental_uris": {
+        "android": "https://www.hellocycling.jp/app/port/detail/10943?referrer=odpt",
+        "ios": "https://www.hellocycling.jp/app/port/detail/10943?referrer=odpt",
+        "web": "https://www.hellocycling.jp/app/port/detail/10943?referrer=odpt"
+      },
+      "return_spaces": 2,
+      "return_state": "stale",
+      "selected_type_bikes": 0,
+      "selected_type_return_spaces": 2,
+      "selected_vehicle_type": "",
+      "source_url": "https://www.hellocycling.jp/app/port/detail/10943?referrer=odpt",
+      "stale": true,
+      "vehicle_docks_available": [
+        {
+          "count": 2,
+          "vehicle_type_ids": [
+            "2"
+          ]
+        }
+      ],
+      "vehicle_types_available": [
+        {
+          "count": 0,
+          "vehicle_type_id": "2"
+        }
+      ]
+    },
+    {
+      "address": "東京都新宿区山吹町336",
+      "age_seconds": 320,
+      "bikes_available": 2,
+      "capacity": 4,
+      "compatibility_note": "GBFS generic vehicle class only; individual model, battery, rules and price require app confirmation.",
+      "distance_meters": null,
+      "id": "11674",
+      "is_installed": true,
+      "is_renting": true,
+      "is_returning": true,
+      "last_reported_at": "2026-10-02T15:46:10Z",
+      "latitude": 35.7076651,
+      "longitude": 139.7284864,
+      "name": "レジディア神楽坂",
+      "parking_type": "street_parking",
+      "rental_state": "stale",
+      "rental_uris": {
+        "android": "https://www.hellocycling.jp/app/port/detail/11674?referrer=odpt",
+        "ios": "https://www.hellocycling.jp/app/port/detail/11674?referrer=odpt",
+        "web": "https://www.hellocycling.jp/app/port/detail/11674?referrer=odpt"
+      },
+      "return_spaces": 1,
+      "return_state": "stale",
+      "selected_type_bikes": 2,
+      "selected_type_return_spaces": 1,
+      "selected_vehicle_type": "",
+      "source_url": "https://www.hellocycling.jp/app/port/detail/11674?referrer=odpt",
+      "stale": true,
+      "vehicle_docks_available": [
+        {
+          "count": 1,
+          "vehicle_type_ids": [
+            "2"
+          ]
+        }
+      ],
+      "vehicle_types_available": [
+        {
+          "count": 2,
+          "vehicle_type_id": "2"
+        }
+      ]
+    },
+    {
+      "address": "東京都新宿区市谷砂土原町2-5",
+      "age_seconds": 320,
+      "bikes_available": 0,
+      "capacity": 6,
+      "compatibility_note": "GBFS generic vehicle class only; individual model, battery, rules and price require app confirmation.",
+      "distance_meters": null,
+      "id": "11675",
+      "is_installed": true,
+      "is_renting": true,
+      "is_returning": true,
+      "last_reported_at": "2026-10-02T15:46:10Z",
+      "latitude": 35.6961668,
+      "longitude": 139.7355657,
+      "name": "レジディア市ヶ谷Ⅱ",
+      "parking_type": "street_parking",
+      "rental_state": "stale",
+      "rental_uris": {
+        "android": "https://www.hellocycling.jp/app/port/detail/11675?referrer=odpt",
+        "ios": "https://www.hellocycling.jp/app/port/detail/11675?referrer=odpt",
+        "web": "https://www.hellocycling.jp/app/port/detail/11675?referrer=odpt"
+      },
+      "return_spaces": 5,
+      "return_state": "stale",
+      "selected_type_bikes": 0,
+      "selected_type_return_spaces": 5,
+      "selected_vehicle_type": "",
+      "source_url": "https://www.hellocycling.jp/app/port/detail/11675?referrer=odpt",
+      "stale": true,
+      "vehicle_docks_available": [
+        {
+          "count": 5,
+          "vehicle_type_ids": [
+            "2"
+          ]
+        }
+      ],
+      "vehicle_types_available": [
+        {
+          "count": 0,
+          "vehicle_type_id": "2"
+        }
+      ]
+    },
+    {
+      "address": "東京都新宿区市谷本村町3-17",
+      "age_seconds": 320,
+      "bikes_available": 0,
+      "capacity": 4,
+      "compatibility_note": "GBFS generic vehicle class only; individual model, battery, rules and price require app confirmation.",
+      "distance_meters": null,
+      "id": "11676",
+      "is_installed": true,
+      "is_renting": true,
+      "is_returning": true,
+      "last_reported_at": "2026-10-02T15:46:10Z",
+      "latitude": 35.690801,
+      "longitude": 139.7306553,
+      "name": "レジディア市ヶ谷",
+      "parking_type": "street_parking",
+      "rental_state": "stale",
+      "rental_uris": {
+        "android": "https://www.hellocycling.jp/app/port/detail/11676?referrer=odpt",
+        "ios": "https://www.hellocycling.jp/app/port/detail/11676?referrer=odpt",
+        "web": "https://www.hellocycling.jp/app/port/detail/11676?referrer=odpt"
+      },
+      "return_spaces": 3,
+      "return_state": "stale",
+      "selected_type_bikes": 0,
+      "selected_type_return_spaces": 3,
+      "selected_vehicle_type": "",
+      "source_url": "https://www.hellocycling.jp/app/port/detail/11676?referrer=odpt",
+      "stale": true,
+      "vehicle_docks_available": [
+        {
+          "count": 3,
+          "vehicle_type_ids": [
+            "2"
+          ]
+        }
+      ],
+      "vehicle_types_available": [
+        {
+          "count": 0,
+          "vehicle_type_id": "2"
+        }
+      ]
+    }
+  ]
+}

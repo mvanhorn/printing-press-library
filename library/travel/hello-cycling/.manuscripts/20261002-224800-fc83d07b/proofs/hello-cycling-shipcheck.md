@@ -1,0 +1,6 @@
+# Shipcheck
+Canonical second umbrella run /private/tmp/hc-shipcheck-final.json: PASS. Verify, full narrative, dogfood, workflow-verify, apify-audit, verify-skill and scorecard all exit 0. First run failed narrative/statically inferred helper flags; literal constructors/direct flag registration resolved these without changing user behavior. Five planned novel command paths all exist, with exact runtime leaf help validated separately. Static pricing-show/profile-show collision is a Press analyzer warning; actual pricing leaf and workflow pass.
+
+Independent review fixes followed: source selectors, pair-limit candidate exclusion, shared data paths, transport/response bounds, pre-scan/relative SQLite paths and factual documentation. Focused cycling/CLI/MCP tests pass. Source-only SQLite relative-path regression introduced after the passing umbrella is covered by a new deterministic test and subsequent live comparison proof.
+
+Benchmark: stations find --query 新宿 --limit 5 --agent: 1.52 seconds real, 66,125,824 bytes maximum resident set, four GETs / 12,391,344 response bytes; serialized output is captured in the live proof. No credentials or precise caller coordinates are sent to a provider.

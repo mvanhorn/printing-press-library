@@ -1,0 +1,36 @@
+{
+  "ttl": 1800,
+  "data": {
+    "url": "https://www.hellocycling.jp",
+    "name": "HELLO CYCLING　-どこでも借りられて好きな場所で返せる自転車シェア",
+    "language": "ja",
+    "operator": "OpenStreet Corp.",
+    "timezone": "Asia/Tokyo",
+    "system_id": "hellocycling",
+    "terms_url": "https://www.hellocycling.jp/terms",
+    "short_name": "HELLO CYCLING",
+    "start_date": "2016-11-01",
+    "license_url": "https://d1yl7kw204zjxn.cloudfront.net/gbfs/v2/public/hellocycling_gbfs_licence.txt",
+    "privacy_url": "https://www.hellocycling.jp/privacy",
+    "rental_apps": {
+      "ios": {
+        "store_uri": "https://apps.apple.com/jp/app/hello-cycling-%E3%82%B7%E3%82%A7%E3%82%A2%E3%82%B5%E3%82%A4%E3%82%AF%E3%83%AB/id1216653677",
+        "discovery_uri": "hellocycling://start"
+      },
+      "android": {
+        "store_uri": "https://play.google.com/store/apps/details?id=jp.hellocycling.hellocycling",
+        "discovery_uri": "hellocycling://start"
+      }
+    },
+    "brand_assets": {
+      "color": "#C2D32C",
+      "brand_image_url": "https://d1yl7kw204zjxn.cloudfront.net/gbfs/v2/public/images/logo.svg",
+      "brand_last_modified": "2022-06-15",
+      "brand_image_url_dark": "https://d1yl7kw204zjxn.cloudfront.net/gbfs/v2/public/images/logo_dark.svg"
+    },
+    "terms_last_updated": "2022-04-01",
+    "privacy_last_updated": "2022-04-01"
+  },
+  "version": "2.3",
+  "last_updated": 1790952698
+}

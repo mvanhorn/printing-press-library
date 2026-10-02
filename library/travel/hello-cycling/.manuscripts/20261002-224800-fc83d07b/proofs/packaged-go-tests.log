@@ -1,0 +1,20 @@
+?   	github.com/mvanhorn/printing-press-library/library/travel/hello-cycling/cmd/hello-cycling-pp-cli	[no test files]
+?   	github.com/mvanhorn/printing-press-library/library/travel/hello-cycling/cmd/hello-cycling-pp-mcp	[no test files]
+?   	github.com/mvanhorn/printing-press-library/library/travel/hello-cycling/internal/cache	[no test files]
+ok  	github.com/mvanhorn/printing-press-library/library/travel/hello-cycling/internal/cli	3.105s
+?   	github.com/mvanhorn/printing-press-library/library/travel/hello-cycling/internal/cli/playbooks	[no test files]
+ok  	github.com/mvanhorn/printing-press-library/library/travel/hello-cycling/internal/client	1.731s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/hello-cycling/internal/cliutil	17.425s
+?   	github.com/mvanhorn/printing-press-library/library/travel/hello-cycling/internal/cliutil/testenv	[no test files]
+?   	github.com/mvanhorn/printing-press-library/library/travel/hello-cycling/internal/config	[no test files]
+ok  	github.com/mvanhorn/printing-press-library/library/travel/hello-cycling/internal/cycling	4.273s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/hello-cycling/internal/learn	1.988s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/hello-cycling/internal/learn/entities	1.222s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/hello-cycling/internal/learn/lookups	3.138s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/hello-cycling/internal/learn/patterns	2.572s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/hello-cycling/internal/mcp	3.900s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/hello-cycling/internal/mcp/bound	0.861s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/hello-cycling/internal/mcp/cobratree	8.547s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/hello-cycling/internal/platform	4.819s
+ok  	github.com/mvanhorn/printing-press-library/library/travel/hello-cycling/internal/store	5.800s
+?   	github.com/mvanhorn/printing-press-library/library/travel/hello-cycling/internal/types	[no test files]

@@ -1,0 +1,1 @@
+{"code":5,"error":"GET /gbfs.json: Get \"http://127.0.0.1:55455/gbfs.json\": GBFS metadata response exceeds 262144 bytes; no partial response used"}

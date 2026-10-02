@@ -1,0 +1,175 @@
+{
+  "api_name": "hello-cycling",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "GBFS-NOW",
+      "url": "https://github.com/hiskoh/GBFS-NOW",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-02T14:58:20.733915Z",
+  "novel_features": [
+    {
+      "name": "Nearby availability",
+      "command": "stations nearby",
+      "description": "Find nearby pickup or return choices while retaining closed, empty, full, stale and unknown states.",
+      "rationale": "Joins provider station identity, status and explicit source constraints for a traveler workflow.",
+      "example": "hello-cycling-pp-cli stations nearby --lat 35.697315 --lon 139.704995 --purpose pickup --vehicle-type 2 --agent",
+      "why_it_matters": "Find nearby pickup or return choices while retaining closed, empty, full, stale and unknown states.",
+      "group": "Station planning"
+    },
+    {
+      "name": "Compatible trip endpoints",
+      "command": "trip compare",
+      "description": "Compare pickup and dropoff pairs with per-type return capacity and straight-line access distances.",
+      "rationale": "Joins provider station identity, status and explicit source constraints for a traveler workflow.",
+      "example": "hello-cycling-pp-cli trip compare --from-lat 35.697315 --from-lon 139.704995 --to-lat 35.707252 --to-lon 139.777587 --vehicle-type 2 --agent",
+      "why_it_matters": "Compare pickup and dropoff pairs with per-type return capacity and straight-line access distances.",
+      "group": "Station planning"
+    },
+    {
+      "name": "Explicit offline snapshots",
+      "command": "stations sync",
+      "description": "Save a provider snapshot for offline station discovery with original source timestamps.",
+      "rationale": "Joins provider station identity, status and explicit source constraints for a traveler workflow.",
+      "example": "hello-cycling-pp-cli stations sync --agent",
+      "why_it_matters": "Save a provider snapshot for offline station discovery with original source timestamps.",
+      "group": "Station planning"
+    },
+    {
+      "name": "Snapshot changes",
+      "command": "stations changes",
+      "description": "Inspect count and operational changes since an explicitly saved snapshot.",
+      "rationale": "Joins provider station identity, status and explicit source constraints for a traveler workflow.",
+      "example": "hello-cycling-pp-cli stations changes --query 新宿 --agent",
+      "why_it_matters": "Inspect count and operational changes since an explicitly saved snapshot.",
+      "group": "Station planning"
+    },
+    {
+      "name": "Regional model pricing",
+      "command": "pricing show",
+      "description": "Read current source tables including municipal exceptions without asserting a station bike price.",
+      "rationale": "Joins provider station identity, status and explicit source constraints for a traveler workflow.",
+      "example": "hello-cycling-pp-cli pricing show --area tokyo --agent",
+      "why_it_matters": "Read current source tables including municipal exceptions without asserting a station bike price.",
+      "group": "Station planning"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Nearby availability",
+      "command": "stations nearby",
+      "description": "Find nearby pickup or return choices while retaining closed, empty, full, stale and unknown states.",
+      "rationale": "Joins provider station identity, status and explicit source constraints for a traveler workflow.",
+      "example": "hello-cycling-pp-cli stations nearby --lat 35.697315 --lon 139.704995 --purpose pickup --vehicle-type 2 --agent",
+      "why_it_matters": "Find nearby pickup or return choices while retaining closed, empty, full, stale and unknown states.",
+      "group": "Station planning"
+    },
+    {
+      "name": "Compatible trip endpoints",
+      "command": "trip compare",
+      "description": "Compare pickup and dropoff pairs with per-type return capacity and straight-line access distances.",
+      "rationale": "Joins provider station identity, status and explicit source constraints for a traveler workflow.",
+      "example": "hello-cycling-pp-cli trip compare --from-lat 35.697315 --from-lon 139.704995 --to-lat 35.707252 --to-lon 139.777587 --vehicle-type 2 --agent",
+      "why_it_matters": "Compare pickup and dropoff pairs with per-type return capacity and straight-line access distances.",
+      "group": "Station planning"
+    },
+    {
+      "name": "Explicit offline snapshots",
+      "command": "stations sync",
+      "description": "Save a provider snapshot for offline station discovery with original source timestamps.",
+      "rationale": "Joins provider station identity, status and explicit source constraints for a traveler workflow.",
+      "example": "hello-cycling-pp-cli stations sync --agent",
+      "why_it_matters": "Save a provider snapshot for offline station discovery with original source timestamps.",
+      "group": "Station planning"
+    },
+    {
+      "name": "Snapshot changes",
+      "command": "stations changes",
+      "description": "Inspect count and operational changes since an explicitly saved snapshot.",
+      "rationale": "Joins provider station identity, status and explicit source constraints for a traveler workflow.",
+      "example": "hello-cycling-pp-cli stations changes --query 新宿 --agent",
+      "why_it_matters": "Inspect count and operational changes since an explicitly saved snapshot.",
+      "group": "Station planning"
+    },
+    {
+      "name": "Regional model pricing",
+      "command": "pricing show",
+      "description": "Read current source tables including municipal exceptions without asserting a station bike price.",
+      "rationale": "Joins provider station identity, status and explicit source constraints for a traveler workflow.",
+      "example": "hello-cycling-pp-cli pricing show --area tokyo --agent",
+      "why_it_matters": "Read current source tables including municipal exceptions without asserting a station bike price.",
+      "group": "Station planning"
+    }
+  ],
+  "narrative": {
+    "display_name": "HELLO CYCLING",
+    "headline": "Find compatible HELLO CYCLING pickup and return stations with timestamped counts and published pricing.",
+    "value_prop": "Search Japanese station names and addresses, rank explicit-coordinate pickup/return choices, and compare compatible trip endpoints. Source timestamps, missing counts, and model-dependent pricing constraints remain attached to every result.",
+    "auth_narrative": "No account, API key or location permission is required. Anonymous provider-published GBFS and first-party price pages are read through HTTP. Reserve rides only in the official app.",
+    "quickstart": [
+      {
+        "command": "hello-cycling-pp-cli doctor --dry-run",
+        "comment": "Verify local setup without making a ride request."
+      },
+      {
+        "command": "hello-cycling-pp-cli stations find --query 東新宿 --limit 5 --agent",
+        "comment": "Resolve stable Japanese station IDs."
+      },
+      {
+        "command": "hello-cycling-pp-cli stations nearby --lat 35.697315 --lon 139.704995 --purpose pickup --vehicle-type 2 --limit 5 --agent",
+        "comment": "Read current nearby pickup observations."
+      },
+      {
+        "command": "hello-cycling-pp-cli pricing show --area tokyo --agent",
+        "comment": "Inspect model and municipal rate exceptions."
+      }
+    ],
+    "when_to_use": "Use for HELLO CYCLING station discovery, observed bike/return-space counts and compatible pickup/dropoff comparison in Japan. Require explicit latitude/longitude for nearby searches. Use source app links to confirm the actual bike, rate and return eligibility.",
+    "anti_triggers": [
+      "Reservations, rides, payments or account changes",
+      "Location-permission access or geocoding without explicit coordinates",
+      "Guaranteed availability, model eligibility or a final ride quote"
+    ],
+    "recipes": [
+      {
+        "title": "Find station IDs",
+        "command": "hello-cycling-pp-cli stations find --query 新宿 --limit 5 --agent --select results.id,results.name,results.rental_state,results.return_state",
+        "explanation": "Narrow Japanese name/address matches to station identity and observed state."
+      },
+      {
+        "title": "Inspect one station",
+        "command": "hello-cycling-pp-cli stations show --id 5112 --agent",
+        "explanation": "Read counts, per-type dock compatibility and original timestamps."
+      },
+      {
+        "title": "Compare both ends",
+        "command": "hello-cycling-pp-cli trip compare --from-lat 35.697315 --from-lon 139.704995 --to-lat 35.707252 --to-lon 139.777587 --vehicle-type 2 --agent",
+        "explanation": "Choose short access distances with compatible snapshot capacity."
+      },
+      {
+        "title": "Read published Tokyo prices",
+        "command": "hello-cycling-pp-cli pricing show --area tokyo --agent",
+        "explanation": "Keep Chiyoda and Itabashi exceptions separate."
+      }
+    ],
+    "trigger_phrases": [
+      "Find HELLO CYCLING near these coordinates",
+      "Check return spaces at a HELLO CYCLING station",
+      "Compare HELLO CYCLING pickup and dropoff options",
+      "use hello-cycling",
+      "run hello-cycling"
+    ]
+  },
+  "runtime_transport_note": "Provider metadata CLI/MCP reads use the preserved shared standard-HTTP, 256-KiB-cap client hook; no full-tree regeneration."
+}

@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-02T16:27:26.067564Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "hello-cycling",
+  "display_name": "HELLO CYCLING",
+  "cli_name": "hello-cycling-pp-cli",
+  "creator": {
+    "name": "zjsng",
+    "handle": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "hello-cycling.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:7207ac7cba9f837e28e2f820eecaca20c81e6012821f211896a317d4127456ae",
+  "run_id": "20261002-224800-fc83d07b",
+  "category": "travel",
+  "description": "Find compatible HELLO CYCLING pickup and return stations with timestamped counts and published pricing.",
+  "mcp_binary": "hello-cycling-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Nearby availability",
+      "command": "stations nearby",
+      "description": "Find nearby pickup or return choices while retaining closed, empty, full, stale and unknown states."
+    },
+    {
+      "name": "Compatible trip endpoints",
+      "command": "trip compare",
+      "description": "Compare pickup and dropoff pairs with per-type return capacity and straight-line access distances."
+    },
+    {
+      "name": "Explicit offline snapshots",
+      "command": "stations sync",
+      "description": "Save a provider snapshot for offline station discovery with original source timestamps."
+    },
+    {
+      "name": "Snapshot changes",
+      "command": "stations changes",
+      "description": "Inspect count and operational changes since an explicitly saved snapshot."
+    },
+    {
+      "name": "Regional model pricing",
+      "command": "pricing show",
+      "description": "Read current source tables including municipal exceptions without asserting a station bike price."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Nearby availability",
+      "command": "stations nearby",
+      "description": "Find nearby pickup or return choices while retaining closed, empty, full, stale and unknown states."
+    },
+    {
+      "name": "Compatible trip endpoints",
+      "command": "trip compare",
+      "description": "Compare pickup and dropoff pairs with per-type return capacity and straight-line access distances."
+    },
+    {
+      "name": "Explicit offline snapshots",
+      "command": "stations sync",
+      "description": "Save a provider snapshot for offline station discovery with original source timestamps."
+    },
+    {
+      "name": "Snapshot changes",
+      "command": "stations changes",
+      "description": "Inspect count and operational changes since an explicitly saved snapshot."
+    },
+    {
+      "name": "Regional model pricing",
+      "command": "pricing show",
+      "description": "Read current source tables including municipal exceptions without asserting a station bike price."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 26,
+    "total": 26,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 81,
+      "grade": "A",
+      "total": 81
+    }
+  }
+}

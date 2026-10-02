@@ -1,0 +1,142 @@
+{
+  "meta": {
+    "attribution": "HELLO CYCLING / OpenStreet Co., Ltd. via ODPT; normalized and locally ranked",
+    "baseline_observed_at": "2026-10-02T14:51:37Z",
+    "baseline_station_count": 3,
+    "caveat": "Counts are source observations, not reserved availability. Confirm the actual bike, return eligibility and price in the official app; distances are straight-line, not walking or cycling routes.",
+    "evaluated_at": "2026-10-02T15:59:42.781789Z",
+    "evaluated_at_jst": "2026-10-03T00:59:42+09:00",
+    "feeds": {
+      "gbfs": {
+        "last_updated": 1790956596,
+        "ttl_seconds": 60,
+        "url": "https://api-public.odpt.org/api/v4/gbfs/hellocycling/gbfs.json",
+        "version": "2.3"
+      },
+      "station_information": {
+        "last_updated": 1790956596,
+        "ttl_seconds": 60,
+        "url": "https://api-public.odpt.org/api/v4/gbfs/hellocycling/station_information.json",
+        "version": "2.3"
+      },
+      "station_status": {
+        "last_updated": 1790956596,
+        "ttl_seconds": 60,
+        "url": "https://api-public.odpt.org/api/v4/gbfs/hellocycling/station_status.json",
+        "version": "2.3"
+      },
+      "vehicle_types": {
+        "last_updated": 1790956597,
+        "ttl_seconds": 60,
+        "url": "https://api-public.odpt.org/api/v4/gbfs/hellocycling/vehicle_types.json",
+        "version": "2.3"
+      }
+    },
+    "interpretation": "Observation differences only; no ride, trend, or future availability is inferred. Baseline is not overwritten.",
+    "license": "CC BY 4.0",
+    "license_url": "https://d1yl7kw204zjxn.cloudfront.net/gbfs/v2/public/hellocycling_gbfs_licence.txt",
+    "observed_at": "2026-10-02T15:59:42.751495Z",
+    "observed_at_jst": "2026-10-03T00:59:42+09:00",
+    "request_count": 4,
+    "response_bytes": 12391384,
+    "source": "live",
+    "timezone": "Asia/Tokyo",
+    "total_matches": 1,
+    "warnings": []
+  },
+  "results": [
+    {
+      "after": {
+        "address": "東京都新宿区歌舞伎町 2-18-5 ",
+        "age_seconds": 223,
+        "bikes_available": 0,
+        "capacity": 13,
+        "compatibility_note": "GBFS generic vehicle class only; individual model, battery, rules and price require app confirmation.",
+        "distance_meters": null,
+        "id": "5112",
+        "is_installed": true,
+        "is_renting": true,
+        "is_returning": true,
+        "last_reported_at": "2026-10-02T15:55:59Z",
+        "latitude": 35.697315,
+        "longitude": 139.704995,
+        "name": "プラーズタワー東新宿",
+        "parking_type": "street_parking",
+        "rental_state": "empty",
+        "rental_uris": {
+          "android": "https://www.hellocycling.jp/app/port/detail/5112?referrer=odpt",
+          "ios": "https://www.hellocycling.jp/app/port/detail/5112?referrer=odpt",
+          "web": "https://www.hellocycling.jp/app/port/detail/5112?referrer=odpt"
+        },
+        "return_spaces": 12,
+        "return_state": "available",
+        "selected_type_bikes": 0,
+        "selected_type_return_spaces": 12,
+        "selected_vehicle_type": "",
+        "source_url": "https://www.hellocycling.jp/app/port/detail/5112?referrer=odpt",
+        "stale": false,
+        "vehicle_docks_available": [
+          {
+            "count": 12,
+            "vehicle_type_ids": [
+              "2"
+            ]
+          }
+        ],
+        "vehicle_types_available": [
+          {
+            "count": 0,
+            "vehicle_type_id": "2"
+          }
+        ]
+      },
+      "before": {
+        "address": "東京都新宿区歌舞伎町 2-18-5 ",
+        "age_seconds": 4122,
+        "bikes_available": 1,
+        "capacity": 13,
+        "compatibility_note": "GBFS generic vehicle class only; individual model, battery, rules and price require app confirmation.",
+        "distance_meters": null,
+        "id": "5112",
+        "is_installed": true,
+        "is_renting": true,
+        "is_returning": true,
+        "last_reported_at": "2026-10-02T14:51:00Z",
+        "latitude": 35.697315,
+        "longitude": 139.704995,
+        "name": "プラーズタワー東新宿",
+        "parking_type": "street_parking",
+        "rental_state": "stale",
+        "rental_uris": {
+          "android": "https://www.hellocycling.jp/app/port/detail/5112?referrer=odpt",
+          "ios": "https://www.hellocycling.jp/app/port/detail/5112?referrer=odpt",
+          "web": "https://www.hellocycling.jp/app/port/detail/5112?referrer=odpt"
+        },
+        "return_spaces": 11,
+        "return_state": "stale",
+        "selected_type_bikes": 1,
+        "selected_type_return_spaces": 11,
+        "selected_vehicle_type": "",
+        "source_url": "https://www.hellocycling.jp/app/port/detail/5112?referrer=odpt",
+        "stale": true,
+        "vehicle_docks_available": [
+          {
+            "count": 11,
+            "vehicle_type_ids": [
+              "2"
+            ]
+          }
+        ],
+        "vehicle_types_available": [
+          {
+            "count": 1,
+            "vehicle_type_id": "2"
+          }
+        ]
+      },
+      "id": "5112",
+      "kind": "changed",
+      "name": "プラーズタワー東新宿"
+    }
+  ]
+}

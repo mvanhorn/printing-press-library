@@ -1,0 +1,7 @@
+{
+  "reachability": {
+    "mode": "standard_http"
+  },
+  "source": "observed public map script and provider-published GBFS index",
+  "auth_required": false
+}
