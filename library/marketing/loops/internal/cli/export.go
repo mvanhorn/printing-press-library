@@ -237,10 +237,16 @@ func rejectUnsafeExportTarget(path string) error {
 	if !info.Mode().IsRegular() {
 		return errors.New("output path must be a regular file, not a symlink or special file")
 	}
-	if info.Mode().Perm()&0o200 == 0 {
+	if info.Mode().Perm()&0o222 == 0 {
 		return errors.New("output path is read-only; choose a writable file or a new path")
 	}
-	return nil
+	// A file owned by another user can still be writable through its group.
+	// Check the caller's actual access without truncating or changing the file.
+	probe, err := os.OpenFile(path, os.O_WRONLY, 0)
+	if err != nil {
+		return errors.New("output path is not writable by the current user")
+	}
+	return probe.Close()
 }
 
 // openExportOutput writes to a private sibling file. commit atomically replaces

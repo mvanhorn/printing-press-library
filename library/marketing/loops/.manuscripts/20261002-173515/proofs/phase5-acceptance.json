@@ -12,7 +12,7 @@
     "type": "bearer_token",
     "api_key_available": true
   },
-  "source_fingerprint": "3b97bd6ba1639db4581abd50f033acc06eccdbb40b825cc625edc7a5cf3c8cf1",
+  "source_fingerprint": "fa087fe5074c1e2840fc9ffc123d1f8ccacbefd99d7444b102f336fad6c628c6",
   "source_files": {
     "cmd/loops-pp-cli/main.go": "719387a767ee051ad2e1f69d9c141bc867a591fcc44c52fcaa41a7d24ebb3052",
     "cmd/loops-pp-mcp/http_auth_test.go": "98ad89230f20878297990ef8fbbefda0e5eabbee44ca4257fdbfde056c078ac8",
@@ -70,8 +70,8 @@
     "internal/cli/event-patterns_get-by-name.go": "955693ac6c7aaab441c3b708ed2e3a56bddfaca3e098966b0a8b7bf080116cf4",
     "internal/cli/event-patterns_get.go": "9304c2e8bcbfea6847c8e505f98615c4fad7d0c4c368e30335bf637251bef18b",
     "internal/cli/event-patterns_list.go": "0f32d3625f0ca45cf07d96f7265af4123c95f6f8d84fec832dcc4e1d9626a10e",
-    "internal/cli/export.go": "31f9c163f46d34a9e982c3516e3658128c60102c70062bc45fd89a22eab376d6",
-    "internal/cli/export_perms_test.go": "f1ba7de40167dab8a153179e00ca6b330dd5a7b44b2f523528fdfa2cdf7de678",
+    "internal/cli/export.go": "3aaedbe11faaac378b39d63ec8cd203d4b59b2883f70639e250644f4b67213f5",
+    "internal/cli/export_perms_test.go": "1372d975df921bd3ef314aece2da91cc5fd5e3c65bc00248dfc250a3633f2e19",
     "internal/cli/feedback.go": "2165ab4c01523bf775677d564422d8ab728f6e9ca2bf7b42804abaa916830e58",
     "internal/cli/helpers.go": "61bc3c6985abb53166bd021ff75afef0f05242d49df396ef3e04743816982f93",
     "internal/cli/import.go": "54648b7300cc285685d170f2d59038cfb02b97d61c57d26a317190b33e0d488f",

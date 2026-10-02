@@ -92,6 +92,34 @@ func TestOpenExportOutputRejectsReadOnlyTarget(t *testing.T) {
 	}
 }
 
+func TestExportTargetGroupWriteFollowsCallerAccess(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("POSIX permission bits")
+	}
+	path := filepath.Join(t.TempDir(), "group-writable.jsonl")
+	if err := os.WriteFile(path, []byte("original"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(path, 0o020); err != nil {
+		t.Fatal(err)
+	}
+	probe, accessErr := os.OpenFile(path, os.O_WRONLY, 0)
+	if accessErr == nil {
+		_ = probe.Close()
+	}
+	checkErr := rejectUnsafeExportTarget(path)
+	if (accessErr == nil) != (checkErr == nil) {
+		t.Fatalf("permission check = %v, actual write access = %v", checkErr, accessErr)
+	}
+	if err := os.Chmod(path, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	got, err := os.ReadFile(path)
+	if err != nil || string(got) != "original" {
+		t.Fatalf("permission check modified target: %q (%v)", got, err)
+	}
+}
+
 func TestExportCommitRejectsLateSymlink(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("symlink permissions depend on Windows developer mode")
