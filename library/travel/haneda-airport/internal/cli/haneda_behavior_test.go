@@ -347,9 +347,48 @@ func TestHanedaSnapshotDefaultDiffFindsOlderCompatibleOriginPair(t *testing.T) {
 		}
 		paths = append(paths, file)
 	}
-	before, after, err := hanedaLatestCompatiblePair(paths)
-	if err != nil || before != paths[3] || after != paths[0] {
+	before, after, notes, err := hanedaLatestCompatiblePair(paths)
+	if err != nil || before != paths[3] || after != paths[0] || len(notes) != 0 {
 		t.Fatalf("the newest compatible cache pair must win: %q %q %v", before, after, err)
+	}
+
+	// A known valid pair stays usable when an unrelated older file stops the
+	// bounded selection. Its ranking uncertainty must be exposed to the caller.
+	for _, tc := range []struct {
+		name string
+		make func(string) error
+	}{
+		{"budget", func(path string) error {
+			f, err := os.Create(path)
+			if err != nil {
+				return err
+			}
+			err = f.Truncate(65 << 20)
+			closeErr := f.Close()
+			if err != nil {
+				return err
+			}
+			return closeErr
+		}},
+		{"malformed", func(path string) error { return os.WriteFile(path, []byte("{"), 0600) }},
+		{"missing", func(path string) error { return nil }},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			older := filepath.Join(t.TempDir(), "older-unrelated.json")
+			if err := tc.make(older); err != nil {
+				t.Fatal(err)
+			}
+			// paths[0] is unpaired; paths[1:3] are a valid older-origin pair.
+			before, after, notes, err := hanedaLatestCompatiblePair([]string{paths[0], paths[1], paths[2], older})
+			if err != nil || before != paths[2] || after != paths[1] || len(notes) != 1 || !strings.Contains(notes[0], "may remain unexamined") {
+				t.Fatalf("valid pair lost or uncertainty hidden: %q %q %+v %v", before, after, notes, err)
+			}
+			// Without a known valid pair, a stopped scan must not claim an
+			// empty, sufficient baseline.
+			if _, _, _, err := hanedaLatestCompatiblePair([]string{paths[0], older}); err == nil {
+				t.Fatal("stopped selection without a baseline must fail explicitly")
+			}
+		})
 	}
 }
 

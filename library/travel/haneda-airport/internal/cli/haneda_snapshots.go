@@ -55,27 +55,34 @@ func hanedaLatestPaths() ([]string, error) {
 
 // Find a compatible pair by validated content, including origin. A newest
 // unpaired scope does not hide an older usable pair; byte work stays bounded.
-func hanedaLatestCompatiblePair(paths []string) (before, after string, err error) {
+func hanedaLatestCompatiblePair(paths []string) (before, after string, notes []string, err error) {
 	type observation struct {
 		path  string
 		at    time.Time
 		index int
 	}
 	seen := map[haneda.Coverage]observation{}
+	notes = []string{}
+	stopped := func(reason error) (string, string, []string, error) {
+		if before == "" {
+			return "", "", notes, reason
+		}
+		return before, after, []string{"Automatic cache selection stopped: " + reason.Error() + ". Comparing the newest compatible pair found in the examined files; a newer pair may remain unexamined. Choose explicit --before and --after to select a particular pair."}, nil
+	}
 	var bytes int64
 	bestIndex := len(paths)
 	for index, path := range paths {
 		info, err := os.Stat(path)
 		if err != nil {
-			return "", "", err
+			return stopped(fmt.Errorf("inspect older cached snapshot %s: %w", filepath.Base(path), err))
 		}
 		bytes += info.Size()
 		if bytes > 64<<20 {
-			return "", "", fmt.Errorf("automatic snapshot pairing exceeds 64 MiB; choose explicit --before and --after")
+			return stopped(fmt.Errorf("automatic snapshot pairing exceeds 64 MiB"))
 		}
 		s, err := haneda.LoadSnapshot(path)
 		if err != nil {
-			return "", "", fmt.Errorf("read cached snapshot %s: %w", filepath.Base(path), err)
+			return stopped(fmt.Errorf("read older cached snapshot %s: %w", filepath.Base(path), err))
 		}
 		key := s.Board.Coverage
 		key.QueryMode = "board" // Empty v1 mode and explicit board mode are compatible.
@@ -89,11 +96,11 @@ func hanedaLatestCompatiblePair(paths []string) (before, after string, err error
 				bestIndex = previous.index
 			}
 			if bestIndex == 0 {
-				return before, after, nil
+				return before, after, notes, nil
 			}
 			continue
 		}
 		seen[key] = observation{path: path, at: at, index: index}
 	}
-	return before, after, nil
+	return before, after, notes, nil
 }

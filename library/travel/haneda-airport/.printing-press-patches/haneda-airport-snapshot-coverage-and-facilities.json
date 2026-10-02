@@ -4,7 +4,7 @@
   "applied_at": "2026-10-03",
   "base_run_id": "20261002-221718-7fcad3b1",
   "base_printing_press_version": "4.32.5",
-  "summary": "Reject uncovered offline query scopes, compare complete facility handoffs, and find the newest compatible origin-aware cache pair.",
+  "summary": "Reject uncovered offline scopes, compare facility handoffs, and preserve validated origin-aware cache pairs with explicit incomplete-selection notes.",
   "reason": "A complete saved board covers only its declared source request; empty queries and automatic pairing must not imply evidence outside that scope, and facility map changes are material planning changes.",
   "files": [
     "internal/cli/snapshot_search.go",
@@ -16,5 +16,5 @@
     "README.md",
     "SKILL.md"
   ],
-  "validated_outcome": "Regression cases distinguish uncovered from covered-empty searches, detect facility/map-only changes, and choose older or competing compatible origin pairs without network requests."
+  "validated_outcome": "Regression cases cover uncovered versus covered-empty requests, facility/map-only changes, newest compatible origins, and budget/malformed/missing older files with and without an existing pair."
 }

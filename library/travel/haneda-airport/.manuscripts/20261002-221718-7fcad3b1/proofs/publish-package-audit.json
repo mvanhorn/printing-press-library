@@ -30,6 +30,7 @@
     "review/fix-verification/flights-detail-UA8003.json",
     "review/fix-verification/final-public-mcp-hints.json",
     "review/fix-verification/malformed-clock.json",
+    "review/fix-verification/pr2241-cache-stop.json",
     "review/fix-verification/age-default.json",
     "review/fix-verification/missing-coverage.json",
     "review/fix-verification/schedule-reject-id.json",
@@ -132,6 +133,7 @@
     ".manuscripts/20261002-221718-7fcad3b1/proofs/polish-gosec-before.json",
     ".manuscripts/20261002-221718-7fcad3b1/proofs/polish-shipcheck.json",
     ".manuscripts/20261002-221718-7fcad3b1/proofs/shipcheck.json",
+    ".manuscripts/20261002-221718-7fcad3b1/proofs/publish-cache-fix-shipcheck.json",
     ".manuscripts/20261002-221718-7fcad3b1/proofs/shipcheck-final.json",
     ".manuscripts/20261002-221718-7fcad3b1/proofs/publish-fixed-shipcheck.json",
     ".manuscripts/20261002-221718-7fcad3b1/proofs/review-skill.json",
@@ -140,7 +142,7 @@
     ".manuscripts/20261002-221718-7fcad3b1/proofs/live-domain/summary.json"
   ],
   "tier1_tokens": 0,
-  "tier2_review": "Generated synthetic fixtures, public airport/airline terms and licensing attributions only. No personal workspace or account data.",
+  "tier2_review": "Generated synthetic fixtures, public airport/airline terms and licensing attributions only; no personal workspace or account data.",
   "public_tree_contains_response_dumps": false,
-  "review_fixes": "Covered-scope offline search, full facility/map diff, newest origin-aware compatible pair."
+  "review_fixes": "Covered-scope queries, full facility/map changes, origin-aware newest compatible pairs, and explicit incomplete cache selection retaining validated comparisons."
 }
