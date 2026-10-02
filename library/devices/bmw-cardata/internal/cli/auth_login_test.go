@@ -272,6 +272,86 @@ func TestRefreshCardataAccessTokenSerializesStaleReaders(t *testing.T) {
 	}
 }
 
+func TestRefreshCardataAccessTokenSerializesConfigAliases(t *testing.T) {
+	t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "")
+	now := time.Now().UTC()
+	dir := t.TempDir()
+	target := filepath.Join(dir, "target", "config.toml")
+	initial, err := config.Load(target)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := initial.SaveTokens("client-id", "", "old-access", "old-refresh", now.Add(-time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	alias := filepath.Join(dir, "alias.toml")
+	if err := os.Symlink(target, alias); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+	first, err := config.Load(alias)
+	if err != nil {
+		t.Fatal(err)
+	}
+	second, err := config.Load(target)
+	if err != nil {
+		t.Fatal(err)
+	}
+	firstPath, err := config.CanonicalPath(first.Path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	secondPath, err := config.CanonicalPath(second.Path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if firstPath != secondPath {
+		t.Fatal("aliases do not share a config target")
+	}
+	firstSession, err := config.CanonicalPath(cardataSessionPath(first))
+	if err != nil {
+		t.Fatal(err)
+	}
+	secondSession, err := config.CanonicalPath(cardataSessionPath(second))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if firstSession != secondSession {
+		t.Fatal("aliases do not share a streaming session target")
+	}
+	var calls atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls.Add(1)
+		if err := r.ParseForm(); err != nil || r.Form.Get("refresh_token") != "old-refresh" {
+			t.Error("unexpected refresh token submitted")
+		}
+		time.Sleep(25 * time.Millisecond)
+		_, _ = w.Write([]byte(`{"access_token":"new-access","refresh_token":"new-refresh","expires_in":3600}`))
+	}))
+	defer server.Close()
+	var wg sync.WaitGroup
+	errs := make(chan error, 2)
+	for _, cfg := range []*config.Config{first, second} {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			errs <- RefreshCardataAccessTokenIfNeeded(context.Background(), cfg, now, server.URL)
+		}()
+	}
+	wg.Wait()
+	close(errs)
+	for err := range errs {
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	if calls.Load() != 1 || first.AccessToken != "new-access" || second.AccessToken != "new-access" {
+		t.Fatal("aliases rotated a single-use refresh token more than once")
+	}
+	if info, err := os.Lstat(alias); err != nil || info.Mode()&os.ModeSymlink == 0 {
+		t.Fatalf("refresh replaced config alias: %v", err)
+	}
+}
+
 func TestCurrentCardataStreamSessionRechecksIdentityUnderLock(t *testing.T) {
 	t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "")
 	now := time.Now().UTC()

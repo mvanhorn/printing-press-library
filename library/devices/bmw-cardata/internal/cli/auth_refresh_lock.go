@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/devices/bmw-cardata/internal/config"
+
 	"github.com/gofrs/flock"
 )
 
@@ -26,7 +28,11 @@ func withCardataRefreshLock(ctx context.Context, configPath string, fn func() er
 	if err := os.MkdirAll(filepath.Dir(absPath), 0o700); err != nil {
 		return fmt.Errorf("creating OAuth config directory: %w", err)
 	}
-	lock := flock.New(absPath+".refresh.lock", flock.SetPermissions(0o600))
+	canonicalPath, err := config.CanonicalPath(absPath)
+	if err != nil {
+		return fmt.Errorf("resolving OAuth config path: %w", err)
+	}
+	lock := flock.New(canonicalPath+".refresh.lock", flock.SetPermissions(0o600))
 	locked, err := lock.TryLockContext(ctx, 100*time.Millisecond)
 	if err != nil {
 		return fmt.Errorf("waiting for OAuth refresh lock: %w", err)
