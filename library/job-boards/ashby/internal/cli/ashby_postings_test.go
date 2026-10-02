@@ -1,13 +1,39 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/job-boards/ashby/internal/store"
+	"github.com/spf13/cobra"
 )
+
+func TestAshbyPostingsDryRunReturnsPreviewWithoutDecodingSentinel(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		cmd  *cobra.Command
+		args []string
+	}{
+		{name: "list", cmd: newAshbyPostingsListCmd(&rootFlags{dryRun: true, asJSON: true}), args: []string{"example"}},
+		{name: "get", cmd: newAshbyPostingsGetCmd(&rootFlags{dryRun: true, asJSON: true}), args: []string{"example", "job-1"}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var output bytes.Buffer
+			tc.cmd.SetOut(&output)
+			tc.cmd.SetErr(&output)
+			tc.cmd.SetArgs(tc.args)
+			if err := tc.cmd.Execute(); err != nil {
+				t.Fatalf("dry-run: %v (%s)", err, output.String())
+			}
+			if !strings.Contains(output.String(), `"dry_run":true`) {
+				t.Fatalf("missing dry-run preview: %q", output.String())
+			}
+		})
+	}
+}
 
 func floatPtr(v float64) *float64 { return &v }
 

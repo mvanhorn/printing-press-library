@@ -112,6 +112,9 @@ func newAshbyPostingsListCmd(flags *rootFlags) *cobra.Command {
 		SilenceUsage: true,
 		Annotations:  map[string]string{"pp:endpoint": "postings.list", "pp:method": "GET", "pp:path": "/posting-api/job-board/{jobBoardName}", "pp:happy-args": "<job-board-name>=ashby", "pp:typed-exit-codes": "0,2,3", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if dryRunOK(flags) {
+				return writeDryRun(cmd.OutOrStdout(), flags, "postings list")
+			}
 			jobs, err := fetchAshbyJobs(cmd, flags, args[0], includeCompensation || filter.HasCompensation || filter.SalaryMin > 0 || filter.SalaryMax > 0 || filter.Currency != "")
 			if err != nil {
 				return classifyAPIError(cmd.OutOrStdout(), err, flags)
@@ -139,6 +142,9 @@ func newAshbyPostingsGetCmd(flags *rootFlags) *cobra.Command {
 		SilenceUsage: true,
 		Annotations:  map[string]string{"pp:endpoint": "postings.get", "pp:method": "GET", "pp:path": "/posting-api/job-board/{jobBoardName}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if dryRunOK(flags) {
+				return writeDryRun(cmd.OutOrStdout(), flags, "postings get")
+			}
 			jobs, err := fetchAshbyJobs(cmd, flags, args[0], includeCompensation)
 			if err != nil {
 				return classifyAPIError(cmd.OutOrStdout(), err, flags)

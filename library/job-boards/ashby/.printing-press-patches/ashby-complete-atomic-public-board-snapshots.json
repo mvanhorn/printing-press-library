@@ -11,5 +11,5 @@
     "internal/cli/ashby_postings_test.go",
     "internal/store/store.go"
   ],
-  "validated_outcome": "Synthetic tests cover missing and empty jobs arrays, malformed rows, timezone-aware newest-first limits, invalid posting IDs, and rollback when snapshot cleanup fails."
+  "validated_outcome": "Synthetic tests cover missing and empty jobs arrays, malformed rows, timezone-aware newest-first limits, dry-run previews, invalid posting IDs, and rollback when snapshot cleanup fails."
 }
