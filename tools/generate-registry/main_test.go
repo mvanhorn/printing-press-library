@@ -1,11 +1,61 @@
 package main
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 )
+
+func TestBuildMCPBlockKeepsHTTPServerAuthSeparateFromAPIAuth(t *testing.T) {
+	var source printingPressManifest
+	if err := json.Unmarshal([]byte(`{
+		"mcp_binary":"ashby-pp-mcp",
+		"auth_type":"none",
+		"auth_env_vars":["PRINTING_PRESS_CLIENT_PROFILE","PP_MCP_HTTP_TOKEN"],
+		"mcp_http_auth_type":"bearer_token",
+		"mcp_http_auth_env_vars":["PP_MCP_HTTP_TOKEN"]
+	}`), &source); err != nil {
+		t.Fatal(err)
+	}
+	cliDir := t.TempDir()
+	mcpSource := filepath.Join(cliDir, "cmd", "ashby-pp-mcp")
+	if err := os.MkdirAll(mcpSource, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(mcpSource, "main.go"), []byte("server.ServeStdio(s); server.NewStreamableHTTPServer(s)"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	block := buildMCPBlock(source, nil, cliDir)
+	if block.AuthType != "none" || len(block.EnvVars) != 2 || block.EnvVars[0] != "PRINTING_PRESS_CLIENT_PROFILE" || block.EnvVars[1] != "PP_MCP_HTTP_TOKEN" {
+		t.Fatalf("API auth changed: %#v", block)
+	}
+	if block.HTTPAuthType != "bearer_token" || len(block.HTTPAuthEnvVars) != 1 || block.HTTPAuthEnvVars[0] != "PP_MCP_HTTP_TOKEN" {
+		t.Fatalf("HTTP auth missing: %#v", block)
+	}
+	if len(block.Transports) != 2 || block.Transports[1] != "http" {
+		t.Fatalf("HTTP transport missing: %#v", block.Transports)
+	}
+	raw, err := json.Marshal(block)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var published map[string]any
+	if err := json.Unmarshal(raw, &published); err != nil {
+		t.Fatal(err)
+	}
+	if published["auth_type"] != "none" || published["http_auth_type"] != "bearer_token" {
+		t.Fatalf("catalog auth fields conflated: %s", raw)
+	}
+
+	// An older manifest may omit the HTTP fields during a later catalog
+	// regeneration. Preserve the known transport requirement in that case.
+	prior := buildMCPBlock(printingPressManifest{MCPBinary: "ashby-pp-mcp", AuthType: "none"}, block, cliDir)
+	if prior.HTTPAuthType != "bearer_token" || len(prior.HTTPAuthEnvVars) != 1 || prior.HTTPAuthEnvVars[0] != "PP_MCP_HTTP_TOKEN" {
+		t.Fatalf("HTTP auth lost on regeneration: %#v", prior)
+	}
+}
 
 // TestRenderCatalogTable_Golden locks the rendering of a worst-case
 // row: backticks live inside the link text (Name and Skill columns),

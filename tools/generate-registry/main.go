@@ -123,6 +123,10 @@ type MCPBlock struct {
 	PublicToolCount int      `json:"public_tool_count"`
 	AuthType        string   `json:"auth_type,omitempty"`
 	EnvVars         []string `json:"env_vars"`
+	// HTTPAuthType and HTTPAuthEnvVars describe protection of the MCP HTTP
+	// listener, separately from AuthType for the upstream API.
+	HTTPAuthType    string   `json:"http_auth_type,omitempty"`
+	HTTPAuthEnvVars []string `json:"http_auth_env_vars,omitempty"`
 	MCPReady        string   `json:"mcp_ready,omitempty"`
 	SpecFormat      string   `json:"spec_format,omitempty"`
 }
@@ -160,6 +164,8 @@ type printingPressManifest struct {
 	MCPReady           string   `json:"mcp_ready"`
 	AuthType           string   `json:"auth_type"`
 	AuthEnvVars        []string `json:"auth_env_vars"`
+	MCPHTTPAuthType    string   `json:"mcp_http_auth_type"`
+	MCPHTTPAuthEnvVars []string `json:"mcp_http_auth_env_vars"`
 	SpecFormat         string   `json:"spec_format"`
 	NovelFeatures      []struct {
 		Name        string `json:"name"`
@@ -860,6 +866,16 @@ func buildMCPBlock(pp printingPressManifest, prior *MCPBlock, cliDir string) *MC
 		mcp.AuthType = pp.AuthType
 	} else if prior != nil {
 		mcp.AuthType = prior.AuthType
+	}
+	if pp.MCPHTTPAuthType != "" {
+		mcp.HTTPAuthType = pp.MCPHTTPAuthType
+	} else if prior != nil {
+		mcp.HTTPAuthType = prior.HTTPAuthType
+	}
+	if pp.MCPHTTPAuthEnvVars != nil {
+		mcp.HTTPAuthEnvVars = append([]string{}, pp.MCPHTTPAuthEnvVars...)
+	} else if prior != nil {
+		mcp.HTTPAuthEnvVars = append([]string{}, prior.HTTPAuthEnvVars...)
 	}
 	if pp.MCPReady != "" {
 		mcp.MCPReady = pp.MCPReady

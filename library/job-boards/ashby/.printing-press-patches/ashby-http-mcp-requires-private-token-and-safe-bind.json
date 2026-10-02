@@ -4,11 +4,13 @@
   "applied_at": "2026-10-01",
   "base_run_id": "20260824-211633-3511b2d3",
   "base_printing_press_version": "4.31.1",
-  "summary": "HTTP MCP must require an environment-supplied bearer token and verify the actual listener stays on loopback unless TLS is enabled.",
+  "summary": "HTTP MCP must require an environment-supplied bearer token, publish that HTTP-only requirement separately from API auth, and verify the actual listener stays on loopback unless TLS is enabled.",
   "reason": "An unauthenticated HTTP listener can expose local job and learning data, and a requested hostname alone does not prove where plaintext traffic binds.",
   "files": [
     "cmd/ashby-pp-mcp/main.go",
-    "cmd/ashby-pp-mcp/main_test.go"
+    "cmd/ashby-pp-mcp/main_test.go",
+    ".printing-press.json",
+    "README.md"
   ],
   "validated_outcome": "Synthetic tests cover token rejection and acceptance, loopback-only plaintext, TLS configuration, and actual bound-address checks."
 }

@@ -123,6 +123,8 @@ No Ashby API key or customer account is required. Authenticated recruiting, cand
 
 The MCP server uses local standard input and output by default. For HTTP MCP, set `PP_MCP_HTTP_TOKEN` in the server environment and run `ashby-pp-mcp --transport http --addr 127.0.0.1:7777`. Requests must carry that token as a Bearer token. A server exposed beyond the local computer also requires `--tls-cert` and `--tls-key`. Keep the token out of command-line arguments.
 
+The public Ashby API still needs no API key. The bearer token protects only the MCP server's HTTP transport; local stdio MCP does not need it. The catalog lists these as separate authentication requirements.
+
 ## Quick Start
 
 ```bash
