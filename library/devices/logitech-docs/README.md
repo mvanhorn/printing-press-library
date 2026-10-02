@@ -8,7 +8,7 @@ Created by [@Drummerms](https://github.com/Drummerms) (drummerms).
 
 Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
-Downloads stay on HTTPS Logitech download hosts and will not overwrite an existing file. A failed sync cleanup now reports an error instead of appearing complete.
+Downloads stay on HTTPS Logitech download hosts and will not overwrite an existing file. A failed write reports the error and leaves its partial download for you to inspect or remove. A failed sync cleanup now reports an error instead of appearing complete.
 
 ## Install
 

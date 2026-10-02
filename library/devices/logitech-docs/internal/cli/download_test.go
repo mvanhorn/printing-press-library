@@ -7,7 +7,6 @@ package cli
 import (
 	"bytes"
 	"errors"
-	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -108,19 +107,23 @@ type replacementDuringRead struct {
 
 func (r *replacementDuringRead) Read(p []byte) (int, error) {
 	if r.wrote {
-		return 0, io.EOF
+		return 0, errors.New("unexpected second read")
 	}
 	r.wrote = true
-	if err := os.WriteFile(r.dest, []byte("replacement"), 0o600); err != nil {
+	replacement := r.dest + ".replacement"
+	if err := os.WriteFile(replacement, []byte("replacement"), 0o600); err != nil {
 		return 0, err
 	}
-	return copy(p, []byte("download")), io.EOF
+	if err := os.Rename(replacement, r.dest); err != nil {
+		return 0, err
+	}
+	return 0, errors.New("synthetic copy failure")
 }
 
-func TestSaveNewDownloadPreservesDestinationCreatedDuringCopy(t *testing.T) {
+func TestSaveNewDownloadPreservesReplacementOnCopyError(t *testing.T) {
 	t.Parallel()
 	dest := filepath.Join(t.TempDir(), "manual.pdf")
-	if err := saveNewDownload(dest, &replacementDuringRead{dest: dest}); err == nil || !strings.Contains(err.Error(), "refusing to overwrite") {
+	if err := saveNewDownload(dest, &replacementDuringRead{dest: dest}); err == nil || !strings.Contains(err.Error(), "partial download may remain") {
 		t.Fatalf("download replaced an intervening file: %v", err)
 	}
 	if got, err := os.ReadFile(dest); err != nil || string(got) != "replacement" {
@@ -134,18 +137,18 @@ func (failingDownloadReader) Read([]byte) (int, error) {
 	return 0, errors.New("synthetic read failure")
 }
 
-func TestSaveNewDownloadLeavesNoDestinationOnCopyFailure(t *testing.T) {
+func TestSaveNewDownloadReportsPartialFileOnCopyFailure(t *testing.T) {
 	t.Parallel()
 	dir := t.TempDir()
 	dest := filepath.Join(dir, "manual.pdf")
-	if err := saveNewDownload(dest, failingDownloadReader{}); err == nil {
-		t.Fatal("copy failure was hidden")
+	if err := saveNewDownload(dest, failingDownloadReader{}); err == nil || !strings.Contains(err.Error(), "partial download may remain") {
+		t.Fatalf("copy failure or partial-file warning was hidden: %v", err)
 	}
-	if _, err := os.Lstat(dest); !os.IsNotExist(err) {
-		t.Fatalf("failed download published a destination: %v", err)
+	if info, err := os.Lstat(dest); err != nil || info.Size() != 0 {
+		t.Fatalf("partial download was removed or changed: info=%v err=%v", info, err)
 	}
 	entries, err := os.ReadDir(dir)
-	if err != nil || len(entries) != 0 {
-		t.Fatalf("failed download left temporary files: entries=%v err=%v", entries, err)
+	if err != nil || len(entries) != 1 {
+		t.Fatalf("failed download left unexpected files: entries=%v err=%v", entries, err)
 	}
 }

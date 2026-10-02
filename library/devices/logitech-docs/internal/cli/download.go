@@ -42,27 +42,24 @@ func newLogitechDownloadClient() *http.Client {
 	}}
 }
 
-// saveNewDownload writes to an unpredictable temporary name in the target
-// directory. Linking the completed file claims the destination atomically
-// without replacing a file or symlink another process created meanwhile.
+// saveNewDownload claims the destination with O_EXCL. If writing fails, it
+// leaves the partial file in place with an explicit error. Removing by path
+// could delete a file another process swapped in after the open.
 func saveNewDownload(dest string, src io.Reader) error {
-	out, err := os.CreateTemp(filepath.Dir(dest), ".logitech-download-*")
+	out, err := os.OpenFile(dest, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600) // #nosec G304 -- dest is a validated basename joined under the caller-selected --save directory
 	if err != nil {
-		return err
-	}
-	defer os.Remove(out.Name())
-	if _, err := io.Copy(out, src); err != nil {
-		_ = out.Close()
-		return fmt.Errorf("writing temporary download: %w", err)
-	}
-	if err := out.Close(); err != nil {
-		return fmt.Errorf("closing temporary download: %w", err)
-	}
-	if err := os.Link(out.Name(), dest); err != nil {
 		if os.IsExist(err) {
 			return fmt.Errorf("refusing to overwrite existing download %s", dest)
 		}
-		return fmt.Errorf("publishing download %s: %w", dest, err)
+		return fmt.Errorf("creating download %s: %w", dest, err)
+	}
+	_, copyErr := io.Copy(out, src)
+	closeErr := out.Close()
+	if copyErr != nil {
+		return fmt.Errorf("writing %s: %w; partial download may remain at this path", dest, copyErr)
+	}
+	if closeErr != nil {
+		return fmt.Errorf("closing %s: %w; partial download may remain at this path", dest, closeErr)
 	}
 	return nil
 }
