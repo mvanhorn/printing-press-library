@@ -537,7 +537,9 @@ func syncResource(ctx context.Context, c interface {
 		params := map[string]string{}
 
 		if resourceSupportsPagination(resource) {
-			params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
+			if pageSize.limitParam != "" {
+				params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
+			}
 			if cursor != "" {
 				if pageSize.cursorParam != "" {
 					params[pageSize.cursorParam] = cursor
@@ -1071,6 +1073,17 @@ func determinePaginationDefaults(resource string) paginationDefaults {
 			limitParam:     "limit",
 			limit:          20,
 		}
+	case "posts/comments":
+		return paginationDefaults{
+			cursorParam:    "cursor",
+			cursorType:     "cursor",
+			nextCursorPath: "nextCursor",
+			// The comments endpoint exposes a cursor but no page-size query
+			// parameter. Keep an internal page-size estimate for completeness
+			// checks without sending an undocumented key.
+			limitParam: "",
+			limit:      100,
+		}
 	}
 	return paginationDefaults{
 		cursorParam:    "after",
@@ -1083,7 +1096,7 @@ func determinePaginationDefaults(resource string) paginationDefaults {
 
 func resourceSupportsPagination(resource string) bool {
 	switch resource {
-	case "posts":
+	case "comments", "posts":
 		return true
 	}
 	return false
@@ -2288,7 +2301,9 @@ func syncOneParent(
 	for {
 		params := map[string]string{}
 		if resourceSupportsPagination(dep.Name) {
-			params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
+			if pageSize.limitParam != "" {
+				params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
+			}
 			if cursor != "" {
 				if pageSize.cursorParam != "" {
 					params[pageSize.cursorParam] = cursor

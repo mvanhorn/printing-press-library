@@ -88,7 +88,8 @@ func newToolsPromotedCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	// Wire sibling endpoints and sub-resources as subcommands
-	addNovelCommandIfAbsent(cmd, newNovelToolsRankCmd(flags))
+	// Direct registration exposes the nested path to static skill validation.
+	cmd.AddCommand(newNovelToolsRankCmd(flags))
 
 	return cmd
 }

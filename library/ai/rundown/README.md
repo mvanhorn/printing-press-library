@@ -1,8 +1,12 @@
 # The Rundown University CLI
 
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 **Search the community's AI workflows offline, and rank them by week - two things the site's own API cannot do.**
 
 The Rundown's community feed has no date filter and no single-post endpoint, so questions like 'best rated this week' or 'read me that whole workflow' need a local mirror. This CLI syncs every workflow into SQLite, then answers them instantly with `top --since`, `use-cases`, `show`, `digest`, `tools rank` and `stack`. No account or API key is needed - every read endpoint is public.
+
+`sync` follows comment cursors for each post. `use-cases` keeps the live result when the local mirror has an older copy, and reports a missing or unreadable mirror clearly.
 
 ## Install
 

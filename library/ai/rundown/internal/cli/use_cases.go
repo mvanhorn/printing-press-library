@@ -44,6 +44,8 @@ type rdUseCaseResult struct {
 	Note           string         `json:"note,omitempty"`
 }
 
+var rdUseCasesLocalSearch = rdLocalSearch
+
 func newNovelUseCasesCmd(flags *rootFlags) *cobra.Command {
 	var (
 		flagLimit  int
@@ -117,17 +119,7 @@ designing a workflow. To read one of the results end to end, use
 			semanticHits, localHits := 0, 0
 
 			record := func(p rdPost, via string) {
-				if p.ID == "" {
-					return
-				}
-				byID[p.ID] = p
-				if existing, ok := merged[p.ID]; ok {
-					if existing.MatchedVia != via {
-						existing.MatchedVia = "both"
-					}
-					return
-				}
-				merged[p.ID] = &rdUseCaseRow{MatchedVia: via}
+				rdRecordUseCaseCandidate(merged, byID, p, via)
 			}
 
 			// --- semantic pass (live API) ---
@@ -146,23 +138,39 @@ designing a workflow. To read one of the results end to end, use
 
 			// --- local pass (synced mirror) ---
 			mirrorSearched := false
+			var mirrorErr error
 			dbPath := rdResolveDBPath(flagDBPath)
 			if _, statErr := os.Stat(dbPath); statErr == nil {
 				db, err := rdOpenMirrorStore(ctx, dbPath)
-				if err == nil {
+				if err != nil {
+					mirrorErr = fmt.Errorf("open local mirror %q: %w", dbPath, err)
+				} else {
 					defer db.Close()
-					mirrorSearched = true
-					if local, err := rdLocalSearch(db, topic, 50); err == nil {
+					if local, err := rdUseCasesLocalSearch(db, topic, 50); err != nil {
+						mirrorErr = fmt.Errorf("search local mirror %q: %w", dbPath, err)
+					} else {
+						mirrorSearched = true
 						localHits = len(local)
 						for _, p := range local {
 							record(p, "local")
 						}
 					}
 				}
+			} else if !os.IsNotExist(statErr) {
+				mirrorErr = fmt.Errorf("inspect local mirror %q: %w", dbPath, statErr)
 			}
 
-			if len(merged) == 0 && semanticErr != nil && !mirrorSearched {
-				return semanticErr
+			if flagLocal && mirrorErr != nil {
+				return mirrorErr
+			}
+
+			if len(merged) == 0 && semanticErr != nil {
+				if mirrorErr != nil {
+					return fmt.Errorf("semantic search failed: %v; local mirror search failed: %w", semanticErr, mirrorErr)
+				}
+				if !mirrorSearched {
+					return semanticErr
+				}
 			}
 
 			ordered := make([]rdPost, 0, len(merged))
@@ -203,6 +211,10 @@ designing a workflow. To read one of the results end to end, use
 				MirrorSearched: mirrorSearched,
 			}
 			switch {
+			case flagLocal && !mirrorSearched:
+				result.Note = "local mirror not found; run 'rundown-pp-cli sync' before using --local."
+			case mirrorErr != nil:
+				result.Note = "local mirror unavailable (" + mirrorErr.Error() + "); semantic results only."
 			case !mirrorSearched && !flagLocal:
 				result.Note = "local mirror not found; semantic search only. Run 'rundown-pp-cli sync' for offline coverage."
 			case semanticErr != nil:
@@ -247,6 +259,24 @@ designing a workflow. To read one of the results end to end, use
 	cmd.Flags().BoolVar(&flagLocal, "local", false, "Skip the live semantic search and use only the offline mirror")
 	cmd.Flags().StringVar(&flagDBPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 	return cmd
+}
+
+// rdRecordUseCaseCandidate merges one search result without letting an older
+// local mirror overwrite the live semantic-search payload. The local pass may
+// still add provenance to a live hit, and it supplies the payload when it is
+// the only source for an ID.
+func rdRecordUseCaseCandidate(merged map[string]*rdUseCaseRow, byID map[string]rdPost, p rdPost, via string) {
+	if p.ID == "" {
+		return
+	}
+	if existing, ok := merged[p.ID]; ok {
+		if existing.MatchedVia != via {
+			existing.MatchedVia = "both"
+		}
+		return
+	}
+	byID[p.ID] = p
+	merged[p.ID] = &rdUseCaseRow{MatchedVia: via}
 }
 
 // rdSemanticSearch runs the community API's own q= ranking.

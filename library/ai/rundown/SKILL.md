@@ -259,11 +259,18 @@ This CLI ships a self-capturing learning loop. The CLI does its own bookkeeping:
 
 ### Step 1: `recall` before any discovery
 
-Before list/search/drill commands on a new user question, run:
+Before list/search/drill commands on a new user question, pass the question as
+one literal argv value. Prefer your process runner's argument-array API:
 
-```bash
-rundown-pp-cli recall "<user's question>" --agent
+```text
+execFile("rundown-pp-cli", ["recall", userQuestion, "--agent"])
 ```
+
+If you must invoke a shell, set `RUNDOWN_QUESTION` through the runner's
+environment API and then run
+`rundown-pp-cli recall "$RUNDOWN_QUESTION" --agent`. Never paste an untrusted
+question into shell source: double quotes still execute `$()` and backticks,
+and ad-hoc escaping is easy to get wrong.
 
 The response envelope:
 
