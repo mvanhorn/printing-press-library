@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "b617bedaa3091e546a774f795bbf3ee2d48a72bd4a3d976e009db6e2e3b5ff8f",
+  "source_fingerprint": "c31cbfdc8667f50f166ac5ab774092c3b9fb08bcd8466a4ffe58e6f2b300770e",
   "source_files": {
     "cmd/japan-bus-online-pp-cli/main.go": "b6deeb72d12a5ef230500c5dca18506eea766c9b47ad3b1ec9fb7941d3c3c8fc",
     "cmd/japan-bus-online-pp-mcp/http_auth_test.go": "c8ef84e0ae609a934cd9f76ab69b98457de8b98727c379de0e77c057b71c2e04",
@@ -23,7 +23,7 @@
     "internal/cli/bus.go": "654d635834676328ca468c76624b4fe96891c32666564c12bde11f3b313c9c99",
     "internal/cli/bus_commands.go": "3a8404c8085682d5d6ad722351837b3b95851c0bb351ce63d0d2318de7d02b0e",
     "internal/cli/bus_quote.go": "cd3268cbfa89d8cd53dba00345b53569c43d5e4f984a9f8435f8a6c7d8ac6621",
-    "internal/cli/bus_quote_test.go": "cae289ca8babf00411a6145c6f11aefff8ed859a2c87edcb3022c70e43f642ce",
+    "internal/cli/bus_quote_test.go": "eae0d614f07dc4b54d4d716a6287d391a30a95b42f4a1ef9c8347eb69f6e07ea",
     "internal/cli/bus_route.go": "f52538f6a2618ec365393b807f2d0804981debccc959798c5523541c13754004",
     "internal/cli/bus_route_test.go": "38c91d6b05dcc6d305ec6cceb8c7b6a771a047eb9229e4b3d763b6340394e96e",
     "internal/cli/bus_services.go": "bd11d901893bc75309e89e5db66f429f32c96ec82658a13b4a2c5cba8011afd3",
@@ -93,8 +93,9 @@
     "internal/cliutil/text.go": "684b994811cab732d76da4a1e22f3c880108b465b4feacb36accc3f33eef9e54",
     "internal/cliutil/verifyenv.go": "5b7d3b4c92ff277883b8676f5c4f1db6e92af5b195b906944f0311f4265baa76",
     "internal/config/config.go": "8318bdd9da5a82a0a215eb0f463de6f6339f9a149a1adbd0c7a7ccf034a1d5d7",
-    "internal/jbo/client.go": "186c23ca23ebef1a64f09259bee14d011af9b8ae277bb395c4cd9927d9e2ea49",
-    "internal/jbo/client_test.go": "6f2d746501611c676c8e7f29b7f3f7cd579fb594fd7c2f80735387dfac3f708d",
+    "internal/jbo/client.go": "a86cde1de3b93db9e888cc19164a5351be6631d243d2ee7048b6c4ef33bd0c72",
+    "internal/jbo/client_test.go": "8252f3e87efb2f1de6fa17554e74ddf6d3330e347271c5baa45f0398c84c42ef",
+    "internal/jbo/public_inventory_test.go": "e42de44bcecb00d7844f64cbae1dbc3e5bb1b289ee0976db52802241e74ab238",
     "internal/jbo/quote.go": "398a4daf07dd8fc69acb0de1b78ece0ea7ce74970b9d9649f360e4c2e766f7cc",
     "internal/learn/derive.go": "58bf863e2914ea2d86f3b5aca12b0a9732158e99fb04ba0c32ab76999800d8fd",
     "internal/learn/derive_test.go": "4265421df212e94da968a7124e4d95958cef4debe5918db3b24e7a432e00611c",

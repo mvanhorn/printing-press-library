@@ -1,6 +1,6 @@
 {
-  "binary": "build/stage/bin/japan-bus-online-pp-mcp",
-  "observed_at": "2026-10-02T01:27:16.820845+00:00",
+  "binary": "<local-library>/build/japan-bus-online-pp-mcp",
+  "observed_at": "2026-10-02T02:18:58.231671+00:00",
   "initialize": {
     "jsonrpc": "2.0",
     "id": 1,

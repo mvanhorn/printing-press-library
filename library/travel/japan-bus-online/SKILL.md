@@ -106,3 +106,6 @@ For source maintenance, preserve the provider identity, fare/capacity and overni
 Public searches need no login. Each command creates a temporary memory-only session; no cookies or credentials are stored.
 
 Run `japan-bus-online-pp-cli doctor` to verify setup.
+
+`--deliver file:<path>` and `--deliver webhook:<url>` copy the full result to the selected sink and also print it to stdout. Redirect stdout when the result should appear only in the sink.
+

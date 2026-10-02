@@ -10,7 +10,7 @@
   "required_headers": [],
   "catalog_role": "actual_registered_runtime_tools",
   "catalog_source": "stdio tools/list from companion MCP binary",
-  "generated_at": "2026-10-02T01:27:16.831052+00:00",
+  "generated_at": "2026-10-02T02:18:58.241759+00:00",
   "tools": [
     {
       "_meta": {

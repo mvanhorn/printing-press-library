@@ -462,11 +462,15 @@ func AvailabilityOf(raw string) Availability {
 	}
 	r := regexp.MustCompile(`([0-9]+)\s+seats?\s+left`).FindStringSubmatch(s)
 	if len(r) > 0 {
-		n := intVal(r[1])
-		a.Exact = n
+		n, err := strconv.Atoi(r[1])
+		if err != nil {
+			return a
+		}
 		if n > 0 {
+			a.LowerBound = n
 			a.Status = "available"
 		} else {
+			a.Exact = 0
 			a.Status = "sold_out"
 		}
 	}
@@ -498,8 +502,20 @@ func ParseServices(doc *html.Node) ([]Service, string, []string, error) {
 	}
 	window := []string{}
 	for _, n := range all(doc, func(n *html.Node) bool { return cls(n, "text_strong") }) {
-		for _, d := range dateRE.FindAllString(text(n), -1) {
-			window = append(window, DateISO(d))
+		// Only the provider's labeled bookable-days element establishes this
+		// window. Other highlighted notices may contain unrelated dates.
+		raw := text(n)
+		if !strings.Contains(strings.ToLower(raw), "bookable days of operation") {
+			continue
+		}
+		dates := dateRE.FindAllString(raw, -1)
+		if len(dates) != 2 {
+			continue
+		}
+		start, end := DateISO(dates[0]), DateISO(dates[1])
+		if start != "" && end != "" && start <= end {
+			window = []string{start, end}
+			break
 		}
 	}
 	for _, n := range all(doc, func(n *html.Node) bool { return attr(n, "data-route") != "" && attr(n, "data-depdate") != "" }) {

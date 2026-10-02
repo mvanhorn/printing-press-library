@@ -2,71 +2,71 @@
   "passed": true,
   "exit_code": 0,
   "verdict": "PASS",
-  "started_at": "2026-10-01T20:11:34Z",
-  "elapsed_ms": 18144,
+  "started_at": "2026-10-02T02:19:51Z",
+  "elapsed_ms": 15559,
   "legs": [
     {
       "name": "verify",
       "exit_code": 0,
       "passed": true,
       "verdict": "PASS",
-      "started_at": "2026-10-01T20:11:34Z",
-      "elapsed_ms": 7298,
-      "command": "<operator-home>/go/bin/cli-printing-press verify --dir <source-tree> --write-manifest <source-tree>/.printing-press.json --spec <press-home>/.runstate/japan-bus-online-cli-145c42c7/runs/20261002-001752-4770e0c8/research/spec.json --fix"
+      "started_at": "2026-10-02T02:19:51Z",
+      "elapsed_ms": 6990,
+      "command": "<operator-home>/go/bin/cli-printing-press verify --dir <local-library> --write-manifest <local-library>/.printing-press.json --spec <local-library>/spec.json"
     },
     {
       "name": "validate-narrative",
       "exit_code": 0,
       "passed": true,
       "verdict": "PASS",
-      "started_at": "2026-10-01T20:11:41Z",
-      "elapsed_ms": 72,
-      "command": "<operator-home>/go/bin/cli-printing-press validate-narrative --strict --full-examples --research <press-home>/.runstate/japan-bus-online-cli-145c42c7/runs/20261002-001752-4770e0c8/research.json --binary <source-tree>/build/stage/bin/japan-bus-online-pp-cli"
+      "started_at": "2026-10-02T02:19:58Z",
+      "elapsed_ms": 68,
+      "command": "<operator-home>/go/bin/cli-printing-press validate-narrative --strict --full-examples --research <press-home>/manuscripts/japan-bus-online/20261002-001752-4770e0c8/research.json --binary <local-library>/build/stage/bin/japan-bus-online-pp-cli"
     },
     {
       "name": "dogfood",
       "exit_code": 0,
       "passed": true,
       "verdict": "PASS",
-      "started_at": "2026-10-01T20:11:41Z",
-      "elapsed_ms": 1431,
-      "command": "<operator-home>/go/bin/cli-printing-press dogfood --dir <source-tree> --spec <press-home>/.runstate/japan-bus-online-cli-145c42c7/runs/20261002-001752-4770e0c8/research/spec.json --research-dir <press-home>/.runstate/japan-bus-online-cli-145c42c7/runs/20261002-001752-4770e0c8"
+      "started_at": "2026-10-02T02:19:59Z",
+      "elapsed_ms": 1442,
+      "command": "<operator-home>/go/bin/cli-printing-press dogfood --dir <local-library> --spec <local-library>/spec.json --research-dir <press-home>/manuscripts/japan-bus-online/20261002-001752-4770e0c8"
     },
     {
       "name": "workflow-verify",
       "exit_code": 0,
       "passed": true,
       "verdict": "PASS",
-      "started_at": "2026-10-01T20:11:42Z",
-      "elapsed_ms": 13,
-      "command": "<operator-home>/go/bin/cli-printing-press workflow-verify --dir <source-tree>"
+      "started_at": "2026-10-02T02:20:00Z",
+      "elapsed_ms": 12,
+      "command": "<operator-home>/go/bin/cli-printing-press workflow-verify --dir <local-library>"
     },
     {
       "name": "apify-audit",
       "exit_code": 0,
       "passed": true,
       "verdict": "PASS",
-      "started_at": "2026-10-01T20:11:42Z",
-      "elapsed_ms": 19,
-      "command": "<operator-home>/go/bin/cli-printing-press apify-audit --dir <source-tree> --research-dir <press-home>/.runstate/japan-bus-online-cli-145c42c7/runs/20261002-001752-4770e0c8"
+      "started_at": "2026-10-02T02:20:00Z",
+      "elapsed_ms": 28,
+      "command": "<operator-home>/go/bin/cli-printing-press apify-audit --dir <local-library> --research-dir <press-home>/manuscripts/japan-bus-online/20261002-001752-4770e0c8"
     },
     {
       "name": "verify-skill",
       "exit_code": 0,
       "passed": true,
       "verdict": "PASS",
-      "started_at": "2026-10-01T20:11:43Z",
-      "elapsed_ms": 2259,
-      "command": "<operator-home>/go/bin/cli-printing-press verify-skill --dir <source-tree>"
+      "started_at": "2026-10-02T02:20:00Z",
+      "elapsed_ms": 2353,
+      "command": "<operator-home>/go/bin/cli-printing-press verify-skill --dir <local-library>"
     },
     {
       "name": "scorecard",
       "exit_code": 0,
       "passed": true,
       "verdict": "PASS",
-      "started_at": "2026-10-01T20:11:45Z",
-      "elapsed_ms": 7048,
-      "command": "<operator-home>/go/bin/cli-printing-press scorecard --dir <source-tree> --write-manifest <source-tree>/.printing-press.json --research-dir <press-home>/.runstate/japan-bus-online-cli-145c42c7/runs/20261002-001752-4770e0c8 --spec <press-home>/.runstate/japan-bus-online-cli-145c42c7/runs/20261002-001752-4770e0c8/research/spec.json --live-check"
+      "started_at": "2026-10-02T02:20:02Z",
+      "elapsed_ms": 4662,
+      "command": "<operator-home>/go/bin/cli-printing-press scorecard --dir <local-library> --write-manifest <local-library>/.printing-press.json --research-dir <press-home>/manuscripts/japan-bus-online/20261002-001752-4770e0c8 --spec <local-library>/spec.json --live-check"
     }
   ]
 }

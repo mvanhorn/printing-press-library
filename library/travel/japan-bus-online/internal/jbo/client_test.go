@@ -83,7 +83,7 @@ func TestReplaySessionAndDateSubstitution(t *testing.T) {
 		if _, e := r.Cookie("temporary"); e != nil {
 			t.Error("ephemeral session missing")
 		}
-		w.Write([]byte(`<div class="text_strong">10/2/2026 ～ 12/2/2026</div><input id="SelectDate" value="10/02/2026">`))
+		w.Write([]byte(`<div class="text_strong">Bookable Days of Operation<br>10/2/2026 ～ 12/2/2026</div><input id="SelectDate" value="10/02/2026">`))
 	}))
 	defer server.Close()
 	c, _ := New("en")
@@ -285,7 +285,7 @@ func TestOutsideWindowFallbackRowsStayNotOnSale(t *testing.T) {
 			fmt.Fprint(w, `<div id="122001600010"><a href="/en/Detail/12200160001/0/1/2/">Select</a></div>`)
 			return
 		}
-		fmt.Fprint(w, `<div class="text_strong">10/2/2026 ～ 12/2/2026</div><input id="SelectDate" value="09/30/2026"><div data-route="0001" data-coursecd="12200160001" data-updownflg="0" data-depdate="20261002" data-deptime="2325" data-arrdate="20261003" data-arrtime="0705">more than 5 seats left</div>`)
+		fmt.Fprint(w, `<div class="text_strong">Bookable Days of Operation<br>10/2/2026 ～ 12/2/2026</div><input id="SelectDate" value="09/30/2026"><div data-route="0001" data-coursecd="12200160001" data-updownflg="0" data-depdate="20261002" data-deptime="2325" data-arrdate="20261003" data-arrtime="0705">more than 5 seats left</div>`)
 	}))
 	defer server.Close()
 	c, _ := New("en", 0)

@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "japan-bus-online-conservative-dated-inventory",
+  "applied_at": "2026-10-02",
+  "base_run_id": "20261002-001752-4770e0c8",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Preserve positive service counts as lower bounds and infer the sale window only from the provider-labeled bookable-days element.",
+  "reason": "Provider capacity displays can be capped; unrelated highlighted dates must not discard requested-day inventory.",
+  "files": [
+    "internal/jbo/client.go",
+    "internal/jbo/client_test.go",
+    "internal/jbo/public_inventory_test.go",
+    "internal/cli/bus_quote_test.go"
+  ],
+  "validated_outcome": "Regression tests cover positive/zero/overflow capacities, unrelated highlighted dates and complete selected-stop party/overnight evidence in actual --agent command output."
+}

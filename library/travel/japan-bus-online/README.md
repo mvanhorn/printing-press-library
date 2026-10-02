@@ -63,6 +63,8 @@ Party capacity comes from the selected fare table, rather than the headline rout
 
 Only English is verified. `name_ja` is null when the source supplies no Japanese name. Each result includes source URL, freshness, request count, upstream response bytes and elapsed time. The canonical `booking_url` hands booking to the traveler. The CLI has no booking, payment, cancellation or account operations.
 
+`--deliver file:<path>` and `--deliver webhook:<url>` copy the full result to the selected sink and also print it to stdout. Redirect stdout when the result should appear only in the sink.
+
 ## Output and limits
 
 `--agent` enables JSON, compact output and noninteractive defaults. Use `--json` for the complete payload, dotted `--select` paths for field projection, or `--csv` for collection rows. Provider commands reject `--data-source local`; framework journals and learning data are local and do not cache provider inventory.
