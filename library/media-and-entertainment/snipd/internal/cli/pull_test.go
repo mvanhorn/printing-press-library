@@ -5,10 +5,16 @@
 package cli
 
 import (
+	"archive/zip"
 	"bytes"
+	"context"
 	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"path/filepath"
 	"strings"
+	"sync/atomic"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/snipd/internal/snipd"
@@ -221,5 +227,124 @@ func TestValidateExportBatchRejectsIncompleteDeletionSet(t *testing.T) {
 		[]snipd.Episode{{EpisodeID: "episode-1", SnipCount: 0}}, nil,
 	); err != nil {
 		t.Fatalf("genuinely empty episode rejected: %v", err)
+	}
+}
+
+func TestValidateExportBatchRejectsUnsafeSnipIdentities(t *testing.T) {
+	expected := []snipd.MetaEpisode{{EpisodeID: "episode-1", TotalSnipCount: 2}}
+	episodes := []snipd.Episode{{EpisodeID: "episode-1", SnipCount: 2}}
+	good := []snipd.Snip{
+		{SnipID: "one", EpisodeID: "episode-1", URL: "https://share.snipd.com/snip/one"},
+		{SnipID: "two", EpisodeID: "episode-1", URL: "https://share.snipd.com/snip/two"},
+	}
+	for _, tc := range []struct {
+		name  string
+		snips []snipd.Snip
+	}{
+		{"missing identifying URL", []snipd.Snip{good[0], {EpisodeID: "episode-1"}}},
+		{"duplicate snip ID", []snipd.Snip{good[0], good[0]}},
+		{"duplicate fallback position", []snipd.Snip{{EpisodeID: "episode-1", URL: "opaque-1", Start: "1:00", End: "1:30"}, {EpisodeID: "episode-1", URL: "opaque-2", Start: "1:00", End: "1:30"}}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if err := validateExportBatch(expected, episodes, tc.snips); err == nil {
+				t.Fatal("unsafe export identity accepted for deletion reconciliation")
+			}
+		})
+	}
+}
+
+func TestFallbackSnipDoesNotPruneUUIDKeyedRows(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "snipd.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	episodes := []snipd.Episode{{EpisodeID: "episode-1"}}
+	if err := storeAndReconcileSnips(db, episodes, []snipd.Snip{{SnipID: "old-uuid", EpisodeID: "episode-1"}}); err != nil {
+		t.Fatal(err)
+	}
+	if err := storeAndReconcileSnips(db, episodes, []snipd.Snip{{EpisodeID: "episode-1", URL: "opaque-link", Start: "1:00", End: "1:30"}}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.Get("snips", "old-uuid"); err != nil {
+		t.Fatalf("uncertain fallback identity pruned old UUID row: %v", err)
+	}
+}
+
+func snipExportZIP(t *testing.T, ids ...string) []byte {
+	t.Helper()
+	var buf bytes.Buffer
+	zw := zip.NewWriter(&buf)
+	f, err := zw.Create("episodes/episode-1_full_content.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	markdown := "episode_title=<<episode_title>>One<</episode_title>>\nshow_title=<<show_title>>Show<</show_title>>\n"
+	for _, id := range ids {
+		markdown += fmt.Sprintf("@@SNIP@@\nsnip_url=<<snip_url>>https://share.snipd.com/snip/%s<</snip_url>>\n", id)
+	}
+	if _, err := f.Write([]byte(markdown)); err != nil {
+		t.Fatal(err)
+	}
+	if err := zw.Close(); err != nil {
+		t.Fatal(err)
+	}
+	return buf.Bytes()
+}
+
+func TestFetchValidatedBatchRefreshesDriftedMetadata(t *testing.T) {
+	zipBody := snipExportZIP(t, "11111111-2222-3333-4444-555555555555")
+	var postCount atomic.Int32
+	var getCount atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodPost:
+			postCount.Add(1)
+			w.Write(zipBody)
+		case http.MethodGet:
+			getCount.Add(1)
+			w.Header().Set("Content-Type", "application/json")
+			fmt.Fprint(w, `{"episode_batches":[{"episodes":[{"episode_id":"episode-1","total_snip_count":1,"latest_snip_update_ts":"2026-10-01T00:01:00Z"}]}]}`)
+		}
+	}))
+	defer server.Close()
+	client := snipd.NewClient(server.URL, "synthetic-test-token")
+	old := []snipd.MetaEpisode{{EpisodeID: "episode-1", TotalSnipCount: 2}}
+	eps, snips, current, err := fetchValidatedBatch(context.Background(), client, "", old)
+	if err != nil {
+		t.Fatalf("complete export rejected after metadata drift: %v", err)
+	}
+	if len(eps) != 1 || len(snips) != 1 || current[0].TotalSnipCount != 1 || postCount.Load() != 1 || getCount.Load() != 1 {
+		t.Fatalf("result episodes=%d snips=%d current=%+v POST=%d GET=%d", len(eps), len(snips), current, postCount.Load(), getCount.Load())
+	}
+}
+
+func TestFetchValidatedBatchRetriesAfterCountMismatch(t *testing.T) {
+	first := snipExportZIP(t, "11111111-2222-3333-4444-555555555555")
+	second := snipExportZIP(t, "11111111-2222-3333-4444-555555555555", "66666666-7777-8888-9999-aaaaaaaaaaaa")
+	var postCount atomic.Int32
+	var getCount atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodPost:
+			if postCount.Add(1) == 1 {
+				w.Write(first)
+			} else {
+				w.Write(second)
+			}
+		case http.MethodGet:
+			getCount.Add(1)
+			fmt.Fprint(w, `{"episode_batches":[{"episodes":[{"episode_id":"episode-1","total_snip_count":2}]}]}`)
+		}
+	}))
+	defer server.Close()
+	client := snipd.NewClient(server.URL, "synthetic-test-token")
+	expected := []snipd.MetaEpisode{{EpisodeID: "episode-1", TotalSnipCount: 2}}
+	_, snips, _, err := fetchValidatedBatch(context.Background(), client, "", expected)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(snips) != 2 || postCount.Load() != 2 || getCount.Load() != 1 {
+		t.Fatalf("snips=%d POST=%d GET=%d, want 2/2/1", len(snips), postCount.Load(), getCount.Load())
 	}
 }

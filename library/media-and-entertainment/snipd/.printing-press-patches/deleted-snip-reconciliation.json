@@ -15,6 +15,6 @@
     "NOTICE",
     ".printing-press.json"
   ],
-  "validated_outcome": "Local store tests show that refreshed episodes lose deleted snips and their search entries, while other episodes remain untouched. Incomplete batch and malformed template tests reject unsafe deletion sets.",
-  "safety": "Before writing, the ZIP must contain each requested episode once, with the same snip count as export metadata and the expected template fields. Reconciliation starts only after validation and every returned snip is stored."
+  "validated_outcome": "Local store tests show that refreshed episodes lose deleted snips and their search entries, while other episodes remain untouched. Incomplete, malformed-identity and duplicate-identity exports reject unsafe deletion sets. Local HTTP tests cover refreshed metadata and a retried ZIP after count drift.",
+  "safety": "Before writing, the ZIP must contain each requested episode once, with matching snip counts, unique identities and the expected template fields. Count drift refreshes metadata and retries the export once. Reconciliation starts only after validation and every returned snip is stored; episodes with uncertain fallback identities retain old rows."
 }

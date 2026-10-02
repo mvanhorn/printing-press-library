@@ -12,9 +12,11 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"hash/fnv"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -29,6 +31,8 @@ import (
 // is tuned for quick reads; a full export (many episodes, server-rendered) needs
 // far longer. A larger explicit --timeout still wins.
 const pullMinTimeout = 15 * time.Minute
+
+var errExportCountMismatch = errors.New("export snip count differs from metadata")
 
 type pullResult struct {
 	Episodes      int    `json:"episodes"`
@@ -122,25 +126,107 @@ func validateExportBatch(expected []snipd.MetaEpisode, episodes []snipd.Episode,
 		}
 		seen[episode.EpisodeID] = true
 		if episode.SnipCount != count {
-			return fmt.Errorf("incomplete export for episode %s: metadata lists %d snips, ZIP contains %d", episode.EpisodeID, count, episode.SnipCount)
+			return fmt.Errorf("%w for episode %s: metadata lists %d snips, ZIP contains %d", errExportCountMismatch, episode.EpisodeID, count, episode.SnipCount)
 		}
 	}
 	if len(seen) != len(wanted) {
 		return fmt.Errorf("incomplete export: requested %d episodes, ZIP contains %d", len(wanted), len(seen))
 	}
 	actual := make(map[string]int, len(episodes))
+	seenSnipIDs := make(map[string]bool, len(snips))
+	emptyTimeSeq := map[string]int{}
 	for _, snip := range snips {
 		if !seen[snip.EpisodeID] {
 			return fmt.Errorf("snip belongs to unexpected episode %s", snip.EpisodeID)
 		}
+		if snip.SnipID == "" && strings.TrimSpace(snip.URL) == "" {
+			return fmt.Errorf("snip in episode %s has no identifying URL", snip.EpisodeID)
+		}
+		id := effectiveSnipID(snip, emptyTimeSeq)
+		if seenSnipIDs[id] {
+			return fmt.Errorf("duplicate snip ID %s in export", id)
+		}
+		seenSnipIDs[id] = true
 		actual[snip.EpisodeID]++
 	}
 	for id, count := range wanted {
 		if actual[id] != count {
-			return fmt.Errorf("incomplete export for episode %s: metadata lists %d snips, parsed %d", id, count, actual[id])
+			return fmt.Errorf("%w for episode %s: metadata lists %d snips, parsed %d", errExportCountMismatch, id, count, actual[id])
 		}
 	}
 	return nil
+}
+
+func effectiveSnipID(snip snipd.Snip, emptyTimeSeq map[string]int) string {
+	if snip.SnipID != "" {
+		return snip.SnipID
+	}
+	ordinal := -1
+	if snip.Start == "" && snip.End == "" {
+		ordinal = emptyTimeSeq[snip.EpisodeID]
+		emptyTimeSeq[snip.EpisodeID]++
+	}
+	return fallbackSnipID(snip, ordinal)
+}
+
+// A separate metadata and ZIP request can straddle a user edit. Refresh the
+// metadata once on a count mismatch, then retry the affected export once if
+// the first ZIP still disagrees. Identity or template failures are not retried.
+func fetchValidatedBatch(ctx context.Context, c *snipd.Client, updatedAfter string, expected []snipd.MetaEpisode) ([]snipd.Episode, []snipd.Snip, []snipd.MetaEpisode, error) {
+	eids := make([]string, 0, len(expected))
+	for _, episode := range expected {
+		eids = append(eids, episode.EpisodeID)
+	}
+	export := func() ([]snipd.Episode, []snipd.Snip, error) {
+		zipBytes, err := c.ExportEpisodes(ctx, eids)
+		if err != nil {
+			return nil, nil, err
+		}
+		return snipd.ParseZip(zipBytes)
+	}
+	eps, snips, err := export()
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	if err := validateExportBatch(expected, eps, snips); err == nil {
+		return eps, snips, expected, nil
+	} else if !errors.Is(err, errExportCountMismatch) {
+		return nil, nil, nil, err
+	}
+	metadata, err := c.FetchMetadata(ctx, updatedAfter)
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("refreshing export metadata after count change: %w", err)
+	}
+	byID := map[string]snipd.MetaEpisode{}
+	for _, batch := range metadata.EpisodeBatches {
+		for _, episode := range batch.Episodes {
+			if _, duplicate := byID[episode.EpisodeID]; duplicate {
+				return nil, nil, nil, fmt.Errorf("duplicate episode %s in refreshed metadata", episode.EpisodeID)
+			}
+			byID[episode.EpisodeID] = episode
+		}
+	}
+	refreshed := make([]snipd.MetaEpisode, 0, len(expected))
+	for _, id := range eids {
+		episode, ok := byID[id]
+		if !ok {
+			return nil, nil, nil, fmt.Errorf("episode %s missing from refreshed metadata", id)
+		}
+		refreshed = append(refreshed, episode)
+	}
+	if err := validateExportBatch(refreshed, eps, snips); err == nil {
+		return eps, snips, refreshed, nil
+	} else if !errors.Is(err, errExportCountMismatch) {
+		return nil, nil, nil, err
+	}
+	eps, snips, err = export()
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("retrying export after metadata change: %w", err)
+	}
+	if err := validateExportBatch(refreshed, eps, snips); err != nil {
+		return nil, nil, nil, err
+	}
+	return eps, snips, refreshed, nil
 }
 
 // storeAndReconcileSnips persists one successfully parsed export batch, then
@@ -150,6 +236,7 @@ func validateExportBatch(expected []snipd.MetaEpisode, episodes []snipd.Episode,
 // authoritative deletion set.
 func storeAndReconcileSnips(db *store.Store, episodes []snipd.Episode, snips []snipd.Snip) error {
 	seenByEpisode := make(map[string][]string, len(episodes))
+	unsafeToReconcile := make(map[string]bool, len(episodes))
 	for _, episode := range episodes {
 		seenByEpisode[episode.EpisodeID] = []string{}
 	}
@@ -159,16 +246,14 @@ func storeAndReconcileSnips(db *store.Store, episodes []snipd.Episode, snips []s
 	// overwrite each other. An episode's snips never span export batches.
 	emptyTimeSeq := map[string]int{}
 	for _, exportedSnip := range snips {
-		id := exportedSnip.SnipID
-		if id == "" {
-			ordinal := -1
-			if exportedSnip.Start == "" && exportedSnip.End == "" {
-				ordinal = emptyTimeSeq[exportedSnip.EpisodeID]
-				emptyTimeSeq[exportedSnip.EpisodeID]++
-			}
-			id = fallbackSnipID(exportedSnip, ordinal)
-			exportedSnip.SnipID = id
+		// A non-empty URL without a UUID can be stored under a positional
+		// fallback, but cannot prove that a formerly UUID-keyed snip was
+		// removed. Preserve old rows for this episode until a clean export.
+		if exportedSnip.SnipID == "" {
+			unsafeToReconcile[exportedSnip.EpisodeID] = true
 		}
+		id := effectiveSnipID(exportedSnip, emptyTimeSeq)
+		exportedSnip.SnipID = id
 		raw, err := json.Marshal(exportedSnip)
 		if err != nil {
 			return fmt.Errorf("marshaling snip %s: %w", id, err)
@@ -180,6 +265,9 @@ func storeAndReconcileSnips(db *store.Store, episodes []snipd.Episode, snips []s
 	}
 
 	for _, episode := range episodes {
+		if unsafeToReconcile[episode.EpisodeID] {
+			continue
+		}
 		if _, err := db.ReconcilePartition(
 			"snips", "$.episode_id", episode.EpisodeID,
 			seenByEpisode[episode.EpisodeID], "", nil,
@@ -280,26 +368,18 @@ func newNovelPullCmd(flags *rootFlags) *cobra.Command {
 				eids := make([]string, 0, take)
 				for _, e := range fetched {
 					eids = append(eids, e.EpisodeID)
-					// Advance the cursor only over episodes actually fetched, never
-					// over the ones a --limit/dogfood run skipped. Compare as real
-					// instants (not lexically) so a valid timestamp with a different
-					// offset or fractional precision can't sort as "newer" by string
-					// order and park the cursor before episodes it should cover.
-					if tsLater(e.LatestSnipUpdateTS, newestCursor) {
-						newestCursor = e.LatestSnipUpdateTS
-					}
 				}
 
-				zipBytes, err := c.ExportEpisodes(ctx, eids)
+				eps, snips, current, err := fetchValidatedBatch(ctx, c, updatedAfter, fetched)
 				if err != nil {
-					return fmt.Errorf("exporting batch %d: %w", batch.Index, err)
+					return fmt.Errorf("fetching and validating batch %d export: %w", batch.Index, err)
 				}
-				eps, snips, err := snipd.ParseZip(zipBytes)
-				if err != nil {
-					return fmt.Errorf("parsing batch %d export: %w", batch.Index, err)
-				}
-				if err := validateExportBatch(fetched, eps, snips); err != nil {
-					return fmt.Errorf("validating batch %d export: %w", batch.Index, err)
+				// Advance only over episodes actually exported, using refreshed
+				// metadata when a user edit changed the catalog mid-pull.
+				for _, episode := range current {
+					if tsLater(episode.LatestSnipUpdateTS, newestCursor) {
+						newestCursor = episode.LatestSnipUpdateTS
+					}
 				}
 
 				for _, ep := range eps {

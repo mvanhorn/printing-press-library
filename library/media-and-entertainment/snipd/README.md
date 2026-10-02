@@ -8,7 +8,7 @@ Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery
 
 Your snips are trapped in a mobile app. This CLI pulls them into a local SQLite mirror with a full-text index, then lets you search, quote, filter, and aggregate them in kilobytes instead of scrolling an app. The same commands are exposed as MCP tools so an agent can reason over your own listening.
 
-When `pull` successfully refreshes an episode, it removes snips that the episode's current export no longer contains. Other episodes stay intact. An export or storage error does not trigger deletion reconciliation.
+When `pull` successfully refreshes an episode, it removes snips that the episode's current export no longer contains. Other episodes stay intact. An export validation error prevents reconciliation for that batch. If storage or a later episode fails, earlier updates and deletions may already be saved.
 
 ## Install
 
