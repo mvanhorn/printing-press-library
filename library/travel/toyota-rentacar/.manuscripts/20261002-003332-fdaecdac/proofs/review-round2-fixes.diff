@@ -1,0 +1,489 @@
+--- review-base/internal/toyota/client.go
++++ review-fixed/internal/toyota/client.go
+@@ -52,14 +52,24 @@
+ 	if resp.StatusCode == http.StatusTooManyRequests {
+ 		c.limiter.OnRateLimit()
+ 		retry := cliutil.RetryAfter(resp)
+-		resp.Body.Close()
+-		return nil, &cliutil.RateLimitError{URL: req.URL.Scheme + "://" + req.URL.Host + req.URL.Path, RetryAfter: retry}
++		closeErr := resp.Body.Close()
++		return nil, &cliutil.RateLimitError{URL: req.URL.Scheme + "://" + req.URL.Host + req.URL.Path, RetryAfter: retry, Cause: closeErr}
+ 	}
+ 	c.limiter.OnSuccess()
+ 	return resp, nil
+ }
+ 
+-func NewClient() *Client { return newClient(Origin, http.DefaultTransport) }
++// NewClient preserves the root request-rate contract: negative means adaptive
++// auto pacing, zero disables pacing, and a positive value is a hard ceiling.
++func NewClient(rateLimit float64) *Client {
++	c := newClient(Origin, http.DefaultTransport)
++	if rateLimit < 0 {
++		c.limiter = cliutil.NewAdaptiveLimiterAuto(2)
++	} else {
++		c.limiter = cliutil.NewAdaptiveLimiter(rateLimit)
++	}
++	return c
++}
+ 
+ func newClient(origin string, transport http.RoundTripper) *Client {
+ 	jar, _ := cookiejar.New(nil)
+--- review-base/internal/toyota/client_test.go
++++ review-fixed/internal/toyota/client_test.go
+@@ -28,6 +28,25 @@
+ 	c := newClient("https://test.example", f)
+ 	c.limiter = cliutil.NewAdaptiveLimiter(100000)
+ 	return c
++}
++
++func TestClientHonorsExplicitRequestRateCeiling(t *testing.T) {
++	c := NewClient(0.1)
++	for range 30 {
++		c.limiter.OnSuccess()
++	}
++	c.limiter.ObserveHeaders(1000, time.Now().Add(time.Second))
++	if err := c.limiter.Wait(context.Background()); err != nil {
++		t.Fatal(err)
++	}
++	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Millisecond)
++	defer cancel()
++	if err := c.limiter.Wait(ctx); !errors.Is(err, context.DeadlineExceeded) {
++		t.Fatalf("explicit slow ceiling bypassed after success/header observations: %v", err)
++	}
++	if NewClient(0).limiter != nil || NewClient(-1).limiter == nil {
++		t.Fatal("disabled/auto rate modes were not preserved")
++	}
+ }
+ 
+ func rentalDoc(classBody string) string {
+@@ -181,7 +200,7 @@
+ 			}
+ 		})
+ 	}
+-	c := NewClient()
++	c := NewClient(-1)
+ 	if c.http.Jar == nil || c.origin != Origin || c.Meta().MaxRequests != maxRequests {
+ 		t.Fatal("anonymous in-memory session/budget not initialized")
+ 	}
+@@ -189,10 +208,11 @@
+ 
+ func TestOneWayZeroFeeAndFamilyAreSourceBound(t *testing.T) {
+ 	for _, tc := range []struct {
+-		name        string
+-		fee, family string
+-		ok          bool
+-	}{{"zero", "0", "C1", true}, {"missing", "", "C1", false}, {"wrong family", "5,500", "W1", false}} {
++		name               string
++		fee, family, drift string
++		ok                 bool
++	}{{"zero", "0", "C1", "", true}, {"missing", "", "C1", "", false}, {"wrong family", "5,500", "W1", "", false},
++		{"pickup annex", "5,500", "C1", "pickup", false}, {"return annex", "5,500", "C1", "return", false}} {
+ 		t.Run(tc.name, func(t *testing.T) {
+ 			calculated := false
+ 			c := fastClient(func(r *http.Request) (*http.Response, error) {
+@@ -224,6 +244,12 @@
+ 				body := fmt.Sprintf(`<form id="PageForm"><select id="ddlCarType" name="ctl00$MasterBodyPlaceHolder$ddlCarType"><option value="%s" selected>Standard</option></select>`, tc.family)
+ 				if calculated {
+ 					body += fmt.Sprintf(`<span id="lblDepartShop">From Tokyo NihonbashiStore</span><span id="lblReturnShop">To HatchoboriStore</span><span id="lblOnewayPrice">%s</span>`, tc.fee)
++					if tc.drift == "pickup" {
++						body = strings.ReplaceAll(body, "Tokyo NihonbashiStore", "Tokyo Nihonbashi AnnexStore")
++					}
++					if tc.drift == "return" {
++						body = strings.ReplaceAll(body, "HatchoboriStore", "Hatchobori AnnexStore")
++					}
+ 				}
+ 				return reply(r, 200, body+"</form>", ""), nil
+ 			})
+--- review-base/internal/toyota/quote.go
++++ review-fixed/internal/toyota/quote.go
+@@ -273,8 +273,16 @@
+ 	if err != nil {
+ 		return OneWayResult{}, err
+ 	}
+-	for id, want := range map[string]string{"lblDepartShop": strings.TrimSuffix(pickup.Name, " Shop"), "lblReturnShop": strings.TrimSuffix(dropoff.Name, " Shop")} {
+-		if !strings.Contains(textID(doc, id), want) {
++	for id, expected := range map[string]struct{ prefix, name string }{
++		"lblDepartShop": {"From ", pickup.Name}, "lblReturnShop": {"To ", dropoff.Name},
++	} {
++		label := textID(doc, id)
++		if !strings.HasPrefix(label, expected.prefix) || !strings.HasSuffix(label, "Store") {
++			return OneWayResult{}, &SourceError{"Toyota one-way calculator changed the shop pair; fee withheld"}
++		}
++		name := strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(label, expected.prefix), "Store"))
++		want := strings.TrimSpace(strings.TrimSuffix(expected.name, " Shop"))
++		if name != want {
+ 			return OneWayResult{}, &SourceError{"Toyota one-way calculator changed the shop pair; fee withheld"}
+ 		}
+ 	}
+--- review-base/internal/toyota/domain.go
++++ review-fixed/internal/toyota/domain.go
+@@ -220,8 +220,8 @@
+ 	if err := o.Validate(); err != nil {
+ 		return Handoff{}, err
+ 	}
+-	if class != "" && !regexp.MustCompile(`^[A-Z]{1,4}[0-9]{1,2}$`).MatchString(class) {
+-		return Handoff{}, &InputError{"--class must be a Toyota class code such as C1, W2 or SUV1"}
++	if class != "" && !regexp.MustCompile(`^(?:[A-Z]{1,4}[0-9]{1,2}|LXC|LXP)$`).MatchString(class) {
++		return Handoff{}, &InputError{"--class must be a Toyota class code such as C1, W2, SUV1, LXC or LXP"}
+ 	}
+ 	return Handoff{BookingURL: u, PickupShopID: pickupID, DropoffShopID: dropoffID, Period: period, Options: o, Class: class,
+ 		URLPrefills: []string{"pickup shop"}, RequiresReentry: []string{"pickup/dropoff date and time", "dropoff shop", "class and options"},
+--- review-base/internal/toyota/policies.go
++++ review-fixed/internal/toyota/policies.go
+@@ -216,4 +216,3 @@
+ }
+ 
+ // Keep title whitespace stable across the source's line breaks and tabs.
+-func normalizedLabel(s string) string { return strings.Join(strings.Fields(s), " ") }
+--- review-base/internal/cli/toyota_commands.go
++++ review-fixed/internal/cli/toyota_commands.go
+@@ -25,14 +25,6 @@
+ 			}
+ 		}
+ 	})
+-}
+-
+-func toyotaAnnotations(happy string, computed bool) map[string]string {
+-	source := "live"
+-	if computed {
+-		source = "computed"
+-	}
+-	return map[string]string{"mcp:read-only": "true", "pp:data-source": source, "pp:happy-args": happy}
+ }
+ 
+ func toyotaError(err error) error {
+@@ -64,11 +56,83 @@
+ 	return false, nil
+ }
+ 
++// Declare real inputs to MCP discovery while preserving input-free dry runs.
++func toyotaRequireFlags(cmd *cobra.Command, flags *rootFlags, names ...string) {
++	mark := func() {
++		for _, name := range names {
++			if err := cmd.MarkFlagRequired(name); err != nil {
++				panic(err) // Constructor bug: every listed flag is defined.
++			}
++		}
++	}
++	mark()
++	cmd.PreRunE = func(cmd *cobra.Command, _ []string) error {
++		if dryRunOK(flags) {
++			for _, name := range names {
++				delete(cmd.Flags().Lookup(name).Annotations, cobra.BashCompOneRequiredFlag)
++			}
++			return nil
++		}
++		mark()
++		if err := cmd.ValidateRequiredFlags(); err != nil {
++			return usageErr(err)
++		}
++		return nil
++	}
++}
++
++type toyotaShopResult struct {
++	Meta toyota.Metadata `json:"meta"`
++	Shop toyota.Shop     `json:"shop"`
++	Note string          `json:"note"`
++}
++
++// Quiet output uses domain identities; explicit selection keeps the shared
++// selection behavior.
++func toyotaPrint(cmd *cobra.Command, flags *rootFlags, value any) error {
++	if !flags.quiet || flags.selectFields != "" {
++		return flags.printJSON(cmd, value)
++	}
++	var identities []string
++	switch out := value.(type) {
++	case toyotaShopResult:
++		identities = []string{out.Shop.ID}
++	case toyota.ShopsResult:
++		for _, shop := range out.Shops {
++			identities = append(identities, shop.ID)
++		}
++	case toyota.QuoteResult:
++		for _, offer := range out.Offers {
++			identities = append(identities, offer.Class)
++		}
++	case toyota.OptionsResult:
++		for _, option := range out.Options {
++			identities = append(identities, option.Code)
++		}
++	case toyota.EligibilityResult:
++		for _, path := range out.Paths {
++			identities = append(identities, path.License)
++		}
++	case toyota.OneWayResult:
++		identities = []string{out.PickupShop.ID + "->" + out.DropoffShop.ID + ":" + out.Family}
++	case toyota.Handoff:
++		identities = []string{out.BookingURL}
++	default:
++		return flags.printJSON(cmd, value)
++	}
++	for _, identity := range identities {
++		if _, err := fmt.Fprintln(cmd.OutOrStdout(), identity); err != nil {
++			return err
++		}
++	}
++	return nil
++}
++
+ func newToyotaShopGetCmd(flags *rootFlags) *cobra.Command {
+ 	var id string
+ 	cmd := &cobra.Command{Use: "get", Short: "Read one exact Toyota branch and return restrictions",
+ 		Example:     "  toyota-rentacar-pp-cli shops get --id 63601:01V --agent",
+-		Annotations: toyotaAnnotations("--id=63601:01V", false),
++		Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "live", "pp:happy-args": "--id=63601:01V"},
+ 		RunE: func(cmd *cobra.Command, args []string) error {
+ 			if stop, err := toyotaGuard(cmd, args, flags, "shops get"); stop {
+ 				return err
+@@ -81,14 +145,15 @@
+ 			}
+ 			ctx, cancel := boundCtx(cmd.Context(), flags)
+ 			defer cancel()
+-			c := toyota.NewClient()
++			c := toyota.NewClient(flags.rateLimit)
+ 			out, err := c.GetShop(ctx, id)
+ 			if err != nil {
+ 				return toyotaError(err)
+ 			}
+-			return flags.printJSON(cmd, map[string]any{"meta": c.Meta(), "shop": out, "note": "Operating hours do not establish dated vehicle inventory."})
++			return toyotaPrint(cmd, flags, toyotaShopResult{Meta: c.Meta(), Shop: out, Note: "Operating hours do not establish dated vehicle inventory."})
+ 		}}
+ 	cmd.Flags().StringVar(&id, "id", "", "Exact company:branch source ID,e.g. 63601:01V")
++	toyotaRequireFlags(cmd, flags, "id")
+ 	return cmd
+ }
+ 
+@@ -127,18 +192,18 @@
+ 	cmd := &cobra.Command{Use: "eligibility", Short: "Read Toyota's official driving-document guidance",
+ 		Long:        "Return source license/document paths and landing-evidence notes. This CLI collects no personal documents and does not determine anyone's eligibility; Toyota verifies the actual documents at rental.",
+ 		Example:     "  toyota-rentacar-pp-cli rental eligibility --agent",
+-		Annotations: toyotaAnnotations("", false),
++		Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "live", "pp:happy-args": ""},
+ 		RunE: func(cmd *cobra.Command, args []string) error {
+ 			if stop, err := toyotaGuard(cmd, args, flags, "rental eligibility"); stop {
+ 				return err
+ 			}
+ 			ctx, cancel := boundCtx(cmd.Context(), flags)
+ 			defer cancel()
+-			out, err := toyota.NewClient().Eligibility(ctx)
++			out, err := toyota.NewClient(flags.rateLimit).Eligibility(ctx)
+ 			if err != nil {
+ 				return toyotaError(err)
+ 			}
+-			return flags.printJSON(cmd, out)
++			return toyotaPrint(cmd, flags, out)
+ 		}}
+ 	return cmd
+ }
+--- review-base/internal/cli/toyota_commands_test.go
++++ review-fixed/internal/cli/toyota_commands_test.go
+@@ -8,8 +8,51 @@
+ 	"testing"
+ 	"time"
+ 
++	"github.com/spf13/cobra"
+ 	"toyota-rentacar-pp-cli/internal/cliutil/testenv"
++	"toyota-rentacar-pp-cli/internal/toyota"
+ )
++
++func TestToyotaQuietPrintsDomainIdentities(t *testing.T) {
++	price := 10010
++	for _, tc := range []struct {
++		name  string
++		value any
++		want  string
++	}{
++		{"shop", toyotaShopResult{Shop: toyota.Shop{ID: "63601:01V"}, Note: "Hours do not establish inventory."}, "63601:01V\n"},
++		{"shops", toyota.ShopsResult{Shops: []toyota.Shop{{ID: "63601:01V"}, {ID: "63601:095"}}, Note: "Source note"}, "63601:01V\n63601:095\n"},
++		{"classes", toyota.QuoteResult{Offers: []toyota.ClassOffer{{Class: "C1", Availability: "selectable", SourceEstimateJPY: &price}, {Class: "C0", Availability: "fully_booked"}}}, "C1\nC0\n"},
++		{"options", toyota.OptionsResult{Options: []toyota.OptionFee{{Code: "etc", FeeJPY: 550, Basis: "per_rental"}}}, "etc\n"},
++		{"eligibility", toyota.EligibilityResult{Paths: []toyota.EligibilityPathInfo{{License: "Japanese driver's license"}}, IndividualEligibility: "not_assessed"}, "Japanese driver's license\n"},
++		{"route", toyota.OneWayResult{PickupShop: toyota.Shop{ID: "63601:01V"}, DropoffShop: toyota.Shop{ID: "63601:095"}, Family: "standard", Status: "calculated"}, "63601:01V->63601:095:standard\n"},
++		{"handoff", toyota.Handoff{BookingURL: "https://rent.toyota.co.jp/eng/reservation/index01.aspx"}, "https://rent.toyota.co.jp/eng/reservation/index01.aspx\n"},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			var out bytes.Buffer
++			cmd := &cobra.Command{}
++			cmd.SetOut(&out)
++			if err := toyotaPrint(cmd, &rootFlags{quiet: true}, tc.value); err != nil || out.String() != tc.want {
++				t.Fatalf("quiet=%q, want=%q, err=%v", out.String(), tc.want, err)
++			}
++		})
++	}
++}
++
++func TestToyotaHandoffPreservesPremiumClassCodes(t *testing.T) {
++	pick := time.Now().In(time.FixedZone("JST", 9*3600)).AddDate(0, 0, 7)
++	pick = time.Date(pick.Year(), pick.Month(), pick.Day(), 9, 0, 0, 0, pick.Location())
++	for _, class := range []string{"LXC", "LXP"} {
++		data, err := runToyotaCLI(t, []string{"booking", "handoff", "--pickup-shop", "63601:01V", "--pickup", pick.Format("2006-01-02T15:04"), "--dropoff", pick.AddDate(0, 0, 1).Format("2006-01-02T15:04"), "--class", class, "--json"})
++		if err != nil {
++			t.Fatal(err)
++		}
++		var out toyota.Handoff
++		if err := json.Unmarshal(data, &out); err != nil || out.Class != class || out.InventoryChecked || out.ConfirmedFullTotalJPY != nil {
++			t.Fatalf("premium handoff=%s err=%v", data, err)
++		}
++	}
++}
+ 
+ func runToyotaCLI(t *testing.T, args []string) ([]byte, error) {
+ 	t.Helper()
+--- review-base/internal/cli/shops_search.go
++++ review-fixed/internal/cli/shops_search.go
+@@ -13,7 +13,7 @@
+ 	cmd := &cobra.Command{Use: "search", Short: "Resolve nearby Toyota shops with stable IDs and Japanese names",
+ 		Long:        "Search Toyota's public location keyword service. It returns at most ten nearby shops; --limit bounds output. Operating hours are distinct from dated class availability.",
+ 		Example:     "  toyota-rentacar-pp-cli shops search --keyword \"Kyoto Station\" --limit 3 --agent --select shops.id,shops.name,shops.name_jp,shops.oneway_returns",
+-		Annotations: toyotaAnnotations("--keyword=Kyoto Station;--limit=3", false),
++		Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "live", "pp:happy-args": "--keyword=Kyoto Station;--limit=3"},
+ 		RunE: func(cmd *cobra.Command, args []string) error {
+ 			if stop, err := toyotaGuard(cmd, args, flags, "shops search"); stop {
+ 				return err
+@@ -23,13 +23,14 @@
+ 			}
+ 			ctx, cancel := boundCtx(cmd.Context(), flags)
+ 			defer cancel()
+-			out, err := toyota.NewClient().SearchShops(ctx, keyword, limit)
++			out, err := toyota.NewClient(flags.rateLimit).SearchShops(ctx, keyword, limit)
+ 			if err != nil {
+ 				return toyotaError(err)
+ 			}
+-			return flags.printJSON(cmd, out)
++			return toyotaPrint(cmd, flags, out)
+ 		}}
+ 	cmd.Flags().StringVar(&keyword, "keyword", "", "Place,station or airport name (1–80 characters)")
+ 	cmd.Flags().IntVar(&limit, "limit", 5, "Maximum shops returned,1–10; source search is capped at ten")
++	toyotaRequireFlags(cmd, flags, "keyword")
+ 	return cmd
+ }
+--- review-base/internal/cli/cars_quote.go
++++ review-fixed/internal/cli/cars_quote.go
+@@ -15,7 +15,7 @@
+ 	cmd := &cobra.Command{Use: "quote", Short: "Read real dated class offers and source price estimates",
+ 		Long:        "Search Toyota with exact JST dates,both shop IDs and vehicle/seat options. Class-page Rental Price includes tax but is an estimate; confirmed_full_total_jpy remains null. A class does not guarantee a representative model. ETC/JAF/waiver/NOC are selected later on Toyota; their inclusion is not inferred.",
+ 		Example:     "  toyota-rentacar-pp-cli cars quote --pickup-shop 63601:01V --pickup 2026-10-20T09:00 --dropoff 2026-10-21T09:00 --category compact --agent",
+-		Annotations: toyotaAnnotations("--pickup-shop=63601:01V;--pickup=2026-10-20T09:00;--dropoff=2026-10-21T09:00;--category=compact", false),
++		Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "live", "pp:happy-args": "--pickup-shop=63601:01V;--pickup=2026-10-20T09:00;--dropoff=2026-10-21T09:00;--category=compact"},
+ 		RunE: func(cmd *cobra.Command, args []string) error {
+ 			if stop, err := toyotaGuard(cmd, args, flags, "cars quote"); stop {
+ 				return err
+@@ -26,7 +26,7 @@
+ 			}
+ 			ctx, cancel := boundCtx(cmd.Context(), flags)
+ 			defer cancel()
+-			out, err := toyota.NewClient().Quote(ctx, rental.pickupID, rental.dropoffID, period, o, category, limit, details)
++			out, err := toyota.NewClient(flags.rateLimit).Quote(ctx, rental.pickupID, rental.dropoffID, period, o, category, limit, details)
+ 			if err != nil {
+ 				return toyotaError(err)
+ 			}
+@@ -42,7 +42,7 @@
+ 				}
+ 				out.Offers = found
+ 			}
+-			return flags.printJSON(cmd, out)
++			return toyotaPrint(cmd, flags, out)
+ 		}}
+ 	cmd.Flags().StringVar(&rental.pickupID, "pickup-shop", "", "Exact pickup shop ID,e.g. 63601:01V")
+ 	cmd.Flags().StringVar(&rental.dropoffID, "dropoff-shop", "", "Return shop ID; defaults to the pickup shop")
+@@ -56,5 +56,6 @@
+ 	cmd.Flags().StringVar(&class, "class", "", "Filter one class code,e.g. C1; does not select a model")
+ 	cmd.Flags().IntVar(&limit, "limit", 8, "Maximum class offers returned,1–20")
+ 	cmd.Flags().BoolVar(&details, "details", false, "Include up to twelve representative models per class instead of three")
++	toyotaRequireFlags(cmd, flags, "pickup-shop", "pickup", "dropoff")
+ 	return cmd
+ }
+--- review-base/internal/cli/rental_options.go
++++ review-fixed/internal/cli/rental_options.go
+@@ -10,18 +10,18 @@
+ 	cmd := &cobra.Command{Use: "options", Short: "Read live option,child-seat and waiver/NOC fees",
+ 		Long:        "Fetch Toyota's public option and insurance policies. Fees carry tax,basis and class/season/stock conditions. These are policy rates,not a final booking total or an equipment-stock promise.",
+ 		Example:     "  toyota-rentacar-pp-cli rental options --agent --select options.code,options.fee_jpy,options.basis,notes",
+-		Annotations: toyotaAnnotations("", false),
++		Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "live", "pp:happy-args": ""},
+ 		RunE: func(cmd *cobra.Command, args []string) error {
+ 			if stop, err := toyotaGuard(cmd, args, flags, "rental options"); stop {
+ 				return err
+ 			}
+ 			ctx, cancel := boundCtx(cmd.Context(), flags)
+ 			defer cancel()
+-			out, err := toyota.NewClient().Options(ctx)
++			out, err := toyota.NewClient(flags.rateLimit).Options(ctx)
+ 			if err != nil {
+ 				return toyotaError(err)
+ 			}
+-			return flags.printJSON(cmd, out)
++			return toyotaPrint(cmd, flags, out)
+ 		}}
+ 	return cmd
+ }
+--- review-base/internal/cli/oneway_quote.go
++++ review-fixed/internal/cli/oneway_quote.go
+@@ -12,7 +12,7 @@
+ 	cmd := &cobra.Command{Use: "quote", Short: "Run Toyota's date-independent one-way surcharge calculator",
+ 		Long:        "Calculate the source surcharge for an exact shop pair and vehicle family. This is separate from cars quote and has no dated inventory guarantee. standard covers Standard/Special/Premium excluding LXC/LXP; wagon covers Wagon/SUV/Premium LXC/LXP. Buses and island-crossing restrictions apply.",
+ 		Example:     "  toyota-rentacar-pp-cli oneway quote --pickup-shop 63601:01V --dropoff-shop 63601:095 --family standard --agent",
+-		Annotations: toyotaAnnotations("--pickup-shop=63601:01V;--dropoff-shop=63601:095;--family=standard", false),
++		Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "live", "pp:happy-args": "--pickup-shop=63601:01V;--dropoff-shop=63601:095;--family=standard"},
+ 		RunE: func(cmd *cobra.Command, args []string) error {
+ 			if stop, err := toyotaGuard(cmd, args, flags, "oneway quote"); stop {
+ 				return err
+@@ -22,14 +22,15 @@
+ 			}
+ 			ctx, cancel := boundCtx(cmd.Context(), flags)
+ 			defer cancel()
+-			out, err := toyota.NewClient().OneWay(ctx, pickupID, dropoffID, family)
++			out, err := toyota.NewClient(flags.rateLimit).OneWay(ctx, pickupID, dropoffID, family)
+ 			if err != nil {
+ 				return toyotaError(err)
+ 			}
+-			return flags.printJSON(cmd, out)
++			return toyotaPrint(cmd, flags, out)
+ 		}}
+ 	cmd.Flags().StringVar(&pickupID, "pickup-shop", "", "Exact pickup company:branch ID,e.g. 63601:01V")
+ 	cmd.Flags().StringVar(&dropoffID, "dropoff-shop", "", "Exact return company:branch ID,e.g. 63601:095")
+ 	cmd.Flags().StringVar(&family, "family", "standard", "Fee family: standard or wagon (includes SUV/LXC/LXP)")
++	toyotaRequireFlags(cmd, flags, "pickup-shop", "dropoff-shop")
+ 	return cmd
+ }
+--- review-base/internal/cli/booking_handoff.go
++++ review-fixed/internal/cli/booking_handoff.go
+@@ -13,7 +13,7 @@
+ 	cmd := &cobra.Command{Use: "handoff", Short: "Print a canonical booking link and dated checklist",
+ 		Long:        "Compute a Toyota pickup-shop link and preserve dates,return shop,class and options in a checklist. The URL only prefills the pickup shop; dates,return shop and options must be re-entered on Toyota. No browser is opened and no inventory,personal data,terms or payment is submitted.",
+ 		Example:     "  toyota-rentacar-pp-cli booking handoff --pickup-shop 63601:01V --pickup 2026-10-20T09:00 --dropoff 2026-10-21T09:00 --class C1 --agent",
+-		Annotations: toyotaAnnotations("--pickup-shop=63601:01V;--pickup=2026-10-20T09:00;--dropoff=2026-10-21T09:00", true),
++		Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "computed", "pp:happy-args": "--pickup-shop=63601:01V;--pickup=2026-10-20T09:00;--dropoff=2026-10-21T09:00"},
+ 		RunE: func(cmd *cobra.Command, args []string) error {
+ 			if dryRunOK(flags) {
+ 				return writeDryRun(cmd.OutOrStdout(), flags, "booking handoff")
+@@ -29,7 +29,7 @@
+ 			if err != nil {
+ 				return toyotaError(err)
+ 			}
+-			return flags.printJSON(cmd, out)
++			return toyotaPrint(cmd, flags, out)
+ 		}}
+ 	cmd.Flags().StringVar(&rental.pickupID, "pickup-shop", "", "Exact pickup shop ID,e.g. 63601:01V")
+ 	cmd.Flags().StringVar(&rental.dropoffID, "dropoff-shop", "", "Return shop ID; defaults to the pickup shop")
+@@ -40,5 +40,6 @@
+ 	cmd.Flags().BoolVar(&rental.winter, "winter-tires", false, "Request winter tires; seasonal rates and stock may apply")
+ 	cmd.Flags().StringVar(&rental.seats, "child-seats", "", "Comma-separated child,infant,booster seat kinds; maximum four")
+ 	cmd.Flags().StringVar(&class, "class", "", "Requested Toyota class code,e.g. C1; inventory is not checked")
++	toyotaRequireFlags(cmd, flags, "pickup-shop", "pickup", "dropoff")
+ 	return cmd
+ }
+--- review-base/mcp-descriptions.json
++++ review-fixed/mcp-descriptions.json
+@@ -0,0 +1,9 @@
++{
++  "descriptions": {
++    "source_locations": "Read the public location-search source document for a required keyword and optional shop-mode (pickup 0 or return 1). Returns page metadata (title, description and canonical URL when present) and links. Prefer shops search for bounded structured branch IDs, Japanese names and return restrictions.",
++    "source_options": "Read Toyota's public option policy page; no parameters are required. Returns page metadata (title, description and canonical URL when present) and links. Prefer rental options for structured fees, JPY units, per-rental or per-24-hour bases and stock caveats.",
++    "source_insurance": "Read Toyota's public insurance, waiver and NOC policy page; no parameters are required. Returns page metadata (title, description and canonical URL when present) and links. Prefer rental options for structured protection fees; open the source URL for detailed policy conditions.",
++    "source_eligibility": "Read Toyota's public driving-document guidance page; no parameters are required. Returns page metadata (title, description and canonical URL when present) and links. Prefer rental eligibility for concise license and translation paths; neither tool verifies an individual renter's documents.",
++    "source_one-way": "Read Toyota's public one-way policy page and simulator link; no parameters are required. Returns page metadata (title, description and canonical URL when present) and links. Use oneway quote with exact pickup/dropoff shop IDs and vehicle family for a live fee simulation; no dated inventory is established."
++  }
++}

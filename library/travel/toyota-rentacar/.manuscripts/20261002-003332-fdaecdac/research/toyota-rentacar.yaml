@@ -1,0 +1,70 @@
+name: toyota-rentacar
+description: "Read-only Toyota Japan rental planning, live class estimates and booking handoff"
+version: "0.1.0"
+category: travel
+mcp:
+  transport: [stdio]
+base_url: "https://rent.toyota.co.jp"
+http_transport: standard
+health_check_path: "/eng/"
+auth:
+  type: none
+learn:
+  ticker_patterns: ["^[0-9]{5}:[0-9A-Z]{3}$"]
+  entity_lookup_seeds:
+    shop:
+      - canonical: "Tokyo Sta. Nihonbashi Ext. Shop"
+        aliases: ["Tokyo Nihonbashi", "Tokyo Station Nihonbashi", "東京駅日本橋口店"]
+      - canonical: "Kyoto Sta. Shinkansen Ext. Shop"
+        aliases: ["Kyoto Shinkansen", "Kyoto Station", "京都駅新幹線口店"]
+resources:
+  source:
+    description: "Public first-party source documents; use shops/cars/rental/oneway for structured planning"
+    endpoints:
+      locations:
+        method: GET
+        path: "/eng/reservation/index01.aspx"
+        description: "Read public keyword shop document"
+        example: '  toyota-rentacar-pp-cli source locations --keyword "Kyoto Station" --shop-mode 0 --agent'
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: keyword
+            type: string
+            required: true
+            description: "Place or station keyword (e.g. Kyoto Station)"
+          - name: shopMode
+            flag_name: shop-mode
+            type: int
+            default: 0
+            description: "Source pick-up0 or return1 search mode"
+        happy_args: "--keyword=Kyoto Station;--shop-mode=0"
+      options:
+        method: GET
+        path: "/global_eng/service/option.html"
+        description: "Read option policy source"
+        response_format: html
+        html_extract:
+          mode: page
+      insurance:
+        method: GET
+        path: "/global_eng/guide/insurance.html"
+        description: "Read insurance and NOC policy source"
+        response_format: html
+        html_extract:
+          mode: page
+      eligibility:
+        method: GET
+        path: "/global_eng/drive/"
+        description: "Read official driving-document guidance"
+        response_format: html
+        html_extract:
+          mode: page
+      one-way:
+        method: GET
+        path: "/global_eng/service/oneway.html"
+        description: "Read one-way restrictions and simulator link"
+        response_format: html
+        html_extract:
+          mode: page

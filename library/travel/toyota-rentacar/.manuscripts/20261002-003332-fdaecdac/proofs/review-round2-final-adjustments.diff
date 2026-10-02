@@ -1,0 +1,33 @@
+--- review-round2-initial/internal/toyota/client.go
++++ review-round2-final/internal/toyota/client.go
+@@ -48,6 +48,9 @@
+ 	resp, err := t.base.RoundTrip(req)
+ 	if err != nil {
+ 		return nil, err
++	}
++	if remaining, resetAt, ok := cliutil.ParseRateLimitHeaders(resp.Header); ok {
++		c.limiter.ObserveHeaders(remaining, resetAt)
+ 	}
+ 	if resp.StatusCode == http.StatusTooManyRequests {
+ 		c.limiter.OnRateLimit()
+--- review-round2-initial/internal/toyota/client_test.go
++++ review-round2-final/internal/toyota/client_test.go
+@@ -39,7 +39,7 @@
+ 	if err := c.limiter.Wait(context.Background()); err != nil {
+ 		t.Fatal(err)
+ 	}
+-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Millisecond)
++	ctx, cancel := context.WithTimeout(context.Background(), 750*time.Millisecond)
+ 	defer cancel()
+ 	if err := c.limiter.Wait(ctx); !errors.Is(err, context.DeadlineExceeded) {
+ 		t.Fatalf("explicit slow ceiling bypassed after success/header observations: %v", err)
+--- review-round2-initial/internal/toyota/quote.go
++++ review-round2-final/internal/toyota/quote.go
+@@ -186,6 +186,7 @@
+ 	}
+ 	return QuoteResult{Meta: c.Meta(), PickupShop: pickup, DropoffShop: dropoff, Period: period, Options: o, OperatingWindows: map[string]OperatingWindow{"pickup": pickupWindow, "dropoff": dropoffWindow}, Category: category, Offers: offers, SourceCount: count, Truncated: count > len(offers),
+ 		PriceAssumptions: []string{"Toyota's class-page Rental Price is a live tax-inclusive estimate, not a confirmed final booking total.",
++			"This anonymous class-page search does not select or verify a driver/license profile; reconfirm the applicable rate in Toyota's booking flow.",
+ 			"Search options above were echoed by Toyota. Specific child seats,ETC cards and other equipment require stock confirmation.",
+ 			"Basic insurance is included in the basic rental rate; optional waiver/NOC,ETC/JAF,model selection and one-way inclusion are not inferred from this amount.",
+ 			"Do not blindly add policy fees to the class estimate; some inclusions and seasonal tire rates require Toyota's final breakdown.",

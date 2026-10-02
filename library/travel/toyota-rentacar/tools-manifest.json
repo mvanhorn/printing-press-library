@@ -1,0 +1,95 @@
+{
+  "api_name": "toyota-rentacar",
+  "base_url": "https://rent.toyota.co.jp",
+  "description": "Live Japan rental class estimates, distinct shops, and a careful booking handoff.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "source_eligibility",
+      "description": "Read official driving-document guidance.",
+      "method": "GET",
+      "path": "/global_eng/drive/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "source_insurance",
+      "description": "Read insurance and NOC policy source.",
+      "method": "GET",
+      "path": "/global_eng/guide/insurance.html",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "source_locations",
+      "description": "Read public keyword shop document. Required: keyword. Optional: shop-mode (default: 0).",
+      "method": "GET",
+      "path": "/eng/reservation/index01.aspx",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Place or station keyword (e.g. Kyoto Station)",
+          "required": true
+        },
+        {
+          "name": "shop-mode",
+          "wire_name": "shopMode",
+          "type": "int",
+          "location": "query",
+          "description": "Source pick-up0 or return1 search mode"
+        }
+      ]
+    },
+    {
+      "name": "source_one-way",
+      "description": "Read one-way restrictions and simulator link.",
+      "method": "GET",
+      "path": "/global_eng/service/oneway.html",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "source_options",
+      "description": "Read option policy source.",
+      "method": "GET",
+      "path": "/global_eng/service/option.html",
+      "no_auth": true,
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Identity-safe shop resolution",
+      "command": "shops search",
+      "description": "Resolve distinct Toyota branches and return restrictions."
+    },
+    {
+      "name": "Context-checked class estimates",
+      "command": "cars quote",
+      "description": "Compare real dated class offers with explicit price assumptions."
+    },
+    {
+      "name": "Option inclusion honesty",
+      "command": "rental options",
+      "description": "Read live option and waiver fees with source units."
+    },
+    {
+      "name": "One-way fee and inventory separation",
+      "command": "oneway quote",
+      "description": "Run Toyota’s route surcharge simulator."
+    },
+    {
+      "name": "Canonical booking checklist",
+      "command": "booking handoff",
+      "description": "Print a canonical booking link and reusable rental checklist."
+    }
+  ]
+}

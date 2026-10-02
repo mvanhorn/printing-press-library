@@ -1,0 +1,20 @@
+{
+  "status": "complete",
+  "observed_at": "2026-10-01T19:47:10.797949+00:00",
+  "workspace": "<source-dir>",
+  "library": "<cli-dir>",
+  "archive": "<manuscripts-dir>",
+  "live_matrix": {
+    "passed": 127,
+    "failed": 0,
+    "skipped_unverified": 97
+  },
+  "verify_pct": 100,
+  "scorecard": 86,
+  "grade": "A",
+  "live_feature_samples": "5/5",
+  "review": "one fresh-context gpt-6.1-sol MAX reviewer; all findings cleared",
+  "publication": "not performed",
+  "runtime": "anonymous Go HTTP; native Chrome discovery first",
+  "limits": "Class estimates, unguaranteed models, unknown full totals/equipment stock/dated one-way inventory; final booking/customer quote stays a human handoff."
+}

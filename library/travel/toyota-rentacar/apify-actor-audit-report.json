@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/toyota-rentacar-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20261002-003332-fdaecdac",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

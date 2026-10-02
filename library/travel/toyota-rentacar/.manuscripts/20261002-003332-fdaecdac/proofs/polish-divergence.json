@@ -1,0 +1,7 @@
+{
+  "valid_public_library_clones_found": 9,
+  "toyota_cli_in_candidates": false,
+  "outcome": "Public clones found but none contains Toyota Rent a Car; first local print is canonical.",
+  "chosen_clone": "<local-path>",
+  "repository": "mvanhorn/printing-press-library"
+}

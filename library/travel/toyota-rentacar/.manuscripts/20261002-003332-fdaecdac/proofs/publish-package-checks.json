@@ -1,0 +1,42 @@
+{
+  "checks": [
+    {
+      "check": "go-build",
+      "exit_code": 0
+    },
+    {
+      "check": "go-vet",
+      "exit_code": 0
+    },
+    {
+      "check": "go-test",
+      "exit_code": 0
+    },
+    {
+      "check": "govulncheck",
+      "exit_code": 0
+    },
+    {
+      "check": "verify-skill",
+      "exit_code": 0
+    },
+    {
+      "check": "help-binary",
+      "exit_code": 0
+    }
+  ],
+  "privacy": {
+    "scanned_files": 254,
+    "recursive_help_pages": 47,
+    "vendor_token_hits": 0,
+    "customer_pii_hits": 0,
+    "host_paths": 0,
+    "raw_response_dumps": 0,
+    "reviewed_false_positive_classes": [
+      "public policy/shop/API vocabulary and technical headers",
+      "required legal author attribution",
+      "synthetic unit-test person names and PII-detector inputs",
+      "image @2x descriptor"
+    ]
+  }
+}

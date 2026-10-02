@@ -1,0 +1,33 @@
+[
+  {
+    "path": "shops search",
+    "help": "PASS",
+    "dry_run": "PASS"
+  },
+  {
+    "path": "shops get",
+    "help": "PASS"
+  },
+  {
+    "path": "cars quote",
+    "help": "PASS",
+    "dry_run": "PASS"
+  },
+  {
+    "path": "rental options",
+    "help": "PASS"
+  },
+  {
+    "path": "rental eligibility",
+    "help": "PASS"
+  },
+  {
+    "path": "oneway quote",
+    "help": "PASS",
+    "dry_run": "PASS"
+  },
+  {
+    "path": "booking handoff",
+    "help": "PASS"
+  }
+]

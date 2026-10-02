@@ -1,0 +1,58 @@
+[
+  {
+    "kind": "thin-short",
+    "command": "list",
+    "file": "platform_client.go",
+    "line": 517,
+    "evidence": "List client profiles"
+  },
+  {
+    "kind": "missing-read-only",
+    "command": "search",
+    "file": "shops_search.go",
+    "line": 13,
+    "evidence": "name matches read heuristic; no mcp:read-only annotation"
+  },
+  {
+    "kind": "thin-short",
+    "command": "list",
+    "file": "teach.go",
+    "line": 868,
+    "evidence": "List recorded learnings"
+  },
+  {
+    "kind": "thin-mcp-description",
+    "command": "source_eligibility",
+    "file": "tools-manifest.json",
+    "line": 0,
+    "evidence": "Read official driving-document guidance."
+  },
+  {
+    "kind": "thin-mcp-description",
+    "command": "source_insurance",
+    "file": "tools-manifest.json",
+    "line": 0,
+    "evidence": "Read insurance and NOC policy source."
+  },
+  {
+    "kind": "thin-mcp-description",
+    "command": "source_one-way",
+    "file": "tools-manifest.json",
+    "line": 0,
+    "evidence": "Read one-way restrictions and simulator link."
+  },
+  {
+    "kind": "thin-mcp-description",
+    "command": "source_options",
+    "file": "tools-manifest.json",
+    "line": 0,
+    "evidence": "Read option policy source."
+  },
+  {
+    "kind": "missing-read-only",
+    "command": "get",
+    "file": "toyota_commands.go",
+    "line": 69,
+    "evidence": "name matches read heuristic; no mcp:read-only annotation"
+  }
+]

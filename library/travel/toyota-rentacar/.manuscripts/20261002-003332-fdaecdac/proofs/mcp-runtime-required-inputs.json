@@ -1,0 +1,58 @@
+{
+  "observed_at": "2026-10-01T18:39:34.253991+00:00",
+  "initialize_passed": true,
+  "planning_tools": [
+    {
+      "name": "booking_handoff",
+      "required": [
+        "dropoff",
+        "pickup",
+        "pickup-shop"
+      ],
+      "read_only": true
+    },
+    {
+      "name": "cars_quote",
+      "required": [
+        "dropoff",
+        "pickup",
+        "pickup-shop"
+      ],
+      "read_only": true
+    },
+    {
+      "name": "oneway_quote",
+      "required": [
+        "dropoff-shop",
+        "pickup-shop"
+      ],
+      "read_only": true
+    },
+    {
+      "name": "rental_eligibility",
+      "required": [],
+      "read_only": true
+    },
+    {
+      "name": "rental_options",
+      "required": [],
+      "read_only": true
+    },
+    {
+      "name": "shops_get",
+      "required": [
+        "id"
+      ],
+      "read_only": true
+    },
+    {
+      "name": "shops_search",
+      "required": [
+        "keyword"
+      ],
+      "read_only": true
+    }
+  ],
+  "planning_count": 7,
+  "total_tools": 33
+}

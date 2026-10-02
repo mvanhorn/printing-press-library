@@ -1,0 +1,103 @@
+{
+  "live_check": {
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "features": [
+      {
+        "name": "Identity-safe shop resolution",
+        "command": "shops search",
+        "example": "toyota-rentacar-pp-cli shops search --keyword \"Kyoto Station\" --limit 3 --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Context-checked class estimates",
+        "command": "cars quote",
+        "example": "toyota-rentacar-pp-cli cars quote --pickup-shop 63601:01V --pickup 2026-10-20T09:00 --dropoff 2026-10-21T09:00 --category compact --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Option inclusion honesty",
+        "command": "rental options",
+        "example": "toyota-rentacar-pp-cli rental options --agent",
+        "status": "pass"
+      },
+      {
+        "name": "One-way fee and inventory separation",
+        "command": "oneway quote",
+        "example": "toyota-rentacar-pp-cli oneway quote --pickup-shop 63601:01V --dropoff-shop 63601:095 --family standard --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Canonical booking checklist",
+        "command": "booking handoff",
+        "example": "toyota-rentacar-pp-cli booking handoff --pickup-shop 63601:01V --pickup 2026-10-20T09:00 --dropoff 2026-10-21T09:00 --agent",
+        "status": "pass"
+      }
+    ],
+    "binary_refresh": {
+      "action": "rebuilt",
+      "stage_path": "<local-path>",
+      "binary_path": "<local-path>",
+      "reason": "staged binary was older than Go sources"
+    },
+    "ran_at": "2026-10-01T18:07:29.984468Z",
+    "status": "available",
+    "checked": 5,
+    "evaluated": 5,
+    "pass_rate_pct": 100
+  },
+  "scorecard": {
+    "api_name": "toyota-rentacar",
+    "steinberger": {
+      "output_modes": 10,
+      "auth": 10,
+      "error_handling": 8,
+      "terminal_ux": 10,
+      "readme": 10,
+      "doctor": 10,
+      "agent_native": 10,
+      "mcp_quality": 7,
+      "mcp_description_quality": 0,
+      "mcp_token_efficiency": 10,
+      "mcp_remote_transport": 0,
+      "mcp_tool_design": 0,
+      "mcp_surface_strategy": 0,
+      "local_cache": 10,
+      "cache_freshness": 3,
+      "breadth": 9,
+      "vision": 7,
+      "workflows": 10,
+      "insight": 10,
+      "agent_workflow_readiness": 9,
+      "path_validity": 0,
+      "auth_protocol": 0,
+      "data_pipeline_integrity": 10,
+      "sync_correctness": 7,
+      "type_fidelity": 5,
+      "dead_code": 1,
+      "live_api_verification": 0,
+      "total": 80,
+      "percentage": 80
+    },
+    "competitor_scores": null,
+    "overall_grade": "A (2 of 23 dimensions unverified: path_validity, auth_protocol)",
+    "gap_report": [
+      "mcp_description_quality scored 0/10 - needs improvement",
+      "dead_code scored 1/5 - needs improvement",
+      "MCP: 5 tools (5 public, 0 auth-required) \u2014 readiness: full"
+    ],
+    "unscored_dimensions": [
+      "mcp_remote_transport",
+      "mcp_tool_design",
+      "mcp_surface_strategy",
+      "path_validity",
+      "auth_protocol",
+      "live_api_verification"
+    ],
+    "unverified_dimensions": [
+      "path_validity",
+      "auth_protocol"
+    ]
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "observed_at": "2026-10-01T18:47:36.557460+00:00",
+  "memory_measurement": "macOS /usr/bin/time -l maximum resident set size in bytes",
+  "request_cap": 14,
+  "body_limit_bytes": 2097152,
+  "samples": [
+    {
+      "label": "primary_compact",
+      "args": [
+        "cars",
+        "quote",
+        "--pickup-shop",
+        "63601:01V",
+        "--pickup",
+        "2026-11-10T09:00",
+        "--dropoff",
+        "2026-11-11T09:00",
+        "--agent",
+        "--compact",
+        "--timeout",
+        "40s",
+        "--category",
+        "compact",
+        "--limit",
+        "3"
+      ],
+      "exit_code": 0,
+      "output_bytes": 5603,
+      "elapsed_ms": 7011,
+      "peak_rss_bytes": 30736384,
+      "upstream_requests": 5,
+      "source_bytes_read": 685757,
+      "offers": 3,
+      "class_codes": [
+        "C1",
+        "C2",
+        "C0"
+      ],
+      "error": null
+    },
+    {
+      "label": "bounded_details_suv",
+      "args": [
+        "cars",
+        "quote",
+        "--pickup-shop",
+        "63601:01V",
+        "--pickup",
+        "2026-11-10T09:00",
+        "--dropoff",
+        "2026-11-11T09:00",
+        "--agent",
+        "--compact",
+        "--timeout",
+        "40s",
+        "--category",
+        "suv",
+        "--limit",
+        "20",
+        "--details"
+      ],
+      "exit_code": 0,
+      "output_bytes": 6847,
+      "elapsed_ms": 6306,
+      "peak_rss_bytes": 32030720,
+      "upstream_requests": 6,
+      "source_bytes_read": 1032614,
+      "offers": 5,
+      "class_codes": [
+        "SUV1",
+        "SUV2",
+        "SUV3",
+        "SUV4",
+        "SP1"
+      ],
+      "error": null
+    }
+  ]
+}

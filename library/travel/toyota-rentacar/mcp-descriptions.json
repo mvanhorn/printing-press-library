@@ -1,0 +1,9 @@
+{
+  "descriptions": {
+    "source_locations": "Read the public location-search source document for a required keyword and optional shop-mode (pickup 0 or return 1). Returns page metadata (title, description and canonical URL when present) and links. Prefer shops search for bounded structured branch IDs, Japanese names and return restrictions.",
+    "source_options": "Read Toyota's public option policy page; no parameters are required. Returns page metadata (title, description and canonical URL when present) and links. Prefer rental options for structured fees, JPY units, per-rental or per-24-hour bases and stock caveats.",
+    "source_insurance": "Read Toyota's public insurance, waiver and NOC policy page; no parameters are required. Returns page metadata (title, description and canonical URL when present) and links. Prefer rental options for structured protection fees; open the source URL for detailed policy conditions.",
+    "source_eligibility": "Read Toyota's public driving-document guidance page; no parameters are required. Returns page metadata (title, description and canonical URL when present) and links. Prefer rental eligibility for concise license and translation paths; neither tool verifies an individual renter's documents.",
+    "source_one-way": "Read Toyota's public one-way policy page and simulator link; no parameters are required. Returns page metadata (title, description and canonical URL when present) and links. Use oneway quote with exact pickup/dropoff shop IDs and vehicle family for a live fee simulation; no dated inventory is established."
+  }
+}

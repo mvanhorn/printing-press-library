@@ -1,0 +1,10 @@
+--- before/internal/cli/source_locations.go
++++ generated/internal/cli/source_locations.go
+@@ -18,6 +18,7 @@
+ 	cmd := &cobra.Command{
+ 		Use:         "locations",
+ 		Short:       "Read public keyword shop document",
++		Example:     "  toyota-rentacar-pp-cli source locations --keyword \"Kyoto Station\" --shop-mode 0 --agent",
+ 		Annotations: map[string]string{"pp:endpoint": "source.locations", "pp:method": "GET", "pp:path": "/eng/reservation/index01.aspx", "mcp:read-only": "true", "pp:requires-input": "true", "pp:happy-args": "--keyword=Kyoto Station;--shop-mode=0"},
+ 		RunE: func(cmd *cobra.Command, args []string) error {
+ 			// Bare invocation of a command with required input prints help

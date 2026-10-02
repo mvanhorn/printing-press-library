@@ -1,0 +1,10 @@
+{
+  "observed_at": "2026-10-01T19:46:46.049527+00:00",
+  "assigned_workspace": "<source-dir>",
+  "cli_build": "pass",
+  "mcp_build": "pass",
+  "computed_premium_handoff": "pass",
+  "mcp_initialize_and_discovery": "pass",
+  "mcp_tools": 33,
+  "no_live_provider_mutation": true
+}

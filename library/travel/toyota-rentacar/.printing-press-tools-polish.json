@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-10-01T19:23:27.542558Z",
+  "cli_dir": "\u003ccli-dir\u003e/toyota-rentacar-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; needs generator-template fix. List client profiles precisely identifies the local profile listing operation."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 868,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; needs generator-template fix. List recorded learnings precisely identifies the local learning listing operation."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 0,
+    "captured": "2026-10-01T18:20:43.012522Z"
+  }
+}

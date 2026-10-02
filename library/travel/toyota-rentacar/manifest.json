@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "toyota-rentacar-pp-mcp",
+  "display_name": "TOYOTA Rent a Car",
+  "version": "0.1.0",
+  "description": "Live Japan rental class estimates, distinct shops, and a careful booking handoff.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/toyota-rentacar-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/toyota-rentacar-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

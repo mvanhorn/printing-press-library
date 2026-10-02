@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-01T19:40:59.872035Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "toyota-rentacar",
+  "display_name": "TOYOTA Rent a Car",
+  "cli_name": "toyota-rentacar-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "toyota-rentacar.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:64ca95a74702206ae02234b5a6e65c33106cfea7a0cb355420eb097460ee7549",
+  "run_id": "20261002-003332-fdaecdac",
+  "category": "travel",
+  "description": "Live Japan rental class estimates, distinct shops, and a careful booking handoff.",
+  "mcp_binary": "toyota-rentacar-pp-mcp",
+  "mcp_tool_count": 5,
+  "mcp_public_tool_count": 5,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Identity-safe shop resolution",
+      "command": "shops search",
+      "description": "Resolve distinct Toyota branches and return restrictions."
+    },
+    {
+      "name": "Context-checked class estimates",
+      "command": "cars quote",
+      "description": "Compare real dated class offers with explicit price assumptions."
+    },
+    {
+      "name": "Option inclusion honesty",
+      "command": "rental options",
+      "description": "Read live option and waiver fees with source units."
+    },
+    {
+      "name": "One-way fee and inventory separation",
+      "command": "oneway quote",
+      "description": "Run Toyota’s route surcharge simulator."
+    },
+    {
+      "name": "Canonical booking checklist",
+      "command": "booking handoff",
+      "description": "Print a canonical booking link and reusable rental checklist."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Identity-safe shop resolution",
+      "command": "shops search",
+      "description": "Resolve distinct Toyota branches and return restrictions."
+    },
+    {
+      "name": "Context-checked class estimates",
+      "command": "cars quote",
+      "description": "Compare real dated class offers with explicit price assumptions."
+    },
+    {
+      "name": "Option inclusion honesty",
+      "command": "rental options",
+      "description": "Read live option and waiver fees with source units."
+    },
+    {
+      "name": "One-way fee and inventory separation",
+      "command": "oneway quote",
+      "description": "Run Toyota’s route surcharge simulator."
+    },
+    {
+      "name": "Canonical booking checklist",
+      "command": "booking handoff",
+      "description": "Print a canonical booking link and reusable rental checklist."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 27,
+    "total": 27,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 86,
+      "grade": "A",
+      "total": 86
+    }
+  }
+}

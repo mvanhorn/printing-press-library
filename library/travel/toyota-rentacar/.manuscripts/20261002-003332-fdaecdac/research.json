@@ -1,0 +1,180 @@
+{
+  "api_name": "toyota-rentacar",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [
+    "Final confirmed total and selected extras inventory require the human booking workflow; anonymous class selection replay returned Toyota network error."
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-01T16:59:12.601226Z",
+  "novel_features": [
+    {
+      "name": "Identity-safe shop resolution",
+      "command": "shops search",
+      "description": "Resolve distinct Toyota branches and return restrictions.",
+      "rationale": "Preserves first-party branch identities and Japanese names.",
+      "example": "toyota-rentacar-pp-cli shops search --keyword \"Kyoto Station\" --limit 3 --agent",
+      "why_it_matters": "Preserves first-party branch identities and Japanese names.",
+      "group": "Rental planning"
+    },
+    {
+      "name": "Context-checked class estimates",
+      "command": "cars quote",
+      "description": "Compare real dated class offers with explicit price assumptions.",
+      "rationale": "Verifies source-echoed dates and shops before reporting offers.",
+      "example": "toyota-rentacar-pp-cli cars quote --pickup-shop 63601:01V --pickup 2026-10-20T09:00 --dropoff 2026-10-21T09:00 --category compact --agent",
+      "why_it_matters": "Verifies source-echoed dates and shops before reporting offers.",
+      "group": "Rental planning"
+    },
+    {
+      "name": "Option inclusion honesty",
+      "command": "rental options",
+      "description": "Read live option and waiver fees with source units.",
+      "rationale": "Separates optional fee estimates from unknown final totals.",
+      "example": "toyota-rentacar-pp-cli rental options --agent",
+      "why_it_matters": "Separates optional fee estimates from unknown final totals.",
+      "group": "Rental planning"
+    },
+    {
+      "name": "One-way fee and inventory separation",
+      "command": "oneway quote",
+      "description": "Run Toyota’s route surcharge simulator.",
+      "rationale": "Keeps date-independent fees separate from dated class stock.",
+      "example": "toyota-rentacar-pp-cli oneway quote --pickup-shop 63601:01V --dropoff-shop 63601:095 --family standard --agent",
+      "why_it_matters": "Keeps date-independent fees separate from dated class stock.",
+      "group": "Rental planning"
+    },
+    {
+      "name": "Canonical booking checklist",
+      "command": "booking handoff",
+      "description": "Print a canonical booking link and reusable rental checklist.",
+      "rationale": "Date and options survive as a checklist rather than false session-bound links.",
+      "example": "toyota-rentacar-pp-cli booking handoff --pickup-shop 63601:01V --pickup 2026-10-20T09:00 --dropoff 2026-10-21T09:00 --agent",
+      "why_it_matters": "Date and options survive as a checklist rather than false session-bound links.",
+      "group": "Rental planning"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Identity-safe shop resolution",
+      "command": "shops search",
+      "description": "Resolve distinct Toyota branches and return restrictions.",
+      "rationale": "Preserves first-party branch identities and Japanese names.",
+      "example": "toyota-rentacar-pp-cli shops search --keyword \"Kyoto Station\" --limit 3 --agent",
+      "why_it_matters": "Preserves first-party branch identities and Japanese names.",
+      "group": "Rental planning"
+    },
+    {
+      "name": "Context-checked class estimates",
+      "command": "cars quote",
+      "description": "Compare real dated class offers with explicit price assumptions.",
+      "rationale": "Verifies source-echoed dates and shops before reporting offers.",
+      "example": "toyota-rentacar-pp-cli cars quote --pickup-shop 63601:01V --pickup 2026-10-20T09:00 --dropoff 2026-10-21T09:00 --category compact --agent",
+      "why_it_matters": "Verifies source-echoed dates and shops before reporting offers.",
+      "group": "Rental planning"
+    },
+    {
+      "name": "Option inclusion honesty",
+      "command": "rental options",
+      "description": "Read live option and waiver fees with source units.",
+      "rationale": "Separates optional fee estimates from unknown final totals.",
+      "example": "toyota-rentacar-pp-cli rental options --agent",
+      "why_it_matters": "Separates optional fee estimates from unknown final totals.",
+      "group": "Rental planning"
+    },
+    {
+      "name": "One-way fee and inventory separation",
+      "command": "oneway quote",
+      "description": "Run Toyota’s route surcharge simulator.",
+      "rationale": "Keeps date-independent fees separate from dated class stock.",
+      "example": "toyota-rentacar-pp-cli oneway quote --pickup-shop 63601:01V --dropoff-shop 63601:095 --family standard --agent",
+      "why_it_matters": "Keeps date-independent fees separate from dated class stock.",
+      "group": "Rental planning"
+    },
+    {
+      "name": "Canonical booking checklist",
+      "command": "booking handoff",
+      "description": "Print a canonical booking link and reusable rental checklist.",
+      "rationale": "Date and options survive as a checklist rather than false session-bound links.",
+      "example": "toyota-rentacar-pp-cli booking handoff --pickup-shop 63601:01V --pickup 2026-10-20T09:00 --dropoff 2026-10-21T09:00 --agent",
+      "why_it_matters": "Date and options survive as a checklist rather than false session-bound links.",
+      "group": "Rental planning"
+    }
+  ],
+  "narrative": {
+    "display_name": "TOYOTA Rent a Car",
+    "headline": "Live Japan rental class estimates, distinct shops, and a careful booking handoff.",
+    "value_prop": "Resolve pickup and return shops, compare real dated class offers, and inspect Toyota’s one-way surcharge and option policies. Final totals and individual driving eligibility remain explicit until Toyota verifies them.",
+    "auth_narrative": "Public read-only HTTP. No API key,account login,browser dependency,or saved cookies.",
+    "quickstart": [
+      {
+        "command": "toyota-rentacar-pp-cli doctor --dry-run",
+        "comment": "Check setup without network."
+      },
+      {
+        "command": "toyota-rentacar-pp-cli shops search --keyword \"Kyoto Station\" --limit 3 --agent",
+        "comment": "Resolve distinct shops."
+      },
+      {
+        "command": "toyota-rentacar-pp-cli rental options --agent",
+        "comment": "Inspect source option and waiver fees."
+      },
+      {
+        "command": "toyota-rentacar-pp-cli cars quote --pickup-shop 63601:01V --pickup 2026-10-20T09:00 --dropoff 2026-10-21T09:00 --category compact --agent",
+        "comment": "Compare dated class estimates in JST."
+      },
+      {
+        "command": "toyota-rentacar-pp-cli oneway quote --pickup-shop 63601:01V --dropoff-shop 63601:095 --family standard --agent",
+        "comment": "Run Toyota’s independent surcharge calculator."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Toyota returns a source error or changed rental dates.",
+        "fix": "Choose dates within three months and a return after pickup,then retry using the canonical booking URL in the error."
+      },
+      {
+        "symptom": "No fully confirmed total.",
+        "fix": "Open booking handoff and verify all extras,one-way fees and final total on Toyota before payment."
+      }
+    ],
+    "when_to_use": "Use for Toyota Japan rental planning: distinct shops,dated class estimates,one-way fee simulation and official option/document guidance. Recheck live inventory before booking.",
+    "anti_triggers": [
+      "Creating,cancelling or modifying reservations",
+      "Payment,customer profiles or entering personal documents",
+      "Guaranteed vehicle model or final inclusive price",
+      "Other rental suppliers or road toll calculations"
+    ],
+    "recipes": [
+      {
+        "title": "Resolve shops",
+        "command": "toyota-rentacar-pp-cli shops search --keyword \"Tokyo Station\" --limit 3 --agent --select shops.id,shops.name,shops.name_jp,shops.oneway_returns",
+        "explanation": "Keep branch identities and return restrictions."
+      },
+      {
+        "title": "Dated compact offers",
+        "command": "toyota-rentacar-pp-cli cars quote --pickup-shop 63601:01V --pickup 2026-10-20T09:00 --dropoff 2026-10-21T09:00 --category compact --agent",
+        "explanation": "Class prices are source estimates; models are representative."
+      },
+      {
+        "title": "One-way surcharge",
+        "command": "toyota-rentacar-pp-cli oneway quote --pickup-shop 63601:01V --dropoff-shop 63601:095 --family standard --agent",
+        "explanation": "Calculator fee has no dated inventory guarantee."
+      },
+      {
+        "title": "Eligibility guidance",
+        "command": "toyota-rentacar-pp-cli rental eligibility --agent",
+        "explanation": "Read first-party document rules;Toyota verifies the real documents."
+      }
+    ],
+    "trigger_phrases": [
+      "Toyota rental quote for my dates",
+      "Toyota pickup and return shops",
+      "Toyota one-way surcharge",
+      "Toyota ETC and child-seat fees",
+      "use toyota-rentacar",
+      "run toyota-rentacar"
+    ]
+  }
+}

@@ -1,0 +1,55 @@
+version: 2
+project_name: toyota-rentacar-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: toyota-rentacar-pp-cli
+    main: ./cmd/toyota-rentacar-pp-cli
+    binary: toyota-rentacar-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/toyota-rentacar/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: toyota-rentacar-pp-mcp
+    main: ./cmd/toyota-rentacar-pp-mcp
+    binary: toyota-rentacar-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: toyota-rentacar-pp-cli
+    repository:
+      owner: zjsng
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Live Japan rental class estimates, distinct shops, and a careful booking handoff."
+    install: |
+      bin.install "toyota-rentacar-pp-cli"
+      bin.install "toyota-rentacar-pp-mcp"

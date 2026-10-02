@@ -1,0 +1,13 @@
+{
+  "observed_at": "2026-10-01T18:36:47.093419+00:00",
+  "native_tab": "448471415",
+  "url": "https://rent.toyota.co.jp/eng/service/oneway/simulation.aspx#resultOneWayPrice",
+  "source_result_labels": {
+    "lblDepartShop": "From Tokyo Sta. Nihonbashi Ext.Store",
+    "lblReturnShop": "To HatchoboriStore"
+  },
+  "shop_identity_inputs_on_calculation_result": [],
+  "fee_jpy": 0,
+  "tax_included": true,
+  "validation_requirement": "Compare anchored normalized full From/To labels exactly; source result exposes no known composite-ID inputs."
+}

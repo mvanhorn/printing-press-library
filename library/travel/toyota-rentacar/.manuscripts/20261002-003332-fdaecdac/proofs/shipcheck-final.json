@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "verdict": "PASS",
+  "started_at": "2026-10-01T17:48:35Z",
+  "elapsed_ms": 14315,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T17:48:35Z",
+      "elapsed_ms": 2925,
+      "command": "<local-path> verify --dir <local-path> --write-manifest <local-path> --spec <local-path> --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T17:48:38Z",
+      "elapsed_ms": 147,
+      "command": "<local-path> validate-narrative --strict --full-examples --research <local-path> --binary <local-path>"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T17:48:38Z",
+      "elapsed_ms": 1730,
+      "command": "<local-path> dogfood --dir <local-path> --spec <local-path> --research-dir <local-path>"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T17:48:39Z",
+      "elapsed_ms": 12,
+      "command": "<local-path> workflow-verify --dir <local-path>"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T17:48:39Z",
+      "elapsed_ms": 20,
+      "command": "<local-path> apify-audit --dir <local-path> --research-dir <local-path>"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T17:48:39Z",
+      "elapsed_ms": 2639,
+      "command": "<local-path> verify-skill --dir <local-path>"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T17:48:42Z",
+      "elapsed_ms": 6837,
+      "command": "<local-path> scorecard --dir <local-path> --write-manifest <local-path> --research-dir <local-path> --spec <local-path> --live-check"
+    }
+  ]
+}
