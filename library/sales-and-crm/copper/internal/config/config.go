@@ -64,7 +64,7 @@ func Load(configPath string) (*Config, error) {
 		if err != nil {
 			return nil, err
 		}
-		legacyJSONPath, err := legacyJSONConfigPath()
+		legacyJSONPath, err := LegacyJSONConfigPath()
 		if err != nil {
 			return nil, err
 		}
@@ -101,6 +101,29 @@ func Load(configPath string) (*Config, error) {
 				if sourcePath != path {
 					cfg.legacySourcePath = sourcePath
 				}
+			}
+		}
+		// An older JSON file can coexist with a non-secret TOML settings
+		// file. Keep TOML settings, but recover credential fields that have
+		// not yet been moved to credentials.toml and remember JSON for scrub.
+		if sourcePath == path && resolvedJSONPath != path {
+			legacyData, legacyErr := os.ReadFile(filepath.Clean(resolvedJSONPath)) // #nosec G304 -- app-owned config compatibility path.
+			if legacyErr == nil {
+				var legacy Config
+				if err := parseConfigData(legacyData, &legacy, resolvedJSONPath, "legacy config path"); err != nil {
+					return nil, err
+				}
+				hadCredentials := cfg.hasCredentialFields()
+				if cfg.mergeMissingCredentialFields(&legacy) {
+					if hadCredentials {
+						cfg.CredentialSource = "multiple config files"
+					} else {
+						cfg.CredentialSource = "legacy config path"
+					}
+				}
+				cfg.legacySourcePath = resolvedJSONPath
+			} else if !os.IsNotExist(legacyErr) {
+				return nil, legacyErr
 			}
 		}
 	}
@@ -205,13 +228,15 @@ func LegacyConfigPath() (string, error) {
 	return filepath.Join(home, ".config", "copper-pp-cli", "config.toml"), nil
 }
 
-func legacyJSONConfigPath() (string, error) {
+func LegacyJSONConfigPath() (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", fmt.Errorf("resolve legacy JSON config path: %w", err)
 	}
 	return filepath.Join(home, ".config", "copper-pp-cli", "config.json"), nil
 }
+
+func (c *Config) LegacySourcePath() string { return c.legacySourcePath }
 
 func readConfigFile(path string, cfg *Config, owner string) error {
 	data, err := os.ReadFile(path)
@@ -346,6 +371,28 @@ func (c *Config) applyCredentials(creds *cliutil.Credentials) {
 	c.ClientSecret = creds.ClientSecret
 	c.CopperApiKey = creds.CopperApiKey
 	c.CopperUserEmail = creds.CopperUserEmail
+}
+
+func (c *Config) mergeMissingCredentialFields(source *Config) bool {
+	merged := false
+	fill := func(target *string, value string) {
+		if *target == "" && value != "" {
+			*target = value
+			merged = true
+		}
+	}
+	fill(&c.AuthHeaderVal, source.AuthHeaderVal)
+	fill(&c.AccessToken, source.AccessToken)
+	fill(&c.RefreshToken, source.RefreshToken)
+	fill(&c.ClientID, source.ClientID)
+	fill(&c.ClientSecret, source.ClientSecret)
+	fill(&c.CopperApiKey, source.CopperApiKey)
+	fill(&c.CopperUserEmail, source.CopperUserEmail)
+	if c.TokenExpiry.IsZero() && !source.TokenExpiry.IsZero() {
+		c.TokenExpiry = source.TokenExpiry
+		merged = true
+	}
+	return merged
 }
 
 func (c *Config) saveCredentialsFirst() error {
@@ -539,7 +586,9 @@ func (c *Config) save() error {
 	if err := cliutil.AtomicWritePrivateFile(c.Path, data, 0o600, 0o700); err != nil {
 		return err
 	}
-	c.scrubLegacyCredentials()
+	if err := c.scrubLegacyCredentials(); err != nil {
+		return fmt.Errorf("new config saved but credential migration incomplete: %w", err)
+	}
 	if !c.AgentcookieManagedByExternalStore() {
 		persisted.clearCredentialFields()
 	}
@@ -552,35 +601,34 @@ func (c *Config) save() error {
 	c.fileConfig.Headers = cloneStringMap(c.fileConfig.Headers)
 	return nil
 }
-func (c *Config) scrubLegacyCredentials() {
+func (c *Config) scrubLegacyCredentials() error {
 	if c.legacySourcePath == "" || c.legacySourcePath == c.Path {
-		return
+		return nil
 	}
 	if c.AgentcookieManagedByExternalStore() {
-		return
+		return nil
 	}
 	data, err := os.ReadFile(c.legacySourcePath)
 	if err != nil {
 		if !os.IsNotExist(err) {
-			fmt.Fprintf(os.Stderr, "warning: cannot read legacy config to scrub credentials: %v\n", err)
+			return fmt.Errorf("cannot read legacy config to scrub credentials: %w", err)
 		}
-		return
+		return nil
 	}
 	var legacy Config
 	if err := parseConfigData(data, &legacy, c.legacySourcePath, "legacy config path"); err != nil {
-		fmt.Fprintf(os.Stderr, "warning: cannot parse legacy config to scrub credentials: %v\n", err)
-		return
+		return fmt.Errorf("cannot parse legacy config to scrub credentials at %s", c.legacySourcePath)
 	}
 	legacy.clearCredentialFields()
 	scrubbed := legacy.persisted()
 	scrubbedData, err := marshalConfigData(scrubbed, c.legacySourcePath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "warning: cannot marshal scrubbed legacy config: %v\n", err)
-		return
+		return fmt.Errorf("cannot marshal scrubbed legacy config: %w", err)
 	}
 	if err := cliutil.AtomicWritePrivateFile(c.legacySourcePath, scrubbedData, 0o600, 0o700); err != nil {
-		fmt.Fprintf(os.Stderr, "warning: cannot write scrubbed legacy config: %v\n", err)
+		return fmt.Errorf("cannot write scrubbed legacy config: %w", err)
 	}
+	return nil
 }
 
 type persistedConfig struct {

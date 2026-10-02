@@ -288,7 +288,9 @@ Relocation is one-way. Unsetting `COPPER_HOME` does not move files back to platf
 
 Existing installs keep working because the platform-default rung matches the legacy layout. On the first auth write, stored secrets leave `config.toml` and are consolidated into `credentials.toml` under the data directory. Run `copper-pp-cli doctor --fail-on warn` to check path and credential-location warnings in automation.
 
-Installs that used the older `config.json` format are read as a fallback. On the next save, non-secret settings move to `config.toml`, and the old JSON file is scrubbed of credential fields.
+Installs that used the older `config.json` format are read as a fallback. If both formats exist, TOML settings take priority and missing typed credential fields are read from JSON. On the next auth save, those fields move to `credentials.toml`, non-secret settings move to `config.toml`, and the old JSON is scrubbed. A failed scrub returns an incomplete-migration error; `doctor` warns while old typed credentials remain or cannot be checked. Agentcookie-managed configs keep their existing external-store behavior.
+
+Custom `headers` entries remain in config files. The migration cannot tell whether a custom header contains a secret, so review old JSON headers manually and move any credential-valued header to a supported auth field before relying on the scrub.
 
 ## Commands
 

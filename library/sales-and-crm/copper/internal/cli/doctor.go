@@ -469,8 +469,13 @@ func collectCredentialsLocationReport(report map[string]any, cfg *config.Config)
 		locations = append(locations, "credentials file")
 	}
 	legacySecretsElsewhere := ""
+	var unverifiedPaths []string
 	for _, path := range legacyCredentialProbePaths(cfg) {
 		ok, err := config.FileHasCredentialFields(path)
+		if err != nil && !errors.Is(err, os.ErrNotExist) {
+			unverifiedPaths = append(unverifiedPaths, path)
+			continue
+		}
 		if err == nil && ok {
 			locations = append(locations, path)
 			if path != cfg.Path {
@@ -481,12 +486,17 @@ func collectCredentialsLocationReport(report map[string]any, cfg *config.Config)
 	if len(locations) > 0 {
 		report["credentials_locations"] = locations
 	}
-	if credsPresent && len(locations) > 1 {
-		if legacySecretsElsewhere != "" {
-			report["credentials_location_warning"] = "WARN credentials stored in more than one location; legacy secrets remain at " + legacySecretsElsewhere + "; run auth set-token or auth logout to consolidate and remove legacy secrets"
-		} else {
-			report["credentials_location_warning"] = "WARN credentials stored in more than one location; current reads use credentials file; run auth set-token or auth logout to consolidate"
+	if legacySecretsElsewhere != "" {
+		report["credentials_location_warning"] = "WARN legacy secrets remain at " + legacySecretsElsewhere + "; run auth set-token or auth logout to consolidate and remove legacy secrets"
+	} else if credsPresent && len(locations) > 1 {
+		report["credentials_location_warning"] = "WARN credentials stored in more than one location; current reads use credentials file; run auth set-token or auth logout to consolidate"
+	}
+	if len(unverifiedPaths) > 0 {
+		warning, _ := report["credentials_location_warning"].(string)
+		if warning != "" {
+			warning += "; "
 		}
+		report["credentials_location_warning"] = warning + "WARN cannot verify credential scrub at " + strings.Join(unverifiedPaths, ", ") + "; inspect these files manually"
 	}
 }
 
@@ -504,9 +514,13 @@ func legacyCredentialProbePaths(cfg *config.Config) []string {
 		// Probe only the active config; a same-dir standard-named file may
 		// belong to an unrelated CLI sharing that directory.
 		add(cfg.Path)
+		add(cfg.LegacySourcePath())
 	}
 	if legacyPath, err := config.LegacyConfigPath(); err == nil {
 		add(legacyPath)
+	}
+	if legacyJSONPath, err := config.LegacyJSONConfigPath(); err == nil {
+		add(legacyJSONPath)
 	}
 	return paths
 }
