@@ -7,6 +7,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var version string
+
 // NewRootCommand constructs the complete gfonts command tree.
 func NewRootCommand() *cobra.Command {
 	rootCmd := &cobra.Command{
@@ -20,7 +22,7 @@ func NewRootCommand() *cobra.Command {
 		},
 		Version: version,
 	}
-	rootCmd.SetVersionTemplate("gfonts-pp-cli {{.Version}}\n")
+	rootCmd.SetVersionTemplate("gfonts {{.Version}}\n")
 	rootCmd.SetHelpFunc(func(cmd *cobra.Command, _ []string) {
 		if cmd == rootCmd {
 			printUsage()
@@ -41,7 +43,8 @@ func NewRootCommand() *cobra.Command {
 }
 
 // Execute runs the CLI and returns a process exit code.
-func Execute() int {
+func Execute(binaryVersion string) int {
+	version = binaryVersion
 	if err := NewRootCommand().Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return 1
@@ -55,7 +58,7 @@ func newVersionCmd() *cobra.Command {
 		Short: "Print the gfonts version",
 		Args:  cobra.NoArgs,
 		Run: func(_ *cobra.Command, _ []string) {
-			fmt.Printf("gfonts-pp-cli %s\n", version)
+			fmt.Printf("gfonts %s\n", version)
 		},
 	}
 }

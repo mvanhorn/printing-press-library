@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 
 	ppclient "github.com/mvanhorn/printing-press-library/library/developer-tools/gfonts/internal/client"
 )
@@ -583,7 +584,7 @@ func cmdDownload(args []string) {
 	}
 
 	if outDir == "" {
-		outDir = strings.ReplaceAll(font.Family, " ", "-")
+		outDir = fontOutputStem(font.Family)
 	}
 	if err := os.MkdirAll(outDir, 0755); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: create output directory: %v\n", err)
@@ -600,7 +601,7 @@ func cmdDownload(args []string) {
 		} else if strings.Contains(e.URL, ".woff") {
 			ext = ".woff"
 		}
-		filename := strings.ReplaceAll(font.Family, " ", "-") + "-" + e.Variant + ext
+		filename := fontOutputStem(font.Family) + "-" + e.Variant + ext
 		outPath := filepath.Join(outDir, filename)
 
 		fmt.Fprintf(os.Stderr, "Downloading %s...\n", filename)
@@ -634,6 +635,26 @@ func cmdDownload(args []string) {
 
 func writeFontFile(path string, data []byte) error {
 	return os.WriteFile(path, data, 0644)
+}
+
+// Font names come from remote metadata. Keep their output component inside
+// the selected directory even if the metadata contains path separators.
+func fontOutputStem(family string) string {
+	var stem strings.Builder
+	for _, char := range family {
+		switch {
+		case unicode.IsLetter(char), unicode.IsDigit(char), char == '-', char == '_':
+			stem.WriteRune(char)
+		case unicode.IsSpace(char):
+			stem.WriteByte('-')
+		default:
+			stem.WriteByte('-')
+		}
+	}
+	if safe := strings.Trim(stem.String(), "-_"); safe != "" {
+		return safe
+	}
+	return "font"
 }
 
 func cmdTrending(args []string) {

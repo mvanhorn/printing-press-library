@@ -12,6 +12,7 @@
     "Makefile",
     "NOTICE",
     "README.md",
+    "AGENTS.md",
     "cmd/gfonts-pp-cli/main.go",
     "cmd/gfonts-pp-cli/main_test.go",
     "go.mod",
@@ -28,9 +29,8 @@
     "internal/cli/root_test.go",
     "internal/cli/search.go",
     "internal/cli/trending.go",
-    "internal/cli/version.go",
     "internal/client/client.go",
     "internal/client/client_test.go"
   ],
-  "validated_outcome": "Offline Go tests, vet, build, skill verification, JSON validation, and diff checks pass; no Google Fonts request was made."
+  "validated_outcome": "Offline Go tests cover cache safety, bounded responses, command-level read, size, and file-write failures, safe output names from remote metadata, and the existing subcommand version flag; vet, build, skill verification, JSON validation, and diff checks pass without a Google Fonts request."
 }

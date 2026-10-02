@@ -9,4 +9,4 @@ builds:
       - amd64
       - arm64
     ldflags:
-      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/gfonts/internal/cli.version={{.Version}}
+      - -s -w -X main.version={{.Version}}

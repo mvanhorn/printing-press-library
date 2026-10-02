@@ -23,4 +23,4 @@ Every command supports `gfonts <cmd> --help` with usage and examples.
 None. All endpoints are public.
 
 ## Cache
-Metadata cached at /tmp/gfonts-metadata-cache.json for 24 hours.
+Metadata is cached for 24 hours at `gfonts/metadata.json` under your user cache directory.

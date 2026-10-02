@@ -1,8 +1,15 @@
 package cli
 
 import (
+	"fmt"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -129,4 +136,103 @@ func TestWriteFontFileReportsCreationFailure(t *testing.T) {
 	if err := writeFontFile(path, []byte("font")); err == nil {
 		t.Fatal("writeFontFile unexpectedly succeeded for a missing parent")
 	}
+}
+
+func TestDownloadCommandFailures(t *testing.T) {
+	if endpoint := os.Getenv("GFONTS_TEST_ENDPOINT"); endpoint != "" {
+		target, err := url.Parse(endpoint)
+		if err != nil {
+			t.Fatal(err)
+		}
+		http.DefaultTransport = fontTestTransport{target: target, base: http.DefaultTransport}
+		cacheFile = filepath.Join(os.Getenv("GFONTS_TEST_CACHE"), "metadata.json")
+		root := NewRootCommand()
+		root.SetArgs([]string{"download", "Inter", "--output", os.Getenv("GFONTS_TEST_OUTPUT")})
+		if err := root.Execute(); err != nil {
+			t.Fatal(err)
+		}
+		return
+	}
+
+	for _, scenario := range []string{"failed_read", "oversized", "failed_file"} {
+		t.Run(scenario, func(t *testing.T) {
+			var server *httptest.Server
+			server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				switch r.URL.Path {
+				case "/metadata/fonts":
+					_, _ = io.WriteString(w, `{"familyMetadataList":[{"family":"Inter","fonts":{"regular":{}}}]}`)
+				case "/css2":
+					_, _ = fmt.Fprintf(w, "@font-face { src: url(%s/file); font-weight: 400; font-style: normal; }", server.URL)
+				case "/file":
+					switch scenario {
+					case "failed_read":
+						w.Header().Set("Content-Length", "10")
+						_, _ = io.WriteString(w, "short")
+					case "oversized":
+						_, _ = io.CopyN(w, fontTestBytes{}, (32<<20)+1)
+					default:
+						_, _ = io.WriteString(w, "font")
+					}
+				default:
+					http.NotFound(w, r)
+				}
+			}))
+			defer server.Close()
+			output := filepath.Join(t.TempDir(), "fonts")
+			if err := os.Mkdir(output, 0700); err != nil {
+				t.Fatal(err)
+			}
+			if scenario == "failed_file" {
+				if err := os.Mkdir(filepath.Join(output, "Inter-regular.ttf"), 0700); err != nil {
+					t.Fatal(err)
+				}
+			}
+			command := exec.Command(os.Args[0], "-test.run=^TestDownloadCommandFailures$")
+			command.Env = append(os.Environ(),
+				"GFONTS_TEST_ENDPOINT="+server.URL,
+				"GFONTS_TEST_CACHE="+t.TempDir(),
+				"GFONTS_TEST_OUTPUT="+output,
+			)
+			combined, err := command.CombinedOutput()
+			if err == nil || !strings.Contains(string(combined), "1 download(s) failed") {
+				t.Fatalf("download command err=%v output=%q, want nonzero exit with failure summary", err, combined)
+			}
+		})
+	}
+}
+
+func TestFontOutputStemStaysWithinSelectedDirectory(t *testing.T) {
+	for _, test := range []struct{ input, want string }{
+		{"Inter", "Inter"},
+		{"Noto Sans", "Noto-Sans"},
+		{"../../outside", "outside"},
+		{`..\\outside`, "outside"},
+		{"../", "font"},
+	} {
+		if got := fontOutputStem(test.input); got != test.want {
+			t.Errorf("fontOutputStem(%q) = %q, want %q", test.input, got, test.want)
+		}
+	}
+}
+
+type fontTestTransport struct {
+	target *url.URL
+	base   http.RoundTripper
+}
+
+func (transport fontTestTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	copyReq := req.Clone(req.Context())
+	copyURL := *req.URL
+	copyURL.Scheme, copyURL.Host = transport.target.Scheme, transport.target.Host
+	copyReq.URL, copyReq.Host = &copyURL, transport.target.Host
+	return transport.base.RoundTrip(copyReq)
+}
+
+type fontTestBytes struct{}
+
+func (fontTestBytes) Read(buf []byte) (int, error) {
+	for i := range buf {
+		buf[i] = 'f'
+	}
+	return len(buf), nil
 }
