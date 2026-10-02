@@ -1,0 +1,98 @@
+{
+  "live_check": {
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "features": [
+      {
+        "name": "Assumptions attached to quote",
+        "command": "route",
+        "example": "driveplaza-pp-cli route --from nerima --to sendai-minami --at 2026-10-10T08:00 --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Bilingual interchange identity",
+        "command": "interchanges",
+        "example": "driveplaza-pp-cli interchanges --query nerima --language en --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Directional facility evidence",
+        "command": "sapa list",
+        "example": "driveplaza-pp-cli sapa list --road 1040 --direction up --limit 5 --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Advisory uncertainty",
+        "command": "notices",
+        "example": "driveplaza-pp-cli notices --limit 5 --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Restriction and live-map handoffs",
+        "command": "handoff",
+        "example": "driveplaza-pp-cli handoff --agent",
+        "status": "pass"
+      }
+    ],
+    "binary_refresh": {
+      "action": "fresh",
+      "stage_path": "<CLI_DIR>/build/stage/bin/driveplaza-pp-cli",
+      "binary_path": "<CLI_DIR>/build/stage/bin/driveplaza-pp-cli",
+      "reason": "staged binary is newer than Go sources"
+    },
+    "ran_at": "2026-10-02T03:19:43.059064Z",
+    "status": "available",
+    "checked": 5,
+    "evaluated": 5,
+    "pass_rate_pct": 100
+  },
+  "scorecard": {
+    "api_name": "driveplaza",
+    "steinberger": {
+      "output_modes": 10,
+      "auth": 10,
+      "error_handling": 8,
+      "terminal_ux": 9,
+      "readme": 10,
+      "doctor": 10,
+      "agent_native": 10,
+      "mcp_quality": 9,
+      "mcp_description_quality": 10,
+      "mcp_token_efficiency": 10,
+      "mcp_remote_transport": 0,
+      "mcp_tool_design": 0,
+      "mcp_surface_strategy": 0,
+      "local_cache": 10,
+      "cache_freshness": 3,
+      "breadth": 9,
+      "vision": 7,
+      "workflows": 10,
+      "insight": 9,
+      "agent_workflow_readiness": 9,
+      "path_validity": 0,
+      "auth_protocol": 0,
+      "data_pipeline_integrity": 7,
+      "sync_correctness": 7,
+      "type_fidelity": 5,
+      "dead_code": 1,
+      "live_api_verification": 0,
+      "total": 78,
+      "percentage": 78
+    },
+    "competitor_scores": null,
+    "overall_grade": "B",
+    "gap_report": [
+      "dead_code scored 1/5 - needs improvement",
+      "MCP: 3 tools (3 public, 0 auth-required) — readiness: full"
+    ],
+    "unscored_dimensions": [
+      "mcp_remote_transport",
+      "mcp_tool_design",
+      "mcp_surface_strategy",
+      "path_validity",
+      "auth_protocol",
+      "live_api_verification"
+    ]
+  }
+}

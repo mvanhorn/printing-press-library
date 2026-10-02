@@ -1,0 +1,22 @@
+{
+  "promoted": true,
+  "library": "<CLI_DIR>",
+  "cli_name": "driveplaza-pp-cli",
+  "api_name": "driveplaza",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "version": null,
+  "source_fingerprint": "cf501c00b5ebd46f4a4561e17b768a338f1d9ccb8415e7b0e9ce40d6e75f3e53",
+  "package_binary_sha256": {
+    "bin/driveplaza-pp-cli": "2ac39aa8bbcb40bbfa0caeabf5f95ff4a4a1232b63ca50b191109f0441dd520a",
+    "bin/driveplaza-pp-mcp": "50a1ed5d4823bc2a19281d518e3c5f2e0e0513b970237eb30c475f9101eee2a5"
+  },
+  "stage_matches_package": true,
+  "local_handoff_smoke": {
+    "exit": 0,
+    "upstream_requests": 0,
+    "canonical_destinations": 8
+  }
+}

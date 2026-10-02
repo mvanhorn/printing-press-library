@@ -1,0 +1,64 @@
+{
+  "meta": {
+    "source": "live",
+    "provider": "NEXCO East / Drive Plaza",
+    "retrieved_at": "2026-10-02T02:56:18Z",
+    "timezone": "Asia/Tokyo",
+    "source_urls": [
+      "https://www.driveplaza.com/cms/news/traffic.xml"
+    ],
+    "upstream_requests": 1,
+    "warnings": []
+  },
+  "results": {
+    "items": [
+      {
+        "id": "https://www.e-nexco.co.jp/cms_assets/emergency/2026/10/01/261001_%E4%BA%8B%E6%95%85%E3%81%AB%E3%82%88%E3%82%8B%E9%80%9A%E8%A1%8C%E6%AD%A2%E3%82%81%E8%A7%A3%E9%99%A4%E3%81%AE%E3%81%8A%E7%9F%A5%E3%82%89%E3%81%9B.pdf",
+        "title": "【CA】東京湾アクアライン 事故による通行止め解除のお知らせ（１０月１日 １７時００分発表）",
+        "published_at": "2026-10-01T17:28:29+09:00",
+        "published_raw": "Thu, 01 Oct 2026 17:28:29 +0900",
+        "url": "https://www.e-nexco.co.jp/cms_assets/emergency/2026/10/01/261001_%E4%BA%8B%E6%95%85%E3%81%AB%E3%82%88%E3%82%8B%E9%80%9A%E8%A1%8C%E6%AD%A2%E3%82%81%E8%A7%A3%E9%99%A4%E3%81%AE%E3%81%8A%E7%9F%A5%E3%82%89%E3%81%9B.pdf",
+        "active_restriction": null
+      },
+      {
+        "id": "https://www.e-nexco.co.jp/pressroom/kanto/2026/0930/00016673.html",
+        "title": "【E14】館山自動車道　下り線　富津中央IC⇒富津竹岡ICおよび【E14】富津館山道路　上下線　富津竹岡IC～富浦IC　夜間通行止め延期のお知らせ",
+        "published_at": "2026-09-30T14:30:00+09:00",
+        "published_raw": "Wed, 30 Sep 2026 14:30:00 +0900",
+        "url": "https://www.e-nexco.co.jp/pressroom/kanto/2026/0930/00016673.html",
+        "active_restriction": null
+      },
+      {
+        "id": "https://www.e-nexco.co.jp/pressroom/tohoku/2026/0930/00016670.html",
+        "title": "【E4】東北自動車道　下り線　松尾八幡平IC⇒安代JCT　夜間通行止めのお知らせ",
+        "published_at": "2026-09-30T13:58:02+09:00",
+        "published_raw": "Wed, 30 Sep 2026 13:58:02 +0900",
+        "url": "https://www.e-nexco.co.jp/pressroom/tohoku/2026/0930/00016670.html",
+        "active_restriction": null
+      },
+      {
+        "id": "https://www.e-nexco.co.jp/cms_assets/emergency/2026/09/29/ad1f912790688541448a6f6d119948a6c4244cd3.pdf",
+        "title": "【C4】首都圏中央連絡自動車道 幸手IC 夜間ランプ閉鎖のお知らせ",
+        "published_at": "2026-09-29T19:06:25+09:00",
+        "published_raw": "Tue, 29 Sep 2026 19:06:25 +0900",
+        "url": "https://www.e-nexco.co.jp/cms_assets/emergency/2026/09/29/ad1f912790688541448a6f6d119948a6c4244cd3.pdf",
+        "active_restriction": null
+      },
+      {
+        "id": "https://www.e-nexco.co.jp/pressroom/hokkaido/2026/0929/00016652.html",
+        "title": "【E5】道央自動車道における夜間通行止めのお知らせ",
+        "published_at": "2026-09-29T13:58:00+09:00",
+        "published_raw": "Tue, 29 Sep 2026 13:58:00 +0900",
+        "url": "https://www.e-nexco.co.jp/pressroom/hokkaido/2026/0929/00016652.html",
+        "active_restriction": null
+      }
+    ],
+    "total": 100,
+    "offset": 0,
+    "limit": 5,
+    "next_offset": 5,
+    "scanned_items": 100,
+    "feed_updated_at": "2026-10-01T17:25:54+09:00",
+    "coverage": "Official Drive Plaza traffic advisory feed. Titles include releases, postponements and plans; active restriction status is unknown. Feed is not a comprehensive live-closure inventory."
+  }
+}

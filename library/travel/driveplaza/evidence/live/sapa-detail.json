@@ -1,0 +1,93 @@
+{
+  "meta": {
+    "source": "live",
+    "provider": "NEXCO East / Drive Plaza",
+    "retrieved_at": "2026-10-02T02:56:17Z",
+    "timezone": "Asia/Tokyo",
+    "source_urls": [
+      "https://en.driveplaza.com/sapa/1040/1040021/1/",
+      "https://www.driveplaza.com/sapa/1040/1040021/1/"
+    ],
+    "upstream_requests": 2,
+    "warnings": [
+      "Source warns that other operators' SA/PA data is dated 2006-03-31. Facility hours are weekday guidance and may vary on holidays. Availability is not an open-now guarantee."
+    ]
+  },
+  "results": {
+    "id": "1040/1040021/1",
+    "name_en": "HASUDA-SA",
+    "name_ja": "Pasar ( パサール ) Pasar蓮田(上り線)・東北自動車道",
+    "direction": "up",
+    "road_id": "1040",
+    "road_name": "Tohoku Expwy",
+    "url": "https://en.driveplaza.com/sapa/1040/1040021/1/",
+    "url_ja": "https://www.driveplaza.com/sapa/1040/1040021/1/",
+    "facility_sections": [
+      {
+        "category": "Light dining / Café / Restaurant",
+        "source_text": "Hours: 6：00 AM to 23：00 PM  | *Some stores are open 24 hours."
+      },
+      {
+        "category": "Souvenirs / Direct sales",
+        "source_text": "Open 24 hours  | *Duty-free shop Hours: 10：00 AM to 22：00 PM"
+      },
+      {
+        "category": "Gas station",
+        "source_text": "Open 24hours."
+      },
+      {
+        "category": "Power supply",
+        "source_text": "Open 24hours."
+      },
+      {
+        "category": "Daily supplies / Lifestyle",
+        "source_text": "Convenience store - 24 hours                                                          |                                                                                                              Vending machine corner - 24 hours                                                          |                                                                                                                                      ATM                                                          |                                                                                                              Electronic money                                                          |                                                                                                              Internet / Wi-Fi                                                          |"
+      },
+      {
+        "category": "Accommodation / Relaxation",
+        "source_text": "Powder corner                                                          |                                                                                                              Smoking room"
+      },
+      {
+        "category": "medical",
+        "source_text": "AED"
+      },
+      {
+        "category": "Accessibility",
+        "source_text": "Parking space for disabled people                                                          |                                                                                                              Restroom for disabled people                                                          |                                                                                                              Ostomate restroom                                                          |                                                                                                              Free wheelchair lending service"
+      },
+      {
+        "category": "Expressway / ETC service",
+        "source_text": "Service area / Concierge                                                          |                                                                                                              Highway info terminal                                                          |                                                                                                                                                              Entrance from standard roads                                                          |                                                                                                              ETC usage log printer                                                          |                                                                                                              Highway stamps"
+      },
+      {
+        "category": "children",
+        "source_text": "Baby corner                                                          |                                                                                                              Kids' corner"
+      },
+      {
+        "category": "Pets",
+        "source_text": "Dog park                                                          |                                                                                                              Pet facilities"
+      }
+    ],
+    "nearby_directional_stops": [
+      {
+        "id": "1040/1040041/1",
+        "name": "HANYU-PA(UP)",
+        "url": "https://en.driveplaza.com/sapa/1040/1040041/1/",
+        "distance_km": 20
+      },
+      {
+        "id": "1110/1110230/1",
+        "name": "NIIKURA-PA(UP)",
+        "url": "https://en.driveplaza.com/sapa/1110/1110230/1/",
+        "distance_km": 27.9
+      },
+      {
+        "id": "1400/1400016/2",
+        "name": "MORIYA-SA(DOWN)",
+        "url": "https://en.driveplaza.com/sapa/1400/1400016/2/",
+        "distance_km": 27.9
+      }
+    ],
+    "hours_basis": "Source weekday guidance, copied verbatim; holiday exceptions and current open status unknown."
+  }
+}

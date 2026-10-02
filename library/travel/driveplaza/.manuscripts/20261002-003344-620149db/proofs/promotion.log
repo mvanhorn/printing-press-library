@@ -1,0 +1,6 @@
+{
+  "cli": "driveplaza-pp-cli",
+  "library_dir": "<CLI_DIR>",
+  "preserved_patches": [],
+  "promoted": true
+}

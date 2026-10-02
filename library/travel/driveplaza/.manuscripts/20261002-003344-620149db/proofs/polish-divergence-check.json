@@ -1,0 +1,11 @@
+{
+  "status": "not-found",
+  "canonical_workdir": "<CLI_DIR>",
+  "searched_roots": [
+    "<USER_HOME>/Projects",
+    "<PRESS_HOME>",
+    "<PRESS_HOME>-library"
+  ],
+  "validated_public_clones": [],
+  "library_target_existed": false
+}

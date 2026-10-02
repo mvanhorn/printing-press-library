@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "checked_at": "2026-10-02T12:40:55.120721+00:00",
+  "files_omitted": [
+    "driveplaza-cli",
+    "MAX-HANDOFF.md",
+    "evidence/run-state.json",
+    "evidence/MAX-overlay-path.txt",
+    ".manuscripts/20261002-003344-620149db/proofs/20261002-dogfood-final.json",
+    ".manuscripts/20261002-003344-620149db/proofs/20261002-dogfood-results.json"
+  ],
+  "text_artifacts_sanitized": 59,
+  "vendor_prefix_scan": "Printing Press publish package passed; follow-up Tier 1 patterns zero matches",
+  "generic_bearer_matches": 0,
+  "private_host_path_matches": 0,
+  "credential_or_session_files": 0,
+  "additional_secret_scanner": "Neither gitleaks nor trufflehog was installed; mandatory binary scan and structural scan passed",
+  "pii_review": "All capitalized names are provider road/place/API vocabulary, public license attribution, framework terms, or deterministic test fixtures. Email patterns are example/test fixtures, a literal image filename, and reserved example domains; no live workspace PII was present.",
+  "fixture_exceptions": [
+    "support+urgent@example.co.uk and a@b.io are explicit PII detector test inputs",
+    "Eli Escobar and Will Smith are existing framework test strings",
+    "Matt Van Horn and Trevin Chow are public upstream NOTICE attribution",
+    "Synthetic Org, Alpha United and Zephyr Cup are named deterministic fixtures"
+  ],
+  "source_changes": "No Go or dependency files changed during privacy cleanup; canonical module/import rewrite was performed by publish package."
+}

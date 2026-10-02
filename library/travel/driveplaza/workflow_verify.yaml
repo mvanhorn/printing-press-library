@@ -1,0 +1,22 @@
+workflows:
+  - name: Resolve an IC, quote a journey and inspect a directional stop
+    primary: true
+    steps:
+      - command: interchanges --query nerima --language en --no-learn
+        mode: live
+        expect_fields: [meta, results]
+      - command: route --from nerima --to sendai-minami --at 2026-10-10T08:00 --payment etc --no-learn
+        mode: live
+        expect_fields: [meta, results]
+      - command: sapa list --road 1040 --query hasuda --direction up --limit 1 --no-learn
+        mode: live
+        expect_fields: [meta, results]
+      - command: sapa detail --id 1040/1040021/1 --no-learn
+        mode: live
+        expect_fields: [meta, results]
+      - command: notices --limit 3 --no-learn
+        mode: live
+        expect_fields: [meta, results]
+      - command: handoff --no-learn
+        mode: local
+        expect_fields: [meta, results]

@@ -1,0 +1,25 @@
+{
+  "status": "pass",
+  "checks": [
+    {
+      "tool": "context",
+      "status": "pass",
+      "output_bytes": 6036
+    },
+    {
+      "tool": "reference_rest_form",
+      "status": "pass",
+      "output_bytes": 12215
+    },
+    {
+      "tool": "reference_route_form",
+      "status": "pass",
+      "output_bytes": 12111
+    },
+    {
+      "tool": "reference_schedule",
+      "status": "pass",
+      "output_bytes": 668
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "status": "pass",
+  "checks": [
+    {
+      "name": "vehicle-medium",
+      "exit": 0,
+      "elapsed_ms": 864,
+      "stdout_bytes": 2291,
+      "upstream_requests": 1,
+      "standard_jpy": 10110
+    },
+    {
+      "name": "vehicle-large",
+      "exit": 0,
+      "elapsed_ms": 869,
+      "stdout_bytes": 2294,
+      "upstream_requests": 1,
+      "standard_jpy": 13700
+    },
+    {
+      "name": "vehicle-extra-large",
+      "exit": 0,
+      "elapsed_ms": 847,
+      "stdout_bytes": 2300,
+      "upstream_requests": 1,
+      "standard_jpy": 22660
+    },
+    {
+      "name": "five-waypoints",
+      "exit": 0,
+      "elapsed_ms": 592,
+      "stdout_bytes": 1880,
+      "upstream_requests": 1
+    },
+    {
+      "name": "empty-stops-csv",
+      "exit": 0,
+      "elapsed_ms": 1280,
+      "stdout_bytes": 0
+    },
+    {
+      "name": "empty-notices-csv",
+      "exit": 0,
+      "elapsed_ms": 409,
+      "stdout_bytes": 0
+    },
+    {
+      "name": "timeout",
+      "exit": 5,
+      "elapsed_ms": 17,
+      "stdout_bytes": 0
+    },
+    {
+      "name": "scan-cap-empty",
+      "exit": 0,
+      "elapsed_ms": 1282,
+      "stdout_bytes": 901,
+      "upstream_requests": 2
+    }
+  ]
+}

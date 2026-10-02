@@ -1,0 +1,20 @@
+?   	driveplaza-pp-cli/cmd/driveplaza-pp-cli	[no test files]
+?   	driveplaza-pp-cli/cmd/driveplaza-pp-mcp	[no test files]
+?   	driveplaza-pp-cli/internal/cache	[no test files]
+ok  	driveplaza-pp-cli/internal/cli	1.527s
+?   	driveplaza-pp-cli/internal/cli/playbooks	[no test files]
+ok  	driveplaza-pp-cli/internal/client	(cached)
+ok  	driveplaza-pp-cli/internal/cliutil	(cached)
+?   	driveplaza-pp-cli/internal/cliutil/testenv	[no test files]
+?   	driveplaza-pp-cli/internal/config	[no test files]
+ok  	driveplaza-pp-cli/internal/driveplaza	(cached)
+ok  	driveplaza-pp-cli/internal/learn	1.203s
+ok  	driveplaza-pp-cli/internal/learn/entities	(cached)
+ok  	driveplaza-pp-cli/internal/learn/lookups	(cached)
+ok  	driveplaza-pp-cli/internal/learn/patterns	(cached)
+ok  	driveplaza-pp-cli/internal/mcp	1.435s
+ok  	driveplaza-pp-cli/internal/mcp/bound	(cached)
+ok  	driveplaza-pp-cli/internal/mcp/cobratree	(cached)
+ok  	driveplaza-pp-cli/internal/platform	(cached)
+ok  	driveplaza-pp-cli/internal/store	(cached)
+?   	driveplaza-pp-cli/internal/types	[no test files]

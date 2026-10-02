@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<NexcoIC>
+	<IcItem>
+		<Code>1040236</Code>
+		<Name>SENDAI-MINAMI</Name>
+		<Yomi></Yomi>
+		<Type>1</Type>
+		<RoadNo>1040</RoadNo>
+		<RoadName>【E4】Tohoku Expressway</RoadName>
+	</IcItem>
+</NexcoIC>
+

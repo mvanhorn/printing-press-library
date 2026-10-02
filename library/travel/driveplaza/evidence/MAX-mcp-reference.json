@@ -1,0 +1,115 @@
+{
+  "context": {
+    "api": "driveplaza",
+    "archetype": "generic",
+    "command_mirror_capabilities": [
+      {
+        "cli_command": "route",
+        "command": "route",
+        "description": "Keep vehicle, JST schedule and conditional toll assumptions beside route alternatives.",
+        "mcp_tool": "route",
+        "name": "Assumptions attached to quote",
+        "rationale": "Joins summary prices with source condition fields.",
+        "via": "mcp-command-mirror"
+      },
+      {
+        "cli_command": "interchanges",
+        "command": "interchanges",
+        "description": "Resolve English names to stable IDs and source Japanese names.",
+        "mcp_tool": "interchanges",
+        "name": "Bilingual interchange identity",
+        "rationale": "Matches IDs across public English and Japanese XML.",
+        "via": "mcp-command-mirror"
+      },
+      {
+        "cli_command": "sapa",
+        "command": "sapa",
+        "description": "Compare directional stops using source facility availability.",
+        "mcp_tool": "sapa",
+        "name": "Directional facility evidence",
+        "rationale": "Preserves directional IDs and excludes gray icons.",
+        "via": "mcp-command-mirror"
+      },
+      {
+        "cli_command": "notices",
+        "command": "notices",
+        "description": "Read dated traffic notices without mistaking them for active restrictions.",
+        "mcp_tool": "notices",
+        "name": "Advisory uncertainty",
+        "rationale": "Keeps source publication dates and unknown active status.",
+        "via": "mcp-command-mirror"
+      },
+      {
+        "cli_command": "handoff",
+        "command": "handoff",
+        "description": "Get official construction, ETC-lane and live-traffic URLs.",
+        "mcp_tool": "handoff",
+        "name": "Restriction and live-map handoffs",
+        "rationale": "Groups observed first-party handoff pages by purpose.",
+        "via": "mcp-command-mirror"
+      }
+    ],
+    "description": "Plan expressway journeys with source toll estimates, directional rest stops and official advisories.",
+    "learn_protocol": "1. Recall first: before answering a domain query, pass the question as an argv or MCP argument to recall --agent (never interpolate user-controlled text into a shell command line, quoted string, or heredoc: an apostrophe breaks quotes, and a body line equal to the delimiter breaks a heredoc). If a shell is required, write the question with a non-shell file tool, then QUERY=$(cat /path/to/question.txt) && recall \"$QUERY\" --agent. Apply any verified learnings, playbook steps, and notes it returns.\n2. Empty-store short-circuit: if the store has no learnings, playbooks, or candidates yet (recall finds nothing and learnings list and learnings candidates are both empty), skip recall for the rest of this session instead of taxing every query; resume recall-first once something has been taught.\n3. Candidates are try-then-confirm, never facts: entries in the recall envelope's candidates section are unverified. Follow each candidate's two-step next_action verbatim: run the trial command first, then run learnings confirm <id> only after the trial verified the behavior. Reject a wrong candidate with learnings reject <id>.\n4. Teach contract: after resolving a query the store could not answer, teach the structural query shape with identifiers stripped: never include names, emails, phone numbers, account ids, or other personal identifiers in taught queries or notes. Pass the query the same argv/MCP way as recall, or write it with a non-shell file tool then QUERY=$(cat /path/to/question.txt) && teach --query \"$QUERY\"; do not splice it into a shell command.\n5. Never re-teach what recall already surfaced as a candidate: confirm or reject that candidate instead of teaching a duplicate.",
+    "paths": {
+      "cache_dir": "<USER_HOME>/.cache/driveplaza-pp-cli",
+      "config_dir": "<USER_HOME>/.config/driveplaza-pp-cli",
+      "data_dir": "<USER_HOME>/.local/share/driveplaza-pp-cli",
+      "state_dir": "<USER_HOME>/.local/state/driveplaza-pp-cli"
+    },
+    "playbook": [
+      {
+        "insight": "Joins summary prices with source condition fields.",
+        "topic": "Assumptions attached to quote"
+      },
+      {
+        "insight": "Matches IDs across public English and Japanese XML.",
+        "topic": "Bilingual interchange identity"
+      },
+      {
+        "insight": "Preserves directional IDs and excludes gray icons.",
+        "topic": "Directional facility evidence"
+      },
+      {
+        "insight": "Keeps source publication dates and unknown active status.",
+        "topic": "Advisory uncertainty"
+      },
+      {
+        "insight": "Groups observed first-party handoff pages by purpose.",
+        "topic": "Restriction and live-map handoffs"
+      }
+    ],
+    "query_tips": [
+      "Pagination uses cursor-based paging. Pass after parameter for subsequent pages.",
+      "Control page size with the limit parameter (default 100).",
+      "Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
+      "Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
+      "Prefer sql/search over repeated API calls when the data is already synced."
+    ],
+    "resources": [
+      {
+        "description": "Inspect the official search forms and planned-work handoffs. Use route and sapa for parsed planning data.",
+        "endpoints": [
+          "rest_form",
+          "route_form",
+          "schedule"
+        ],
+        "name": "reference"
+      }
+    ],
+    "tool_count": 24,
+    "tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion driveplaza-pp-cli binary."
+  },
+  "reference_rest_form": {
+    "jsonrpc": "2.0",
+    "id": 3,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"_pp_truncated\":true,\"max_bytes\":60000,\"note\":\"Typed MCP endpoint response exceeded the tool result budget and was not a recognized list envelope. Narrow the request with filters, search/sql, or a command-mirror tool with --agent/--compact/--select.\",\"original_bytes\":83954,\"preview\":\"\\r\\n\\r\\n\\r\\n\\r\\n\\r\\n\\r\\n\\r\\n\\r\\n\\r\\n\\r\\n\\u003c!DOCTYPE html\\u003e\\r\\n\\u003chtml lang=\\\"en\\\"\\u003e\\r\\n\\u003chead\\u003e\\r\\n\\t\\u003cmeta charset=\\\"utf-8\\\"\\u003e\\r\\n\\t\\u003cmeta content=\\\"IE=edge\\\" http-equiv=\\\"X-UA-Compatible\\\"\\u003e\\r\\n\\t\\u003cmeta name=\\\"viewport\\\" content=\\\"width=device-width,minimum-scale=1,initial-scale=1\\\"\\u003e\\r\\n\\t\\u003cmeta name=\\\"format-detection\\\" content=\\\"telephone=no\\\"\\u003e\\r\\n\\r\\n\\u003ctitle\\u003eSearch for a service area by roadway name or area name | DoRaPuRa (NEXCO East)\\u003c/title\\u003e\\r\\n\\r\\n\\u003c!-- ページ専用 --\\u003e\\r\\n\\u003cmeta name=\\\"keywords\\\" content=\\\"Service area, parking area, search, roadway name, facility\\\"\\u003e\\r\\n\\u003cmeta name=\\\"description\\\" content=\\\"Search for a service area by roadway name, area name, facility, or service. The national expressway / service area information website “DoRaPuRa” (E-NEXCO Drive Plaza) is operated by the East Nippon Expressway Company. We help you create new memories with road trips and other automotive outings.\\\"\\u003e\\r\\n\\u003c!-- og --\\u003e\\r\\n\\u003cmeta property=\\\"og:title\\\" content=\\\"Search for a service area by roadway name or area name | DoRaPuRa (NEXCO East)\\\"\\u003e\\r\\n\\u003cmeta property=\\\"og:description\\\" content=\\\"Search for a service area by roadway name, area name, facility, or service. The national expressway / service area information website “DoRaPuRa” (E-NEXCO Drive Plaza) is operated by the East Nippon Expressway Company. We help you create new memories with road trips and other automotive outings.\\\"\\u003e\\r\\n\\u003cmeta property=\\\"og:type\\\" content=\\\"website\\\"\\u003e\\r\\n\\u003cmeta property=\\\"og:image\\\" content=\\\"https://www.driveplaza.com/assets/img/common/og_image.jpg\\\"\\u003e\\r\\n\\u003cmeta property=\\\"og:url\\\" content=\\\"https://en.driveplaza.com/dp/SAPAServiceEN\\\"\\u003e\\r\\n\\u003cmeta property=\\\"og:site_name\\\" content=\\\"DoRaPuRa (NEXCO East)\\\"\\u003e\\r\\n\\u003cmeta name=\\\"twitter:title\\\" content=\\\"Search for a service area by roadway name or area name | DoRaPuRa (NEXCO East)\\\"\\u003e\\r\\n\\u003cmeta name=\\\"twitter:description\\\" content=\\\"Search for a service area by roadway name, area name, facility, or service. The national expressway / service area information website “DoRaPuRa” (E-NEXCO Drive Plaza) is operated by the East Nippon Expressway Company. We help you create new memories with road trips and other automotive outings.\\\"\\u003e\\r\\n\\u003cmeta name=\\\"twitter:image\\\" content=\\\"https://www.driveplaza.com/assets/img/common/og_image.jpg\\\"\\u003e\\r\\n\\u003cmeta name=\\\"twitter:url\\\" content=\\\"https://en.driveplaza.com/dp/SAPAServiceEN\\\"\\u003e\\r\\n\\u003cmeta name=\\\"twitter:card\\\" content=\\\"summary_large_image\\\"\\u003e\\r\\n\\u003c!-- /og --\\u003e \\r\\n\\r\\n\\u003c!-- alternate canonical --\\u003e\\r\\n\\u003clink rel=\\\"canonical\\\" href=\\\"https://en.driveplaza.com/dp/SAPAServiceEN\\\"\\u003e\\r\\n\\u003c!-- /alternate canonical --\\u003e \\r\\n\\u003c!-- / ページ専用 --\\u003e \\r\\n\\r\\n\\r\\n\\u003c!-- icon --\\u003e\\r\\n\\u003clink rel=\\\"apple-touch-icon\\\" href=\\\"/assets/img/common/touch-icon-iphone.png\\\"\\u003e\\r\\n\\u003clink rel=\\\"apple-touch-icon\\\" sizes=\\\"76x76\\\" href=\\\"/assets/img/common/touch-icon-ipad.png\\\"\\u003e\\r\\n\\u003clink rel=\\\"apple-touch-icon\\\" sizes=\\\"120x120\\\" href=\\\"/assets/img/common/touch-icon-iphone-retina.png\\\"\\u003e\\r\\n\\u003clink rel=\\\"apple-touch-icon\\\" sizes=\\\"152x152\\\" href=\\\"/assets/img/common/touch-icon-ipad-retina.png\\\"\\u003e\\r\\n\\u003c!-- /icon --\\u003e\\r\\n\\r\\n\\u003c!-- Google Tag Manager --\\u003e\\r\\n\\u003cscript\\u003e(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'\\u0026l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-5NP3T8W');\\u003c/script\\u003e\\r\\n\\u003c!-- End Google Tag Manager --\\u003e\\r\\n\\r\\n\\r\\n\\u003c!-- サイト共通 CSS --\\u003e \\r\\n\\u003clink rel=\\\"preload\\\" href=\\\"https://fonts.googleapis.com/css?family=Ubuntu:700i%26display=swap\\\" as=\\\"style\\\" onload=\\\"this.onload=null;this.rel='stylesheet'\\\"\\u003e\\r\\n\\u003clink rel=\\\"stylesheet\\\" href=\\\"/assets/css/fontello.css\\\"\\u003e\\r\\n\\u003clink rel=\\\"stylesheet\\\" href=\\\"/assets/css/slick.css\\\"\\u003e\\r\\n\\u003clink rel=\\\"stylesheet\\\" href=\\\"/assets/css/style.css\\\"\\u003e\\r\\n\\u003clink rel=\\\"stylesheet\\\" href=\\\"/assets/css/langdiff.css\\\"\\u003e\\u003c!-- / サイト共通 CSS --\\u003e \\r\\n\\r\\n\\u003c!-- ページ専用 CSS --\\u003e\\r\\n\\u003clink rel=\\\"stylesheet\\\" href=\\\"/assets/css/jquery-ui-1.10.4.custom.min.css\\\"\\u003e\\r\\n\\u003clink rel=\\\"stylesheet\\\" href=\\\"/assets/css/dp/SAPAService/index.css\\\"\\u003e\\r\\n\\u003clink rel=\\\"stylesheet\\\" href=\\\"//driveplaza.com/css/jquery-ui-1.10.1.cust\",\"resumable\":false,\"truncated\":true}"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "meta": {
+    "source": "live",
+    "provider": "NEXCO East / Drive Plaza",
+    "retrieved_at": "2026-10-02T02:56:15Z",
+    "timezone": "Asia/Tokyo",
+    "source_urls": [
+      "https://en.driveplaza.com/dp/SAPAServiceEN",
+      "https://en.driveplaza.com/dp/SAPAServResEN?AREA=&HIGHWAY=1040&ITEM=9010&UP=1&arealist=0&arriveIcName=&keiroCodeCSV=&startIcName=",
+      "https://www.driveplaza.com/dp/SAPAServRes?AREA=&HIGHWAY=1040&ITEM=9010&UP=1&arealist=0&arriveIcName=&keiroCodeCSV=&startIcName="
+    ],
+    "upstream_requests": 3,
+    "warnings": [
+      "Source warns that other operators' SA/PA data is dated 2006-03-31. Facility hours are weekday guidance and may vary on holidays. Availability is not an open-now guarantee."
+    ]
+  },
+  "results": {
+    "items": [
+      {
+        "id": "1040/1040021/1",
+        "name_en": "HASUDA-SA(UP)",
+        "name_ja": "蓮田ＳＡ(上)",
+        "direction": "up",
+        "road_id": "1040",
+        "road_name": "【E4】Tohoku Expressway",
+        "url": "https://en.driveplaza.com/sapa/1040/1040021/1/",
+        "url_ja": "https://www.driveplaza.com/sapa/1040/1040021/1/",
+        "parking_large_spaces": 132,
+        "parking_small_spaces": 354,
+        "facility_categories": {
+          "accessibility": true,
+          "aed_medical": true,
+          "children": true,
+          "daily_supplies": true,
+          "ev_charging": true,
+          "expressway_etc": true,
+          "food": true,
+          "gas": true,
+          "pets": true,
+          "rest_accommodation": true,
+          "souvenirs": true
+        }
+      },
+      {
+        "id": "1040/1040041/1",
+        "name_en": "HANYU-PA(UP)",
+        "name_ja": "羽生ＰＡ(上)",
+        "direction": "up",
+        "road_id": "1040",
+        "road_name": "【E4】Tohoku Expressway",
+        "url": "https://en.driveplaza.com/sapa/1040/1040041/1/",
+        "url_ja": "https://www.driveplaza.com/sapa/1040/1040041/1/",
+        "parking_large_spaces": 148,
+        "parking_small_spaces": 114,
+        "facility_categories": {
+          "accessibility": true,
+          "aed_medical": true,
+          "children": true,
+          "daily_supplies": true,
+          "ev_charging": true,
+          "expressway_etc": true,
+          "food": true,
+          "gas": false,
+          "pets": false,
+          "rest_accommodation": true,
+          "souvenirs": true
+        }
+      },
+      {
+        "id": "1040/1040056/1",
+        "name_en": "SANO-SA(UP)",
+        "name_ja": "佐野ＳＡ(上)",
+        "direction": "up",
+        "road_id": "1040",
+        "road_name": "【E4】Tohoku Expressway",
+        "url": "https://en.driveplaza.com/sapa/1040/1040056/1/",
+        "url_ja": "https://www.driveplaza.com/sapa/1040/1040056/1/",
+        "parking_large_spaces": 72,
+        "parking_small_spaces": 189,
+        "facility_categories": {
+          "accessibility": true,
+          "aed_medical": true,
+          "children": true,
+          "daily_supplies": true,
+          "ev_charging": true,
+          "expressway_etc": true,
+          "food": true,
+          "gas": true,
+          "pets": true,
+          "rest_accommodation": true,
+          "souvenirs": true
+        }
+      }
+    ],
+    "total": 17,
+    "offset": 0,
+    "limit": 3,
+    "next_offset": 3,
+    "scanned_items": 17,
+    "max_scan_records": 500
+  }
+}

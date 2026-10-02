@@ -1,0 +1,64 @@
+{
+  "api_name": "driveplaza",
+  "base_url": "https://en.driveplaza.com",
+  "description": "Plan expressway journeys with source toll estimates, directional rest stops and official advisories.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "reference_rest_form",
+      "description": "Inspect the official English SA/PA search form. Returns the ReferencePage.",
+      "method": "GET",
+      "path": "/dp/SAPAServiceEN",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "reference_route_form",
+      "description": "Inspect the official English route form. Returns the ReferencePage.",
+      "method": "GET",
+      "path": "/dp/SearchTopEN",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "reference_schedule",
+      "description": "Inspect official planned-work handoffs. Returns the ReferencePage.",
+      "method": "GET",
+      "path": "/traffic/roadinfo/schedule/",
+      "no_auth": true,
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Assumptions attached to quote",
+      "command": "route",
+      "description": "Keep vehicle, JST schedule and conditional toll assumptions beside route alternatives."
+    },
+    {
+      "name": "Bilingual interchange identity",
+      "command": "interchanges",
+      "description": "Resolve English names to stable IDs and source Japanese names."
+    },
+    {
+      "name": "Directional facility evidence",
+      "command": "sapa list",
+      "description": "Compare directional stops using source facility availability."
+    },
+    {
+      "name": "Advisory uncertainty",
+      "command": "notices",
+      "description": "Read dated traffic notices without mistaking them for active restrictions."
+    },
+    {
+      "name": "Restriction and live-map handoffs",
+      "command": "handoff",
+      "description": "Get official construction, ETC-lane and live-traffic URLs."
+    }
+  ]
+}

@@ -1,0 +1,153 @@
+{
+  "dir": "<CLI_DIR>",
+  "spec_path": "<CLI_DIR>/spec.json",
+  "spec_source": "bundled",
+  "verdict": "FAIL",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 24,
+    "dead": 1,
+    "items": [
+      "maxAge"
+    ]
+  },
+  "dead_functions": {
+    "total": 107,
+    "dead": 5,
+    "items": [
+      "handleBinaryResponseDelivery",
+      "readSecretFromStdin",
+      "retainCLIQueryParams",
+      "retainExplicitQueryParams",
+      "successfulNoop"
+    ]
+  },
+  "pipeline_check": {
+    "sync_calls_domain": false,
+    "search_calls_domain": false,
+    "domain_tables": 4,
+    "sync_file_emitted": false,
+    "sync_resources_present": false,
+    "detail": "sync Upsert calls not found; search methods not found; 4 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 51,
+      "registered": 51
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "total_steps": 6,
+      "mapped_steps": 3,
+      "unmapped_steps": [
+        "route --from ${start_name} --to sendai-minami --at 2026-10-10T08:00 --payment etc --no-learn",
+        "sapa detail --id ${stop_id} --no-learn",
+        "sapa list --road 1040 --query hasuda --direction up --limit 1 --no-learn"
+      ],
+      "detail": "3/6 workflow steps mapped to commands"
+    }
+  },
+  "novel_features_check": {
+    "planned": 5,
+    "found": 5,
+    "depth_mismatches": [
+      {
+        "command": "sapa list",
+        "advertised": "sapa list",
+        "actual": "feedback list, learnings list, playbook list, profile list"
+      }
+    ]
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 5,
+    "exempted_via_store": 1,
+    "missing_data_source_strategy": [
+      {
+        "command": "route",
+        "file": "driveplaza_commands.go",
+        "reason": "conflicting // pp:data-source annotations: use exactly one of auto, local, live, or computed"
+      },
+      {
+        "command": "interchanges",
+        "file": "driveplaza_commands.go",
+        "reason": "conflicting // pp:data-source annotations: use exactly one of auto, local, live, or computed"
+      },
+      {
+        "command": "sapa list",
+        "file": "driveplaza_commands.go",
+        "reason": "conflicting // pp:data-source annotations: use exactly one of auto, local, live, or computed"
+      },
+      {
+        "command": "notices",
+        "file": "driveplaza_commands.go",
+        "reason": "conflicting // pp:data-source annotations: use exactly one of auto, local, live, or computed"
+      },
+      {
+        "command": "handoff",
+        "file": "driveplaza_commands.go",
+        "reason": "conflicting // pp:data-source annotations: use exactly one of auto, local, live, or computed"
+      }
+    ]
+  },
+  "description_drift_check": {
+    "expected": "Plan expressway journeys with source toll estimates, directional rest stops and official advisories."
+  },
+  "source_client_check": {
+    "checked": 11
+  },
+  "print_json_filtered_check": {
+    "checked": 31
+  },
+  "test_presence": {
+    "checked": 3
+  },
+  "naming_check": {
+    "checked": 31
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "1 dead flags found",
+    "5 dead helper functions found",
+    "sync uses generic Upsert only",
+    "3 unmapped workflow steps: route --from ${start_name} --to sendai-minami --at 2026-10-10T08:00 --payment etc --no-learn, sapa detail --id ${stop_id} --no-learn, sapa list --road 1040 --query hasuda --direction up --limit 1 --no-learn",
+    "1 novel feature command-depth mismatches: sapa list advertised as sapa list but registered as feedback list, learnings list, playbook list, profile list",
+    "5/5 novel features missing data-source strategy: route (driveplaza_commands.go) — conflicting // pp:data-source annotations: use exactly one of auto, local, live, or computed; interchanges (driveplaza_commands.go) — conflicting // pp:data-source annotations: use exactly one of auto, local, live, or computed; sapa list (driveplaza_commands.go) — conflicting // pp:data-source annotations: use exactly one of auto, local, live, or computed; notices (driveplaza_commands.go) — conflicting // pp:data-source annotations: use exactly one of auto, local, live, or computed; handoff (driveplaza_commands.go) — conflicting // pp:data-source annotations: use exactly one of auto, local, live, or computed"
+  ]
+}

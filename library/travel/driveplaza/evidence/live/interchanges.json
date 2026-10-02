@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "source": "live",
+    "provider": "NEXCO East / Drive Plaza",
+    "retrieved_at": "2026-10-02T02:56:08Z",
+    "timezone": "Asia/Tokyo",
+    "source_urls": [
+      "https://en.driveplaza.com/community/icsearch_api.php?ic_type=start&val_word=nerima",
+      "https://www.driveplaza.com/community/icsearch_fromcode_api.php?val_iccode=1800001"
+    ],
+    "upstream_requests": 2,
+    "warnings": []
+  },
+  "results": {
+    "items": [
+      {
+        "id": "1800001",
+        "name": "NERIMA",
+        "name_ja": "練馬",
+        "reading_ja": "ねりま",
+        "source_type": "1",
+        "road_id": "1800",
+        "road_name": "【E17】Kan-Etsu Expressway"
+      }
+    ],
+    "total": 1,
+    "offset": 0,
+    "limit": 3,
+    "next_offset": null,
+    "scanned_items": 1
+  }
+}

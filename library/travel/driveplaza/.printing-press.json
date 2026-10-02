@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-02T03:44:37.682816Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "driveplaza",
+  "display_name": "Drive Plaza",
+  "cli_name": "driveplaza-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "driveplaza-browser-sniff-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:cdcd28c9601d1336d675f0855c81269f0108086dc75ea78e5a9eb2353c9ab198",
+  "run_id": "20261002-003344-620149db",
+  "category": "travel",
+  "description": "Plan expressway journeys with source toll estimates, directional rest stops and official advisories.",
+  "mcp_binary": "driveplaza-pp-mcp",
+  "mcp_tool_count": 3,
+  "mcp_public_tool_count": 3,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Assumptions attached to quote",
+      "command": "route",
+      "description": "Keep vehicle, JST schedule and conditional toll assumptions beside route alternatives."
+    },
+    {
+      "name": "Bilingual interchange identity",
+      "command": "interchanges",
+      "description": "Resolve English names to stable IDs and source Japanese names."
+    },
+    {
+      "name": "Directional facility evidence",
+      "command": "sapa list",
+      "description": "Compare directional stops using source facility availability."
+    },
+    {
+      "name": "Advisory uncertainty",
+      "command": "notices",
+      "description": "Read dated traffic notices without mistaking them for active restrictions."
+    },
+    {
+      "name": "Restriction and live-map handoffs",
+      "command": "handoff",
+      "description": "Get official construction, ETC-lane and live-traffic URLs."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Assumptions attached to quote",
+      "command": "route",
+      "description": "Keep vehicle, JST schedule and conditional toll assumptions beside route alternatives."
+    },
+    {
+      "name": "Bilingual interchange identity",
+      "command": "interchanges",
+      "description": "Resolve English names to stable IDs and source Japanese names."
+    },
+    {
+      "name": "Directional facility evidence",
+      "command": "sapa list",
+      "description": "Compare directional stops using source facility availability."
+    },
+    {
+      "name": "Advisory uncertainty",
+      "command": "notices",
+      "description": "Read dated traffic notices without mistaking them for active restrictions."
+    },
+    {
+      "name": "Restriction and live-map handoffs",
+      "command": "handoff",
+      "description": "Get official construction, ETC-lane and live-traffic URLs."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 29,
+    "total": 29,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 80,
+      "grade": "A",
+      "total": 80
+    }
+  }
+}

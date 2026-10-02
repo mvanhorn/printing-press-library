@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/driveplaza-cli",
+  "research_dir": "\u003ccli-dir\u003e/20261002-003344-620149db",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

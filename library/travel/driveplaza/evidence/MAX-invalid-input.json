@@ -1,0 +1,10 @@
+[
+  {
+    "scenario": "--via",
+    "exit": 5
+  },
+  {
+    "scenario": "--from",
+    "exit": 5
+  }
+]

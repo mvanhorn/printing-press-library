@@ -1,0 +1,73 @@
+{
+  "version": "1.0",
+  "summary": {
+    "target_url": "https://www.driveplaza.com/traffic/roadinfo/schedule/",
+    "captured_at": "2026-10-02T01:43:25.751867+00:00",
+    "entry_count": 1,
+    "api_entry_count": 1,
+    "noise_entry_count": 0,
+    "host_distribution": {
+      "www.driveplaza.com": 1
+    }
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 1,
+    "reasons": [
+      "Native document HTTP200; sanitized earlier public HTTP replays contain useful structured data without cookies."
+    ],
+    "evidence": [
+      "browser-sniff-report.md",
+      "route.html",
+      "ic-en.xml",
+      "sapa-list.html"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "structured_html",
+      "confidence": 1,
+      "evidence": [
+        "Native CDP document sequence145/149 plus saved HTTP replay."
+      ]
+    }
+  ],
+  "auth": {
+    "candidates": [],
+    "captcha_preflight": false
+  },
+  "endpoint_clusters": [
+    {
+      "host": "www.driveplaza.com",
+      "method": "GET",
+      "path": "/traffic/roadinfo/schedule/",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "text/html"
+      ],
+      "size_class": "medium",
+      "response_shape": {
+        "kind": "html",
+        "fields": [
+          {
+            "name": "official_planned_work_links",
+            "type": "array"
+          }
+        ]
+      }
+    }
+  ],
+  "generation_hints": [
+    "structured_html_extraction"
+  ],
+  "warnings": [
+    {
+      "type": "limited_capture",
+      "message": "Earlier native route flow yielded no buffered network events. Saved form and public HTTP replay evidence is separately documented; no HAR fabricated.",
+      "confidence": 1
+    }
+  ]
+}

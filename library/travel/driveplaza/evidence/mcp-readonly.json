@@ -1,0 +1,46 @@
+{
+  "status": "pass",
+  "total_tools": 29,
+  "domain": [
+    {
+      "name": "conditions",
+      "read_only": true
+    },
+    {
+      "name": "handoff",
+      "read_only": true
+    },
+    {
+      "name": "interchanges",
+      "read_only": true
+    },
+    {
+      "name": "notices",
+      "read_only": true
+    },
+    {
+      "name": "roads",
+      "read_only": true
+    },
+    {
+      "name": "route",
+      "read_only": true
+    },
+    {
+      "name": "sapa",
+      "read_only": true
+    },
+    {
+      "name": "sapa_detail",
+      "read_only": true
+    },
+    {
+      "name": "sapa_facilities",
+      "read_only": true
+    },
+    {
+      "name": "sapa_list",
+      "read_only": true
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "verdict": "PASS",
+  "started_at": "2026-10-02T03:35:34Z",
+  "elapsed_ms": 17638,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T03:35:34Z",
+      "elapsed_ms": 6564,
+      "command": "<USER_HOME>/go/bin/cli-printing-press verify --dir <CLI_DIR> --write-manifest <CLI_DIR>/.printing-press.json --spec <CLI_DIR>/spec.yaml"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T03:35:40Z",
+      "elapsed_ms": 122,
+      "command": "<USER_HOME>/go/bin/cli-printing-press validate-narrative --strict --full-examples --research <RUN_DIR>/research.json --binary <CLI_DIR>/build/stage/bin/driveplaza-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T03:35:40Z",
+      "elapsed_ms": 2550,
+      "command": "<USER_HOME>/go/bin/cli-printing-press dogfood --dir <CLI_DIR> --spec <CLI_DIR>/spec.yaml --research-dir <RUN_DIR>"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T03:35:43Z",
+      "elapsed_ms": 5146,
+      "command": "<USER_HOME>/go/bin/cli-printing-press workflow-verify --dir <CLI_DIR>"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T03:35:48Z",
+      "elapsed_ms": 29,
+      "command": "<USER_HOME>/go/bin/cli-printing-press apify-audit --dir <CLI_DIR> --research-dir <RUN_DIR>"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T03:35:48Z",
+      "elapsed_ms": 1272,
+      "command": "<USER_HOME>/go/bin/cli-printing-press verify-skill --dir <CLI_DIR>"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T03:35:49Z",
+      "elapsed_ms": 1952,
+      "command": "<USER_HOME>/go/bin/cli-printing-press scorecard --dir <CLI_DIR> --write-manifest <CLI_DIR>/.printing-press.json --research-dir <RUN_DIR> --spec <CLI_DIR>/spec.yaml --live-check"
+    }
+  ]
+}

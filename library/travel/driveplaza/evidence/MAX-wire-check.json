@@ -1,0 +1,62 @@
+[
+  {
+    "sent_value": "1",
+    "status": 200,
+    "bytes": 186383,
+    "source_fields": [
+      {
+        "type": "checkbox",
+        "name": "roadType1",
+        "value": "on",
+        "id": "roadType1"
+      },
+      {
+        "type": "checkbox",
+        "name": "roadType2",
+        "value": "on",
+        "id": "roadType2"
+      },
+      {
+        "type": "hidden",
+        "name": "roadType1",
+        "value": "1"
+      },
+      {
+        "type": "hidden",
+        "name": "roadType2",
+        "value": "1"
+      }
+    ]
+  },
+  {
+    "sent_value": "on",
+    "status": 200,
+    "bytes": 200036,
+    "source_fields": [
+      {
+        "type": "checkbox",
+        "name": "roadType1",
+        "value": "on",
+        "id": "roadType1",
+        "checked": "checked"
+      },
+      {
+        "type": "checkbox",
+        "name": "roadType2",
+        "value": "on",
+        "id": "roadType2",
+        "checked": "checked"
+      },
+      {
+        "type": "hidden",
+        "name": "roadType1",
+        "value": "on"
+      },
+      {
+        "type": "hidden",
+        "name": "roadType2",
+        "value": "on"
+      }
+    ]
+  }
+]

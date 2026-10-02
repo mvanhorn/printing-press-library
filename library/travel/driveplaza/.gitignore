@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/driveplaza-pp-cli
+/driveplaza-pp-cli.exe
+/driveplaza-pp-mcp
+/driveplaza-pp-mcp.exe
+/bin/
+/build/
+/dist/

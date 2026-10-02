@@ -1,0 +1,296 @@
+{
+  "raw_findings": 29,
+  "hand_authored_unresolved": 0,
+  "findings": [
+    {
+      "file": "internal/client/client.go",
+      "line": "454",
+      "rule_id": "G119",
+      "severity": "HIGH",
+      "details": "Sensitive headers should not be re-added in redirect policy callbacks",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/platform/gate.go",
+      "line": "22",
+      "rule_id": "G101",
+      "severity": "HIGH",
+      "details": "Potential hardcoded credentials",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/cli/teach.go",
+      "line": "210",
+      "rule_id": "G703",
+      "severity": "HIGH",
+      "details": "Path traversal via taint analysis",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "3555-3558",
+      "rule_id": "G201",
+      "severity": "MEDIUM",
+      "details": "SQL string formatting",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "3252-3255",
+      "rule_id": "G201",
+      "severity": "MEDIUM",
+      "details": "SQL string formatting",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "1202",
+      "rule_id": "G201",
+      "severity": "MEDIUM",
+      "details": "SQL string formatting",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "1178",
+      "rule_id": "G201",
+      "severity": "MEDIUM",
+      "details": "SQL string formatting",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/store/learnings.go",
+      "line": "609",
+      "rule_id": "G202",
+      "severity": "MEDIUM",
+      "details": "SQL string concatenation",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/platform/migration.go",
+      "line": "156",
+      "rule_id": "G202",
+      "severity": "MEDIUM",
+      "details": "SQL string concatenation",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "Generated platform_migration.go.tmpl; VACUUM destination apostrophes are doubled before SQLite literal construction. No provider path invokes migration."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "253",
+      "rule_id": "G304",
+      "severity": "MEDIUM",
+      "details": "Potential file inclusion via variable",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/platform/ratelimit.go",
+      "line": "148",
+      "rule_id": "G304",
+      "severity": "MEDIUM",
+      "details": "Potential file inclusion via variable",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/platform/profile.go",
+      "line": "510",
+      "rule_id": "G304",
+      "severity": "MEDIUM",
+      "details": "Potential file inclusion via variable",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/learn/teach_log.go",
+      "line": "112",
+      "rule_id": "G304",
+      "severity": "MEDIUM",
+      "details": "Potential file inclusion via variable",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/learn/playbooks.go",
+      "line": "73",
+      "rule_id": "G304",
+      "severity": "MEDIUM",
+      "details": "Potential file inclusion via variable",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/config/config.go",
+      "line": "104",
+      "rule_id": "G304",
+      "severity": "MEDIUM",
+      "details": "Potential file inclusion via variable",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/cli/teach_playbook.go",
+      "line": "376",
+      "rule_id": "G304",
+      "severity": "MEDIUM",
+      "details": "Potential file inclusion via variable",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/cli/teach.go",
+      "line": "150",
+      "rule_id": "G304",
+      "severity": "MEDIUM",
+      "details": "Potential file inclusion via variable",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/cli/teach.go",
+      "line": "127",
+      "rule_id": "G304",
+      "severity": "MEDIUM",
+      "details": "Potential file inclusion via variable",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/cli/feedback.go",
+      "line": "204",
+      "rule_id": "G304",
+      "severity": "MEDIUM",
+      "details": "Potential file inclusion via variable",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/cli/feedback.go",
+      "line": "66",
+      "rule_id": "G304",
+      "severity": "MEDIUM",
+      "details": "Potential file inclusion via variable",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/learn/journal.go",
+      "line": "265",
+      "rule_id": "G117",
+      "severity": "MEDIUM",
+      "details": "Marshaled struct field \"SessionKey\" (JSON key \"session_key\") matches secret pattern",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/platform/profile.go",
+      "line": "302",
+      "rule_id": "G302",
+      "severity": "MEDIUM",
+      "details": "Expect file permissions to be 0600 or less",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/cliutil/testenv/testenv.go",
+      "line": "76",
+      "rule_id": "G302",
+      "severity": "MEDIUM",
+      "details": "Expect file permissions to be 0600 or less",
+      "classification": "reserved-framework",
+      "decision": "retro-candidate",
+      "rationale": "Generator-reserved test environment helper; 0700 is the required private directory permission rather than a 0600 file permission. Route to generator retro."
+    },
+    {
+      "file": "internal/cliutil/testenv/sandbox_unix.go",
+      "line": "15",
+      "rule_id": "G302",
+      "severity": "MEDIUM",
+      "details": "Expect file permissions to be 0600 or less",
+      "classification": "reserved-framework",
+      "decision": "retro-candidate",
+      "rationale": "Generator-reserved test environment helper; 0700 is the required private directory permission rather than a 0600 file permission. Route to generator retro."
+    },
+    {
+      "file": "internal/client/client.go",
+      "line": "800",
+      "rule_id": "G302",
+      "severity": "MEDIUM",
+      "details": "Expect file permissions to be 0600 or less",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "3343",
+      "rule_id": "G104",
+      "severity": "LOW",
+      "details": "Errors unhandled",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "3086",
+      "rule_id": "G104",
+      "severity": "LOW",
+      "details": "Errors unhandled",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/learn/journal.go",
+      "line": "278",
+      "rule_id": "G104",
+      "severity": "LOW",
+      "details": "Errors unhandled",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    },
+    {
+      "file": "internal/client/client.go",
+      "line": "1512",
+      "rule_id": "G104",
+      "severity": "LOW",
+      "details": "Errors unhandled",
+      "classification": "generator-template",
+      "decision": "retro-candidate",
+      "rationale": "DO-NOT-EDIT generated framework; retain for a generator-level fix/triage, as the polish skill requires. No finding in the hand-authored planning/client-hook/MCP-override paths."
+    }
+  ]
+}

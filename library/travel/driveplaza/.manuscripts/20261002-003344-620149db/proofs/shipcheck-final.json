@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "verdict": "PASS",
+  "started_at": "2026-10-02T02:23:57Z",
+  "elapsed_ms": 18607,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T02:23:57Z",
+      "elapsed_ms": 6961,
+      "command": "<USER_HOME>/go/bin/cli-printing-press verify --dir <CLI_DIR> --write-manifest <CLI_DIR>/.printing-press.json --spec <RUN_DIR>/research/driveplaza-browser-sniff-spec.yaml --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T02:24:04Z",
+      "elapsed_ms": 122,
+      "command": "<USER_HOME>/go/bin/cli-printing-press validate-narrative --strict --full-examples --research <RUN_DIR>/research.json --binary <CLI_DIR>/build/stage/bin/driveplaza-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T02:24:05Z",
+      "elapsed_ms": 2808,
+      "command": "<USER_HOME>/go/bin/cli-printing-press dogfood --dir <CLI_DIR> --spec <RUN_DIR>/research/driveplaza-browser-sniff-spec.yaml --research-dir <RUN_DIR>"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T02:24:07Z",
+      "elapsed_ms": 4995,
+      "command": "<USER_HOME>/go/bin/cli-printing-press workflow-verify --dir <CLI_DIR>"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T02:24:12Z",
+      "elapsed_ms": 22,
+      "command": "<USER_HOME>/go/bin/cli-printing-press apify-audit --dir <CLI_DIR> --research-dir <RUN_DIR>"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T02:24:12Z",
+      "elapsed_ms": 1320,
+      "command": "<USER_HOME>/go/bin/cli-printing-press verify-skill --dir <CLI_DIR>"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T02:24:14Z",
+      "elapsed_ms": 2375,
+      "command": "<USER_HOME>/go/bin/cli-printing-press scorecard --dir <CLI_DIR> --write-manifest <CLI_DIR>/.printing-press.json --research-dir <RUN_DIR> --spec <RUN_DIR>/research/driveplaza-browser-sniff-spec.yaml --live-check"
+    }
+  ]
+}

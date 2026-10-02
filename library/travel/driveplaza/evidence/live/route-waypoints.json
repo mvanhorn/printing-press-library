@@ -1,0 +1,49 @@
+{
+  "meta": {
+    "source": "live",
+    "provider": "NEXCO East / Drive Plaza",
+    "retrieved_at": "2026-10-02T02:56:23Z",
+    "timezone": "Asia/Tokyo",
+    "source_urls": [
+      "https://en.driveplaza.com/dp/SearchQuickEN?arrivePlaceKana=sendai-minami&carType=1&keiyuPlaceKana=tokorozawa&keiyuPlaceKana2=kawagoe&keiyuPlaceKana3=higashi-matsuyama&keiyuPlaceKana4=hanazono&keiyuPlaceKana5=honjo-kodama&kind=1&priority=2&searchDay=10&searchHour=8&searchMinute=0&searchMonth=10&searchYear=2026&selectickindflg=0&startPlaceKana=nerima"
+    ],
+    "upstream_requests": 1,
+    "warnings": []
+  },
+  "results": {
+    "assumptions": {
+      "from": "nerima",
+      "to": "sendai-minami",
+      "at_jst": "2026-10-10T08:00",
+      "vehicle": "standard",
+      "priority": "time",
+      "time_kind": "departure",
+      "payment": "standard",
+      "via": [
+        "tokorozawa",
+        "kawagoe",
+        "higashi-matsuyama",
+        "hanazono",
+        "honjo-kodama"
+      ],
+      "exclude_urban_expressways": false,
+      "exclude_ordinary_roads": false
+    },
+    "alternatives": [
+      {
+        "id": "route-1",
+        "standard_jpy": 2260,
+        "etc_jpy": 2260,
+        "etc2_jpy": 2260,
+        "selected_jpy": 2260,
+        "ignoring_traffic_minutes": 48,
+        "considering_traffic_minutes": 96,
+        "distance_km": 69.6,
+        "warnings": []
+      }
+    ],
+    "url": "https://en.driveplaza.com/dp/SearchQuickEN?arrivePlaceKana=sendai-minami&carType=1&keiyuPlaceKana=tokorozawa&keiyuPlaceKana2=kawagoe&keiyuPlaceKana3=higashi-matsuyama&keiyuPlaceKana4=hanazono&keiyuPlaceKana5=honjo-kodama&kind=1&priority=2&searchDay=10&searchHour=8&searchMinute=0&searchMonth=10&searchYear=2026&selectickindflg=0&startPlaceKana=nerima",
+    "timing_basis": "Provider ignoring/considering traffic estimates for the requested JST schedule; considering traffic is not guaranteed live-now travel time.",
+    "toll_basis": "JPY source estimates. ETC/ETC2.0 depend on actual card/device eligibility, route and timing; no local discount formula or guaranteed final charge."
+  }
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "command": "interchanges",
+    "resolved": true
+  },
+  {
+    "command": "roads",
+    "resolved": true
+  },
+  {
+    "command": "conditions",
+    "resolved": true
+  },
+  {
+    "command": "route",
+    "resolved": true
+  },
+  {
+    "command": "sapa list",
+    "resolved": true
+  },
+  {
+    "command": "sapa facilities",
+    "resolved": true
+  },
+  {
+    "command": "sapa detail",
+    "resolved": true
+  },
+  {
+    "command": "notices",
+    "resolved": true
+  },
+  {
+    "command": "handoff",
+    "resolved": true
+  }
+]

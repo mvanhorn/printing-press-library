@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-10-02T03:32:50.662368Z",
+  "cli_dir": "\u003ccli-dir\u003e/driveplaza-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated platform_client.go; List client profiles accurately enumerates local profiles, with show/use available separately. Richer automatic descriptions need a generator-template improvement."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 868,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated teach.go; List recorded learnings accurately lists local learning records rather than source data. Richer automatic descriptions need a generator-template improvement."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-10-02T03:21:41.831574Z"
+  },
+  "progress": {
+    "last_processed_finding_id": "thin-short:list:teach.go:868"
+  }
+}

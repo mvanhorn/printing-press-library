@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<NexcoIC>
+	<IcItem>
+		<Code>1800001</Code>
+		<Name>NERIMA</Name>
+		<Yomi></Yomi>
+		<Type>1</Type>
+		<RoadNo>1800</RoadNo>
+		<RoadName>【E17】Kan-Etsu Expressway</RoadName>
+	</IcItem>
+</NexcoIC>
+

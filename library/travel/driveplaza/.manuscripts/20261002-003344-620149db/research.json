@@ -1,0 +1,177 @@
+{
+  "api_name": "driveplaza",
+  "novelty_score": 7,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-02T01:44:50.922123Z",
+  "novel_features": [
+    {
+      "name": "Assumptions attached to quote",
+      "command": "route",
+      "description": "Keep vehicle, JST schedule and conditional toll assumptions beside route alternatives.",
+      "rationale": "Joins summary prices with source condition fields.",
+      "example": "driveplaza-pp-cli route --from nerima --to sendai-minami --at 2026-10-10T08:00 --agent",
+      "why_it_matters": "Keep vehicle, JST schedule and conditional toll assumptions beside route alternatives.",
+      "group": "Expressway planning"
+    },
+    {
+      "name": "Bilingual interchange identity",
+      "command": "interchanges",
+      "description": "Resolve English names to stable IDs and source Japanese names.",
+      "rationale": "Matches IDs across public English and Japanese XML.",
+      "example": "driveplaza-pp-cli interchanges --query nerima --language en --agent",
+      "why_it_matters": "Resolve English names to stable IDs and source Japanese names.",
+      "group": "Expressway planning"
+    },
+    {
+      "name": "Directional facility evidence",
+      "command": "sapa list",
+      "description": "Compare directional stops using source facility availability.",
+      "rationale": "Preserves directional IDs and excludes gray icons.",
+      "example": "driveplaza-pp-cli sapa list --road 1040 --direction up --limit 5 --agent",
+      "why_it_matters": "Compare directional stops using source facility availability.",
+      "group": "Rest-stop evidence"
+    },
+    {
+      "name": "Advisory uncertainty",
+      "command": "notices",
+      "description": "Read dated traffic notices without mistaking them for active restrictions.",
+      "rationale": "Keeps source publication dates and unknown active status.",
+      "example": "driveplaza-pp-cli notices --limit 5 --agent",
+      "why_it_matters": "Read dated traffic notices without mistaking them for active restrictions.",
+      "group": "Official handoffs"
+    },
+    {
+      "name": "Restriction and live-map handoffs",
+      "command": "handoff",
+      "description": "Get official construction, ETC-lane and live-traffic URLs.",
+      "rationale": "Groups observed first-party handoff pages by purpose.",
+      "example": "driveplaza-pp-cli handoff --agent",
+      "why_it_matters": "Get official construction, ETC-lane and live-traffic URLs.",
+      "group": "Official handoffs"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Assumptions attached to quote",
+      "command": "route",
+      "description": "Keep vehicle, JST schedule and conditional toll assumptions beside route alternatives.",
+      "rationale": "Joins summary prices with source condition fields.",
+      "example": "driveplaza-pp-cli route --from nerima --to sendai-minami --at 2026-10-10T08:00 --agent",
+      "why_it_matters": "Keep vehicle, JST schedule and conditional toll assumptions beside route alternatives.",
+      "group": "Expressway planning"
+    },
+    {
+      "name": "Bilingual interchange identity",
+      "command": "interchanges",
+      "description": "Resolve English names to stable IDs and source Japanese names.",
+      "rationale": "Matches IDs across public English and Japanese XML.",
+      "example": "driveplaza-pp-cli interchanges --query nerima --language en --agent",
+      "why_it_matters": "Resolve English names to stable IDs and source Japanese names.",
+      "group": "Expressway planning"
+    },
+    {
+      "name": "Directional facility evidence",
+      "command": "sapa list",
+      "description": "Compare directional stops using source facility availability.",
+      "rationale": "Preserves directional IDs and excludes gray icons.",
+      "example": "driveplaza-pp-cli sapa list --road 1040 --direction up --limit 5 --agent",
+      "why_it_matters": "Compare directional stops using source facility availability.",
+      "group": "Rest-stop evidence"
+    },
+    {
+      "name": "Advisory uncertainty",
+      "command": "notices",
+      "description": "Read dated traffic notices without mistaking them for active restrictions.",
+      "rationale": "Keeps source publication dates and unknown active status.",
+      "example": "driveplaza-pp-cli notices --limit 5 --agent",
+      "why_it_matters": "Read dated traffic notices without mistaking them for active restrictions.",
+      "group": "Official handoffs"
+    },
+    {
+      "name": "Restriction and live-map handoffs",
+      "command": "handoff",
+      "description": "Get official construction, ETC-lane and live-traffic URLs.",
+      "rationale": "Groups observed first-party handoff pages by purpose.",
+      "example": "driveplaza-pp-cli handoff --agent",
+      "why_it_matters": "Get official construction, ETC-lane and live-traffic URLs.",
+      "group": "Official handoffs"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Drive Plaza",
+    "headline": "Plan expressway journeys with source toll estimates, directional rest stops and official advisories.",
+    "value_prop": "Resolve interchanges and compare source route alternatives with explicit vehicle and JST schedule assumptions. Find directional SA/PA facilities and keep dated notices distinct from current road status.",
+    "auth_narrative": "Public read-only English and Japanese pages; no account, key or browser runtime is required.",
+    "quickstart": [
+      {
+        "command": "driveplaza-pp-cli doctor --dry-run",
+        "comment": "Check the local command setup."
+      },
+      {
+        "command": "driveplaza-pp-cli interchanges --query nerima --language en --agent",
+        "comment": "Resolve an exact English interchange name."
+      },
+      {
+        "command": "driveplaza-pp-cli route --from nerima --to sendai-minami --at 2026-10-10T08:00 --agent",
+        "comment": "Compare source alternatives with explicit JST assumptions."
+      },
+      {
+        "command": "driveplaza-pp-cli sapa list --road 1040 --direction up --limit 5 --agent",
+        "comment": "Find directional stops on Tohoku Expressway."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "English SA/PA name search returns no results",
+        "fix": "Use sapa list --road 1040 and filter locally with --query HASUDA."
+      },
+      {
+        "symptom": "Invalid planned time",
+        "fix": "Use --at YYYY-MM-DDTHH:MM in JST with minutes00,10,20,30,40 or50."
+      },
+      {
+        "symptom": "ETC quote differs from a later drive",
+        "fix": "Re-run route with your vehicle and planned time; quoted discounts depend on actual eligibility and travel."
+      }
+    ],
+    "when_to_use": "Use for Drive Plaza expressway route estimates, IC resolution, directional SA/PA facilities and official advisory links. Inspect source assumptions before comparing prices or travel times.",
+    "anti_triggers": [
+      "General street turn-by-turn routing",
+      "Comprehensive current traffic or active-closure inventory",
+      "Bookings, pass purchases or account changes"
+    ],
+    "recipes": [
+      {
+        "title": "Narrow directional stops",
+        "command": "driveplaza-pp-cli sapa list --road 1040 --limit 5 --agent --select items.id,items.name_ja,items.direction,items.url",
+        "explanation": "Keep stable identities and source links."
+      },
+      {
+        "title": "Inspect facilities and hours",
+        "command": "driveplaza-pp-cli sapa detail --id 1040/1040021/1 --agent",
+        "explanation": "Read directional HASUDA-SA UP sections and weekday hours."
+      },
+      {
+        "title": "Read traffic advisory notices",
+        "command": "driveplaza-pp-cli notices --limit 5 --agent",
+        "explanation": "Dated notices do not establish active road status."
+      },
+      {
+        "title": "Get official restriction pages",
+        "command": "driveplaza-pp-cli handoff --agent",
+        "explanation": "Check the construction, ETC-lane and live-map pages."
+      }
+    ],
+    "trigger_phrases": [
+      "compare Drive Plaza toll routes",
+      "find Tohoku rest stops",
+      "resolve a Japan expressway interchange",
+      "use driveplaza",
+      "run driveplaza"
+    ]
+  }
+}

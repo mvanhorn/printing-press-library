@@ -1,0 +1,1934 @@
+--- /dev/null
++++ internal/driveplaza/source.go
+@@ -0,0 +1,672 @@
++// Package driveplaza extracts bounded planning facts from public NEXCO East pages.
++package driveplaza
++
++import (
++	"context"
++	"errors"
++	"fmt"
++	"io"
++	"net/http"
++	"net/url"
++	"regexp"
++	"strings"
++	"time"
++
++	"driveplaza-pp-cli/internal/cliutil"
++)
++
++const English = "https://en.driveplaza.com"
++const Japanese = "https://www.driveplaza.com"
++const maxBody = 2 << 20
++
++var jst = time.FixedZone("JST", 9*60*60)
++var roadID = regexp.MustCompile(`^[0-9]{4}$`)
++var stopID = regexp.MustCompile(`^([0-9]{4})/([0-9]{7})/([12])$`)
++var icID = regexp.MustCompile(`^[0-9]{7}$`)
++
++// Client uses public HTTP only. One instance is scoped to one bounded command.
++type Client struct {
++	HTTP     *http.Client
++	EN, JP   string
++	limiter  *cliutil.AdaptiveLimiter
++	requests int
++	urls     []string
++	warnings []string
++}
++
++func New(rate float64) *Client {
++	if rate <= 0 || rate > 2 {
++		rate = 2
++	}
++	return &Client{EN: English, JP: Japanese, HTTP: &http.Client{Timeout: 20 * time.Second}, limiter: cliutil.NewAdaptiveLimiter(rate), urls: []string{}, warnings: []string{}}
++}
++
++type Meta struct {
++	Source      string   `json:"source"`
++	Provider    string   `json:"provider"`
++	RetrievedAt string   `json:"retrieved_at"`
++	Timezone    string   `json:"timezone"`
++	SourceURLs  []string `json:"source_urls"`
++	Requests    int      `json:"upstream_requests"`
++	Warnings    []string `json:"warnings"`
++}
++type Output[T any] struct {
++	Meta    Meta `json:"meta"`
++	Results T    `json:"results"`
++}
++type Page[T any] struct {
++	Items          []T    `json:"items"`
++	Total          int    `json:"total"`
++	Offset         int    `json:"offset"`
++	Limit          int    `json:"limit"`
++	NextOffset     *int   `json:"next_offset"`
++	ScannedItems   int    `json:"scanned_items"`
++	Note           string `json:"note,omitempty"`
++	ScanLimited    bool   `json:"scan_limited,omitempty"`
++	MaxScanRecords int    `json:"max_scan_records,omitempty"`
++}
++
++func page[T any](items []T, limit, offset, scanned int) Page[T] {
++	end := min(len(items), offset+limit)
++	start := min(len(items), offset)
++	out := Page[T]{Items: append([]T{}, items[start:end]...), Total: len(items), Offset: offset, Limit: limit, ScannedItems: scanned}
++	if end < len(items) {
++		out.NextOffset = &end
++	}
++	if len(out.Items) == 0 {
++		out.Note = "No matching records in this source response; this does not establish current road or facility status."
++	}
++	return out
++}
++func (c *Client) meta() Meta {
++	return Meta{Source: "live", Provider: "NEXCO East / Drive Plaza", RetrievedAt: time.Now().UTC().Format(time.RFC3339), Timezone: "Asia/Tokyo", SourceURLs: append([]string{}, c.urls...), Requests: c.requests, Warnings: append([]string{}, c.warnings...)}
++}
++func (c *Client) get(ctx context.Context, base, path string, q url.Values) ([]byte, error) {
++	if c.requests >= 40 {
++		return nil, fmt.Errorf("command reached the 40-request cap; reduce --limit")
++	}
++	if err := c.limiter.Wait(ctx); err != nil {
++		return nil, err
++	}
++	u := strings.TrimRight(base, "/") + path
++	if len(q) > 0 {
++		u += "?" + q.Encode()
++	}
++	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
++	if err != nil {
++		return nil, err
++	}
++	req.Header.Set("User-Agent", "driveplaza-pp-cli/0.1 public-readonly")
++	c.requests++
++	c.urls = append(c.urls, u)
++	resp, err := c.HTTP.Do(req)
++	if err != nil {
++		return nil, fmt.Errorf("fetch %s: %w; retry or check the source page", u, err)
++	}
++	defer resp.Body.Close()
++	if resp.StatusCode == http.StatusTooManyRequests {
++		c.limiter.OnRateLimit()
++		return nil, &cliutil.RateLimitError{URL: u, RetryAfter: cliutil.RetryAfter(resp)}
++	}
++	if resp.StatusCode != http.StatusOK {
++		return nil, fmt.Errorf("HTTP %d from %s; inspect the official source page", resp.StatusCode, u)
++	}
++	body, err := io.ReadAll(io.LimitReader(resp.Body, maxBody+1))
++	if err != nil {
++		return nil, fmt.Errorf("read source response: %w", err)
++	}
++	if len(body) > maxBody {
++		return nil, fmt.Errorf("source response exceeds 2 MiB cap; narrow the road or query")
++	}
++	c.limiter.OnSuccess()
++	return body, nil
++}
++func (c *Client) partial(err error, identity string) error {
++	var limited *cliutil.RateLimitError
++	if errors.As(err, &limited) || errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
++		return err
++	}
++	c.warnings = append(c.warnings, identity+": "+err.Error())
++	return nil
++}
++
++// RouteOptions are quote assumptions, not eligibility guarantees.
++type RouteOptions struct {
++	From            string   `json:"from"`
++	To              string   `json:"to"`
++	At              string   `json:"at_jst"`
++	Vehicle         string   `json:"vehicle"`
++	Priority        string   `json:"priority"`
++	TimeKind        string   `json:"time_kind"`
++	Payment         string   `json:"payment"`
++	Via             []string `json:"via"`
++	ExcludeUrban    bool     `json:"exclude_urban_expressways"`
++	ExcludeOrdinary bool     `json:"exclude_ordinary_roads"`
++}
++
++var vehicles = map[string]string{"light": "0", "standard": "1", "medium": "2", "large": "3", "extra-large": "4"}
++var priorities = map[string]string{"distance": "1", "time": "2", "toll": "3"}
++var timeKinds = map[string]string{"departure": "1", "arrival": "2"}
++
++// ValidateRoute validates a real JST minute and preserves the form's 10-minute increments.
++func ValidateRoute(o RouteOptions) (url.Values, error) {
++	if strings.TrimSpace(o.From) == "" || strings.TrimSpace(o.To) == "" {
++		return nil, fmt.Errorf("--from and --to require exact English IC names; resolve them with interchanges --language en")
++	}
++	if len(o.From) > 100 || len(o.To) > 100 || len(o.Via) > 5 {
++		return nil, fmt.Errorf("IC names must be at most100 bytes; --via accepts at most5 waypoints")
++	}
++	t, err := time.ParseInLocation("2006-01-02T15:04", o.At, jst)
++	if err != nil || t.Format("2006-01-02T15:04") != o.At || t.Minute()%10 != 0 {
++		return nil, fmt.Errorf("--at must be YYYY-MM-DDTHH:MM in JST, with minutes00,10,20,30,40 or50")
++	}
++	v, ok := vehicles[o.Vehicle]
++	if !ok {
++		return nil, fmt.Errorf("--vehicle must be light, standard, medium, large or extra-large")
++	}
++	p, ok := priorities[o.Priority]
++	if !ok {
++		return nil, fmt.Errorf("--priority must be time, distance or toll")
++	}
++	k, ok := timeKinds[o.TimeKind]
++	if !ok {
++		return nil, fmt.Errorf("--time-kind must be departure or arrival")
++	}
++	if o.Payment != "standard" && o.Payment != "etc" && o.Payment != "etc2" {
++		return nil, fmt.Errorf("--payment must be standard, etc or etc2; it selects a source column, not a discount formula")
++	}
++	q := url.Values{"startPlaceKana": {strings.TrimSpace(o.From)}, "arrivePlaceKana": {strings.TrimSpace(o.To)}, "searchYear": {t.Format("2006")}, "searchMonth": {fmt.Sprint(int(t.Month()))}, "searchDay": {fmt.Sprint(t.Day())}, "searchHour": {fmt.Sprint(t.Hour())}, "searchMinute": {fmt.Sprint(t.Minute())}, "kind": {k}, "carType": {v}, "priority": {p}, "selectickindflg": {"0"}}
++	for i := 0; i < 5; i++ {
++		key := "keiyuPlaceKana"
++		if i > 0 {
++			key += fmt.Sprint(i + 1)
++		}
++		q.Set(key, "")
++		if i < len(o.Via) {
++			if strings.TrimSpace(o.Via[i]) == "" || len(o.Via[i]) > 100 {
++				return nil, fmt.Errorf("--via requires nonempty English IC names of at most100 bytes")
++			}
++			q.Set(key, strings.TrimSpace(o.Via[i]))
++		}
++	}
++	if o.ExcludeUrban {
++		q.Set("roadType1", "1")
++	}
++	if o.ExcludeOrdinary {
++		q.Set("roadType2", "1")
++	}
++	return q, nil
++}
++
++func ValidPage(limit, offset int) error {
++	if limit < 1 || limit > 30 || offset < 0 || offset > 10000 {
++		return fmt.Errorf("--limit must be1..30 and --offset0..10000")
++	}
++	return nil
++}
++
++type Interchange struct {
++	ID       string  `json:"id"`
++	Name     string  `json:"name"`
++	NameJA   *string `json:"name_ja"`
++	Reading  *string `json:"reading_ja"`
++	Type     string  `json:"source_type"`
++	RoadID   *string `json:"road_id"`
++	RoadName *string `json:"road_name"`
++}
++type ICOptions struct {
++	Query, Language, Kind, Code, Road string
++	Limit, Offset                     int
++}
++
++func (c *Client) Interchanges(ctx context.Context, o ICOptions) (Output[Page[Interchange]], error) {
++	var out Output[Page[Interchange]]
++	if err := ValidPage(o.Limit, o.Offset); err != nil {
++		return out, err
++	}
++	if o.Language != "en" && o.Language != "ja" {
++		return out, fmt.Errorf("--language must be ja or en")
++	}
++	if o.Kind != "start" && o.Kind != "arrive" {
++		return out, fmt.Errorf("--kind must be start or arrive")
++	}
++	if o.Road != "" && !roadID.MatchString(o.Road) {
++		return out, fmt.Errorf("--road must be a4-digit road ID from roads")
++	}
++	if o.Code != "" && (!icID.MatchString(o.Code) || o.Query != "") {
++		return out, fmt.Errorf("use exactly one of --query or a7-digit --code")
++	}
++	if o.Code != "" && o.Road != "" {
++		return out, fmt.Errorf("--road cannot be combined with --code because code lookup does not provide road identity; use --query")
++	}
++	if o.Code == "" && (strings.TrimSpace(o.Query) == "" || len(o.Query) > 100) {
++		return out, fmt.Errorf("--query requires1..100 bytes, or use --code")
++	}
++	base, path, q := c.JP, "/community/icsearch_api.php", url.Values{"ic_type": {o.Kind}, "val_word": {o.Query}}
++	if o.Language == "en" {
++		base = c.EN
++	}
++	if o.Code != "" {
++		base = c.JP
++		path = "/community/icsearch_fromcode_api.php"
++		q = url.Values{"val_iccode": {o.Code}}
++	}
++	b, err := c.get(ctx, base, path, q)
++	if err != nil {
++		return out, err
++	}
++	items, err := parseIC(b, o.Language == "ja" || o.Code != "")
++	if err != nil {
++		return out, err
++	}
++	scanned := len(items)
++	filtered := []Interchange{}
++	for _, ic := range items {
++		if o.Road == "" || (ic.RoadID != nil && *ic.RoadID == o.Road) {
++			filtered = append(filtered, ic)
++		}
++	}
++	p := page(filtered, o.Limit, o.Offset, scanned)
++	if o.Language == "en" && o.Code == "" {
++		for i := range p.Items {
++			ic := &p.Items[i]
++			b, err := c.get(ctx, c.JP, "/community/icsearch_fromcode_api.php", url.Values{"val_iccode": {ic.ID}})
++			if err != nil {
++				if err = c.partial(err, "Japanese name for IC "+ic.ID); err != nil {
++					return out, err
++				}
++				continue
++			}
++			ja, err := parseIC(b, true)
++			if err == nil && len(ja) == 1 && ja[0].ID == ic.ID {
++				ic.NameJA = ja[0].NameJA
++				ic.Reading = ja[0].Reading
++			} else {
++				c.warnings = append(c.warnings, "Japanese name unavailable for IC "+ic.ID)
++			}
++		}
++	}
++	if o.Code != "" {
++		c.warnings = append(c.warnings, "Code lookup is the Japanese endpoint; it does not provide an English route-entry name or road ID.")
++	}
++	out = Output[Page[Interchange]]{Meta: c.meta(), Results: p}
++	return out, nil
++}
++
++type Road struct {
++	ID     string  `json:"id"`
++	NameEN string  `json:"name_en"`
++	NameJA *string `json:"name_ja"`
++}
++
++func (c *Client) Roads(ctx context.Context, query string, limit, offset int) (Output[Page[Road]], error) {
++	var out Output[Page[Road]]
++	if err := ValidPage(limit, offset); err != nil {
++		return out, err
++	}
++	b, err := c.get(ctx, c.EN, "/dp/SAPAServiceEN", nil)
++	if err != nil {
++		return out, err
++	}
++	en, err := parseRoads(b)
++	if err != nil {
++		return out, err
++	}
++	b, err = c.get(ctx, c.JP, "/dp/SAPAService", nil)
++	if err != nil {
++		if err = c.partial(err, "Japanese road catalog"); err != nil {
++			return out, err
++		}
++	} else {
++		ja, e := parseRoads(b)
++		if e != nil {
++			c.warnings = append(c.warnings, e.Error())
++		} else {
++			for i := range en {
++				for _, j := range ja {
++					if j.ID == en[i].ID {
++						en[i].NameJA = &j.NameEN
++						break
++					}
++				}
++			}
++		}
++	}
++	filtered := []Road{}
++	for _, r := range en {
++		ja := ""
++		if r.NameJA != nil {
++			ja = *r.NameJA
++		}
++		if contains(r.ID+" "+r.NameEN+" "+ja, query) {
++			filtered = append(filtered, r)
++		}
++	}
++	return Output[Page[Road]]{Meta: c.meta(), Results: page(filtered, limit, offset, len(en))}, nil
++}
++
++type Facility struct {
++	ID    string `json:"id"`
++	Label string `json:"label"`
++	Group bool   `json:"category_selection"`
++}
++
++func (c *Client) Facilities(ctx context.Context) (Output[[]Facility], error) {
++	var out Output[[]Facility]
++	b, err := c.get(ctx, c.EN, "/dp/SAPAServiceEN", nil)
++	if err != nil {
++		return out, err
++	}
++	items, err := parseFacilities(b)
++	if err != nil {
++		return out, err
++	}
++	return Output[[]Facility]{Meta: c.meta(), Results: items}, nil
++}
++
++type Stop struct {
++	ID                 string           `json:"id"`
++	NameEN             string           `json:"name_en"`
++	NameJA             *string          `json:"name_ja"`
++	Direction          string           `json:"direction"`
++	RoadID             string           `json:"road_id"`
++	RoadName           string           `json:"road_name"`
++	URL                string           `json:"url"`
++	URLJA              string           `json:"url_ja"`
++	ParkingLarge       *int             `json:"parking_large_spaces"`
++	ParkingSmall       *int             `json:"parking_small_spaces"`
++	FacilityCategories map[string]*bool `json:"facility_categories"`
++}
++type StopOptions struct {
++	Road, Direction, Query string
++	Facilities             []string
++	Open24                 bool
++	Limit, Offset          int
++	MaxScan                int
++}
++
++var sapaCaveat = "Source warns that other operators' SA/PA data is dated 2006-03-31. Facility hours are weekday guidance and may vary on holidays. Availability is not an open-now guarantee."
++
++func (c *Client) Stops(ctx context.Context, o StopOptions) (Output[Page[Stop]], error) {
++	var out Output[Page[Stop]]
++	if err := ValidPage(o.Limit, o.Offset); err != nil {
++		return out, err
++	}
++	if o.MaxScan == 0 {
++		o.MaxScan = 500
++	}
++	if o.MaxScan < 1 || o.MaxScan > 2000 {
++		return out, fmt.Errorf("--max-scan-records must be 1..2000")
++	}
++	if !roadID.MatchString(o.Road) {
++		return out, fmt.Errorf("--road requires a4-digit road ID from roads; nationwide scans are not supported")
++	}
++	if o.Direction != "both" && o.Direction != "up" && o.Direction != "down" {
++		return out, fmt.Errorf("--direction must be up, down or both; these are the source's directional identities")
++	}
++	q := url.Values{"HIGHWAY": {o.Road}, "AREA": {""}, "arealist": {"0"}, "keiroCodeCSV": {""}, "startIcName": {""}, "arriveIcName": {""}}
++	if o.Direction == "up" {
++		q.Set("UP", "1")
++	}
++	if o.Direction == "down" {
++		q.Set("DOWN", "1")
++	}
++	if o.Open24 {
++		q.Set("TM24", "1")
++	}
++	if len(o.Facilities) > 10 {
++		return out, fmt.Errorf("--facility accepts at most10 source facility IDs")
++	}
++	if len(o.Facilities) > 0 {
++		catalog, err := c.Facilities(ctx)
++		if err != nil {
++			return out, err
++		}
++		valid := map[string]bool{}
++		for _, f := range catalog.Results {
++			valid[f.ID] = true
++		}
++		for _, f := range o.Facilities {
++			if !valid[f] {
++				return out, fmt.Errorf("unknown --facility %q; list supported IDs with sapa facilities", f)
++			}
++			q.Add("ITEM", f)
++		}
++	}
++	b, err := c.get(ctx, c.EN, "/dp/SAPAServResEN", q)
++	if err != nil {
++		return out, err
++	}
++	items, err := parseStops(b, c.EN, c.JP)
++	if err != nil {
++		return out, err
++	}
++	scanLimited := len(items) > o.MaxScan
++	if scanLimited {
++		items = items[:o.MaxScan]
++	}
++	b, err = c.get(ctx, c.JP, "/dp/SAPAServRes", q)
++	if err != nil {
++		if err = c.partial(err, "Japanese SA/PA names"); err != nil {
++			return out, err
++		}
++	} else {
++		ja, e := parseStops(b, c.JP, c.JP)
++		if e != nil {
++			c.warnings = append(c.warnings, e.Error())
++		} else {
++			names := map[string]string{}
++			for _, s := range ja {
++				names[s.ID] = s.NameEN
++			}
++			for i := range items {
++				if n, ok := names[items[i].ID]; ok {
++					items[i].NameJA = &n
++				}
++			}
++		}
++	}
++	filtered := []Stop{}
++	for _, s := range items {
++		ja := ""
++		if s.NameJA != nil {
++			ja = *s.NameJA
++		}
++		if (o.Direction == "both" || s.Direction == o.Direction) && s.RoadID == o.Road && contains(s.NameEN+" "+ja, o.Query) {
++			filtered = append(filtered, s)
++		}
++	}
++	c.warnings = append(c.warnings, sapaCaveat)
++	p := page(filtered, o.Limit, o.Offset, len(items))
++	p.MaxScanRecords = o.MaxScan
++	p.ScanLimited = scanLimited
++	if scanLimited {
++		p.Note = fmt.Sprintf("Local filtering examined the first %d source records; total covers this scan only. Raise --max-scan-records to widen the scan.", o.MaxScan)
++	}
++	return Output[Page[Stop]]{Meta: c.meta(), Results: p}, nil
++}
++
++type FacilitySection struct {
++	Category string `json:"category"`
++	Text     string `json:"source_text"`
++}
++type StopLink struct {
++	ID         string   `json:"id"`
++	Name       string   `json:"name"`
++	URL        string   `json:"url"`
++	DistanceKM *float64 `json:"distance_km"`
++}
++type StopDetail struct {
++	ID         string            `json:"id"`
++	NameEN     string            `json:"name_en"`
++	NameJA     *string           `json:"name_ja"`
++	Direction  string            `json:"direction"`
++	RoadID     string            `json:"road_id"`
++	RoadName   string            `json:"road_name"`
++	URL        string            `json:"url"`
++	URLJA      string            `json:"url_ja"`
++	Sections   []FacilitySection `json:"facility_sections"`
++	Nearby     []StopLink        `json:"nearby_directional_stops"`
++	HoursBasis string            `json:"hours_basis"`
++}
++
++func (c *Client) Detail(ctx context.Context, id string) (Output[StopDetail], error) {
++	var out Output[StopDetail]
++	if !stopID.MatchString(id) {
++		return out, fmt.Errorf("--id must be road/area/direction, e.g.1040/1040021/1; direction1=up,2=down")
++	}
++	path := "/sapa/" + id + "/"
++	b, err := c.get(ctx, c.EN, path, nil)
++	if err != nil {
++		return out, err
++	}
++	detail, err := parseDetail(b, id, c.EN, c.JP)
++	if err != nil {
++		return out, err
++	}
++	b, err = c.get(ctx, c.JP, path, nil)
++	if err != nil {
++		if err = c.partial(err, "Japanese SA/PA detail name"); err != nil {
++			return out, err
++		}
++	} else {
++		n := japaneseDetailName(b)
++		if n != "" {
++			detail.NameJA = &n
++		} else {
++			c.warnings = append(c.warnings, "Japanese detail name missing in source response")
++		}
++	}
++	c.warnings = append(c.warnings, sapaCaveat)
++	return Output[StopDetail]{Meta: c.meta(), Results: detail}, nil
++}
++
++type RouteAlternative struct {
++	ID                 string     `json:"id"`
++	StandardJPY        *int       `json:"standard_jpy"`
++	ETCJPY             *int       `json:"etc_jpy"`
++	ETC2JPY            *int       `json:"etc2_jpy"`
++	SelectedJPY        *int       `json:"selected_jpy"`
++	IgnoringMinutes    *int       `json:"ignoring_traffic_minutes"`
++	ConsideringMinutes *int       `json:"considering_traffic_minutes"`
++	DistanceKM         *float64   `json:"distance_km"`
++	Warnings           []string   `json:"warnings"`
++	Stops              []StopLink `json:"directional_stops,omitempty"`
++	ForecastURLs       []string   `json:"forecast_urls,omitempty"`
++}
++type RouteQuote struct {
++	Assumptions  RouteOptions       `json:"assumptions"`
++	Alternatives []RouteAlternative `json:"alternatives"`
++	URL          string             `json:"url"`
++	TimingBasis  string             `json:"timing_basis"`
++	TollBasis    string             `json:"toll_basis"`
++}
++
++func (c *Client) Route(ctx context.Context, o RouteOptions, detail bool) (Output[RouteQuote], error) {
++	var out Output[RouteQuote]
++	q, err := ValidateRoute(o)
++	if err != nil {
++		return out, err
++	}
++	b, err := c.get(ctx, c.EN, "/dp/SearchQuickEN", q)
++	if err != nil {
++		return out, err
++	}
++	routes, err := parseRoutes(b, detail, c.EN)
++	if err != nil {
++		return out, err
++	}
++	doc := mustDocument(b)
++	sourceDate := text(first(doc, byClass("txt-date")))
++	sourceTime := text(first(doc, byClass("txt-time")))
++	if sourceDate != "" && sourceDate != strings.ReplaceAll(o.At[:10], "-", "/") {
++		return out, fmt.Errorf("source returned date%q instead of requested%s; no quote accepted", sourceDate, o.At)
++	}
++	if sourceTime != "" && sourceTime != o.At[11:] {
++		return out, fmt.Errorf("source returned time%q instead of requested%s; no quote accepted", sourceTime, o.At)
++	}
++	for i := range routes {
++		switch o.Payment {
++		case "etc":
++			routes[i].SelectedJPY = routes[i].ETCJPY
++		case "etc2":
++			routes[i].SelectedJPY = routes[i].ETC2JPY
++		default:
++			routes[i].SelectedJPY = routes[i].StandardJPY
++		}
++	}
++	if o.Via == nil {
++		o.Via = []string{}
++	}
++	quote := RouteQuote{Assumptions: o, Alternatives: routes, URL: c.EN + "/dp/SearchQuickEN?" + q.Encode(), TimingBasis: "Provider ignoring/considering traffic estimates for the requested JST schedule; considering traffic is not guaranteed live-now travel time.", TollBasis: "JPY source estimates. ETC/ETC2.0 depend on actual card/device eligibility, route and timing; no local discount formula or guaranteed final charge."}
++	return Output[RouteQuote]{Meta: c.meta(), Results: quote}, nil
++}
++
++type Notice struct {
++	ID           string  `json:"id"`
++	Title        string  `json:"title"`
++	PublishedAt  *string `json:"published_at"`
++	PublishedRaw string  `json:"published_raw"`
++	URL          string  `json:"url"`
++	ActiveStatus *bool   `json:"active_restriction"`
++}
++type NoticePage struct {
++	Page[Notice]
++	FeedUpdated *string `json:"feed_updated_at"`
++	Coverage    string  `json:"coverage"`
++}
++
++func (c *Client) Notices(ctx context.Context, query, since string, limit, offset int) (Output[NoticePage], error) {
++	var out Output[NoticePage]
++	if err := ValidPage(limit, offset); err != nil {
++		return out, err
++	}
++	var minDate time.Time
++	var err error
++	if since != "" {
++		minDate, err = time.ParseInLocation("2006-01-02", since, jst)
++		if err != nil {
++			return out, fmt.Errorf("--since must be a real YYYY-MM-DD JST date")
++		}
++	}
++	b, err := c.get(ctx, c.JP, "/cms/news/traffic.xml", nil)
++	if err != nil {
++		return out, err
++	}
++	items, updated, err := parseNotices(b)
++	if err != nil {
++		return out, err
++	}
++	filtered := []Notice{}
++	for _, n := range items {
++		if !contains(n.Title, query) {
++			continue
++		}
++		if since != "" {
++			if n.PublishedAt == nil {
++				continue
++			}
++			t, e := time.Parse(time.RFC3339, *n.PublishedAt)
++			if e != nil || t.Before(minDate) {
++				continue
++			}
++		}
++		filtered = append(filtered, n)
++	}
++	return Output[NoticePage]{Meta: c.meta(), Results: NoticePage{Page: page(filtered, limit, offset, len(items)), FeedUpdated: updated, Coverage: "Official Drive Plaza traffic advisory feed. Titles include releases, postponements and plans; active restriction status is unknown. Feed is not a comprehensive live-closure inventory."}}, nil
++}
++
++type Handoff struct {
++	Purpose  string `json:"purpose"`
++	URL      string `json:"url"`
++	Coverage string `json:"coverage"`
++}
++
++// Handoffs are observed canonical destinations and perform no navigation.
++func Handoffs() []Handoff {
++	return []Handoff{{"route_planner", English + "/dp/SearchTopEN", "Source route/toll estimates"}, {"rest_stop_search", English + "/dp/SAPAServiceEN", "Source directional SA/PA search"}, {"live_traffic", "https://en-www.drivetraffic.jp/map.html", "Check current information in the official map; this CLI does not extract live status"}, {"planned_restrictions", Japanese + "/traffic/roadinfo/schedule/", "Official operator links"}, {"east_construction", "https://www.drivetraffic.jp/construction-regulation/", "NEXCO East scheduled construction restrictions"}, {"east_etc_lanes", "https://www.drivetraffic.jp/lane/", "NEXCO East planned ETC-lane restrictions"}, {"central_construction", "https://www.c-nexco.co.jp/traffic/construction/", "NEXCO Central handoff"}, {"west_construction", "https://www.w-nexco.co.jp/traffic_info/construction/", "NEXCO West handoff"}}
++}
++
++func contains(haystack, query string) bool {
++	return strings.Contains(strings.ToLower(haystack), strings.ToLower(strings.TrimSpace(query)))
++}
+--- /dev/null
++++ internal/driveplaza/parse.go
+@@ -0,0 +1,440 @@
++package driveplaza
++
++import (
++	"bytes"
++	"encoding/xml"
++	"fmt"
++	"net/url"
++	"regexp"
++	"strconv"
++	"strings"
++	"time"
++
++	"driveplaza-pp-cli/internal/cliutil"
++	"golang.org/x/net/html"
++)
++
++func mustDocument(b []byte) *html.Node { n, _ := html.Parse(bytes.NewReader(b)); return n }
++
++type match func(*html.Node) bool
++
++func attr(n *html.Node, key string) string {
++	if n != nil {
++		for _, a := range n.Attr {
++			if a.Key == key {
++				return a.Val
++			}
++		}
++	}
++	return ""
++}
++func tag(name string) match {
++	return func(n *html.Node) bool { return n.Type == html.ElementNode && n.Data == name }
++}
++func byClass(name string) match {
++	return func(n *html.Node) bool { return strings.Contains(" "+attr(n, "class")+" ", " "+name+" ") }
++}
++func byAttr(k, v string) match {
++	return func(n *html.Node) bool { return n.Type == html.ElementNode && attr(n, k) == v }
++}
++func all(n *html.Node, m match) []*html.Node {
++	out := []*html.Node{}
++	var walk func(*html.Node)
++	walk = func(n *html.Node) {
++		if n == nil {
++			return
++		}
++		if m(n) {
++			out = append(out, n)
++		}
++		for c := n.FirstChild; c != nil; c = c.NextSibling {
++			walk(c)
++		}
++	}
++	walk(n)
++	return out
++}
++func first(n *html.Node, m match) *html.Node {
++	if n == nil {
++		return nil
++	}
++	if m(n) {
++		return n
++	}
++	for c := n.FirstChild; c != nil; c = c.NextSibling {
++		if f := first(c, m); f != nil {
++			return f
++		}
++	}
++	return nil
++}
++func text(n *html.Node) string {
++	var b strings.Builder
++	var walk func(*html.Node)
++	walk = func(n *html.Node) {
++		if n == nil || n.Type == html.CommentNode || (n.Type == html.ElementNode && (n.Data == "script" || n.Data == "style")) {
++			return
++		}
++		if n.Type == html.TextNode {
++			b.WriteString(n.Data)
++			b.WriteByte(' ')
++		}
++		if n.Data == "br" {
++			b.WriteString(" | ")
++		}
++		for c := n.FirstChild; c != nil; c = c.NextSibling {
++			walk(c)
++		}
++	}
++	walk(n)
++	return cliutil.CleanText(b.String())
++}
++func nullable(s string) *string {
++	s = strings.TrimSpace(s)
++	if s == "" {
++		return nil
++	}
++	return &s
++}
++func boolptr(b bool) *bool { return &b }
++func number(s string) *int {
++	s = strings.TrimSpace(strings.ReplaceAll(s, ",", ""))
++	if !regexp.MustCompile(`^[0-9]+$`).MatchString(s) {
++		return nil
++	}
++	n, e := strconv.Atoi(s)
++	if e != nil {
++		return nil
++	}
++	return &n
++}
++
++var durationPattern = regexp.MustCompile(`^(?:(\d+)h)?(?:(\d+)min)?$`)
++
++func minutes(s string) *int {
++	m := durationPattern.FindStringSubmatch(strings.ReplaceAll(s, " ", ""))
++	if len(m) != 3 || (m[1] == "" && m[2] == "") {
++		return nil
++	}
++	h, _ := strconv.Atoi(m[1])
++	v, _ := strconv.Atoi(m[2])
++	if v >= 60 {
++		return nil
++	}
++	n := h*60 + v
++	return &n
++}
++func distance(s string) *float64 {
++	s = strings.TrimSpace(strings.TrimSuffix(s, "km"))
++	n, e := strconv.ParseFloat(s, 64)
++	if e != nil || n < 0 {
++		return nil
++	}
++	return &n
++}
++
++func parseIC(b []byte, ja bool) ([]Interchange, error) {
++	var root struct {
++		XMLName xml.Name                                                    `xml:"NexcoIC"`
++		Items   []struct{ Code, Name, Yomi, Type, RoadNo, RoadName string } `xml:"IcItem"`
++	}
++	if err := xml.Unmarshal(b, &root); err != nil {
++		return nil, fmt.Errorf("expected public NexcoIC XML, source response changed: %w", err)
++	}
++	out := []Interchange{}
++	for _, i := range root.Items {
++		if !icID.MatchString(i.Code) || i.Name == "" {
++			return nil, fmt.Errorf("source IC record has missing identity")
++		}
++		item := Interchange{ID: i.Code, Name: i.Name, Type: i.Type, RoadID: nullable(i.RoadNo), RoadName: nullable(i.RoadName)}
++		if ja {
++			item.NameJA = nullable(i.Name)
++			item.Reading = nullable(i.Yomi)
++		}
++		out = append(out, item)
++	}
++	return out, nil
++}
++func parseRoads(b []byte) ([]Road, error) {
++	doc := mustDocument(b)
++	selectNode := first(doc, byAttr("name", "HIGHWAY"))
++	if selectNode == nil {
++		return nil, fmt.Errorf("source road catalog missing HIGHWAY select; source layout changed")
++	}
++	out := []Road{}
++	seen := map[string]bool{}
++	for _, o := range all(selectNode, tag("option")) {
++		id := attr(o, "value")
++		if !roadID.MatchString(id) || seen[id] {
++			continue
++		}
++		seen[id] = true
++		out = append(out, Road{ID: id, NameEN: text(o)})
++	}
++	if len(out) == 0 {
++		return nil, fmt.Errorf("source road catalog contains no road IDs")
++	}
++	return out, nil
++}
++func parseFacilities(b []byte) ([]Facility, error) {
++	doc := mustDocument(b)
++	out := []Facility{}
++	seen := map[string]bool{}
++	for _, n := range all(doc, byAttr("name", "ITEM")) {
++		id := attr(n, "value")
++		if id == "" || seen[id] {
++			continue
++		}
++		seen[id] = true
++		label := n.Parent
++		for label != nil && label.Data != "label" {
++			label = label.Parent
++		}
++		if label == nil {
++			return nil, fmt.Errorf("facility ID%s has no label", id)
++		}
++		out = append(out, Facility{ID: id, Label: text(label), Group: strings.HasPrefix(id, "770")})
++	}
++	if len(out) == 0 {
++		return nil, fmt.Errorf("source facility catalog missing ITEM inputs")
++	}
++	return out, nil
++}
++
++var sapaPath = regexp.MustCompile(`^/sapa/([0-9]{4}/[0-9]{7}/[12])/$`)
++
++func stopPath(href string) string {
++	u, err := url.Parse(href)
++	if err != nil {
++		return ""
++	}
++	if u.Host != "" && u.Host != "www.driveplaza.com" && u.Host != "en.driveplaza.com" {
++		return ""
++	}
++	return u.Path
++}
++
++var parkingPattern = regexp.MustCompile(`Large[：:]\s*(\d+)\s*[／/]\s*Small[：:]\s*(\d+)`)
++var iconPattern = regexp.MustCompile(`icon_shisetsu_(green|gray)_(\d{2})\.svg`)
++var categories = map[string]string{"01": "food", "02": "souvenirs", "03": "gas", "04": "ev_charging", "05": "daily_supplies", "06": "rest_accommodation", "07": "aed_medical", "08": "accessibility", "09": "expressway_etc", "10": "children", "11": "pets"}
++
++func parseStops(b []byte, en, jp string) ([]Stop, error) {
++	doc := mustDocument(b)
++	if first(doc, tag("h1")) == nil || first(doc, byAttr("name", "HIGHWAY")) == nil {
++		return nil, fmt.Errorf("source SA/PA result page contract missing; inspect official search")
++	}
++	out := []Stop{}
++	seen := map[string]bool{}
++	for _, box := range all(doc, byClass("box-sapa")) {
++		a := first(first(box, byClass("ttl-sapaName")), tag("a"))
++		m := sapaPath.FindStringSubmatch(stopPath(attr(a, "href")))
++		if len(m) != 2 {
++			continue
++		}
++		id := m[1]
++		if seen[id] {
++			continue
++		}
++		seen[id] = true
++		parts := strings.Split(id, "/")
++		direction := "up"
++		if parts[2] == "2" {
++			direction = "down"
++		}
++		fac := map[string]*bool{}
++		for _, category := range categories {
++			fac[category] = nil
++		}
++		for _, img := range all(first(box, byClass("li-icons")), tag("img")) {
++			m := iconPattern.FindStringSubmatch(attr(img, "src"))
++			if len(m) != 3 {
++				continue
++			}
++			category, ok := categories[m[2]]
++			if !ok {
++				continue
++			}
++			fac[category] = boolptr(m[1] == "green" && !byClass("none")(img.Parent))
++		}
++		p := parkingPattern.FindStringSubmatch(text(first(box, byClass("txt-info"))))
++		var large, small *int
++		if len(p) == 3 {
++			large = number(p[1])
++			small = number(p[2])
++		}
++		out = append(out, Stop{ID: id, NameEN: text(a), Direction: direction, RoadID: parts[0], RoadName: text(first(box, byClass("txt-road"))), URL: en + "/sapa/" + id + "/", URLJA: jp + "/sapa/" + id + "/", ParkingLarge: large, ParkingSmall: small, FacilityCategories: fac})
++	}
++	return out, nil
++}
++func parseDetail(b []byte, id, en, jp string) (StopDetail, error) {
++	doc := mustDocument(b)
++	name := text(first(doc, byClass("txt-title")))
++	if name == "" || first(doc, byClass("facility-wrap")) == nil {
++		return StopDetail{}, fmt.Errorf("source SA/PA detail identity or facility sections missing; source page changed")
++	}
++	parts := strings.Split(id, "/")
++	direction := "up"
++	if parts[2] == "2" {
++		direction = "down"
++	}
++	out := StopDetail{ID: id, NameEN: name, Direction: direction, RoadID: parts[0], RoadName: text(first(doc, byClass("txt-way"))), URL: en + "/sapa/" + id + "/", URLJA: jp + "/sapa/" + id + "/", Sections: []FacilitySection{}, Nearby: []StopLink{}, HoursBasis: "Source weekday guidance, copied verbatim; holiday exceptions and current open status unknown."}
++	for _, h := range all(first(doc, byClass("facility-wrap")), byClass("ttl-facility")) {
++		var parts []string
++		for p := h.NextSibling; p != nil; p = p.NextSibling {
++			if p.Type == html.ElementNode && p.Data == "h3" {
++				break
++			}
++			t := text(p)
++			if t != "" {
++				parts = append(parts, t)
++			}
++		}
++		out.Sections = append(out.Sections, FacilitySection{Category: text(h), Text: strings.Join(parts, " | ")})
++	}
++	seen := map[string]bool{id: true}
++	for _, a := range all(doc, tag("a")) {
++		m := sapaPath.FindStringSubmatch(stopPath(attr(a, "href")))
++		if len(m) != 2 || seen[m[1]] || text(a) == "" || strings.Contains(strings.ToLower(text(a)), "display") {
++			continue
++		}
++		seen[m[1]] = true
++		d := regexp.MustCompile(`([0-9]+(?:\.[0-9]+)?)\s*km`).FindStringSubmatch(text(a.Parent))
++		var km *float64
++		if len(d) == 2 {
++			km = distance(d[1])
++		}
++		out.Nearby = append(out.Nearby, StopLink{ID: m[1], Name: text(a), URL: en + "/sapa/" + m[1] + "/", DistanceKM: km})
++		if len(out.Nearby) >= 8 {
++			break
++		}
++	}
++	return out, nil
++}
++
++func japaneseDetailName(b []byte) string {
++	doc := mustDocument(b)
++	if n := text(first(doc, byClass("txt-title"))); n != "" {
++		return n
++	}
++	// Branded Pasar pages use a distinct layout; preserve their official
++	// Japanese title instead of inventing a transliteration.
++	n := attr(first(doc, byAttr("property", "og:title")), "content")
++	if n == "" {
++		return ""
++	}
++	return cliutil.CleanText(strings.Split(n, " | ")[0])
++}
++
++var blogPath = regexp.MustCompile(`^javascript:goSapaBlog\('(/sapa/[0-9]{4}/[0-9]{7}/[12]/)'\)$`)
++
++func parseRoutes(b []byte, detail bool, en string) ([]RouteAlternative, error) {
++	doc := mustDocument(b)
++	table := first(doc, byClass("table-route"))
++	if table == nil {
++		return nil, fmt.Errorf("no source route alternatives; check exact English IC names, schedule and route restrictions at%s/dp/SearchTopEN", en)
++	}
++	panels := all(first(doc, byClass("js-doubleTabContent")), byClass("ui-tabbox"))
++	out := []RouteAlternative{}
++	for _, tr := range all(table, tag("tr")) {
++		td := all(tr, tag("td"))
++		if len(td) == 0 {
++			continue
++		}
++		if len(td) != 3 {
++			return nil, fmt.Errorf("source route summary column count changed")
++		}
++		fees := all(td[1], byClass("cell"))
++		times := all(td[2], byClass("cell"))
++		if len(fees) != 3 || len(times) != 3 {
++			return nil, fmt.Errorf("source route toll/time columns changed")
++		}
++		i := len(out)
++		r := RouteAlternative{ID: fmt.Sprintf("route-%d", i+1), StandardJPY: number(text(first(fees[0], tag("em")))), ETCJPY: number(text(first(fees[1], tag("em")))), ETC2JPY: number(text(first(fees[2], tag("em")))), IgnoringMinutes: minutes(text(times[0])), ConsideringMinutes: minutes(text(times[1])), DistanceKM: distance(text(times[2])), Warnings: []string{}}
++		if i < len(panels) {
++			panel := panels[i]
++			for _, n := range all(panel, byClass("c-blockSkin03")) {
++				if first(n, byClass("ui-carousel")) != nil || byClass("seamlessMsgArea")(n) {
++					continue
++				}
++				t := text(n)
++				if t != "" && len(t) < 1500 && !strings.Contains(t, "SAPA") {
++					r.Warnings = append(r.Warnings, t)
++				}
++			}
++			if detail {
++				r.Stops = []StopLink{}
++				r.ForecastURLs = []string{}
++				seen := map[string]bool{}
++				for _, a := range all(panel, tag("a")) {
++					href := attr(a, "href")
++					if m := blogPath.FindStringSubmatch(href); len(m) == 2 {
++						p := m[1]
++						if seen[p] {
++							continue
++						}
++						seen[p] = true
++						box := a.Parent
++						for box != nil && !byClass("js_sapa_icon_area")(box) {
++							box = box.Parent
++						}
++						r.Stops = append(r.Stops, StopLink{ID: strings.Trim(strings.TrimPrefix(p, "/sapa/"), "/"), Name: text(first(box, byClass("txt-sa"))), URL: en + p})
++					}
++					if u, e := url.Parse(href); e == nil && u.Scheme == "https" && (u.Host == "www.drivetraffic.jp" || u.Host == "en-www.drivetraffic.jp") && u.Query().Get("fctime") != "" && !seen[href] {
++						seen[href] = true
++						r.ForecastURLs = append(r.ForecastURLs, href)
++					}
++				}
++			}
++		}
++		out = append(out, r)
++		if len(out) > 5 {
++			return nil, fmt.Errorf("source returned more than5 route alternatives; source contract changed")
++		}
++	}
++	if len(out) == 0 {
++		return nil, fmt.Errorf("source route summary contained no alternatives")
++	}
++	return out, nil
++}
++
++func parseNotices(b []byte) ([]Notice, *string, error) {
++	var feed struct {
++		XMLName xml.Name `xml:"rss"`
++		Channel struct {
++			Updated string `xml:"lastBuildDate"`
++			Items   []struct {
++				Title     string `xml:"title"`
++				URL       string `xml:"link"`
++				GUID      string `xml:"guid"`
++				Published string `xml:"pubDate"`
++			} `xml:"item"`
++		} `xml:"channel"`
++	}
++	if err := xml.Unmarshal(b, &feed); err != nil {
++		return nil, nil, fmt.Errorf("expected official traffic RSS: %w", err)
++	}
++	parseDate := func(raw string) *string {
++		for _, layout := range []string{time.RFC1123Z, time.RFC1123, time.RFC822Z} {
++			if t, e := time.Parse(layout, raw); e == nil {
++				return nullable(t.Format(time.RFC3339))
++			}
++		}
++		return nil
++	}
++	out := []Notice{}
++	for _, n := range feed.Channel.Items {
++		if n.Title == "" || n.URL == "" {
++			return nil, nil, fmt.Errorf("traffic notice missing title or link")
++		}
++		u, e := url.Parse(n.URL)
++		if e != nil || u.Scheme != "https" || u.Host == "" {
++			return nil, nil, fmt.Errorf("traffic notice contains invalid source URL")
++		}
++		id := n.GUID
++		if id == "" {
++			id = n.URL
++		}
++		out = append(out, Notice{ID: id, Title: cliutil.CleanText(n.Title), PublishedAt: parseDate(n.Published), PublishedRaw: n.Published, URL: n.URL})
++	}
++	return out, parseDate(feed.Channel.Updated), nil
++}
+--- /dev/null
++++ internal/driveplaza/source_test.go
+@@ -0,0 +1,358 @@
++package driveplaza
++
++import (
++	"context"
++	"errors"
++	"io"
++	"net/http"
++	"os"
++	"strings"
++	"testing"
++
++	"driveplaza-pp-cli/internal/cliutil"
++)
++
++func fixture(t *testing.T, name string) []byte {
++	t.Helper()
++	b, e := os.ReadFile("testdata/" + name)
++	if e != nil {
++		t.Fatal(e)
++	}
++	return b
++}
++
++type roundTrip func(*http.Request) (*http.Response, error)
++
++func (f roundTrip) RoundTrip(r *http.Request) (*http.Response, error) { return f(r) }
++func response(r *http.Request, status int, body []byte) *http.Response {
++	return &http.Response{StatusCode: status, Header: http.Header{}, Body: io.NopCloser(strings.NewReader(string(body))), Request: r}
++}
++func replayClient(t *testing.T) *Client {
++	c := New(2)
++	c.limiter = nil
++	c.HTTP = &http.Client{Transport: roundTrip(func(r *http.Request) (*http.Response, error) {
++		var file string
++		switch r.URL.Path {
++		case "/community/icsearch_api.php":
++			file = "ic-jp.xml"
++			if r.URL.Host == "en.driveplaza.com" {
++				file = "ic-en.xml"
++			}
++		case "/community/icsearch_fromcode_api.php":
++			file = "ic-code-jp.xml"
++		case "/dp/SAPAServiceEN":
++			file = "sapa-search.html"
++		case "/dp/SAPAService":
++			file = "roads-jp.html"
++		case "/dp/SAPAServResEN":
++			file = "sapa-list.html"
++			if r.URL.Query().Get("HIGHWAY") != "1040" {
++				t.Errorf("wrong road contract: %s", r.URL)
++			}
++		case "/dp/SAPAServRes":
++			return response(r, 503, nil), nil // test an honest partial-language failure
++		case "/sapa/1040/1040021/1/":
++			file = "sapa-detail.html"
++			if r.URL.Host == "www.driveplaza.com" {
++				file = "sapa-detail-jp.html"
++			}
++		case "/dp/SearchQuickEN":
++			file = "route.html"
++			q := r.URL.Query()
++			if q.Get("searchDay") != "10" || q.Get("carType") != "1" || q.Get("startPlaceKana") != "nerima" {
++				t.Errorf("wrong quote wire assumptions: %s", r.URL)
++			}
++		case "/cms/news/traffic.xml":
++			file = "notices.xml"
++		default:
++			t.Fatalf("unexpected request %s", r.URL)
++		}
++		return response(r, 200, fixture(t, file)), nil
++	})}
++	return c
++}
++func quoteOptions() RouteOptions {
++	return RouteOptions{From: "nerima", To: "sendai-minami", At: "2026-10-10T08:00", Vehicle: "standard", Priority: "time", TimeKind: "departure", Payment: "etc", Via: []string{}}
++}
++
++func TestPublicPlanningWorkflows(t *testing.T) {
++	cases := []struct {
++		name string
++		run  func(*Client)
++	}{
++		{"interchanges", func(c *Client) {
++			out, e := c.Interchanges(context.Background(), ICOptions{Query: "nerima", Language: "en", Kind: "start", Limit: 10})
++			if e != nil {
++				t.Fatal(e)
++			}
++			if len(out.Results.Items) != 1 || out.Results.Items[0].ID != "1800001" || out.Results.Items[0].NameJA == nil || *out.Results.Items[0].NameJA != "練馬" || out.Meta.Requests != 2 {
++				t.Fatalf("IC identity join lost: %+v", out)
++			}
++		}},
++		{"code", func(c *Client) {
++			out, e := c.Interchanges(context.Background(), ICOptions{Code: "1800001", Language: "ja", Kind: "start", Limit: 10})
++			if e != nil {
++				t.Fatal(e)
++			}
++			if len(out.Results.Items) != 1 || out.Results.Items[0].RoadID != nil || len(out.Meta.Warnings) != 1 {
++				t.Fatalf("unknown code road must stay null: %+v", out)
++			}
++		}},
++		{"roads", func(c *Client) {
++			out, e := c.Roads(context.Background(), "tohoku", 10, 0)
++			if e != nil {
++				t.Fatal(e)
++			}
++			if len(out.Results.Items) < 1 || out.Results.Items[0].ID != "1040" || out.Results.Items[0].NameJA == nil {
++				t.Fatalf("road identity join lost: %+v", out)
++			}
++		}},
++		{"facilities", func(c *Client) {
++			out, e := c.Facilities(context.Background())
++			if e != nil {
++				t.Fatal(e)
++			}
++			found := false
++			for _, f := range out.Results {
++				if f.ID == "9010" && strings.Contains(strings.ToLower(f.Label), "charg") {
++					found = true
++				}
++			}
++			if !found {
++				t.Fatalf("source EV filter missing: %+v", out)
++			}
++		}},
++		{"stops", func(c *Client) {
++			out, e := c.Stops(context.Background(), StopOptions{Road: "1040", Direction: "both", Query: "hasuda", Limit: 10})
++			if e != nil {
++				t.Fatal(e)
++			}
++			if len(out.Results.Items) != 2 || out.Results.Items[0].ID == out.Results.Items[1].ID || len(out.Meta.Warnings) != 2 || out.Results.Items[0].NameJA != nil {
++				t.Fatalf("direction or partial evidence lost: %+v", out)
++			}
++			up := out.Results.Items[0]
++			down := out.Results.Items[1]
++			if up.ParkingLarge == nil || *up.ParkingLarge != 132 || up.FacilityCategories["pets"] == nil || !*up.FacilityCategories["pets"] || down.FacilityCategories["pets"] == nil || *down.FacilityCategories["pets"] {
++				t.Fatalf("gray/green availability wrong: %+v / %+v", up, down)
++			}
++		}},
++		{"detail", func(c *Client) {
++			out, e := c.Detail(context.Background(), "1040/1040021/1")
++			if e != nil {
++				t.Fatal(e)
++			}
++			if out.Results.NameEN != "HASUDA-SA" || out.Results.NameJA == nil || !strings.Contains(*out.Results.NameJA, "蓮田") || out.Results.RoadName != "Tohoku Expwy" || len(out.Results.Sections) < 8 {
++				t.Fatalf("detail header/sections wrong: %+v", out)
++			}
++			gas := false
++			for _, s := range out.Results.Sections {
++				if s.Category == "Gas station" && strings.Contains(s.Text, "24hours") {
++					gas = true
++				}
++			}
++			if !gas {
++				t.Fatal("gas section source hours missing")
++			}
++		}},
++		{"route", func(c *Client) {
++			out, e := c.Route(context.Background(), quoteOptions(), true)
++			if e != nil {
++				t.Fatal(e)
++			}
++			r := out.Results.Alternatives
++			if len(r) != 3 || r[0].StandardJPY == nil || *r[0].StandardJPY != 8490 || r[0].SelectedJPY == nil || *r[0].SelectedJPY != 7970 || r[0].ConsideringMinutes == nil || *r[0].ConsideringMinutes != 273 || r[0].IgnoringMinutes == nil || *r[0].IgnoringMinutes != 213 || len(r[0].Stops) < 5 || len(r[0].ForecastURLs) == 0 || len(r[0].Warnings) == 0 {
++				t.Fatalf("summary/detail association wrong: %+v", out)
++			}
++			if r[1].ETC2JPY == nil || *r[1].ETC2JPY != 8270 || *r[1].ETCJPY != 8420 {
++				t.Fatal("ETC2.0 distinct source summary lost")
++			}
++		}},
++		{"notices", func(c *Client) {
++			out, e := c.Notices(context.Background(), "", "", 5, 0)
++			if e != nil {
++				t.Fatal(e)
++			}
++			if len(out.Results.Items) != 5 || out.Results.FeedUpdated == nil {
++				t.Fatalf("RSS identity/date missing: %+v", out)
++			}
++			for _, n := range out.Results.Items {
++				if n.ActiveStatus != nil || n.PublishedAt == nil {
++					t.Fatal("notice inferred active status or lost date")
++				}
++			}
++		}},
++	}
++	for _, tt := range cases {
++		t.Run(tt.name, func(t *testing.T) { tt.run(replayClient(t)) })
++	}
++}
++
++func TestRouteValidation(t *testing.T) {
++	cases := []struct {
++		name   string
++		change func(*RouteOptions)
++		valid  bool
++	}{
++		{"normal", func(o *RouteOptions) {}, true},
++		{"arrival", func(o *RouteOptions) {
++			o.TimeKind = "arrival"
++			o.Vehicle = "light"
++			o.Priority = "distance"
++			o.Payment = "etc2"
++			o.Via = []string{"tokorozawa", "kawagoe"}
++			o.ExcludeUrban = true
++			o.ExcludeOrdinary = true
++		}, true},
++		{"nonexistent-date", func(o *RouteOptions) { o.At = "2026-02-30T08:00" }, false},
++		{"leap-date", func(o *RouteOptions) { o.At = "2028-02-29T08:00" }, true},
++		{"five-minute", func(o *RouteOptions) { o.At = "2026-10-10T08:05" }, false},
++		{"offset-time", func(o *RouteOptions) { o.At = "2026-10-10T08:00+09:00" }, false},
++		{"bad-vehicle", func(o *RouteOptions) { o.Vehicle = "truck" }, false},
++		{"bad-priority", func(o *RouteOptions) { o.Priority = "fastest" }, false},
++		{"bad-payment", func(o *RouteOptions) { o.Payment = "pass" }, false},
++		{"missing-ic", func(o *RouteOptions) { o.To = "" }, false},
++		{"six-waypoints", func(o *RouteOptions) { o.Via = []string{"a", "b", "c", "d", "e", "f"} }, false},
++	}
++	for _, tt := range cases {
++		t.Run(tt.name, func(t *testing.T) {
++			o := quoteOptions()
++			tt.change(&o)
++			q, e := ValidateRoute(o)
++			if (e == nil) != tt.valid {
++				t.Fatalf("valid=%v error=%v", tt.valid, e)
++			}
++			if e == nil && tt.name == "arrival" {
++				if q.Get("kind") != "2" || q.Get("carType") != "0" || q.Get("priority") != "1" || q.Get("roadType1") != "1" || q.Get("roadType2") != "1" || q.Get("keiyuPlaceKana2") != "kawagoe" {
++					t.Fatalf("source options not preserved: %v", q)
++				}
++			}
++		})
++	}
++}
++
++func TestNullableUnitsAndAvailability(t *testing.T) {
++	for _, tt := range []struct {
++		raw  string
++		want *int
++	}{{"8,490", intValue(8490)}, {"0", intValue(0)}, {"-", nil}, {"unknown", nil}, {"", nil}} {
++		got := number(tt.raw)
++		if (got == nil) != (tt.want == nil) || (got != nil && *got != *tt.want) {
++			t.Fatalf("price %q became%v", tt.raw, got)
++		}
++	}
++	for _, tt := range []struct {
++		raw  string
++		want int
++	}{{"3h33min", 213}, {"44min", 44}, {"2h", 120}, {"0min", 0}, {"3h75min", -1}, {"--", -1}} {
++		got := minutes(tt.raw)
++		if tt.want < 0 {
++			if got != nil {
++				t.Fatal("unknown duration became zero")
++			}
++		} else if got == nil || *got != tt.want {
++			t.Fatalf("duration %q: %v", tt.raw, got)
++		}
++	}
++	if distance("345.2km") == nil || *distance("345.2km") != 345.2 || distance("--") != nil {
++		t.Fatal("distance units incorrect")
++	}
++}
++func intValue(n int) *int { return &n }
++
++func TestEmptyFiltersAndPagination(t *testing.T) {
++	c := replayClient(t)
++	out, e := c.Stops(context.Background(), StopOptions{Road: "1040", Direction: "up", Query: "not-a-real-stop-zz", Limit: 10})
++	if e != nil {
++		t.Fatal(e)
++	}
++	if out.Results.Items == nil || len(out.Results.Items) != 0 || out.Results.ScannedItems == 0 || out.Results.Note == "" {
++		t.Fatalf("empty evidence fabricated: %+v", out)
++	}
++	for _, tt := range []struct {
++		limit, offset int
++		valid         bool
++	}{{1, 0, true}, {30, 10000, true}, {0, 0, false}, {31, 0, false}, {10, -1, false}} {
++		if (ValidPage(tt.limit, tt.offset) == nil) != tt.valid {
++			t.Fatal(tt)
++		}
++	}
++	p := page([]string{"a", "b", "c"}, 1, 1, 3)
++	if len(p.Items) != 1 || p.Items[0] != "b" || p.NextOffset == nil || *p.NextOffset != 2 {
++		t.Fatal(p)
++	}
++	p = page([]string{"a"}, 10, 3, 1)
++	if p.Items == nil || len(p.Items) != 0 || p.NextOffset != nil {
++		t.Fatal(p)
++	}
++}
++
++func TestJapaneseAbsoluteStopIdentities(t *testing.T) {
++	items, e := parseStops(fixture(t, "sapa-list-jp.html"), Japanese, Japanese)
++	if e != nil {
++		t.Fatal(e)
++	}
++	if len(items) != 82 || items[0].ID != "1040/1040021/1" || !strings.Contains(items[0].NameEN, "蓮田") {
++		t.Fatalf("Japanese absolute href identity lost: %+v", items)
++	}
++	for _, href := range []string{"/sapa/1040/1040021/1/", "http://www.driveplaza.com/sapa/1040/1040021/1/"} {
++		if stopPath(href) != "/sapa/1040/1040021/1/" {
++			t.Fatal(href)
++		}
++	}
++	if stopPath("https://other.invalid/sapa/1040/1040021/1/") != "" {
++		t.Fatal("external stop identity accepted")
++	}
++	c := replayClient(t)
++	out, e := c.Stops(context.Background(), StopOptions{Road: "1040", Direction: "both", Query: "not-a-real-stop-zz", Limit: 10, MaxScan: 1})
++	if e != nil {
++		t.Fatal(e)
++	}
++	if out.Results.ScannedItems != 1 || !out.Results.ScanLimited || !strings.Contains(out.Results.Note, "--max-scan-records") {
++		t.Fatalf("scan cap not honest: %+v", out)
++	}
++}
++
++func TestSourceFailuresNeverBecomeEmptyFacts(t *testing.T) {
++	for _, tt := range []struct {
++		name   string
++		status int
++		body   string
++		match  string
++	}{{"throttle", 429, "", "HTTP 429"}, {"blocked", 403, "denied", "HTTP 403"}, {"shell", 200, "<html>login</html>", "NexcoIC"}, {"oversize", 200, strings.Repeat("x", maxBody+1), "2 MiB"}} {
++		t.Run(tt.name, func(t *testing.T) {
++			c := New(2)
++			c.limiter = nil
++			c.HTTP = &http.Client{Transport: roundTrip(func(r *http.Request) (*http.Response, error) { return response(r, tt.status, []byte(tt.body)), nil })}
++			_, e := c.Interchanges(context.Background(), ICOptions{Query: "練馬", Language: "ja", Kind: "start", Limit: 10})
++			if e == nil || !strings.Contains(e.Error(), tt.match) {
++				t.Fatalf("source failure hidden: %v", e)
++			}
++			if tt.status == 429 {
++				var rate *cliutil.RateLimitError
++				if !errors.As(e, &rate) {
++					t.Fatal("throttle lost typed error")
++				}
++			}
++		})
++	}
++	if _, _, e := parseNotices([]byte("<html>shell</html>")); e == nil {
++		t.Fatal("HTML shell accepted as RSS")
++	}
++	if _, e := parseRoutes([]byte("<html>no route</html>"), false, English); e == nil {
++		t.Fatal("missing route table accepted")
++	}
++}
++
++func TestHandoffs(t *testing.T) {
++	for _, tt := range []struct{ purpose, url string }{{"east_construction", "https://www.drivetraffic.jp/construction-regulation/"}, {"east_etc_lanes", "https://www.drivetraffic.jp/lane/"}, {"live_traffic", "https://en-www.drivetraffic.jp/map.html"}} {
++		found := false
++		for _, h := range Handoffs() {
++			if h.Purpose == tt.purpose && h.URL == tt.url {
++				found = true
++			}
++		}
++		if !found {
++			t.Fatal(tt)
++		}
++	}
++}
+--- /dev/null
++++ internal/cli/driveplaza_commands.go
+@@ -0,0 +1,216 @@
++package cli
++
++import (
++	"bytes"
++	"context"
++	"encoding/json"
++	"fmt"
++	"strings"
++
++	"driveplaza-pp-cli/internal/driveplaza"
++	"github.com/spf13/cobra"
++)
++
++func init() {
++	registerNovelCommand(func(root *cobra.Command, flags *rootFlags) {
++		addNovelCommandIfAbsent(root, dpRoads(flags))
++		addNovelCommandIfAbsent(root, dpConditions(flags))
++	})
++}
++
++func dpAnnotations(source, happy string) map[string]string {
++	a := map[string]string{"pp:data-source": source, "mcp:read-only": "true"}
++	if happy != "" {
++		a["pp:happy-args"] = happy
++	}
++	return a
++}
++func dpEmit(cmd *cobra.Command, flags *rootFlags, v any) error {
++	// Project the domain payload while retaining its provenance envelope.
++	// Every model field is already a bounded summary or requested detail.
++	raw, err := json.Marshal(v)
++	if err != nil {
++		return err
++	}
++	var envelope map[string]json.RawMessage
++	if err = json.Unmarshal(raw, &envelope); err != nil {
++		return err
++	}
++	var selectErr error
++	if flags.selectFields != "" {
++		paths := strings.Split(flags.selectFields, ",")
++		for i, p := range paths {
++			paths[i] = strings.TrimPrefix(strings.TrimSpace(p), "results.")
++		}
++		envelope["results"], selectErr = filterFieldsChecked(envelope["results"], strings.Join(paths, ","))
++	}
++	raw, err = json.Marshal(envelope)
++	if err != nil {
++		return err
++	}
++	var meta map[string]any
++	_ = json.Unmarshal(envelope["meta"], &meta)
++	was, wasCompact, wasAgent := flags.selectFields, flags.compact, flags.agent
++	flags.selectFields = ""
++	flags.compact = false
++	// The domain already owns {meta,results}. Preserve its collection shape
++	// when a projection leaves only "items"; the generic wrapper flattens it.
++	flags.agent = false
++	defer func() { flags.selectFields = was; flags.compact = wasCompact; flags.agent = wasAgent }()
++	var output bytes.Buffer
++	if err = printOutputWithFlagsMeta(&output, raw, flags, meta); err != nil {
++		return err
++	}
++	if !flags.csv && !flags.plain && !flags.quiet {
++		var compact bytes.Buffer
++		if err = json.Compact(&compact, output.Bytes()); err != nil {
++			return err
++		}
++		compact.WriteByte('\n')
++		output = compact
++	}
++	if _, err = cmd.OutOrStdout().Write(output.Bytes()); err != nil {
++		return err
++	}
++	return selectErr
++}
++func dpRun(cmd *cobra.Command, args []string, flags *rootFlags, source string, required bool, fn func(context.Context, *driveplaza.Client) (any, error)) error {
++	if dryRunOK(flags) {
++		return writeDryRun(cmd.OutOrStdout(), flags, cmd.CommandPath())
++	}
++	if required && len(args) == 0 && !hasChangedLocalFlags(cmd) && !flags.agent && !flags.asJSON {
++		return cmd.Help()
++	}
++	if len(args) > 0 {
++		return usageErr(fmt.Errorf("unexpected positional arguments; use the named flags in %s --help", cmd.CommandPath()))
++	}
++	if err := validateDataSourceStrategy(flags, source); err != nil {
++		return usageErr(err)
++	}
++	if source == "computed" && flags.dataSource == "live" {
++		return usageErr(fmt.Errorf("--data-source live is not supported for embedded handoff/condition catalogs; use auto or local"))
++	}
++	ctx, cancel := boundCtx(cmd.Context(), flags)
++	defer cancel()
++	v, err := fn(ctx, driveplaza.New(flags.rateLimit))
++	if err != nil {
++		s := err.Error()
++		if strings.HasPrefix(s, "--") || strings.HasPrefix(s, "use exactly") || strings.HasPrefix(s, "unknown --facility") {
++			return usageErr(err)
++		}
++		return classifyAPIErrorOnly(err)
++	}
++	return dpEmit(cmd, flags, v)
++}
++func dpPageFlags(cmd *cobra.Command, limit, offset *int) {
++	cmd.Flags().IntVar(limit, "limit", 10, "Maximum results to return (1..30); output pagination only")
++	cmd.Flags().IntVar(offset, "offset", 0, "Skip this many matching records from the current source response")
++}
++
++// pp:data-source live
++func dpInterchanges(flags *rootFlags) *cobra.Command {
++	o := driveplaza.ICOptions{}
++	cmd := &cobra.Command{Use: "interchanges", Short: "Resolve interchange names, road identities and Japanese source names", Long: "Resolve exact source names before requesting a route. English results are joined by stable IC ID to the Japanese name endpoint. Code lookup is Japanese only and may omit road information. Partial name enrichment appears in meta.warnings; missing values are null.", Example: "  driveplaza-pp-cli interchanges --query nerima --language en --agent\n  driveplaza-pp-cli interchanges --query 練馬 --language ja --agent\n  driveplaza-pp-cli interchanges --code 1800001 --agent", Annotations: dpAnnotations("live", "--query=nerima;--language=en;--limit=3")}
++	cmd.RunE = func(cmd *cobra.Command, args []string) error {
++		return dpRun(cmd, args, flags, "live", true, func(ctx context.Context, c *driveplaza.Client) (any, error) { return c.Interchanges(ctx, o) })
++	}
++	cmd.Flags().StringVar(&o.Query, "query", "", "Source name query; use canonical English spelling for --language en")
++	cmd.Flags().StringVar(&o.Language, "language", "ja", "Lookup language: ja or en; English rows also request Japanese names")
++	cmd.Flags().StringVar(&o.Kind, "kind", "start", "Interchange use: start or arrive; source suggestions can differ")
++	cmd.Flags().StringVar(&o.Code, "code", "", "Exact 7-digit interchange ID; Japanese code lookup, exclusive with --query")
++	cmd.Flags().StringVar(&o.Road, "road", "", "Restrict name results to this 4-digit source road ID")
++	dpPageFlags(cmd, &o.Limit, &o.Offset)
++	return cmd
++}
++
++// pp:data-source live
++func dpRoads(flags *rootFlags) *cobra.Command {
++	var query string
++	var limit, offset int
++	cmd := &cobra.Command{Use: "roads", Short: "List source road IDs and bilingual road names", Example: "  driveplaza-pp-cli roads --query tohoku --agent", Annotations: dpAnnotations("live", "--query=tohoku")}
++	cmd.RunE = func(cmd *cobra.Command, args []string) error {
++		return dpRun(cmd, args, flags, "live", false, func(ctx context.Context, c *driveplaza.Client) (any, error) {
++			return c.Roads(ctx, query, limit, offset)
++		})
++	}
++	cmd.Flags().StringVar(&query, "query", "", "Case-insensitive local match against road ID, English or Japanese name")
++	dpPageFlags(cmd, &limit, &offset)
++	return cmd
++}
++
++// pp:data-source live
++func dpRoute(flags *rootFlags) *cobra.Command {
++	o := driveplaza.RouteOptions{}
++	var detail bool
++	cmd := &cobra.Command{Use: "route", Short: "Compare source toll, distance and travel-time alternatives", Long: "Request source estimates using exact English IC names and an explicit JST departure or arrival time. Minutes must be 00,10,20,30,40,50. --payment selects the source standard/ETC/ETC2.0 column and does not recompute discounts. ETC prices depend on actual eligibility and travel. Considering-traffic times are source estimates for the requested schedule. Use --detail for directional stop and forecast links.", Example: "  driveplaza-pp-cli route --from nerima --to sendai-minami --at 2026-10-10T08:00 --vehicle standard --payment etc --agent\n  driveplaza-pp-cli route --from nerima --to sendai-minami --at 2026-10-10T08:00 --detail --agent", Annotations: dpAnnotations("live", "--from=nerima;--to=sendai-minami;--at=2026-10-10T08:00")}
++	cmd.RunE = func(cmd *cobra.Command, args []string) error {
++		return dpRun(cmd, args, flags, "live", true, func(ctx context.Context, c *driveplaza.Client) (any, error) { return c.Route(ctx, o, detail) })
++	}
++	cmd.Flags().StringVar(&o.From, "from", "", "Exact English departure IC name from interchanges --language en")
++	cmd.Flags().StringVar(&o.To, "to", "", "Exact English arrival IC name from interchanges --kind arrive --language en")
++	cmd.Flags().StringVar(&o.At, "at", "", "Planned JST time YYYY-MM-DDTHH:MM; ten-minute increments only")
++	cmd.Flags().StringVar(&o.Vehicle, "vehicle", "standard", "Source class: light, standard, medium, large or extra-large")
++	cmd.Flags().StringVar(&o.Priority, "priority", "time", "Source alternative ordering: time, distance or toll")
++	cmd.Flags().StringVar(&o.TimeKind, "time-kind", "departure", "Meaning of --at: departure or arrival in JST")
++	cmd.Flags().StringVar(&o.Payment, "payment", "standard", "Selected source toll column: standard, etc or etc2")
++	cmd.Flags().StringSliceVar(&o.Via, "via", nil, "Up to five exact English waypoint IC names, in route order")
++	cmd.Flags().BoolVar(&o.ExcludeUrban, "exclude-urban", false, "Set the source form option to exclude urban expressways")
++	cmd.Flags().BoolVar(&o.ExcludeOrdinary, "exclude-ordinary", false, "Set the source form option to exclude ordinary roads")
++	cmd.Flags().BoolVar(&detail, "detail", false, "Include directional rest-stop identities and predicted-traffic handoff URLs")
++	return cmd
++}
++
++// pp:data-source live
++func dpStops(flags *rootFlags) *cobra.Command {
++	o := driveplaza.StopOptions{}
++	cmd := &cobra.Command{Use: "list", Short: "List directional stops on a source road with facility evidence", Long: "Fetch one road response in English and Japanese, then paginate matching summaries locally. --query is local and case-insensitive, so it avoids the English form's case-sensitive name search. Facility filter semantics are the provider's selection; gray or none icons mean unavailable, missing icons mean unknown. The source's non-East data warning and weekday/holiday caveat stay attached.", Example: "  driveplaza-pp-cli sapa list --road 1040 --direction up --limit 5 --agent\n  driveplaza-pp-cli sapa list --road 1040 --query HASUDA --facility 9010 --agent", Annotations: dpAnnotations("live", "--road=1040;--direction=up;--limit=3")}
++	cmd.RunE = func(cmd *cobra.Command, args []string) error {
++		return dpRun(cmd, args, flags, "live", true, func(ctx context.Context, c *driveplaza.Client) (any, error) { return c.Stops(ctx, o) })
++	}
++	cmd.Flags().StringVar(&o.Road, "road", "", "Required 4-digit road ID from roads; requests stay road-specific")
++	cmd.Flags().StringVar(&o.Direction, "direction", "both", "Provider direction: up, down or both; identities remain distinct")
++	cmd.Flags().StringVar(&o.Query, "query", "", "Case-insensitive local match against English or Japanese stop name")
++	cmd.Flags().StringSliceVar(&o.Facilities, "facility", nil, "Source facility IDs from sapa facilities, e.g.9010,5220")
++	cmd.Flags().BoolVar(&o.Open24, "open-24", false, "Request source selection for a 24-hour facility or service; not every shop")
++	cmd.Flags().IntVar(&o.MaxScan, "max-scan-records", 500, "Maximum source records to examine for local matching (1..2000), separate from --limit")
++	dpPageFlags(cmd, &o.Limit, &o.Offset)
++	return cmd
++}
++
++// pp:data-source live
++func dpDetail(flags *rootFlags) *cobra.Command {
++	var id string
++	cmd := &cobra.Command{Use: "detail", Short: "Read a directional stop's source facilities and weekday hours", Example: "  driveplaza-pp-cli sapa detail --id 1040/1040021/1 --agent", Annotations: dpAnnotations("live", "--id=1040/1040021/1")}
++	cmd.RunE = func(cmd *cobra.Command, args []string) error {
++		return dpRun(cmd, args, flags, "live", true, func(ctx context.Context, c *driveplaza.Client) (any, error) { return c.Detail(ctx, id) })
++	}
++	cmd.Flags().StringVar(&id, "id", "", "Directional ID from sapa list: road/area/1(up) or road/area/2(down)")
++	return cmd
++}
++
++// pp:data-source live
++func dpFacilities(flags *rootFlags) *cobra.Command {
++	cmd := &cobra.Command{Use: "facilities", Short: "List the source facility-selection IDs and labels", Example: "  driveplaza-pp-cli sapa facilities --agent", Annotations: dpAnnotations("live", "")}
++	cmd.RunE = func(cmd *cobra.Command, args []string) error {
++		return dpRun(cmd, args, flags, "live", false, func(ctx context.Context, c *driveplaza.Client) (any, error) { return c.Facilities(ctx) })
++	}
++	return cmd
++}
++
++// pp:data-source live
++func dpNotices(flags *rootFlags) *cobra.Command {
++	var query, since string
++	var limit, offset int
++	cmd := &cobra.Command{Use: "notices", Short: "Read dated official traffic notices with unknown active status", Long: "Read the current official RSS response. Notices may announce plans, postponements or the lifting of a closure. active_restriction is always null because titles and publication dates do not establish present road status. Follow the source link and official live traffic handoff.", Example: "  driveplaza-pp-cli notices --limit 5 --agent\n  driveplaza-pp-cli notices --query 東北 --since 2026-09-01 --agent", Annotations: dpAnnotations("live", "--limit=5")}
++	cmd.RunE = func(cmd *cobra.Command, args []string) error {
++		return dpRun(cmd, args, flags, "live", false, func(ctx context.Context, c *driveplaza.Client) (any, error) {
++			return c.Notices(ctx, query, since, limit, offset)
++		})
++	}
++	cmd.Flags().StringVar(&query, "query", "", "Case-insensitive local match against the exact advisory title")
++	cmd.Flags().StringVar(&since, "since", "", "Include source publication dates on/after YYYY-MM-DD in JST")
++	// Keep these declarations local for Press's source-based skill checker.
++	cmd.Flags().IntVar(&limit, "limit", 10, "Maximum notices to return (1..30); output pagination only")
++	cmd.Flags().IntVar(&offset, "offset", 0, "Skip this many matching notices from the current RSS response")
++	return cmd
++}
+--- /dev/null
++++ internal/cli/driveplaza_catalog.go
+@@ -0,0 +1,41 @@
++package cli
++
++import (
++	"context"
++	"driveplaza-pp-cli/internal/driveplaza"
++	"fmt"
++	"github.com/spf13/cobra"
++)
++
++// pp:data-source computed
++func dpHandoff(flags *rootFlags) *cobra.Command {
++	var purpose string
++	cmd := &cobra.Command{Use: "handoff", Short: "Print canonical planning, restriction and live-map URLs", Long: "Print source destinations observed during browser discovery. This command performs no navigation or current-status request. Use the operator pages to review current construction and ETC-lane restrictions.", Example: "  driveplaza-pp-cli handoff --agent\n  driveplaza-pp-cli handoff --purpose east_construction --agent", Annotations: dpAnnotations("computed", "")}
++	cmd.RunE = func(cmd *cobra.Command, args []string) error {
++		return dpRun(cmd, args, flags, "computed", false, func(ctx context.Context, c *driveplaza.Client) (any, error) {
++			items := []driveplaza.Handoff{}
++			for _, h := range driveplaza.Handoffs() {
++				if purpose == "" || h.Purpose == purpose {
++					items = append(items, h)
++				}
++			}
++			if purpose != "" && len(items) == 0 {
++				return nil, fmt.Errorf("--purpose is unknown; run handoff without a filter for supported purposes")
++			}
++			return map[string]any{"meta": map[string]any{"source": "computed", "observed_on": "2026-10-02", "retrieved_at": nil, "upstream_requests": 0, "status": "handoff_only"}, "results": items}, nil
++		})
++	}
++	cmd.Flags().StringVar(&purpose, "purpose", "", "Exact handoff purpose from the unfiltered list")
++	return cmd
++}
++
++// pp:data-source computed
++func dpConditions(flags *rootFlags) *cobra.Command {
++	cmd := &cobra.Command{Use: "conditions", Short: "Explain source vehicle, time, priority and toll assumptions", Example: "  driveplaza-pp-cli conditions --agent", Annotations: dpAnnotations("computed", "")}
++	cmd.RunE = func(cmd *cobra.Command, args []string) error {
++		return dpRun(cmd, args, flags, "computed", false, func(ctx context.Context, c *driveplaza.Client) (any, error) {
++			return map[string]any{"meta": map[string]any{"source": "computed", "observed_on": "2026-10-02", "upstream_requests": 0, "retrieved_at": nil, "source_urls": []string{driveplaza.English + "/dp/SearchTopEN"}}, "results": map[string]any{"timezone": "Asia/Tokyo", "vehicle_classes": map[string]string{"light": "0", "standard": "1", "medium": "2", "large": "3", "extra-large": "4"}, "priorities": map[string]string{"distance": "1", "time": "2", "toll": "3"}, "time_kinds": map[string]string{"departure": "1", "arrival": "2"}, "minute_increments": []int{0, 10, 20, 30, 40, 50}, "payment_columns": []string{"standard", "etc", "etc2"}, "currency": "JPY", "distance_unit": "km", "time_unit": "minutes", "conditional_etc": "Quoted by source using requested conditions; actual eligibility, device/card, timing and driving can change final toll.", "maximum_waypoints": 5}}, nil
++		})
++	}
++	return cmd
++}
+--- /dev/null
++++ internal/cli/driveplaza_behavior_test.go
+@@ -0,0 +1,98 @@
++package cli
++
++import (
++	"bytes"
++	"encoding/json"
++	"github.com/spf13/cobra"
++	"strings"
++	"testing"
++
++	"driveplaza-pp-cli/internal/cliutil/testenv"
++)
++
++func TestDrivePlazaDryRunAndReadOnly(t *testing.T) {
++	for _, path := range [][]string{{"route"}, {"interchanges"}, {"roads"}, {"conditions"}, {"sapa", "list"}, {"sapa", "detail"}, {"sapa", "facilities"}, {"notices"}, {"handoff"}} {
++		t.Run(strings.Join(path, "-"), func(t *testing.T) {
++			testenv.Isolate(t)
++			root := RootCmd()
++			cmd, _, e := root.Find(path)
++			if e != nil || cmd.Annotations["mcp:read-only"] != "true" {
++				t.Fatalf("command not read-only: %v", e)
++			}
++			root.SetArgs(append(path, "--dry-run", "--agent", "--no-learn"))
++			var out bytes.Buffer
++			root.SetOut(&out)
++			root.SetErr(&out)
++			if e = root.Execute(); e != nil {
++				t.Fatal(e)
++			}
++			if !json.Valid(out.Bytes()) || !bytes.Contains(out.Bytes(), []byte(`"dry_run":true`)) {
++				t.Fatalf("dry-run not structured: %s", out.String())
++			}
++		})
++	}
++}
++
++func TestDrivePlazaCollectionProjectionKeepsShape(t *testing.T) {
++	var out bytes.Buffer
++	cmd := &cobra.Command{Use: "example"}
++	cmd.SetOut(&out)
++	flags := &rootFlags{agent: true, asJSON: true, compact: true, selectFields: "items.id"}
++	v := map[string]any{"meta": map[string]any{"source": "live", "upstream_requests": 2}, "results": map[string]any{"items": []map[string]any{{"id": "1040/1040021/1", "name": "example"}}, "total": 1}}
++	if e := dpEmit(cmd, flags, v); e != nil {
++		t.Fatal(e)
++	}
++	var decoded map[string]json.RawMessage
++	if e := json.Unmarshal(out.Bytes(), &decoded); e != nil {
++		t.Fatal(e)
++	}
++	var rows struct {
++		Items []map[string]any `json:"items"`
++	}
++	if e := json.Unmarshal(decoded["results"], &rows); e != nil || len(rows.Items) != 1 || len(rows.Items[0]) != 1 {
++		t.Fatalf("collection shape changed: %s %v", out.String(), e)
++	}
++	if !flags.agent || !flags.compact || flags.selectFields != "items.id" {
++		t.Fatal("projection did not restore caller flags")
++	}
++}
++func TestDrivePlazaUsageErrors(t *testing.T) {
++	for _, args := range [][]string{{"route", "--agent"}, {"route", "--from", "nerima", "--to", "sendai-minami", "--at", "2026-02-30T08:00"}, {"sapa", "detail", "--id", "../../etc"}, {"sapa", "list", "--road", "ALL"}, {"interchanges", "--query", "a", "--limit", "1000"}, {"notices", "--since", "2026-02-30"}, {"handoff", "--purpose", "invalid"}, {"route", "--data-source", "local", "--agent"}} {
++		testenv.Isolate(t)
++		root := RootCmd()
++		root.SetArgs(append(args, "--no-learn"))
++		var out bytes.Buffer
++		root.SetOut(&out)
++		root.SetErr(&out)
++		e := root.Execute()
++		if e == nil || ExitCode(e) != 2 {
++			t.Fatalf("%v error=%v code=%d", args, e, ExitCode(e))
++		}
++	}
++}
++func TestDrivePlazaProjectionPreservesProvenance(t *testing.T) {
++	for _, selectFields := range []string{"purpose,url", "results.purpose,results.url"} {
++		testenv.Isolate(t)
++		root := RootCmd()
++		root.SetArgs([]string{"handoff", "--agent", "--no-learn", "--select", selectFields})
++		var out bytes.Buffer
++		root.SetOut(&out)
++		root.SetErr(&out)
++		if e := root.Execute(); e != nil {
++			t.Fatal(e)
++		}
++		var value struct {
++			Meta    map[string]any   `json:"meta"`
++			Results []map[string]any `json:"results"`
++		}
++		if e := json.Unmarshal(out.Bytes(), &value); e != nil {
++			t.Fatal(e, out.String())
++		}
++		if value.Meta["status"] != "handoff_only" || len(value.Results) != 8 || len(value.Results[0]) != 2 {
++			t.Fatalf("projection lost provenance or nested results: %s", out.String())
++		}
++		if bytes.Count(bytes.TrimSpace(out.Bytes()), []byte("\n")) != 0 {
++			t.Fatal("agent JSON is not compact")
++		}
++	}
++}
+--- /dev/null
++++ internal/cli/route.go
+@@ -0,0 +1,7 @@
++// Copyright 2026 zjsng and contributors. Licensed under Apache-2.0.
++// pp:data-source live
++package cli
++
++import "github.com/spf13/cobra"
++
++func newNovelRouteCmd(flags *rootFlags) *cobra.Command { return dpRoute(flags) }
+--- /dev/null
++++ internal/cli/interchanges.go
+@@ -0,0 +1,7 @@
++// Copyright 2026 zjsng and contributors. Licensed under Apache-2.0.
++// pp:data-source live
++package cli
++
++import "github.com/spf13/cobra"
++
++func newNovelInterchangesCmd(flags *rootFlags) *cobra.Command { return dpInterchanges(flags) }
+--- /dev/null
++++ internal/cli/sapa.go
+@@ -0,0 +1,23 @@
++package cli
++
++import (
++	"fmt"
++	"github.com/spf13/cobra"
++)
++
++// pp:data-source live
++func newNovelSapaCmd(flags *rootFlags) *cobra.Command {
++	cmd := &cobra.Command{Use: "sapa", Short: "Find directional SA/PA facilities and source hours", Long: "Use list for road-specific summaries, detail for facility sections and weekday hours, and facilities for source filter IDs. Up/down are provider direction identities. Availability and weekday hours do not establish that a facility is open now.", Annotations: dpAnnotations("live", "")}
++	cmd.Example = "  driveplaza-pp-cli sapa list --road 1040 --query hasuda --direction up --limit 1 --agent\n  driveplaza-pp-cli sapa detail --id 1040/1040021/1 --agent"
++	cmd.RunE = func(cmd *cobra.Command, args []string) error {
++		if dryRunOK(flags) {
++			return writeDryRun(cmd.OutOrStdout(), flags, cmd.CommandPath())
++		}
++		if len(args) > 0 {
++			return usageErr(fmt.Errorf("unknown sapa subcommand; use list, detail or facilities"))
++		}
++		return cmd.Help()
++	}
++	cmd.AddCommand(dpStops(flags), dpDetail(flags), dpFacilities(flags))
++	return cmd
++}
+--- /dev/null
++++ internal/cli/notices.go
+@@ -0,0 +1,7 @@
++// Copyright 2026 zjsng and contributors. Licensed under Apache-2.0.
++// pp:data-source live
++package cli
++
++import "github.com/spf13/cobra"
++
++func newNovelNoticesCmd(flags *rootFlags) *cobra.Command { return dpNotices(flags) }
+--- /dev/null
++++ internal/cli/handoff.go
+@@ -0,0 +1,7 @@
++// Copyright 2026 zjsng and contributors. Licensed under Apache-2.0.
++// pp:data-source computed
++package cli
++
++import "github.com/spf13/cobra"
++
++func newNovelHandoffCmd(flags *rootFlags) *cobra.Command { return dpHandoff(flags) }
+--- /dev/null
++++ workflow_verify.yaml
+@@ -0,0 +1,22 @@
++workflows:
++  - name: Resolve an IC, quote a journey and inspect a directional stop
++    primary: true
++    steps:
++      - command: interchanges --query nerima --language en --no-learn
++        mode: live
++        expect_fields: [meta, results]
++      - command: route --from nerima --to sendai-minami --at 2026-10-10T08:00 --payment etc --no-learn
++        mode: live
++        expect_fields: [meta, results]
++      - command: sapa list --road 1040 --query hasuda --direction up --limit 1 --no-learn
++        mode: live
++        expect_fields: [meta, results]
++      - command: sapa detail --id 1040/1040021/1 --no-learn
++        mode: live
++        expect_fields: [meta, results]
++      - command: notices --limit 3 --no-learn
++        mode: live
++        expect_fields: [meta, results]
++      - command: handoff --no-learn
++        mode: local
++        expect_fields: [meta, results]

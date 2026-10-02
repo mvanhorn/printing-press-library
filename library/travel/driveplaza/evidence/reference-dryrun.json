@@ -1,0 +1,17 @@
+[
+  {
+    "command": "reference rest-form",
+    "exit": 0,
+    "json_parse": true
+  },
+  {
+    "command": "reference route-form",
+    "exit": 0,
+    "json_parse": true
+  },
+  {
+    "command": "reference schedule",
+    "exit": 0,
+    "json_parse": true
+  }
+]

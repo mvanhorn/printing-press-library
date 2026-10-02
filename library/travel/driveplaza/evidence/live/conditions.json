@@ -1,0 +1,48 @@
+{
+  "meta": {
+    "observed_on": "2026-10-02",
+    "retrieved_at": null,
+    "source": "computed",
+    "source_urls": [
+      "https://en.driveplaza.com/dp/SearchTopEN"
+    ],
+    "upstream_requests": 0
+  },
+  "results": {
+    "conditional_etc": "Quoted by source using requested conditions; actual eligibility, device/card, timing and driving can change final toll.",
+    "currency": "JPY",
+    "distance_unit": "km",
+    "maximum_waypoints": 5,
+    "minute_increments": [
+      0,
+      10,
+      20,
+      30,
+      40,
+      50
+    ],
+    "payment_columns": [
+      "standard",
+      "etc",
+      "etc2"
+    ],
+    "priorities": {
+      "distance": "1",
+      "time": "2",
+      "toll": "3"
+    },
+    "time_kinds": {
+      "arrival": "2",
+      "departure": "1"
+    },
+    "time_unit": "minutes",
+    "timezone": "Asia/Tokyo",
+    "vehicle_classes": {
+      "extra-large": "4",
+      "large": "3",
+      "light": "0",
+      "medium": "2",
+      "standard": "1"
+    }
+  }
+}

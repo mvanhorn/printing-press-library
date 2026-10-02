@@ -1,0 +1,67 @@
+{
+  "meta": {
+    "source": "live",
+    "provider": "NEXCO East / Drive Plaza",
+    "retrieved_at": "2026-10-02T02:56:12Z",
+    "timezone": "Asia/Tokyo",
+    "source_urls": [
+      "https://en.driveplaza.com/dp/SearchQuickEN?arrivePlaceKana=sendai-minami&carType=1&keiyuPlaceKana=&keiyuPlaceKana2=&keiyuPlaceKana3=&keiyuPlaceKana4=&keiyuPlaceKana5=&kind=2&priority=3&searchDay=10&searchHour=8&searchMinute=0&searchMonth=10&searchYear=2026&selectickindflg=0&startPlaceKana=nerima"
+    ],
+    "upstream_requests": 1,
+    "warnings": []
+  },
+  "results": {
+    "assumptions": {
+      "from": "nerima",
+      "to": "sendai-minami",
+      "at_jst": "2026-10-10T08:00",
+      "vehicle": "standard",
+      "priority": "toll",
+      "time_kind": "arrival",
+      "payment": "etc2",
+      "via": [],
+      "exclude_urban_expressways": false,
+      "exclude_ordinary_roads": false
+    },
+    "alternatives": [
+      {
+        "id": "route-1",
+        "standard_jpy": 8420,
+        "etc_jpy": 8420,
+        "etc2_jpy": 8270,
+        "selected_jpy": 8270,
+        "ignoring_traffic_minutes": 224,
+        "considering_traffic_minutes": 224,
+        "distance_km": 358,
+        "warnings": [
+          "You cannot drive on the Sendai-NanbuExpwy to the SENDAI-MINAMI-IC to descend to an ordinary road.　　You cannot enter the Sendai-NanbuExpwy (lane towards the SENDAI-WAKABAYASHI-JCT) from an ordinary road."
+        ]
+      },
+      {
+        "id": "route-2",
+        "standard_jpy": 8420,
+        "etc_jpy": 5890,
+        "etc2_jpy": 5890,
+        "selected_jpy": 5890,
+        "ignoring_traffic_minutes": 251,
+        "considering_traffic_minutes": 251,
+        "distance_km": 404,
+        "warnings": []
+      },
+      {
+        "id": "route-3",
+        "standard_jpy": 8490,
+        "etc_jpy": 7970,
+        "etc2_jpy": 7970,
+        "selected_jpy": 7970,
+        "ignoring_traffic_minutes": 213,
+        "considering_traffic_minutes": 213,
+        "distance_km": 345.2,
+        "warnings": []
+      }
+    ],
+    "url": "https://en.driveplaza.com/dp/SearchQuickEN?arrivePlaceKana=sendai-minami&carType=1&keiyuPlaceKana=&keiyuPlaceKana2=&keiyuPlaceKana3=&keiyuPlaceKana4=&keiyuPlaceKana5=&kind=2&priority=3&searchDay=10&searchHour=8&searchMinute=0&searchMonth=10&searchYear=2026&selectickindflg=0&startPlaceKana=nerima",
+    "timing_basis": "Provider ignoring/considering traffic estimates for the requested JST schedule; considering traffic is not guaranteed live-now travel time.",
+    "toll_basis": "JPY source estimates. ETC/ETC2.0 depend on actual card/device eligibility, route and timing; no local discount formula or guaranteed final charge."
+  }
+}

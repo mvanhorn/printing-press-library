@@ -1,0 +1,151 @@
+{
+  "name": "driveplaza",
+  "description": "Plan expressway journeys with source toll estimates, directional rest stops and official advisories.",
+  "cli_description": "Plan expressway journeys with source toll estimates, directional rest stops and official advisories.",
+  "version": "0.1.0",
+  "category": "travel",
+  "base_url": "https://en.driveplaza.com",
+  "health_check_path": "/dp/SAPAServiceEN",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "cache": {
+    "enabled": false
+  },
+  "mcp": {
+    "transport": [
+      "stdio"
+    ]
+  },
+  "learn": {
+    "entity_lookup_seeds": {
+      "road": [
+        {
+          "canonical": "【E4】Tohoku Expressway",
+          "aliases": [
+            "tohoku",
+            "東北自動車道",
+            "1040"
+          ]
+        },
+        {
+          "canonical": "【E17】Kan-Etsu Expressway",
+          "aliases": [
+            "kan-etsu",
+            "関越自動車道",
+            "1800"
+          ]
+        }
+      ],
+      "vehicle": [
+        {
+          "canonical": "light vehicle",
+          "aliases": [
+            "light",
+            "軽自動車"
+          ]
+        },
+        {
+          "canonical": "standard size vehicle",
+          "aliases": [
+            "standard",
+            "普通車"
+          ]
+        },
+        {
+          "canonical": "medium-size vehicle",
+          "aliases": [
+            "medium",
+            "中型車"
+          ]
+        },
+        {
+          "canonical": "large-size vehicle",
+          "aliases": [
+            "large",
+            "大型車"
+          ]
+        },
+        {
+          "canonical": "extra-large vehicle",
+          "aliases": [
+            "extra-large",
+            "特大車"
+          ]
+        }
+      ]
+    }
+  },
+  "resources": {
+    "reference": {
+      "description": "Inspect the official search forms and planned-work handoffs. Use route and sapa for parsed planning data.",
+      "endpoints": {
+        "route_form": {
+          "method": "GET",
+          "path": "/dp/SearchTopEN",
+          "description": "Inspect the official English route form.",
+          "response_format": "html",
+          "html_extract": {
+            "mode": "page"
+          },
+          "response": {
+            "type": "object",
+            "item": "ReferencePage"
+          }
+        },
+        "rest_form": {
+          "method": "GET",
+          "path": "/dp/SAPAServiceEN",
+          "description": "Inspect the official English SA/PA search form.",
+          "response_format": "html",
+          "html_extract": {
+            "mode": "page"
+          },
+          "response": {
+            "type": "object",
+            "item": "ReferencePage"
+          }
+        },
+        "schedule": {
+          "method": "GET",
+          "path": "/traffic/roadinfo/schedule/",
+          "base_url": "https://www.driveplaza.com",
+          "description": "Inspect official planned-work handoffs.",
+          "response_format": "html",
+          "html_extract": {
+            "mode": "links",
+            "link_prefixes": [
+              "/construction-regulation",
+              "/lane",
+              "/traffic/construction",
+              "/traffic_info/construction"
+            ]
+          },
+          "response": {
+            "type": "object",
+            "item": "ReferencePage"
+          }
+        }
+      }
+    }
+  },
+  "types": {
+    "ReferencePage": {
+      "fields": [
+        {
+          "name": "url",
+          "type": "string"
+        },
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "links",
+          "type": "array"
+        }
+      ]
+    }
+  }
+}

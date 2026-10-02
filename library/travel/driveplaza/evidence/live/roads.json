@@ -1,0 +1,28 @@
+{
+  "meta": {
+    "source": "live",
+    "provider": "NEXCO East / Drive Plaza",
+    "retrieved_at": "2026-10-02T02:56:10Z",
+    "timezone": "Asia/Tokyo",
+    "source_urls": [
+      "https://en.driveplaza.com/dp/SAPAServiceEN",
+      "https://www.driveplaza.com/dp/SAPAService"
+    ],
+    "upstream_requests": 2,
+    "warnings": []
+  },
+  "results": {
+    "items": [
+      {
+        "id": "1040",
+        "name_en": "【E4】Tohoku Expressway",
+        "name_ja": "【E4】東北自動車道"
+      }
+    ],
+    "total": 1,
+    "offset": 0,
+    "limit": 10,
+    "next_offset": null,
+    "scanned_items": 74
+  }
+}

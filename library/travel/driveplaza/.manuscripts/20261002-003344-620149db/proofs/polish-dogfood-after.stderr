@@ -1,0 +1,5 @@
+dogfood: using spec <CLI_DIR>/spec.yaml (bundled)
+warning: no servers defined in spec; generated CLI will require base_url in config
+warning: accepted root-level 'mcp:' for backwards compatibility; rename to 'x-mcp:' per OpenAPI extension convention
+dogfood: synced README.md (Unique Features) from novel_features_built
+dogfood: synced SKILL.md (Unique Capabilities) from novel_features_built

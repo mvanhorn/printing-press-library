@@ -1,0 +1,147 @@
+[
+  {
+    "path": "interchanges",
+    "exit": 0,
+    "local_help": "Resolve exact source names before requesting a route. English results are joined by stable IC ID to the Japanese name endpoint. Code lookup is Japanese only and may omit road information. Partial name enrichment appears in meta.warnings; missing values are null.\n\nUsage:\n  driveplaza-pp-cli interchanges [flags]\n\nExamples:\n  driveplaza-pp-cli interchanges --query nerima --language en --agent\n  driveplaza-pp-cli interchanges --query 練馬 --language ja --agent\n  driveplaza-pp-cli interchanges --code 1800001 --agent\n\nFlags:\n      --code string       Exact 7-digit interchange ID; Japanese code lookup, exclusive with --query\n  -h, --help              help for interchanges\n      --kind string       Interchange use: start or arrive; source suggestions can differ (default \"start\")\n      --language string   Lookup language: ja or en; English rows also request Japanese names (default \"ja\")\n      --limit int         Maximum results to return (1..30); output pagination only (default 10)\n      --offset int        Skip this many matching records from the current source response\n      --query string      Source name query; use canonical English spelling for --language en\n      --road string       Restrict name results to this 4-digit source road ID\n\n"
+  },
+  {
+    "path": "roads",
+    "exit": 0,
+    "local_help": "List source road IDs and bilingual road names\n\nUsage:\n  driveplaza-pp-cli roads [flags]\n\nExamples:\n  driveplaza-pp-cli roads --query tohoku --agent\n\nFlags:\n  -h, --help           help for roads\n      --limit int      Maximum results to return (1..30); output pagination only (default 10)\n      --offset int     Skip this many matching records from the current source response\n      --query string   Case-insensitive local match against road ID, English or Japanese name\n\n"
+  },
+  {
+    "path": "conditions",
+    "exit": 0,
+    "local_help": "Explain source vehicle, time, priority and toll assumptions\n\nUsage:\n  driveplaza-pp-cli conditions [flags]\n\nExamples:\n  driveplaza-pp-cli conditions --agent\n\nFlags:\n  -h, --help   help for conditions\n\n"
+  },
+  {
+    "path": "route",
+    "exit": 0,
+    "local_help": "Request source estimates using exact English IC names and an explicit JST departure or arrival time. Minutes must be 00,10,20,30,40,50. --payment selects the source standard/ETC/ETC2.0 column and does not recompute discounts. ETC prices depend on actual eligibility and travel. Considering-traffic times are source estimates for the requested schedule. Use --detail for directional stop and forecast links.\n\nUsage:\n  driveplaza-pp-cli route [flags]\n\nExamples:\n  driveplaza-pp-cli route --from nerima --to sendai-minami --at 2026-10-10T08:00 --vehicle standard --payment etc --agent\n  driveplaza-pp-cli route --from nerima --to sendai-minami --at 2026-10-10T08:00 --detail --agent\n\nFlags:\n      --at string          Planned JST time YYYY-MM-DDTHH:MM; ten-minute increments only\n      --detail             Include directional rest-stop identities and predicted-traffic handoff URLs\n      --exclude-ordinary   Set the source form option to exclude ordinary roads\n      --exclude-urban      Set the source form option to exclude urban expressways\n      --from string        Exact English departure IC name from interchanges --language en\n  -h, --help               help for route\n      --payment string     Selected source toll column: standard, etc or etc2 (default \"standard\")\n      --priority string    Source alternative ordering: time, distance or toll (default \"time\")\n      --time-kind string   Meaning of --at: departure or arrival in JST (default \"departure\")\n      --to string          Exact English arrival IC name from interchanges --kind arrive --language en\n      --vehicle string     Source class: light, standard, medium, large or extra-large (default \"standard\")\n      --via strings        Up to five exact English waypoint IC names, in route order\n\n"
+  },
+  {
+    "path": "sapa",
+    "exit": 0,
+    "local_help": "Use list for road-specific summaries, detail for facility sections and weekday hours, and facilities for source filter IDs. Up/down are provider direction identities. Availability and weekday hours do not establish that a facility is open now.\n\nUsage:\n  driveplaza-pp-cli sapa [flags]\n  driveplaza-pp-cli sapa [command]\n\nAvailable Commands:\n  detail      Read a directional stop's source facilities and weekday hours\n  facilities  List the source facility-selection IDs and labels\n  list        List directional stops on a source road with facility evidence\n\nFlags:\n  -h, --help   help for sapa\n\n"
+  },
+  {
+    "path": "sapa list",
+    "exit": 0,
+    "local_help": "Fetch one road response in English and Japanese, then paginate matching summaries locally. --query is local and case-insensitive, so it avoids the English form's case-sensitive name search. Facility filter semantics are the provider's selection; gray or none icons mean unavailable, missing icons mean unknown. The source's non-East data warning and weekday/holiday caveat stay attached.\n\nUsage:\n  driveplaza-pp-cli sapa list [flags]\n\nExamples:\n  driveplaza-pp-cli sapa list --road 1040 --direction up --limit 5 --agent\n  driveplaza-pp-cli sapa list --road 1040 --query HASUDA --facility 9010 --agent\n\nFlags:\n      --direction string       Provider direction: up, down or both; identities remain distinct (default \"both\")\n      --facility strings       Source facility IDs from sapa facilities, e.g.9010,5220\n  -h, --help                   help for list\n      --limit int              Maximum results to return (1..30); output pagination only (default 10)\n      --max-scan-records int   Maximum source records to examine for local matching (1..2000), separate from --limit (default 500)\n      --offset int             Skip this many matching records from the current source response\n      --open-24                Request source selection for a 24-hour facility or service; not every shop\n      --query string           Case-insensitive local match against English or Japanese stop name\n      --road string            Required 4-digit road ID from roads; requests stay road-specific\n\n"
+  },
+  {
+    "path": "sapa detail",
+    "exit": 0,
+    "local_help": "Read a directional stop's source facilities and weekday hours\n\nUsage:\n  driveplaza-pp-cli sapa detail [flags]\n\nExamples:\n  driveplaza-pp-cli sapa detail --id 1040/1040021/1 --agent\n\nFlags:\n  -h, --help        help for detail\n      --id string   Directional ID from sapa list: road/area/1(up) or road/area/2(down)\n\n"
+  },
+  {
+    "path": "sapa facilities",
+    "exit": 0,
+    "local_help": "List the source facility-selection IDs and labels\n\nUsage:\n  driveplaza-pp-cli sapa facilities [flags]\n\nExamples:\n  driveplaza-pp-cli sapa facilities --agent\n\nFlags:\n  -h, --help   help for facilities\n\n"
+  },
+  {
+    "path": "notices",
+    "exit": 0,
+    "local_help": "Read the current official RSS response. Notices may announce plans, postponements or the lifting of a closure. active_restriction is always null because titles and publication dates do not establish present road status. Follow the source link and official live traffic handoff.\n\nUsage:\n  driveplaza-pp-cli notices [flags]\n\nExamples:\n  driveplaza-pp-cli notices --limit 5 --agent\n  driveplaza-pp-cli notices --query 東北 --since 2026-09-01 --agent\n\nFlags:\n  -h, --help           help for notices\n      --limit int      Maximum results to return (1..30); output pagination only (default 10)\n      --offset int     Skip this many matching records from the current source response\n      --query string   Case-insensitive local match against the exact advisory title\n      --since string   Include source publication dates on/after YYYY-MM-DD in JST\n\n"
+  },
+  {
+    "path": "handoff",
+    "exit": 0,
+    "local_help": "Print source destinations observed during browser discovery. This command performs no navigation or current-status request. Use the operator pages to review current construction and ETC-lane restrictions.\n\nUsage:\n  driveplaza-pp-cli handoff [flags]\n\nExamples:\n  driveplaza-pp-cli handoff --agent\n  driveplaza-pp-cli handoff --purpose east_construction --agent\n\nFlags:\n  -h, --help             help for handoff\n      --purpose string   Exact handoff purpose from the unfiltered list\n\n"
+  },
+  {
+    "path": "reference",
+    "exit": 0,
+    "local_help": "Inspect the official search forms and planned-work handoffs. Use route and sapa for parsed planning data.\n\nUsage:\n  driveplaza-pp-cli reference [flags]\n  driveplaza-pp-cli reference [command]\n\nAvailable Commands:\n  rest-form   Inspect the official English SA/PA search form.\n  route-form  Inspect the official English route form.\n  schedule    Inspect official planned-work handoffs.\n\nFlags:\n  -h, --help   help for reference\n\n"
+  },
+  {
+    "path": "reference route-form",
+    "exit": 0,
+    "local_help": "Inspect the official English route form.\n\nUsage:\n  driveplaza-pp-cli reference route-form [flags]\n\nExamples:\n  driveplaza-pp-cli reference route-form\n\nFlags:\n  -h, --help   help for route-form\n\n"
+  },
+  {
+    "path": "reference rest-form",
+    "exit": 0,
+    "local_help": "Inspect the official English SA/PA search form.\n\nUsage:\n  driveplaza-pp-cli reference rest-form [flags]\n\nExamples:\n  driveplaza-pp-cli reference rest-form\n\nFlags:\n  -h, --help   help for rest-form\n\n"
+  },
+  {
+    "path": "reference schedule",
+    "exit": 0,
+    "local_help": "Inspect official planned-work handoffs.\n\nUsage:\n  driveplaza-pp-cli reference schedule [flags]\n\nExamples:\n  driveplaza-pp-cli reference schedule\n\nFlags:\n  -h, --help   help for schedule\n\n"
+  },
+  {
+    "path": "doctor",
+    "exit": 0,
+    "local_help": "Check CLI health\n\nUsage:\n  driveplaza-pp-cli doctor [flags]\n\nExamples:\n  driveplaza-pp-cli doctor\n  driveplaza-pp-cli doctor --json\n  driveplaza-pp-cli doctor --fail-on warn\n  driveplaza-pp-cli doctor --fail-on stale\n\nFlags:\n      --fail-on string   Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: path warnings plus errors; error: errors only. Default is never.\n  -h, --help             help for doctor\n\n"
+  },
+  {
+    "path": "which",
+    "exit": 0,
+    "local_help": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one. Machine output (--json/--csv/--plain/--quiet, or a pipe) still exits 2 and writes {\"matches\":[]} (or the equivalent empty table) to stdout.\n\nUsage:\n  driveplaza-pp-cli which [query] [flags]\n\nExamples:\n  driveplaza-pp-cli which \"stale tickets\"\n  driveplaza-pp-cli which \"bottleneck\"\n  driveplaza-pp-cli which --limit 1 \"send message\"\n  driveplaza-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\n"
+  },
+  {
+    "path": "recall",
+    "exit": 0,
+    "local_help": "Returns prior learnings matching the supplied query by token-set\noverlap (Jaccard >= 0.6) plus entity-aware validation. The LLM should\ncall this FIRST when starting work on a new user question; if\nfound=true AND results[0].entity_match == \"exact\" AND confidence >= 2,\nthe LLM can skip discovery and go straight to live fetch for the\nreturned resource IDs.\n\nEmpty match returns {\"found\": false, \"results\": []} with exit 0 — this\nis an information query, not a not-found error.\n\nDisabling: DRIVEPLAZA_NO_LEARN=true returns the empty shape even\nwhen learnings exist.\n\nUsage:\n  driveplaza-pp-cli recall <query> [flags]\n\nExamples:\n  QUERY=\"$(cat /path/to/question.txt)\" driveplaza-pp-cli recall \"$QUERY\" --agent\n  QUERY=\"$(cat /path/to/question.txt)\" driveplaza-pp-cli recall \"$QUERY\" --agent --min-confidence 2\n\nFlags:\n      --db string            SQLite database file path (default: resolved data directory data.db)\n      --debug-mismatches     Include cross-entity mismatches in the envelope under mismatches[]\n  -h, --help                 help for recall\n      --limit int            Maximum number of learnings to return (default 10)\n      --min-confidence int   Minimum confidence to include in results (default 1)\n\n"
+  },
+  {
+    "path": "teach",
+    "exit": 0,
+    "local_help": "Record one or more \"this query -> this resource\" mappings so the next\nquery that matches surfaces the right resources without re-running discovery.\n\nThis command is designed to be backgrounded by an LLM right before it\nemits the user-facing response: silent on success, errors only to\nthe CLI state directory's teach.log, safe to fire-and-forget.\n\nDisabling: pass --no-learn or set DRIVEPLAZA_NO_LEARN=true.\n\nUsage:\n  driveplaza-pp-cli teach [flags]\n\nExamples:\n  driveplaza-pp-cli teach --query \"find items in category\" --resource-type items --resource GROUP-category\n\nFlags:\n      --db string                    SQLite database file path (default: resolved data directory data.db)\n  -h, --help                         help for teach\n      --no-validate                  Suppress teach-time resource-shape validation (warnings to teach.log)\n      --notes string                 Optional free-form note recorded in the audit log\n      --playbook-file string         Optional path to a JSON playbook recording the CLI choreography for this query family\n      --playbook-json string         Optional inline JSON playbook (mutually exclusive with --playbook-file; for agents without filesystem access)\n      --playbook-notes string        Optional inline gotchas/workarounds for this query family (stored alongside the playbook)\n      --playbook-notes-file string   Optional path to a markdown file with playbook notes\n      --query string                 User's original natural-language question (required)\n      --quiet                        Silent on success (default true — designed for background invocation) (default true)\n      --resource strings             Resource ID — repeat for multiple (required)\n      --resource-type string         Resource type (required; e.g. matches a row in the local resources table)\n      --venue string                 Optional venue scope tag stored with the learning\n\n"
+  },
+  {
+    "path": "learnings",
+    "exit": 0,
+    "local_help": "Surface for browsing, filtering, and deleting rows in the\nsearch_learnings table that the LLM populates via the 'teach' command.\n\nUsage:\n  driveplaza-pp-cli learnings [flags]\n  driveplaza-pp-cli learnings [command]\n\nAvailable Commands:\n  candidates  List auto-captured improvement candidates awaiting judgment\n  confirm     Confirm an open candidate: print its full payload, then materialize it\n  forget      Delete learnings matching a query (use --all to wipe every rule for that query)\n  list        List recorded learnings\n  purge       Delete settled candidate rows (expired and confirmed; --tombstones adds rejected)\n  reject      Reject a candidate and tombstone its derivation signature\n  stats       Report learn-loop effectiveness metrics from the local events table\n\nFlags:\n  -h, --help   help for learnings\n\n"
+  },
+  {
+    "path": "profile",
+    "exit": 0,
+    "local_help": "Profiles capture a set of flag values under a name so a scheduled\nagent can invoke the same command with the same configuration each run.\n\n  profile save <name>         captures the current invocation's set flags\n  profile use <name>          prints the values (for inspection)\n  profile list                lists all saved profiles\n  profile show <name>         shows the values of one profile\n  profile delete <name>       removes a profile\n\nUse --profile <name> on any command to apply that profile's values.\nExplicit flags override profile values.\n\nUsage:\n  driveplaza-pp-cli profile [flags]\n  driveplaza-pp-cli profile [command]\n\nAvailable Commands:\n  delete      Remove a profile\n  list        List saved profiles\n  save        Save the current invocation's non-default flags as a named profile\n  show        Show a profile's values as JSON\n  use         Print the flag values a profile will apply (does not execute anything)\n\nFlags:\n  -h, --help   help for profile\n\n"
+  },
+  {
+    "path": "workflow",
+    "exit": 0,
+    "local_help": "Compound workflows that combine multiple API operations\n\nUsage:\n  driveplaza-pp-cli workflow [flags]\n  driveplaza-pp-cli workflow [command]\n\nAvailable Commands:\n  status      Show local archive status and sync state for all resources\n\nFlags:\n  -h, --help   help for workflow\n\n"
+  },
+  {
+    "path": "api",
+    "exit": 0,
+    "local_help": "Browse API resource interfaces using their raw command names.\n\nPromoted top-level commands cover single-endpoint shortcuts. This\ncommand lists resource parents that group multiple endpoints.\n\nRun 'api' with no arguments to list those interfaces.\nRun 'api <interface>' to see that interface's methods.\n\nUsage:\n  driveplaza-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  driveplaza-pp-cli api\n\n  # Show methods for a specific interface\n  driveplaza-pp-cli api <interface-name>\n\nFlags:\n  -h, --help   help for api\n\n"
+  },
+  {
+    "path": "agent-context",
+    "exit": 0,
+    "local_help": "Outputs a machine-readable description of commands, flags, and auth so\nagents can introspect this CLI at runtime without parsing --help or\nreading source. Schema is versioned via schema_version.\n\nUsage:\n  driveplaza-pp-cli agent-context [flags]\n\nFlags:\n  -h, --help     help for agent-context\n      --pretty   indent JSON output for human reading\n\n"
+  },
+  {
+    "path": "playbook",
+    "exit": 0,
+    "local_help": "Inspect or amend stored CLI playbooks\n\nUsage:\n  driveplaza-pp-cli playbook [flags]\n  driveplaza-pp-cli playbook [command]\n\nAvailable Commands:\n  amend       Append a note to an existing playbook (LLM-fired self-correction, silent)\n  list        List stored playbooks (query_family, content presence, last observed)\n\nFlags:\n  -h, --help   help for playbook\n\n"
+  },
+  {
+    "path": "teach-lookup",
+    "exit": 0,
+    "local_help": "Adds one row to entity_lookups. Used by the recall path's pattern\nengine to substitute values for canonical names at substitution time.\nComputed kinds (lowercase, uppercase, kebab-case, capitalize-first, slug)\ncannot be taught — they are derived from the canonical input.\n\nUsage:\n  driveplaza-pp-cli teach-lookup [flags]\n\nExamples:\n  driveplaza-pp-cli teach-lookup --kind country --canonical \"United States\" --value USA\n\nFlags:\n      --canonical string   Canonical entity name (required)\n      --db string          SQLite database file path (default: resolved data directory data.db)\n  -h, --help               help for teach-lookup\n      --kind string        Entity kind, e.g. country, team (required, must not be a computed kind)\n      --value string       Value/alias that should resolve to the canonical (required)\n\n"
+  },
+  {
+    "path": "teach-pattern",
+    "exit": 0,
+    "local_help": "Adds one row to search_patterns. The recall path uses patterns to\nsubstitute live query entities into a resource template, so a pattern\nwith query_template=\"items in {entity}\" and\nresource_template=\"GROUP-{entity:category}\" generalizes one teach into\na whole family.\n\nUsage:\n  driveplaza-pp-cli teach-pattern [flags]\n\nExamples:\n  driveplaza-pp-cli teach-pattern --query-template \"items in {entity}\" --resource-template \"GROUP-{entity:category}\" --resource-type items --entity-kind category --strategy substitute\n\nFlags:\n      --db string                  SQLite database file path (default: resolved data directory data.db)\n      --entity-kind string         Entity kind name registered in entity_lookups (required)\n  -h, --help                       help for teach-pattern\n      --query-template string      Query template with {entity} placeholder (required)\n      --resource-template string   Resource template with typed entity slot, e.g. PREFIX-{entity:country} (required)\n      --resource-type string       Resource type for substituted IDs (required)\n      --strategy string            Substitution strategy: substitute | substitute-then-search-prefix (default substitute)\n      --venue string               Optional venue scope tag\n\n"
+  },
+  {
+    "path": "teach-playbook",
+    "exit": 0,
+    "local_help": "Stores a structured CLI command sequence (with entity slots) and/or\nfree-form gotchas/workarounds, keyed on the structural query family.\nThe recall path surfaces this whenever a future query of the same\nfamily fires, so the agent can replay the choreography and read the\nnotes verbatim.\n\nAt least one of --playbook-json/--playbook-file and --notes/--notes-file\nmust be set. --playbook-json takes the playbook body inline so MCP-only\nagents can record playbooks without a file on disk.\n\nUsage:\n  driveplaza-pp-cli teach-playbook [flags]\n\nExamples:\n  driveplaza-pp-cli teach-playbook --query \"find items in category\" --notes \"example playbook note\"\n\nFlags:\n      --db string              Database path (default: standard cache location)\n  -h, --help                   help for teach-playbook\n      --notes string           Free-text notes (gotchas, workarounds) -- mutually exclusive with --notes-file\n      --notes-file string      Path to a markdown file with the notes\n      --playbook-file string   Path to a JSON file with the playbook (steps, entity_slots, expected_tool_calls)\n      --playbook-json string   Inline playbook JSON (steps, entity_slots, expected_tool_calls) -- mutually exclusive with --playbook-file\n      --query string           Example query that anchors the family (required)\n\n"
+  },
+  {
+    "path": "feedback",
+    "exit": 0,
+    "local_help": "Feedback is captured locally first in the CLI data directory's feedback.jsonl.\nWhen `DRIVEPLAZA_FEEDBACK_ENDPOINT` is set and either --send is\npassed or `DRIVEPLAZA_FEEDBACK_AUTO_SEND=true`, the entry is\nPOSTed as JSON after the local write.\n\nWrite what surprised you or tripped you up, not a bug report. The\nloop is: agent notices friction -> one invocation -> captured -> the\nmaintainer sees it.\n\nUsage:\n  driveplaza-pp-cli feedback [text] [flags]\n  driveplaza-pp-cli feedback [command]\n\nExamples:\n  driveplaza-pp-cli feedback \"docs said exclusive but the boundary is inclusive\"\n  driveplaza-pp-cli feedback --stdin < notes.txt\n  driveplaza-pp-cli feedback list\n\nAvailable Commands:\n  list        List recent feedback entries\n\nFlags:\n  -h, --help    help for feedback\n      --send    POST to the configured feedback endpoint in addition to local write\n      --stdin   Read feedback body from stdin rather than arguments\n\n"
+  },
+  {
+    "path": "version",
+    "exit": 0,
+    "local_help": "Print version\n\nUsage:\n  driveplaza-pp-cli version [flags]\n\nFlags:\n  -h, --help   help for version\n\n"
+  }
+]

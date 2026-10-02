@@ -1,0 +1,51 @@
+{
+  "meta": {
+    "observed_on": "2026-10-02",
+    "retrieved_at": null,
+    "source": "computed",
+    "status": "handoff_only",
+    "upstream_requests": 0
+  },
+  "results": [
+    {
+      "purpose": "route_planner",
+      "url": "https://en.driveplaza.com/dp/SearchTopEN",
+      "coverage": "Source route/toll estimates"
+    },
+    {
+      "purpose": "rest_stop_search",
+      "url": "https://en.driveplaza.com/dp/SAPAServiceEN",
+      "coverage": "Source directional SA/PA search"
+    },
+    {
+      "purpose": "live_traffic",
+      "url": "https://en-www.drivetraffic.jp/map.html",
+      "coverage": "Check current information in the official map; this CLI does not extract live status"
+    },
+    {
+      "purpose": "planned_restrictions",
+      "url": "https://www.driveplaza.com/traffic/roadinfo/schedule/",
+      "coverage": "Official operator links"
+    },
+    {
+      "purpose": "east_construction",
+      "url": "https://www.drivetraffic.jp/construction-regulation/",
+      "coverage": "NEXCO East scheduled construction restrictions"
+    },
+    {
+      "purpose": "east_etc_lanes",
+      "url": "https://www.drivetraffic.jp/lane/",
+      "coverage": "NEXCO East planned ETC-lane restrictions"
+    },
+    {
+      "purpose": "central_construction",
+      "url": "https://www.c-nexco.co.jp/traffic/construction/",
+      "coverage": "NEXCO Central handoff"
+    },
+    {
+      "purpose": "west_construction",
+      "url": "https://www.w-nexco.co.jp/traffic_info/construction/",
+      "coverage": "NEXCO West handoff"
+    }
+  ]
+}

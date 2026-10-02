@@ -1,0 +1,10 @@
+[
+  {
+    "check": "--via",
+    "exit": 2
+  },
+  {
+    "check": "--from",
+    "exit": 2
+  }
+]

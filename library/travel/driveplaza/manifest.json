@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "driveplaza-pp-mcp",
+  "display_name": "Drive Plaza",
+  "version": "0.1.0",
+  "description": "Plan expressway journeys with source toll estimates, directional rest stops and official advisories.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/driveplaza-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/driveplaza-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,271 @@
+{
+  "status": "pass",
+  "checks": [
+    {
+      "name": "interchanges",
+      "status": "pass",
+      "args": [
+        "interchanges",
+        "--query",
+        "nerima",
+        "--language",
+        "en",
+        "--limit",
+        "3"
+      ],
+      "output_bytes": 598,
+      "latency_ms": 1703,
+      "upstream_requests": 2,
+      "peak_rss_bytes": 25460736,
+      "warnings": []
+    },
+    {
+      "name": "roads",
+      "status": "pass",
+      "args": [
+        "roads",
+        "--query",
+        "1040"
+      ],
+      "output_bytes": 451,
+      "latency_ms": 1341,
+      "upstream_requests": 2,
+      "peak_rss_bytes": 27574272,
+      "warnings": []
+    },
+    {
+      "name": "conditions",
+      "status": "pass",
+      "args": [
+        "conditions"
+      ],
+      "output_bytes": 687,
+      "latency_ms": 14,
+      "upstream_requests": 0,
+      "peak_rss_bytes": 19202048,
+      "warnings": []
+    },
+    {
+      "name": "route-standard",
+      "status": "pass",
+      "args": [
+        "route",
+        "--from",
+        "nerima",
+        "--to",
+        "sendai-minami",
+        "--at",
+        "2026-10-10T08:00",
+        "--payment",
+        "etc",
+        "--detail"
+      ],
+      "output_bytes": 5172,
+      "latency_ms": 855,
+      "upstream_requests": 1,
+      "peak_rss_bytes": 28524544,
+      "warnings": []
+    },
+    {
+      "name": "route-light",
+      "status": "pass",
+      "args": [
+        "route",
+        "--from",
+        "nerima",
+        "--to",
+        "sendai-minami",
+        "--at",
+        "2026-10-10T08:00",
+        "--vehicle",
+        "light"
+      ],
+      "output_bytes": 2282,
+      "latency_ms": 835,
+      "upstream_requests": 1,
+      "peak_rss_bytes": 28459008,
+      "warnings": []
+    },
+    {
+      "name": "route-arrival",
+      "status": "pass",
+      "args": [
+        "route",
+        "--from",
+        "nerima",
+        "--to",
+        "sendai-minami",
+        "--at",
+        "2026-10-10T08:00",
+        "--time-kind",
+        "arrival",
+        "--priority",
+        "toll",
+        "--payment",
+        "etc2"
+      ],
+      "output_bytes": 2279,
+      "latency_ms": 851,
+      "upstream_requests": 1,
+      "peak_rss_bytes": 28524544,
+      "warnings": []
+    },
+    {
+      "name": "sapa-hasuda",
+      "status": "pass",
+      "args": [
+        "sapa",
+        "list",
+        "--road",
+        "1040",
+        "--query",
+        "hasuda"
+      ],
+      "output_bytes": 1838,
+      "latency_ms": 1403,
+      "upstream_requests": 2,
+      "peak_rss_bytes": 29999104,
+      "warnings": [
+        "Source warns that other operators' SA/PA data is dated 2006-03-31. Facility hours are weekday guidance and may vary on holidays. Availability is not an open-now guarantee."
+      ]
+    },
+    {
+      "name": "sapa-ev",
+      "status": "pass",
+      "args": [
+        "sapa",
+        "list",
+        "--road",
+        "1040",
+        "--direction",
+        "up",
+        "--facility",
+        "9010",
+        "--limit",
+        "3"
+      ],
+      "output_bytes": 2467,
+      "latency_ms": 1611,
+      "upstream_requests": 3,
+      "peak_rss_bytes": 28278784,
+      "warnings": [
+        "Source warns that other operators' SA/PA data is dated 2006-03-31. Facility hours are weekday guidance and may vary on holidays. Availability is not an open-now guarantee."
+      ]
+    },
+    {
+      "name": "sapa-empty",
+      "status": "pass",
+      "args": [
+        "sapa",
+        "list",
+        "--road",
+        "1040",
+        "--query",
+        "no-match-zz999"
+      ],
+      "output_bytes": 860,
+      "latency_ms": 1283,
+      "upstream_requests": 2,
+      "peak_rss_bytes": 28950528,
+      "warnings": [
+        "Source warns that other operators' SA/PA data is dated 2006-03-31. Facility hours are weekday guidance and may vary on holidays. Availability is not an open-now guarantee."
+      ]
+    },
+    {
+      "name": "sapa-detail",
+      "status": "pass",
+      "args": [
+        "sapa",
+        "detail",
+        "--id",
+        "1040/1040021/1"
+      ],
+      "output_bytes": 4874,
+      "latency_ms": 984,
+      "upstream_requests": 2,
+      "peak_rss_bytes": 26509312,
+      "warnings": [
+        "Source warns that other operators' SA/PA data is dated 2006-03-31. Facility hours are weekday guidance and may vary on holidays. Availability is not an open-now guarantee."
+      ]
+    },
+    {
+      "name": "notices",
+      "status": "pass",
+      "args": [
+        "notices",
+        "--limit",
+        "5"
+      ],
+      "output_bytes": 2921,
+      "latency_ms": 418,
+      "upstream_requests": 1,
+      "peak_rss_bytes": 25149440,
+      "warnings": []
+    },
+    {
+      "name": "notices-empty",
+      "status": "pass",
+      "args": [
+        "notices",
+        "--query",
+        "no-match-zz999"
+      ],
+      "output_bytes": 677,
+      "latency_ms": 414,
+      "upstream_requests": 1,
+      "peak_rss_bytes": 25542656,
+      "warnings": []
+    },
+    {
+      "name": "selection",
+      "status": "pass",
+      "args": [
+        "sapa",
+        "list",
+        "--road",
+        "1040",
+        "--query",
+        "hasuda",
+        "--select",
+        "items.id,items.name_ja,items.direction,items.url"
+      ],
+      "output_bytes": 909,
+      "latency_ms": 1346,
+      "upstream_requests": 2,
+      "peak_rss_bytes": 30113792,
+      "warnings": [
+        "Source warns that other operators' SA/PA data is dated 2006-03-31. Facility hours are weekday guidance and may vary on holidays. Availability is not an open-now guarantee."
+      ]
+    },
+    {
+      "name": "handoff",
+      "status": "pass",
+      "args": [
+        "handoff"
+      ],
+      "output_bytes": 1217,
+      "latency_ms": 19,
+      "upstream_requests": 0,
+      "peak_rss_bytes": 19267584,
+      "warnings": []
+    },
+    {
+      "name": "invalid-date",
+      "status": "pass",
+      "expected_exit": 2,
+      "actual_exit": 2
+    },
+    {
+      "name": "invalid-minute",
+      "status": "pass",
+      "expected_exit": 2,
+      "actual_exit": 2
+    },
+    {
+      "name": "invalid-facility",
+      "status": "pass",
+      "expected_exit": 2,
+      "actual_exit": 2
+    }
+  ]
+}

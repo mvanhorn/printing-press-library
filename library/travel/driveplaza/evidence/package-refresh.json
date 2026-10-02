@@ -1,0 +1,12 @@
+{
+  "zip_entries": [
+    "manifest.json",
+    "bin/driveplaza-pp-mcp",
+    "bin/driveplaza-pp-cli"
+  ],
+  "binary_sha256": {
+    "bin/driveplaza-pp-mcp": "d3557509da9527205f02d8f8c2fe6c7a0bda094f90158227ee3f7d755997bb58",
+    "bin/driveplaza-pp-cli": "81c2dd43fb7d909928e3a1da7d79e785ace5a0e194ddcd91e539b4c2385ae5b1"
+  },
+  "stage_matches_bundle": true
+}

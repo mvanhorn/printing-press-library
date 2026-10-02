@@ -1,0 +1,190 @@
+{
+  "meta": {
+    "source": "live",
+    "provider": "NEXCO East / Drive Plaza",
+    "retrieved_at": "2026-10-02T02:56:10Z",
+    "timezone": "Asia/Tokyo",
+    "source_urls": [
+      "https://en.driveplaza.com/dp/SearchQuickEN?arrivePlaceKana=sendai-minami&carType=1&keiyuPlaceKana=&keiyuPlaceKana2=&keiyuPlaceKana3=&keiyuPlaceKana4=&keiyuPlaceKana5=&kind=1&priority=2&searchDay=10&searchHour=8&searchMinute=0&searchMonth=10&searchYear=2026&selectickindflg=0&startPlaceKana=nerima"
+    ],
+    "upstream_requests": 1,
+    "warnings": []
+  },
+  "results": {
+    "assumptions": {
+      "from": "nerima",
+      "to": "sendai-minami",
+      "at_jst": "2026-10-10T08:00",
+      "vehicle": "standard",
+      "priority": "time",
+      "time_kind": "departure",
+      "payment": "etc",
+      "via": [],
+      "exclude_urban_expressways": false,
+      "exclude_ordinary_roads": false
+    },
+    "alternatives": [
+      {
+        "id": "route-1",
+        "standard_jpy": 8490,
+        "etc_jpy": 7970,
+        "etc2_jpy": 7970,
+        "selected_jpy": 7970,
+        "ignoring_traffic_minutes": 213,
+        "considering_traffic_minutes": 273,
+        "distance_km": 345.2,
+        "warnings": [
+          "You cannot drive on the Sendai-NanbuExpwy to the SENDAI-MINAMI-IC to descend to an ordinary road.　　You cannot enter the Sendai-NanbuExpwy (lane towards the SENDAI-WAKABAYASHI-JCT) from an ordinary road."
+        ],
+        "directional_stops": [
+          {
+            "id": "1110/1110230/2",
+            "name": "1 NIIKURA-PA",
+            "url": "https://en.driveplaza.com/sapa/1110/1110230/2/",
+            "distance_km": null
+          },
+          {
+            "id": "1040/1040021/2",
+            "name": "1 HASUDA-SA",
+            "url": "https://en.driveplaza.com/sapa/1040/1040021/2/",
+            "distance_km": null
+          },
+          {
+            "id": "1040/1040041/2",
+            "name": "2 HANYU-PA",
+            "url": "https://en.driveplaza.com/sapa/1040/1040041/2/",
+            "distance_km": null
+          },
+          {
+            "id": "1040/1040056/2",
+            "name": "3 SANO-SA",
+            "url": "https://en.driveplaza.com/sapa/1040/1040056/2/",
+            "distance_km": null
+          },
+          {
+            "id": "1040/1040071/2",
+            "name": "4 TSUGA-NISHIKATA-PA",
+            "url": "https://en.driveplaza.com/sapa/1040/1040071/2/",
+            "distance_km": null
+          },
+          {
+            "id": "1040/1040081/2",
+            "name": "5 OYA-PA",
+            "url": "https://en.driveplaza.com/sapa/1040/1040081/2/",
+            "distance_km": null
+          },
+          {
+            "id": "1040/1040091/2",
+            "name": "6 KAMIKAWACHI-SA",
+            "url": "https://en.driveplaza.com/sapa/1040/1040091/2/",
+            "distance_km": null
+          },
+          {
+            "id": "1040/1040101/2",
+            "name": "7 YAITA-KITA-PA",
+            "url": "https://en.driveplaza.com/sapa/1040/1040101/2/",
+            "distance_km": null
+          },
+          {
+            "id": "1040/1040111/2",
+            "name": "8 KUROISO-PA",
+            "url": "https://en.driveplaza.com/sapa/1040/1040111/2/",
+            "distance_km": null
+          },
+          {
+            "id": "1040/1040121/2",
+            "name": "9 NASUKOGEN-SA",
+            "url": "https://en.driveplaza.com/sapa/1040/1040121/2/",
+            "distance_km": null
+          },
+          {
+            "id": "1040/1040131/2",
+            "name": "10 ABUKUMA-PA",
+            "url": "https://en.driveplaza.com/sapa/1040/1040131/2/",
+            "distance_km": null
+          },
+          {
+            "id": "1040/1040141/2",
+            "name": "11 KAGAMIISHI-PA",
+            "url": "https://en.driveplaza.com/sapa/1040/1040141/2/",
+            "distance_km": null
+          },
+          {
+            "id": "1040/1040151/2",
+            "name": "12 ASAKA-PA",
+            "url": "https://en.driveplaza.com/sapa/1040/1040151/2/",
+            "distance_km": null
+          },
+          {
+            "id": "1040/1040176/2",
+            "name": "13 ADATARA-SA",
+            "url": "https://en.driveplaza.com/sapa/1040/1040176/2/",
+            "distance_km": null
+          },
+          {
+            "id": "1040/1040186/2",
+            "name": "14 FUKUSHIMA-MATSUKAWA-PA",
+            "url": "https://en.driveplaza.com/sapa/1040/1040186/2/",
+            "distance_km": null
+          },
+          {
+            "id": "1040/1040196/2",
+            "name": "15 AZUMA-PA",
+            "url": "https://en.driveplaza.com/sapa/1040/1040196/2/",
+            "distance_km": null
+          },
+          {
+            "id": "1040/1040211/2",
+            "name": "16 KUNIMI-SA",
+            "url": "https://en.driveplaza.com/sapa/1040/1040211/2/",
+            "distance_km": null
+          },
+          {
+            "id": "1040/1040219/2",
+            "name": "17 ZAO-PA",
+            "url": "https://en.driveplaza.com/sapa/1040/1040219/2/",
+            "distance_km": null
+          },
+          {
+            "id": "1040/1040231/2",
+            "name": "18 SUGO-PA",
+            "url": "https://en.driveplaza.com/sapa/1040/1040231/2/",
+            "distance_km": null
+          }
+        ],
+        "forecast_urls": [
+          "https://www.drivetraffic.jp/map.html?t=p&fctime=202610100800&lat=35,45,4,77&lon=139,36,38,97",
+          "https://www.drivetraffic.jp/map.html?t=p&fctime=202610100800&lat=35,45,14,97&lon=139,36,5,14",
+          "https://www.drivetraffic.jp/map.html?t=p&fctime=202610100800&lat=35,50,59,22&lon=139,44,13,74",
+          "https://www.drivetraffic.jp/map.html?t=p&fctime=202610100800&lat=35,53,24,42&lon=139,43,25,31",
+          "https://www.drivetraffic.jp/map.html?t=p&fctime=202610100800&lat=38,12,45,41&lon=140,48,33,52"
+        ]
+      },
+      {
+        "id": "route-2",
+        "standard_jpy": 8420,
+        "etc_jpy": 8420,
+        "etc2_jpy": 8270,
+        "selected_jpy": 8420,
+        "ignoring_traffic_minutes": 224,
+        "considering_traffic_minutes": 301,
+        "distance_km": 358,
+        "warnings": []
+      },
+      {
+        "id": "route-3",
+        "standard_jpy": 8420,
+        "etc_jpy": 8420,
+        "etc2_jpy": 8270,
+        "selected_jpy": 8420,
+        "ignoring_traffic_minutes": 251,
+        "considering_traffic_minutes": 334,
+        "distance_km": 404,
+        "warnings": []
+      }
+    ],
+    "url": "https://en.driveplaza.com/dp/SearchQuickEN?arrivePlaceKana=sendai-minami&carType=1&keiyuPlaceKana=&keiyuPlaceKana2=&keiyuPlaceKana3=&keiyuPlaceKana4=&keiyuPlaceKana5=&kind=1&priority=2&searchDay=10&searchHour=8&searchMinute=0&searchMonth=10&searchYear=2026&selectickindflg=0&startPlaceKana=nerima",
+    "timing_basis": "Provider ignoring/considering traffic estimates for the requested JST schedule; considering traffic is not guaranteed live-now travel time.",
+    "toll_basis": "JPY source estimates. ETC/ETC2.0 depend on actual card/device eligibility, route and timing; no local discount formula or guaranteed final charge."
+  }
+}

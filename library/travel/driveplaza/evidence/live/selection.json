@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "source": "live",
+    "provider": "NEXCO East / Drive Plaza",
+    "retrieved_at": "2026-10-02T02:56:20Z",
+    "timezone": "Asia/Tokyo",
+    "source_urls": [
+      "https://en.driveplaza.com/dp/SAPAServResEN?AREA=&HIGHWAY=1040&arealist=0&arriveIcName=&keiroCodeCSV=&startIcName=",
+      "https://www.driveplaza.com/dp/SAPAServRes?AREA=&HIGHWAY=1040&arealist=0&arriveIcName=&keiroCodeCSV=&startIcName="
+    ],
+    "upstream_requests": 2,
+    "warnings": [
+      "Source warns that other operators' SA/PA data is dated 2006-03-31. Facility hours are weekday guidance and may vary on holidays. Availability is not an open-now guarantee."
+    ]
+  },
+  "results": {
+    "items": [
+      {
+        "direction": "up",
+        "id": "1040/1040021/1",
+        "name_ja": "蓮田ＳＡ(上)",
+        "url": "https://en.driveplaza.com/sapa/1040/1040021/1/"
+      },
+      {
+        "direction": "down",
+        "id": "1040/1040021/2",
+        "name_ja": "蓮田ＳＡ(下)",
+        "url": "https://en.driveplaza.com/sapa/1040/1040021/2/"
+      }
+    ]
+  }
+}
