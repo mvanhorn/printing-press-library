@@ -57,6 +57,12 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 
 			resources := []string{"categories", "riders", "seasons"}
 			totalSynced := 0
+			successfulResources := 0
+			type resourceFailure struct {
+				Resource string `json:"resource"`
+				Error    string `json:"error"`
+			}
+			var failedResources []resourceFailure
 			syncEventWriter := cmd.OutOrStdout()
 			if flags.asJSON {
 				syncEventWriter = cmd.ErrOrStderr()
@@ -67,7 +73,9 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			// since filter, not cursor reset. Mirrors newSyncCmd's pattern.
 			if full {
 				for _, resource := range resources {
-					_ = s.SaveSyncState(resource, "", 0)
+					if err := s.SaveSyncState(resource, "", 0); err != nil {
+						return fmt.Errorf("resetting %s sync state: %w", resource, err)
+					}
 				}
 			}
 
@@ -75,12 +83,15 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 				res := syncResource(cmd.Context(), c, s, resource, "", full, 100, false, false, nil, syncEventWriter)
 				if res.Err != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: error: %v\n", resource, res.Err)
+					failedResources = append(failedResources, resourceFailure{Resource: resource, Error: res.Err.Error()})
 					continue
 				}
 				if res.Warn != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: warning: %v\n", resource, res.Warn)
+					failedResources = append(failedResources, resourceFailure{Resource: resource, Error: res.Warn.Error()})
 					continue
 				}
+				successfulResources++
 				totalSynced += res.Count
 				fmt.Fprintf(cmd.ErrOrStderr(), "  %s: %d synced\n", resource, res.Count)
 			}
@@ -88,15 +99,27 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			if flags.asJSON {
 				enc := json.NewEncoder(cmd.OutOrStdout())
 				enc.SetIndent("", "  ")
-				return enc.Encode(map[string]any{
-					"resources_synced": len(resources),
+				if err := enc.Encode(map[string]any{
+					"resources_total":  len(resources),
+					"resources_synced": successfulResources,
+					"resources_failed": len(failedResources),
+					"failed_resources": failedResources,
 					"total_items":      totalSynced,
 					"store_path":       dbPath,
 					"timestamp":        time.Now().UTC().Format(time.RFC3339),
-				})
+				}); err != nil {
+					return err
+				}
+				if len(failedResources) > 0 {
+					return fmt.Errorf("archive incomplete: %d of %d resources failed", len(failedResources), len(resources))
+				}
+				return nil
 			}
 
-			fmt.Fprintf(cmd.OutOrStdout(), "Archived %d items across %d resources to %s\n", totalSynced, len(resources), dbPath)
+			fmt.Fprintf(cmd.OutOrStdout(), "Archived %d items across %d of %d resources to %s\n", totalSynced, successfulResources, len(resources), dbPath)
+			if len(failedResources) > 0 {
+				return fmt.Errorf("archive incomplete: %d of %d resources failed", len(failedResources), len(resources))
+			}
 			return nil
 		},
 	}

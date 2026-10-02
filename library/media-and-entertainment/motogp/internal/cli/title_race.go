@@ -87,25 +87,36 @@ func newNovelTitleRaceCmd(flags *rootFlags) *cobra.Command {
 				Standings    map[string]int `json:"standings"`
 			}
 			var rounds []roundOut
-			for i, ev := range events {
-				sess, err := resolveSession(ctx, c, flags, ev.ID, cat.ID, "race")
+			for _, ev := range events {
+				sessions, err := listSessions(ctx, c, flags, ev.ID, cat.ID)
 				if err != nil {
-					continue // some events (tests) have no race
+					return classifyAPIError(fmt.Errorf("fetching sessions for %s: %w", ev.label(), err), flags)
 				}
-				rows, err := sessionClassification(ctx, c, flags, sess.ID)
-				if err != nil {
-					continue
+				raceSession, ok := findSession(sessions, "race")
+				if !ok {
+					continue // future or test events may not have a race session
 				}
-				winner := ""
-				for _, r := range rows {
-					key := r.Rider.stableKey()
-					name := r.Rider.fullName()
-					cumulative[key] += r.Points
-					if name != "" {
-						names[key] = name
+
+				// A MotoGP championship round may award points in both a sprint
+				// and the main race. Add the optional sprint first so the round
+				// snapshot reflects every championship point awarded that weekend.
+				if sprintSession, ok := findSession(sessions, "sprint"); ok {
+					sprintRows, err := sessionClassification(ctx, c, flags, sprintSession.ID)
+					if err != nil {
+						return classifyAPIError(fmt.Errorf("fetching sprint classification for %s: %w", ev.label(), err), flags)
 					}
+					accumulateClassification(cumulative, names, sprintRows)
+				}
+
+				raceRows, err := sessionClassification(ctx, c, flags, raceSession.ID)
+				if err != nil {
+					return classifyAPIError(fmt.Errorf("fetching race classification for %s: %w", ev.label(), err), flags)
+				}
+				accumulateClassification(cumulative, names, raceRows)
+				winner := ""
+				for _, r := range raceRows {
 					if r.Position == 1 {
-						winner = name
+						winner = r.Rider.fullName()
 					}
 				}
 				// Snapshot is keyed by display name for output; leader is
@@ -121,7 +132,7 @@ func newNovelTitleRaceCmd(flags *rootFlags) *cobra.Command {
 				}
 				leader, leaderPts := leaderOf(snapshot)
 				rounds = append(rounds, roundOut{
-					Round:        i + 1,
+					Round:        len(rounds) + 1,
 					Event:        ev.label(),
 					Winner:       winner,
 					Leader:       leader,
@@ -154,6 +165,16 @@ func newNovelTitleRaceCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().IntVar(&maxRounds, "rounds", 0, "Limit to the first N finished rounds (0 = all)")
 	return cmd
+}
+
+func accumulateClassification(cumulative map[string]int, names map[string]string, rows []classificationRow) {
+	for _, row := range rows {
+		key := row.Rider.stableKey()
+		cumulative[key] += row.Points
+		if name := row.Rider.fullName(); name != "" {
+			names[key] = name
+		}
+	}
 }
 
 func leaderOf(points map[string]int) (string, int) {

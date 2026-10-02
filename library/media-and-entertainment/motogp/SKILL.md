@@ -25,7 +25,11 @@ This skill drives the `motogp-pp-cli` binary. **You must verify the CLI is insta
 2. Verify: `motogp-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), install the CLI directly with Go 1.26.6 or newer. This puts the binary in `$GOPATH/bin` (normally `$HOME/go/bin`), which must be on `$PATH`:
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/motogp/cmd/motogp-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 

@@ -293,12 +293,27 @@ func resolveSession(ctx context.Context, c *client.Client, flags *rootFlags, eve
 	if err != nil {
 		return mgpSession{}, err
 	}
+	if session, ok := findSession(sessions, token); ok {
+		return session, nil
+	}
+	return mgpSession{}, sessionNotFoundError(sessions, token)
+}
+
+// findSession selects a session from an already-fetched event schedule. Novel
+// commands that need both sprint and race results use this helper so the
+// sessions endpoint is fetched once and an absent optional sprint is distinct
+// from a failed API request.
+func findSession(sessions []mgpSession, token string) (mgpSession, bool) {
 	wantType, wantNum := sessionTypeMatch(token)
 	for _, s := range sessions {
 		if strings.ToUpper(s.Type) == wantType && (wantNum == 0 || s.Number == wantNum) {
-			return s, nil
+			return s, true
 		}
 	}
+	return mgpSession{}, false
+}
+
+func sessionNotFoundError(sessions []mgpSession, token string) error {
 	var have []string
 	for _, s := range sessions {
 		if s.Number > 0 {
@@ -307,7 +322,7 @@ func resolveSession(ctx context.Context, c *client.Client, flags *rootFlags, eve
 			have = append(have, s.Type)
 		}
 	}
-	return mgpSession{}, notFoundErr(fmt.Errorf("session %q not found; available: %s", token, strings.Join(have, ", ")))
+	return notFoundErr(fmt.Errorf("session %q not found; available: %s", token, strings.Join(have, ", ")))
 }
 
 func listSessions(ctx context.Context, c *client.Client, flags *rootFlags, eventUUID, catUUID string) ([]mgpSession, error) {

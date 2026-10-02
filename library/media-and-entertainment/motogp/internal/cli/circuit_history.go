@@ -78,20 +78,29 @@ func newNovelCircuitHistoryCmd(flags *rootFlags) *cobra.Command {
 			for _, s := range seasons {
 				ev, err := resolveEvent(ctx, c, flags, s.ID, query)
 				if err != nil {
-					continue // circuit not on that season's calendar
+					if ExitCode(err) == 3 {
+						continue // circuit not on that season's calendar
+					}
+					return classifyAPIError(fmt.Errorf("resolving event for %d: %w", s.Year, err), flags)
 				}
 				matchedAny = true
 				cat, err := resolveCategory(ctx, c, flags, s.ID, class)
 				if err != nil {
-					continue
+					if ExitCode(err) == 3 {
+						continue // class was not contested in this season
+					}
+					return classifyAPIError(fmt.Errorf("resolving category for %d: %w", s.Year, err), flags)
 				}
 				sess, err := resolveSession(ctx, c, flags, ev.ID, cat.ID, "race")
 				if err != nil {
-					continue
+					if ExitCode(err) == 3 {
+						continue // future or test event with no race session
+					}
+					return classifyAPIError(fmt.Errorf("resolving race session for %d: %w", s.Year, err), flags)
 				}
 				rows, err := sessionClassification(ctx, c, flags, sess.ID)
 				if err != nil {
-					continue
+					return classifyAPIError(fmt.Errorf("fetching race classification for %d: %w", s.Year, err), flags)
 				}
 				for _, r := range rows {
 					// Skip unfinished/future rounds: a winner has position 1 AND a name.

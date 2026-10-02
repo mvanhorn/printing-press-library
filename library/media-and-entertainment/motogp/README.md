@@ -4,6 +4,14 @@
 
 Query MotoGP, Moto2, and Moto3 results, standings, riders, and calendars by name instead of chained UUIDs. Every command resolves year, class, event, and rider names against the live API, and layered analyses — round-by-round title races, rider head-to-heads, and circuit histories — answer questions the official API can't in one call.
 
+Created by [@waterpig0221](https://github.com/waterpig0221) (waterpig).
+
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
+Title race analysis counts points from both sprint and main races. Archive and circuit history commands report incomplete source reads instead of silently returning partial results.
+
+HTTP MCP binds to loopback by default and requires a bearer token. To bind to another address, configure both `--tls-cert` and `--tls-key`. Set `PP_MCP_HTTP_TOKEN` in the server environment or pass `--http-token`.
+
 ## Install
 
 The recommended path installs both the `motogp-pp-cli` binary and the `pp-motogp` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
