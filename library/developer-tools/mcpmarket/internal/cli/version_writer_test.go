@@ -5,6 +5,7 @@ package cli
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -38,5 +39,24 @@ func TestVersionDeliveryCaptureThroughRoot(t *testing.T) {
 	}
 	if got, want := flags.deliverBuf.String(), fmt.Sprintf("mcpmarket-pp-cli %s\n", version); got != want {
 		t.Fatalf("captured version = %q, want %q", got, want)
+	}
+}
+
+func TestVersionDeliveryWritesFile(t *testing.T) {
+	testenv.Isolate(t, cliutil.ConfigDir)
+	t.Setenv(mcpBoundProfileEnv, "")
+	deliveryPath := filepath.Join(t.TempDir(), "version.txt")
+	previousArgs := os.Args
+	os.Args = []string{"mcpmarket-pp-cli", "version", "--deliver", "file:" + deliveryPath}
+	defer func() { os.Args = previousArgs }()
+	if err := Execute(); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(deliveryPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := string(data), fmt.Sprintf("mcpmarket-pp-cli %s\n", version); got != want {
+		t.Fatalf("delivered version = %q, want %q", got, want)
 	}
 }
