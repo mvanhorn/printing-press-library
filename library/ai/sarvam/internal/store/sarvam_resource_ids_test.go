@@ -21,6 +21,7 @@ func TestSarvamResourceScopedIDFallbacks(t *testing.T) {
 		{resource: "text-lid", item: map[string]any{"request_id": "lid-request"}, want: "lid-request"},
 		{resource: "text-to-speech", item: map[string]any{"request_id": "tts-request"}, want: "tts-request"},
 		{resource: "text-to-speech", item: map[string]any{"dictionary_id": "tts-dictionary", "request_id": "tts-request"}, want: "tts-dictionary"},
+		{resource: "text-to-speech", item: map[string]any{"dictionary_id": "tts-dictionary", "name": "display-name"}, want: "tts-dictionary"},
 		{resource: "translate", item: map[string]any{"request_id": "translate-request"}, want: "translate-request"},
 		{resource: "transliterate", item: map[string]any{"request_id": "transliterate-request"}, want: "transliterate-request"},
 		{resource: "models", item: map[string]any{"request_id": "foreign-request"}, want: ""},
@@ -30,6 +31,41 @@ func TestSarvamResourceScopedIDFallbacks(t *testing.T) {
 		if got := ExtractResourceID(tc.resource, tc.item); got != tc.want {
 			t.Errorf("ExtractResourceID(%q, %#v) = %q, want %q", tc.resource, tc.item, got, tc.want)
 		}
+	}
+}
+
+func TestSarvamDictionaryCreateAndDetailUseOneLocalRow(t *testing.T) {
+	db, err := Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	for _, item := range []json.RawMessage{
+		json.RawMessage(`{"dictionary_id":"dictionary-1"}`),
+		json.RawMessage(`{"dictionary_id":"dictionary-1","name":"display-name","pronunciations":[]}`),
+	} {
+		stored, skipped, err := db.UpsertBatch("text-to-speech", []json.RawMessage{item})
+		if err != nil || stored != 1 || skipped != 0 {
+			t.Fatalf("UpsertBatch stored=%d skipped=%d err=%v, want one stored row", stored, skipped, err)
+		}
+	}
+	var rows int
+	if err := db.DB().QueryRow(`SELECT COUNT(*) FROM resources WHERE resource_type = ?`, "text-to-speech").Scan(&rows); err != nil {
+		t.Fatal(err)
+	}
+	if rows != 1 {
+		t.Fatalf("dictionary created and then fetched left %d rows, want one", rows)
+	}
+	got, err := db.Get("text-to-speech", "dictionary-1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var detail map[string]any
+	if err := json.Unmarshal(got, &detail); err != nil {
+		t.Fatal(err)
+	}
+	if detail["name"] != "display-name" {
+		t.Fatalf("dictionary detail did not replace create response: %#v", detail)
 	}
 }
 

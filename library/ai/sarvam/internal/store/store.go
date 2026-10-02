@@ -1748,6 +1748,14 @@ var resourceParentKeyColumns = map[string][]string{}
 // Callers that need to gate best-effort writes can use this to avoid passing
 // non-entity envelopes into the batch path.
 func ExtractResourceID(resourceType string, obj map[string]any) string {
+	// Pronunciation dictionaries use dictionary_id on create and may add a
+	// name on later reads. Use the same key for both shapes; ordinary TTS
+	// items still use their declared name override.
+	if resourceType == "text-to-speech" {
+		if s := scalarIDString(lookupFieldValue(obj, "dictionary_id")); s != "" && s != "<nil>" {
+			return s
+		}
+	}
 	if override, ok := resourceIDFieldOverrides[resourceType]; ok && override != "" {
 		if v := lookupFieldValue(obj, override); v != nil {
 			s := ResourceIDString(v)
