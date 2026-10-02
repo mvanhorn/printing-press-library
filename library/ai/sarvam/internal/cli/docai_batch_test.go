@@ -6,9 +6,37 @@ package cli
 
 import (
 	"bytes"
+	"os"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 )
+
+func TestDocaiBatchDocumentsSkipsSymlinkOutsideFolder(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("symlink creation requires extra privileges on Windows")
+	}
+	dir := t.TempDir()
+	outside := filepath.Join(t.TempDir(), "outside.txt")
+	if err := os.WriteFile(outside, []byte("fixture"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	inside := filepath.Join(dir, "invoice.pdf")
+	if err := os.WriteFile(inside, []byte("fixture"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(outside, filepath.Join(dir, "linked.pdf")); err != nil {
+		t.Fatal(err)
+	}
+	docs, err := docaiBatchDocuments(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(docs) != 1 || docs[0] != inside {
+		t.Fatalf("documents=%v, want only %q", docs, inside)
+	}
+}
 
 // TestDocaiBatchFailureReason locks down that any status other than a
 // genuine success ("completed"/"partially_completed") is treated as a

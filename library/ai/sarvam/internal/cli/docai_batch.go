@@ -58,21 +58,11 @@ func newNovelDocaiBatchCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			// Enumerate documents in the folder.
-			entries, err := os.ReadDir(flagDir)
+			// Enumerate regular documents only. A symlink with a document
+			// extension must not upload a file outside the selected folder.
+			docs, err := docaiBatchDocuments(flagDir)
 			if err != nil {
 				return fmt.Errorf("reading dir %s: %w", flagDir, err)
-			}
-			docs := make([]string, 0)
-			for _, e := range entries {
-				if e.IsDir() {
-					continue
-				}
-				ext := strings.ToLower(filepath.Ext(e.Name()))
-				switch ext {
-				case ".pdf", ".png", ".jpg", ".jpeg", ".tiff", ".tif", ".webp", ".bmp":
-					docs = append(docs, filepath.Join(flagDir, e.Name()))
-				}
 			}
 			if len(docs) == 0 {
 				return notFoundErr(fmt.Errorf("no document files (pdf/png/jpg/tiff) found in %s", flagDir))
@@ -296,6 +286,28 @@ func newNovelDocaiBatchCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagLanguage, "language", "en-IN", "Document language code (BCP-47)")
 	cmd.Flags().BoolVar(&flagWait, "wait", true, "Poll each job to completion before moving on")
 	return cmd
+}
+
+func docaiBatchDocuments(dir string) ([]string, error) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+	docs := make([]string, 0)
+	for _, e := range entries {
+		info, err := e.Info()
+		if err != nil {
+			return nil, err
+		}
+		if !info.Mode().IsRegular() {
+			continue
+		}
+		switch strings.ToLower(filepath.Ext(e.Name())) {
+		case ".pdf", ".png", ".jpg", ".jpeg", ".tiff", ".tif", ".webp", ".bmp":
+			docs = append(docs, filepath.Join(dir, e.Name()))
+		}
+	}
+	return docs, nil
 }
 
 func loadDocaiSchema(cmd *cobra.Command, name string) (json.RawMessage, error) {

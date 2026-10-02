@@ -121,6 +121,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 </details>
 
+For HTTP MCP, set `PP_MCP_HTTP_TOKEN` in the server process environment and run `sarvam-pp-mcp --transport http --addr 127.0.0.1:7777`. The server requires a bearer token for every request. A non-loopback bind also requires `--tls-cert` and `--tls-key`. Keep the token out of command arguments.
+
 ## Authentication
 
 Authentication uses the Sarvam AI API subscription key (sk_ format). Set it with `export SARVAM_API_KEY=sk_...` or `sarvam-pp-cli auth set-token`. The key goes in the `api-subscription-key` header (or `Authorization: Bearer`). Note: an invalid key returns HTTP 403 with `invalid_api_key_error`, not 401 — treat 403 as the auth-failure signal. The separate Voice Agents platform (apps.sarvam.ai) uses a different X-API-Key system and is out of scope for this CLI.
