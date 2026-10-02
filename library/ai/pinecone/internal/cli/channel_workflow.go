@@ -57,7 +57,10 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			}
 			defer s.Close()
 
-			resources := []string{"admin", "admin-invites", "admin-organizations", "admin-projects", "admin-role-bindings", "admin-service-accounts", "assistants", "backups", "bulk", "collections", "history", "indexes", "models", "namespaces", "restore-jobs", "vectors"}
+			// Vectors are excluded because they require an explicit index/namespace
+			// scope and a resolved data-plane host. Use `sync --resources vectors
+			// --vector-index ...` so archived rows can safely drive prune.
+			resources := []string{"admin", "admin-invites", "admin-organizations", "admin-projects", "admin-role-bindings", "admin-service-accounts", "assistants", "backups", "bulk", "collections", "history", "indexes", "models", "namespaces", "restore-jobs"}
 			archiveMaxPages := 100
 			if cliutil.IsDogfoodEnv() {
 				archiveMaxPages = 1

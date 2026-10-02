@@ -454,9 +454,11 @@ func syncWarningJSON(resource, parent string, status int, reason, message string
 // call ("Must specify exactly one of project, tag, ..."). Operators who
 // need the old "apply everywhere" semantic opt back in with --global-param.
 type syncUserParams struct {
-	flatGlobal  map[string]string
-	trueGlobal  map[string]string
-	perResource map[string]map[string]string
+	flatGlobal      map[string]string
+	trueGlobal      map[string]string
+	perResource     map[string]map[string]string
+	vectorIndex     string
+	vectorNamespace string
 }
 
 // parseSyncUserParams parses the repeatable --param key=value,

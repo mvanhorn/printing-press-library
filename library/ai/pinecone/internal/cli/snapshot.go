@@ -125,7 +125,11 @@ Do NOT use this command for growth/cost projection; use 'usage'. Do NOT use it f
 			}
 			dataJSON, _ := json.Marshal(env)
 
-			s, db, err := openNovelDB(ctx)
+			resolvedDB, err := defaultNovelDB(dbPath)
+			if err != nil {
+				return err
+			}
+			s, db, err := openNovelDB(ctx, resolvedDB)
 			if err != nil {
 				return err
 			}
@@ -196,7 +200,7 @@ func runSnapshotDiff(ctx context.Context, cmd *cobra.Command, flags *rootFlags, 
 		}
 		return nil
 	}
-	s, db, err := openNovelDB(ctx)
+	s, db, err := openNovelDB(ctx, dbPath)
 	if err != nil {
 		return err
 	}

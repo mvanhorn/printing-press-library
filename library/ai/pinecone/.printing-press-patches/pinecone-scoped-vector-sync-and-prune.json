@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "pinecone-scoped-vector-sync-and-prune",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260813-214420-550eb813",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Hydrate vector-list IDs under a verified index and namespace, scope stored vectors and continuation cursors, restrict prune to that scope, reject cascade ranking across different scoring metrics, and honor selected local database paths.",
+  "reason": "Vector IDs and continuation cursors can collide across indexes or namespaces, mixed scoring metrics cannot be ranked together, and a selected database path must govern local reads and writes.",
+  "files": [
+    "internal/cli/cascade.go",
+    "internal/cli/cascade_test.go",
+    "internal/cli/channel_workflow.go",
+    "internal/cli/coverage.go",
+    "internal/cli/helpers.go",
+    "internal/cli/novel_helpers.go",
+    "internal/cli/pinecone_sync.go",
+    "internal/cli/pinecone_sync_test.go",
+    "internal/cli/prune.go",
+    "internal/cli/prune_test.go",
+    "internal/cli/snapshot.go",
+    "internal/cli/sync.go",
+    "internal/cli/usage.go",
+    "internal/store/store.go",
+    "internal/store/vector_scope_test.go"
+  ]
+}

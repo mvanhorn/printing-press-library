@@ -100,7 +100,7 @@ These capabilities aren't available in any other tool for this API.
   _Use when an agent maintains a long-lived memory store and needs to expire stale chunks without a full resync._
 
   ```bash
-  pinecone-pp-cli prune travel-chat-embeddings --namespace __default__ --older-than 90d --apply
+  pinecone-pp-cli prune travel-chat-embeddings --older-than 90d --apply
   ```
 - **`check-vectors`** — Validate a vectors JSON file against the index schema — dimension, duplicate/empty IDs, sparse/dense shape — before you upsert and burn write units on a rejected batch.
 
@@ -294,7 +294,7 @@ Record index state weekly, then see exactly what changed: vector counts, namespa
 ### Stale memory pruning dry-run
 
 ```bash
-pinecone-pp-cli prune travel-chat-embeddings --namespace __default__ --older-than 90d
+pinecone-pp-cli prune travel-chat-embeddings --older-than 90d
 ```
 
 Preview which vectors would be deleted by age before committing with --apply

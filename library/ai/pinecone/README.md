@@ -1,5 +1,8 @@
 # Pinecone CLI
 
+Created by [@SomSamantray](https://github.com/SomSamantray) (Som Samantray).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 **Every Pinecone API feature, plus local sync, snapshot history, and text-first search no other Pinecone tool has.**
 
 The Pinecone CLI manages indexes, vectors, namespaces, backups, imports, inference, and admin — then goes further: sync index and record metadata into a local SQLite database for offline search, capture snapshot history to diff and project growth, and search by natural language without touching vectors. Agent-native --json/--select/csv output and typed exit codes make it scriptable in CI.
@@ -194,10 +197,13 @@ These capabilities aren't available in any other tool for this API.
 ### Memory lifecycle
 - **`prune`** — Find vectors whose local metadata timestamps are older than a threshold and delete them in batches — dry-run by default, with --apply to commit.
 
+  First sync the exact index and namespace whose vectors you may prune. The default namespace uses an empty name. Other namespaces require the same name on both commands.
+
   _Use when an agent maintains a long-lived memory store and needs to expire stale chunks without a full resync._
 
   ```bash
-  pinecone-pp-cli prune travel-chat-embeddings --namespace __default__ --older-than 90d --apply
+  pinecone-pp-cli sync --resources vectors --vector-index travel-chat-embeddings
+  pinecone-pp-cli prune travel-chat-embeddings --older-than 90d --apply
   ```
 - **`check-vectors`** — Validate a vectors JSON file against the index schema — dimension, duplicate/empty IDs, sparse/dense shape — before you upsert and burn write units on a rejected batch.
 

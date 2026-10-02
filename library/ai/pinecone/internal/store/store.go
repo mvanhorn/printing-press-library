@@ -3117,6 +3117,13 @@ func scalarIDString(value any) string {
 }
 
 func resourceStorageID(resourceType, id string, obj map[string]any) string {
+	if resourceType == "vectors" {
+		indexName := ResourceIDString(lookupFieldValue(obj, "index_name"))
+		namespace := ResourceIDString(lookupFieldValue(obj, "namespace"))
+		if indexName != "" && indexName != "<nil>" {
+			return id + string([]byte{0}) + indexName + string([]byte{0}) + namespace
+		}
+	}
 	for _, parentKey := range resourceParentKeyColumns[resourceType] {
 		parentValue := ResourceIDString(lookupFieldValue(obj, parentKey))
 		if parentValue != "" && parentValue != "<nil>" {

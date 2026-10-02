@@ -30,3 +30,19 @@ func TestNovelCascadeHelpWires(t *testing.T) {
 		}
 	}
 }
+
+func TestEnsureCascadeCompatibleRejectsMixedMetrics(t *testing.T) {
+	base := pineconeIndexShape{Dimension: 1024, Metric: "cosine"}
+	candidate := pineconeIndexShape{Dimension: 1024, Metric: "euclidean"}
+	if err := ensureCascadeCompatible("cosine-index", base, "euclidean-index", candidate); err == nil || !strings.Contains(err.Error(), "euclidean") {
+		t.Fatalf("mixed metric error = %v, want euclidean incompatibility", err)
+	}
+}
+
+func TestEnsureCascadeCompatibleAcceptsMatchingShape(t *testing.T) {
+	base := pineconeIndexShape{Dimension: 1024, Metric: "cosine"}
+	candidate := pineconeIndexShape{Dimension: 1024, Metric: "COSINE"}
+	if err := ensureCascadeCompatible("one", base, "two", candidate); err != nil {
+		t.Fatalf("matching shape rejected: %v", err)
+	}
+}

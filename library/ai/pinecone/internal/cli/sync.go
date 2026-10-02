@@ -74,6 +74,8 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var resourceParamFlags []string
 	var globalParamFlags []string
 	var pathContextFlags []string
+	var vectorIndex string
+	var vectorNamespace string
 
 	cmd := &cobra.Command{
 		Use:   "sync",
@@ -110,6 +112,9 @@ Resource scoping:
   pinecone-pp-cli sync
   # Sync specific resources only
   pinecone-pp-cli sync --resources indexes,admin
+
+  # Sync vector metadata for safe, scoped pruning
+  pinecone-pp-cli sync --resources vectors --vector-index travel-chat-embeddings --vector-namespace production
 
   # Full resync (ignore previous checkpoint)
   pinecone-pp-cli sync --full
@@ -185,6 +190,36 @@ Resource scoping:
 			}
 			resources = flatSyncResources(resources)
 
+			// Vector IDs live on an index-specific data-plane host and are only
+			// unique within an index/namespace pair. Require that scope explicitly,
+			// resolve the host from the named control-plane index, and carry the
+			// verified scope into every stored vector payload. Generic --path-context
+			// is intentionally insufficient here: it identifies a host, not the
+			// index whose vectors prune may later delete.
+			if slices.Contains(resources, "vectors") {
+				vectorIndex = strings.TrimSpace(vectorIndex)
+				if vectorIndex == "" {
+					return usageErr(fmt.Errorf("--vector-index is required when syncing vectors"))
+				}
+				if supplied, ok := userParams.perResource["vectors"]["namespace"]; ok {
+					if cmd.Flags().Changed("vector-namespace") && supplied != vectorNamespace {
+						return usageErr(fmt.Errorf("vectors namespace is ambiguous: --vector-namespace %q conflicts with --resource-param vectors:namespace=%s", vectorNamespace, supplied))
+					}
+					vectorNamespace = supplied
+				}
+				if userParams.perResource["vectors"] == nil {
+					userParams.perResource["vectors"] = map[string]string{}
+				}
+				userParams.perResource["vectors"]["namespace"] = vectorNamespace
+				userParams.vectorIndex = vectorIndex
+				userParams.vectorNamespace = vectorNamespace
+				if !c.DryRun {
+					if _, err := resolveIndexHost(cmd.Context(), c, vectorIndex); err != nil {
+						return err
+					}
+				}
+			}
+
 			// Reject --resource-param keys that don't match a known resource.
 			// Validates against the full top-level + dependent set, not the
 			// user-filtered `resources` slice, so legitimate cases like
@@ -198,7 +233,7 @@ Resource scoping:
 			// Skip under --dry-run: a preview must not mutate sync-state (issue #2935).
 			if full && !c.DryRun {
 				for _, resource := range resources {
-					if err := db.SaveSyncStateAt(resource, "", 0, time.Time{}); err != nil {
+					if err := db.SaveSyncStateAt(scopedSyncStateResource(resource, userParams), "", 0, time.Time{}); err != nil {
 						return fmt.Errorf("clearing sync state for %s: %w", resource, err)
 					}
 				}
@@ -225,7 +260,7 @@ Resource scoping:
 					// a preview must not mutate sync-state (issue #2935).
 					if !c.DryRun {
 						for _, resource := range resources {
-							if err := db.SaveSyncStateAt(resource, "", 0, time.Time{}); err != nil {
+							if err := db.SaveSyncStateAt(scopedSyncStateResource(resource, userParams), "", 0, time.Time{}); err != nil {
 								return fmt.Errorf("clearing sync state for %s: %w", resource, err)
 							}
 						}
@@ -451,6 +486,8 @@ Resource scoping:
 	cmd.Flags().StringArrayVar(&resourceParamFlags, "resource-param", nil, "Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.")
 	cmd.Flags().StringArrayVar(&globalParamFlags, "global-param", nil, "Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.")
 	cmd.Flags().StringArrayVar(&pathContextFlags, "path-context", nil, "Fill a {key} placeholder in BaseURL or request paths from a supplied value (repeatable, key=value). Wins over env-resolved Config.TemplateVars values, so it doubles as a one-off override at the call site. Use it when an env variable already holds a different value, or when the spec did not annotate the placeholder with an env var.")
+	cmd.Flags().StringVar(&vectorIndex, "vector-index", "", "Pinecone index whose vectors are being synced (required with --resources vectors)")
+	cmd.Flags().StringVar(&vectorNamespace, "vector-namespace", "", "Pinecone namespace whose vectors are being synced (empty means the default namespace)")
 
 	return cmd
 }
@@ -526,7 +563,8 @@ func syncResource(ctx context.Context, c interface {
 	requestedAt := started.UTC()
 
 	// Resume cursor from sync_state (unless --full cleared it)
-	existingCursor, lastSynced, _, _ := db.GetSyncState(resource)
+	stateResource := scopedSyncStateResource(resource, userParams)
+	existingCursor, lastSynced, _, _ := db.GetSyncState(stateResource)
 	if !full {
 		if storedCount, err := db.Count(resource); err == nil && storedCount == 0 {
 			existingCursor = ""
@@ -728,6 +766,15 @@ func syncResource(ctx context.Context, c interface {
 		fetchedThisPage := len(items)
 		_, hydrationEnabled := itemHydrationPaths[resource]
 		items, hydrateFailures := hydrateScalarItems(ctx, c, resource, items)
+		if resource == "vectors" {
+			if userParams == nil || strings.TrimSpace(userParams.vectorIndex) == "" {
+				return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("syncing vectors requires explicit index and namespace provenance"), Duration: time.Since(started)}
+			}
+			items, err = hydrateScopedPineconeVectors(ctx, c, items, userParams.vectorIndex, userParams.vectorNamespace)
+			if err != nil {
+				return syncResult{Resource: resource, Count: totalCount, Err: err, Duration: time.Since(started)}
+			}
+		}
 
 		// Batch upsert all items from this page. UpsertBatch returns
 		// (stored, extractFailures, err): stored counts rows actually
@@ -982,9 +1029,9 @@ func syncResource(ctx context.Context, c interface {
 	}
 	var stateErr error
 	if watermark.IsZero() {
-		stateErr = db.SaveSyncProgress(resource, finalCursor, cachedCount)
+		stateErr = db.SaveSyncProgress(stateResource, finalCursor, cachedCount)
 	} else {
-		stateErr = db.SaveSyncStateAt(resource, finalCursor, cachedCount, watermark)
+		stateErr = db.SaveSyncStateAt(stateResource, finalCursor, cachedCount, watermark)
 	}
 	if stateErr != nil {
 		return syncResult{Resource: resource, Count: cachedCount, Err: fmt.Errorf("saving sync state for %s: %w", resource, stateErr), Duration: time.Since(started)}
@@ -1144,9 +1191,9 @@ func determinePaginationDefaults(resource string) paginationDefaults {
 		}
 	case "vectors":
 		return paginationDefaults{
-			cursorParam:    "",
-			cursorType:     "offset",
-			nextCursorPath: "",
+			cursorParam:    "paginationToken",
+			cursorType:     "page_token",
+			nextCursorPath: "pagination.next",
 			limitParam:     "limit",
 			limit:          100,
 		}
@@ -2113,7 +2160,6 @@ func defaultSyncResources() []string {
 		"models",
 		"namespaces",
 		"restore-jobs",
-		"vectors",
 	}
 }
 
@@ -2182,7 +2228,7 @@ func syncResourcePath(resource string) (string, error) {
 		"models":                 "/models",
 		"namespaces":             "/namespaces",
 		"restore-jobs":           "/restore-jobs",
-		"vectors":                "/vectors/list",
+		"vectors":                "https://{index_host}/vectors/list",
 	}
 	if p, ok := paths[resource]; ok {
 		return p, nil
@@ -3096,7 +3142,7 @@ func responsePathForResource(resource, path string) []string {
 		return []string{"data"}
 	case "restore-jobs\x00/restore-jobs":
 		return []string{"data"}
-	case "vectors\x00/vectors/list":
+	case "vectors\x00https://{index_host}/vectors/list":
 		return []string{"vectors"}
 	}
 	return nil

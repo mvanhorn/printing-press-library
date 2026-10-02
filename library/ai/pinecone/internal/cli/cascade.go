@@ -24,6 +24,19 @@ type cascadeResult struct {
 	Failures []textQueryFailure `json:"fetch_failures,omitempty"`
 }
 
+func ensureCascadeCompatible(baseName string, base pineconeIndexShape, indexName string, candidate pineconeIndexShape) error {
+	if base.Dimension != candidate.Dimension {
+		return fmt.Errorf("index %q is %d-dim; cascade index %q is %d-dim", indexName, candidate.Dimension, baseName, base.Dimension)
+	}
+	if base.Metric == "" || candidate.Metric == "" {
+		return fmt.Errorf("cannot verify scoring metric compatibility between indexes %q and %q", baseName, indexName)
+	}
+	if !strings.EqualFold(base.Metric, candidate.Metric) {
+		return fmt.Errorf("index %q uses %s metric; cascade index %q uses %s metric", indexName, candidate.Metric, baseName, base.Metric)
+	}
+	return nil
+}
+
 func newNovelCascadeCmd(flags *rootFlags) *cobra.Command {
 	var topK int
 	var namespace string
@@ -61,7 +74,15 @@ Do NOT use this command for a single index; use 'text-query'.`,
 			if topK <= 0 {
 				topK = 5
 			}
-			names := strings.Split(indexes, ",")
+			names := make([]string, 0)
+			for _, name := range strings.Split(indexes, ",") {
+				if name = strings.TrimSpace(name); name != "" {
+					names = append(names, name)
+				}
+			}
+			if len(names) == 0 {
+				return usageErr(fmt.Errorf("--indexes must include at least one index name"))
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -69,14 +90,26 @@ Do NOT use this command for a single index; use 'text-query'.`,
 			if model == "" {
 				model = "multilingual-e5-large"
 			}
-			// Resolve every index's dimension up front. All indexes in a
-			// cascade must share a dimension (the embed is performed once).
-			// Unresolvable indexes are recorded as failures, not silently
-			// dropped, so the output always accounts for every requested index.
-			dim, err := indexDimension(ctx, c, names[0])
+			// Resolve every index before embedding. Raw scores are comparable
+			// only when both vector dimension and scoring metric match, so a
+			// mixed cascade is rejected before it can return a misleading rank.
+			baseShape, err := describeIndexShape(ctx, c, names[0])
 			if err != nil {
 				return err
 			}
+			if baseShape.Metric == "" {
+				return fmt.Errorf("index %q did not report a scoring metric; refusing to merge unverified scores", names[0])
+			}
+			for _, name := range names[1:] {
+				shape, err := describeIndexShape(ctx, c, name)
+				if err != nil {
+					return err
+				}
+				if err := ensureCascadeCompatible(names[0], baseShape, name, shape); err != nil {
+					return err
+				}
+			}
+			dim := baseShape.Dimension
 			if err := ensureModelDimension(ctx, c, model, dim); err != nil {
 				result := cascadeResult{
 					Index:   strings.Join(names, ","),
@@ -125,25 +158,9 @@ Do NOT use this command for a single index; use 'text-query'.`,
 			ch := make(chan perIndex, len(names))
 			var wg sync.WaitGroup
 			for _, name := range names {
-				name := strings.TrimSpace(name)
-				if name == "" {
-					continue
-				}
 				wg.Add(1)
 				go func() {
 					defer wg.Done()
-					// Validate this index resolves and matches the shared
-					// dimension; unresolvable or mismatched indexes are
-					// accounted as per-index failures, never silently dropped.
-					idim, err := indexDimension(ctx, c, name)
-					if err != nil {
-						ch <- perIndex{index: name, err: fmt.Errorf("resolving %q: %w", name, err)}
-						return
-					}
-					if idim != dim {
-						ch <- perIndex{index: name, err: fmt.Errorf("index %q is %d-dim; cascade requires %d-dim", name, idim, dim)}
-						return
-					}
 					path, err := dataPlanePath(ctx, c, name, "/query")
 					if err != nil {
 						ch <- perIndex{index: name, err: err}

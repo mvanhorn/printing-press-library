@@ -72,7 +72,7 @@ Do NOT use this command to capture a new point-in-time snapshot; use 'snapshot'.
 				fmt.Fprintln(cmd.OutOrStdout(), "No local snapshot data; run 'pinecone-pp-cli snapshot <index>' first.")
 				return nil
 			}
-			s, db, err := openNovelDB(ctx)
+			s, db, err := openNovelDB(ctx, resolvedDB)
 			if err != nil {
 				return err
 			}

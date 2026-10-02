@@ -18,24 +18,16 @@ import (
 
 	"github.com/mvanhorn/printing-press-library/library/ai/pinecone/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/ai/pinecone/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/ai/pinecone/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/ai/pinecone/internal/store"
 )
 
 // resolveIndexHost returns the data-plane base URL (https://{index_host})
 // for the named index by calling the control-plane describe-index endpoint,
-// then sets cfg.TemplateVars["index_host"] so the returned client resolves
-// {index_host} paths. An explicit PINECONE_INDEX_HOST env var wins (it is
-// already populated into TemplateVars at Load time); otherwise the host is
-// fetched live.
+// then sets the client's Config.TemplateVars["index_host"] so subsequent
+// {index_host} paths use the verified host. If PINECONE_INDEX_HOST supplied a
+// different host, fail closed instead of letting an index name and data-plane
+// target silently disagree on a destructive operation.
 func resolveIndexHost(ctx context.Context, c *client.Client, indexName string) (string, error) {
-	cfg, err := config.Load("")
-	if err != nil {
-		return "", err
-	}
-	if h := cfg.TemplateVars["index_host"]; h != "" && h != "index_host_placeholder" {
-		return "https://" + h, nil
-	}
 	// Fetch the index's host from the control plane.
 	path := "https://api.pinecone.io/indexes/{index_name}"
 	path = replacePathParam(path, "index_name", indexName)
@@ -49,15 +41,31 @@ func resolveIndexHost(ctx context.Context, c *client.Client, indexName string) (
 	if err := json.Unmarshal(data, &idx); err != nil {
 		return "", fmt.Errorf("parsing index %q host: %w", indexName, err)
 	}
+	idx.Host = normalizePineconeHost(idx.Host)
 	if idx.Host == "" {
 		return "", fmt.Errorf("index %q has no host (not ready?)", indexName)
 	}
-	cfg.TemplateVars["index_host"] = idx.Host
+	if c.Config != nil {
+		configured := normalizePineconeHost(c.Config.TemplateVars["index_host"])
+		if configured != "" && configured != "index_host_placeholder" && !strings.EqualFold(configured, idx.Host) {
+			return "", fmt.Errorf("configured index host %q does not match index %q host %q", configured, indexName, idx.Host)
+		}
+		if c.Config.TemplateVars == nil {
+			c.Config.TemplateVars = map[string]string{}
+		}
+		c.Config.TemplateVars["index_host"] = idx.Host
+	}
 	return "https://" + idx.Host, nil
 }
 
-// dataPlanePath returns the data-plane path with {index_host} replaced by the
-// resolved host (either from the env or from a live describe-index call).
+func normalizePineconeHost(host string) string {
+	host = strings.TrimSpace(host)
+	host = strings.TrimPrefix(strings.TrimPrefix(host, "https://"), "http://")
+	return strings.TrimSuffix(host, "/")
+}
+
+// dataPlanePath returns a data-plane path using the host verified by a live
+// describe-index call.
 func dataPlanePath(ctx context.Context, c *client.Client, indexName, path string) (string, error) {
 	base, err := resolveIndexHost(ctx, c, indexName)
 	if err != nil {
@@ -79,21 +87,38 @@ func parseDurationLoose(s string) (time.Duration, error) {
 	return cliutil.ParseDurationLoose(s)
 }
 
-// indexDimension returns the dimension of the named index (control plane).
-func indexDimension(ctx context.Context, c *client.Client, indexName string) (int64, error) {
+type pineconeIndexShape struct {
+	Dimension int64
+	Metric    string
+}
+
+// describeIndexShape returns the dimension and scoring metric of the named
+// index. Both fields are required before results from multiple indexes can be
+// compared safely.
+func describeIndexShape(ctx context.Context, c *client.Client, indexName string) (pineconeIndexShape, error) {
 	path := "https://api.pinecone.io/indexes/{index_name}"
 	path = replacePathParam(path, "index_name", indexName)
 	data, err := c.Get(ctx, path, map[string]string{})
 	if err != nil {
-		return 0, fmt.Errorf("describing index %q: %w", indexName, err)
+		return pineconeIndexShape{}, fmt.Errorf("describing index %q: %w", indexName, err)
 	}
 	var idx struct {
-		Dimension int64 `json:"dimension"`
+		Dimension int64  `json:"dimension"`
+		Metric    string `json:"metric"`
 	}
 	if err := json.Unmarshal(data, &idx); err != nil {
-		return 0, fmt.Errorf("parsing index %q: %w", indexName, err)
+		return pineconeIndexShape{}, fmt.Errorf("parsing index %q: %w", indexName, err)
 	}
-	return idx.Dimension, nil
+	return pineconeIndexShape{Dimension: idx.Dimension, Metric: strings.ToLower(strings.TrimSpace(idx.Metric))}, nil
+}
+
+// indexDimension returns the dimension of the named index (control plane).
+func indexDimension(ctx context.Context, c *client.Client, indexName string) (int64, error) {
+	shape, err := describeIndexShape(ctx, c, indexName)
+	if err != nil {
+		return 0, err
+	}
+	return shape.Dimension, nil
 }
 
 // ensureModelDimension verifies the embedding model's default dimension
@@ -183,8 +208,10 @@ func novelDBPath() string {
 
 // openNovelDB opens (creating if needed) the local store and ensures the
 // transcendence tables exist.
-func openNovelDB(ctx context.Context) (*store.Store, *sql.DB, error) {
-	dbPath := novelDBPath()
+func openNovelDB(ctx context.Context, dbPath string) (*store.Store, *sql.DB, error) {
+	if dbPath == "" {
+		dbPath = novelDBPath()
+	}
 	s, err := store.OpenWithContext(ctx, dbPath)
 	if err != nil {
 		return nil, nil, err

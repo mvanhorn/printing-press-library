@@ -64,7 +64,7 @@ Do NOT use this command for per-job status inspection; use 'analytics --type bac
 				fmt.Fprintln(cmd.OutOrStdout(), "No local data; run 'pinecone-pp-cli sync --resources indexes,backups,backup-schedules,restore-jobs' first.")
 				return nil
 			}
-			s, db, err := openNovelDB(ctx)
+			s, db, err := openNovelDB(ctx, resolvedDB)
 			if err != nil {
 				return err
 			}

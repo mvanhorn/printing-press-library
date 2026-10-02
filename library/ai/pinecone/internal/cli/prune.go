@@ -6,6 +6,8 @@
 package cli
 
 import (
+	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -24,6 +26,64 @@ type prunePlan struct {
 	Deleted   int      `json:"deleted,omitempty"`
 }
 
+type localPruneVector struct {
+	ID   string
+	Meta map[string]any
+}
+
+func explicitStringField(obj map[string]any, keys ...string) (string, bool) {
+	for _, key := range keys {
+		value, ok := obj[key]
+		if !ok {
+			continue
+		}
+		text, ok := value.(string)
+		if ok {
+			return text, true
+		}
+	}
+	return "", false
+}
+
+// loadScopedPruneVectors fails closed: a locally mirrored vector is eligible
+// only when its stored payload explicitly identifies the requested index and
+// namespace. Older/unscoped mirror rows are deliberately ignored because
+// sending their IDs to another namespace can delete an unrelated live vector.
+func loadScopedPruneVectors(ctx context.Context, db *sql.DB, indexName, namespace string) ([]localPruneVector, error) {
+	rows, err := db.QueryContext(ctx, `SELECT data FROM resources WHERE resource_type = 'vectors'`)
+	if err != nil {
+		return nil, fmt.Errorf("querying vectors: %w", err)
+	}
+	defer rows.Close()
+
+	var vectors []localPruneVector
+	for rows.Next() {
+		var data string
+		if err := rows.Scan(&data); err != nil {
+			return nil, fmt.Errorf("scanning vector: %w", err)
+		}
+		var obj map[string]any
+		if err := json.Unmarshal([]byte(data), &obj); err != nil {
+			continue
+		}
+		storedIndex, hasIndex := explicitStringField(obj, "index_name", "indexName", "index")
+		storedNamespace, hasNamespace := explicitStringField(obj, "namespace")
+		if !hasIndex || !hasNamespace || storedIndex != indexName || storedNamespace != namespace {
+			continue
+		}
+		id, _ := explicitStringField(obj, "id")
+		if id == "" {
+			continue
+		}
+		metadata, _ := obj["metadata"].(map[string]any)
+		vectors = append(vectors, localPruneVector{ID: id, Meta: metadata})
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterating vectors: %w", err)
+	}
+	return vectors, nil
+}
+
 func newNovelPruneCmd(flags *rootFlags) *cobra.Command {
 	var namespace string
 	var olderThan string
@@ -38,7 +98,7 @@ func newNovelPruneCmd(flags *rootFlags) *cobra.Command {
 
 Use this command to delete stale vectors identified from local metadata timestamps.
 Do NOT use this command for arbitrary filter/ID deletion; use 'delete'.`,
-		Example: `  pinecone-pp-cli prune travel-chat-embeddings --namespace __default__ --older-than 90d
+		Example: `  pinecone-pp-cli prune travel-chat-embeddings --older-than 90d
   pinecone-pp-cli prune travel-chat-embeddings --older-than 90d --apply`,
 		Annotations: map[string]string{"pp:no-error-path-probe": "true", "pp:happy-args": "index=travel-chat-embeddings", "pp:typed-exit-codes": "0,2"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -71,41 +131,16 @@ Do NOT use this command for arbitrary filter/ID deletion; use 'delete'.`,
 				fmt.Fprintln(cmd.OutOrStdout(), "No local snapshot data; run 'pinecone-pp-cli sync' or 'snapshot' first.")
 				return nil
 			}
-			s, db, err := openNovelDB(ctx)
+			s, db, err := openNovelDB(ctx, resolvedDB)
 			if err != nil {
 				return err
 			}
 			defer s.Close()
 
-			// Scan synced vector records from the resources table
-			// (records synced under the 'vectors' resource type).
-			rows, err := db.QueryContext(ctx,
-				`SELECT data FROM resources WHERE resource_type = 'vectors'`)
+			vecs, err := loadScopedPruneVectors(ctx, db, indexName, namespace)
 			if err != nil {
-				return fmt.Errorf("querying vectors: %w", err)
+				return err
 			}
-			type vec struct {
-				ID   string         `json:"id"`
-				Meta map[string]any `json:"metadata"`
-			}
-			var vecs []vec
-			for rows.Next() {
-				var data string
-				if err := rows.Scan(&data); err != nil {
-					_ = rows.Close()
-					return fmt.Errorf("scanning vector: %w", err)
-				}
-				var v vec
-				_ = json.Unmarshal([]byte(data), &v)
-				if v.ID != "" {
-					vecs = append(vecs, v)
-				}
-			}
-			if err := rows.Err(); err != nil {
-				_ = rows.Close()
-				return fmt.Errorf("iterating vectors: %w", err)
-			}
-			_ = rows.Close()
 
 			var stale []string
 			for _, v := range vecs {
