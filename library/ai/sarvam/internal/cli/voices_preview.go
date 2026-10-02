@@ -10,7 +10,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -38,7 +37,7 @@ func newNovelVoicesPreviewCmd(flags *rootFlags) *cobra.Command {
 		Use:         "preview",
 		Short:       "Generate one sample sentence across every TTS speaker and hear them all side by side",
 		Example:     "  sarvam-pp-cli voices preview --lang hi-IN --sample 'नमस्ते, स्वागत है' --speakers shubh,ritu,priya --output ./voices",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "false"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
@@ -112,9 +111,12 @@ func newNovelVoicesPreviewCmd(flags *rootFlags) *cobra.Command {
 					results = append(results, voiceResult{Speaker: speaker, Error: "invalid base64 audio"})
 					continue
 				}
-				fname := filepath.Join(flagOutput, speaker+".wav")
-				// #nosec G306 -- user-facing audio output the caller explicitly requested; 0644 allows playback by other users on shared systems.
-				if err := os.WriteFile(fname, audioBytes, 0o644); err != nil {
+				fname, err := privateOutputPath(flagOutput, speaker+".wav")
+				if err != nil {
+					results = append(results, voiceResult{Speaker: speaker, Error: err.Error()})
+					continue
+				}
+				if err := writePrivateOutputFile(fname, audioBytes); err != nil {
 					return fmt.Errorf("writing %s: %w", fname, err)
 				}
 				results = append(results, voiceResult{Speaker: speaker, File: fname})

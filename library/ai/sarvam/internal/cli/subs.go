@@ -8,6 +8,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -71,6 +72,27 @@ func renderVTT(cues []sttTimestampCue) string {
 	return strings.TrimRight(b.String(), "\n") + "\n"
 }
 
+func subtitleCues(words []string, starts, ends []float64) ([]sttTimestampCue, error) {
+	if len(starts) != len(words) || len(ends) != len(words) {
+		return nil, fmt.Errorf("malformed timestamps: got %d words, %d start times, and %d end times", len(words), len(starts), len(ends))
+	}
+	cues := make([]sttTimestampCue, 0, len(words))
+	for i, word := range words {
+		start, end := starts[i], ends[i]
+		if math.IsNaN(start) || math.IsInf(start, 0) || math.IsNaN(end) || math.IsInf(end, 0) {
+			return nil, fmt.Errorf("malformed timestamps: cue %d has a non-finite interval", i+1)
+		}
+		if start < 0 {
+			return nil, fmt.Errorf("malformed timestamps: cue %d starts before zero", i+1)
+		}
+		if end <= start {
+			return nil, fmt.Errorf("malformed timestamps: cue %d must end after it starts", i+1)
+		}
+		cues = append(cues, sttTimestampCue{Start: start, End: end, Text: word})
+	}
+	return cues, nil
+}
+
 func newNovelSubsCmd(flags *rootFlags) *cobra.Command {
 	var flagFrom string
 	var flagFormat string
@@ -80,7 +102,7 @@ func newNovelSubsCmd(flags *rootFlags) *cobra.Command {
 		Use:         "subs",
 		Short:       "Emit .srt/.vtt subtitles from timestamped transcriptions in local history",
 		Example:     "  sarvam-pp-cli subs --from last --format srt --output subtitles.srt",
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,3"},
+		Annotations: map[string]string{"mcp:read-only": "false", "pp:typed-exit-codes": "0,3"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
@@ -138,7 +160,7 @@ func newNovelSubsCmd(flags *rootFlags) *cobra.Command {
 
 			var stt struct {
 				Timestamps *struct {
-					Words           []string  `json:"words"`
+					Words            []string  `json:"words"`
 					StartTimeSeconds []float64 `json:"start_time_seconds"`
 					EndTimeSeconds   []float64 `json:"end_time_seconds"`
 				} `json:"timestamps"`
@@ -149,21 +171,9 @@ func newNovelSubsCmd(flags *rootFlags) *cobra.Command {
 			if stt.Timestamps == nil || len(stt.Timestamps.Words) == 0 {
 				return notFoundErr(fmt.Errorf("transcription has no timestamps; transcribe with --with-timestamps"))
 			}
-			n := len(stt.Timestamps.Words)
-			cues := make([]sttTimestampCue, 0, n)
-			for i := 0; i < n; i++ {
-				start, end := 0.0, 0.0
-				if i < len(stt.Timestamps.StartTimeSeconds) {
-					start = stt.Timestamps.StartTimeSeconds[i]
-				}
-				if i < len(stt.Timestamps.EndTimeSeconds) {
-					end = stt.Timestamps.EndTimeSeconds[i]
-				}
-				cues = append(cues, sttTimestampCue{
-					Start: start,
-					End:   end,
-					Text:  stt.Timestamps.Words[i],
-				})
+			cues, err := subtitleCues(stt.Timestamps.Words, stt.Timestamps.StartTimeSeconds, stt.Timestamps.EndTimeSeconds)
+			if err != nil {
+				return apiErr(err)
 			}
 
 			var rendered string
@@ -174,8 +184,8 @@ func newNovelSubsCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			if flagOutput != "" && flagOutput != "-" {
-				// #nosec G306 -- user-facing subtitle file the caller explicitly requested; 0644 keeps it readable by media tools.
-				if err := os.WriteFile(flagOutput, []byte(rendered), 0o644); err != nil {
+				// Transcripts can contain sensitive speech; keep exported subtitles private by default.
+				if err := writePrivateOutputFile(flagOutput, []byte(rendered)); err != nil {
 					return fmt.Errorf("writing %s: %w", flagOutput, err)
 				}
 			}

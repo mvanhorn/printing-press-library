@@ -30,3 +30,22 @@ func TestNovelPronCheckHelpWires(t *testing.T) {
 		}
 	}
 }
+
+func TestPronunciationMatchesNormalizedText(t *testing.T) {
+	for _, tc := range []struct {
+		expected string
+		spoken   string
+		want     bool
+	}{
+		{expected: "SarvamPay", spoken: "sarvampay.", want: true},
+		{expected: "B2B", spoken: "The term is B2B!", want: true},
+		{expected: "pay", spoken: "repayment", want: false},
+		{expected: "pay", spoken: "do not pay", want: true},
+		{expected: "SarvamPay", spoken: "something else", want: false},
+		{expected: "", spoken: "anything", want: false},
+	} {
+		if got := pronunciationMatches(tc.expected, tc.spoken); got != tc.want {
+			t.Errorf("pronunciationMatches(%q, %q) = %v, want %v", tc.expected, tc.spoken, got, tc.want)
+		}
+	}
+}

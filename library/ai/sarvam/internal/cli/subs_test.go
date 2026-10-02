@@ -6,6 +6,7 @@ package cli
 
 import (
 	"bytes"
+	"math"
 	"strings"
 	"testing"
 )
@@ -88,5 +89,37 @@ func TestRenderEmptyCues(t *testing.T) {
 	}
 	if got := renderVTT(nil); got != "WEBVTT\n" {
 		t.Errorf("renderVTT(nil) = %q, want WEBVTT header", got)
+	}
+}
+
+func TestSubtitleCuesValidatesProviderTimestamps(t *testing.T) {
+	cues, err := subtitleCues([]string{"hello", "world"}, []float64{0, 1}, []float64{1, 2.5})
+	if err != nil {
+		t.Fatalf("subtitleCues() error = %v", err)
+	}
+	if len(cues) != 2 || cues[1].Start != 1 || cues[1].End != 2.5 || cues[1].Text != "world" {
+		t.Fatalf("subtitleCues() = %#v", cues)
+	}
+
+	tests := []struct {
+		name   string
+		words  []string
+		starts []float64
+		ends   []float64
+	}{
+		{name: "missing start", words: []string{"hello"}, ends: []float64{1}},
+		{name: "missing end", words: []string{"hello"}, starts: []float64{0}},
+		{name: "negative start", words: []string{"hello"}, starts: []float64{-0.1}, ends: []float64{1}},
+		{name: "reversed", words: []string{"hello"}, starts: []float64{2}, ends: []float64{1}},
+		{name: "zero duration", words: []string{"hello"}, starts: []float64{1}, ends: []float64{1}},
+		{name: "nan", words: []string{"hello"}, starts: []float64{math.NaN()}, ends: []float64{1}},
+		{name: "infinite", words: []string{"hello"}, starts: []float64{0}, ends: []float64{math.Inf(1)}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if _, err := subtitleCues(tt.words, tt.starts, tt.ends); err == nil {
+				t.Fatal("subtitleCues() unexpectedly accepted malformed timestamps")
+			}
+		})
 	}
 }

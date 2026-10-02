@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"unicode"
 
 	"github.com/spf13/cobra"
 )
@@ -24,7 +25,7 @@ func newNovelPronCheckCmd(flags *rootFlags) *cobra.Command {
 		Use:         "pron-check [term]",
 		Short:       "Verify a term's TTS pronunciation via a speech round-trip (TTS then STT)",
 		Example:     "  sarvam-pp-cli pron-check SarvamPay --lang hi-IN",
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "term=SarvamPay;--lang=hi-IN", "pp:no-error-path-probe": "true"},
+		Annotations: map[string]string{"mcp:read-only": "false", "pp:happy-args": "term=SarvamPay;--lang=hi-IN", "pp:typed-exit-codes": "0,6"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
@@ -53,9 +54,9 @@ func newNovelPronCheckCmd(flags *rootFlags) *cobra.Command {
 
 			// Step 1: synthesize the term with TTS (optionally with dict_id).
 			ttsBody := map[string]any{
-				"text":          term,
-				"language_code": flagLang,
-				"model":         flagModel,
+				"text":               term,
+				"language_code":      flagLang,
+				"model":              flagModel,
 				"output_audio_codec": "wav",
 			}
 			if flagDict != "" {
@@ -105,17 +106,7 @@ func newNovelPronCheckCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			// Step 3: normalized comparison.
-			norm := func(s string) string {
-				s = strings.ToLower(strings.TrimSpace(s))
-				s = strings.NewReplacer(
-					"।", "", ".", "", ",", "", "?", "", "!", "",
-					"  ", " ", "\t", " ",
-				).Replace(s)
-				return strings.Join(strings.Fields(s), " ")
-			}
-			spoken := norm(sttResp.Transcript)
-			expected := norm(term)
-			matched := spoken == expected || strings.Contains(spoken, expected) || strings.Contains(expected, spoken)
+			matched := pronunciationMatches(term, sttResp.Transcript)
 
 			result := map[string]any{
 				"term":             term,
@@ -125,12 +116,16 @@ func newNovelPronCheckCmd(flags *rootFlags) *cobra.Command {
 				"pronunciation_ok": matched,
 			}
 			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), result, flags)
-			}
-			if matched {
+				if err := printJSONFiltered(cmd.OutOrStdout(), result, flags); err != nil {
+					return err
+				}
+			} else if matched {
 				fmt.Fprintf(cmd.OutOrStdout(), "OK: %q was spoken as %q\n", term, sttResp.Transcript)
 			} else {
 				fmt.Fprintf(cmd.OutOrStdout(), "MISMATCH: %q was spoken as %q\n", term, sttResp.Transcript)
+			}
+			if !matched {
+				return partialFailureErr(fmt.Errorf("pronunciation mismatch: %q was transcribed as %q", term, sttResp.Transcript))
 			}
 			return nil
 		},
@@ -139,4 +134,31 @@ func newNovelPronCheckCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagDict, "dict", "", "Pronunciation dictionary ID to apply during synthesis")
 	cmd.Flags().StringVar(&flagModel, "model", "bulbul:v3", "TTS model to use")
 	return cmd
+}
+
+func pronunciationMatches(expected, spoken string) bool {
+	tokens := func(s string) []string {
+		s = strings.ToLower(strings.TrimSpace(s))
+		return strings.FieldsFunc(s, func(r rune) bool {
+			return !unicode.IsLetter(r) && !unicode.IsNumber(r)
+		})
+	}
+	expectedTokens := tokens(expected)
+	spokenTokens := tokens(spoken)
+	if len(expectedTokens) == 0 || len(expectedTokens) > len(spokenTokens) {
+		return false
+	}
+	for start := 0; start <= len(spokenTokens)-len(expectedTokens); start++ {
+		matched := true
+		for i := range expectedTokens {
+			if spokenTokens[start+i] != expectedTokens[i] {
+				matched = false
+				break
+			}
+		}
+		if matched {
+			return true
+		}
+	}
+	return false
 }

@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "sarvam-pronunciation-and-private-exports",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260814-164825-7ec4499e",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Mark paid TTS/STT and file-writing tools as mutations, return a typed failure for pronunciation mismatches, validate subtitle timing, and keep audio and subtitle exports private by default.",
+  "reason": "The published commands could claim read-only behavior despite paid calls or file writes, report a mismatch as success, emit malformed subtitle intervals, and write potentially sensitive speech files world-readable.",
+  "files": [
+    "README.md",
+    "internal/cli/pron_check.go",
+    "internal/cli/pron_check_test.go",
+    "internal/cli/subs.go",
+    "internal/cli/subs_test.go",
+    "internal/cli/voices_preview.go"
+  ]
+}

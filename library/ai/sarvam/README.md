@@ -177,7 +177,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 - **`subs`** — Emit .srt/.vtt subtitles from timestamped transcriptions in local history
 
-  _Use to turn a timestamped transcription into subtitles without a throwaway script_
+  _Use to turn a timestamped transcription into subtitles without a throwaway script. Saved subtitles are private to your local account by default._
 
   ```bash
   sarvam-pp-cli subs --from last --format srt --output subtitles.srt
