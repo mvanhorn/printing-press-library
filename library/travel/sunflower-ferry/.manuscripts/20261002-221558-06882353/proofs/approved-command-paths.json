@@ -1,0 +1,72 @@
+[
+  {
+    "command": "routes list",
+    "pass": true,
+    "usage": [
+      "sunflower-ferry-pp-cli routes list [flags]"
+    ]
+  },
+  {
+    "command": "routes show",
+    "pass": true,
+    "usage": [
+      "sunflower-ferry-pp-cli routes show [flags]"
+    ]
+  },
+  {
+    "command": "routes search",
+    "pass": true,
+    "usage": [
+      "sunflower-ferry-pp-cli routes search [query] [flags]"
+    ]
+  },
+  {
+    "command": "calendar",
+    "pass": true,
+    "usage": [
+      "sunflower-ferry-pp-cli calendar [flags]"
+    ]
+  },
+  {
+    "command": "sailings",
+    "pass": true,
+    "usage": [
+      "sunflower-ferry-pp-cli sailings [flags]"
+    ]
+  },
+  {
+    "command": "quote",
+    "pass": true,
+    "usage": [
+      "sunflower-ferry-pp-cli quote [flags]"
+    ]
+  },
+  {
+    "command": "cabins",
+    "pass": true,
+    "usage": [
+      "sunflower-ferry-pp-cli cabins [flags]"
+    ]
+  },
+  {
+    "command": "ports",
+    "pass": true,
+    "usage": [
+      "sunflower-ferry-pp-cli ports [flags]"
+    ]
+  },
+  {
+    "command": "conditions",
+    "pass": true,
+    "usage": [
+      "sunflower-ferry-pp-cli conditions [flags]"
+    ]
+  },
+  {
+    "command": "handoff",
+    "pass": true,
+    "usage": [
+      "sunflower-ferry-pp-cli handoff [flags]"
+    ]
+  }
+]

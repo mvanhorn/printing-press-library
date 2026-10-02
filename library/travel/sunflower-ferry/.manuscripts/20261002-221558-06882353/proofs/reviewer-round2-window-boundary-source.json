@@ -1,0 +1,41 @@
+{
+  "calls": [
+    {
+      "path": "/web/yoyaku/Reserve0000/IndexEnglish",
+      "status": 200,
+      "final_path": "/web/yoyaku/Reserve0000/IndexEnglish",
+      "bytes": 20117
+    },
+    {
+      "path": "/web/yoyaku/Reserve0000/Reserve",
+      "status": 200,
+      "final_path": "/web/yoyaku/Reserve1030",
+      "bytes": 26076
+    },
+    {
+      "path": "/web/yoyaku/Reserve1030/MoveNext",
+      "status": 200,
+      "final_path": "/web/yoyaku/Reserve1020",
+      "bytes": 13152
+    }
+  ],
+  "headings": [
+    "Total Price",
+    "How to look the table below",
+    "01/03(Sun)"
+  ],
+  "rows": [
+    "One-way",
+    "01/03(Sun) Osaka1 ➡ Beppu",
+    "Season Applicable discount",
+    "Ｂ",
+    "○ or Number Available (Note: No. of private cabins shows the number of available cabins .)",
+    "× Full occupancy or unavailable period",
+    "－ Not sold",
+    "Waitlist Currently accepting waitlist registration * Please register with one way at a time"
+  ],
+  "error_text": [
+    "Reservations not yet open for this service. Cannot display availability."
+  ],
+  "reservation_stage_submitted": false
+}

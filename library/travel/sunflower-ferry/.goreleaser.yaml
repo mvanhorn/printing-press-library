@@ -1,0 +1,55 @@
+version: 2
+project_name: sunflower-ferry-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: sunflower-ferry-pp-cli
+    main: ./cmd/sunflower-ferry-pp-cli
+    binary: sunflower-ferry-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/sunflower-ferry/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: sunflower-ferry-pp-mcp
+    main: ./cmd/sunflower-ferry-pp-mcp
+    binary: sunflower-ferry-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: sunflower-ferry-pp-cli
+    repository:
+      owner: zjsng
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Plan dated Sunflower ferry sailings, cabin fares and port access from official sources."
+    install: |
+      bin.install "sunflower-ferry-pp-cli"
+      bin.install "sunflower-ferry-pp-mcp"

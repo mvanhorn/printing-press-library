@@ -1,0 +1,9 @@
+{
+  "descriptions": {
+    "source_cabins": "Read the official cabin page as raw source HTML. Required: route, one of osaka-beppu, kobe-oita or osaka-shibushi. Prefer the cabins command mirror for bounded cabin and occupancy planning facts.",
+    "source_conditions": "Read the official English boarding and cancellation page as raw source HTML. No parameters. Prefer the conditions command mirror for bounded check-in, baggage and normal-ticket cancellation facts with explicit limitations.",
+    "source_fares": "Read the official fare page as raw source HTML. Required: route, one of osaka-beppu, kobe-oita or osaka-shibushi. Prefer calendar for explicit seasonal dates and quote for the anonymous party-and-vehicle fare simulation; page marketing prices are not current quotes.",
+    "source_terminal": "Read the official port-access page as raw source HTML. Required: route, one of osaka-beppu, kobe-oita or osaka-shibushi. Prefer the ports command mirror for bounded terminal identities, addresses and access guidance.",
+    "source_timetable": "Read the official normal weekday timetable page as raw source HTML. Required: route, one of osaka-beppu, kobe-oita or osaka-shibushi. Prefer routes show for parsed weekday patterns, or sailings for an exact dated source lookup; a normal pattern does not establish operation on a date."
+  }
+}

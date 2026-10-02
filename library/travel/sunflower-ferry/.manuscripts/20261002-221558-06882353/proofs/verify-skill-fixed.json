@@ -1,0 +1,223 @@
+{
+  "cli_dir": "/Users/zjsng/Projects/Personal/Coding/sunflower-ferry-cli",
+  "skill_path": "/Users/zjsng/Projects/Personal/Coding/sunflower-ferry-cli/SKILL.md",
+  "checks_run": [
+    "flag-names",
+    "flag-commands",
+    "positional-args",
+    "shell-var-quotes",
+    "unknown-command",
+    "canonical-sections"
+  ],
+  "recipes_checked": 37,
+  "findings": [
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli sailings",
+      "detail": "--route is declared elsewhere but not on sailings",
+      "evidence": "SKILL.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli sailings",
+      "detail": "--date is declared elsewhere but not on sailings",
+      "evidence": "SKILL.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli quote",
+      "detail": "--route is declared elsewhere but not on quote",
+      "evidence": "SKILL.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli quote",
+      "detail": "--date is declared elsewhere but not on quote",
+      "evidence": "SKILL.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli calendar",
+      "detail": "--route is declared elsewhere but not on calendar",
+      "evidence": "SKILL.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli cabins",
+      "detail": "--route is declared elsewhere but not on cabins",
+      "evidence": "SKILL.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli ports",
+      "detail": "--route is declared elsewhere but not on ports",
+      "evidence": "SKILL.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli calendar",
+      "detail": "--from is declared elsewhere but not on calendar",
+      "evidence": "SKILL.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli calendar",
+      "detail": "--to is declared elsewhere but not on calendar",
+      "evidence": "SKILL.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli quote",
+      "detail": "--adults is declared elsewhere but not on quote",
+      "evidence": "SKILL.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli quote",
+      "detail": "--children is declared elsewhere but not on quote",
+      "evidence": "SKILL.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli quote",
+      "detail": "--mode is declared elsewhere but not on quote",
+      "evidence": "SKILL.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli quote",
+      "detail": "--car-category is declared elsewhere but not on quote",
+      "evidence": "SKILL.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli calendar",
+      "detail": "--route is declared elsewhere but not on calendar",
+      "evidence": "README.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli calendar",
+      "detail": "--from is declared elsewhere but not on calendar",
+      "evidence": "README.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli calendar",
+      "detail": "--to is declared elsewhere but not on calendar",
+      "evidence": "README.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli quote",
+      "detail": "--route is declared elsewhere but not on quote",
+      "evidence": "README.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli quote",
+      "detail": "--date is declared elsewhere but not on quote",
+      "evidence": "README.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli quote",
+      "detail": "--adults is declared elsewhere but not on quote",
+      "evidence": "README.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli quote",
+      "detail": "--mode is declared elsewhere but not on quote",
+      "evidence": "README.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli sailings",
+      "detail": "--route is declared elsewhere but not on sailings",
+      "evidence": "README.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli sailings",
+      "detail": "--date is declared elsewhere but not on sailings",
+      "evidence": "README.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli cabins",
+      "detail": "--route is declared elsewhere but not on cabins",
+      "evidence": "README.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli ports",
+      "detail": "--route is declared elsewhere but not on ports",
+      "evidence": "README.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli quote",
+      "detail": "--children is declared elsewhere but not on quote",
+      "evidence": "README.md",
+      "likely_false_positive": false
+    },
+    {
+      "check": "flag-commands",
+      "severity": "error",
+      "command": "sunflower-ferry-pp-cli quote",
+      "detail": "--car-category is declared elsewhere but not on quote",
+      "evidence": "README.md",
+      "likely_false_positive": false
+    }
+  ]
+}

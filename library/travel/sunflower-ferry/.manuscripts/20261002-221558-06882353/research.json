@@ -1,0 +1,177 @@
+{
+  "api_name": "sunflower-ferry",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-02T14:53:13.155265Z",
+  "novel_features": [
+    {
+      "name": "Exact overnight itinerary",
+      "command": "sailings",
+      "description": "Turns source boarding-date results into dated JST arrival; handles daytime E cruises without projecting ordinary timetables.",
+      "rationale": "Combines official source contract details into precise bounded planning facts.",
+      "example": "sunflower-ferry-pp-cli sailings --route osaka-beppu --date 2026-10-15 --agent",
+      "why_it_matters": "Turns source boarding-date results into dated JST arrival; handles daytime E cruises without projecting ordinary timetables.",
+      "group": "Official ferry planning"
+    },
+    {
+      "name": "Party-sensitive fare matrix",
+      "command": "quote",
+      "description": "Presents every source-eligible cabin fare for the entered party/vehicle without hand-made fare arithmetic.",
+      "rationale": "Combines official source contract details into precise bounded planning facts.",
+      "example": "sunflower-ferry-pp-cli quote --route osaka-beppu --date 2026-10-15 --agent",
+      "why_it_matters": "Presents every source-eligible cabin fare for the entered party/vehicle without hand-made fare arithmetic.",
+      "group": "Official ferry planning"
+    },
+    {
+      "name": "Seasonal date comparison",
+      "command": "calendar",
+      "description": "Filters bounded published date ranges with explicit coverage and special sailing warnings.",
+      "rationale": "Combines official source contract details into precise bounded planning facts.",
+      "example": "sunflower-ferry-pp-cli calendar --route osaka-beppu --agent",
+      "why_it_matters": "Filters bounded published date ranges with explicit coverage and special sailing warnings.",
+      "group": "Official ferry planning"
+    },
+    {
+      "name": "Cabin occupancy evidence",
+      "command": "cabins",
+      "description": "Extracts source room occupancy so agents can distinguish dormitory capacity from private room occupancy.",
+      "rationale": "Combines official source contract details into precise bounded planning facts.",
+      "example": "sunflower-ferry-pp-cli cabins --route osaka-beppu --agent",
+      "why_it_matters": "Extracts source room occupancy so agents can distinguish dormitory capacity from private room occupancy.",
+      "group": "Official ferry planning"
+    },
+    {
+      "name": "Terminal-aware port planning",
+      "command": "ports",
+      "description": "Keeps Osaka Terminal1 and Terminal2 distinct with concise source address/access/checkin evidence.",
+      "rationale": "Combines official source contract details into precise bounded planning facts.",
+      "example": "sunflower-ferry-pp-cli ports --route osaka-beppu --agent",
+      "why_it_matters": "Keeps Osaka Terminal1 and Terminal2 distinct with concise source address/access/checkin evidence.",
+      "group": "Official ferry planning"
+    },
+    {
+      "name": "Condition-aware handoff",
+      "command": "conditions",
+      "description": "Preserves source cancellation/baggage and quote assumptions with explicit missing English day-before band.",
+      "rationale": "Combines official source contract details into precise bounded planning facts.",
+      "example": "sunflower-ferry-pp-cli conditions --agent",
+      "why_it_matters": "Preserves source cancellation/baggage and quote assumptions with explicit missing English day-before band.",
+      "group": "Official ferry planning"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Exact overnight itinerary",
+      "command": "sailings",
+      "description": "Turns source boarding-date results into dated JST arrival; handles daytime E cruises without projecting ordinary timetables.",
+      "rationale": "Combines official source contract details into precise bounded planning facts.",
+      "example": "sunflower-ferry-pp-cli sailings --route osaka-beppu --date 2026-10-15 --agent",
+      "why_it_matters": "Turns source boarding-date results into dated JST arrival; handles daytime E cruises without projecting ordinary timetables.",
+      "group": "Official ferry planning"
+    },
+    {
+      "name": "Party-sensitive fare matrix",
+      "command": "quote",
+      "description": "Presents every source-eligible cabin fare for the entered party/vehicle without hand-made fare arithmetic.",
+      "rationale": "Combines official source contract details into precise bounded planning facts.",
+      "example": "sunflower-ferry-pp-cli quote --route osaka-beppu --date 2026-10-15 --agent",
+      "why_it_matters": "Presents every source-eligible cabin fare for the entered party/vehicle without hand-made fare arithmetic.",
+      "group": "Official ferry planning"
+    },
+    {
+      "name": "Seasonal date comparison",
+      "command": "calendar",
+      "description": "Filters bounded published date ranges with explicit coverage and special sailing warnings.",
+      "rationale": "Combines official source contract details into precise bounded planning facts.",
+      "example": "sunflower-ferry-pp-cli calendar --route osaka-beppu --agent",
+      "why_it_matters": "Filters bounded published date ranges with explicit coverage and special sailing warnings.",
+      "group": "Official ferry planning"
+    },
+    {
+      "name": "Cabin occupancy evidence",
+      "command": "cabins",
+      "description": "Extracts source room occupancy so agents can distinguish dormitory capacity from private room occupancy.",
+      "rationale": "Combines official source contract details into precise bounded planning facts.",
+      "example": "sunflower-ferry-pp-cli cabins --route osaka-beppu --agent",
+      "why_it_matters": "Extracts source room occupancy so agents can distinguish dormitory capacity from private room occupancy.",
+      "group": "Official ferry planning"
+    },
+    {
+      "name": "Terminal-aware port planning",
+      "command": "ports",
+      "description": "Keeps Osaka Terminal1 and Terminal2 distinct with concise source address/access/checkin evidence.",
+      "rationale": "Combines official source contract details into precise bounded planning facts.",
+      "example": "sunflower-ferry-pp-cli ports --route osaka-beppu --agent",
+      "why_it_matters": "Keeps Osaka Terminal1 and Terminal2 distinct with concise source address/access/checkin evidence.",
+      "group": "Official ferry planning"
+    },
+    {
+      "name": "Condition-aware handoff",
+      "command": "conditions",
+      "description": "Preserves source cancellation/baggage and quote assumptions with explicit missing English day-before band.",
+      "rationale": "Combines official source contract details into precise bounded planning facts.",
+      "example": "sunflower-ferry-pp-cli conditions --agent",
+      "why_it_matters": "Preserves source cancellation/baggage and quote assumptions with explicit missing English day-before band.",
+      "group": "Official ferry planning"
+    }
+  ],
+  "narrative": {
+    "display_name": "Sunflower Ferry",
+    "headline": "Plan dated Sunflower ferry sailings, cabin fares and port access from official sources.",
+    "value_prop": "Query the anonymous fare simulator, compare seasonal calendar dates and retain exact overnight arrivals. Discover cabins and terminal access, then use the official booking handoff.",
+    "auth_narrative": "Public-source commands need no API key or login. Fare searches create an ephemeral anonymous session and stop at the fare/availability table.",
+    "quickstart": [
+      {
+        "command": "sunflower-ferry-pp-cli doctor --dry-run",
+        "comment": "Preview the doctor action without network."
+      },
+      {
+        "command": "sunflower-ferry-pp-cli routes list --agent",
+        "comment": "Discover stable route and port identifiers."
+      },
+      {
+        "command": "sunflower-ferry-pp-cli calendar --route osaka-beppu --from 2026-10-15 --to 2026-10-17 --agent",
+        "comment": "Compare published fare seasons."
+      },
+      {
+        "command": "sunflower-ferry-pp-cli quote --route osaka-beppu --date 2026-10-15 --adults 1 --mode foot --agent",
+        "comment": "Read source cabin fares without selecting a room."
+      }
+    ],
+    "when_to_use": "Use for Kansai–Kyushu Sunflower route, exact date, seasonal band, room fare, vehicle category and terminal planning. Every dynamic result retains source observation time and uncertainty.",
+    "anti_triggers": [
+      "Booking or holding a cabin or vehicle",
+      "Payments, account login or personal reservation management",
+      "Hokkaido Oarai–Tomakomai or other ferry operators",
+      "Guaranteed inventory or manually invented fare arithmetic"
+    ],
+    "recipes": [
+      {
+        "title": "Fare season window",
+        "command": "sunflower-ferry-pp-cli calendar --route osaka-beppu --from 2026-10-15 --to 2026-10-17 --agent --select data",
+        "explanation": "Keep only published seasonal dates."
+      },
+      {
+        "title": "Overnight arrival",
+        "command": "sunflower-ferry-pp-cli sailings --route osaka-beppu --date 2026-10-15 --agent",
+        "explanation": "Read the actual source sailing for an exact boarding date."
+      },
+      {
+        "title": "Vehicle party quote",
+        "command": "sunflower-ferry-pp-cli quote --route kobe-oita --date 2026-10-15 --adults 2 --children 1 --mode car --car-category lt5m --agent",
+        "explanation": "Return the source total per eligible cabin for this input party."
+      }
+    ],
+    "trigger_phrases": [
+      "Sunflower ferry cabin fares",
+      "Osaka Beppu overnight ferry",
+      "Kobe Oita sailing times",
+      "Sunflower ferry ports",
+      "use sunflower-ferry",
+      "run sunflower-ferry"
+    ]
+  }
+}

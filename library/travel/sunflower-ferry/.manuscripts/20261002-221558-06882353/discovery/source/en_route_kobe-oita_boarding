@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-T7632Q');</script>
+<!-- End Google Tag Manager -->
+<meta charset="utf-8">
+    <title>Ferry Terminal Guide | Kobe-Oita | MOL Sunflower</title>
+    <meta name="description" content="MOL Sunflower">
+	<meta name="keywords" content="MOL Sunflower">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="format-detection" content="telephone=no, email=no, address=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0">
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-116905361-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-116905361-1');
+</script>
+
+<link rel="stylesheet" type="text/css" href="/cmn/css/en/responsive/header_footer.css?v=231114">
+<!-- [CONTENT CSS] -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.min.css">
+<link href="https://ce.mf.marsflag.com/latest/css/mf-search.css" rel="stylesheet" type="text/css" media="all" charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="/assets/top/css/style.css">
+<link rel="stylesheet" type="text/css" href="/cmn/css/en/responsive/responsive2.css?v=200305">
+<!-- /[CONTENT CSS] -->
+	<link type="text/css" rel="stylesheet" href="/cmn/css/common.css" media="all" />
+    <link type="text/css" rel="stylesheet" href="/cmn/css/en/common.css" media="all" />
+    <link type="text/css" rel="stylesheet" href="/cmn/css/class.css" media="all" />
+    <link type="text/css" rel="stylesheet" href="/cmn/css/cwrap.css" media="all" />
+    <link type="text/css" rel="stylesheet" href="/cmn/css/contents.css" media="all" />
+    <link type="text/css" rel="stylesheet" href="/cmn/css/print.css" media="print" />
+</head>
+
+<body class="en kobe-oita sn03">
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T7632Q"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<header id="tpl-header">
+	<div class="tpl-inner-wrap">
+
+		<!-- logo header -->
+		<div id="header-contents">
+			<h1 class="logo"><a href="/en/"><span>MOL Sunflower</span></a></h1>
+			<div class="header-right">
+				<div class="header-items">
+					<div class="upper"><!-- font size -->
+						<dl id="sizeChanger">
+							<dt>Font Size</dt>
+							<dd id="sizeM"><a href="javascript:void(0);">M</a></dd>
+	            <dd id="sizeL"><a href="javascript:void(0);">L</a></dd>
+						</dl>
+						<!-- /font size -->
+
+						<!-- langage -->
+						<div class="select-wrap">
+							<select name="select" onChange="location.href=value;" id="lang">
+							  <option value="/en/">English</option>
+							  <option value="/cn/">簡体中文</option>
+							  <option value="/tw/">繁體中文</option>
+							  <option value="/ko/">한국어</option>
+							  <option value="/">日本語</option>
+							</select>
+						</div>
+						<!-- /langage -->
+
+						<!-- search -->
+<div id="search">
+<div class="mf_finder_container">
+    <mf-search-box ajax-url="https://finder.api.mf.marsflag.com/api/v1/finder_service/documents/3469a6ad/search"
+    options-hidden
+    doctype-hidden
+    ignore-search-result
+    placeholder="Search by keyword"
+    submit-text=""
+    serp-url="https://www.ferry-sunflower.co.jp/xx-marsflag/result-en.html#/"
+    ></mf-search-box>
+</div>
+</div>
+<!-- /search -->
+
+						<p class="group"><a href="https://www.mol.co.jp/en/" target="_blank"><img src="/cmn/img/en/mol-logo.gif" alt="MOL group"></a></p>
+					</div>
+
+					<div class="lower">
+						<ul class="link-list">
+							<li><a href="https://www.sunflower.co.jp/top/" target="_blank">Company Profile</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+
+			<div id="humbgr">
+				<div class="bars">
+					<span></span>
+					<span></span>
+					<span></span>
+				</div>
+			</div>
+
+		</div>
+		<!-- /logo header -->
+
+		<!-- PC global nav -->
+		<div id="gnav">
+			<nav>
+				<ul class="gnav-list">
+					<li class="route">
+						<a href="">Routes and Timetables</a>
+						<div class="bigpull">
+							<div class="inner">
+								<ul class="route-list">
+									<li>
+										<dl class="route01-elem route-elem">
+											<dt class="only-pc">Osaka<i></i>Beppu</dt>
+											<dt class="only-sp"><span>Osaka</span><span>Beppu</span></dt>
+											<dd>
+												<ul>
+													<li><a href="/en/route/osaka-beppu/time/">Routes and Timetables</a></li>
+													<li><a href="/en/route/osaka-beppu/fee/">Fares / Discounts</a></li>
+													<li class="only-sp"><a href="/en/route/osaka-beppu/boarding/">Ferry Terminal Guide</a></li>
+													<li><a href="/en/route/osaka-beppu/cabin/">Cabins</a></li>
+													<li><a href="/en/route/osaka-beppu/public/">Onboard Information</a></li>
+													<li><a href="/lp/day/en/">Seto Inland Sea Casual Daytime Cruise</a></li>					
+												</ul>
+											</dd>
+										</dl>
+									</li>
+									<li>
+										<dl class="route02-elem route-elem">
+											<dt class="only-pc">Kobe<i></i>Oita<span></span></dt>
+											<dt class="only-sp"><span>Kobe</span><span>Oita</span></dt>
+											<dd>
+												<ul>
+													<li><a href="/en/route/kobe-oita/time/">Routes and Timetables</a></li>
+													<li><a href="/en/route/kobe-oita/fee/">Fares / Discounts</a></li>
+													<li class="only-sp"><a href="/en/route/kobe-oita/boarding/">Ferry Terminal Guide</a></li>
+													<li><a href="/en/route/kobe-oita/cabin/">Cabins</a></li>
+													<li><a href="/en/route/kobe-oita/public/">Onboard Information</a></li>
+												</ul>
+											</dd>
+										</dl>
+									</li>
+									<li>
+										<dl class="route03-elem route-elem">
+											<dt class="only-pc">Osaka<i></i>Shibushi<span> (Kagoshima)</span></dt>
+											<dt class="only-sp"><span>Osaka</span><span>Shibushi (Kagoshima)</span></dt>
+											<dd>
+												<ul>
+													<li><a href="/en/route/osaka-shibushi/time/">Routes and Timetables</a></li>
+													<li><a href="/en/route/osaka-shibushi/fee/">Fares / Discounts</a></li>
+													<li class="only-sp"><a href="/en/route/osaka-shibushi/boarding/">Ferry Terminal Guide</a></li>
+													<li><a href="/en/route/osaka-shibushi/cabin/">Cabins</a></li>
+													<li><a href="/en/route/osaka-shibushi/public/">Onboard Information</a></li>
+												</ul>
+											</dd>
+										</dl>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</li>
+					<li class="access">
+						<a href="" class="acd-trig">Ferry Terminal Guide<span class="acd-icon"></span></a>
+						<div class="bigpull">
+							<div class="inner">
+								<ul class="access-list">
+									<li>
+										<figure>
+											<p class="img"><a href="/en/route/osaka-beppu/boarding/"><img src="/cmn/img/en/responsive/img_access01.gif" alt=""></a></p>
+											<figcaption><a href="/en/route/osaka-beppu/boarding/">Osaka &harr; Beppu</a></figcaption>
+										</figure>
+									</li>
+									<li>
+										<figure>
+											<p class="img"><a href="/en/route/kobe-oita/boarding/"><img src="/cmn/img/en/responsive/img_access02.gif" alt=""></a></p>
+											<figcaption><a href="/en/route/kobe-oita/boarding/">Kobe &harr; Oita</a></figcaption>
+										</figure>
+									</li>
+									<li>
+										<figure>
+											<p class="img"><a href="/en/route/osaka-shibushi/boarding/"><img src="/cmn/img/en/responsive/img_access03.gif" alt=""></a></p>
+											<figcaption><a href="/en/route/osaka-shibushi/boarding/">Osaka &harr; Shibushi (Kagoshima)</a></figcaption>
+										</figure>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</li>
+					<li class="book">
+						<a href="" class="acd-trig">Reservations / Ticketing<span class="acd-icon"></span></a>
+						<div class="bigpull">
+							<div class="inner">
+								<ul class="book-list">
+									<li><a href="/en/reservation/">From booking to boarding</a></li>
+									<li><a href="https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish" target="_blank" class="window">Web Reservations</a></li>
+								</ul>
+							</div>
+						</div>
+					</li>
+					<li class="voyage">
+						<a href="" class="acd-trig">Services<span class="acd-icon"></span></a>
+						<div class="bigpull">
+							<div class="inner">
+								<ul class="voyage-list">
+									<!--<li><a href="/en/lp/hunetoma/">&quot;Fune ni tomaro&quot; discount</a></li>-->
+									<!--<li><a href="/en/lp/nightcruise/">Night cruise</a></li>-->
+									<li><a href="/en/lp/character/">Character Room</a></li>
+                                    <li><a href="https://fesum.web-aisakurasan.com/?No=1&lang=en" target="_blank" class="window">I'll answer questions!</a></li>
+								</ul>
+							</div>
+						</div>
+					</li>
+				</ul>
+			</nav>
+		</div>
+		<!-- /PC global nav -->
+
+
+
+		<!-- SP global nav -->
+		<div id="sp-gnav">
+			<nav>
+				<ul class="gnav-route">
+					<li class="spgnav-item">
+						<a href="" class="trig"><p><span>Osaka</span><span>Beppu</span></p></a>
+						<div class="route01 sp-pulldown">
+							<!-- route SP MENU -->
+							<div class="route-wrap">
+								<div class="close">
+									<div class="xmark">
+										<span></span>
+										<span></span>
+									</div>
+									<p>Close</p>
+								</div>
+							</div>
+						</div>
+					</li>
+					<li class="spgnav-item">
+						<a href="" class="trig"><p><span>Kobe</span><span>Oita</span></p></a>
+						<div class="route02 sp-pulldown">
+							<!-- route SP MENU -->
+							<div class="route-wrap">
+								<div class="close">
+									<div class="xmark">
+										<span></span>
+										<span></span>
+									</div>
+									<p>Close</p>
+								</div>
+							</div>
+						</div>
+					</li>
+					<li class="spgnav-item">
+						<a href="" class="trig"><p><span>Osaka</span><span>Shibushi<br><i>(Kagoshima)</i></span></p></a>
+						<div class="route03 sp-pulldown">
+							<!-- route SP MENU -->
+							<div class="route-wrap">
+								<div class="close">
+									<div class="xmark">
+										<span></span>
+										<span></span>
+									</div>
+									<p>Close</p>
+								</div>
+							</div>
+						</div>
+					</li>
+				</ul>
+			</nav>
+		</div>
+		<!-- /SP global nav -->
+
+		<!-- SP humberger menu -->
+		<div id="sp-hum-menu">
+			<nav>
+<div class="mf_finder_container sp-search2" id="search2">
+    <mf-search-box ajax-url="https://finder.api.mf.marsflag.com/api/v1/finder_service/documents/3469a6ad/search"
+    options-hidden
+    doctype-hidden
+    ignore-search-result
+    placeholder="Search by keyword"
+    submit-text=""
+    serp-url="https://www.ferry-sunflower.co.jp/xx-marsflag/result-en.html#/"
+    ></mf-search-box>
+    </div>
+<!--<div class="sp-search"></div>-->
+				<ul class="hum-menu-list">
+					<li class="sp-book menu-item">
+						<a href="" class="acd-trig">Reservations / Ticketing<span class="acd-icon"></span></a>
+						<div class="bigpull">
+							<div class="inner">
+								<ul class="book-list">
+									<li><a href="/en/reservation/">From booking to boarding</a></li>
+									<li><a href="https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish" target="_blank">Web Reservations</a></li>
+								</ul>
+							</div>
+						</div>
+					</li>
+					<li class="sp-voyage menu-item">
+						<a href="" class="acd-trig">Services<span class="acd-icon"></span></a>
+						<div class="bigpull">
+							<div class="inner">
+								<ul class="voyage-list">
+									<!--<li><a href="/en/lp/hunetoma/">&quot;Fune ni tomaro&quot; discount</a></li>-->
+									<!--<li><a href="/en/lp/nightcruise/">Night cruise</a></li>-->
+									<li><a href="/en/lp/character/">Character Room</a></li>
+								</ul>
+							</div>
+						</div>
+					</li>
+				</ul>
+				<div class="header_btn_wrap">
+					<ul class="header_btn">
+						<li class="yoyaku">
+							<a href="https://fesum.web-aisakurasan.com/?No=1&lang=en" target="_blank">
+								<img src="/cmn/img/en/sp_btn_answer_en.png" alt="I'll answer any questions!">
+							</a>
+						</li>
+					</ul>
+				</div>
+				<div class="otherlinks-wrap">
+
+				</div>
+
+				<div class="lang-wrap">
+
+				</div>
+			</nav>
+		</div>
+		<!-- /SP humberger menu -->
+
+	</div>
+</header>
+<!-- / tpl-header -->
+
+<div id="wrap">
+<section id="cWrap">
+    <div id="h1Wrap">
+        <nav><a href="/en/index.html">HOME</a> &gt; Kobe-Oita &gt; Ferry Terminal Guide</nav>
+        <h1>Ferry Terminal Guide</h1>
+    </div>
+    
+    <div id="contents">
+        <article id="article">
+        <ul class="tab tab-2btn">
+        	<li class="tab-2line select"><a href="javascript:void(0);">Kobe Port <br>(Rokko Island)</a></li>
+            <li><a href="javascript:void(0);">Oita Port</a></li>
+        </ul>
+        
+        
+        <div class="tabBox" id="displayTab">
+          <h2>Kobe Port (Rokko Island)</h2>
+            <p class="l-photo"><img src="/en/route/kobe-oita/boarding/img/img-act-kobe.jpg" width="300" height="200" alt=""></p>
+            <div class="r-block w410">
+            <table class="tbl-dot">
+                <tr>
+                <th><strong class="txt-orange">Address</strong></th>
+                <td class="exp">: 1-1, 3-chome Koyocho Higashi, Higashinada-ku, Kobe City, Hyogo Prefecture, 658-0031</td>
+                </tr>
+                <tr>
+                <th><strong class="txt-orange">Office Phone No.</strong></th>
+                <td class="exp">: 078-857-1988</td>
+            </tr>
+            </table>
+            </div>
+            
+            <hr>
+         <div class="gmap">
+          <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d13121.287124968183!2d135.28244!3d34.697063!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0xabf39075eb51623b!2sFerry%20Sunflower%20Kobe%20Port!5e0!3m2!1sen!2sjp!4v1622006549991!5m2!1sen!2sjp" width="730" height="300" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
+ </div><!--/.gmap-->
+          <h3>By train or bus</h3>
+          <p>Take the Rokko Liner from either JR Sumiyoshi Station or Hanshin Uozaki Station. Get off at "Island Kitaguchi" Station. A shuttle bus (ferry bus) for the Rokko Island Ferry Terminal departs from this station.<br>
+The Rokko Liner operates every 4 to 5 minutes (every 10 minutes after 9pm). "Island Kitaguchi" station is 6 minutes from JR Sumiyoshi Station and 4 minutes from Hanshin Uozaki Station.<br>
+A convenient direct ferry shuttle bus is available from either JR Sumiyoshi Station or Hanshin Mikage Station; this bus will take you to the ferry terminal.</p>
+
+<p><a href="/en/route/kobe-oita/boarding/doc/about_shuttle_bus.pdf?2309" target="_blank" class="pdf">About the shuttle bus</a></p>
+                    <h3>By car</h3>
+<p class="ttl">From Osaka</p>
+<p>When travelling on the Hanshin Expressway from Osaka, exit at the Hanshin Expressway Kobe Line, Uozaki Ramp, and turn left at the third signal (the Hakutsuru Sake bulletin board).<br>
+When using the Hanshin Expressway Wangan Line, exit at the final Rokko Island North I.C., turn left at the first signal, and go straight for 300 meters. Turn at the next signal, and continue for 300 meters.<br>
+From Sannomiya<br>When using the Hanshin Expressway Kobe Line from Sannomiya, exit at the Maya Ramp. Take Route 43 to the east, and turn right at the fourth signal. Follow the signs to Rokko Island.</p>
+
+<p class="ttl">From Sannomiya</p>
+<p>When using the Hanshin Expressway Kobe Line from Sannomiya, exit at the Maya Ramp. Take Route 43 to the east, and turn right at the fourth signal. Follow the sings to Rokko Island.</p>
+
+          <h3>From Airport</h3>
+          <p class="ttl">From Kansai International Airport</p>
+          <p>Take the limousine bus [KB1] Rokko Island and get off at "Rokko Island".<br>
+          Please click <a href="https://www.kate.co.jp/en/timetable/detail/KB" target="_blank" class="window">here</a> for timetable.<br>
+          From there, move to the Rokko Liner Island Kitaguchi Sta. bus stop (8 minutes on foot) and get on the shuttle bus.</p>
+          <p class="ttl">From Itami Domestic Airport</p>
+          <p>Take the limousine bus [B1]Kobe(Sannomiya) and get off at "Kobe(Sannomiya) ".<br>
+          Please click <a href="https://www.okkbus.co.jp/en/timetable/B/" target="_blank" class="window">here</a> for timetable.<br>
+          Transfer to JR Kobe Line and get off at "Sumiyoshi" station.<br>
+          Transfer to Rokko-Liner (For Marine Park) and get off at "Island Kitaguchi".<br>
+          Then get on the shuttle bus.</p>
+          <p class="ttl">From Kobe Airport</p>
+          <p>Take the Portliner (For Sannomiya) and get off at "Sannomiya".<br>
+          Transfer to JR Kobe Line and get off at "Sumiyoshi" station.<br>
+          Transfer to Rokko-Liner (For Marine Park) and get off at "Island Kitaguchi".<br>
+          Then get on the shuttle bus.</p>
+
+
+            
+        </div><!--/osaka-->
+        
+        <div class="tabBox">
+            <h2>Oita Port</h2>
+            <p class="l-photo"><img src="/en/route/kobe-oita/boarding/img/img-act-oita.jpg" width="300" height="200" alt=""></p>
+            <div class="r-block w410">
+            <table class="tbl-dot">
+                <tr>
+                <th><strong class="txt-orange">Address</strong></th>
+                <td class="exp">: 5-3-1 Ikushi, Oita City, Oita Prefecture<br>870-0003</td>
+                </tr>
+                <tr>
+                <th><strong class="txt-orange">Office Phone No.</strong></th>
+                <td class="exp">: 097-536-8900</td>
+            </tr>
+            </table>
+            </div>
+         <div class="gmap">
+          <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d6673.552100206679!2d131.588564!3d33.24617!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3546a1cefee58ddf%3A0xc8715af3f99f4fd7!2s5-ch%C5%8Dme-3-1%20Ikushi%2C%20Oita%2C%20870-0003!5e0!3m2!1sen!2sjp!4v1622006570141!5m2!1sen!2sjp" width="730" height="300" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
+         </div><!--/.gmap-->
+          <h3>By train or bus</h3>
+          <ul class="disc li0m">
+          <li>Approx. 10-minute walk from JR Nishi Oita Station</li>
+<li>Approx. 15 minutes by bus (Oita Kotsu) from JR Oita Station. Get off at the "Oji Minato-machi" bus stop.</li>
+          </ul>
+          <p>A bus to Oita Station is available only when disembarking from the Sunflower at Oita Port.</p>
+    <h3>By car</h3>      
+<p>The easiest approach is to take Route 10 from the Oita Expressway, Oita IC.</p>
+
+          <h3>From Airport</h3>
+          <p class="ttl">From Oita Airport</p>
+          <p>Take the express bus bound for Oita Station (via Beppu Kitahama) (Airport Express Airliner) and get off at "Oita Station".<br>
+          <a href="http://www.oita-airport.jp/en/access/index.html" target="_blank" class="window">Route</a><br>
+          Please click <a href="http://www.oitakotsu.co.jp/bus/airport/disp.php?rosen=01&shubetu=2&period=20161201_20170106&area=44201" target="_blank" class="window">here</a> for timetable.<br>
+          Travel time is approximately 65 minutes and the cost of a ticket is JPY1550.<br>
+          Change a bus at JR Oita station. Get off at "Oji Port Town" bus stop.</p>
+
+        </div><!--/beppu-->
+        
+        
+        
+      	</article><!-- /#article -->
+        
+        <aside id="sidebar">
+        	<ul id="reserveBnr">
+    <li><a href="https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish" target="_blank"><img src="/cmn/img/en/sbnrReserve_off.gif" width="220" height="60" alt="Web Reservations"></a></li>
+    <li class="mar0b"><a href="https://fesum.web-aisakurasan.com/?No=1&lang=en" target="_blank"><img src="/cmn/img/en/pc_btn-sakura_1_en.png" width="220" height="60" alt="I'll answer any questions!" class="bnr"></a></li>
+</ul>
+            
+            <dl id="sideNavi">
+    <dt><span>Kobe<img src="/cmn/img/arrow-bla02-lr.gif" width="8" height="5" alt="" class="ico">Oita</span></dt>
+    <dd>
+    <ul>
+    	<li><a href="/en/route/kobe-oita/time/index.html" id="sn01">Routes and Timetables</a></li>
+        <li><a href="/en/route/kobe-oita/fee/index.html" id="sn02">Fares / Discounts</a></li>
+        <li><a href="/en/route/kobe-oita/boarding/index.html" id="sn03">Ferry Terminal Guide</a></li>
+        <li><a href="/en/route/kobe-oita/cabin/index.html" id="sn04">Cabins</a></li>
+        <li class="last"><a href="/en/route/kobe-oita/public/index.html" id="sn05">Onboard Information</a></li>
+    </ul>
+    </dd>   
+</dl>
+        </aside><!--/sidebar-->
+      
+    </div><!-- /#contents -->
+</section><!-- /#cWrap -->
+
+  
+<div id="tpl-footer">
+
+	<div class="tpl-inner-wrap">
+
+		<div class="site-link">
+			<div class="inner">
+				<div class="contents-link">
+					<ul>
+						<li>
+							<dl>
+								<dt><span>Osaka</span><span>Beppu</span></dt>
+								<dd>
+									<ul>
+            	<li><a href="/en/route/osaka-beppu/time/">Routes and Timetables</a></li>
+                <li><a href="/en/route/osaka-beppu/fee/">Fares / Discounts</a></li>
+                <li><a href="/en/route/osaka-beppu/boarding/">Ferry Terminal Guide</a></li>
+        		<li><a href="/en/route/osaka-beppu/cabin/">Cabins</a></li>
+        		<li><a href="/en/route/osaka-beppu/public/">Onboard Information</a></li>
+									</ul>
+								</dd>
+							</dl>
+						</li>
+						<li>
+							<dl>
+								<dt><span>Kobe</span><span>Oita</span></dt>
+								<dd>
+									<ul>
+                <li><a href="/en/route/kobe-oita/time/">Routes and Timetables</a></li>
+                <li><a href="/en/route/kobe-oita/fee/">Fares / Discounts</a></li>
+                <li><a href="/en/route/kobe-oita/boarding/">Ferry Terminal Guide</a></li>
+        		<li><a href="/en/route/kobe-oita/cabin/">Cabins</a></li>
+        		<li><a href="/en/route/kobe-oita/public/">Onboard Information</a></li>
+									</ul>
+								</dd>
+							</dl>
+						</li>
+						<li>
+							<dl>
+								<dt><span>Osaka</span><span>Shibushi (Kagoshima)</span></dt>
+								<dd>
+									<ul>
+            	<li><a href="/en/route/osaka-shibushi/time/">Routes and Timetables</a></li>
+                <li><a href="/en/route/osaka-shibushi/fee/">Fares / Discounts</a></li>
+                <li><a href="/en/route/osaka-shibushi/boarding/">Ferry Terminal Guide</a></li>
+        		<li><a href="/en/route/osaka-shibushi/cabin/">Cabins</a></li>
+        		<li><a href="/en/route/osaka-shibushi/public/">Onboard Information</a></li>
+									</ul>
+								</dd>
+							</dl>
+						</li>
+						<li>
+							<dl>
+								<dt>
+									Reservations / Ticketing
+								</dt>
+								<dd>
+									<ul>
+										<li class="w-full"><a href="/en/reservation/">From booking to boarding</a></li>
+										<li><a href="https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish" target="_blank">Web Reservations<img src="/cmn/img/ico/ico-window-w.gif" width="11" height="10" alt="" class="ico"></a></li>
+									</ul>
+								</dd>
+							</dl>
+						</li>
+						<li>
+							<dl>
+								<dt>
+									<p class="link">
+										<a href="https://www.sunflower.co.jp/top/" target="_blank">Company Profile</a>
+									</p>
+								</dt>
+								<dd>
+								</dd>
+							</dl>
+						</li>
+						<li>
+							<dl>
+								<dt>
+									<p class="link">
+										<a href="/en/lp/character/">Character Room</a>
+									</p>
+								</dt>
+								<dd>
+								</dd>
+							</dl>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="tpl-others tpl-clearfix">
+			<div class="inner">
+
+				<ul class="others-links">
+					<li><a href="https://www.sunflower.co.jp/en/privacy.pdf" class="pdf" target="_blank">Privacy Policy</a></li>
+				</ul>
+				<div id="tpl-pagetop-box">
+					<div class="answer-wrap fixed">
+						<p class="answer">
+							<!--<a href="https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish" target="_blank" class="reserve">
+								<span>Web Reservations</span></a>-->
+							<a href="https://fesum.web-aisakurasan.com/?No=1&lang=en" target="_blank" class="ai">
+								<span>I'll answer any questions!</span>
+							</a>
+						</p>
+						<p class="pagetop"><a href="#"><span>TOP</span></a></p>
+					</div>
+				</div>
+				<p class="copyright">Copyright &copy; MOL Sunflower LIMITED. All rights reserved.</p>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- / tpl-footer -->
+
+
+<p id="pagetop"><a href="#top"><img src="/cmn/img/pagetop.png" alt="PAGE TOP" /></a></p>
+
+</div><!-- /#wrap -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="/assets/common/js/jquery.min.js"><\/script>')</script>
+<script type="text/javascript" src="/assets/common/js/plugin.js"></script>
+<script type="text/javascript" src="/assets/common/js/lib/velocity.min.js"></script>
+<script type="text/javascript" src="/assets/common/js/lib/jquery.matchHeight-min.js"></script>
+<script type="text/javascript" src="/assets/common/js/lib/jquery.inview.min.js"></script>
+<!--<script type="text/javascript" src="/assets/common/js/common.js"></script>-->
+<!--[if lt IE 9]>
+<script type="text/javascript" src="/assets/common/js/html5shiv.min.js"></script>
+<![endif]-->
+<!-- [CONTENT JS] -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script type="text/javascript" src="/cmn/js/rollover.js"></script>
+<script type="text/javascript" src="/cmn/js/jquery-1.8.2.min.js"></script>
+<script type="text/javascript" src="/assets/common/js/header_footer.js"></script>
+<!--<script type="text/javascript" src="/cmn/js/pagetop.js"></script>-->
+<script type="text/javascript" src="/cmn/js/jquery.exflexfixed-0.3.0.js"></script>
+<script type="text/javascript" src="/cmn/js/jquery.cookie.js"></script>
+<script type="text/javascript" src="/cmn/js/jquery.textresizer.js"></script>
+<script type="text/javascript" src="/cmn/js/cwrap_responsive2.js"></script> 
+<script type="text/javascript" src="/cmn/js/tab.js"></script>
+<script>
+jQuery(function($) {
+  const urlParams = new URLSearchParams(window.location.search);
+  const tab = urlParams.get('tab');
+  let tabIndex = 0;
+  if (tab === 'oita') tabIndex = 1;
+
+  $('.tab li').removeClass('select');
+  $('.tab li').eq(tabIndex).addClass('select');
+
+  $('.tabBox').hide();
+  $('.tabBox').eq(tabIndex).show();
+});
+</script>
+<!-- marsfinder -->
+<!--<script type="text/javascript" charset="UTF-8" src="/cmn/js/marsfinder/sug.js#sv=//mf2apr01.marsflag.com/mf2/ferry_sunflower__en_all__en_all"></script>-->
+<script src="https://ce.mf.marsflag.com/latest/js/mf-search.js" charset="UTF-8"></script>
+</body>
+</html>

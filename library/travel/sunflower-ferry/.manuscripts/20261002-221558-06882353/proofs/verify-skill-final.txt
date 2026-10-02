@@ -1,0 +1,3 @@
+=== sunflower-ferry-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command)
+  ✓ canonical-sections passed

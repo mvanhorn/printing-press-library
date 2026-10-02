@@ -1,0 +1,68 @@
+{
+  "data": {
+    "arrival_terminal": {
+      "port": {
+        "id": "beppu",
+        "name": "Beppu Kanko-ko",
+        "name_ja": "別府観光港"
+      },
+      "source_name": "Beppu Kanko-ko",
+      "address": "944-2 Shiomi-cho, Beppu City, Oita Prefecture 874-0918",
+      "phone": "0977-22-1311",
+      "access": [
+        {
+          "mode": "By train or bus",
+          "guidance": "15 minutes by bus from JR Beppu Station. Three-minute walk from the \"Beppu kokusai kankoukou Ferry Sunflower Mae\" bus stop. Approx. 10 minutes by taxi from JR Beppu Station."
+        },
+        {
+          "mode": "By car",
+          "guidance": "Approx. 15 minutes from Oita Expressway Beppu IC."
+        },
+        {
+          "mode": "From Airport",
+          "guidance": "From Oita Airport Take the express bus bound for Beppu Station (Airport Express Airliner) and get off at \"Beppu Kotsu Center\". Route Travel time is approximately 41 minutes and the cost of a ticket is JPY1400. From there you will arrive at the terminal in 8 minutes on foot."
+        }
+      ]
+    },
+    "checkin_guide_url": "https://www.ferry-sunflower.co.jp/en/reservation/",
+    "departure_terminal": {
+      "port": {
+        "id": "osaka-terminal1",
+        "name": "Osaka Sunflower Terminal 1",
+        "name_ja": "さんふらわあターミナル（大阪）第1ターミナル"
+      },
+      "source_name": "sunflower terminal (osaka) Terminal1",
+      "address": "ATC ITM Building 2F 2-D-6, 2-1-10 Nanko Kita, Suminoe-ku, Osaka City, Osaka 559-0034 Japan",
+      "phone": "06-6613-1571",
+      "access": [
+        {
+          "mode": "By train or bus",
+          "guidance": "From either Suminoe Koen Station on the Yotsubashi Subway line or Cosmos Square Station on the Chuo Subway line, take the Newtram to \"Trade Center Station.\" The terminal is a five-minute walk away. Osaka Municipal Subway"
+        },
+        {
+          "mode": "By car",
+          "guidance": "From Osaka City Take the \"Nanko Kita\" exit on the Hanshin Expressway Wangan Line. The terminal is a ten-minute drive away. From Kansai International Airport Take the \"Nanko Minami\" exit on the Hanshin Expressway Wangan Line.The terminal is a 15-minute drive away."
+        },
+        {
+          "mode": "From Airport",
+          "guidance": "From Kansai International Airport Take the limousine bus bound for Osaka Nanko and get off at \"Hyatt Regency Osaka\". Please click here for timetable. From there you will arrive at the terminal in 10 minutes on foot. From Itami Domestic Airport Go to \"Namba\" by limousine bus. Please click here for timetable. Transfer to Midosuji subway line and get …"
+        }
+      ]
+    },
+    "line": "21",
+    "route_id": "osaka-beppu"
+  },
+  "meta": {
+    "observed_at": "2026-10-03T00:15:02+09:00",
+    "source_urls": [
+      "https://www.ferry-sunflower.co.jp/en/route/osaka-beppu/boarding/"
+    ],
+    "source_language": "en",
+    "request_count": 1,
+    "response_bytes": 27120,
+    "elapsed_ms": 424
+  },
+  "warnings": [
+    "Access times and ground-transport fares in the operator English guidance are undated reference information; confirm current ground transport. English boarding guidance recommends arrival at least 60 minutes before departure and warns boarding may be refused within 30 minutes; confirm vehicle/seasonal requirements."
+  ]
+}

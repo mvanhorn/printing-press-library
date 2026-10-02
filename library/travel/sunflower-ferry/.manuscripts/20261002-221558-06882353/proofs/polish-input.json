@@ -1,0 +1,13 @@
+{
+  "cli_work_dir": "/Users/zjsng/Projects/Personal/Coding/sunflower-ferry-cli",
+  "printing_press_bin": "/Users/zjsng/go/bin/cli-printing-press",
+  "phase3_transcendence_rows_planned": 6,
+  "phase3_transcendence_rows_built": 6,
+  "phase3_transcendence_rows_missing": [],
+  "prior_sub60_reprint": false,
+  "partial_transcendence_override": "none",
+  "mode": "mid-pipeline; direct builder polish under user one-reviewer limit; reviewer reused for phases14-17 and output review",
+  "spec": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/research/sunflower-ferry-spec.yaml",
+  "research_dir": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353",
+  "publish_validate": "skipped (mid-pipeline); publication belongs to parent separate instruction"
+}

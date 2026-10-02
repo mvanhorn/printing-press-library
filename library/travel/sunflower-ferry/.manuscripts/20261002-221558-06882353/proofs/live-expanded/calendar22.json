@@ -1,0 +1,46 @@
+{
+  "data": {
+    "calendar": {
+      "route_id": "osaka-beppu",
+      "line": "22",
+      "dates": [
+        {
+          "date": "2026-10-04",
+          "weekday": "Sunday",
+          "band": "A",
+          "daytime_cruise": false
+        }
+      ],
+      "published_from": "2026-10-01",
+      "published_to": "2027-03-31",
+      "requested_from": "2026-10-04",
+      "requested_to": "2026-10-04",
+      "missing_dates": [],
+      "complete": true,
+      "discount_conditions": [
+        "Internet reservation discount: 5%OFF; source excluded seasons: C,D",
+        "Return trip discount: Return 5%OFF; source excluded seasons: -",
+        "\"Dangan\" round trip discount: Outbound:0% (normal fares) Return:50%OFF; source excluded seasons: C,D (return date)"
+      ]
+    },
+    "limit": 93,
+    "matched_dates": 1,
+    "returned_dates": 1,
+    "scanned_dates": 1,
+    "truncated": false
+  },
+  "meta": {
+    "observed_at": "2026-10-03T01:01:12+09:00",
+    "source_urls": [
+      "https://www.ferry-sunflower.co.jp/en/route/osaka-beppu/fee/",
+      "https://www.ferry-sunflower.co.jp/route/inc/cal-config/cal-beppu.js?v=261001"
+    ],
+    "source_language": "en; official calendar script",
+    "request_count": 2,
+    "response_bytes": 42529,
+    "elapsed_ms": 645
+  },
+  "warnings": [
+    "Bands are published date classifications, not prices or inventory. Use quote for entered party/vehicle fares; E can be a same-day cruise."
+  ]
+}

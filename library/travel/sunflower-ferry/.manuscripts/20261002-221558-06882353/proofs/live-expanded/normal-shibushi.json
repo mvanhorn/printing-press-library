@@ -1,0 +1,81 @@
+{
+  "data": {
+    "route": {
+      "id": "osaka-shibushi",
+      "name": "Osaka–Shibushi (Kagoshima)",
+      "name_ja": "大阪～志布志（鹿児島）",
+      "outbound_line": "31",
+      "inbound_line": "32",
+      "origin": {
+        "id": "osaka-terminal2",
+        "name": "Osaka Sunflower Terminal 2",
+        "name_ja": "さんふらわあターミナル（大阪）第2ターミナル"
+      },
+      "destination": {
+        "id": "shibushi",
+        "name": "Shibushi",
+        "name_ja": "志布志港"
+      },
+      "source_url": "https://www.ferry-sunflower.co.jp/en/route/osaka-shibushi/time/",
+      "booking_url": "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish"
+    },
+    "line": "32",
+    "direction": "inbound",
+    "source_effective_caption": "since July 1st, 2023",
+    "weekday_rules": [
+      {
+        "weekdays": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday"
+        ],
+        "source_day_label": "Mon.-Thu.",
+        "departure_time": "17:55",
+        "arrival_time": "07:40",
+        "arrival_day_offset": 1
+      },
+      {
+        "weekdays": [
+          "Friday"
+        ],
+        "source_day_label": "Fri",
+        "departure_time": "17:55",
+        "arrival_time": "07:50",
+        "arrival_day_offset": 1
+      },
+      {
+        "weekdays": [
+          "Saturday"
+        ],
+        "source_day_label": "Sat.",
+        "departure_time": "18:30",
+        "arrival_time": "08:50",
+        "arrival_day_offset": 1
+      },
+      {
+        "weekdays": [
+          "Sunday"
+        ],
+        "source_day_label": "Sun.",
+        "departure_time": "17:00",
+        "arrival_time": "07:40",
+        "arrival_day_offset": 1
+      }
+    ],
+    "date_validity": "Published normal weekday pattern; exceptions, cancellations and dated sailing inventory require the official date lookup."
+  },
+  "meta": {
+    "observed_at": "2026-10-03T01:01:14+09:00",
+    "source_urls": [
+      "https://www.ferry-sunflower.co.jp/en/route/osaka-shibushi/time/"
+    ],
+    "source_language": "en",
+    "request_count": 1,
+    "response_bytes": 23737,
+    "elapsed_ms": 577
+  },
+  "warnings": [
+    "Normal weekday patterns do not establish operation on a specific date; use sailings for source date lookup."
+  ]
+}

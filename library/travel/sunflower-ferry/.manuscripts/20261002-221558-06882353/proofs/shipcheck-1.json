@@ -1,0 +1,72 @@
+{
+  "passed": false,
+  "exit_code": 3,
+  "verdict": "FAIL",
+  "started_at": "2026-10-02T15:18:10Z",
+  "elapsed_ms": 17967,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T15:18:10Z",
+      "elapsed_ms": 10010,
+      "command": "/Users/zjsng/go/bin/cli-printing-press verify --dir /Users/zjsng/Projects/Personal/Coding/sunflower-ferry-cli --write-manifest /Users/zjsng/Projects/Personal/Coding/sunflower-ferry-cli/.printing-press.json --spec /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/research/sunflower-ferry-spec.yaml --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 1,
+      "passed": false,
+      "verdict": "FAIL",
+      "started_at": "2026-10-02T15:18:20Z",
+      "elapsed_ms": 666,
+      "command": "/Users/zjsng/go/bin/cli-printing-press validate-narrative --strict --full-examples --research /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/research.json --binary /Users/zjsng/Projects/Personal/Coding/sunflower-ferry-cli/build/stage/bin/sunflower-ferry-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 3,
+      "passed": false,
+      "verdict": "FAIL",
+      "started_at": "2026-10-02T15:18:21Z",
+      "elapsed_ms": 1990,
+      "command": "/Users/zjsng/go/bin/cli-printing-press dogfood --dir /Users/zjsng/Projects/Personal/Coding/sunflower-ferry-cli --spec /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/research/sunflower-ferry-spec.yaml --research-dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T15:18:23Z",
+      "elapsed_ms": 13,
+      "command": "/Users/zjsng/go/bin/cli-printing-press workflow-verify --dir /Users/zjsng/Projects/Personal/Coding/sunflower-ferry-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T15:18:23Z",
+      "elapsed_ms": 25,
+      "command": "/Users/zjsng/go/bin/cli-printing-press apify-audit --dir /Users/zjsng/Projects/Personal/Coding/sunflower-ferry-cli --research-dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 1,
+      "passed": false,
+      "verdict": "FAIL",
+      "started_at": "2026-10-02T15:18:23Z",
+      "elapsed_ms": 2382,
+      "command": "/Users/zjsng/go/bin/cli-printing-press verify-skill --dir /Users/zjsng/Projects/Personal/Coding/sunflower-ferry-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T15:18:25Z",
+      "elapsed_ms": 2876,
+      "command": "/Users/zjsng/go/bin/cli-printing-press scorecard --dir /Users/zjsng/Projects/Personal/Coding/sunflower-ferry-cli --write-manifest /Users/zjsng/Projects/Personal/Coding/sunflower-ferry-cli/.printing-press.json --research-dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353 --spec /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/research/sunflower-ferry-spec.yaml --live-check"
+    }
+  ]
+}

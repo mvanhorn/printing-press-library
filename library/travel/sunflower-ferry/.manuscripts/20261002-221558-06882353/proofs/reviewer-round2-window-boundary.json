@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "quote",
+    "--route",
+    "osaka-beppu",
+    "--date",
+    "2027-01-03",
+    "--adults",
+    "1",
+    "--mode",
+    "foot",
+    "--agent"
+  ],
+  "observed_at": "2026-10-02T16:43:14.870222+00:00",
+  "exit": 5,
+  "elapsed_ms": 3359,
+  "stdout": "{\"code\":5,\"error\":\"official fare result has no parseable sailing; no normal schedule substituted\"}\n",
+  "stderr": "Error: official fare result has no parseable sailing; no normal schedule substituted\n"
+}

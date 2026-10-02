@@ -1,0 +1,8 @@
+{
+  "acquired": true,
+  "acquired_at": "2026-10-02T22:53:50.067836+08:00",
+  "blocked": false,
+  "cli": "sunflower-ferry-pp-cli",
+  "lock_file": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.locks/sunflower-ferry-pp-cli.lock",
+  "scope": "sunflower-ferry-cli-5b9b5abe"
+}

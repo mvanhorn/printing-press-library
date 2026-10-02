@@ -1,0 +1,152 @@
+{
+  "dir": "/Users/zjsng/Projects/Personal/Coding/sunflower-ferry-cli",
+  "spec_path": "/Users/zjsng/Projects/Personal/Coding/sunflower-ferry-cli/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 24,
+    "dead": 1,
+    "items": [
+      "maxAge"
+    ]
+  },
+  "dead_functions": {
+    "total": 107,
+    "dead": 7,
+    "items": [
+      "handleBinaryResponseDelivery",
+      "hasChangedLocalFlags",
+      "isDryRunResponseForClient",
+      "readSecretFromStdin",
+      "retainCLIQueryParams",
+      "retainExplicitQueryParams",
+      "successfulNoop"
+    ]
+  },
+  "pipeline_check": {
+    "sync_calls_domain": false,
+    "search_calls_domain": false,
+    "domain_tables": 4,
+    "sync_file_emitted": false,
+    "sync_resources_present": false,
+    "detail": "sync Upsert calls not found; search methods not found; 4 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 54,
+      "registered": 54
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 6,
+    "found": 6,
+    "depth_mismatches": [
+      {
+        "command": "cabins",
+        "advertised": "cabins",
+        "actual": "source cabins"
+      },
+      {
+        "command": "conditions",
+        "advertised": "conditions",
+        "actual": "source conditions"
+      }
+    ]
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 6,
+    "exempted_via_store": 2,
+    "suspicious": [
+      {
+        "command": "sailings",
+        "file": "sailings.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "quote",
+        "file": "quote.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "calendar",
+        "file": "calendar.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "ports",
+        "file": "ports.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      }
+    ]
+  },
+  "description_drift_check": {
+    "expected": "Plan dated Sunflower ferry sailings, cabin fares and port access from official sources."
+  },
+  "source_client_check": {
+    "checked": 13
+  },
+  "print_json_filtered_check": {
+    "checked": 34
+  },
+  "test_presence": {
+    "checked": 3
+  },
+  "naming_check": {
+    "checked": 34
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "1 dead flags found",
+    "7 dead helper functions found",
+    "sync uses generic Upsert only",
+    "2 novel feature command-depth mismatches: cabins advertised as cabins but registered as source cabins; conditions advertised as conditions but registered as source conditions",
+    "4/6 novel features look reimplemented: sailings (sailings.go) — hand-rolled response: no API client call, no store access; quote (quote.go) — hand-rolled response: no API client call, no store access; calendar (calendar.go) — hand-rolled response: no API client call, no store access; ports (ports.go) — hand-rolled response: no API client call, no store access"
+  ]
+}

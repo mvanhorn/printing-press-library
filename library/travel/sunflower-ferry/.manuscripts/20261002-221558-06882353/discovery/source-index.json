@@ -1,0 +1,152 @@
+[
+  {
+    "url": "https://www.ferry-sunflower.co.jp/en/route/osaka-beppu/time/",
+    "exit": 0,
+    "path": "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T//printing-press-fetch-docs/www.ferry-sunflower.co.jp-en-route-osaka-beppu-time-cf86e188f7ba3f35.html",
+    "status": "200",
+    "content_type": "text/html",
+    "effective_url": "https://www.ferry-sunflower.co.jp/en/route/osaka-beppu/time/",
+    "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/discovery/source/en_route_osaka-beppu_time",
+    "error": null
+  },
+  {
+    "url": "https://www.ferry-sunflower.co.jp/en/route/osaka-beppu/fee/",
+    "exit": 0,
+    "path": "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T//printing-press-fetch-docs/www.ferry-sunflower.co.jp-en-route-osaka-beppu-fee-8c9229baadd241dd.html",
+    "status": "200",
+    "content_type": "text/html",
+    "effective_url": "https://www.ferry-sunflower.co.jp/en/route/osaka-beppu/fee/",
+    "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/discovery/source/en_route_osaka-beppu_fee",
+    "error": null
+  },
+  {
+    "url": "https://www.ferry-sunflower.co.jp/en/route/osaka-beppu/boarding/",
+    "exit": 0,
+    "path": "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T//printing-press-fetch-docs/www.ferry-sunflower.co.jp-en-route-osaka-beppu-boarding-ad813ce32cda6a74.html",
+    "status": "200",
+    "content_type": "text/html",
+    "effective_url": "https://www.ferry-sunflower.co.jp/en/route/osaka-beppu/boarding/",
+    "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/discovery/source/en_route_osaka-beppu_boarding",
+    "error": null
+  },
+  {
+    "url": "https://www.ferry-sunflower.co.jp/en/route/osaka-beppu/cabin/",
+    "exit": 0,
+    "path": "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T//printing-press-fetch-docs/www.ferry-sunflower.co.jp-en-route-osaka-beppu-cabin-6ab7ffa089aec90a.html",
+    "status": "200",
+    "content_type": "text/html",
+    "effective_url": "https://www.ferry-sunflower.co.jp/en/route/osaka-beppu/cabin/",
+    "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/discovery/source/en_route_osaka-beppu_cabin",
+    "error": null
+  },
+  {
+    "url": "https://www.ferry-sunflower.co.jp/en/route/kobe-oita/time/",
+    "exit": 0,
+    "path": "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T//printing-press-fetch-docs/www.ferry-sunflower.co.jp-en-route-kobe-oita-time-73a3f1ccc24ff6c6.html",
+    "status": "200",
+    "content_type": "text/html",
+    "effective_url": "https://www.ferry-sunflower.co.jp/en/route/kobe-oita/time/",
+    "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/discovery/source/en_route_kobe-oita_time",
+    "error": null
+  },
+  {
+    "url": "https://www.ferry-sunflower.co.jp/en/route/kobe-oita/fee/",
+    "exit": 0,
+    "path": "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T//printing-press-fetch-docs/www.ferry-sunflower.co.jp-en-route-kobe-oita-fee-ce6f125c9eb6373d.html",
+    "status": "200",
+    "content_type": "text/html",
+    "effective_url": "https://www.ferry-sunflower.co.jp/en/route/kobe-oita/fee/",
+    "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/discovery/source/en_route_kobe-oita_fee",
+    "error": null
+  },
+  {
+    "url": "https://www.ferry-sunflower.co.jp/en/route/kobe-oita/boarding/",
+    "exit": 0,
+    "path": "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T//printing-press-fetch-docs/www.ferry-sunflower.co.jp-en-route-kobe-oita-boarding-a6e9734f5fbb721e.html",
+    "status": "200",
+    "content_type": "text/html",
+    "effective_url": "https://www.ferry-sunflower.co.jp/en/route/kobe-oita/boarding/",
+    "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/discovery/source/en_route_kobe-oita_boarding",
+    "error": null
+  },
+  {
+    "url": "https://www.ferry-sunflower.co.jp/en/route/kobe-oita/cabin/",
+    "exit": 0,
+    "path": "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T//printing-press-fetch-docs/www.ferry-sunflower.co.jp-en-route-kobe-oita-cabin-79232178489121af.html",
+    "status": "200",
+    "content_type": "text/html",
+    "effective_url": "https://www.ferry-sunflower.co.jp/en/route/kobe-oita/cabin/",
+    "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/discovery/source/en_route_kobe-oita_cabin",
+    "error": null
+  },
+  {
+    "url": "https://www.ferry-sunflower.co.jp/en/route/osaka-shibushi/time/",
+    "exit": 0,
+    "path": "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T//printing-press-fetch-docs/www.ferry-sunflower.co.jp-en-route-osaka-shibushi-time-13f02e333cf07580.html",
+    "status": "200",
+    "content_type": "text/html",
+    "effective_url": "https://www.ferry-sunflower.co.jp/en/route/osaka-shibushi/time/",
+    "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/discovery/source/en_route_osaka-shibushi_time",
+    "error": null
+  },
+  {
+    "url": "https://www.ferry-sunflower.co.jp/en/route/osaka-shibushi/fee/",
+    "exit": 0,
+    "path": "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T//printing-press-fetch-docs/www.ferry-sunflower.co.jp-en-route-osaka-shibushi-fee-3c071e45d02498ad.html",
+    "status": "200",
+    "content_type": "text/html",
+    "effective_url": "https://www.ferry-sunflower.co.jp/en/route/osaka-shibushi/fee/",
+    "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/discovery/source/en_route_osaka-shibushi_fee",
+    "error": null
+  },
+  {
+    "url": "https://www.ferry-sunflower.co.jp/en/route/osaka-shibushi/boarding/",
+    "exit": 0,
+    "path": "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T//printing-press-fetch-docs/www.ferry-sunflower.co.jp-en-route-osaka-shibushi-boarding-efd8b0a31009cf5f.html",
+    "status": "200",
+    "content_type": "text/html",
+    "effective_url": "https://www.ferry-sunflower.co.jp/en/route/osaka-shibushi/boarding/",
+    "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/discovery/source/en_route_osaka-shibushi_boarding",
+    "error": null
+  },
+  {
+    "url": "https://www.ferry-sunflower.co.jp/en/route/osaka-shibushi/cabin/",
+    "exit": 0,
+    "path": "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T//printing-press-fetch-docs/www.ferry-sunflower.co.jp-en-route-osaka-shibushi-cabin-254c86fc725d78cd.html",
+    "status": "200",
+    "content_type": "text/html",
+    "effective_url": "https://www.ferry-sunflower.co.jp/en/route/osaka-shibushi/cabin/",
+    "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/discovery/source/en_route_osaka-shibushi_cabin",
+    "error": null
+  },
+  {
+    "url": "https://www.ferry-sunflower.co.jp/en/reservation/",
+    "exit": 0,
+    "path": "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T//printing-press-fetch-docs/www.ferry-sunflower.co.jp-en-reservation-b3efc704cffc8645.html",
+    "status": "200",
+    "content_type": "text/html",
+    "effective_url": "https://www.ferry-sunflower.co.jp/en/reservation/",
+    "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/discovery/source/en_reservation",
+    "error": null
+  },
+  {
+    "url": "https://www.ferry-sunflower.co.jp/other/rule.html",
+    "exit": 0,
+    "path": "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T//printing-press-fetch-docs/www.ferry-sunflower.co.jp-other-rule.html-779cc62add98a60d.html",
+    "status": "200",
+    "content_type": "text/html",
+    "effective_url": "https://www.sunflower.co.jp/stipulate/index.html",
+    "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/discovery/source/other_rule.html",
+    "error": null
+  },
+  {
+    "url": "https://www.ferry-sunflower.co.jp/route/inc/cal-config/cal-beppu.js?v=261001",
+    "exit": 0,
+    "path": "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T//printing-press-fetch-docs/www.ferry-sunflower.co.jp-route-inc-cal-config-cal-beppu.js-v-261001-f110ae3320f2c32f.bin",
+    "status": "200",
+    "content_type": "application/javascript",
+    "effective_url": "https://www.ferry-sunflower.co.jp/route/inc/cal-config/cal-beppu.js?v=261001",
+    "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/discovery/source/route_inc_cal-config_cal-beppu.js",
+    "error": null
+  }
+]

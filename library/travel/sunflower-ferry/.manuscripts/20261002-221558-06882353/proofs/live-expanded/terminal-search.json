@@ -1,0 +1,34 @@
+{
+  "data": [
+    {
+      "id": "osaka-shibushi",
+      "name": "Osaka–Shibushi (Kagoshima)",
+      "name_ja": "大阪～志布志（鹿児島）",
+      "outbound_line": "31",
+      "inbound_line": "32",
+      "origin": {
+        "id": "osaka-terminal2",
+        "name": "Osaka Sunflower Terminal 2",
+        "name_ja": "さんふらわあターミナル（大阪）第2ターミナル"
+      },
+      "destination": {
+        "id": "shibushi",
+        "name": "Shibushi",
+        "name_ja": "志布志港"
+      },
+      "source_url": "https://www.ferry-sunflower.co.jp/en/route/osaka-shibushi/time/",
+      "booking_url": "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish"
+    }
+  ],
+  "meta": {
+    "observed_at": "2026-10-02",
+    "source_urls": [
+      "https://www.ferry-sunflower.co.jp/en/",
+      "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish"
+    ],
+    "source_language": "en/ja; local reference registry verified on 2026-10-02",
+    "request_count": 0,
+    "response_bytes": 0,
+    "elapsed_ms": 0
+  }
+}

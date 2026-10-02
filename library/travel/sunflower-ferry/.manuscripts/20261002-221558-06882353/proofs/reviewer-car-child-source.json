@@ -1,0 +1,48 @@
+{
+  "calls": [
+    {
+      "path": "/web/yoyaku/Reserve0000/IndexEnglish",
+      "status": 200,
+      "final_path": "/web/yoyaku/Reserve0000/IndexEnglish",
+      "bytes": 20117
+    },
+    {
+      "path": "/web/yoyaku/Reserve0000/Reserve",
+      "status": 200,
+      "final_path": "/web/yoyaku/Reserve1030",
+      "bytes": 26076
+    },
+    {
+      "path": "/web/yoyaku/Reserve1030/MoveNext",
+      "status": 200,
+      "final_path": "/web/yoyaku/Reserve1020",
+      "bytes": 35132
+    }
+  ],
+  "h2": [
+    "Total Price",
+    "10/15(Thu) Kobe 19:00 Departure　>>　Oita 06:20 Arrival （SUNFLOWER PEARL） About Classes About Ferries"
+  ],
+  "rows": [
+    "One-way",
+    "10/15(Thu) Kobe ➡ Oita",
+    "Season Applicable discount",
+    "Ａ Web DC(Partcal 5%)",
+    "○ or Number Available (Note: No. of private cabins shows the number of available cabins .)",
+    "× Full occupancy or unavailable period",
+    "－ Not sold",
+    "Waitlist Currently accepting waitlist registration * Please register with one way at a time",
+    "Room type Class Image (click to enlarge) Discounted Price Vacant Seat/Room (click to book) Info",
+    "private Deluxe room (2-4) \\85,440 ○",
+    "private Standard room (4) \\69,440 ○",
+    "private Standard room (4 Ladies only) \\69,440 ○",
+    "private Standard room (4 /with pet) \\78,140 Waitlist",
+    "private Standard room (Kumamon) \\71,940 1",
+    "dormitory Private bed room \\59,440 4 *This room class is not a private type but a dormitory type.",
+    "dormitory Private bed room (Ladies only) \\59,440 ○ *This room class is not a private type but a dormitory type.",
+    "dormitory Tourist room \\45,590 ○ *This room class is not a private type but a dormitory type.",
+    "dormitory Tourist room (Ladies only) \\45,590 3 *This room class is not a private type but a dormitory type.",
+    "Vehicle ○"
+  ],
+  "reservation_stage_submitted": false
+}

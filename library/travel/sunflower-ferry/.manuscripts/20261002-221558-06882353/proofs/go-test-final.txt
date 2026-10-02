@@ -1,0 +1,20 @@
+?   	sunflower-ferry-pp-cli/cmd/sunflower-ferry-pp-cli	[no test files]
+ok  	sunflower-ferry-pp-cli/cmd/sunflower-ferry-pp-mcp	0.470s
+?   	sunflower-ferry-pp-cli/internal/cache	[no test files]
+ok  	sunflower-ferry-pp-cli/internal/cli	(cached)
+?   	sunflower-ferry-pp-cli/internal/cli/playbooks	[no test files]
+ok  	sunflower-ferry-pp-cli/internal/client	(cached)
+ok  	sunflower-ferry-pp-cli/internal/cliutil	(cached)
+?   	sunflower-ferry-pp-cli/internal/cliutil/testenv	[no test files]
+?   	sunflower-ferry-pp-cli/internal/config	[no test files]
+ok  	sunflower-ferry-pp-cli/internal/ferry	(cached)
+ok  	sunflower-ferry-pp-cli/internal/learn	1.145s
+ok  	sunflower-ferry-pp-cli/internal/learn/entities	(cached)
+ok  	sunflower-ferry-pp-cli/internal/learn/lookups	(cached)
+ok  	sunflower-ferry-pp-cli/internal/learn/patterns	(cached)
+ok  	sunflower-ferry-pp-cli/internal/mcp	1.363s
+ok  	sunflower-ferry-pp-cli/internal/mcp/bound	(cached)
+ok  	sunflower-ferry-pp-cli/internal/mcp/cobratree	(cached)
+ok  	sunflower-ferry-pp-cli/internal/platform	(cached)
+ok  	sunflower-ferry-pp-cli/internal/store	(cached)
+?   	sunflower-ferry-pp-cli/internal/types	[no test files]

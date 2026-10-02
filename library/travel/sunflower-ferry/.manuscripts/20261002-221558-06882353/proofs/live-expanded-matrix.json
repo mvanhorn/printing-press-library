@@ -1,0 +1,249 @@
+{
+  "cases": [
+    {
+      "case": "E-daytime",
+      "observed_exit": 0,
+      "request_count": 5,
+      "elapsed_ms": 4821,
+      "stdout_bytes": 2169,
+      "sailing_count": 1,
+      "times": [
+        [
+          "2026-10-04T12:15:00+09:00",
+          "2026-10-05T00:05:00+09:00"
+        ]
+      ],
+      "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/live-expanded/E-daytime.json",
+      "vehicle_indicator_verification": null
+    },
+    {
+      "case": "bike",
+      "observed_exit": 0,
+      "request_count": 5,
+      "elapsed_ms": 4592,
+      "stdout_bytes": 3588,
+      "sailing_count": 1,
+      "times": [
+        [
+          "2026-10-15T18:45:00+09:00",
+          "2026-10-16T06:35:00+09:00"
+        ]
+      ],
+      "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/live-expanded/bike.json",
+      "vehicle_indicator_verification": "car/bike parser fix requires focused rerun"
+    },
+    {
+      "case": "cabins-beppu",
+      "observed_exit": 0,
+      "request_count": 1,
+      "elapsed_ms": 540,
+      "stdout_bytes": 7803,
+      "sailing_count": 0,
+      "times": [],
+      "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/live-expanded/cabins-beppu.json",
+      "vehicle_indicator_verification": null
+    },
+    {
+      "case": "cabins-kobe",
+      "observed_exit": 0,
+      "request_count": 1,
+      "elapsed_ms": 431,
+      "stdout_bytes": 2050,
+      "sailing_count": 0,
+      "times": [],
+      "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/live-expanded/cabins-kobe.json",
+      "vehicle_indicator_verification": null
+    },
+    {
+      "case": "calendar12",
+      "observed_exit": 0,
+      "request_count": 2,
+      "elapsed_ms": 856,
+      "stdout_bytes": 2146,
+      "sailing_count": 0,
+      "times": [],
+      "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/live-expanded/calendar12.json",
+      "vehicle_indicator_verification": null
+    },
+    {
+      "case": "calendar22",
+      "observed_exit": 0,
+      "request_count": 2,
+      "elapsed_ms": 645,
+      "stdout_bytes": 1436,
+      "sailing_count": 0,
+      "times": [],
+      "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/live-expanded/calendar22.json",
+      "vehicle_indicator_verification": null
+    },
+    {
+      "case": "calendar31",
+      "observed_exit": 0,
+      "request_count": 2,
+      "elapsed_ms": 597,
+      "stdout_bytes": 1727,
+      "sailing_count": 0,
+      "times": [],
+      "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/live-expanded/calendar31.json",
+      "vehicle_indicator_verification": null
+    },
+    {
+      "case": "car-child",
+      "observed_exit": 0,
+      "request_count": 5,
+      "elapsed_ms": 6364,
+      "stdout_bytes": 5987,
+      "sailing_count": 1,
+      "times": [
+        [
+          "2026-10-15T19:00:00+09:00",
+          "2026-10-16T06:20:00+09:00"
+        ]
+      ],
+      "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/live-expanded/car-child.json",
+      "vehicle_indicator_verification": "car/bike parser fix requires focused rerun"
+    },
+    {
+      "case": "line11-foot",
+      "observed_exit": 0,
+      "request_count": 5,
+      "elapsed_ms": 4249,
+      "stdout_bytes": 3418,
+      "sailing_count": 1,
+      "times": [
+        [
+          "2026-10-15T19:00:00+09:00",
+          "2026-10-16T06:20:00+09:00"
+        ]
+      ],
+      "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/live-expanded/line11-foot.json",
+      "vehicle_indicator_verification": null
+    },
+    {
+      "case": "line12-foot",
+      "observed_exit": 0,
+      "request_count": 5,
+      "elapsed_ms": 5421,
+      "stdout_bytes": 3416,
+      "sailing_count": 1,
+      "times": [
+        [
+          "2026-10-15T19:20:00+09:00",
+          "2026-10-16T06:40:00+09:00"
+        ]
+      ],
+      "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/live-expanded/line12-foot.json",
+      "vehicle_indicator_verification": null
+    },
+    {
+      "case": "line22-foot",
+      "observed_exit": 0,
+      "request_count": 5,
+      "elapsed_ms": 4955,
+      "stdout_bytes": 3414,
+      "sailing_count": 1,
+      "times": [
+        [
+          "2026-10-15T18:45:00+09:00",
+          "2026-10-16T06:35:00+09:00"
+        ]
+      ],
+      "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/live-expanded/line22-foot.json",
+      "vehicle_indicator_verification": null
+    },
+    {
+      "case": "line31-foot",
+      "observed_exit": 0,
+      "request_count": 5,
+      "elapsed_ms": 4797,
+      "stdout_bytes": 3428,
+      "sailing_count": 1,
+      "times": [
+        [
+          "2026-10-15T17:55:00+09:00",
+          "2026-10-16T08:55:00+09:00"
+        ]
+      ],
+      "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/live-expanded/line31-foot.json",
+      "vehicle_indicator_verification": null
+    },
+    {
+      "case": "line32-foot",
+      "observed_exit": 0,
+      "request_count": 5,
+      "elapsed_ms": 4585,
+      "stdout_bytes": 3428,
+      "sailing_count": 1,
+      "times": [
+        [
+          "2026-10-15T17:55:00+09:00",
+          "2026-10-16T07:40:00+09:00"
+        ]
+      ],
+      "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/live-expanded/line32-foot.json",
+      "vehicle_indicator_verification": null
+    },
+    {
+      "case": "normal-shibushi",
+      "observed_exit": 0,
+      "request_count": 1,
+      "elapsed_ms": 577,
+      "stdout_bytes": 2297,
+      "sailing_count": 0,
+      "times": [],
+      "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/live-expanded/normal-shibushi.json",
+      "vehicle_indicator_verification": null
+    },
+    {
+      "case": "ports-kobe",
+      "observed_exit": 0,
+      "request_count": 1,
+      "elapsed_ms": 566,
+      "stdout_bytes": 3622,
+      "sailing_count": 0,
+      "times": [],
+      "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/live-expanded/ports-kobe.json",
+      "vehicle_indicator_verification": null
+    },
+    {
+      "case": "ports-shibushi",
+      "observed_exit": 0,
+      "request_count": 1,
+      "elapsed_ms": 325,
+      "stdout_bytes": 3289,
+      "sailing_count": 0,
+      "times": [],
+      "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/live-expanded/ports-shibushi.json",
+      "vehicle_indicator_verification": null
+    },
+    {
+      "case": "terminal-search",
+      "observed_exit": 0,
+      "request_count": 0,
+      "elapsed_ms": 0,
+      "stdout_bytes": 1072,
+      "sailing_count": 0,
+      "times": [],
+      "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/live-expanded/terminal-search.json",
+      "vehicle_indicator_verification": null
+    },
+    {
+      "case": "toddler-infant",
+      "observed_exit": 0,
+      "request_count": 5,
+      "elapsed_ms": 5625,
+      "stdout_bytes": 3531,
+      "sailing_count": 1,
+      "times": [
+        [
+          "2026-10-15T17:55:00+09:00",
+          "2026-10-16T08:55:00+09:00"
+        ]
+      ],
+      "evidence_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/live-expanded/toddler-infant.json",
+      "vehicle_indicator_verification": null
+    }
+  ],
+  "all_provider_cases_pass": true,
+  "aggregation_note": "Recovered from all18 saved command JSON/stderr files after the report builder encountered the local registry list shape; no provider requests repeated."
+}

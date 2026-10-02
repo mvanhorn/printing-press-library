@@ -1,0 +1,73 @@
+name: sunflower-ferry
+version: "0.1.0"
+category: travel
+description: "Plan Sunflower ferry sailings, seasonal dates, cabin fares and port access from official sources"
+base_url: "https://www.ferry-sunflower.co.jp"
+health_check_path: "/en/route/osaka-beppu/time/"
+http_transport: standard
+auth:
+  type: none
+learn:
+  entity_lookup_seeds:
+    route:
+      - canonical: osaka-beppu
+        aliases: [Osaka Beppu, 大阪 別府, Beppu]
+      - canonical: kobe-oita
+        aliases: [Kobe Oita, 神戸 大分, Oita]
+      - canonical: osaka-shibushi
+        aliases: [Osaka Shibushi, 大阪 志布志, Kagoshima]
+resources:
+  source:
+    description: "Official public source metadata; use the planning commands for structured facts"
+    endpoints:
+      timetable:
+        method: GET
+        path: "/en/route/{route}/time/"
+        description: "Read the official published weekday timetable page"
+        response_format: html
+        html_extract: {mode: page}
+        params:
+          - name: route
+            type: string
+            default: osaka-beppu
+            enum: [osaka-beppu, kobe-oita, osaka-shibushi]
+            description: "Official route slug"
+      fares:
+        method: GET
+        path: "/en/route/{route}/fee/"
+        description: "Read the official fare and seasonal-calendar page"
+        response_format: html
+        html_extract: {mode: page}
+        params:
+          - name: route
+            type: string
+            default: osaka-beppu
+            enum: [osaka-beppu, kobe-oita, osaka-shibushi]
+      cabins:
+        method: GET
+        path: "/en/route/{route}/cabin/"
+        description: "Read the official cabin description page"
+        response_format: html
+        html_extract: {mode: page}
+        params:
+          - name: route
+            type: string
+            default: osaka-beppu
+            enum: [osaka-beppu, kobe-oita, osaka-shibushi]
+      terminal:
+        method: GET
+        path: "/en/route/{route}/boarding/"
+        description: "Read the official port access page"
+        response_format: html
+        html_extract: {mode: page}
+        params:
+          - name: route
+            type: string
+            default: osaka-beppu
+            enum: [osaka-beppu, kobe-oita, osaka-shibushi]
+      conditions:
+        method: GET
+        path: "/en/reservation/"
+        description: "Read the official English boarding and cancellation policy"
+        response_format: html
+        html_extract: {mode: page}

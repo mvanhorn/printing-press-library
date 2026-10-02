@@ -1,0 +1,62 @@
+{
+  "data": {
+    "cabins": [
+      {
+        "id": "ancDelux/deluxe",
+        "name": "Deluxe",
+        "category": "private",
+        "occupancy_source": "Western-style (2 to 4-person occupancy)",
+        "min_occupancy": 2,
+        "max_occupancy": 4,
+        "occupancy_basis": "private room occupancy"
+      },
+      {
+        "id": "ancStandard/standard",
+        "name": "Standard",
+        "category": "private",
+        "occupancy_source": "Western-style (1 to 4-person occupancy)",
+        "min_occupancy": 1,
+        "max_occupancy": 4,
+        "occupancy_basis": "private room occupancy"
+      },
+      {
+        "id": "ancWithPet/room-that-accommodates-pets-dog-and-or-cat",
+        "name": "Room that accommodates pets (dog and/or cat)",
+        "category": "private",
+        "occupancy_source": "Western-style (4-person occupancy) or Western-style (double-occupancy)",
+        "occupancy_basis": "private room occupancy"
+      },
+      {
+        "id": "ancPrivate/private-bed",
+        "name": "Private bed",
+        "category": "dormitory",
+        "occupancy_source": "All seats reserved",
+        "occupancy_basis": "seat/section or shared-room capacity; preserve source wording"
+      },
+      {
+        "id": "ancTourist/tourist",
+        "name": "Tourist",
+        "category": "dormitory",
+        "occupancy_source": "Japanese-style, All seats reserved",
+        "occupancy_basis": "seat/section or shared-room capacity; preserve source wording"
+      }
+    ],
+    "matched_cabins": 5,
+    "route_id": "kobe-oita",
+    "scanned_cabins": 5,
+    "truncated": false
+  },
+  "meta": {
+    "observed_at": "2026-10-03T01:01:14+09:00",
+    "source_urls": [
+      "https://www.ferry-sunflower.co.jp/en/route/kobe-oita/cabin/"
+    ],
+    "source_language": "en",
+    "request_count": 1,
+    "response_bytes": 26168,
+    "elapsed_ms": 431
+  },
+  "warnings": [
+    "Published occupancy does not prove dated eligibility or availability. Dormitory section/shared-room capacity retains source wording; use quote for the entered party."
+  ]
+}

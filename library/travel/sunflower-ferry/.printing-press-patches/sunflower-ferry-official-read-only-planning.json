@@ -1,0 +1,29 @@
+{
+  "schema_version": 2,
+  "id": "sunflower-ferry-official-read-only-planning",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261002-221558-06882353",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Retain bounded first-party ferry planning with exact source service dates, party/vehicle fares and explicit unknown inventory.",
+  "reason": "The public HTML spec cannot represent the anonymous multi-step fare contract or preserve domain rollover, occupancy and seasonal semantics; regeneration must carry this owned implementation and re-discover changed provider form contracts.",
+  "files": [
+    "internal/cli/ferry_commands.go",
+    "internal/cli/ferry_commands_test.go",
+    "internal/cli/calendar.go",
+    "internal/cli/quote.go",
+    "internal/cli/sailings.go",
+    "internal/cli/cabins.go",
+    "internal/cli/ports.go",
+    "internal/cli/conditions.go",
+    "internal/ferry/model.go",
+    "internal/ferry/http.go",
+    "internal/ferry/html.go",
+    "internal/ferry/operations.go",
+    "internal/ferry/ferry_test.go",
+    "mcp-descriptions.json"
+  ],
+  "validated_outcome": "Six live novel samples and full 120/120 mandatory provider/CLI checks passed; actual vehicle, midnight, New Year and not-yet-open responses independently reviewed.",
+  "call_sites": [
+    "registerNovelCommand(attachFerryCommands)"
+  ]
+}

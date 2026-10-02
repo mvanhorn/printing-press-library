@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/sunflower-ferry-cli",
+  "research_dir": "\u003ccli-dir\u003e/20261002-221558-06882353",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

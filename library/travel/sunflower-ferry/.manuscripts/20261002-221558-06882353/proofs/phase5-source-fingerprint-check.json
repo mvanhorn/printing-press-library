@@ -1,0 +1,6 @@
+{
+  "pass": true,
+  "validator": "Printing Press v4.32.5 lock promote source fingerprint gate",
+  "note": "successful atomic promotion proves runner-owned marker binds current canonical source; raw SHA checker was inappropriate for canonicalized self-imports",
+  "checked_source_files": 170
+}

@@ -1,0 +1,51 @@
+[
+  {
+    "kind": "missing-read-only",
+    "command": "list",
+    "file": "ferry_commands.go",
+    "line": 82,
+    "evidence": "name matches read heuristic; no mcp:read-only annotation"
+  },
+  {
+    "kind": "missing-read-only",
+    "command": "search",
+    "file": "ferry_commands.go",
+    "line": 95,
+    "evidence": "name matches read heuristic; no mcp:read-only annotation"
+  },
+  {
+    "kind": "missing-read-only",
+    "command": "show",
+    "file": "ferry_commands.go",
+    "line": 116,
+    "evidence": "name matches read heuristic; no mcp:read-only annotation"
+  },
+  {
+    "kind": "thin-short",
+    "command": "list",
+    "file": "platform_client.go",
+    "line": 517,
+    "evidence": "List client profiles"
+  },
+  {
+    "kind": "empty-short",
+    "command": "quote",
+    "file": "quote.go",
+    "line": 22,
+    "evidence": "(empty)"
+  },
+  {
+    "kind": "empty-short",
+    "command": "sailings",
+    "file": "sailings.go",
+    "line": 22,
+    "evidence": "(empty)"
+  },
+  {
+    "kind": "thin-short",
+    "command": "list",
+    "file": "teach.go",
+    "line": 868,
+    "evidence": "List recorded learnings"
+  }
+]

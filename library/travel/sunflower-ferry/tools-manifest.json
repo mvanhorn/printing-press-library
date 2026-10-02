@@ -1,0 +1,114 @@
+{
+  "api_name": "sunflower-ferry",
+  "base_url": "https://www.ferry-sunflower.co.jp",
+  "description": "Plan dated Sunflower ferry sailings, cabin fares and port access from official sources.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "source_cabins",
+      "description": "Read the official cabin description page. Required: route (default: osaka-beppu).",
+      "method": "GET",
+      "path": "/en/route/{route}/cabin/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "route",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "source_conditions",
+      "description": "Read the official English boarding and cancellation policy.",
+      "method": "GET",
+      "path": "/en/reservation/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "source_fares",
+      "description": "Read the official fare and seasonal-calendar page. Required: route (default: osaka-beppu).",
+      "method": "GET",
+      "path": "/en/route/{route}/fee/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "route",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "source_terminal",
+      "description": "Read the official port access page. Required: route (default: osaka-beppu).",
+      "method": "GET",
+      "path": "/en/route/{route}/boarding/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "route",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "source_timetable",
+      "description": "Read the official published weekday timetable page. Required: route (default: osaka-beppu).",
+      "method": "GET",
+      "path": "/en/route/{route}/time/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "route",
+          "type": "string",
+          "location": "path",
+          "description": "Official route slug",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Exact overnight itinerary",
+      "command": "sailings",
+      "description": "Turns source boarding-date results into dated JST arrival; handles daytime E cruises without projecting ordinary timetables."
+    },
+    {
+      "name": "Party-sensitive fare matrix",
+      "command": "quote",
+      "description": "Presents every source-eligible cabin fare for the entered party/vehicle without hand-made fare arithmetic."
+    },
+    {
+      "name": "Seasonal date comparison",
+      "command": "calendar",
+      "description": "Filters bounded published date ranges with explicit coverage and special sailing warnings."
+    },
+    {
+      "name": "Cabin occupancy evidence",
+      "command": "cabins",
+      "description": "Extracts source room occupancy so agents can distinguish dormitory capacity from private room occupancy."
+    },
+    {
+      "name": "Terminal-aware port planning",
+      "command": "ports",
+      "description": "Keeps Osaka Terminal1 and Terminal2 distinct with concise source address/access/checkin evidence."
+    },
+    {
+      "name": "Condition-aware handoff",
+      "command": "conditions",
+      "description": "Preserves source cancellation/baggage and quote assumptions with explicit missing English day-before band."
+    }
+  ]
+}

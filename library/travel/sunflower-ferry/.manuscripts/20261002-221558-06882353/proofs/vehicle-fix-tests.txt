@@ -1,0 +1,2 @@
+ok  	sunflower-ferry-pp-cli/internal/ferry	0.464s
+ok  	sunflower-ferry-pp-cli/internal/cli	1.702s

@@ -1,0 +1,76 @@
+{
+  "data": {
+    "calendar": {
+      "route_id": "kobe-oita",
+      "line": "12",
+      "dates": [
+        {
+          "date": "2026-12-29",
+          "weekday": "Tuesday",
+          "band": "B",
+          "daytime_cruise": false
+        },
+        {
+          "date": "2026-12-30",
+          "weekday": "Wednesday",
+          "band": "B",
+          "daytime_cruise": false
+        },
+        {
+          "date": "2026-12-31",
+          "weekday": "Thursday",
+          "band": "B",
+          "daytime_cruise": false
+        },
+        {
+          "date": "2027-01-01",
+          "weekday": "Friday",
+          "band": "B",
+          "daytime_cruise": false
+        },
+        {
+          "date": "2027-01-02",
+          "weekday": "Saturday",
+          "band": "C",
+          "daytime_cruise": false
+        },
+        {
+          "date": "2027-01-03",
+          "weekday": "Sunday",
+          "band": "C",
+          "daytime_cruise": false
+        }
+      ],
+      "published_from": "2026-10-01",
+      "published_to": "2027-03-31",
+      "requested_from": "2026-12-29",
+      "requested_to": "2027-01-03",
+      "missing_dates": [],
+      "complete": true,
+      "discount_conditions": [
+        "Internet reservation discount: 5%OFF; source excluded seasons: C,D",
+        "Return trip discount: Return 5%OFF; source excluded seasons: -",
+        "\"Dangan\" round trip discount: Outbound:0% (normal fares) Return:50%OFF; source excluded seasons: C,D (return date)"
+      ]
+    },
+    "limit": 93,
+    "matched_dates": 6,
+    "returned_dates": 6,
+    "scanned_dates": 6,
+    "truncated": false
+  },
+  "meta": {
+    "observed_at": "2026-10-03T01:01:10+09:00",
+    "source_urls": [
+      "https://www.ferry-sunflower.co.jp/en/route/kobe-oita/fee/",
+      "https://www.ferry-sunflower.co.jp/route/inc/cal-config/cal-kyusyu.js?v=261001"
+    ],
+    "source_language": "en; official calendar script",
+    "request_count": 2,
+    "response_bytes": 42069,
+    "elapsed_ms": 856
+  },
+  "warnings": [
+    "Bands are published date classifications, not prices or inventory. Use quote for entered party/vehicle fares; E can be a same-day cruise."
+  ]
+}

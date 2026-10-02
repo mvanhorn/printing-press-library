@@ -1,0 +1,131 @@
+{
+  "data": {
+    "limit_per_sailing": 40,
+    "matched_cabin_rows": 7,
+    "quote": {
+      "route_id": "osaka-beppu",
+      "line": "21",
+      "boarding_date": "2026-10-15",
+      "party": {
+        "adults": 1,
+        "children": 0,
+        "toddlers": 0,
+        "infants": 0,
+        "mode": "foot"
+      },
+      "season": "A",
+      "discount_label": "Web DC(Partcal 5%)",
+      "currency": "JPY",
+      "sailings": [
+        {
+          "id": "21/2026-10-15/19:05/sunflower-kurenai",
+          "ship": "SUNFLOWER KURENAI",
+          "from": "Osaka1",
+          "to": "Beppu",
+          "departure": "2026-10-15T19:05:00+09:00",
+          "arrival": "2026-10-16T06:55:00+09:00",
+          "arrival_day_offset": 1,
+          "recommended_terminal_arrival": "2026-10-15T18:05:00+09:00",
+          "cabin_fares": [
+            {
+              "id": "20/64/semi-suite-room",
+              "source_class_code": "64",
+              "name": "Semi Suite room",
+              "room_type": "private",
+              "displayed_price_jpy": 33620,
+              "availability_symbol": "Waitlist",
+              "availability": "waitlist_snapshot"
+            },
+            {
+              "id": "20/67/superior-single-room",
+              "source_class_code": "67",
+              "name": "Superior Single room",
+              "room_type": "private",
+              "displayed_price_jpy": 22620,
+              "availability_symbol": "Waitlist",
+              "availability": "waitlist_snapshot"
+            },
+            {
+              "id": "20/41/standard-single-room",
+              "source_class_code": "41",
+              "name": "Standard Single room",
+              "room_type": "private",
+              "displayed_price_jpy": 18620,
+              "availability_symbol": "×",
+              "availability": "unavailable_snapshot"
+            },
+            {
+              "id": "20/34/private-bed-room-single",
+              "source_class_code": "34",
+              "name": "Private bed room (Single)",
+              "room_type": "dormitory",
+              "displayed_price_jpy": 17620,
+              "availability_symbol": "Waitlist",
+              "availability": "waitlist_snapshot",
+              "info": "*This room class is not a private type but a dormitory type. *semi-private (internal door locks only)"
+            },
+            {
+              "id": "20/30/private-bed-room",
+              "source_class_code": "30",
+              "name": "Private bed room",
+              "room_type": "dormitory",
+              "displayed_price_jpy": 14620,
+              "availability_symbol": "○",
+              "availability": "available_snapshot",
+              "info": "*This room class is not a private type but a dormitory type."
+            },
+            {
+              "id": "20/30/private-bed-room-ladies",
+              "source_class_code": "30",
+              "name": "Private bed room (Ladies)",
+              "room_type": "dormitory",
+              "displayed_price_jpy": 14620,
+              "availability_symbol": "Waitlist",
+              "availability": "waitlist_snapshot",
+              "info": "*This room class is not a private type but a dormitory type."
+            },
+            {
+              "id": "20/68/private-bed-room-single-twin",
+              "source_class_code": "68",
+              "name": "Private bed room (Single Twin)",
+              "room_type": "dormitory",
+              "displayed_price_jpy": 17620,
+              "availability_symbol": "Waitlist",
+              "availability": "waitlist_snapshot",
+              "info": "*This room class is not a private type but a dormitory type. *internal door locks only"
+            }
+          ]
+        }
+      ],
+      "source_notes": [
+        "・These prices shown are discounted. (Non discounted fare will be displayed during the peak season.)",
+        "・If you would like to be on the waiting list, please proceed with one way.",
+        "・The amount is before the disability discount is applied."
+      ],
+      "price_basis": "Official 'Discounted Price' displayed for this entered one-way party and vehicle category; no fare arithmetic performed.",
+      "unknowns": [
+        "Fuel adjustment, tax and fee breakdown are not separately stated on the returned fare table.",
+        "Displayed cabin/vehicle availability is an observed source snapshot, with no hold or guarantee.",
+        "Room-charge campaigns, special discounts and exact booking eligibility may require the reservation center."
+      ],
+      "inventory_guaranteed": false
+    },
+    "returned_cabin_rows": 7,
+    "truncated": false
+  },
+  "meta": {
+    "observed_at": "2026-10-03T00:15:01+09:00",
+    "source_urls": [
+      "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish",
+      "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/Reserve",
+      "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve1030/MoveNext"
+    ],
+    "source_language": "en",
+    "request_count": 5,
+    "response_bytes": 73988,
+    "elapsed_ms": 4510
+  },
+  "warnings": [
+    "Source displayed prices are not an itemized final payable quote. No reservation or hold is made. Meal, fuel/tax/fee breakdown and special-ticket eligibility require confirmation."
+  ]
+}

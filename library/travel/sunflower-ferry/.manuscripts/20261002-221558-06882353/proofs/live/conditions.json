@@ -1,0 +1,73 @@
+{
+  "data": {
+    "checkin": {
+      "basis": "Official English guidance; confirm earlier seasonal/vehicle requirements with booking instructions.",
+      "boarding_may_be_refused_within_minutes": 30,
+      "boarding_starts_minutes_before_departure": 60,
+      "recommended_arrival_minutes_before_departure": 60
+    },
+    "cancellation": [
+      {
+        "timing": "7 or more days before sailing",
+        "fixed_jpy": 200,
+        "source_url": "https://www.sunflower.co.jp/stipulate/passenger/"
+      },
+      {
+        "timing": "6 through 2 days before sailing",
+        "percent": 10,
+        "minimum_jpy": 200,
+        "source_url": "https://www.sunflower.co.jp/stipulate/passenger/"
+      },
+      {
+        "timing": "1 day before sailing through departure time",
+        "percent": 30,
+        "minimum_jpy": 200,
+        "source_url": "https://www.sunflower.co.jp/stipulate/passenger/"
+      },
+      {
+        "timing": "After departure: no normal refund",
+        "percent": 100,
+        "source_url": "https://www.ferry-sunflower.co.jp/en/reservation/"
+      }
+    ],
+    "changes": "Contact the reservation center immediately for changes/cancellations. Normal passenger ticket changes before use may be allowed once, subject to conditions and fare differences; campaign/agency tickets may differ.",
+    "baggage": {
+      "basis": "Operator-wide passenger carriage conditions: carried-item definition differs from aggregate free allowance.",
+      "carried_item_max_weight_kg": 30,
+      "carried_item_sum_of_three_dimensions_max_m": 2,
+      "exceptions": "Passenger-use wheelchair and qualifying assistance dog are separately defined; dangerous goods and other prohibited items are restricted.",
+      "free_carried_baggage_aggregate_weight_kg": 20,
+      "vehicle_access": "Confirm retrieval rules before leaving a vehicle; this command does not establish onboard car-deck access."
+    },
+    "passenger_categories": {
+      "adult": "Age 12+ excluding elementary-school students; portal describes junior high-school or older.",
+      "child": "Elementary-school student, including an elementary-school student aged 12; portal label Child (6–12) is approximate.",
+      "infant": "Under 1 year; separate reserved seat/bed may incur a child fare.",
+      "toddler": "Preschool child aged 1+; normally one accompanied child per adult may be free, except allocated seats/beds and other conditions."
+    },
+    "vehicle_categories": {
+      "bike": "Source categories over750cc, up-to750cc, up-to125cc and bicycle; two-wheeled vehicles cannot exceed adult count.",
+      "car": "One passenger car, strictly \u003c3m/\u003c4m/\u003c5m/\u003c6m according to vehicle certificate. Tractor/trailer/series900 and unsupported lengths require the reservation center."
+    },
+    "unknowns": [
+      "Meal costs are excluded from normal transport fares; no meals are requested by the quote command.",
+      "Fuel adjustment, tax and fee breakdown must be confirmed from the final booking price.",
+      "The English cancellation summary omits the day-before band; the linked Japanese common passenger conditions establish the normal-ticket band and source minimum fee.",
+      "Agency/campaign/group/room-charge ticket conditions and refund fee unit require the reservation center; this is not a quote for an existing booking."
+    ]
+  },
+  "meta": {
+    "observed_at": "2026-10-03T00:15:03+09:00",
+    "source_urls": [
+      "https://www.ferry-sunflower.co.jp/en/reservation/",
+      "https://www.sunflower.co.jp/stipulate/passenger/"
+    ],
+    "source_language": "en/ja; operator-wide passenger carriage conditions",
+    "request_count": 2,
+    "response_bytes": 72351,
+    "elapsed_ms": 1115
+  },
+  "warnings": [
+    "Normal passenger-ticket conditions; ticket-specific campaigns, agency terms and vehicle refunds can differ. No cancellation or refund is performed."
+  ]
+}

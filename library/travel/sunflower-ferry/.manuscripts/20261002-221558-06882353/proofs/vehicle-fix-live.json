@@ -1,0 +1,99 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "name": "car-child-final",
+      "argv": [
+        "quote",
+        "--route",
+        "11",
+        "--date",
+        "2026-10-15",
+        "--adults",
+        "2",
+        "--children",
+        "1",
+        "--mode",
+        "car",
+        "--car-category",
+        "lt5m"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 4864,
+      "stdout_bytes": 6067,
+      "peak_rss_measurement": [
+        "26820608  maximum resident set size"
+      ],
+      "sailing": {
+        "ship": "SUNFLOWER PEARL",
+        "departure": "2026-10-15T19:00:00+09:00",
+        "arrival": "2026-10-16T06:20:00+09:00",
+        "vehicle_availability": {
+          "source_label": "Vehicle",
+          "symbol": "○",
+          "status": "available_snapshot",
+          "guaranteed": false
+        }
+      },
+      "first_fare_jpy": 85440,
+      "source": {
+        "observed_at": "2026-10-03T01:30:13+09:00",
+        "source_urls": [
+          "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish",
+          "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/Reserve",
+          "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve1030/MoveNext"
+        ],
+        "source_language": "en",
+        "request_count": 5,
+        "response_bytes": 81325,
+        "elapsed_ms": 4348
+      }
+    },
+    {
+      "name": "bike-final",
+      "argv": [
+        "quote",
+        "--route",
+        "22",
+        "--date",
+        "2026-10-15",
+        "--mode",
+        "bike",
+        "--bike-category",
+        "over750cc",
+        "--bikes",
+        "1"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 4353,
+      "stdout_bytes": 5494,
+      "peak_rss_measurement": [
+        "26050560  maximum resident set size"
+      ],
+      "sailing": {
+        "ship": "SUNFLOWER MURASAKI",
+        "departure": "2026-10-15T18:45:00+09:00",
+        "arrival": "2026-10-16T06:35:00+09:00",
+        "vehicle_availability": {
+          "source_label": "Motorbike",
+          "symbol": "○",
+          "status": "available_snapshot",
+          "guaranteed": false
+        }
+      },
+      "first_fare_jpy": 41600,
+      "source": {
+        "observed_at": "2026-10-03T01:30:17+09:00",
+        "source_urls": [
+          "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish",
+          "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/Reserve",
+          "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve1030/MoveNext"
+        ],
+        "source_language": "en",
+        "request_count": 5,
+        "response_bytes": 75994,
+        "elapsed_ms": 4335
+      }
+    }
+  ]
+}

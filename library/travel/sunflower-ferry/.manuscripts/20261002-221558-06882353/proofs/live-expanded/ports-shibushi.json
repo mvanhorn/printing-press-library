@@ -1,0 +1,64 @@
+{
+  "data": {
+    "arrival_terminal": {
+      "port": {
+        "id": "osaka-terminal2",
+        "name": "Osaka Sunflower Terminal 2",
+        "name_ja": "さんふらわあターミナル（大阪）第2ターミナル"
+      },
+      "source_name": "sunflower terminal (osaka) Terminal2",
+      "address": "1-15 , 3 - chome Nanko-kita , Suminoe-ku, Osaka City, Osaka 559-0034",
+      "phone": "06-6612-1315",
+      "access": [
+        {
+          "mode": "By train or bus",
+          "guidance": "Get off at Neutram 's \"Trade Center Front Station\" and arrive at sunflower terminal (osaka) Terminal1 in about 5 minutes on foot from the station - connected aisle. After taking the boarding procedure at Terminal 1, we will pick you up from the elevator building to the Terminal 2 with a free shuttle bus. (Walking between Terminal 1 and Terminal 2 i…"
+        },
+        {
+          "mode": "By car",
+          "guidance": "From Osaka City Take the \"Nanko Kita\" exit on the Hanshin Expressway Wangan Line. The terminal is a 15-minute drive away. From Kansai International Airport Take the \"Nanko Minami\" exit on the Hanshin Expressway Wangan Line.The terminal is a 20-minute drive away."
+        }
+      ]
+    },
+    "checkin_guide_url": "https://www.ferry-sunflower.co.jp/en/reservation/",
+    "departure_terminal": {
+      "port": {
+        "id": "shibushi",
+        "name": "Shibushi",
+        "name_ja": "志布志港"
+      },
+      "source_name": "Kagoshima (Shibushi Port)",
+      "address": "3292 Shibushi, Shibushi-cho, Shibushi City, Kagoshima Prefecture 899-7103",
+      "phone": "099-473-8185",
+      "access": [
+        {
+          "mode": "By train or bus",
+          "guidance": "Approx. 5 minutes by taxi from JR Shibushi Station Sunflower Liner --- Free shuttle bus between Kagoshima City and Shibushi port"
+        },
+        {
+          "mode": "By car",
+          "guidance": "Directions from Kanoya, Tarumizu Approx. 60 minutes from Kanoya City on Route 220 Approx. 90 minutes from Tarumizu Shinko on Route 220 Directions from Miyazaki, Nichinan, Kushima Approx. 120 minutes from Miyazaki City on Route 220 Approx. 60 minutes from Nichinan City on Route 220 Approx. 30 minutes from Kushima City on Route 220 From Kagoshima Cit…"
+        },
+        {
+          "mode": "From Airport",
+          "guidance": "From Kagoshima Airport Take the Kagoshima-Airport Limousine Bus [Kagoshimachuo] (For Kosoku-Center-Minaru) and get off at \"Kagoshimachuoeki \". Travel time is approximately 38 minutes and the cost of a ticket is JPY1250. Transfer to Sunflower liner ."
+        }
+      ]
+    },
+    "line": "32",
+    "route_id": "osaka-shibushi"
+  },
+  "meta": {
+    "observed_at": "2026-10-03T01:01:13+09:00",
+    "source_urls": [
+      "https://www.ferry-sunflower.co.jp/en/route/osaka-shibushi/boarding/"
+    ],
+    "source_language": "en",
+    "request_count": 1,
+    "response_bytes": 30376,
+    "elapsed_ms": 325
+  },
+  "warnings": [
+    "Access times and ground-transport fares in the operator English guidance are undated reference information; confirm current ground transport. English boarding guidance recommends arrival at least 60 minutes before departure and warns boarding may be refused within 30 minutes; confirm vehicle/seasonal requirements."
+  ]
+}

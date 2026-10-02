@@ -1,0 +1,112 @@
+{
+  "data": {
+    "cabins": [
+      {
+        "id": "ancNewSuite/suite-10-room",
+        "name": "Suite (10 room)",
+        "category": "private",
+        "occupancy_source": "Occupancy : 2 to 3 persons",
+        "min_occupancy": 2,
+        "max_occupancy": 3,
+        "occupancy_basis": "private room occupancy"
+      },
+      {
+        "id": "ancNewSuite/suite-wheelchair-accessible-2room",
+        "name": "Suite (wheelchair accessible)(2room)",
+        "category": "private",
+        "occupancy_source": "Occupancy : 2 to 4persons",
+        "min_occupancy": 2,
+        "max_occupancy": 4,
+        "occupancy_basis": "private room occupancy"
+      },
+      {
+        "id": "ancNewDelux/deluxe-38room",
+        "name": "Deluxe (38room)",
+        "category": "private",
+        "occupancy_source": "Occupancy : 2 to 4persons",
+        "min_occupancy": 2,
+        "max_occupancy": 4,
+        "occupancy_basis": "private room occupancy"
+      },
+      {
+        "id": "ancNewDelux/deluxe-japanese-style-2room",
+        "name": "Deluxe (Japanese Style)(2room)",
+        "category": "private",
+        "occupancy_source": "Occupancy : 2 to 4persons",
+        "min_occupancy": 2,
+        "max_occupancy": 4,
+        "occupancy_basis": "private room occupancy"
+      },
+      {
+        "id": "ancNewDelux/deluxe-with-pet-10room",
+        "name": "Deluxe (with Pet)(10room)",
+        "category": "private",
+        "occupancy_source": "Occupancy : 2 to 4persons",
+        "min_occupancy": 2,
+        "max_occupancy": 4,
+        "occupancy_basis": "private room occupancy"
+      },
+      {
+        "id": "ancNewSuperior/superior-32room",
+        "name": "Superior (32room)",
+        "category": "private",
+        "occupancy_source": "Occupancy : 1 to 2 persons",
+        "min_occupancy": 1,
+        "max_occupancy": 2,
+        "occupancy_basis": "private room occupancy"
+      },
+      {
+        "id": "ancNewPrivateSingle/private-single-7person-1room-9person-1room",
+        "name": "Private Single (7person×1room + 9person×1room)",
+        "category": "dormitory",
+        "occupancy_source": "Occupancy : 1 person by each section",
+        "occupancy_basis": "seat/section or shared-room capacity; preserve source wording"
+      },
+      {
+        "id": "ancNewPrivateBed/private-bed-11room",
+        "name": "Private Bed (11room)",
+        "category": "dormitory",
+        "occupancy_source": "Occupancy : 1 person by each section",
+        "occupancy_basis": "seat/section or shared-room capacity; preserve source wording"
+      },
+      {
+        "id": "ancNewPrivateBed/private-bed-for-group-4section-x-1room",
+        "name": "Private Bed (for Group)(4section x 1room)",
+        "category": "dormitory",
+        "occupancy_source": "Occupancy : 4 person by each section",
+        "occupancy_basis": "seat/section or shared-room capacity; preserve source wording"
+      },
+      {
+        "id": "ancNewTourist/tourist-4room",
+        "name": "Tourist (4room)",
+        "category": "dormitory",
+        "occupancy_source": "Occupancy : 14persons ×2rooms, 15persons x 1room, 18persons x 1room",
+        "occupancy_basis": "seat/section or shared-room capacity; preserve source wording"
+      },
+      {
+        "id": "ancNewTourist/tourist-wheelchair-accessible-2room",
+        "name": "Tourist (wheelchair accessible)(2room)",
+        "category": "dormitory",
+        "occupancy_source": "Occupancy : 14persons x 2rooms",
+        "occupancy_basis": "seat/section or shared-room capacity; preserve source wording"
+      }
+    ],
+    "matched_cabins": 11,
+    "route_id": "osaka-shibushi",
+    "scanned_cabins": 11,
+    "truncated": false
+  },
+  "meta": {
+    "observed_at": "2026-10-03T00:15:02+09:00",
+    "source_urls": [
+      "https://www.ferry-sunflower.co.jp/en/route/osaka-shibushi/cabin/"
+    ],
+    "source_language": "en",
+    "request_count": 1,
+    "response_bytes": 35088,
+    "elapsed_ms": 302
+  },
+  "warnings": [
+    "Published occupancy does not prove dated eligibility or availability. Dormitory section/shared-room capacity retains source wording; use quote for the entered party."
+  ]
+}

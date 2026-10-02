@@ -1,0 +1,4 @@
+{"method": "GET", "path": "/web/yoyaku/Reserve0000/IndexEnglish", "status": 200, "final_path": "/web/yoyaku/Reserve0000/IndexEnglish", "bytes": 19994, "heading": []}
+{"method": "POST", "path": "/web/yoyaku/Reserve0000/Reserve", "status": 200, "final_path": "/web/yoyaku/Reserve1030", "bytes": 25395, "heading": ["Enter trip details"]}
+{"method": "POST", "path": "/web/yoyaku/Reserve1030/MoveNext", "status": 200, "final_path": "/web/yoyaku/Reserve1020", "bytes": 29653, "heading": ["Total Price", "<span class=\"ico-ferry\">How to look the table below</span>"]}
+read_only_replay_passed; session values excluded

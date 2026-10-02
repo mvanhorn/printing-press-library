@@ -1,0 +1,25 @@
+{
+  "dir": "/Users/zjsng/Projects/Personal/Coding/sunflower-ferry-cli",
+  "dead_functions_found": [
+    "BindMCPClient",
+    "applyLocalListFilters",
+    "applyLocalParentScope",
+    "attachFerryCommands",
+    "decodeWriteThroughNonEmptyArray",
+    "doctorAuthConfiguredState",
+    "handleBinaryResponseDelivery",
+    "hasChangedLocalFlags",
+    "readSecretFromStdin",
+    "registerClientHook",
+    "registerPlatformSource",
+    "resolvePaginatedRead",
+    "resolveRead",
+    "resolveReadWithStrategy",
+    "retainCLIQueryParams",
+    "successfulNoop",
+    "writeMutationResponseToStore"
+  ],
+  "removed": null,
+  "build_verified": false,
+  "dry_run": true
+}

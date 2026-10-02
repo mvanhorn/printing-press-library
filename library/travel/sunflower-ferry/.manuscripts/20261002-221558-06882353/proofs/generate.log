@@ -1,0 +1,17 @@
+info: learn: defaulting self-learning loop on (opt out with learn.disabled: true)
+WARNING: spec.Printer is empty; README printer attribution will be omitted. Set `git config github.user` (your GitHub @handle) to populate this correctly before publishing.
+PASS go mod tidy
+PASS ensure safe golang.org/x/net
+PASS ensure safe golang.org/x/text
+PASS ensure safe github.com/enetx/http
+PASS go test ./...
+PASS govulncheck ./...
+PASS go vet ./...
+PASS go build ./...
+PASS build runnable binary
+PASS sunflower-ferry-pp-cli --help
+PASS sunflower-ferry-pp-cli version
+PASS sunflower-ferry-pp-cli doctor
+agentcookie: skipping sunflower-ferry (cookie-only or no env-var auth)
+Generated sunflower-ferry at /Users/zjsng/Projects/Personal/Coding/sunflower-ferry-cli
+Bundled /Users/zjsng/Projects/Personal/Coding/sunflower-ferry-cli/build/sunflower-ferry-pp-mcp-darwin-arm64.mcpb

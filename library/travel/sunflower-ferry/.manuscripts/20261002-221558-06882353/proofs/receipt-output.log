@@ -1,0 +1,254 @@
+{
+  "receipt": {
+    "schema_version": 1,
+    "sequence": 25,
+    "run_id": "20261002-221558-06882353",
+    "phase": "14-agentic-skill-review",
+    "event": "completed",
+    "phase_file": "phases/14-agentic-skill-review.md",
+    "next": "15-readme-skill-agents-correctness-audit",
+    "evidence": [
+      "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/independent-review-round2.md"
+    ],
+    "note": "single authorized MAX reviewer; all semantic findings fixed and re-reviewed",
+    "recorded_at": "2026-10-02T16:49:51.970606Z"
+  },
+  "recorded": true
+}
+{
+  "previous": {
+    "schema_version": 1,
+    "sequence": 25,
+    "run_id": "20261002-221558-06882353",
+    "phase": "14-agentic-skill-review",
+    "event": "completed",
+    "phase_file": "phases/14-agentic-skill-review.md",
+    "next": "15-readme-skill-agents-correctness-audit",
+    "evidence": [
+      "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/independent-review-round2.md"
+    ],
+    "note": "single authorized MAX reviewer; all semantic findings fixed and re-reviewed",
+    "recorded_at": "2026-10-02T16:49:51.970606Z"
+  },
+  "receipt": {
+    "schema_version": 1,
+    "sequence": 26,
+    "run_id": "20261002-221558-06882353",
+    "phase": "15-readme-skill-agents-correctness-audit",
+    "event": "entered",
+    "phase_file": "phases/15-readme-skill-agents-correctness-audit.md",
+    "recorded_at": "2026-10-02T16:49:51.990084Z"
+  },
+  "recorded": true
+}
+{
+  "receipt": {
+    "schema_version": 1,
+    "sequence": 27,
+    "run_id": "20261002-221558-06882353",
+    "phase": "15-readme-skill-agents-correctness-audit",
+    "event": "completed",
+    "phase_file": "phases/15-readme-skill-agents-correctness-audit.md",
+    "next": "16-agentic-output-review",
+    "evidence": [
+      "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/independent-review-round2.md"
+    ],
+    "note": "F7/F8/F9 fixed; examples and envelope/compact/no-auth/no-sync prose re-reviewed",
+    "recorded_at": "2026-10-02T16:49:52.008173Z"
+  },
+  "recorded": true
+}
+{
+  "previous": {
+    "schema_version": 1,
+    "sequence": 27,
+    "run_id": "20261002-221558-06882353",
+    "phase": "15-readme-skill-agents-correctness-audit",
+    "event": "completed",
+    "phase_file": "phases/15-readme-skill-agents-correctness-audit.md",
+    "next": "16-agentic-output-review",
+    "evidence": [
+      "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/independent-review-round2.md"
+    ],
+    "note": "F7/F8/F9 fixed; examples and envelope/compact/no-auth/no-sync prose re-reviewed",
+    "recorded_at": "2026-10-02T16:49:52.008173Z"
+  },
+  "receipt": {
+    "schema_version": 1,
+    "sequence": 28,
+    "run_id": "20261002-221558-06882353",
+    "phase": "16-agentic-output-review",
+    "event": "entered",
+    "phase_file": "phases/16-agentic-output-review.md",
+    "recorded_at": "2026-10-02T16:49:52.026261Z"
+  },
+  "recorded": true
+}
+{
+  "receipt": {
+    "schema_version": 1,
+    "sequence": 29,
+    "run_id": "20261002-221558-06882353",
+    "phase": "16-agentic-output-review",
+    "event": "completed",
+    "phase_file": "phases/16-agentic-output-review.md",
+    "next": "17-local-code-review",
+    "evidence": [
+      "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/phase-4.85-findings.md"
+    ],
+    "note": "PASS; six actual source samples plus expanded matrix",
+    "recorded_at": "2026-10-02T16:49:52.044452Z"
+  },
+  "recorded": true
+}
+{
+  "previous": {
+    "schema_version": 1,
+    "sequence": 29,
+    "run_id": "20261002-221558-06882353",
+    "phase": "16-agentic-output-review",
+    "event": "completed",
+    "phase_file": "phases/16-agentic-output-review.md",
+    "next": "17-local-code-review",
+    "evidence": [
+      "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/phase-4.85-findings.md"
+    ],
+    "note": "PASS; six actual source samples plus expanded matrix",
+    "recorded_at": "2026-10-02T16:49:52.044452Z"
+  },
+  "receipt": {
+    "schema_version": 1,
+    "sequence": 30,
+    "run_id": "20261002-221558-06882353",
+    "phase": "17-local-code-review",
+    "event": "entered",
+    "phase_file": "phases/17-local-code-review.md",
+    "recorded_at": "2026-10-02T16:49:52.063518Z"
+  },
+  "recorded": true
+}
+{
+  "receipt": {
+    "schema_version": 1,
+    "sequence": 31,
+    "run_id": "20261002-221558-06882353",
+    "phase": "17-local-code-review",
+    "event": "completed",
+    "phase_file": "phases/17-local-code-review.md",
+    "next": "18-dogfood-testing",
+    "evidence": [
+      "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/phase-4.95-findings.md"
+    ],
+    "note": "nine findings fixed; convergence round2; shared template escape-hatch candidates disclosed",
+    "recorded_at": "2026-10-02T16:49:52.081933Z"
+  },
+  "recorded": true
+}
+{
+  "previous": {
+    "schema_version": 1,
+    "sequence": 31,
+    "run_id": "20261002-221558-06882353",
+    "phase": "17-local-code-review",
+    "event": "completed",
+    "phase_file": "phases/17-local-code-review.md",
+    "next": "18-dogfood-testing",
+    "evidence": [
+      "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/phase-4.95-findings.md"
+    ],
+    "note": "nine findings fixed; convergence round2; shared template escape-hatch candidates disclosed",
+    "recorded_at": "2026-10-02T16:49:52.081933Z"
+  },
+  "receipt": {
+    "schema_version": 1,
+    "sequence": 32,
+    "run_id": "20261002-221558-06882353",
+    "phase": "18-dogfood-testing",
+    "event": "entered",
+    "phase_file": "phases/18-dogfood-testing.md",
+    "recorded_at": "2026-10-02T16:49:52.100619Z"
+  },
+  "recorded": true
+}
+{
+  "receipt": {
+    "schema_version": 1,
+    "sequence": 33,
+    "run_id": "20261002-221558-06882353",
+    "phase": "18-dogfood-testing",
+    "event": "completed",
+    "phase_file": "phases/18-dogfood-testing.md",
+    "next": "19-polish",
+    "evidence": [
+      "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/phase5-acceptance.json"
+    ],
+    "recorded_at": "2026-10-02T16:56:45.171277Z"
+  },
+  "recorded": true
+}
+{
+  "previous": {
+    "schema_version": 1,
+    "sequence": 33,
+    "run_id": "20261002-221558-06882353",
+    "phase": "18-dogfood-testing",
+    "event": "completed",
+    "phase_file": "phases/18-dogfood-testing.md",
+    "next": "19-polish",
+    "evidence": [
+      "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/phase5-acceptance.json"
+    ],
+    "recorded_at": "2026-10-02T16:56:45.171277Z"
+  },
+  "receipt": {
+    "schema_version": 1,
+    "sequence": 34,
+    "run_id": "20261002-221558-06882353",
+    "phase": "19-polish",
+    "event": "entered",
+    "phase_file": "phases/19-polish.md",
+    "recorded_at": "2026-10-02T16:56:45.19695Z"
+  },
+  "recorded": true
+}
+{
+  "receipt": {
+    "schema_version": 1,
+    "sequence": 35,
+    "run_id": "20261002-221558-06882353",
+    "phase": "19-polish",
+    "event": "completed",
+    "phase_file": "phases/19-polish.md",
+    "next": "20-promote-and-archive",
+    "evidence": [
+      "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/2026-10-03-fix-sunflower-ferry-pp-cli-polish.md"
+    ],
+    "recorded_at": "2026-10-02T17:04:13.719312Z"
+  },
+  "recorded": true
+}
+{
+  "previous": {
+    "schema_version": 1,
+    "sequence": 35,
+    "run_id": "20261002-221558-06882353",
+    "phase": "19-polish",
+    "event": "completed",
+    "phase_file": "phases/19-polish.md",
+    "next": "20-promote-and-archive",
+    "evidence": [
+      "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/2026-10-03-fix-sunflower-ferry-pp-cli-polish.md"
+    ],
+    "recorded_at": "2026-10-02T17:04:13.719312Z"
+  },
+  "receipt": {
+    "schema_version": 1,
+    "sequence": 36,
+    "run_id": "20261002-221558-06882353",
+    "phase": "20-promote-and-archive",
+    "event": "entered",
+    "phase_file": "phases/20-promote-and-archive.md",
+    "recorded_at": "2026-10-02T17:04:13.742008Z"
+  },
+  "recorded": true
+}

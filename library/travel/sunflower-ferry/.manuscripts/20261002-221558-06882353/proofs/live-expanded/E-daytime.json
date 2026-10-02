@@ -1,0 +1,56 @@
+{
+  "data": {
+    "route_id": "osaka-beppu",
+    "line": "21",
+    "boarding_date": "2026-10-04",
+    "party": {
+      "adults": 1,
+      "children": 0,
+      "toddlers": 0,
+      "infants": 0,
+      "mode": "foot"
+    },
+    "season": "Special Cruise",
+    "discount_label": "N/A",
+    "currency": "JPY",
+    "sailings": [
+      {
+        "id": "21/2026-10-04/12:15/sunflower-murasaki",
+        "ship": "SUNFLOWER MURASAKI",
+        "from": "Osaka1",
+        "to": "Beppu",
+        "departure": "2026-10-04T12:15:00+09:00",
+        "arrival": "2026-10-05T00:05:00+09:00",
+        "arrival_day_offset": 1,
+        "recommended_terminal_arrival": "2026-10-04T11:15:00+09:00"
+      }
+    ],
+    "source_notes": [
+      "・These prices shown are discounted. (Non discounted fare will be displayed during the peak season.)",
+      "・If you would like to be on the waiting list, please proceed with one way.",
+      "・The amount is before the disability discount is applied."
+    ],
+    "price_basis": "Official 'Discounted Price' displayed for this entered one-way party and vehicle category; no fare arithmetic performed.",
+    "unknowns": [
+      "Fuel adjustment, tax and fee breakdown are not separately stated on the returned fare table.",
+      "Displayed cabin/vehicle availability is an observed source snapshot, with no hold or guarantee.",
+      "Room-charge campaigns, special discounts and exact booking eligibility may require the reservation center."
+    ],
+    "inventory_guaranteed": false
+  },
+  "meta": {
+    "observed_at": "2026-10-03T01:00:53+09:00",
+    "source_urls": [
+      "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish",
+      "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/Reserve",
+      "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve1030/MoveNext"
+    ],
+    "source_language": "en",
+    "request_count": 5,
+    "response_bytes": 72041,
+    "elapsed_ms": 4821
+  },
+  "warnings": [
+    "Sailings are observed for this source lookup and input party; not all-party inventory. Recommended terminal arrival uses the English 60-minute guidance; confirm booking-specific requirements."
+  ]
+}

@@ -1,0 +1,12 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/sunflower-ferry-pp-cli
+/sunflower-ferry-pp-cli.exe
+/sunflower-ferry-pp-mcp
+/sunflower-ferry-pp-mcp.exe
+/bin/
+/build/
+/dist/
+
+# Local audit decision ledgers
+.printing-press-tools-polish.json
+.printing-press-pii-polish.json

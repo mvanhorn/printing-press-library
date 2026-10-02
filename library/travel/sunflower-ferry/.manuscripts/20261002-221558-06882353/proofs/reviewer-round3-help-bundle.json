@@ -1,0 +1,209 @@
+{
+  "observed_at": "2026-10-02T16:55:06.489007+00:00",
+  "bundle_sha256": "dc39d9146a1074d98617096a681b015b8cb914827c0429accc47e14bb315ee07",
+  "provider_requests": 0,
+  "cli_checks": [
+    {
+      "binary": "./build/stage/bin/sunflower-ferry-pp-cli",
+      "help": "List official route and terminal identifiers from the local reference registry\n\nUsage:\n  sunflower-ferry-pp-cli routes list [flags]\n\nExamples:\n  sunflower-ferry-pp-cli routes list --agent\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'sunflower-ferry-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n",
+      "help_exit": 0,
+      "registry_output": {
+        "meta": {
+          "provider": "MOL Sunflower official public sources",
+          "read_only": true,
+          "source": "local"
+        },
+        "results": {
+          "data": [
+            {
+              "id": "osaka-beppu",
+              "name": "Osaka–Beppu",
+              "name_ja": "大阪～別府",
+              "outbound_line": "21",
+              "inbound_line": "22",
+              "origin": {
+                "id": "osaka-terminal1",
+                "name": "Osaka Sunflower Terminal 1",
+                "name_ja": "さんふらわあターミナル（大阪）第1ターミナル"
+              },
+              "destination": {
+                "id": "beppu",
+                "name": "Beppu Kanko-ko",
+                "name_ja": "別府観光港"
+              },
+              "source_url": "https://www.ferry-sunflower.co.jp/en/route/osaka-beppu/time/",
+              "booking_url": "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish"
+            },
+            {
+              "id": "kobe-oita",
+              "name": "Kobe–Oita",
+              "name_ja": "神戸～大分",
+              "outbound_line": "11",
+              "inbound_line": "12",
+              "origin": {
+                "id": "kobe",
+                "name": "Kobe Rokko Island",
+                "name_ja": "神戸六甲アイランド港"
+              },
+              "destination": {
+                "id": "oita",
+                "name": "Oita",
+                "name_ja": "大分港"
+              },
+              "source_url": "https://www.ferry-sunflower.co.jp/en/route/kobe-oita/time/",
+              "booking_url": "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish"
+            },
+            {
+              "id": "osaka-shibushi",
+              "name": "Osaka–Shibushi (Kagoshima)",
+              "name_ja": "大阪～志布志（鹿児島）",
+              "outbound_line": "31",
+              "inbound_line": "32",
+              "origin": {
+                "id": "osaka-terminal2",
+                "name": "Osaka Sunflower Terminal 2",
+                "name_ja": "さんふらわあターミナル（大阪）第2ターミナル"
+              },
+              "destination": {
+                "id": "shibushi",
+                "name": "Shibushi",
+                "name_ja": "志布志港"
+              },
+              "source_url": "https://www.ferry-sunflower.co.jp/en/route/osaka-shibushi/time/",
+              "booking_url": "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish"
+            }
+          ],
+          "meta": {
+            "observed_at": "2026-10-02",
+            "source_urls": [
+              "https://www.ferry-sunflower.co.jp/en/",
+              "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish"
+            ],
+            "source_language": "en/ja; local reference registry verified on 2026-10-02",
+            "request_count": 0,
+            "response_bytes": 0,
+            "elapsed_ms": 0
+          },
+          "warnings": [
+            "Reference registry; dynamic sailings, prices and availability require live lookups."
+          ]
+        }
+      },
+      "registry_exit": 0
+    },
+    {
+      "binary": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/sunflower-ferry/.runstate/sunflower-ferry-cli-5b9b5abe/runs/20261002-221558-06882353/proofs/reviewer-round3-bundle/sunflower-ferry-pp-cli",
+      "help": "List official route and terminal identifiers from the local reference registry\n\nUsage:\n  sunflower-ferry-pp-cli routes list [flags]\n\nExamples:\n  sunflower-ferry-pp-cli routes list --agent\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'sunflower-ferry-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n",
+      "help_exit": 0,
+      "registry_output": {
+        "meta": {
+          "provider": "MOL Sunflower official public sources",
+          "read_only": true,
+          "source": "local"
+        },
+        "results": {
+          "data": [
+            {
+              "id": "osaka-beppu",
+              "name": "Osaka–Beppu",
+              "name_ja": "大阪～別府",
+              "outbound_line": "21",
+              "inbound_line": "22",
+              "origin": {
+                "id": "osaka-terminal1",
+                "name": "Osaka Sunflower Terminal 1",
+                "name_ja": "さんふらわあターミナル（大阪）第1ターミナル"
+              },
+              "destination": {
+                "id": "beppu",
+                "name": "Beppu Kanko-ko",
+                "name_ja": "別府観光港"
+              },
+              "source_url": "https://www.ferry-sunflower.co.jp/en/route/osaka-beppu/time/",
+              "booking_url": "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish"
+            },
+            {
+              "id": "kobe-oita",
+              "name": "Kobe–Oita",
+              "name_ja": "神戸～大分",
+              "outbound_line": "11",
+              "inbound_line": "12",
+              "origin": {
+                "id": "kobe",
+                "name": "Kobe Rokko Island",
+                "name_ja": "神戸六甲アイランド港"
+              },
+              "destination": {
+                "id": "oita",
+                "name": "Oita",
+                "name_ja": "大分港"
+              },
+              "source_url": "https://www.ferry-sunflower.co.jp/en/route/kobe-oita/time/",
+              "booking_url": "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish"
+            },
+            {
+              "id": "osaka-shibushi",
+              "name": "Osaka–Shibushi (Kagoshima)",
+              "name_ja": "大阪～志布志（鹿児島）",
+              "outbound_line": "31",
+              "inbound_line": "32",
+              "origin": {
+                "id": "osaka-terminal2",
+                "name": "Osaka Sunflower Terminal 2",
+                "name_ja": "さんふらわあターミナル（大阪）第2ターミナル"
+              },
+              "destination": {
+                "id": "shibushi",
+                "name": "Shibushi",
+                "name_ja": "志布志港"
+              },
+              "source_url": "https://www.ferry-sunflower.co.jp/en/route/osaka-shibushi/time/",
+              "booking_url": "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish"
+            }
+          ],
+          "meta": {
+            "observed_at": "2026-10-02",
+            "source_urls": [
+              "https://www.ferry-sunflower.co.jp/en/",
+              "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish"
+            ],
+            "source_language": "en/ja; local reference registry verified on 2026-10-02",
+            "request_count": 0,
+            "response_bytes": 0,
+            "elapsed_ms": 0
+          },
+          "warnings": [
+            "Reference registry; dynamic sailings, prices and availability require live lookups."
+          ]
+        }
+      },
+      "registry_exit": 0
+    }
+  ],
+  "domain_schemas_unchanged": true,
+  "mcp_registry_result": {
+    "jsonrpc": "2.0",
+    "id": 3,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"data\": [\n    {\n      \"id\": \"osaka-beppu\",\n      \"name\": \"Osaka–Beppu\",\n      \"name_ja\": \"大阪～別府\",\n      \"outbound_line\": \"21\",\n      \"inbound_line\": \"22\",\n      \"origin\": {\n        \"id\": \"osaka-terminal1\",\n        \"name\": \"Osaka Sunflower Terminal 1\",\n        \"name_ja\": \"さんふらわあターミナル（大阪）第1ターミナル\"\n      },\n      \"destination\": {\n        \"id\": \"beppu\",\n        \"name\": \"Beppu Kanko-ko\",\n        \"name_ja\": \"別府観光港\"\n      },\n      \"source_url\": \"https://www.ferry-sunflower.co.jp/en/route/osaka-beppu/time/\",\n      \"booking_url\": \"https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish\"\n    },\n    {\n      \"id\": \"kobe-oita\",\n      \"name\": \"Kobe–Oita\",\n      \"name_ja\": \"神戸～大分\",\n      \"outbound_line\": \"11\",\n      \"inbound_line\": \"12\",\n      \"origin\": {\n        \"id\": \"kobe\",\n        \"name\": \"Kobe Rokko Island\",\n        \"name_ja\": \"神戸六甲アイランド港\"\n      },\n      \"destination\": {\n        \"id\": \"oita\",\n        \"name\": \"Oita\",\n        \"name_ja\": \"大分港\"\n      },\n      \"source_url\": \"https://www.ferry-sunflower.co.jp/en/route/kobe-oita/time/\",\n      \"booking_url\": \"https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish\"\n    },\n    {\n      \"id\": \"osaka-shibushi\",\n      \"name\": \"Osaka–Shibushi (Kagoshima)\",\n      \"name_ja\": \"大阪～志布志（鹿児島）\",\n      \"outbound_line\": \"31\",\n      \"inbound_line\": \"32\",\n      \"origin\": {\n        \"id\": \"osaka-terminal2\",\n        \"name\": \"Osaka Sunflower Terminal 2\",\n        \"name_ja\": \"さんふらわあターミナル（大阪）第2ターミナル\"\n      },\n      \"destination\": {\n        \"id\": \"shibushi\",\n        \"name\": \"Shibushi\",\n        \"name_ja\": \"志布志港\"\n      },\n      \"source_url\": \"https://www.ferry-sunflower.co.jp/en/route/osaka-shibushi/time/\",\n      \"booking_url\": \"https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish\"\n    }\n  ],\n  \"meta\": {\n    \"observed_at\": \"2026-10-02\",\n    \"source_urls\": [\n      \"https://www.ferry-sunflower.co.jp/en/\",\n      \"https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish\"\n    ],\n    \"source_language\": \"en/ja; local reference registry verified on 2026-10-02\",\n    \"request_count\": 0,\n    \"response_bytes\": 0,\n    \"elapsed_ms\": 0\n  },\n  \"warnings\": [\n    \"Reference registry; dynamic sailings, prices and availability require live lookups.\"\n  ]\n}\n"
+        }
+      ]
+    }
+  },
+  "domain_tools": [
+    "cabins",
+    "calendar",
+    "conditions",
+    "handoff",
+    "ports",
+    "quote",
+    "routes_list",
+    "routes_search",
+    "routes_show",
+    "sailings"
+  ],
+  "passed": true
+}

@@ -1,0 +1,64 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish",
+    "captured_at": "2026-10-02T14:48:57.075168+00:00",
+    "entry_count": 3,
+    "api_entry_count": 0,
+    "noise_entry_count": 3,
+    "host_distribution": {
+      "booking.ferry-sunflower.co.jp": 3
+    }
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.65,
+    "reasons": [
+      "no browser-only reachability signals observed"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "html_scrape",
+      "confidence": 0.55,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "booking.ferry-sunflower.co.jp",
+          "path": "/web/yoyaku/Reserve0000/IndexEnglish",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1,
+          "method": "POST",
+          "host": "booking.ferry-sunflower.co.jp",
+          "path": "/web/yoyaku/Reserve0000/Reserve",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 2,
+          "method": "POST",
+          "host": "booking.ferry-sunflower.co.jp",
+          "path": "/web/yoyaku/Reserve1030/MoveNext",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "reason": "HTML response observed"
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "candidates": [
+      {
+        "type": "none",
+        "confidence": 0.95
+      }
+    ]
+  },
+  "endpoint_clusters": []
+}

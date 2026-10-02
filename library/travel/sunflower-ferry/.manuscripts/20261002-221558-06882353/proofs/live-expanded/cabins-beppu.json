@@ -1,0 +1,197 @@
+{
+  "data": {
+    "cabins": [
+      {
+        "id": "ancSuiteRoom/suite-12-rooms",
+        "name": "Suite (12 rooms)",
+        "category": "private",
+        "room_type": "Western-style room",
+        "occupancy_source": "2-3 persons",
+        "min_occupancy": 2,
+        "max_occupancy": 3,
+        "occupancy_basis": "private room occupancy"
+      },
+      {
+        "id": "ancSuiteRoom/suite-barrier-free-1-room",
+        "name": "Suite barrier-free (1 room)",
+        "category": "private",
+        "room_type": "Western-style room",
+        "occupancy_source": "2-4 persons",
+        "min_occupancy": 2,
+        "max_occupancy": 4,
+        "occupancy_basis": "private room occupancy"
+      },
+      {
+        "id": "ancSuiteRoom/suite-japanese-western-style-room-connect-2-rooms",
+        "name": "Suite Japanese/Western-style room connect (2 rooms)",
+        "category": "private",
+        "room_type": "Japanese/Western style room",
+        "occupancy_source": "4 persons",
+        "occupancy_basis": "private room occupancy"
+      },
+      {
+        "id": "ancSuiteRoom/semi-suite-13-rooms",
+        "name": "Semi-Suite (13 rooms)",
+        "category": "private",
+        "room_type": "Western-style room",
+        "occupancy_source": "2-3 persons",
+        "min_occupancy": 2,
+        "max_occupancy": 3,
+        "occupancy_basis": "private room occupancy"
+      },
+      {
+        "id": "ancSuiteRoom/semi-sweet-connect-2-rooms",
+        "name": "Semi-Sweet Connect (2 rooms)",
+        "category": "private",
+        "room_type": "Western-style room",
+        "occupancy_source": "2-3 persons",
+        "min_occupancy": 2,
+        "max_occupancy": 3,
+        "occupancy_basis": "private room occupancy"
+      },
+      {
+        "id": "ancDeluxeRoom/deluxe-11-rooms",
+        "name": "Deluxe (11 rooms)",
+        "category": "private",
+        "room_type": "Western-style room",
+        "occupancy_source": "2 to 3 persons",
+        "min_occupancy": 2,
+        "max_occupancy": 3,
+        "occupancy_basis": "private room occupancy"
+      },
+      {
+        "id": "ancDeluxeRoom/deluxe-with-pet-7-rooms",
+        "name": "Deluxe with Pet (7 rooms)",
+        "category": "private",
+        "room_type": "Western-style room",
+        "occupancy_source": "2-4 persons",
+        "min_occupancy": 2,
+        "max_occupancy": 4,
+        "occupancy_basis": "private room occupancy"
+      },
+      {
+        "id": "ancDeluxeRoom/deluxe-connect-4-rooms",
+        "name": "Deluxe Connect (4 rooms)",
+        "category": "private",
+        "room_type": "Western-style room",
+        "occupancy_source": "2-3 persons",
+        "min_occupancy": 2,
+        "max_occupancy": 3,
+        "occupancy_basis": "private room occupancy"
+      },
+      {
+        "id": "ancDeluxeRoom/semi-deluxe-japanese-style-room-connect-4-rooms",
+        "name": "Semi-deluxe Japanese-style room connect (4 rooms)",
+        "category": "private",
+        "room_type": "Japanese-style room",
+        "occupancy_source": "4 persons",
+        "occupancy_basis": "private room occupancy"
+      },
+      {
+        "id": "ancDeluxeRoom/deluxe-japanese-style-room-4-rooms",
+        "name": "Deluxe Japanese-style room (4 rooms)",
+        "category": "private",
+        "room_type": "Japanese-style room",
+        "occupancy_source": "4 persons",
+        "occupancy_basis": "private room occupancy"
+      },
+      {
+        "id": "ancSuperior/superior-twin-26-rooms",
+        "name": "Superior Twin (26 rooms)",
+        "category": "private",
+        "room_type": "Western-style room",
+        "occupancy_source": "2 persons",
+        "occupancy_basis": "private room occupancy"
+      },
+      {
+        "id": "ancSuperior/superior-single-30-rooms",
+        "name": "Superior Single (30 rooms)",
+        "category": "private",
+        "room_type": "Western-style room",
+        "occupancy_source": "1 person",
+        "occupancy_basis": "private room occupancy"
+      },
+      {
+        "id": "ancPrivate/private-single-twin-4-rooms",
+        "name": "Private single twin (4 rooms)",
+        "category": "dormitory",
+        "room_type": "Western-style room *Semi-private room type, internal lock only (cannot be locked from outside) *Two private single twin rooms and two private twin rooms in one compartment.",
+        "occupancy_source": "1 to 2 persons",
+        "occupancy_basis": "seat/section or shared-room capacity; preserve source wording"
+      },
+      {
+        "id": "ancPrivate/private-twin-4-rooms",
+        "name": "Private twin (4 rooms)",
+        "category": "dormitory",
+        "room_type": "Western-style room *Semi-private room type, internal lock only (cannot be locked from outside the room) *Two private single twin rooms and two private twin rooms in one compartment.",
+        "occupancy_source": "2 people",
+        "occupancy_basis": "seat/section or shared-room capacity; preserve source wording"
+      },
+      {
+        "id": "ancPrivate/private-single-2-lots",
+        "name": "Private single (2 lots)",
+        "category": "dormitory",
+        "room_type": "Western-style room (shared room) *Semi-private room type, internal lock only (cannot be locked from outside the room)",
+        "occupancy_source": "9 persons per compartment (1 person x 9 rooms)",
+        "occupancy_basis": "seat/section or shared-room capacity; preserve source wording"
+      },
+      {
+        "id": "ancPrivate/private-bed-group-12-rooms-in-3-compartments",
+        "name": "Private bed group (12 rooms in 3 compartments)",
+        "category": "dormitory",
+        "room_type": "Western-style room",
+        "occupancy_source": "4 persons",
+        "occupancy_basis": "seat/section or shared-room capacity; preserve source wording"
+      },
+      {
+        "id": "ancPrivate/private-bed-group-barrier-free-1-room",
+        "name": "Private bed group barrier-free (1 room)",
+        "category": "dormitory",
+        "room_type": "Western-style room",
+        "occupancy_source": "6 persons (1 person x 6 beds)",
+        "occupancy_basis": "seat/section or shared-room capacity; preserve source wording"
+      },
+      {
+        "id": "ancPrivate/private-beds-14-rooms-private-bed-ladies-1-room",
+        "name": "Private beds (14 rooms) Private bed ladies (1 room)",
+        "category": "dormitory",
+        "room_type": "Western-style room (Shared room)",
+        "occupancy_source": "16 persons (1 person x 16 beds)",
+        "occupancy_basis": "seat/section or shared-room capacity; preserve source wording"
+      },
+      {
+        "id": "ancOthers/standard-single-room-only-available-on-some-dates",
+        "name": "Standard single room *Only available on some dates.",
+        "category": "private",
+        "room_type": "Western-style room",
+        "occupancy_source": "1 person",
+        "occupancy_basis": "private room occupancy"
+      },
+      {
+        "id": "ancOthers/group-japanese-style-rooms-5-rooms",
+        "name": "Group Japanese-style rooms (5 rooms)",
+        "category": "private",
+        "room_type": "Japanese-style room * Semi-private room type, internal lock only (cannot be locked from outside)",
+        "occupancy_source": "3 x 3 4 people x 1 room",
+        "occupancy_basis": "private room occupancy"
+      }
+    ],
+    "matched_cabins": 20,
+    "route_id": "osaka-beppu",
+    "scanned_cabins": 20,
+    "truncated": false
+  },
+  "meta": {
+    "observed_at": "2026-10-03T01:01:13+09:00",
+    "source_urls": [
+      "https://www.ferry-sunflower.co.jp/en/route/osaka-beppu/cabin/"
+    ],
+    "source_language": "en",
+    "request_count": 1,
+    "response_bytes": 149923,
+    "elapsed_ms": 540
+  },
+  "warnings": [
+    "Published occupancy does not prove dated eligibility or availability. Dormitory section/shared-room capacity retains source wording; use quote for the entered party."
+  ]
+}

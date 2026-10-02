@@ -1,0 +1,151 @@
+{
+  "data": {
+    "limit_per_sailing": 10,
+    "matched_cabin_rows": 9,
+    "quote": {
+      "route_id": "kobe-oita",
+      "line": "11",
+      "boarding_date": "2026-10-15",
+      "party": {
+        "adults": 2,
+        "children": 1,
+        "toddlers": 0,
+        "infants": 0,
+        "mode": "car",
+        "car_category": "lt5m"
+      },
+      "season": "A",
+      "discount_label": "Web DC(Partcal 5%)",
+      "currency": "JPY",
+      "sailings": [
+        {
+          "id": "11/2026-10-15/19:00/sunflower-pearl",
+          "ship": "SUNFLOWER PEARL",
+          "from": "Kobe",
+          "to": "Oita",
+          "departure": "2026-10-15T19:00:00+09:00",
+          "arrival": "2026-10-16T06:20:00+09:00",
+          "arrival_day_offset": 1,
+          "recommended_terminal_arrival": "2026-10-15T18:00:00+09:00",
+          "cabin_fares": [
+            {
+              "id": "10/01/deluxe-room-2-4",
+              "source_class_code": "01",
+              "name": "Deluxe room (2-4)",
+              "room_type": "private",
+              "displayed_price_jpy": 85440,
+              "availability_symbol": "○",
+              "availability": "available_snapshot"
+            },
+            {
+              "id": "10/23/standard-room-4",
+              "source_class_code": "23",
+              "name": "Standard room (4)",
+              "room_type": "private",
+              "displayed_price_jpy": 69440,
+              "availability_symbol": "○",
+              "availability": "available_snapshot"
+            },
+            {
+              "id": "10/23/standard-room-4-ladies-only",
+              "source_class_code": "23",
+              "name": "Standard room (4 Ladies only)",
+              "room_type": "private",
+              "displayed_price_jpy": 69440,
+              "availability_symbol": "○",
+              "availability": "available_snapshot"
+            },
+            {
+              "id": "10/23/standard-room-4-with-pet",
+              "source_class_code": "23",
+              "name": "Standard room (4 /with pet)",
+              "room_type": "private",
+              "displayed_price_jpy": 78140,
+              "availability_symbol": "Waitlist",
+              "availability": "waitlist_snapshot"
+            },
+            {
+              "id": "10/25/standard-room-kumamon",
+              "source_class_code": "25",
+              "name": "Standard room (Kumamon)",
+              "room_type": "private",
+              "displayed_price_jpy": 71940,
+              "availability_symbol": "1",
+              "availability": "limited_snapshot"
+            },
+            {
+              "id": "10/30/private-bed-room",
+              "source_class_code": "30",
+              "name": "Private bed room",
+              "room_type": "dormitory",
+              "displayed_price_jpy": 59440,
+              "availability_symbol": "4",
+              "availability": "limited_snapshot",
+              "info": "*This room class is not a private type but a dormitory type."
+            },
+            {
+              "id": "10/30/private-bed-room-ladies-only",
+              "source_class_code": "30",
+              "name": "Private bed room (Ladies only)",
+              "room_type": "dormitory",
+              "displayed_price_jpy": 59440,
+              "availability_symbol": "○",
+              "availability": "available_snapshot",
+              "info": "*This room class is not a private type but a dormitory type."
+            },
+            {
+              "id": "10/33/tourist-room",
+              "source_class_code": "33",
+              "name": "Tourist room",
+              "room_type": "dormitory",
+              "displayed_price_jpy": 45590,
+              "availability_symbol": "○",
+              "availability": "available_snapshot",
+              "info": "*This room class is not a private type but a dormitory type."
+            },
+            {
+              "id": "10/33/tourist-room-ladies-only",
+              "source_class_code": "33",
+              "name": "Tourist room (Ladies only)",
+              "room_type": "dormitory",
+              "displayed_price_jpy": 45590,
+              "availability_symbol": "3",
+              "availability": "limited_snapshot",
+              "info": "*This room class is not a private type but a dormitory type."
+            }
+          ]
+        }
+      ],
+      "source_notes": [
+        "・These prices shown are discounted. (Non discounted fare will be displayed during the peak season.)",
+        "・If you would like to be on the waiting list, please proceed with one way.",
+        "・The amount is before the disability discount is applied."
+      ],
+      "price_basis": "Official 'Discounted Price' displayed for this entered one-way party and vehicle category; no fare arithmetic performed.",
+      "unknowns": [
+        "Fuel adjustment, tax and fee breakdown are not separately stated on the returned fare table.",
+        "Displayed cabin/vehicle availability is an observed source snapshot, with no hold or guarantee.",
+        "Room-charge campaigns, special discounts and exact booking eligibility may require the reservation center.",
+        "The source vehicle availability indicator is missing for sailing 11/2026-10-15/19:00/sunflower-pearl."
+      ],
+      "inventory_guaranteed": false
+    },
+    "returned_cabin_rows": 9,
+    "truncated": false
+  },
+  "meta": {
+    "observed_at": "2026-10-03T01:00:59+09:00",
+    "source_urls": [
+      "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish",
+      "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/Reserve",
+      "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve1030/MoveNext"
+    ],
+    "source_language": "en",
+    "request_count": 5,
+    "response_bytes": 81325,
+    "elapsed_ms": 6364
+  },
+  "warnings": [
+    "Source displayed prices are not an itemized final payable quote. No reservation or hold is made. Meal, fuel/tax/fee breakdown and special-ticket eligibility require confirmation."
+  ]
+}

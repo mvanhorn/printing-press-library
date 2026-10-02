@@ -1,0 +1,236 @@
+{
+  "reviewed_runnable_commands": 51,
+  "reviewed_typed_endpoints": 5,
+  "typed_description_override_count": 5,
+  "scope": "All runtime commands inspected for action/scope/flags and read/write classification. Every recommended ferry domain command is read-only and has substantive description. Framework helpers retain generated metadata; two thin local-list Shorts accepted with concrete rationales. The generic workflow wording, conservative hints for profile use and completion, and generated server hardening are shared-template retro candidates.",
+  "recommended_ferry_commands": [
+    {
+      "command": "cabins",
+      "short": "Inspect source cabin type and occupancy, preserving shared-room versus private-room facts",
+      "read_only": true,
+      "flags": [
+        "direction",
+        "limit",
+        "query",
+        "route"
+      ]
+    },
+    {
+      "command": "calendar",
+      "short": "Compare published seasonal fare bands across a bounded Japan date window",
+      "read_only": true,
+      "flags": [
+        "band",
+        "direction",
+        "from",
+        "limit",
+        "route",
+        "to"
+      ]
+    },
+    {
+      "command": "conditions",
+      "short": "Read common baggage, passenger, vehicle, change and normal-ticket cancellation conditions",
+      "read_only": true,
+      "flags": []
+    },
+    {
+      "command": "handoff",
+      "short": "Return the canonical official booking page and selected planning context",
+      "read_only": true,
+      "flags": [
+        "date",
+        "direction",
+        "route"
+      ]
+    },
+    {
+      "command": "ports",
+      "short": "Read distinct source terminal addresses, access guidance and boarding cautions",
+      "read_only": true,
+      "flags": [
+        "direction",
+        "route"
+      ]
+    },
+    {
+      "command": "quote",
+      "short": "Simulate source one-way cabin fares for an exact party, vehicle and Japan date",
+      "read_only": true,
+      "flags": [
+        "adults",
+        "bike-category",
+        "bikes",
+        "cabin-id",
+        "car-category",
+        "children",
+        "date",
+        "direction",
+        "infants",
+        "limit",
+        "mode",
+        "pet-cages",
+        "route",
+        "toddlers"
+      ]
+    },
+    {
+      "command": "routes list",
+      "short": "List official route and terminal identifiers from the local reference registry",
+      "read_only": true,
+      "flags": []
+    },
+    {
+      "command": "routes search",
+      "short": "Search route, Japanese name, terminal or destination offline",
+      "read_only": true,
+      "flags": [
+        "query"
+      ]
+    },
+    {
+      "command": "routes show",
+      "short": "Read the official normal weekday timetable and overnight-arrival rules",
+      "read_only": true,
+      "flags": [
+        "direction",
+        "route"
+      ]
+    },
+    {
+      "command": "sailings",
+      "short": "Discover the source's dated sailings with exact Japan departure and overnight arrival",
+      "read_only": true,
+      "flags": [
+        "adults",
+        "bike-category",
+        "bikes",
+        "car-category",
+        "children",
+        "date",
+        "direction",
+        "infants",
+        "limit",
+        "mode",
+        "pet-cages",
+        "route",
+        "toddlers"
+      ]
+    },
+    {
+      "command": "source",
+      "short": "Official public source metadata; use the planning commands for structured facts",
+      "read_only": true,
+      "flags": []
+    },
+    {
+      "command": "source cabins",
+      "short": "Read the official cabin description page",
+      "read_only": true,
+      "flags": [
+        "route"
+      ]
+    },
+    {
+      "command": "source conditions",
+      "short": "Read the official English boarding and cancellation policy",
+      "read_only": true,
+      "flags": []
+    },
+    {
+      "command": "source fares",
+      "short": "Read the official fare and seasonal-calendar page",
+      "read_only": true,
+      "flags": [
+        "route"
+      ]
+    },
+    {
+      "command": "source terminal",
+      "short": "Read the official port access page",
+      "read_only": true,
+      "flags": [
+        "route"
+      ]
+    },
+    {
+      "command": "source timetable",
+      "short": "Read the official published weekday timetable page",
+      "read_only": true,
+      "flags": [
+        "route"
+      ]
+    }
+  ],
+  "typed_tools": [
+    {
+      "name": "source_cabins",
+      "description": "Read the official cabin page as raw source HTML. Required: route, one of osaka-beppu, kobe-oita or osaka-shibushi. Prefer the cabins command mirror for bounded cabin and occupancy planning facts.",
+      "method": "GET",
+      "path": "/en/route/{route}/cabin/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "route",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "source_conditions",
+      "description": "Read the official English boarding and cancellation page as raw source HTML. No parameters. Prefer the conditions command mirror for bounded check-in, baggage and normal-ticket cancellation facts with explicit limitations.",
+      "method": "GET",
+      "path": "/en/reservation/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "source_fares",
+      "description": "Read the official fare page as raw source HTML. Required: route, one of osaka-beppu, kobe-oita or osaka-shibushi. Prefer calendar for explicit seasonal dates and quote for the anonymous party-and-vehicle fare simulation; page marketing prices are not current quotes.",
+      "method": "GET",
+      "path": "/en/route/{route}/fee/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "route",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "source_terminal",
+      "description": "Read the official port-access page as raw source HTML. Required: route, one of osaka-beppu, kobe-oita or osaka-shibushi. Prefer the ports command mirror for bounded terminal identities, addresses and access guidance.",
+      "method": "GET",
+      "path": "/en/route/{route}/boarding/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "route",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "source_timetable",
+      "description": "Read the official normal weekday timetable page as raw source HTML. Required: route, one of osaka-beppu, kobe-oita or osaka-shibushi. Prefer routes show for parsed weekday patterns, or sailings for an exact dated source lookup; a normal pattern does not establish operation on a date.",
+      "method": "GET",
+      "path": "/en/route/{route}/time/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "route",
+          "type": "string",
+          "location": "path",
+          "description": "Official route slug",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "data": {
+    "limit_per_sailing": 3,
+    "matched_cabin_rows": 14,
+    "quote": {
+      "route_id": "osaka-shibushi",
+      "line": "31",
+      "boarding_date": "2026-10-15",
+      "party": {
+        "adults": 2,
+        "children": 0,
+        "toddlers": 2,
+        "infants": 1,
+        "mode": "foot"
+      },
+      "season": "A",
+      "discount_label": "Web DC(Partcal 5%)",
+      "currency": "JPY",
+      "sailings": [
+        {
+          "id": "31/2026-10-15/17:55/sunflower-new-satsuma",
+          "ship": "SUNFLOWER NEW SATSUMA",
+          "from": "Osaka2",
+          "to": "Shibushi",
+          "departure": "2026-10-15T17:55:00+09:00",
+          "arrival": "2026-10-16T08:55:00+09:00",
+          "arrival_day_offset": 1,
+          "recommended_terminal_arrival": "2026-10-15T16:55:00+09:00",
+          "cabin_fares": [
+            {
+              "id": "30/00/suite-room",
+              "source_class_code": "00",
+              "name": "Suite room",
+              "room_type": "private",
+              "displayed_price_jpy": 67040,
+              "availability_symbol": "Waitlist",
+              "availability": "waitlist_snapshot"
+            },
+            {
+              "id": "30/00/suite-room-universal-style",
+              "source_class_code": "00",
+              "name": "Suite room (Universal style)",
+              "room_type": "private",
+              "displayed_price_jpy": 67040,
+              "availability_symbol": "Waitlist",
+              "availability": "waitlist_snapshot",
+              "info": "wheelchair-friendly（no balcony space）"
+            },
+            {
+              "id": "30/04/deluxe-room-japanese-style",
+              "source_class_code": "04",
+              "name": "Deluxe room (Japanese style)",
+              "room_type": "private",
+              "displayed_price_jpy": 61040,
+              "availability_symbol": "Waitlist",
+              "availability": "waitlist_snapshot"
+            }
+          ]
+        }
+      ],
+      "source_notes": [
+        "・These prices shown are discounted. (Non discounted fare will be displayed during the peak season.)",
+        "・If you would like to be on the waiting list, please proceed with one way.",
+        "・The amount is before the disability discount is applied."
+      ],
+      "price_basis": "Official 'Discounted Price' displayed for this entered one-way party and vehicle category; no fare arithmetic performed.",
+      "unknowns": [
+        "Fuel adjustment, tax and fee breakdown are not separately stated on the returned fare table.",
+        "Displayed cabin/vehicle availability is an observed source snapshot, with no hold or guarantee.",
+        "Room-charge campaigns, special discounts and exact booking eligibility may require the reservation center."
+      ],
+      "inventory_guaranteed": false
+    },
+    "returned_cabin_rows": 3,
+    "truncated": true
+  },
+  "meta": {
+    "observed_at": "2026-10-03T01:01:10+09:00",
+    "source_urls": [
+      "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish",
+      "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/Reserve",
+      "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve1030/MoveNext"
+    ],
+    "source_language": "en",
+    "request_count": 5,
+    "response_bytes": 88774,
+    "elapsed_ms": 5625
+  },
+  "warnings": [
+    "Source displayed prices are not an itemized final payable quote. No reservation or hold is made. Meal, fuel/tax/fee breakdown and special-ticket eligibility require confirmation."
+  ]
+}

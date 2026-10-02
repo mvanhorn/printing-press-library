@@ -1,0 +1,667 @@
+[
+  {
+    "_meta": {
+      "pp:cli-command": "cabins",
+      "pp:tenant-gate": "child-cli"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": true
+    },
+    "description": "Extracts source room occupancy so agents can distinguish dormitory capacity from private room occupancy.",
+    "inputSchema": {
+      "properties": {
+        "agent": {
+          "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+          "type": "boolean"
+        },
+        "client-profile": {
+          "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+          "type": "string"
+        },
+        "compact": {
+          "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+          "type": "boolean"
+        },
+        "csv": {
+          "description": "Output as CSV (table and array responses) (default: false)",
+          "type": "boolean"
+        },
+        "data-source": {
+          "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+          "type": "string"
+        },
+        "dry-run": {
+          "description": "Show request without sending (default: false)",
+          "type": "boolean"
+        },
+        "human-friendly": {
+          "description": "Enable colored output and rich formatting (default: false)",
+          "type": "boolean"
+        },
+        "json": {
+          "description": "Output as JSON (default: false)",
+          "type": "boolean"
+        },
+        "max-age": {
+          "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+          "type": "string"
+        },
+        "no-cache": {
+          "description": "Bypass response cache (default: false)",
+          "type": "boolean"
+        },
+        "no-color": {
+          "description": "Disable colored output (default: false)",
+          "type": "boolean"
+        },
+        "no-input": {
+          "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+          "type": "boolean"
+        },
+        "no-learn": {
+          "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+          "type": "boolean"
+        },
+        "plain": {
+          "description": "Output as plain tab-separated text (default: false)",
+          "type": "boolean"
+        },
+        "quiet": {
+          "description": "Bare output, one value per line (default: false)",
+          "type": "boolean"
+        },
+        "rate-limit": {
+          "description": "Max requests per second (0 to disable; default auto \u2014 pace to server rate-limit headers) (default: auto)",
+          "type": "number"
+        },
+        "receipt": {
+          "description": "Write an atomic private run receipt (default: false)",
+          "type": "boolean"
+        },
+        "route": {
+          "description": "TODO: describe --route",
+          "type": "string"
+        },
+        "select": {
+          "description": "Comma-separated fields to include in output",
+          "type": "string"
+        },
+        "timeout": {
+          "description": "Request timeout (default: 1m0s)",
+          "type": "string"
+        },
+        "yes": {
+          "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+          "type": "boolean"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "name": "cabins"
+  },
+  {
+    "_meta": {
+      "pp:cli-command": "calendar",
+      "pp:tenant-gate": "child-cli"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": true
+    },
+    "description": "Filters bounded published date ranges with explicit coverage and special sailing warnings.",
+    "inputSchema": {
+      "properties": {
+        "agent": {
+          "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+          "type": "boolean"
+        },
+        "client-profile": {
+          "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+          "type": "string"
+        },
+        "compact": {
+          "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+          "type": "boolean"
+        },
+        "csv": {
+          "description": "Output as CSV (table and array responses) (default: false)",
+          "type": "boolean"
+        },
+        "data-source": {
+          "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+          "type": "string"
+        },
+        "dry-run": {
+          "description": "Show request without sending (default: false)",
+          "type": "boolean"
+        },
+        "human-friendly": {
+          "description": "Enable colored output and rich formatting (default: false)",
+          "type": "boolean"
+        },
+        "json": {
+          "description": "Output as JSON (default: false)",
+          "type": "boolean"
+        },
+        "max-age": {
+          "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+          "type": "string"
+        },
+        "no-cache": {
+          "description": "Bypass response cache (default: false)",
+          "type": "boolean"
+        },
+        "no-color": {
+          "description": "Disable colored output (default: false)",
+          "type": "boolean"
+        },
+        "no-input": {
+          "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+          "type": "boolean"
+        },
+        "no-learn": {
+          "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+          "type": "boolean"
+        },
+        "plain": {
+          "description": "Output as plain tab-separated text (default: false)",
+          "type": "boolean"
+        },
+        "quiet": {
+          "description": "Bare output, one value per line (default: false)",
+          "type": "boolean"
+        },
+        "rate-limit": {
+          "description": "Max requests per second (0 to disable; default auto \u2014 pace to server rate-limit headers) (default: auto)",
+          "type": "number"
+        },
+        "receipt": {
+          "description": "Write an atomic private run receipt (default: false)",
+          "type": "boolean"
+        },
+        "route": {
+          "description": "TODO: describe --route",
+          "type": "string"
+        },
+        "select": {
+          "description": "Comma-separated fields to include in output",
+          "type": "string"
+        },
+        "timeout": {
+          "description": "Request timeout (default: 1m0s)",
+          "type": "string"
+        },
+        "yes": {
+          "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+          "type": "boolean"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "name": "calendar"
+  },
+  {
+    "_meta": {
+      "pp:cli-command": "conditions",
+      "pp:tenant-gate": "child-cli"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": true
+    },
+    "description": "Preserves source cancellation/baggage and quote assumptions with explicit missing English day-before band.",
+    "inputSchema": {
+      "properties": {
+        "agent": {
+          "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+          "type": "boolean"
+        },
+        "client-profile": {
+          "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+          "type": "string"
+        },
+        "compact": {
+          "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+          "type": "boolean"
+        },
+        "csv": {
+          "description": "Output as CSV (table and array responses) (default: false)",
+          "type": "boolean"
+        },
+        "data-source": {
+          "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+          "type": "string"
+        },
+        "dry-run": {
+          "description": "Show request without sending (default: false)",
+          "type": "boolean"
+        },
+        "human-friendly": {
+          "description": "Enable colored output and rich formatting (default: false)",
+          "type": "boolean"
+        },
+        "json": {
+          "description": "Output as JSON (default: false)",
+          "type": "boolean"
+        },
+        "max-age": {
+          "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+          "type": "string"
+        },
+        "no-cache": {
+          "description": "Bypass response cache (default: false)",
+          "type": "boolean"
+        },
+        "no-color": {
+          "description": "Disable colored output (default: false)",
+          "type": "boolean"
+        },
+        "no-input": {
+          "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+          "type": "boolean"
+        },
+        "no-learn": {
+          "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+          "type": "boolean"
+        },
+        "plain": {
+          "description": "Output as plain tab-separated text (default: false)",
+          "type": "boolean"
+        },
+        "quiet": {
+          "description": "Bare output, one value per line (default: false)",
+          "type": "boolean"
+        },
+        "rate-limit": {
+          "description": "Max requests per second (0 to disable; default auto \u2014 pace to server rate-limit headers) (default: auto)",
+          "type": "number"
+        },
+        "receipt": {
+          "description": "Write an atomic private run receipt (default: false)",
+          "type": "boolean"
+        },
+        "select": {
+          "description": "Comma-separated fields to include in output",
+          "type": "string"
+        },
+        "timeout": {
+          "description": "Request timeout (default: 1m0s)",
+          "type": "string"
+        },
+        "yes": {
+          "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+          "type": "boolean"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "name": "conditions"
+  },
+  {
+    "_meta": {
+      "pp:cli-command": "ports",
+      "pp:tenant-gate": "child-cli"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": true
+    },
+    "description": "Keeps Osaka Terminal1 and Terminal2 distinct with concise source address/access/checkin evidence.",
+    "inputSchema": {
+      "properties": {
+        "agent": {
+          "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+          "type": "boolean"
+        },
+        "client-profile": {
+          "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+          "type": "string"
+        },
+        "compact": {
+          "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+          "type": "boolean"
+        },
+        "csv": {
+          "description": "Output as CSV (table and array responses) (default: false)",
+          "type": "boolean"
+        },
+        "data-source": {
+          "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+          "type": "string"
+        },
+        "dry-run": {
+          "description": "Show request without sending (default: false)",
+          "type": "boolean"
+        },
+        "human-friendly": {
+          "description": "Enable colored output and rich formatting (default: false)",
+          "type": "boolean"
+        },
+        "json": {
+          "description": "Output as JSON (default: false)",
+          "type": "boolean"
+        },
+        "max-age": {
+          "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+          "type": "string"
+        },
+        "no-cache": {
+          "description": "Bypass response cache (default: false)",
+          "type": "boolean"
+        },
+        "no-color": {
+          "description": "Disable colored output (default: false)",
+          "type": "boolean"
+        },
+        "no-input": {
+          "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+          "type": "boolean"
+        },
+        "no-learn": {
+          "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+          "type": "boolean"
+        },
+        "plain": {
+          "description": "Output as plain tab-separated text (default: false)",
+          "type": "boolean"
+        },
+        "quiet": {
+          "description": "Bare output, one value per line (default: false)",
+          "type": "boolean"
+        },
+        "rate-limit": {
+          "description": "Max requests per second (0 to disable; default auto \u2014 pace to server rate-limit headers) (default: auto)",
+          "type": "number"
+        },
+        "receipt": {
+          "description": "Write an atomic private run receipt (default: false)",
+          "type": "boolean"
+        },
+        "route": {
+          "description": "TODO: describe --route",
+          "type": "string"
+        },
+        "select": {
+          "description": "Comma-separated fields to include in output",
+          "type": "string"
+        },
+        "timeout": {
+          "description": "Request timeout (default: 1m0s)",
+          "type": "string"
+        },
+        "yes": {
+          "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+          "type": "boolean"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "name": "ports"
+  },
+  {
+    "_meta": {
+      "pp:cli-command": "quote",
+      "pp:tenant-gate": "child-cli"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": true
+    },
+    "description": "Presents every source-eligible cabin fare for the entered party/vehicle without hand-made fare arithmetic.",
+    "inputSchema": {
+      "properties": {
+        "agent": {
+          "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+          "type": "boolean"
+        },
+        "client-profile": {
+          "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+          "type": "string"
+        },
+        "compact": {
+          "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+          "type": "boolean"
+        },
+        "csv": {
+          "description": "Output as CSV (table and array responses) (default: false)",
+          "type": "boolean"
+        },
+        "data-source": {
+          "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+          "type": "string"
+        },
+        "date": {
+          "description": "TODO: describe --date",
+          "type": "string"
+        },
+        "dry-run": {
+          "description": "Show request without sending (default: false)",
+          "type": "boolean"
+        },
+        "human-friendly": {
+          "description": "Enable colored output and rich formatting (default: false)",
+          "type": "boolean"
+        },
+        "json": {
+          "description": "Output as JSON (default: false)",
+          "type": "boolean"
+        },
+        "max-age": {
+          "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+          "type": "string"
+        },
+        "no-cache": {
+          "description": "Bypass response cache (default: false)",
+          "type": "boolean"
+        },
+        "no-color": {
+          "description": "Disable colored output (default: false)",
+          "type": "boolean"
+        },
+        "no-input": {
+          "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+          "type": "boolean"
+        },
+        "no-learn": {
+          "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+          "type": "boolean"
+        },
+        "plain": {
+          "description": "Output as plain tab-separated text (default: false)",
+          "type": "boolean"
+        },
+        "quiet": {
+          "description": "Bare output, one value per line (default: false)",
+          "type": "boolean"
+        },
+        "rate-limit": {
+          "description": "Max requests per second (0 to disable; default auto \u2014 pace to server rate-limit headers) (default: auto)",
+          "type": "number"
+        },
+        "receipt": {
+          "description": "Write an atomic private run receipt (default: false)",
+          "type": "boolean"
+        },
+        "route": {
+          "description": "TODO: describe --route",
+          "type": "string"
+        },
+        "select": {
+          "description": "Comma-separated fields to include in output",
+          "type": "string"
+        },
+        "timeout": {
+          "description": "Request timeout (default: 1m0s)",
+          "type": "string"
+        },
+        "yes": {
+          "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+          "type": "boolean"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "name": "quote"
+  },
+  {
+    "_meta": {
+      "pp:cli-command": "sailings",
+      "pp:tenant-gate": "child-cli"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": true
+    },
+    "description": "Turns source boarding-date results into dated JST arrival",
+    "inputSchema": {
+      "properties": {
+        "agent": {
+          "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+          "type": "boolean"
+        },
+        "client-profile": {
+          "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+          "type": "string"
+        },
+        "compact": {
+          "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+          "type": "boolean"
+        },
+        "csv": {
+          "description": "Output as CSV (table and array responses) (default: false)",
+          "type": "boolean"
+        },
+        "data-source": {
+          "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+          "type": "string"
+        },
+        "date": {
+          "description": "TODO: describe --date",
+          "type": "string"
+        },
+        "dry-run": {
+          "description": "Show request without sending (default: false)",
+          "type": "boolean"
+        },
+        "human-friendly": {
+          "description": "Enable colored output and rich formatting (default: false)",
+          "type": "boolean"
+        },
+        "json": {
+          "description": "Output as JSON (default: false)",
+          "type": "boolean"
+        },
+        "max-age": {
+          "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+          "type": "string"
+        },
+        "no-cache": {
+          "description": "Bypass response cache (default: false)",
+          "type": "boolean"
+        },
+        "no-color": {
+          "description": "Disable colored output (default: false)",
+          "type": "boolean"
+        },
+        "no-input": {
+          "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+          "type": "boolean"
+        },
+        "no-learn": {
+          "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+          "type": "boolean"
+        },
+        "plain": {
+          "description": "Output as plain tab-separated text (default: false)",
+          "type": "boolean"
+        },
+        "quiet": {
+          "description": "Bare output, one value per line (default: false)",
+          "type": "boolean"
+        },
+        "rate-limit": {
+          "description": "Max requests per second (0 to disable; default auto \u2014 pace to server rate-limit headers) (default: auto)",
+          "type": "number"
+        },
+        "receipt": {
+          "description": "Write an atomic private run receipt (default: false)",
+          "type": "boolean"
+        },
+        "route": {
+          "description": "TODO: describe --route",
+          "type": "string"
+        },
+        "select": {
+          "description": "Comma-separated fields to include in output",
+          "type": "string"
+        },
+        "timeout": {
+          "description": "Request timeout (default: 1m0s)",
+          "type": "string"
+        },
+        "yes": {
+          "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+          "type": "boolean"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "name": "sailings"
+  },
+  {
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "openWorldHint": true
+    },
+    "description": "Read the official cabin description page. Required: route (default: osaka-beppu).",
+    "inputSchema": {
+      "properties": {
+        "route": {
+          "description": "",
+          "type": "string"
+        }
+      },
+      "required": [
+        "route"
+      ],
+      "type": "object"
+    },
+    "name": "source_cabins"
+  },
+  {
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "openWorldHint": true
+    },
+    "description": "Read the official English boarding and cancellation policy.",
+    "inputSchema": {
+      "properties": {},
+      "required": [],
+      "type": "object"
+    },
+    "name": "source_conditions"
+  }
+]

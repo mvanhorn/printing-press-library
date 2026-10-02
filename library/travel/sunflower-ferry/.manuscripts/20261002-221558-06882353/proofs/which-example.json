@@ -1,0 +1,22 @@
+{
+  "matches": [
+    {
+      "entry": {
+        "command": "calendar",
+        "description": "Filters bounded published date ranges with explicit coverage and special sailing warnings.",
+        "group": "Official ferry planning",
+        "why_it_matters": "Filters bounded published date ranges with explicit coverage and special sailing warnings."
+      },
+      "score": 3
+    },
+    {
+      "entry": {
+        "command": "quote",
+        "description": "Presents every source-eligible cabin fare for the entered party/vehicle without hand-made fare arithmetic.",
+        "group": "Official ferry planning",
+        "why_it_matters": "Presents every source-eligible cabin fare for the entered party/vehicle without hand-made fare arithmetic."
+      },
+      "score": 1
+    }
+  ]
+}

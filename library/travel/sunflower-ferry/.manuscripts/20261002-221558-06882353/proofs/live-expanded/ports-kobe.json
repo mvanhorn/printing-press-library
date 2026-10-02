@@ -1,0 +1,68 @@
+{
+  "data": {
+    "arrival_terminal": {
+      "port": {
+        "id": "kobe",
+        "name": "Kobe Rokko Island",
+        "name_ja": "神戸六甲アイランド港"
+      },
+      "source_name": "Kobe Port (Rokko Island)",
+      "address": "1-1, 3-chome Koyocho Higashi, Higashinada-ku, Kobe City, Hyogo Prefecture, 658-0031",
+      "phone": "078-857-1988",
+      "access": [
+        {
+          "mode": "By train or bus",
+          "guidance": "Take the Rokko Liner from either JR Sumiyoshi Station or Hanshin Uozaki Station. Get off at \"Island Kitaguchi\" Station. A shuttle bus (ferry bus) for the Rokko Island Ferry Terminal departs from this station. The Rokko Liner operates every 4 to 5 minutes (every 10 minutes after 9pm). \"Island Kitaguchi\" station is 6 minutes from JR Sumiyoshi Station…"
+        },
+        {
+          "mode": "By car",
+          "guidance": "From Osaka When travelling on the Hanshin Expressway from Osaka, exit at the Hanshin Expressway Kobe Line, Uozaki Ramp, and turn left at the third signal (the Hakutsuru Sake bulletin board). When using the Hanshin Expressway Wangan Line, exit at the final Rokko Island North I.C., turn left at the first signal, and go straight for 300 meters. Turn a…"
+        },
+        {
+          "mode": "From Airport",
+          "guidance": "From Kansai International Airport Take the limousine bus [KB1] Rokko Island and get off at \"Rokko Island\". Please click here for timetable. From there, move to the Rokko Liner Island Kitaguchi Sta. bus stop (8 minutes on foot) and get on the shuttle bus. From Itami Domestic Airport Take the limousine bus [B1]Kobe(Sannomiya) and get off at \"Kobe(San…"
+        }
+      ]
+    },
+    "checkin_guide_url": "https://www.ferry-sunflower.co.jp/en/reservation/",
+    "departure_terminal": {
+      "port": {
+        "id": "oita",
+        "name": "Oita",
+        "name_ja": "大分港"
+      },
+      "source_name": "Oita Port",
+      "address": "5-3-1 Ikushi, Oita City, Oita Prefecture 870-0003",
+      "phone": "097-536-8900",
+      "access": [
+        {
+          "mode": "By train or bus",
+          "guidance": "Approx. 10-minute walk from JR Nishi Oita Station Approx. 15 minutes by bus (Oita Kotsu) from JR Oita Station. Get off at the \"Oji Minato-machi\" bus stop. A bus to Oita Station is available only when disembarking from the Sunflower at Oita Port."
+        },
+        {
+          "mode": "By car",
+          "guidance": "The easiest approach is to take Route 10 from the Oita Expressway, Oita IC."
+        },
+        {
+          "mode": "From Airport",
+          "guidance": "From Oita Airport Take the express bus bound for Oita Station (via Beppu Kitahama) (Airport Express Airliner) and get off at \"Oita Station\". Route Please click here for timetable. Travel time is approximately 65 minutes and the cost of a ticket is JPY1550. Change a bus at JR Oita station. Get off at \"Oji Port Town\" bus stop."
+        }
+      ]
+    },
+    "line": "12",
+    "route_id": "kobe-oita"
+  },
+  "meta": {
+    "observed_at": "2026-10-03T01:01:12+09:00",
+    "source_urls": [
+      "https://www.ferry-sunflower.co.jp/en/route/kobe-oita/boarding/"
+    ],
+    "source_language": "en",
+    "request_count": 1,
+    "response_bytes": 27688,
+    "elapsed_ms": 566
+  },
+  "warnings": [
+    "Access times and ground-transport fares in the operator English guidance are undated reference information; confirm current ground transport. English boarding guidance recommends arrival at least 60 minutes before departure and warns boarding may be refused within 30 minutes; confirm vehicle/seasonal requirements."
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "observed_at": "2026-10-02T14:22:57.964706+00:00",
+  "browser": "Native Chrome through cua_repl",
+  "initial_url": "https://www.ferry-sunflower.co.jp/en/route/osaka-beppu/fee/",
+  "flow": [
+    "Check fares without logging in",
+    "2026-10-15 Osaka1\u2192Beppu 1 adult Use by foot",
+    "Proceed to Check Availability",
+    "Reserve1020 fare table only; no cabin click"
+  ],
+  "source_responded": true,
+  "quote_example": {
+    "line": "21",
+    "boarding_date": "2026-10-15",
+    "adults": 1,
+    "mode": "foot",
+    "season": "A",
+    "discount_label": "Web DC(Partcal 5%)",
+    "ship": "SUNFLOWER KURENAI",
+    "departure": "19:05",
+    "arrival_next_morning": "06:55",
+    "room_price_example_jpy": 14620,
+    "room": "Private bed room",
+    "availability_symbol": "\u25cb"
+  },
+  "not_inventory_guarantee": true,
+  "session_values_recorded": false
+}

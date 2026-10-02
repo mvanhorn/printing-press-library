@@ -1,0 +1,107 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-02T17:04:14.539283Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "sunflower-ferry",
+  "display_name": "Sunflower Ferry",
+  "cli_name": "sunflower-ferry-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "sunflower-ferry-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:f4d9e81d55917d4f7babb7d59414523d15988f59f5caa07735689236c202e9d3",
+  "run_id": "20261002-221558-06882353",
+  "category": "travel",
+  "description": "Plan dated Sunflower ferry sailings, cabin fares and port access from official sources.",
+  "mcp_binary": "sunflower-ferry-pp-mcp",
+  "mcp_tool_count": 5,
+  "mcp_public_tool_count": 5,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Exact overnight itinerary",
+      "command": "sailings",
+      "description": "Turns source boarding-date results into dated JST arrival; handles daytime E cruises without projecting ordinary timetables."
+    },
+    {
+      "name": "Party-sensitive fare matrix",
+      "command": "quote",
+      "description": "Presents every source-eligible cabin fare for the entered party/vehicle without hand-made fare arithmetic."
+    },
+    {
+      "name": "Seasonal date comparison",
+      "command": "calendar",
+      "description": "Filters bounded published date ranges with explicit coverage and special sailing warnings."
+    },
+    {
+      "name": "Cabin occupancy evidence",
+      "command": "cabins",
+      "description": "Extracts source room occupancy so agents can distinguish dormitory capacity from private room occupancy."
+    },
+    {
+      "name": "Terminal-aware port planning",
+      "command": "ports",
+      "description": "Keeps Osaka Terminal1 and Terminal2 distinct with concise source address/access/checkin evidence."
+    },
+    {
+      "name": "Condition-aware handoff",
+      "command": "conditions",
+      "description": "Preserves source cancellation/baggage and quote assumptions with explicit missing English day-before band."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Exact overnight itinerary",
+      "command": "sailings",
+      "description": "Turns source boarding-date results into dated JST arrival; handles daytime E cruises without projecting ordinary timetables."
+    },
+    {
+      "name": "Party-sensitive fare matrix",
+      "command": "quote",
+      "description": "Presents every source-eligible cabin fare for the entered party/vehicle without hand-made fare arithmetic."
+    },
+    {
+      "name": "Seasonal date comparison",
+      "command": "calendar",
+      "description": "Filters bounded published date ranges with explicit coverage and special sailing warnings."
+    },
+    {
+      "name": "Cabin occupancy evidence",
+      "command": "cabins",
+      "description": "Extracts source room occupancy so agents can distinguish dormitory capacity from private room occupancy."
+    },
+    {
+      "name": "Terminal-aware port planning",
+      "command": "ports",
+      "description": "Keeps Osaka Terminal1 and Terminal2 distinct with concise source address/access/checkin evidence."
+    },
+    {
+      "name": "Condition-aware handoff",
+      "command": "conditions",
+      "description": "Preserves source cancellation/baggage and quote assumptions with explicit missing English day-before band."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 31,
+    "total": 31,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 86,
+      "grade": "A",
+      "total": 86
+    }
+  }
+}

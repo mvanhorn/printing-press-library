@@ -1,0 +1,47 @@
+[
+  {
+    "case": "quote-foot",
+    "exit": 0,
+    "elapsed_ms": 5048,
+    "stdout_bytes": 5259,
+    "request_count": 5,
+    "summary": "{'limit_per_sailing': 40, 'matched_cabin_rows': 7, 'quote': {'route_id': 'osaka-beppu', 'line': '21', 'boarding_date': '2026-10-15', 'party': {'adults': 1, 'children': 0, 'toddlers': 0, 'infants': 0, 'mode': 'foot'}, 'season': 'A', 'discount_label': 'Web DC(Partcal 5%)', 'currency': 'JPY', 'sailings': [{'id': '21/2026-10-15/19:05/sunflower-kurenai', 'ship': 'SUNFLOWER KURENAI', 'from': 'Osaka1', 'to': 'Beppu', 'departure': '2026-10-15T19:05:00+09:00', 'arrival': '2026-10-16T06:55:00+09:00', 'arr",
+    "error": null
+  },
+  {
+    "case": "calendar",
+    "exit": 0,
+    "elapsed_ms": 1026,
+    "stdout_bytes": 5704,
+    "request_count": 2,
+    "summary": "{'calendar': {'route_id': 'osaka-beppu', 'line': '21', 'dates': [{'date': '2026-10-01', 'weekday': 'Thursday', 'band': 'A', 'daytime_cruise': False}, {'date': '2026-10-02', 'weekday': 'Friday', 'band': 'B', 'daytime_cruise': False}, {'date': '2026-10-03', 'weekday': 'Saturday', 'band': 'B', 'daytime_cruise': False}, {'date': '2026-10-04', 'weekday': 'Sunday', 'band': 'E', 'daytime_cruise': True}, {'date': '2026-10-05', 'weekday': 'Monday', 'band': 'A', 'daytime_cruise': False}, {'date': '2026-10",
+    "error": null
+  },
+  {
+    "case": "ports",
+    "exit": 0,
+    "elapsed_ms": 441,
+    "stdout_bytes": 3354,
+    "request_count": 1,
+    "summary": "{'arrival_terminal': {'port': {'id': 'beppu', 'name': 'Beppu Kanko-ko', 'name_ja': '\u5225\u5e9c\u89b3\u5149\u6e2f'}, 'source_name': 'Beppu Kanko-ko', 'address': '944-2 Shiomi-cho, Beppu City, Oita Prefecture 874-0918', 'phone': '0977-22-1311', 'access': [{'mode': 'By train or bus', 'guidance': '15 minutes by bus from JR Beppu Station. Three-minute walk from the \"Beppu kokusai kankoukou Ferry Sunflower Mae\" bus stop. Approx. 10 minutes by taxi from JR Beppu Station.'}, {'mode': 'By car', 'guidance': 'Approx. 15 minutes ",
+    "error": null
+  },
+  {
+    "case": "cabins",
+    "exit": 0,
+    "elapsed_ms": 314,
+    "stdout_bytes": 4109,
+    "request_count": 1,
+    "summary": "{'cabins': [{'id': 'ancNewSuite/suite-10-room', 'name': 'Suite (10 room)', 'category': 'private', 'occupancy_source': 'Occupancy : 2 to 3 persons', 'min_occupancy': 2, 'max_occupancy': 3, 'occupancy_basis': 'private room occupancy'}, {'id': 'ancNewSuite/suite-wheelchair-accessible-2room', 'name': 'Suite (wheelchair accessible)(2room)', 'category': 'private', 'occupancy_source': 'Occupancy : 2 to 4persons', 'min_occupancy': 2, 'max_occupancy': 4, 'occupancy_basis': 'private room occupancy'}, {'id",
+    "error": null
+  },
+  {
+    "case": "conditions",
+    "exit": 0,
+    "elapsed_ms": 1130,
+    "stdout_bytes": 3886,
+    "request_count": 2,
+    "summary": "{'checkin': {'basis': 'Official English guidance; confirm earlier seasonal/vehicle requirements with booking instructions.', 'boarding_may_be_refused_within_minutes': 30, 'boarding_starts_minutes_before_departure': 60, 'recommended_arrival_minutes_before_departure': 60}, 'cancellation': [{'timing': '7 or more days before sailing', 'fixed_jpy': 200, 'source_url': 'https://www.sunflower.co.jp/stipulate/passenger/'}, {'timing': '6 through 2 days before sailing', 'percent': 10, 'minimum_jpy': 200, '",
+    "error": null
+  }
+]

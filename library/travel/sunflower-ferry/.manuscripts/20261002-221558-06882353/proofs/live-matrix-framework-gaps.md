@@ -1,0 +1,5 @@
+# Shared live-harness gaps
+
+The actual full matrix completed with all mandatory checks passing and zero failed. It also records skips/unverified checks, preserved verbatim in its JSON rather than represented as tested. Two generated local-learning commands, learnings confirm/reject, have no disposable candidate-ID fixture in the Press sandbox and are classified BLOCKED_FIXTURE (happy, JSON, real-error checks). This is a shared harness gap, not missing provider auth or a reason to downgrade the requested full matrix. The upstream machine should create disposable learning candidates before those checks. No candidate was guessed or manually fabricated in acceptance.
+
+Other skipped checks are inapplicable no-positional error paths, local mutating/destructive safety checks without allow-destructive, and generic framework non-ID positional cases. All six approved ferry novel commands have actual passing happy-path/JSON/dry-run/help checks; no approved feature is hollow. No reservation/write lifecycle was allowed.

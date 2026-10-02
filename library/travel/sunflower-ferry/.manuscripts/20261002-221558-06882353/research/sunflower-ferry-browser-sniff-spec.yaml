@@ -1,0 +1,32 @@
+name: sunflower-ferry
+description: Discovered API spec for booking-ferry-sunflower-co
+version: 0.1.0
+base_url: https://booking.ferry-sunflower.co.jp
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/sunflower-ferry-pp-cli/config.toml
+resources:
+    web:
+        description: Operations on IndexEnglish
+        endpoints:
+            list_IndexEnglish:
+                method: GET
+                path: /web/yoyaku/Reserve0000/IndexEnglish
+                description: Fetch structured links from /web/yoyaku/Reserve0000/IndexEnglish
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+types: {}

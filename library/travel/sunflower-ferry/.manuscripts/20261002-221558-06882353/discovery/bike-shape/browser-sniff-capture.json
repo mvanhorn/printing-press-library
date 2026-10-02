@@ -1,0 +1,52 @@
+{
+  "target_url": "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish",
+  "captured_at": "2026-10-02T16:28:19.574148+00:00",
+  "interaction_rounds": 3,
+  "auth": {
+    "type": "none"
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/IndexEnglish",
+      "request_headers": {},
+      "response_headers": {
+        "Content-Type": "text/html; charset=utf-8"
+      },
+      "request_body": "",
+      "response_status": 200,
+      "response_content_type": "text/html; charset=utf-8",
+      "classification": "",
+      "is_noise": false,
+      "response_body_archived_separately": true
+    },
+    {
+      "method": "POST",
+      "url": "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve0000/Reserve",
+      "request_headers": {},
+      "response_headers": {
+        "Content-Type": "text/html; charset=utf-8"
+      },
+      "request_body": "",
+      "response_status": 200,
+      "response_content_type": "text/html; charset=utf-8",
+      "classification": "",
+      "is_noise": false,
+      "response_body_archived_separately": true
+    },
+    {
+      "method": "POST",
+      "url": "https://booking.ferry-sunflower.co.jp/web/yoyaku/Reserve1030/MoveNext",
+      "request_headers": {},
+      "response_headers": {
+        "Content-Type": "text/html; charset=utf-8"
+      },
+      "request_body": "BikeWordingStartBoardingDate=2024%2F07%2F01%28Mon%29&Ouro_UseLiner=false&katamichiofuku=katamichi&Ouro_BoardingDate=2026%2F10%2F15%28Thu%29&Ouro_Line=22&JosenNaiyo=02&Car_Length=&RiyoNaiyo.Number_Of_Bike_Over750cc=1&RiyoNaiyo.Number_Of_Bike_Less750cc=0&RiyoNaiyo.Number_Of_Scooter=0&RiyoNaiyo.Number_Of_cycle=0&RiyoNaiyo.Number_Of_Adults=1&RiyoNaiyo.Number_Of_Children=0&RiyoNaiyo.Number_Of_Yoji=0&RiyoNaiyo.Number_Of_Nyuji=0&RiyoNaiyo.Number_Of_PetCage=0",
+      "response_status": 200,
+      "response_content_type": "text/html; charset=utf-8",
+      "classification": "",
+      "is_noise": false,
+      "response_body_archived_separately": true
+    }
+  ]
+}
