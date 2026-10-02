@@ -18,6 +18,9 @@ func TestScryfallAlternateKeysBackfillAndUpdate(t *testing.T) {
 	if err := db.Upsert("cards", "card-1", first); err != nil {
 		t.Fatal(err)
 	}
+	if _, err := db.DB().Exec(`INSERT INTO resources(resource_type,id,data) VALUES('cards','malformed','{')`); err != nil {
+		t.Fatal(err)
+	}
 	// Simulate a v9 mirror, before alternate keys existed.
 	if _, err := db.DB().Exec(`DROP TABLE resource_alt_keys`); err != nil {
 		t.Fatal(err)

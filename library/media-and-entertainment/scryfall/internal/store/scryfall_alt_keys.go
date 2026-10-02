@@ -73,14 +73,15 @@ func migrateScryfallAlternateKeys(ctx context.Context, conn *sql.Conn) error {
 		   AND j.type IN ('text','integer','real') AND CAST(j.value AS TEXT) <> ''`,
 		`INSERT OR IGNORE INTO resource_alt_keys(resource_type,kind,value,resource_id)
 		 SELECT 'cards','multiverse_ids',lower(CAST(j.value AS TEXT)),r.id
-		 FROM resources r, json_each(CASE WHEN json_valid(r.data) AND json_type(r.data,'$.multiverse_ids') = 'array'
-		  THEN json_extract(r.data,'$.multiverse_ids') ELSE '[]' END) j
+		 FROM resources r, json_each(CASE WHEN json_valid(r.data) THEN
+		  CASE WHEN json_type(r.data,'$.multiverse_ids') = 'array' THEN json_extract(r.data,'$.multiverse_ids') ELSE '[]' END
+		  ELSE '[]' END) j
 		 WHERE r.resource_type = 'cards' AND j.type IN ('text','integer','real') AND CAST(j.value AS TEXT) <> ''`,
 		`INSERT OR IGNORE INTO resource_alt_keys(resource_type,kind,value,resource_id)
-		 SELECT 'cards','set_collector',lower(CAST(json_extract(r.data,'$.set') AS TEXT)) || char(0) || lower(CAST(json_extract(r.data,'$.collector_number') AS TEXT)),r.id
-		 FROM resources r WHERE r.resource_type = 'cards' AND json_valid(r.data)
-		  AND json_type(r.data,'$.set') = 'text' AND json_type(r.data,'$.collector_number') IN ('text','integer','real')
-		  AND json_extract(r.data,'$.set') <> '' AND CAST(json_extract(r.data,'$.collector_number') AS TEXT) <> ''`,
+		 SELECT 'cards','set_collector',lower(CAST(json_extract(d.data,'$.set') AS TEXT)) || char(0) || lower(CAST(json_extract(d.data,'$.collector_number') AS TEXT)),d.id
+		 FROM (SELECT id, CASE WHEN json_valid(data) THEN data ELSE '{}' END AS data FROM resources WHERE resource_type = 'cards') d
+		 WHERE json_type(d.data,'$.set') = 'text' AND json_type(d.data,'$.collector_number') IN ('text','integer','real')
+		  AND json_extract(d.data,'$.set') <> '' AND CAST(json_extract(d.data,'$.collector_number') AS TEXT) <> ''`,
 	}
 	for _, statement := range statements {
 		if _, err := conn.ExecContext(ctx, statement); err != nil {
