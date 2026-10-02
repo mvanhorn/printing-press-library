@@ -87,6 +87,31 @@ func TestRedemptionsSuggestProfileSwitchIgnoresSharedHistoryAndCache(t *testing.
 	}
 }
 
+func TestRedemptionsSuggestAcceptsBareArrayHistory(t *testing.T) {
+	t.Setenv("BONUSLY_HOME", t.TempDir())
+	var historyRequests int
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/users/me":
+			fmt.Fprint(w, `{"result":{"id":"B","earning_balance":20}}`)
+		case "/users/B/redemptions":
+			historyRequests++
+			fmt.Fprint(w, `[{"reward_name":"B live reward","state":"fulfilled","created_at":"2026-02-01"}]`)
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer srv.Close()
+	c := client.New(&config.Config{BaseURL: srv.URL, BonuslyApiToken: "B"}, time.Second, 0)
+	account, history, err := fetchRedemptionSuggestionInputs(t.Context(), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(account) == 0 || len(history) != 1 || history[0].RewardName != "B live reward" || historyRequests != 1 || c.NoCache {
+		t.Fatalf("bare-array redemption history did not load from the selected account: rows=%d requests=%d cache-disabled=%t", len(history), historyRequests, c.NoCache)
+	}
+}
+
 func TestRedemptionsSuggestFailuresNeverFallBackToUnownedData(t *testing.T) {
 	t.Setenv("BONUSLY_HOME", t.TempDir())
 	seedUnownedRedemptionHistory(t)

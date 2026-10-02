@@ -38,8 +38,10 @@ func fetchRedemptionSuggestionInputs(ctx context.Context, c *client.Client) (jso
 		return nil, nil, fmt.Errorf("authenticated account response did not contain a user id")
 	}
 	path := replacePathParam("/users/{id}/redemptions", "id", user.ID)
-	data, err := paginatedGetWithResponsePath(ctx, c, path, map[string]string{"limit": "100"}, nil,
-		true, "cursor", "cursor", "limit", 100, "cursor", "meta.has_more", "result")
+	// The endpoint may return a bare array or an object with a result array.
+	// The generic paginator recognizes both without a forced response path.
+	data, err := paginatedGet(ctx, c, path, map[string]string{"limit": "100"}, nil,
+		true, "cursor", "cursor", "limit", 100, "cursor", "meta.has_more")
 	if err != nil {
 		return nil, nil, err
 	}

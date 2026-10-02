@@ -1,6 +1,7 @@
 # Bonusly CLI
 
-Created by Allen Lew (@enlewof). Redemption suggestion account isolation contributed by Cathryn Lavery (@cathrynlavery).
+Created by Allen Lew (@enlewof).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 **The recognition analytics Bonusly reserves for admins -- rebuilt from data any employee can already read.**
 

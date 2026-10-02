@@ -15,6 +15,6 @@
     "NOTICE",
     ".printing-press.json"
   ],
-  "validated_outcome": "Local HTTP tests switch accounts after seeding unowned mirror and response-cache data; suggestions show only the authenticated account. Authentication and network errors return no stale data.",
+  "validated_outcome": "Local HTTP tests switch accounts after seeding unowned mirror and response-cache data; suggestions show only the authenticated account. Tests cover enveloped and bare-array history responses. Authentication and network errors return no stale data.",
   "safety": "The command requires live read access and fails closed instead of falling back to unowned local rows. Tests use only a local mock server."
 }
