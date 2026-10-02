@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"math"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
@@ -59,6 +60,8 @@ func TestCatalogQueryValidateRejectsInvalidOptions(t *testing.T) {
 		{name: "zero limit", q: catalogQuery{sortBy: "relevance", limit: 0}},
 		{name: "oversize limit", q: catalogQuery{sortBy: "relevance", limit: 101}},
 		{name: "negative max price", q: catalogQuery{sortBy: "relevance", limit: 20, maxPrice: -1}},
+		{name: "NaN max price", q: catalogQuery{sortBy: "relevance", limit: 20, maxPrice: math.NaN()}},
+		{name: "infinite max price", q: catalogQuery{sortBy: "relevance", limit: 20, maxPrice: math.Inf(1)}},
 		{name: "unknown sort", q: catalogQuery{sortBy: "popular", limit: 20}},
 	}
 	if err := valid.validate(); err != nil {

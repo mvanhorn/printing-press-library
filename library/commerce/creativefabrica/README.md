@@ -10,7 +10,7 @@ Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery
 
 Other contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
-Catalog options are checked before a search. `new-since` saves its tracking snapshot only after output and any requested delivery succeed. `doctor` checks whether the catalog search key can reach the catalog.
+Catalog options are checked before a search. `new-since` accepts a tracking limit from 20 to 100 and saves its snapshot only after output and any requested delivery succeed. `doctor` checks whether the catalog search key can reach the catalog, except in `--dry-run`, and respects `--timeout` during retries. `which` rejects combinations of `--json` or `--agent` with `--plain` or `--quiet` so the output format is unambiguous.
 
 ## Why this exists
 

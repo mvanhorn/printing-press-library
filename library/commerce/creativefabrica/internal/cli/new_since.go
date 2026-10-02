@@ -37,6 +37,9 @@ This tracks the public catalog, not a personal library (which is not in scope).`
 				_ = cmd.Usage()
 				return usageErr(fmt.Errorf("provide a query or --designer to track"))
 			}
+			if limit < 20 || limit > 100 {
+				return usageErr(fmt.Errorf("--limit must be between 20 and 100"))
+			}
 			key := "q:" + query + "|d:" + designer + "|t:" + itemType
 			store := snapshot.Open("")
 			q := catalogQuery{query: query, designer: designer, itemType: itemType, sortBy: "newest", limit: limit}
@@ -51,7 +54,7 @@ This tracks the public catalog, not a personal library (which is not in scope).`
 			defer cancel()
 			c := newAlgoliaClient(flags)
 			req := q.request()
-			req.HitsPerPage = clampInt(limit, 20, 100)
+			req.HitsPerPage = limit
 			results, err := c.Search(ctx, req)
 			if err != nil {
 				return apiErr(err)

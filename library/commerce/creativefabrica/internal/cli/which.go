@@ -153,6 +153,9 @@ Exit codes:
 			if len(whichIndex) == 0 {
 				return usageErr(fmt.Errorf("this CLI has no curated capability index; run '--help' to see every command"))
 			}
+			if err := validateWhichOutputFlags(flags); err != nil {
+				return err
+			}
 			if limit <= 0 {
 				return usageErr(fmt.Errorf("--limit must be greater than zero"))
 			}
@@ -195,7 +198,17 @@ func rankWhichAll(index []whichEntry) []whichMatch {
 }
 
 func renderWhich(cmd *cobra.Command, flags *rootFlags, matches []whichMatch) error {
+	if err := validateWhichOutputFlags(flags); err != nil {
+		return err
+	}
 	w := cmd.OutOrStdout()
+	if flags.asJSON || (!flags.quiet && !flags.plain && !isTerminal(w)) {
+		// The object envelope preserves entry and score under --compact.
+		if matches == nil {
+			matches = []whichMatch{}
+		}
+		return printJSONFiltered(w, map[string]any{"matches": matches}, flags)
+	}
 	if flags.quiet {
 		for _, m := range matches {
 			if _, err := fmt.Fprintln(w, m.Entry.Command); err != nil {
@@ -212,27 +225,16 @@ func renderWhich(cmd *cobra.Command, flags *rootFlags, matches []whichMatch) err
 		}
 		return nil
 	}
-	// Output shape follows the same rule as every other generated
-	// command: JSON when the caller asked for it OR when stdout is not
-	// a terminal; table when a human is looking.
-	asJSON := flags.asJSON
-	if !asJSON && !isTerminal(w) {
-		asJSON = true
-	}
-	if asJSON {
-		// JSON envelope: {matches: [...]}. The wrap is critical:
-		// printJSONFiltered's --compact path uses compactListFields
-		// (allowlist) for top-level arrays, which would strip
-		// entry/score keys; routing through compactObjectFields
-		// (blocklist) via an object envelope preserves them.
-		if matches == nil {
-			matches = []whichMatch{}
-		}
-		return printJSONFiltered(w, map[string]any{"matches": matches}, flags)
-	}
 	fmt.Fprintf(w, "%-24s  %-8s  %s\n", "COMMAND", "SCORE", "DESCRIPTION")
 	for _, m := range matches {
 		fmt.Fprintf(w, "%-24s  %-8d  %s\n", m.Entry.Command, m.Score, m.Entry.Description)
+	}
+	return nil
+}
+
+func validateWhichOutputFlags(flags *rootFlags) error {
+	if flags.asJSON && (flags.quiet || flags.plain) {
+		return usageErr(fmt.Errorf("which cannot combine --json or --agent with --quiet or --plain"))
 	}
 	return nil
 }

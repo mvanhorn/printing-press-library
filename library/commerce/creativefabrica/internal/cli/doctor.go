@@ -230,9 +230,13 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			// Catalog commands use the public Algolia search key rather than
 			// the generated liveness client. Exercise a minimal query so doctor
 			// catches missing, rotated, or rejected catalog credentials.
-			if cfg != nil {
+			if cfg != nil && flags.dryRun {
+				report["catalog"] = "skipped (dry run)"
+			} else if cfg != nil {
+				ctx, cancel := boundCtx(cmd.Context(), flags)
+				defer cancel()
 				catalogClient := newAlgoliaClient(flags)
-				_, catalogErr := catalogClient.Search(cmd.Context(), algolia.SearchRequest{
+				_, catalogErr := catalogClient.Search(ctx, algolia.SearchRequest{
 					IndexName:   algolia.IndexRelevance,
 					HitsPerPage: 1,
 				})

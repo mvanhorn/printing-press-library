@@ -6,6 +6,7 @@ package cli
 import (
 	"context"
 	"fmt"
+	"math"
 	"os"
 	"sort"
 	"strconv"
@@ -62,8 +63,8 @@ func (q catalogQuery) validate() error {
 	if q.limit < 1 || q.limit > 100 {
 		return fmt.Errorf("--limit must be between 1 and 100")
 	}
-	if q.maxPrice < 0 {
-		return fmt.Errorf("--max-price must be zero or greater")
+	if math.IsNaN(q.maxPrice) || math.IsInf(q.maxPrice, 0) || q.maxPrice < 0 {
+		return fmt.Errorf("--max-price must be a finite number, zero or greater")
 	}
 	switch strings.ToLower(strings.TrimSpace(q.sortBy)) {
 	case "relevance", "newest":

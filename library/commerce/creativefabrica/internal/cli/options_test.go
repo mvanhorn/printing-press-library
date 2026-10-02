@@ -18,6 +18,7 @@ func TestNovelCommandsRejectInvalidLimitsBeforeNetwork(t *testing.T) {
 		{name: "deals zero limit", cmd: newNovelDealsCmd, args: []string{"--limit", "0"}, want: "--limit"},
 		{name: "deals negative pages", cmd: newNovelDealsCmd, args: []string{"--max-scan-pages", "-1"}, want: "--max-scan-pages"},
 		{name: "tags negative sample", cmd: newNovelTagsCmd, args: []string{"query", "--sample", "-1"}, want: "--sample"},
+		{name: "new-since below minimum", cmd: newNovelNewSinceCmd, args: []string{"query", "--limit", "1"}, want: "--limit must be between 20 and 100"},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
