@@ -231,34 +231,44 @@ func TestLegacyInventoryLinkCanUseSlugEvenWithName(t *testing.T) {
 
 func TestUpgradeSkipsDisplayNameSharedByTwoVINs(t *testing.T) {
 	const otherVIN = "5YJ3E1EA7KF318000"
-	dbPath := filepath.Join(t.TempDir(), "inventory.db")
-	s, err := Open(dbPath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	legacy := json.RawMessage(`{"name":"Model 3","url":"https://teslatracker.com/inventory/5YJ3E1EA7KF317000"}`)
-	if err := s.Upsert("inventory", "Model 3", legacy); err != nil {
-		t.Fatal(err)
-	}
-	if err := s.Upsert("inventory", otherVIN, json.RawMessage(`{"vin":"5YJ3E1EA7KF318000","name":"Model 3"}`)); err != nil {
-		t.Fatal(err)
-	}
-	if _, err := s.DB().Exec(`PRAGMA user_version = 9`); err != nil {
-		t.Fatal(err)
-	}
-	if err := s.Close(); err != nil {
-		t.Fatal(err)
-	}
-	s, err = Open(dbPath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer s.Close()
-	if got, err := s.Get("inventory", "Model 3"); err != nil || string(got) != string(legacy) {
-		t.Fatalf("ambiguous legacy listing = %s, %v", got, err)
-	}
-	var aliasCount int
-	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM resource_id_aliases WHERE resource_type = 'inventory' AND old_id = 'Model 3'`).Scan(&aliasCount); err != nil || aliasCount != 0 {
-		t.Fatalf("ambiguous alias count = %d, %v", aliasCount, err)
+	for _, tc := range []struct {
+		name, oldID string
+		legacy      json.RawMessage
+		other       json.RawMessage
+	}{
+		{"name", "Model 3", json.RawMessage(`{"name":"Model 3","url":"https://teslatracker.com/inventory/5YJ3E1EA7KF317000"}`), json.RawMessage(`{"vin":"5YJ3E1EA7KF318000","name":"Model 3"}`)},
+		{"key", "listing-3", json.RawMessage(`{"key":"listing-3","url":"https://teslatracker.com/inventory/5YJ3E1EA7KF317000"}`), json.RawMessage(`{"vin":"5YJ3E1EA7KF318000","key":"listing-3"}`)},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			dbPath := filepath.Join(t.TempDir(), "inventory.db")
+			s, err := Open(dbPath)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := s.Upsert("inventory", tc.oldID, tc.legacy); err != nil {
+				t.Fatal(err)
+			}
+			if err := s.Upsert("inventory", otherVIN, tc.other); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := s.DB().Exec(`PRAGMA user_version = 9`); err != nil {
+				t.Fatal(err)
+			}
+			if err := s.Close(); err != nil {
+				t.Fatal(err)
+			}
+			s, err = Open(dbPath)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer s.Close()
+			if got, err := s.Get("inventory", tc.oldID); err != nil || string(got) != string(tc.legacy) {
+				t.Fatalf("ambiguous legacy listing = %s, %v", got, err)
+			}
+			var aliasCount int
+			if err := s.DB().QueryRow(`SELECT COUNT(*) FROM resource_id_aliases WHERE resource_type = 'inventory' AND old_id = ?`, tc.oldID).Scan(&aliasCount); err != nil || aliasCount != 0 {
+				t.Fatalf("ambiguous alias count = %d, %v", aliasCount, err)
+			}
+		})
 	}
 }

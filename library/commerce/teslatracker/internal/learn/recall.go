@@ -562,6 +562,11 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 
 	sortHits(hits)
 	sortHits(mismatches)
+	// A legacy display-name learning and a VIN-keyed learning may both
+	// resolve to the same inventory record. Keep both taught rows in the
+	// database, but emit one ranked action for the vehicle.
+	hits = dedupeInventoryActions(hits)
+	mismatches = dedupeInventoryActions(mismatches)
 
 	if len(hits) > limit {
 		hits = hits[:limit]
@@ -746,6 +751,22 @@ func sortHits(hits []Hit) {
 		}
 		return ai.After(aj)
 	})
+}
+
+func dedupeInventoryActions(hits []Hit) []Hit {
+	seen := make(map[string]struct{})
+	out := hits[:0]
+	for _, hit := range hits {
+		if hit.ResourceType == "inventory" {
+			key := hitKey(hit.ResourceType, hit.ResourceID) + "\x00" + hit.Action
+			if _, duplicate := seen[key]; duplicate {
+				continue
+			}
+			seen[key] = struct{}{}
+		}
+		out = append(out, hit)
+	}
+	return out
 }
 
 func sourcePriority(source string) int {

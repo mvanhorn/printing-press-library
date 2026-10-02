@@ -36,7 +36,7 @@ func migrateInventoryLinkIDs(ctx context.Context, conn *sql.Conn) error {
 			vin = ResourceIDString(obj["vin"])
 		}
 		if vin != "" {
-			for _, key := range []string{"name", "slug"} {
+			for _, key := range genericDescriptiveIDFieldFallbacks {
 				if descriptiveID := ResourceIDString(obj[key]); descriptiveID != "" {
 					if seenIDs[descriptiveID] == nil {
 						seenIDs[descriptiveID] = make(map[string]struct{})

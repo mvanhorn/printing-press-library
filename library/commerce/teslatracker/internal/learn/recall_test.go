@@ -137,9 +137,12 @@ func TestRecallInventoryAliasPreservesBothTaughtRows(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(got.Results) != 2 || got.Results[0].ResourceID != vin || got.Results[1].ResourceID != vin ||
-		got.Results[0].LearningID == got.Results[1].LearningID || got.Results[0].Confidence != 5 || got.Results[1].Confidence != 2 {
-		t.Fatalf("both learned rows must resolve to one VIN without losing metadata: %+v", got.Results)
+	if len(got.Results) != 1 || got.Results[0].ResourceID != vin || got.Results[0].Confidence != 5 {
+		t.Fatalf("one highest-ranked VIN action should be returned: %+v", got.Results)
+	}
+	var storedRows int
+	if err := db.QueryRow(`SELECT COUNT(*) FROM search_learnings WHERE resource_type = 'inventory' AND resource_id IN ('Model 3', ?)`, vin).Scan(&storedRows); err != nil || storedRows != 2 {
+		t.Fatalf("both taught rows must remain stored: %d, %v", storedRows, err)
 	}
 }
 
