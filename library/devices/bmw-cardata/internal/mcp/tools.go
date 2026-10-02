@@ -514,21 +514,24 @@ func newMCPClientWithTokenURL(tokenURL string) (*client.Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-	if err := cli.RefreshCardataAccessTokenIfNeeded(ctx, cfg, time.Now(), tokenURL); err != nil {
-		// OAuth responses can include provider-controlled details. Keep MCP
-		// errors actionable without reflecting response bodies or credentials
-		// into an agent transcript.
-		if errors.Is(err, cli.ErrCardataLoginRequired) {
-			return nil, fmt.Errorf("BMW CarData OAuth credential expired; run 'bmw-cardata-pp-cli auth login' again")
+	if !cliutil.IsVerifyEnv() {
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+		if err := cli.RefreshCardataAccessTokenIfNeeded(ctx, cfg, time.Now(), tokenURL); err != nil {
+			// OAuth responses can include provider-controlled details. Keep MCP
+			// errors actionable without reflecting response bodies or credentials
+			// into an agent transcript.
+			if errors.Is(err, cli.ErrCardataLoginRequired) {
+				return nil, fmt.Errorf("BMW CarData OAuth credential expired; run 'bmw-cardata-pp-cli auth login' again")
+			}
+			if errors.Is(err, cli.ErrCardataRefreshUnavailable) {
+				return nil, fmt.Errorf("BMW CarData OAuth refresh is temporarily unavailable; retry shortly")
+			}
+			return nil, fmt.Errorf("BMW CarData OAuth refresh failed; check local config access and retry")
 		}
-		if errors.Is(err, cli.ErrCardataRefreshUnavailable) {
-			return nil, fmt.Errorf("BMW CarData OAuth refresh is temporarily unavailable; retry shortly")
-		}
-		return nil, fmt.Errorf("BMW CarData OAuth refresh failed; check local config access and retry")
 	}
 	c := client.New(cfg, 60*time.Second, defaultMCPRateLimit)
+	c.DryRun = cliutil.IsVerifyEnv() && !cliutil.IsVerifyLiveHTTPEnv()
 	// Agents calling through MCP need fresh data every call. The on-disk
 	// response cache survives across MCP server invocations, so a
 	// DELETE/PATCH followed by a GET would otherwise return the

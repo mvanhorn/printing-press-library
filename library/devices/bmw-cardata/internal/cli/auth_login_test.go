@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
@@ -30,6 +31,60 @@ func testIDToken(expiry time.Time) string {
 type testRoundTripFunc func(*http.Request) (*http.Response, error)
 
 func (f testRoundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) { return f(req) }
+
+func TestNewClientPreviewAndLocalModesDoNotRefreshOAuth(t *testing.T) {
+	for _, tc := range []struct {
+		name, verify, liveHTTP, dataSource string
+		dryRun, wantClientDryRun           bool
+	}{
+		{"dry-run", "", "", "", true, true},
+		{"verify", "1", "", "", false, true},
+		{"verify-mock-live", "1", "1", "", false, false},
+		{"local", "", "", "local", false, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			home := t.TempDir()
+			t.Setenv("HOME", home)
+			t.Setenv("USERPROFILE", home)
+			t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "")
+			t.Setenv("PRINTING_PRESS_VERIFY", tc.verify)
+			t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", tc.liveHTTP)
+			cfg, err := config.Load(filepath.Join(home, "config.toml"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := cfg.SaveTokens("client", "", "expired-access", "single-use-refresh", time.Now().Add(-time.Hour)); err != nil {
+				t.Fatal(err)
+			}
+			before, err := os.ReadFile(cfg.Path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			var calls atomic.Int32
+			previous := http.DefaultTransport
+			http.DefaultTransport = testRoundTripFunc(func(*http.Request) (*http.Response, error) {
+				calls.Add(1)
+				return nil, fmt.Errorf("unexpected OAuth request")
+			})
+			t.Cleanup(func() { http.DefaultTransport = previous })
+			flags := &rootFlags{configPath: cfg.Path, dryRun: tc.dryRun, dataSource: tc.dataSource, timeout: time.Second}
+			client, err := flags.newClient()
+			if err != nil {
+				t.Fatal(err)
+			}
+			if calls.Load() != 0 || client.DryRun != tc.wantClientDryRun {
+				t.Fatalf("preview/local mode attempted refresh or had wrong dry-run setting: calls=%d dry_run=%v", calls.Load(), client.DryRun)
+			}
+			after, err := os.ReadFile(cfg.Path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !bytes.Equal(before, after) {
+				t.Fatal("preview/local mode changed saved OAuth credentials")
+			}
+		})
+	}
+}
 
 func TestRefreshCardataAccessTokenPersistsRotatedCredential(t *testing.T) {
 	t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "")

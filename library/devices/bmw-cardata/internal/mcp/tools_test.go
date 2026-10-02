@@ -4,9 +4,12 @@
 package mcp
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -52,6 +55,52 @@ func TestNewMCPClientRefreshesExpiredPersistedOAuth(t *testing.T) {
 	}
 	if c.Config.AccessToken != "fresh-access" || c.Config.RefreshToken != "rotated-refresh" {
 		t.Fatalf("MCP client did not receive refreshed credentials")
+	}
+}
+
+func TestMCPVerifyPreviewSkipsOAuthRefreshAndProviderCalls(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+	t.Setenv("BMW_CARDATA_ACCESS_TOKEN", "")
+	t.Setenv("PRINTING_PRESS_VERIFY", "1")
+	t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "")
+	cfg, err := config.Load("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := cfg.SaveTokens("client", "", "expired-access", "single-use-refresh", time.Now().Add(-time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	before, err := os.ReadFile(cfg.Path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var calls int
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		calls++
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer server.Close()
+	c, err := newMCPClientWithTokenURL(server.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !c.DryRun {
+		t.Fatal("verify preview did not set client dry-run")
+	}
+	if _, err := c.Get(context.Background(), "/customers/vehicles/mappings", nil); err != nil {
+		t.Fatal(err)
+	}
+	if calls != 0 {
+		t.Fatalf("verify preview made %d provider requests", calls)
+	}
+	after, err := os.ReadFile(cfg.Path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(before, after) {
+		t.Fatal("verify preview changed saved OAuth credentials")
 	}
 }
 
