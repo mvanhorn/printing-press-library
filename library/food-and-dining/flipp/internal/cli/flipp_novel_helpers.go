@@ -204,15 +204,16 @@ type unitPriceInfo struct {
 }
 
 var quantityPattern = regexp.MustCompile(`(?i)((?:\d+\s+)?\d+\s*/\s*\d+|\d+(?:\.\d+)?)\s*(kg|g|l|ml|fl\s*oz|floz|fz|oz|lb|lbs|gal|gallon|gallons|qt|quart|quarts|pt|pint|pints)\b`)
+var mixedQuantityPattern = regexp.MustCompile(`^(\d+)\s+(\d+\s*/\s*\d+)$`)
 
 func parseQuantitySize(value string) (float64, error) {
 	value = strings.TrimSpace(value)
-	if fields := strings.Fields(value); len(fields) == 2 && strings.Contains(fields[1], "/") {
-		whole, err := strconv.ParseFloat(fields[0], 64)
+	if parts := mixedQuantityPattern.FindStringSubmatch(value); len(parts) == 3 {
+		whole, err := strconv.ParseFloat(parts[1], 64)
 		if err != nil {
 			return 0, err
 		}
-		fraction, err := parseQuantitySize(fields[1])
+		fraction, err := parseQuantitySize(parts[2])
 		if err != nil {
 			return 0, err
 		}

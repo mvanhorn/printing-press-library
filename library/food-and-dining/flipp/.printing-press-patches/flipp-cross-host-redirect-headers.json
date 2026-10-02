@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "flipp-cross-host-redirect-headers",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260627-124259-5ec5d802",
+  "base_printing_press_version": "4.27.0",
+  "summary": "Strip configured authentication headers when a Flipp API redirect crosses to another host.",
+  "reason": "A cross-host redirect must not forward configured credentials to an unrelated destination.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/client_test.go"
+  ]
+}

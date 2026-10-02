@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "flipp-mixed-quantity-unit-price",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260627-124259-5ec5d802",
+  "base_printing_press_version": "4.27.0",
+  "summary": "Parse mixed-number grocery package sizes, including spaces around the fraction slash, before computing unit prices.",
+  "reason": "A listing such as 1 1/ 2 gallons otherwise becomes 5.5 gallons and ranks at the wrong unit price.",
+  "files": [
+    "internal/cli/flipp_novel_helpers.go",
+    "internal/cli/unit_price_test.go"
+  ]
+}
