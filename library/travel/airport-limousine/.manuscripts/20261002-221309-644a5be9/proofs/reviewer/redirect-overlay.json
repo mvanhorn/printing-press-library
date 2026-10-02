@@ -1,5 +1,5 @@
 {
   "Replace": {
-    "<run-dir>/working/airport-limousine-pp-cli/internal/limousine/redirect_budget_review_test.go": "<run-dir>/proofs/reviewer/redirect_budget_review_test.go"
+    "<cli-dir>/internal/limousine/redirect_budget_review_test.go": "<proof-dir>/redirect_budget_review_test.go"
   }
 }

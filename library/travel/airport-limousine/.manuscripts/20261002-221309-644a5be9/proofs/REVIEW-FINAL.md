@@ -18,7 +18,7 @@ The Fetch counter and limiter cover the original request only. The HTTP client p
 Independent deterministic reproduction uses the real Provider.New redirect policy and a fake RoundTripper, with no network and no implementation edits. The overlay test is saved under `proofs/reviewer/`:
 
 ```bash
-go test -overlay <run-dir>/proofs/reviewer/redirect-overlay.json ./internal/limousine -run TestReviewRedirectBudgetCountsWireRequests -count=1 -v
+python3 .manuscripts/20261002-221309-644a5be9/proofs/reviewer/replay_redirect_review.py
 ```
 
 Current result: `wire_requests=9 reported_requests=3 last_error=<nil>`; test fails. The transport follows only redirects allowed by the existing HTTPS-origin policy. Count and pace redirects under the same budget before permitting them, or reject redirects if that matches the supported source contract. Reuse this overlay test to verify the fix.
@@ -51,3 +51,5 @@ At the latest reviewed `proofs/shipcheck.json` (started 2026-10-02T15:39:24Z), v
 
 Final review clearance requires the redirect-budget fix, stable removal of the empty README config path, and verification of the required canonical gate result.
 
+
+The public overlay contains portable `<cli-dir>` and `<proof-dir>` tokens. The replay command expands them from its own location, writes a private temporary overlay, runs both independent regressions, and deletes the expanded overlay afterward. Run the command from this CLI module directory.
