@@ -26,6 +26,18 @@ func TestSearchRequiresExplicitZIP(t *testing.T) {
 	}
 }
 
+func TestFlyerItemsRejectsLocalReadWithoutMarket(t *testing.T) {
+	cmd := newFlyersItemsCmd(&rootFlags{dataSource: "local"})
+	cmd.SetArgs([]string{"8005907"})
+	var output bytes.Buffer
+	cmd.SetOut(&output)
+	cmd.SetErr(&output)
+	err := cmd.Execute()
+	if err == nil || !strings.Contains(err.Error(), "no local data source") {
+		t.Fatalf("flyer items local read = %v, want live-only error", err)
+	}
+}
+
 func TestSearchLocalSeparatesWriteThroughItemsByMarket(t *testing.T) {
 	dataDir := t.TempDir()
 	t.Setenv("FLIPP_DATA_DIR", dataDir)

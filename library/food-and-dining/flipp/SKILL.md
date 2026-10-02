@@ -207,6 +207,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
 - **Market scoped** — provide `--postal-code` for sync and archive, and `--zip` for search. Local flyer, merchant, and cached item results use that market only; older rows without a saved location require a fresh sync.
+- **Flyer clippings** — `flyers items <flyer_id>` reads live only because that endpoint supplies no postal code for safe offline caching.
 - **Non-interactive** — never prompts, every input is a flag
 - **Read-only** — do not use this CLI for create, update, delete, publish, comment, upvote, invite, order, send, or other mutating requests
 

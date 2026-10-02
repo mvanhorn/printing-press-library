@@ -53,7 +53,10 @@ func newFlyersItemsCmd(flags *rootFlags) *cobra.Command {
 			if flagLocale != "" {
 				params["locale"] = formatCLIParamValue(flagLocale)
 			}
-			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "flyers", false, path, params, nil, "", cmd.ErrOrStderr())
+			// This endpoint takes a flyer ID and session ID, but no market.
+			// Its clippings cannot be assigned to a postal-code partition, so
+			// keep the response live-only instead of caching it as a flyer.
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "live", "flyers", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

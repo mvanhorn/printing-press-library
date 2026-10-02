@@ -743,7 +743,18 @@ func syncResource(ctx context.Context, c interface {
 
 		// Determine if there are more pages.
 		if !resourceSupportsPagination(resource) {
-			outcome.complete = true // resource declares no pagination: one page is the whole set
+			if hasMore || nextCursor != "" {
+				// The spec declares no paginator for this endpoint. If a live
+				// response nevertheless advertises another page, the first page
+				// is not a complete archive and guessing a cursor parameter would
+				// risk silently skipping data.
+				outcome.reason = "pagination_unhandled"
+				if !humanFriendly {
+					fmt.Fprintf(syncEvents, `{"event":"sync_warning","resource":"%s","reason":"pagination_unhandled","message":"API advertised another page but this endpoint declares no paginator; archive is incomplete."}`+"\n", resource)
+				}
+			} else {
+				outcome.complete = true
+			}
 			break
 		}
 		if !hasMore || len(items) < pageSize.limit {

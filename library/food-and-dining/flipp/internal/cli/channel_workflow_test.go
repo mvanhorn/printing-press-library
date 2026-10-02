@@ -98,6 +98,29 @@ func TestWorkflowArchiveRejectsIncompleteResource(t *testing.T) {
 	}
 }
 
+func TestWorkflowArchiveRejectsUnexpectedNextPage(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if r.URL.Path == "/flyers" {
+			_, _ = fmt.Fprint(w, `{"items":[{"id":"f1","name":"First page"}],"has_more":true,"next_cursor":"page-2"}`)
+			return
+		}
+		_, _ = fmt.Fprint(w, `[{"id":"m1","name":"Merchant"}]`)
+	}))
+	defer server.Close()
+	t.Setenv("FLIPP_BASE_URL", server.URL)
+
+	flags := &rootFlags{configPath: filepath.Join(t.TempDir(), "missing.toml")}
+	cmd := newWorkflowArchiveCmd(flags)
+	cmd.SetArgs([]string{"--postal-code", "10001", "--db", filepath.Join(t.TempDir(), "archive.db")})
+	var output bytes.Buffer
+	cmd.SetOut(&output)
+	cmd.SetErr(&output)
+	if err := cmd.Execute(); err == nil || !strings.Contains(err.Error(), "pagination_unhandled") {
+		t.Fatalf("archive next-page error = %v, want incomplete enumeration (%s)", err, output.String())
+	}
+}
+
 func TestWorkflowArchiveDryRunPreservesCursor(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "archive.db")
 	db, err := store.Open(dbPath)
