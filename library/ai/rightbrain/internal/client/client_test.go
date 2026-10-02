@@ -137,6 +137,7 @@ func TestRedactSensitiveJSONRecursively(t *testing.T) {
 		"auth_secret": "distinctive-webhook-secret",
 		"nested": map[string]any{
 			"access-token": "access-value",
+			"config_sensitive": map[string]any{"signing_key": "distinctive-signing-key"},
 			"children":     []any{map[string]any{"private_key": "key-value", "safe": "visible"}},
 		},
 	}
@@ -147,6 +148,9 @@ func TestRedactSensitiveJSONRecursively(t *testing.T) {
 	nested := got["nested"].(map[string]any)
 	if nested["access-token"] != redactedJSONValue {
 		t.Fatalf("nested token was not redacted: %#v", nested)
+	}
+	if nested["config_sensitive"].(map[string]any)["signing_key"] != redactedJSONValue {
+		t.Fatalf("nested signing key was not redacted: %#v", nested)
 	}
 	child := nested["children"].([]any)[0].(map[string]any)
 	if child["private_key"] != redactedJSONValue || child["safe"] != "visible" {

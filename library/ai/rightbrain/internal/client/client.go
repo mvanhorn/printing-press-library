@@ -940,7 +940,7 @@ func redactSensitiveJSON(value any) any {
 
 func isSensitiveJSONKey(key string) bool {
 	normalized := strings.NewReplacer("-", "", "_", "", ".", "").Replace(strings.ToLower(key))
-	for _, marker := range []string{"secret", "token", "password", "authorization", "credential", "privatekey", "apikey"} {
+	for _, marker := range []string{"secret", "token", "password", "authorization", "credential", "privatekey", "apikey", "signingkey"} {
 		if strings.Contains(normalized, marker) {
 			return true
 		}

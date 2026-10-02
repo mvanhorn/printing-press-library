@@ -123,6 +123,10 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 </details>
 
+### MCP over HTTP
+
+Set `PP_MCP_HTTP_TOKEN` in the server environment before starting `rightbrain-pp-mcp --transport http`. Send that token in the `Authorization: Bearer <token>` header on every request. The server listens on `127.0.0.1:7777` by default. To bind outside the local machine, provide both `--tls-cert` and `--tls-key` and use HTTPS.
+
 ## Authentication
 
 Rightbrain authenticates every request with `Authorization: Bearer <token>`. The simplest path is an API key created under Settings -> API Clients in the dashboard: set `RB_API_KEY`, plus `RB_ORG_ID` and `RB_PROJECT_ID` for the project it is scoped to. Those are the same three variables Rightbrain's own `rightbrain init` writes into `.env`, so an existing setup works unchanged. For service-to-service use, mint an OAuth 2.0 access token yourself at `https://oauth.rightbrain.ai/oauth2/token` and hand the result to this CLI as `RB_API_KEY` or via `auth set-token` — the CLI consumes an already-minted bearer token and does not perform the exchange for you. Org and project always come from the URL path rather than the token, which is why this CLI keeps them in config and injects them for you. Run `rightbrain-pp-cli doctor` to confirm credentials, reachability, and cache state in one shot.
