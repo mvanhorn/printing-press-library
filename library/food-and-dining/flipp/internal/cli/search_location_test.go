@@ -4,6 +4,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"path/filepath"
 	"strings"
@@ -22,6 +23,48 @@ func TestSearchRequiresExplicitZIP(t *testing.T) {
 	err := cmd.Execute()
 	if err == nil || !strings.Contains(err.Error(), "--zip is required") {
 		t.Fatalf("search error = %v, want required ZIP", err)
+	}
+}
+
+func TestSearchLocalSeparatesWriteThroughItemsByMarket(t *testing.T) {
+	dataDir := t.TempDir()
+	t.Setenv("FLIPP_DATA_DIR", dataDir)
+	for _, market := range []struct {
+		postalCode, name string
+	}{
+		{postalCode: "10001", name: "East coffee"},
+		{postalCode: "94105", name: "West coffee"},
+	} {
+		item, err := json.Marshal([]map[string]string{{"id": "same", "name": market.name}})
+		if err != nil {
+			t.Fatal(err)
+		}
+		writeThroughCache(context.Background(), "items", item, map[string]string{
+			"postal_code": market.postalCode,
+			"locale":      "en-us",
+		})
+	}
+
+	cmd := RootCmd()
+	cmd.SetArgs([]string{"search", "coffee", "--type", "items", "--zip", "10001", "--data-source", "local", "--json"})
+	var output bytes.Buffer
+	cmd.SetOut(&output)
+	cmd.SetErr(&output)
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("local item search: %v (%s)", err, output.String())
+	}
+	if !strings.Contains(output.String(), "East coffee") || strings.Contains(output.String(), "West coffee") {
+		t.Fatalf("local item market search = %s", output.String())
+	}
+
+	db, err := store.Open(filepath.Join(dataDir, "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	var count int
+	if err := db.DB().QueryRow(`SELECT COUNT(*) FROM resources WHERE resource_type='items'`).Scan(&count); err != nil || count != 2 {
+		t.Fatalf("cached item rows = %d, %v; want both markets", count, err)
 	}
 }
 

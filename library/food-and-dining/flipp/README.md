@@ -334,7 +334,7 @@ flipp-pp-cli search "coffee" --zip 10001 --data-source local
 flipp-pp-cli workflow archive --postal-code 10001
 ```
 
-The local database keeps flyers and merchants from different postal codes and locales separate. A database upgrade moves older rows only when their saved location is known. Rows with no saved location, or a collision with an already scoped row, remain in the database but are hidden from market-specific reads. Re-sync the intended market to refresh it. A `--full` archive clears only that market's cursor and reports an incomplete resource as an error. This upgrade raises the local database schema to version 5, so older Flipp binaries cannot open it afterward.
+The local database keeps flyers, merchants, and cached item search hits from different postal codes and locales separate. A database upgrade moves older rows only when their saved location is known. Rows with no saved location, or a collision with an already scoped row, remain in the database but are hidden from market-specific reads. Re-sync the intended market to refresh it. A `--full` archive clears only that market's cursor and reports an incomplete resource as an error. This upgrade raises the local database schema to version 5, so older Flipp binaries cannot open it afterward.
 
 ## Agent Usage
 

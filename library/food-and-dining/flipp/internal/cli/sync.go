@@ -1627,7 +1627,7 @@ func defaultSyncResources() []string {
 }
 
 func resourceRequiresFlippLocation(resource string) bool {
-	return resource == "flyers" || resource == "merchants"
+	return store.IsFlippLocationScopedResource(resource)
 }
 
 func applyFlippSyncLocation(params *syncUserParams, postalCode, locale string) {

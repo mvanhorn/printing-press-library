@@ -605,7 +605,7 @@ func (s *Store) migrateFlippLocationScope(ctx context.Context, conn *sql.Conn) (
 		syncedAt, updatedAt    any
 	}
 	rows, err := conn.QueryContext(ctx, `SELECT id, resource_type, data, synced_at, updated_at
-		FROM resources WHERE resource_type IN ('flyers', 'merchants')`)
+		FROM resources WHERE resource_type IN ('flyers', 'merchants', 'items')`)
 	if err != nil {
 		return false, fmt.Errorf("querying location-scoped resources: %w", err)
 	}
@@ -725,7 +725,7 @@ func (s *Store) migrateFlippLocationScope(ctx context.Context, conn *sql.Conn) (
 			return false, fmt.Errorf("checking Flipp sync-state shape: %w", err)
 		}
 		if hasResourceType > 0 {
-			if _, err := conn.ExecContext(ctx, `DELETE FROM sync_state WHERE resource_type IN ('flyers', 'merchants')`); err != nil {
+			if _, err := conn.ExecContext(ctx, `DELETE FROM sync_state WHERE resource_type IN ('flyers', 'merchants', 'items')`); err != nil {
 				return false, fmt.Errorf("clearing ambiguous Flipp sync state: %w", err)
 			}
 		}
@@ -1652,7 +1652,7 @@ func resourceStorageID(resourceType, id string, obj map[string]any) string {
 // IsFlippLocationScopedResource reports whether resource identity varies by
 // the market supplied to Flipp's list endpoints.
 func IsFlippLocationScopedResource(resourceType string) bool {
-	return resourceType == "flyers" || resourceType == "merchants"
+	return resourceType == "flyers" || resourceType == "merchants" || resourceType == "items"
 }
 
 // NormalizeFlippLocation makes command flags, stored metadata, and SQLite

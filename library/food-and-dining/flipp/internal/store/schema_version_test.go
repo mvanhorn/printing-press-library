@@ -737,6 +737,9 @@ func TestMigrate_FlippLocationScopeUpgrade(t *testing.T) {
 			last_synced_at DATETIME, total_count INTEGER DEFAULT 0)`,
 		`INSERT INTO resources (id, resource_type, data) VALUES
 			('shared', 'flyers', '{"id":"shared","name":"East coffee","_sync_postal_code":"10001","_sync_locale":"en-us"}')`,
+		`INSERT INTO resources (id, resource_type, data) VALUES
+			('item-shared', 'items', '{"id":"item-shared","name":"East beans","_sync_postal_code":"10001","_sync_locale":"en-us"}'),
+			('item-unknown', 'items', '{"id":"item-unknown","name":"Unknown beans"}')`,
 		`INSERT INTO flyers (id, data) VALUES
 			('shared', '{"id":"shared","name":"East coffee","_sync_postal_code":"10001","_sync_locale":"en-us"}')`,
 		`INSERT INTO sync_state (resource_type, last_cursor, last_synced_at, total_count)
@@ -787,6 +790,14 @@ func TestMigrate_FlippLocationScopeUpgrade(t *testing.T) {
 	matches, err := s.SearchScoped("coffee", "10001", "en-us", 10, "flyers")
 	if err != nil || len(matches) != 1 || !strings.Contains(string(matches[0]), "East coffee") {
 		t.Fatalf("SearchScoped after migration = %q, err=%v", matches, err)
+	}
+	item, err = s.GetScoped("items", "item-shared", "10001", "en-us")
+	if err != nil || !strings.Contains(string(item), "East beans") {
+		t.Fatalf("cached item after migration = %s, %v", item, err)
+	}
+	itemRows, err := s.ListScoped("items", "10001", "en-us", 0)
+	if err != nil || len(itemRows) != 1 || strings.Contains(string(itemRows[0]), "Unknown beans") {
+		t.Fatalf("scoped cached items include unknown market: %q, %v", itemRows, err)
 	}
 }
 
