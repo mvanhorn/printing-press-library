@@ -54,7 +54,7 @@ func TestBoundListenerRejectsNonLoopbackPlaintext(t *testing.T) {
 
 func TestHTTPBearerGuardRejectsUnauthenticatedRequests(t *testing.T) {
 	called := false
-	guard := requireHTTPToken("test-token", http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+	guard := authenticatedMCPHandler("test-token", http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		called = true
 		w.WriteHeader(http.StatusNoContent)
 	}))
@@ -74,5 +74,13 @@ func TestHTTPBearerGuardRejectsUnauthenticatedRequests(t *testing.T) {
 	guard.ServeHTTP(res, req)
 	if res.Code != http.StatusNoContent || !called {
 		t.Fatalf("valid auth status=%d called=%v", res.Code, called)
+	}
+	called = false
+	req = httptest.NewRequest(http.MethodPost, "http://127.0.0.1:7777/other", nil)
+	req.Header.Set("Authorization", "Bearer test-token")
+	res = httptest.NewRecorder()
+	guard.ServeHTTP(res, req)
+	if res.Code != http.StatusNotFound || called {
+		t.Fatalf("unrelated path status=%d called=%v, want 404 without MCP call", res.Code, called)
 	}
 }

@@ -69,7 +69,7 @@ func main() {
 		}
 		mcpHandler := server.NewStreamableHTTPServer(s)
 		httpSrv := &http.Server{
-			Handler:           requireHTTPToken(token, mcpHandler),
+			Handler:           authenticatedMCPHandler(token, mcpHandler),
 			ReadHeaderTimeout: 5 * time.Second,
 			ReadTimeout:       30 * time.Second,
 			IdleTimeout:       2 * time.Minute,
@@ -90,6 +90,12 @@ func main() {
 		fmt.Fprintf(os.Stderr, "unknown --transport %q (supported: stdio, http)\n", *transport)
 		os.Exit(2)
 	}
+}
+
+func authenticatedMCPHandler(token string, next http.Handler) http.Handler {
+	mux := http.NewServeMux()
+	mux.Handle("/mcp", requireHTTPToken(token, next))
+	return mux
 }
 
 func validateHTTPTransport(addr, token, tlsCert, tlsKey string) (bool, error) {

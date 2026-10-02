@@ -31,6 +31,10 @@
   "auth_env_vars": [
     "APPLE_SEARCH_ADS_TOKEN"
   ],
+  "mcp_http_auth_type": "bearer_token",
+  "mcp_http_auth_env_vars": [
+    "PP_MCP_HTTP_TOKEN"
+  ],
   "auth_env_var_specs": [
     {
       "name": "ASA_CLIENT_ID",
