@@ -73,7 +73,8 @@ func TestAdvertisedFeedsAndPartialFailure(t *testing.T) {
 		statusCode int
 		wantErr    bool
 		state      string
-	}{{"live", 200, false, "available"}, {"partial missing", 500, false, "source_missing"}, {"throttled", 429, true, ""}, {"access denied", 403, true, ""}} {
+		empty      bool
+	}{{"live", 200, false, "available", false}, {"partial missing", 500, true, "source_missing", false}, {"empty status schema", 200, true, "source_missing", true}, {"throttled", 429, true, "", false}, {"access denied", 403, true, "", false}} {
 		t.Run(tc.name, func(t *testing.T) {
 			var requests atomic.Int32
 			now := time.Now().UTC()
@@ -96,6 +97,9 @@ func TestAdvertisedFeedsAndPartialFailure(t *testing.T) {
 						return
 					}
 					data = map[string]any{"stations": s.Statuses}
+					if tc.empty {
+						data = map[string]any{"stations": []Status{}}
+					}
 				case "/vehicle_types.json":
 					data = map[string]any{"vehicle_types": s.Vehicles}
 				default:
@@ -119,7 +123,13 @@ func TestAdvertisedFeedsAndPartialFailure(t *testing.T) {
 					t.Fatalf("not typed rate limit: %T", e)
 				}
 			}
-			if !tc.wantErr {
+			if tc.statusCode == 500 || tc.empty {
+				var partial *StatusFeedError
+				if !errors.As(e, &partial) || len(out.Information) == 0 || len(out.Statuses) != 0 {
+					t.Fatalf("partial observation did not retain discovery/error boundary: %#v %v", out, e)
+				}
+			}
+			if tc.state != "" {
 				r := out.Stations(now, 5*time.Minute, "2")[0]
 				if r.RentalState != tc.state {
 					t.Fatal(r.RentalState)

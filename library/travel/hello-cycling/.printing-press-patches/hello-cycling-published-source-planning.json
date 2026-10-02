@@ -6,7 +6,7 @@
   "validated_outcome": "Meaningful Go tests, independent fresh CLI/MCP checks and final full live dogfood passed.",
   "id": "hello-cycling-published-source-planning",
   "summary": "Preserve source-bounded HELLO CYCLING planning and constraints across the CLI and MCP.",
-  "reason": "Published GBFS provides timestamped generic electric-assist observations; first-party pages supply model rules and rates. Preserve offline/fallback/compatibility and capped standard HTTP without inferring models, quotes or reserved availability.",
+  "reason": "Published GBFS observations must preserve explicit unknowns, usable saved fallback and protected snapshots on status outage; change inspection includes timestamp-derived usability and compatible return-state transitions. First-party model rules/rates must remain separate from generic class counts.",
   "files": [
     "internal/cycling/model.go",
     "internal/cycling/client.go",
@@ -27,6 +27,7 @@
     "internal/cli/pricing.go",
     "internal/cli/pricing_show.go",
     "internal/cli/hello_cycling_transport.go",
-    "internal/cli/hello_cycling_transport_test.go"
+    "internal/cli/hello_cycling_transport_test.go",
+    "internal/cli/hello_cycling_outage_test.go"
   ]
 }

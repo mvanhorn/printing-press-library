@@ -9,6 +9,33 @@ import (
 )
 
 func ptr[T any](x T) *T { return &x }
+
+func TestChangesRetainUsabilityTransitions(t *testing.T) {
+	now := time.Unix(1790952697, 0)
+	before := sample(now)
+	old := before.Stations(before.ObservedAt, 5*time.Minute, "2")
+	stale := before.Stations(now.Add(10*time.Minute), 5*time.Minute, "2")
+	changes, n := Changes(old, stale, "5112", 10)
+	if n != 1 || changes[0].Before.RentalState != "available" || changes[0].After.RentalState != "stale" {
+		t.Fatalf("timestamp-only stale transition missing: %#v", changes)
+	}
+	unknown := sample(now)
+	unknown.Statuses[0].Docks = ptr(0)
+	unknown.Statuses[0].VehicleDocks[0].Count = ptr(0)
+	compatible := unknown.Stations(now, 5*time.Minute, "2")
+	unknown.Statuses[0].VehicleDocks[0].IDs = []string{"3"}
+	incompatible := unknown.Stations(now, 5*time.Minute, "2")
+	changes, n = Changes(compatible, incompatible, "5112", 10)
+	if n != 1 || changes[0].Before.ReturnState != "full" || *changes[0].Before.SelectedSpaces != 0 || *changes[0].After.SelectedSpaces != 0 || changes[0].After.ReturnState != "incompatible" {
+		t.Fatalf("compatibility-only transition missing: %#v", changes)
+	}
+	heartbeat := sample(now)
+	heartbeat.Statuses[0].Reported++
+	_, n = Changes(old, heartbeat.Stations(now, 5*time.Minute, "2"), "5112", 10)
+	if n != 0 {
+		t.Fatal("routine fresh heartbeat should not masquerade as an inventory/usability change")
+	}
+}
 func sample(now time.Time) Snapshot {
 	return Snapshot{ObservedAt: now, Feeds: map[string]FeedMeta{"station_status": {LastUpdated: now.Unix()}}, Information: []Info{{ID: "5112", Name: "プラーズタワー東新宿", Address: "東京都新宿区歌舞伎町", Lat: ptr(35.697315), Lon: ptr(139.704995), Capacity: json.RawMessage(`"13"`)}, {ID: "17", Name: "新御徒町ステーション", Lat: ptr(35.707252), Lon: ptr(139.777587), Capacity: json.RawMessage(`8`)}}, Statuses: []Status{{ID: "5112", Reported: now.Unix() - 10, Bikes: ptr(1), Docks: ptr(11), Installed: ptr(true), Renting: ptr(true), Returning: ptr(true), Vehicles: []TypeCount{{"2", ptr(1)}}, VehicleDocks: []DockCount{{[]string{"2"}, ptr(11)}}}, {ID: "17", Reported: now.Unix() - 20, Bikes: ptr(6), Docks: ptr(2), Installed: ptr(true), Renting: ptr(true), Returning: ptr(true), Vehicles: []TypeCount{{"2", ptr(6)}}, VehicleDocks: []DockCount{{[]string{"2"}, ptr(2)}}}}, Vehicles: []Vehicle{{ID: "2", Propulsion: "electric_assist"}}, Warnings: []string{}, Requests: 4, Bytes: 1234}
 }

@@ -37,6 +37,13 @@ type HTTPError struct {
 func (e *HTTPError) Error() string {
 	return fmt.Sprintf("%s returned HTTP %d; retry later or inspect the official source", e.Host, e.Status)
 }
+
+// StatusFeedError retains discovery data while signalling that the observation
+// cannot safely replace a saved availability snapshot.
+type StatusFeedError struct{ Cause error }
+
+func (e *StatusFeedError) Error() string { return "station_status unavailable: " + e.Cause.Error() }
+func (e *StatusFeedError) Unwrap() error { return e.Cause }
 func (c *Client) get(ctx context.Context, u string, limit int64) ([]byte, error) {
 	req, e := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if e != nil {
@@ -185,9 +192,21 @@ func (c *Client) Fetch(ctx context.Context) (Snapshot, error) {
 		seen[r.ID] = true
 	}
 	s.Information = info.Stations
-	s.Statuses = status.Stations
-	s.Vehicles = types.Types
+	if errs["station_status"] == nil {
+		s.Statuses = status.Stations
+	}
+	if errs["vehicle_types"] == nil {
+		s.Vehicles = types.Types
+	}
 	s.ObservedAt = time.Now().UTC()
+	if err := errs["station_status"]; err != nil {
+		return s, &StatusFeedError{Cause: err}
+	}
+	if len(s.Statuses) == 0 {
+		err := fmt.Errorf("station_status has no rows; source schema may have changed")
+		s.Warnings = append(s.Warnings, err.Error())
+		return s, &StatusFeedError{Cause: err}
+	}
 	return s, nil
 }
 

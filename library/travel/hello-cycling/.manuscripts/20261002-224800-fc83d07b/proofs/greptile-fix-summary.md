@@ -1,0 +1,3 @@
+# Publication review fixes
+
+PR 2237 review at c790effa13398085fbf2f5d07c25d48075f890e1 identified two P1 behavior issues. Fixed status-outage error/fallback boundaries while retaining explicit source_missing discovery; sync and changes reject incomplete status observations and preserve baseline bytes. Change comparison now includes rental/return/freshness states and evaluates the original baseline at its observation time. Regression tests cover HTTP 500, cached fallback, live/no-cache unknowns, baseline protection, equal-count compatibility/staleness transitions and unchanged fresh heartbeats. Existing 401/403/429 protections remain in place.

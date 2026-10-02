@@ -115,6 +115,11 @@ func hcContext(cmd *cobra.Command, f *rootFlags) (context.Context, context.Cance
 	bounded.timeout = timeout
 	return boundCtx(cmd.Context(), &bounded)
 }
+
+var hcFetchSnapshot = func(ctx context.Context) (cycling.Snapshot, error) {
+	return cycling.NewClient().Fetch(ctx)
+}
+
 func hcSnapshot(cmd *cobra.Command, f *rootFlags, o hcOptions) (cycling.Snapshot, string, error) {
 	if o.offline && f.dataSource == "live" {
 		return cycling.Snapshot{}, "local", usageErr(fmt.Errorf("--offline conflicts with --data-source live; use local or auto"))
@@ -129,16 +134,22 @@ func hcSnapshot(cmd *cobra.Command, f *rootFlags, o hcOptions) (cycling.Snapshot
 	}
 	ctx, cancel := hcContext(cmd, f)
 	defer cancel()
-	s, e := cycling.NewClient().Fetch(ctx)
-	if e != nil && f.dataSource == "auto" && !f.noCache && !o.liveOnly {
-		var h *cycling.HTTPError
-		if !errors.As(e, &h) || (h.Status != 401 && h.Status != 403 && h.Status != 429) {
-			if cached, cacheErr := cycling.LoadSnapshot(hcPath(o, f)); cacheErr == nil {
-				cached.Warnings = append(cached.Warnings, "live source failed; using explicit saved snapshot: "+e.Error())
-				cmd.Annotations["pp:data-source"] = "local"
-				return cached, "local", nil
-			}
+	s, e := hcFetchSnapshot(ctx)
+	var h *cycling.HTTPError
+	protectedFailure := errors.As(e, &h) && (h.Status == 401 || h.Status == 403 || h.Status == 429)
+	if e != nil && f.dataSource == "auto" && !f.noCache && !o.liveOnly && !protectedFailure {
+		if cached, cacheErr := cycling.LoadSnapshot(hcPath(o, f)); cacheErr == nil && len(cached.Information) > 0 && len(cached.Statuses) > 0 {
+			cached.Warnings = append(cached.Warnings, "live source failed; using explicit saved snapshot: "+e.Error())
+			cmd.Annotations["pp:data-source"] = "local"
+			return cached, "local", nil
 		}
+	}
+	var statusErr *cycling.StatusFeedError
+	if e != nil && !o.liveOnly && !protectedFailure && errors.As(e, &statusErr) && len(s.Information) > 0 {
+		// No usable saved fallback was selected. Keep station discovery and
+		// explicit source_missing states, but never save or compare this partial
+		// observation as a successful new availability snapshot.
+		return s, "live", nil
 	}
 	return s, "live", e
 }

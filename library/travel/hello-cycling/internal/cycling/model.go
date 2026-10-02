@@ -397,7 +397,7 @@ func Changes(before, after []Station, q string, limit int) ([]Change, int) {
 		if q != "" && !strings.Contains(fold(old.Name+" "+old.Address+" "+new.Name+" "+new.Address+" "+id), fold(q)) {
 			continue
 		}
-		if ok1 && ok2 && equalCount(old.Bikes, new.Bikes) && equalCount(old.ReturnSpaces, new.ReturnSpaces) && equalCount(old.SelectedBikes, new.SelectedBikes) && equalCount(old.SelectedSpaces, new.SelectedSpaces) && equalBool(old.Installed, new.Installed) && equalBool(old.Renting, new.Renting) && equalBool(old.Returning, new.Returning) {
+		if ok1 && ok2 && equalCount(old.Bikes, new.Bikes) && equalCount(old.ReturnSpaces, new.ReturnSpaces) && equalCount(old.SelectedBikes, new.SelectedBikes) && equalCount(old.SelectedSpaces, new.SelectedSpaces) && equalBool(old.Installed, new.Installed) && equalBool(old.Renting, new.Renting) && equalBool(old.Returning, new.Returning) && old.RentalState == new.RentalState && old.ReturnState == new.ReturnState && old.Stale == new.Stale {
 			continue
 		}
 		r := Change{ID: id, Name: name, Kind: kind}

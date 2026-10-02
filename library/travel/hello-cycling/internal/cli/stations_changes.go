@@ -50,7 +50,7 @@ func newNovelStationsChangesCmd(f *rootFlags) *cobra.Command {
 			return hcErr(e)
 		}
 		now := time.Now()
-		rows, total := cycling.Changes(before.Stations(now, o.age, o.vehicle), after.Stations(now, o.age, o.vehicle), q, o.limit)
+		rows, total := cycling.Changes(before.Stations(before.ObservedAt, o.age, o.vehicle), after.Stations(now, o.age, o.vehicle), q, o.limit)
 		out := hcResult(after, src, rows, total)
 		out["baseline_observed_at"] = before.ObservedAt
 		out["baseline_station_count"] = len(before.Information)

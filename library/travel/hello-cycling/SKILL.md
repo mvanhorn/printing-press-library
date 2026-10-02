@@ -508,3 +508,5 @@ Parse `$ARGUMENTS`:
    hello-cycling-pp-cli stations show --id 5112 --agent
    ```
 4. If ambiguous, drill into subcommand help: `hello-cycling-pp-cli stations show --help`.
+
+Status-feed outages trigger the saved-snapshot fallback in auto mode when it is usable. Explicit live/no-cache discovery retains station identity with unknown counts and source_missing states. Sync and changes reject a missing status feed, preserving the saved baseline. Change inspection evaluates baseline usability at its original observation time and reports freshness/compatibility state transitions even when counts remain equal.
