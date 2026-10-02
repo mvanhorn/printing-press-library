@@ -191,6 +191,8 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   sarvam-pp-cli stt-job retry 20260707_9f1c2b3a-4d5e-6f70-8a9b-c0d1e2f3a4b5 --failed-only --dir ./audio/
   ```
+
+  Retry checks every input file before creating a replacement job. It saves progress locally so a rerun resumes the same job and skips uploaded files. After a confirmed start, rerunning reports the existing job. If the start request's outcome is unknown, check the replacement job with Sarvam before removing the checkpoint shown in the error.
 - **`stt-job report`** — Per-file digest of a batch STT job with typed exit codes for cron alerting
 
   _Use in cron to alert when a batch transcription job degrades_

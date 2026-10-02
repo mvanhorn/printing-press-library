@@ -30,3 +30,54 @@ func TestNovelSttJobReportHelpWires(t *testing.T) {
 		}
 	}
 }
+
+func TestSTTJobStatusUsesNestedInputFiles(t *testing.T) {
+	details := []sttJobAPIDetail{
+		{
+			State:        "API Error",
+			ErrorMessage: "codec rejected",
+			Inputs: []sttJobFileReference{
+				{FileName: "failed.wav", FileID: "input-1"},
+			},
+			Outputs: []sttJobFileReference{{FileName: "failed.json", FileID: "output-1"}},
+		},
+		{
+			State:  "Success",
+			Inputs: []sttJobFileReference{{FileName: "ok.wav", FileID: "input-2"}},
+		},
+	}
+
+	gotFailed := sttJobInputFileNames(details, true)
+	if len(gotFailed) != 1 || gotFailed[0] != "failed.wav" {
+		t.Fatalf("failed inputs = %#v, want [failed.wav]", gotFailed)
+	}
+	gotAll := sttJobInputFileNames(details, false)
+	if len(gotAll) != 2 || gotAll[0] != "failed.wav" || gotAll[1] != "ok.wav" {
+		t.Fatalf("all inputs = %#v, want [failed.wav ok.wav]", gotAll)
+	}
+	report := sttJobReportFileDetails(details)
+	if len(report) != 2 || report[0].FileName != "failed.wav" || report[0].FileID != "input-1" || report[0].ErrorMessage != "codec rejected" {
+		t.Fatalf("report details = %#v", report)
+	}
+}
+
+func TestSTTJobStatusAcceptsLegacyFlatFileDetails(t *testing.T) {
+	details := []sttJobAPIDetail{{FileName: "legacy.wav", FileID: "legacy-1", State: "Failed"}}
+	got := sttJobInputFileNames(details, true)
+	if len(got) != 1 || got[0] != "legacy.wav" {
+		t.Fatalf("legacy failed inputs = %#v, want [legacy.wav]", got)
+	}
+}
+
+func TestSTTJobStatusMarkerMatchesFailedStatePredicate(t *testing.T) {
+	for _, state := range []string{"API Error", "Internal Server Error", "failed", "Failure", " error "} {
+		if got := sttJobStatusMarker(state); got != "FAIL" {
+			t.Errorf("sttJobStatusMarker(%q) = %q, want FAIL", state, got)
+		}
+	}
+	for _, state := range []string{"Accepted", "Pending", "Running", "Completed", "Success"} {
+		if got := sttJobStatusMarker(state); got != "ok" {
+			t.Errorf("sttJobStatusMarker(%q) = %q, want ok", state, got)
+		}
+	}
+}

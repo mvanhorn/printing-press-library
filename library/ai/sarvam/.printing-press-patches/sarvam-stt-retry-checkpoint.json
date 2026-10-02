@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "sarvam-stt-retry-checkpoint",
+  "applied_at": "2026-10-01",
+  "base_run_id": "20260814-164825-7ec4499e",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Parse batch STT input files correctly, validate local files before creating a replacement, serialize retries, checkpoint upload progress, and refuse ambiguous or repeated starts.",
+  "reason": "The generated retry could create duplicate paid replacement jobs after partial failures, follow unsafe input paths, or report no failed files when the provider returned nested file details.",
+  "files": [
+    "README.md",
+    "internal/cli/stt_job_report.go",
+    "internal/cli/stt_job_report_test.go",
+    "internal/cli/stt_job_retry.go",
+    "internal/cli/stt_job_retry_checkpoint.go",
+    "internal/cli/stt_job_retry_lock_unix.go",
+    "internal/cli/stt_job_retry_lock_windows.go",
+    "internal/cli/stt_job_retry_test.go"
+  ]
+}

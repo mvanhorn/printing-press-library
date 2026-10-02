@@ -8,10 +8,9 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -54,22 +53,11 @@ func newNovelSttJobRetryCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			var status struct {
-				JobState string `json:"job_state"`
-				JobDetails []struct {
-					FileName string `json:"file_name"`
-					State    string `json:"state"`
-				} `json:"job_details"`
-			}
+			var status sttJobStatusPayload
 			if err := json.Unmarshal(data, &status); err != nil {
 				return apiErr(fmt.Errorf("parsing job status: %w", err))
 			}
-			var filesToRetry []string
-			for _, d := range status.JobDetails {
-				if !flagFailedOnly || d.State == "API Error" || d.State == "Internal Server Error" {
-					filesToRetry = append(filesToRetry, d.FileName)
-				}
-			}
+			filesToRetry := sttJobInputFileNames(status.JobDetails, flagFailedOnly)
 			// Fall back to all files when no job_details are available.
 			if len(filesToRetry) == 0 && !flagFailedOnly {
 				if entries, err := os.ReadDir(flagDir); err == nil {
@@ -81,105 +69,165 @@ func newNovelSttJobRetryCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if len(filesToRetry) == 0 {
+				if flagFailedOnly && status.FailedFiles > 0 {
+					return apiErr(fmt.Errorf("job reports %d failed file(s), but its status has no retryable input filenames", status.FailedFiles))
+				}
 				fmt.Fprintln(cmd.OutOrStdout(), "no failed files to retry")
 				return nil
 			}
-
-			// 2. Initiate a new job with the same parameters.
-			var jobParams map[string]any
-			var oldParams struct {
-				JobParameters map[string]any `json:"job_parameters"`
-			}
-			_ = json.Unmarshal(data, &oldParams)
-			jobParams = oldParams.JobParameters
-			if jobParams == nil {
-				jobParams = map[string]any{}
-			}
-			initData, statusCode, err := c.Post(ctx, "/speech-to-text/job/v1", map[string]any{
-				"job_parameters": jobParams,
-			})
+			preparedFiles, err := prepareSTTRetryFiles(flagDir, filesToRetry)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return apiErr(err)
 			}
-			if statusCode != http.StatusAccepted && statusCode != http.StatusOK {
-				return apiErr(fmt.Errorf("initiating retry job: HTTP %d", statusCode))
-			}
-			var initResp struct {
-				JobID string `json:"job_id"`
-			}
-			if err := json.Unmarshal(initData, &initResp); err != nil || initResp.JobID == "" {
-				return apiErr(fmt.Errorf("parsing job initiation response"))
-			}
-			newJobID := initResp.JobID
-
-			// 3. Get presigned upload URLs for the failed files.
-			uploadData, _, err := c.Post(ctx, "/speech-to-text/job/v1/upload-files", map[string]any{
-				"job_id": newJobID,
-				"files":  filesToRetry,
-			})
+			defer closePreparedSTTRetryFiles(preparedFiles)
+			checkpointPath, err := sttRetryCheckpointPath(jobID)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return configErr(fmt.Errorf("preparing retry checkpoint: %w", err))
 			}
+			lease, err := acquireSTTRetryLease(checkpointPath)
+			if err != nil {
+				return configErr(err)
+			}
+			defer func() {
+				if err := lease.Release(); err != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: retry lock could not be removed: %v\n", err)
+				}
+			}()
+			checkpoint, resumed, err := acquireSTTRetryCheckpoint(checkpointPath, jobID, filesToRetry)
+			if err != nil {
+				return configErr(err)
+			}
+			if checkpoint.Started {
+				return writeSTTRetryResult(cmd, flags, jobID, checkpoint.ReplacementJobID, filesToRetry, true, "already_started")
+			}
+
+			// 2. Initiate a replacement only when no resumable one exists. The
+			// checkpoint is claimed first, so concurrent/rerun invocations never
+			// silently create another replacement after a partial failure.
+			if checkpoint.ReplacementJobID == "" {
+				jobParams := status.JobParameters
+				if jobParams == nil {
+					jobParams = map[string]any{}
+				}
+				initData, statusCode, err := c.Post(ctx, "/speech-to-text/job/v1", map[string]any{
+					"job_parameters": jobParams,
+				})
+				if err != nil {
+					return pendingSTTRetryError("", checkpointPath, classifyAPIError(err, flags))
+				}
+				if statusCode != http.StatusAccepted && statusCode != http.StatusOK {
+					return pendingSTTRetryError("", checkpointPath, apiErr(fmt.Errorf("initiating retry job: HTTP %d", statusCode)))
+				}
+				var initResp struct {
+					JobID string `json:"job_id"`
+				}
+				if err := json.Unmarshal(initData, &initResp); err != nil || initResp.JobID == "" {
+					return pendingSTTRetryError("", checkpointPath, apiErr(fmt.Errorf("parsing job initiation response")))
+				}
+				checkpoint.ReplacementJobID = initResp.JobID
+				if err := saveSTTRetryCheckpoint(checkpointPath, checkpoint); err != nil {
+					return pendingSTTRetryError(initResp.JobID, checkpointPath, configErr(fmt.Errorf("saving retry checkpoint: %w", err)))
+				}
+			}
+			newJobID := checkpoint.ReplacementJobID
+
+			// 3. Get presigned URLs only for files not already recorded as
+			// uploaded by a previous attempt.
+			remaining := pendingSTTRetryFiles(preparedFiles, checkpoint.UploadedFiles)
 			var uploadResp struct {
 				UploadURLs map[string]struct {
 					FileURL string `json:"file_url"`
 				} `json:"upload_urls"`
 			}
-			if err := json.Unmarshal(uploadData, &uploadResp); err != nil {
-				return apiErr(fmt.Errorf("parsing upload URLs: %w", err))
+			if len(remaining) > 0 {
+				remainingNames := sttRetryFileNames(remaining)
+				uploadData, _, err := c.Post(ctx, "/speech-to-text/job/v1/upload-files", map[string]any{
+					"job_id": newJobID,
+					"files":  remainingNames,
+				})
+				if err != nil {
+					return pendingSTTRetryError(newJobID, checkpointPath, classifyAPIError(err, flags))
+				}
+				if err := json.Unmarshal(uploadData, &uploadResp); err != nil {
+					return pendingSTTRetryError(newJobID, checkpointPath, apiErr(fmt.Errorf("parsing upload URLs: %w", err)))
+				}
 			}
 
-			// 4. Upload each failed file to its presigned URL.
-			for _, fname := range filesToRetry {
+			// 4. Upload each remaining file and checkpoint progress. Open file
+			// descriptors were validated before the replacement was created.
+			for _, prepared := range remaining {
+				fname := prepared.Name
 				info, ok := uploadResp.UploadURLs[fname]
 				if !ok || info.FileURL == "" {
-					return apiErr(fmt.Errorf("no upload URL for %q", fname))
+					return pendingSTTRetryError(newJobID, checkpointPath, apiErr(fmt.Errorf("no upload URL for %q", fname)))
 				}
-				localPath := filepath.Join(flagDir, fname)
-				// #nosec G304 -- localPath derives from the job's reported file names joined onto the user-supplied --dir; the user owns these files.
-				fileBytes, err := os.ReadFile(localPath)
+				if err := validatePresignedUploadURL(info.FileURL); err != nil {
+					return pendingSTTRetryError(newJobID, checkpointPath, apiErr(fmt.Errorf("upload URL for %q: %w", fname, err)))
+				}
+				if _, err := prepared.File.Seek(0, io.SeekStart); err != nil {
+					return pendingSTTRetryError(newJobID, checkpointPath, apiErr(fmt.Errorf("rewinding %s: %w", prepared.Path, err)))
+				}
+				req, err := http.NewRequestWithContext(ctx, http.MethodPut, info.FileURL, prepared.File)
 				if err != nil {
-					return apiErr(fmt.Errorf("reading %s: %w", localPath, err))
+					return pendingSTTRetryError(newJobID, checkpointPath, apiErr(fmt.Errorf("building upload request for %s: %w", fname, err)))
 				}
-				req, err := http.NewRequestWithContext(ctx, http.MethodPut, info.FileURL, strings.NewReader(string(fileBytes)))
-				if err != nil {
-					return fmt.Errorf("building upload request for %s: %w", fname, err)
-				}
+				req.ContentLength = prepared.Size
 				req.Header.Set("Content-Type", "application/octet-stream")
-				uploadClient := c.HTTPClient
-				if uploadClient == nil {
-					uploadClient = http.DefaultClient
-				}
+				uploadClient := presignedUploadHTTPClient(c.HTTPClient, flags.timeout)
 				resp, err := uploadClient.Do(req)
 				if err != nil {
-					return fmt.Errorf("uploading %s: %w", fname, err)
+					return pendingSTTRetryError(newJobID, checkpointPath, apiErr(fmt.Errorf("uploading %s: %w", fname, err)))
 				}
+				_, _ = io.Copy(io.Discard, resp.Body)
 				_ = resp.Body.Close()
-				if resp.StatusCode >= 400 {
-					return apiErr(fmt.Errorf("uploading %s: HTTP %d", fname, resp.StatusCode))
+				if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+					return pendingSTTRetryError(newJobID, checkpointPath, apiErr(fmt.Errorf("uploading %s: HTTP %d", fname, resp.StatusCode)))
+				}
+				checkpoint.UploadedFiles = append(checkpoint.UploadedFiles, fname)
+				if err := saveSTTRetryCheckpoint(checkpointPath, checkpoint); err != nil {
+					return pendingSTTRetryError(newJobID, checkpointPath, configErr(fmt.Errorf("saving upload progress: %w", err)))
 				}
 			}
 
-			// 5. Start the new job.
+			// 5. Record the attempt before calling the provider. If the request
+			// succeeds remotely but its response is lost, rerunning must not send
+			// another /start with an unknown outcome.
+			checkpoint.StartAttempted = true
+			if err := saveSTTRetryCheckpoint(checkpointPath, checkpoint); err != nil {
+				return configErr(fmt.Errorf("recording retry start attempt: %w", err))
+			}
 			startData, _, err := c.Post(ctx, "/speech-to-text/job/v1/"+newJobID+"/start", map[string]any{})
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return fmt.Errorf("%w; start outcome for replacement job %s is unknown; inspect provider status before removing checkpoint %s", classifyAPIError(err, flags), newJobID, checkpointPath)
 			}
 			_ = startData
-			result := map[string]any{
-				"old_job_id":   jobID,
-				"new_job_id":   newJobID,
-				"retried_files": filesToRetry,
-				"status":       "started",
+			checkpoint.Started = true
+			if err := saveSTTRetryCheckpoint(checkpointPath, checkpoint); err != nil {
+				return configErr(fmt.Errorf("retry job %s started, but recording completion failed: %w; remove checkpoint %s after confirming the provider status", newJobID, err, checkpointPath))
 			}
-			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), result, flags)
-			}
-			fmt.Fprintf(cmd.OutOrStdout(), "retry job %s created from %s with %d file(s)\n", newJobID, jobID, len(filesToRetry))
-			return nil
+			return writeSTTRetryResult(cmd, flags, jobID, newJobID, filesToRetry, resumed, "started")
 		},
 	}
 	cmd.Flags().BoolVar(&flagFailedOnly, "failed-only", true, "Retry only files that failed in the original job")
 	cmd.Flags().StringVar(&flagDir, "dir", "", "Local directory containing the audio files to re-upload")
 	return cmd
+}
+
+func writeSTTRetryResult(cmd *cobra.Command, flags *rootFlags, oldJobID, newJobID string, files []string, resumed bool, status string) error {
+	result := map[string]any{
+		"old_job_id":          oldJobID,
+		"new_job_id":          newJobID,
+		"retried_files":       files,
+		"resumed_replacement": resumed,
+		"status":              status,
+	}
+	if !wantsHumanTable(cmd.OutOrStdout(), flags) {
+		return printJSONFiltered(cmd.OutOrStdout(), result, flags)
+	}
+	if status == "already_started" {
+		fmt.Fprintf(cmd.OutOrStdout(), "retry job %s was already started from %s; no new job was created\n", newJobID, oldJobID)
+		return nil
+	}
+	fmt.Fprintf(cmd.OutOrStdout(), "retry job %s created from %s with %d file(s)\n", newJobID, oldJobID, len(files))
+	return nil
 }
