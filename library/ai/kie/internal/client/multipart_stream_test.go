@@ -3,6 +3,7 @@
 package client
 
 import (
+	"bytes"
 	"context"
 	"io"
 	"mime"
@@ -23,7 +24,7 @@ func TestStreamMultipartBodyUsesPipeAndPreservesPayload(t *testing.T) {
 		t.Fatalf("write fixture: %v", err)
 	}
 
-	reader, contentType := streamMultipartBody(multipartRequestBody{
+	reader, contentType, _ := streamMultipartBody(multipartRequestBody{
 		Fields:     map[string]string{"model": "example"},
 		FileFields: map[string]string{"media": filePath},
 	})
@@ -85,7 +86,8 @@ func TestMultipartUploadStreamsThroughClient(t *testing.T) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		part, err := multipart.NewReader(r.Body, params["boundary"]).NextPart()
+		parts := multipart.NewReader(r.Body, params["boundary"])
+		part, err := parts.NextPart()
 		if err != nil || part.FormName() != "media" {
 			http.Error(w, "missing media part", http.StatusBadRequest)
 			return
@@ -93,6 +95,10 @@ func TestMultipartUploadStreamsThroughClient(t *testing.T) {
 		data, err := io.ReadAll(part)
 		if err != nil || string(data) != "streamed-file-content" {
 			http.Error(w, "wrong media content", http.StatusBadRequest)
+			return
+		}
+		if _, err := parts.NextPart(); err != io.EOF {
+			http.Error(w, "multipart body did not end cleanly", http.StatusBadRequest)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -106,5 +112,58 @@ func TestMultipartUploadStreamsThroughClient(t *testing.T) {
 	if _, _, err := c.doRead(context.Background(), http.MethodPatch, "/upload", nil,
 		multipartRequestBody{FileFields: map[string]string{"media": filePath}}, nil); err != nil {
 		t.Fatalf("streamed upload failed: %v", err)
+	}
+}
+
+func TestMultipartUploadReplaysBodyAfterRedirect(t *testing.T) {
+	for _, redirectStatus := range []int{http.StatusTemporaryRedirect, http.StatusPermanentRedirect} {
+		t.Run(http.StatusText(redirectStatus), func(t *testing.T) {
+			filePath := filepath.Join(t.TempDir(), "sample.bin")
+			if err := os.WriteFile(filePath, []byte("redirected-file-content"), 0o600); err != nil {
+				t.Fatal(err)
+			}
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.URL.Path == "/redirect" {
+					http.Redirect(w, r, "/upload", redirectStatus)
+					return
+				}
+				if r.URL.Path != "/upload" || r.Method != http.MethodPatch {
+					http.Error(w, "unexpected upload request", http.StatusBadRequest)
+					return
+				}
+				_, params, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
+				if err != nil {
+					http.Error(w, "invalid content type", http.StatusBadRequest)
+					return
+				}
+				parts := multipart.NewReader(r.Body, params["boundary"])
+				part, err := parts.NextPart()
+				if err != nil || part.FormName() != "media" {
+					http.Error(w, "missing media part", http.StatusBadRequest)
+					return
+				}
+				data, err := io.ReadAll(part)
+				if err != nil || string(data) != "redirected-file-content" {
+					http.Error(w, "wrong media content", http.StatusBadRequest)
+					return
+				}
+				if _, err := parts.NextPart(); err != io.EOF {
+					http.Error(w, "multipart body did not end cleanly", http.StatusBadRequest)
+					return
+				}
+				w.Header().Set("Content-Type", "application/json")
+				_, _ = w.Write([]byte(`{"arrived":true}`))
+			}))
+			defer server.Close()
+
+			c := New(&config.Config{BaseURL: server.URL}, time.Second, 0)
+			c.HTTPClient = server.Client()
+			c.NoCache = true
+			body, status, err := c.doRead(context.Background(), http.MethodPatch, "/redirect", nil,
+				multipartRequestBody{FileFields: map[string]string{"media": filePath}}, nil)
+			if err != nil || status != http.StatusOK || !bytes.Contains(body, []byte(`"arrived":true`)) {
+				t.Fatalf("redirected upload failed: status %d, error %v, body %s", status, err, body)
+			}
+		})
 	}
 }

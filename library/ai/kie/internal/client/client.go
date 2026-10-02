@@ -843,11 +843,28 @@ func validateMultipartBody(body multipartRequestBody) error {
 }
 
 // Stream file uploads through the HTTP request body instead of holding the
-// entire file in memory. Each retry gets a fresh stream and multipart boundary.
-func streamMultipartBody(body multipartRequestBody) (io.ReadCloser, string) {
+// entire file in memory. Redirects can replay the body with the same boundary,
+// while each retry creates a fresh stream and multipart boundary.
+func streamMultipartBody(body multipartRequestBody) (io.ReadCloser, string, func() (io.ReadCloser, error)) {
 	reader, pipeWriter := io.Pipe()
 	writer := multipart.NewWriter(pipeWriter)
 	contentType := writer.FormDataContentType()
+	boundary := writer.Boundary()
+	startMultipartWriter(writer, pipeWriter, body)
+	return reader, contentType, func() (io.ReadCloser, error) {
+		replayReader, replayPipeWriter := io.Pipe()
+		replayWriter := multipart.NewWriter(replayPipeWriter)
+		if err := replayWriter.SetBoundary(boundary); err != nil {
+			_ = replayReader.Close()
+			_ = replayPipeWriter.CloseWithError(err)
+			return nil, err
+		}
+		startMultipartWriter(replayWriter, replayPipeWriter, body)
+		return replayReader, nil
+	}
+}
+
+func startMultipartWriter(writer *multipart.Writer, pipeWriter *io.PipeWriter, body multipartRequestBody) {
 	go func() {
 		err := writeMultipartBody(writer, body)
 		if closeErr := writer.Close(); err == nil {
@@ -855,7 +872,6 @@ func streamMultipartBody(body multipartRequestBody) (io.ReadCloser, string) {
 		}
 		_ = pipeWriter.CloseWithError(err)
 	}()
-	return reader, contentType
 }
 
 func writeMultipartBody(writer *multipart.Writer, body multipartRequestBody) error {
@@ -1058,9 +1074,10 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			c.platformSession.RecordRateLimitWait(time.Since(adaptiveStarted))
 		}
 		var bodyReader io.Reader
+		var replayBody func() (io.ReadCloser, error)
 		requestContentType := contentType
 		if multipartBody != nil {
-			bodyReader, requestContentType = streamMultipartBody(*multipartBody)
+			bodyReader, requestContentType, replayBody = streamMultipartBody(*multipartBody)
 		} else if bodyBytes != nil {
 			bodyReader = bytes.NewReader(bodyBytes)
 		}
@@ -1074,6 +1091,9 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		}
 		if bodyReader != nil {
 			req.Header.Set("Content-Type", requestContentType)
+		}
+		if replayBody != nil {
+			req.GetBody = replayBody
 		}
 
 		if params != nil {
