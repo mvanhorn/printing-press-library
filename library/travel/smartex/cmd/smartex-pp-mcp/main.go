@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/travel/smartex/internal/cli"
@@ -32,8 +33,9 @@ import (
 // is then pinned to that IP so a later lookup cannot leave loopback.
 
 const (
-	defaultHTTPAddr = "127.0.0.1:7777"
-	httpTokenEnvVar = "SMARTEX_MCP_HTTP_TOKEN"
+	defaultHTTPAddr       = "127.0.0.1:7777"
+	httpTokenEnvVar       = "SMARTEX_MCP_HTTP_TOKEN"
+	httpReadHeaderTimeout = 5 * time.Second
 )
 
 // version is the printed MCP server's version, overridable at build time via ldflags.
@@ -80,10 +82,7 @@ func main() {
 			os.Exit(1)
 		}
 		inner := server.NewStreamableHTTPServer(s)
-		httpSrv := &http.Server{
-			Addr:    bindAddr,
-			Handler: requireBearerAuth(token, inner),
-		}
+		httpSrv := newHTTPServer(bindAddr, requireBearerAuth(token, inner))
 		fmt.Fprintf(os.Stderr, "smartex-pp-mcp serving MCP over streamable HTTP at %s (Authorization: Bearer $%s)\n", bindAddr, httpTokenEnvVar)
 		if *tlsCert != "" {
 			err = httpSrv.ListenAndServeTLS(*tlsCert, *tlsKey)
@@ -97,6 +96,14 @@ func main() {
 	default:
 		fmt.Fprintf(os.Stderr, "unknown --transport %q (supported: stdio, http)\n", *transport)
 		os.Exit(2)
+	}
+}
+
+func newHTTPServer(addr string, handler http.Handler) *http.Server {
+	return &http.Server{
+		Addr:              addr,
+		Handler:           handler,
+		ReadHeaderTimeout: httpReadHeaderTimeout,
 	}
 }
 

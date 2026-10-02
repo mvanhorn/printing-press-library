@@ -3,6 +3,7 @@ package smartex
 import (
 	"fmt"
 	"math"
+	"slices"
 	"strings"
 	"time"
 )
@@ -274,13 +275,17 @@ func CompareProducts(date, from, to, class, train string, now time.Time, adults,
 				v.ExclusionReasons = append(v.ExclusionReasons, "unsupported_class_for_product")
 			}
 		}
-		if tokaido && p.ID == "hayatoku3" && class != "" && class != "green" {
-			v.ExclusionReasons = append(v.ExclusionReasons, "green_only_on_tokaido")
+		if len(r.Corridors) > 0 && !slices.Contains(r.Corridors, "kyushu") && p.ID == "hayatoku3" && class != "" && class != "green" {
+			reason := "green_only_on_tokaido_sanyo"
+			if tokaido {
+				reason = "green_only_on_tokaido"
+			}
+			v.ExclusionReasons = append(v.ExclusionReasons, reason)
 		}
 		if tokaido && p.ID == "hayatoku7" && train == "nozomi" {
 			v.ExclusionReasons = append(v.ExclusionReasons, "tokaido_hayatoku7_requires_hikari_or_kodama")
 		}
-		if len(r.Corridors) == 1 && train != "" {
+		if len(r.Corridors) > 0 && train != "" {
 			found := false
 			for _, name := range r.TrainCategories {
 				if name == train {

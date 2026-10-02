@@ -2,7 +2,7 @@
   "status": "pass",
   "category": "travel",
   "scope": "library/travel/smartex",
-  "source_fingerprint": "a64396432e002bcef6518394b7d551443ab38d57898aa857c56e83553294bcc7",
+  "source_fingerprint": "e77a541e9db17a5c05bea3a52c3a340d23682166d78f333b8a2bcf6166f37286",
   "fresh_live": {
     "level": "full",
     "tests_passed": 106,
@@ -13,7 +13,8 @@
   "raw_capture_and_binary_files_omitted": 199,
   "output_samples_omitted": 20,
   "host_path_scrubbed_files": 14,
-  "tier2_manual_review": "All matches are documented API/CLI/license/public source vocabulary, framework fixtures, preserved generator attribution, or an image srcset URL. No unresolved PII.",
+  "tier2_manual_review": "Reviewed as documented vocabulary, public source names, fixtures, generator attribution, or an image srcset URL; no unresolved PII.",
   "credential_or_session_files": 0,
-  "optional_scanner": "gitleaks/trufflehog unavailable"
+  "optional_scanner": "gitleaks/trufflehog unavailable",
+  "review_fixes": "Two known product exclusions and the bounded MCP HTTP header-read deadline are fixed and regression-tested."
 }

@@ -11,11 +11,12 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "a64396432e002bcef6518394b7d551443ab38d57898aa857c56e83553294bcc7",
+  "source_fingerprint": "e77a541e9db17a5c05bea3a52c3a340d23682166d78f333b8a2bcf6166f37286",
   "source_files": {
     "cmd/smartex-pp-cli/main.go": "b35c0f6c551788a2abf04cc767685a808068ea1cba70ebfb681733faba95e7ae",
     "cmd/smartex-pp-mcp/http_auth_test.go": "c8ef84e0ae609a934cd9f76ab69b98457de8b98727c379de0e77c057b71c2e04",
-    "cmd/smartex-pp-mcp/main.go": "b62443e0346ebe9c1b42a9a59ee7174a5e6cd5d36573532a4ea85c3b0d0e030c",
+    "cmd/smartex-pp-mcp/http_timeout_test.go": "a8eb6f39fda0d6ef8a00033b2ad93faf7ce0f5b99c6514f1e758ef6332a4c820",
+    "cmd/smartex-pp-mcp/main.go": "ebe1b2251e0367e8183e7d596321d314d00e03a592c8289a21f05673bff32aed",
     "go.mod": "6525cd071199218e176cc143b15158ee97570fcf02edfb77ff9ccfcc65ec6ab3",
     "go.sum": "c1f21544c19708a75cdd05dc77f6385c530f0cc25dbd2a6dd00603b1dafc728d",
     "internal/cache/cache.go": "3bc84bdc4a56f2093b015fb7dd2153b6a3cc803f029d89d1157b4f5975fe26b6",
@@ -138,8 +139,9 @@
     "internal/smartex/catalog.go": "7ec4509957e295a1b7899d428ddbcfe088c41736c5d911121c55104201c1d2cb",
     "internal/smartex/fare.go": "3b4f5d813ecaf507afe6148259582599583547b4e59aa1d5cf7d4750e17e7e01",
     "internal/smartex/fare_test.go": "773f644ff491de09ba25852da65faba5e0abc8cd4e3601fae5f5540b69d2255e",
-    "internal/smartex/planning.go": "ca78ea559935bb382faaa66c1aedf206ba2d8e4d1dd12cf625f76582393712bd",
+    "internal/smartex/planning.go": "7c828855f73dd9a382b1c3e0de7fd2e9f7715d76747cc6ffccbd09d321ecea20",
     "internal/smartex/planning_test.go": "4a9e245407af4714543c7c1bdf8dd94a7bc6cd9c5d384fc905a0c224d9bc86ff",
+    "internal/smartex/product_restrictions_test.go": "f9104b44bbe0561aabda8ef80fc75a67e3109d74cd78c6a1c6bc181a22c8108c",
     "internal/smartex/review_regressions_test.go": "055554604897fb820231a20523e8237028a3b13cd2a887a938b7b42e01bf4959",
     "internal/smartex/timetable.go": "00290788483ae533509582db74e0a1c0c10c46be1dd7041d7855f5a7c47147af",
     "internal/store/extras.go": "553f86af71bf7f4bd8bf4a83658de595c170406916f8492d3bf67b82c4ebb693",

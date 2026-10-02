@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "smartex-known-route-restrictions-and-http-header-deadline",
+  "applied_at": "2026-10-02",
+  "base_run_id": "20261002-003442-smartex",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Reject known Hayatoku3 Tokaido/Sanyo class and requested-route train mismatches while preserving unresolved transfer/inventory rules; bound MCP HTTP header reads.",
+  "reason": "Product comparison must enforce known corridor facility/category restrictions without asserting actual eligibility, prices or through services. Incomplete HTTP headers must be bounded before request authentication.",
+  "files": [
+    "internal/smartex/planning.go",
+    "internal/smartex/product_restrictions_test.go",
+    "cmd/smartex-pp-mcp/main.go",
+    "cmd/smartex-pp-mcp/http_timeout_test.go"
+  ],
+  "validated_outcome": "Before the fix, three route/class regressions failed; all ten product boundary cases now pass. A real TCP incomplete-header request is closed by the production HTTP server after five seconds without reaching the handler; existing auth/TLS tests also pass."
+}
