@@ -53,6 +53,29 @@ func TestTruncateBody(t *testing.T) {
 	}
 }
 
+func TestCrossHostRedirectStripsConfiguredHeaders(t *testing.T) {
+	var received string
+	target := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		received = r.Header.Get("X-Private-Key")
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{}`))
+	}))
+	t.Cleanup(target.Close)
+	source := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, target.URL, http.StatusFound)
+	}))
+	t.Cleanup(source.Close)
+
+	c := New(&config.Config{BaseURL: source.URL, Headers: map[string]string{"X-Private-Key": "do-not-forward"}}, time.Second, 0)
+	c.NoCache = true
+	if _, err := c.Get(context.Background(), "/start", nil); err != nil {
+		t.Fatal(err)
+	}
+	if received != "" {
+		t.Fatalf("configured header leaked across host redirect: %q", received)
+	}
+}
+
 func TestTruncateBody_UTF8RuneAtBoundary(t *testing.T) {
 	t.Parallel()
 

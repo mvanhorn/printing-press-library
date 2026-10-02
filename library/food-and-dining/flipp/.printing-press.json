@@ -9,6 +9,12 @@
     "name": "mlabrenz",
     "handle": "mlabrenz"
   },
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
   "printer": "mlabrenz",
   "printer_name": "mlabrenz",
   "spec_path": "flipp-spec.yaml",

@@ -1,5 +1,8 @@
 # Flipp CLI
 
+Created by [@mlabrenz](https://github.com/mlabrenz) (mlabrenz).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 **Find local Flipp flyer deals, coupons, and grocery savings by ZIP or postal code.**
 
 Search local weekly flyers, coupons, merchants, and item clippings from Flipp's unauthenticated web endpoints. The CLI adds agent-native JSON, local SQLite, basket comparison, expiring-deal views, and unit-price helpers for grocery planning.

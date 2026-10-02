@@ -172,6 +172,11 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 			// Cookie) but not custom ones, so a custom API-key header would be
 			// forwarded verbatim to the redirect target. Delete it explicitly.
 			req.Header.Del("Authorization")
+			if c.Config != nil {
+				for name := range c.Config.Headers {
+					req.Header.Del(name)
+				}
+			}
 		}
 		return nil
 	}
