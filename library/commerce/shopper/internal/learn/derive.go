@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/store"
 )
 
@@ -95,21 +96,29 @@ type flagAliasDerivedPayload struct {
 // actually paired something, so framework-only invocations never
 // create the learn database from this path.
 func DeriveFlagCorrections(openStore func() (CandidateStore, error), flagExists func(name string) bool) error {
-	if JournalCaptureDisabled() {
-		return nil
-	}
-	offset, err := LoadJournalOffset()
+	stateDir, err := cliutil.StateDir()
 	if err != nil {
 		return err
 	}
-	entries, next, err := ReadJournalFrom(offset)
+	return DeriveFlagCorrectionsAt(stateDir, openStore, flagExists)
+}
+
+func DeriveFlagCorrectionsAt(stateDir string, openStore func() (CandidateStore, error), flagExists func(name string) bool) error {
+	if JournalCaptureDisabled() {
+		return nil
+	}
+	offset, err := LoadJournalOffsetAt(stateDir)
+	if err != nil {
+		return err
+	}
+	entries, next, err := ReadJournalFromAt(stateDir, offset)
 	if err != nil {
 		return err
 	}
 	if len(entries) == 0 && next == offset {
 		return nil
 	}
-	recallSeed := sessionRecallFamiliesBeforeBatch(entries, offset)
+	recallSeed := sessionRecallFamiliesBeforeBatchAt(stateDir, entries, offset)
 	pairs, pending := pairFlagCorrections(entries, recallSeed, time.Now().UTC(), flagExists)
 	if pending {
 		return nil
@@ -143,7 +152,7 @@ func DeriveFlagCorrections(openStore func() (CandidateStore, error), flagExists 
 			}
 		}
 	}
-	return StoreJournalOffset(next)
+	return StoreJournalOffsetAt(stateDir, next)
 }
 
 // flagCorrectionSignature is the stable derivation signature for a
@@ -301,6 +310,14 @@ func inferCorrectedFlagFromNewSuccessFlag(failed, success JournalEntry) string {
 // current batch, the most recent recall family before the persisted offset.
 // Best-effort: read errors yield no seed and derivation still proceeds.
 func sessionRecallFamiliesBeforeBatch(batch []JournalEntry, offset JournalOffset) map[string]string {
+	stateDir, err := cliutil.StateDir()
+	if err != nil {
+		return map[string]string{}
+	}
+	return sessionRecallFamiliesBeforeBatchAt(stateDir, batch, offset)
+}
+
+func sessionRecallFamiliesBeforeBatchAt(stateDir string, batch []JournalEntry, offset JournalOffset) map[string]string {
 	if offset.Segment == "" && offset.Byte == 0 {
 		return map[string]string{}
 	}
@@ -313,7 +330,7 @@ func sessionRecallFamiliesBeforeBatch(batch []JournalEntry, offset JournalOffset
 	if len(active) == 0 {
 		return map[string]string{}
 	}
-	dir, err := JournalDir()
+	dir, err := JournalDirAt(stateDir)
 	if err != nil {
 		return map[string]string{}
 	}

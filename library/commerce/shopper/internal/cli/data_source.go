@@ -87,7 +87,7 @@ func isNetworkError(err error) bool {
 // threaded into OpenReadOnlyContext so a cancelled command (SIGINT, deadline)
 // interrupts the driver-init SQLITE_BUSY retry rather than blocking on it.
 func openStoreForRead(ctx context.Context, flags *rootFlags) (*store.Store, error) {
-	dbPath, err := autoRefreshDBPath(flags)
+	dbPath, err := localStorePath(flags, "")
 	if err != nil {
 		return nil, err
 	}
@@ -95,6 +95,23 @@ func openStoreForRead(ctx context.Context, flags *rootFlags) (*store.Store, erro
 		return nil, nil
 	}
 	return store.OpenReadOnlyContext(ctx, dbPath)
+}
+
+// localStorePath keeps an explicit --db choice while selecting the active
+// client profile's store for commands that use the default path.
+func localStorePath(flags *rootFlags, explicit string) (string, error) {
+	if explicit != "" {
+		return explicit, nil
+	}
+	return autoRefreshDBPath(flags)
+}
+
+func openLocalStore(ctx context.Context, flags *rootFlags, explicit string) (*store.Store, error) {
+	dbPath, err := localStorePath(flags, explicit)
+	if err != nil {
+		return nil, err
+	}
+	return store.OpenWithContext(ctx, dbPath)
 }
 
 // localProvenance builds a DataProvenance for local data reads.

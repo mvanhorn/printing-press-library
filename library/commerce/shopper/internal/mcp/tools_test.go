@@ -15,6 +15,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/cliutil/testenv"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/mcp/bound"
+	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/platform"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/store"
 )
 
@@ -35,9 +36,9 @@ func TestMCPPathResolutionMatchesCLIResolverWithHomeEnv(t *testing.T) {
 		t.Fatalf("MCP config path = %q, want CLI resolver path %q", cfg.Path, want)
 	}
 
-	gotDB, err := mcpDBPath()
+	gotDB, err := mcpDBPathForContext(verifiedMCPTestContext(t))
 	if err != nil {
-		t.Fatalf("mcpDBPath() error = %v", err)
+		t.Fatalf("mcpDBPathForContext() error = %v", err)
 	}
 	cliDataDir, err := cliutil.DataDir()
 	if err != nil {
@@ -59,9 +60,9 @@ func TestMCPPathResolutionMatchesCLIResolverWithPlatformDefaults(t *testing.T) {
 		t.Fatalf("MCP config path = %q, want %q", cfg.Path, want)
 	}
 
-	gotDB, err := mcpDBPath()
+	gotDB, err := mcpDBPathForContext(verifiedMCPTestContext(t))
 	if err != nil {
-		t.Fatalf("mcpDBPath() error = %v", err)
+		t.Fatalf("mcpDBPathForContext() error = %v", err)
 	}
 	if want := filepath.Join(home, ".local", "share", "shopper-pp-cli", "data.db"); gotDB != want {
 		t.Fatalf("MCP db path = %q, want %q", gotDB, want)
@@ -76,6 +77,90 @@ func resetMCPPathEnv(t *testing.T) string {
 	}
 	t.Cleanup(restore)
 	return testenv.Isolate(t, cliutil.ConfigDir, cliutil.DataDir, cliutil.StateDir, cliutil.CacheDir)
+}
+
+func defaultMCPTestDBPath(t *testing.T) string {
+	t.Helper()
+	dir, err := cliutil.DataDir()
+	if err != nil {
+		t.Fatalf("resolve test data directory: %v", err)
+	}
+	return filepath.Join(dir, "data.db")
+}
+
+func verifiedMCPTestContext(t *testing.T) context.Context {
+	t.Helper()
+	path := defaultMCPTestDBPath(t)
+	return platform.ContextWithSession(context.Background(), &platform.Session{
+		GateOutcome: platform.GateVerified,
+		Paths:       platform.Paths{DataFile: path},
+	})
+}
+
+func TestMCPSQLUsesVerifiedProfileStore(t *testing.T) {
+	resetMCPPathEnv(t)
+	globalPath := defaultMCPTestDBPath(t)
+	profilePath := filepath.Join(t.TempDir(), "profile", "data.db")
+	for _, fixture := range []struct {
+		path string
+		id   string
+	}{{globalPath, "global-only"}, {profilePath, "profile-only"}} {
+		db, err := store.Open(fixture.path)
+		if err != nil {
+			t.Fatalf("open fixture store: %v", err)
+		}
+		if _, _, err := db.UpsertBatch("orders", []json.RawMessage{json.RawMessage(`{"id":"` + fixture.id + `"}`)}); err != nil {
+			t.Fatalf("seed fixture store: %v", err)
+		}
+		if err := db.Close(); err != nil {
+			t.Fatalf("close fixture store: %v", err)
+		}
+	}
+	ctx := platform.ContextWithSession(context.Background(), &platform.Session{
+		GateOutcome: platform.GateVerified,
+		Paths:       platform.Paths{DataFile: profilePath},
+	})
+	result, err := handleSQL(ctx, mcplib.CallToolRequest{Params: mcplib.CallToolParams{
+		Arguments: map[string]any{"query": "SELECT id FROM resources WHERE resource_type = 'orders'"},
+	}})
+	if err != nil || result == nil || result.IsError {
+		t.Fatalf("profile SQL result = %v, err = %v", result, err)
+	}
+	text := mcpTextContent(t, result)
+	if !strings.Contains(text, "profile-only") || strings.Contains(text, "global-only") {
+		t.Fatalf("MCP SQL crossed profile store boundary: %s", text)
+	}
+	withoutGate, err := handleSQL(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
+		Arguments: map[string]any{"query": "SELECT id FROM resources"},
+	}})
+	if err != nil || withoutGate == nil || !withoutGate.IsError {
+		t.Fatalf("MCP SQL without a verified profile was allowed: result=%v err=%v", withoutGate, err)
+	}
+}
+
+func TestMCPContextReportsVerifiedProfilePaths(t *testing.T) {
+	base := t.TempDir()
+	paths := platform.Paths{
+		ConfigFile: filepath.Join(base, "profile", "config.toml"),
+		DataFile:   filepath.Join(base, "profile", "data.db"),
+		StateDir:   filepath.Join(base, "profile", "state"),
+		CacheDir:   filepath.Join(base, "profile", "cache"),
+	}
+	ctx := platform.ContextWithSession(context.Background(), &platform.Session{GateOutcome: platform.GateVerified, Paths: paths})
+	result, err := handleContext(ctx, mcplib.CallToolRequest{})
+	if err != nil || result == nil || result.IsError {
+		t.Fatalf("MCP context failed: result=%v err=%v", result, err)
+	}
+	text := mcpTextContent(t, result)
+	for _, want := range []string{filepath.Dir(paths.ConfigFile), filepath.Dir(paths.DataFile), paths.StateDir, paths.CacheDir} {
+		if !strings.Contains(text, want) {
+			t.Fatalf("MCP context omits profile path %q", want)
+		}
+	}
+	missing, err := handleContext(context.Background(), mcplib.CallToolRequest{})
+	if err != nil || missing == nil || !missing.IsError {
+		t.Fatalf("MCP context without a verified profile was allowed: result=%v err=%v", missing, err)
+	}
 }
 
 func TestMCPRegisterToolsPreservesTypedSpecialTools(t *testing.T) {
@@ -112,7 +197,7 @@ func TestMCPRegisterToolsPreservesTypedSpecialTools(t *testing.T) {
 func TestMCPSearchMissingStoreIsActionable(t *testing.T) {
 	resetMCPPathEnv(t)
 
-	result, err := handleSearch(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
+	result, err := handleSearch(verifiedMCPTestContext(t), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
 		Arguments: map[string]any{"query": "alpha"},
 	}})
 	if err != nil {
@@ -131,10 +216,7 @@ func TestMCPSearchMissingStoreIsActionable(t *testing.T) {
 
 func TestMCPSearchEmptyStoreReturnsActionableEnvelope(t *testing.T) {
 	resetMCPPathEnv(t)
-	path, err := mcpDBPath()
-	if err != nil {
-		t.Fatalf("mcpDBPath() error = %v", err)
-	}
+	path := defaultMCPTestDBPath(t)
 	db, err := store.Open(path)
 	if err != nil {
 		t.Fatalf("creating empty store: %v", err)
@@ -143,7 +225,7 @@ func TestMCPSearchEmptyStoreReturnsActionableEnvelope(t *testing.T) {
 		t.Fatalf("closing empty store: %v", err)
 	}
 
-	result, err := handleSearch(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
+	result, err := handleSearch(verifiedMCPTestContext(t), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
 		Arguments: map[string]any{"query": "alpha"},
 	}})
 	if err != nil {
@@ -183,7 +265,7 @@ func TestMCPSearchEmptyStoreReturnsActionableEnvelope(t *testing.T) {
 func TestMCPSQLMissingStoreIsActionable(t *testing.T) {
 	resetMCPPathEnv(t)
 
-	result, err := handleSQL(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
+	result, err := handleSQL(verifiedMCPTestContext(t), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
 		Arguments: map[string]any{"query": "SELECT 1"},
 	}})
 	if err != nil {
@@ -202,10 +284,7 @@ func TestMCPSQLMissingStoreIsActionable(t *testing.T) {
 
 func TestMCPSQLEmptyStoreReturnsActionableEnvelope(t *testing.T) {
 	resetMCPPathEnv(t)
-	path, err := mcpDBPath()
-	if err != nil {
-		t.Fatalf("mcpDBPath() error = %v", err)
-	}
+	path := defaultMCPTestDBPath(t)
 	db, err := store.Open(path)
 	if err != nil {
 		t.Fatalf("creating empty store: %v", err)
@@ -214,7 +293,7 @@ func TestMCPSQLEmptyStoreReturnsActionableEnvelope(t *testing.T) {
 		t.Fatalf("closing empty store: %v", err)
 	}
 
-	result, err := handleSQL(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
+	result, err := handleSQL(verifiedMCPTestContext(t), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
 		Arguments: map[string]any{"query": "SELECT * FROM resources"},
 	}})
 	if err != nil {
@@ -257,10 +336,7 @@ func TestMCPSQLEmptyStoreReturnsActionableEnvelope(t *testing.T) {
 
 func TestMCPSQLDomainTableMismatchIsActionable(t *testing.T) {
 	resetMCPPathEnv(t)
-	path, err := mcpDBPath()
-	if err != nil {
-		t.Fatalf("mcpDBPath() error = %v", err)
-	}
+	path := defaultMCPTestDBPath(t)
 	db, err := store.Open(path)
 	if err != nil {
 		t.Fatalf("creating empty store: %v", err)
@@ -269,7 +345,7 @@ func TestMCPSQLDomainTableMismatchIsActionable(t *testing.T) {
 		t.Fatalf("closing empty store: %v", err)
 	}
 
-	result, err := handleSQL(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
+	result, err := handleSQL(verifiedMCPTestContext(t), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
 		Arguments: map[string]any{"query": "SELECT * FROM widgets"},
 	}})
 	if err != nil {

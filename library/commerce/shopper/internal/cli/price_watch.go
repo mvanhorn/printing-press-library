@@ -119,7 +119,7 @@ First run: captures price baseline; no alerts yet (no history to compare).`,
 				}
 			}
 
-			db, err := store.OpenWithContext(cmd.Context(), defaultDBPath("shopper-pp-cli"))
+			db, err := openLocalStore(cmd.Context(), flags, "")
 			if err != nil {
 				return fmt.Errorf("opening local store: %w", err)
 			}

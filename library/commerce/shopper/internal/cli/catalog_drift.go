@@ -99,7 +99,7 @@ Requires accumulated price_snapshots (built by running price-watch repeatedly).`
 				flagMetric = "per-unit"
 			}
 
-			db, err := store.OpenWithContext(cmd.Context(), defaultDBPath("shopper-pp-cli"))
+			db, err := openLocalStore(cmd.Context(), flags, "")
 			if err != nil {
 				return fmt.Errorf("opening local store: %w", err)
 			}

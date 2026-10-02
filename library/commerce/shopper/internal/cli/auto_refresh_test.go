@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/learn"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/platform"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/store"
 )
@@ -183,8 +184,11 @@ func TestAutoRefreshDBPathUsesActiveProfileStore(t *testing.T) {
 
 func TestAutoRefreshAndLocalReadUseSameProfileStore(t *testing.T) {
 	t.Setenv("SHOPPER_DATA_DIR", "")
+	t.Setenv("SHOPPER_STATE_DIR", "")
 	t.Setenv("SHOPPER_CONFIG_DIR", "")
 	t.Setenv("SHOPPER_CONFIG", "")
+	t.Setenv("SHOPPER_NO_LEARN", "")
+	t.Setenv("SHOPPER_LEARN_NO_CAPTURE", "")
 	home := t.TempDir()
 	restore, err := cliutil.SetHomeOverride(home)
 	if err != nil {
@@ -211,7 +215,10 @@ func TestAutoRefreshAndLocalReadUseSameProfileStore(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open global store: %v", err)
 	}
-	if _, _, err := defaultStore.UpsertBatch("orders", []json.RawMessage{json.RawMessage(`{"id":"global-only"}`)}); err != nil {
+	if _, _, err := defaultStore.UpsertBatch("orders", []json.RawMessage{
+		json.RawMessage(`{"id":"global-only"}`),
+		json.RawMessage(`{"id":"global-only-second"}`),
+	}); err != nil {
 		t.Fatalf("seed global row: %v", err)
 	}
 	if err := defaultStore.SaveSyncStateAt("orders", "", 1, time.Now()); err != nil {
@@ -231,7 +238,8 @@ func TestAutoRefreshAndLocalReadUseSameProfileStore(t *testing.T) {
 		t.Fatalf("close profile store: %v", err)
 	}
 
-	flags := &rootFlags{dataSource: "auto", platformSession: &platform.Session{Paths: platform.Paths{DataFile: profilePath}}}
+	profileStatePath := filepath.Join(home, "profiles", "tenant-a", "state")
+	flags := &rootFlags{dataSource: "auto", platformSession: &platform.Session{Paths: platform.Paths{DataFile: profilePath, StateDir: profileStatePath}}}
 	meta := autoRefreshIfStale(context.Background(), flags, []string{"orders"})
 	if !meta.Ran || meta.Reason != "refreshed" {
 		t.Fatalf("profile refresh = %+v, want ran/refreshed", meta)
@@ -242,6 +250,75 @@ func TestAutoRefreshAndLocalReadUseSameProfileStore(t *testing.T) {
 	}
 	if !strings.Contains(string(data), "profile-new") || strings.Contains(string(data), "global-only") {
 		t.Fatalf("local read selected wrong store: %s", data)
+	}
+	flags.asJSON = true
+	analytics := newAnalyticsCmd(flags)
+	var analyticsOutput bytes.Buffer
+	analytics.SetOut(&analyticsOutput)
+	analytics.SetErr(io.Discard)
+	analytics.SetArgs([]string{"--type", "orders"})
+	if err := analytics.Execute(); err != nil {
+		t.Fatalf("profile analytics: %v", err)
+	}
+	var analyticsResult map[string]any
+	if err := json.Unmarshal(analyticsOutput.Bytes(), &analyticsResult); err != nil {
+		t.Fatalf("decode profile analytics: %v", err)
+	}
+	analyticsData, ok := analyticsResult["data"].(map[string]any)
+	if !ok || analyticsData["count"] != float64(1) {
+		t.Fatalf("profile analytics result = %v, want count 1", analyticsResult)
+	}
+	if err := appendFeedback(FeedbackEntry{Text: "profile-only-note"}, flags); err != nil {
+		t.Fatalf("write profile feedback: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(filepath.Dir(defaultPath), "feedback.jsonl")); !os.IsNotExist(err) {
+		t.Fatalf("feedback reached global path: %v", err)
+	}
+	stateDir, err := profileStateDir(flags)
+	if err != nil {
+		t.Fatalf("select profile state dir: %v", err)
+	}
+	learn.JournalInvocationAt(stateDir, learn.JournalEntry{Cmd: []string{"orders", "list"}, QueryFamily: "profile-only-family"})
+	journalEntries, _, err := learn.ReadJournalFromAt(stateDir, learn.JournalOffset{})
+	if err != nil || len(journalEntries) != 1 || journalEntries[0].QueryFamily != "profile-only-family" {
+		t.Fatalf("profile journal = %v, err = %v", journalEntries, err)
+	}
+	if err := learn.AppendTeachLogWarningAt(stateDir, "teach", "profile-only-query", learn.Warning{Code: "synthetic"}); err != nil {
+		t.Fatalf("write profile teach warning: %v", err)
+	}
+	warnings, err := learn.ReadTeachLogWarningsAt(stateDir)
+	if err != nil || len(warnings) != 1 || warnings[0].Query != "profile-only-query" {
+		t.Fatalf("profile teach warnings = %v, err = %v", warnings, err)
+	}
+	writeTeachErrLog(flags, "synthetic profile error")
+	if err := appendLearningsAudit(flags, map[string]any{"action": "profile-test"}); err != nil {
+		t.Fatalf("write profile learnings audit: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(stateDir, "learnings.jsonl")); err != nil {
+		t.Fatalf("profile learnings audit missing: %v", err)
+	}
+	globalStateDir, err := cliutil.StateDir()
+	if err != nil {
+		t.Fatalf("select global state dir: %v", err)
+	}
+	for _, name := range []string{"learn", "teach.log", "learnings.jsonl"} {
+		if _, err := os.Stat(filepath.Join(globalStateDir, name)); !os.IsNotExist(err) {
+			t.Fatalf("profile learning state reached global %s: %v", name, err)
+		}
+	}
+	if err := learn.AppendTeachLogWarning("teach", "global-only-query", learn.Warning{Code: "synthetic"}); err != nil {
+		t.Fatalf("seed isolated global warning: %v", err)
+	}
+	warningsCmd := newLearningsListCmd(flags)
+	var warningsOutput bytes.Buffer
+	warningsCmd.SetOut(&warningsOutput)
+	warningsCmd.SetErr(io.Discard)
+	warningsCmd.SetArgs([]string{"--warnings"})
+	if err := warningsCmd.Execute(); err != nil {
+		t.Fatalf("list profile warnings: %v", err)
+	}
+	if !strings.Contains(warningsOutput.String(), "profile-only-query") || strings.Contains(warningsOutput.String(), "global-only-query") {
+		t.Fatalf("warnings command crossed profile state boundary: %s", warningsOutput.String())
 	}
 	writeMutationResponseToStore(context.Background(), flags, "cart", json.RawMessage(`{"id":"profile-cart"}`), "")
 	cartData, _, err := resolveLocal(context.Background(), flags, io.Discard, "cart", true, "/cart", nil, "test")

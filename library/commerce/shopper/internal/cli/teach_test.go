@@ -964,8 +964,8 @@ func TestLearnEvents_InsertFailureNeverFailsRecall(t *testing.T) {
 		Playbook: &learn.ResolvedPlaybook{QueryFamily: "question some"},
 	}
 	// Must not panic and must not propagate an error (void contract).
-	recordRecallEvents(s, result)
-	recordRecallEvents(nil, result)
+	recordRecallEvents(s, nil, result)
+	recordRecallEvents(nil, nil, result)
 
 	// The failure is diagnosable in teach.log.
 	stateDir, err := cliutil.StateDir()
@@ -1022,7 +1022,7 @@ func TestLearnEvents_ConcurrentTeachRecallLosesNothing(t *testing.T) {
 		for i := 0; i < rounds; i++ {
 			// recordRecallEvents is the command side's insert path;
 			// a hit result with a playbook writes two events.
-			recordRecallEvents(recallStore, learn.Result{
+			recordRecallEvents(recallStore, nil, learn.Result{
 				Family: "fam-conc",
 				Found:  true,
 				Results: []learn.Hit{

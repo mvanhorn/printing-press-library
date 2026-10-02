@@ -64,6 +64,69 @@ func TestPlatformArtifactOverridesCannotEscapeSelectedProfile(t *testing.T) {
 	}
 }
 
+func TestPlatformStoreSelectorIsNotADataPathOverride(t *testing.T) {
+	t.Setenv("SHOPPER_DB", "")
+	session := &platform.Session{Profile: &platform.Profile{Name: "tenant-a"}, CLI: "shopper-pp-cli", Paths: platform.Paths{DataFile: filepath.Join(t.TempDir(), "data.db")}}
+	command := &cobra.Command{Use: "catalog"}
+	var storefront string
+	command.Flags().StringVar(&storefront, "store", "", "storefront")
+	if err := command.Flags().Parse([]string{"--store", "fresh"}); err != nil {
+		t.Fatal(err)
+	}
+	if err := validatePlatformArtifactOverrides(command, session); err != nil {
+		t.Fatalf("storefront selector was treated as a data path: %v", err)
+	}
+}
+
+func TestOptionalArtifactCommandsSelectProfileWithoutLiveGate(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	t.Setenv("XDG_DATA_HOME", t.TempDir())
+	t.Setenv("XDG_CACHE_HOME", t.TempDir())
+	t.Setenv("XDG_STATE_HOME", t.TempDir())
+	t.Setenv("PRINTING_PRESS_CLIENT_PROFILE", "tenant-a")
+	t.Setenv("SHOPPER_DATA_DIR", "")
+	t.Setenv("SHOPPER_STATE_DIR", "")
+	t.Setenv("SHOPPER_FEEDBACK_ENDPOINT", "")
+	t.Setenv("SHOPPER_FEEDBACK_AUTO_SEND", "")
+	if err := platform.SaveProfile(&platform.Profile{
+		SchemaVersion: platform.ProfileSchemaVersion,
+		Name:          "tenant-a",
+		Sources:       map[string]platform.SourceProfile{"public-site": {ExpectedBaseURL: "https://tenant.example"}},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	previousRegistration := registeredPlatformSource
+	t.Cleanup(func() { registeredPlatformSource = previousRegistration })
+	registeredPlatformSource = &platformSourceRegistration{Source: "public-site", Adapter: conformanceIdentityAdapter{}, Credentialless: true}
+
+	root := RootCmd()
+	root.SetArgs([]string{"feedback", "profile-only-feedback"})
+	root.SetOut(&bytes.Buffer{})
+	root.SetErr(&bytes.Buffer{})
+	if err := root.Execute(); err != nil {
+		t.Fatalf("feedback profile selection: %v", err)
+	}
+	paths, err := platform.PathsFor("tenant-a", "shopper-pp-cli", "public-site")
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(filepath.Join(filepath.Dir(paths.DataFile), "feedback.jsonl"))
+	if err != nil || !strings.Contains(string(data), "profile-only-feedback") {
+		t.Fatalf("feedback did not use selected profile: err=%v", err)
+	}
+	globalData := filepath.Join(os.Getenv("XDG_DATA_HOME"), "shopper-pp-cli", "feedback.jsonl")
+	if _, err := os.Stat(globalData); err == nil {
+		t.Fatal("profile feedback leaked into global data")
+	}
+	flags := &rootFlags{clientProfileName: "tenant-a"}
+	if err := prepareOptionalArtifactProfile(flags); err != nil {
+		t.Fatalf("agent-context profile selection: %v", err)
+	}
+	if got := buildAgentContextPaths(flags).StateDir; got != paths.StateDir {
+		t.Fatalf("agent-context state dir = %q, want %q", got, paths.StateDir)
+	}
+}
+
 func TestPlatformCredentiallessRegistrationAllowsEmptyReferences(t *testing.T) {
 	previousRegistration := registeredPlatformSource
 	t.Cleanup(func() { registeredPlatformSource = previousRegistration })

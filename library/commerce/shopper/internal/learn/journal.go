@@ -167,6 +167,14 @@ func JournalDir() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("journal: resolve state dir: %w", err)
 	}
+	return JournalDirAt(stateDir)
+}
+
+// JournalDirAt isolates an invocation journal inside one client profile.
+func JournalDirAt(stateDir string) (string, error) {
+	if strings.TrimSpace(stateDir) == "" {
+		return "", fmt.Errorf("journal: state dir is empty")
+	}
 	dir := filepath.Join(stateDir, journalDirName)
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return "", fmt.Errorf("journal: mkdir %s: %w", dir, err)
@@ -196,13 +204,24 @@ func journalSegmentDate(name string) (time.Time, bool) {
 // context. Fail-open: a write failure warns to stderr once per
 // process and never fails or slows the command.
 func JournalInvocation(entry JournalEntry) {
+	stateDir, err := cliutil.StateDir()
+	if err != nil {
+		journalWarnOnce.Do(func() {
+			fmt.Fprintf(os.Stderr, "warning: learn journal write skipped: %v\n", err)
+		})
+		return
+	}
+	JournalInvocationAt(stateDir, entry)
+}
+
+func JournalInvocationAt(stateDir string, entry JournalEntry) {
 	if JournalCaptureDisabled() {
 		return
 	}
 	if entry.QueryFamily == "" && len(entry.UnresolvedEntities) == 0 {
 		entry.QueryFamily, entry.UnresolvedEntities = takeJournalLearnContext()
 	}
-	if err := AppendJournalEntry(entry); err != nil {
+	if err := AppendJournalEntryAt(stateDir, entry); err != nil {
 		journalWarnOnce.Do(func() {
 			fmt.Fprintf(os.Stderr, "warning: learn journal write skipped: %v\n", err)
 		})
@@ -215,6 +234,14 @@ func JournalInvocation(entry JournalEntry) {
 // concurrent appenders (second goroutine or process) safe: each entry
 // is one atomic write well under the platform pipe-buffer bound.
 func AppendJournalEntry(entry JournalEntry) error {
+	stateDir, err := cliutil.StateDir()
+	if err != nil {
+		return err
+	}
+	return AppendJournalEntryAt(stateDir, entry)
+}
+
+func AppendJournalEntryAt(stateDir string, entry JournalEntry) error {
 	if JournalCaptureDisabled() {
 		return nil
 	}
@@ -224,7 +251,7 @@ func AppendJournalEntry(entry JournalEntry) error {
 	if entry.SessionKey == "" {
 		entry.SessionKey = JournalSessionKey()
 	}
-	dir, err := JournalDir()
+	dir, err := JournalDirAt(stateDir)
 	if err != nil {
 		return err
 	}
@@ -357,7 +384,15 @@ func cleanupJournalSegments(dir string) error {
 // surviving segment from byte 0 — offsets survive rollover by
 // construction because segments are only ever deleted whole.
 func ReadJournalFrom(offset JournalOffset) ([]JournalEntry, JournalOffset, error) {
-	dir, err := JournalDir()
+	stateDir, err := cliutil.StateDir()
+	if err != nil {
+		return nil, offset, err
+	}
+	return ReadJournalFromAt(stateDir, offset)
+}
+
+func ReadJournalFromAt(stateDir string, offset JournalOffset) ([]JournalEntry, JournalOffset, error) {
+	dir, err := JournalDirAt(stateDir)
 	if err != nil {
 		return nil, offset, err
 	}
@@ -411,7 +446,15 @@ func ReadJournalFrom(offset JournalOffset) ([]JournalEntry, JournalOffset, error
 // LoadJournalOffset reads the persisted derivation offset. A missing
 // offset file returns the zero offset (read everything) and no error.
 func LoadJournalOffset() (JournalOffset, error) {
-	dir, err := JournalDir()
+	stateDir, err := cliutil.StateDir()
+	if err != nil {
+		return JournalOffset{}, err
+	}
+	return LoadJournalOffsetAt(stateDir)
+}
+
+func LoadJournalOffsetAt(stateDir string) (JournalOffset, error) {
+	dir, err := JournalDirAt(stateDir)
 	if err != nil {
 		return JournalOffset{}, err
 	}
@@ -433,7 +476,15 @@ func LoadJournalOffset() (JournalOffset, error) {
 
 // StoreJournalOffset persists the derivation offset atomically.
 func StoreJournalOffset(offset JournalOffset) error {
-	dir, err := JournalDir()
+	stateDir, err := cliutil.StateDir()
+	if err != nil {
+		return err
+	}
+	return StoreJournalOffsetAt(stateDir, offset)
+}
+
+func StoreJournalOffsetAt(stateDir string, offset JournalOffset) error {
+	dir, err := JournalDirAt(stateDir)
 	if err != nil {
 		return err
 	}

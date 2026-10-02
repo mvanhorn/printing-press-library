@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/store"
 )
 
@@ -233,6 +234,14 @@ func refreshShorterSynthesis(s *store.Store, row store.CandidateRow, payload str
 // tombstone) returns (zero row, false, nil): aborting synthesis is a
 // non-event, never an error, and can never fail the teach.
 func SynthesizePlaybookCandidate(s *store.Store, queryFamily, sessionKey string) (store.CandidateRow, bool, error) {
+	stateDir, err := cliutil.StateDir()
+	if err != nil {
+		return store.CandidateRow{}, false, err
+	}
+	return SynthesizePlaybookCandidateAt(stateDir, s, queryFamily, sessionKey)
+}
+
+func SynthesizePlaybookCandidateAt(stateDir string, s *store.Store, queryFamily, sessionKey string) (store.CandidateRow, bool, error) {
 	queryFamily = strings.TrimSpace(queryFamily)
 	if s == nil || queryFamily == "" || strings.TrimSpace(sessionKey) == "" {
 		return store.CandidateRow{}, false, nil
@@ -251,7 +260,7 @@ func SynthesizePlaybookCandidate(s *store.Store, queryFamily, sessionKey string)
 		return store.CandidateRow{}, false, nil
 	}
 
-	entries, _, err := ReadJournalFrom(JournalOffset{})
+	entries, _, err := ReadJournalFromAt(stateDir, JournalOffset{})
 	if err != nil {
 		return store.CandidateRow{}, false, fmt.Errorf("synthesis: read journal: %w", err)
 	}

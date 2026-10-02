@@ -136,7 +136,7 @@ alter command behavior or recall's verified results on their own.`,
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "learnings candidates")
 			}
-			s, err := store.OpenWithContext(cmd.Context(), learnDBPath(dbPath))
+			s, err := openLocalStore(cmd.Context(), flags, dbPath)
 			if err != nil {
 				return fmt.Errorf("learnings candidates: %w", err)
 			}
@@ -212,7 +212,7 @@ Usage errors (unknown id, non-open status) exit 2.`,
 			if err != nil {
 				return usageErr(fmt.Errorf("learnings confirm: %w", err))
 			}
-			s, err := store.OpenWithContext(cmd.Context(), learnDBPath(dbPath))
+			s, err := openLocalStore(cmd.Context(), flags, dbPath)
 			if err != nil {
 				return fmt.Errorf("learnings confirm: %w", err)
 			}
@@ -235,16 +235,16 @@ Usage errors (unknown id, non-open status) exit 2.`,
 					row.ID, row.Class, row.Sightings, prettyCandidatePayload(row.Payload))
 			}
 
-			confirmed, materialized, err := confirmAndMaterializeCandidate(s, row)
+			confirmed, materialized, err := confirmAndMaterializeCandidate(s, flags, row)
 			if err != nil {
 				return fmt.Errorf("learnings confirm: %w", err)
 			}
 			// Measurement: telemetry-class, errors to teach.log only.
 			if evErr := s.InsertLearnEvent(store.LearnEventCandidateConfirmed,
 				learn.FamilyHash(row.QueryFamily), 0, false, store.LearnEventSurface()); evErr != nil {
-				writeTeachErrLog(fmt.Sprintf("learnings confirm: event insert: %v", evErr))
+				writeTeachErrLog(flags, fmt.Sprintf("learnings confirm: event insert: %v", evErr))
 			}
-			_ = appendLearningsAudit(map[string]any{
+			_ = appendLearningsAudit(flags, map[string]any{
 				"action":       "candidate-confirm",
 				"candidate_id": id,
 				"class":        row.Class,
@@ -276,12 +276,16 @@ Usage errors (unknown id, non-open status) exit 2.`,
 // confirming agent recalls the query it cares about, then confirms, and
 // the correction note lands under that family. Best-effort: any journal
 // read error yields "" and the caller reports the missing anchor.
-func confirmingSessionRecallFamily() string {
+func confirmingSessionRecallFamily(flags *rootFlags) string {
 	sessionKey := learn.JournalSessionKey()
 	if sessionKey == "" {
 		return ""
 	}
-	entries, _, err := learn.ReadJournalFrom(learn.JournalOffset{})
+	stateDir, err := profileStateDir(flags)
+	if err != nil {
+		return ""
+	}
+	entries, _, err := learn.ReadJournalFromAt(stateDir, learn.JournalOffset{})
 	if err != nil {
 		return ""
 	}
@@ -297,7 +301,7 @@ func confirmingSessionRecallFamily() string {
 // confirmAndMaterializeCandidate writes a candidate's payload into the
 // verified playbook tables per class and confirms the candidate in the
 // same store transaction.
-func confirmAndMaterializeCandidate(s *store.Store, row store.CandidateRow) (store.CandidateRow, map[string]any, error) {
+func confirmAndMaterializeCandidate(s *store.Store, flags *rootFlags, row store.CandidateRow) (store.CandidateRow, map[string]any, error) {
 	switch row.Class {
 	case store.CandidateClassPlaybookCandidate:
 		var p playbookCandidatePayload
@@ -342,7 +346,7 @@ func confirmAndMaterializeCandidate(s *store.Store, row store.CandidateRow) (sto
 			// This is the KTD8 fallback: an agent that recalls, sees the
 			// candidate, then confirms it anchors the note to the query
 			// it is actually working on.
-			family = confirmingSessionRecallFamily()
+			family = confirmingSessionRecallFamily(flags)
 		}
 		if family == "" {
 			return store.CandidateRow{}, nil, fmt.Errorf("candidate %d has no query_family anchor for its correction note; recall the query family first, then confirm", row.ID)
@@ -417,7 +421,7 @@ Usage errors (unknown id, no-reject-path candidates) exit 2.`,
 			if err != nil {
 				return usageErr(fmt.Errorf("learnings reject: %w", err))
 			}
-			s, err := store.OpenWithContext(cmd.Context(), learnDBPath(dbPath))
+			s, err := openLocalStore(cmd.Context(), flags, dbPath)
 			if err != nil {
 				return fmt.Errorf("learnings reject: %w", err)
 			}
@@ -440,9 +444,9 @@ Usage errors (unknown id, no-reject-path candidates) exit 2.`,
 			// Measurement: telemetry-class, errors to teach.log only.
 			if evErr := s.InsertLearnEvent(store.LearnEventCandidateRejected,
 				learn.FamilyHash(row.QueryFamily), 0, false, store.LearnEventSurface()); evErr != nil {
-				writeTeachErrLog(fmt.Sprintf("learnings reject: event insert: %v", evErr))
+				writeTeachErrLog(flags, fmt.Sprintf("learnings reject: event insert: %v", evErr))
 			}
-			_ = appendLearningsAudit(map[string]any{
+			_ = appendLearningsAudit(flags, map[string]any{
 				"action":       "candidate-reject",
 				"candidate_id": id,
 				"class":        row.Class,
@@ -491,7 +495,7 @@ purge also clears stale candidates nobody judged.`,
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "learnings purge")
 			}
-			s, err := store.OpenWithContext(cmd.Context(), learnDBPath(dbPath))
+			s, err := openLocalStore(cmd.Context(), flags, dbPath)
 			if err != nil {
 				return fmt.Errorf("learnings purge: %w", err)
 			}
@@ -505,7 +509,7 @@ purge also clears stale candidates nobody judged.`,
 			if err != nil {
 				return fmt.Errorf("learnings purge: %w", err)
 			}
-			_ = appendLearningsAudit(map[string]any{
+			_ = appendLearningsAudit(flags, map[string]any{
 				"action":     "candidate-purge",
 				"purged":     purged,
 				"expired":    expired,
@@ -538,7 +542,7 @@ purge also clears stale candidates nobody judged.`,
 //
 // Best-effort by contract: teach.go logs any returned error to
 // teach.log and never fails the teach itself.
-func promoteCandidateOnTeach(s *store.Store, family string) error {
+func promoteCandidateOnTeach(s *store.Store, flags *rootFlags, family string) error {
 	if s == nil || strings.TrimSpace(family) == "" {
 		return nil
 	}
@@ -563,7 +567,7 @@ func promoteCandidateOnTeach(s *store.Store, family string) error {
 			continue
 		}
 		if !exists {
-			if _, _, err := confirmAndMaterializeCandidate(s, row); err != nil {
+			if _, _, err := confirmAndMaterializeCandidate(s, flags, row); err != nil {
 				record(err)
 				continue
 			}
@@ -571,7 +575,7 @@ func promoteCandidateOnTeach(s *store.Store, family string) error {
 			record(err)
 			continue
 		}
-		_ = appendLearningsAudit(map[string]any{
+		_ = appendLearningsAudit(flags, map[string]any{
 			"action":       "candidate-promote-on-teach",
 			"candidate_id": row.ID,
 			"query_family": family,

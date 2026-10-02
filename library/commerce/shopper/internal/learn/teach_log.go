@@ -45,6 +45,13 @@ func TeachLogPath() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("teach log: resolve state dir: %w", err)
 	}
+	return TeachLogPathAt(dir)
+}
+
+func TeachLogPathAt(dir string) (string, error) {
+	if strings.TrimSpace(dir) == "" {
+		return "", fmt.Errorf("teach log: state dir is empty")
+	}
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return "", fmt.Errorf("teach log: mkdir %s: %w", dir, err)
 	}
@@ -65,6 +72,14 @@ func legacyTeachLogPath() (string, error) {
 // can act on it, but the canonical teach-time hook ignores the error
 // (the teach itself has already succeeded by the time this runs).
 func AppendTeachLogWarning(action, query string, w Warning) error {
+	stateDir, err := cliutil.StateDir()
+	if err != nil {
+		return err
+	}
+	return AppendTeachLogWarningAt(stateDir, action, query, w)
+}
+
+func AppendTeachLogWarningAt(stateDir, action, query string, w Warning) error {
 	if w.Code == "" {
 		return fmt.Errorf("teach log: warning code is required")
 	}
@@ -77,11 +92,19 @@ func AppendTeachLogWarning(action, query string, w Warning) error {
 		Detail:    w.Detail,
 		Suggested: w.Suggested,
 	}
-	return appendTeachLogEntry(entry)
+	return appendTeachLogEntryAt(stateDir, entry)
 }
 
 func appendTeachLogEntry(entry TeachLogEntry) error {
-	p, err := TeachLogPath()
+	stateDir, err := cliutil.StateDir()
+	if err != nil {
+		return err
+	}
+	return appendTeachLogEntryAt(stateDir, entry)
+}
+
+func appendTeachLogEntryAt(stateDir string, entry TeachLogEntry) error {
+	p, err := TeachLogPathAt(stateDir)
 	if err != nil {
 		return err
 	}
@@ -104,13 +127,29 @@ func appendTeachLogEntry(entry TeachLogEntry) error {
 // the teach log, optionally filtered by resource_id. Non-JSON lines
 // are silently skipped. Missing file returns (nil, nil).
 func ReadTeachLogWarnings(resourceIDs ...string) ([]TeachLogEntry, error) {
-	p, err := TeachLogPath()
+	stateDir, err := cliutil.StateDir()
 	if err != nil {
 		return nil, err
 	}
-	legacy, legacyErr := legacyTeachLogPath()
-	if legacyErr != nil || legacy == p {
-		legacy = ""
+	return readTeachLogWarningsAt(stateDir, true, resourceIDs...)
+}
+
+func ReadTeachLogWarningsAt(stateDir string, resourceIDs ...string) ([]TeachLogEntry, error) {
+	return readTeachLogWarningsAt(stateDir, false, resourceIDs...)
+}
+
+func readTeachLogWarningsAt(stateDir string, allowLegacy bool, resourceIDs ...string) ([]TeachLogEntry, error) {
+	p, err := TeachLogPathAt(stateDir)
+	if err != nil {
+		return nil, err
+	}
+	legacy := ""
+	if allowLegacy {
+		var legacyErr error
+		legacy, legacyErr = legacyTeachLogPath()
+		if legacyErr != nil || legacy == p {
+			legacy = ""
+		}
 	}
 	data, sourcePath, err := cliutil.ReadFileWithLegacyFallback(p, legacy)
 	if err != nil {

@@ -6,6 +6,7 @@ package cli
 import (
 	"encoding/json"
 	"os"
+	"path/filepath"
 	"sort"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/cliutil"
@@ -94,7 +95,7 @@ type agentContextFlag struct {
 	Default string `json:"default,omitempty"`
 }
 
-func newAgentContextCmd(rootCmd *cobra.Command) *cobra.Command {
+func newAgentContextCmd(rootCmd *cobra.Command, flags *rootFlags) *cobra.Command {
 	var pretty bool
 	cmd := &cobra.Command{
 		Use:         "agent-context",
@@ -104,7 +105,7 @@ func newAgentContextCmd(rootCmd *cobra.Command) *cobra.Command {
 agents can introspect this CLI at runtime without parsing --help or
 reading source. Schema is versioned via schema_version.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx := buildAgentContext(rootCmd)
+			ctx := buildAgentContext(rootCmd, flags)
 			enc := json.NewEncoder(os.Stdout)
 			if pretty {
 				enc.SetIndent("", "  ")
@@ -116,7 +117,7 @@ reading source. Schema is versioned via schema_version.`,
 	return cmd
 }
 
-func buildAgentContext(rootCmd *cobra.Command) agentContext {
+func buildAgentContext(rootCmd *cobra.Command, flags *rootFlags) agentContext {
 	envVars := []agentContextAuthEnvVar{
 		{
 			Name:        "SHOPPER_TOKEN",
@@ -145,7 +146,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 			Mode:    authMode,
 			EnvVars: envVars,
 		},
-		Paths:                      buildAgentContextPaths(),
+		Paths:                      buildAgentContextPaths(flags),
 		Discovery:                  buildAgentDiscoveryContext(),
 		Commands:                   collectAgentCommands(rootCmd),
 		AvailableProfiles:          profiles,
@@ -154,7 +155,16 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 	}
 }
 
-func buildAgentContextPaths() agentContextPaths {
+func buildAgentContextPaths(flags *rootFlags) agentContextPaths {
+	if flags != nil && flags.platformSession != nil {
+		paths := flags.platformSession.Paths
+		return agentContextPaths{
+			ConfigDir: filepath.Dir(paths.ConfigFile),
+			DataDir:   filepath.Dir(paths.DataFile),
+			StateDir:  paths.StateDir,
+			CacheDir:  paths.CacheDir,
+		}
+	}
 	configDir, _ := cliutil.ConfigDir()
 	dataDir, _ := cliutil.DataDir()
 	stateDir, _ := cliutil.StateDir()

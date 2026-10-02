@@ -23,6 +23,8 @@ import (
 
 const ProfileSchemaVersion = 1
 
+var ErrMissingClientProfile = errors.New("missing client profile")
+
 var profileNamePattern = regexp.MustCompile(`^[a-z0-9][a-z0-9._-]{0,62}$`)
 
 // Profile is the cross-source, non-secret client configuration shared by
@@ -344,7 +346,7 @@ func SelectProfile(explicit string) (string, error) {
 	}
 	data, err := os.ReadFile(filepath.Join(root, "config.toml")) // #nosec G304 -- platform-owned config path.
 	if errors.Is(err, os.ErrNotExist) {
-		return "", errors.New("missing client profile: pass --client-profile, set PRINTING_PRESS_CLIENT_PROFILE, or configure default_client_profile")
+		return "", fmt.Errorf("%w: pass --client-profile, set PRINTING_PRESS_CLIENT_PROFILE, or configure default_client_profile", ErrMissingClientProfile)
 	}
 	if err != nil {
 		return "", err
@@ -357,7 +359,7 @@ func SelectProfile(explicit string) (string, error) {
 	}
 	candidate := strings.TrimSpace(cfg.DefaultClientProfile)
 	if candidate == "" {
-		return "", errors.New("missing client profile: default_client_profile is empty")
+		return "", fmt.Errorf("%w: default_client_profile is empty", ErrMissingClientProfile)
 	}
 	if err := ValidateProfileName(candidate); err != nil {
 		return "", err

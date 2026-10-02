@@ -61,6 +61,7 @@ var amendMarkerRe = regexp.MustCompile(`(?:^|\n)\[amend \d{4}-`)
 // playbookInitOnce gates runPlaybookInitOnce so seeding happens at
 // most once per CLI process.
 var playbookInitOnce sync.Once
+var playbookProfileInit sync.Map
 
 // runPlaybookInitOnce opens the default DB and seeds
 // learning_playbooks from the embedded JSON+MD pairs in
@@ -68,9 +69,18 @@ var playbookInitOnce sync.Once
 // row's seed version matches playbooks.SeedVersion. Failures
 // downgrade to a stderr warning; the CLI continues without seeded
 // playbooks.
-func runPlaybookInitOnce(ctx context.Context) {
-	playbookInitOnce.Do(func() {
-		dbPath := defaultDBPath("shopper-pp-cli")
+func runPlaybookInitOnce(ctx context.Context, flags *rootFlags) {
+	dbPath, err := localStorePath(flags, "")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "warning: shopper-pp-cli: playbook init: store path: %v\n", err)
+		return
+	}
+	once := &playbookInitOnce
+	if flags != nil && flags.platformSession != nil {
+		loaded, _ := playbookProfileInit.LoadOrStore(dbPath, &sync.Once{})
+		once = loaded.(*sync.Once)
+	}
+	once.Do(func() {
 		s, err := store.OpenWithContext(ctx, dbPath)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "warning: shopper-pp-cli: playbook init: open store: %v\n", err)

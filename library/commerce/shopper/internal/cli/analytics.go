@@ -36,11 +36,7 @@ Data must be synced first with the sync command.`,
   shopper-pp-cli analytics --type messages --group-by channel_id --limit 10 --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			out := cmd.OutOrStdout()
-			if dbPath == "" {
-				dbPath = defaultDBPath("shopper-pp-cli")
-			}
-
-			db, err := store.OpenWithContext(cmd.Context(), dbPath)
+			db, err := openLocalStore(cmd.Context(), flags, dbPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w\nRun 'shopper-pp-cli sync' first.", err)
 			}

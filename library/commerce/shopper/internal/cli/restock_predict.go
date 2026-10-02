@@ -69,7 +69,7 @@ as you run 'basket diff' over time.`,
 			}
 			horizonDays := int(horizonDur.Hours() / 24)
 
-			db, err := store.OpenWithContext(cmd.Context(), defaultDBPath("shopper-pp-cli"))
+			db, err := openLocalStore(cmd.Context(), flags, "")
 			if err != nil {
 				return fmt.Errorf("opening local store: %w", err)
 			}

@@ -78,6 +78,7 @@ func initLearn(ctx context.Context, db *sql.DB) error {
 // most once per CLI process. The sync.Once keeps the cost off the
 // hot path for repeat command invocations within an MCP session.
 var learnInitOnce sync.Once
+var learnProfileInit sync.Map
 
 // runLearnInitOnce opens the canonical store path, fires initLearn
 // once per process, and downgrades any failure to a stderr warning.
@@ -85,9 +86,18 @@ var learnInitOnce sync.Once
 // failure must never abort the CLI — the recall path returns the
 // empty envelope if entity_lookups is missing rows, which is the
 // same behavior an opt-out CLI sees.
-func runLearnInitOnce(ctx context.Context) {
-	learnInitOnce.Do(func() {
-		dbPath := defaultDBPath("shopper-pp-cli")
+func runLearnInitOnce(ctx context.Context, flags *rootFlags) {
+	dbPath, err := localStorePath(flags, "")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "warning: shopper-pp-cli: learn init: store path: %v\n", err)
+		return
+	}
+	once := &learnInitOnce
+	if flags != nil && flags.platformSession != nil {
+		loaded, _ := learnProfileInit.LoadOrStore(dbPath, &sync.Once{})
+		once = loaded.(*sync.Once)
+	}
+	once.Do(func() {
 		s, err := store.OpenWithContext(ctx, dbPath)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "warning: shopper-pp-cli: learn init: open store: %v\n", err)

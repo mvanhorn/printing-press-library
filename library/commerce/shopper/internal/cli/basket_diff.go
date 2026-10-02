@@ -103,7 +103,11 @@ since the previous snapshot.`,
 
 			currentItems := cartSnapshotItems(cartView)
 
-			db, err := store.OpenWithContext(cmd.Context(), defaultDBPath("shopper-pp-cli"))
+			selectedDBPath, err := localStorePath(flags, "")
+			if err != nil {
+				return fmt.Errorf("selecting local store: %w", err)
+			}
+			db, err := store.OpenWithContext(cmd.Context(), selectedDBPath)
 			if err != nil {
 				return fmt.Errorf("opening local store: %w", err)
 			}
@@ -136,7 +140,7 @@ since the previous snapshot.`,
 				return fmt.Errorf("reading latest snapshot: %w", err)
 			}
 			if len(latestSnaps) == 0 {
-				return fmt.Errorf("snapshot count was %d but no rows were returned; remove %s and re-run to rebuild the baseline", count, defaultDBPath("shopper-pp-cli"))
+				return fmt.Errorf("snapshot count was %d but no rows were returned; remove %s and re-run to rebuild the baseline", count, selectedDBPath)
 			}
 			fromSnap := latestSnaps[0]
 

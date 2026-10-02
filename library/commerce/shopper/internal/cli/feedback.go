@@ -14,7 +14,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
@@ -31,11 +30,12 @@ type FeedbackEntry struct {
 
 const feedbackMaxTextLen = 4096
 
-func feedbackFilePath() (string, error) {
-	dir, err := cliutil.DataDir()
+func feedbackFilePath(flags *rootFlags) (string, error) {
+	dbPath, err := localStorePath(flags, "")
 	if err != nil {
 		return "", err
 	}
+	dir := filepath.Dir(dbPath)
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return "", fmt.Errorf("creating feedback data dir: %w", err)
 	}
@@ -58,8 +58,8 @@ func feedbackAutoSend() bool {
 	return v == "1" || v == "true" || v == "yes"
 }
 
-func appendFeedback(entry FeedbackEntry) error {
-	p, err := feedbackFilePath()
+func appendFeedback(entry FeedbackEntry, flags *rootFlags) error {
+	p, err := feedbackFilePath(flags)
 	if err != nil {
 		return err
 	}
@@ -136,7 +136,7 @@ maintainer sees it.`,
 				AgentID:   os.Getenv("AGENT_ID"),
 				Timestamp: time.Now().UTC(),
 			}
-			if err := appendFeedback(entry); err != nil {
+			if err := appendFeedback(entry, flags); err != nil {
 				return err
 			}
 
@@ -191,7 +191,7 @@ func newFeedbackListCmd(flags *rootFlags) *cobra.Command {
   shopper-pp-cli feedback list --limit 5
   shopper-pp-cli feedback list --json`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			p, err := feedbackFilePath()
+			p, err := feedbackFilePath(flags)
 			if err != nil {
 				return err
 			}

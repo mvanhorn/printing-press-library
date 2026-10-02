@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -135,11 +134,7 @@ In local mode: searches locally synced data only.`,
 			}
 
 			// Local FTS search
-			if dbPath == "" {
-				dbPath = defaultDBPath("shopper-pp-cli")
-			}
-
-			db, err := store.OpenWithContext(cmd.Context(), dbPath)
+			db, err := openLocalStore(cmd.Context(), flags, dbPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w\nRun 'shopper-pp-cli sync' first to populate the local database.", err)
 			}

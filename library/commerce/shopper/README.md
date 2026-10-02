@@ -10,7 +10,7 @@ Created by [@educrvz](https://github.com/educrvz) (educrvz).
 Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 Other contributors: [@henriquedc-ai](https://github.com/henriquedc-ai) (Henrique Dantas), [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
-Auto-refresh checks the active client profile's own data store. `auth set-token --stdin` accepts a token from standard input so it need not appear in process arguments or shell history.
+Auto-refresh checks the active client profile's own data store. Local reads, analytics, MCP search and SQL, feedback, and learning records use that profile's data and state folders. `auth set-token --stdin` accepts a token from standard input so it need not appear in process arguments or shell history.
 
 ## Install
 

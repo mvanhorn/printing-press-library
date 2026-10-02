@@ -14,7 +14,6 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/store"
 )
 
 // learnStatsEnvelope locks the JSON contract for `learnings stats`.
@@ -65,7 +64,7 @@ local-only: events never leave this machine.`,
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "learnings stats")
 			}
-			s, err := store.OpenWithContext(cmd.Context(), learnDBPath(dbPath))
+			s, err := openLocalStore(cmd.Context(), flags, dbPath)
 			if err != nil {
 				return fmt.Errorf("learnings stats: %w", err)
 			}

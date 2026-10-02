@@ -112,7 +112,7 @@ computes the gap and suggests the cheapest catalog items that close it.
 
 			restockIDs := make(map[string]bool)
 			if flagPreferRestock {
-				db, derr := store.OpenWithContext(cmd.Context(), defaultDBPath("shopper-pp-cli"))
+				db, derr := openLocalStore(cmd.Context(), flags, "")
 				if derr == nil {
 					defer db.Close()
 					snaps, serr := store.LatestCartSnapshots(db.DB(), 10)

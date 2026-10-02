@@ -18,7 +18,6 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/learn"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/platform"
-	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/store"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -335,6 +334,10 @@ See README.md or the bundled SKILL.md for recipes.`,
 					return err
 				}
 			}
+		} else if parts := strings.Fields(cmd.CommandPath()); len(parts) == 2 && (parts[1] == "feedback" || parts[1] == "agent-context") {
+			if err := prepareOptionalArtifactProfile(flags); err != nil {
+				return err
+			}
 		}
 		if flags.agent {
 			if !cmd.Flags().Changed("json") {
@@ -373,8 +376,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 		// --no-learn invocations so deterministic agent flows don't
 		// race a background seed.
 		if !noLearnActive(flags) && !shouldSkipLearnHook(cmd.CommandPath()) {
-			runLearnInitOnce(cmd.Context())
-			runPlaybookInitOnce(cmd.Context())
+			runLearnInitOnce(cmd.Context(), flags)
+			runPlaybookInitOnce(cmd.Context(), flags)
 		}
 		return nil
 	}
@@ -387,7 +390,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 		attachPlatformClientCommands(rootCmd, flags)
 	}
 	rootCmd.AddCommand(newAuthCmd(flags))
-	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
+	rootCmd.AddCommand(newAgentContextCmd(rootCmd, flags))
 	rootCmd.AddCommand(newProfileCmd(flags))
 	rootCmd.AddCommand(newFeedbackCmd(flags))
 	rootCmd.AddCommand(newWhichCmd(flags))
@@ -511,7 +514,11 @@ func journalInvocation(flags *rootFlags, rootCmd, executed *cobra.Command, err e
 		}
 		return f != nil && f.Value.Type() == "bool"
 	}
-	learn.JournalInvocation(learn.JournalEntry{
+	stateDir, err := profileStateDir(flags)
+	if err != nil {
+		return
+	}
+	learn.JournalInvocationAt(stateDir, learn.JournalEntry{
 		Cmd:           journalVerbChain(rootCmd, executed),
 		ArgvShape:     learn.JournalArgvShape(os.Args[1:], isBoolFlag),
 		ExitCode:      exitCode,
@@ -620,9 +627,13 @@ func deriveFlagCorrections(flags *rootFlags, rootCmd, executed *cobra.Command) {
 	// a correction, so framework-only invocations never create the
 	// learn database from this path.
 	openStore := func() (learn.CandidateStore, error) {
-		return store.Open(learnDBPath(""))
+		return openLocalStore(rootCmd.Context(), flags, "")
 	}
-	_ = learn.DeriveFlagCorrections(openStore, flagExists)
+	stateDir, err := profileStateDir(flags)
+	if err != nil {
+		return
+	}
+	_ = learn.DeriveFlagCorrectionsAt(stateDir, openStore, flagExists)
 }
 
 // commandTreeHasFlag reports whether any command in the tree registers

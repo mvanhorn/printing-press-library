@@ -178,7 +178,7 @@ func validatePlatformArtifactOverrides(cmd *cobra.Command, session *platform.Ses
 	}
 	expectedPaths := map[string]string{
 		"db": session.Paths.DataFile, "database": session.Paths.DataFile,
-		"data-file": session.Paths.DataFile, "store": session.Paths.DataFile,
+		"data-file": session.Paths.DataFile,
 		"data-dir":  filepath.Dir(session.Paths.DataFile),
 		"state-dir": session.Paths.StateDir, "home": session.Paths.StateDir,
 		"cache-dir": session.Paths.CacheDir,
@@ -200,6 +200,23 @@ func validatePlatformArtifactOverrides(cmd *cobra.Command, session *platform.Ses
 			return fmt.Errorf("tenant artifact conflict: %s cannot override a selected client profile", name)
 		}
 	}
+	return nil
+}
+
+// Feedback and agent-context can report local artifacts without a provider
+// request. Select their profile paths without running the live tenant gate.
+func prepareOptionalArtifactProfile(flags *rootFlags) error {
+	if registeredPlatformSource == nil || flags.platformSession != nil {
+		return nil
+	}
+	session, err := platform.PrepareProfileSource(flags.clientProfileName, "shopper-pp-cli", registeredPlatformSource.Source)
+	if err != nil {
+		if errors.Is(err, platform.ErrMissingClientProfile) {
+			return nil
+		}
+		return err
+	}
+	flags.platformSession = session
 	return nil
 }
 

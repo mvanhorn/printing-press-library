@@ -91,8 +91,7 @@ agents can record playbooks without a file on disk.`,
 			}
 
 			normalized := learn.Normalize(query, learnCfg)
-			dbPath = learnDBPath(dbPath)
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			s, err := openLocalStore(cmd.Context(), flags, dbPath)
 			if err != nil {
 				return fmt.Errorf("teach-playbook: open db: %w", err)
 			}
@@ -117,10 +116,10 @@ agents can record playbooks without a file on disk.`,
 			// teach.log and never fail the teach-playbook.
 			if evErr := s.InsertLearnEvent(store.LearnEventTeachPlaybook,
 				learn.FamilyHash(family), 0, false, store.LearnEventSurface()); evErr != nil {
-				writeTeachErrLog(fmt.Sprintf("teach-playbook: event insert: %v", evErr))
+				writeTeachErrLog(flags, fmt.Sprintf("teach-playbook: event insert: %v", evErr))
 			}
 
-			_ = appendLearningsAudit(map[string]any{
+			_ = appendLearningsAudit(flags, map[string]any{
 				"action":         "teach-playbook",
 				"query":          query,
 				"query_family":   family,
@@ -207,18 +206,17 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 				return writeDryRun(cmd.OutOrStdout(), flags, "playbook amend")
 			}
 			if strings.TrimSpace(query) == "" {
-				writeTeachErrLog(fmt.Sprintf("playbook amend: missing --query (args=%v)", args))
+				writeTeachErrLog(flags, fmt.Sprintf("playbook amend: missing --query (args=%v)", args))
 				return silentCodeErr(2)
 			}
 			if strings.TrimSpace(addNote) == "" {
-				writeTeachErrLog(fmt.Sprintf("playbook amend: missing --add-note for query=%q", query))
+				writeTeachErrLog(flags, fmt.Sprintf("playbook amend: missing --add-note for query=%q", query))
 				return silentCodeErr(2)
 			}
 
-			dbPath = learnDBPath(dbPath)
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			s, err := openLocalStore(cmd.Context(), flags, dbPath)
 			if err != nil {
-				writeTeachErrLog(fmt.Sprintf("playbook amend: open db: %v", err))
+				writeTeachErrLog(flags, fmt.Sprintf("playbook amend: open db: %v", err))
 				return silentCodeErr(1)
 			}
 			defer s.Close()
@@ -228,7 +226,7 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 			normalized = learn.PromoteEntities(normalized, resolver)
 			family := learn.QueryFamily(normalized)
 			if family == "" {
-				writeTeachErrLog(fmt.Sprintf("playbook amend: query normalized to empty family: %q", query))
+				writeTeachErrLog(flags, fmt.Sprintf("playbook amend: query normalized to empty family: %q", query))
 				return silentCodeErr(2)
 			}
 
@@ -240,7 +238,7 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 			// sessions).
 			marker := fmt.Sprintf("\n\n[amend %s]: %s", time.Now().UTC().Format("2006-01-02T15:04Z"), addNote)
 			if _, _, err := s.AppendPlaybookNotes(family, marker); err != nil {
-				writeTeachErrLog(fmt.Sprintf("playbook amend: append family=%q: %v", family, err))
+				writeTeachErrLog(flags, fmt.Sprintf("playbook amend: append family=%q: %v", family, err))
 				return silentCodeErr(1)
 			}
 
@@ -248,16 +246,16 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 			// amended count against resolution success). Best-effort only.
 			if evErr := s.InsertLearnEvent(store.LearnEventAmend,
 				learn.FamilyHash(family), 0, false, store.LearnEventSurface()); evErr != nil {
-				writeTeachErrLog(fmt.Sprintf("playbook amend: event insert: %v", evErr))
+				writeTeachErrLog(flags, fmt.Sprintf("playbook amend: event insert: %v", evErr))
 			}
 
-			if auditErr := appendLearningsAudit(map[string]any{
+			if auditErr := appendLearningsAudit(flags, map[string]any{
 				"action":       "playbook-amend",
 				"query":        query,
 				"query_family": family,
 				"add_note":     addNote,
 			}); auditErr != nil {
-				writeTeachErrLog(fmt.Sprintf("playbook amend: audit append: %v", auditErr))
+				writeTeachErrLog(flags, fmt.Sprintf("playbook amend: audit append: %v", auditErr))
 			}
 
 			if flags.asJSON {
@@ -288,8 +286,7 @@ func newPlaybookListCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "playbook list")
 			}
-			dbPath = learnDBPath(dbPath)
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			s, err := openLocalStore(cmd.Context(), flags, dbPath)
 			if err != nil {
 				return fmt.Errorf("playbook list: %w", err)
 			}
@@ -302,7 +299,7 @@ func newPlaybookListCmd(flags *rootFlags) *cobra.Command {
 				rows = []store.PlaybookRow{}
 			}
 
-			_ = appendLearningsAudit(map[string]any{
+			_ = appendLearningsAudit(flags, map[string]any{
 				"action": "playbook-list",
 				"rows":   len(rows),
 			})

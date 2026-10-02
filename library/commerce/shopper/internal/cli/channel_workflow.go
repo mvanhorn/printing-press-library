@@ -48,10 +48,11 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			}
 			c.NoCache = true
 
-			if dbPath == "" {
-				dbPath = defaultDBPath("shopper-pp-cli")
+			selectedDBPath, err := localStorePath(flags, dbPath)
+			if err != nil {
+				return fmt.Errorf("selecting store: %w", err)
 			}
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			s, err := store.OpenWithContext(cmd.Context(), selectedDBPath)
 			if err != nil {
 				return fmt.Errorf("opening store: %w", err)
 			}
@@ -105,12 +106,12 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 				return enc.Encode(map[string]any{
 					"resources_synced": len(resources),
 					"total_items":      totalSynced,
-					"store_path":       dbPath,
+					"store_path":       selectedDBPath,
 					"timestamp":        time.Now().UTC().Format(time.RFC3339),
 				})
 			}
 
-			fmt.Fprintf(cmd.OutOrStdout(), "Archived %d items across %d resources to %s\n", totalSynced, len(resources), dbPath)
+			fmt.Fprintf(cmd.OutOrStdout(), "Archived %d items across %d resources to %s\n", totalSynced, len(resources), selectedDBPath)
 			return nil
 		},
 	}
@@ -134,13 +135,14 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
   # Show status as JSON
   shopper-pp-cli workflow status --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if dbPath == "" {
-				dbPath = defaultDBPath("shopper-pp-cli")
+			selectedDBPath, err := localStorePath(flags, dbPath)
+			if err != nil {
+				return fmt.Errorf("selecting store: %w", err)
 			}
 
 			status := map[string]int{}
-			if _, err := os.Stat(dbPath); err == nil {
-				s, err := store.OpenReadOnlyContext(cmd.Context(), dbPath)
+			if _, err := os.Stat(selectedDBPath); err == nil {
+				s, err := store.OpenReadOnlyContext(cmd.Context(), selectedDBPath)
 				if err != nil {
 					return fmt.Errorf("opening store read-only: %w", err)
 				}
@@ -185,7 +187,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 				total += count
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "\n  Total: %d items\n", total)
-			fmt.Fprintf(cmd.OutOrStdout(), "  Store: %s\n", dbPath)
+			fmt.Fprintf(cmd.OutOrStdout(), "  Store: %s\n", selectedDBPath)
 			return nil
 		},
 	}

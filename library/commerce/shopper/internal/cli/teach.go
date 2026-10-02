@@ -66,8 +66,19 @@ func noLearnActive(flags *rootFlags) bool {
 // learningsStateDir returns the directory hosting the audit log and
 // error log. Created on first use with 0o700 so a multi-user machine
 // doesn't accidentally expose one user's learned queries.
-func learningsStateDir() (string, error) {
-	dir, err := cliutil.StateDir()
+func profileStateDir(flags *rootFlags) (string, error) {
+	if flags != nil && flags.platformSession != nil {
+		dir := strings.TrimSpace(flags.platformSession.Paths.StateDir)
+		if dir == "" {
+			return "", fmt.Errorf("active client profile has no state directory")
+		}
+		return dir, nil
+	}
+	return cliutil.StateDir()
+}
+
+func learningsStateDir(flags *rootFlags) (string, error) {
+	dir, err := profileStateDir(flags)
 	if err != nil {
 		return "", err
 	}
@@ -77,16 +88,16 @@ func learningsStateDir() (string, error) {
 	return dir, nil
 }
 
-func learningsAuditPath() (string, error) {
-	dir, err := learningsStateDir()
+func learningsAuditPath(flags *rootFlags) (string, error) {
+	dir, err := learningsStateDir(flags)
 	if err != nil {
 		return "", err
 	}
 	return filepath.Join(dir, learningsAuditFileName), nil
 }
 
-func teachErrLogPath() (string, error) {
-	dir, err := learningsStateDir()
+func teachErrLogPath(flags *rootFlags) (string, error) {
+	dir, err := learningsStateDir(flags)
 	if err != nil {
 		return "", err
 	}
@@ -94,8 +105,8 @@ func teachErrLogPath() (string, error) {
 }
 
 // writeTeachErrLog appends a single line to teach.log. Best-effort.
-func writeTeachErrLog(line string) {
-	p, err := teachErrLogPath()
+func writeTeachErrLog(flags *rootFlags, line string) {
+	p, err := teachErrLogPath(flags)
 	if err != nil {
 		return
 	}
@@ -109,8 +120,8 @@ func writeTeachErrLog(line string) {
 }
 
 // appendLearningsAudit records one event in the JSONL audit log.
-func appendLearningsAudit(entry map[string]any) error {
-	p, err := learningsAuditPath()
+func appendLearningsAudit(flags *rootFlags, entry map[string]any) error {
+	p, err := learningsAuditPath(flags)
 	if err != nil {
 		return err
 	}
@@ -134,15 +145,6 @@ func silentCodeErr(code int) error {
 type silentSentinel struct{}
 
 func (silentSentinel) Error() string { return "" }
-
-// learnDBPath resolves the SQLite path the learn commands should use:
-// the explicit --db flag wins, otherwise the canonical default.
-func learnDBPath(explicit string) string {
-	if explicit != "" {
-		return explicit
-	}
-	return defaultDBPath("shopper-pp-cli")
-}
 
 // newTeachCmd builds the `teach` cobra command — the LLM-facing write
 // surface. Silent on success, safe to background, errors only to
@@ -196,19 +198,19 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 				return writeDryRun(cmd.OutOrStdout(), flags, "teach")
 			}
 			if strings.TrimSpace(query) == "" {
-				writeTeachErrLog(fmt.Sprintf("teach: missing --query (args=%v resources=%v)", args, resources))
+				writeTeachErrLog(flags, fmt.Sprintf("teach: missing --query (args=%v resources=%v)", args, resources))
 				return silentCodeErr(2)
 			}
 			if len(resources) == 0 {
-				writeTeachErrLog(fmt.Sprintf("teach: missing --resource for query=%q", query))
+				writeTeachErrLog(flags, fmt.Sprintf("teach: missing --resource for query=%q", query))
 				return silentCodeErr(2)
 			}
 			if strings.TrimSpace(resourceType) == "" {
-				writeTeachErrLog(fmt.Sprintf("teach: missing --resource-type for query=%q", query))
+				writeTeachErrLog(flags, fmt.Sprintf("teach: missing --resource-type for query=%q", query))
 				return silentCodeErr(2)
 			}
 			if strings.TrimSpace(playbookFile) != "" && strings.TrimSpace(playbookJSONInline) != "" {
-				writeTeachErrLog(fmt.Sprintf("teach: --playbook-file and --playbook-json are mutually exclusive (query=%q)", query))
+				writeTeachErrLog(flags, fmt.Sprintf("teach: --playbook-file and --playbook-json are mutually exclusive (query=%q)", query))
 				return silentCodeErr(2)
 			}
 			// PII guard (R18): scan the freeform query for obvious
@@ -221,10 +223,9 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 				fmt.Fprintf(cmd.ErrOrStderr(),
 					"warning: teach query matches the %s PII rule; teach structural queries with identifiers stripped (recorded anyway)\n", rule)
 			}
-			dbPath = learnDBPath(dbPath)
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			s, err := openLocalStore(cmd.Context(), flags, dbPath)
 			if err != nil {
-				writeTeachErrLog(fmt.Sprintf("teach: open db: %v", err))
+				writeTeachErrLog(flags, fmt.Sprintf("teach: open db: %v", err))
 				return silentCodeErr(1)
 			}
 			defer s.Close()
@@ -254,15 +255,19 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 					Notes:         notes,
 				})
 				if uerr != nil {
-					writeTeachErrLog(fmt.Sprintf("teach: upsert %q for query=%q: %v", rid, query, uerr))
+					writeTeachErrLog(flags, fmt.Sprintf("teach: upsert %q for query=%q: %v", rid, query, uerr))
 					return silentCodeErr(1)
 				}
 				taughtRowIDs = append(taughtRowIDs, learningID)
 
 				if !noValidate {
+					stateDir, pathErr := profileStateDir(flags)
 					for _, w := range learn.ValidateResourceShape(cmd.Context(), s.DB(), learnCfg, query, rid, resourceType, nil) {
-						if logErr := learn.AppendTeachLogWarning("teach", query, w); logErr != nil {
-							writeTeachErrLog(fmt.Sprintf("teach: warn append: %v", logErr))
+						if pathErr != nil {
+							continue
+						}
+						if logErr := learn.AppendTeachLogWarningAt(stateDir, "teach", query, w); logErr != nil {
+							writeTeachErrLog(flags, fmt.Sprintf("teach: warn append: %v", logErr))
 						}
 					}
 				}
@@ -278,7 +283,7 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 			for _, learningID := range taughtRowIDs {
 				if evErr := s.InsertLearnEvent(store.LearnEventTeach, teachFamHash,
 					learningID, false, teachSurface); evErr != nil {
-					writeTeachErrLog(fmt.Sprintf("teach: event insert: %v", evErr))
+					writeTeachErrLog(flags, fmt.Sprintf("teach: event insert: %v", evErr))
 				}
 			}
 
@@ -286,7 +291,7 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 			// idempotent (search_patterns unique index silences
 			// duplicates); errors are non-fatal.
 			if _, exErr := patterns.Extract(s.DB(), nil); exErr != nil {
-				writeTeachErrLog(fmt.Sprintf("teach: patterns.Extract: %v", exErr))
+				writeTeachErrLog(flags, fmt.Sprintf("teach: patterns.Extract: %v", exErr))
 			}
 
 			// Optional playbook side: record the structured choreography
@@ -297,7 +302,7 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 			// succeeded, so degraded playbook recording is acceptable.
 			if strings.TrimSpace(playbookFile) != "" || strings.TrimSpace(playbookJSONInline) != "" || strings.TrimSpace(playbookNotesInline) != "" || strings.TrimSpace(playbookNotesFile) != "" {
 				if pbErr := upsertPlaybookFromTeach(cmd.Context(), s, learnCfg, query, playbookFile, playbookJSONInline, playbookNotesInline, playbookNotesFile, normalized); pbErr != nil {
-					writeTeachErrLog(fmt.Sprintf("teach: playbook upsert: %v", pbErr))
+					writeTeachErrLog(flags, fmt.Sprintf("teach: playbook upsert: %v", pbErr))
 				}
 			}
 
@@ -306,8 +311,8 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 			// promotes that candidate (materialize if needed + confirm)
 			// instead of leaving a duplicate artifact. Best-effort --
 			// failures log to teach.log and never fail the teach.
-			if promoErr := promoteCandidateOnTeach(s, learn.QueryFamily(normalized)); promoErr != nil {
-				writeTeachErrLog(fmt.Sprintf("teach: candidate promotion: %v", promoErr))
+			if promoErr := promoteCandidateOnTeach(s, flags, learn.QueryFamily(normalized)); promoErr != nil {
+				writeTeachErrLog(flags, fmt.Sprintf("teach: candidate promotion: %v", promoErr))
 			}
 
 			// Teach-time playbook synthesis, composed with the promotion
@@ -318,11 +323,14 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 			// episode become a quarantined playbook_candidate awaiting an
 			// explicit `learnings confirm`. Best-effort — failures log to
 			// teach.log and never fail the teach.
-			if _, _, synthErr := learn.SynthesizePlaybookCandidate(s, learn.QueryFamily(normalized), learn.JournalSessionKey()); synthErr != nil {
-				writeTeachErrLog(fmt.Sprintf("teach: playbook synthesis: %v", synthErr))
+			stateDir, stateErr := profileStateDir(flags)
+			if stateErr != nil {
+				writeTeachErrLog(flags, fmt.Sprintf("teach: playbook synthesis: %v", stateErr))
+			} else if _, _, synthErr := learn.SynthesizePlaybookCandidateAt(stateDir, s, learn.QueryFamily(normalized), learn.JournalSessionKey()); synthErr != nil {
+				writeTeachErrLog(flags, fmt.Sprintf("teach: playbook synthesis: %v", synthErr))
 			}
 
-			if auditErr := appendLearningsAudit(map[string]any{
+			if auditErr := appendLearningsAudit(flags, map[string]any{
 				"action":     "teach",
 				"query":      query,
 				"normalized": normalized.NonEntityNormalized,
@@ -330,7 +338,7 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 				"venue":      venueArg,
 				"notes":      notes,
 			}); auditErr != nil {
-				writeTeachErrLog(fmt.Sprintf("teach: audit append: %v", auditErr))
+				writeTeachErrLog(flags, fmt.Sprintf("teach: audit append: %v", auditErr))
 			}
 
 			if flags.asJSON && !flags.quiet && !(quiet && cmd.Flags().Changed("quiet")) {
@@ -491,8 +499,7 @@ when learnings exist.`,
 				}
 				return emitRecall(cmd, flags, envelope)
 			}
-			dbPath = learnDBPath(dbPath)
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			s, err := openLocalStore(cmd.Context(), flags, dbPath)
 			if err != nil {
 				return fmt.Errorf("recall: %w", err)
 			}
@@ -528,7 +535,7 @@ when learnings exist.`,
 			// match completed, so the event write never holds the store
 			// lock across the recall scan. Telemetry-class: failures go
 			// to teach.log and never fail the recall.
-			recordRecallEvents(s, result)
+			recordRecallEvents(s, flags, result)
 			return emitRecall(cmd, flags, envelope)
 		},
 	}
@@ -584,7 +591,7 @@ func emitRecall(cmd *cobra.Command, flags *rootFlags, env recallEnvelope) error 
 // resolved a playbook. Called strictly after learn.Recall returns —
 // the event insert must never overlap the match. Best-effort by
 // contract: every failure lands in teach.log, none reaches the caller.
-func recordRecallEvents(s *store.Store, result learn.Result) {
+func recordRecallEvents(s *store.Store, flags *rootFlags, result learn.Result) {
 	if s == nil {
 		return
 	}
@@ -594,18 +601,18 @@ func recordRecallEvents(s *store.Store, result learn.Result) {
 		top := result.Results[0]
 		if err := s.InsertLearnEvent(store.LearnEventRecallHit, famHash,
 			top.LearningID, top.EntityMatch == learn.EntityMatchExact, surface); err != nil {
-			writeTeachErrLog(fmt.Sprintf("recall: event insert (hit): %v", err))
+			writeTeachErrLog(flags, fmt.Sprintf("recall: event insert (hit): %v", err))
 		}
 	} else {
 		if err := s.InsertLearnEvent(store.LearnEventRecallMiss, famHash,
 			0, false, surface); err != nil {
-			writeTeachErrLog(fmt.Sprintf("recall: event insert (miss): %v", err))
+			writeTeachErrLog(flags, fmt.Sprintf("recall: event insert (miss): %v", err))
 		}
 	}
 	if result.Playbook != nil {
 		if err := s.InsertLearnEvent(store.LearnEventRecallPlaybookHit, famHash,
 			0, false, surface); err != nil {
-			writeTeachErrLog(fmt.Sprintf("recall: event insert (playbook hit): %v", err))
+			writeTeachErrLog(flags, fmt.Sprintf("recall: event insert (playbook hit): %v", err))
 		}
 	}
 }
@@ -704,7 +711,11 @@ func newLearningsListCmd(flags *rootFlags) *cobra.Command {
 				if strings.TrimSpace(resourceFilter) != "" {
 					filterIDs = []string{resourceFilter}
 				}
-				entries, err := learn.ReadTeachLogWarnings(filterIDs...)
+				stateDir, err := profileStateDir(flags)
+				if err != nil {
+					return fmt.Errorf("learnings list --warnings: %w", err)
+				}
+				entries, err := learn.ReadTeachLogWarningsAt(stateDir, filterIDs...)
 				if err != nil {
 					return fmt.Errorf("learnings list --warnings: %w", err)
 				}
@@ -727,8 +738,7 @@ func newLearningsListCmd(flags *rootFlags) *cobra.Command {
 				return nil
 			}
 
-			dbPath = learnDBPath(dbPath)
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			s, err := openLocalStore(cmd.Context(), flags, dbPath)
 			if err != nil {
 				return fmt.Errorf("learnings list: %w", err)
 			}
@@ -809,8 +819,7 @@ Requires at least one of --resource, --action, or --all.`,
 				return writeDryRun(cmd.OutOrStdout(), flags, "learnings forget")
 			}
 			query := strings.Join(args, " ")
-			dbPath = learnDBPath(dbPath)
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			s, err := openLocalStore(cmd.Context(), flags, dbPath)
 			if err != nil {
 				return fmt.Errorf("learnings forget: %w", err)
 			}
@@ -838,14 +847,14 @@ Requires at least one of --resource, --action, or --all.`,
 					learn.NewCanonicalResolver(cmd.Context(), s.DB()))
 				famHash := learn.FamilyHash(learn.QueryFamily(normalized))
 				if _, cascErr := s.DeleteLearnEventsByFamilyHash(famHash); cascErr != nil {
-					writeTeachErrLog(fmt.Sprintf("learnings forget: event cascade: %v", cascErr))
+					writeTeachErrLog(flags, fmt.Sprintf("learnings forget: event cascade: %v", cascErr))
 				}
 				if evErr := s.InsertLearnEvent(store.LearnEventForget, famHash,
 					0, false, store.LearnEventSurface()); evErr != nil {
-					writeTeachErrLog(fmt.Sprintf("learnings forget: event insert: %v", evErr))
+					writeTeachErrLog(flags, fmt.Sprintf("learnings forget: event insert: %v", evErr))
 				}
 			}
-			_ = appendLearningsAudit(map[string]any{
+			_ = appendLearningsAudit(flags, map[string]any{
 				"action":       "forget",
 				"query":        query,
 				"filter":       map[string]any{"resource": resourceArg, "action": actionArg, "all": all},
@@ -917,8 +926,7 @@ a whole family.`,
 			if strategy == "" {
 				strategy = patterns.StrategySubstitute
 			}
-			dbPath = learnDBPath(dbPath)
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			s, err := openLocalStore(cmd.Context(), flags, dbPath)
 			if err != nil {
 				return fmt.Errorf("teach-pattern: %w", err)
 			}
@@ -998,8 +1006,7 @@ cannot be taught — they are derived from the canonical input.`,
 			if lookups.IsComputedKind(kind) {
 				return usageErr(fmt.Errorf("--kind %q is a computed kind and cannot be taught", kind))
 			}
-			dbPath = learnDBPath(dbPath)
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			s, err := openLocalStore(cmd.Context(), flags, dbPath)
 			if err != nil {
 				return fmt.Errorf("teach-lookup: %w", err)
 			}
