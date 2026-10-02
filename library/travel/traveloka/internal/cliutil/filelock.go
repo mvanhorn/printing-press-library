@@ -4,10 +4,12 @@
 package cliutil
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
 	"sync"
+	"time"
 )
 
 var (
@@ -31,11 +33,21 @@ func fileLockFor(path string) *sync.Mutex {
 // learnings.jsonl; a process-local mutex alone cannot keep rotate/append
 // atomic across those writers.
 func WithFileLock(path string, fn func() error) error {
+	return WithFileLockContext(context.Background(), path, fn)
+}
+
+// WithFileLockContext bounds both process-local and OS lock waits by ctx.
+func WithFileLockContext(ctx context.Context, path string, fn func() error) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	if path == "" {
 		return fn()
 	}
 	mu := fileLockFor(path)
-	mu.Lock()
+	if err := waitForLock(ctx, func() (bool, error) { return mu.TryLock(), nil }); err != nil {
+		return err
+	}
 	defer mu.Unlock()
 
 	lockPath := path + ".lock"
@@ -48,9 +60,31 @@ func WithFileLock(path string, fn func() error) error {
 		_, _ = f.Write([]byte{0})
 		_, _ = f.Seek(0, io.SeekStart)
 	}
-	if err := lockFile(f); err != nil {
+	if err := waitForLock(ctx, func() (bool, error) { return tryLockFile(f) }); err != nil {
 		return fmt.Errorf("lock %s: %w", lockPath, err)
 	}
 	defer func() { _ = unlockFile(f) }()
 	return fn()
+}
+
+func waitForLock(ctx context.Context, attempt func() (bool, error)) error {
+	for {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		locked, err := attempt()
+		if err != nil {
+			return err
+		}
+		if locked {
+			return nil
+		}
+		timer := time.NewTimer(10 * time.Millisecond)
+		select {
+		case <-ctx.Done():
+			timer.Stop()
+			return ctx.Err()
+		case <-timer.C:
+		}
+	}
 }

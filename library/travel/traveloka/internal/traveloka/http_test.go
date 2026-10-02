@@ -711,3 +711,43 @@ func TestSimulatedSessionTransactionsSerializeAcrossClients(t *testing.T) {
 		t.Fatal("two clients sent requests concurrently using the same private session")
 	}
 }
+
+func TestSimulatedSessionLockWaitHonorsDeadline(t *testing.T) {
+	for _, sharedClient := range []bool{false, true} {
+		t.Run(fmt.Sprint(sharedClient), func(t *testing.T) {
+			first, path := testHTTPClient(t)
+			second, err := NewClient(path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if sharedClient {
+				second = first
+			}
+			entered := make(chan struct{})
+			release := make(chan struct{})
+			first.SetHTTPTransport(simulatedTransport(func(r *http.Request) (*http.Response, error) {
+				close(entered)
+				<-release
+				return simulatedResponse(r, 200, `{"data":{}}`, http.Header{}), nil
+			}))
+			done := make(chan error, 1)
+			go func() {
+				_, err := first.Post(context.Background(), flightInitial, map[string]any{}, Shopper{Market: "SG", Locale: "en-SG", Currency: "SGD"})
+				done <- err
+			}()
+			<-entered
+			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Millisecond)
+			defer cancel()
+			start := time.Now()
+			_, err = second.Post(ctx, flightInitial, map[string]any{}, Shopper{Market: "SG", Locale: "en-SG", Currency: "SGD"})
+			close(release)
+			if e := <-done; e != nil {
+				t.Fatal(e)
+			}
+			var api *APIError
+			if !errors.As(err, &api) || api.Code != "TIMEOUT" || time.Since(start) > 500*time.Millisecond {
+				t.Fatalf("session wait ignored deadline: %v", err)
+			}
+		})
+	}
+}

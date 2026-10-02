@@ -4,6 +4,9 @@
 package cliutil
 
 import (
+	"context"
+	"errors"
+	"os"
 	"path/filepath"
 	"sync"
 	"testing"
@@ -36,5 +39,31 @@ func TestWithFileLock_SerializesCallers(t *testing.T) {
 	wg.Wait()
 	if value != n {
 		t.Fatalf("lost updates under lock: got %d want %d", value, n)
+	}
+}
+
+func TestWithFileLockContextCancelsOSWait(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "state")
+	f, err := os.OpenFile(path+".lock", os.O_CREATE|os.O_RDWR, 0600)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+	if err := lockFile(f); err != nil {
+		t.Fatal(err)
+	}
+	defer unlockFile(f)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Millisecond)
+	defer cancel()
+	start := time.Now()
+	err = WithFileLockContext(ctx, path, func() error { t.Error("entered locked transaction"); return nil })
+	if !errors.Is(err, context.DeadlineExceeded) || time.Since(start) > 500*time.Millisecond {
+		t.Fatalf("OS lock ignored deadline: %v", err)
+	}
+	if err := unlockFile(f); err != nil {
+		t.Fatal(err)
+	}
+	if err := WithFileLockContext(context.Background(), path, func() error { return nil }); err != nil {
+		t.Fatal(err)
 	}
 }

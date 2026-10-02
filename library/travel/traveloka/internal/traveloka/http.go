@@ -138,10 +138,20 @@ func (c *Client) Post(ctx context.Context, path string, data map[string]any, sho
 // the request and persisting refreshes. Atomic rename alone cannot protect a
 // read/refresh/write transaction from another CLI or MCP process.
 func (c *Client) PostWithEnvelope(ctx context.Context, path string, data map[string]any, shop Shopper, overrides map[string]any) (map[string]any, error) {
-	c.mu.Lock()
+	ctx, cancel := context.WithTimeout(ctx, requestTimeout)
+	defer cancel()
+	for !c.mu.TryLock() {
+		timer := time.NewTimer(10 * time.Millisecond)
+		select {
+		case <-ctx.Done():
+			timer.Stop()
+			return nil, sourceHTTPError(ctx, ctx.Err(), 0, "Traveloka session lock wait canceled", nil)
+		case <-timer.C:
+		}
+	}
 	defer c.mu.Unlock()
 	var result map[string]any
-	err := cliutil.WithFileLock(c.sessionFile, func() error {
+	err := cliutil.WithFileLockContext(ctx, c.sessionFile, func() error {
 		if err := ctx.Err(); err != nil {
 			return err
 		}
@@ -160,6 +170,9 @@ func (c *Client) PostWithEnvelope(ctx context.Context, path string, data map[str
 		result, err = c.postWithEnvelopeLocked(ctx, path, data, shop, overrides)
 		return err
 	})
+	if ctx.Err() != nil {
+		return nil, sourceHTTPError(ctx, ctx.Err(), 0, "Traveloka session request canceled", c.secrets)
+	}
 	return result, err
 }
 

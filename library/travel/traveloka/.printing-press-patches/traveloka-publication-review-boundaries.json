@@ -4,9 +4,13 @@
   "applied_at": "2026-10-03",
   "base_run_id": "20261002-002131-9ff082f4",
   "base_printing_press_version": "4.32.5",
-  "summary": "MCP inherits host session/output paths, bounded empty flight candidates remain incomplete, and shared sessions serialize credential refresh transactions.",
+  "summary": "MCP inherits host session/output paths, bounded empty flight candidates remain incomplete, and shared sessions serialize credential refresh transactions. Both local mutex and OS lock waits honor cancellation and the request deadline.",
   "reason": "Mirrored flags must not select host private paths; candidate limits cannot prove absence of return inventory; atomic writes alone lose cross-process refreshes.",
   "files": [
+    "internal/cliutil/filelock.go",
+    "internal/cliutil/filelock_test.go",
+    "internal/cliutil/filelock_unix.go",
+    "internal/cliutil/filelock_windows.go",
     "internal/mcp/cobratree/shellout.go",
     "internal/mcp/cobratree/shellout_test.go",
     "internal/mcp/platform_gate_test.go",
@@ -16,5 +20,5 @@
     "internal/traveloka/http_test.go",
     "internal/traveloka/session.go"
   ],
-  "validated_outcome": "Focused Traveloka and MCP regressions pass, including two clients opened before refresh, overlapping requests and actual registered schemas."
+  "validated_outcome": "Shared-session contention, OS lock timeout, actual MCP schemas, stale refresh, and bounded-empty flight regressions pass."
 }
