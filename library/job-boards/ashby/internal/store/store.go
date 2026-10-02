@@ -11,6 +11,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"hash/fnv"
 	"math"
@@ -1783,6 +1784,82 @@ func (s *Store) UpsertBatchDetailed(resourceType string, items []json.RawMessage
 		return 0, extractFailures, typedFailures, err
 	}
 	return stored, extractFailures, typedFailures, nil
+}
+
+// ReplaceGenericSnapshot writes a complete resource snapshot and removes
+// absent rows in one transaction. A failed write or removal leaves the old
+// snapshot intact. Every item must have an ID before any row is changed.
+func (s *Store) ReplaceGenericSnapshot(resourceType string, items []json.RawMessage) (int, int, error) {
+	if strings.TrimSpace(resourceType) == "" {
+		return 0, 0, errors.New("replace snapshot: empty resource type")
+	}
+	s.lockForWrite()
+	defer s.unlockAfterWrite()
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		return 0, 0, fmt.Errorf("replace %s snapshot: begin: %w", resourceType, err)
+	}
+	defer tx.Rollback()
+
+	seen := make(map[string]struct{}, len(items))
+	for _, item := range items {
+		obj, err := DecodeJSONObject(item)
+		if err != nil {
+			return 0, 0, fmt.Errorf("replace %s snapshot: decode item: %w", resourceType, err)
+		}
+		id := ExtractResourceID(resourceType, obj)
+		if id == "" {
+			if keyObj, rowObj, rowItem, ok := unwrapIDBearingEnvelopeItem(resourceType, item, obj); ok {
+				id = ExtractResourceID(resourceType, keyObj)
+				obj = rowObj
+				item = rowItem
+			}
+		}
+		if id == "" {
+			return 0, 0, fmt.Errorf("replace %s snapshot: item has no extractable id", resourceType)
+		}
+		storageID := resourceStorageID(resourceType, id, obj)
+		if err := s.upsertGenericResourceTx(tx, resourceType, storageID, item); err != nil {
+			return 0, 0, fmt.Errorf("replace %s snapshot: upsert %s: %w", resourceType, storageID, err)
+		}
+		seen[storageID] = struct{}{}
+	}
+
+	rows, err := tx.Query(`SELECT id FROM resources WHERE resource_type = ?`, resourceType)
+	if err != nil {
+		return 0, 0, fmt.Errorf("replace %s snapshot: select old rows: %w", resourceType, err)
+	}
+	var victims []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			_ = rows.Close()
+			return 0, 0, fmt.Errorf("replace %s snapshot: scan old row: %w", resourceType, err)
+		}
+		if _, ok := seen[id]; !ok {
+			victims = append(victims, id)
+		}
+	}
+	if err := rows.Err(); err != nil {
+		_ = rows.Close()
+		return 0, 0, fmt.Errorf("replace %s snapshot: read old rows: %w", resourceType, err)
+	}
+	if err := rows.Close(); err != nil {
+		return 0, 0, fmt.Errorf("replace %s snapshot: close old rows: %w", resourceType, err)
+	}
+	for _, id := range victims {
+		if _, err := tx.Exec(`DELETE FROM resources_fts WHERE rowid = ?`, ftsRowID(resourceType, id)); err != nil {
+			return 0, 0, fmt.Errorf("replace %s snapshot: delete search row %s: %w", resourceType, id, err)
+		}
+		if _, err := tx.Exec(`DELETE FROM resources WHERE resource_type = ? AND id = ?`, resourceType, id); err != nil {
+			return 0, 0, fmt.Errorf("replace %s snapshot: delete %s: %w", resourceType, id, err)
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return 0, 0, fmt.Errorf("replace %s snapshot: commit: %w", resourceType, err)
+	}
+	return len(items), len(victims), nil
 }
 
 // Multi-field wrappers keep their outer row because scalar siblings may be

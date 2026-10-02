@@ -172,7 +172,7 @@ Filters published structured compensation.
 ashby-pp-cli sync ashby --include-compensation
 ```
 
-Mirrors a known public board into SQLite.
+Mirrors a known public board into SQLite. Sync replaces that board's saved jobs only after Ashby returns a complete jobs list. If a posting is missing its ID or saving fails, the previous snapshot remains available.
 
 ### Search a synced board
 

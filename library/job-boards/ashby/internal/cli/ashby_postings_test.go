@@ -2,6 +2,8 @@ package cli
 
 import (
 	"context"
+	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/job-boards/ashby/internal/store"
@@ -27,6 +29,30 @@ func TestFilterAshbyJobsExcludesUnlistedAndAppliesStructuredFilters(t *testing.T
 func TestFilterAshbyJobsRejectsInvalidDate(t *testing.T) {
 	if _, err := filterAshbyJobs(nil, ashbyPostingFilter{PublishedSince: "yesterday"}); err == nil {
 		t.Fatal("expected invalid date error")
+	}
+}
+
+func TestFilterAshbyJobsSortsBeforeApplyingLimit(t *testing.T) {
+	jobs := []ashbyJobPosting{
+		{ID: "old", IsListed: true, PublishedAt: "2026-01-01T00:00:00Z"},
+		{ID: "new", IsListed: true, PublishedAt: "2026-03-01T00:00:00Z"},
+		{ID: "middle", IsListed: true, PublishedAt: "2026-02-01T00:00:00Z"},
+	}
+	got, err := filterAshbyJobs(jobs, ashbyPostingFilter{Limit: 1})
+	if err != nil || len(got) != 1 || got[0].ID != "new" {
+		t.Fatalf("newest job with limit 1 = %#v, %v", got, err)
+	}
+}
+
+func TestDecodeAshbyBoardJobsRejectsMissingSnapshot(t *testing.T) {
+	for _, raw := range []string{`{}`, `{"jobs":null}`, `{"jobs":{"id":"wrong-shape"}}`} {
+		if _, err := decodeAshbyBoardJobs([]byte(raw)); err == nil {
+			t.Fatalf("accepted incomplete job board response %s", raw)
+		}
+	}
+	jobs, err := decodeAshbyBoardJobs([]byte(`{"jobs":[]}`))
+	if err != nil || len(jobs) != 0 {
+		t.Fatalf("complete empty snapshot = %#v, %v", jobs, err)
 	}
 }
 
@@ -58,5 +84,52 @@ func TestPersistAshbyBoardSnapshotRemovesNewlyUnlistedPosting(t *testing.T) {
 	}
 	if len(ids) != 1 || ids[0] != "keep" {
 		t.Fatalf("ids=%v, want [keep]", ids)
+	}
+}
+
+func TestPersistAshbyBoardSnapshotRejectsMissingIDWithoutDeleting(t *testing.T) {
+	db, err := store.OpenWithContext(context.Background(), t.TempDir()+"/ashby.db")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	if _, _, err := persistAshbyBoardSnapshot(db, "example", []ashbyJobPosting{{ID: "keep", IsListed: true}}); err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := persistAshbyBoardSnapshot(db, "example", []ashbyJobPosting{{IsListed: true}}); err == nil {
+		t.Fatal("missing ID was accepted")
+	}
+	ids, err := db.ListIDs("postings:example")
+	if err != nil || !reflect.DeepEqual(ids, []string{"keep"}) {
+		t.Fatalf("snapshot after invalid item = %v, %v", ids, err)
+	}
+}
+
+func TestPersistAshbyBoardSnapshotRollsBackOnRemovalFailure(t *testing.T) {
+	db, err := store.OpenWithContext(context.Background(), t.TempDir()+"/ashby.db")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	initial := []ashbyJobPosting{{ID: "keep", Title: "Original", IsListed: true}, {ID: "stale", IsListed: true}}
+	if _, _, err := persistAshbyBoardSnapshot(db, "example", initial); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.DB().Exec(`CREATE TRIGGER block_stale_delete BEFORE DELETE ON resources
+		WHEN OLD.resource_type = 'postings:example' AND OLD.id = 'stale'
+		BEGIN SELECT RAISE(ABORT, 'blocked reconcile'); END`); err != nil {
+		t.Fatal(err)
+	}
+	replacement := []ashbyJobPosting{{ID: "keep", Title: "Updated", IsListed: true}, {ID: "new", IsListed: true}}
+	if _, _, err := persistAshbyBoardSnapshot(db, "example", replacement); err == nil || !strings.Contains(err.Error(), "blocked reconcile") {
+		t.Fatalf("expected failed removal, got %v", err)
+	}
+	ids, err := db.ListIDs("postings:example")
+	if err != nil || !reflect.DeepEqual(ids, []string{"keep", "stale"}) {
+		t.Fatalf("IDs after failed replacement = %v, %v", ids, err)
+	}
+	item, err := db.Get("postings:example", "keep")
+	if err != nil || !strings.Contains(string(item), "Original") {
+		t.Fatalf("old item changed during failed replacement: %s, %v", item, err)
 	}
 }

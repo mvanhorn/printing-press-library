@@ -16,8 +16,8 @@ import (
 )
 
 type ashbyBoardResponse struct {
-	APIVersion string            `json:"apiVersion"`
-	Jobs       []ashbyJobPosting `json:"jobs"`
+	APIVersion string          `json:"apiVersion"`
+	Jobs       json.RawMessage `json:"jobs"`
 }
 
 type ashbyJobPosting struct {
@@ -203,25 +203,18 @@ func newAshbySyncCmd(flags *rootFlags) *cobra.Command {
 func persistAshbyBoardSnapshot(db *store.Store, board string, jobs []ashbyJobPosting) (int, int, error) {
 	listed := listedAshbyJobs(jobs)
 	items := make([]json.RawMessage, 0, len(listed))
-	seenIDs := make([]string, 0, len(listed))
 	for _, job := range listed {
+		if strings.TrimSpace(job.ID) == "" {
+			return 0, 0, errors.New("listed Ashby posting is missing an id")
+		}
 		raw, err := json.Marshal(job)
 		if err != nil {
 			return 0, 0, err
 		}
 		items = append(items, raw)
-		seenIDs = append(seenIDs, job.ID)
 	}
 	scoped := "postings:" + strings.ToLower(board)
-	stored, _, err := db.UpsertBatch(scoped, items)
-	if err != nil {
-		return 0, 0, err
-	}
-	removed, err := db.ReconcileAll(scoped, seenIDs, "", nil)
-	if err != nil {
-		return 0, 0, err
-	}
-	return stored, removed, nil
+	return db.ReplaceGenericSnapshot(scoped, items)
 }
 
 // pp:data-source local
@@ -275,11 +268,23 @@ func fetchAshbyJobs(cmd *cobra.Command, flags *rootFlags, board string, includeC
 	if err != nil {
 		return nil, err
 	}
+	return decodeAshbyBoardJobs(raw)
+}
+
+func decodeAshbyBoardJobs(raw json.RawMessage) ([]ashbyJobPosting, error) {
 	var response ashbyBoardResponse
 	if err := json.Unmarshal(raw, &response); err != nil {
 		return nil, fmt.Errorf("decode Ashby job board response: %w", err)
 	}
-	return response.Jobs, nil
+	jobsJSON := strings.TrimSpace(string(response.Jobs))
+	if jobsJSON == "" || jobsJSON == "null" {
+		return nil, errors.New("decode Ashby job board response: missing complete jobs array")
+	}
+	var jobs []ashbyJobPosting
+	if err := json.Unmarshal(response.Jobs, &jobs); err != nil {
+		return nil, fmt.Errorf("decode Ashby job board jobs: %w", err)
+	}
+	return jobs, nil
 }
 
 func listedAshbyJobs(jobs []ashbyJobPosting) []ashbyJobPosting {
@@ -319,11 +324,11 @@ func filterAshbyJobs(jobs []ashbyJobPosting, filter ashbyPostingFilter) ([]ashby
 			continue
 		}
 		result = append(result, job)
-		if filter.Limit > 0 && len(result) >= filter.Limit {
-			break
-		}
 	}
 	sort.SliceStable(result, func(i, j int) bool { return result[i].PublishedAt > result[j].PublishedAt })
+	if filter.Limit > 0 && len(result) > filter.Limit {
+		result = result[:filter.Limit]
+	}
 	return result, nil
 }
 
