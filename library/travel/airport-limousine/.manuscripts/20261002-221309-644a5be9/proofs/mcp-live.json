@@ -1,0 +1,467 @@
+{
+  "doctor_exit": 0,
+  "tools": [
+    {
+      "name": "routes",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "properties": [
+        "agent",
+        "airport",
+        "client-profile",
+        "compact",
+        "csv",
+        "data-source",
+        "dry-run",
+        "human-friendly",
+        "include-suspended",
+        "json",
+        "limit",
+        "max-age",
+        "no-cache",
+        "no-color",
+        "no-input",
+        "no-learn",
+        "plain",
+        "query",
+        "quiet",
+        "rate-limit",
+        "receipt",
+        "select",
+        "timeout",
+        "yes"
+      ]
+    },
+    {
+      "name": "stops_find",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "properties": [
+        "agent",
+        "airport",
+        "client-profile",
+        "compact",
+        "csv",
+        "data-source",
+        "dry-run",
+        "human-friendly",
+        "json",
+        "limit",
+        "max-age",
+        "no-cache",
+        "no-color",
+        "no-input",
+        "no-learn",
+        "plain",
+        "query",
+        "quiet",
+        "rate-limit",
+        "receipt",
+        "select",
+        "timeout",
+        "yes"
+      ]
+    },
+    {
+      "name": "stops_get",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "properties": [
+        "agent",
+        "client-profile",
+        "compact",
+        "csv",
+        "data-source",
+        "dry-run",
+        "human-friendly",
+        "json",
+        "limit",
+        "max-age",
+        "no-cache",
+        "no-color",
+        "no-input",
+        "no-learn",
+        "plain",
+        "quiet",
+        "rate-limit",
+        "receipt",
+        "select",
+        "stop-id",
+        "timeout",
+        "yes"
+      ]
+    },
+    {
+      "name": "timetable",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "properties": [
+        "after",
+        "agent",
+        "client-profile",
+        "compact",
+        "csv",
+        "data-source",
+        "date",
+        "direction",
+        "dry-run",
+        "from-stop",
+        "human-friendly",
+        "json",
+        "limit",
+        "max-age",
+        "no-cache",
+        "no-color",
+        "no-input",
+        "no-learn",
+        "plain",
+        "quiet",
+        "rate-limit",
+        "receipt",
+        "route",
+        "route-id",
+        "select",
+        "timeout",
+        "to-stop",
+        "yes"
+      ]
+    },
+    {
+      "name": "travel_times",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "properties": [
+        "agent",
+        "airport",
+        "client-profile",
+        "compact",
+        "csv",
+        "data-source",
+        "direction",
+        "dry-run",
+        "human-friendly",
+        "json",
+        "limit",
+        "max-age",
+        "no-cache",
+        "no-color",
+        "no-input",
+        "no-learn",
+        "plain",
+        "query",
+        "quiet",
+        "rate-limit",
+        "receipt",
+        "select",
+        "timeout",
+        "yes"
+      ]
+    },
+    {
+      "name": "transfers",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "properties": [
+        "agent",
+        "client-profile",
+        "compact",
+        "csv",
+        "data-source",
+        "date",
+        "dry-run",
+        "human-friendly",
+        "json",
+        "limit",
+        "max-age",
+        "no-cache",
+        "no-color",
+        "no-input",
+        "no-learn",
+        "plain",
+        "quiet",
+        "rate-limit",
+        "receipt",
+        "select",
+        "timeout",
+        "yes"
+      ]
+    },
+    {
+      "name": "fare",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "properties": [
+        "adults",
+        "agent",
+        "children",
+        "client-profile",
+        "compact",
+        "csv",
+        "data-source",
+        "date",
+        "direction",
+        "dry-run",
+        "from-stop",
+        "human-friendly",
+        "json",
+        "max-age",
+        "no-cache",
+        "no-color",
+        "no-input",
+        "no-learn",
+        "plain",
+        "quiet",
+        "rate-limit",
+        "receipt",
+        "route",
+        "route-id",
+        "select",
+        "timeout",
+        "to-stop",
+        "trip-id",
+        "yes"
+      ]
+    },
+    {
+      "name": "conditions",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "properties": [
+        "agent",
+        "client-profile",
+        "compact",
+        "csv",
+        "data-source",
+        "dry-run",
+        "human-friendly",
+        "json",
+        "limit",
+        "max-age",
+        "no-cache",
+        "no-color",
+        "no-input",
+        "no-learn",
+        "plain",
+        "quiet",
+        "rate-limit",
+        "receipt",
+        "select",
+        "timeout",
+        "topic",
+        "yes"
+      ]
+    },
+    {
+      "name": "handoff",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "properties": [
+        "agent",
+        "client-profile",
+        "compact",
+        "csv",
+        "data-source",
+        "date",
+        "direction",
+        "dry-run",
+        "human-friendly",
+        "json",
+        "max-age",
+        "no-cache",
+        "no-color",
+        "no-input",
+        "no-learn",
+        "plain",
+        "quiet",
+        "rate-limit",
+        "receipt",
+        "route",
+        "route-id",
+        "select",
+        "timeout",
+        "yes"
+      ]
+    },
+    {
+      "name": "pages_routes",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "properties": []
+    },
+    {
+      "name": "pages_stop",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "properties": [
+        "stop-id"
+      ]
+    },
+    {
+      "name": "pages_timetable",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "properties": [
+        "date",
+        "direction",
+        "route-id"
+      ]
+    },
+    {
+      "name": "pages_guide",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "properties": []
+    }
+  ],
+  "cases": [
+    {
+      "tool": "pages_routes",
+      "args": {},
+      "elapsed_ms": 525,
+      "bytes": 13660,
+      "is_error": false,
+      "links": 120,
+      "title": "Timetable Search Results | Limousine Bus Tokyo Airport Transportation | Best access to Haneda and Narita airports"
+    },
+    {
+      "tool": "pages_guide",
+      "args": {},
+      "elapsed_ms": 1551,
+      "bytes": 1456,
+      "is_error": false,
+      "links": 6,
+      "title": "User's Guide | Limousine Bus Tokyo Airport Transportation | Best access to Haneda and Narita airports"
+    },
+    {
+      "tool": "pages_stop",
+      "args": {
+        "stop-id": "HanedaAirportTerminal3"
+      },
+      "elapsed_ms": 296,
+      "bytes": 14831,
+      "is_error": false,
+      "links": 114,
+      "title": "Haneda Airport Terminal3 | Limousine Bus Tokyo Airport Transportation | Best access to Haneda and Narita airports"
+    },
+    {
+      "tool": "pages_timetable",
+      "args": {
+        "route-id": "Haneda-Narita",
+        "direction": 2
+      },
+      "elapsed_ms": 415,
+      "bytes": 1305,
+      "is_error": false,
+      "links": 6,
+      "title": "Narita Airport\u2192Haneda Airport Timetable | Limousine Bus Tokyo Airport Transportation | Best access to Haneda and Narita airports",
+      "query": {
+        "d": [
+          "2026-10-03"
+        ],
+        "dir": [
+          "2"
+        ]
+      }
+    },
+    {
+      "tool": "timetable",
+      "args": {
+        "route": "Haneda-Narita",
+        "from-stop": "HanedaAirportTerminal3",
+        "to-stop": "NaritaAirportTerminal1",
+        "limit": 1
+      },
+      "elapsed_ms": 573,
+      "bytes": 12078,
+      "is_error": false,
+      "journeys": 1
+    },
+    {
+      "tool": "conditions",
+      "args": {
+        "topic": "baggage"
+      },
+      "elapsed_ms": 682,
+      "bytes": 3127,
+      "is_error": false,
+      "numeric_weight": 30
+    },
+    {
+      "tool": "pages_timetable",
+      "args": {
+        "route-id": "../bad"
+      },
+      "elapsed_ms": 0,
+      "bytes": 71,
+      "is_error": true,
+      "validation": "unsafe ID rejected"
+    }
+  ],
+  "initialize": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+      "protocolVersion": "2024-11-05",
+      "capabilities": {
+        "tools": {}
+      },
+      "serverInfo": {
+        "name": "Airport Limousine",
+        "version": "0.0.0-dev"
+      }
+    }
+  },
+  "status": "pass"
+}

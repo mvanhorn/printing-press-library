@@ -1,0 +1,85 @@
+name: airport-limousine
+description: Public Tokyo Airport Limousine travel planning
+cli_description: Plan Tokyo airport buses with exact terminals, dated fares and explicit travel-time uncertainty.
+version: "0.1.0"
+category: travel
+base_url: https://www.limousinebus.co.jp
+health_check_path: /en/
+http_transport: browser-chrome
+auth:
+  type: none
+learn:
+  entity_lookup_seeds:
+    airport:
+      - canonical: Haneda Airport
+        aliases: [haneda, hnd, 羽田空港]
+      - canonical: Narita Airport
+        aliases: [narita, nrt, 成田空港]
+  synonyms:
+    luggage: baggage
+    timetable: schedule
+mcp:
+  transport: [stdio]
+resources:
+  pages:
+    description: Read canonical operator page links
+    endpoints:
+      routes:
+        method: GET
+        path: /en/timetable/list/
+        description: Read canonical route and timetable links
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/en/timetable/detail]
+      stop:
+        method: GET
+        path: /en/busstop/detail/{stop_id}/
+        description: Read a known operator stop page and links
+        happy_args: stop-id=HanedaAirportTerminal3
+        params:
+          - name: stop_id
+            flag_name: stop-id
+            type: string
+            required: true
+            positional: true
+            description: Exact provider stop identifier from stops find
+            default: HanedaAirportTerminal3
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/en/timetable/detail, /en/line/detail]
+      timetable:
+        method: GET
+        path: /en/timetable/detail/{route_id}/
+        description: Read canonical date timetable handoff links
+        happy_args: route-id=Haneda-Narita;--direction=1
+        params:
+          - name: route_id
+            flag_name: route-id
+            type: string
+            required: true
+            positional: true
+            description: Exact provider area identifier from routes
+            default: Haneda-Narita
+          - name: dir
+            flag_name: direction
+            type: int
+            default: 1
+            description: Source direction 1 from airport or 2 to airport
+          - name: d
+            flag_name: date
+            type: string
+            description: Requested JST service date in YYYY-MM-DD format
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/en/busstop/detail]
+      guide:
+        method: GET
+        path: /en/guide/
+        description: Read the provider baggage and boarding guide links
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/en/guide/terms]

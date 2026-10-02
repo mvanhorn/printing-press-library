@@ -1,0 +1,131 @@
+{
+  "meta": {
+    "source": "live"
+  },
+  "results": {
+    "details": {
+      "linked_notices_and_guides": [
+        {
+          "title": "the following PDF",
+          "url": "https://www.limousinebus.co.jp/file/guide_BaggageGuidelines_en.pdf?20251210"
+        }
+      ]
+    },
+    "meta": {
+      "note": "Facts are extracted from the current provider guide; its content update date can predate this observation. Linked baggage notices may contain further restrictions, including special items. Partner operators can differ. Read canonical conditions before travel.",
+      "observed_at": "2026-10-02T15:25:42Z",
+      "requests": 3,
+      "returned": 14,
+      "scanned_records": 14,
+      "source": "live",
+      "source_urls": [
+        "https://www.limousinebus.co.jp/en/guide/terms/baggage/",
+        "https://www.limousinebus.co.jp/en/guide/terms/caution/",
+        "https://www.limousinebus.co.jp/en/"
+      ],
+      "timezone": "Asia/Tokyo",
+      "total_matching": 14,
+      "truncated": false
+    },
+    "results": [
+      {
+        "key": "checked_bag_count",
+        "source_updated_at": "2025-12-10T10:05:59.273Z",
+        "source_url": "https://www.limousinebus.co.jp/en/guide/terms/baggage/",
+        "summary": "Maximum checked pieces per person in the provider guide.",
+        "topic": "baggage"
+      },
+      {
+        "key": "checked_bag_dimensions",
+        "source_updated_at": "2025-12-10T10:05:59.273Z",
+        "source_url": "https://www.limousinebus.co.jp/en/guide/terms/baggage/",
+        "summary": "Maximum dimensions for each piece in the provider guide.",
+        "topic": "baggage"
+      },
+      {
+        "key": "checked_bag_weight",
+        "source_updated_at": "2025-12-10T10:05:59.273Z",
+        "source_url": "https://www.limousinebus.co.jp/en/guide/terms/baggage/",
+        "summary": "Maximum weight of each checked piece in the provider guide.",
+        "topic": "baggage"
+      },
+      {
+        "key": "valuables",
+        "source_updated_at": "2025-12-10T10:05:59.273Z",
+        "source_url": "https://www.limousinebus.co.jp/en/guide/terms/baggage/",
+        "summary": "Keep passports, valuables, fragile items and precision instruments out of checked baggage.",
+        "topic": "baggage"
+      },
+      {
+        "key": "operator_scope",
+        "source_updated_at": "2025-12-10T10:05:59.273Z",
+        "source_url": "https://www.limousinebus.co.jp/en/guide/terms/baggage/",
+        "summary": "Handling can differ on jointly operated routes; check the operating company and linked notices.",
+        "topic": "baggage"
+      },
+      {
+        "key": "acceptance",
+        "source_updated_at": "2025-12-10T10:05:59.273Z",
+        "source_url": "https://www.limousinebus.co.jp/en/guide/terms/baggage/",
+        "summary": "The operator may refuse baggage whose size or quantity disrupts service.",
+        "topic": "baggage"
+      },
+      {
+        "key": "travel_time",
+        "source_updated_at": "2025-04-21T07:11:01.925Z",
+        "source_url": "https://www.limousinebus.co.jp/en/guide/terms/caution/",
+        "summary": "Allow extra time for traffic and road conditions; arrival times are estimates.",
+        "topic": "boarding"
+      },
+      {
+        "key": "seated_only",
+        "source_updated_at": "2025-04-21T07:11:01.925Z",
+        "source_url": "https://www.limousinebus.co.jp/en/guide/terms/caution/",
+        "summary": "Standing passengers are not accepted; a full bus cannot take additional passengers.",
+        "topic": "boarding"
+      },
+      {
+        "key": "unreserved_boarding",
+        "source_updated_at": "2025-04-21T07:11:01.925Z",
+        "source_url": "https://www.limousinebus.co.jp/en/guide/terms/caution/",
+        "summary": "Unreserved boarding is generally first come, first served; a timetable does not secure a seat.",
+        "topic": "boarding"
+      },
+      {
+        "key": "child_category",
+        "source_updated_at": "2025-04-21T07:11:01.925Z",
+        "source_url": "https://www.limousinebus.co.jp/en/guide/terms/caution/",
+        "summary": "The child category covers elementary-school students; the guide describes ages 6–12 and a school-status exception at age 12.",
+        "topic": "boarding"
+      },
+      {
+        "key": "preschool_seats",
+        "source_updated_at": "2025-04-21T07:11:01.925Z",
+        "source_url": "https://www.limousinebus.co.jp/en/guide/terms/caution/",
+        "summary": "Preschoolers under six using no seat are free; those occupying a seat generally pay child fare.",
+        "topic": "boarding"
+      },
+      {
+        "key": "child_rounding",
+        "source_updated_at": "2025-04-21T07:11:01.925Z",
+        "source_url": "https://www.limousinebus.co.jp/en/guide/terms/caution/",
+        "summary": "The guide describes half the adult fare, rounding fractional amounts upward to 10 yen; fare uses the actual published child unit instead.",
+        "topic": "boarding"
+      },
+      {
+        "key": "changes",
+        "source_updated_at": "2025-04-21T07:11:01.925Z",
+        "source_url": "https://www.limousinebus.co.jp/en/guide/terms/caution/",
+        "summary": "Published schedules and fares can change; confirm the dated canonical page before travel.",
+        "topic": "boarding"
+      },
+      {
+        "key": "operator_scope",
+        "source_updated_at": "2025-04-21T07:11:01.925Z",
+        "source_url": "https://www.limousinebus.co.jp/en/guide/terms/caution/",
+        "summary": "These guide rules apply to this operator; jointly operated services can differ.",
+        "topic": "boarding"
+      }
+    ]
+  }
+}

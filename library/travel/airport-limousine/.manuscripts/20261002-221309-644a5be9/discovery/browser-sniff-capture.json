@@ -1,0 +1,55 @@
+{
+  "target_url": "https://www.limousinebus.co.jp/en/",
+  "captured_at": "2026-10-02T15:00:23.285331+00:00",
+  "interaction_rounds": 5,
+  "auth": {
+    "type": "none"
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://www.limousinebus.co.jp/en/",
+      "response_status": 200,
+      "response_content_type": "text/html",
+      "request_headers": {},
+      "response_headers": {},
+      "response_body_sha256": "055285c6be809af8966e32fb65d0fa2103e9d35c56c09e23189f3066a184407b"
+    },
+    {
+      "method": "GET",
+      "url": "https://www.limousinebus.co.jp/en/timetable/list/",
+      "response_status": 200,
+      "response_content_type": "text/html",
+      "request_headers": {},
+      "response_headers": {},
+      "response_body_sha256": "95824bc7ec8ea272a6389dc8f3cde2fe1125a5986056a1bb7cc872faaff1977a"
+    },
+    {
+      "method": "GET",
+      "url": "https://www.limousinebus.co.jp/en/timetable/detail/Haneda-Narita/?dir=1&d=2026-10-03",
+      "response_status": 200,
+      "response_content_type": "text/html",
+      "request_headers": {},
+      "response_headers": {},
+      "response_body_sha256": "3f02ef4988de8d8245c939ee8cded9cdabf3bbcfe5b41bd622fe05a4f24326e4"
+    },
+    {
+      "method": "GET",
+      "url": "https://www.limousinebus.co.jp/en/timetable/detail/Haneda-Narita/__data.json?dir=1&d=2026-10-03",
+      "response_status": 200,
+      "response_content_type": "application/json",
+      "request_headers": {},
+      "response_headers": {},
+      "response_body_sha256": "c273dc0fecf189bafa3643ca08365a8127c03151cd7b68c0c9901cc66451c406"
+    },
+    {
+      "method": "GET",
+      "url": "https://www.limousinebus.co.jp/en/guide/realtime/",
+      "response_status": 200,
+      "response_content_type": "text/html",
+      "request_headers": {},
+      "response_headers": {},
+      "response_body_sha256": "617166d1c14717a8945b2d9b1801b67b846712b572f59da814f94cd5f5710b0d"
+    }
+  ]
+}

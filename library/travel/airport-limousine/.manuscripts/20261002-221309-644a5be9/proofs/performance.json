@@ -1,0 +1,7 @@
+{
+  "command": "timetable Haneda-Narita --limit 1 --from-stop HanedaAirportTerminal3 --to-stop NaritaAirportTerminal1 --agent --select results.id,results.origin.departure.datetime_jst,results.destination.arrival.datetime_jst,meta.observed_at",
+  "elapsed_ms": 684,
+  "output_bytes": 377,
+  "max_rss_bytes": 26951680,
+  "source_requests": 1
+}

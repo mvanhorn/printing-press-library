@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "airport-limousine-safe-mcp-pages",
+  "files": [
+    "cmd/airport-limousine-pp-mcp/main.go",
+    "internal/mcp/limousine_pages.go",
+    "internal/limousine/pages.go"
+  ],
+  "call_sites": [
+    "mcptools.RegisterAirportTools(s)"
+  ],
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261002-221309-644a5be9",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Replace raw typed HTML MCP pages with bounded canonical title and link extraction.",
+  "reason": "Raw SSR HTML embeds reservation/inventory state; airport planning must not return it.",
+  "validated_outcome": "13 read-only MCP tool hints and7 protocol cases pass; source URL queries remain exact."
+}

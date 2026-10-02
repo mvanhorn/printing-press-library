@@ -1,0 +1,89 @@
+{
+  "meta": {
+    "context": {
+      "linked_notices_and_guides": [
+        {
+          "title": "the following PDF",
+          "url": "https://www.limousinebus.co.jp/file/guide_BaggageGuidelines_en.pdf?20251210"
+        },
+        {
+          "title": "[Please check] Information regarding checked baggage",
+          "url": "https://www.limousinebus.co.jp/api/pdf?path=%2Fuploads%2F_e63bba4736.pdf"
+        }
+      ]
+    },
+    "note": "Facts are extracted from the current provider guide; its content update date can predate this observation. Linked baggage notices may contain further restrictions, including special items. Partner operators can differ. Read canonical conditions before travel.",
+    "observed_at": "2026-10-02T15:37:35Z",
+    "requests": 2,
+    "returned": 6,
+    "scanned_records": 6,
+    "source": "live",
+    "source_urls": [
+      "https://www.limousinebus.co.jp/en/guide/terms/baggage/",
+      "https://www.limousinebus.co.jp/en/"
+    ],
+    "timezone": "Asia/Tokyo",
+    "total_matching": 6,
+    "truncated": false
+  },
+  "results": [
+    {
+      "key": "checked_bag_count",
+      "source_updated_at": "2025-12-10T10:05:59.273Z",
+      "source_url": "https://www.limousinebus.co.jp/en/guide/terms/baggage/",
+      "summary": "The provider guide allows at most 2 checked pieces per person.",
+      "topic": "baggage",
+      "unit": "pieces per person",
+      "value": 2
+    },
+    {
+      "key": "checked_bag_dimensions",
+      "source_updated_at": "2025-12-10T10:05:59.273Z",
+      "source_url": "https://www.limousinebus.co.jp/en/guide/terms/baggage/",
+      "summary": "Each checked piece must fit within 50 × 60 × 120 cm.",
+      "topic": "baggage",
+      "unit": "cm",
+      "value": [
+        50,
+        60,
+        120
+      ]
+    },
+    {
+      "key": "checked_bag_weight",
+      "source_updated_at": "2025-12-10T10:05:59.273Z",
+      "source_url": "https://www.limousinebus.co.jp/en/guide/terms/baggage/",
+      "summary": "Each checked piece may weigh up to 30 kg.",
+      "topic": "baggage",
+      "unit": "kg per piece",
+      "value": 30
+    },
+    {
+      "key": "valuables",
+      "source_updated_at": "2025-12-10T10:05:59.273Z",
+      "source_url": "https://www.limousinebus.co.jp/en/guide/terms/baggage/",
+      "summary": "Keep passports, valuables, fragile items and precision instruments out of checked baggage.",
+      "topic": "baggage",
+      "unit": "",
+      "value": null
+    },
+    {
+      "key": "operator_scope",
+      "source_updated_at": "2025-12-10T10:05:59.273Z",
+      "source_url": "https://www.limousinebus.co.jp/en/guide/terms/baggage/",
+      "summary": "Handling can differ on jointly operated routes; check the operating company and linked notices.",
+      "topic": "baggage",
+      "unit": "",
+      "value": null
+    },
+    {
+      "key": "acceptance",
+      "source_updated_at": "2025-12-10T10:05:59.273Z",
+      "source_url": "https://www.limousinebus.co.jp/en/guide/terms/baggage/",
+      "summary": "The operator may refuse baggage whose size or quantity disrupts service.",
+      "topic": "baggage",
+      "unit": "",
+      "value": null
+    }
+  ]
+}

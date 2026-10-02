@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/airport-limousine-pp-cli
+/airport-limousine-pp-cli.exe
+/airport-limousine-pp-mcp
+/airport-limousine-pp-mcp.exe
+/bin/
+/build/
+/dist/

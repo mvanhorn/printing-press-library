@@ -1,0 +1,21 @@
+workflows:
+  - name: Resolve exact airport terminals and a published fare
+    primary: true
+    steps:
+      - command: routes --query Narita --airport haneda --limit 1 --agent --no-learn
+        mode: live
+        expect_fields: [meta, results]
+        extract:
+          route_id: results[0].id
+      - command: timetable ${route_id} --from-stop HanedaAirportTerminal3 --to-stop NaritaAirportTerminal1 --limit 1 --agent --no-learn
+        mode: live
+        expect_fields: [meta, results]
+      - command: fare ${route_id} --adults 2 --children 1 --agent --no-learn
+        mode: live
+        expect_fields: [meta, results]
+      - command: conditions --topic baggage --agent --no-learn
+        mode: live
+        expect_fields: [meta, results]
+      - command: handoff ${route_id} --agent --no-learn
+        mode: live
+        expect_fields: [meta, results]

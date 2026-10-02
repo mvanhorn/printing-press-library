@@ -1,0 +1,8 @@
+{
+  "passed": false,
+  "errors": [
+    "timetable limit",
+    "assertion exception string indices must be integers, not 'str'"
+  ],
+  "checked_cases": 12
+}

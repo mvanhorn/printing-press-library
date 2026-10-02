@@ -1,0 +1,63 @@
+{
+  "meta": {
+    "note": "Public provider keyword search with an ephemeral private cookie jar; exact terminals remain separate. No further result pages are scanned.",
+    "observed_at": "2026-10-02T15:32:09Z",
+    "requests": 2,
+    "returned": 3,
+    "scanned_records": 3,
+    "source": "live",
+    "source_urls": [
+      "https://www.limousinebus.co.jp/en/busstop/"
+    ],
+    "timezone": "Asia/Tokyo",
+    "total_matching": 3,
+    "truncated": false
+  },
+  "results": [
+    {
+      "airports": [
+        "haneda",
+        "narita"
+      ],
+      "id": "HanedaAirportTerminal2",
+      "inbound_code": "905",
+      "japanese_name": "羽田空港第２ターミナル",
+      "name": "Haneda Airport Terminal 2",
+      "official_name": "Haneda Airport Terminal 2",
+      "outbound_code": "905",
+      "source_kind": "H",
+      "source_updated_at": "2025-04-21T04:54:22.740Z",
+      "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/HanedaAirportTerminal2/"
+    },
+    {
+      "airports": [
+        "haneda",
+        "narita"
+      ],
+      "id": "HanedaAirportTerminal1",
+      "inbound_code": "002",
+      "japanese_name": "羽田空港第１ターミナル",
+      "name": "Haneda Airport Terminal 1",
+      "official_name": "Haneda Airport Terminal 1",
+      "outbound_code": "002",
+      "source_kind": "H",
+      "source_updated_at": "2025-04-21T04:53:40.889Z",
+      "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/HanedaAirportTerminal1/"
+    },
+    {
+      "airports": [
+        "haneda",
+        "narita"
+      ],
+      "id": "HanedaAirportTerminal3",
+      "inbound_code": "250",
+      "japanese_name": "羽田空港第３ターミナル",
+      "name": "Haneda Airport Terminal3",
+      "official_name": "Haneda Airport Terminal 3",
+      "outbound_code": "250",
+      "source_kind": "H",
+      "source_updated_at": "2025-04-21T04:54:59.829Z",
+      "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/HanedaAirportTerminal3/"
+    }
+  ]
+}

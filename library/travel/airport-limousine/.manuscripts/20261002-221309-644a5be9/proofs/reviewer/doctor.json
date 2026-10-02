@@ -1,0 +1,32 @@
+{
+  "api": "reachable (HTML body at /en/)",
+  "auth": "not required",
+  "base_url": "https://www.limousinebus.co.jp",
+  "config": "ok",
+  "config_path": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/proofs/reviewer/home/config/config.json",
+  "paths": {
+    "cache": {
+      "dir": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/proofs/reviewer/home/cache",
+      "rung": "home-env",
+      "source": "AIRPORT_LIMOUSINE_HOME"
+    },
+    "config": {
+      "dir": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/proofs/reviewer/home/config",
+      "rung": "home-env",
+      "source": "AIRPORT_LIMOUSINE_HOME"
+    },
+    "data": {
+      "dir": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/proofs/reviewer/home/data",
+      "rung": "home-env",
+      "source": "AIRPORT_LIMOUSINE_HOME"
+    },
+    "state": {
+      "dir": "/Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/proofs/reviewer/home/state",
+      "rung": "home-env",
+      "source": "AIRPORT_LIMOUSINE_HOME"
+    },
+    "status": "ok"
+  },
+  "verify_mode": "normal operation",
+  "version": "0.0.0-dev"
+}

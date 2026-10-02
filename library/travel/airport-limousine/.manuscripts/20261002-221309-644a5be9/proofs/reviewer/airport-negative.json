@@ -1,0 +1,17 @@
+{
+  "meta": {
+    "note": "No matching source records; Public provider keyword search with an ephemeral private cookie jar; exact terminals remain separate. No further result pages are scanned.",
+    "observed_at": "2026-10-02T15:32:08Z",
+    "requests": 2,
+    "returned": 0,
+    "scanned_records": 0,
+    "source": "live",
+    "source_urls": [
+      "https://www.limousinebus.co.jp/en/busstop/"
+    ],
+    "timezone": "Asia/Tokyo",
+    "total_matching": 0,
+    "truncated": false
+  },
+  "results": []
+}

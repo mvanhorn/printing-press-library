@@ -1,0 +1,37 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "case": "read-only-hints",
+      "passed": true,
+      "checked_tools": 13
+    },
+    {
+      "case": "pages_routes",
+      "passed": true,
+      "errors": [],
+      "elapsed_ms": 331,
+      "output_bytes": 13660,
+      "links": 120,
+      "requests": 1,
+      "source_url": "https://www.limousinebus.co.jp/en/timetable/list/"
+    },
+    {
+      "case": "pages_timetable",
+      "passed": true,
+      "errors": [],
+      "elapsed_ms": 699,
+      "output_bytes": 1305,
+      "links": 6,
+      "requests": 1,
+      "source_url": "https://www.limousinebus.co.jp/en/timetable/detail/Haneda-Narita/?d=2026-10-03&dir=1"
+    },
+    {
+      "case": "pages_timetable-invalid",
+      "passed": true,
+      "errors": [],
+      "elapsed_ms": 0,
+      "output_bytes": 71
+    }
+  ]
+}

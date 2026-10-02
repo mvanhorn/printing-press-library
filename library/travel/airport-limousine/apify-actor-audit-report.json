@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/airport-limousine-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20261002-221309-644a5be9",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-02T16:56:57.637032Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "airport-limousine",
+  "display_name": "Airport Limousine",
+  "cli_name": "airport-limousine-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "airport-limousine-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:229cbf54d3e629b42fa9b18d597830185b112322e2f1a3f2aca3de990e137226",
+  "run_id": "20261002-221309-644a5be9",
+  "category": "travel",
+  "description": "Plan Tokyo airport buses with exact terminals, dated fares and explicit travel-time uncertainty.",
+  "mcp_binary": "airport-limousine-pp-mcp",
+  "mcp_tool_count": 4,
+  "mcp_public_tool_count": 4,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Dated terminal journeys",
+      "command": "timetable",
+      "description": "Plan a service date at exact stops with JST times and midnight rollover."
+    },
+    {
+      "name": "Current duration evidence",
+      "command": "travel-times",
+      "description": "Compare current and standard duration estimates with explicit unavailable states."
+    },
+    {
+      "name": "Airport transfer comparison",
+      "command": "transfers",
+      "description": "Read both airport transfer directions for the same service date."
+    },
+    {
+      "name": "Party fare planning",
+      "command": "fare",
+      "description": "Calculate an adult/child total from the operator fare for a served pair."
+    },
+    {
+      "name": "Baggage and boarding facts",
+      "command": "conditions",
+      "description": "Read concise current provider conditions with source timestamps and notices."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Dated terminal journeys",
+      "command": "timetable",
+      "description": "Plan a service date at exact stops with JST times and midnight rollover."
+    },
+    {
+      "name": "Current duration evidence",
+      "command": "travel-times",
+      "description": "Compare current and standard duration estimates with explicit unavailable states."
+    },
+    {
+      "name": "Airport transfer comparison",
+      "command": "transfers",
+      "description": "Read both airport transfer directions for the same service date."
+    },
+    {
+      "name": "Party fare planning",
+      "command": "fare",
+      "description": "Calculate an adult/child total from the operator fare for a served pair."
+    },
+    {
+      "name": "Baggage and boarding facts",
+      "command": "conditions",
+      "description": "Read concise current provider conditions with source timestamps and notices."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 33,
+    "total": 33,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 83,
+      "grade": "A",
+      "total": 83
+    }
+  }
+}

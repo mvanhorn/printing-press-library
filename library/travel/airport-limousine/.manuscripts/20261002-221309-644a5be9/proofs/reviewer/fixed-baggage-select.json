@@ -1,0 +1,42 @@
+{
+  "meta": {
+    "observed_at": "2026-10-02T15:44:25Z",
+    "source": "live"
+  },
+  "results": [
+    {
+      "key": "checked_bag_count",
+      "unit": "pieces per person",
+      "value": 2
+    },
+    {
+      "key": "checked_bag_dimensions",
+      "unit": "cm",
+      "value": [
+        50,
+        60,
+        120
+      ]
+    },
+    {
+      "key": "checked_bag_weight",
+      "unit": "kg per piece",
+      "value": 30
+    },
+    {
+      "key": "valuables",
+      "unit": "",
+      "value": null
+    },
+    {
+      "key": "operator_scope",
+      "unit": "",
+      "value": null
+    },
+    {
+      "key": "acceptance",
+      "unit": "",
+      "value": null
+    }
+  ]
+}

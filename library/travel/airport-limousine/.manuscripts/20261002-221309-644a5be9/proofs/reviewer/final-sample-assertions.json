@@ -1,0 +1,103 @@
+{
+  "passed": true,
+  "issues": [],
+  "samples": [
+    {
+      "name": "routes",
+      "row_count": 2,
+      "requests": 1,
+      "bytes": 1166
+    },
+    {
+      "name": "stops-find",
+      "row_count": 6,
+      "requests": 2,
+      "bytes": 3677
+    },
+    {
+      "name": "stop-detail",
+      "row_count": 1,
+      "requests": 1,
+      "bytes": 2662
+    },
+    {
+      "name": "timetable",
+      "row_count": 3,
+      "requests": 1,
+      "bytes": 30272
+    },
+    {
+      "name": "reverse-timetable",
+      "row_count": 3,
+      "requests": 1,
+      "bytes": 29931
+    },
+    {
+      "name": "fare",
+      "row_count": 1,
+      "requests": 1,
+      "bytes": 2347
+    },
+    {
+      "name": "travel-times",
+      "row_count": 2,
+      "requests": 1,
+      "bytes": 1502
+    },
+    {
+      "name": "transfers",
+      "row_count": 2,
+      "requests": 3,
+      "bytes": 38540
+    },
+    {
+      "name": "conditions",
+      "row_count": 14,
+      "requests": 3,
+      "bytes": 5899
+    },
+    {
+      "name": "baggage",
+      "row_count": 6,
+      "requests": 2,
+      "bytes": 3127
+    },
+    {
+      "name": "handoff",
+      "row_count": 1,
+      "requests": 1,
+      "bytes": 936
+    },
+    {
+      "name": "negative-query",
+      "row_count": 0,
+      "requests": 1,
+      "bytes": 479
+    },
+    {
+      "name": "negative-stop",
+      "row_count": 0,
+      "requests": 2,
+      "bytes": 505
+    },
+    {
+      "name": "selected-stops",
+      "row_count": 6,
+      "requests": null,
+      "bytes": 752
+    },
+    {
+      "name": "haneda-shinjuku",
+      "row_count": 2,
+      "requests": 1,
+      "bytes": 30629
+    },
+    {
+      "name": "narita-shinjuku",
+      "row_count": 2,
+      "requests": 1,
+      "bytes": 31044
+    }
+  ],
+  "checked_clocks": 143
+}

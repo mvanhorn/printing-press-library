@@ -1,0 +1,17 @@
+{
+  "meta": {
+    "note": "No matching source records; Provider route-area listing; CMS placeholder records omitted. Suspended routes need --include-suspended.",
+    "observed_at": "2026-10-02T15:25:42Z",
+    "requests": 1,
+    "returned": 0,
+    "scanned_records": 69,
+    "source": "live",
+    "source_urls": [
+      "https://www.limousinebus.co.jp/en/timetable/list/"
+    ],
+    "timezone": "Asia/Tokyo",
+    "total_matching": 0,
+    "truncated": false
+  },
+  "results": []
+}

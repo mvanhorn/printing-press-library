@@ -1,0 +1,72 @@
+{
+  "meta": {
+    "note": "Location metadata has its own source update date; observations do not prove bus operation or seats.",
+    "observed_at": "2026-10-02T15:37:30Z",
+    "requests": 1,
+    "returned": 3,
+    "scanned_records": 38,
+    "source": "live",
+    "source_urls": [
+      "https://www.limousinebus.co.jp/en/busstop/detail/HanedaAirportTerminal3/"
+    ],
+    "timezone": "Asia/Tokyo",
+    "total_matching": 38,
+    "truncated": true
+  },
+  "results": [
+    {
+      "address": "3-4-4 Haneda Airport, Ota-ku, Tokyo",
+      "connections": [
+        {
+          "airport": "haneda",
+          "direction": "from-airport",
+          "japanese_name": "羽田空港～新宿・池袋［深夜］",
+          "line_id": "121034",
+          "name": "Haneda Airport - Shinjuku/Ikebukuro [Midnight]",
+          "route_id": "Haneda-Shinjuku",
+          "timetable_url": "https://www.limousinebus.co.jp/en/timetable/detail/Haneda-Shinjuku/?dir=1"
+        },
+        {
+          "airport": "haneda",
+          "direction": "to-airport",
+          "japanese_name": "羽田空港線［籠原］",
+          "line_id": "721760",
+          "name": "Haneda Airport Line [Kagohara]",
+          "route_id": "Haneda-KumagayaSakado",
+          "timetable_url": "https://www.limousinebus.co.jp/en/timetable/detail/Haneda-KumagayaSakado/?dir=2"
+        },
+        {
+          "airport": "haneda",
+          "direction": "to-airport",
+          "japanese_name": "羽田空港線［光が丘・練馬］",
+          "line_id": "721275",
+          "name": "Haneda Airport Line [Hikarigaoka, Nerima]",
+          "route_id": "Haneda-HikarigaokaNerima",
+          "timetable_url": "https://www.limousinebus.co.jp/en/timetable/detail/Haneda-HikarigaokaNerima/?dir=2"
+        }
+      ],
+      "coordinates_unit": "decimal degrees",
+      "dropoff_lat": 35.54453,
+      "dropoff_lon": 139.767729,
+      "location_source_updated_at": "2025-04-13T15:08:11.975Z",
+      "map_urls": [
+        "https://hp-cms.limousinebus.co.jp/uploads/250410_haneda_3_en_6f9cb6e292.jpg"
+      ],
+      "pickup_lat": 35.54453,
+      "pickup_lon": 139.767729,
+      "postal_code": "144-0041",
+      "stop": {
+        "id": "HanedaAirportTerminal3",
+        "inbound_code": "250",
+        "japanese_name": "羽田空港第３ターミナル",
+        "name": "Haneda Airport Terminal3",
+        "official_name": "Haneda Airport Terminal 3",
+        "outbound_code": "250",
+        "source_kind": "H",
+        "source_updated_at": "2025-04-21T04:54:59.829Z",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/HanedaAirportTerminal3/"
+      },
+      "total_connections": 38
+    }
+  ]
+}

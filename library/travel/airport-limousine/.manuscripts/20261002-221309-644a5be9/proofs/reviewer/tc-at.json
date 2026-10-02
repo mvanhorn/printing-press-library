@@ -1,0 +1,271 @@
+{
+  "meta": {
+    "context": {
+      "direction": "from-airport",
+      "first_source_date_jst": "2026-10-03",
+      "last_source_date_jst": "2026-12-03",
+      "route_id": "Narita-TCAT",
+      "route_name": "Tokyo City Air Terminal (TCAT), Tokyo Station, Nihonbashi area",
+      "selected_date_jst": "2026-10-03",
+      "source_alerts": {},
+      "source_direction": "inbound",
+      "suspended": false
+    },
+    "note": "Scheduled times and published station fares; seat inventory is intentionally omitted. Extended-hour and inferred rollover are identified in each time. Source created_at has no verified timezone. Confirm canonical source for operator changes. Output is capped by --limit.",
+    "observed_at": "2026-10-02T15:32:07Z",
+    "requests": 1,
+    "returned": 1,
+    "scanned_records": 47,
+    "source": "live",
+    "source_urls": [
+      "https://www.limousinebus.co.jp/en/timetable/detail/Narita-TCAT/?d=2026-10-03\u0026dir=1"
+    ],
+    "stations": [
+      {
+        "code": "013",
+        "id": "NaritaAirportTerminal3",
+        "japanese_name": "成田空港第３旅客ターミナル",
+        "name": "Narita Airport Terminal 3",
+        "published_fare": {
+          "adult_jpy": null,
+          "child_jpy": null,
+          "currency": "JPY"
+        },
+        "role": "boarding",
+        "source_kind": "N",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/NaritaAirportTerminal3/"
+      },
+      {
+        "code": "016",
+        "id": "NaritaAirportTerminal2",
+        "japanese_name": "成田空港第２旅客ターミナル",
+        "name": "Narita Airport Terminal 2",
+        "published_fare": {
+          "adult_jpy": null,
+          "child_jpy": null,
+          "currency": "JPY"
+        },
+        "role": "boarding",
+        "source_kind": "N",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/NaritaAirportTerminal2/"
+      },
+      {
+        "code": "017",
+        "id": "NaritaAirportTerminal1",
+        "japanese_name": "成田空港第１旅客ターミナル",
+        "name": "Narita Airport Terminal 1",
+        "published_fare": {
+          "adult_jpy": null,
+          "child_jpy": null,
+          "currency": "JPY"
+        },
+        "role": "boarding",
+        "source_kind": "N",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/NaritaAirportTerminal1/"
+      },
+      {
+        "code": "003",
+        "id": "TokyoCityAirTerminal",
+        "japanese_name": "東京シティ・エアターミナル",
+        "name": "Tokyo City Air Terminal",
+        "published_fare": {
+          "adult_jpy": 3100,
+          "child_jpy": 1550,
+          "currency": "JPY"
+        },
+        "role": "alighting",
+        "source_kind": "B",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/TokyoCityAirTerminal/"
+      },
+      {
+        "code": "005",
+        "id": "TokyoStationYaesuNorthGate",
+        "japanese_name": "東京駅鉄鋼ビル",
+        "name": "Tokyo Station Yaesu North Gate (Tekko Building)",
+        "published_fare": {
+          "adult_jpy": 3100,
+          "child_jpy": 1550,
+          "currency": "JPY"
+        },
+        "role": "alighting",
+        "source_kind": "B",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/TokyoStationYaesuNorthGate/"
+      }
+    ],
+    "timezone": "Asia/Tokyo",
+    "total_matching": 47,
+    "truncated": true
+  },
+  "results": [
+    {
+      "calls": [
+        {
+          "arrival": null,
+          "arrival_source_type": "-1",
+          "arrival_source_value": "-1",
+          "call_state": "scheduled",
+          "departure": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T07:15:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "715",
+            "source_time_type": "0",
+            "time": "07:15"
+          },
+          "departure_source_type": "0",
+          "departure_source_value": "715",
+          "japanese_name": "成田空港第３旅客ターミナル",
+          "name": "Narita Airport Terminal 3",
+          "platform_japanese": "９番のりば",
+          "published_fare": {
+            "adult_jpy": null,
+            "child_jpy": null,
+            "currency": "JPY"
+          },
+          "role": "boarding",
+          "stop_id": "NaritaAirportTerminal3"
+        },
+        {
+          "arrival": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T07:20:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "720",
+            "source_time_type": "0",
+            "time": "07:20"
+          },
+          "arrival_source_type": "0",
+          "arrival_source_value": "720",
+          "call_state": "scheduled",
+          "departure": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T07:20:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "720",
+            "source_time_type": "0",
+            "time": "07:20"
+          },
+          "departure_source_type": "0",
+          "departure_source_value": "720",
+          "japanese_name": "成田空港第２旅客ターミナル",
+          "name": "Narita Airport Terminal 2",
+          "platform_japanese": "１７番のりば",
+          "published_fare": {
+            "adult_jpy": null,
+            "child_jpy": null,
+            "currency": "JPY"
+          },
+          "role": "boarding",
+          "stop_id": "NaritaAirportTerminal2"
+        },
+        {
+          "arrival": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T07:25:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "725",
+            "source_time_type": "0",
+            "time": "07:25"
+          },
+          "arrival_source_type": "0",
+          "arrival_source_value": "725",
+          "call_state": "scheduled",
+          "departure": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T07:25:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "725",
+            "source_time_type": "0",
+            "time": "07:25"
+          },
+          "departure_source_type": "0",
+          "departure_source_value": "725",
+          "japanese_name": "成田空港第１旅客ターミナル",
+          "name": "Narita Airport Terminal 1",
+          "platform_japanese": "１０番のりば",
+          "published_fare": {
+            "adult_jpy": null,
+            "child_jpy": null,
+            "currency": "JPY"
+          },
+          "role": "boarding",
+          "stop_id": "NaritaAirportTerminal1"
+        },
+        {
+          "arrival": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T08:45:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "845",
+            "source_time_type": "0",
+            "time": "08:45"
+          },
+          "arrival_source_type": "0",
+          "arrival_source_value": "845",
+          "call_state": "scheduled",
+          "departure": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T08:45:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "845",
+            "source_time_type": "0",
+            "time": "08:45"
+          },
+          "departure_source_type": "0",
+          "departure_source_value": "845",
+          "japanese_name": "東京シティ・エアターミナル",
+          "name": "Tokyo City Air Terminal",
+          "platform_japanese": "おりば",
+          "published_fare": {
+            "adult_jpy": 3100,
+            "child_jpy": 1550,
+            "currency": "JPY"
+          },
+          "role": "alighting",
+          "stop_id": "TokyoCityAirTerminal"
+        },
+        {
+          "arrival": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T09:05:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "905",
+            "source_time_type": "0",
+            "time": "09:05"
+          },
+          "arrival_source_type": "0",
+          "arrival_source_value": "905",
+          "call_state": "scheduled",
+          "departure": null,
+          "departure_source_type": "-1",
+          "departure_source_value": "-1",
+          "japanese_name": "東京駅鉄鋼ビル",
+          "name": "Tokyo Station Yaesu North Gate (Tekko Building)",
+          "platform_japanese": "標０１",
+          "published_fare": {
+            "adult_jpy": 3100,
+            "child_jpy": 1550,
+            "currency": "JPY"
+          },
+          "role": "alighting",
+          "stop_id": "TokyoStationYaesuNorthGate"
+        }
+      ],
+      "id": "BE38E0003001D9B",
+      "line_name_japanese": "成田空港線［ＴＣＡＴ］(東京駅鉄鋼ビル行)",
+      "operator": "Airport Limousine Bus",
+      "service_date_jst": "2026-10-03",
+      "source_operation_state": 0,
+      "source_record_created_at": "2026-10-02 15:02:54",
+      "source_route_code": "251104"
+    }
+  ]
+}

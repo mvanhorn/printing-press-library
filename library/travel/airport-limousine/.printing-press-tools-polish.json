@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-10-02T16:50:44.010008Z",
+  "cli_dir": "\u003ccli-dir\u003e/airport-limousine-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; needs generator-template fix. The phrase identifies local client profiles and is already action-specific for this framework listing."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 868,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; needs generator-template fix. This local listing names recorded learnings clearly; richer framework tool context belongs in the generator."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-10-02T16:02:33.3807Z"
+  }
+}

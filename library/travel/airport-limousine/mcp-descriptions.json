@@ -1,0 +1,8 @@
+{
+  "descriptions": {
+    "pages_routes": "Read the official route-area page and return canonical timetable links. No parameters are required. Embedded application data is omitted; prefer routes for structured airport and area filtering.",
+    "pages_guide": "Read the official bus guide and return canonical baggage and boarding links. No parameters are required. Prefer conditions for structured published facts and current notices.",
+    "pages_stop": "Read a stop page and return canonical route links. Required: stop-id, an exact provider identifier from stops find. Embedded application data is omitted; prefer stops get for structured boarding maps and connections.",
+    "pages_timetable": "Read a timetable page and return canonical stop links without inventory data. Required: route-id. Optional: direction (1 from airport, 2 to airport) and date (JST YYYY-MM-DD, today by default). Prefer timetable for structured dated journeys and fares."
+  }
+}

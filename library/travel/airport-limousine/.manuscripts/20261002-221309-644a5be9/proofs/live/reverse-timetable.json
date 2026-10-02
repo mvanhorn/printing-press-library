@@ -1,0 +1,892 @@
+{
+  "meta": {
+    "source": "live"
+  },
+  "results": {
+    "details": {
+      "direction": "to-airport",
+      "first_source_date_jst": "2026-10-03",
+      "last_source_date_jst": "2026-12-03",
+      "route_id": "Haneda-Narita",
+      "route_name": "Narita Airport",
+      "selected_date_jst": "2026-10-03",
+      "source_alerts": {},
+      "source_direction": "outbound",
+      "suspended": false
+    },
+    "meta": {
+      "note": "Scheduled times and published station fares; seat inventory is intentionally omitted. Extended-hour and inferred rollover are identified in each time. Source created_at has no verified timezone. Confirm canonical source for operator changes. Output is capped by --limit.",
+      "observed_at": "2026-10-02T15:25:39Z",
+      "requests": 1,
+      "returned": 3,
+      "scanned_records": 30,
+      "source": "live",
+      "source_urls": [
+        "https://www.limousinebus.co.jp/en/timetable/detail/Haneda-Narita/?d=2026-10-03\u0026dir=2"
+      ],
+      "timezone": "Asia/Tokyo",
+      "total_matching": 28,
+      "truncated": true
+    },
+    "results": [
+      {
+        "calls": [
+          {
+            "arrival": null,
+            "arrival_source_type": "-1",
+            "arrival_source_value": "-1",
+            "call_state": "scheduled",
+            "departure": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T06:50:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "650",
+              "source_time_type": "0",
+              "time": "06:50"
+            },
+            "departure_source_type": "0",
+            "departure_source_value": "650",
+            "japanese_name": "成田空港第３旅客ターミナル",
+            "name": "Narita Airport Terminal 3",
+            "platform_japanese": "７番のりば",
+            "published_fare": {
+              "adult_jpy": 3600,
+              "child_jpy": 1800,
+              "currency": "JPY"
+            },
+            "role": "boarding",
+            "stop_id": "NaritaAirportTerminal3"
+          },
+          {
+            "arrival": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T06:55:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "655",
+              "source_time_type": "0",
+              "time": "06:55"
+            },
+            "arrival_source_type": "0",
+            "arrival_source_value": "655",
+            "call_state": "scheduled",
+            "departure": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T06:55:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "655",
+              "source_time_type": "0",
+              "time": "06:55"
+            },
+            "departure_source_type": "0",
+            "departure_source_value": "655",
+            "japanese_name": "成田空港第２旅客ターミナル",
+            "name": "Narita Airport Terminal 2",
+            "platform_japanese": "１５番のりば",
+            "published_fare": {
+              "adult_jpy": 3600,
+              "child_jpy": 1800,
+              "currency": "JPY"
+            },
+            "role": "boarding",
+            "stop_id": "NaritaAirportTerminal2"
+          },
+          {
+            "arrival": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T07:00:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "700",
+              "source_time_type": "0",
+              "time": "07:00"
+            },
+            "arrival_source_type": "0",
+            "arrival_source_value": "700",
+            "call_state": "scheduled",
+            "departure": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T07:00:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "700",
+              "source_time_type": "0",
+              "time": "07:00"
+            },
+            "departure_source_type": "0",
+            "departure_source_value": "700",
+            "japanese_name": "成田空港第１旅客ターミナル",
+            "name": "Narita Airport Terminal 1",
+            "platform_japanese": "１２番のりば",
+            "published_fare": {
+              "adult_jpy": 3600,
+              "child_jpy": 1800,
+              "currency": "JPY"
+            },
+            "role": "boarding",
+            "stop_id": "NaritaAirportTerminal1"
+          },
+          {
+            "arrival": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T08:25:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "825",
+              "source_time_type": "0",
+              "time": "08:25"
+            },
+            "arrival_source_type": "0",
+            "arrival_source_value": "825",
+            "call_state": "scheduled",
+            "departure": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T08:25:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "825",
+              "source_time_type": "0",
+              "time": "08:25"
+            },
+            "departure_source_type": "0",
+            "departure_source_value": "825",
+            "japanese_name": "羽田空港第２ターミナル",
+            "name": "Haneda Airport Terminal 2",
+            "platform_japanese": "２Ｆおりば",
+            "published_fare": {
+              "adult_jpy": null,
+              "child_jpy": null,
+              "currency": "JPY"
+            },
+            "role": "alighting",
+            "stop_id": "HanedaAirportTerminal2"
+          },
+          {
+            "arrival": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T08:30:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "830",
+              "source_time_type": "0",
+              "time": "08:30"
+            },
+            "arrival_source_type": "0",
+            "arrival_source_value": "830",
+            "call_state": "scheduled",
+            "departure": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T08:30:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "830",
+              "source_time_type": "0",
+              "time": "08:30"
+            },
+            "departure_source_type": "0",
+            "departure_source_value": "830",
+            "japanese_name": "羽田空港第１ターミナル",
+            "name": "Haneda Airport Terminal 1",
+            "platform_japanese": "２Ｆおりば",
+            "published_fare": {
+              "adult_jpy": null,
+              "child_jpy": null,
+              "currency": "JPY"
+            },
+            "role": "alighting",
+            "stop_id": "HanedaAirportTerminal1"
+          },
+          {
+            "arrival": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T08:40:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "840",
+              "source_time_type": "0",
+              "time": "08:40"
+            },
+            "arrival_source_type": "0",
+            "arrival_source_value": "840",
+            "call_state": "scheduled",
+            "departure": null,
+            "departure_source_type": "-1",
+            "departure_source_value": "-1",
+            "japanese_name": "羽田空港第３ターミナル",
+            "name": "Haneda Airport Terminal3",
+            "platform_japanese": "おりば",
+            "published_fare": {
+              "adult_jpy": null,
+              "child_jpy": null,
+              "currency": "JPY"
+            },
+            "role": "alighting",
+            "stop_id": "HanedaAirportTerminal3"
+          }
+        ],
+        "destination": {
+          "arrival": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T08:40:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "840",
+            "source_time_type": "0",
+            "time": "08:40"
+          },
+          "arrival_source_type": "0",
+          "arrival_source_value": "840",
+          "call_state": "scheduled",
+          "departure": null,
+          "departure_source_type": "-1",
+          "departure_source_value": "-1",
+          "japanese_name": "羽田空港第３ターミナル",
+          "name": "Haneda Airport Terminal3",
+          "platform_japanese": "おりば",
+          "published_fare": {
+            "adult_jpy": null,
+            "child_jpy": null,
+            "currency": "JPY"
+          },
+          "role": "alighting",
+          "stop_id": "HanedaAirportTerminal3"
+        },
+        "id": "BE38E0003001E45",
+        "line_name_japanese": "成田空港線［羽田空港］(羽田空港第３ターミナル行)",
+        "operator": "Airport Limousine Bus",
+        "origin": {
+          "arrival": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T07:00:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "700",
+            "source_time_type": "0",
+            "time": "07:00"
+          },
+          "arrival_source_type": "0",
+          "arrival_source_value": "700",
+          "call_state": "scheduled",
+          "departure": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T07:00:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "700",
+            "source_time_type": "0",
+            "time": "07:00"
+          },
+          "departure_source_type": "0",
+          "departure_source_value": "700",
+          "japanese_name": "成田空港第１旅客ターミナル",
+          "name": "Narita Airport Terminal 1",
+          "platform_japanese": "１２番のりば",
+          "published_fare": {
+            "adult_jpy": 3600,
+            "child_jpy": 1800,
+            "currency": "JPY"
+          },
+          "role": "boarding",
+          "stop_id": "NaritaAirportTerminal1"
+        },
+        "scheduled_duration_minutes": 100,
+        "service_date_jst": "2026-10-03",
+        "source_operation_state": 0,
+        "source_record_created_at": "2026-10-02 15:02:54",
+        "source_route_code": "251600"
+      },
+      {
+        "calls": [
+          {
+            "arrival": null,
+            "arrival_source_type": "-1",
+            "arrival_source_value": "-1",
+            "call_state": "not-served",
+            "departure": null,
+            "departure_source_type": "-1",
+            "departure_source_value": "-1",
+            "japanese_name": "成田空港第３旅客ターミナル",
+            "name": "Narita Airport Terminal 3",
+            "platform_japanese": "",
+            "published_fare": {
+              "adult_jpy": 3600,
+              "child_jpy": 1800,
+              "currency": "JPY"
+            },
+            "role": "boarding",
+            "stop_id": "NaritaAirportTerminal3"
+          },
+          {
+            "arrival": null,
+            "arrival_source_type": "-1",
+            "arrival_source_value": "-1",
+            "call_state": "scheduled",
+            "departure": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T07:15:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "715",
+              "source_time_type": "0",
+              "time": "07:15"
+            },
+            "departure_source_type": "0",
+            "departure_source_value": "715",
+            "japanese_name": "成田空港第２旅客ターミナル",
+            "name": "Narita Airport Terminal 2",
+            "platform_japanese": "１５番のりば",
+            "published_fare": {
+              "adult_jpy": 3600,
+              "child_jpy": 1800,
+              "currency": "JPY"
+            },
+            "role": "boarding",
+            "stop_id": "NaritaAirportTerminal2"
+          },
+          {
+            "arrival": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T07:20:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "720",
+              "source_time_type": "0",
+              "time": "07:20"
+            },
+            "arrival_source_type": "0",
+            "arrival_source_value": "720",
+            "call_state": "scheduled",
+            "departure": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T07:20:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "720",
+              "source_time_type": "0",
+              "time": "07:20"
+            },
+            "departure_source_type": "0",
+            "departure_source_value": "720",
+            "japanese_name": "成田空港第１旅客ターミナル",
+            "name": "Narita Airport Terminal 1",
+            "platform_japanese": "１２番のりば",
+            "published_fare": {
+              "adult_jpy": 3600,
+              "child_jpy": 1800,
+              "currency": "JPY"
+            },
+            "role": "boarding",
+            "stop_id": "NaritaAirportTerminal1"
+          },
+          {
+            "arrival": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T08:45:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "845",
+              "source_time_type": "0",
+              "time": "08:45"
+            },
+            "arrival_source_type": "0",
+            "arrival_source_value": "845",
+            "call_state": "scheduled",
+            "departure": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T08:45:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "845",
+              "source_time_type": "0",
+              "time": "08:45"
+            },
+            "departure_source_type": "0",
+            "departure_source_value": "845",
+            "japanese_name": "羽田空港第２ターミナル",
+            "name": "Haneda Airport Terminal 2",
+            "platform_japanese": "２Ｆおりば",
+            "published_fare": {
+              "adult_jpy": null,
+              "child_jpy": null,
+              "currency": "JPY"
+            },
+            "role": "alighting",
+            "stop_id": "HanedaAirportTerminal2"
+          },
+          {
+            "arrival": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T08:50:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "850",
+              "source_time_type": "0",
+              "time": "08:50"
+            },
+            "arrival_source_type": "0",
+            "arrival_source_value": "850",
+            "call_state": "scheduled",
+            "departure": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T08:50:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "850",
+              "source_time_type": "0",
+              "time": "08:50"
+            },
+            "departure_source_type": "0",
+            "departure_source_value": "850",
+            "japanese_name": "羽田空港第１ターミナル",
+            "name": "Haneda Airport Terminal 1",
+            "platform_japanese": "２Ｆおりば",
+            "published_fare": {
+              "adult_jpy": null,
+              "child_jpy": null,
+              "currency": "JPY"
+            },
+            "role": "alighting",
+            "stop_id": "HanedaAirportTerminal1"
+          },
+          {
+            "arrival": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T09:00:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "900",
+              "source_time_type": "0",
+              "time": "09:00"
+            },
+            "arrival_source_type": "0",
+            "arrival_source_value": "900",
+            "call_state": "scheduled",
+            "departure": null,
+            "departure_source_type": "-1",
+            "departure_source_value": "-1",
+            "japanese_name": "羽田空港第３ターミナル",
+            "name": "Haneda Airport Terminal3",
+            "platform_japanese": "おりば",
+            "published_fare": {
+              "adult_jpy": null,
+              "child_jpy": null,
+              "currency": "JPY"
+            },
+            "role": "alighting",
+            "stop_id": "HanedaAirportTerminal3"
+          }
+        ],
+        "destination": {
+          "arrival": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T09:00:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "900",
+            "source_time_type": "0",
+            "time": "09:00"
+          },
+          "arrival_source_type": "0",
+          "arrival_source_value": "900",
+          "call_state": "scheduled",
+          "departure": null,
+          "departure_source_type": "-1",
+          "departure_source_value": "-1",
+          "japanese_name": "羽田空港第３ターミナル",
+          "name": "Haneda Airport Terminal3",
+          "platform_japanese": "おりば",
+          "published_fare": {
+            "adult_jpy": null,
+            "child_jpy": null,
+            "currency": "JPY"
+          },
+          "role": "alighting",
+          "stop_id": "HanedaAirportTerminal3"
+        },
+        "id": "BE38E0003001E46",
+        "line_name_japanese": "成田空港線［羽田空港］(羽田空港第３ターミナル行)",
+        "operator": "Airport Limousine Bus",
+        "origin": {
+          "arrival": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T07:20:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "720",
+            "source_time_type": "0",
+            "time": "07:20"
+          },
+          "arrival_source_type": "0",
+          "arrival_source_value": "720",
+          "call_state": "scheduled",
+          "departure": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T07:20:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "720",
+            "source_time_type": "0",
+            "time": "07:20"
+          },
+          "departure_source_type": "0",
+          "departure_source_value": "720",
+          "japanese_name": "成田空港第１旅客ターミナル",
+          "name": "Narita Airport Terminal 1",
+          "platform_japanese": "１２番のりば",
+          "published_fare": {
+            "adult_jpy": 3600,
+            "child_jpy": 1800,
+            "currency": "JPY"
+          },
+          "role": "boarding",
+          "stop_id": "NaritaAirportTerminal1"
+        },
+        "scheduled_duration_minutes": 100,
+        "service_date_jst": "2026-10-03",
+        "source_operation_state": 0,
+        "source_record_created_at": "2026-10-02 15:02:54",
+        "source_route_code": "268600"
+      },
+      {
+        "calls": [
+          {
+            "arrival": null,
+            "arrival_source_type": "-1",
+            "arrival_source_value": "-1",
+            "call_state": "not-served",
+            "departure": null,
+            "departure_source_type": "-1",
+            "departure_source_value": "-1",
+            "japanese_name": "成田空港第３旅客ターミナル",
+            "name": "Narita Airport Terminal 3",
+            "platform_japanese": "",
+            "published_fare": {
+              "adult_jpy": 3600,
+              "child_jpy": 1800,
+              "currency": "JPY"
+            },
+            "role": "boarding",
+            "stop_id": "NaritaAirportTerminal3"
+          },
+          {
+            "arrival": null,
+            "arrival_source_type": "-1",
+            "arrival_source_value": "-1",
+            "call_state": "scheduled",
+            "departure": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T07:35:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "735",
+              "source_time_type": "0",
+              "time": "07:35"
+            },
+            "departure_source_type": "0",
+            "departure_source_value": "735",
+            "japanese_name": "成田空港第２旅客ターミナル",
+            "name": "Narita Airport Terminal 2",
+            "platform_japanese": "１５番のりば",
+            "published_fare": {
+              "adult_jpy": 3600,
+              "child_jpy": 1800,
+              "currency": "JPY"
+            },
+            "role": "boarding",
+            "stop_id": "NaritaAirportTerminal2"
+          },
+          {
+            "arrival": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T07:40:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "740",
+              "source_time_type": "0",
+              "time": "07:40"
+            },
+            "arrival_source_type": "0",
+            "arrival_source_value": "740",
+            "call_state": "scheduled",
+            "departure": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T07:40:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "740",
+              "source_time_type": "0",
+              "time": "07:40"
+            },
+            "departure_source_type": "0",
+            "departure_source_value": "740",
+            "japanese_name": "成田空港第１旅客ターミナル",
+            "name": "Narita Airport Terminal 1",
+            "platform_japanese": "１２番のりば",
+            "published_fare": {
+              "adult_jpy": 3600,
+              "child_jpy": 1800,
+              "currency": "JPY"
+            },
+            "role": "boarding",
+            "stop_id": "NaritaAirportTerminal1"
+          },
+          {
+            "arrival": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T09:05:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "905",
+              "source_time_type": "0",
+              "time": "09:05"
+            },
+            "arrival_source_type": "0",
+            "arrival_source_value": "905",
+            "call_state": "scheduled",
+            "departure": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T09:05:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "905",
+              "source_time_type": "0",
+              "time": "09:05"
+            },
+            "departure_source_type": "0",
+            "departure_source_value": "905",
+            "japanese_name": "羽田空港第２ターミナル",
+            "name": "Haneda Airport Terminal 2",
+            "platform_japanese": "２Ｆおりば",
+            "published_fare": {
+              "adult_jpy": null,
+              "child_jpy": null,
+              "currency": "JPY"
+            },
+            "role": "alighting",
+            "stop_id": "HanedaAirportTerminal2"
+          },
+          {
+            "arrival": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T09:10:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "910",
+              "source_time_type": "0",
+              "time": "09:10"
+            },
+            "arrival_source_type": "0",
+            "arrival_source_value": "910",
+            "call_state": "scheduled",
+            "departure": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T09:10:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "910",
+              "source_time_type": "0",
+              "time": "09:10"
+            },
+            "departure_source_type": "0",
+            "departure_source_value": "910",
+            "japanese_name": "羽田空港第１ターミナル",
+            "name": "Haneda Airport Terminal 1",
+            "platform_japanese": "２Ｆおりば",
+            "published_fare": {
+              "adult_jpy": null,
+              "child_jpy": null,
+              "currency": "JPY"
+            },
+            "role": "alighting",
+            "stop_id": "HanedaAirportTerminal1"
+          },
+          {
+            "arrival": {
+              "date_jst": "2026-10-03",
+              "datetime_jst": "2026-10-03T09:20:00+09:00",
+              "day_offset": 0,
+              "rollover_inferred": false,
+              "source_hhmm": "920",
+              "source_time_type": "0",
+              "time": "09:20"
+            },
+            "arrival_source_type": "0",
+            "arrival_source_value": "920",
+            "call_state": "scheduled",
+            "departure": null,
+            "departure_source_type": "-1",
+            "departure_source_value": "-1",
+            "japanese_name": "羽田空港第３ターミナル",
+            "name": "Haneda Airport Terminal3",
+            "platform_japanese": "おりば",
+            "published_fare": {
+              "adult_jpy": null,
+              "child_jpy": null,
+              "currency": "JPY"
+            },
+            "role": "alighting",
+            "stop_id": "HanedaAirportTerminal3"
+          }
+        ],
+        "destination": {
+          "arrival": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T09:20:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "920",
+            "source_time_type": "0",
+            "time": "09:20"
+          },
+          "arrival_source_type": "0",
+          "arrival_source_value": "920",
+          "call_state": "scheduled",
+          "departure": null,
+          "departure_source_type": "-1",
+          "departure_source_value": "-1",
+          "japanese_name": "羽田空港第３ターミナル",
+          "name": "Haneda Airport Terminal3",
+          "platform_japanese": "おりば",
+          "published_fare": {
+            "adult_jpy": null,
+            "child_jpy": null,
+            "currency": "JPY"
+          },
+          "role": "alighting",
+          "stop_id": "HanedaAirportTerminal3"
+        },
+        "id": "BE38E0003001E47",
+        "line_name_japanese": "成田空港線［羽田空港］(羽田空港第３ターミナル行)",
+        "operator": "Airport Limousine Bus",
+        "origin": {
+          "arrival": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T07:40:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "740",
+            "source_time_type": "0",
+            "time": "07:40"
+          },
+          "arrival_source_type": "0",
+          "arrival_source_value": "740",
+          "call_state": "scheduled",
+          "departure": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T07:40:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "740",
+            "source_time_type": "0",
+            "time": "07:40"
+          },
+          "departure_source_type": "0",
+          "departure_source_value": "740",
+          "japanese_name": "成田空港第１旅客ターミナル",
+          "name": "Narita Airport Terminal 1",
+          "platform_japanese": "１２番のりば",
+          "published_fare": {
+            "adult_jpy": 3600,
+            "child_jpy": 1800,
+            "currency": "JPY"
+          },
+          "role": "boarding",
+          "stop_id": "NaritaAirportTerminal1"
+        },
+        "scheduled_duration_minutes": 100,
+        "service_date_jst": "2026-10-03",
+        "source_operation_state": 0,
+        "source_record_created_at": "2026-10-02 15:02:54",
+        "source_route_code": "268600"
+      }
+    ],
+    "stations": [
+      {
+        "code": "013",
+        "id": "NaritaAirportTerminal3",
+        "japanese_name": "成田空港第３旅客ターミナル",
+        "name": "Narita Airport Terminal 3",
+        "published_fare": {
+          "adult_jpy": 3600,
+          "child_jpy": 1800,
+          "currency": "JPY"
+        },
+        "role": "boarding",
+        "source_kind": "N",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/NaritaAirportTerminal3/"
+      },
+      {
+        "code": "016",
+        "id": "NaritaAirportTerminal2",
+        "japanese_name": "成田空港第２旅客ターミナル",
+        "name": "Narita Airport Terminal 2",
+        "published_fare": {
+          "adult_jpy": 3600,
+          "child_jpy": 1800,
+          "currency": "JPY"
+        },
+        "role": "boarding",
+        "source_kind": "N",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/NaritaAirportTerminal2/"
+      },
+      {
+        "code": "017",
+        "id": "NaritaAirportTerminal1",
+        "japanese_name": "成田空港第１旅客ターミナル",
+        "name": "Narita Airport Terminal 1",
+        "published_fare": {
+          "adult_jpy": 3600,
+          "child_jpy": 1800,
+          "currency": "JPY"
+        },
+        "role": "boarding",
+        "source_kind": "N",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/NaritaAirportTerminal1/"
+      },
+      {
+        "code": "905",
+        "id": "HanedaAirportTerminal2",
+        "japanese_name": "羽田空港第２ターミナル",
+        "name": "Haneda Airport Terminal 2",
+        "published_fare": {
+          "adult_jpy": null,
+          "child_jpy": null,
+          "currency": "JPY"
+        },
+        "role": "alighting",
+        "source_kind": "H",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/HanedaAirportTerminal2/"
+      },
+      {
+        "code": "002",
+        "id": "HanedaAirportTerminal1",
+        "japanese_name": "羽田空港第１ターミナル",
+        "name": "Haneda Airport Terminal 1",
+        "published_fare": {
+          "adult_jpy": null,
+          "child_jpy": null,
+          "currency": "JPY"
+        },
+        "role": "alighting",
+        "source_kind": "H",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/HanedaAirportTerminal1/"
+      },
+      {
+        "code": "250",
+        "id": "HanedaAirportTerminal3",
+        "japanese_name": "羽田空港第３ターミナル",
+        "name": "Haneda Airport Terminal3",
+        "published_fare": {
+          "adult_jpy": null,
+          "child_jpy": null,
+          "currency": "JPY"
+        },
+        "role": "alighting",
+        "source_kind": "H",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/HanedaAirportTerminal3/"
+      }
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "jsonrpc": "2.0",
+  "id": 4,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"meta\":{\"source\":\"live\",\"source_urls\":[\"https://www.limousinebus.co.jp/en/timetable/detail/Haneda-Narita/?d=2026-10-03\\u0026dir=1\"],\"observed_at\":\"2026-10-02T16:24:22Z\",\"timezone\":\"Asia/Tokyo\",\"requests\":1,\"scanned_records\":6,\"total_matching\":6,\"returned\":6,\"truncated\":false,\"note\":\"Canonical page links only. Embedded application, reservation and inventory data are omitted. Timetables do not prove seats.\"},\"results\":[{\"title\":\"Haneda Airport\u2192Narita Airport Timetable | Limousine Bus Tokyo Airport Transportation | Best access to Haneda and Narita airports\",\"source_url\":\"https://www.limousinebus.co.jp/en/timetable/detail/Haneda-Narita/?d=2026-10-03\\u0026dir=1\",\"links\":[{\"title\":\"Information\",\"url\":\"https://www.limousinebus.co.jp/en/busstop/detail/HanedaAirportTerminal3\"},{\"title\":\"Information\",\"url\":\"https://www.limousinebus.co.jp/en/busstop/detail/HanedaAirportTerminal2\"},{\"title\":\"Information\",\"url\":\"https://www.limousinebus.co.jp/en/busstop/detail/HanedaAirportTerminal1\"},{\"title\":\"Information\",\"url\":\"https://www.limousinebus.co.jp/en/busstop/detail/NaritaAirportTerminal3\"},{\"title\":\"Information\",\"url\":\"https://www.limousinebus.co.jp/en/busstop/detail/NaritaAirportTerminal2\"},{\"title\":\"Information\",\"url\":\"https://www.limousinebus.co.jp/en/busstop/detail/NaritaAirportTerminal1\"}]}]}"
+      }
+    ]
+  }
+}

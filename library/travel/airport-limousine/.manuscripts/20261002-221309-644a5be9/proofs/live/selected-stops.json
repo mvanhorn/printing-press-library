@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "observed_at": "2026-10-02T15:25:43Z",
+    "source": "live"
+  },
+  "results": [
+    {
+      "id": "ShinjukuStation",
+      "name": "Shinjuku Station/Keio Department Store"
+    },
+    {
+      "id": "ShinjukuExpresswayBusTerminal",
+      "name": "Shinjuku Expressway Bus Terminal"
+    },
+    {
+      "id": "Higashi-ShinjukuStation",
+      "name": "Higashi-Shinjuku Station [Haneda late night services] Take care about date"
+    },
+    {
+      "id": "ShinjukuWashingtonHotel",
+      "name": "Shinjuku Washington Hotel"
+    },
+    {
+      "id": "HotelSunroutePlazaShinjuku",
+      "name": "Hotel Sunroute Plaza Shinjuku"
+    },
+    {
+      "id": "TOKYUKABUKICHOTOWER",
+      "name": "TOKYU KABUKICHO TOWER/Seibu Shinjuku Sta"
+    }
+  ]
+}

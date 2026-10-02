@@ -1,0 +1,931 @@
+{
+  "meta": {
+    "context": {
+      "direction": "to-airport",
+      "first_source_date_jst": "2026-10-03",
+      "last_source_date_jst": "2026-12-03",
+      "route_id": "Narita-Shinjuku",
+      "route_name": "Shinjuku area",
+      "selected_date_jst": "2026-10-03",
+      "source_alerts": {},
+      "source_direction": "outbound",
+      "suspended": false
+    },
+    "note": "Scheduled times and published station fares; seat inventory is intentionally omitted. Extended-hour and inferred rollover are identified in each time. Source created_at has no verified timezone. Confirm canonical source for operator changes. Output is capped by --limit.",
+    "observed_at": "2026-10-02T15:37:37Z",
+    "requests": 1,
+    "returned": 2,
+    "scanned_records": 38,
+    "source": "live",
+    "source_urls": [
+      "https://www.limousinebus.co.jp/en/timetable/detail/Narita-Shinjuku/?d=2026-10-03\u0026dir=2"
+    ],
+    "stations": [
+      {
+        "code": "355",
+        "id": "CenturySouthernTower",
+        "japanese_name": "小田急ホテルＣサザンタワー",
+        "name": "Hotel Century Southern Tower",
+        "published_fare": {
+          "adult_jpy": 3600,
+          "child_jpy": 1800,
+          "currency": "JPY"
+        },
+        "role": "boarding",
+        "source_kind": "B",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/CenturySouthernTower/"
+      },
+      {
+        "code": "354",
+        "id": "HotelSunroutePlazaShinjuku",
+        "japanese_name": "ホテルサンルートプラザ新宿",
+        "name": "Hotel Sunroute Plaza Shinjuku",
+        "published_fare": {
+          "adult_jpy": 3600,
+          "child_jpy": 1800,
+          "currency": "JPY"
+        },
+        "role": "boarding",
+        "source_kind": "B",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/HotelSunroutePlazaShinjuku/"
+      },
+      {
+        "code": "145",
+        "id": "ShinjukuWashingtonHotel",
+        "japanese_name": "新宿ワシントンホテル",
+        "name": "Shinjuku Washington Hotel",
+        "published_fare": {
+          "adult_jpy": 3600,
+          "child_jpy": 1800,
+          "currency": "JPY"
+        },
+        "role": "boarding",
+        "source_kind": "B",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/ShinjukuWashingtonHotel/"
+      },
+      {
+        "code": "150",
+        "id": "ParkHyattTokyo",
+        "japanese_name": "パークハイアット東京",
+        "name": "Park Hyatt Tokyo",
+        "published_fare": {
+          "adult_jpy": 3600,
+          "child_jpy": 1800,
+          "currency": "JPY"
+        },
+        "role": "boarding",
+        "source_kind": "B",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/ParkHyattTokyo/"
+      },
+      {
+        "code": "112",
+        "id": "HiltonTokyo",
+        "japanese_name": "ヒルトン東京",
+        "name": "Hilton Tokyo",
+        "published_fare": {
+          "adult_jpy": 3600,
+          "child_jpy": 1800,
+          "currency": "JPY"
+        },
+        "role": "boarding",
+        "source_kind": "B",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/HiltonTokyo/"
+      },
+      {
+        "code": "114",
+        "id": "KeioPlazaHotel",
+        "japanese_name": "京王プラザホテル",
+        "name": "Keio Plaza Hotel",
+        "published_fare": {
+          "adult_jpy": 3600,
+          "child_jpy": 1800,
+          "currency": "JPY"
+        },
+        "role": "boarding",
+        "source_kind": "B",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/KeioPlazaHotel/"
+      },
+      {
+        "code": "132",
+        "id": "HyattRegencyTokyo",
+        "japanese_name": "ハイアットリージェンシー東京",
+        "name": "Hyatt Regency Tokyo",
+        "published_fare": {
+          "adult_jpy": 3600,
+          "child_jpy": 1800,
+          "currency": "JPY"
+        },
+        "role": "boarding",
+        "source_kind": "B",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/HyattRegencyTokyo/"
+      },
+      {
+        "code": "008",
+        "id": "ShinjukuStation",
+        "japanese_name": "新宿駅西口［京王百貨店前］",
+        "name": "Shinjuku Station/Keio Department Store",
+        "published_fare": {
+          "adult_jpy": 3600,
+          "child_jpy": 1800,
+          "currency": "JPY"
+        },
+        "role": "boarding",
+        "source_kind": "B",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/ShinjukuStation/"
+      },
+      {
+        "code": "009",
+        "id": "ShinjukuExpresswayBusTerminal",
+        "japanese_name": "バスタ新宿",
+        "name": "Shinjuku Expressway Bus Terminal",
+        "published_fare": {
+          "adult_jpy": 3600,
+          "child_jpy": 1800,
+          "currency": "JPY"
+        },
+        "role": "boarding",
+        "source_kind": "B",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/ShinjukuExpresswayBusTerminal/"
+      },
+      {
+        "code": "013",
+        "id": "NaritaAirportTerminal3",
+        "japanese_name": "成田空港第３旅客ターミナル",
+        "name": "Narita Airport Terminal 3",
+        "published_fare": {
+          "adult_jpy": null,
+          "child_jpy": null,
+          "currency": "JPY"
+        },
+        "role": "alighting",
+        "source_kind": "N",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/NaritaAirportTerminal3/"
+      },
+      {
+        "code": "001",
+        "id": "NaritaAirportTerminal2",
+        "japanese_name": "成田空港第２旅客ターミナル",
+        "name": "Narita Airport Terminal 2",
+        "published_fare": {
+          "adult_jpy": null,
+          "child_jpy": null,
+          "currency": "JPY"
+        },
+        "role": "alighting",
+        "source_kind": "N",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/NaritaAirportTerminal2/"
+      },
+      {
+        "code": "017",
+        "id": "NaritaAirportTerminal1",
+        "japanese_name": "成田空港第１旅客ターミナル",
+        "name": "Narita Airport Terminal 1",
+        "published_fare": {
+          "adult_jpy": null,
+          "child_jpy": null,
+          "currency": "JPY"
+        },
+        "role": "alighting",
+        "source_kind": "N",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/NaritaAirportTerminal1/"
+      }
+    ],
+    "timezone": "Asia/Tokyo",
+    "total_matching": 38,
+    "truncated": true
+  },
+  "results": [
+    {
+      "calls": [
+        {
+          "arrival": null,
+          "arrival_source_type": "-1",
+          "arrival_source_value": "-1",
+          "call_state": "not-served",
+          "departure": null,
+          "departure_source_type": "-1",
+          "departure_source_value": "-1",
+          "japanese_name": "小田急ホテルＣサザンタワー",
+          "name": "Hotel Century Southern Tower",
+          "platform_japanese": "",
+          "published_fare": {
+            "adult_jpy": 3600,
+            "child_jpy": 1800,
+            "currency": "JPY"
+          },
+          "role": "boarding",
+          "stop_id": "CenturySouthernTower"
+        },
+        {
+          "arrival": null,
+          "arrival_source_type": "-1",
+          "arrival_source_value": "-1",
+          "call_state": "not-served",
+          "departure": null,
+          "departure_source_type": "-1",
+          "departure_source_value": "-1",
+          "japanese_name": "ホテルサンルートプラザ新宿",
+          "name": "Hotel Sunroute Plaza Shinjuku",
+          "platform_japanese": "",
+          "published_fare": {
+            "adult_jpy": 3600,
+            "child_jpy": 1800,
+            "currency": "JPY"
+          },
+          "role": "boarding",
+          "stop_id": "HotelSunroutePlazaShinjuku"
+        },
+        {
+          "arrival": null,
+          "arrival_source_type": "-1",
+          "arrival_source_value": "-1",
+          "call_state": "not-served",
+          "departure": null,
+          "departure_source_type": "-1",
+          "departure_source_value": "-1",
+          "japanese_name": "新宿ワシントンホテル",
+          "name": "Shinjuku Washington Hotel",
+          "platform_japanese": "",
+          "published_fare": {
+            "adult_jpy": 3600,
+            "child_jpy": 1800,
+            "currency": "JPY"
+          },
+          "role": "boarding",
+          "stop_id": "ShinjukuWashingtonHotel"
+        },
+        {
+          "arrival": null,
+          "arrival_source_type": "-1",
+          "arrival_source_value": "-1",
+          "call_state": "not-served",
+          "departure": null,
+          "departure_source_type": "-1",
+          "departure_source_value": "-1",
+          "japanese_name": "パークハイアット東京",
+          "name": "Park Hyatt Tokyo",
+          "platform_japanese": "",
+          "published_fare": {
+            "adult_jpy": 3600,
+            "child_jpy": 1800,
+            "currency": "JPY"
+          },
+          "role": "boarding",
+          "stop_id": "ParkHyattTokyo"
+        },
+        {
+          "arrival": null,
+          "arrival_source_type": "-1",
+          "arrival_source_value": "-1",
+          "call_state": "not-served",
+          "departure": null,
+          "departure_source_type": "-1",
+          "departure_source_value": "-1",
+          "japanese_name": "ヒルトン東京",
+          "name": "Hilton Tokyo",
+          "platform_japanese": "",
+          "published_fare": {
+            "adult_jpy": 3600,
+            "child_jpy": 1800,
+            "currency": "JPY"
+          },
+          "role": "boarding",
+          "stop_id": "HiltonTokyo"
+        },
+        {
+          "arrival": null,
+          "arrival_source_type": "-1",
+          "arrival_source_value": "-1",
+          "call_state": "not-served",
+          "departure": null,
+          "departure_source_type": "-1",
+          "departure_source_value": "-1",
+          "japanese_name": "京王プラザホテル",
+          "name": "Keio Plaza Hotel",
+          "platform_japanese": "",
+          "published_fare": {
+            "adult_jpy": 3600,
+            "child_jpy": 1800,
+            "currency": "JPY"
+          },
+          "role": "boarding",
+          "stop_id": "KeioPlazaHotel"
+        },
+        {
+          "arrival": null,
+          "arrival_source_type": "-1",
+          "arrival_source_value": "-1",
+          "call_state": "not-served",
+          "departure": null,
+          "departure_source_type": "-1",
+          "departure_source_value": "-1",
+          "japanese_name": "ハイアットリージェンシー東京",
+          "name": "Hyatt Regency Tokyo",
+          "platform_japanese": "",
+          "published_fare": {
+            "adult_jpy": 3600,
+            "child_jpy": 1800,
+            "currency": "JPY"
+          },
+          "role": "boarding",
+          "stop_id": "HyattRegencyTokyo"
+        },
+        {
+          "arrival": null,
+          "arrival_source_type": "-1",
+          "arrival_source_value": "-1",
+          "call_state": "scheduled",
+          "departure": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T05:30:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "530",
+            "source_time_type": "0",
+            "time": "05:30"
+          },
+          "departure_source_type": "0",
+          "departure_source_value": "530",
+          "japanese_name": "新宿駅西口［京王百貨店前］",
+          "name": "Shinjuku Station/Keio Department Store",
+          "platform_japanese": "２３番成田空港行のりば",
+          "published_fare": {
+            "adult_jpy": 3600,
+            "child_jpy": 1800,
+            "currency": "JPY"
+          },
+          "role": "boarding",
+          "stop_id": "ShinjukuStation"
+        },
+        {
+          "arrival": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T05:40:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "540",
+            "source_time_type": "0",
+            "time": "05:40"
+          },
+          "arrival_source_type": "0",
+          "arrival_source_value": "540",
+          "call_state": "scheduled",
+          "departure": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T05:40:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "540",
+            "source_time_type": "0",
+            "time": "05:40"
+          },
+          "departure_source_type": "0",
+          "departure_source_value": "540",
+          "japanese_name": "バスタ新宿",
+          "name": "Shinjuku Expressway Bus Terminal",
+          "platform_japanese": "４Ｆのりば",
+          "published_fare": {
+            "adult_jpy": 3600,
+            "child_jpy": 1800,
+            "currency": "JPY"
+          },
+          "role": "boarding",
+          "stop_id": "ShinjukuExpresswayBusTerminal"
+        },
+        {
+          "arrival": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T07:02:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "702",
+            "source_time_type": "0",
+            "time": "07:02"
+          },
+          "arrival_source_type": "0",
+          "arrival_source_value": "702",
+          "call_state": "scheduled",
+          "departure": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T07:02:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "702",
+            "source_time_type": "0",
+            "time": "07:02"
+          },
+          "departure_source_type": "0",
+          "departure_source_value": "702",
+          "japanese_name": "成田空港第３旅客ターミナル",
+          "name": "Narita Airport Terminal 3",
+          "platform_japanese": "おりば",
+          "published_fare": {
+            "adult_jpy": null,
+            "child_jpy": null,
+            "currency": "JPY"
+          },
+          "role": "alighting",
+          "stop_id": "NaritaAirportTerminal3"
+        },
+        {
+          "arrival": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T07:05:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "705",
+            "source_time_type": "0",
+            "time": "07:05"
+          },
+          "arrival_source_type": "0",
+          "arrival_source_value": "705",
+          "call_state": "scheduled",
+          "departure": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T07:05:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "705",
+            "source_time_type": "0",
+            "time": "07:05"
+          },
+          "departure_source_type": "0",
+          "departure_source_value": "705",
+          "japanese_name": "成田空港第２旅客ターミナル",
+          "name": "Narita Airport Terminal 2",
+          "platform_japanese": "おりば",
+          "published_fare": {
+            "adult_jpy": null,
+            "child_jpy": null,
+            "currency": "JPY"
+          },
+          "role": "alighting",
+          "stop_id": "NaritaAirportTerminal2"
+        },
+        {
+          "arrival": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T07:10:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "710",
+            "source_time_type": "0",
+            "time": "07:10"
+          },
+          "arrival_source_type": "0",
+          "arrival_source_value": "710",
+          "call_state": "scheduled",
+          "departure": null,
+          "departure_source_type": "-1",
+          "departure_source_value": "-1",
+          "japanese_name": "成田空港第１旅客ターミナル",
+          "name": "Narita Airport Terminal 1",
+          "platform_japanese": "おりば",
+          "published_fare": {
+            "adult_jpy": null,
+            "child_jpy": null,
+            "currency": "JPY"
+          },
+          "role": "alighting",
+          "stop_id": "NaritaAirportTerminal1"
+        }
+      ],
+      "destination": {
+        "arrival": {
+          "date_jst": "2026-10-03",
+          "datetime_jst": "2026-10-03T07:10:00+09:00",
+          "day_offset": 0,
+          "rollover_inferred": false,
+          "source_hhmm": "710",
+          "source_time_type": "0",
+          "time": "07:10"
+        },
+        "arrival_source_type": "0",
+        "arrival_source_value": "710",
+        "call_state": "scheduled",
+        "departure": null,
+        "departure_source_type": "-1",
+        "departure_source_value": "-1",
+        "japanese_name": "成田空港第１旅客ターミナル",
+        "name": "Narita Airport Terminal 1",
+        "platform_japanese": "おりば",
+        "published_fare": {
+          "adult_jpy": null,
+          "child_jpy": null,
+          "currency": "JPY"
+        },
+        "role": "alighting",
+        "stop_id": "NaritaAirportTerminal1"
+      },
+      "id": "BE38E0003001F0D",
+      "line_name_japanese": "成田空港線［新宿］(成田空港第１旅客ターミナル行)",
+      "operator": "Airport Limousine Bus",
+      "origin": {
+        "arrival": {
+          "date_jst": "2026-10-03",
+          "datetime_jst": "2026-10-03T05:40:00+09:00",
+          "day_offset": 0,
+          "rollover_inferred": false,
+          "source_hhmm": "540",
+          "source_time_type": "0",
+          "time": "05:40"
+        },
+        "arrival_source_type": "0",
+        "arrival_source_value": "540",
+        "call_state": "scheduled",
+        "departure": {
+          "date_jst": "2026-10-03",
+          "datetime_jst": "2026-10-03T05:40:00+09:00",
+          "day_offset": 0,
+          "rollover_inferred": false,
+          "source_hhmm": "540",
+          "source_time_type": "0",
+          "time": "05:40"
+        },
+        "departure_source_type": "0",
+        "departure_source_value": "540",
+        "japanese_name": "バスタ新宿",
+        "name": "Shinjuku Expressway Bus Terminal",
+        "platform_japanese": "４Ｆのりば",
+        "published_fare": {
+          "adult_jpy": 3600,
+          "child_jpy": 1800,
+          "currency": "JPY"
+        },
+        "role": "boarding",
+        "stop_id": "ShinjukuExpresswayBusTerminal"
+      },
+      "scheduled_duration_minutes": 90,
+      "service_date_jst": "2026-10-03",
+      "source_operation_state": 0,
+      "source_record_created_at": "2026-10-02 15:02:54",
+      "source_route_code": "662550"
+    },
+    {
+      "calls": [
+        {
+          "arrival": null,
+          "arrival_source_type": "-1",
+          "arrival_source_value": "-1",
+          "call_state": "not-served",
+          "departure": null,
+          "departure_source_type": "-1",
+          "departure_source_value": "-1",
+          "japanese_name": "小田急ホテルＣサザンタワー",
+          "name": "Hotel Century Southern Tower",
+          "platform_japanese": "",
+          "published_fare": {
+            "adult_jpy": 3600,
+            "child_jpy": 1800,
+            "currency": "JPY"
+          },
+          "role": "boarding",
+          "stop_id": "CenturySouthernTower"
+        },
+        {
+          "arrival": null,
+          "arrival_source_type": "-1",
+          "arrival_source_value": "-1",
+          "call_state": "not-served",
+          "departure": null,
+          "departure_source_type": "-1",
+          "departure_source_value": "-1",
+          "japanese_name": "ホテルサンルートプラザ新宿",
+          "name": "Hotel Sunroute Plaza Shinjuku",
+          "platform_japanese": "",
+          "published_fare": {
+            "adult_jpy": 3600,
+            "child_jpy": 1800,
+            "currency": "JPY"
+          },
+          "role": "boarding",
+          "stop_id": "HotelSunroutePlazaShinjuku"
+        },
+        {
+          "arrival": null,
+          "arrival_source_type": "-1",
+          "arrival_source_value": "-1",
+          "call_state": "not-served",
+          "departure": null,
+          "departure_source_type": "-1",
+          "departure_source_value": "-1",
+          "japanese_name": "新宿ワシントンホテル",
+          "name": "Shinjuku Washington Hotel",
+          "platform_japanese": "",
+          "published_fare": {
+            "adult_jpy": 3600,
+            "child_jpy": 1800,
+            "currency": "JPY"
+          },
+          "role": "boarding",
+          "stop_id": "ShinjukuWashingtonHotel"
+        },
+        {
+          "arrival": null,
+          "arrival_source_type": "-1",
+          "arrival_source_value": "-1",
+          "call_state": "not-served",
+          "departure": null,
+          "departure_source_type": "-1",
+          "departure_source_value": "-1",
+          "japanese_name": "パークハイアット東京",
+          "name": "Park Hyatt Tokyo",
+          "platform_japanese": "",
+          "published_fare": {
+            "adult_jpy": 3600,
+            "child_jpy": 1800,
+            "currency": "JPY"
+          },
+          "role": "boarding",
+          "stop_id": "ParkHyattTokyo"
+        },
+        {
+          "arrival": null,
+          "arrival_source_type": "-1",
+          "arrival_source_value": "-1",
+          "call_state": "not-served",
+          "departure": null,
+          "departure_source_type": "-1",
+          "departure_source_value": "-1",
+          "japanese_name": "ヒルトン東京",
+          "name": "Hilton Tokyo",
+          "platform_japanese": "",
+          "published_fare": {
+            "adult_jpy": 3600,
+            "child_jpy": 1800,
+            "currency": "JPY"
+          },
+          "role": "boarding",
+          "stop_id": "HiltonTokyo"
+        },
+        {
+          "arrival": null,
+          "arrival_source_type": "-1",
+          "arrival_source_value": "-1",
+          "call_state": "not-served",
+          "departure": null,
+          "departure_source_type": "-1",
+          "departure_source_value": "-1",
+          "japanese_name": "京王プラザホテル",
+          "name": "Keio Plaza Hotel",
+          "platform_japanese": "",
+          "published_fare": {
+            "adult_jpy": 3600,
+            "child_jpy": 1800,
+            "currency": "JPY"
+          },
+          "role": "boarding",
+          "stop_id": "KeioPlazaHotel"
+        },
+        {
+          "arrival": null,
+          "arrival_source_type": "-1",
+          "arrival_source_value": "-1",
+          "call_state": "not-served",
+          "departure": null,
+          "departure_source_type": "-1",
+          "departure_source_value": "-1",
+          "japanese_name": "ハイアットリージェンシー東京",
+          "name": "Hyatt Regency Tokyo",
+          "platform_japanese": "",
+          "published_fare": {
+            "adult_jpy": 3600,
+            "child_jpy": 1800,
+            "currency": "JPY"
+          },
+          "role": "boarding",
+          "stop_id": "HyattRegencyTokyo"
+        },
+        {
+          "arrival": null,
+          "arrival_source_type": "-1",
+          "arrival_source_value": "-1",
+          "call_state": "scheduled",
+          "departure": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T05:50:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "550",
+            "source_time_type": "0",
+            "time": "05:50"
+          },
+          "departure_source_type": "0",
+          "departure_source_value": "550",
+          "japanese_name": "新宿駅西口［京王百貨店前］",
+          "name": "Shinjuku Station/Keio Department Store",
+          "platform_japanese": "２３番成田空港行のりば",
+          "published_fare": {
+            "adult_jpy": 3600,
+            "child_jpy": 1800,
+            "currency": "JPY"
+          },
+          "role": "boarding",
+          "stop_id": "ShinjukuStation"
+        },
+        {
+          "arrival": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T06:00:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "600",
+            "source_time_type": "0",
+            "time": "06:00"
+          },
+          "arrival_source_type": "0",
+          "arrival_source_value": "600",
+          "call_state": "scheduled",
+          "departure": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T06:00:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "600",
+            "source_time_type": "0",
+            "time": "06:00"
+          },
+          "departure_source_type": "0",
+          "departure_source_value": "600",
+          "japanese_name": "バスタ新宿",
+          "name": "Shinjuku Expressway Bus Terminal",
+          "platform_japanese": "４Ｆのりば",
+          "published_fare": {
+            "adult_jpy": 3600,
+            "child_jpy": 1800,
+            "currency": "JPY"
+          },
+          "role": "boarding",
+          "stop_id": "ShinjukuExpresswayBusTerminal"
+        },
+        {
+          "arrival": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T07:22:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "722",
+            "source_time_type": "0",
+            "time": "07:22"
+          },
+          "arrival_source_type": "0",
+          "arrival_source_value": "722",
+          "call_state": "scheduled",
+          "departure": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T07:22:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "722",
+            "source_time_type": "0",
+            "time": "07:22"
+          },
+          "departure_source_type": "0",
+          "departure_source_value": "722",
+          "japanese_name": "成田空港第３旅客ターミナル",
+          "name": "Narita Airport Terminal 3",
+          "platform_japanese": "おりば",
+          "published_fare": {
+            "adult_jpy": null,
+            "child_jpy": null,
+            "currency": "JPY"
+          },
+          "role": "alighting",
+          "stop_id": "NaritaAirportTerminal3"
+        },
+        {
+          "arrival": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T07:25:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "725",
+            "source_time_type": "0",
+            "time": "07:25"
+          },
+          "arrival_source_type": "0",
+          "arrival_source_value": "725",
+          "call_state": "scheduled",
+          "departure": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T07:25:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "725",
+            "source_time_type": "0",
+            "time": "07:25"
+          },
+          "departure_source_type": "0",
+          "departure_source_value": "725",
+          "japanese_name": "成田空港第２旅客ターミナル",
+          "name": "Narita Airport Terminal 2",
+          "platform_japanese": "おりば",
+          "published_fare": {
+            "adult_jpy": null,
+            "child_jpy": null,
+            "currency": "JPY"
+          },
+          "role": "alighting",
+          "stop_id": "NaritaAirportTerminal2"
+        },
+        {
+          "arrival": {
+            "date_jst": "2026-10-03",
+            "datetime_jst": "2026-10-03T07:30:00+09:00",
+            "day_offset": 0,
+            "rollover_inferred": false,
+            "source_hhmm": "730",
+            "source_time_type": "0",
+            "time": "07:30"
+          },
+          "arrival_source_type": "0",
+          "arrival_source_value": "730",
+          "call_state": "scheduled",
+          "departure": null,
+          "departure_source_type": "-1",
+          "departure_source_value": "-1",
+          "japanese_name": "成田空港第１旅客ターミナル",
+          "name": "Narita Airport Terminal 1",
+          "platform_japanese": "おりば",
+          "published_fare": {
+            "adult_jpy": null,
+            "child_jpy": null,
+            "currency": "JPY"
+          },
+          "role": "alighting",
+          "stop_id": "NaritaAirportTerminal1"
+        }
+      ],
+      "destination": {
+        "arrival": {
+          "date_jst": "2026-10-03",
+          "datetime_jst": "2026-10-03T07:30:00+09:00",
+          "day_offset": 0,
+          "rollover_inferred": false,
+          "source_hhmm": "730",
+          "source_time_type": "0",
+          "time": "07:30"
+        },
+        "arrival_source_type": "0",
+        "arrival_source_value": "730",
+        "call_state": "scheduled",
+        "departure": null,
+        "departure_source_type": "-1",
+        "departure_source_value": "-1",
+        "japanese_name": "成田空港第１旅客ターミナル",
+        "name": "Narita Airport Terminal 1",
+        "platform_japanese": "おりば",
+        "published_fare": {
+          "adult_jpy": null,
+          "child_jpy": null,
+          "currency": "JPY"
+        },
+        "role": "alighting",
+        "stop_id": "NaritaAirportTerminal1"
+      },
+      "id": "BE38E0003001F0E",
+      "line_name_japanese": "成田空港線［新宿］(成田空港第１旅客ターミナル行)",
+      "operator": "Airport Limousine Bus",
+      "origin": {
+        "arrival": {
+          "date_jst": "2026-10-03",
+          "datetime_jst": "2026-10-03T06:00:00+09:00",
+          "day_offset": 0,
+          "rollover_inferred": false,
+          "source_hhmm": "600",
+          "source_time_type": "0",
+          "time": "06:00"
+        },
+        "arrival_source_type": "0",
+        "arrival_source_value": "600",
+        "call_state": "scheduled",
+        "departure": {
+          "date_jst": "2026-10-03",
+          "datetime_jst": "2026-10-03T06:00:00+09:00",
+          "day_offset": 0,
+          "rollover_inferred": false,
+          "source_hhmm": "600",
+          "source_time_type": "0",
+          "time": "06:00"
+        },
+        "departure_source_type": "0",
+        "departure_source_value": "600",
+        "japanese_name": "バスタ新宿",
+        "name": "Shinjuku Expressway Bus Terminal",
+        "platform_japanese": "４Ｆのりば",
+        "published_fare": {
+          "adult_jpy": 3600,
+          "child_jpy": 1800,
+          "currency": "JPY"
+        },
+        "role": "boarding",
+        "stop_id": "ShinjukuExpresswayBusTerminal"
+      },
+      "scheduled_duration_minutes": 90,
+      "service_date_jst": "2026-10-03",
+      "source_operation_state": 0,
+      "source_record_created_at": "2026-10-02 15:02:54",
+      "source_route_code": "662550"
+    }
+  ]
+}

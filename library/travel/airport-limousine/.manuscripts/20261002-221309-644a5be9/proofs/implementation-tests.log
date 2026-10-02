@@ -1,0 +1,20 @@
+?   	airport-limousine-pp-cli/cmd/airport-limousine-pp-cli	[no test files]
+?   	airport-limousine-pp-cli/cmd/airport-limousine-pp-mcp	[no test files]
+?   	airport-limousine-pp-cli/internal/cache	[no test files]
+ok  	airport-limousine-pp-cli/internal/cli	2.427s
+?   	airport-limousine-pp-cli/internal/cli/playbooks	[no test files]
+ok  	airport-limousine-pp-cli/internal/client	1.573s
+ok  	airport-limousine-pp-cli/internal/cliutil	17.044s
+?   	airport-limousine-pp-cli/internal/cliutil/testenv	[no test files]
+?   	airport-limousine-pp-cli/internal/config	[no test files]
+ok  	airport-limousine-pp-cli/internal/learn	3.657s
+ok  	airport-limousine-pp-cli/internal/learn/entities	4.700s
+ok  	airport-limousine-pp-cli/internal/learn/lookups	3.917s
+ok  	airport-limousine-pp-cli/internal/learn/patterns	4.373s
+ok  	airport-limousine-pp-cli/internal/limousine	3.936s
+ok  	airport-limousine-pp-cli/internal/mcp	0.833s
+ok  	airport-limousine-pp-cli/internal/mcp/bound	2.017s
+ok  	airport-limousine-pp-cli/internal/mcp/cobratree	9.740s
+ok  	airport-limousine-pp-cli/internal/platform	1.328s
+ok  	airport-limousine-pp-cli/internal/store	3.519s
+?   	airport-limousine-pp-cli/internal/types	[no test files]

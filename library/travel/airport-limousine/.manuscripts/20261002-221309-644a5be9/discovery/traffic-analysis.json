@@ -1,0 +1,154 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://www.limousinebus.co.jp/en/",
+    "captured_at": "2026-10-02T15:00:23.285331+00:00",
+    "entry_count": 5,
+    "api_entry_count": 1,
+    "noise_entry_count": 4,
+    "host_distribution": {
+      "www.limousinebus.co.jp": 5
+    }
+  },
+  "reachability": {
+    "mode": "browser_http",
+    "confidence": 0.85,
+    "impersonation_safe": true,
+    "reasons": [
+      "Surf Chrome TLS fingerprint replay returned genuine 200 JSON/HTML without cookies; stdlib CloudFront 403."
+    ]
+  },
+  "protocols": [
+    {
+      "label": "rest_json",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "www.limousinebus.co.jp",
+          "path": "/en/timetable/detail/Haneda-Narita/__data.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        }
+      ]
+    },
+    {
+      "label": "html_scrape",
+      "confidence": 0.55,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "www.limousinebus.co.jp",
+          "path": "/en/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "www.limousinebus.co.jp",
+          "path": "/en/timetable/list/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "www.limousinebus.co.jp",
+          "path": "/en/timetable/detail/Haneda-Narita/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "www.limousinebus.co.jp",
+          "path": "/en/guide/realtime/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "candidates": [
+      {
+        "type": "none",
+        "confidence": 0.95
+      }
+    ]
+  },
+  "endpoint_clusters": [
+    {
+      "host": "www.limousinebus.co.jp",
+      "method": "GET",
+      "path": "/en/timetable/detail/Haneda-Narita/__data.json",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "nodes",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "type",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "www.limousinebus.co.jp",
+          "path": "/en/timetable/detail/Haneda-Narita/__data.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "list___data.json",
+      "resource": "__data.json",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /en/timetable/detail/Haneda-Narita/__data.json traffic.",
+      "evidence": [
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "www.limousinebus.co.jp",
+          "path": "/en/timetable/detail/Haneda-Narita/__data.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ]
+}

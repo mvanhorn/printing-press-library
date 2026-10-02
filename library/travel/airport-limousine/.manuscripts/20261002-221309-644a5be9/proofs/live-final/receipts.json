@@ -1,0 +1,228 @@
+[
+  {
+    "name": "routes",
+    "args": [
+      "routes",
+      "--query",
+      "Shinjuku",
+      "--airport",
+      "haneda"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 766,
+    "output_bytes": 1166,
+    "observed_at": "2026-10-02T15:37:29.624016+00:00"
+  },
+  {
+    "name": "stops-find",
+    "args": [
+      "stops",
+      "find",
+      "--query",
+      "Shinjuku"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 757,
+    "output_bytes": 3677,
+    "observed_at": "2026-10-02T15:37:30.381953+00:00"
+  },
+  {
+    "name": "stop-detail",
+    "args": [
+      "stops",
+      "get",
+      "HanedaAirportTerminal3",
+      "--limit",
+      "3"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 315,
+    "output_bytes": 2662,
+    "observed_at": "2026-10-02T15:37:30.697882+00:00"
+  },
+  {
+    "name": "timetable",
+    "args": [
+      "timetable",
+      "Haneda-Narita",
+      "--from-stop",
+      "HanedaAirportTerminal3",
+      "--to-stop",
+      "NaritaAirportTerminal1",
+      "--after",
+      "08:00",
+      "--limit",
+      "3"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 364,
+    "output_bytes": 30272,
+    "observed_at": "2026-10-02T15:37:31.062123+00:00"
+  },
+  {
+    "name": "reverse-timetable",
+    "args": [
+      "timetable",
+      "Haneda-Narita",
+      "--direction",
+      "to-airport",
+      "--from-stop",
+      "NaritaAirportTerminal1",
+      "--to-stop",
+      "HanedaAirportTerminal3",
+      "--limit",
+      "3"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 455,
+    "output_bytes": 29931,
+    "observed_at": "2026-10-02T15:37:31.517513+00:00"
+  },
+  {
+    "name": "fare",
+    "args": [
+      "fare",
+      "--adults",
+      "2",
+      "--children",
+      "1"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 298,
+    "output_bytes": 2347,
+    "observed_at": "2026-10-02T15:37:31.816548+00:00"
+  },
+  {
+    "name": "travel-times",
+    "args": [
+      "travel-times",
+      "--airport",
+      "haneda",
+      "--query",
+      "Shinjuku"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 211,
+    "output_bytes": 1502,
+    "observed_at": "2026-10-02T15:37:32.028437+00:00"
+  },
+  {
+    "name": "transfers",
+    "args": [
+      "transfers",
+      "--limit",
+      "2"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 1172,
+    "output_bytes": 38540,
+    "observed_at": "2026-10-02T15:37:33.200824+00:00"
+  },
+  {
+    "name": "conditions",
+    "args": [
+      "conditions",
+      "--topic",
+      "all"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 1165,
+    "output_bytes": 5899,
+    "observed_at": "2026-10-02T15:37:34.366602+00:00"
+  },
+  {
+    "name": "baggage",
+    "args": [
+      "conditions",
+      "--topic",
+      "baggage"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 666,
+    "output_bytes": 3127,
+    "observed_at": "2026-10-02T15:37:35.032788+00:00"
+  },
+  {
+    "name": "handoff",
+    "args": [
+      "handoff",
+      "Haneda-Narita"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 289,
+    "output_bytes": 936,
+    "observed_at": "2026-10-02T15:37:35.322595+00:00"
+  },
+  {
+    "name": "negative-query",
+    "args": [
+      "routes",
+      "--query",
+      "NotARealRoute987654321"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 127,
+    "output_bytes": 479,
+    "observed_at": "2026-10-02T15:37:35.449832+00:00"
+  },
+  {
+    "name": "negative-stop",
+    "args": [
+      "stops",
+      "find",
+      "--query",
+      "NotARealStop987654321"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 657,
+    "output_bytes": 505,
+    "observed_at": "2026-10-02T15:37:36.107210+00:00"
+  },
+  {
+    "name": "selected-stops",
+    "args": [
+      "stops",
+      "find",
+      "--query",
+      "Shinjuku",
+      "--select",
+      "results.id,results.name,meta.observed_at"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 670,
+    "output_bytes": 752,
+    "observed_at": "2026-10-02T15:37:36.777719+00:00"
+  },
+  {
+    "name": "haneda-shinjuku",
+    "args": [
+      "timetable",
+      "Haneda-Shinjuku",
+      "--limit",
+      "2"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 537,
+    "output_bytes": 30629,
+    "observed_at": "2026-10-02T15:37:37.314929+00:00"
+  },
+  {
+    "name": "narita-shinjuku",
+    "args": [
+      "timetable",
+      "Narita-Shinjuku",
+      "--direction",
+      "to-airport",
+      "--from-stop",
+      "ShinjukuExpresswayBusTerminal",
+      "--to-stop",
+      "NaritaAirportTerminal1",
+      "--limit",
+      "2"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 663,
+    "output_bytes": 31044,
+    "observed_at": "2026-10-02T15:37:37.979081+00:00"
+  }
+]

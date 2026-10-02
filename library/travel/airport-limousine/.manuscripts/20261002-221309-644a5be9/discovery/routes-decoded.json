@@ -1,0 +1,427 @@
+{
+  "areas": {
+    "haneda": [
+      {
+        "area_id": "test",
+        "name": "test",
+        "unkyu": false,
+        "note": null
+      },
+      {
+        "area_id": "Haneda-Narita",
+        "name": "Narita Airport",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-TCAT",
+        "name": "Tokyo City Air Terminal (T-CAT / Nihonbashi Hakozaki)",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-Dummy",
+        "name": "(dummy)",
+        "unkyu": false,
+        "note": null
+      },
+      {
+        "area_id": "Haneda-Ikebukuro",
+        "name": "Ikebukuro area",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-Mejiro",
+        "name": "Korakuen area",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-HikarigaokaNerima",
+        "name": "Hikarigaoka/Nerima area",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-Syakujii",
+        "name": "Shakujii-koen Station / Wakoshi Station",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-Shinjuku",
+        "name": "Shinjuku/Nakano area",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-ShinjukuKabukicho",
+        "name": "Shinjuku Tokyu Kabukicho Tower",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-Kichijoji",
+        "name": "Kichijoji Station",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-Shibuya",
+        "name": "Shibuya area",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-RoppongiAkasaka",
+        "name": "Roppongi/Akasaka area",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-EbisuShinagawaShiba",
+        "name": "Shiba, Ebisu, and Shinagawa areas",
+        "unkyu": true,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-HibiyaGinzaShiodome",
+        "name": "Hibiya, Ginza, and Shiodome area",
+        "unkyu": true,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-Tokyo",
+        "name": "Tokyo Station Yaesu North Exit (Tekko Building)",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-AriakeDaibaBigSight",
+        "name": "Odaiba/Ariake area",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-Toyosu",
+        "name": "Toyosu Station",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-AsakusaKinshichoToyocho",
+        "name": "Asakusa, Kinshicho, and Toyocho area",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-Akihabara",
+        "name": "Akihabara area",
+        "unkyu": false,
+        "note": null
+      },
+      {
+        "area_id": "Haneda-KudanKorakuen",
+        "name": "Kudan/Korakuen area",
+        "unkyu": false,
+        "note": null
+      },
+      {
+        "area_id": "Haneda-ChibaMakuhari",
+        "name": "Makuhari/Chiba area (Chiba City coastal area routes)",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-HitachiMito",
+        "name": "Hitachi Mito",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-IchikawaMyodenGyotoku",
+        "name": "Ichikawa/Gyotoku area",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-IsezakiKiriyuOtaOizumiTatebayasi",
+        "name": "Isesaki, Kiryu, Ota, Oizumi, Tatebayashi",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-KameariKoiwaIchinoeKasai",
+        "name": "Kameari Station, Koiwa Station, Ichinoe Station, Kasai Station",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-Kawagoe",
+        "name": "Kawagoe",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-KokubunjiFucyuMusahikoganeiCyofu",
+        "name": "Kokubunji, Fuchu, Musashi-Koganei, Chofu",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-KumagayaSakado",
+        "name": "Kumagaya/Sakado",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-MaehashiTakasaki",
+        "name": "Maebashi/Takasaki",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-OamiChibaSouthEast",
+        "name": "Oami/Southeastern Chiba City Area",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-Omiya",
+        "name": "Omiya",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-Shiurayasu",
+        "name": "Shin-Urayasu area",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-TakaoHachiojiHino",
+        "name": "Takao, Hachioji, Hino",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-Tama",
+        "name": "Minami-Osawa, Keio-Tama Center, Seiseki-Sakuragaoka",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-TDR",
+        "name": "Tokyo Disney Resort area",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-Tokorozawa",
+        "name": "Tokorozawa",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-Tsudanuma",
+        "name": "JR Tsudanuma Station / Keisei Tsudanuma Station",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-Urawa",
+        "name": "Urawa",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-Utsunomiya",
+        "name": "Utsunomiya/Sano",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Haneda-YotsukaidoInage",
+        "name": "Yotsukaido/Inage area",
+        "unkyu": false,
+        "note": ""
+      }
+    ],
+    "narita": [
+      {
+        "area_id": "Narita-Toranomon",
+        "name": "Toranomon",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Narita-Shiodome",
+        "name": "Shiodome",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Narita-Hiroo",
+        "name": "widespread",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Narita-Haneda",
+        "name": "Haneda Airport",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Narita-TCAT",
+        "name": "Tokyo City Air Terminal (TCAT), Tokyo Station, Nihonbashi area",
+        "unkyu": false,
+        "note": null
+      },
+      {
+        "area_id": "Narita-Dummy",
+        "name": "(dummy)",
+        "unkyu": false,
+        "note": null
+      },
+      {
+        "area_id": "Narita-Ikebukuro",
+        "name": "Ikebukuro/Mejiro",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Narita-IkebukuroLCB",
+        "name": "Ikebukuro (LCB)",
+        "unkyu": false,
+        "note": null
+      },
+      {
+        "area_id": "Narita-Shinjuku",
+        "name": "Shinjuku area",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Narita-ShinjukuKabukicho",
+        "name": "Shinjuku Tokyu Kabukicho Tower",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Narita-Kichijoji",
+        "name": "Kichijoji Station",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Narita-Shibuya",
+        "name": "Shibuya",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Narita-ShibuyaLCB",
+        "name": "Shibuya (LCB)",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Narita-Akasaka",
+        "name": "Akasaka/Roppongi",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Narita-EbisuShinagawa",
+        "name": "Ebisu/Shinagawa area",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Narita-TakeshibaAriakeDaiba",
+        "name": "Shiba, Shiodome, Takeshiba, Odaiba, Ariake area",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Narita-Ginza",
+        "name": "Hibiya/Ginza area",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Narita-Tokyo",
+        "name": "Tokyo Station",
+        "unkyu": false,
+        "note": null
+      },
+      {
+        "area_id": "Narita-KinshichoToyochoAsakusa",
+        "name": "Asakusa, Kinshicho, and Toyocho area",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Narita-HachiojiTakao",
+        "name": "Takao/Hachioji area",
+        "unkyu": true,
+        "note": ""
+      },
+      {
+        "area_id": "Narita-Chofu",
+        "name": "Nishi-Kokubunji Station, Fuchu Station, Wakabadai Station, Inagi Station, Chofu Station",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Narita-AsakadaiShigi",
+        "name": "Asakadai/Shiki",
+        "unkyu": true,
+        "note": ""
+      },
+      {
+        "area_id": "Narita-ShinkoshigayaSokaYashio",
+        "name": "Shin-Koshigaya, Soka, Yashio",
+        "unkyu": true,
+        "note": ""
+      },
+      {
+        "area_id": "Narita-Shinurayasu",
+        "name": "Shin-Urayasu",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Narita-Tachikawa",
+        "name": "Tachikawa",
+        "unkyu": true,
+        "note": ""
+      },
+      {
+        "area_id": "Narita-Tama",
+        "name": "Tama",
+        "unkyu": true,
+        "note": ""
+      },
+      {
+        "area_id": "Narita-TDR",
+        "name": "Tokyo Disney Resort area",
+        "unkyu": false,
+        "note": ""
+      },
+      {
+        "area_id": "Narita-YCAT",
+        "name": "YCAT/Yokohama Station East Exit",
+        "unkyu": false,
+        "note": ""
+      }
+    ]
+  },
+  "areaName": "",
+  "locals": {
+    "lang": "en",
+    "login": false
+  }
+}

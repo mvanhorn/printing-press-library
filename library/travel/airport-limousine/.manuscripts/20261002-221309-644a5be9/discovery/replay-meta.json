@@ -1,0 +1,17 @@
+[
+  [
+    0,
+    "{\"bytes\":20385,\"content_type\":\"text/html\",\"elapsed_ms\":358,\"observed_at\":\"2026-10-02T14:53:03Z\",\"status\":200,\"url\":\"https://www.limousinebus.co.jp/en/\"}",
+    ""
+  ],
+  [
+    0,
+    "{\"bytes\":39872,\"content_type\":\"text/html\",\"elapsed_ms\":395,\"observed_at\":\"2026-10-02T14:53:03Z\",\"status\":200,\"url\":\"https://www.limousinebus.co.jp/en/timetable/list/\"}",
+    ""
+  ],
+  [
+    0,
+    "{\"bytes\":108436,\"content_type\":\"text/html\",\"elapsed_ms\":386,\"observed_at\":\"2026-10-02T14:53:04Z\",\"status\":200,\"url\":\"https://www.limousinebus.co.jp/en/timetable/detail/Haneda-Narita/?dir=1\\u0026d=2026-10-03\"}",
+    ""
+  ]
+]

@@ -1,0 +1,34 @@
+{
+  "meta": {
+    "note": "Provider route-area listing; CMS placeholder records omitted. Suspended routes need --include-suspended.",
+    "observed_at": "2026-10-02T15:25:36Z",
+    "requests": 1,
+    "returned": 2,
+    "scanned_records": 69,
+    "source": "live",
+    "source_urls": [
+      "https://www.limousinebus.co.jp/en/timetable/list/"
+    ],
+    "timezone": "Asia/Tokyo",
+    "total_matching": 2,
+    "truncated": false
+  },
+  "results": [
+    {
+      "airport": "haneda",
+      "from_airport_url": "https://www.limousinebus.co.jp/en/timetable/detail/Haneda-Shinjuku/?dir=1",
+      "id": "Haneda-Shinjuku",
+      "name": "Shinjuku/Nakano area",
+      "suspended": false,
+      "to_airport_url": "https://www.limousinebus.co.jp/en/timetable/detail/Haneda-Shinjuku/?dir=2"
+    },
+    {
+      "airport": "haneda",
+      "from_airport_url": "https://www.limousinebus.co.jp/en/timetable/detail/Haneda-ShinjukuKabukicho/?dir=1",
+      "id": "Haneda-ShinjukuKabukicho",
+      "name": "Shinjuku Tokyu Kabukicho Tower",
+      "suspended": false,
+      "to_airport_url": "https://www.limousinebus.co.jp/en/timetable/detail/Haneda-ShinjukuKabukicho/?dir=2"
+    }
+  ]
+}

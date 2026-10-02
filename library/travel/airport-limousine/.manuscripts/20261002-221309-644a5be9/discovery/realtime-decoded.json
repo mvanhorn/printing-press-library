@@ -1,0 +1,200 @@
+{
+  "realtime": {
+    "haneda": {
+      "current_time": "23:56",
+      "table_data": [
+        {
+          "kukan": "Haneda Airport→Narita Airport",
+          "realtime": "Retrieving data...",
+          "standard": "--",
+          "dir": "inbound",
+          "no": 2
+        },
+        {
+          "kukan": "Narita Airport→Haneda Airport",
+          "realtime": "53 min",
+          "standard": "--",
+          "dir": "outbound",
+          "no": 2
+        },
+        {
+          "kukan": "Haneda Airport→Shinjuku Station/Keio Department Store",
+          "realtime": "22 min",
+          "standard": "33 min",
+          "dir": "inbound",
+          "no": 3
+        },
+        {
+          "kukan": "Shinjuku Expressway Bus Terminal→Haneda Airport",
+          "realtime": "38 min",
+          "standard": "30 min",
+          "dir": "outbound",
+          "no": 3
+        },
+        {
+          "kukan": "Haneda Airport→Tokyo City Air Terminal",
+          "realtime": "19 min",
+          "standard": "25 min",
+          "dir": "inbound",
+          "no": 4
+        },
+        {
+          "kukan": "Tokyo City Air Terminal→Haneda Airport",
+          "realtime": "Retrieving data...",
+          "standard": "--",
+          "dir": "outbound",
+          "no": 4
+        },
+        {
+          "kukan": "Haneda Airport→Ikebukuro Station West Exit",
+          "realtime": "26 min",
+          "standard": "35 min",
+          "dir": "inbound",
+          "no": 5
+        },
+        {
+          "kukan": "Ikebukuro Station West Exit→Haneda Airport",
+          "realtime": "Retrieving data...",
+          "standard": "--",
+          "dir": "outbound",
+          "no": 5
+        },
+        {
+          "kukan": "Haneda Airport→Tokyo Disneyland",
+          "realtime": "25 min",
+          "standard": "--",
+          "dir": "inbound",
+          "no": 6
+        },
+        {
+          "kukan": "Tokyo Disneyland→Haneda Airport",
+          "realtime": "25 min",
+          "standard": "--",
+          "dir": "outbound",
+          "no": 6
+        }
+      ]
+    },
+    "narita": {
+      "current_time": "23:56",
+      "table_data": [
+        {
+          "kukan": "Narita Airport→Haneda Airport",
+          "realtime": "53 min",
+          "standard": "--",
+          "dir": "inbound",
+          "no": 2
+        },
+        {
+          "kukan": "Haneda Airport→Narita Airport",
+          "realtime": "Retrieving data...",
+          "standard": "--",
+          "dir": "outbound",
+          "no": 2
+        },
+        {
+          "kukan": "Narita Airport→Shinjuku Station/Keio Department Store",
+          "realtime": "72 min",
+          "standard": "95 min",
+          "dir": "inbound",
+          "no": 3
+        },
+        {
+          "kukan": "Shinjuku Expressway Bus Terminal→Narita Airport",
+          "realtime": "Retrieving data...",
+          "standard": "--",
+          "dir": "outbound",
+          "no": 3
+        },
+        {
+          "kukan": "Narita Airport→Tokyo City Air Terminal",
+          "realtime": "51 min",
+          "standard": "70 min",
+          "dir": "inbound",
+          "no": 4
+        },
+        {
+          "kukan": "Tokyo City Air Terminal→Narita Airport",
+          "realtime": "Retrieving data...",
+          "standard": "--",
+          "dir": "outbound",
+          "no": 4
+        },
+        {
+          "kukan": "Narita Airport→Sunshine City Prince Hotel(Ikebukuro area)",
+          "realtime": "Adjusting...",
+          "standard": "--",
+          "dir": "inbound",
+          "no": 5
+        },
+        {
+          "kukan": "Sunshine City Prince Hotel(Ikebukuro area)→Narita Airport",
+          "realtime": "Retrieving data...",
+          "standard": "--",
+          "dir": "outbound",
+          "no": 5
+        },
+        {
+          "kukan": "Narita Airport→YCAT (Yokohama City Air Terminal )",
+          "realtime": "80 min",
+          "standard": "--",
+          "dir": "inbound",
+          "no": 6
+        },
+        {
+          "kukan": "YCAT (Yokohama City Air Terminal )→Narita Airport",
+          "realtime": "Retrieving data...",
+          "standard": "--",
+          "dir": "outbound",
+          "no": 6
+        },
+        {
+          "kukan": "Narita Airport→ANA InterContinental Tokyo(Akasaka area)",
+          "realtime": "Adjusting...",
+          "standard": "--",
+          "dir": "inbound",
+          "no": 7
+        },
+        {
+          "kukan": "ANA InterContinental Tokyo(Akasaka area)→Narita Airport",
+          "realtime": "Retrieving data...",
+          "standard": "--",
+          "dir": "outbound",
+          "no": 7
+        },
+        {
+          "kukan": "Narita Airport→Cerulean Tower Tokyu Hotel(Shibuya area)",
+          "realtime": "Retrieving data...",
+          "standard": "--",
+          "dir": "inbound",
+          "no": 8
+        },
+        {
+          "kukan": "Cerulean Tower Tokyu Hotel(Shibuya area)→Narita Airport",
+          "realtime": "Retrieving data...",
+          "standard": "--",
+          "dir": "outbound",
+          "no": 8
+        },
+        {
+          "kukan": "Narita Airport→Shinagawa Prince Hotel(Ebisu and Shinagawa areas)",
+          "realtime": "Retrieving data...",
+          "standard": "--",
+          "dir": "inbound",
+          "no": 9
+        },
+        {
+          "kukan": "Shinagawa Prince Hotel(Ebisu and Shinagawa areas)→Narita Airport",
+          "realtime": "Retrieving data...",
+          "standard": "--",
+          "dir": "outbound",
+          "no": 9
+        }
+      ]
+    }
+  },
+  "locals": {
+    "lang": "en",
+    "login": false
+  }
+}

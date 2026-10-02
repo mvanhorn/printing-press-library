@@ -1,0 +1,104 @@
+{
+  "api_name": "airport-limousine",
+  "base_url": "https://www.limousinebus.co.jp",
+  "description": "Plan Tokyo airport buses with exact terminals, dated fares and explicit travel-time uncertainty.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "pages_guide",
+      "description": "Read the provider baggage and boarding guide links.",
+      "method": "GET",
+      "path": "/en/guide/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "pages_routes",
+      "description": "Read canonical route and timetable links.",
+      "method": "GET",
+      "path": "/en/timetable/list/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "pages_stop",
+      "description": "Read a known operator stop page and links. Required: stop-id (default: HanedaAirportTerminal3).",
+      "method": "GET",
+      "path": "/en/busstop/detail/{stop_id}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "stop-id",
+          "wire_name": "stop_id",
+          "type": "string",
+          "location": "path",
+          "description": "Exact provider stop identifier from stops find",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pages_timetable",
+      "description": "Read canonical date timetable handoff links. Required: route-id (default: Haneda-Narita). Optional: direction (default: 1), date.",
+      "method": "GET",
+      "path": "/en/timetable/detail/{route_id}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "route-id",
+          "wire_name": "route_id",
+          "type": "string",
+          "location": "path",
+          "description": "Exact provider area identifier from routes",
+          "required": true
+        },
+        {
+          "name": "direction",
+          "wire_name": "dir",
+          "type": "int",
+          "location": "query",
+          "description": "Source direction 1 from airport or 2 to airport"
+        },
+        {
+          "name": "date",
+          "wire_name": "d",
+          "type": "string",
+          "location": "query",
+          "description": "Requested JST service date in YYYY-MM-DD format"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Dated terminal journeys",
+      "command": "timetable",
+      "description": "Plan a service date at exact stops with JST times and midnight rollover."
+    },
+    {
+      "name": "Current duration evidence",
+      "command": "travel-times",
+      "description": "Compare current and standard duration estimates with explicit unavailable states."
+    },
+    {
+      "name": "Airport transfer comparison",
+      "command": "transfers",
+      "description": "Read both airport transfer directions for the same service date."
+    },
+    {
+      "name": "Party fare planning",
+      "command": "fare",
+      "description": "Calculate an adult/child total from the operator fare for a served pair."
+    },
+    {
+      "name": "Baggage and boarding facts",
+      "command": "conditions",
+      "description": "Read concise current provider conditions with source timestamps and notices."
+    }
+  ]
+}

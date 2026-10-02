@@ -1,0 +1,37 @@
+[
+  {
+    "kind": "missing-read-only",
+    "command": "find",
+    "file": "limousine_discovery.go",
+    "line": 70,
+    "evidence": "name matches read heuristic; no mcp:read-only annotation"
+  },
+  {
+    "kind": "missing-read-only",
+    "command": "get",
+    "file": "limousine_discovery.go",
+    "line": 120,
+    "evidence": "name matches read heuristic; no mcp:read-only annotation"
+  },
+  {
+    "kind": "thin-short",
+    "command": "list",
+    "file": "platform_client.go",
+    "line": 517,
+    "evidence": "List client profiles"
+  },
+  {
+    "kind": "thin-short",
+    "command": "list",
+    "file": "teach.go",
+    "line": 868,
+    "evidence": "List recorded learnings"
+  },
+  {
+    "kind": "thin-mcp-description",
+    "command": "pages_routes",
+    "file": "tools-manifest.json",
+    "line": 0,
+    "evidence": "Read canonical route and timetable links."
+  }
+]

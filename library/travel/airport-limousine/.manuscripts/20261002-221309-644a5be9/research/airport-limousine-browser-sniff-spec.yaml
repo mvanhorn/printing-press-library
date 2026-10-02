@@ -1,0 +1,118 @@
+name: airport-limousine
+description: Discovered API spec for limousinebus-co
+version: 0.1.0
+base_url: https://www.limousinebus.co.jp
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/airport-limousine-pp-cli/config.toml
+resources:
+    en:
+        description: Operations on __data.json
+        endpoints:
+            list___data.json:
+                method: GET
+                path: /en/timetable/detail/Haneda-Narita/__data.json
+                description: GET /en/timetable/detail/Haneda-Narita/__data.json
+                params:
+                    - name: d
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: dir
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: DataJson
+                pagination: null
+            list_Haneda_Narita:
+                method: GET
+                path: /en/timetable/detail/Haneda-Narita/
+                description: Fetch structured links from /en/timetable/detail/Haneda-Narita/
+                params:
+                    - name: d
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: dir
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_en:
+                method: GET
+                path: /en/
+                description: Fetch structured links from /en/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_list:
+                method: GET
+                path: /en/timetable/list/
+                description: Fetch structured links from /en/timetable/list/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_realtime:
+                method: GET
+                path: /en/guide/realtime/
+                description: Fetch structured links from /en/guide/realtime/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+types:
+    DataJson:
+        fields:
+            - name: nodes
+              type: array
+            - name: type
+              type: string

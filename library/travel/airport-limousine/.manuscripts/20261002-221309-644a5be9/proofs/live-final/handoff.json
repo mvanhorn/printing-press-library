@@ -1,0 +1,27 @@
+{
+  "meta": {
+    "note": "Follow the canonical timetable's reservation links to book. This command performs no reservation or payment.",
+    "observed_at": "2026-10-02T15:37:35Z",
+    "requests": 1,
+    "returned": 1,
+    "scanned_records": 28,
+    "source": "live",
+    "source_urls": [
+      "https://www.limousinebus.co.jp/en/timetable/detail/Haneda-Narita/?d=2026-10-03\u0026dir=1"
+    ],
+    "timezone": "Asia/Tokyo",
+    "total_matching": 1,
+    "truncated": false
+  },
+  "results": [
+    {
+      "booking_handoff_url": "https://www.limousinebus.co.jp/en/timetable/detail/Haneda-Narita/?d=2026-10-03\u0026dir=1",
+      "direction": "from-airport",
+      "route_id": "Haneda-Narita",
+      "seat_availability_checked": false,
+      "service_date_jst": "2026-10-03",
+      "timetable_url": "https://www.limousinebus.co.jp/en/timetable/detail/Haneda-Narita/?d=2026-10-03\u0026dir=1",
+      "user_booking_required": true
+    }
+  ]
+}

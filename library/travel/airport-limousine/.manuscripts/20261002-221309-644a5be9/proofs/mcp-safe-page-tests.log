@@ -1,0 +1,1 @@
+gofmt completed; mcp-sync completed; go test ./internal/limousine ./internal/mcp PASS; MCP rebuild PASS

@@ -1,0 +1,164 @@
+{
+  "api_name": "airport-limousine",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-02T15:03:45.053199Z",
+  "novel_features": [
+    {
+      "name": "Dated terminal journeys",
+      "command": "timetable",
+      "description": "Plan a service date at exact stops with JST times and midnight rollover.",
+      "rationale": "Inspect exact terminal rows and omit seat inventory.",
+      "example": "airport-limousine-pp-cli timetable --agent",
+      "why_it_matters": "Inspect exact terminal rows and omit seat inventory.",
+      "group": "Airport bus planning"
+    },
+    {
+      "name": "Current duration evidence",
+      "command": "travel-times",
+      "description": "Compare current and standard duration estimates with explicit unavailable states.",
+      "rationale": "Preserve source clock and estimates without guaranteeing arrival.",
+      "example": "airport-limousine-pp-cli travel-times --agent",
+      "why_it_matters": "Preserve source clock and estimates without guaranteeing arrival.",
+      "group": "Airport bus planning"
+    },
+    {
+      "name": "Airport transfer comparison",
+      "command": "transfers",
+      "description": "Read both airport transfer directions for the same service date.",
+      "rationale": "Keep terminal identity and failed fetches distinct.",
+      "example": "airport-limousine-pp-cli transfers --agent",
+      "why_it_matters": "Keep terminal identity and failed fetches distinct.",
+      "group": "Airport bus planning"
+    },
+    {
+      "name": "Party fare planning",
+      "command": "fare",
+      "description": "Calculate an adult/child total from the operator fare for a served pair.",
+      "rationale": "State passenger-category assumptions and unknown fares.",
+      "example": "airport-limousine-pp-cli fare --agent",
+      "why_it_matters": "State passenger-category assumptions and unknown fares.",
+      "group": "Airport bus planning"
+    },
+    {
+      "name": "Baggage and boarding facts",
+      "command": "conditions",
+      "description": "Read concise current provider conditions with source timestamps and notices.",
+      "rationale": "Check luggage and child seating before booking.",
+      "example": "airport-limousine-pp-cli conditions --agent",
+      "why_it_matters": "Check luggage and child seating before booking.",
+      "group": "Airport bus planning"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Dated terminal journeys",
+      "command": "timetable",
+      "description": "Plan a service date at exact stops with JST times and midnight rollover.",
+      "rationale": "Inspect exact terminal rows and omit seat inventory.",
+      "example": "airport-limousine-pp-cli timetable --agent",
+      "why_it_matters": "Inspect exact terminal rows and omit seat inventory.",
+      "group": "Airport bus planning"
+    },
+    {
+      "name": "Current duration evidence",
+      "command": "travel-times",
+      "description": "Compare current and standard duration estimates with explicit unavailable states.",
+      "rationale": "Preserve source clock and estimates without guaranteeing arrival.",
+      "example": "airport-limousine-pp-cli travel-times --agent",
+      "why_it_matters": "Preserve source clock and estimates without guaranteeing arrival.",
+      "group": "Airport bus planning"
+    },
+    {
+      "name": "Airport transfer comparison",
+      "command": "transfers",
+      "description": "Read both airport transfer directions for the same service date.",
+      "rationale": "Keep terminal identity and failed fetches distinct.",
+      "example": "airport-limousine-pp-cli transfers --agent",
+      "why_it_matters": "Keep terminal identity and failed fetches distinct.",
+      "group": "Airport bus planning"
+    },
+    {
+      "name": "Party fare planning",
+      "command": "fare",
+      "description": "Calculate an adult/child total from the operator fare for a served pair.",
+      "rationale": "State passenger-category assumptions and unknown fares.",
+      "example": "airport-limousine-pp-cli fare --agent",
+      "why_it_matters": "State passenger-category assumptions and unknown fares.",
+      "group": "Airport bus planning"
+    },
+    {
+      "name": "Baggage and boarding facts",
+      "command": "conditions",
+      "description": "Read concise current provider conditions with source timestamps and notices.",
+      "rationale": "Check luggage and child seating before booking.",
+      "example": "airport-limousine-pp-cli conditions --agent",
+      "why_it_matters": "Check luggage and child seating before booking.",
+      "group": "Airport bus planning"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Airport Limousine",
+    "headline": "Plan Tokyo airport buses with exact terminals, dated fares and explicit travel-time uncertainty.",
+    "value_prop": "Find routes and stops, inspect a JST service date, compare current duration evidence and plan party fares. Every result retains the provider source and observation time.",
+    "auth_narrative": "Public read-only sources; no login, key or reservation action. Chrome-compatible HTTP runs without a resident browser.",
+    "quickstart": [
+      {
+        "command": "airport-limousine-pp-cli doctor --dry-run",
+        "comment": "Inspect the configured public source safely."
+      },
+      {
+        "command": "airport-limousine-pp-cli routes --query Shinjuku --agent",
+        "comment": "Resolve a route identifier."
+      },
+      {
+        "command": "airport-limousine-pp-cli timetable Haneda-Narita --agent",
+        "comment": "Read today in JST with exact airport terminals."
+      },
+      {
+        "command": "airport-limousine-pp-cli travel-times --airport haneda --agent",
+        "comment": "Observe duration estimates and unavailable states."
+      }
+    ],
+    "when_to_use": "Use for Airport Limousine public route/stop discovery, dated Tokyo airport-bus schedules, published fares and current duration evidence. Choose exact terminal IDs before interpreting times or party fares.",
+    "anti_triggers": [
+      "Seat reservation, payments or account changes.",
+      "Arrival guarantees, flight-connection guarantees or seat-inventory claims.",
+      "Other bus operators or multimodal route pricing."
+    ],
+    "recipes": [
+      {
+        "title": "Find a stop",
+        "command": "airport-limousine-pp-cli stops find --query Shinjuku --agent --select results.id,results.name,meta.observed_at",
+        "explanation": "Retain exact stop IDs and source freshness."
+      },
+      {
+        "title": "Inspect a terminal",
+        "command": "airport-limousine-pp-cli stops get HanedaAirportTerminal3 --agent",
+        "explanation": "Read boarding map and provider route handoff."
+      },
+      {
+        "title": "Compare transfers",
+        "command": "airport-limousine-pp-cli transfers --agent",
+        "explanation": "Read both directions for today in JST."
+      },
+      {
+        "title": "Read luggage conditions",
+        "command": "airport-limousine-pp-cli conditions --topic baggage --agent",
+        "explanation": "Check current operator limits and linked notices."
+      }
+    ],
+    "trigger_phrases": [
+      "Airport Limousine timetable",
+      "Haneda to Narita bus",
+      "Limousine bus baggage limits",
+      "Airport bus current travel time",
+      "use airport-limousine",
+      "run airport-limousine"
+    ]
+  }
+}

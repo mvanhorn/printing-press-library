@@ -1,0 +1,80 @@
+[
+  {
+    "name": "timetable-detail-data.json",
+    "returncode": 0,
+    "metadata": {
+      "bytes": 57321,
+      "content_type": "application/json",
+      "elapsed_ms": 694,
+      "observed_at": "2026-10-02T14:54:32Z",
+      "status": 200,
+      "url": "https://www.limousinebus.co.jp/en/timetable/detail/Haneda-Narita/__data.json?dir=1&d=2026-10-03"
+    },
+    "error": ""
+  },
+  {
+    "name": "busstop-list.html",
+    "returncode": 0,
+    "metadata": {
+      "bytes": 11103,
+      "content_type": "text/html",
+      "elapsed_ms": 425,
+      "observed_at": "2026-10-02T14:54:32Z",
+      "status": 200,
+      "url": "https://www.limousinebus.co.jp/en/busstop/"
+    },
+    "error": ""
+  },
+  {
+    "name": "stop-haneda3.html",
+    "returncode": 0,
+    "metadata": {
+      "bytes": 195274,
+      "content_type": "text/html",
+      "elapsed_ms": 427,
+      "observed_at": "2026-10-02T14:54:32Z",
+      "status": 200,
+      "url": "https://www.limousinebus.co.jp/en/busstop/detail/HanedaAirportTerminal3"
+    },
+    "error": ""
+  },
+  {
+    "name": "realtime.html",
+    "returncode": 0,
+    "metadata": {
+      "bytes": 15118,
+      "content_type": "text/html",
+      "elapsed_ms": 374,
+      "observed_at": "2026-10-02T14:54:33Z",
+      "status": 200,
+      "url": "https://www.limousinebus.co.jp/en/guide/realtime/"
+    },
+    "error": ""
+  },
+  {
+    "name": "baggage.html",
+    "returncode": 0,
+    "metadata": {
+      "bytes": 41403,
+      "content_type": "text/html",
+      "elapsed_ms": 354,
+      "observed_at": "2026-10-02T14:54:33Z",
+      "status": 200,
+      "url": "https://www.limousinebus.co.jp/en/guide/terms/baggage/"
+    },
+    "error": ""
+  },
+  {
+    "name": "boarding.html",
+    "returncode": 0,
+    "metadata": {
+      "bytes": 38247,
+      "content_type": "text/html",
+      "elapsed_ms": 297,
+      "observed_at": "2026-10-02T14:54:33Z",
+      "status": 200,
+      "url": "https://www.limousinebus.co.jp/en/guide/terms/caution/"
+    },
+    "error": ""
+  }
+]

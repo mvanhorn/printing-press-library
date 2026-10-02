@@ -1,0 +1,29 @@
+{
+  "schema_version": 2,
+  "id": "airport-limousine-planning-commands",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261002-221309-644a5be9",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Implement dated terminal, fare, travel-time, condition and public discovery planning commands.",
+  "reason": "Generic page extraction cannot preserve stop roles, service-day clocks, fare assumptions or explicit source uncertainty.",
+  "files": [
+    "internal/cli/timetable.go",
+    "internal/cli/travel_times.go",
+    "internal/cli/transfers.go",
+    "internal/cli/fare.go",
+    "internal/cli/conditions.go",
+    "internal/cli/limousine_discovery.go",
+    "internal/cli/limousine_helpers.go",
+    "internal/cli/limousine_hero_registration.go",
+    "internal/cli/limousine_capabilities.go",
+    "internal/limousine/client.go",
+    "internal/limousine/planning.go",
+    "internal/limousine/models.go",
+    "internal/limousine/conditions.go",
+    "internal/client/airport_limousine_transport.go"
+  ],
+  "call_sites": [
+    "rootCmd.AddCommand(newNovelTimetableCmd(flags))"
+  ],
+  "validated_outcome": "Full live matrix118/118 executed tests;16 provider content assertions; all five approved novels built."
+}

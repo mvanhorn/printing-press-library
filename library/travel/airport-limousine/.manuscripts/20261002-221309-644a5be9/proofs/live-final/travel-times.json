@@ -1,0 +1,48 @@
+{
+  "meta": {
+    "note": "The source publishes a JST clock without a date. Numeric values are estimates, not arrival guarantees. Adjusting/retrieving/unknown values remain null; route labels do not identify an airport terminal.",
+    "observed_at": "2026-10-02T15:37:32Z",
+    "requests": 1,
+    "returned": 2,
+    "scanned_records": 26,
+    "source": "live",
+    "source_urls": [
+      "https://www.limousinebus.co.jp/en/guide/realtime/"
+    ],
+    "timezone": "Asia/Tokyo",
+    "total_matching": 2,
+    "truncated": false
+  },
+  "results": [
+    {
+      "airport": "haneda",
+      "arrival_guaranteed": false,
+      "current_minutes": 23,
+      "current_state": "estimated",
+      "current_text": "23 min",
+      "difference_minutes": null,
+      "direction": "from-airport",
+      "id": "haneda-3-from-airport",
+      "route": "Haneda Airport→Shinjuku Station/Keio Department Store",
+      "source_clock_jst": "00:36",
+      "source_date_known": false,
+      "standard_minutes": null,
+      "standard_text": "--"
+    },
+    {
+      "airport": "haneda",
+      "arrival_guaranteed": false,
+      "current_minutes": 38,
+      "current_state": "estimated",
+      "current_text": "38 min",
+      "difference_minutes": null,
+      "direction": "to-airport",
+      "id": "haneda-3-to-airport",
+      "route": "Shinjuku Expressway Bus Terminal→Haneda Airport",
+      "source_clock_jst": "00:36",
+      "source_date_known": false,
+      "standard_minutes": null,
+      "standard_text": "--"
+    }
+  ]
+}

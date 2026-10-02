@@ -1,0 +1,13 @@
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "invalid provider ID \"../bad\": use a stable ID from routes or stops find"
+      }
+    ],
+    "isError": true
+  }
+}

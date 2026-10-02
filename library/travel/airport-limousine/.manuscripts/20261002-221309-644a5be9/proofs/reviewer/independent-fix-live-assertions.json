@@ -1,0 +1,57 @@
+[
+  {
+    "name": "fixed-conditions",
+    "passed": true,
+    "errors": [],
+    "args": [
+      "conditions",
+      "--topic",
+      "all",
+      "--agent"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 1209,
+    "output_bytes": 5899
+  },
+  {
+    "name": "fixed-baggage-select",
+    "passed": true,
+    "errors": [],
+    "args": [
+      "conditions",
+      "--topic",
+      "baggage",
+      "--agent",
+      "--select",
+      "results.key,results.value,results.unit,meta.observed_at"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 664,
+    "output_bytes": 668
+  },
+  {
+    "name": "fixed-timetable-select",
+    "passed": true,
+    "errors": [],
+    "args": [
+      "timetable",
+      "Haneda-Narita",
+      "--date",
+      "2026-10-03",
+      "--from-stop",
+      "HanedaAirportTerminal3",
+      "--to-stop",
+      "NaritaAirportTerminal1",
+      "--after",
+      "08:00",
+      "--limit",
+      "1",
+      "--agent",
+      "--select",
+      "results.id,results.origin.departure.datetime_jst,results.destination.arrival.datetime_jst,results.scheduled_duration_minutes,meta.observed_at,meta.context.selected_date_jst"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 488,
+    "output_bytes": 481
+  }
+]

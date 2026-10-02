@@ -1,0 +1,114 @@
+[
+  {
+    "args": [
+      "routes"
+    ],
+    "exit_code": 2,
+    "passed": true,
+    "stderr": "Error: this command requires live Airport Limousine data; use --data-source live or auto"
+  },
+  {
+    "args": [
+      "stops",
+      "find",
+      "--query",
+      "Shinjuku"
+    ],
+    "exit_code": 2,
+    "passed": true,
+    "stderr": "Error: this command requires live Airport Limousine data; use --data-source live or auto"
+  },
+  {
+    "args": [
+      "stops",
+      "get",
+      "HanedaAirportTerminal3"
+    ],
+    "exit_code": 2,
+    "passed": true,
+    "stderr": "Error: this command requires live Airport Limousine data; use --data-source live or auto"
+  },
+  {
+    "args": [
+      "timetable"
+    ],
+    "exit_code": 2,
+    "passed": true,
+    "stderr": "Error: this command requires live Airport Limousine data; use --data-source live or auto"
+  },
+  {
+    "args": [
+      "travel-times"
+    ],
+    "exit_code": 2,
+    "passed": true,
+    "stderr": "Error: this command requires live Airport Limousine data; use --data-source live or auto"
+  },
+  {
+    "args": [
+      "transfers"
+    ],
+    "exit_code": 2,
+    "passed": true,
+    "stderr": "Error: this command requires live Airport Limousine data; use --data-source live or auto"
+  },
+  {
+    "args": [
+      "fare"
+    ],
+    "exit_code": 2,
+    "passed": true,
+    "stderr": "Error: this command requires live Airport Limousine data; use --data-source live or auto"
+  },
+  {
+    "args": [
+      "conditions"
+    ],
+    "exit_code": 2,
+    "passed": true,
+    "stderr": "Error: this command requires live Airport Limousine data; use --data-source live or auto"
+  },
+  {
+    "args": [
+      "handoff"
+    ],
+    "exit_code": 2,
+    "passed": true,
+    "stderr": "Error: this command requires live Airport Limousine data; use --data-source live or auto"
+  },
+  {
+    "query": "routes",
+    "commands": [
+      "routes",
+      "stops get"
+    ],
+    "exit_code": 0,
+    "passed": true
+  },
+  {
+    "query": "handoff",
+    "commands": [
+      "handoff"
+    ],
+    "exit_code": 0,
+    "passed": true
+  },
+  {
+    "query": "stop search",
+    "commands": [
+      "stops find",
+      "stops get",
+      "timetable"
+    ],
+    "exit_code": 0,
+    "passed": true
+  },
+  {
+    "query": "boarding location",
+    "commands": [
+      "stops get"
+    ],
+    "exit_code": 0,
+    "passed": true
+  }
+]

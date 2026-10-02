@@ -1,0 +1,80 @@
+[
+  {
+    "name": "routes-data.json",
+    "returncode": 0,
+    "metadata": {
+      "bytes": 6867,
+      "content_type": "application/json",
+      "elapsed_ms": 1278,
+      "observed_at": "2026-10-02T14:57:21Z",
+      "status": 200,
+      "url": "https://www.limousinebus.co.jp/en/timetable/list/__data.json"
+    },
+    "error": ""
+  },
+  {
+    "name": "stop-haneda3-data.json",
+    "returncode": 0,
+    "metadata": {
+      "bytes": 102267,
+      "content_type": "application/json",
+      "elapsed_ms": 1459,
+      "observed_at": "2026-10-02T14:57:22Z",
+      "status": 200,
+      "url": "https://www.limousinebus.co.jp/en/busstop/detail/HanedaAirportTerminal3/__data.json"
+    },
+    "error": ""
+  },
+  {
+    "name": "realtime-data.json",
+    "returncode": 0,
+    "metadata": {
+      "bytes": 3341,
+      "content_type": "application/json",
+      "elapsed_ms": 1067,
+      "observed_at": "2026-10-02T14:57:23Z",
+      "status": 200,
+      "url": "https://www.limousinebus.co.jp/en/guide/realtime/__data.json"
+    },
+    "error": ""
+  },
+  {
+    "name": "baggage-data.json",
+    "returncode": 0,
+    "metadata": {
+      "bytes": 19657,
+      "content_type": "text/sveltekit-data",
+      "elapsed_ms": 1466,
+      "observed_at": "2026-10-02T14:57:23Z",
+      "status": 200,
+      "url": "https://www.limousinebus.co.jp/en/guide/terms/baggage/__data.json"
+    },
+    "error": ""
+  },
+  {
+    "name": "boarding-data.json",
+    "returncode": 0,
+    "metadata": {
+      "bytes": 18868,
+      "content_type": "text/sveltekit-data",
+      "elapsed_ms": 1515,
+      "observed_at": "2026-10-02T14:57:24Z",
+      "status": 200,
+      "url": "https://www.limousinebus.co.jp/en/guide/terms/caution/__data.json"
+    },
+    "error": ""
+  },
+  {
+    "name": "stop-search.html",
+    "returncode": 1,
+    "metadata": {
+      "bytes": 46,
+      "content_type": "",
+      "elapsed_ms": 1256,
+      "observed_at": "2026-10-02T14:57:24Z",
+      "status": 403,
+      "url": "https://www.limousinebus.co.jp/en/busstop/list/?/keyword"
+    },
+    "error": ""
+  }
+]

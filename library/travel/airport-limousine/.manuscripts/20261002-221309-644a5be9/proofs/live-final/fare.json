@@ -1,0 +1,65 @@
+{
+  "meta": {
+    "note": "Planning arithmetic uses exact published units and does not check inventory or apply unverified discounts.",
+    "observed_at": "2026-10-02T15:37:31Z",
+    "requests": 1,
+    "returned": 1,
+    "scanned_records": 28,
+    "source": "live",
+    "source_urls": [
+      "https://www.limousinebus.co.jp/en/timetable/detail/Haneda-Narita/?d=2026-10-03\u0026dir=1"
+    ],
+    "timezone": "Asia/Tokyo",
+    "total_matching": 1,
+    "truncated": false
+  },
+  "results": [
+    {
+      "adult_unit_jpy": 3600,
+      "adults": 2,
+      "assumptions": [
+        "One-way published station-column fare for this served pair and direction; discounts and surcharges are not inferred.",
+        "Children means passengers eligible for the published child fare; under-six passengers using a seat generally need child fare. See conditions --topic boarding.",
+        "Arithmetic planning total, not a fare guarantee, reservation or seat-availability check."
+      ],
+      "booking_url": "https://www.limousinebus.co.jp/en/timetable/detail/Haneda-Narita/?d=2026-10-03\u0026dir=1",
+      "child_unit_jpy": 1800,
+      "children": 1,
+      "currency": "JPY",
+      "destination": {
+        "code": "017",
+        "id": "NaritaAirportTerminal1",
+        "japanese_name": "成田空港第１旅客ターミナル",
+        "name": "Narita Airport Terminal 1",
+        "published_fare": {
+          "adult_jpy": 3600,
+          "child_jpy": 1800,
+          "currency": "JPY"
+        },
+        "role": "alighting",
+        "source_kind": "N",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/NaritaAirportTerminal1/"
+      },
+      "direction": "from-airport",
+      "origin": {
+        "code": "250",
+        "id": "HanedaAirportTerminal3",
+        "japanese_name": "羽田空港第３ターミナル",
+        "name": "Haneda Airport Terminal3",
+        "published_fare": {
+          "adult_jpy": null,
+          "child_jpy": null,
+          "currency": "JPY"
+        },
+        "role": "boarding",
+        "source_kind": "H",
+        "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/HanedaAirportTerminal3/"
+      },
+      "quote_state": "published-fare-arithmetic",
+      "route_id": "Haneda-Narita",
+      "served_trips": 17,
+      "service_date_jst": "2026-10-03",
+      "total_jpy": 9000
+    }
+  ]
+}

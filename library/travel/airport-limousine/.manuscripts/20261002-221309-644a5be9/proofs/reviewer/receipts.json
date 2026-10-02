@@ -1,0 +1,89 @@
+[
+  {
+    "name": "doctor",
+    "args": [
+      "doctor",
+      "--json"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 577,
+    "output_bytes": 1615
+  },
+  {
+    "name": "shinjuku-from",
+    "args": [
+      "timetable",
+      "Haneda-Shinjuku",
+      "--date",
+      "2026-10-03",
+      "--limit",
+      "1",
+      "--agent"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 856,
+    "output_bytes": 18680
+  },
+  {
+    "name": "shinjuku-to",
+    "args": [
+      "timetable",
+      "Haneda-Shinjuku",
+      "--date",
+      "2026-10-03",
+      "--direction",
+      "to-airport",
+      "--limit",
+      "1",
+      "--agent"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 556,
+    "output_bytes": 17490
+  },
+  {
+    "name": "tc-at",
+    "args": [
+      "timetable",
+      "Narita-TCAT",
+      "--date",
+      "2026-10-03",
+      "--limit",
+      "1",
+      "--agent"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 553,
+    "output_bytes": 9258
+  },
+  {
+    "name": "airport-negative",
+    "args": [
+      "stops",
+      "find",
+      "--query",
+      "NotARealStop987654321",
+      "--agent"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 652,
+    "output_bytes": 505
+  },
+  {
+    "name": "airport-search",
+    "args": [
+      "stops",
+      "find",
+      "--query",
+      "Haneda Airport",
+      "--airport",
+      "haneda",
+      "--limit",
+      "5",
+      "--agent"
+    ],
+    "exit_code": 0,
+    "elapsed_ms": 834,
+    "output_bytes": 1993
+  }
+]

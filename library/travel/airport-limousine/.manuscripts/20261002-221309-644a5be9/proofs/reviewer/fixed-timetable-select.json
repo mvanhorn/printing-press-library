@@ -1,0 +1,25 @@
+{
+  "meta": {
+    "context": {
+      "selected_date_jst": "2026-10-03"
+    },
+    "observed_at": "2026-10-02T15:44:25Z",
+    "source": "live"
+  },
+  "results": [
+    {
+      "destination": {
+        "arrival": {
+          "datetime_jst": "2026-10-03T10:00:00+09:00"
+        }
+      },
+      "id": "BE38E0003001E2B",
+      "origin": {
+        "departure": {
+          "datetime_jst": "2026-10-03T08:25:00+09:00"
+        }
+      },
+      "scheduled_duration_minutes": 95
+    }
+  ]
+}

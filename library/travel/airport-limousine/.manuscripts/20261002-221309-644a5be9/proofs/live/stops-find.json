@@ -1,0 +1,107 @@
+{
+  "meta": {
+    "note": "Public provider keyword search with an ephemeral private cookie jar; exact terminals remain separate. No further result pages are scanned.",
+    "observed_at": "2026-10-02T15:25:37Z",
+    "requests": 2,
+    "returned": 6,
+    "scanned_records": 6,
+    "source": "live",
+    "source_urls": [
+      "https://www.limousinebus.co.jp/en/busstop/"
+    ],
+    "timezone": "Asia/Tokyo",
+    "total_matching": 6,
+    "truncated": false
+  },
+  "results": [
+    {
+      "airports": [
+        "haneda",
+        "narita"
+      ],
+      "id": "ShinjukuStation",
+      "inbound_code": "008",
+      "japanese_name": "新宿駅西口［京王百貨店前］",
+      "name": "Shinjuku Station/Keio Department Store",
+      "official_name": "Shinjuku Station West Exit (in front of Keio Department Store)",
+      "outbound_code": "008",
+      "source_kind": "B",
+      "source_updated_at": "2025-04-17T20:22:05.703Z",
+      "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/ShinjukuStation/"
+    },
+    {
+      "airports": [
+        "haneda",
+        "narita"
+      ],
+      "id": "ShinjukuExpresswayBusTerminal",
+      "inbound_code": "009",
+      "japanese_name": "バスタ新宿",
+      "name": "Shinjuku Expressway Bus Terminal",
+      "official_name": "Shinjuku Express Bus Terminal (Basta Shinjuku)",
+      "outbound_code": "009",
+      "source_kind": "B",
+      "source_updated_at": "2025-04-17T20:22:06.269Z",
+      "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/ShinjukuExpresswayBusTerminal/"
+    },
+    {
+      "airports": [
+        "haneda"
+      ],
+      "id": "Higashi-ShinjukuStation",
+      "inbound_code": "089",
+      "japanese_name": "東新宿駅",
+      "name": "Higashi-Shinjuku Station [Haneda late night services] Take care about date",
+      "official_name": "Higashi-Shinjuku Station [Haneda Line Midnight Service] Note the date.",
+      "outbound_code": "089",
+      "source_kind": "B",
+      "source_updated_at": "2025-04-17T20:22:07.488Z",
+      "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/Higashi-ShinjukuStation/"
+    },
+    {
+      "airports": [
+        "haneda",
+        "narita"
+      ],
+      "id": "ShinjukuWashingtonHotel",
+      "inbound_code": "145",
+      "japanese_name": "新宿ワシントンホテル",
+      "name": "Shinjuku Washington Hotel",
+      "official_name": "Shinjuku Washington Hotel",
+      "outbound_code": "145",
+      "source_kind": "B",
+      "source_updated_at": "2025-04-17T20:22:16.869Z",
+      "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/ShinjukuWashingtonHotel/"
+    },
+    {
+      "airports": [
+        "haneda",
+        "narita"
+      ],
+      "id": "HotelSunroutePlazaShinjuku",
+      "inbound_code": "354",
+      "japanese_name": "ホテルサンルートプラザ新宿",
+      "name": "Hotel Sunroute Plaza Shinjuku",
+      "official_name": "Hotel Sunroute Plaza Shinjuku",
+      "outbound_code": "354",
+      "source_kind": "B",
+      "source_updated_at": "2025-04-17T20:22:49.673Z",
+      "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/HotelSunroutePlazaShinjuku/"
+    },
+    {
+      "airports": [
+        "haneda",
+        "narita"
+      ],
+      "id": "TOKYUKABUKICHOTOWER",
+      "inbound_code": "350",
+      "japanese_name": "東急歌舞伎町タワー",
+      "name": "TOKYU KABUKICHO TOWER/Seibu Shinjuku Sta",
+      "official_name": "Tokyu Kabukicho Tower (Seibu Shinjuku Station)",
+      "outbound_code": "350",
+      "source_kind": "B",
+      "source_updated_at": "2025-04-17T20:23:14.246Z",
+      "source_url": "https://www.limousinebus.co.jp/en/busstop/detail/TOKYUKABUKICHOTOWER/"
+    }
+  ]
+}

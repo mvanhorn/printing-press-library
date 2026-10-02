@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "verdict": "PASS",
+  "started_at": "2026-10-02T15:59:30Z",
+  "elapsed_ms": 20808,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T15:59:30Z",
+      "elapsed_ms": 10677,
+      "command": "/Users/zjsng/go/bin/cli-printing-press verify --dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/working/airport-limousine-pp-cli --write-manifest /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/working/airport-limousine-pp-cli/.printing-press.json --spec /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/research/airport-limousine-spec.yaml --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T15:59:41Z",
+      "elapsed_ms": 177,
+      "command": "/Users/zjsng/go/bin/cli-printing-press validate-narrative --strict --full-examples --research /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/research.json --binary /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/working/airport-limousine-pp-cli/build/stage/bin/airport-limousine-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T15:59:41Z",
+      "elapsed_ms": 3169,
+      "command": "/Users/zjsng/go/bin/cli-printing-press dogfood --dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/working/airport-limousine-pp-cli --spec /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/research/airport-limousine-spec.yaml --research-dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T15:59:44Z",
+      "elapsed_ms": 2989,
+      "command": "/Users/zjsng/go/bin/cli-printing-press workflow-verify --dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/working/airport-limousine-pp-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T15:59:47Z",
+      "elapsed_ms": 43,
+      "command": "/Users/zjsng/go/bin/cli-printing-press apify-audit --dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/working/airport-limousine-pp-cli --research-dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T15:59:47Z",
+      "elapsed_ms": 1762,
+      "command": "/Users/zjsng/go/bin/cli-printing-press verify-skill --dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/working/airport-limousine-pp-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-02T15:59:49Z",
+      "elapsed_ms": 1989,
+      "command": "/Users/zjsng/go/bin/cli-printing-press scorecard --dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/working/airport-limousine-pp-cli --write-manifest /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/working/airport-limousine-pp-cli/.printing-press.json --research-dir /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9 --spec /Users/zjsng/Projects/Personal/Coding/.japan-cli-builds/batch3-press/airport-limousine/.runstate/airport-limousine-cli-c2d3073d/runs/20261002-221309-644a5be9/research/airport-limousine-spec.yaml --live-check"
+    }
+  ]
+}

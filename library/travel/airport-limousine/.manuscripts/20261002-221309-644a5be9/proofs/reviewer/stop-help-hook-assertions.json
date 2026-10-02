@@ -1,0 +1,14 @@
+{
+  "help": {
+    "exit_code": 0,
+    "has_examples": true,
+    "has_exact_example": true
+  },
+  "help_stderr": "",
+  "read_only": {
+    "exit_code": 0,
+    "value": "true"
+  },
+  "context_stderr": "",
+  "passed": true
+}
