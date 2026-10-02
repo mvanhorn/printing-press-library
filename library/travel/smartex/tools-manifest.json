@@ -1,0 +1,177 @@
+{
+  "api_name": "smartex",
+  "base_url": "https://smart-ex.jp",
+  "description": "Compare Shinkansen fares and constraints before booking",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "reference_baggage-guide",
+      "description": "Extract official baggage source metadata and relevant links.",
+      "method": "GET",
+      "path": "/en/entraining/oversized-baggage/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "reference_baggage-jr",
+      "description": "Extract official baggage-jr source metadata and relevant links.",
+      "method": "GET",
+      "path": "/en/info/oversized-baggage/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "reference_boarding",
+      "description": "Extract official boarding source metadata and relevant links.",
+      "method": "GET",
+      "path": "/en/entraining/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "reference_booking-window",
+      "description": "Extract official booking-window source metadata and relevant links.",
+      "method": "GET",
+      "path": "/en/reservation/useful/accept_time/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "reference_change",
+      "description": "Extract official change source metadata and relevant links.",
+      "method": "GET",
+      "path": "/en/reservation/change/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "reference_family7",
+      "description": "Extract official family7 source metadata and relevant links.",
+      "method": "GET",
+      "path": "/en/product/hayatoku_family7/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "reference_hayatoku1",
+      "description": "Extract official hayatoku1 source metadata and relevant links.",
+      "method": "GET",
+      "path": "/en/product/hayatoku1/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "reference_hayatoku21",
+      "description": "Extract official hayatoku21 source metadata and relevant links.",
+      "method": "GET",
+      "path": "/en/product/hayatoku21/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "reference_hayatoku3",
+      "description": "Extract official hayatoku3 source metadata and relevant links.",
+      "method": "GET",
+      "path": "/en/product/hayatoku3/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "reference_hayatoku7",
+      "description": "Extract official hayatoku7 source metadata and relevant links.",
+      "method": "GET",
+      "path": "/en/product/hayatoku7/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "reference_nozomi",
+      "description": "Extract official nozomi source metadata and relevant links.",
+      "method": "GET",
+      "path": "/en/nozomi/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "reference_refund",
+      "description": "Extract official refund source metadata and relevant links.",
+      "method": "GET",
+      "path": "/en/reservation/guide/cancel/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "reference_service",
+      "description": "Extract official service source metadata and relevant links.",
+      "method": "GET",
+      "path": "/en/product/plan/service/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "reference_timetable-links",
+      "description": "Extract official timetable source metadata and relevant links.",
+      "method": "GET",
+      "path": "/en/info/timetable/",
+      "no_auth": true,
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Resolve station names and corridor order",
+      "command": "stations",
+      "description": "Resolve station names and corridor order"
+    },
+    {
+      "name": "Identify corridors and train categories with booking links",
+      "command": "route",
+      "description": "Identify corridors and train categories with booking links"
+    },
+    {
+      "name": "Compare fresh dated adult fares and membership restrictions",
+      "command": "fare",
+      "description": "Compare fresh dated adult fares and membership restrictions"
+    },
+    {
+      "name": "Compare discount deadlines and unresolved eligibility conditions",
+      "command": "products",
+      "description": "Compare discount deadlines and unresolved eligibility conditions"
+    },
+    {
+      "name": "Compute precise JST advance request and confirmation boundaries",
+      "command": "window",
+      "description": "Compute precise JST advance request and confirmation boundaries"
+    },
+    {
+      "name": "Check baggage size and required reserved seat class",
+      "command": "baggage",
+      "description": "Check baggage size and required reserved seat class"
+    },
+    {
+      "name": "Retrieve practical boarding, changes and refunds guidance",
+      "command": "policy",
+      "description": "Retrieve practical boarding, changes and refunds guidance"
+    },
+    {
+      "name": "Find current official basic timetables and validated regular service examples",
+      "command": "timetable",
+      "description": "Find current official basic timetables and validated regular service examples"
+    },
+    {
+      "name": "Prepare canonical booking links and an exact travel checklist",
+      "command": "handoff",
+      "description": "Prepare canonical booking links and an exact travel checklist"
+    },
+    {
+      "name": "Inspect source freshness and planning versus inventory boundaries",
+      "command": "sources",
+      "description": "Inspect source freshness and planning versus inventory boundaries"
+    }
+  ]
+}

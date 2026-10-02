@@ -1,0 +1,51 @@
+[
+  {
+    "id": "timetable",
+    "url": "https://global.jr-central.co.jp/en/info/timetable/",
+    "status": "200",
+    "bytes": 6058,
+    "text_bytes": 701
+  },
+  {
+    "id": "timetable-west",
+    "url": "https://global.jr-central.co.jp/en/info/timetable/_pdf/shinkansen_west_bound2603.pdf",
+    "status": "200",
+    "bytes": 4968635,
+    "text_bytes": 7
+  },
+  {
+    "id": "timetable-east",
+    "url": "https://global.jr-central.co.jp/en/info/timetable/_pdf/shinkansen_east_bound2603.pdf",
+    "status": "200",
+    "bytes": 4894826,
+    "text_bytes": 7
+  },
+  {
+    "id": "baggage-jr",
+    "url": "https://global.jr-central.co.jp/en/info/oversized-baggage/",
+    "status": "200",
+    "bytes": 42163,
+    "text_bytes": 20996
+  },
+  {
+    "id": "season",
+    "url": "https://smart-ex.jp/en/product/set_dates/",
+    "status": "200",
+    "bytes": 18769,
+    "text_bytes": 160
+  },
+  {
+    "id": "fare-terms",
+    "url": "https://unchin-navi.jp/share/agree_a.html",
+    "status": "200",
+    "bytes": 1654,
+    "text_bytes": 16
+  },
+  {
+    "id": "nozomi",
+    "url": "https://global.jr-central.co.jp/en/nozomi/",
+    "status": "200",
+    "bytes": 28788,
+    "text_bytes": 15104
+  }
+]

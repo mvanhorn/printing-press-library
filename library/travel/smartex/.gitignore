@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/smartex-pp-cli
+/smartex-pp-cli.exe
+/smartex-pp-mcp
+/smartex-pp-mcp.exe
+/bin/
+/build/
+/dist/

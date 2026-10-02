@@ -1,0 +1,200 @@
+name: smartex
+description: Discovered API spec for smart-ex
+version: 0.1.0
+base_url: https://smart-ex.jp
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/smartex-pp-cli/config.toml
+resources:
+    en:
+        description: Operations on service
+        endpoints:
+            list_accept_time:
+                method: GET
+                path: /en/reservation/useful/accept_time/
+                description: Fetch structured links from /en/reservation/useful/accept_time/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_cancel:
+                method: GET
+                path: /en/reservation/guide/cancel/
+                description: Fetch structured links from /en/reservation/guide/cancel/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_change:
+                method: GET
+                path: /en/reservation/change/
+                description: Fetch structured links from /en/reservation/change/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_entraining:
+                method: GET
+                path: /en/entraining/
+                description: Fetch structured links from /en/entraining/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_equipment:
+                method: GET
+                path: /en/reservation/equipment/
+                description: Fetch structured links from /en/reservation/equipment/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_hayatoku_family7:
+                method: GET
+                path: /en/product/hayatoku_family7/
+                description: Fetch structured links from /en/product/hayatoku_family7/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_hayatoku1:
+                method: GET
+                path: /en/product/hayatoku1/
+                description: Fetch structured links from /en/product/hayatoku1/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_hayatoku3:
+                method: GET
+                path: /en/product/hayatoku3/
+                description: Fetch structured links from /en/product/hayatoku3/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_hayatoku7:
+                method: GET
+                path: /en/product/hayatoku7/
+                description: Fetch structured links from /en/product/hayatoku7/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_hayatoku21:
+                method: GET
+                path: /en/product/hayatoku21/
+                description: Fetch structured links from /en/product/hayatoku21/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_oversized_baggage:
+                method: GET
+                path: /en/entraining/oversized-baggage/
+                description: Fetch structured links from /en/entraining/oversized-baggage/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_service:
+                method: GET
+                path: /en/product/plan/service/
+                description: Fetch structured links from /en/product/plan/service/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_set_dates:
+                method: GET
+                path: /en/product/set_dates/
+                description: Fetch structured links from /en/product/set_dates/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+types: {}

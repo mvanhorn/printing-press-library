@@ -1,0 +1,114 @@
+[
+  {
+    "command": "reference baggage-guide",
+    "exit": 0,
+    "stdout_json": true,
+    "dry_run": true,
+    "diagnostic_stream": "stderr",
+    "stderr_bytes": 86
+  },
+  {
+    "command": "reference baggage-jr",
+    "exit": 0,
+    "stdout_json": true,
+    "dry_run": true,
+    "diagnostic_stream": "stderr",
+    "stderr_bytes": 92
+  },
+  {
+    "command": "reference boarding",
+    "exit": 0,
+    "stdout_json": true,
+    "dry_run": true,
+    "diagnostic_stream": "stderr",
+    "stderr_bytes": 68
+  },
+  {
+    "command": "reference booking-window",
+    "exit": 0,
+    "stdout_json": true,
+    "dry_run": true,
+    "diagnostic_stream": "stderr",
+    "stderr_bytes": 88
+  },
+  {
+    "command": "reference change",
+    "exit": 0,
+    "stdout_json": true,
+    "dry_run": true,
+    "diagnostic_stream": "stderr",
+    "stderr_bytes": 76
+  },
+  {
+    "command": "reference family7",
+    "exit": 0,
+    "stdout_json": true,
+    "dry_run": true,
+    "diagnostic_stream": "stderr",
+    "stderr_bytes": 82
+  },
+  {
+    "command": "reference hayatoku1",
+    "exit": 0,
+    "stdout_json": true,
+    "dry_run": true,
+    "diagnostic_stream": "stderr",
+    "stderr_bytes": 75
+  },
+  {
+    "command": "reference hayatoku21",
+    "exit": 0,
+    "stdout_json": true,
+    "dry_run": true,
+    "diagnostic_stream": "stderr",
+    "stderr_bytes": 76
+  },
+  {
+    "command": "reference hayatoku3",
+    "exit": 0,
+    "stdout_json": true,
+    "dry_run": true,
+    "diagnostic_stream": "stderr",
+    "stderr_bytes": 75
+  },
+  {
+    "command": "reference hayatoku7",
+    "exit": 0,
+    "stdout_json": true,
+    "dry_run": true,
+    "diagnostic_stream": "stderr",
+    "stderr_bytes": 75
+  },
+  {
+    "command": "reference nozomi",
+    "exit": 0,
+    "stdout_json": true,
+    "dry_run": true,
+    "diagnostic_stream": "stderr",
+    "stderr_bytes": 76
+  },
+  {
+    "command": "reference refund",
+    "exit": 0,
+    "stdout_json": true,
+    "dry_run": true,
+    "diagnostic_stream": "stderr",
+    "stderr_bytes": 82
+  },
+  {
+    "command": "reference service",
+    "exit": 0,
+    "stdout_json": true,
+    "dry_run": true,
+    "diagnostic_stream": "stderr",
+    "stderr_bytes": 78
+  },
+  {
+    "command": "reference timetable-links",
+    "exit": 0,
+    "stdout_json": true,
+    "dry_run": true,
+    "diagnostic_stream": "stderr",
+    "stderr_bytes": 84
+  }
+]

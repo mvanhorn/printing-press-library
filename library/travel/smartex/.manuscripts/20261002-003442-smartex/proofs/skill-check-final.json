@@ -1,0 +1,14 @@
+{
+  "cli_dir": "<local-artifact>",
+  "skill_path": "<local-artifact>",
+  "checks_run": [
+    "flag-names",
+    "flag-commands",
+    "positional-args",
+    "shell-var-quotes",
+    "unknown-command",
+    "canonical-sections"
+  ],
+  "recipes_checked": 29,
+  "findings": []
+}

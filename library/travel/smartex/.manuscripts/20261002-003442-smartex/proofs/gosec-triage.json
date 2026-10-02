@@ -1,0 +1,255 @@
+{
+  "raw_findings": 31,
+  "hand_authored_unresolved": [],
+  "generated_or_reserved_retro_candidates": [
+    {
+      "file": "internal/client/chrome.go",
+      "line": "149",
+      "rule": "G402",
+      "details": "TLS InsecureSkipVerify may be set to true.",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/client/client.go",
+      "line": "446",
+      "rule": "G119",
+      "details": "Sensitive headers should not be re-added in redirect policy callbacks",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/platform/gate.go",
+      "line": "22",
+      "rule": "G101",
+      "details": "Potential hardcoded credentials",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "cmd/smartex-pp-mcp/main.go",
+      "line": "36",
+      "rule": "G101",
+      "details": "Potential hardcoded credentials",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "3296-3299",
+      "rule": "G201",
+      "details": "SQL string formatting",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "2993-2996",
+      "rule": "G201",
+      "details": "SQL string formatting",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "1037",
+      "rule": "G201",
+      "details": "SQL string formatting",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "1013",
+      "rule": "G201",
+      "details": "SQL string formatting",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/platform/migration.go",
+      "line": "156",
+      "rule": "G202",
+      "details": "SQL string concatenation",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "249",
+      "rule": "G304",
+      "details": "Potential file inclusion via variable",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/platform/ratelimit.go",
+      "line": "148",
+      "rule": "G304",
+      "details": "Potential file inclusion via variable",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/platform/profile.go",
+      "line": "510",
+      "rule": "G304",
+      "details": "Potential file inclusion via variable",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/config/config.go",
+      "line": "108",
+      "rule": "G304",
+      "details": "Potential file inclusion via variable",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/cli/feedback.go",
+      "line": "204",
+      "rule": "G304",
+      "details": "Potential file inclusion via variable",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/cli/feedback.go",
+      "line": "66",
+      "rule": "G304",
+      "details": "Potential file inclusion via variable",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "cmd/smartex-pp-mcp/main.go",
+      "line": "83-86",
+      "rule": "G112",
+      "details": "Potential Slowloris Attack because ReadHeaderTimeout is not configured in the http.Server",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/platform/profile.go",
+      "line": "302",
+      "rule": "G302",
+      "details": "Expect file permissions to be 0600 or less",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/cliutil/testenv/testenv.go",
+      "line": "76",
+      "rule": "G302",
+      "details": "Expect file permissions to be 0600 or less",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generator-reserved"
+    },
+    {
+      "file": "internal/cliutil/testenv/sandbox_unix.go",
+      "line": "15",
+      "rule": "G302",
+      "details": "Expect file permissions to be 0600 or less",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generator-reserved"
+    },
+    {
+      "file": "internal/client/client.go",
+      "line": "793",
+      "rule": "G302",
+      "details": "Expect file permissions to be 0600 or less",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "3084",
+      "rule": "G104",
+      "details": "Errors unhandled",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/store/store.go",
+      "line": "2827",
+      "rule": "G104",
+      "details": "Errors unhandled",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/client/client.go",
+      "line": "1480",
+      "rule": "G104",
+      "details": "Errors unhandled",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/client/chrome.go",
+      "line": "204",
+      "rule": "G104",
+      "details": "Errors unhandled",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/client/chrome.go",
+      "line": "158",
+      "rule": "G104",
+      "details": "Errors unhandled",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/client/chrome.go",
+      "line": "151",
+      "rule": "G104",
+      "details": "Errors unhandled",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/client/chrome.go",
+      "line": "146",
+      "rule": "G104",
+      "details": "Errors unhandled",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/client/chrome.go",
+      "line": "111",
+      "rule": "G104",
+      "details": "Errors unhandled",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/client/chrome.go",
+      "line": "107",
+      "rule": "G104",
+      "details": "Errors unhandled",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/client/chrome.go",
+      "line": "97",
+      "rule": "G104",
+      "details": "Errors unhandled",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    },
+    {
+      "file": "internal/client/chrome.go",
+      "line": "80",
+      "rule": "G104",
+      "details": "Errors unhandled",
+      "disposition": "Printing Press template retro candidate",
+      "ownership": "generated foundation"
+    }
+  ],
+  "note": "The unchanged platform migration and reserved testenv scaffolds are generator-owned even though their header omits the usual Generated line. G202 migration quotes the local target path; G302 testenv deliberately protects a temporary sandbox directory at0700."
+}

@@ -1,0 +1,230 @@
+{
+  "retrieved_at": "2026-10-01T18:40:20.580050+00:00",
+  "live": true,
+  "fixtures": false,
+  "cases": [
+    {
+      "case": "tokaido",
+      "args": [
+        "fare",
+        "--from",
+        "Tokyo",
+        "--to",
+        "Shin-Osaka",
+        "--date",
+        "2026-10-02",
+        "--class",
+        "all"
+      ],
+      "exit": 0,
+      "latency_s": 1.634,
+      "stdout_bytes": 2710,
+      "stderr_bytes": 777,
+      "maximum_rss_bytes": 26705920,
+      "upstream_requests": 4,
+      "fares": {
+        "reserved": 14520,
+        "unreserved": 13870,
+        "green": 19390
+      },
+      "assertions": "passed"
+    },
+    {
+      "case": "sanyo",
+      "args": [
+        "fare",
+        "--from",
+        "Shin-Osaka",
+        "--to",
+        "Hiroshima",
+        "--date",
+        "2026-10-02",
+        "--class",
+        "all",
+        "--adults",
+        "2",
+        "--children",
+        "1"
+      ],
+      "exit": 0,
+      "latency_s": 1.641,
+      "stdout_bytes": 2747,
+      "stderr_bytes": 777,
+      "maximum_rss_bytes": 26968064,
+      "upstream_requests": 4,
+      "fares": {
+        "reserved": 10750,
+        "unreserved": 9890,
+        "green": 14410
+      },
+      "assertions": "passed"
+    },
+    {
+      "case": "kyushu",
+      "args": [
+        "fare",
+        "--from",
+        "Hakata",
+        "--to",
+        "Kagoshima-Chuo",
+        "--date",
+        "2026-10-02",
+        "--class",
+        "all"
+      ],
+      "exit": 0,
+      "latency_s": 1.686,
+      "stdout_bytes": 2807,
+      "stderr_bytes": 777,
+      "maximum_rss_bytes": 27099136,
+      "upstream_requests": 4,
+      "fares": {
+        "reserved": 11750,
+        "unreserved": 11420,
+        "green": 15410
+      },
+      "assertions": "passed"
+    },
+    {
+      "case": "reverse",
+      "args": [
+        "fare",
+        "--from",
+        "Shin-Osaka",
+        "--to",
+        "Tokyo",
+        "--date",
+        "2026-10-02",
+        "--class",
+        "reserved"
+      ],
+      "exit": 0,
+      "latency_s": 0.645,
+      "stdout_bytes": 1785,
+      "stderr_bytes": 777,
+      "maximum_rss_bytes": 25985024,
+      "upstream_requests": 2,
+      "fares": {
+        "reserved": 14520
+      },
+      "assertions": "passed"
+    },
+    {
+      "case": "through",
+      "args": [
+        "fare",
+        "--from",
+        "Tokyo",
+        "--to",
+        "Kagoshima-Chuo",
+        "--date",
+        "2026-10-02",
+        "--class",
+        "reserved"
+      ],
+      "exit": 0,
+      "latency_s": 0.647,
+      "stdout_bytes": 1849,
+      "stderr_bytes": 777,
+      "maximum_rss_bytes": 26116096,
+      "upstream_requests": 2,
+      "fares": {
+        "reserved": 32590
+      },
+      "assertions": "passed"
+    },
+    {
+      "case": "timetable",
+      "args": [
+        "timetable",
+        "--from",
+        "Tokyo",
+        "--to",
+        "Shin-Osaka",
+        "--date",
+        "2026-10-02",
+        "--limit",
+        "3"
+      ],
+      "exit": 0,
+      "latency_s": 0.298,
+      "stdout_bytes": 2892,
+      "stderr_bytes": 777,
+      "maximum_rss_bytes": 24772608,
+      "upstream_requests": 1,
+      "assertions": "passed"
+    },
+    {
+      "case": "products",
+      "args": [
+        "products",
+        "--date",
+        "2026-10-02",
+        "--detail"
+      ],
+      "exit": 0,
+      "latency_s": 2.64,
+      "stdout_bytes": 26880,
+      "stderr_bytes": 777,
+      "maximum_rss_bytes": 27820032,
+      "upstream_requests": 6,
+      "assertions": "passed"
+    },
+    {
+      "case": "sources",
+      "args": [
+        "sources",
+        "--source",
+        "baggage",
+        "--check",
+        "--limit",
+        "1"
+      ],
+      "exit": 0,
+      "latency_s": 0.198,
+      "stdout_bytes": 839,
+      "stderr_bytes": 777,
+      "maximum_rss_bytes": 25870336,
+      "upstream_requests": 1,
+      "assertions": "passed"
+    },
+    {
+      "case": "negative_station",
+      "args": [
+        "fare",
+        "--from",
+        "Osaka",
+        "--to",
+        "Tokyo",
+        "--date",
+        "2026-10-02"
+      ],
+      "exit": 2,
+      "latency_s": 0.02,
+      "stdout_bytes": 0,
+      "stderr_bytes": 879,
+      "maximum_rss_bytes": 18972672,
+      "assertions": "passed"
+    },
+    {
+      "case": "empty_timetable",
+      "args": [
+        "timetable",
+        "--from",
+        "Tokyo",
+        "--to",
+        "Shin-Osaka",
+        "--train",
+        "tsubame",
+        "--offline"
+      ],
+      "exit": 0,
+      "latency_s": 0.013,
+      "stdout_bytes": 1246,
+      "stderr_bytes": 777,
+      "maximum_rss_bytes": 19972096,
+      "upstream_requests": 0,
+      "assertions": "passed"
+    }
+  ]
+}

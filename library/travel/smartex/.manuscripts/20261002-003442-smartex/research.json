@@ -1,0 +1,243 @@
+{
+  "api_name": "smartex",
+  "novelty_score": 7,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-01T16:56:53.953614Z",
+  "novel_features": [
+    {
+      "name": "Resolve station names and corridor order",
+      "command": "stations",
+      "description": "Resolve station names and corridor order",
+      "rationale": "Combines official planning facts with explicit travel assumptions",
+      "example": "smartex-pp-cli stations --query Osaka --agent",
+      "why_it_matters": "Use for compact auditable Shinkansen planning before booking",
+      "group": "Shinkansen planning"
+    },
+    {
+      "name": "Identify corridors and train categories with booking links",
+      "command": "route",
+      "description": "Identify corridors and train categories with booking links",
+      "rationale": "Combines official planning facts with explicit travel assumptions",
+      "example": "smartex-pp-cli route --from Tokyo --to Hakata --agent",
+      "why_it_matters": "Use for compact auditable Shinkansen planning before booking",
+      "group": "Shinkansen planning"
+    },
+    {
+      "name": "Compare fresh dated adult fares and membership restrictions",
+      "command": "fare",
+      "description": "Compare fresh dated adult fares and membership restrictions",
+      "rationale": "Combines official planning facts with explicit travel assumptions",
+      "example": "smartex-pp-cli fare --from Tokyo --to Shin-Osaka --date 2026-10-02 --agent",
+      "why_it_matters": "Use for compact auditable Shinkansen planning before booking",
+      "group": "Shinkansen planning"
+    },
+    {
+      "name": "Compare discount deadlines and unresolved eligibility conditions",
+      "command": "products",
+      "description": "Compare discount deadlines and unresolved eligibility conditions",
+      "rationale": "Combines official planning facts with explicit travel assumptions",
+      "example": "smartex-pp-cli products --date 2026-10-28 --now 2026-10-02T12:00:00+09:00 --agent",
+      "why_it_matters": "Use for compact auditable Shinkansen planning before booking",
+      "group": "Shinkansen planning"
+    },
+    {
+      "name": "Compute precise JST advance request and confirmation boundaries",
+      "command": "window",
+      "description": "Compute precise JST advance request and confirmation boundaries",
+      "rationale": "Combines official planning facts with explicit travel assumptions",
+      "example": "smartex-pp-cli window --date 2026-10-28 --now 2026-10-02T12:00:00+09:00 --agent",
+      "why_it_matters": "Use for compact auditable Shinkansen planning before booking",
+      "group": "Shinkansen planning"
+    },
+    {
+      "name": "Check baggage size and required reserved seat class",
+      "command": "baggage",
+      "description": "Check baggage size and required reserved seat class",
+      "rationale": "Combines official planning facts with explicit travel assumptions",
+      "example": "smartex-pp-cli baggage --length-cm 80 --width-cm 60 --height-cm 40 --weight-kg 20 --agent",
+      "why_it_matters": "Use for compact auditable Shinkansen planning before booking",
+      "group": "Shinkansen planning"
+    },
+    {
+      "name": "Retrieve practical boarding, changes and refunds guidance",
+      "command": "policy",
+      "description": "Retrieve practical boarding, changes and refunds guidance",
+      "rationale": "Combines official planning facts with explicit travel assumptions",
+      "example": "smartex-pp-cli policy --topic refund --agent",
+      "why_it_matters": "Use for compact auditable Shinkansen planning before booking",
+      "group": "Shinkansen planning"
+    },
+    {
+      "name": "Find current official basic timetables and validated regular service examples",
+      "command": "timetable",
+      "description": "Find current official basic timetables and validated regular service examples",
+      "rationale": "Combines official planning facts with explicit travel assumptions",
+      "example": "smartex-pp-cli timetable --from Tokyo --to Shin-Osaka --agent",
+      "why_it_matters": "Use for compact auditable Shinkansen planning before booking",
+      "group": "Shinkansen planning"
+    },
+    {
+      "name": "Prepare canonical booking links and an exact travel checklist",
+      "command": "handoff",
+      "description": "Prepare canonical booking links and an exact travel checklist",
+      "rationale": "Combines official planning facts with explicit travel assumptions",
+      "example": "smartex-pp-cli handoff --from Tokyo --to Shin-Osaka --date 2026-10-28 --agent",
+      "why_it_matters": "Use for compact auditable Shinkansen planning before booking",
+      "group": "Shinkansen planning"
+    },
+    {
+      "name": "Inspect source freshness and planning versus inventory boundaries",
+      "command": "sources",
+      "description": "Inspect source freshness and planning versus inventory boundaries",
+      "rationale": "Combines official planning facts with explicit travel assumptions",
+      "example": "smartex-pp-cli sources --agent",
+      "why_it_matters": "Use for compact auditable Shinkansen planning before booking",
+      "group": "Shinkansen planning"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Resolve station names and corridor order",
+      "command": "stations",
+      "description": "Resolve station names and corridor order",
+      "rationale": "Combines official planning facts with explicit travel assumptions",
+      "example": "smartex-pp-cli stations --query Osaka --agent",
+      "why_it_matters": "Use for compact auditable Shinkansen planning before booking",
+      "group": "Shinkansen planning"
+    },
+    {
+      "name": "Identify corridors and train categories with booking links",
+      "command": "route",
+      "description": "Identify corridors and train categories with booking links",
+      "rationale": "Combines official planning facts with explicit travel assumptions",
+      "example": "smartex-pp-cli route --from Tokyo --to Hakata --agent",
+      "why_it_matters": "Use for compact auditable Shinkansen planning before booking",
+      "group": "Shinkansen planning"
+    },
+    {
+      "name": "Compare fresh dated adult fares and membership restrictions",
+      "command": "fare",
+      "description": "Compare fresh dated adult fares and membership restrictions",
+      "rationale": "Combines official planning facts with explicit travel assumptions",
+      "example": "smartex-pp-cli fare --from Tokyo --to Shin-Osaka --date 2026-10-02 --agent",
+      "why_it_matters": "Use for compact auditable Shinkansen planning before booking",
+      "group": "Shinkansen planning"
+    },
+    {
+      "name": "Compare discount deadlines and unresolved eligibility conditions",
+      "command": "products",
+      "description": "Compare discount deadlines and unresolved eligibility conditions",
+      "rationale": "Combines official planning facts with explicit travel assumptions",
+      "example": "smartex-pp-cli products --date 2026-10-28 --now 2026-10-02T12:00:00+09:00 --agent",
+      "why_it_matters": "Use for compact auditable Shinkansen planning before booking",
+      "group": "Shinkansen planning"
+    },
+    {
+      "name": "Compute precise JST advance request and confirmation boundaries",
+      "command": "window",
+      "description": "Compute precise JST advance request and confirmation boundaries",
+      "rationale": "Combines official planning facts with explicit travel assumptions",
+      "example": "smartex-pp-cli window --date 2026-10-28 --now 2026-10-02T12:00:00+09:00 --agent",
+      "why_it_matters": "Use for compact auditable Shinkansen planning before booking",
+      "group": "Shinkansen planning"
+    },
+    {
+      "name": "Check baggage size and required reserved seat class",
+      "command": "baggage",
+      "description": "Check baggage size and required reserved seat class",
+      "rationale": "Combines official planning facts with explicit travel assumptions",
+      "example": "smartex-pp-cli baggage --length-cm 80 --width-cm 60 --height-cm 40 --weight-kg 20 --agent",
+      "why_it_matters": "Use for compact auditable Shinkansen planning before booking",
+      "group": "Shinkansen planning"
+    },
+    {
+      "name": "Retrieve practical boarding, changes and refunds guidance",
+      "command": "policy",
+      "description": "Retrieve practical boarding, changes and refunds guidance",
+      "rationale": "Combines official planning facts with explicit travel assumptions",
+      "example": "smartex-pp-cli policy --topic refund --agent",
+      "why_it_matters": "Use for compact auditable Shinkansen planning before booking",
+      "group": "Shinkansen planning"
+    },
+    {
+      "name": "Find current official basic timetables and validated regular service examples",
+      "command": "timetable",
+      "description": "Find current official basic timetables and validated regular service examples",
+      "rationale": "Combines official planning facts with explicit travel assumptions",
+      "example": "smartex-pp-cli timetable --from Tokyo --to Shin-Osaka --agent",
+      "why_it_matters": "Use for compact auditable Shinkansen planning before booking",
+      "group": "Shinkansen planning"
+    },
+    {
+      "name": "Prepare canonical booking links and an exact travel checklist",
+      "command": "handoff",
+      "description": "Prepare canonical booking links and an exact travel checklist",
+      "rationale": "Combines official planning facts with explicit travel assumptions",
+      "example": "smartex-pp-cli handoff --from Tokyo --to Shin-Osaka --date 2026-10-28 --agent",
+      "why_it_matters": "Use for compact auditable Shinkansen planning before booking",
+      "group": "Shinkansen planning"
+    },
+    {
+      "name": "Inspect source freshness and planning versus inventory boundaries",
+      "command": "sources",
+      "description": "Inspect source freshness and planning versus inventory boundaries",
+      "rationale": "Combines official planning facts with explicit travel assumptions",
+      "example": "smartex-pp-cli sources --agent",
+      "why_it_matters": "Use for compact auditable Shinkansen planning before booking",
+      "group": "Shinkansen planning"
+    }
+  ],
+  "narrative": {
+    "display_name": "smartEX",
+    "headline": "Compare Shinkansen fares and constraints before booking",
+    "value_prop": "Read-only dated adult fares, discount deadlines and baggage checks from smartEX and linked JR sources. Plan with Japanese station names and precise JST dates, then book through the official site.",
+    "auth_narrative": "Public planning commands need no login. Exact trains and seat inventory are available through the canonical member booking handoff.",
+    "quickstart": [
+      {
+        "command": "smartex-pp-cli doctor --dry-run",
+        "comment": "Check installation without a network call"
+      },
+      {
+        "command": "smartex-pp-cli stations --query Osaka --agent",
+        "comment": "Resolve a station before planning"
+      },
+      {
+        "command": "smartex-pp-cli fare --from Tokyo --to Shin-Osaka --date 2026-10-02 --agent",
+        "comment": "Compare a public dated adult quote"
+      }
+    ],
+    "when_to_use": "Use for read-only Tokaido, Sanyo and Kyushu Shinkansen route, fare, product, baggage and booking-window planning. Use the official booking site for exact seats.",
+    "anti_triggers": [
+      "Real bookings, payments, accounts and reservation mutation",
+      "Guaranteed availability or complete dated train inventory",
+      "Child fare estimates unsupported by the public navigator"
+    ],
+    "recipes": [
+      {
+        "title": "fare",
+        "command": "smartex-pp-cli fare --from Tokyo --to Shin-Osaka --date 2026-10-02 --agent --select quotes",
+        "explanation": "Compare fresh dated adult fares and membership restrictions"
+      },
+      {
+        "title": "window",
+        "command": "smartex-pp-cli window --date 2026-10-28 --now 2026-10-02T12:00:00+09:00 --agent",
+        "explanation": "Compute precise JST advance request and confirmation boundaries"
+      },
+      {
+        "title": "baggage",
+        "command": "smartex-pp-cli baggage --length-cm 80 --width-cm 60 --height-cm 40 --weight-kg 20 --agent",
+        "explanation": "Check baggage size and required reserved seat class"
+      }
+    ],
+    "trigger_phrases": [
+      "compare Shinkansen fares",
+      "smartEX booking deadline",
+      "Shinkansen oversized baggage",
+      "use smartex",
+      "run smartex"
+    ]
+  }
+}

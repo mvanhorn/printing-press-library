@@ -1,0 +1,329 @@
+[
+  {
+    "case": "offline",
+    "args": [
+      "timetable",
+      "--from",
+      "Tokyo",
+      "--to",
+      "Shin-Osaka",
+      "--offline"
+    ],
+    "exit": 0,
+    "output": {
+      "meta": {
+        "source": "local"
+      },
+      "results": {
+        "booking_url": "https://shinkansen2.jr-central.co.jp/RSV_P/smart_en_index.htm",
+        "complete": false,
+        "coverage": "curated_basic_examples",
+        "effective_from": "2026-03-14",
+        "from": "Tokyo",
+        "notes": [
+          "Limited curated regular service examples, visually verified against2026-03-14 basic JR timetable; not every train or stop is represented",
+          "Schedules, extras and operating calendars depend on date; requested-date operation and inventory are unknown",
+          "Intermediate timetable rows may show departure only; arrival and duration stay null in that case",
+          "Nozomi is all-reserved in major peak periods; confirm current date/class in official booking"
+        ],
+        "offline": true,
+        "publications": [],
+        "requested_date_jst": "",
+        "services": [
+          {
+            "arrival_jst": "08:22",
+            "departure_jst": "06:00",
+            "destination_departure_jst": null,
+            "duration_minutes": 142,
+            "from": "tokyo",
+            "inventory": null,
+            "number": 1,
+            "operates_on_requested_date": null,
+            "source_pdf_page": 2,
+            "source_url": "https://global.jr-central.co.jp/en/info/timetable/_pdf/shinkansen_west_bound2603.pdf",
+            "to": "shin-osaka",
+            "train": "nozomi"
+          },
+          {
+            "arrival_jst": "09:21",
+            "departure_jst": "06:21",
+            "destination_departure_jst": null,
+            "duration_minutes": 180,
+            "from": "tokyo",
+            "inventory": null,
+            "number": 631,
+            "operates_on_requested_date": null,
+            "source_pdf_page": 2,
+            "source_url": "https://global.jr-central.co.jp/en/info/timetable/_pdf/shinkansen_west_bound2603.pdf",
+            "to": "shin-osaka",
+            "train": "hikari"
+          }
+        ],
+        "snapshot_matches_current_pdf_links": null,
+        "snapshot_publications": [
+          "https://global.jr-central.co.jp/en/info/timetable/_pdf/shinkansen_west_bound2603.pdf",
+          "https://global.jr-central.co.jp/en/info/timetable/_pdf/shinkansen_east_bound2603.pdf"
+        ],
+        "source_check": null,
+        "timezone": "Asia/Tokyo",
+        "to": "Shin-Osaka",
+        "upstream_requests": 0
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "case": "advance_map",
+    "args": [
+      "window",
+      "--date",
+      "2027-02-28",
+      "--now",
+      "2026-10-02T12:00:00+09:00"
+    ],
+    "exit": 0,
+    "output": {
+      "meta": {
+        "source": "computed"
+      },
+      "results": {
+        "advance_request_ends_jst": "2027-01-28T07:30:00+09:00",
+        "after_hours": false,
+        "availability": null,
+        "boarding_date_jst": "2027-02-28",
+        "class": "reserved",
+        "closes_jst": null,
+        "confirmation_sources": {
+          "current_japanese_advance_page": "2027-01-28T08:00:00+09:00",
+          "english_accept_time_page": "2027-01-28T14:00:00+09:00"
+        },
+        "maximum_party_per_operation_now": 6,
+        "notes": [
+          "Window status checks calendar rules, not product route eligibility or available seats",
+          "Maintenance, card authorization and product exclusions can prevent a reservation",
+          "Seat map availability here means calendar/class permission only, not a live seat map or available seat",
+          "Official Japanese and English pages disagree on confirmation time (08:00 versus14:00 JST); exact completion time is unknown; check booking email/My Trips",
+          "Provide --departure HH:MM for the four-minute purchase cutoff"
+        ],
+        "now_jst": "2026-10-02T12:00:00+09:00",
+        "one_year_request_eligible": true,
+        "opens_jst": "2026-02-28T05:30:00+09:00",
+        "party_fits_one_operation_now": true,
+        "product_id": "smart-ex",
+        "reservation_operations_permitted_by_calendar": true,
+        "seat_map_available_now": false,
+        "sources": [
+          {
+            "as_of": "2026-10-02",
+            "id": "window",
+            "kind": "official_policy",
+            "url": "https://smart-ex.jp/en/reservation/useful/accept_time/"
+          },
+          {
+            "as_of": "2026-10-02",
+            "id": "advance-jp",
+            "kind": "official_policy",
+            "url": "https://smart-ex.jp/reservation/useful/pre_time/"
+          }
+        ],
+        "standard_seat_sales_open_jst": "2027-01-28T10:00:00+09:00",
+        "train_and_seat_confirmation_jst": null,
+        "window_status": "within_calendar_window"
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "case": "oversized_green",
+    "args": [
+      "window",
+      "--date",
+      "2026-10-20",
+      "--now",
+      "2026-10-02T12:00:00+09:00",
+      "--oversized-baggage",
+      "--class",
+      "green",
+      "--adults",
+      "5"
+    ],
+    "exit": 0,
+    "output": {
+      "meta": {
+        "source": "computed"
+      },
+      "results": {
+        "advance_request_ends_jst": "2026-09-20T07:30:00+09:00",
+        "after_hours": false,
+        "availability": null,
+        "boarding_date_jst": "2026-10-20",
+        "class": "green",
+        "closes_jst": null,
+        "confirmation_sources": {
+          "current_japanese_advance_page": "2026-09-20T08:00:00+09:00",
+          "english_accept_time_page": "2026-09-20T14:00:00+09:00"
+        },
+        "maximum_party_per_operation_now": 4,
+        "notes": [
+          "Window status checks calendar rules, not product route eligibility or available seats",
+          "Maintenance, card authorization and product exclusions can prevent a reservation",
+          "Seat map availability here means calendar/class permission only, not a live seat map or available seat",
+          "Official Japanese and English pages disagree on confirmation time (08:00 versus14:00 JST); exact completion time is unknown; check booking email/My Trips",
+          "Oversized-area seats allow at most five ordinary or four Green passengers in one operation; no cross-car grouping, and train-specific exceptions require confirmation",
+          "Official Japanese and English guidance differs on oversized one-year eligibility; actual eligibility and earliest opening are unknown. Standard one-month seat sales are the known fallback",
+          "Provide --departure HH:MM for the four-minute purchase cutoff"
+        ],
+        "now_jst": "2026-10-02T12:00:00+09:00",
+        "one_year_request_eligible": null,
+        "opens_jst": null,
+        "oversized_source_rules": {
+          "current_japanese": "Advance guidance excludes some train sections/facilities; current oversized guidance does not categorically exclude after-hours requests",
+          "english": "Oversized seats are excluded from one-year, pre-sale and after-hours requests"
+        },
+        "party_fits_one_operation_now": false,
+        "product_id": "smart-ex",
+        "reservation_operations_permitted_by_calendar": true,
+        "seat_map_available_now": true,
+        "sources": [
+          {
+            "as_of": "2026-10-02",
+            "id": "window",
+            "kind": "official_policy",
+            "url": "https://smart-ex.jp/en/reservation/useful/accept_time/"
+          },
+          {
+            "as_of": "2026-10-02",
+            "id": "advance-jp",
+            "kind": "official_policy",
+            "url": "https://smart-ex.jp/reservation/useful/pre_time/"
+          },
+          {
+            "as_of": "2026-10-02",
+            "id": "baggage-reservation",
+            "kind": "official_policy",
+            "url": "https://smart-ex.jp/en/entraining/oversized-baggage/"
+          },
+          {
+            "as_of": "2026-10-02",
+            "id": "window-jp",
+            "kind": "official_policy",
+            "url": "https://smart-ex.jp/reservation/useful/accept_time/"
+          },
+          {
+            "as_of": "2026-10-02",
+            "id": "baggage-reservation-jp",
+            "kind": "official_policy",
+            "url": "https://smart-ex.jp/reservation/reserve_smart/oversized-baggage/"
+          }
+        ],
+        "standard_seat_sales_open_jst": "2026-09-20T10:00:00+09:00",
+        "train_and_seat_confirmation_jst": null,
+        "window_status": "within_calendar_window"
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "case": "oversized_night",
+    "args": [
+      "window",
+      "--date",
+      "2026-10-20",
+      "--now",
+      "2026-10-02T23:30:00+09:00",
+      "--oversized-baggage"
+    ],
+    "exit": 0,
+    "output": {
+      "meta": {
+        "source": "computed"
+      },
+      "results": {
+        "advance_request_ends_jst": "2026-09-20T07:30:00+09:00",
+        "after_hours": true,
+        "availability": null,
+        "boarding_date_jst": "2026-10-20",
+        "class": "reserved",
+        "closes_jst": null,
+        "confirmation_sources": {
+          "current_japanese_advance_page": "2026-09-20T08:00:00+09:00",
+          "english_accept_time_page": "2026-09-20T14:00:00+09:00"
+        },
+        "maximum_party_per_operation_now": 3,
+        "notes": [
+          "Window status checks calendar rules, not product route eligibility or available seats",
+          "Maintenance, card authorization and product exclusions can prevent a reservation",
+          "Seat map availability here means calendar/class permission only, not a live seat map or available seat",
+          "Official Japanese and English pages disagree on confirmation time (08:00 versus14:00 JST); exact completion time is unknown; check booking email/My Trips",
+          "Oversized-area seats allow at most five ordinary or four Green passengers in one operation; no cross-car grouping, and train-specific exceptions require confirmation",
+          "Official Japanese and English guidance differs on oversized one-year eligibility; actual eligibility and earliest opening are unknown. Standard one-month seat sales are the known fallback",
+          "Provide --departure HH:MM for the four-minute purchase cutoff",
+          "English guidance prohibits after-hours oversized requests; current Japanese guidance is less explicit. Actual overnight eligibility is unknown; use daytime booking confirmation"
+        ],
+        "now_jst": "2026-10-02T23:30:00+09:00",
+        "one_year_request_eligible": null,
+        "opens_jst": null,
+        "oversized_source_rules": {
+          "current_japanese": "Advance guidance excludes some train sections/facilities; current oversized guidance does not categorically exclude after-hours requests",
+          "english": "Oversized seats are excluded from one-year, pre-sale and after-hours requests"
+        },
+        "party_fits_one_operation_now": null,
+        "product_id": "smart-ex",
+        "reservation_operations_permitted_by_calendar": null,
+        "seat_map_available_now": false,
+        "sources": [
+          {
+            "as_of": "2026-10-02",
+            "id": "window",
+            "kind": "official_policy",
+            "url": "https://smart-ex.jp/en/reservation/useful/accept_time/"
+          },
+          {
+            "as_of": "2026-10-02",
+            "id": "advance-jp",
+            "kind": "official_policy",
+            "url": "https://smart-ex.jp/reservation/useful/pre_time/"
+          },
+          {
+            "as_of": "2026-10-02",
+            "id": "baggage-reservation",
+            "kind": "official_policy",
+            "url": "https://smart-ex.jp/en/entraining/oversized-baggage/"
+          },
+          {
+            "as_of": "2026-10-02",
+            "id": "window-jp",
+            "kind": "official_policy",
+            "url": "https://smart-ex.jp/reservation/useful/accept_time/"
+          },
+          {
+            "as_of": "2026-10-02",
+            "id": "baggage-reservation-jp",
+            "kind": "official_policy",
+            "url": "https://smart-ex.jp/reservation/reserve_smart/oversized-baggage/"
+          }
+        ],
+        "standard_seat_sales_open_jst": "2026-09-20T10:00:00+09:00",
+        "train_and_seat_confirmation_jst": null,
+        "window_status": "after_hours_eligibility_requires_confirmation"
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "case": "invalid_date",
+    "args": [
+      "timetable",
+      "--from",
+      "Tokyo",
+      "--to",
+      "Shin-Osaka",
+      "--date",
+      "2026-02-30",
+      "--offline"
+    ],
+    "exit": 2,
+    "output": null,
+    "stderr": "Error: --date must be a valid YYYY-MM-DD calendar date in JST\n"
+  }
+]

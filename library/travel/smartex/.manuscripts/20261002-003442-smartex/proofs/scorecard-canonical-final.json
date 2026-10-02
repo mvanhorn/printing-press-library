@@ -1,0 +1,127 @@
+{
+  "live_check": {
+    "passed": 10,
+    "failed": 0,
+    "skipped": 0,
+    "features": [
+      {
+        "name": "Resolve station names and corridor order",
+        "command": "stations",
+        "example": "smartex-pp-cli stations --query Osaka --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Identify corridors and train categories with booking links",
+        "command": "route",
+        "example": "smartex-pp-cli route --from Tokyo --to Hakata --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Compare fresh dated adult fares and membership restrictions",
+        "command": "fare",
+        "example": "smartex-pp-cli fare --from Tokyo --to Shin-Osaka --date 2026-10-02 --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Compare discount deadlines and unresolved eligibility conditions",
+        "command": "products",
+        "example": "smartex-pp-cli products --date 2026-10-28 --now 2026-10-02T12:00:00+09:00 --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Compute precise JST advance request and confirmation boundaries",
+        "command": "window",
+        "example": "smartex-pp-cli window --date 2026-10-28 --now 2026-10-02T12:00:00+09:00 --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Check baggage size and required reserved seat class",
+        "command": "baggage",
+        "example": "smartex-pp-cli baggage --length-cm 80 --width-cm 60 --height-cm 40 --weight-kg 20 --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Retrieve practical boarding, changes and refunds guidance",
+        "command": "policy",
+        "example": "smartex-pp-cli policy --topic refund --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Find current official basic timetables and validated regular service examples",
+        "command": "timetable",
+        "example": "smartex-pp-cli timetable --from Tokyo --to Shin-Osaka --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Prepare canonical booking links and an exact travel checklist",
+        "command": "handoff",
+        "example": "smartex-pp-cli handoff --from Tokyo --to Shin-Osaka --date 2026-10-28 --agent",
+        "status": "pass"
+      },
+      {
+        "name": "Inspect source freshness and planning versus inventory boundaries",
+        "command": "sources",
+        "example": "smartex-pp-cli sources --agent",
+        "status": "pass"
+      }
+    ],
+    "binary_refresh": {
+      "action": "fresh",
+      "stage_path": "<local-artifact>",
+      "binary_path": "<local-artifact>",
+      "reason": "staged binary is newer than Go sources"
+    },
+    "ran_at": "2026-10-01T19:38:36.202668Z",
+    "status": "available",
+    "checked": 10,
+    "evaluated": 10,
+    "pass_rate_pct": 100
+  },
+  "scorecard": {
+    "api_name": "smartex",
+    "steinberger": {
+      "output_modes": 10,
+      "auth": 10,
+      "error_handling": 8,
+      "terminal_ux": 9,
+      "readme": 10,
+      "doctor": 10,
+      "agent_native": 10,
+      "mcp_quality": 7,
+      "mcp_description_quality": 10,
+      "mcp_token_efficiency": 10,
+      "mcp_remote_transport": 10,
+      "mcp_tool_design": 0,
+      "mcp_surface_strategy": 0,
+      "local_cache": 10,
+      "cache_freshness": 3,
+      "breadth": 9,
+      "vision": 5,
+      "workflows": 10,
+      "insight": 10,
+      "agent_workflow_readiness": 9,
+      "path_validity": 0,
+      "auth_protocol": 0,
+      "data_pipeline_integrity": 7,
+      "sync_correctness": 7,
+      "type_fidelity": 5,
+      "dead_code": 5,
+      "live_api_verification": 0,
+      "total": 80,
+      "percentage": 80,
+      "calibration_note": "Score raised from 74 to 80 based on verify pass rate"
+    },
+    "competitor_scores": null,
+    "overall_grade": "A",
+    "gap_report": [
+      "path_validity scored 0/10 - needs improvement",
+      "MCP: 14 tools (14 public, 0 auth-required) — readiness: full"
+    ],
+    "unscored_dimensions": [
+      "mcp_tool_design",
+      "mcp_surface_strategy",
+      "auth_protocol",
+      "live_api_verification"
+    ]
+  }
+}

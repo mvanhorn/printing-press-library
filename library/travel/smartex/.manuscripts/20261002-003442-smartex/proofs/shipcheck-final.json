@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "verdict": "PASS",
+  "started_at": "2026-10-01T19:19:18Z",
+  "elapsed_ms": 10053,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T19:19:18Z",
+      "elapsed_ms": 2600,
+      "command": "<local-artifact> verify --dir <local-artifact> --write-manifest <local-artifact> --spec <local-artifact>"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T19:19:21Z",
+      "elapsed_ms": 118,
+      "command": "<local-artifact> validate-narrative --strict --full-examples --research <local-artifact> --binary <local-artifact>"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T19:19:21Z",
+      "elapsed_ms": 2514,
+      "command": "<local-artifact> dogfood --dir <local-artifact> --spec <local-artifact> --research-dir <local-artifact>"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T19:19:23Z",
+      "elapsed_ms": 1469,
+      "command": "<local-artifact> workflow-verify --dir <local-artifact>"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T19:19:25Z",
+      "elapsed_ms": 48,
+      "command": "<local-artifact> apify-audit --dir <local-artifact> --research-dir <local-artifact>"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T19:19:25Z",
+      "elapsed_ms": 1527,
+      "command": "<local-artifact> verify-skill --dir <local-artifact>"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-01T19:19:26Z",
+      "elapsed_ms": 1774,
+      "command": "<local-artifact> scorecard --dir <local-artifact> --write-manifest <local-artifact> --research-dir <local-artifact> --spec <local-artifact> --live-check"
+    }
+  ]
+}

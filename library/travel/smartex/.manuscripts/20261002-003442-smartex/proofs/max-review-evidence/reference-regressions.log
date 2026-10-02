@@ -1,0 +1,11 @@
+=== RUN   TestReviewReferenceHTMLBound
+    review_regressions_test.go:10: body_bytes=2097178 returned_bytes=2097178 error=<nil>
+    review_regressions_test.go:11: reference HTML above promised 512KiB cap was accepted (2097178 bytes)
+--- FAIL: TestReviewReferenceHTMLBound (0.00s)
+=== RUN   TestReviewReferenceAutoHasTwoRPSCeiling
+    review_regressions_test.go:15: initial=2.00 after10successes=2.50
+    review_regressions_test.go:16: reference pacing exceeds promised 2RPS ceiling: 2.5
+--- FAIL: TestReviewReferenceAutoHasTwoRPSCeiling (0.00s)
+FAIL
+FAIL	smartex-pp-cli/internal/client	0.536s
+FAIL

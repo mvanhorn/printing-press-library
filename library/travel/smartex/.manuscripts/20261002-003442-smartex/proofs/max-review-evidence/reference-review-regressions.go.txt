@@ -1,0 +1,17 @@
+package client
+import("context";"io";"net/http";"strings";"testing";"time";"smartex-pp-cli/internal/config")
+type reviewTransport func(*http.Request)(*http.Response,error)
+func(rt reviewTransport)RoundTrip(r *http.Request)(*http.Response,error){return rt(r)}
+func TestReviewReferenceHTMLBound(t *testing.T){
+ c:=New(&config.Config{BaseURL:"https://smart-ex.jp"},time.Second,2);c.NoCache=true
+ body:="<html><body>"+strings.Repeat("x",2<<20)+"</body></html>"
+ c.HTTPClient=&http.Client{Transport:reviewTransport(func(r *http.Request)(*http.Response,error){return &http.Response{StatusCode:200,Header:http.Header{"Content-Type":{"text/html"}},Body:io.NopCloser(strings.NewReader(body))},nil})}
+ data,err:=c.GetWithHeaders(context.Background(),"/en/product/plan/service/",nil,map[string]string{HTMLResponseHeader:"true"})
+ t.Logf("body_bytes=%d returned_bytes=%d error=%v",len(body),len(data),err)
+ if err==nil{t.Fatalf("reference HTML above promised 512KiB cap was accepted (%d bytes)",len(data))}
+}
+func TestReviewReferenceAutoHasTwoRPSCeiling(t *testing.T){
+ c:=New(&config.Config{BaseURL:"https://smart-ex.jp"},time.Second,RateLimitAuto)
+ initial:=c.limiter.Rate();for i:=0;i<10;i++{c.limiter.OnSuccess()};rate:=c.limiter.Rate();t.Logf("initial=%.2f after10successes=%.2f",initial,rate)
+ if rate>2{t.Fatalf("reference pacing exceeds promised 2RPS ceiling: %v",rate)}
+}

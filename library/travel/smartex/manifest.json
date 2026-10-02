@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "smartex-pp-mcp",
+  "display_name": "smartEX",
+  "version": "0.1.0",
+  "description": "Compare Shinkansen fares and constraints before booking",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/smartex-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/smartex-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

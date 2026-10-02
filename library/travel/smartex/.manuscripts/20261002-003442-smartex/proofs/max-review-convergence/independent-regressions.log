@@ -1,0 +1,19 @@
+=== RUN   TestReviewAllQuote429KeepsType
+    review_regressions_test.go:25: requests=4 failures=[{Class:reserved Source: Error:rate limited: HTTP 429 for https://unchin-navi.jp/cgi-bin/plusex/tokai_exic.cgi; retry after 7s} {Class:unreserved Source: Error:rate limited: HTTP 429 for https://unchin-navi.jp/cgi-bin/plusex/tokai_exic.cgi; retry after 7s} {Class:green Source: Error:rate limited: HTTP 429 for https://unchin-navi.jp/cgi-bin/plusex/tokai_exic.cgi; retry after 7s}] error=rate limited: HTTP 429 for https://unchin-navi.jp/cgi-bin/plusex/tokai_exic.cgi; retry after 7s typed=true
+--- PASS: TestReviewAllQuote429KeepsType (0.00s)
+=== RUN   TestReviewTimetable429KeepsType
+    review_regressions_test.go:31: error=timetable source check failed: rate limited: HTTP 429 for https://global.jr-central.co.jp/en/info/timetable/; retry after 7s; use --offline for the explicitly dated snapshot typed=true
+--- PASS: TestReviewTimetable429KeepsType (0.00s)
+=== RUN   TestReviewChangedPublicationReturnsFreshLinks
+    review_regressions_test.go:37: matches_current=false publications=[https://global.jr-central.co.jp/en/info/timetable/_pdf/shinkansen_west_boundNEW.pdf https://global.jr-central.co.jp/en/info/timetable/_pdf/shinkansen_east_boundNEW.pdf] source_check={Source:{ID:timetable URL:https://global.jr-central.co.jp/en/info/timetable/ Kind:published_basic_timetable AsOf:2026-03-14} Status:http_200_public_page RetrievedAt:2026-10-02T03:45:18+09:00 Bytes:238 Links:[{Text:New west URL:https://global.jr-central.co.jp/en/info/timetable/_pdf/shinkansen_west_boundNEW.pdf} {Text:New east URL:https://global.jr-central.co.jp/en/info/timetable/_pdf/shinkansen_east_boundNEW.pdf}] Error: Err:<nil>} services=[]
+--- PASS: TestReviewChangedPublicationReturnsFreshLinks (0.00s)
+PASS
+ok  	smartex-pp-cli/internal/smartex	0.629s
+=== RUN   TestReviewReferenceHTMLBound
+    review_regressions_test.go:10: body_bytes=2097178 returned_bytes=0 error=reading response: public response exceeds 512KiB limit
+--- PASS: TestReviewReferenceHTMLBound (0.00s)
+=== RUN   TestReviewReferenceAutoHasTwoRPSCeiling
+    review_regressions_test.go:15: initial=2.00 after10successes=2.00
+--- PASS: TestReviewReferenceAutoHasTwoRPSCeiling (0.00s)
+PASS
+ok  	smartex-pp-cli/internal/client	0.996s

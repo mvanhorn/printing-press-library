@@ -1,0 +1,8 @@
+ok  	smartex-pp-cli/internal/smartex	0.476s
+ok  	smartex-pp-cli/internal/cli	1.503s
+ok  	smartex-pp-cli/internal/client	2.270s
+--- FAIL: TestMCPRegisterToolsPreservesTypedSpecialTools (0.00s)
+    tools_test.go:102: sql tool appears to have been overwritten by command mirror: "Read-only SQL scaffold. This smartEX planning CLI has no sync and stores no trip-planning records; use the planning tools for travel questions."
+FAIL
+FAIL	smartex-pp-cli/internal/mcp	0.557s
+FAIL

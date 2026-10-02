@@ -1,0 +1,184 @@
+[
+  {
+    "case": "advance_map",
+    "exit": 0,
+    "meta": {
+      "source": "computed"
+    },
+    "window_status": "within_calendar_window",
+    "seat_map_available_now": false,
+    "reservation_operations_permitted_by_calendar": true,
+    "one_year_request_eligible": true,
+    "opens_jst": "2026-02-28T05:30:00+09:00",
+    "maximum_party_per_operation_now": 6,
+    "party_fits_one_operation_now": true
+  },
+  {
+    "case": "handoff",
+    "exit": 0,
+    "meta": {
+      "source": "computed"
+    },
+    "checklist": [
+      "東京 → 新大阪",
+      "2026-10-28 JST",
+      "adults: 1, children: 0; reserved class",
+      "Confirm train/date, total fare and each passenger seat",
+      "Choose oversized baggage area seats if required",
+      "Confirm product exclusion dates and change/refund rules",
+      "Choose QR/assigned IC/paper boarding method"
+    ]
+  },
+  {
+    "case": "invalid_date",
+    "exit": 2,
+    "meta": null
+  },
+  {
+    "case": "leap_known_sales",
+    "exit": 0,
+    "meta": {
+      "source": "computed"
+    },
+    "window_status": "within_calendar_window",
+    "seat_map_available_now": true,
+    "reservation_operations_permitted_by_calendar": true,
+    "one_year_request_eligible": true,
+    "opens_jst": null,
+    "maximum_party_per_operation_now": 6,
+    "party_fits_one_operation_now": true
+  },
+  {
+    "case": "leap_unknown",
+    "exit": 0,
+    "meta": {
+      "source": "computed"
+    },
+    "window_status": "unknown",
+    "seat_map_available_now": false,
+    "reservation_operations_permitted_by_calendar": null,
+    "one_year_request_eligible": true,
+    "opens_jst": null,
+    "maximum_party_per_operation_now": 6,
+    "party_fits_one_operation_now": true
+  },
+  {
+    "case": "local",
+    "exit": 0,
+    "meta": {
+      "source": "local"
+    },
+    "snapshot_matches_current_pdf_links": null
+  },
+  {
+    "case": "offline",
+    "exit": 0,
+    "meta": {
+      "source": "local"
+    },
+    "snapshot_matches_current_pdf_links": null
+  },
+  {
+    "case": "oversized_annual",
+    "exit": 0,
+    "meta": {
+      "source": "computed"
+    },
+    "window_status": "advance_eligibility_requires_confirmation",
+    "seat_map_available_now": false,
+    "reservation_operations_permitted_by_calendar": null,
+    "one_year_request_eligible": null,
+    "opens_jst": null,
+    "maximum_party_per_operation_now": 5,
+    "party_fits_one_operation_now": true
+  },
+  {
+    "case": "oversized_green_five",
+    "exit": 0,
+    "meta": {
+      "source": "computed"
+    },
+    "window_status": "within_calendar_window",
+    "seat_map_available_now": true,
+    "reservation_operations_permitted_by_calendar": true,
+    "one_year_request_eligible": null,
+    "opens_jst": null,
+    "maximum_party_per_operation_now": 4,
+    "party_fits_one_operation_now": false
+  },
+  {
+    "case": "oversized_overnight",
+    "exit": 0,
+    "meta": {
+      "source": "computed"
+    },
+    "window_status": "after_hours_eligibility_requires_confirmation",
+    "seat_map_available_now": false,
+    "reservation_operations_permitted_by_calendar": null,
+    "one_year_request_eligible": null,
+    "opens_jst": null,
+    "maximum_party_per_operation_now": 3,
+    "party_fits_one_operation_now": null
+  },
+  {
+    "case": "oversized_six",
+    "exit": 0,
+    "meta": {
+      "source": "computed"
+    },
+    "window_status": "within_calendar_window",
+    "seat_map_available_now": true,
+    "reservation_operations_permitted_by_calendar": true,
+    "one_year_request_eligible": null,
+    "opens_jst": null,
+    "maximum_party_per_operation_now": 5,
+    "party_fits_one_operation_now": false
+  },
+  {
+    "case": "oversized_unreserved",
+    "exit": 2,
+    "meta": null
+  },
+  {
+    "case": "processing_map",
+    "exit": 0,
+    "meta": {
+      "source": "computed"
+    },
+    "window_status": "confirmation_processing_gap",
+    "seat_map_available_now": false,
+    "reservation_operations_permitted_by_calendar": false,
+    "one_year_request_eligible": true,
+    "opens_jst": "2025-11-02T05:30:00+09:00",
+    "maximum_party_per_operation_now": 6,
+    "party_fits_one_operation_now": true
+  },
+  {
+    "case": "leap_before",
+    "passed": true,
+    "window_status": "unknown",
+    "permission": null,
+    "map": false
+  },
+  {
+    "case": "leap_gap",
+    "passed": true,
+    "window_status": "confirmation_processing_gap",
+    "permission": false,
+    "map": false
+  },
+  {
+    "case": "leap_at",
+    "passed": true,
+    "window_status": "within_calendar_window",
+    "permission": true,
+    "map": true
+  },
+  {
+    "case": "leap_after",
+    "passed": true,
+    "window_status": "within_calendar_window",
+    "permission": true,
+    "map": true
+  }
+]

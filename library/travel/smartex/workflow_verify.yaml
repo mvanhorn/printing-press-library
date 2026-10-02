@@ -1,0 +1,18 @@
+workflows:
+  - name: Public route fare and booking handoff
+    primary: true
+    steps:
+      - command: stations --query Tokyo --limit 1
+        mode: local
+        expect_fields: [stations]
+      - command: route --from Tokyo --to Shin-Osaka
+        mode: local
+        expect_fields: [from, to, corridors]
+      - command: fare --from Tokyo --to Shin-Osaka --class reserved
+        mode: live
+        expect_fields: [date_jst, quotes, upstream_requests]
+        extract:
+          travel_date: date_jst
+      - command: handoff --from Tokyo --to Shin-Osaka --date ${travel_date}
+        mode: local
+        expect_fields: [booking_url, checklist, mutation_performed]

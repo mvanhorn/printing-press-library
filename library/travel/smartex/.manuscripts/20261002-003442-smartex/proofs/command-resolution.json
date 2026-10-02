@@ -1,0 +1,52 @@
+[
+  {
+    "command": "stations",
+    "help": "pass",
+    "dry_run_json": "pass"
+  },
+  {
+    "command": "route",
+    "help": "pass",
+    "dry_run_json": "pass"
+  },
+  {
+    "command": "fare",
+    "help": "pass",
+    "dry_run_json": "pass"
+  },
+  {
+    "command": "products",
+    "help": "pass",
+    "dry_run_json": "pass"
+  },
+  {
+    "command": "window",
+    "help": "pass",
+    "dry_run_json": "pass"
+  },
+  {
+    "command": "baggage",
+    "help": "pass",
+    "dry_run_json": "pass"
+  },
+  {
+    "command": "policy",
+    "help": "pass",
+    "dry_run_json": "pass"
+  },
+  {
+    "command": "timetable",
+    "help": "pass",
+    "dry_run_json": "pass"
+  },
+  {
+    "command": "handoff",
+    "help": "pass",
+    "dry_run_json": "pass"
+  },
+  {
+    "command": "sources",
+    "help": "pass",
+    "dry_run_json": "pass"
+  }
+]

@@ -1,0 +1,107 @@
+{
+  "dir": "<local-artifact>",
+  "spec_path": "<local-artifact>",
+  "spec_source": "bundled",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 23,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 101,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": false,
+    "search_calls_domain": false,
+    "domain_tables": 1,
+    "sync_file_emitted": false,
+    "sync_resources_present": false,
+    "detail": "sync Upsert calls not found; search methods not found; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 51,
+      "registered": 51
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "total_steps": 4,
+      "mapped_steps": 3,
+      "unmapped_steps": [
+        "handoff --from Tokyo --to Shin-Osaka --date ${travel_date}"
+      ],
+      "detail": "3/4 workflow steps mapped to commands"
+    }
+  },
+  "novel_features_check": {
+    "planned": 10,
+    "found": 10
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 10,
+    "exempted_via_store": 0,
+    "exempted_via_computed_data_source": 5,
+    "exempted_via_local_data_source": 3
+  },
+  "description_drift_check": {
+    "expected": "Compare Shinkansen fares and constraints before booking"
+  },
+  "source_client_check": {
+    "checked": 13
+  },
+  "print_json_filtered_check": {
+    "checked": 41
+  },
+  "test_presence": {
+    "checked": 2
+  },
+  "naming_check": {
+    "checked": 41
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "sync uses generic Upsert only",
+    "1 unmapped workflow steps: handoff --from Tokyo --to Shin-Osaka --date ${travel_date}"
+  ]
+}

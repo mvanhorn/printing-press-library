@@ -1,0 +1,6 @@
+{
+  "cli": "smartex-pp-cli",
+  "library_dir": "<local-artifact>",
+  "preserved_patches": [],
+  "promoted": true
+}

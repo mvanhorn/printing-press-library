@@ -1,0 +1,39 @@
+package smartex
+
+import (
+ "context"
+ "errors"
+ "fmt"
+ "io"
+ "net/http"
+ "os"
+ "strings"
+ "testing"
+ "time"
+ "smartex-pp-cli/internal/cliutil"
+)
+type reviewRT func(*http.Request)(*http.Response,error)
+func (rt reviewRT) RoundTrip(r *http.Request)(*http.Response,error){return rt(r)}
+func reviewResp(code int, body string)*http.Response {return &http.Response{StatusCode:code,Header:http.Header{"Retry-After":{"7"}},Body:io.NopCloser(strings.NewReader(body))}}
+func reviewClient(rt reviewRT)*Client{c:=NewClient();c.limiter=nil;c.HTTP=&http.Client{Transport:rt};return c}
+func TestReviewAllQuote429KeepsType(t *testing.T){
+ fixture,e:=os.ReadFile("testdata/fare-step1.html");if e!=nil{t.Fatal(e)}
+ n:=0;c:=reviewClient(func(r *http.Request)(*http.Response,error){n++;if n==1{return reviewResp(200,string(fixture)),nil};return reviewResp(429,"throttled"),nil})
+ now,_:=time.Parse(time.RFC3339,"2026-10-02T12:00:00+09:00")
+ result,err:=c.Fares(context.Background(),"Tokyo","Shin-Osaka","2026-10-02","all",1,0,now)
+ var typed *cliutil.RateLimitError
+ t.Logf("requests=%d failures=%+v error=%v typed=%v",n,result.FetchFailures,err,errors.As(err,&typed))
+ if !errors.As(err,&typed){t.Fatalf("all quote classes were throttled but final error lost RateLimitError: %v",err)}
+}
+func TestReviewTimetable429KeepsType(t *testing.T){
+ c:=reviewClient(func(r *http.Request)(*http.Response,error){return reviewResp(429,"throttled"),nil})
+ _,err:=c.Timetable(context.Background(),"Tokyo","Shin-Osaka","","","",5,false,false)
+ var typed *cliutil.RateLimitError;t.Logf("error=%v typed=%v",err,errors.As(err,&typed));if !errors.As(err,&typed){t.Fatalf("timetable lost typed 429: %v",err)}
+}
+func TestReviewChangedPublicationReturnsFreshLinks(t *testing.T){
+ fresh:="https://global.jr-central.co.jp/en/info/timetable/_pdf/shinkansen_west_boundNEW.pdf"
+ c:=reviewClient(func(r *http.Request)(*http.Response,error){return reviewResp(200,fmt.Sprintf("<html><body><a href=%q>New west</a><a href=%q>New east</a></body></html>",fresh,"https://global.jr-central.co.jp/en/info/timetable/_pdf/shinkansen_east_boundNEW.pdf")),nil})
+ result,err:=c.Timetable(context.Background(),"Tokyo","Shin-Osaka","","","",5,false,false);if err!=nil{t.Fatal(err)}
+ t.Logf("matches_current=%v publications=%v source_check=%+v services=%v",result["snapshot_matches_current_pdf_links"],result["publications"],result["source_check"],result["services"])
+ pub:=result["publications"].([]string);if len(pub)==0||pub[0]!=fresh{t.Fatalf("new links are buried in source_check while publications returns stale snapshot: %v",pub)}
+}

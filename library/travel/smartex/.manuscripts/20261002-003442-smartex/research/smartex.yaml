@@ -1,0 +1,168 @@
+name: smartex
+description: Read-only smartEX Shinkansen fares, products, deadlines, luggage and booking handoff
+version: 0.1.0
+category: travel
+base_url: https://smart-ex.jp
+health_check_path: /en/product/plan/service/
+auth:
+  type: none
+learn:
+  disabled: true
+resources:
+  reference:
+    description: Fresh official public reference pages; extracted links and metadata
+    endpoints:
+      service:
+        method: GET
+        path: /en/product/plan/service/
+        base_url: https://smart-ex.jp
+        description: Extract official service source metadata and relevant links
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/en/product, /en/reservation, /en/entraining, /en/info]
+        response:
+          type: object
+      booking-window:
+        method: GET
+        path: /en/reservation/useful/accept_time/
+        base_url: https://smart-ex.jp
+        description: Extract official booking-window source metadata and relevant links
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/en/product, /en/reservation, /en/entraining, /en/info]
+        response:
+          type: object
+      baggage-guide:
+        method: GET
+        path: /en/entraining/oversized-baggage/
+        base_url: https://smart-ex.jp
+        description: Extract official baggage source metadata and relevant links
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/en/product, /en/reservation, /en/entraining, /en/info]
+        response:
+          type: object
+      change:
+        method: GET
+        path: /en/reservation/change/
+        base_url: https://smart-ex.jp
+        description: Extract official change source metadata and relevant links
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/en/product, /en/reservation, /en/entraining, /en/info]
+        response:
+          type: object
+      refund:
+        method: GET
+        path: /en/reservation/guide/cancel/
+        base_url: https://smart-ex.jp
+        description: Extract official refund source metadata and relevant links
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/en/product, /en/reservation, /en/entraining, /en/info]
+        response:
+          type: object
+      boarding:
+        method: GET
+        path: /en/entraining/
+        base_url: https://smart-ex.jp
+        description: Extract official boarding source metadata and relevant links
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/en/product, /en/reservation, /en/entraining, /en/info]
+        response:
+          type: object
+      hayatoku1:
+        method: GET
+        path: /en/product/hayatoku1/
+        base_url: https://smart-ex.jp
+        description: Extract official hayatoku1 source metadata and relevant links
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/en/product, /en/reservation, /en/entraining, /en/info]
+        response:
+          type: object
+      hayatoku3:
+        method: GET
+        path: /en/product/hayatoku3/
+        base_url: https://smart-ex.jp
+        description: Extract official hayatoku3 source metadata and relevant links
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/en/product, /en/reservation, /en/entraining, /en/info]
+        response:
+          type: object
+      hayatoku7:
+        method: GET
+        path: /en/product/hayatoku7/
+        base_url: https://smart-ex.jp
+        description: Extract official hayatoku7 source metadata and relevant links
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/en/product, /en/reservation, /en/entraining, /en/info]
+        response:
+          type: object
+      hayatoku21:
+        method: GET
+        path: /en/product/hayatoku21/
+        base_url: https://smart-ex.jp
+        description: Extract official hayatoku21 source metadata and relevant links
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/en/product, /en/reservation, /en/entraining, /en/info]
+        response:
+          type: object
+      family7:
+        method: GET
+        path: /en/product/hayatoku_family7/
+        base_url: https://smart-ex.jp
+        description: Extract official family7 source metadata and relevant links
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/en/product, /en/reservation, /en/entraining, /en/info]
+        response:
+          type: object
+      timetable-links:
+        method: GET
+        path: /en/info/timetable/
+        base_url: https://global.jr-central.co.jp
+        description: Extract official timetable source metadata and relevant links
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/en/product, /en/reservation, /en/entraining, /en/info]
+        response:
+          type: object
+      baggage-jr:
+        method: GET
+        path: /en/info/oversized-baggage/
+        base_url: https://global.jr-central.co.jp
+        description: Extract official baggage-jr source metadata and relevant links
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/en/product, /en/reservation, /en/entraining, /en/info]
+        response:
+          type: object
+      nozomi:
+        method: GET
+        path: /en/nozomi/
+        base_url: https://global.jr-central.co.jp
+        description: Extract official nozomi source metadata and relevant links
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/en/product, /en/reservation, /en/entraining, /en/info]
+        response:
+          type: object

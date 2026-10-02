@@ -1,0 +1,147 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-01T19:40:41.603076Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "smartex",
+  "display_name": "smartEX",
+  "cli_name": "smartex-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "smartex.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:dd9c07b5edea744f5c8c1bcd726b7ac1712f91561397e88d7a75d8026223e022",
+  "run_id": "20261002-003442-smartex",
+  "category": "travel",
+  "description": "Compare Shinkansen fares and constraints before booking",
+  "mcp_binary": "smartex-pp-mcp",
+  "mcp_tool_count": 14,
+  "mcp_public_tool_count": 14,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Resolve station names and corridor order",
+      "command": "stations",
+      "description": "Resolve station names and corridor order"
+    },
+    {
+      "name": "Identify corridors and train categories with booking links",
+      "command": "route",
+      "description": "Identify corridors and train categories with booking links"
+    },
+    {
+      "name": "Compare fresh dated adult fares and membership restrictions",
+      "command": "fare",
+      "description": "Compare fresh dated adult fares and membership restrictions"
+    },
+    {
+      "name": "Compare discount deadlines and unresolved eligibility conditions",
+      "command": "products",
+      "description": "Compare discount deadlines and unresolved eligibility conditions"
+    },
+    {
+      "name": "Compute precise JST advance request and confirmation boundaries",
+      "command": "window",
+      "description": "Compute precise JST advance request and confirmation boundaries"
+    },
+    {
+      "name": "Check baggage size and required reserved seat class",
+      "command": "baggage",
+      "description": "Check baggage size and required reserved seat class"
+    },
+    {
+      "name": "Retrieve practical boarding, changes and refunds guidance",
+      "command": "policy",
+      "description": "Retrieve practical boarding, changes and refunds guidance"
+    },
+    {
+      "name": "Find current official basic timetables and validated regular service examples",
+      "command": "timetable",
+      "description": "Find current official basic timetables and validated regular service examples"
+    },
+    {
+      "name": "Prepare canonical booking links and an exact travel checklist",
+      "command": "handoff",
+      "description": "Prepare canonical booking links and an exact travel checklist"
+    },
+    {
+      "name": "Inspect source freshness and planning versus inventory boundaries",
+      "command": "sources",
+      "description": "Inspect source freshness and planning versus inventory boundaries"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Resolve station names and corridor order",
+      "command": "stations",
+      "description": "Resolve station names and corridor order"
+    },
+    {
+      "name": "Identify corridors and train categories with booking links",
+      "command": "route",
+      "description": "Identify corridors and train categories with booking links"
+    },
+    {
+      "name": "Compare fresh dated adult fares and membership restrictions",
+      "command": "fare",
+      "description": "Compare fresh dated adult fares and membership restrictions"
+    },
+    {
+      "name": "Compare discount deadlines and unresolved eligibility conditions",
+      "command": "products",
+      "description": "Compare discount deadlines and unresolved eligibility conditions"
+    },
+    {
+      "name": "Compute precise JST advance request and confirmation boundaries",
+      "command": "window",
+      "description": "Compute precise JST advance request and confirmation boundaries"
+    },
+    {
+      "name": "Check baggage size and required reserved seat class",
+      "command": "baggage",
+      "description": "Check baggage size and required reserved seat class"
+    },
+    {
+      "name": "Retrieve practical boarding, changes and refunds guidance",
+      "command": "policy",
+      "description": "Retrieve practical boarding, changes and refunds guidance"
+    },
+    {
+      "name": "Find current official basic timetables and validated regular service examples",
+      "command": "timetable",
+      "description": "Find current official basic timetables and validated regular service examples"
+    },
+    {
+      "name": "Prepare canonical booking links and an exact travel checklist",
+      "command": "handoff",
+      "description": "Prepare canonical booking links and an exact travel checklist"
+    },
+    {
+      "name": "Inspect source freshness and planning versus inventory boundaries",
+      "command": "sources",
+      "description": "Inspect source freshness and planning versus inventory boundaries"
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 22,
+    "total": 22,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 80,
+      "grade": "A",
+      "total": 80
+    }
+  }
+}

@@ -1,0 +1,204 @@
+{
+  "retrieved_at": "2026-10-01T17:26:08.599763+00:00",
+  "live": true,
+  "fixtures": false,
+  "cases": [
+    {
+      "case": "tokaido",
+      "args": [
+        "fare",
+        "--from",
+        "Tokyo",
+        "--to",
+        "Shin-Osaka",
+        "--date",
+        "2026-10-02",
+        "--class",
+        "all"
+      ],
+      "exit": 5,
+      "latency_s": 1.782,
+      "stdout_bytes": 1723,
+      "stderr_bytes": 150,
+      "upstream_requests": 4,
+      "assertions": "failed",
+      "failure": "('tokaido', 'warning: 3 fare classes failed; 0 successfully quoted classes returned\\nError: all fare classes failed; inspect fetch_failures and use booking handoff\\n')"
+    },
+    {
+      "case": "sanyo",
+      "args": [
+        "fare",
+        "--from",
+        "Shin-Osaka",
+        "--to",
+        "Hiroshima",
+        "--date",
+        "2026-10-02",
+        "--class",
+        "all",
+        "--adults",
+        "2",
+        "--children",
+        "1"
+      ],
+      "exit": 5,
+      "latency_s": 1.644,
+      "stdout_bytes": 1730,
+      "stderr_bytes": 150,
+      "upstream_requests": 4,
+      "assertions": "failed",
+      "failure": "('sanyo', 'warning: 3 fare classes failed; 0 successfully quoted classes returned\\nError: all fare classes failed; inspect fetch_failures and use booking handoff\\n')"
+    },
+    {
+      "case": "kyushu",
+      "args": [
+        "fare",
+        "--from",
+        "Hakata",
+        "--to",
+        "Kagoshima-Chuo",
+        "--date",
+        "2026-10-02",
+        "--class",
+        "all"
+      ],
+      "exit": 5,
+      "latency_s": 1.659,
+      "stdout_bytes": 1748,
+      "stderr_bytes": 150,
+      "upstream_requests": 4,
+      "assertions": "failed",
+      "failure": "('kyushu', 'warning: 3 fare classes failed; 0 successfully quoted classes returned\\nError: all fare classes failed; inspect fetch_failures and use booking handoff\\n')"
+    },
+    {
+      "case": "reverse",
+      "args": [
+        "fare",
+        "--from",
+        "Shin-Osaka",
+        "--to",
+        "Tokyo",
+        "--date",
+        "2026-10-02",
+        "--class",
+        "reserved"
+      ],
+      "exit": 5,
+      "latency_s": 0.646,
+      "stdout_bytes": 1456,
+      "stderr_bytes": 150,
+      "upstream_requests": 2,
+      "assertions": "failed",
+      "failure": "('reverse', 'warning: 1 fare classes failed; 0 successfully quoted classes returned\\nError: all fare classes failed; inspect fetch_failures and use booking handoff\\n')"
+    },
+    {
+      "case": "through",
+      "args": [
+        "fare",
+        "--from",
+        "Tokyo",
+        "--to",
+        "Kagoshima-Chuo",
+        "--date",
+        "2026-10-02",
+        "--class",
+        "reserved"
+      ],
+      "exit": 5,
+      "latency_s": 0.661,
+      "stdout_bytes": 1454,
+      "stderr_bytes": 150,
+      "upstream_requests": 2,
+      "assertions": "failed",
+      "failure": "('through', 'warning: 1 fare classes failed; 0 successfully quoted classes returned\\nError: all fare classes failed; inspect fetch_failures and use booking handoff\\n')"
+    },
+    {
+      "case": "timetable",
+      "args": [
+        "timetable",
+        "--from",
+        "Tokyo",
+        "--to",
+        "Shin-Osaka",
+        "--date",
+        "2026-10-02",
+        "--limit",
+        "3"
+      ],
+      "exit": 0,
+      "latency_s": 0.289,
+      "stdout_bytes": 2675,
+      "stderr_bytes": 0,
+      "upstream_requests": 1,
+      "assertions": "passed"
+    },
+    {
+      "case": "products",
+      "args": [
+        "products",
+        "--date",
+        "2026-10-02",
+        "--detail"
+      ],
+      "exit": 0,
+      "latency_s": 2.615,
+      "stdout_bytes": 25597,
+      "stderr_bytes": 0,
+      "upstream_requests": 6,
+      "assertions": "passed"
+    },
+    {
+      "case": "sources",
+      "args": [
+        "sources",
+        "--source",
+        "baggage",
+        "--check",
+        "--limit",
+        "1"
+      ],
+      "exit": 0,
+      "latency_s": 0.173,
+      "stdout_bytes": 839,
+      "stderr_bytes": 0,
+      "upstream_requests": 1,
+      "assertions": "passed"
+    },
+    {
+      "case": "negative_station",
+      "args": [
+        "fare",
+        "--from",
+        "Osaka",
+        "--to",
+        "Tokyo",
+        "--date",
+        "2026-10-02"
+      ],
+      "exit": 2,
+      "latency_s": 0.013,
+      "stdout_bytes": 0,
+      "stderr_bytes": 102,
+      "assertions": "passed"
+    },
+    {
+      "case": "empty_timetable",
+      "args": [
+        "timetable",
+        "--from",
+        "Tokyo",
+        "--to",
+        "Shin-Osaka",
+        "--train",
+        "tsubame",
+        "--offline"
+      ],
+      "exit": 0,
+      "latency_s": 0.009,
+      "stdout_bytes": 1215,
+      "stderr_bytes": 0,
+      "upstream_requests": 0,
+      "assertions": "passed"
+    }
+  ]
+}

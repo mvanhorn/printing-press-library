@@ -1,0 +1,19 @@
+{
+  "status": "pass",
+  "category": "travel",
+  "scope": "library/travel/smartex",
+  "source_fingerprint": "a64396432e002bcef6518394b7d551443ab38d57898aa857c56e83553294bcc7",
+  "fresh_live": {
+    "level": "full",
+    "tests_passed": 106,
+    "matrix_size": 106,
+    "ancillary_classified": 74
+  },
+  "mandatory_vendor_prefix_scan": "pass (Printing Press publish package)",
+  "raw_capture_and_binary_files_omitted": 199,
+  "output_samples_omitted": 20,
+  "host_path_scrubbed_files": 14,
+  "tier2_manual_review": "All matches are documented API/CLI/license/public source vocabulary, framework fixtures, preserved generator attribution, or an image srcset URL. No unresolved PII.",
+  "credential_or_session_files": 0,
+  "optional_scanner": "gitleaks/trufflehog unavailable"
+}

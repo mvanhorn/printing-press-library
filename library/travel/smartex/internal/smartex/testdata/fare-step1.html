@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<HTML lang="ja">
+<HEAD>
+<META charset="EUC-JP">
+<link rel="stylesheet" type="text/css" href="../../share/style.css">
+<script type="text/javascript" src="../../share/prototype.js"></script>
+<script type="text/javascript" src="../../share/message.js"></script>
+<TITLE>EXサービス運賃ナビ</TITLE>
+
+<SCRIPT type="text/javascript"><!--
+window.onload = function(){
+	if( document.Shinkan.Select.options[0] != '' ) {
+		document.Shinkan.Select.options[0].selected = true;
+		n = document.Shinkan.Select.options[0].value.indexOf("-");
+		len = document.Shinkan.Select.options[0].value.length;
+		ValueF = document.Shinkan.Select.options[0].value.substring( 0, n );
+		ValueT = document.Shinkan.Select.options[0].value.substring( (n+1), len );
+		TargetF = parent.menu.document.Data.SHIF;
+		TargetT = parent.menu.document.Data.SHIT;
+		TargetF.value = ValueF;
+		TargetT.value = ValueT;
+		parent.menu.document.Data.INES.value = document.Shinkan.INES.value;
+		parent.menu.document.Data.INEE.value = document.Shinkan.INEE.value;
+		parent.menu.document.Data.SEAT.value = "0";
+		for( i=0; i<document.Shinkan.seat.length; i++ ) {
+			if( document.Shinkan.seat[i].checked ) {
+				parent.menu.document.Data.SEAT.value = document.Shinkan.seat[i].value;
+				break;
+			}
+		}
+		
+		for( i = 0; i < document.Shinkan.Select.options.length; i++ ) {
+			if(document.Shinkan.Select.options[i].value == "") {
+				document.Shinkan.Select.options[i] = null;
+			}
+		}
+		
+	}else {
+		document.Shinkan.Select.options[0].text = '新幹線乗車区間がありません';
+	}
+	load_message( "../../message/shinkan.utf8.mes" );
+	load_message_self( "../../message/copyright.utf8.mes", "copyright" );
+}
+
+window.onunload = function(){
+}
+
+function onShinkanSelect(){
+	id = document.Shinkan.Select.selectedIndex;
+	n = document.Shinkan.Select.options[id].value.indexOf("-");
+	len = document.Shinkan.Select.options[id].value.length;
+	ValueF = document.Shinkan.Select.options[id].value.substring( 0, n );
+	ValueT = document.Shinkan.Select.options[id].value.substring( (n+1), len );
+	TargetF = parent.menu.document.Data.SHIF;
+	TargetT = parent.menu.document.Data.SHIT;
+	TargetF.value = ValueF;
+	TargetT.value = ValueT;
+}
+
+function onSeatSelect(){
+	for( i=0; i<document.Shinkan.seat.length; i++ ) {
+		if( document.Shinkan.seat[i].checked ) {
+			parent.menu.document.Data.SEAT.value = document.Shinkan.seat[i].value;
+			break;
+		}
+	}
+}
+
+//--></SCRIPT>
+</HEAD>
+
+<BODY>
+
+<table border="0" style="width:866px;" bgcolor="#ffffff" cellpadding="0" cellspacing="0">
+	<tr>
+		<td style="width:10px;">
+		</td>
+		<td>
+			<table border="0" style="width:846px;" bgcolor="#ffffff" cellpadding="0" cellspacing="0">
+			<tr>
+				<td style="height:10px;">
+				</td>
+			</tr>
+			<tr>
+				<td>
+				<table border="0" style="width:846px; height:35px;" bgcolor="#e9e9e9" cellpadding="0" cellspacing="0">
+					<tr>
+						<td style="width:5px; height:100%;" bgcolor="#0099cc"></td>
+						<td style="width:841px; height:100%;"><img src="../../images/triangle_3.gif" alt="新幹線乗車区間">新幹線乗車区間選択</td>
+					</tr>
+				</table>
+				</td>
+			</tr>
+			<tr>
+				<td style="height:15px;">
+				</td>
+			</tr>
+			</table>
+		</td>
+	</tr>
+</table>
+
+<FORM name="Shinkan" method="post" action="tokai_exic.cgi" target="_self">
+<INPUT type="hidden" name="INES" value='東京'>
+<INPUT type="hidden" name="INEE" value='新大阪'>
+
+<TABLE border=0 style="width:866px;"><TR>
+<TD valign=top style="width:60px;">　</TD>
+<TD style="width:806px;">
+
+<TABLE border=0><TR>
+
+<TD valign="top" style="height:310px;">
+<SELECT name='Select' size='10' onChange='onShinkanSelect()'>
+
+	<OPTION value='東京-新大阪'>東京-新大阪&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+</SELECT>
+</TD>
+<TD valign="top">
+<input type=radio name="seat" value='0' tabindex='0' checked onChange='onSeatSelect()'>普通車指定席<br>
+<input type=radio name="seat" value='2' tabindex='1' onChange='onSeatSelect()'>グリーン車<br>
+<input type=radio name="seat" value='1' tabindex='2' onChange='onSeatSelect()'>普通車自由席<br>
+
+</TD>
+</TR>
+</TABLE>
+</TD>
+
+</TR>
+
+<tr>
+<td colspan=2>
+<br><div class="copymessage" id="copyright"></div>
+</td>
+</tr>
+
+</TABLE>
+
+</FORM>
+
+</BODY>
+</HTML>

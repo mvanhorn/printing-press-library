@@ -1,0 +1,7 @@
+=== RUN   TestReviewAutomaticGzipCannotHideOversizedWireBody
+    review_regressions_test.go:37: wire_bytes=655710 decoded_returned_bytes=90 error=<nil>
+    review_regressions_test.go:38: automatic gzip decoding bypassed raw 512KiB cap: 655710 wire bytes returned 90 decoded bytes
+--- FAIL: TestReviewAutomaticGzipCannotHideOversizedWireBody (0.01s)
+FAIL
+FAIL	smartex-pp-cli/internal/client	0.519s
+FAIL

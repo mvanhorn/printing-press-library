@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<HTML lang="ja">
+<HEAD>
+<META charset="EUC-JP">
+<link rel="stylesheet" href="../../share/style_new.css">
+<script type="text/javascript" src="../../share/prototype.js"></script>
+<script type="text/javascript" src="../../share/message.js"></script>
+<script type="text/javascript" src="../../share/jquery-1.10.2.min.js"></script>
+
+<TITLE>EXサービス運賃ナビ</TITLE>
+<script>
+function load() {
+
+	if( 0 ) {
+		load_message( "../../message/routeexic.utf8.mes" );
+		load_message_self( "../../message/routeexic2.utf8.mes", "message" );
+		load_message_self( "../../message/copyright.utf8.mes", "copyright" );
+	}else {
+		load_message( "../../message/route.utf8.mes" );
+		load_message_self( "../../message/route2.utf8.mes", "message" );
+		load_message_self( "../../message/copyright.utf8.mes", "copyright" );
+	}
+
+	parent.menu.document.Data.INES.value = "";
+	parent.menu.document.Data.INEE.value = "";
+	
+	//きっぷの種類 の表示
+	if( 0 ) {
+		document.getElementById('k_caption').innerHTML = '<a href="https://expy.jp/product/express_ticket/" target="new">ｅ特急券＋乗車券</a>';
+		if( 0 ) {
+			document.getElementById('k_fuku_caption').innerHTML = '<a href="https://expy.jp/product/express_ticket/" target="new">ｅ特急券＋乗車券（往復割引）</a>';
+		} else {
+			document.getElementById('k_fuku_caption').innerHTML = '';
+			$("#resultHyouka_t3").css("display", "none");
+		}
+	} else {
+		document.getElementById('k_caption').innerHTML = '通常のきっぷ 特急券＋乗車券';
+		if( 0 ) {
+			document.getElementById('k_fuku_caption').innerHTML = '通常のきっぷ 特急券＋乗車券（往復割引）';
+		} else {
+			document.getElementById('k_fuku_caption').innerHTML = '';
+			$("#resultHyouka_t3").css("display", "none");
+		}
+	}
+
+	//ex予約ナビ(往復割引) の表示
+	if( "" ) {
+		document.getElementById('exo_caption').innerHTML = '<a href="https://expy.jp/product/exic/round/" target="new">EX予約サービス（往復割引）</a>';
+	} else {
+		document.getElementById('exo_caption').innerHTML = '';
+		$("#resultHyouka_t4").css("display", "none");
+	}
+
+	//スマートEX(片道) の表示
+	if( 0 ) {
+		document.getElementById('sm_caption').innerHTML = '';
+		$("#resultHyouka_t5").css("display", "none");
+	} else {
+		document.getElementById('sm_caption').innerHTML = '<a href="https://smart-ex.jp/product/plan/service/" target="new">スマートEXサービス</a>';	
+	}
+
+	//スマートEX(往復割引) の表示
+	if( "" ) {
+		document.getElementById('sm_fuku_caption').innerHTML = '<a href="https://smart-ex.jp/product/plan/service_roundtrip/" target="new">スマートEXサービス（往復割引）</a>';
+	} else {
+		document.getElementById('sm_fuku_caption').innerHTML = '';
+		$("#resultHyouka_t6").css("display", "none");
+	}
+
+	//ご案内 のリンク表示（e特急券の場合のみリンクを表示）
+	if( 0 ) {
+		//document.getElementById('k_caption_link').innerHTML = '<a href="https://expy.jp/product/express_ticket/" target="new">e特急券のご案内</a>(HPリンク)';
+		if( 0 ) {
+			//document.getElementById('k_fuku_caption_link').innerHTML = '<a href="https://expy.jp/product/express_ticket/" target="new">e特急券のご案内</a>(HPリンク)';
+		} else {
+			//document.getElementById('k_fuku_caption_link').innerHTML = '';
+		}
+	} else {
+		document.getElementById('k_caption_link').innerHTML = '';
+		if( 0 ) {
+			document.getElementById('k_fuku_caption_link').innerHTML = '';
+		} else {
+			document.getElementById('k_fuku_caption_link').innerHTML = '';
+		}
+	}
+
+	//スマートEX のリンク表示
+	if( 0 ) {
+	} else {
+		document.getElementById('sm_caption_link').innerHTML = '';
+	}
+
+	//スマートEX往復割引 のリンク表示
+	if( "" ) {
+		document.getElementById('sm_fuku_caption_link').innerHTML = '';
+	} else {
+		document.getElementById('sm_fuku_caption_link').innerHTML = '';
+	}
+
+	// 検索結果の表示・非表示制御（エクスプレス予約運賃ナビ）
+	// デフォルトでは 「id="resultDetail_1"スマートEX片道以外」を非表示にする
+	if( 0 ) {
+		$("#resultHyouka_t2").css("background-color", "#ffffb0");
+		$("#resultDetail_1").css("display", "none");
+		$("#resultDetail_3").css("display", "none");
+		$("#resultDetail_4").css("display", "none");
+		$("#resultDetail_5").css("display", "none");
+		$("#resultDetail_6").css("display", "none");
+
+	// 検索結果の表示・非表示制御（エクスプレス予約運賃ナビ）
+	// デフォルトでは 「id="resultDetail_5"EX予約サービス片道以外」を非表示にする
+	} else {
+		$("#resultHyouka_t2").css("background-color", "#ffffb0");
+		$("#resultDetail_1").css("display", "none");
+		$("#resultDetail_3").css("display", "none");
+		$("#resultDetail_4").css("display", "none");
+		$("#resultDetail_5").css("display", "none");
+		$("#resultDetail_6").css("display", "none");
+	}
+
+		// 「id="resultHyouka_t2"」がクリックされた場合
+		$("#resultHyouka_t2").click(function(){
+			$("#resultDetail_1").css("display", "none");
+			$("#resultDetail_3").css("display", "none");
+			$("#resultDetail_4").css("display", "none");
+			$("#resultDetail_5").css("display", "none");
+			$("#resultDetail_6").css("display", "none");
+			$("#resultDetail_2").toggle();
+			$("#resultDetail_2").css("display", "block");
+			$("#resultHyouka_t2").css("background-color", "#ffffb0");
+			$("#resultHyouka_t1").css("background-color", "transparent");
+			$("#resultHyouka_t3").css("background-color", "transparent");
+			$("#resultHyouka_t4").css("background-color", "transparent");
+			$("#resultHyouka_t5").css("background-color", "transparent");
+			$("#resultHyouka_t6").css("background-color", "transparent");
+
+			$("#resultHyouka_t1:hover").css("background-color", "#ffffb0");
+			$("#resultHyouka_t3:hover").css("background-color", "#ffffb0");
+			$("#resultHyouka_t4:hover").css("background-color", "#ffffb0");
+			$("#resultHyouka_t5:hover").css("background-color", "#ffffb0");
+			$("#resultHyouka_t6:hover").css("background-color", "#ffffb0");
+		});
+
+		// 「id="resultHyouka_t3"」がクリックされた場合
+		$("#resultHyouka_t3").click(function(){
+			$("#resultDetail_1").css("display", "none");
+			$("#resultDetail_2").css("display", "none");
+			$("#resultDetail_4").css("display", "none");
+			$("#resultDetail_5").css("display", "none");
+			$("#resultDetail_6").css("display", "none");
+			$("#resultDetail_3").toggle();
+			$("#resultDetail_3").css("display", "block");
+			$("#resultHyouka_t3").css("background-color", "#ffffb0");
+			$("#resultHyouka_t1").css("background-color", "transparent");
+			$("#resultHyouka_t2").css("background-color", "transparent");
+			$("#resultHyouka_t4").css("background-color", "transparent");
+			$("#resultHyouka_t5").css("background-color", "transparent");
+			$("#resultHyouka_t6").css("background-color", "transparent");
+
+			$("#resultHyouka_t1:hover").css("background-color", "#ffffb0");
+			$("#resultHyouka_t2:hover").css("background-color", "#ffffb0");
+			$("#resultHyouka_t4:hover").css("background-color", "#ffffb0");
+			$("#resultHyouka_t5:hover").css("background-color", "#ffffb0");
+			$("#resultHyouka_t6:hover").css("background-color", "#ffffb0");
+		});
+
+		// 「id="resultHyouka_t4"」がクリックされた場合
+		$("#resultHyouka_t4").click(function(){
+			$("#resultDetail_1").css("display", "none");
+			$("#resultDetail_2").css("display", "none");
+			$("#resultDetail_3").css("display", "none");
+			$("#resultDetail_5").css("display", "none");
+			$("#resultDetail_6").css("display", "none");
+			$("#resultDetail_4").toggle();
+			$("#resultDetail_4").css("display", "block");
+			$("#resultHyouka_t4").css("background-color", "#ffffb0");
+			$("#resultHyouka_t1").css("background-color", "transparent");
+			$("#resultHyouka_t2").css("background-color", "transparent");
+			$("#resultHyouka_t3").css("background-color", "transparent");
+			$("#resultHyouka_t5").css("background-color", "transparent");
+			$("#resultHyouka_t6").css("background-color", "transparent");
+
+			$("#resultHyouka_t1:hover").css("background-color", "#ffffb0");
+			$("#resultHyouka_t2:hover").css("background-color", "#ffffb0");
+			$("#resultHyouka_t3:hover").css("background-color", "#ffffb0");
+			$("#resultHyouka_t5:hover").css("background-color", "#ffffb0");
+			$("#resultHyouka_t6:hover").css("background-color", "#ffffb0");
+		});
+
+		// 「id="resultHyouka_t5"」がクリックされた場合
+		$("#resultHyouka_t5").click(function(){
+			$("#resultDetail_1").css("display", "none");
+			$("#resultDetail_2").css("display", "none");
+			$("#resultDetail_3").css("display", "none");
+			$("#resultDetail_4").css("display", "none");
+			$("#resultDetail_6").css("display", "none");
+			$("#resultDetail_5").toggle();
+			$("#resultDetail_5").css("display", "block");
+			$("#resultHyouka_t5").css("background-color", "#ffffb0");
+			$("#resultHyouka_t1").css("background-color", "transparent");
+			$("#resultHyouka_t2").css("background-color", "transparent");
+			$("#resultHyouka_t3").css("background-color", "transparent");
+			$("#resultHyouka_t4").css("background-color", "transparent");
+			$("#resultHyouka_t6").css("background-color", "transparent");
+
+			$("#resultHyouka_t1:hover").css("background-color", "#ffffb0");
+			$("#resultHyouka_t2:hover").css("background-color", "#ffffb0");
+			$("#resultHyouka_t3:hover").css("background-color", "#ffffb0");
+			$("#resultHyouka_t4:hover").css("background-color", "#ffffb0");
+			$("#resultHyouka_t6:hover").css("background-color", "#ffffb0");
+		});
+
+		// 「id="resultHyouka_t6"」がクリックされた場合
+		$("#resultHyouka_t6").click(function(){
+			$("#resultDetail_1").css("display", "none");
+			$("#resultDetail_2").css("display", "none");
+			$("#resultDetail_3").css("display", "none");
+			$("#resultDetail_4").css("display", "none");
+			$("#resultDetail_5").css("display", "none");
+			$("#resultDetail_6").toggle();
+			$("#resultDetail_6").css("display", "block");
+			$("#resultHyouka_t6").css("background-color", "#ffffb0");
+			$("#resultHyouka_t1").css("background-color", "transparent");
+			$("#resultHyouka_t2").css("background-color", "transparent");
+			$("#resultHyouka_t3").css("background-color", "transparent");
+			$("#resultHyouka_t4").css("background-color", "transparent");
+			$("#resultHyouka_t5").css("background-color", "transparent");
+
+			$("#resultHyouka_t1:hover").css("background-color", "#ffffb0");
+			$("#resultHyouka_t2:hover").css("background-color", "#ffffb0");
+			$("#resultHyouka_t3:hover").css("background-color", "#ffffb0");
+			$("#resultHyouka_t4:hover").css("background-color", "#ffffb0");
+			$("#resultHyouka_t5:hover").css("background-color", "#ffffb0");
+		});
+
+		// 「id="resultHyouka_t1"」がクリックされた場合
+		$("#resultHyouka_t1").click(function(){
+			$("#resultDetail_2").css("display", "none");
+			$("#resultDetail_3").css("display", "none");
+			$("#resultDetail_4").css("display", "none");
+			$("#resultDetail_5").css("display", "none");
+			$("#resultDetail_6").css("display", "none");
+			$("#resultDetail_1").toggle();
+			$("#resultDetail_1").css("display", "block");
+			$("#resultHyouka_t1").css("background-color", "#ffffb0");
+			$("#resultHyouka_t6").css("background-color", "transparent");
+			$("#resultHyouka_t2").css("background-color", "transparent");
+			$("#resultHyouka_t3").css("background-color", "transparent");
+			$("#resultHyouka_t4").css("background-color", "transparent");
+			$("#resultHyouka_t5").css("background-color", "transparent");
+
+			$("#resultHyouka_t6:hover").css("background-color", "#ffffb0");
+			$("#resultHyouka_t2:hover").css("background-color", "#ffffb0");
+			$("#resultHyouka_t3:hover").css("background-color", "#ffffb0");
+			$("#resultHyouka_t4:hover").css("background-color", "#ffffb0");
+			$("#resultHyouka_t5:hover").css("background-color", "#ffffb0");
+		});
+
+		// デフォルトでは きっぷ非表示、IC表示にする
+		$(".untin_kipp").css("display", "none");
+		$(".h3_untin_kipp").css("display", "none");
+
+		// ICを選択した時は切符を非表示に
+		$(".ic_active").click(function(){
+			$(".ic").removeClass("ic").addClass("ic_active");
+			$(".ic").removeClass("kippu").addClass("kippu");
+			$(".kippu").removeClass("kippu").addClass("kippu");
+			$(".kippu_active").removeClass("kippu_active").addClass("kippu");
+			$(".untin_ic").css("display", "block");
+			$(".h3_untin_ic").css("display", "block");
+			$(".untin_kipp").css("display", "none");			
+			$(".h3_untin_kipp").css("display", "none");
+		});
+
+		// 切符を選択した時はICを非表示に
+		$(".kippu").click(function(){
+			$(".kippu").removeClass("kippu").addClass("kippu_active");
+			$(".kippu").removeClass("ic").addClass("ic");
+			$(".ic_active").removeClass("ic_active").addClass("ic");
+			$(".ic").removeClass("ic").addClass("ic");
+			$(".untin_kipp").css("display", "block");
+			$(".h3_untin_kipp").css("display", "block");
+			$(".untin_ic").css("display", "none");
+			$(".h3_untin_ic").css("display", "none");
+		});
+}
+
+</script>
+</HEAD>
+
+<body onload="load()" onunload="" style="width: 846px;">
+<div id="resultHyouka_main">
+<table border="0" style="width:100%;" bgcolor="#ffffff" cellpadding="0" cellspacing="0">
+	<tr>
+		<td>
+			<!-- 発駅ー着駅 ご利用日：年月日 期/座席/大人1名片道あたり -->
+			<table border="0" style="width:100%;" bgcolor="#ffffff" cellpadding="0" cellspacing="0">
+				<tr>
+					<div class="frtoeki_rosen">東京 〜 新大阪　ご利用日：2026年10月2日<br>（通常期／普通車指定席／大人1名 片道あたり）</div>
+				</tr>
+			</table>
+			<!-- 金額表示 -->
+			<div id="resultHyouka">
+				<table class="table1">
+					<tbody>
+						<!-- きっぷの種類,合計額,ご案内 -->
+						<tr class="t-head">
+							<td style="width: 35%;">きっぷの種類</td>
+							<td style="width: 20%;">　<span class="ic_active">IC利用</span> / <span class="kippu">きっぷ利用</span></td>
+							<td style="width: 45%;">ご案内</td>
+						</tr>
+						<!-- e特急券＋乗車券（片道）／通常のきっぷ利用（片道） -->
+						<tr id="resultHyouka_t2" class="hyouka" idx="2">
+							<td><div class="h2" id="k_caption"></div></td>
+							<td>　14,720円<br></td>
+							<td><div class="h2" id="k_caption_link"></div></td>
+						</tr>
+						<!-- e特急券＋乗車券（往復）／通常のきっぷ利用（往復）  -->
+						<tr id="resultHyouka_t3" class="hyouka" idx="3">
+							<td><div class="h2" id="k_fuku_caption"></div></td>
+							<td></td>
+							<td><div class="h2" id="k_fuku_caption_link"></div></td>
+						</tr>
+						<!-- スマートEX（片道） -->
+						<tr id="resultHyouka_t5" class="hyouka" idx="5">
+							<td><div class="h2" id="sm_caption"></div></td>
+							<td>　14,520円</td>
+							<td><div class="h2" id="sm_caption_link"></div></td>
+						</tr>
+						<!-- スマートEX（往復） -->
+						<tr id="resultHyouka_t6" class="hyouka" idx="6">
+							<td><div class="h2" id="sm_fuku_caption"></div></td>
+							<td></td>
+							<td><div class="h2" id="sm_fuku_caption_link"></div></td>
+						</tr>
+						<!-- EX予約サービス（片道） -->
+						<tr id="resultHyouka_t1" class="hyouka" idx="1">
+							<td><div class="h2" id="ex_caption"><a href="https://expy.jp/product/exic/" target="new">EX予約サービス</a></div></td>
+							<td>　14,230円<br></td>
+							<td>「EX予約」会員専用商品</td>
+						</tr>
+						<!-- EX予約サービス（往復） -->
+						<tr id="resultHyouka_t4" class="hyouka" idx="4">
+							<td><div class="h2" id="exo_caption"></div></td>
+							<td></td>
+							<td>「EX予約」会員専用商品</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<!-- 金額表示 -->
+		</td>
+	</tr>
+</table>
+</div>
+<hr>
+
+<!-- EX予約サービス（片道） -->
+<!-- 経路,運賃,料金 -->
+<div id="resultDetail_1">
+	<div class="search_info_top">
+		<table border="0" style="width:100%;" cellpadding="0" cellspacing="0">
+			<tr class="keiroHeader">
+				<td colspan="4" style="width:282px;">経路</td>
+				<td class="" style="width:282px;">運賃</td>
+				<td class="" style="width:282px;">料金</td>
+			</tr>
+		</table>
+	</div>
+
+		<!-- 検索結果 from 〜 to -->
+		<table class="table1">
+			
+			<!-- パス表示 -->
+			
+				<!-- from駅 -->
+				<tr>
+					<td bgcolor="#f0f0f0">
+						<table border="0" cellspacing="0" cellpadding="0" style="margin-left:15px;">
+							<tr>
+								<td class="h4">東京</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				
+				<!-- from駅 -->
+			
+				<!-- 1段目の金額 -->
+				<tr>
+					<td>
+						<table style="padding-left:22px; height:30px; cellspacing="0" cellpadding="0">
+							<tr>
+								<td class="empty"></td>
+								<td style="background-color:#004ea1; width:5px;"></td>
+								<td class="rosen_name_kek" style="width:282px;">新幹線のぞみ</td>
+								<td class="cost_show"  style="width:282px;"><div class="h3">14,230円</div></td>
+								<td class="empty" style="width:230px;"></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<!-- 1段目の金額 -->
+
+				<!-- 中間駅 -->
+				<tr>
+					<td bgcolor="#f0f0f0">
+						<table border="0" cellspacing="0" cellpadding="0" style="margin-left:15px;">
+							<tr>
+								<td class="h4">新大阪</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				
+				<!-- パスここまで -->
+		</table>
+	</div>
+	
+
+<!-- EX予約サービス（往復） -->
+<!-- 経路,運賃,料金 -->
+<div id="resultDetail_4">
+	<div class="search_info_top">
+		<table border="0" style="width:100%;" cellpadding="0" cellspacing="0">
+			<tr class="keiroHeader">
+				<td colspan="4" style="width:282px;">経路</td>
+				<td class="" style="width:282px;">運賃</td>
+				<td class="" style="width:282px;">料金</td>
+			</tr>
+		</table>
+	</div>
+
+	<!-- 検索結果 from 〜 to -->
+	<table class="table1">
+		
+		<!-- パス表示 -->
+		
+			<!-- from駅 -->
+			<tr>
+				<td bgcolor="#f0f0f0">
+					<table border="0" cellspacing="0" cellpadding="0" style="margin-left:15px;">
+						<tr>
+							<td class="h4">東京</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			
+			<!-- from駅 -->
+		
+			<!-- 1段目の金額 -->
+			<tr>
+				<td>
+					<table style="padding-left:22px; height:30px; cellspacing="0" cellpadding="0">
+						<tr>
+							<td class="empty"></td>
+							<td style="background-color:#004ea1; width:5px;"></td>
+							<td class="rosen_name_kek" style="width:282px;">新幹線のぞみ</td>
+							<td class="cost_show"  style="width:282px;"></td>
+							<td class="empty" style="width:230px;"></td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			<!-- 1段目の金額 -->
+
+			<!-- 中間駅 -->
+			<tr>
+				<td bgcolor="#f0f0f0">
+					<table border="0" cellspacing="0" cellpadding="0" style="margin-left:15px;">
+						<tr>
+							<td class="h4">新大阪</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			
+			<!-- パスここまで -->
+	</table>
+</div>
+
+
+<!-- e特急券＋乗車券（片道）／通常のきっぷ利用（片道） -->
+<!-- 経路,運賃,料金 -->
+<div id="resultDetail_2">
+	<div class="search_info_top">
+		<table border="0" style="width:100%;" cellpadding="0" cellspacing="0">
+			<tr class="keiroHeader">
+				<td colspan="4" style="width:282px;">経路</td>
+				<td class="" style="width:282px;">運賃</td>
+				<td class="" style="width:282px;">料金</td>
+			</tr>
+		</table>
+	</div>
+
+	<!-- 検索結果 from 〜 to -->
+	<table class="table1">
+		
+		<!-- パス表示 -->
+		
+			<!-- from駅 -->
+			<tr>
+				<td bgcolor="#f0f0f0">
+					<table border="0" cellspacing="0" cellpadding="0" style="margin-left:15px;">
+						<tr>
+							<td class="h4">東京</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			
+			<!-- from駅 -->
+		
+			<!-- 1段目の金額 -->
+			<tr>
+				<td>
+					<table style="padding-left:22px; height:30px; cellspacing="0" cellpadding="0">
+						<tr>
+							<td class="empty"></td>
+							<td style="background-color:#004ea1; width:5px;"></td>
+							<td class="rosen_name_kek" style="width:282px;">新幹線のぞみ</td>
+							<td class="cost_show" style="width:282px;"><div class="h3">8,910円</div></td>
+							<td class="cost_show" style="width:230px;"><div class="h3">5,810円</div></td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			<!-- 1段目の金額 -->
+
+			<!-- 中間駅 -->
+			<tr>
+				<td bgcolor="#f0f0f0">
+					<table border="0" cellspacing="0" cellpadding="0" style="margin-left:15px;">
+						<tr>
+							<td class="h4">新大阪</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			
+			<!-- パスここまで -->
+	</table>
+</div>
+
+
+<!-- e特急券＋乗車券（往復）／通常のきっぷ利用（往復）  -->
+<!-- 経路,運賃,料金 -->
+<div id="resultDetail_3">
+	<div class="search_info_top">
+		<table border="0" style="width:100%;" cellpadding="0" cellspacing="0">
+			<tr class="keiroHeader">
+				<td colspan="4" style="width:282px;">経路</td>
+				<td class="" style="width:282px;">運賃</td>
+				<td class="" style="width:282px;">料金</td>
+			</tr>
+		</table>
+	</div>
+
+	<!-- 検索結果 from 〜 to -->
+	<table class="table1">
+		
+		<!-- パス表示 -->
+		
+			<!-- from駅 -->
+			<tr>
+				<td bgcolor="#f0f0f0">
+					<table border="0" cellspacing="0" cellpadding="0" style="margin-left:15px;">
+						<tr>
+							<td class="h4">東京</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			
+			<!-- from駅 -->
+		
+			<!-- 1段目の金額 -->
+			<tr>
+				<td>
+					<table style="padding-left:22px; height:30px; cellspacing="0" cellpadding="0">
+						<tr>
+							<td class="empty"></td>
+							<td style="background-color:#004ea1; width:5px;"></td>
+							<td class="rosen_name_kek" style="width:282px;">新幹線のぞみ</td>
+							<td class="cost_show" style="width:282px;"></td>
+							<td class="cost_show" style="width:230px;"></td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			<!-- 1段目の金額 -->
+
+			<!-- 中間駅 -->
+			<tr>
+				<td bgcolor="#f0f0f0">
+					<table border="0" cellspacing="0" cellpadding="0" style="margin-left:15px;">
+						<tr>
+							<td class="h4">新大阪</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			
+			<!-- パスここまで -->
+	</table>
+</div>
+
+
+
+<!-- スマートEX（片道） -->
+<!-- 経路,運賃,料金 -->
+<div id="resultDetail_5">
+	<div class="search_info_top">
+		<table border="0" style="width:100%;" cellpadding="0" cellspacing="0">
+			<tr class="keiroHeader">
+				<td colspan="4" style="width:282px;">経路</td>
+				<td class="" style="width:282px;">運賃</td>
+				<td class="" style="width:282px;">料金</td>
+			</tr>
+		</table>
+	</div>
+
+		<!-- 検索結果 from 〜 to -->
+		<table class="table1">
+			
+			<!-- パス表示 -->
+			
+				<!-- from駅 -->
+				<tr>
+					<td bgcolor="#f0f0f0">
+						<table border="0" cellspacing="0" cellpadding="0" style="margin-left:15px;">
+							<tr>
+								<td class="h4">東京</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				
+				<!-- from駅 -->
+			
+				<!-- 1段目の金額 -->
+				<tr>
+					<td>
+						<table style="padding-left:22px; height:30px; cellspacing="0" cellpadding="0">
+							<tr>
+								<td class="empty"></td>
+								<td style="background-color:#004ea1; width:5px;"></td>
+								<td class="rosen_name_kek" style="width:282px;">新幹線のぞみ</td>
+								<td class="cost_show" style="width:282px;"><div class="h3">14,520円</div></td>
+								<td class="empty" style="width:230px;"></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<!-- 1段目の金額 -->
+
+				<!-- 中間駅 -->
+				<tr>
+					<td bgcolor="#f0f0f0">
+						<table border="0" cellspacing="0" cellpadding="0" style="margin-left:15px;">
+							<tr>
+								<td class="h4">新大阪</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				
+				<!-- パスここまで -->
+		</table>
+</div>
+
+
+<!-- スマートEX（往復） -->
+<!-- 経路,運賃,料金 -->
+<div id="resultDetail_6">
+	<div class="search_info_top">
+		<table border="0" style="width:100%;" cellpadding="0" cellspacing="0">
+			<tr class="keiroHeader">
+				<td colspan="4" style="width:282px;">経路</td>
+				<td class="" style="width:282px;">運賃</td>
+				<td class="" style="width:282px;">料金</td>
+			</tr>
+		</table>
+	</div>
+
+		<!-- 検索結果 from 〜 to -->
+		<table class="table1">
+			
+			<!-- パス表示 -->
+			
+				<!-- from駅 -->
+				<tr>
+					<td bgcolor="#f0f0f0">
+						<table border="0" cellspacing="0" cellpadding="0" style="margin-left:15px;">
+							<tr>
+								<td class="h4">東京</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				
+				<!-- from駅 -->
+			
+				<!-- 1段目の金額 -->
+				<tr>
+					<td>
+						<table style="padding-left:22px; height:30px; cellspacing="0" cellpadding="0">
+							<tr>
+								<td class="empty"></td>
+								<td style="background-color:#004ea1; width:5px;"></td>
+								<td class="rosen_name_kek" style="width:282px;">新幹線のぞみ</td>
+								<td class="cost_show" style="width:282px;"></td>
+								<td class="empty" style="width:230px;"></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<!-- 1段目の金額 -->
+
+				<!-- 中間駅 -->
+				<tr>
+					<td bgcolor="#f0f0f0">
+						<table border="0" cellspacing="0" cellpadding="0" style="margin-left:15px;">
+							<tr>
+								<td class="h4">新大阪</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				
+				<!-- パスここまで -->
+		</table>
+</div>
+
+
+<hr>
+<tr style="height:16px;">
+	<td colspan=11></td>
+</tr>
+<tr style="height:16px;">
+	<td></td>
+	<td colspan=10><div class="message" id="message"></div></td>
+</tr>
+
+
+
+<tr style="height:0px;">
+	<td colspan=11></td>
+</tr>
+
+<tr>
+	<br><td colspan=11><div class="copymessage" id="copyright"></div></td>
+</tr>
+</body>
+</HTML>

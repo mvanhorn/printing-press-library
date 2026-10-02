@@ -1,0 +1,100 @@
+[
+  {
+    "id": "service",
+    "url": "https://smart-ex.jp/en/product/plan/service/",
+    "status": "200",
+    "bytes": 35310,
+    "title": "smartEX Service | Fare Overview | Tokaido Sanyo Kyushu Shinkansen Internet Reservation Service"
+  },
+  {
+    "id": "equipment",
+    "url": "https://smart-ex.jp/en/reservation/equipment/",
+    "status": "200",
+    "bytes": 17516,
+    "title": "About Tokaido Sanyo Kyushu Shinkansen | About | Tokaido Sanyo Kyushu Shinkansen Internet Reservation Service"
+  },
+  {
+    "id": "booking-window",
+    "url": "https://smart-ex.jp/en/reservation/useful/accept_time/",
+    "status": "200",
+    "bytes": 26263,
+    "title": "Reception Times/Time-Periods | Reservation Guide | Tokaido Sanyo Kyushu Shinkansen Internet Reservation Service"
+  },
+  {
+    "id": "baggage",
+    "url": "https://smart-ex.jp/en/entraining/oversized-baggage/",
+    "status": "200",
+    "bytes": 27094,
+    "title": "Taking Baggage Onboard | Boarding Guide | Tokaido Sanyo Kyushu Shinkansen Internet Reservation Service"
+  },
+  {
+    "id": "change",
+    "url": "https://smart-ex.jp/en/reservation/change/",
+    "status": "200",
+    "bytes": 30474,
+    "title": "Change reservations | Reservation Guide | Tokaido Sanyo Kyushu Shinkansen Internet Reservation Service"
+  },
+  {
+    "id": "refund",
+    "url": "https://smart-ex.jp/en/reservation/guide/cancel/",
+    "status": "200",
+    "bytes": 25887,
+    "title": "Refund reservations | Reservation Guide | Tokaido Sanyo Kyushu Shinkansen Internet Reservation Service"
+  },
+  {
+    "id": "boarding",
+    "url": "https://smart-ex.jp/en/entraining/",
+    "status": "200",
+    "bytes": 21407,
+    "title": "Boarding Guide | Tokaido Sanyo Kyushu Shinkansen Internet Reservation Service"
+  },
+  {
+    "id": "hayatoku1",
+    "url": "https://smart-ex.jp/en/product/hayatoku1/",
+    "status": "200",
+    "bytes": 30195,
+    "title": "EX Hayatoku 1 | Fare Overview | Tokaido Sanyo Kyushu Shinkansen Internet Reservation Service"
+  },
+  {
+    "id": "hayatoku3",
+    "url": "https://smart-ex.jp/en/product/hayatoku3/",
+    "status": "200",
+    "bytes": 32065,
+    "title": "EX Hayatoku 3 | Fare Overview | Tokaido Sanyo Kyushu Shinkansen Internet Reservation Service"
+  },
+  {
+    "id": "hayatoku7",
+    "url": "https://smart-ex.jp/en/product/hayatoku7/",
+    "status": "200",
+    "bytes": 33390,
+    "title": "EX Hayatoku 7 | Fare Overview | Tokaido Sanyo Kyushu Shinkansen Internet Reservation Service"
+  },
+  {
+    "id": "hayatoku21",
+    "url": "https://smart-ex.jp/en/product/hayatoku21/",
+    "status": "200",
+    "bytes": 34308,
+    "title": "EX Hayatoku 21 | Fare Overview | Tokaido Sanyo Kyushu Shinkansen Internet Reservation Service"
+  },
+  {
+    "id": "family7",
+    "url": "https://smart-ex.jp/en/product/hayatoku_family7/",
+    "status": "200",
+    "bytes": 29479,
+    "title": "EX Family Hayatoku 7 | Fare Overview | Tokaido Sanyo Kyushu Shinkansen Internet Reservation Service"
+  },
+  {
+    "id": "fare-search",
+    "url": "https://unchin-navi.jp/04a_search.html",
+    "status": "200",
+    "bytes": 4910,
+    "title": "EXサービス運賃ナビ"
+  },
+  {
+    "id": "fare-main",
+    "url": "https://unchin-navi.jp/03a_main.html",
+    "status": "200",
+    "bytes": 975,
+    "title": "EXサービス運賃ナビ"
+  }
+]
