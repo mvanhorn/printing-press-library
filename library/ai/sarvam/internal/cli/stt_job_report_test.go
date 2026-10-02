@@ -6,9 +6,35 @@ package cli
 
 import (
 	"bytes"
+	"net/http"
+	"net/http/httptest"
+	"path/filepath"
 	"strings"
 	"testing"
 )
+
+func TestSTTJobReportEscapesJobID(t *testing.T) {
+	var calls int
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.EscapedPath() != "/speech-to-text/job/v1/original%2Fone%3Fx/status" {
+			http.Error(w, "unexpected path", http.StatusNotFound)
+			return
+		}
+		calls++
+		_, _ = w.Write([]byte(`{"job_state":"completed","total_files":0,"failed_files_count":0}`))
+	}))
+	defer server.Close()
+	t.Setenv("SARVAM_BASE_URL", server.URL)
+	t.Setenv("SARVAM_API_KEY", "sk_test_fixture")
+	cmd := RootCmd()
+	cmd.SetArgs([]string{"stt-job", "report", "original/one?x", "--config", filepath.Join(t.TempDir(), "missing.toml")})
+	if err := cmd.Execute(); err != nil {
+		t.Fatal(err)
+	}
+	if calls != 1 {
+		t.Fatalf("status calls=%d, want one encoded request", calls)
+	}
+}
 
 // TestNovelSttJobReportHelpWires smoke-tests that the stt-job report command
 // resolves at runtime and renders useful --help output. Catches wiring

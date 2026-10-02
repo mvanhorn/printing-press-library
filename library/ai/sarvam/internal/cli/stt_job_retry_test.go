@@ -16,6 +16,62 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/ai/sarvam/internal/platform"
 )
 
+func TestSTTRetryEscapesOriginalAndReplacementJobIDs(t *testing.T) {
+	const originalID = "original/one?x"
+	const replacementID = "replacement/two#y"
+	var statusCalls, startCalls int
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.EscapedPath() {
+		case "/speech-to-text/job/v1/original%2Fone%3Fx/status":
+			statusCalls++
+			_, _ = w.Write([]byte(`{"job_state":"failed","failed_files_count":1,"job_details":[{"inputs":[{"file_name":"audio.wav"}],"state":"failed"}]}`))
+		case "/speech-to-text/job/v1/replacement%2Ftwo%23y/start":
+			startCalls++
+			_, _ = w.Write([]byte(`{}`))
+		default:
+			http.Error(w, "unexpected path", http.StatusNotFound)
+		}
+	}))
+	defer server.Close()
+	t.Setenv("SARVAM_BASE_URL", server.URL)
+	t.Setenv("SARVAM_API_KEY", "sk_test_fixture")
+	t.Setenv("XDG_STATE_HOME", t.TempDir())
+	checkpointPath, err := sttRetryCheckpointPath(originalID, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := saveSTTRetryCheckpoint(checkpointPath, sttRetryCheckpoint{
+		Version: sttRetryCheckpointVersion, OriginalJobID: originalID,
+		ReplacementJobID: replacementID, Files: []string{"audio.wav"},
+		UploadedFiles: []string{"audio.wav"},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	cmd := RootCmd()
+	cmd.SetArgs([]string{"stt-job", "retry", originalID, "--dir", t.TempDir(), "--config", filepath.Join(t.TempDir(), "missing.toml")})
+	if err := cmd.Execute(); err != nil {
+		t.Fatal(err)
+	}
+	if statusCalls != 1 || startCalls != 1 {
+		t.Fatalf("status calls=%d start calls=%d, want one each", statusCalls, startCalls)
+	}
+}
+
+func TestSTTJobPathSegmentEncodesDotSegments(t *testing.T) {
+	for _, tc := range []struct{ id, want string }{
+		{".", "%2E"}, {"..", "%2E%2E"}, {"a/b", "a%2Fb"},
+		{"a?b", "a%3Fb"}, {"a#b", "a%23b"},
+	} {
+		got, err := sttJobPathSegment(tc.id)
+		if err != nil || got != tc.want {
+			t.Fatalf("job ID %q encoded as %q (error %v), want %q", tc.id, got, err, tc.want)
+		}
+	}
+	if _, err := sttJobPathSegment(" "); err == nil {
+		t.Fatal("blank job ID accepted")
+	}
+}
+
 func TestSTTRetryPresignedTransportErrorDoesNotLeakURL(t *testing.T) {
 	dir := t.TempDir()
 	if err := os.WriteFile(filepath.Join(dir, "audio.wav"), []byte("audio"), 0o600); err != nil {

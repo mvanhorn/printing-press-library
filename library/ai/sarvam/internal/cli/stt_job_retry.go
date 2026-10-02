@@ -36,6 +36,10 @@ func newNovelSttJobRetryCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("missing required positional argument: job_id"))
 			}
 			jobID := args[0]
+			escapedJobID, err := sttJobPathSegment(jobID)
+			if err != nil {
+				return usageErr(fmt.Errorf("invalid job_id: %w", err))
+			}
 			if flagDir == "" {
 				_ = cmd.Usage()
 				return usageErr(fmt.Errorf("--dir is required (local directory containing the audio files to re-upload)"))
@@ -49,7 +53,7 @@ func newNovelSttJobRetryCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			// 1. Fetch the old job status to find failed file names.
-			data, err := c.GetNoCache(ctx, "/speech-to-text/job/v1/"+jobID+"/status", nil)
+			data, err := c.GetNoCache(ctx, "/speech-to-text/job/v1/"+escapedJobID+"/status", nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -151,6 +155,10 @@ func newNovelSttJobRetryCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			newJobID := checkpoint.ReplacementJobID
+			escapedNewJobID, err := sttJobPathSegment(newJobID)
+			if err != nil {
+				return pendingSTTRetryError(newJobID, checkpointPath, apiErr(fmt.Errorf("invalid replacement job ID: %w", err)))
+			}
 
 			// 3. Get presigned URLs only for files not already recorded as
 			// uploaded by a previous attempt.
@@ -221,7 +229,7 @@ func newNovelSttJobRetryCmd(flags *rootFlags) *cobra.Command {
 			if err := saveSTTRetryCheckpoint(checkpointPath, checkpoint); err != nil {
 				return configErr(fmt.Errorf("recording retry start attempt: %w", err))
 			}
-			startData, _, err := c.Post(ctx, "/speech-to-text/job/v1/"+newJobID+"/start", map[string]any{})
+			startData, _, err := c.Post(ctx, "/speech-to-text/job/v1/"+escapedNewJobID+"/start", map[string]any{})
 			if err != nil {
 				return fmt.Errorf("%w; start outcome for replacement job %s is unknown; inspect provider status before removing checkpoint %s", classifyAPIError(err, flags), newJobID, checkpointPath)
 			}

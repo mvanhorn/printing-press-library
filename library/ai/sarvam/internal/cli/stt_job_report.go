@@ -74,6 +74,10 @@ func newNovelSttJobReportCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("missing required positional argument: job_id"))
 			}
 			jobID := args[0]
+			escapedJobID, err := sttJobPathSegment(jobID)
+			if err != nil {
+				return usageErr(fmt.Errorf("invalid job_id: %w", err))
+			}
 
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
@@ -82,7 +86,7 @@ func newNovelSttJobReportCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			data, err := c.GetNoCache(ctx, "/speech-to-text/job/v1/"+jobID+"/status", nil)
+			data, err := c.GetNoCache(ctx, "/speech-to-text/job/v1/"+escapedJobID+"/status", nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
