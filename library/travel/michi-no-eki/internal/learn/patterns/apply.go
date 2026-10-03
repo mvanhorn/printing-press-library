@@ -64,7 +64,10 @@ type Opts struct {
 	Limit      int
 	NoVerify   bool
 	// NoLimit is for callers that apply their final limit after identity validation.
-	NoLimit         bool
+	NoLimit bool
+	// AllBindings lets Recall validate alternate entity bindings from the same pattern.
+	// Standalone Apply retains its first-existing-candidate behavior by default.
+	AllBindings     bool
 	AdditionalKinds []string
 }
 
@@ -147,8 +150,6 @@ func Apply(ctx context.Context, db *sql.DB, query, nonEntityNormalized string, q
 			continue
 		}
 
-		var hit Hit
-		matched := false
 		for _, ent := range queryEntities {
 			candidate, ok := substituteCandidate(db, resourceTmpl, entityKind, ent, allKinds)
 			if !ok {
@@ -169,14 +170,11 @@ func Apply(ctx context.Context, db *sql.DB, query, nonEntityNormalized string, q
 				t := lastObserved.Time
 				h.LastObservedAt = &t
 			}
-			hit = h
-			matched = true
-			break
+			hits = append(hits, h)
+			if !opts.AllBindings {
+				break
+			}
 		}
-		if !matched {
-			continue
-		}
-		hits = append(hits, hit)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("patterns.Apply rows: %w", err)

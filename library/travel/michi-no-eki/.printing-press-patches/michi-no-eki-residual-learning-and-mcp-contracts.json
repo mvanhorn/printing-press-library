@@ -35,7 +35,10 @@
     "resourcePresent && len(hit.ResourceEntities) > 0",
     "h.BoundEntity = ent",
     "boundIdentity := []string{ph.BoundEntity}",
-    "NoLimit:         true,"
+    "NoLimit:         true,",
+    "AllBindings:     true,",
+    "delete(mismatchCanonicals, key)",
+    "bestHits := hits[:0]"
   ],
   "findings_addressed": [
     "F1",
@@ -44,5 +47,5 @@
     "F4",
     "F5"
   ],
-  "validated_outcome": "Real SQLite Extract/Apply/Recall and actual command/tool regressions cover compatible surviving support despite unusable cohort rows, valid example provenance, rollback, full explicit manual scope, direct/common-canonical and exact-bound-entity pattern identity, low-level/native/root-help journaling and unknown controls. Fresh acceptance follows the current-head repairs."
+  "validated_outcome": "Real SQLite Extract/Apply/Recall and actual command/tool regressions cover compatible surviving support despite unusable cohort rows, valid example provenance, rollback, full explicit manual scope, direct/common-canonical and exact-bound-entity pattern identity, low-level/native/root-help journaling and unknown controls. Fresh acceptance follows the current-head repairs. Same-pattern alternate bindings and consistent accepted-ID diagnostics pass; standalone caps and final Recall ranking remain. The local-work P2 is explicitly deferred with measured 100/1000-pattern evidence, not claimed as bounded by result limit. Final typed-ID dedup follows validated ranking, retaining pattern exact over direct partial and stronger duplicate pattern evidence while preserving direct exact source priority."
 }

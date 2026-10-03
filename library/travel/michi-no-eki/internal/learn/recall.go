@@ -277,7 +277,7 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 	// then sees that a structurally-similar learning exists for a
 	// different entity, rather than the misleading
 	// no_learnings_for_query_family.
-	mismatchCanonicals := make(map[string]struct{})
+	mismatchCanonicals := make(map[string]map[string]struct{})
 
 	for rows.Next() {
 		var (
@@ -487,18 +487,22 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 			hit.Warnings = append(hit.Warnings, WarningCrossAliasMatch)
 		}
 		if hit.EntityMatch == EntityMatchMismatch {
+			key := hitKey(hit.ResourceType, hit.ResourceID)
+			if mismatchCanonicals[key] == nil {
+				mismatchCanonicals[key] = make(map[string]struct{})
+			}
 			// Surface canonicals for the envelope-level similar-shape
 			// warning. Fall back to literal stored entities when the
 			// row has no canonical resolution -- better to name the
 			// raw entity than to silently drop the hint.
 			if len(storedCanonicals) > 0 {
 				for c := range storedCanonicals {
-					mismatchCanonicals[c] = struct{}{}
+					mismatchCanonicals[key][c] = struct{}{}
 				}
 			} else {
 				for _, e := range storedEntitySlice {
 					if e = strings.TrimSpace(e); e != "" {
-						mismatchCanonicals[e] = struct{}{}
+						mismatchCanonicals[key][e] = struct{}{}
 					}
 				}
 			}
@@ -519,17 +523,15 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 		Limit:           limit,
 		AdditionalKinds: opts.PatternKinds,
 		NoLimit:         true,
+		AllBindings:     true,
 	})
 	if len(patternHits) > 0 {
-		existing := make(map[string]struct{}, len(hits))
-		for _, h := range hits {
-			existing[hitKey(h.ResourceType, h.ResourceID)] = struct{}{}
-		}
+		acceptedPatterns := make(map[int64]struct{})
 		for _, ph := range patternHits {
-			key := hitKey(ph.ResourceType, ph.ResourceID)
-			if _, dup := existing[key]; dup {
+			if _, accepted := acceptedPatterns[ph.PatternID]; accepted {
 				continue
 			}
+			key := hitKey(ph.ResourceType, ph.ResourceID)
 			hit := Hit{
 				ResourceID:       ph.ResourceID,
 				ResourceType:     ph.ResourceType,
@@ -552,12 +554,15 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 					hit.Warnings = append(hit.Warnings, WarningCrossAliasMatch)
 				}
 				if hit.EntityMatch == EntityMatchMismatch {
+					if mismatchCanonicals[key] == nil {
+						mismatchCanonicals[key] = make(map[string]struct{})
+					}
 					for canonical := range resourceCanonicals {
-						mismatchCanonicals[canonical] = struct{}{}
+						mismatchCanonicals[key][canonical] = struct{}{}
 					}
 					if len(resourceCanonicals) == 0 {
 						for _, entity := range hit.ResourceEntities {
-							mismatchCanonicals[entity] = struct{}{}
+							mismatchCanonicals[key][entity] = struct{}{}
 						}
 					}
 					mismatches = append(mismatches, hit)
@@ -569,12 +574,45 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 				// evidence of current provider facts or resource identity.
 				hit.EntityMatch = EntityMatchExact
 			}
-			existing[key] = struct{}{}
+			// Consume a pattern only after this binding passes identity validation.
+			// A valid duplicate counts as its first accepted binding; a conflicting
+			// duplicate must leave later bindings available for validation. Typed-ID
+			// deduplication follows final ranking of all accepted evidence below.
+			acceptedPatterns[ph.PatternID] = struct{}{}
 			hits = append(hits, hit)
 		}
 	}
 
+	// Diagnostics describe the final identity decision for a typed resource.
+	// A rejected binding cannot contradict a later accepted binding to that ID.
+	accepted := make(map[string]struct{}, len(hits))
+	for _, h := range hits {
+		key := hitKey(h.ResourceType, h.ResourceID)
+		accepted[key] = struct{}{}
+		delete(mismatchCanonicals, key)
+	}
+	remainingMismatches := mismatches[:0]
+	for _, h := range mismatches {
+		if _, ok := accepted[hitKey(h.ResourceType, h.ResourceID)]; !ok {
+			remainingMismatches = append(remainingMismatches, h)
+		}
+	}
+	mismatches = remainingMismatches
+
 	sortHits(hits)
+	// Deduplicate only after ranking validated evidence. An earlier partial or
+	// lower-confidence binding must not hide a better hit for the same typed ID.
+	bestHits := hits[:0]
+	seen := make(map[string]struct{}, len(hits))
+	for _, h := range hits {
+		key := hitKey(h.ResourceType, h.ResourceID)
+		if _, duplicate := seen[key]; duplicate {
+			continue
+		}
+		seen[key] = struct{}{}
+		bestHits = append(bestHits, h)
+	}
+	hits = bestHits
 	sortHits(mismatches)
 
 	if len(hits) > limit {
@@ -609,8 +647,14 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 	// similar-shape learning exists for a different entity, instead
 	// of treating it as a cold start.
 	if len(mismatchCanonicals) > 0 {
-		canonicals := make([]string, 0, len(mismatchCanonicals))
-		for c := range mismatchCanonicals {
+		remainingCanonicals := make(map[string]struct{})
+		for _, evidence := range mismatchCanonicals {
+			for canonical := range evidence {
+				remainingCanonicals[canonical] = struct{}{}
+			}
+		}
+		canonicals := make([]string, 0, len(remainingCanonicals))
+		for c := range remainingCanonicals {
 			canonicals = append(canonicals, c)
 		}
 		sort.Strings(canonicals)
