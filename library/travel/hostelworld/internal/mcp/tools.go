@@ -10,7 +10,6 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -22,6 +21,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/travel/hostelworld/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/travel/hostelworld/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/travel/hostelworld/internal/config"
+	hw "github.com/mvanhorn/printing-press-library/library/travel/hostelworld/internal/hostelworld"
 	"github.com/mvanhorn/printing-press-library/library/travel/hostelworld/internal/learn"
 	"github.com/mvanhorn/printing-press-library/library/travel/hostelworld/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/travel/hostelworld/internal/mcp/cobratree"
@@ -506,18 +506,15 @@ const (
 	mcpStoreStatusReady   mcpStoreStatusKind = "ready"
 )
 
-func openMCPReadOnlyStore(path string) (*store.Store, *mcplib.CallToolResult) {
-	if _, err := os.Stat(path); err != nil {
-		if os.IsNotExist(err) {
-			return nil, mcplib.NewToolResultError(mcpMissingStoreMessage(path))
-		}
-		return nil, mcplib.NewToolResultError(fmt.Sprintf("checking local data store %s: %v", path, err))
-	}
-	db, err := store.OpenReadOnly(path)
+func openMCPReadOnlyStore(ctx context.Context, path string) (*store.Store, *hw.CacheGuard, *mcplib.CallToolResult) {
+	db, guard, err := cli.OpenPlanningReadOnly(ctx, path)
 	if err != nil {
-		return nil, mcplib.NewToolResultError(fmt.Sprintf("opening local data store %s: %v. Save normalized observations with hostels inspect/offers --save; use live planning tools to refresh dated evidence.", path, err))
+		return nil, nil, mcplib.NewToolResultError(err.Error())
 	}
-	return db, nil
+	if db == nil {
+		return nil, nil, mcplib.NewToolResultError(mcpMissingStoreMessage(path))
+	}
+	return db, guard, nil
 }
 
 func mcpMissingStoreMessage(path string) string {
@@ -586,10 +583,11 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
 	}
-	db, toolErr := openMCPReadOnlyStore(path)
+	db, guard, toolErr := openMCPReadOnlyStore(ctx, path)
 	if toolErr != nil {
 		return toolErr, nil
 	}
+	defer guard.Close()
 	defer db.Close()
 
 	if limit < 1 || limit > 50 {
@@ -604,6 +602,9 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
 	}
 
+	if err := guard.Check(); err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
 	return toolResultJSON(mcpSearchEnvelope(results, storeStatus))
 }
 
@@ -799,10 +800,11 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
 	}
-	db, toolErr := openMCPReadOnlyStore(path)
+	db, guard, toolErr := openMCPReadOnlyStore(ctx, path)
 	if toolErr != nil {
 		return toolErr, nil
 	}
+	defer guard.Close()
 	defer db.Close()
 
 	queryCtx, cancel := bound.WithSQLQueryDeadline(ctx)
@@ -859,6 +861,12 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
 	}
 
+	if err := rows.Close(); err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
+	if err := guard.Check(); err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
 	return toolResultJSON(mcpSQLEnvelope(scan.Rows, cols, storeStatus, scan.Truncated))
 }
 

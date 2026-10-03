@@ -4,9 +4,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 
-	"github.com/mvanhorn/printing-press-library/library/travel/hostelworld/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -53,15 +51,12 @@ func configurePlanningCache(root *cobra.Command, flags *rootFlags) {
 			out := []any{}
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
-			path, err := PlanningDBPath(ctx, path)
+			db, guard, err := OpenPlanningReadOnly(ctx, path)
 			if err != nil {
 				return err
 			}
-			if _, err := os.Stat(path); err == nil {
-				db, err := store.OpenReadOnlyContext(ctx, path)
-				if err != nil {
-					return err
-				}
+			defer guard.Close()
+			if db != nil {
 				defer db.Close()
 				rows, err := db.Search(args[0], limit, "planning_snapshot")
 				if err != nil {
@@ -75,7 +70,8 @@ func configurePlanningCache(root *cobra.Command, flags *rootFlags) {
 					v["freshness"] = "stale"
 					out = append(out, v)
 				}
-			} else if !os.IsNotExist(err) {
+			}
+			if err := guard.Check(); err != nil {
 				return err
 			}
 			return flags.printJSON(cmd, map[string]any{"results": out, "freshness": "stale", "population": "hostels inspect/offers --save", "notice": "saved observations are incomplete and dated prices must be refreshed live"})
@@ -120,22 +116,20 @@ func configurePlanningCache(root *cobra.Command, flags *rootFlags) {
 				ctx, cancel := boundCtx(cmd.Context(), flags)
 				defer cancel()
 				requested, _ := cmd.Flags().GetString("db")
-				path, err := PlanningDBPath(ctx, requested)
+				db, guard, err := OpenPlanningReadOnly(ctx, requested)
 				if err != nil {
 					return err
 				}
+				defer guard.Close()
 				counts := map[string]int{}
-				if _, err := os.Stat(path); err == nil {
-					db, err := store.OpenReadOnlyContext(ctx, path)
-					if err != nil {
-						return err
-					}
+				if db != nil {
 					defer db.Close()
 					counts, err = db.Status()
 					if err != nil {
 						return err
 					}
-				} else if !os.IsNotExist(err) {
+				}
+				if err := guard.Check(); err != nil {
 					return err
 				}
 				return flags.printJSON(cmd, map[string]any{"status": "local_cache_only", "provider_snapshot_refreshed": false, "counts": counts, "freshness": "stale", "population": "hostels inspect/offers --save", "retention_limit": 200})

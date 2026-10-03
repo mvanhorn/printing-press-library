@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
+	"net/url"
 	"path/filepath"
 	"time"
 
@@ -49,11 +49,24 @@ func init() {
 				if err != nil {
 					return err
 				}
-				db, err := store.OpenWithContext(ctx, path)
+				guard, err := hw.BeginCacheWrite(path)
 				if err != nil {
 					return err
 				}
+				db, err := store.OpenWithContext(ctx, guard.Path())
+				if err != nil {
+					return err
+				}
+				db.DB().SetMaxOpenConns(1)
+				db.DB().SetMaxIdleConns(1)
+				if err := guard.BindWriter(); err != nil {
+					db.Close()
+					return err
+				}
 				if err := db.Close(); err != nil {
+					return err
+				}
+				if err := guard.CheckAfterWriterClose(); err != nil {
 					return err
 				}
 				return flags.printJSON(cmd, map[string]any{"status": "local_cache_only", "provider_snapshot_refreshed": false, "population": "hostels inspect/offers --save", "read_saved": "hostels saved", "freshness": "saved prices remain stale", "database": path})
@@ -173,15 +186,33 @@ func savePlanning(ctx context.Context, v map[string]any) error {
 	if err != nil {
 		return err
 	}
-	db, err := store.OpenWithContext(ctx, path)
+	guard, err := hw.BeginCacheWrite(path)
+	if err != nil {
+		return err
+	}
+	db, err := store.OpenWithContext(ctx, guard.Path())
 	if err != nil {
 		return err
 	}
 	defer db.Close()
+	db.DB().SetMaxOpenConns(1)
+	db.DB().SetMaxIdleConns(1)
+	if err := guard.BindWriter(); err != nil {
+		return err
+	}
 	if err := db.Upsert("planning_snapshot", hex.EncodeToString(h[:]), data); err != nil {
 		return err
 	}
-	return prunePlanning(ctx, db)
+	if err := prunePlanning(ctx, db); err != nil {
+		return err
+	}
+	if err := guard.CheckWriter(); err != nil {
+		return err
+	}
+	if err := db.Close(); err != nil {
+		return err
+	}
+	return guard.CheckAfterWriterClose()
 }
 
 // PlanningDBPath keeps manual observations inside the verified client profile.
@@ -202,18 +233,30 @@ func PlanningDBPath(ctx context.Context, requested string) (string, error) {
 	return defaultDBPath("hostelworld-pp-cli"), nil
 }
 
-func openPlanningForRead(ctx context.Context) (*store.Store, error) {
-	path, err := PlanningDBPath(ctx, "")
+// OpenPlanningReadOnly guards the complete immutable read and resolves aliases.
+// Callers must check the returned guard after all queries, before emitting data.
+func OpenPlanningReadOnly(ctx context.Context, requested string) (*store.Store, *hw.CacheGuard, error) {
+	path, err := PlanningDBPath(ctx, requested)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	if _, err := os.Stat(path); err != nil {
-		if os.IsNotExist(err) {
-			return nil, nil
-		}
-		return nil, err
+	guard, err := hw.BeginCacheRead(path)
+	if err != nil {
+		return nil, nil, err
 	}
-	return store.OpenReadOnlyContext(ctx, path)
+	if guard.Missing() {
+		return nil, guard, nil
+	}
+	snapshot, err := guard.Snapshot(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+	db, err := store.OpenReadOnlyContext(ctx, (&url.URL{Path: filepath.ToSlash(snapshot)}).EscapedPath())
+	if err != nil {
+		guard.Close()
+		return nil, nil, err
+	}
+	return db, guard, nil
 }
 
 // Prune both representations atomically, including orphaned FTS rows from old

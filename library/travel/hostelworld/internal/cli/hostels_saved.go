@@ -16,11 +16,15 @@ func newNovelHostelsSavedCmd(flags *rootFlags) *cobra.Command {
 		}
 		ctx, cancel := boundCtx(cmd.Context(), flags)
 		defer cancel()
-		db, err := openPlanningForRead(ctx)
+		db, guard, err := OpenPlanningReadOnly(ctx, "")
 		if err != nil {
 			return err
 		}
+		defer guard.Close()
 		if db == nil {
+			if err := guard.Check(); err != nil {
+				return err
+			}
 			return flags.printJSON(cmd, map[string]any{"results": []any{}, "freshness": "stale", "notice": "save live evidence with hostels inspect/offers --save"})
 		}
 		defer db.Close()
@@ -43,6 +47,12 @@ func newNovelHostelsSavedCmd(flags *rootFlags) *cobra.Command {
 			out = append(out, v)
 		}
 		if err := rows.Err(); err != nil {
+			return err
+		}
+		if err := rows.Close(); err != nil {
+			return err
+		}
+		if err := guard.Check(); err != nil {
 			return err
 		}
 		return flags.printJSON(cmd, map[string]any{"results": out, "freshness": "stale", "notice": "saved dated prices are observations; re-run a live command to refresh", "retention_limit": 200})
