@@ -89,7 +89,9 @@ type ForgetFilter struct {
 
 // Upsert inserts a pattern row, or — when (query_template,
 // resource_template, strategy) already exists — bumps confidence by 1
-// and refreshes last_observed_at. Returns the row ID and a bool
+// and refreshes last_observed_at. Explicit taught updates also replace
+// resource type, venue, entity kind and examples; inferred updates preserve
+// the stored payload and manual provenance. Returns the row ID and a bool
 // indicating whether the row was newly inserted.
 //
 // Idempotency is built on the unique index idx_patterns_unique. This
@@ -137,14 +139,19 @@ func Upsert(db *sql.DB, p Pattern) (int64, bool, error) {
 		p.QueryTemplate, p.ResourceTemplate, p.Strategy,
 	).Scan(&existingID)
 	if err == nil {
-		if _, err := tx.Exec(
-			`UPDATE search_patterns
-			 SET confidence = confidence + 1, last_observed_at = ?,
-			     source = CASE WHEN source = 'taught' OR ? = 'taught' THEN 'taught' ELSE source END
-			 WHERE id = ?`,
-			now, p.Source, existingID,
-		); err != nil {
-			return 0, false, fmt.Errorf("patterns.Upsert bump confidence: %w", err)
+		// Explicit teaching replaces its requested scope and provenance.
+		// Inference may refresh confidence/time but never overwrite a manual rule.
+		if p.Source == SourceTaught {
+			_, err = tx.Exec(`UPDATE search_patterns
+			 SET confidence=confidence+1,last_observed_at=?,source='taught',
+			 resource_type=?,venue=NULLIF(?,''),entity_kind=?,
+			 example_query=NULLIF(?,''),example_resource=NULLIF(?, '') WHERE id=?`,
+				now, p.ResourceType, p.Venue, p.EntityKind, p.ExampleQuery, p.ExampleResource, existingID)
+		} else {
+			_, err = tx.Exec(`UPDATE search_patterns SET confidence=confidence+1,last_observed_at=? WHERE id=?`, now, existingID)
+		}
+		if err != nil {
+			return 0, false, fmt.Errorf("patterns.Upsert update: %w", err)
 		}
 		if err := tx.Commit(); err != nil {
 			return 0, false, err

@@ -38,9 +38,12 @@ type Hit struct {
 	MatchScore       float64
 	EntityMatch      string
 	ResourceEntities []string
-	Source           string
-	PatternID        int64
-	LastObservedAt   *time.Time
+	// BoundEntity is the actual query entity used for substitution, not other
+	// query entities that may happen to match the candidate's cached identity.
+	BoundEntity    string `json:"-"`
+	Source         string
+	PatternID      int64
+	LastObservedAt *time.Time
 	// Meta carries structured diagnostic reasons when a pattern matched
 	// textually but failed verification (substitution miss, resource
 	// not in store, etc.). Empty on success.
@@ -58,8 +61,13 @@ type Hit struct {
 // should try ahead of the built-in computed kinds when a template's
 // entity_kind doesn't have a direct slot in the template string.
 type Opts struct {
-	JaccardMin      float64
-	Limit           int
+	JaccardMin float64
+	Limit      int
+	// NoLimit lets a caller validate candidates before applying its own bound.
+	NoLimit bool
+	// AllBindings exposes each verified entity binding for caller validation.
+	// Standalone callers retain the first verified binding per pattern.
+	AllBindings     bool
 	NoVerify        bool
 	AdditionalKinds []string
 }
@@ -68,8 +76,8 @@ type Opts struct {
 // matches the live query (via the same non-entity normalized form +
 // Jaccard threshold the direct recall path uses), substitutes the live
 // query's entity via lookups.Lookup, and verifies each substituted
-// candidate exists in the resources table (or matches a prefix LIKE
-// search for the prefix strategy). Returns the verified hits.
+// candidate exists in the resources table (or uniquely matches a literal
+// prefix for the prefix strategy). Returns the verified hits.
 //
 // queryEntities is the case-preserving entity slice extracted from the
 // live query by the caller (typically via learn.Normalize). The caller
@@ -143,8 +151,6 @@ func Apply(ctx context.Context, db *sql.DB, query, nonEntityNormalized string, q
 			continue
 		}
 
-		var hit Hit
-		matched := false
 		for _, ent := range queryEntities {
 			candidate, ok := substituteCandidate(db, resourceTmpl, entityKind, ent, allKinds)
 			if !ok {
@@ -154,6 +160,7 @@ func Apply(ctx context.Context, db *sql.DB, query, nonEntityNormalized string, q
 			if !verified {
 				continue
 			}
+			h.BoundEntity = ent
 			h.Venue = venue
 			h.Confidence = confidence
 			h.MatchScore = score
@@ -164,14 +171,11 @@ func Apply(ctx context.Context, db *sql.DB, query, nonEntityNormalized string, q
 				t := lastObserved.Time
 				h.LastObservedAt = &t
 			}
-			hit = h
-			matched = true
-			break
+			hits = append(hits, h)
+			if !opts.AllBindings {
+				break
+			}
 		}
-		if !matched {
-			continue
-		}
-		hits = append(hits, hit)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("patterns.Apply rows: %w", err)
@@ -195,7 +199,7 @@ func Apply(ctx context.Context, db *sql.DB, query, nonEntityNormalized string, q
 		return ai.After(aj)
 	})
 
-	if len(hits) > limit {
+	if !opts.NoLimit && len(hits) > limit {
 		hits = hits[:limit]
 	}
 	return hits, nil

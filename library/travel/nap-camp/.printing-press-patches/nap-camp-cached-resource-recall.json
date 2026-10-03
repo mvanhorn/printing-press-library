@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "nap-camp-cached-resource-recall",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261003-001152-6cdfd713",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Require cached resource identity to agree before direct aliases or synthesized patterns become exact recall hits.",
+  "reason": "Canonical teaching overlap and substituted identifier existence cannot erase an explicit conflicting cached identity.",
+  "files": [
+    "internal/learn/recall.go",
+    "internal/cli/nap_recall_identity_contract_test.go",
+    "README.md",
+    "internal/learn/patterns/apply.go",
+    "internal/learn/patterns/publication_contracts_test.go",
+    "internal/cli/nap_ranked_binding_contract_test.go",
+    "internal/learn/nap_resource_errors_test.go"
+  ],
+  "validated_outcome": "Actual CLI regressions cover literal/cross-alias direct conflicts, pattern and combined-path conflicts, true cached aliases, warned absent resources, and unchanged empty-identity classifications. Ambiguous direct aliases require a shared query/teaching/resource canonical; ordinary mismatch warnings name the actual cached alternative. Pattern hits carry their exact substituted entity; multi-entity CLI regressions reject unrelated literal/alias rescue while retaining bound literal/alias and empty-identity controls. Rejected pattern bindings do not register the target as accepted, so a later valid binding to the same ID remains recallable with rejected evidence preserved. The recall result bound applies after validation/dedup, retaining a valid lower-ranked binding at limit1 while standalone pattern Apply keeps default/explicit caps. Every binding of a matching pattern reaches cached-identity validation; final ranking selects the best accepted typed-ID hit and removes emitted target IDs from rejected diagnostics before their cap. Recall intentionally treats limit as a returned-result cap and validates matching local bindings exhaustively. Unexpected payload-read errors and cancellation fail explicitly; only sql.ErrNoRows retains missing-resource fallback, with direct and pattern Scan-error regressions. Comparable two-field resource keys preserve distinct arbitrary taught type/ID tuples, including separator collisions; actual two-teach recall emits both at limit2."
+}

@@ -1,9 +1,9 @@
 {
   "status": "pass",
-  "observed_at": "2026-10-03T07:35:54.193597+00:00",
-  "measurement_stage": "current canonical publication source after response-bound, MCP partial-evidence and scoped-learning fixes",
-  "source_fingerprint": "b1e8da230b42a23078b649c84066f7d6858f3052dd12e96ff5ef7b5fe244ed33",
-  "binary_sha256": "c3a9e55898dbdf6167d5f5bde17ac7617095fa04cd3588d0622e54ec770e98eb",
+  "observed_at": "2026-10-03T14:47:32.794628+00:00",
+  "measurement_stage": "current canonical publication source after all reviewed publication repairs",
+  "source_fingerprint": "5bd92fbf1f697323eef7d7bdae621976581062abb2acaacbce5bb74da7c1e57e",
+  "binary_sha256": "15a4c64fb6ea0b89bbbf7d30deb9fdafab1962d8ce94320971daf7a33ac5cddc",
   "normal_mode": true,
   "scope": "Six representative commands x1 successful normal-mode process run; network/startup included; no latency threshold or percentile/SLA claim.",
   "performance": [
@@ -11,36 +11,36 @@
       "command": "discover",
       "runs": 1,
       "passed": 1,
-      "seconds": 0.8756,
+      "seconds": 0.6881,
       "stdout_bytes": 7806
     },
     {
       "command": "calendar",
       "runs": 1,
       "passed": 1,
-      "seconds": 0.9748,
-      "stdout_bytes": 5208
+      "seconds": 0.9395,
+      "stdout_bytes": 5187
     },
     {
       "command": "fit",
       "runs": 1,
       "passed": 1,
-      "seconds": 0.7303,
+      "seconds": 0.7374,
       "stdout_bytes": 3025
     },
     {
       "command": "compare",
       "runs": 1,
       "passed": 1,
-      "seconds": 1.7622,
+      "seconds": 1.7544,
       "stdout_bytes": 7040
     },
     {
       "command": "snapshot",
       "runs": 1,
       "passed": 1,
-      "seconds": 1.4642,
-      "stdout_bytes": 32050
+      "seconds": 1.3618,
+      "stdout_bytes": 32029
     },
     {
       "command": "changes",
@@ -49,5 +49,71 @@
       "seconds": 0.0108,
       "stdout_bytes": 361
     }
-  ]
+  ],
+  "local_recall_result_cap_measurement": {
+    "status": "pass",
+    "observed_at": "2026-10-03T14:38:45.608965+00:00",
+    "synthetic_local_fixture": true,
+    "source_scope": "Current publication-only source; ordinary compiled CLI recall against isolated SQLite stores.",
+    "binary_sha256": "15a4c64fb6ea0b89bbbf7d30deb9fdafab1962d8ce94320971daf7a33ac5cddc",
+    "measurement_scope": "Five normal-mode process runs per size, including startup, store-open and optional local recall telemetry; no network and no latency/SLA threshold.",
+    "work_contract": "--limit caps returned results; all matching entity bindings remain eligible for final identity validation and confidence/source ranking. It is not a database-query budget.",
+    "cases": [
+      {
+        "matching_patterns": 1,
+        "query_entities": 1,
+        "requested_result_limit": 1,
+        "runs": 5,
+        "passed": 5,
+        "milliseconds": [
+          12.623,
+          11.955,
+          12.546,
+          13.07,
+          12.064
+        ],
+        "median_milliseconds": 12.546,
+        "maximum_stdout_bytes": 577,
+        "returned_results": 1,
+        "later_highest_confidence_selected": true
+      },
+      {
+        "matching_patterns": 100,
+        "query_entities": 1,
+        "requested_result_limit": 1,
+        "runs": 5,
+        "passed": 5,
+        "milliseconds": [
+          13.819,
+          14.794,
+          13.855,
+          14.635,
+          14.788
+        ],
+        "median_milliseconds": 14.635,
+        "maximum_stdout_bytes": 577,
+        "returned_results": 1,
+        "later_highest_confidence_selected": true
+      },
+      {
+        "matching_patterns": 1000,
+        "query_entities": 1,
+        "requested_result_limit": 1,
+        "runs": 5,
+        "passed": 5,
+        "milliseconds": [
+          25.543,
+          25.276,
+          25.578,
+          24.37,
+          24.991
+        ],
+        "median_milliseconds": 25.276,
+        "maximum_stdout_bytes": 577,
+        "returned_results": 1,
+        "later_highest_confidence_selected": true
+      }
+    ],
+    "source_fingerprint": "5bd92fbf1f697323eef7d7bdae621976581062abb2acaacbce5bb74da7c1e57e"
+  }
 }

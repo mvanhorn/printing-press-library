@@ -69,7 +69,7 @@ func Extract(db *sql.DB, additionalKinds []string) (int, error) {
 	rows, err := db.Query(`SELECT id, query_pattern, COALESCE(query_entities, ''),
 			resource_id, COALESCE(resource_type, ''), COALESCE(venue, '')
 		FROM search_learnings
-		WHERE source IN ('taught', 'inferred-followup', 'inferred-reach', 'inferred-pair')
+		WHERE source IN ('taught', 'inferred-followup', 'inferred-reach', 'inferred-pair') AND action='boost'
 		ORDER BY last_observed_at DESC, id DESC
 		LIMIT ?`, extractWindow)
 	if err != nil {
