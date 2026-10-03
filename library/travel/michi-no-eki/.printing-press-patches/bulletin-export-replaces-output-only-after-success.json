@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "bulletin-export-replaces-output-only-after-success",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261003-001046-81800c96",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Bulletin export must not truncate an existing output file until the notice scan and encode both succeed.",
+  "reason": "The generated exporter opens --output with O_TRUNC before reading. A notice-index failure after that open erases the previous backup. A regen must write the finished payload aside and replace the destination only after success, leaving the previous file intact on failure.",
+  "files": [
+    "internal/cli/export.go",
+    "internal/cli/export_bulletins.go",
+    "internal/cli/export_bulletins_test.go"
+  ],
+  "validated_outcome": "A failed bulletin scan leaves the previous --output bytes in place and removes its temporary file."
+}

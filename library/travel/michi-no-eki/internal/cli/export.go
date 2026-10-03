@@ -75,6 +75,19 @@ large datasets as it has no memory pressure.`,
 				}
 			}
 
+			// Bulletin export scans the notice index before any bytes are
+			// known. Opening --output here would truncate an existing backup
+			// if that scan fails. Write the finished payload aside, then
+			// replace the destination only after success.
+			if resource == "bulletins" && !flags.dryRun && outputFile != "" {
+				count, err := writeParsedBulletinExportFile(cmd.Context(), flags, args, format, limit, outputFile)
+				if err != nil {
+					return err
+				}
+				fmt.Fprintf(os.Stderr, "Exported %d records to %s\n", count, outputFile)
+				return nil
+			}
+
 			var writer *bufio.Writer
 			var outFile *os.File
 			if outputFile != "" {

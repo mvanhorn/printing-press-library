@@ -196,6 +196,68 @@ func TestBulletinExportRejectsUnknownFormatAndNegativeLimit(t *testing.T) {
 	}
 }
 
+func TestBulletinExportFailureLeavesExistingFile(t *testing.T) {
+	dir := t.TempDir()
+	dest := filepath.Join(dir, "bulletins.jsonl")
+	original := []byte("previous backup\n")
+	if err := os.WriteFile(dest, original, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	src := &michi.Source{BaseURL: michi.Origin, Fetch: func(context.Context, string) ([]byte, error) {
+		return nil, fmt.Errorf("index page failed")
+	}}
+	_, err := writeBulletinExportFileFromSource(context.Background(), nil, src, []string{"bulletins"}, "jsonl", 0, dest)
+	if err == nil {
+		t.Fatal("failed scan replaced the backup")
+	}
+	got, readErr := os.ReadFile(dest)
+	if readErr != nil {
+		t.Fatal(readErr)
+	}
+	if string(got) != string(original) {
+		t.Fatalf("backup = %q", got)
+	}
+	entries, readErr := os.ReadDir(dir)
+	if readErr != nil {
+		t.Fatal(readErr)
+	}
+	if len(entries) != 1 || entries[0].Name() != "bulletins.jsonl" {
+		t.Fatalf("directory after failure: %v", entries)
+	}
+}
+
+func TestBulletinExportReplacesFileOnlyAfterSuccess(t *testing.T) {
+	dir := t.TempDir()
+	dest := filepath.Join(dir, "nested", "bulletins.jsonl")
+	if err := os.MkdirAll(filepath.Dir(dest), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(dest, []byte("previous backup\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	n, err := writeBulletinExportFileFromSource(context.Background(), nil, bulletinExportSource(), []string{"bulletins"}, "jsonl", 0, dest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if n != 2 {
+		t.Fatalf("count = %d, want 2", n)
+	}
+	got, err := os.ReadFile(dest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(got), "previous backup") || strings.Contains(string(got), "<") || !strings.Contains(string(got), "20001") {
+		t.Fatalf("replaced body = %q", got)
+	}
+	info, err := os.Stat(dest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if info.Mode().Perm()&0o077 != 0 {
+		t.Fatalf("file mode = %o, want 0600", info.Mode().Perm())
+	}
+}
+
 func TestExportRejectsFormatAndLimitBeforeCreatingOutput(t *testing.T) {
 	dir := t.TempDir()
 	for _, args := range [][]string{

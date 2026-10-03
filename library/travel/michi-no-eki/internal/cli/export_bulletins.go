@@ -4,9 +4,12 @@ package cli
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/travel/michi-no-eki/internal/michi"
@@ -19,6 +22,70 @@ func validateExportFormat(format string) error {
 	default:
 		return usageErr(fmt.Errorf("--format must be json or jsonl"))
 	}
+}
+
+func writeParsedBulletinExportFile(parent context.Context, flags *rootFlags, args []string, format string, limit int, outputFile string) (int, error) {
+	src, err := michiSource(flags)
+	if err != nil {
+		return 0, err
+	}
+	return writeBulletinExportFileFromSource(parent, flags, src, args, format, limit, outputFile)
+}
+
+func writeBulletinExportFileFromSource(parent context.Context, flags *rootFlags, src *michi.Source, args []string, format string, limit int, outputFile string) (int, error) {
+	var buf bytes.Buffer
+	writer := bufio.NewWriter(&buf)
+	count, err := writeBulletinExportFromSource(parent, flags, src, args, format, limit, writer)
+	if err != nil {
+		return 0, err
+	}
+	if err := writer.Flush(); err != nil {
+		return 0, fmt.Errorf("flushing export: %w", err)
+	}
+	if err := replacePrivateFile(outputFile, buf.Bytes()); err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+// replacePrivateFile writes data to a temporary file in the destination
+// directory and renames it onto path only after the write succeeds.
+func replacePrivateFile(path string, data []byte) error {
+	dir := filepath.Dir(path)
+	if dir == "" {
+		dir = "."
+	}
+	if dir != "." {
+		if err := os.MkdirAll(dir, 0o700); err != nil {
+			return fmt.Errorf("creating output directory: %w", err)
+		}
+	}
+	f, err := os.CreateTemp(dir, ".michi-export-*")
+	if err != nil {
+		return fmt.Errorf("creating export file: %w", err)
+	}
+	tmp := f.Name()
+	committed := false
+	defer func() {
+		if !committed {
+			_ = f.Close()
+			_ = os.Remove(tmp)
+		}
+	}()
+	if err := f.Chmod(0o600); err != nil {
+		return fmt.Errorf("setting output file permissions: %w", err)
+	}
+	if _, err := f.Write(data); err != nil {
+		return fmt.Errorf("writing export: %w", err)
+	}
+	if err := f.Close(); err != nil {
+		return fmt.Errorf("closing export file: %w", err)
+	}
+	if err := os.Rename(tmp, path); err != nil {
+		return fmt.Errorf("replacing export file: %w", err)
+	}
+	committed = true
+	return nil
 }
 
 func writeParsedBulletinExport(parent context.Context, flags *rootFlags, args []string, format string, limit int, writer *bufio.Writer) (int, error) {
