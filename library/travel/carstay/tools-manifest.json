@@ -1,0 +1,48 @@
+{
+  "api_name": "carstay",
+  "base_url": "https://carstay.jp",
+  "description": "Discover Japan overnight spots with Japanese coverage, honest facility evidence and booking links.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "directory_list",
+      "description": "Read public directory references for local sync and Japanese coverage; overnight workflows use spots. Returns array of Station.",
+      "method": "GET",
+      "path": "/ja/api/data/no-route/stations",
+      "no_auth": true,
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Evidence comparison",
+      "command": "spots compare",
+      "description": "Contrast a small shortlist with facility, price and parking-space evidence."
+    },
+    {
+      "name": "Explicit constraint assessment",
+      "command": "spots fit",
+      "description": "Check explicit space dimensions and facility requirements while preserving unknowns."
+    },
+    {
+      "name": "Radial nearby ranking",
+      "command": "spots near",
+      "description": "Rank designated overnight spots around an itinerary coordinate by straight-line distance."
+    },
+    {
+      "name": "Language coverage audit",
+      "command": "spots coverage",
+      "description": "See Japanese options and English publication or translation gaps."
+    },
+    {
+      "name": "Booking evidence audit",
+      "command": "spots audit",
+      "description": "Expose unresolved price, availability and qualified facility evidence before booking."
+    }
+  ]
+}

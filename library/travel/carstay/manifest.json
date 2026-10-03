@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "carstay-pp-mcp",
+  "display_name": "Carstay",
+  "version": "0.1.0",
+  "description": "Discover Japan overnight spots with Japanese coverage, honest facility evidence and booking links.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/carstay-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/carstay-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

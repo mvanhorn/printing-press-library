@@ -1,0 +1,173 @@
+{
+  "api_name": "carstay",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-02T16:25:19.528981Z",
+  "novel_features": [
+    {
+      "name": "Evidence comparison",
+      "command": "spots compare",
+      "description": "Contrast a small shortlist with facility, price and parking-space evidence.",
+      "rationale": "Compute a bounded evidence view from public station facts and preserve unknowns.",
+      "example": "carstay-pp-cli spots compare 632c59b82b614b99a252d1b2 5cff4813839680041631c452 --agent",
+      "why_it_matters": "Use when itinerary decisions require comparable source evidence instead of a raw record.",
+      "group": "Overnight itinerary evidence"
+    },
+    {
+      "name": "Explicit constraint assessment",
+      "command": "spots fit",
+      "description": "Check explicit space dimensions and facility requirements while preserving unknowns.",
+      "rationale": "Compute a bounded evidence view from public station facts and preserve unknowns.",
+      "example": "carstay-pp-cli spots fit 632c59b82b614b99a252d1b2 --length-m 6 --width-m 2.1 --require electricity,restroom --agent",
+      "why_it_matters": "Use when itinerary decisions require comparable source evidence instead of a raw record.",
+      "group": "Overnight itinerary evidence"
+    },
+    {
+      "name": "Radial nearby ranking",
+      "command": "spots near",
+      "description": "Rank designated overnight spots around an itinerary coordinate by straight-line distance.",
+      "rationale": "Compute a bounded evidence view from public station facts and preserve unknowns.",
+      "example": "carstay-pp-cli spots near --lat 35.5 --lon 138.75 --radius-km 60 --limit 5 --agent",
+      "why_it_matters": "Use when itinerary decisions require comparable source evidence instead of a raw record.",
+      "group": "Overnight itinerary evidence"
+    },
+    {
+      "name": "Language coverage audit",
+      "command": "spots coverage",
+      "description": "See Japanese options and English publication or translation gaps.",
+      "rationale": "Compute a bounded evidence view from public station facts and preserve unknowns.",
+      "example": "carstay-pp-cli spots coverage --prefecture Yamanashi --agent",
+      "why_it_matters": "Use when itinerary decisions require comparable source evidence instead of a raw record.",
+      "group": "Japanese source coverage"
+    },
+    {
+      "name": "Booking evidence audit",
+      "command": "spots audit",
+      "description": "Expose unresolved price, availability and qualified facility evidence before booking.",
+      "rationale": "Compute a bounded evidence view from public station facts and preserve unknowns.",
+      "example": "carstay-pp-cli spots audit 632c59b82b614b99a252d1b2 --check-in 2026-10-10 --check-out 2026-10-11 --agent",
+      "why_it_matters": "Use when itinerary decisions require comparable source evidence instead of a raw record.",
+      "group": "Overnight itinerary evidence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Evidence comparison",
+      "command": "spots compare",
+      "description": "Contrast a small shortlist with facility, price and parking-space evidence.",
+      "rationale": "Compute a bounded evidence view from public station facts and preserve unknowns.",
+      "example": "carstay-pp-cli spots compare 632c59b82b614b99a252d1b2 5cff4813839680041631c452 --agent",
+      "why_it_matters": "Use when itinerary decisions require comparable source evidence instead of a raw record.",
+      "group": "Overnight itinerary evidence"
+    },
+    {
+      "name": "Explicit constraint assessment",
+      "command": "spots fit",
+      "description": "Check explicit space dimensions and facility requirements while preserving unknowns.",
+      "rationale": "Compute a bounded evidence view from public station facts and preserve unknowns.",
+      "example": "carstay-pp-cli spots fit 632c59b82b614b99a252d1b2 --length-m 6 --width-m 2.1 --require electricity,restroom --agent",
+      "why_it_matters": "Use when itinerary decisions require comparable source evidence instead of a raw record.",
+      "group": "Overnight itinerary evidence"
+    },
+    {
+      "name": "Radial nearby ranking",
+      "command": "spots near",
+      "description": "Rank designated overnight spots around an itinerary coordinate by straight-line distance.",
+      "rationale": "Compute a bounded evidence view from public station facts and preserve unknowns.",
+      "example": "carstay-pp-cli spots near --lat 35.5 --lon 138.75 --radius-km 60 --limit 5 --agent",
+      "why_it_matters": "Use when itinerary decisions require comparable source evidence instead of a raw record.",
+      "group": "Overnight itinerary evidence"
+    },
+    {
+      "name": "Language coverage audit",
+      "command": "spots coverage",
+      "description": "See Japanese options and English publication or translation gaps.",
+      "rationale": "Compute a bounded evidence view from public station facts and preserve unknowns.",
+      "example": "carstay-pp-cli spots coverage --prefecture Yamanashi --agent",
+      "why_it_matters": "Use when itinerary decisions require comparable source evidence instead of a raw record.",
+      "group": "Japanese source coverage"
+    },
+    {
+      "name": "Booking evidence audit",
+      "command": "spots audit",
+      "description": "Expose unresolved price, availability and qualified facility evidence before booking.",
+      "rationale": "Compute a bounded evidence view from public station facts and preserve unknowns.",
+      "example": "carstay-pp-cli spots audit 632c59b82b614b99a252d1b2 --check-in 2026-10-10 --check-out 2026-10-11 --agent",
+      "why_it_matters": "Use when itinerary decisions require comparable source evidence instead of a raw record.",
+      "group": "Overnight itinerary evidence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Carstay",
+    "headline": "Discover Japan overnight spots with Japanese coverage, honest facility evidence and booking links.",
+    "value_prop": "Search designated overnight spots using the fuller Japanese source, compare facilities and parking-space dimensions, and preserve unknowns. Dated results are provider-filtered candidates; complete quotes and availability require provider confirmation.",
+    "auth_narrative": "Public discovery needs no credentials. Complete bookings in Carstay’s canonical website flow.",
+    "quickstart": [
+      {
+        "command": "carstay-pp-cli doctor --dry-run",
+        "comment": "Check the command without credentials or network."
+      },
+      {
+        "command": "carstay-pp-cli spots find --prefecture Yamanashi --limit 5 --agent",
+        "comment": "Start with Japanese coverage."
+      },
+      {
+        "command": "carstay-pp-cli spots show 632c59b82b614b99a252d1b2 --agent",
+        "comment": "Inspect a known overnight station."
+      },
+      {
+        "command": "carstay-pp-cli spots fit 632c59b82b614b99a252d1b2 --length-m 6 --width-m 2.1 --require electricity,restroom --agent",
+        "comment": "Evaluate explicit constraints, preserving unknown acceptance."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "English search misses options",
+        "fix": "Use --lang ja and spots coverage to inspect publication gaps."
+      },
+      {
+        "symptom": "Facility false flag has a fee or access note",
+        "fix": "Read spots show or spots audit and confirm the qualified evidence with the provider."
+      }
+    ],
+    "when_to_use": "Use for Carstay Japan designated overnight spots, itinerary-coordinate candidates, explicit parking-space and facility evidence, Japanese coverage, and canonical booking handoff.",
+    "anti_triggers": [
+      "Booking, payments and account changes.",
+      "Guaranteed vacancy, dated total quotes or certification that any vehicle is accepted.",
+      "Road routing, drive time or automatic translation."
+    ],
+    "recipes": [
+      {
+        "title": "Compare overnight options",
+        "command": "carstay-pp-cli spots compare 632c59b82b614b99a252d1b2 5cff4813839680041631c452 --agent",
+        "explanation": "Read a bounded evidence matrix, with starting prices."
+      },
+      {
+        "title": "Find stops near an itinerary point",
+        "command": "carstay-pp-cli spots near --lat 35.5 --lon 138.75 --radius-km 60 --limit 5 --agent",
+        "explanation": "Distance is straight-line kilometers, not driving distance."
+      },
+      {
+        "title": "Project Japanese coverage",
+        "command": "carstay-pp-cli spots coverage --prefecture Yamanashi --agent --select results.japanese_overnight,results.english_approved_overnight",
+        "explanation": "Keep only decision fields in agent output."
+      },
+      {
+        "title": "Audit a dated candidate",
+        "command": "carstay-pp-cli spots audit 632c59b82b614b99a252d1b2 --check-in 2026-10-10 --check-out 2026-10-11 --agent",
+        "explanation": "Check missing or qualified evidence without claiming vacancy."
+      }
+    ],
+    "trigger_phrases": [
+      "Carstay overnight spots near my itinerary",
+      "compare Carstay facilities",
+      "check Carstay parking space fit",
+      "Japanese Carstay listings",
+      "use carstay",
+      "run carstay"
+    ]
+  }
+}

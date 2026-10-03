@@ -1,0 +1,70 @@
+name: carstay
+cli_description: "Discover Japan overnight spots with Japanese coverage, honest facility evidence and booking links."
+description: "Read-only Carstay public overnight-station planning. Search results are provider-filtered candidates; prices are starting references, availability and complete quotes require provider confirmation."
+version: "0.1.0"
+category: travel
+base_url: "https://carstay.jp"
+http_transport: standard
+health_check_path: "/ja/stations/"
+auth:
+  type: none
+mcp:
+  transport: [stdio]
+cache:
+  enabled: true
+  stale_after: 24h
+  refresh_timeout: 30s
+learn:
+  ticker_patterns: ["^[0-9a-f]{24}$"]
+  entity_lookup_seeds:
+    station:
+      - canonical: "【NEXCO中日本】新名神　鈴鹿PA（上り）RVステーション鈴鹿※電源付き！"
+        aliases: ["suzuka rv station", "suzuka pa", "鈴鹿PA"]
+      - canonical: "河口湖屋台村"
+        aliases: ["kawaguchiko yatai village", "kawaguchiko"]
+    prefecture:
+      - canonical: "山梨県"
+        aliases: ["yamanashi"]
+      - canonical: "長野県"
+        aliases: ["nagano"]
+      - canonical: "三重県"
+        aliases: ["mie"]
+resources:
+  directory:
+    description: "Public station reference directory including activity-only records; use spots for overnight planning."
+    endpoints:
+      list:
+        method: GET
+        path: "/ja/api/data/no-route/stations"
+        description: "Read public directory references for local sync and Japanese coverage; overnight workflows use spots."
+        response:
+          type: array
+          item: Station
+        syncable: true
+types:
+  Station:
+    fields:
+      - name: _id
+        type: string
+        description: "Stable Carstay station identifier."
+      - name: name
+        type: string
+        description: "Original Japanese station name."
+      - name: nameEn
+        type: string
+        description: "Source English name when published."
+      - name: prefecture
+        type: string
+        description: "Original Japanese prefecture."
+      - name: region
+        type: string
+        description: "Original source locality."
+      - name: price
+        type: float
+        description: "JPY starting reference per night; not a dated quote."
+      - name: activityOnly
+        type: bool
+        description: "Source activity-only marker; excluded by overnight commands."
+      - name: approvedEn
+        type: bool
+        description: "Source English-publication marker; English listings are incomplete."

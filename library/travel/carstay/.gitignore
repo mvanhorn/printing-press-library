@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/carstay-pp-cli
+/carstay-pp-cli.exe
+/carstay-pp-mcp
+/carstay-pp-mcp.exe
+/bin/
+/build/
+/dist/

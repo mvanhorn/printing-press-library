@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-02T18:13:32.167685Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "carstay",
+  "display_name": "Carstay",
+  "cli_name": "carstay-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "carstay-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:5f9b5af98101c66728223859c1d26db0cfb62dc1af25bc6ff062d5ba10f43602",
+  "run_id": "20261003-001121-929ee489",
+  "category": "travel",
+  "description": "Discover Japan overnight spots with Japanese coverage, honest facility evidence and booking links.",
+  "mcp_binary": "carstay-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Evidence comparison",
+      "command": "spots compare",
+      "description": "Contrast a small shortlist with facility, price and parking-space evidence."
+    },
+    {
+      "name": "Explicit constraint assessment",
+      "command": "spots fit",
+      "description": "Check explicit space dimensions and facility requirements while preserving unknowns."
+    },
+    {
+      "name": "Radial nearby ranking",
+      "command": "spots near",
+      "description": "Rank designated overnight spots around an itinerary coordinate by straight-line distance."
+    },
+    {
+      "name": "Language coverage audit",
+      "command": "spots coverage",
+      "description": "See Japanese options and English publication or translation gaps."
+    },
+    {
+      "name": "Booking evidence audit",
+      "command": "spots audit",
+      "description": "Expose unresolved price, availability and qualified facility evidence before booking."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Evidence comparison",
+      "command": "spots compare",
+      "description": "Contrast a small shortlist with facility, price and parking-space evidence."
+    },
+    {
+      "name": "Explicit constraint assessment",
+      "command": "spots fit",
+      "description": "Check explicit space dimensions and facility requirements while preserving unknowns."
+    },
+    {
+      "name": "Radial nearby ranking",
+      "command": "spots near",
+      "description": "Rank designated overnight spots around an itinerary coordinate by straight-line distance."
+    },
+    {
+      "name": "Language coverage audit",
+      "command": "spots coverage",
+      "description": "See Japanese options and English publication or translation gaps."
+    },
+    {
+      "name": "Booking evidence audit",
+      "command": "spots audit",
+      "description": "Expose unresolved price, availability and qualified facility evidence before booking."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 32,
+    "total": 32,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 87,
+      "grade": "A",
+      "total": 87
+    }
+  }
+}

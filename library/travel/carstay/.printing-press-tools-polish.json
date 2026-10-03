@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-10-02T17:48:20.298419Z",
+  "cli_dir": "\u003ccli-dir\u003e/carstay-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated client-profile list: the Short accurately names its local profile-listing action; its parent group supplies the client scope. Keep the template source unchanged."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 868,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated learnings list: the Short accurately names the recorded-learning read view. The separately reviewed migratable-store effect is disclosed as a framework limitation rather than changing this template Short."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-10-02T17:38:58.860288Z"
+  }
+}

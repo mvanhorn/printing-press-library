@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "generated_by": "publication evidence projection; acceptance remains binary-owned",
+  "observed_at": "2026-10-03T05:33:10.525729Z",
+  "source": {
+    "public_pages": [
+      "https://carstay.jp/ja/stations/",
+      "https://carstay.jp/en/stations/"
+    ],
+    "auth": "none",
+    "date_semantics": "JST calendar dates; provider-filtered candidates, availability unknown",
+    "price_semantics": "JPY starting references/night; complete dated quote unknown",
+    "vehicle_semantics": "parking-space dimensions do not certify vehicle or pitch acceptance"
+  },
+  "verification": {
+    "mock_passed": 32,
+    "mock_total": 32,
+    "publish_checks": [
+      {
+        "name": "manifest",
+        "passed": true
+      },
+      {
+        "name": "transcendence",
+        "passed": true
+      },
+      {
+        "name": "phase5",
+        "passed": true
+      },
+      {
+        "name": "go mod tidy",
+        "passed": true
+      },
+      {
+        "name": "module path",
+        "passed": true
+      },
+      {
+        "name": "govulncheck",
+        "passed": true
+      },
+      {
+        "name": "go vet",
+        "passed": true
+      },
+      {
+        "name": "go build",
+        "passed": true
+      },
+      {
+        "name": "--help",
+        "passed": true
+      },
+      {
+        "name": "--version",
+        "passed": true
+      },
+      {
+        "name": "verify-skill",
+        "passed": true
+      },
+      {
+        "name": "patches",
+        "passed": true
+      },
+      {
+        "name": "manuscripts",
+        "passed": true
+      }
+    ],
+    "go_test_packages_passed": 13,
+    "upstream_skill_check": "PASS",
+    "reachable_govulncheck": "PASS"
+  },
+  "fresh_full_live": {
+    "level": "full",
+    "verdict": "PASS",
+    "matrix_size": 115,
+    "passed": 115,
+    "failed": 0,
+    "skipped": 92,
+    "ran_at": "2026-10-03T05:33:10.525729Z"
+  },
+  "live_kinds": {
+    "help": {
+      "pass": 38
+    },
+    "happy_path": {
+      "pass": 25,
+      "skip": 13
+    },
+    "json_fidelity": {
+      "pass": 25,
+      "skip": 13
+    },
+    "error_path": {
+      "skip": 28,
+      "pass": 10
+    },
+    "dry_run_json": {
+      "pass": 17,
+      "skip": 21
+    },
+    "error_path_real": {
+      "skip": 17
+    }
+  },
+  "live_scope": "115 executed checks passed;92 runner-skipped/unverified rows are explicit, not counted as coverage. Native find generic-fixture happy/json are skipped; separate positive dated and Japanese-prefecture probes verify actual discovery.",
+  "performance": {
+    "binary_sha256": "6922acd5cad8523dd45fca1311b908a38335a8ab14af42d94dbbba6684933154",
+    "version": "carstay-pp-cli 0.0.0-dev",
+    "runs_per_workflow": 3,
+    "samples": {
+      "coverage": {
+        "elapsed_ms": [
+          726.26,
+          728.25,
+          724.48
+        ],
+        "median_ms": 726.26,
+        "observations": [
+          {
+            "envelope": "meta/results",
+            "result_count": 1
+          },
+          {
+            "envelope": "meta/results",
+            "result_count": 1
+          },
+          {
+            "envelope": "meta/results",
+            "result_count": 1
+          }
+        ],
+        "arguments": [
+          "spots",
+          "coverage",
+          "--agent",
+          "--no-learn"
+        ]
+      },
+      "compare": {
+        "elapsed_ms": [
+          1859.22,
+          1362.56,
+          1590.23
+        ],
+        "median_ms": 1590.23,
+        "observations": [
+          {
+            "envelope": "meta/results",
+            "result_count": 2
+          },
+          {
+            "envelope": "meta/results",
+            "result_count": 2
+          },
+          {
+            "envelope": "meta/results",
+            "result_count": 2
+          }
+        ],
+        "arguments": [
+          "spots",
+          "compare",
+          "632c59b82b614b99a252d1b2",
+          "5cff4813839680041631c452",
+          "--agent",
+          "--no-learn"
+        ]
+      },
+      "dated_find": {
+        "elapsed_ms": [
+          743.47,
+          762.95,
+          766.7
+        ],
+        "median_ms": 762.95,
+        "observations": [
+          {
+            "envelope": "meta/results",
+            "result_count": 2
+          },
+          {
+            "envelope": "meta/results",
+            "result_count": 2
+          },
+          {
+            "envelope": "meta/results",
+            "result_count": 2
+          }
+        ],
+        "arguments": [
+          "spots",
+          "find",
+          "--check-in",
+          "2026-10-10",
+          "--check-out",
+          "2026-10-11",
+          "--limit",
+          "2",
+          "--max-scan-pages",
+          "1",
+          "--agent",
+          "--no-learn"
+        ]
+      }
+    },
+    "raw_responses_retained": false,
+    "method": "Real HTTP; three sequential end-to-end process executions per workflow in an isolated home. Agent envelopes/results were parsed; no raw response bodies were retained. Dated find measures a one-page scan with a two-row output limit."
+  },
+  "privacy": {
+    "raw_source_responses_retained": false,
+    "raw_dogfood_transcript_retained": false,
+    "vendor_prefix_package_scan": "PASS",
+    "strict_pii_audit": "PASS",
+    "personal_host_paths": 0,
+    "sessions_cookies_credentials_pipeline_receipts": "excluded",
+    "optional_detector_enrichment": "gitleaks/trufflehog unavailable; no installation performed"
+  }
+}
