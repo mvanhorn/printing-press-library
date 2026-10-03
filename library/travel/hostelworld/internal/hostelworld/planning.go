@@ -33,8 +33,12 @@ func NewQuery(start, end string, nights, guests int, now time.Time) (Query, erro
 	if e != nil {
 		return q, fmt.Errorf("--check-in must be YYYY-MM-DD")
 	}
-	if a.Before(now.UTC().Truncate(24 * time.Hour)) {
-		return q, fmt.Errorf("--check-in must be today or a future date")
+	// The destination timezone is not known yet. Reject only dates that are
+	// past everywhere; the provider decides its own source-local same-day rule.
+	earliest := now.In(time.FixedZone("earliest-source-date", -12*3600))
+	y, m, d := earliest.Date()
+	if a.Before(time.Date(y, m, d, 0, 0, 0, 0, time.UTC)) {
+		return q, fmt.Errorf("--check-in is past in every source-local timezone")
 	}
 	if end != "" {
 		b, e := time.Parse("2006-01-02", end)
@@ -255,10 +259,7 @@ func Availability(v, property map[string]any, q Query, kind string, onlyFree boo
 				if active, known := property["isActive"].(bool); known && !active {
 					fit = "inactive_listing"
 				}
-				planFree := freeStatus
-				if strings.Contains(strings.ReplaceAll(strings.ToUpper(Text(plan["ratePlanType"])), "_", ""), "NONREFUND") {
-					planFree = "unavailable"
-				}
+				planFree, cancellationBasis := rateCancellationStatus(plan, freeStatus, deadline, now)
 				if onlyFree && planFree != "available" {
 					continue
 				}
@@ -308,7 +309,7 @@ func Availability(v, property map[string]any, q Query, kind string, onlyFree boo
 				}
 				terms := object(plan["paymentProcedure"])
 				payment := map[string]any{"id": terms["id"], "label": terms["label"], "description": Clean(terms["description"], 1600)}
-				offers = append(offers, map[string]any{"room_id": Text(room["id"]), "room_name": room["name"], "category": category, "source_dorm_type": room["basicType"], "room_capacity": capacity, "guests_per_private_room": room["numberOfGuestsPerRoom"], "ensuite": room["ensuite"], "available_beds": room["totalBedsAvailable"], "available_rooms": room["totalRoomsAvailable"], "rate_plan_id": pid, "rate_plan_type": plan["ratePlanType"], "meal_plan": room["mealPlan"], "room_conditions": room["conditions"], "rate_rule_violations": plan["rateRuleViolations"], "party_fit": fit, "required_quantity": qty, "quantity_unit": quantityUnit, "source_stay_amount": total, "source_average_nightly": avg, "source_nightly_breakdown": daily, "nightly_price_basis": nightlyBasis, "derived_party_estimate": estimate, "estimate_notice": "derived from source unit price and quantity; not a checkout quote", "guest_eligibility": "source dorm type and property rules require confirmation; same-room allocation is not guaranteed", "payment": payment, "free_cancellation_status": planFree, "free_cancellation_deadline": deadline, "deposit_percentage": v["depositPercentage"]})
+				offers = append(offers, map[string]any{"room_id": Text(room["id"]), "room_name": room["name"], "category": category, "source_dorm_type": room["basicType"], "room_capacity": capacity, "guests_per_private_room": room["numberOfGuestsPerRoom"], "ensuite": room["ensuite"], "available_beds": room["totalBedsAvailable"], "available_rooms": room["totalRoomsAvailable"], "rate_plan_id": pid, "rate_plan_type": plan["ratePlanType"], "meal_plan": room["mealPlan"], "room_conditions": room["conditions"], "rate_rule_violations": plan["rateRuleViolations"], "party_fit": fit, "required_quantity": qty, "quantity_unit": quantityUnit, "source_stay_amount": total, "source_average_nightly": avg, "source_nightly_breakdown": daily, "nightly_price_basis": nightlyBasis, "derived_party_estimate": estimate, "estimate_notice": "derived from source unit price and quantity; not a checkout quote", "guest_eligibility": "source dorm type and property rules require confirmation; same-room allocation is not guaranteed", "payment": payment, "free_cancellation_status": planFree, "free_cancellation_basis": cancellationBasis, "free_cancellation_deadline": deadline, "free_cancellation_deadline_scope": "availability_response", "rate_free_cancellation_deadline": plan["freeCancellationAvailableUntil"], "deposit_percentage": v["depositPercentage"]})
 				if len(offers) > 150 {
 					return nil, fmt.Errorf("source offers exceed 150-plan bound")
 				}
@@ -319,7 +320,49 @@ func Availability(v, property map[string]any, q Query, kind string, onlyFree boo
 	if len(offers) == 0 {
 		state = "no_matching_offers"
 	}
-	return map[string]any{"property_id": id, "property_name": property["name"], "property_rules": property["thingsToNote"], "tax_policy": property["policies"], "query": q, "status": state, "offers": offers, "cancellation_policies": v["cancellationPolicies"], "special_event_conditions": v["specialEventConditions"], "observed_at": now.UTC().Format(time.RFC3339), "canonical_url": canonical(id, Text(property["name"])), "booking_url": BookingURL(id, Text(property["name"]), Text(object(property["city"])["name"]), q), "coverage": "fresh source response for these dates and guests; not a booking guarantee"}, nil
+	return map[string]any{"property_id": id, "property_name": property["name"], "property_rules": property["thingsToNote"], "tax_policy": property["policies"], "query": q, "status": state, "offers": offers, "cancellation_policies": v["cancellationPolicies"], "source_availability_free_cancellation_available": v["freeCancellationAvailable"], "source_availability_cancellation_status": freeStatus, "special_event_conditions": v["specialEventConditions"], "observed_at": now.UTC().Format(time.RFC3339), "canonical_url": canonical(id, Text(property["name"])), "booking_url": BookingURL(id, Text(property["name"]), Text(object(property["city"])["name"]), q), "coverage": "fresh source response for these dates and guests; not a booking guarantee"}, nil
+}
+
+// An availability-wide indication can describe an optional flexible rate. It
+// does not establish that a deposit-only rate is refundable. Keep that source
+// signal separate and require affirmative rate-level evidence for the filter.
+func rateCancellationStatus(plan map[string]any, availabilityStatus, deadline string, now time.Time) (string, string) {
+	rateType := strings.ReplaceAll(strings.ToUpper(Text(plan["ratePlanType"])), "_", "")
+	if strings.Contains(rateType, "NONREFUND") {
+		return "unavailable", "nonrefundable_rate_type"
+	}
+	description := Text(object(plan["paymentProcedure"])["description"])
+	terms := strings.ToLower(Clean(description, len(description)))
+	compact := strings.NewReplacer("-", "", " ", "").Replace(terms)
+	if strings.Contains(compact, "nonrefundable") {
+		if strings.Contains(terms, "unless") || strings.Contains(terms, "if you select") {
+			return "conditional", "payment_requires_optional_flexible_booking"
+		}
+		return "unavailable", "nonrefundable_payment_terms"
+	}
+	if flag, present := plan["freeCancellationAvailable"].(bool); present {
+		if !flag {
+			return "unavailable", "rate_source_flag"
+		}
+		if availabilityStatus == "unavailable" {
+			return "unknown", "conflicting_rate_and_availability_flags"
+		}
+		if own := Text(plan["freeCancellationAvailableUntil"]); own != "" {
+			deadline = own
+		}
+		d, err := time.Parse(time.RFC3339, deadline)
+		if err != nil {
+			return "unknown", "rate_source_flag_without_valid_deadline"
+		}
+		if !d.After(now) {
+			return "expired", "rate_source_flag_and_deadline"
+		}
+		return "available", "rate_source_flag_and_deadline"
+	}
+	if availabilityStatus == "unavailable" || availabilityStatus == "expired" {
+		return availabilityStatus, "availability_response"
+	}
+	return "unknown", "availability_signal_does_not_establish_rate_refund"
 }
 
 // CompareAmounts keeps currencies separate and compares only valid party estimates.

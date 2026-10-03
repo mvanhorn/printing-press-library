@@ -50,12 +50,13 @@ func configurePlanningCache(root *cobra.Command, flags *rootFlags) {
 				return usageErr(fmt.Errorf("--type must be planning_snapshot for the manual cache"))
 			}
 			path, _ := cmd.Flags().GetString("db")
-			if path == "" {
-				path = defaultDBPath("hostelworld-pp-cli")
-			}
 			out := []any{}
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
+			path, err := PlanningDBPath(ctx, path)
+			if err != nil {
+				return err
+			}
 			if _, err := os.Stat(path); err == nil {
 				db, err := store.OpenReadOnlyContext(ctx, path)
 				if err != nil {
@@ -103,6 +104,42 @@ func configurePlanningCache(root *cobra.Command, flags *rootFlags) {
 	if parent := findSubcommand(root, "workflow"); parent != nil {
 		if cmd := findSubcommand(parent, "status"); cmd != nil {
 			cmd.Short = "Inspect local cache status; no provider snapshot refresh"
+			cmd.Long = "Inspect the selected profile's manual observation counts. No provider snapshot or archive is available; populate with hostels inspect/offers --save."
+			cmd.Example = "  hostelworld-pp-cli workflow status --agent"
+			cmd.Annotations["pp:data-source"] = "local"
+			cmd.RunE = func(cmd *cobra.Command, args []string) error {
+				if len(args) != 0 {
+					return usageErr(fmt.Errorf("workflow status takes no arguments"))
+				}
+				if err := validateDataSourceStrategy(flags, "local"); err != nil {
+					return usageErr(err)
+				}
+				if dryRunOK(flags) {
+					return writeDryRun(cmd.OutOrStdout(), flags, "manual cache status")
+				}
+				ctx, cancel := boundCtx(cmd.Context(), flags)
+				defer cancel()
+				requested, _ := cmd.Flags().GetString("db")
+				path, err := PlanningDBPath(ctx, requested)
+				if err != nil {
+					return err
+				}
+				counts := map[string]int{}
+				if _, err := os.Stat(path); err == nil {
+					db, err := store.OpenReadOnlyContext(ctx, path)
+					if err != nil {
+						return err
+					}
+					defer db.Close()
+					counts, err = db.Status()
+					if err != nil {
+						return err
+					}
+				} else if !os.IsNotExist(err) {
+					return err
+				}
+				return flags.printJSON(cmd, map[string]any{"status": "local_cache_only", "provider_snapshot_refreshed": false, "counts": counts, "freshness": "stale", "population": "hostels inspect/offers --save", "retention_limit": 200})
+			}
 		}
 	}
 }

@@ -8,11 +8,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/travel/hostelworld/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/travel/hostelworld/internal/cliutil"
 	hw "github.com/mvanhorn/printing-press-library/library/travel/hostelworld/internal/hostelworld"
+	"github.com/mvanhorn/printing-press-library/library/travel/hostelworld/internal/platform"
 	"github.com/mvanhorn/printing-press-library/library/travel/hostelworld/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -42,8 +45,9 @@ func init() {
 				ctx, cancel := boundCtx(cmd.Context(), flags)
 				defer cancel()
 				path, _ := cmd.Flags().GetString("db")
-				if path == "" {
-					path = defaultDBPath("hostelworld-pp-cli")
+				path, err := PlanningDBPath(ctx, path)
+				if err != nil {
+					return err
 				}
 				db, err := store.OpenWithContext(ctx, path)
 				if err != nil {
@@ -70,7 +74,7 @@ func stayFlags(cmd *cobra.Command, o *stayOptions) {
 	cmd.Flags().IntVar(&o.nights, "nights", 0, "Stay length, 1–30 nights; alternative to --check-out")
 	cmd.Flags().IntVar(&o.guests, "guests", 2, "Requested party size, 1–10 guests; source rules may limit it")
 	cmd.Flags().StringVar(&o.kind, "kind", "all", "Room category: all, dorm, or private")
-	cmd.Flags().BoolVar(&o.free, "free-cancellation", false, "Keep rates with source cancellation available and an unexpired deadline")
+	cmd.Flags().BoolVar(&o.free, "free-cancellation", false, "Keep only rates with established free cancellation; conditional or unknown terms are excluded")
 	cmd.Flags().IntVar(&o.limit, "limit", 30, "Maximum returned room plans, 1–100; source scan remains bounded")
 	cmd.Flags().BoolVar(&o.save, "save", false, "Save normalized planning evidence in the local bounded SQLite cache")
 }
@@ -165,7 +169,11 @@ func savePlanning(ctx context.Context, v map[string]any) error {
 	}
 	keyData := data
 	h := sha256.Sum256(keyData)
-	db, err := store.OpenWithContext(ctx, defaultDBPath("hostelworld-pp-cli"))
+	path, err := PlanningDBPath(ctx, "")
+	if err != nil {
+		return err
+	}
+	db, err := store.OpenWithContext(ctx, path)
 	if err != nil {
 		return err
 	}
@@ -173,6 +181,77 @@ func savePlanning(ctx context.Context, v map[string]any) error {
 	if err := db.Upsert("planning_snapshot", hex.EncodeToString(h[:]), data); err != nil {
 		return err
 	}
-	_, err = db.DB().ExecContext(ctx, "DELETE FROM resources WHERE resource_type='planning_snapshot' AND rowid NOT IN (SELECT rowid FROM resources WHERE resource_type='planning_snapshot' ORDER BY rowid DESC LIMIT 200)")
-	return err
+	return prunePlanning(ctx, db)
+}
+
+// PlanningDBPath keeps manual observations inside the verified client profile.
+// A selected but unverified session must never fall back to the shared cache.
+func PlanningDBPath(ctx context.Context, requested string) (string, error) {
+	if session := platform.SessionFromContext(ctx); session != nil {
+		if session.GateOutcome != platform.GateVerified || session.Paths.DataFile == "" {
+			return "", fmt.Errorf("planning cache requires a verified profile data path")
+		}
+		if requested != "" && filepath.Clean(requested) != filepath.Clean(session.Paths.DataFile) {
+			return "", fmt.Errorf("database override must match the selected profile data path")
+		}
+		return session.Paths.DataFile, nil
+	}
+	if requested != "" {
+		return requested, nil
+	}
+	return defaultDBPath("hostelworld-pp-cli"), nil
+}
+
+func openPlanningForRead(ctx context.Context) (*store.Store, error) {
+	path, err := PlanningDBPath(ctx, "")
+	if err != nil {
+		return nil, err
+	}
+	if _, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return store.OpenReadOnlyContext(ctx, path)
+}
+
+// Prune both representations atomically, including orphaned FTS rows from old
+// copies. FTS uses its own deterministic rowids, not resources.rowid.
+func prunePlanning(ctx context.Context, db *store.Store) error {
+	tx, err := db.DB().BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	if _, err = tx.ExecContext(ctx, "DELETE FROM resources WHERE resource_type='planning_snapshot' AND rowid NOT IN (SELECT rowid FROM resources WHERE resource_type='planning_snapshot' ORDER BY rowid DESC LIMIT 200)"); err != nil {
+		return err
+	}
+	rows, err := tx.QueryContext(ctx, "SELECT f.rowid FROM resources_fts f WHERE f.resource_type='planning_snapshot' AND NOT EXISTS (SELECT 1 FROM resources r WHERE r.resource_type=f.resource_type AND r.id=f.id)")
+	if err != nil {
+		return err
+	}
+	var victims []int64
+	for rows.Next() {
+		var rowid int64
+		if err := rows.Scan(&rowid); err != nil {
+			rows.Close()
+			return err
+		}
+		victims = append(victims, rowid)
+	}
+	err = rows.Err()
+	closeErr := rows.Close()
+	if err != nil {
+		return err
+	}
+	if closeErr != nil {
+		return closeErr
+	}
+	for _, rowid := range victims {
+		if _, err := tx.ExecContext(ctx, "DELETE FROM resources_fts WHERE rowid=?", rowid); err != nil {
+			return err
+		}
+	}
+	return tx.Commit()
 }

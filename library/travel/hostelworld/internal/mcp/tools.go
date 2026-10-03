@@ -490,12 +490,12 @@ func newMCPClientFromConfig(ctx context.Context, cfg *config.Config) (*client.Cl
 	return c, session, nil
 }
 
-func mcpDBPath() (string, error) {
-	dir, err := cliutil.DataDir()
-	if err != nil {
-		return "", err
+func mcpDBPath(contexts ...context.Context) (string, error) {
+	ctx := context.Background()
+	if len(contexts) > 0 && contexts[0] != nil {
+		ctx = contexts[0]
 	}
-	return filepath.Join(dir, "data.db"), nil
+	return cli.PlanningDBPath(ctx, "")
 }
 
 type mcpStoreStatusKind string
@@ -582,7 +582,7 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 		limit = int(n)
 	}
 
-	path, err := mcpDBPath()
+	path, err := mcpDBPath(ctx)
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
 	}
@@ -795,7 +795,7 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
 
-	path, err := mcpDBPath()
+	path, err := mcpDBPath(ctx)
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
 	}
@@ -946,7 +946,7 @@ func handleContext(s *server.MCPServer) func(context.Context, mcplib.CallToolReq
 	}
 }
 
-func handleContextResult(s *server.MCPServer, _ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+func handleContextResult(s *server.MCPServer, commandCtx context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	paths := map[string]string{}
 	if dir, err := cliutil.ConfigDir(); err == nil {
 		paths["config_dir"] = dir
@@ -959,6 +959,22 @@ func handleContextResult(s *server.MCPServer, _ context.Context, _ mcplib.CallTo
 	}
 	if dir, err := cliutil.CacheDir(); err == nil {
 		paths["cache_dir"] = dir
+	}
+	if session := platform.SessionFromContext(commandCtx); session != nil {
+		path, err := cli.PlanningDBPath(commandCtx, "")
+		if err != nil {
+			return mcplib.NewToolResultError(err.Error()), nil
+		}
+		paths = map[string]string{"data_dir": filepath.Dir(path), "data_file": path}
+		if session.Paths.ConfigFile != "" {
+			paths["config_dir"] = filepath.Dir(session.Paths.ConfigFile)
+		}
+		if session.Paths.StateDir != "" {
+			paths["state_dir"] = session.Paths.StateDir
+		}
+		if session.Paths.CacheDir != "" {
+			paths["cache_dir"] = session.Paths.CacheDir
+		}
 	}
 	ctx := map[string]any{
 		"api":         "hostelworld",

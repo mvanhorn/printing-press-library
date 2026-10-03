@@ -5,7 +5,7 @@
   "base_run_id": "20261003-140023-98175357",
   "base_printing_press_version": "4.33.0",
   "summary": "Preserve anonymous dated planning, explicit bed/room price units and occupancy-derived party estimates, with only manual stale local observations.",
-  "reason": "Hostelworld anonymous search uses a current public first-party application identifier; dated dorm prices are per bed and private rooms must be booked whole. Generic provider sync and arbitrary live text search are unsupported and must never imply a fresh full snapshot.",
+  "reason": "Hostelworld anonymous search uses a current public first-party application identifier; dated dorm prices are per bed and private rooms must be booked whole. Generic provider sync and arbitrary live text search are unsupported and must never imply a fresh full snapshot. Greptile review exposed cross-profile manual cache paths, orphaned FTS retention, UTC-versus-source-local date validation, and availability-wide cancellation wrongly applied to deposit-only plans. Related boundaries keep workflow cache status and MCP context paths profile-scoped; dated discovery labels its property-summary cancellation signal separately from rate terms.",
   "files": [
     "internal/cli/destinations.go",
     "internal/cli/destinations_search.go",
@@ -22,7 +22,9 @@
     "internal/cli/hostels_saved_test.go",
     "internal/cli/hostels_search.go",
     "internal/cli/hostelworld_cache.go",
+    "internal/cli/hostelworld_cache_test.go",
     "internal/cli/hostelworld_planning.go",
+    "internal/cli/hostelworld_profile_cache_test.go",
     "internal/cli/sync_hint.go",
     "internal/cli/sync_hint_test.go",
     "internal/client/hostelworld_headers.go",
@@ -37,7 +39,7 @@
     "internal/mcp/tools.go",
     "internal/mcp/tools_test.go"
   ],
-  "validated_outcome": "Unit tests preserve source per-bed/per-room amounts separately from party estimates, block incompatible data-source strategies, and live checks match native source occupancy/terms.",
+  "validated_outcome": "Regression tests preserve source bed/room amounts, isolate verified-profile CLI/MCP cache paths, cap resources and FTS at 200 with orphan cleanup, accept still-current source-local dates, and exclude conditional deposit rates from the free-cancellation filter. Independent overlay regressions also verify actual CLI/MCP reads under two synthetic profiles and transaction rollback on forced FTS deletion failure; ordinary agent and packaged MCP retain decision fields.",
   "call_sites": [
     "applyHostelworldPlanningToolSemantics(s)",
     "configurePlanningCache(root, flags)"

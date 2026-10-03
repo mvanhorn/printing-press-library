@@ -80,7 +80,7 @@ These capabilities aren't available in any other tool for this API.
   _See rate terms and exact cancellation deadline alongside the price._
 
   ```bash
-  hostelworld-pp-cli hostels offers 67481 --check-in 2026-11-10 --check-out 2026-11-13 --guests 2 --free-cancellation --agent
+  hostelworld-pp-cli hostels offers 67481 --check-in 2026-11-10 --check-out 2026-11-13 --guests 2 --agent
   ```
 
 ### Saved evidence
@@ -517,3 +517,7 @@ Use `destinations search` to resolve an exact source city ID. `hostels search` r
 Generic provider `sync` is hidden from normal help and MCP. Calling it explicitly initializes only the local SQLite cache and returns `local_cache_only` with `provider_snapshot_refreshed: false`. The local population path is `hostels inspect/offers --save`; `hostels saved` reports stale saved observations.
 
 City `--kind` and cancellation filters apply to the fetched source page; a filtered empty page does not mean the city is sold out. MCP `hostels_compare` accepts distinct numeric `id` and `id2`, with optional `id3`, `id4`, and `id5`, plus explicit stay flags.
+
+Availability-wide free-cancellation flags and deadlines describe the property response, not every selected rate. Preserve their scope. Deposit terms that are non-refundable unless an optional flexible booking is selected remain `conditional`; `--free-cancellation` excludes those plans and unknown terms. Only affirmative rate-level evidence with a valid unexpired deadline is `available`.
+
+Manual snapshots and their search index retain at most 200 observations within the verified client profile. A selected but unverified profile fails closed. Check-in dates use the source-local calendar; until the destination timezone is known, only dates already past everywhere are rejected locally, and the provider decides its same-day rules.

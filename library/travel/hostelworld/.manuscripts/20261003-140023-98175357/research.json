@@ -62,7 +62,7 @@
       "command": "hostels offers",
       "description": "See rate terms and exact cancellation deadline alongside the price.",
       "rationale": "Keep distinct source payment and cancellation descriptions rather than inventing a refund guarantee.",
-      "example": "hostelworld-pp-cli hostels offers 67481 --check-in 2026-11-10 --check-out 2026-11-13 --guests 2 --free-cancellation --agent",
+      "example": "hostelworld-pp-cli hostels offers 67481 --check-in 2026-11-10 --check-out 2026-11-13 --guests 2 --agent",
       "why_it_matters": "See rate terms and exact cancellation deadline alongside the price.",
       "group": "Dated hostel decisions"
     },
@@ -109,7 +109,7 @@
       "command": "hostels offers",
       "description": "See rate terms and exact cancellation deadline alongside the price.",
       "rationale": "Keep distinct source payment and cancellation descriptions rather than inventing a refund guarantee.",
-      "example": "hostelworld-pp-cli hostels offers 67481 --check-in 2026-11-10 --check-out 2026-11-13 --guests 2 --free-cancellation --agent",
+      "example": "hostelworld-pp-cli hostels offers 67481 --check-in 2026-11-10 --check-out 2026-11-13 --guests 2 --agent",
       "why_it_matters": "See rate terms and exact cancellation deadline alongside the price.",
       "group": "Dated hostel decisions"
     },

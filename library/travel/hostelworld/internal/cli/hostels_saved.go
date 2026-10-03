@@ -16,7 +16,7 @@ func newNovelHostelsSavedCmd(flags *rootFlags) *cobra.Command {
 		}
 		ctx, cancel := boundCtx(cmd.Context(), flags)
 		defer cancel()
-		db, err := openStoreForRead(ctx, "hostelworld-pp-cli")
+		db, err := openPlanningForRead(ctx)
 		if err != nil {
 			return err
 		}

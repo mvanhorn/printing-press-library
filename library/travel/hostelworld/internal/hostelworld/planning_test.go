@@ -109,40 +109,75 @@ func TestAvailabilityUnknownAndRestrictions(t *testing.T) {
 func TestCancellationStatus(t *testing.T) {
 	for _, tc := range []struct {
 		name, deadline, status string
-		flag                   any
-		plan                   string
-	}{{"available", "2026-10-03T23:59:59+09:00", "available", true, "STANDARD"}, {"expired", "2026-10-03T00:00:00+09:00", "expired", true, "STANDARD"}, {"missing-deadline", "", "unknown", true, "STANDARD"}, {"unavailable", "", "unavailable", false, "STANDARD"}, {"nonrefund", "2026-10-03T23:59:59+09:00", "unavailable", true, "NONREFUNDABLE"}} {
+		availabilityFlag       any
+		rateFlag               any
+		rateType, payment      string
+	}{
+		{"explicit-rate", "2026-10-03T23:59:59+09:00", "available", true, true, "STANDARD", "Fully refundable before the deadline"},
+		{"availability-only", "2026-10-03T23:59:59+09:00", "unknown", true, nil, "STANDARD", "Deposit only"},
+		{"actual-conditional-deposit", "2026-10-03T23:59:59+09:00", "conditional", true, nil, "STANDARD", "Your deposit will be non-refundable unless the Standard Flexible Booking option is available and you select it."},
+		{"nonrefund-after-display-cap", "2026-10-03T23:59:59+09:00", "unavailable", true, true, "STANDARD", strings.Repeat("Policy detail. ", 200) + "Your deposit is non-refundable."},
+		{"nonrefundable-payment-overrides-rate", "2026-10-03T23:59:59+09:00", "unavailable", true, true, "STANDARD", "Your deposit is non-refundable."},
+		{"expired", "2026-10-03T00:00:00+09:00", "expired", true, true, "STANDARD", "Refundable"},
+		{"missing-deadline", "", "unknown", true, true, "STANDARD", "Refundable"},
+		{"unavailable", "", "unavailable", false, nil, "STANDARD", "Deposit only"},
+		{"conflicting-source-flags", "2026-10-03T23:59:59+09:00", "unknown", false, true, "STANDARD", "Refundable"},
+		{"nonrefund-rate", "2026-10-03T23:59:59+09:00", "unavailable", true, true, "NONREFUNDABLE", "Refundable"},
+	} {
 		t.Run(tc.name, func(t *testing.T) {
 			v := fixture(t, "dorm")
-			v["freeCancellationAvailable"] = tc.flag
+			v["freeCancellationAvailable"] = tc.availabilityFlag
 			v["freeCancellationAvailableUntil"] = tc.deadline
 			for _, p := range array(object(array(object(v["rooms"])["dorms"])[0])["ratePlans"]) {
-				object(p)["ratePlanType"] = tc.plan
+				plan := object(p)
+				plan["ratePlanType"] = tc.rateType
+				plan["freeCancellationAvailable"] = tc.rateFlag
+				plan["paymentProcedure"] = map[string]any{"description": tc.payment}
 			}
 			q, _ := NewQuery("2026-10-04", "2026-10-07", 0, 2, fixtureNow)
 			out, e := Availability(v, fixture(t, "property"), q, "all", false, fixtureNow)
 			if e != nil {
 				t.Fatal(e)
 			}
-			if firstOffer(t, out)["free_cancellation_status"] != tc.status {
-				t.Fatal("wrong cancellation status")
+			o := firstOffer(t, out)
+			if o["free_cancellation_status"] != tc.status || o["free_cancellation_deadline_scope"] != "availability_response" || out["source_availability_free_cancellation_available"] != tc.availabilityFlag {
+				t.Fatalf("wrong cancellation evidence: %#v", o)
 			}
 			out, e = Availability(v, fixture(t, "property"), q, "all", true, fixtureNow)
 			if e != nil {
 				t.Fatal(e)
 			}
 			if (len(out["offers"].([]any)) > 0) != (tc.status == "available") {
-				t.Fatal("free cancellation filter guessed missing/expired terms")
+				t.Fatal("free cancellation filter guessed conditional/missing/expired terms")
 			}
 		})
 	}
 }
+
+func TestQueryUsesUnknownSourceLocalCalendar(t *testing.T) {
+	for _, tc := range []struct {
+		now, start string
+		ok         bool
+	}{
+		{"2026-10-03T00:30:00Z", "2026-10-02", true},
+		{"2026-10-03T00:30:00Z", "2026-10-01", false},
+		{"2026-10-03T20:30:00Z", "2026-10-02", false},
+		{"2026-10-03T20:30:00Z", "2026-10-03", true},
+	} {
+		now, _ := time.Parse(time.RFC3339, tc.now)
+		_, err := NewQuery(tc.start, "", 1, 2, now)
+		if (err == nil) != tc.ok {
+			t.Fatalf("UTC %s, source-local check-in %s: %v", tc.now, tc.start, err)
+		}
+	}
+}
+
 func TestQueryValidation(t *testing.T) {
 	for _, tc := range []struct {
 		start, end     string
 		nights, guests int
 		ok             bool
-	}{{"2026-10-04", "2026-10-07", 0, 2, true}, {"2026-10-04", "", 3, 2, true}, {"bad", "", 3, 2, false}, {"2026-10-02", "", 3, 2, false}, {"2026-10-04", "2026-10-04", 0, 2, false}, {"2026-10-04", "2026-10-07", 2, 2, false}, {"2026-10-04", "", 31, 2, false}, {"2026-10-04", "", 3, 0, false}} {
+	}{{"2026-10-04", "2026-10-07", 0, 2, true}, {"2026-10-04", "", 3, 2, true}, {"bad", "", 3, 2, false}, {"2026-10-01", "", 3, 2, false}, {"2026-10-04", "2026-10-04", 0, 2, false}, {"2026-10-04", "2026-10-07", 2, 2, false}, {"2026-10-04", "", 31, 2, false}, {"2026-10-04", "", 3, 0, false}} {
 		q, e := NewQuery(tc.start, tc.end, tc.nights, tc.guests, fixtureNow)
 		if (e == nil) != tc.ok {
 			t.Fatalf("query %v error=%v", tc, e)

@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "checks": {
+    "bundle_matches_final_roots": true,
+    "agent_dorm_units_and_terms": true,
+    "agent_private_units_and_terms": true,
+    "actual_conditional_fixture_excluded": true,
+    "agent_search_scope_survives": true,
+    "mcp_save_annotations": true,
+    "mcp_ordinary_units_and_terms": true
+  },
+  "identities": {
+    "hostelworld-pp-cli": "80c56278445937553a379576568f4d59699daaff4c5a4806746642aaab73c736",
+    "hostelworld-pp-mcp": "0c50a55b6314e6b472ee69d966d96ac6a4b2fbdf9a3f6801b286861b7ab8a8e0",
+    "mcpb": "6f72f09e8293c0c806b1da04d45373ba5ed0fb4a08b3c32fc68f8f3d1d756929"
+  }
+}
