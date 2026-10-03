@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "carstay-learning-undo-and-literal-prefix-identity",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261003-001121-929ee489",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Undo teachings atomically invalidates only their inferred structural families; verified prefix recall requires one literal resource match and preserves explicit taught patterns.",
+  "reason": "The exposed generic learning engine could otherwise recall forgotten guidance or silently select an arbitrary/wildcard resource ID; native public spots reads do not depend on this engine.",
+  "files": [
+    "internal/store/learnings.go",
+    "internal/learn/patterns/apply.go",
+    "internal/learn/patterns/store.go",
+    "internal/store/carstay_learning_contracts_test.go",
+    "internal/learn/patterns/carstay_publication_contracts_test.go"
+  ],
+  "validated_outcome": "Isolated actual extraction/store/recall regressions cover inferred structural-family undo, unrelated resource/venue and manual retention, rollback, explicit-source promotion without downgrade, literal%/_ and unique versus ambiguous valid24hex directory IDs."
+}

@@ -160,3 +160,7 @@ Generated learning read tools can create/migrate their local store despite a rea
 ## Direct Use
 
 A separate generated reference mirror supports `sync --resources directory` and offline `search --type directory`. It can contain activity-only rows and stale reference data; `spots` handles current overnight evidence. Read README.md for local installation, mirror examples and troubleshooting.
+
+The MCP companion preserves bounded partial CLI evidence in the first content block when a tool fails, keeps `isError=true`, and separates diagnostics. Inspect both the failed-tool flag and `meta.fetch_failures`/coverage; partial rows never certify a complete shortlist.
+
+The optional local learning engine requires a unique literal prefix match before treating a cached resource ID as verified. Teaching undo atomically invalidates affected inferred query/resource/venue families while retaining explicit taught and unrelated patterns. Native `spots` reads use current provider evidence independently of these local learnings.

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "carstay-failed-mcp-tools-retain-evidence",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261003-001121-929ee489",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Failed MCP command tools retain bounded CLI stdout evidence separately from diagnostics and keep IsError=true.",
+  "reason": "Nonzero partial shortlist exits must not discard successful source rows or failure/coverage metadata in the companion adapter.",
+  "files": [
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/cobratree/shellout_test.go"
+  ],
+  "validated_outcome": "An actual exit5 subprocess yields parseable partial meta/results and unknowns with failed-tool flag, separate diagnostics and per-content bounds; empty-output/error/success-hint and oversized regression paths remain covered."
+}

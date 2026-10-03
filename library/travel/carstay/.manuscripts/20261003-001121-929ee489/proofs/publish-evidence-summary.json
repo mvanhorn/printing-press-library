@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_by": "publication evidence projection; acceptance remains binary-owned",
-  "observed_at": "2026-10-03T06:18:36.065932Z",
+  "observed_at": "2026-10-03T07:31:13.566811Z",
   "source": {
     "public_pages": [
       "https://carstay.jp/ja/stations/",
@@ -80,7 +80,9 @@
     "passed": 115,
     "failed": 0,
     "skipped": 92,
-    "ran_at": "2026-10-03T06:18:36.065932Z"
+    "ran_at": "2026-10-03T07:31:13.566811Z",
+    "source_fingerprint": "015626704db4ab4aea82c37efac937a36ee7f50eb3a406e09e0dc36fee0d6779",
+    "source_file_count": 180
   },
   "live_kinds": {
     "help": {
@@ -106,12 +108,19 @@
       "skip": 17
     }
   },
-  "live_scope": "115 executed checks passed;92 runner-skipped/unverified rows are explicit, not counted as coverage. Native find generic-fixture happy/json are skipped; separate positive dated and Japanese-prefecture probes verify actual discovery.",
+  "live_scope": "115 executed checks passed; 92 runner-skipped/unverified rows are explicit, not counted as coverage. Native find generic-fixture happy/json are skipped; separate positive dated and Japanese-prefecture probes verify actual discovery.",
   "performance": {
-    "binary_sha256": "897e74bcc1013bd0f7c5e3643d532b8919fa4f7c8548f6182af13acdd472bce4",
+    "binary_sha256": "de95d2341140e08d0613d749c8d36ded221965e0b17fd60adf5049cde435de5a",
     "version": "carstay-pp-cli 0.0.0-dev",
+    "build_arguments": [
+      "go",
+      "build",
+      "-trimpath",
+      "-buildvcs=false",
+      "./cmd/carstay-pp-cli"
+    ],
     "runs_per_workflow": 3,
-    "method": "Real HTTP; three sequential end-to-end process executions per workflow in an isolated home. Agent envelopes/results and zero fetch failures were verified; no raw response bodies retained. Dated find measures a one-page scan with two-row output limit.",
+    "method": "Real HTTP; three sequential end-to-end process executions per workflow in an isolated home. Agent envelopes/results, zero fetch failures and complete successful comparison verified; no raw responses retained. Dated find measures one source page/two output rows. Git VCS embedding disabled explicitly for reproducible source-binary identity.",
     "samples": {
       "coverage": {
         "arguments": [
@@ -121,11 +130,11 @@
           "--no-learn"
         ],
         "elapsed_ms": [
-          918.54,
-          708.71,
-          744.05
+          721.33,
+          723.12,
+          869.52
         ],
-        "median_ms": 744.05,
+        "median_ms": 723.12,
         "observations": [
           {
             "envelope": "meta/results",
@@ -154,11 +163,11 @@
           "--no-learn"
         ],
         "elapsed_ms": [
-          1462.7,
-          1339.1,
-          1515.59
+          1363.22,
+          1353.18,
+          1333.88
         ],
-        "median_ms": 1462.7,
+        "median_ms": 1353.18,
         "observations": [
           {
             "envelope": "meta/results",
@@ -193,11 +202,11 @@
           "--no-learn"
         ],
         "elapsed_ms": [
-          712.19,
-          722.17,
-          744.35
+          703.69,
+          729.13,
+          710.82
         ],
-        "median_ms": 722.17,
+        "median_ms": 710.82,
         "observations": [
           {
             "envelope": "meta/results",
@@ -218,7 +227,7 @@
       }
     },
     "raw_responses_retained": false,
-    "live_metadata_only_projection": "PASS: flat envelope, explicit row omission, source provenance"
+    "live_metadata_only_projection": "PASS"
   },
   "privacy": {
     "raw_source_responses_retained": false,
@@ -230,9 +239,11 @@
     "optional_detector_enrichment": "gitleaks/trufflehog unavailable; no installation performed"
   },
   "publication_review_fixes": {
-    "incomplete_shortlists": "Preserve partial bounded JSON evidence; ordinary partial failures return API exit5. Rate/cancellation abort through their classified nonzero path. Requested/successful/complete/failure metadata makes rendered partial scope explicit.",
+    "incomplete_shortlists": "Preserve partial bounded JSON evidence; ordinary partial failures return API exit 5. Rate/cancellation abort through their classified nonzero path. Requested/successful/complete/failure metadata makes rendered partial scope explicit.",
     "metadata_only_agent_selection": "Flat meta/results envelope with results=[] and explicit results_omitted_by_select flag; full provenance retained.",
-    "generated_plain_public_reads": "8MiB+1 bounded reads before decode/cache/status retries; post-inflation cap; binary transfer flag/MIME and existing32MiB decoded limit retain prior behavior.",
-    "regressions": "Complete/partial/all-failed comparison, partial fit/audit, metadata projection, exact read cap, lying/missing lengths, body close200/429/503, gzip overflow and preserved binary envelope all pass."
+    "generated_plain_public_reads": "8 MiB+1 bounded reads before decode/cache/status retries; post-inflation cap; binary transfer flag/MIME and existing 32 MiB decoded limit retain prior behavior.",
+    "regressions": "Complete/partial/all-failed comparison, partial fit/audit, metadata projection, exact read cap, lying/missing lengths, body closure at 200/429/503, gzip overflow and preserved binary envelope all pass.",
+    "mcp_partial_evidence": "Failed command tools preserve bounded stdout evidence first, keep IsError=true, and separate bounded diagnostics/hints; empty stdout keeps prior errors. Actual subprocess exit5 regression preserves meta/results/fetch_failures and failure classification.",
+    "learning_identity_and_undo": "Verified prefix lookup requires one literal, resource-type-scoped ID match and abstains on ambiguity. Forgetting selected teachings atomically invalidates only inferred patterns in their structural query/type/venue families; manually taught and unrelated patterns remain. Explicit teaching promotes an inferred pattern and later inference cannot demote it. Actual extractor/recall, wildcard/case/type/ambiguity, scoped undo and rollback regressions pass."
   }
 }

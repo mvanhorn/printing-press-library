@@ -606,13 +606,78 @@ func (s *Store) ForgetLearnings(ctx context.Context, f ForgetLearningsFilter) (i
 		clauses = append(clauses, "action = ?")
 		args = append(args, f.Action)
 	}
-	q := "DELETE FROM search_learnings WHERE " + strings.Join(clauses, " AND ")
-	res, err := s.db.ExecContext(ctx, q, args...)
+	where := strings.Join(clauses, " AND ")
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return 0, fmt.Errorf("forget learnings begin: %w", err)
+	}
+	defer tx.Rollback()
+	// Derived patterns have no row-level foreign key. Invalidate only the
+	// structural families whose taught members are actually being removed.
+	// The store stays import-free of the learn tree.
+	type family struct{ template, resourceType, venue string }
+	families := map[family]bool{}
+	rows, err := tx.QueryContext(ctx, "SELECT query_pattern, COALESCE(query_entities, '[]'), COALESCE(resource_type, ''), COALESCE(venue, ''), source FROM search_learnings WHERE "+where, args...)
+	if err != nil {
+		return 0, fmt.Errorf("forget learnings dependencies: %w", err)
+	}
+	for rows.Next() {
+		var query, rawEntities, resourceType, venue, source string
+		if err := rows.Scan(&query, &rawEntities, &resourceType, &venue, &source); err != nil {
+			rows.Close()
+			return 0, fmt.Errorf("forget learnings dependencies: %w", err)
+		}
+		if source != "taught" && source != "inferred-followup" && source != "inferred-reach" && source != "inferred-pair" {
+			continue
+		}
+		var entities []string
+		if json.Unmarshal([]byte(rawEntities), &entities) != nil || len(entities) != 1 {
+			continue
+		}
+		if template := derivedLearningTemplate(query, entities[0]); template != "" {
+			families[family{template, resourceType, venue}] = true
+		}
+	}
+	if err := rows.Err(); err != nil {
+		rows.Close()
+		return 0, fmt.Errorf("forget learnings dependencies: %w", err)
+	}
+	rows.Close()
+	res, err := tx.ExecContext(ctx, "DELETE FROM search_learnings WHERE "+where, args...)
 	if err != nil {
 		return 0, fmt.Errorf("forget learnings: %w", err)
 	}
-	n, _ := res.RowsAffected()
+	n, err := res.RowsAffected()
+	if err != nil {
+		return 0, fmt.Errorf("forget learnings count: %w", err)
+	}
+	for f := range families {
+		if _, err := tx.ExecContext(ctx, `DELETE FROM search_patterns WHERE source = 'inferred' AND query_template = ? AND resource_type = ? AND COALESCE(venue, '') = ?`, f.template, f.resourceType, f.venue); err != nil {
+			return 0, fmt.Errorf("forget derived learning patterns: %w", err)
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return 0, fmt.Errorf("forget learnings commit: %w", err)
+	}
 	return n, nil
+}
+
+// derivedLearningTemplate mirrors the single-entity structural template in
+// patterns.Extract. Multi-entity teachings do not produce inferred patterns.
+func derivedLearningTemplate(query, entity string) string {
+	entity = strings.ToLower(strings.TrimSpace(entity))
+	tokens := []string{}
+	for _, token := range strings.Fields(query) {
+		if strings.ToLower(token) != entity {
+			tokens = append(tokens, token)
+		}
+	}
+	if len(tokens) == 0 {
+		return ""
+	}
+	tokens = append(tokens, "{entity}")
+	sort.Strings(tokens)
+	return strings.Join(tokens, " ")
 }
 
 // RecallMatch is one row returned by Recall — a learning that scored

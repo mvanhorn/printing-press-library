@@ -212,3 +212,7 @@ carstay-pp-cli spots audit 632c59b82b614b99a252d1b2 --check-in 2026-10-10 --chec
 ```
 
 Check missing or qualified evidence without claiming vacancy.
+
+The MCP companion preserves bounded partial CLI evidence in the first content block when a tool fails, keeps `isError=true`, and separates diagnostics. Inspect both the failed-tool flag and `meta.fetch_failures`/coverage; partial rows never certify a complete shortlist.
+
+The optional local learning engine requires a unique literal prefix match before treating a cached resource ID as verified. Teaching undo atomically invalidates affected inferred query/resource/venue families while retaining explicit taught and unrelated patterns. Native `spots` reads use current provider evidence independently of these local learnings.

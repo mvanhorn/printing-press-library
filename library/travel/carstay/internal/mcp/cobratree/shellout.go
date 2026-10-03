@@ -74,7 +74,15 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string, blocked
 		}
 		out, err := RunCLICommand(ctx, lookupPath, finalArgs)
 		if err != nil {
-			return boundedToolResultError(err.Error()), nil
+			if strings.TrimSpace(out.Stdout) == "" {
+				return boundedToolResultError(err.Error()), nil
+			}
+			// A failed read may still carry bounded partial evidence. Keep
+			// that machine channel separate from diagnostics and mark failure.
+			result := ToolResultFromCLICommand(out)
+			result.IsError = true
+			result.Content = append(result.Content, mcplib.NewTextContent(bound.Text(err.Error())))
+			return result, nil
 		}
 		return ToolResultFromCLICommand(out), nil
 	}

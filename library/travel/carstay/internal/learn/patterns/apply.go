@@ -259,12 +259,25 @@ func verifyCandidate(ctx context.Context, db *sql.DB, candidate, resourceType, s
 		if noVerify {
 			return Hit{ResourceID: prefix, ResourceType: resourceType}, true
 		}
-		var got string
-		err := db.QueryRowContext(ctx,
-			`SELECT id FROM resources WHERE resource_type = ? AND id LIKE ? LIMIT 1`,
-			resourceType, prefix+"%",
-		).Scan(&got)
+		// Prefix characters are literal identifiers, not LIKE wildcards.
+		// Observe at most two candidates and require uniqueness before an
+		// entity match can be presented as verified.
+		rows, err := db.QueryContext(ctx,
+			`SELECT id FROM resources WHERE resource_type = ? AND instr(id, ?) = 1 ORDER BY id LIMIT 2`,
+			resourceType, prefix,
+		)
 		if err != nil {
+			return Hit{}, false
+		}
+		defer rows.Close()
+		if !rows.Next() {
+			return Hit{}, false
+		}
+		var got string
+		if err := rows.Scan(&got); err != nil {
+			return Hit{}, false
+		}
+		if rows.Next() || rows.Err() != nil {
 			return Hit{}, false
 		}
 		return Hit{ResourceID: got, ResourceType: resourceType}, true

@@ -1110,6 +1110,8 @@ func writeShelloutHelper(t *testing.T, mode string) string {
 			body = "@echo off\r\necho telemetry 1>&2\r\n<nul set /p \"=progress 50%%\" 1>&2\r\necho. 1>&2\r\necho hint: local store is empty; run sync 1>&2\r\necho warning: result was truncated 1>&2\r\necho {\"args\":\"%*\"}\r\n"
 		case "fail-stderr":
 			body = "@echo off\r\necho boom from stderr 1>&2\r\nexit /b 7\r\n"
+		case "fail-partial-json":
+			body = "@echo off\r\necho {\"meta\":{\"source\":\"fixture\",\"detail_fetch_complete\":false,\"fetch_failures\":[{\"id\":\"second\",\"error\":\"fixture unavailable\"}]},\"results\":[{\"id\":\"first\",\"availability\":\"unknown\"}]}\r\necho warning: one detail failed 1>&2\r\nexit /b 5\r\n"
 		case "fail-stdout":
 			body = "@echo off\r\necho stdout failure\r\nexit /b 7\r\n"
 		case "fail-large-stderr":
@@ -1133,6 +1135,8 @@ func writeShelloutHelper(t *testing.T, mode string) string {
 		body = "#!/bin/sh\nprintf 'telemetry\\nprogress 50%%\\rhint: local store is empty; run sync\\nwarning: result was truncated\\n' >&2\nprintf '{\"args\":\"%s\"}\\n' \"$*\"\n"
 	case "fail-stderr":
 		body = "#!/bin/sh\necho boom from stderr >&2\nexit 7\n"
+	case "fail-partial-json":
+		body = "#!/bin/sh\nprintf '%s\\n' '{\"meta\":{\"source\":\"fixture\",\"detail_fetch_complete\":false,\"fetch_failures\":[{\"id\":\"second\",\"error\":\"fixture unavailable\"}]},\"results\":[{\"id\":\"first\",\"availability\":\"unknown\"}]}'\necho 'warning: one detail failed' >&2\nexit 5\n"
 	case "fail-stdout":
 		body = "#!/bin/sh\necho stdout failure\nexit 7\n"
 	case "fail-large-stderr":
@@ -1240,4 +1244,34 @@ func toolResultContentText(result *mcplib.CallToolResult, index int) string {
 		return ""
 	}
 	return text.Text
+}
+
+func TestCarstayFailedMCPToolPreservesPartialEvidence(t *testing.T) {
+	bin := writeShelloutHelper(t, "fail-partial-json")
+	handler := shellOutToCLI(func() (string, error) { return bin, nil }, []string{"spots", "compare"}, map[string]bool{}, map[string]bool{}, nil, true, nil)
+	result, err := handler(context.Background(), mcplib.CallToolRequest{})
+	if err != nil || !result.IsError {
+		t.Fatalf("failed evidence became transport/success result: %#v %v", result, err)
+	}
+	var payload struct {
+		Meta struct {
+			Complete bool                `json:"detail_fetch_complete"`
+			Failures []map[string]string `json:"fetch_failures"`
+		} `json:"meta"`
+		Results []map[string]string `json:"results"`
+	}
+	if err := json.Unmarshal([]byte(toolResultContentText(result, 0)), &payload); err != nil {
+		t.Fatalf("partial evidence was discarded/corrupted: %v", err)
+	}
+	if payload.Meta.Complete || len(payload.Meta.Failures) != 1 || len(payload.Results) != 1 || payload.Results[0]["id"] != "first" || payload.Results[0]["availability"] != "unknown" {
+		t.Fatalf("source/coverage evidence lost: %#v", payload)
+	}
+	if len(result.Content) < 2 || !strings.Contains(toolResultContentText(result, len(result.Content)-1), "exit status 5") {
+		t.Fatalf("failure diagnostic/classification lost: %#v", result)
+	}
+	for i := range result.Content {
+		if len(toolResultContentText(result, i)) > bound.MaxBytes {
+			t.Fatal("unbounded failed-tool content")
+		}
+	}
 }
