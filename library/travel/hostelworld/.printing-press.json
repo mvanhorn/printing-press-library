@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-03T12:44:16.861963Z",
+  "printing_press_version": "4.33.0",
+  "api_name": "hostelworld",
+  "display_name": "Hostelworld",
+  "cli_name": "hostelworld-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "spec.json",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:03090bd47e8114df6abf033fce3eef4dc1c8520205242aeb79a17dc9c02fc23f",
+  "run_id": "20261003-140023-98175357",
+  "category": "travel",
+  "description": "Compare dated dorm beds and private rooms with explicit quantities, prices and terms.",
+  "mcp_binary": "hostelworld-pp-mcp",
+  "mcp_tool_count": 4,
+  "mcp_public_tool_count": 4,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Comparable party costs",
+      "command": "hostels compare",
+      "description": "Compare actual dated dorm beds and private rooms with explicit source units."
+    },
+    {
+      "name": "Flexible stay windows",
+      "command": "hostels dates",
+      "description": "Check actual availability for each alternative check-in date."
+    },
+    {
+      "name": "Nightly price basis",
+      "command": "hostels offers",
+      "description": "Keep nightly bed, room and occupancy-slot price bases explicit."
+    },
+    {
+      "name": "Payment and cancellation evidence",
+      "command": "hostels offers",
+      "description": "See rate terms and exact cancellation deadline alongside the price."
+    },
+    {
+      "name": "Saved planning evidence",
+      "command": "hostels saved",
+      "description": "Re-read your bounded planning snapshots offline."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Comparable party costs",
+      "command": "hostels compare",
+      "description": "Compare actual dated dorm beds and private rooms with explicit source units."
+    },
+    {
+      "name": "Flexible stay windows",
+      "command": "hostels dates",
+      "description": "Check actual availability for each alternative check-in date."
+    },
+    {
+      "name": "Nightly price basis",
+      "command": "hostels offers",
+      "description": "Keep nightly bed, room and occupancy-slot price bases explicit."
+    },
+    {
+      "name": "Payment and cancellation evidence",
+      "command": "hostels offers",
+      "description": "See rate terms and exact cancellation deadline alongside the price."
+    },
+    {
+      "name": "Saved planning evidence",
+      "command": "hostels saved",
+      "description": "Re-read your bounded planning snapshots offline."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 35,
+    "total": 35,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 84,
+      "grade": "A",
+      "total": 84
+    }
+  }
+}

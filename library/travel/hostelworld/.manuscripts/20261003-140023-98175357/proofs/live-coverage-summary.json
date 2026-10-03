@@ -1,0 +1,49 @@
+{
+  "status": "PASS",
+  "matrix_size": 133,
+  "tests_passed": 133,
+  "tests_failed": 0,
+  "tests_skipped": 92,
+  "tests_unverified": 92,
+  "coverage_hollow": false,
+  "reviewed_two_key_opt_in": true,
+  "features": [
+    {
+      "command": "hostels compare",
+      "status": "pass",
+      "actual_source_live": true,
+      "dry_run": false
+    },
+    {
+      "command": "hostels dates",
+      "status": "pass",
+      "actual_source_live": true,
+      "dry_run": false
+    },
+    {
+      "command": "hostels inspect",
+      "status": "pass",
+      "actual_source_live": true,
+      "dry_run": false
+    },
+    {
+      "command": "hostels offers",
+      "status": "pass",
+      "actual_source_live": true,
+      "dry_run": false
+    },
+    {
+      "command": "hostels saved",
+      "status": "pass",
+      "actual_source_live": false,
+      "dry_run": false
+    },
+    {
+      "command": "hostels search",
+      "status": "pass",
+      "actual_source_live": true,
+      "dry_run": false
+    }
+  ],
+  "raw_transcript_retained": false
+}

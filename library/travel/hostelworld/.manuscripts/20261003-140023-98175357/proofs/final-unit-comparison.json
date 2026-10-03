@@ -1,0 +1,153 @@
+{
+  "ordinary_agent_mode": true,
+  "query": {
+    "check_in": "2026-10-04",
+    "check_out": "2026-10-07",
+    "guests": 2,
+    "nights": 3
+  },
+  "observed_at": "2026-10-03T10:08:43Z",
+  "comparison_basis": "derived whole-party stay estimates; currencies grouped separately; unknown/restricted inventory is unranked",
+  "fetch_failures": [],
+  "cases": [
+    {
+      "room_id": "575285",
+      "room_name": "Basic 8 Bed Mixed Dorm",
+      "category": "dorm",
+      "room_capacity": 8,
+      "guests_per_private_room": null,
+      "source_stay_amount": {
+        "currency": "JPY",
+        "unit": "per_bed_per_stay",
+        "value": "16720.00"
+      },
+      "source_average_nightly": {
+        "currency": "JPY",
+        "unit": "per_bed_per_night",
+        "value": "5573.33"
+      },
+      "nightly_price_basis": "per_bed_per_night",
+      "source_nightly_breakdown": [
+        {
+          "date": "2026-10-04",
+          "price": {
+            "currency": "JPY",
+            "unit": "per_bed_per_night",
+            "value": "5700.00"
+          }
+        },
+        {
+          "date": "2026-10-05",
+          "price": {
+            "currency": "JPY",
+            "unit": "per_bed_per_night",
+            "value": "5510.00"
+          }
+        },
+        {
+          "date": "2026-10-06",
+          "price": {
+            "currency": "JPY",
+            "unit": "per_bed_per_night",
+            "value": "5510.00"
+          }
+        }
+      ],
+      "derived_party_estimate": {
+        "currency": "JPY",
+        "unit": "whole_party_per_stay",
+        "value": "33440.00"
+      },
+      "required_quantity": 2,
+      "quantity_unit": "beds",
+      "party_fit": "available",
+      "rate_rule_violations": [],
+      "guest_eligibility": "source dorm type and property rules require confirmation; same-room allocation is not guaranteed",
+      "free_cancellation_status": "conditional",
+      "free_cancellation_basis": "payment_requires_optional_flexible_booking",
+      "free_cancellation_deadline": "2026-10-03T23:59:59+09:00",
+      "free_cancellation_deadline_scope": "availability_response",
+      "rate_free_cancellation_deadline": null,
+      "payment": {
+        "description": "Deposit only Your deposit will be non-refundable unless the Standard Flexible Booking option is available and you select it. T&C apply.",
+        "id": "depositPayable",
+        "label": "Deposit only"
+      },
+      "deposit_percentage": 12,
+      "estimate_notice": "derived from source unit price and quantity; not a checkout quote",
+      "property_id": "67481",
+      "observed_at": "2026-10-03T10:08:36Z",
+      "source_availability_cancellation_status": "available"
+    },
+    {
+      "room_id": "3749",
+      "room_name": "4 Bed Private Shared Bathroom",
+      "category": "private",
+      "room_capacity": 4,
+      "guests_per_private_room": 4,
+      "source_stay_amount": {
+        "currency": "JPY",
+        "unit": "per_room_per_stay",
+        "value": "44808.48"
+      },
+      "source_average_nightly": {
+        "currency": "JPY",
+        "unit": "per_room_per_night",
+        "value": "14936.16"
+      },
+      "nightly_price_basis": "per_occupancy_slot_per_night",
+      "source_nightly_breakdown": [
+        {
+          "date": "2026-10-04",
+          "price": {
+            "currency": "JPY",
+            "unit": "per_occupancy_slot_per_night",
+            "value": "3862.80"
+          }
+        },
+        {
+          "date": "2026-10-05",
+          "price": {
+            "currency": "JPY",
+            "unit": "per_occupancy_slot_per_night",
+            "value": "3862.80"
+          }
+        },
+        {
+          "date": "2026-10-06",
+          "price": {
+            "currency": "JPY",
+            "unit": "per_occupancy_slot_per_night",
+            "value": "3476.52"
+          }
+        }
+      ],
+      "derived_party_estimate": {
+        "currency": "JPY",
+        "unit": "whole_party_per_stay",
+        "value": "44808.48"
+      },
+      "required_quantity": 1,
+      "quantity_unit": "rooms",
+      "party_fit": "available",
+      "rate_rule_violations": [],
+      "guest_eligibility": "source dorm type and property rules require confirmation; same-room allocation is not guaranteed",
+      "free_cancellation_status": "conditional",
+      "free_cancellation_basis": "payment_requires_optional_flexible_booking",
+      "free_cancellation_deadline": "2026-10-01T23:59:59+09:00",
+      "free_cancellation_deadline_scope": "availability_response",
+      "rate_free_cancellation_deadline": null,
+      "payment": {
+        "description": "Deposit only Your deposit will be non-refundable unless the Standard Flexible Booking option is available and you select it. T&C apply.",
+        "id": "depositPayable",
+        "label": "Deposit only"
+      },
+      "deposit_percentage": 12,
+      "estimate_notice": "derived from source unit price and quantity; not a checkout quote",
+      "property_id": "15725",
+      "observed_at": "2026-10-03T10:08:40Z",
+      "source_availability_cancellation_status": "unavailable"
+    }
+  ],
+  "source_scope_notice": "Anonymous dated observations; party costs are derived estimates, not booking quotes. Conditional/unknown refund terms do not pass the offer free-cancellation filter."
+}

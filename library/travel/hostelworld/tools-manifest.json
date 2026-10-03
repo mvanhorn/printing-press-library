@@ -1,0 +1,195 @@
+{
+  "api_name": "hostelworld",
+  "base_url": "https://prod.apigee.hostelworld.com",
+  "description": "Compare dated dorm beds and private rooms with explicit quantities, prices and terms.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "source_availability",
+      "description": "Dated per-bed/per-room availability; source totals retain their units. Required: id, check-in, nights. Optional: guests (default: 2), application (default: web), show-rate-restrictions (default: true). Returns the Availability.",
+      "method": "GET",
+      "path": "/legacy-hwapi-service/2.2/properties/{id}/availability/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Source numeric property ID",
+          "required": true
+        },
+        {
+          "name": "check-in",
+          "wire_name": "date-start",
+          "type": "string",
+          "location": "query",
+          "description": "Explicit check-in YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "nights",
+          "wire_name": "num-nights",
+          "type": "int",
+          "location": "query",
+          "description": "Stay length in nights",
+          "required": true
+        },
+        {
+          "name": "guests",
+          "type": "int",
+          "location": "query",
+          "description": "Requested guests"
+        },
+        {
+          "name": "application",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "show-rate-restrictions",
+          "type": "bool",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "source_city-search",
+      "description": "Dated bounded city discovery; summary from-prices are not room quotes. Required: id, check-in, nights. Optional: guests (default: 2), application (default: web), currency (default: JPY) (plus 3 more). Returns the CitySearch.",
+      "method": "GET",
+      "path": "/legacy-hwapi-service/2.2/cities/{id}/properties/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Resolved source city ID",
+          "required": true
+        },
+        {
+          "name": "check-in",
+          "wire_name": "date-start",
+          "type": "string",
+          "location": "query",
+          "description": "Explicit check-in YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "nights",
+          "wire_name": "num-nights",
+          "type": "int",
+          "location": "query",
+          "description": "Stay length in nights",
+          "required": true
+        },
+        {
+          "name": "guests",
+          "type": "int",
+          "location": "query",
+          "description": "Requested guests"
+        },
+        {
+          "name": "application",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "per-page",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "show-rooms",
+          "type": "int",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "source_locations",
+      "description": "Public destination suggestions; application identifier bootstrapped transiently. Required: query. Optional: v (default: control). Returns array of Destination.",
+      "method": "GET",
+      "path": "/autocomplete-service/v1/autocomplete/web",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "text",
+          "type": "string",
+          "location": "query",
+          "description": "Destination or property search text",
+          "required": true
+        },
+        {
+          "name": "v",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "source_property",
+      "description": "Public property facts and source rules. Required: id. Optional: application (default: web). Returns the Property.",
+      "method": "GET",
+      "path": "/legacy-hwapi-service/2.2/properties/{id}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Source numeric property ID",
+          "required": true
+        },
+        {
+          "name": "application",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Comparable party costs",
+      "command": "hostels compare",
+      "description": "Compare actual dated dorm beds and private rooms with explicit source units."
+    },
+    {
+      "name": "Flexible stay windows",
+      "command": "hostels dates",
+      "description": "Check actual availability for each alternative check-in date."
+    },
+    {
+      "name": "Nightly price basis",
+      "command": "hostels offers",
+      "description": "Keep nightly bed, room and occupancy-slot price bases explicit."
+    },
+    {
+      "name": "Payment and cancellation evidence",
+      "command": "hostels offers",
+      "description": "See rate terms and exact cancellation deadline alongside the price."
+    },
+    {
+      "name": "Saved planning evidence",
+      "command": "hostels saved",
+      "description": "Re-read your bounded planning snapshots offline."
+    }
+  ]
+}

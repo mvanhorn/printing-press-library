@@ -1,0 +1,66 @@
+{
+  "status": "PASS",
+  "checks": {
+    "exact_root_and_container_hashes": true,
+    "embedded_bytes_match_exact_roots": true,
+    "cli_agent_dorm_units_quantity_terms_dates": true,
+    "cli_agent_private_room_occupancy_terms": true,
+    "cli_conditional_rate_filter_empty_truthfully": true,
+    "cli_agent_discovery_scope": true,
+    "cli_select_retains_selected_price_and_terms": true,
+    "isolated_local_save_created_one_database": true,
+    "cli_saved_stale_and_price_fields": true,
+    "mcp_optional_save_annotations": true,
+    "mcp_sync_archive_hidden": true,
+    "mcp_compare_finite_slots": true,
+    "mcp_agent_dorm_critical_fields": true,
+    "mcp_agent_private_critical_fields": true,
+    "mcp_saved_stale_fields": true,
+    "cli_normal_saved_search_stale": true,
+    "mcp_normal_saved_search_stale": true,
+    "mcp_normal_saved_sql_engine_and_fields": true,
+    "normal_saved_snapshot_cleanup": true,
+    "fixture_source_requests_get_only": true
+  },
+  "identities": {
+    "cli": "8876a151e5548af5403f7c5f065b9f6b4a0490bf2cf23fb13ca42062162f72c0",
+    "mcp": "a93455050888a2205073efeb68bb67fd006b8e032a52089a7065eb593420cf2f",
+    "mcpb": "19079541cc5851f3a9fce33a5e9d0ecff57c6aac81842a1d6c2507a9f8f1bced"
+  },
+  "cache_read_source_sha256": "0230fa4089dfd64edd0adccf9d82eb5437f9a9790c19961ff293168f2352e17b",
+  "fixture_amounts_not_current_prices": true,
+  "all_source_requests_read_only": true,
+  "test_cache_isolated": true,
+  "final_gate_scope": "exact reviewed root/MCPB normal GET/saved-data smoke only; prior source guard regressions retained; later promotion/publication/live gates remain builder-owned",
+  "source_sha256": {
+    "internal/hostelworld/cache_read.go": "0230fa4089dfd64edd0adccf9d82eb5437f9a9790c19961ff293168f2352e17b",
+    "internal/hostelworld/cache_links_other.go": "e60b46a0c5611341042195b237034247e82371c9b57ddfe7a105049c47f8cf92",
+    "internal/hostelworld/cache_links_windows.go": "982fe9bcbd542650e3503a26abc32ca00cc7a61c278224e59fc65094a9f9a58c",
+    "internal/cli/hostelworld_planning.go": "57e0d9e2a593ed6e220661debc913a5fa9bef5cd513a810448186e23b24a44a1",
+    "internal/cli/hostelworld_cache.go": "9f01a581bd119cef38d8f4d6caec0ac0141470007dc8f7f29be9ea82c9bf7725",
+    "internal/cli/hostels_saved.go": "db05b185eb4437d98f0ee1cc839403c2a5b840339a29b3ee884e4d24f408c7ad",
+    "internal/mcp/tools.go": "bfe27fa19f4a12513643bfbb940e9238911baa40a8aedc9dd9a333c67c2c3867",
+    "go.mod": "004c1891c92e3c24273990684e1328b592c434661daa5df4cbb744cef812f4f4",
+    "go.sum": "731ab972e1562afed9d4a9dc541750385c98b9dbb4998d416b919e3263405464",
+    ".printing-press-patches/hostelworld-anonymous-dated-planning-manual-cache.json": "fbb58e8dfc0ec3c5f3d8838454e4ef2d1aaa170e563539db979b3dfc9d90e905"
+  },
+  "prior_reviewed_source_delta": {
+    "changed_files": [
+      "internal/hostelworld/cache_read.go"
+    ],
+    "reverse_private_basename_change_reproduces_prior_hash": true
+  },
+  "security_delta": {
+    "scanner": "gosec v2.26.1",
+    "raw_findings": 54,
+    "prior_raw_findings": 33,
+    "scoped_guard_cleanup_candidates": 21,
+    "scoped_counts": {
+      "G115": 1,
+      "G304": 2,
+      "G104": 18
+    },
+    "triage": "no actionable new risk; scan is not zero-findings"
+  },
+  "guard_regressions": "prior independently reviewed source regressions retained; broader path/race tests excluded from final normal smoke by Root steering"
+}

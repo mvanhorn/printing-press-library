@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/hostelworld-pp-cli
+/hostelworld-pp-cli.exe
+/hostelworld-pp-mcp
+/hostelworld-pp-mcp.exe
+/bin/
+/build/
+/dist/

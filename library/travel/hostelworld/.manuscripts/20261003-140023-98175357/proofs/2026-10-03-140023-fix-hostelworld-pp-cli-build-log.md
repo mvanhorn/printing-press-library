@@ -1,0 +1,19 @@
+Manifest transcendence rows: 5 planned, 0 built. Phase 3 will not pass until all 5 ship.
+
+All five integrated features ship. Full Go tests/vet and CLI/MCP builds passed; eight live behavior assertions passed. Source units, unknown/restricted inventory, cancellation expiry, schema drift, contributor-profile exclusion and failure-body redaction have meaningful tests. Literal Cobra constructors and source annotations resolve all five planned features. Planning snapshots are manually saved and bounded; generic sync is hidden from help/MCP and explicitly initializes only the local cache with local_cache_only/provider_snapshot_refreshed=false. No approved feature is deferred or stubbed.
+
+Final acceptance expanded to117/117 after adding real help examples through the preserved hook. Same-reviewer convergence and exact staged/MCPB identity are cleared. Native canonical URLs include the source-name label; bare-ID404 routes are not emitted. No source booking/payment/account operation was implemented or executed.
+
+## Publication review corrections
+
+Four valid Greptile findings are fixed in builder-owned source: all manual-cache reads/writes select the verified profile DataFile; pruning removes matching/orphaned FTS rows transactionally; date validation preserves still-current source-local days; cancellation classification separates availability-wide signals from rate-level refund terms and excludes conditional deposit rates. Related workflow status and MCP path metadata use the same selected profile, and discovery explicitly labels property-summary cancellation scope.
+
+Meaningful independent regressions cover two actual synthetic SQLite profiles through CLI and typed MCP,205 saves with200 resource/FTS rows, orphan cleanup, unrelated-row retention and forced FTS failure rollback. The original real deposit fixture is conditional, not guaranteed free cancellation. Final Go tests/vet pass; runtime mock verification35/35, score84%(A), seven shipping legs pass. Final full live runner133passes/zero failures with92 additional skipped/unverified cases; all required planning feature happy paths are real source/local results without dry-run and coverage is not hollow. Nine separate dated source behavior assertions pass. The public PR's current-head CI/review/readiness remains a separate publication gate.
+
+## Cache visibility and patched engine
+
+Actual CLI saved/search/status and typed MCP search/SQL reject committed active WAL instead of returning an older checkpoint; they recover current committed observations after writer close. Canonicalization and unique-file checks reject hard links, broken aliases and URI metacharacters before reads or writer preflight. Reads use automatically removed private0700/0600 snapshots bounded to512MiB from verified descriptors, protecting delayed SQL opens against replacement-and-restore; temporary URI paths are escaped. Complete-read checks catch source mutation before success.
+
+Writes retain ordinary SQLite transactions and canonical paths with one connection; independent60-save canonical/symlink concurrency preserves61 resources/FTS rows including baseline and integrity_check=ok. External rename/unlink/replacement of an in-use DB during writes remains unsupported under SQLite’s documented§§2.5–2.6 contract. No custom copy-back, raw overwrite or incompatible file locking was implemented. See https://www.sqlite.org/howtocorrupt.html.
+
+Pinned modernc.org/sqlite1.46.2 with exact libc1.70.0. Actual SELECT sqlite_version() returns3.51.3, containing the official WAL-reset fix (https://www.sqlite.org/wal.html#walreset). Full Go tests/vet, Windows compilation, nine normal live planning assertions and seven shipping legs pass; fresh full live133passes/0failures with92 additional skipped/unverified cases, non-hollow actual feature coverage. These counts do not claim skipped cases are live source evidence.

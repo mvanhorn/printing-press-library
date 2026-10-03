@@ -1,0 +1,184 @@
+{
+  "api_name": "hostelworld",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "trvl",
+      "url": "https://github.com/MikkoParkkola/trvl",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Hostelworld-Finder",
+      "url": "https://github.com/NavyTitanium/Hostelworld-Finder",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-03T06:21:30.544827Z",
+  "novel_features": [
+    {
+      "name": "Comparable party costs",
+      "command": "hostels compare",
+      "description": "Compare actual dated dorm beds and private rooms with explicit source units.",
+      "rationale": "Join room plans and occupancy rules for a comparable derived party estimate.",
+      "example": "hostelworld-pp-cli hostels compare 67481 15725 --check-in 2026-11-10 --check-out 2026-11-13 --guests 2 --agent",
+      "why_it_matters": "Compare actual dated dorm beds and private rooms with explicit source units.",
+      "group": "Dated hostel decisions"
+    },
+    {
+      "name": "Flexible stay windows",
+      "command": "hostels dates",
+      "description": "Check actual availability for each alternative check-in date.",
+      "rationale": "Each window has its own source request and observation.",
+      "example": "hostelworld-pp-cli hostels dates 67481 --starts 2026-11-10,2026-11-11 --nights 3 --guests 2 --agent",
+      "why_it_matters": "Check actual availability for each alternative check-in date.",
+      "group": "Dated hostel decisions"
+    },
+    {
+      "name": "Nightly price basis",
+      "command": "hostels offers",
+      "description": "Keep nightly bed, room and occupancy-slot price bases explicit.",
+      "rationale": "Verify source nightly prices against source stay totals before deriving amounts.",
+      "example": "hostelworld-pp-cli hostels offers 15725 --check-in 2026-11-10 --check-out 2026-11-13 --guests 2 --agent",
+      "why_it_matters": "Keep nightly bed, room and occupancy-slot price bases explicit.",
+      "group": "Dated hostel decisions"
+    },
+    {
+      "name": "Payment and cancellation evidence",
+      "command": "hostels offers",
+      "description": "See rate terms and exact cancellation deadline alongside the price.",
+      "rationale": "Keep distinct source payment and cancellation descriptions rather than inventing a refund guarantee.",
+      "example": "hostelworld-pp-cli hostels offers 67481 --check-in 2026-11-10 --check-out 2026-11-13 --guests 2 --agent",
+      "why_it_matters": "See rate terms and exact cancellation deadline alongside the price.",
+      "group": "Dated hostel decisions"
+    },
+    {
+      "name": "Saved planning evidence",
+      "command": "hostels saved",
+      "description": "Re-read your bounded planning snapshots offline.",
+      "rationale": "Saved observations remain explicitly stale until a live request refreshes them.",
+      "example": "hostelworld-pp-cli hostels saved --agent",
+      "why_it_matters": "Re-read your bounded planning snapshots offline.",
+      "group": "Saved evidence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Comparable party costs",
+      "command": "hostels compare",
+      "description": "Compare actual dated dorm beds and private rooms with explicit source units.",
+      "rationale": "Join room plans and occupancy rules for a comparable derived party estimate.",
+      "example": "hostelworld-pp-cli hostels compare 67481 15725 --check-in 2026-11-10 --check-out 2026-11-13 --guests 2 --agent",
+      "why_it_matters": "Compare actual dated dorm beds and private rooms with explicit source units.",
+      "group": "Dated hostel decisions"
+    },
+    {
+      "name": "Flexible stay windows",
+      "command": "hostels dates",
+      "description": "Check actual availability for each alternative check-in date.",
+      "rationale": "Each window has its own source request and observation.",
+      "example": "hostelworld-pp-cli hostels dates 67481 --starts 2026-11-10,2026-11-11 --nights 3 --guests 2 --agent",
+      "why_it_matters": "Check actual availability for each alternative check-in date.",
+      "group": "Dated hostel decisions"
+    },
+    {
+      "name": "Nightly price basis",
+      "command": "hostels offers",
+      "description": "Keep nightly bed, room and occupancy-slot price bases explicit.",
+      "rationale": "Verify source nightly prices against source stay totals before deriving amounts.",
+      "example": "hostelworld-pp-cli hostels offers 15725 --check-in 2026-11-10 --check-out 2026-11-13 --guests 2 --agent",
+      "why_it_matters": "Keep nightly bed, room and occupancy-slot price bases explicit.",
+      "group": "Dated hostel decisions"
+    },
+    {
+      "name": "Payment and cancellation evidence",
+      "command": "hostels offers",
+      "description": "See rate terms and exact cancellation deadline alongside the price.",
+      "rationale": "Keep distinct source payment and cancellation descriptions rather than inventing a refund guarantee.",
+      "example": "hostelworld-pp-cli hostels offers 67481 --check-in 2026-11-10 --check-out 2026-11-13 --guests 2 --agent",
+      "why_it_matters": "See rate terms and exact cancellation deadline alongside the price.",
+      "group": "Dated hostel decisions"
+    },
+    {
+      "name": "Saved planning evidence",
+      "command": "hostels saved",
+      "description": "Re-read your bounded planning snapshots offline.",
+      "rationale": "Saved observations remain explicitly stale until a live request refreshes them.",
+      "example": "hostelworld-pp-cli hostels saved --agent",
+      "why_it_matters": "Re-read your bounded planning snapshots offline.",
+      "group": "Saved evidence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Hostelworld",
+    "headline": "Compare dated dorm beds and private rooms with explicit quantities, prices and terms.",
+    "value_prop": "Resolve destinations, inspect property rules and fetch actual room plans for your dates. Source prices retain their per-bed or per-room basis; party totals are explicitly derived estimates.",
+    "auth_narrative": "No account, cookies or personal API key required. Search fetches Hostelworld’s public anonymous application identifier from its current first-party config into memory; it is never stored or hardcoded. Property and availability requests are public. Changed config fails clearly.",
+    "quickstart": [
+      {
+        "command": "hostelworld-pp-cli doctor --dry-run",
+        "comment": "Check command readiness."
+      },
+      {
+        "command": "hostelworld-pp-cli destinations search Tokyo --agent",
+        "comment": "Resolve the source city ID."
+      },
+      {
+        "command": "hostelworld-pp-cli hostels search --city-id 452 --check-in 2026-11-10 --check-out 2026-11-13 --guests 2 --limit 5 --agent",
+        "comment": "Find a bounded dated shortlist."
+      },
+      {
+        "command": "hostelworld-pp-cli hostels offers 67481 --check-in 2026-11-10 --check-out 2026-11-13 --guests 2 --agent",
+        "comment": "Inspect actual bed-level plans."
+      }
+    ],
+    "when_to_use": "Use for Hostelworld destination search, dated hostel dorm/private comparison, payment/cancellation evidence and property rules. Japan examples apply to the provider’s worldwide source coverage.",
+    "anti_triggers": [
+      "Booking, payments, account/chat operations, traveler profiles or full review scraping.",
+      "Guarantees of availability, safety, accessibility or atmosphere."
+    ],
+    "recipes": [
+      {
+        "title": "Find a destination",
+        "command": "hostelworld-pp-cli destinations search Osaka --agent",
+        "explanation": "Keep the exact city ID and distinguish similarly named cities."
+      },
+      {
+        "title": "Inspect source rules",
+        "command": "hostelworld-pp-cli hostels inspect 67481 --agent --select id,name,city,check_in,check_out,policies",
+        "explanation": "Read source check-in and tax facts without verbose descriptions."
+      },
+      {
+        "title": "Compare bed and room costs",
+        "command": "hostelworld-pp-cli hostels compare 67481 15725 --check-in 2026-11-10 --check-out 2026-11-13 --guests 2 --agent",
+        "explanation": "Compare the same dates and guests, keeping source units and derived quantities visible."
+      },
+      {
+        "title": "Check alternative dates",
+        "command": "hostelworld-pp-cli hostels dates 67481 --starts 2026-11-10,2026-11-11 --nights 3 --guests 2 --agent",
+        "explanation": "Each date window is independently requested."
+      }
+    ],
+    "trigger_phrases": [
+      "compare dorm beds and private rooms",
+      "Hostelworld rooms for my dates",
+      "check hostel cancellation terms",
+      "use hostelworld",
+      "run hostelworld-pp-cli"
+    ]
+  }
+}
