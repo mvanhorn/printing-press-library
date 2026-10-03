@@ -1,0 +1,66 @@
+{
+  "passed": true,
+  "release_accounting": "upstream2026.10.1 preserved verbatim",
+  "source_fingerprint": "af47767314708370e74cac915c2213a31521d9bd8749f9703ec26cbabf14781c",
+  "checks": [
+    {
+      "name": "manifest",
+      "passed": true
+    },
+    {
+      "name": "transcendence",
+      "passed": true
+    },
+    {
+      "name": "phase5",
+      "passed": true
+    },
+    {
+      "name": "go mod tidy",
+      "passed": true
+    },
+    {
+      "name": "module path",
+      "passed": true
+    },
+    {
+      "name": "govulncheck",
+      "passed": true
+    },
+    {
+      "name": "go vet",
+      "passed": true
+    },
+    {
+      "name": "go build",
+      "passed": true
+    },
+    {
+      "name": "--help",
+      "passed": true
+    },
+    {
+      "name": "--version",
+      "passed": true
+    },
+    {
+      "name": "verify-skill",
+      "passed": true
+    },
+    {
+      "name": "patches",
+      "passed": true
+    },
+    {
+      "name": "manuscripts",
+      "passed": true
+    }
+  ],
+  "full_live_gate": {
+    "status": "pass",
+    "tests_passed": 112,
+    "tests_skipped": 93,
+    "tests_unverified": 93
+  },
+  "review": "same sole MAX reviewer: initial, focused business fixes and metadata-only integration PASS"
+}
