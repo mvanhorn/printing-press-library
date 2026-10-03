@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/travel/iko-yo/internal/cacheguard"
 	"github.com/mvanhorn/printing-press-library/library/travel/iko-yo/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/travel/iko-yo/internal/store"
 	"github.com/mvanhorn/printing-press-library/library/travel/iko-yo/internal/trip"
@@ -33,27 +34,82 @@ func tripSave(ctx context.Context, flags *rootFlags, records []trip.Record) erro
 	if flags.noCache || len(records) == 0 {
 		return nil
 	}
-	db, err := store.OpenWithContext(ctx, defaultDBPath("iko-yo-pp-cli"))
+	guard, err := cacheguard.Write(defaultDBPath("iko-yo-pp-cli"))
 	if err != nil {
 		return err
 	}
-	defer db.Close()
-	return db.SaveTripRecords(ctx, records)
+	if err = guard.Identity(); err != nil {
+		return err
+	}
+	db, err := store.OpenWithContext(ctx, guard.Path())
+	if err != nil {
+		return err
+	}
+	db.DB().SetMaxOpenConns(1)
+	if err = db.DB().PingContext(ctx); err != nil {
+		return errors.Join(err, db.Close())
+	}
+	if err = guard.BindCreated(); err != nil {
+		return errors.Join(err, db.Close())
+	}
+	if err = guard.Identity(); err != nil {
+		return errors.Join(err, db.Close())
+	}
+	saveErr := db.SaveTripRecords(ctx, records)
+	identityErr := guard.Identity()
+	closeErr := db.Close()
+	return errors.Join(saveErr, identityErr, closeErr, guard.Identity())
 }
 func tripLocalRecord(ctx context.Context, ref string) (trip.Record, error) {
-	db, err := openStoreForRead(ctx, "iko-yo-pp-cli")
+	db, guard, err := tripOpenStoreForRead(ctx)
 	if err != nil {
 		return trip.Record{}, err
 	}
 	if db == nil {
+		if err := guard.Snapshot(); err != nil {
+			return trip.Record{}, err
+		}
 		return trip.Record{}, sql.ErrNoRows
 	}
-	defer db.Close()
 	r, err := db.TripRecord(ctx, ref)
+	err = tripFinishStoreRead(db, guard, err)
 	if err == nil && !r.Detail {
 		return r, fmt.Errorf("saved %s has listing facts only; use trip inspect --data-source live for family evidence", ref)
 	}
 	return r, err
+}
+
+// Keep the generated immutable reader inside a validated closed snapshot.
+func tripOpenStoreForRead(ctx context.Context) (*store.Store, *cacheguard.Guard, error) {
+	guard, err := cacheguard.Read(defaultDBPath("iko-yo-pp-cli"))
+	if err != nil {
+		return nil, nil, err
+	}
+	if !guard.Exists() {
+		return nil, guard, nil
+	}
+	path, err := guard.Clone(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+	db, err := store.OpenReadOnlyContext(ctx, path)
+	if err != nil {
+		return nil, nil, errors.Join(err, guard.Cleanup())
+	}
+	if err = guard.Snapshot(); err != nil {
+		return nil, nil, errors.Join(err, db.Close(), guard.Cleanup())
+	}
+	return db, guard, nil
+}
+
+func tripFinishStoreRead(db *store.Store, guard *cacheguard.Guard, readErr error) error {
+	closeErr := db.Close()
+	snapshotErr := guard.Snapshot()
+	cleanupErr := guard.Cleanup()
+	if snapshotErr != nil {
+		return errors.Join(snapshotErr, closeErr, cleanupErr)
+	}
+	return errors.Join(readErr, closeErr, cleanupErr)
 }
 func tripRead(ctx context.Context, cmd *cobra.Command, flags *rootFlags, c *trip.Client, ref string) (trip.Record, error) {
 	if flags.dataSource == "local" {

@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "id": "iko-yo-cache-snapshot-integrity",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261003-135827-6ec7d5b4",
+  "base_printing_press_version": "4.33.0",
+  "summary": "Bind saved Trip reads to private verified snapshots and canonical SQLite writes.",
+  "reason": "The generated immutable reader ignores committed WAL and lazy SQLite path opens can select a substituted inode. Alias and unescaped URI paths can also lose or misdirect saved observations. Source wrappers refuse ambiguous caches and preserve ordinary SQLite write transactions.",
+  "files": [
+    "internal/cacheguard/guard.go",
+    "internal/cacheguard/guard_test.go",
+    "internal/cacheguard/links_unix.go",
+    "internal/cacheguard/links_windows.go",
+    "internal/cacheguard/links_other.go",
+    "internal/cli/iko_yo_trip_helpers.go",
+    "internal/cli/iko_yo_trip_cache_test.go",
+    "internal/cli/trip_cached.go",
+    "internal/cli/trip_compare.go",
+    "internal/mcp/iko_yo_trip_sql.go",
+    "internal/mcp/iko_yo_trip_sql_test.go",
+    "internal/mcp/iko_yo_trip_surface.go",
+    "go.mod",
+    "go.sum",
+    "README.md",
+    "SKILL.md"
+  ],
+  "markers": [
+    "guard.Clone(ctx)",
+    "cacheguard.Write(",
+    "handleTripSQL"
+  ],
+  "validated_outcome": "Focused actual CLI/MCP tests reject active committed WAL, preserve pinned snapshot rows across lazy path substitution, retain ordinary canonical/symlink writes, and refuse hard-link or URI wrong-file mutation. SQLite runtime reports patched 3.51.3.",
+  "findings_addressed": [
+    "committed-wal-stale-read",
+    "alias-observation-loss",
+    "lazy-sql-path-substitution",
+    "sqlite-uri-path-truncation",
+    "wal-reset-corruption-dependency"
+  ]
+}
