@@ -1692,3 +1692,35 @@ func TestMichiRecallReadFailureHasRuntimeExitAndNoSuccess(t *testing.T) {
 		})
 	}
 }
+
+func TestMichiRecallKeepsDistinctTaughtDelimiterTuples(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "tuples.db")
+	for _, tuple := range [][2]string{{"a|b", "c"}, {"a", "b|c"}} {
+		if _, _, err := runRootArgs(t, "teach", "--query", "find Alpha details", "--resource", tuple[1], "--resource-type", tuple[0], "--db", dbPath); err != nil {
+			t.Fatal(err)
+		}
+	}
+	cmd := newRecallCmd(&rootFlags{agent: true}, entities.NewConfig())
+	var stdout, stderr bytes.Buffer
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&stderr)
+	cmd.SetArgs([]string{"find Alpha details", "--db", dbPath, "--limit", "2"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatal(err)
+	}
+	var got recallEnvelope
+	if err := json.Unmarshal(stdout.Bytes(), &got); err != nil {
+		t.Fatal(err)
+	}
+	if !got.Found || len(got.Results) != 2 {
+		t.Fatalf("two actual teachings lost one distinct tuple: %+v", got)
+	}
+	seen := map[[2]string]bool{}
+	for _, hit := range got.Results {
+		seen[[2]string{hit.ResourceType, hit.ResourceID}] = true
+	}
+	if !seen[[2]string{"a|b", "c"}] || !seen[[2]string{"a", "b|c"}] {
+		t.Fatalf("wrong tuple results: %+v", got)
+	}
+}

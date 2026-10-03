@@ -278,7 +278,7 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 	// then sees that a structurally-similar learning exists for a
 	// different entity, rather than the misleading
 	// no_learnings_for_query_family.
-	mismatchCanonicals := make(map[string]map[string]struct{})
+	mismatchCanonicals := make(map[resourceKey]map[string]struct{})
 
 	for rows.Next() {
 		var (
@@ -592,7 +592,7 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 
 	// Diagnostics describe the final identity decision for a typed resource.
 	// A rejected binding cannot contradict a later accepted binding to that ID.
-	accepted := make(map[string]struct{}, len(hits))
+	accepted := make(map[resourceKey]struct{}, len(hits))
 	for _, h := range hits {
 		key := hitKey(h.ResourceType, h.ResourceID)
 		accepted[key] = struct{}{}
@@ -610,7 +610,7 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 	// Deduplicate only after ranking validated evidence. An earlier partial or
 	// lower-confidence binding must not hide a better hit for the same typed ID.
 	bestHits := hits[:0]
-	seen := make(map[string]struct{}, len(hits))
+	seen := make(map[resourceKey]struct{}, len(hits))
 	for _, h := range hits {
 		key := hitKey(h.ResourceType, h.ResourceID)
 		if _, duplicate := seen[key]; duplicate {
@@ -821,8 +821,14 @@ func sourcePriority(source string) int {
 	return 0
 }
 
-func hitKey(resourceType, resourceID string) string {
-	return resourceType + "|" + resourceID
+// Keep the two unrestricted teaching fields distinct, including delimiter bytes.
+type resourceKey struct {
+	resourceType string
+	resourceID   string
+}
+
+func hitKey(resourceType, resourceID string) resourceKey {
+	return resourceKey{resourceType: resourceType, resourceID: resourceID}
 }
 
 func entityMatchPriority(em string) int {

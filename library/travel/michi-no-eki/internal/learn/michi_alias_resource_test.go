@@ -541,3 +541,35 @@ func TestMichiCancelledPayloadReadDoesNotBecomeMissingResource(t *testing.T) {
 		t.Fatalf("cancelled read was represented as missing/exact: %+v", hit)
 	}
 }
+
+func TestMichiDelimiterTuplesRemainDistinctInResultsAndDiagnostics(t *testing.T) {
+	for _, conflicting := range []bool{false, true} {
+		t.Run(map[bool]string{false: "two accepted tuples", true: "accepted and different rejected tuple"}[conflicting], func(t *testing.T) {
+			db := openRecallCanonicalTestDB(t)
+			for _, tuple := range [][2]string{{"a|b", "c"}, {"a", "b|c"}} {
+				name := "Alpha"
+				if conflicting && tuple[0] == "a" {
+					name = "Beta"
+				}
+				if _, err := db.Exec(`INSERT INTO resources(resource_type,id,data) VALUES(?,?,?)`, tuple[0], tuple[1], `{"name":"`+name+`"}`); err != nil {
+					t.Fatal(err)
+				}
+				seedCanonicalLearning(t, db, "find alpha details", `["Alpha"]`, tuple[1], tuple[0])
+			}
+			got, err := Recall(context.Background(), db, "find Alpha details", Opts{EntityConfig: canonicalTestConfig(), ResourceTypeFields: map[string][]string{"a|b": {"name"}, "a": {"name"}}, DebugMismatches: true, Limit: 2})
+			if err != nil {
+				t.Fatal(err)
+			}
+			wantResults, wantMismatches := 2, 0
+			if conflicting {
+				wantResults, wantMismatches = 1, 1
+			}
+			if len(got.Results) != wantResults || len(got.Mismatches) != wantMismatches {
+				t.Fatalf("distinct tuple keys collided: %+v", got)
+			}
+			if conflicting && (got.Mismatches[0].ResourceType != "a" || got.Mismatches[0].ResourceID != "b|c" || !strings.Contains(strings.Join(got.Warnings, " "), WarningSimilarShapeDifferentEntity)) {
+				t.Fatalf("unrelated rejected tuple diagnostics suppressed: %+v", got)
+			}
+		})
+	}
+}
