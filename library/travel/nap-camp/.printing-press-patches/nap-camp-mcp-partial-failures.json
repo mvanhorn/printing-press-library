@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "nap-camp-mcp-partial-failures",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261003-001152-6cdfd713",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Keep bounded partial CLI evidence in failed MCP tools and advertise variadic comparison arguments.",
+  "reason": "Pitch comparisons emit valid partial facts before a nonzero exit; discarding stdout hides those facts from MCP clients. Captured or serialized overflow must remain a labeled preview.",
+  "files": [
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/cobratree/partial_failure.go",
+    "internal/mcp/cobratree/partial_failure_test.go",
+    "README.md",
+    "internal/mcp/cobratree/walker.go",
+    "internal/cli/planner_compare.go",
+    "internal/mcp/cobratree/partial_schema_test.go"
+  ],
+  "markers": [
+    "ToolResultFromFailedCLICommand(out, err)"
+  ],
+  "validated_outcome": "Observable failed-child adapter and real Nap partial comparison retain bounded facts, failure context and isError; opaque/oversize/UTF-8/escaping cases remain previews within the complete result budget."
+}

@@ -1,0 +1,32 @@
+{
+  "status": "pass",
+  "source_fingerprint": "b1e8da230b42a23078b649c84066f7d6858f3052dd12e96ff5ef7b5fe244ed33",
+  "mcp_stdio": {
+    "passed": true,
+    "tool": "planner_compare",
+    "catalog_tool_count": 37,
+    "required_first_pair": true,
+    "advertised_variadic_args": true,
+    "protocol_error": false,
+    "is_error": true,
+    "partial_success_pairs": 1,
+    "partial_failed_pairs": 1,
+    "partial_complete": false,
+    "error_context_present": true,
+    "tool_text_bytes": 3144,
+    "bound_bytes": 60000,
+    "fixture_source": "controlled local public-shape regression fixtures; no provider transaction"
+  },
+  "regressions": [
+    "actual failed-child MCP adapter preserves valid partial JSON with isError",
+    "opaque, capture-overflow, invalid UTF-8 and escaping overflow remain labeled bounded previews",
+    "actual extractor and production recall cannot retain a forgotten inferred contributor",
+    "scoped inferred-family undo preserves manual and unrelated query, resource-type and venue rules",
+    "forced cascade error rolls back both teaching and pattern deletion",
+    "explicit same-pattern teaching promotes manual provenance and inference cannot downgrade it",
+    "prefix verification requires one literal resource-type-scoped match; percent and underscore are literal"
+  ],
+  "learning_state_scope": "fresh temporary test stores; no original or global learning state",
+  "full_go_tests": "pass",
+  "upstream_skill_checks": "pass; 33 recipes, zero findings"
+}

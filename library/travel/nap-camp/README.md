@@ -89,7 +89,7 @@ nap-camp-pp-cli planner snapshot 11007 20005062 --agent --select campsite.name,p
 nap-camp-pp-cli pitch calendar 11007 20005062 --month 2026-10 --limit 7 --json
 ```
 
-JSON lists stay `[]` when empty. A fit checklist can return `contradiction` or `needs_confirmation`; it never certifies overall clearance. A compare result includes per-pair errors and exits nonzero on incomplete source acquisition. `--data-source local` is rejected by fresh source commands; `planner changes` reads local observation files and rejects `--data-source live`.
+JSON lists stay `[]` when empty. A fit checklist can return `contradiction` or `needs_confirmation`; it never certifies overall clearance. A compare result includes per-pair errors and exits nonzero on incomplete source acquisition. For the MCP comparison tool, provide the first `pair` and use the advertised `args` string for additional campsite:plan pairs. The MCP bridge keeps that operation failed and preserves complete bounded JSON stdout as `partial_output` beside the error. Opaque or oversized output is explicitly a bounded preview, with no fabricated structured result. `--data-source local` is rejected by fresh source commands; `planner changes` reads local observation files and rejects `--data-source live`.
 
 ## Health Check
 
@@ -120,7 +120,7 @@ nap-camp-pp-cli campsite discover --region kanto --power --shower --limit 3 --js
 
 ## Configuration
 
-The default config path is `~/.config/nap-camp-pp-cli/config.toml`. Public source commands need no credentials. `NAP_CAMP_BASE_URL` supports a controlled source fixture or explicit override; normal source origin is `https://www.nap-camp.com`. `--timeout` bounds requests. Fresh planning commands always request new source evidence. Optional framework learning/state remains local; use `--no-learn` or `NAP_CAMP_NO_LEARN=true` for deterministic invocations. `agent-context --pretty` is the authority for actual state locations.
+The default config path is `~/.config/nap-camp-pp-cli/config.toml`. Public source commands need no credentials. `NAP_CAMP_BASE_URL` supports a controlled source fixture or explicit override; normal source origin is `https://www.nap-camp.com`. `--timeout` bounds requests. Fresh planning commands always request new source evidence. Optional framework learning/state remains local. Forgetting a teaching atomically invalidates only its affected inferred pattern families; explicit taught rules and unrelated families remain. Prefix IDs are literal and must resolve uniquely before recall verifies a hit. Use `--no-learn` or `NAP_CAMP_NO_LEARN=true` for deterministic invocations. `agent-context --pretty` is the authority for actual state locations.
 
 ## Troubleshooting
 

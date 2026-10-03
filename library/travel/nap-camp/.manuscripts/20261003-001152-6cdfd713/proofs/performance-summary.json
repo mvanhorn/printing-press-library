@@ -102,5 +102,5 @@
     }
   ],
   "status": "pass",
-  "measurement_stage": "earlier frozen local build; publication response-bound hardening followed these measurements"
+  "measurement_stage": "earlier frozen local build; publication response-bound, MCP and learning fixes followed these measurements"
 }

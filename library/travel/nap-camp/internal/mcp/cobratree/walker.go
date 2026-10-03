@@ -38,7 +38,13 @@ func RegisterAll(s *server.MCPServer, root *cobra.Command, cliPath func() (strin
 		allowedStructuredArgs := allowedStructuredArgsForCommand(cmd, blockedStructuredArgs, positionals, commandTakesArgs(cmd))
 		options := []mcplib.ToolOption{mcplib.WithDescription(descriptionFor(cmd))}
 		options = append(options, toolOptionsForFlags(cmd, blockedStructuredArgs, positionals)...)
-		if commandTakesArgs(cmd) && len(positionals) == 0 {
+		// Variadic commands need an advertised tail argument even when the
+		// first required positional already has a named scalar property.
+		hasVariadic := false
+		for _, positional := range positionals {
+			hasVariadic = hasVariadic || positional.Variadic
+		}
+		if commandTakesArgs(cmd) && (len(positionals) == 0 || hasVariadic) {
 			options = append(options, mcplib.WithString("args", mcplib.Description("Additional positional arguments to append to the command. Raw flags are rejected; use structured flag parameters instead.")))
 		}
 		readOnly := isMCPReadOnly(cmd)

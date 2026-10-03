@@ -74,7 +74,9 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string, blocked
 		}
 		out, err := RunCLICommand(ctx, lookupPath, finalArgs)
 		if err != nil {
-			return boundedToolResultError(err.Error()), nil
+			// PATCH(nap-camp-mcp-partial-failures): preserve factual stdout
+			// while keeping the tool failed when a CLI reports partial evidence.
+			return ToolResultFromFailedCLICommand(out, err), nil
 		}
 		return ToolResultFromCLICommand(out), nil
 	}

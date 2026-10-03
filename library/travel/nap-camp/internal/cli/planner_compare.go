@@ -13,7 +13,7 @@ import (
 
 func newNovelPlannerCompareCmd(flags *rootFlags) *cobra.Command {
 	var r napcamp.Requirements
-	cmd := &cobra.Command{Use: "compare <campsite:plan>...", Short: "Compare a bounded shortlist of specific pitches with consistent evidence checks.", Example: "  " + "nap-camp-pp-cli planner compare 11007:20005062 11007:20005063 --people 2 --agent", Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "live", "pp:happy-args": "pair=11007:20005062;pair=11007:20005063;--people=2"}}
+	cmd := &cobra.Command{Use: "compare <pair> [<pair>...]", Short: "Compare a bounded shortlist of specific pitches with consistent evidence checks.", Example: "  " + "nap-camp-pp-cli planner compare 11007:20005062 11007:20005063 --people 2 --agent", Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "live", "pp:happy-args": "pair=11007:20005062;pair=11007:20005063;--people=2"}}
 	napBind(flags, cmd, "live", func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 || len(args) > 5 {
 			return usageErr(fmt.Errorf("compare requires 1..5 campsite:plan pairs"))

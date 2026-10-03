@@ -28,7 +28,7 @@ const (
 
 	// StrategySubstituteThenSearchPrefix names a partially-deterministic
 	// resource ID: the resource_template ends with "*" and Apply does a
-	// LIKE prefix search in the resources table after substitution.
+	// literal prefix search in the resources table after substitution.
 	StrategySubstituteThenSearchPrefix = "substitute-then-search-prefix"
 )
 
@@ -139,9 +139,10 @@ func Upsert(db *sql.DB, p Pattern) (int64, bool, error) {
 	if err == nil {
 		if _, err := tx.Exec(
 			`UPDATE search_patterns
-			 SET confidence = confidence + 1, last_observed_at = ?
+			 SET confidence = confidence + 1, last_observed_at = ?,
+			     source = CASE WHEN source = 'taught' OR ? = 'taught' THEN 'taught' ELSE source END
 			 WHERE id = ?`,
-			now, existingID,
+			now, p.Source, existingID,
 		); err != nil {
 			return 0, false, fmt.Errorf("patterns.Upsert bump confidence: %w", err)
 		}

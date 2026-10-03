@@ -1,7 +1,7 @@
 {
-  "passed": 146,
+  "passed": 147,
   "failed": 0,
-  "skipped": 101,
+  "skipped": 100,
   "level": "full",
   "tests": [
     {
@@ -552,8 +552,8 @@
     {
       "command": "planner compare",
       "kind": "error_path",
-      "status": "skip",
-      "reason": "no positional argument"
+      "status": "pass",
+      "exit_code": 2
     },
     {
       "command": "planner compare",
