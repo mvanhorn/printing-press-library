@@ -230,7 +230,9 @@ func resolveReadWithStrategyResponsePathAndJSONGuard(ctx context.Context, c *cli
 				}
 			}
 			data = applyResponsePath(data, responsePath)
-			writeThroughCache(ctx, resourceType, data)
+			if !mcpReadOnlyChildActive() {
+				writeThroughCache(ctx, resourceType, data)
+			}
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
 		if !isNetworkError(err) {
@@ -330,7 +332,9 @@ func resolvePaginatedReadWithStrategyAndJSONGuard(ctx context.Context, c *client
 					return nil, DataProvenance{}, err
 				}
 			}
-			writeThroughCache(ctx, resourceType, data)
+			if !mcpReadOnlyChildActive() {
+				writeThroughCache(ctx, resourceType, data)
+			}
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
 		if !isNetworkError(err) {

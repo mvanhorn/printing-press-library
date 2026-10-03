@@ -131,7 +131,7 @@ alter command behavior or recall's verified results on their own.`,
 		Example: `  carstay-pp-cli learnings candidates
   carstay-pp-cli learnings candidates --class flag_alias
   carstay-pp-cli learnings candidates --status rejected`,
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "false", "mcp:local-write": "true", "pp:local-state-read": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "learnings candidates")

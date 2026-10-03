@@ -31,6 +31,9 @@ const DefaultJaccardMin = 0.6
 // own per-hit metadata (warnings, last_observed_at lookups against the
 // learning row) that the pattern layer doesn't have.
 type Hit struct {
+	// BoundEntity is the one query entity actually substituted, not every
+	// entity mentioned by the query. Recall validates this identity alone.
+	BoundEntity      string
 	ResourceID       string
 	ResourceType     string
 	Venue            string
@@ -58,6 +61,13 @@ type Hit struct {
 // should try ahead of the built-in computed kinds when a template's
 // entity_kind doesn't have a direct slot in the template string.
 type Opts struct {
+	// NoLimit is an explicit uncapped collection option for internal callers.
+	// Recall uses ranked acceptance instead; standalone caps stay default.
+	NoLimit bool
+	// AcceptCandidate receives candidates lazily in Recall rank order.
+	// Rejection tries the next binding in the same pattern; stop ends work.
+	// A nil callback preserves standalone first-binding behavior.
+	AcceptCandidate func(Hit) (accept, stop bool)
 	JaccardMin      float64
 	Limit           int
 	NoVerify        bool
@@ -104,98 +114,133 @@ func Apply(ctx context.Context, db *sql.DB, query, nonEntityNormalized string, q
 	}
 
 	rows, err := db.QueryContext(ctx, `SELECT id, query_template, resource_template, resource_type,
-			COALESCE(venue, ''), strategy, entity_kind, confidence, source, created_at, last_observed_at
+		COALESCE(venue, ''), strategy, entity_kind, confidence, source, created_at, last_observed_at
 		FROM search_patterns`)
 	if err != nil {
 		return nil, fmt.Errorf("patterns.Apply query: %w", err)
 	}
-	defer rows.Close()
-
+	type rankedPattern struct {
+		id                                                int64
+		resourceTmpl, resourceType, venue, strategy, kind string
+		confidence                                        int
+		score                                             float64
+		lastObserved                                      *time.Time
+	}
 	queryTokens := strings.Fields(nonEntityNormalized)
-	hits := make([]Hit, 0)
-
-	allKinds := make([]string, 0, len(opts.AdditionalKinds)+len(candidateKinds))
-	allKinds = append(allKinds, opts.AdditionalKinds...)
-	allKinds = append(allKinds, candidateKinds...)
-
+	var candidates []rankedPattern
 	for rows.Next() {
-		var (
-			id            int64
-			queryTemplate string
-			resourceTmpl  string
-			resourceType  string
-			venue         string
-			strategy      string
-			entityKind    string
-			confidence    int
-			source        string
-			createdAt     time.Time
-			lastObserved  sql.NullTime
-		)
-		if err := rows.Scan(&id, &queryTemplate, &resourceTmpl, &resourceType, &venue,
-			&strategy, &entityKind, &confidence, &source, &createdAt, &lastObserved); err != nil {
+		var p rankedPattern
+		var template, source string
+		var created time.Time
+		var last sql.NullTime
+		if err := rows.Scan(&p.id, &template, &p.resourceTmpl, &p.resourceType, &p.venue, &p.strategy, &p.kind, &p.confidence, &source, &created, &last); err != nil {
+			rows.Close()
 			return nil, fmt.Errorf("patterns.Apply scan: %w", err)
 		}
-
-		tmplTokens := nonPlaceholderTokens(strings.Fields(queryTemplate))
-		score := jaccard(queryTokens, tmplTokens)
-		if score < jMin {
+		p.score = jaccard(queryTokens, nonPlaceholderTokens(strings.Fields(template)))
+		if p.score < jMin {
 			continue
 		}
-
-		var hit Hit
-		matched := false
+		if last.Valid {
+			value := last.Time
+			p.lastObserved = &value
+		}
+		candidates = append(candidates, p)
+	}
+	if err := rows.Err(); err != nil {
+		rows.Close()
+		return nil, fmt.Errorf("patterns.Apply rows: %w", err)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if opts.AcceptCandidate != nil {
+		// Every potentially accepted pattern starts with exact entity rank
+		// and the same source priority. Recall ranks confidence before score.
+		sort.SliceStable(candidates, func(i, j int) bool {
+			if candidates[i].confidence != candidates[j].confidence {
+				return candidates[i].confidence > candidates[j].confidence
+			}
+			if candidates[i].score != candidates[j].score {
+				return candidates[i].score > candidates[j].score
+			}
+			a, b := time.Time{}, time.Time{}
+			if candidates[i].lastObserved != nil {
+				a = *candidates[i].lastObserved
+			}
+			if candidates[j].lastObserved != nil {
+				b = *candidates[j].lastObserved
+			}
+			return a.After(b)
+		})
+	}
+	allKinds := append(append([]string{}, opts.AdditionalKinds...), candidateKinds...)
+	hits := make([]Hit, 0)
+	for _, p := range candidates {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
 		for _, ent := range queryEntities {
-			candidate, ok := substituteCandidate(db, resourceTmpl, entityKind, ent, allKinds)
+			if err := ctx.Err(); err != nil {
+				return nil, err
+			}
+			candidate, ok := substituteCandidate(db, p.resourceTmpl, p.kind, ent, allKinds)
 			if !ok {
 				continue
 			}
-			h, verified := verifyCandidate(ctx, db, candidate, resourceType, strategy, opts.NoVerify)
+			h, verified := verifyCandidate(ctx, db, candidate, p.resourceType, p.strategy, opts.NoVerify)
 			if !verified {
 				continue
 			}
-			h.Venue = venue
-			h.Confidence = confidence
-			h.MatchScore = score
-			h.EntityMatch = "exact" // substitution binding guarantees this
+			h.BoundEntity = ent
+			h.Venue = p.venue
+			h.Confidence = p.confidence
+			h.MatchScore = p.score
+			h.EntityMatch = "exact"
 			h.Source = "pattern"
-			h.PatternID = id
-			if lastObserved.Valid {
-				t := lastObserved.Time
-				h.LastObservedAt = &t
+			h.PatternID = p.id
+			h.LastObservedAt = p.lastObserved
+			accept, stop := true, false
+			if opts.AcceptCandidate != nil {
+				accept, stop = opts.AcceptCandidate(h)
 			}
-			hit = h
-			matched = true
-			break
+			if accept {
+				hits = append(hits, h)
+			}
+			if stop {
+				if err := ctx.Err(); err != nil {
+					return nil, err
+				}
+				return hits, nil
+			}
+			if accept {
+				break
+			}
 		}
-		if !matched {
-			continue
-		}
-		hits = append(hits, hit)
 	}
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("patterns.Apply rows: %w", err)
+	if err := ctx.Err(); err != nil {
+		return nil, err
 	}
-
-	sort.SliceStable(hits, func(i, j int) bool {
-		if hits[i].MatchScore != hits[j].MatchScore {
-			return hits[i].MatchScore > hits[j].MatchScore
-		}
-		if hits[i].Confidence != hits[j].Confidence {
-			return hits[i].Confidence > hits[j].Confidence
-		}
-		ai := time.Time{}
-		aj := time.Time{}
-		if hits[i].LastObservedAt != nil {
-			ai = *hits[i].LastObservedAt
-		}
-		if hits[j].LastObservedAt != nil {
-			aj = *hits[j].LastObservedAt
-		}
-		return ai.After(aj)
-	})
-
-	if len(hits) > limit {
+	if opts.AcceptCandidate == nil {
+		// Preserve the standalone ordering and first verified binding.
+		sort.SliceStable(hits, func(i, j int) bool {
+			if hits[i].MatchScore != hits[j].MatchScore {
+				return hits[i].MatchScore > hits[j].MatchScore
+			}
+			if hits[i].Confidence != hits[j].Confidence {
+				return hits[i].Confidence > hits[j].Confidence
+			}
+			a, b := time.Time{}, time.Time{}
+			if hits[i].LastObservedAt != nil {
+				a = *hits[i].LastObservedAt
+			}
+			if hits[j].LastObservedAt != nil {
+				b = *hits[j].LastObservedAt
+			}
+			return a.After(b)
+		})
+	}
+	if !opts.NoLimit && len(hits) > limit {
 		hits = hits[:limit]
 	}
 	return hits, nil
