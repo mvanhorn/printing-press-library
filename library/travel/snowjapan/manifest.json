@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "snowjapan-pp-mcp",
+  "display_name": "SnowJapan",
+  "version": "0.1.0",
+  "description": "Compare Japan ski areas with terrain facts, dated reports and explicit historical-season evidence.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/snowjapan-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/snowjapan-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

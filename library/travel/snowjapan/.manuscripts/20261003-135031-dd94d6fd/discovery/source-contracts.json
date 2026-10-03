@@ -1,0 +1,121 @@
+{
+  "observed_at": "2026-10-03T06:14:29.538980+00:00",
+  "backend": "native CUA Browser Use, owned public tabs",
+  "authenticated": false,
+  "requests": [
+    {
+      "method": "GET",
+      "url": "https://www.snowjapan.com/ski-areas-in-japan/quick-search",
+      "status": 200,
+      "content_type": "text/html",
+      "replay": "direct public HTTP without cookies"
+    },
+    {
+      "method": "GET",
+      "url": "https://www.snowjapan.com/ski-areas-in-japan/nagano-prefecture/hakuba-village/able-hakuba-goryu",
+      "status": 200,
+      "content_type": "text/html",
+      "replay": "direct public HTTP without cookies"
+    },
+    {
+      "method": "GET",
+      "url": "https://www.snowjapan.com/insights/japan-ski-areas-statistics",
+      "status": 200,
+      "content_type": "text/html",
+      "replay": "direct public HTTP without cookies"
+    },
+    {
+      "method": "GET",
+      "url": "https://www.snowjapan.com/insights/2025-2026-ski-season-dates-sort",
+      "status": 200,
+      "content_type": "text/html",
+      "replay": "direct public HTTP without cookies"
+    },
+    {
+      "method": "GET",
+      "url": "https://flo.uri.sh/visualisation/25236007/embed?auto=1",
+      "status": 200,
+      "content_type": "text/html",
+      "replay": "direct public HTTP without cookies"
+    },
+    {
+      "method": "GET",
+      "url": "https://flo.uri.sh/visualisation/28624028/embed?auto=1",
+      "status": 200,
+      "content_type": "text/html",
+      "replay": "direct public HTTP without cookies"
+    }
+  ],
+  "coverage": {
+    "national_resort_rows": 478,
+    "historical_2025_2026_rows": 417,
+    "excluded": "Historical season chart excludes rows without both confirmed dates."
+  },
+  "fields": {
+    "resorts": [
+      "Name",
+      "City",
+      "Prefecture",
+      "Top (m)",
+      "Base (m)",
+      "Vertical (m)",
+      "Lifts (#)",
+      "Courses (#)",
+      "Longest (m)",
+      "Steepest (°)",
+      "Link"
+    ],
+    "historical_seasons": [
+      "Ski area",
+      "Town",
+      "Prefecture",
+      "Open",
+      "Close",
+      "Days"
+    ]
+  },
+  "contracts": [
+    "Resolve current Flourish visualization id from the SnowJapan HTML wix-warmup-data rich-content html field, not a pinned id.",
+    "Flourish HTML declares _Flourish_data_column_names and _Flourish_data; safe parse JSON-shaped declarations without executing Javascript, converting only literal new Date(milliseconds).",
+    "Historical Days is elapsed span inclusive; temporary closures and selected operating days are not represented.",
+    "Names/URLs identify individual resorts; nearby regional daily reports do not establish resort lift operation."
+  ],
+  "source_quirks": {
+    "national_link_reconciliation": {
+      "original": "https://www.ushihadoko.com/ski-areas-in-japan/gunma-prefecture/tsumagoi-village/manza-onsen",
+      "canonical": "https://www.snowjapan.com/ski-areas-in-japan/gunma-prefecture/tsumagoi-village/manza-onsen",
+      "evidence": "https://www.snowjapan.com/ski-areas-in-japan/gunma-prefecture",
+      "verified": "2026-10-03"
+    },
+    "historical_units": "Different named access-base rows can share a resort URL; keep separate stable row identities and report ambiguity for a resort-wide window.",
+    "popular_regions": "Excluded from shipping filters: the query page is client-rendered, with no replayable membership contract established."
+  },
+  "detail_identity": {
+    "observed": "2026-10-03",
+    "fields": [
+      "link-copy-of-ski-areas-title-2",
+      "link-copy-of-ski-areas-title"
+    ],
+    "contract": "Canonical detail link and companion /location link must identify the same requested trusted SnowJapan resort; missing or contradictory record identity is rejected."
+  },
+  "historical_shared_links": {
+    "observed": "2026-10-03",
+    "2024-2025": {
+      "chart_id": "29793831",
+      "example": "Two Niseko Annupuri Kokusai source rows share one resort link but publish Niseko versus Akaigawa municipalities and differing date spans. Preserve both and report an ambiguous resort join; do not correct the source identity by inference."
+    }
+  },
+  "historical_outside_winter": {
+    "observed": "2026-10-03",
+    "chart_id": "29793831",
+    "season": "2024-2025",
+    "source_rows": 393,
+    "example": {
+      "name": "Hida Nagareha",
+      "first_recorded_day": "2025-12-20",
+      "last_recorded_day": "2026-03-01",
+      "span_days": 72
+    },
+    "contract": "Preserve published values with explicit inconsistent-evidence state; no historical window can be confirmed from this row."
+  }
+}

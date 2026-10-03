@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/snowjapan-cli",
+  "research_dir": "\u003ccli-dir\u003e/20261003-135031-dd94d6fd",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

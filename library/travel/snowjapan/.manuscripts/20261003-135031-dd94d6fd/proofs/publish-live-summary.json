@@ -1,0 +1,45 @@
+{
+  "verdict": "PASS",
+  "passed": 135,
+  "failed": 0,
+  "skipped": 85,
+  "unverified": 85,
+  "matrix_size": 135,
+  "level": "full",
+  "ran_at": "2026-10-03T09:50:35.979286Z",
+  "private_raw_transcript_deleted": true,
+  "real_planner_happy_paths": [
+    {
+      "command": "plan frontier",
+      "status": "pass",
+      "dry_run": false,
+      "captured_source_evidence": true
+    },
+    {
+      "command": "plan windows",
+      "status": "pass",
+      "dry_run": false,
+      "captured_source_evidence": true
+    },
+    {
+      "command": "plan towns",
+      "status": "pass",
+      "dry_run": false,
+      "captured_source_evidence": true
+    },
+    {
+      "command": "plan coverage",
+      "status": "pass",
+      "dry_run": false,
+      "captured_source_evidence": true
+    },
+    {
+      "command": "plan changes",
+      "status": "pass",
+      "dry_run": false,
+      "captured_source_evidence": true
+    }
+  ],
+  "sync_matrix_special_rule": "Skipped by Press; independently exercised by portable fixture setup",
+  "fixture": "Temporary public-source catalog, completed winter and two detailed observations; removed on exit"
+}

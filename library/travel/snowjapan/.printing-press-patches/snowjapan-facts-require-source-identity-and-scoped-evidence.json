@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "snowjapan-facts-require-source-identity-and-scoped-evidence",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261003-135031-dd94d6fd",
+  "base_printing_press_version": "4.33.0",
+  "summary": "Preserve bounded factual source projections, exact resort identities, complete per-winter captures and uncertainty-aware local decisions across CLI and MCP.",
+  "reason": "SnowJapan publishes Wix SSR and changing source-owned chart embeddings rather than REST JSON. Generic HTML passthrough loses facts and exposes editorial prose; unscoped cache absence and shared operating-unit URLs must not imply closure.",
+  "files": [
+    "internal/snowjapan/source.go",
+    "internal/cli/snowjapan_commands.go",
+    "internal/cli/snowjapan_plan.go",
+    "internal/store/snowjapan_snapshots.go",
+    "internal/mcp/snowjapan_handlers.go",
+    "internal/mcp/tools.go",
+    "internal/cli/plan.go",
+    "internal/cli/plan_frontier.go",
+    "internal/cli/plan_windows_cmd.go",
+    "internal/cli/plan_towns.go",
+    "internal/cli/plan_coverage.go",
+    "internal/cli/plan_changes.go",
+    "internal/cli/resorts_search.go",
+    "scripts/verify-live.sh"
+  ],
+  "validated_outcome": "Live source projections and independent CLI/MCP checks cover stable identities, historical units, explicit unsynced winters, numeric null/zero semantics and read-only local planners."
+}
