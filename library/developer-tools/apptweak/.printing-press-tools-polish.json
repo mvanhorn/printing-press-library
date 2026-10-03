@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-06-28T04:48:10.25118Z",
+  "cli_dir": "\u003ccli-dir\u003e/apptweak",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 308,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; brief and precise — 'Print version' is the tools-polish reference example of an acceptable brief Short. This is a framework command not registered as an MCP tool, so agents won't see it in the tool catalog."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-06-28T04:38:05.024782Z"
+  }
+}

@@ -1,0 +1,262 @@
+{
+  "api_name": "apptweak",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "ckz/apptweak-mcp",
+      "url": "https://github.com/ckz/apptweak-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 48,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Nikita-Guzenko/apptweak-mcp",
+      "url": "https://github.com/Nikita-Guzenko/apptweak-mcp",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "abhi11/apptweak",
+      "url": "https://github.com/abhi11/apptweak",
+      "language": "Go",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "semihcihan/App-Store-Optimization-CLI",
+      "url": "https://github.com/semihcihan/App-Store-Optimization-CLI",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 90,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ngo275/app-agent",
+      "url": "https://github.com/ngo275/app-agent",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 177,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-28T19:10:00Z",
+  "novel_features": [
+    {
+      "name": "Cross-Country Keyword Rank Fan-Out",
+      "command": "keywords rank-fanout",
+      "description": "Check keyword rankings across many countries in one command — no MCP tool or competitor offers multi-country fan-out.",
+      "rationale": "Requires fanning out N API calls across a country list and aggregating results locally; only possible with a CLI that owns the loop.",
+      "example": "apptweak-pp-cli keywords rank-fanout --app 284882215 --keywords 'photo editor,camera' --countries us,gb,de,fr,jp --device iphone --json",
+      "why_it_matters": "Use this when an ASO team needs a country-sweep ranking report without running the same query manually for each market.",
+      "group": "Multi-country intelligence"
+    },
+    {
+      "name": "Competitor Metadata Diff",
+      "command": "apps metadata-diff",
+      "description": "Compare metadata between two app versions or two competitor apps to spot ASO experiments.",
+      "rationale": "Requires fetching two metadata snapshots and computing field-level diffs; only possible with local persistence.",
+      "example": "apptweak-pp-cli apps metadata-diff --app 284882215 --vs 389801252 --country us --device iphone --fields title,subtitle,description",
+      "why_it_matters": "Use this to detect when a competitor changed their title, subtitle, or description — the primary signal of an ASO experiment.",
+      "group": "Competitor intelligence"
+    },
+    {
+      "name": "Keyword Basket Tracker",
+      "command": "keywords track",
+      "description": "Sync and alert on ranking changes for a saved keyword basket across apps and countries.",
+      "rationale": "Requires a local SQLite store to persist rank history and compute deltas between syncs.",
+      "example": "apptweak-pp-cli keywords track --app 284882215 --keywords 'photo,camera,selfie' --country us --device iphone --since 7d",
+      "why_it_matters": "Use this to monitor ranking changes for your core keyword set without re-querying or manually comparing runs.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Review Sentiment Pipeline",
+      "command": "reviews sentiment",
+      "description": "Aggregate review ratings by keyword term — find what topics drive 1-star vs 5-star reviews.",
+      "rationale": "Requires searching reviews by keyword, grouping by rating, and computing sentiment ratios locally.",
+      "example": "apptweak-pp-cli reviews sentiment --app 284882215 --country us --device iphone --word 'crash' --json",
+      "why_it_matters": "Use this to surface the specific complaint terms driving low ratings — faster than reading individual reviews.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Paid vs Organic Keyword Gap",
+      "command": "keywords paid-organic-gap",
+      "description": "Find keywords a competitor bids on where your app doesn't rank organically — ASA opportunity map.",
+      "rationale": "Requires fetching paid keywords for competitor + organic rankings for own app and computing the set difference locally.",
+      "example": "apptweak-pp-cli keywords paid-organic-gap --competitor 389801252 --app 284882215 --country us --device iphone --agent",
+      "why_it_matters": "Use this to find Apple Search Ads opportunities where competitors are spending but your organic rank is absent.",
+      "group": "Competitor intelligence"
+    },
+    {
+      "name": "Credits Monitor",
+      "command": "credits status",
+      "description": "Check remaining API credits and burn rate before running expensive bulk queries.",
+      "rationale": "Requires the AppTweak account API endpoint plus local tracking of credit consumption per session.",
+      "example": "apptweak-pp-cli credits status --json",
+      "why_it_matters": "Use this before bulk syncs to avoid hitting credit limits mid-run.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-Country Keyword Rank Fan-Out",
+      "command": "keywords rank-fanout",
+      "description": "Check keyword rankings across many countries in one command — no MCP tool or competitor offers multi-country fan-out.",
+      "rationale": "Requires fanning out N API calls across a country list and aggregating results locally; only possible with a CLI that owns the loop.",
+      "example": "apptweak-pp-cli keywords rank-fanout --app 284882215 --keywords 'photo editor,camera' --countries us,gb,de,fr,jp --device iphone --json",
+      "why_it_matters": "Use this when an ASO team needs a country-sweep ranking report without running the same query manually for each market.",
+      "group": "Multi-country intelligence"
+    },
+    {
+      "name": "Competitor Metadata Diff",
+      "command": "apps metadata-diff",
+      "description": "Compare metadata between two app versions or two competitor apps to spot ASO experiments.",
+      "rationale": "Requires fetching two metadata snapshots and computing field-level diffs; only possible with local persistence.",
+      "example": "apptweak-pp-cli apps metadata-diff --app 284882215 --vs 389801252 --country us --device iphone --fields title,subtitle,description",
+      "why_it_matters": "Use this to detect when a competitor changed their title, subtitle, or description — the primary signal of an ASO experiment.",
+      "group": "Competitor intelligence"
+    },
+    {
+      "name": "Keyword Basket Tracker",
+      "command": "keywords track",
+      "description": "Sync and alert on ranking changes for a saved keyword basket across apps and countries.",
+      "rationale": "Requires a local SQLite store to persist rank history and compute deltas between syncs.",
+      "example": "apptweak-pp-cli keywords track --app 284882215 --keywords 'photo,camera,selfie' --country us --device iphone --since 7d",
+      "why_it_matters": "Use this to monitor ranking changes for your core keyword set without re-querying or manually comparing runs.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Review Sentiment Pipeline",
+      "command": "reviews sentiment",
+      "description": "Aggregate review ratings by keyword term — find what topics drive 1-star vs 5-star reviews.",
+      "rationale": "Requires searching reviews by keyword, grouping by rating, and computing sentiment ratios locally.",
+      "example": "apptweak-pp-cli reviews sentiment --app 284882215 --country us --device iphone --word 'crash' --json",
+      "why_it_matters": "Use this to surface the specific complaint terms driving low ratings — faster than reading individual reviews.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Paid vs Organic Keyword Gap",
+      "command": "keywords paid-organic-gap",
+      "description": "Find keywords a competitor bids on where your app doesn't rank organically — ASA opportunity map.",
+      "rationale": "Requires fetching paid keywords for competitor + organic rankings for own app and computing the set difference locally.",
+      "example": "apptweak-pp-cli keywords paid-organic-gap --competitor 389801252 --app 284882215 --country us --device iphone --agent",
+      "why_it_matters": "Use this to find Apple Search Ads opportunities where competitors are spending but your organic rank is absent.",
+      "group": "Competitor intelligence"
+    },
+    {
+      "name": "Credits Monitor",
+      "command": "credits status",
+      "description": "Check remaining API credits and burn rate before running expensive bulk queries.",
+      "rationale": "Requires the AppTweak account API endpoint plus local tracking of credit consumption per session.",
+      "example": "apptweak-pp-cli credits status --json",
+      "why_it_matters": "Use this before bulk syncs to avoid hitting credit limits mid-run.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "APPTWEAK_API_KEY"
+  },
+  "narrative": {
+    "display_name": "AppTweak",
+    "headline": "Every AppTweak endpoint in a local-first CLI — keyword rank fan-outs, competitor metadata diffs, and review mining that no MCP server can do.",
+    "value_prop": "The only CLI for AppTweak. Track keyword rankings across countries, diff competitor metadata changes, mine reviews by sentiment, and monitor paid vs organic keyword gaps — all stored in SQLite for offline analysis and CSV export. The AppTweak MCP servers cover individual queries; this CLI covers the workflows that require persistence, loops, and aggregation.",
+    "auth_narrative": "Set APPTWEAK_API_KEY to your AppTweak API token. The key is sent as the x-apptweak-key header on every request. Get your key at https://developers.apptweak.com.",
+    "quickstart": [
+      {
+        "command": "apptweak-pp-cli doctor --dry-run",
+        "comment": "Verify auth and API reachability"
+      },
+      {
+        "command": "apptweak-pp-cli keywords get-metrics-current --keywords 'photo editor,camera' --country us --device iphone --json",
+        "comment": "Check keyword volume and difficulty"
+      },
+      {
+        "command": "apptweak-pp-cli apps get-metadata --apps 284882215 --country us --device iphone --json",
+        "comment": "Pull app metadata"
+      },
+      {
+        "command": "apptweak-pp-cli keywords rank-fanout --app 284882215 --keywords 'photo editor' --countries us,gb,de,fr --device iphone --json",
+        "comment": "Fan out keyword rank check across 4 countries"
+      },
+      {
+        "command": "apptweak-pp-cli keywords paid-organic-gap --competitor 389801252 --app 284882215 --country us --device iphone --agent",
+        "comment": "Find ASA opportunities competitor exploits"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized",
+        "fix": "export APPTWEAK_API_KEY=\u003cyour-token\u003e — check at developers.apptweak.com"
+      },
+      {
+        "symptom": "403 Forbidden",
+        "fix": "Insufficient credits — check apptweak-pp-cli credits status"
+      },
+      {
+        "symptom": "422 Unprocessable Entity",
+        "fix": "Invalid parameter — check country/device/date format in the error response"
+      },
+      {
+        "symptom": "reviews search returns empty",
+        "fix": "Reviews search requires a tracked app — run apptweak-pp-cli tracked-apps create first"
+      }
+    ],
+    "when_to_use": "Use this CLI when an ASO team or agent needs to track keyword rankings over time, monitor competitor metadata changes, mine review sentiment, or audit paid keyword gaps across multiple countries. Best for workflows that require looping over countries/apps/keywords and persisting results for trend analysis.",
+    "anti_triggers": [
+      "Real-time App Store Connect sales data — use ASC directly or the console endpoints which require integration setup",
+      "Google Play Console data — requires account integration not available without setup",
+      "Publishing or updating app listings — AppTweak is read-only intelligence"
+    ],
+    "recipes": [
+      {
+        "title": "Multi-country keyword rank sweep",
+        "command": "apptweak-pp-cli keywords rank-fanout --app 284882215 --keywords 'photo editor,camera filter' --countries us,gb,de,fr,jp,kr --device iphone --json --select results.country,results.keyword,results.rank",
+        "explanation": "Fan out keyword rank checks across 6 countries and extract just country/keyword/rank fields."
+      },
+      {
+        "title": "Competitor metadata change detection",
+        "command": "apptweak-pp-cli apps metadata-diff --app 284882215 --vs 389801252 --country us --device iphone --fields title,subtitle",
+        "explanation": "Compare title and subtitle between two apps to spot competitor ASO experiments."
+      },
+      {
+        "title": "Review sentiment for a complaint term",
+        "command": "apptweak-pp-cli reviews sentiment --app 284882215 --country us --device iphone --word 'crash' --json --agent",
+        "explanation": "Aggregate rating distribution for reviews mentioning 'crash' — identify if a term drives negative sentiment."
+      },
+      {
+        "title": "Paid vs organic gap report",
+        "command": "apptweak-pp-cli keywords paid-organic-gap --competitor 389801252 --app 284882215 --country us --device iphone --agent --select gap_keywords",
+        "explanation": "Find keywords where the competitor bids but your app has no organic ranking — prime Apple Search Ads targets."
+      }
+    ],
+    "trigger_phrases": [
+      "check keyword rankings on AppTweak",
+      "pull AppTweak data",
+      "competitor ASO analysis",
+      "keyword rank history",
+      "use apptweak",
+      "app store rankings"
+    ]
+  }
+}

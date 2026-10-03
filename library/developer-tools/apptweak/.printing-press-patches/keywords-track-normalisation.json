@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "keywords-track-normalisation",
+  "applied_at": "2026-09-07",
+  "base_run_id": "20260528-190526",
+  "base_printing_press_version": "4.19.0",
+  "summary": "keywords_track passes splitTrimmed+Join result to API instead of raw flagKeywords string.",
+  "reason": "rank_fanout applies splitTrimmed before joining keywords for the API call; track did not, so leading spaces after commas could cause silent API mismatches. Greptile noted the inconsistency at 5/5 review.",
+  "files": ["internal/cli/keywords_track.go"],
+  "validated_outcome": "go build ./... and go vet ./... pass; existing tests pass."
+}
