@@ -85,7 +85,7 @@ func newSpotsSearchCmd(flags *rootFlags) *cobra.Command {
 			view.Query = map[string]any{"keyword": query, "categories": cats, "record_from_utc": start, "record_to_utc": end, "input_timezone": timezone}
 			var cached []store.WheelogObservation
 			var c *client.Client
-			if mode != "live" {
+			if mode == "local" {
 				cached, err = savedWheelog(ctx, options.DB)
 				if err != nil {
 					return err
@@ -112,6 +112,10 @@ func newSpotsSearchCmd(flags *rootFlags) *cobra.Command {
 							return wheelogError(fetchErr)
 						}
 						if mode == "auto" && page == 1 {
+							cached, err = savedWheelog(ctx, options.DB)
+							if err != nil {
+								return configErr(fmt.Errorf("live WheeLog search failed (%v); saved fallback unavailable: %w", fetchErr, err))
+							}
 							if len(cached) == 0 {
 								return wheelogError(fetchErr)
 							}

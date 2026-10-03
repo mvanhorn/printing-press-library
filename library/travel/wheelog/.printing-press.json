@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-10-03T09:53:28.860547Z",
+  "generated_at": "2026-10-03T12:23:25.737832Z",
   "printing_press_version": "4.33.0",
   "api_name": "wheelog",
   "display_name": "WheeLog",
@@ -82,8 +82,8 @@
   "verify": {
     "mode": "mock",
     "pass_rate": 100,
-    "passed": 28,
-    "total": 28,
+    "passed": 27,
+    "total": 27,
     "data_pipeline": true,
     "verdict": "PASS"
   },

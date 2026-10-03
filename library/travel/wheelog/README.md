@@ -153,7 +153,7 @@ The public contract supplies aggregate equipment answers rather than typed measu
 
 ## Unique Features
 
-Use these workflows to compare source evidence and revisit a bounded saved shortlist.
+These workflows combine verified public spot evidence with a bounded saved shortlist.
 
 ### Recorded evidence
 - **`spots compare`** — Align requested source question IDs and report supporting, opposing, mixed, unknown and inapplicable evidence.
@@ -306,7 +306,7 @@ This CLI caches per-question discovery so repeat queries skip the walk and struc
 
 Pass `--no-learn` or set `WHEELOG_NO_LEARN=true` to disable the loop for deterministic flows.
 
-The local store's schema version stamp is one-way: once this version of `wheelog-pp-cli` opens the database, older binaries refuse it with a version error — upgrade the binary rather than downgrading.
+The local store's schema version stamp is one-way: once a writable operation opens the database with this version of `wheelog-pp-cli`, older binaries refuse it with a version error — upgrade the binary rather than downgrading. Saved-only WheeLog reads skip migrations and do not advance this schema stamp.
 
 ## Output Formats
 
@@ -366,3 +366,6 @@ Static request headers can be configured under `headers`; per-command header ove
 ## Discovery Signals
 
 The public web application's anonymous search and detail requests were observed on 2026-10-03 and replayed over ordinary HTTPS. The supported source surface is POST-based read-only RPC with an explicit semantic success envelope. It requires no credentials, cookies or browser runtime. The CLI allowlists public-place fields before storage or output and stops with a contract error if the source envelope changes.
+
+Saved-only commands read existing evidence without migrations, table creation or permission changes. A missing shortlist is empty. Saved path aliases are resolved to the guarded target; multiply linked database files are rejected. Windows checks file attributes for link counts; unavailable link-count metadata fails closed. A non-empty WAL/rollback journal or a database change during the read returns `cache_visibility_unavailable`; close other database writers and retry. Auto discovery and inspection try the source first and read saved fallback only after a source failure; a failed cache fallback remains an explicit error. Saved reads use a private snapshot copied from a verified open descriptor (at most 64 MiB); SQL never reopens the selected pathname, and temporary snapshots are removed on completion or error. Refreshing or saving observations still needs a writable database. Source saves, refreshes and removals bind to the same canonical target and verify selected-path identity and a single hard link before opening and around commits on one reserved connection. Writable source-cache paths containing `?` or `#` are rejected before opening; saved-only reads support those names through escaped private-snapshot URIs.
+

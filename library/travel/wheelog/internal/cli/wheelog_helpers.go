@@ -90,7 +90,7 @@ func newWheelogClient(flags *rootFlags) (*client.Client, error) {
 }
 
 func openWheelogStore(ctx context.Context, path string) (*store.Store, error) {
-	db, err := store.OpenWithContext(ctx, path)
+	db, err := store.OpenWheelogWithContext(ctx, path)
 	if err != nil {
 		return nil, configErr(err)
 	}
@@ -102,12 +102,11 @@ func openWheelogStore(ctx context.Context, path string) (*store.Store, error) {
 }
 
 func savedWheelog(ctx context.Context, path string) ([]store.WheelogObservation, error) {
-	db, err := openWheelogStore(ctx, path)
+	items, err := store.ReadWheelogSnapshot(ctx, path)
 	if err != nil {
-		return nil, err
+		return nil, configErr(err)
 	}
-	defer db.Close()
-	return db.WheelogList(ctx)
+	return items, nil
 }
 
 func wheelogLocalHint(cmd *cobra.Command, items []store.WheelogObservation, maxAge time.Duration) {
@@ -172,6 +171,12 @@ func resolveWheelogSpot(ctx context.Context, flags *rootFlags, options wheelogRe
 			return wheelog.Spot{}, err
 		}
 	}
+	if mode == "auto" {
+		cached, err = savedWheelog(ctx, options.DB)
+		if err != nil {
+			return wheelog.Spot{}, configErr(fmt.Errorf("live WheeLog read failed (%v); saved fallback unavailable: %w", liveErr, err))
+		}
+	}
 	for _, item := range cached {
 		if item.Latest.ID == id {
 			spot := item.Latest
@@ -198,13 +203,13 @@ func emitWheelog(cmd *cobra.Command, flags *rootFlags, value any, source string)
 		"requirements": true, "results": true, "source_query": true, "coverage": true, "record_created_at": true, "record_updated_at": true,
 		"retrieved_at": true, "data_source": true, "detail_status": true, "status": true, "fetch_failures": true, "unsupported_facts": true,
 		"changes": true, "recheck_reasons": true, "straight_line_distance_m": true, "record_update_age_days": true, "cache_age_days": true,
-		"note": true, "value": true, "question_ids": true, "previous_retrieved_at": true, "current_retrieved_at": true,
+		"note": true, "value": true, "fallback_reason": true, "question_ids": true, "previous_retrieved_at": true, "current_retrieved_at": true,
 	}
 	keep := make([]string, 0, len(documented)+12)
 	for field := range documented {
 		keep = append(keep, field)
 	}
-	keep = append(keep, "label", "positive_reports", "negative_reports", "report_observed_at", "question_id", "state", "reason", "field", "previous", "current", "source_created_raw", "source_updated_raw")
+	keep = append(keep, "error", "label", "positive_reports", "negative_reports", "report_observed_at", "question_id", "state", "reason", "field", "previous", "current", "source_created_raw", "source_updated_raw")
 	return printOutputWithFlagsMetaAndKeep(cmd.OutOrStdout(), data, flags, map[string]any{"source": source, "provider": "wheelog"}, keep, documented)
 }
 

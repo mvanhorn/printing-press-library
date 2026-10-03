@@ -58,13 +58,15 @@ Results retain source IDs, Japanese names, public facility addresses, category q
 
 Search scans at most five source pages and returns at most 50 records. Detail expansion and comparison are capped at five spots; coverage states how many records were listed, checked or unavailable. `--require-question` triggers real detail reads and returns an assessment rather than filtering away gaps. Keywords use the source's matching rules; an empty bounded result is not proof that no accessible facility exists.
 
+Saved-only commands read existing evidence without migrations, table creation or permission changes. A missing shortlist is empty. Saved path aliases are resolved to the guarded target; multiply linked database files are rejected. Windows checks file attributes for link counts; unavailable link-count metadata fails closed. A non-empty WAL/rollback journal or a database change during the read returns `cache_visibility_unavailable`; close other database writers and retry. Auto discovery and inspection try the source first and read saved fallback only after a source failure; a failed cache fallback remains an explicit error. Saved reads use a private snapshot copied from a verified open descriptor (at most 64 MiB); SQL never reopens the selected pathname, and temporary snapshots are removed on completion or error. Refreshing or saving observations still needs a writable database. Source saves, refreshes and removals bind to the same canonical target and verify selected-path identity and a single hard link before opening and around commits on one reserved connection. Writable source-cache paths containing `?` or `#` are rejected before opening; saved-only reads support those names through escaped private-snapshot URIs.
+
 The public contract supplies aggregate equipment answers rather than typed measured widths or slopes, individual report dates, current opening conditions or accessible routes. Read supplementary notes on the canonical source page. Contributor profiles, raw narratives, photos, comments and personal TrackLogs are excluded before cache and output.
 
 `auto` prefers a fresh source read and labels saved fallback; `live` requires source requests; `local` uses saved evidence. `shortlist list` is always local. `categories` computes the recorded source catalog and rejects live mode. Save up to 50 selected public spots, retaining only the latest two normalized observations per spot. Retrieval-only differences do not count as source changes. Straight-line distances cover only saved facilities and do not establish a wheelchair route; the supplied origin is not stored.
 
 ## Unique Capabilities
 
-Use these workflows to compare source evidence and revisit a bounded saved shortlist.
+These workflows combine verified public spot evidence with a bounded saved shortlist.
 
 ### Recorded evidence
 - **`spots compare`** — Align requested source question IDs and report supporting, opposing, mixed, unknown and inapplicable evidence.

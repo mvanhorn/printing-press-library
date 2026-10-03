@@ -1,0 +1,13 @@
+{
+  "jsonrpc": "2.0",
+  "id": 9,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "cli wheelog-pp-cli/bin/wheelog-pp-cli: exit status 10 (stderr: Error: cache_visibility_unavailable: a non-empty WAL may contain newer committed observations. Close other database writers, then retry the saved read. Source discovery and inspection can use --data-source live.)"
+      }
+    ],
+    "isError": true
+  }
+}

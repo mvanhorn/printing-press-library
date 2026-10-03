@@ -1,0 +1,9 @@
+{
+  "verdict": "PASS",
+  "fixture": "isolated synthetic normalized observations, not provider observations",
+  "runtime_tool_count": 22,
+  "readonly_command_count": 5,
+  "active_wal_rejections": 5,
+  "newest_zero_count_commands": 5,
+  "readonly_bytes_permissions_sidecars_unchanged": true
+}

@@ -1,0 +1,39 @@
+{
+  "verdict": "PASS",
+  "fixture": "isolated synthetic normalized observations, no provider calls/mutations",
+  "cli_sha256": "7cb9e321061b7fc3618f4e1a34e935ea43e284b8ef35f739716a2c13ea248fd2",
+  "mcp_sha256": "d91729b33537eab01d89aeb7fdf8c6779a93ab8913c9656ae5b485d09e9139dd",
+  "checks": [
+    {
+      "case": "both-shipping-binaries-after-frozen-Go",
+      "passed": true
+    },
+    {
+      "case": "final-CLI-private-URI-snapshot",
+      "positive_reports": 2,
+      "bytes_permissions_unchanged": true,
+      "cleanup": true
+    },
+    {
+      "case": "final-CLI-URI-wrong-cache-regression",
+      "exit": 10,
+      "both_caches_unchanged": true
+    },
+    {
+      "case": "final-CLI-SQL-error-cleanup",
+      "exit": 10,
+      "cleanup": true
+    },
+    {
+      "case": "final-MCP-surface-and-newest-zero",
+      "tools": 22,
+      "domain_tools": 8,
+      "positive_reports": 0,
+      "state": "unreported",
+      "no_import_or_hollow_group": true,
+      "bytes_permissions_unchanged": true,
+      "cleanup": true,
+      "sidecars_created": false
+    }
+  ]
+}

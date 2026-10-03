@@ -57,7 +57,7 @@ func newNovelSpotsCompareCmd(flags *rootFlags) *cobra.Command {
 			defer cancel()
 			var cached []store.WheelogObservation
 			var c *client.Client
-			if mode != "live" {
+			if mode == "local" {
 				cached, err = savedWheelog(ctx, options.DB)
 				if err != nil {
 					return err
@@ -94,7 +94,7 @@ func newNovelSpotsCompareCmd(flags *rootFlags) *cobra.Command {
 				rows = append(rows, viewWheelog(spot, options.Questions, maxAge))
 			}
 			if available == 0 {
-				return apiErr(fmt.Errorf("none of the %d requested spots has an available observation", len(parsed)))
+				return apiErr(fmt.Errorf("none of the %d requested spots has an available observation: %s", len(parsed), failures[0].Error))
 			}
 			if len(failures) > 0 {
 				fmt.Fprintf(cmd.ErrOrStderr(), "warning: %d of %d detail fetches failed; comparison uses %d available observations\n", len(failures), len(parsed), available)

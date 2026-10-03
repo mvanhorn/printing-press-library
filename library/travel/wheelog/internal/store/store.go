@@ -89,6 +89,9 @@ type Store struct {
 	// race-free by construction within a resource.
 	writeMu sync.Mutex
 	path    string
+	// WheeLog source writes validate the selected canonical database around commits.
+	wheelogWriteCheck func() error
+	wheelogConn       *sql.Conn
 }
 
 // Open opens or creates the SQLite store at dbPath using the background
@@ -316,7 +319,16 @@ func ensureSQLiteDriverInitialized(ctx context.Context, dsn string) error {
 }
 
 func (s *Store) Close() error {
-	return s.db.Close()
+	var connErr error
+	if s.wheelogConn != nil {
+		connErr = s.wheelogConn.Close()
+		s.wheelogConn = nil
+	}
+	dbErr := s.db.Close()
+	if connErr != nil {
+		return connErr
+	}
+	return dbErr
 }
 
 // Path returns the on-disk path of the backing SQLite file.

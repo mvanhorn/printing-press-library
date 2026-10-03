@@ -59,7 +59,7 @@ Annotations: `recall`, `learnings list`, `learnings candidates`, and `learnings 
 
 Measurement is local-only: the `learn_events` table and `learnings stats`; nothing leaves this machine. Judge the loop on recall hit rate and teach-to-reuse at a minimum denominator of 50+ recall events. Near-zero rates at that denominator mean the loop is not earning its keep for this CLI - surface that in retros. An empty or thin events table means insufficient adoption, not failure.
 
-The store's schema stamp is one-way: once this binary opens the database, an older binary refuses it (README.md carries the upgrade note).
+The store's schema stamp is one-way: once a writable operation opens the database with this binary, an older binary refuses it (README.md carries the upgrade note). Saved-only WheeLog reads skip migrations and do not advance the stamp.
 
 Disable the loop with `--no-learn` per-invocation or `WHEELOG_NO_LEARN=true` for the whole session - useful for deterministic agent flows that don't want a learning row to silently change subsequent query results.
 

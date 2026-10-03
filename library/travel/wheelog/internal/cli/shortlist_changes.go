@@ -5,6 +5,7 @@ package cli
 import (
 	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/travel/wheelog/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/travel/wheelog/internal/store"
 	"github.com/mvanhorn/printing-press-library/library/travel/wheelog/internal/wheelog"
 	"github.com/spf13/cobra"
 )
@@ -36,12 +37,18 @@ func newNovelShortlistChangesCmd(flags *rootFlags) *cobra.Command {
 			}
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
-			db, err := openWheelogStore(ctx, options.DB)
-			if err != nil {
-				return err
+			var db *store.Store
+			var saved []store.WheelogObservation
+			if mode == "local" {
+				saved, err = savedWheelog(ctx, options.DB)
+			} else {
+				db, err = openWheelogStore(ctx, options.DB)
+				if err != nil {
+					return err
+				}
+				defer db.Close()
+				saved, err = db.WheelogList(ctx)
 			}
-			defer db.Close()
-			saved, err := db.WheelogList(ctx)
 			if err != nil {
 				return err
 			}

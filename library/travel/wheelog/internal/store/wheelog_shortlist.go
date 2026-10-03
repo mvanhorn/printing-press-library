@@ -18,12 +18,18 @@ type WheelogObservation struct {
 }
 
 func (s *Store) InitWheelog(ctx context.Context) error {
-	_, err := s.db.ExecContext(ctx, `CREATE TABLE IF NOT EXISTS wheelog_shortlist (id INTEGER PRIMARY KEY, previous_json TEXT, latest_json TEXT NOT NULL)`)
+	if err := s.checkWheelogWritePath(); err != nil {
+		return err
+	}
+	_, err := s.wheelogExec(ctx, `CREATE TABLE IF NOT EXISTS wheelog_shortlist (id INTEGER PRIMARY KEY, previous_json TEXT, latest_json TEXT NOT NULL)`)
+	if err == nil {
+		err = s.checkWheelogWritePath()
+	}
 	return err
 }
 
 func (s *Store) WheelogList(ctx context.Context) ([]WheelogObservation, error) {
-	rows, err := s.db.QueryContext(ctx, `SELECT previous_json,latest_json FROM wheelog_shortlist ORDER BY id LIMIT 51`)
+	rows, err := s.wheelogQuery(ctx, `SELECT previous_json,latest_json FROM wheelog_shortlist ORDER BY id LIMIT 51`)
 	if err != nil {
 		return nil, err
 	}
@@ -60,13 +66,16 @@ func (s *Store) WheelogList(ctx context.Context) ([]WheelogObservation, error) {
 // ObserveWheelog rotates normalized observations and replaces their search/index
 // projections in one transaction. Missing or zero reports replace old evidence.
 func (s *Store) ObserveWheelog(ctx context.Context, spot wheelog.Spot) error {
+	if err := s.checkWheelogWritePath(); err != nil {
+		return err
+	}
 	data, err := json.Marshal(spot)
 	if err != nil {
 		return err
 	}
 	s.lockForWrite()
 	defer s.unlockAfterWrite()
-	tx, err := s.db.BeginTx(ctx, nil)
+	tx, err := s.wheelogBegin(ctx)
 	if err != nil {
 		return err
 	}
@@ -116,13 +125,22 @@ func (s *Store) ObserveWheelog(ctx context.Context, spot wheelog.Spot) error {
 	if err != nil {
 		return err
 	}
-	return tx.Commit()
+	if err := s.checkWheelogWritePath(); err != nil {
+		return err
+	}
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	return s.checkWheelogWritePath()
 }
 
 func (s *Store) RemoveWheelog(ctx context.Context, id int64) error {
+	if err := s.checkWheelogWritePath(); err != nil {
+		return err
+	}
 	s.lockForWrite()
 	defer s.unlockAfterWrite()
-	tx, err := s.db.BeginTx(ctx, nil)
+	tx, err := s.wheelogBegin(ctx)
 	if err != nil {
 		return err
 	}
@@ -142,5 +160,11 @@ func (s *Store) RemoveWheelog(ctx context.Context, id int64) error {
 	if _, err := tx.ExecContext(ctx, `UPDATE sync_state SET total_count=(SELECT count(*) FROM wheelog_shortlist) WHERE resource_type='spots'`); err != nil {
 		return err
 	}
-	return tx.Commit()
+	if err := s.checkWheelogWritePath(); err != nil {
+		return err
+	}
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	return s.checkWheelogWritePath()
 }

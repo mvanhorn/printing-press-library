@@ -1,0 +1,13 @@
+{
+  "jsonrpc": "2.0",
+  "id": 4,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "cli wheelog-pp-cli/bin/wheelog-pp-cli: exit status 10 (stderr: Error: cache_visibility_unavailable: the saved database does not have exactly one hard link, so its WAL path cannot be verified. Close other database writers, then retry the saved read. Source discovery and inspection can use --data-source live.)"
+      }
+    ],
+    "isError": true
+  }
+}

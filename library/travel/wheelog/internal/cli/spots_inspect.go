@@ -52,7 +52,7 @@ func newSpotsInspectCmd(flags *rootFlags) *cobra.Command {
 			defer cancel()
 			var cached []store.WheelogObservation
 			var c *client.Client
-			if mode != "live" {
+			if mode == "local" {
 				cached, err = savedWheelog(ctx, options.DB)
 				if err != nil {
 					return err
