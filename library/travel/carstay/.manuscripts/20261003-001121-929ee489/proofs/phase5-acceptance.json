@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "d8f50ebb22960d9ba2adfe96c949cbab55a4b06602ee685efd9bae0aba1dc75f",
+  "source_fingerprint": "905c0266a25814e6633bdf6b2593e7c443a32c1fd5e6f35f75f18012a62822f4",
   "source_files": {
     "cmd/carstay-pp-cli/main.go": "1ce7400e5a1b190f65b882beb30b90f3ebc413dae9a36507669437b073fbd294",
     "cmd/carstay-pp-mcp/main.go": "2e0abf309b21b93d7a9ab7dd4aea18ade83ffe7c8cfb87dc29cbc5303ddd1577",
@@ -143,7 +143,7 @@
     "internal/learn/patterns/apply_test.go": "30b7e28b5e194990d404e3fa079d9c971def6ace45d084f3bcbd523c50414fe1",
     "internal/learn/patterns/carstay_publication_contracts_test.go": "8f857d1da32da75e09812587385c37f12ac3b670e44d2e9e70a9e2419285ec74",
     "internal/learn/patterns/doc.go": "0c403005814770da317447cb2051f3eed4f011c828fece17b05597b1acd50e72",
-    "internal/learn/patterns/extract.go": "5192062121a6901e2f0eba5663830c45bc7c457542964580faae10f0299d3ebd",
+    "internal/learn/patterns/extract.go": "efb7f642dd18e8da9126574d5d71af3c0602d9e7994ff47601f9bd8669f5782e",
     "internal/learn/patterns/extract_test.go": "b40fbe21ec417d7d60e51b2c867fb0ded6782fb851ecb92787060b3b78f123c3",
     "internal/learn/patterns/store.go": "832805cdf975ba3983c3b16bd0aedc8a7f3792919d5647f6b361a18f266b01d8",
     "internal/learn/patterns/store_test.go": "f1c160b54156b7685bef0c32f16dd005a1e4879b3769e12631e11b1cdfff5a6c",
@@ -190,8 +190,9 @@
     "internal/store/candidates.go": "7a883323731354354cdd9cfdffcc37e5feeb1de0d6cfeebe241efa0486d9659a",
     "internal/store/candidates_test.go": "261fcc799279930b24c220bedf920d5a9f647ed8eefdd959a38f024cabc1c728",
     "internal/store/carstay_learning_contracts_test.go": "20a39831310e0ec236d4f0c04a0afe2046ac2042eabd55b3c43ac022cfb98656",
+    "internal/store/carstay_positive_support_test.go": "6bdc32ed6d5676982059abb99387d243ef91d6d31c17b408952ef88dc7baed42",
     "internal/store/carstay_supported_patterns_test.go": "0029281a1f119dd4a859cf5c24b14ba193530cf42f47184cd9566bd277652885",
-    "internal/store/derived_patterns.go": "d4f91105724940a231596fe64402558f3ad9fca1306014deb04a93a06adea82f",
+    "internal/store/derived_patterns.go": "e071a9fd34c5ef0b08766c051a941f2088fd9d845f9b0846892a50f51514e1ad",
     "internal/store/events.go": "b6e66f55e536772b451fc841763eb4a9087d11a128d019dcc846ae71dc08171a",
     "internal/store/events_test.go": "670cab29058cd8cca31b63ed2270b59a6a92594619b65f44a44e85cb75f05f12",
     "internal/store/extras.go": "553f86af71bf7f4bd8bf4a83658de595c170406916f8492d3bf67b82c4ebb693",

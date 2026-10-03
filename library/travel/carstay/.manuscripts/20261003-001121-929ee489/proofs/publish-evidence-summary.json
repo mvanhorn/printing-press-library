@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_by": "sanitized amendment evidence projection; acceptance remains binary-owned",
-  "observed_at": "2026-10-03T13:41:11.026457Z",
+  "observed_at": "2026-10-03T14:41:23.390471Z",
   "producer_version": "4.32.5",
   "fresh_gate_runner_version": "4.33.0",
   "source": {
@@ -83,9 +83,9 @@
     "tests_skipped": 103,
     "tests_unverified": 103,
     "failed": 0,
-    "ran_at": "2026-10-03T13:41:11.026457Z",
-    "source_fingerprint": "d8f50ebb22960d9ba2adfe96c949cbab55a4b06602ee685efd9bae0aba1dc75f",
-    "source_file_count": 191
+    "ran_at": "2026-10-03T14:41:23.390471Z",
+    "source_fingerprint": "905c0266a25814e6633bdf6b2593e7c443a32c1fd5e6f35f75f18012a62822f4",
+    "source_file_count": 192
   },
   "live_kinds": {
     "help": {
@@ -1278,8 +1278,8 @@
     }
   ],
   "performance": {
-    "measured_at": "2026-10-03T13:44:54.033443+00:00",
-    "binary_sha256": "fa179ccc6912132423ab7384069b659fc40897eaf6dd5ad88930ecbb73ca5c6b",
+    "measured_at": "2026-10-03T14:46:35.752040+00:00",
+    "binary_sha256": "4097ee0c33a432e28c17bf0966cd0658f56888d677d0eed42c16fbceaaf15015",
     "version": "carstay-pp-cli 2026.10.1",
     "build_arguments": [
       "go",
@@ -1299,11 +1299,11 @@
           "--no-learn"
         ],
         "elapsed_ms": [
-          1087.72,
-          707.64,
-          853.56
+          972.84,
+          890.62,
+          721.05
         ],
-        "median_ms": 853.56,
+        "median_ms": 890.62,
         "observations": [
           {
             "envelope": "meta/results",
@@ -1335,11 +1335,11 @@
           "--no-learn"
         ],
         "elapsed_ms": [
-          1356.52,
-          1361.04,
-          1371.19
+          1396.38,
+          1418.22,
+          1360.16
         ],
-        "median_ms": 1361.04,
+        "median_ms": 1396.38,
         "observations": [
           {
             "envelope": "meta/results",
@@ -1377,11 +1377,11 @@
           "--no-learn"
         ],
         "elapsed_ms": [
-          740.75,
-          778.74,
-          997.64
+          744.33,
+          753.9,
+          735.62
         ],
-        "median_ms": 778.74,
+        "median_ms": 744.33,
         "observations": [
           {
             "envelope": "meta/results",
@@ -1443,5 +1443,6 @@
     "diagnostics": "Filter final emitted resource type+ID before mismatch cap; retain rejected-only namespaces and missing-cache teaching alternatives",
     "read_errors": "Function-backed SQL error/context cancellation and NULL-payload view with verified ID fail explicitly in direct and pattern paths; legitimate missing/unknown controls pass"
   },
-  "typed_tuple_regression": "Actual two-teach/Recall limit-two preserves distinct (a|b,c) and (a,b|c) tuples; accepted result and rejected alternative maps preserve tuple identity."
+  "typed_tuple_regression": "Actual two-teach/Recall limit-two preserves distinct (a|b,c) and (a,b|c) tuples; accepted result and rejected alternative maps preserve tuple identity.",
+  "positive_support_regression": "Both initial extraction and retained-family reconciliation admit only positive boost actions from the unchanged eligible source whitelist. Real hide/alias_of rows cannot retain, supply example provenance, or recreate a synthesized positive rule; genuine positives/manual/unrelated/atomic controls remain."
 }
