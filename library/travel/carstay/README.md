@@ -119,7 +119,7 @@ carstay-pp-cli spots coverage --agent --select results.japanese_overnight,result
 carstay-pp-cli spots find carstay-impossible-query-9f04 --json
 ```
 
-With `--agent --select meta`, `results` is `[]` and `meta.results_omitted_by_select=true` distinguishes omitted rows from empty inventory. Shortlist commands (`compare`, `fit`, `audit`) preserve bounded partial evidence but exit with code 5 if any requested detail read fails; `detail_fetch_complete`, requested/successful counts and `fetch_failures` show the incomplete scope.
+With `--agent --select meta`, `results` is `[]` and `meta.results_omitted_by_select=true` distinguishes omitted rows from empty inventory. Shortlist commands (`compare`, `fit`, `audit`) preserve bounded partial evidence and return nonzero when requested detail reads are incomplete; ordinary partial failures use API exit 5. Rate limits and cancellation abort through their classified failure path. `detail_fetch_complete`, requested/successful counts and `fetch_failures` show the partial scope.
 
 Agent output has one `{meta, results}` envelope. `meta` records source, JST date meaning, scan scope and fetch failures. Empty results are `[]`. `--select` narrows fields; selected agent results retain provenance metadata. `--json` also works independently. Dry runs return JSON without source reads. The domain commands use public live reads; `--data-source local` returns a usage error instead of inventing cached inventory.
 

@@ -230,7 +230,7 @@
     "optional_detector_enrichment": "gitleaks/trufflehog unavailable; no installation performed"
   },
   "publication_review_fixes": {
-    "incomplete_shortlists": "Preserve partial bounded JSON evidence; return API exit5 for any requested detail read failure; explicit requested/successful/complete/failure metadata.",
+    "incomplete_shortlists": "Preserve partial bounded JSON evidence; ordinary partial failures return API exit5. Rate/cancellation abort through their classified nonzero path. Requested/successful/complete/failure metadata makes rendered partial scope explicit.",
     "metadata_only_agent_selection": "Flat meta/results envelope with results=[] and explicit results_omitted_by_select flag; full provenance retained.",
     "generated_plain_public_reads": "8MiB+1 bounded reads before decode/cache/status retries; post-inflation cap; binary transfer flag/MIME and existing32MiB decoded limit retain prior behavior.",
     "regressions": "Complete/partial/all-failed comparison, partial fit/audit, metadata projection, exact read cap, lying/missing lengths, body close200/429/503, gzip overflow and preserved binary envelope all pass."
