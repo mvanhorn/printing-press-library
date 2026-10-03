@@ -4,12 +4,94 @@
 package bound
 
 import (
+	"context"
 	"encoding/json"
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 	"unicode/utf8"
 )
+
+func TestWithMetadataWrapsSmallMCPResult(t *testing.T) {
+	text := WithMetadata(`[{"id":"one"}]`, map[string]any{"truncated": false})
+	var envelope struct {
+		Data []map[string]string `json:"data"`
+		Meta struct {
+			Truncated bool `json:"truncated"`
+		} `json:"meta"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("metadata result must remain valid JSON: %v: %s", err, text)
+	}
+	if envelope.Meta.Truncated || len(envelope.Data) != 1 || envelope.Data[0]["id"] != "one" {
+		t.Fatalf("metadata envelope = %+v", envelope)
+	}
+}
+
+func TestWithMetadataPromotesMCPCompactionToTruncationReason(t *testing.T) {
+	items := make([]string, 0, MaxItems+25)
+	for i := 0; i < MaxItems+25; i++ {
+		items = append(items, strings.Repeat("x", 1600))
+	}
+	data, err := json.Marshal(items)
+	if err != nil {
+		t.Fatal(err)
+	}
+	text := WithMetadata(EndpointResponse("GET", data), map[string]any{"truncated": false})
+	if len(text) > MaxBytes {
+		t.Fatalf("metadata result length = %d, want <= %d", len(text), MaxBytes)
+	}
+	var envelope struct {
+		Meta struct {
+			Truncated bool `json:"truncated"`
+			Reasons   []struct {
+				Kind string `json:"kind"`
+			} `json:"truncation_reasons"`
+		} `json:"meta"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("metadata result must remain valid JSON: %v: %s", err, text)
+	}
+	if !envelope.Meta.Truncated || len(envelope.Meta.Reasons) != 1 || envelope.Meta.Reasons[0].Kind != "mcp_output_limit" {
+		t.Fatalf("metadata envelope = %+v", envelope.Meta)
+	}
+}
+
+func TestWithMetadataPreservesNativeMetadataAndApplicationTruncation(t *testing.T) {
+	result := `{"meta":{"truncated":true,"resolved_window":"upstream-window","warnings":["upstream"]},"data":{"id":"native"},"truncated":true}`
+	text := WithMetadata(result, map[string]any{
+		"truncated":       false,
+		"resolved_window": map[string]any{"start": "2026-07-01"},
+		"warnings":        []string{"platform"},
+	})
+	var envelope struct {
+		Meta struct {
+			Truncated bool `json:"truncated"`
+			Reasons   []struct {
+				Kind string `json:"kind"`
+			} `json:"truncation_reasons"`
+		} `json:"meta"`
+		Data struct {
+			Truncated bool `json:"truncated"`
+			Meta      struct {
+				Truncated      bool     `json:"truncated"`
+				ResolvedWindow string   `json:"resolved_window"`
+				Warnings       []string `json:"warnings"`
+			} `json:"meta"`
+			Data map[string]string `json:"data"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("metadata result must remain valid JSON: %v: %s", err, text)
+	}
+	if envelope.Meta.Truncated || len(envelope.Meta.Reasons) != 0 {
+		t.Fatalf("application truncation was mislabeled as MCP compaction: %+v", envelope.Meta)
+	}
+	if !envelope.Data.Truncated || !envelope.Data.Meta.Truncated || envelope.Data.Meta.ResolvedWindow != "upstream-window" || len(envelope.Data.Meta.Warnings) != 1 || envelope.Data.Data["id"] != "native" {
+		t.Fatalf("native API metadata changed: %+v", envelope.Data)
+	}
+}
 
 func TestEndpointResponseBoundsListResponses(t *testing.T) {
 	items := make([]string, 0, MaxItems+25)
@@ -169,6 +251,34 @@ func TestEndpointPageResponseWrapsUpstreamCursorOpaquely(t *testing.T) {
 	}
 	if strings.Contains(envelope.NextCursor, "server-next-token") {
 		t.Fatalf("next_cursor leaked upstream cursor: %q", envelope.NextCursor)
+	}
+}
+
+func TestEndpointPageResponseDoesNotContinueWithEchoedUpstreamCursor(t *testing.T) {
+	cursor := encodeEndpointCursor(endpointCursor{Version: 1, UpstreamCursor: "server-token"})
+	data, err := json.Marshal(map[string]any{
+		"items": []map[string]string{
+			{"id": "item-0"},
+		},
+		"after": "server-token",
+	})
+	if err != nil {
+		t.Fatalf("marshal fixture: %v", err)
+	}
+
+	text := EndpointPageResponse("GET", data, PageOptions{
+		Cursor:         cursor,
+		CursorParam:    "after",
+		NextCursorPath: "after",
+	})
+	var envelope struct {
+		NextCursor string `json:"next_cursor"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("page result must remain valid JSON: %v\n%s", err, text)
+	}
+	if envelope.NextCursor != "" {
+		t.Fatalf("echoed upstream cursor produced another continuation: %q", envelope.NextCursor)
 	}
 }
 
@@ -555,5 +665,142 @@ func TestTextPreviewPreservesUTF8RuneBoundaries(t *testing.T) {
 	}
 	if strings.ContainsRune(envelope.Preview, utf8.RuneError) {
 		t.Fatalf("preview introduced a replacement character at a split UTF-8 boundary: %q", envelope.Preview[len(envelope.Preview)-12:])
+	}
+}
+
+func TestWithSQLQueryDeadlineAppliesDefault(t *testing.T) {
+	ctx, cancel := WithSQLQueryDeadline(context.Background())
+	defer cancel()
+	deadline, ok := ctx.Deadline()
+	if !ok {
+		t.Fatal("WithSQLQueryDeadline should apply a default deadline")
+	}
+	remain := time.Until(deadline)
+	if remain < SQLQueryTimeout/2 || remain > SQLQueryTimeout+time.Second {
+		t.Fatalf("deadline remaining %s, want about %s", remain, SQLQueryTimeout)
+	}
+}
+
+func TestWithSQLQueryDeadlineKeepsTighterCaller(t *testing.T) {
+	parent, cancel := context.WithTimeout(context.Background(), 40*time.Millisecond)
+	defer cancel()
+	parentDeadline, ok := parent.Deadline()
+	if !ok {
+		t.Fatal("parent should have a deadline")
+	}
+	ctx, cancel2 := WithSQLQueryDeadline(parent)
+	defer cancel2()
+	deadline, ok := ctx.Deadline()
+	if !ok {
+		t.Fatal("child should have a deadline")
+	}
+	if deadline.After(parentDeadline) {
+		t.Fatalf("child deadline %v is later than tighter parent %v", deadline, parentDeadline)
+	}
+}
+
+func TestSQLScanStateStopsAtByteBudget(t *testing.T) {
+	s := NewSQLScanState([]string{"blob"})
+	row := map[string]any{"blob": strings.Repeat("z", 3000)}
+	added := 0
+	for i := 0; i < 100; i++ {
+		if !s.Add(row) {
+			break
+		}
+		added++
+	}
+	if !s.Truncated {
+		t.Fatal("expected byte-budget truncation")
+	}
+	if added == 0 || added >= 100 {
+		t.Fatalf("added %d rows, want a bounded positive count", added)
+	}
+	if len(s.Rows) != added {
+		t.Fatalf("rows = %d, want %d", len(s.Rows), added)
+	}
+}
+
+func TestSQLScanStateStopsAtRowBudget(t *testing.T) {
+	s := NewSQLScanState(nil)
+	row := map[string]any{}
+	for i := 0; i < SQLMaxRows+5; i++ {
+		s.Add(row)
+	}
+	if !s.Truncated {
+		t.Fatal("expected row-budget truncation")
+	}
+	if len(s.Rows) != SQLMaxRows {
+		t.Fatalf("rows = %d, want %d", len(s.Rows), SQLMaxRows)
+	}
+}
+
+func TestSQLScanStateKeepsCompleteSmallResult(t *testing.T) {
+	s := NewSQLScanState([]string{"n"})
+	if !s.Add(map[string]any{"n": 1}) {
+		t.Fatal("small row should fit")
+	}
+	if s.Truncated {
+		t.Fatal("small result should not be truncated")
+	}
+	if len(s.Rows) != 1 {
+		t.Fatalf("rows = %d, want 1", len(s.Rows))
+	}
+}
+
+func TestSQLScanStateRejectsFirstOversizedRow(t *testing.T) {
+	s := NewSQLScanState([]string{"blob"})
+	row := map[string]any{"blob": strings.Repeat("z", MaxBytes)}
+	if s.Add(row) {
+		t.Fatal("oversized first row should be rejected")
+	}
+	if !s.Truncated || len(s.Rows) != 0 {
+		t.Fatalf("truncated=%v rows=%d, want truncated empty scan", s.Truncated, len(s.Rows))
+	}
+}
+
+func TestSQLScanStateLongColumnsStaySQLEnvelope(t *testing.T) {
+	cols := make([]string, 25)
+	row := make(map[string]any, len(cols))
+	for i := range cols {
+		cols[i] = strings.Repeat("col", 80) + strings.Repeat("x", i+1)
+		row[cols[i]] = strings.Repeat("z", 400)
+	}
+	s := NewSQLScanState(cols)
+	for i := 0; i < 20; i++ {
+		if !s.Add(row) {
+			break
+		}
+	}
+	if !s.Truncated {
+		t.Fatal("wide columns plus repeated rows should hit the envelope budget")
+	}
+	if len(s.Rows) == 0 {
+		t.Fatal("wide-column scan should keep a bounded SQL sample")
+	}
+
+	envelope := map[string]any{
+		"count":          len(s.Rows),
+		"columns":        cols,
+		"rows":           s.Rows,
+		"store_status":   "ready",
+		"resumable":      false,
+		"truncated":      s.Truncated,
+		"returned_count": len(s.Rows),
+		"max_bytes":      MaxBytes,
+		"note":           SQLResultBoundNote,
+		"meta":           map[string]any{"source": "local"},
+	}
+	text, err := JSON(envelope)
+	if err != nil {
+		t.Fatalf("JSON(envelope) error = %v", err)
+	}
+	if len(text) > MaxBytes {
+		t.Fatalf("SQL envelope length = %d, want <= %d", len(text), MaxBytes)
+	}
+	if !strings.Contains(text, `"columns"`) || !strings.Contains(text, `"rows"`) || !strings.Contains(text, `"count"`) {
+		t.Fatalf("expected SQL envelope fields, got preview: %s", text)
+	}
+	if strings.Contains(text, `"preview"`) && !strings.Contains(text, `"columns"`) {
+		t.Fatalf("wide-column result fell back to a generic preview: %s", text)
 	}
 }

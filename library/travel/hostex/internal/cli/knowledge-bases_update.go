@@ -32,35 +32,59 @@ func newKnowledgeBasesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "update <id>",
 		Short:       "Replace an existing knowledge base entry.",
-		Example:     "  hostex-pp-cli knowledge-bases update 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "knowledge-bases.update", "pp:method": "PATCH", "pp:path": "/knowledge_bases/{id}"},
+		Example:     "  hostex-pp-cli knowledge-bases update 123 --contents 'Check-in is after 3 PM' --is-enable true --scope-channel-channels airbnb --scope-channel-type all --scope-property-ids 1234567 --scope-property-type all --dry-run",
+		Annotations: map[string]string{"pp:endpoint": "knowledge-bases.update", "pp:method": "PATCH", "pp:path": "/knowledge_bases/{id}", "pp:requires-input": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with required input prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
 			// only read commands fall through so a bare call still executes.
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
 			}
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <id>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <id>"))
 			}
 			if !stdinBody {
-				if !cmd.Flags().Changed("contents") && !flags.dryRun {
+				if !cmd.Flags().Changed("contents") && bodyContents == "" && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "contents")
 				}
-				if !cmd.Flags().Changed("is-enable") && !flags.dryRun {
+				if !cmd.Flags().Changed("is-enable") && bodyIsEnable == "" && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "is-enable")
 				}
-				if !cmd.Flags().Changed("scope-channel-channels") && !flags.dryRun {
+				if !cmd.Flags().Changed("scope-channel-channels") && bodyScopeChannelChannels == "" && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "scope-channel-channels")
 				}
-				if !cmd.Flags().Changed("scope-channel-type") && !flags.dryRun {
+				if !cmd.Flags().Changed("scope-channel-type") && bodyScopeChannelType == "" && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "scope-channel-type")
 				}
-				if !cmd.Flags().Changed("scope-property-ids") && !flags.dryRun {
+				if !cmd.Flags().Changed("scope-property-ids") && bodyScopePropertyIds == "" && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "scope-property-ids")
 				}
-				if !cmd.Flags().Changed("scope-property-type") && !flags.dryRun {
+				if !cmd.Flags().Changed("scope-property-type") && bodyScopePropertyType == "" && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "scope-property-type")
 				}
 			}
@@ -74,7 +98,7 @@ func newKnowledgeBasesUpdateCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -86,63 +110,78 @@ func newKnowledgeBasesUpdateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
-				if bodyContents != "" {
+				bodyMap := map[string]any{}
+				body = bodyMap
+				if cmd.Flags().Changed("contents") || bodyContents != "" {
 					var parsedContents any
 					if err := json.Unmarshal([]byte(bodyContents), &parsedContents); err != nil {
 						return fmt.Errorf("parsing --contents JSON: %w", err)
 					}
-					body["contents"] = parsedContents
+					asArray, ok := parsedContents.([]any)
+					if !ok {
+						return fmt.Errorf("--contents must be a JSON array, got JSON %T", parsedContents)
+					}
+					bodyMap["contents"] = asArray
 				}
-				if bodyIsEnable != "" {
+				if cmd.Flags().Changed("is-enable") || bodyIsEnable != "" {
 					parsedIsEnable, err := strconv.ParseBool(bodyIsEnable)
 					if err != nil {
 						return fmt.Errorf("parsing --is-enable as bool: %w", err)
 					}
-					body["is_enable"] = parsedIsEnable
+					bodyMap["is_enable"] = parsedIsEnable
 				}
 				{
 					nestedScopeChannel := map[string]any{}
-					if bodyScopeChannelChannels != "" {
-						nestedScopeChannel["channels"] = cliutil.SplitCSV(bodyScopeChannelChannels)
+					if cmd.Flags().Changed("scope-channel-channels") {
+						parsedScopeChannelChannels, parseErr := cliutil.ParseStringList(bodyScopeChannelChannels)
+						if parseErr != nil {
+							return fmt.Errorf("parsing --scope-channel-channels list: %w", parseErr)
+						}
+						nestedScopeChannel["channels"] = parsedScopeChannelChannels
 					}
-					if bodyScopeChannelType != "" {
+					if cmd.Flags().Changed("scope-channel-type") || bodyScopeChannelType != "" {
 						nestedScopeChannel["type"] = bodyScopeChannelType
 					}
 					if len(nestedScopeChannel) > 0 {
-						body["scope_channel"] = nestedScopeChannel
+						bodyMap["scope_channel"] = nestedScopeChannel
 					}
 				}
 				{
 					nestedScopeProperty := map[string]any{}
-					if bodyScopePropertyIds != "" {
+					if cmd.Flags().Changed("scope-property-ids") || bodyScopePropertyIds != "" {
 						var parsedScopePropertyIds any
 						if err := json.Unmarshal([]byte(bodyScopePropertyIds), &parsedScopePropertyIds); err != nil {
 							return fmt.Errorf("parsing --scope-property-ids JSON: %w", err)
 						}
-						nestedScopeProperty["ids"] = parsedScopePropertyIds
+						asArray, ok := parsedScopePropertyIds.([]any)
+						if !ok {
+							return fmt.Errorf("--scope-property-ids must be a JSON array, got JSON %T", parsedScopePropertyIds)
+						}
+						nestedScopeProperty["ids"] = asArray
 					}
-					if bodyScopePropertyType != "" {
+					if cmd.Flags().Changed("scope-property-type") || bodyScopePropertyType != "" {
 						nestedScopeProperty["type"] = bodyScopePropertyType
 					}
 					if len(nestedScopeProperty) > 0 {
-						body["scope_property"] = nestedScopeProperty
+						bodyMap["scope_property"] = nestedScopeProperty
 					}
 				}
-				if bodyTitle != "" {
-					body["title"] = bodyTitle
+				if cmd.Flags().Changed("title") || bodyTitle != "" {
+					bodyMap["title"] = bodyTitle
 				}
 			}
 			data, statusCode, err := c.PatchWithParams(cmd.Context(), path, params, body)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			if asyncJobID := ExtractJobID(data, "request_id"); asyncJobID != "" {
+				asyncSubmittedAt := time.Now().UTC()
 				_ = RecordJob(JobRow{
 					JobID:          asyncJobID,
 					Resource:       "knowledge-bases",
 					Endpoint:       "update",
 					Status:         "submitted",
+					SubmittedAt:    asyncSubmittedAt,
 					StatusResource: "knowledge-bases",
 					StatusEndpoint: "get",
 				})
@@ -156,14 +195,21 @@ func newKnowledgeBasesUpdateCmd(flags *rootFlags) *cobra.Command {
 						Timeout:  flagWaitTimeout,
 					})
 					if werr != nil {
+						// The job was accepted; only the wait failed. Keep the
+						// row "submitted" so `jobs get` still points at it, and
+						// hand back the ID plus the command that fetches the
+						// result instead of an error that invites a resubmit.
 						_ = RecordJob(JobRow{
-							JobID:    asyncJobID,
-							Resource: "knowledge-bases",
-							Endpoint: "update",
-							Status:   "errored",
-							Error:    werr.Error(),
+							JobID:          asyncJobID,
+							Resource:       "knowledge-bases",
+							Endpoint:       "update",
+							Status:         "submitted",
+							SubmittedAt:    asyncSubmittedAt,
+							StatusResource: "knowledge-bases",
+							StatusEndpoint: "get",
+							Error:          werr.Error(),
 						})
-						return werr
+						return asyncJobPendingErr(cmd, flags, asyncJobID, "hostex-pp-cli knowledge-bases get "+asyncJobID, werr)
 					}
 					if b, merr := json.Marshal(final); merr == nil {
 						data = b
@@ -269,15 +315,22 @@ func newKnowledgeBasesUpdateCmd(flags *rootFlags) *cobra.Command {
 						}
 					}
 				}
+				// Mutation-riding reads (POST search, RPC-over-POST lists) return
+				// the same single-key collection envelopes as GET reads. Unwrap
+				// before filtering so rows nest once under the result key and
+				// --select filters rows, not envelope keys; plain created-object
+				// responses pass through unwrapSingleKeyArray untouched.
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
 				// generic high-gravity allow-list. Otherwise --compact still applies
 				// when --agent is on but the user did not name fields.
-				filtered := data
+				var selectErr error
+				filtered := unwrapSingleKeyArray(data)
 				if flags.selectFields != "" {
-					filtered = filterFields(filtered, flags.selectFields)
+					filtered, selectErr = filterFieldsChecked(filtered, flags.selectFields)
+					selectErr = selectErrorForDryRun(selectErr, flags, data)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, map[string]bool{"error_code": true, "request_id": true})
 				}
 				if len(filtered) > 0 {
 					var parsed any
@@ -293,28 +346,35 @@ func newKnowledgeBasesUpdateCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
+				resultKey := "data"
+				if flags.agent {
+					resultKey = "results"
+				}
+				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
+				if err != nil {
+					return err
+				}
+				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
 					return perr
 				}
 				if partialFailure != nil && !flags.allowPartialFailure {
 					return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "knowledge-bases", partialFailure.Message))
 				}
-				return nil
+				return selectErr
 			}
 			// Fall-through for mutate paths that did not hit the table or
 			// asJSON branches: --quiet, --csv, --plain, and default terminal
-			// raw output. printOutputWithFlags renders the body, then the
-			// typed partial-failure exit fires unless --allow-partial-failure
-			// downgrades it. Without this guard a partial failure would exit
-			// 0 for these output modes — the exact silent-swallow regression
-			// the surrounding patch is preventing for asJSON / piped output.
-			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
-				return perr
-			}
+			// raw output. printOutputWithFlagsMeta renders the body with live
+			// provenance, then the typed partial-failure exit fires unless
+			// --allow-partial-failure downgrades it. Without this guard a
+			// partial failure would exit 0 for these output modes — the exact
+			// silent-swallow regression the surrounding patch is preventing
+			// for asJSON / piped output.
+			printErr := printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"}, map[string]bool{"error_code": true, "request_id": true})
 			if partialFailure != nil && !flags.allowPartialFailure {
 				return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "knowledge-bases", partialFailure.Message))
 			}
-			return nil
+			return printErr
 		},
 	}
 	cmd.Flags().StringVar(&bodyContents, "contents", "", "The content entries of the knowledge base.")

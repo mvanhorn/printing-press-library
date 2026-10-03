@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261003-120106-6f48c7c7",
+  "base_printing_press_version": "4.33.0",
+  "id": "set-token-keeps-accepting-positional-token",
+  "summary": "auth set-token still accepts the token as an optional positional argument (with a stderr warning recommending stdin) so scripts written for earlier releases keep working.",
+  "reason": "The 4.33.0 generator reads the token from stdin only (cobra.NoArgs), which breaks existing `hostex-pp-cli auth set-token <token>` scripts; stdin stays the documented form because it keeps the token out of process listings and shell history.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/auth_set_token_test.go"
+  ],
+  "call_sites": [
+    "MaximumNArgs(1)"
+  ],
+  "validated_outcome": "TestSetTokenAcceptsLegacyPositionalToken and TestSetTokenStillReadsStdin run in an isolated home with a fake token; the token is never echoed."
+}

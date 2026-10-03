@@ -13,17 +13,18 @@
     "header": "Hostex-Access-Token",
     "in": "header",
     "env_vars": [
-      "HOSTEX_HOSTEX_ACCESS_TOKEN"
+      "HOSTEX_ACCESS_TOKEN"
     ],
     "env_var_specs": [
       {
-        "name": "HOSTEX_HOSTEX_ACCESS_TOKEN",
+        "name": "HOSTEX_ACCESS_TOKEN",
         "kind": "per_call",
         "required": true,
         "sensitive": true,
         "inferred": true
       }
-    ]
+    ],
+    "key_url": "https://api.hostex.io/v3"
   },
   "required_headers": [],
   "tools": [
@@ -320,7 +321,7 @@
     },
     {
       "name": "conversations_send-message",
-      "description": "Send a text or image message to the guest. Required: conversation_id. Optional: jpeg_base64, message. Returns the new CommonResponse.",
+      "description": "Send a text or image message to the guest. **This endpoint is not idempotent and does not return a message ID.** If a request times out, the outcome is unknown — Hostex cannot determine whether the channel has already delivered the message, and this uncertainty cannot be resolved on our side, so no idempotency guarantee is offered. If you receive an error, retry as appropriate — in our experience, a guest receiving a duplicate message is better than a guest receiving no message at all. Required: conversation_id. Optional: jpeg_base64, message. Returns the new CommonResponse.",
       "method": "POST",
       "path": "/conversations/{conversation_id}",
       "params": [
@@ -1035,6 +1036,13 @@
           "description": "Whether to enable the Airbnb highly-rated guest discount (15% off for guests rated 4.8+ with at least 3 reviews)."
         },
         {
+          "name": "settings-high-rated-guest-discount-blackout-dates",
+          "wire_name": "settings.high_rated_guest_discount_blackout_dates",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Blackout dates (YYYY-MM-DD) on which the Airbnb highly-rated guest discount does not apply. The listing stays bookable. Airbnb allows up to 30 dates per calendar year; removing a date restores one day of that year's quota. Omit to leave unchanged; send an empty array to clear."
+        },
+        {
           "name": "settings-instant-booking",
           "wire_name": "settings.instant_booking",
           "type": "bool",
@@ -1110,6 +1118,13 @@
           "type": "bool",
           "location": "body",
           "description": "Whether to enable the Airbnb mobile-only discount (10% off for guests booking via the Airbnb mobile app)."
+        },
+        {
+          "name": "settings-mobile-only-discount-blackout-dates",
+          "wire_name": "settings.mobile_only_discount_blackout_dates",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Blackout dates (YYYY-MM-DD) on which the Airbnb mobile-only discount does not apply. The listing stays bookable. Airbnb allows up to 30 dates per calendar year; removing a date restores one day of that year's quota. Omit to leave unchanged; send an empty array to clear."
         },
         {
           "name": "settings-new-listing-promotion",
@@ -1661,10 +1676,16 @@
     },
     {
       "name": "reservations_create",
-      "description": "Create a reservation (Direct Booking) in Hostex. Required: check_in_date, check_out_date, commission_amount, currency, custom_channel_id, guest_name, income_method_id, property_id, rate_amount, received_amount. Optional: email, mobile, number_of_guests (plus 1 more). Returns the new CommonResponse.",
+      "description": "Create a reservation (Direct Booking) in Hostex. Required: check_in_date, check_out_date, commission_amount, currency, custom_channel_id, guest_name, income_method_id, property_id, rate_amount, received_amount. Optional: channel_id, email, mobile (plus 2 more). Returns the new ReservationsCreateResponse.",
       "method": "POST",
       "path": "/reservations",
       "params": [
+        {
+          "name": "channel_id",
+          "type": "string",
+          "location": "body",
+          "description": "Optional external reservation reference, typically the booking id in your own system. Supplying it makes the create idempotent: within one Hostex account a given `channel_id` can only ever produce one reservation, so a create that is retried after a timeout cannot result in a duplicate booking. Submitting the same `channel_id` again returns the existing reservation together with its current `status` instead of creating another one — check `status` rather than the HTTP status code, since a replay of a reservation that has since been cancelled also returns `200`. The value is stored as the reservation's `channel_id` and can be queried back through [Query Reservations](/reference/query-reservations). Uniqueness is scoped to the Hostex account, not to your application or to the custom channel, and a value stays claimed permanently — including after the reservation is cancelled. Letters and digits only — no punctuation of any kind, including hyphens, underscores and dots."
+        },
         {
           "name": "check_in_date",
           "type": "string",
@@ -2818,7 +2839,7 @@
     },
     {
       "name": "transactions_create",
-      "description": "Record a new income or expense entry. What the entry is linked to is inferred from the request: - provide `stay_code` to record an entry against a specific stay, - provide `property_id` to record an entry against a specific property, - provide neither to record an operator-level entry (not tied to any specific property or stay; only available to the master operator). `stay_code` and `property_id` are mutually exclusive. The `direction` field decides whether the entry is an `income` or an `expense`, which in turn determines which dictionaries are used for `item_id` (`GET /income_items` or `GET /expense_items`) and `payment_method_id` (`GET /income_methods` or `GET /expense_methods`). The `amount` is always provided as a positive number; the sign is derived from `direction`. The `currency` accompanies the amount and must be supplied unless `stay_code` is provided, in which case it is inherited from the reservation order and, if you do provide it, it must match the order's currency. Required: amount, direction, item_id, payment_method_id. Optional: action_at, currency, note (plus 2 more). Returns the new TransactionsCreateResponse.",
+      "description": "Record a new income or expense entry. What the entry is linked to is inferred from the request: - provide `reservation_code` to record an entry against a reservation, - provide `property_id` to record an entry against a specific property, - provide neither to record an operator-level entry (not tied to any specific property or reservation; only available to the master operator). `reservation_code` and `property_id` are mutually exclusive. A reservation-linked entry belongs to the reservation as a whole. On a multi-unit reservation (one `reservation_code`, several `stay_code`s) the amount is spread across the units in proportion to each unit's room revenue; it cannot be pinned to one unit, and the entry always reads back under the reservation's own code. To book a different amount against each unit — per-unit VAT, owner payout or cleaning fees — create one entry per property with `property_id` instead; the trade-off is that such an entry is not attached to the reservation. `stay_code` is still accepted as a deprecated alias of `reservation_code`: any stay code is resolved to its reservation, without an error or a warning, so it does not record the entry against that individual stay. The `direction` field decides whether the entry is an `income` or an `expense`, which in turn determines which dictionaries are used for `item_id` (`GET /income_items` or `GET /expense_items`) and `payment_method_id` (`GET /income_methods` or `GET /expense_methods`). The `amount` is always provided as a positive number; the sign is derived from `direction`. The `currency` accompanies the amount and must be supplied unless a reservation is provided, in which case it is inherited from the reservation order and, if you do provide it, it must match the order's currency. Required: amount, direction, item_id, payment_method_id. Optional: action_at, currency, note (plus 3 more). Returns the new TransactionsCreateResponse.",
       "method": "POST",
       "path": "/transactions",
       "params": [
@@ -2839,7 +2860,7 @@
           "name": "currency",
           "type": "string",
           "location": "body",
-          "description": "Currency code that accompanies `amount`. Required unless `stay_code` is provided; reservation-linked entries inherit the currency from the order and reject mismatching values. See [Supported Currencies](/reference/supported-currencies) for more information."
+          "description": "Currency code that accompanies `amount`. Required unless `reservation_code` (or the deprecated `stay_code`) is provided; reservation-linked entries inherit the currency from the order and reject mismatching values. See [Supported Currencies](/reference/supported-currencies) for more information."
         },
         {
           "name": "direction",
@@ -2872,13 +2893,19 @@
           "name": "property_id",
           "type": "int",
           "location": "body",
-          "description": "The id of the property to record the entry against. Mutually exclusive with `stay_code`. Omit both to record an operator-level entry."
+          "description": "The id of the property to record the entry against. The full amount is assigned to that property. Mutually exclusive with `reservation_code`. Omit both to record an operator-level entry."
+        },
+        {
+          "name": "reservation_code",
+          "type": "string",
+          "location": "body",
+          "description": "The `reservation_code` (returned by `GET /reservations`) of the reservation to record the entry against. The entry belongs to the reservation as a whole; on a multi-unit reservation it is spread across the units in proportion to each unit's room revenue, and it cannot be pinned to one unit. Mutually exclusive with `property_id`. Omit both to record an operator-level entry."
         },
         {
           "name": "stay_code",
           "type": "string",
           "location": "body",
-          "description": "The `stay_code` (returned by `GET /reservations`) of the stay to record the entry against. Mutually exclusive with `property_id`. Omit both to record an operator-level entry."
+          "description": "Deprecated alias of `reservation_code`, kept for backward compatibility. A stay code is resolved to its reservation, so the entry is recorded against the whole reservation and reads back with that reservation's code — not the stay code you submitted. Use `property_id` to record an amount against one specific unit."
         }
       ]
     },
@@ -2899,7 +2926,7 @@
     },
     {
       "name": "transactions_query",
-      "description": "Query income and expense entries (also known as `transactions`) recorded against the operator, properties or reservations. The response provides each entry with its categorization (`item_id` / `item_name`) and payment method (`payment_method_id` / `payment_method_name`). The values of `item_id` and `payment_method_id` reference the dictionaries returned by `GET /income_items`, `GET /expense_items`, `GET /income_methods` and `GET /expense_methods` (which dictionary applies depends on `direction`). Optional: id, start_date, end_date (plus 9 more). Returns the TransactionsQueryResponse.",
+      "description": "Query income and expense entries (also known as `transactions`) recorded against the operator, properties or reservations. The response provides each entry with its categorization (`item_id` / `item_name`) and payment method (`payment_method_id` / `payment_method_name`). The values of `item_id` and `payment_method_id` reference the dictionaries returned by `GET /income_items`, `GET /expense_items`, `GET /income_methods` and `GET /expense_methods` (which dictionary applies depends on `direction`). Optional: id, start_date, end_date (plus 10 more). Returns the TransactionsQueryResponse.",
       "method": "GET",
       "path": "/transactions",
       "params": [
@@ -2940,10 +2967,16 @@
           "description": "Filter entries linked to the given property id (either directly recorded against the property, or indirectly through a reservation on this property)."
         },
         {
+          "name": "reservation_code",
+          "type": "string",
+          "location": "query",
+          "description": "Filter entries linked to the given reservation (the `reservation_code` returned by `GET /reservations`). Entries are always recorded against the whole reservation, so on a multi-unit reservation this returns the entries of every unit. Passing the `stay_code` of any unit is also accepted and resolves to the same reservation."
+        },
+        {
           "name": "stay_code",
           "type": "string",
           "location": "query",
-          "description": "Filter entries linked to the given stay (the `stay_code` returned by `GET /reservations`)."
+          "description": "Deprecated alias of `reservation_code`, kept for backward compatibility. Any stay code is resolved to its reservation, so this never narrows the result to a single unit. Use `reservation_code`, or `property_id` when you want the entries of one property."
         },
         {
           "name": "direction",
@@ -3091,6 +3124,43 @@
           "description": "The new webhook endpoint URL."
         }
       ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Operations gap finder",
+      "command": "ops-gaps",
+      "description": "Find imminent or occupied stays with no cleaning task or missing check-in details."
+    },
+    {
+      "name": "Stay brief dossier",
+      "command": "stay-brief",
+      "description": "One dossier for a single stay: reservation, guest, thread state, tasks, transactions, and review."
+    },
+    {
+      "name": "Inbox SLA triage",
+      "command": "inbox-sla",
+      "description": "Rank open guest conversations by age since the last guest message and flag threads past your SLA."
+    },
+    {
+      "name": "Automation preview",
+      "command": "automation-preview",
+      "description": "List pending automated messages and reviews and flag any whose thread a human has already handled."
+    },
+    {
+      "name": "Cross-channel price parity",
+      "command": "price-parity",
+      "description": "Flag property-dates where per-channel listing price or min-stay diverges across channels."
+    },
+    {
+      "name": "Oversell / double-sell watch",
+      "command": "oversell-watch",
+      "description": "Flag dates a channel still shows bookable on a property that is blocked or booked on the master calendar."
+    },
+    {
+      "name": "Revenue rollup",
+      "command": "revenue-rollup",
+      "description": "Net income minus expense by property or month over a date range, from the live ledger."
     }
   ]
 }

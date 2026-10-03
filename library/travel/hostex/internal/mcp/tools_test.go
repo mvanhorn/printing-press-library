@@ -9,10 +9,12 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/travel/hostex/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/travel/hostex/internal/cliutil/testenv"
 	"github.com/mvanhorn/printing-press-library/library/travel/hostex/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/travel/hostex/internal/store"
 )
@@ -69,28 +71,12 @@ func TestMCPPathResolutionMatchesCLIResolverWithPlatformDefaults(t *testing.T) {
 
 func resetMCPPathEnv(t *testing.T) string {
 	t.Helper()
-	home := t.TempDir()
-	t.Setenv("HOME", home)
-	for _, name := range []string{
-		"HOSTEX_CONFIG",
-		"HOSTEX_CONFIG_DIR",
-		"HOSTEX_DATA_DIR",
-		"HOSTEX_STATE_DIR",
-		"HOSTEX_CACHE_DIR",
-		"HOSTEX_HOME",
-		"XDG_CONFIG_HOME",
-		"XDG_DATA_HOME",
-		"XDG_STATE_HOME",
-		"XDG_CACHE_HOME",
-	} {
-		t.Setenv(name, "")
-	}
 	restore, err := cliutil.SetHomeOverride("")
 	if err != nil {
 		t.Fatalf("reset home override: %v", err)
 	}
 	t.Cleanup(restore)
-	return home
+	return testenv.Isolate(t, cliutil.ConfigDir, cliutil.DataDir, cliutil.StateDir, cliutil.CacheDir)
 }
 
 func TestMCPRegisterToolsPreservesTypedSpecialTools(t *testing.T) {
@@ -124,6 +110,106 @@ func TestMCPRegisterToolsPreservesTypedSpecialTools(t *testing.T) {
 	}
 }
 
+func TestMCPContextMatchesRegisteredToolSurface(t *testing.T) {
+	s := server.NewMCPServer("hostex", "test")
+	RegisterTools(s)
+
+	result, err := handleContext(s)(context.Background(), mcplib.CallToolRequest{})
+	if err != nil {
+		t.Fatalf("handleContext() error = %v", err)
+	}
+	if result == nil || result.IsError {
+		t.Fatalf("handleContext() IsError = %v, want false", result != nil && result.IsError)
+	}
+	var payload struct {
+		ToolCount                 int `json:"tool_count"`
+		CommandMirrorCapabilities []struct {
+			CLICommand string `json:"cli_command"`
+			MCPTool    string `json:"mcp_tool"`
+		} `json:"command_mirror_capabilities"`
+	}
+	if err := json.Unmarshal([]byte(mcpTextContent(t, result)), &payload); err != nil {
+		t.Fatalf("context result must be valid JSON: %v", err)
+	}
+	if want := len(s.ListTools()); payload.ToolCount != want {
+		t.Fatalf("context tool_count = %d, want registered count %d", payload.ToolCount, want)
+	}
+	for _, capability := range payload.CommandMirrorCapabilities {
+		if capability.CLICommand == "" || capability.MCPTool == "" {
+			t.Fatalf("context capability lacks explicit CLI/MCP names: %#v", capability)
+		}
+		registered := s.GetTool(capability.MCPTool)
+		if registered == nil || registered.Tool.Meta == nil || registered.Tool.Meta.AdditionalFields["pp:tenant-gate"] != "child-cli" {
+			t.Fatalf("context capability %q does not resolve to a registered command mirror", capability.CLICommand)
+		}
+	}
+}
+func TestMCPStoreStatusDistinguishesCompletedEmptyAndPartialSync(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "data.db")
+	db, err := store.Open(path)
+	if err != nil {
+		t.Fatalf("creating store: %v", err)
+	}
+	defer db.Close()
+
+	status, err := mcpStoreStatus(db)
+	if err != nil || status != mcpStoreStatusEmpty {
+		t.Fatalf("status before sync = %q, err=%v, want empty", status, err)
+	}
+	resourceType := "automation"
+	if err := db.SaveSyncStateAt(resourceType, "", 0, time.Now().UTC()); err != nil {
+		t.Fatal(err)
+	}
+	status, err = mcpStoreStatus(db)
+	if err != nil || status != mcpStoreStatusReady {
+		t.Fatalf("status after completed empty sync = %q, err=%v, want ready", status, err)
+	}
+	if err := db.SaveSyncProgress(resourceType, "resume-here", 0); err != nil {
+		t.Fatal(err)
+	}
+	status, err = mcpStoreStatus(db)
+	if err != nil || status != mcpStoreStatusPartial {
+		t.Fatalf("status after partial retry = %q, err=%v, want partial", status, err)
+	}
+}
+
+func TestMCPUnmigratedCheckpointsCannotProveCompletion(t *testing.T) {
+	for _, cursor := range []string{"", "resume-here"} {
+		name := "no-cursor"
+		if cursor != "" {
+			name = "resumable"
+		}
+		t.Run(name, func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "data.db")
+			db, err := store.Open(path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := db.SaveSyncStateAt("automation", cursor, 0, time.Now().UTC()); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := db.DB().Exec("ALTER TABLE sync_state DROP COLUMN last_attempt_complete"); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := db.DB().Exec("PRAGMA wal_checkpoint(TRUNCATE)"); err != nil {
+				t.Fatal(err)
+			}
+			if err := db.Close(); err != nil {
+				t.Fatal(err)
+			}
+			readOnly, err := store.OpenReadOnly(path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer readOnly.Close()
+			status, err := mcpStoreStatus(readOnly)
+			if err != nil || status != mcpStoreStatusPartial {
+				t.Fatalf("unmigrated checkpoint status = %q, err=%v; want partial", status, err)
+			}
+		})
+	}
+}
+
 func TestMCPSearchMissingStoreIsActionable(t *testing.T) {
 	resetMCPPathEnv(t)
 
@@ -137,7 +223,12 @@ func TestMCPSearchMissingStoreIsActionable(t *testing.T) {
 		t.Fatalf("handleSearch missing store IsError = %v, want true", result != nil && result.IsError)
 	}
 	text := mcpTextContent(t, result)
-	for _, want := range []string{"No local data store found", "data.db", "Run", "sync"} {
+	for _, want := range []string{"No local data store found", "data.db"} {
+		if !strings.Contains(text, want) {
+			t.Fatalf("missing-store error %q missing %q", text, want)
+		}
+	}
+	for _, want := range []string{"Run", "sync"} {
 		if !strings.Contains(text, want) {
 			t.Fatalf("missing-store error %q missing %q", text, want)
 		}
@@ -208,7 +299,12 @@ func TestMCPSQLMissingStoreIsActionable(t *testing.T) {
 		t.Fatalf("handleSQL missing store IsError = %v, want true", result != nil && result.IsError)
 	}
 	text := mcpTextContent(t, result)
-	for _, want := range []string{"No local data store found", "data.db", "Run", "sync"} {
+	for _, want := range []string{"No local data store found", "data.db"} {
+		if !strings.Contains(text, want) {
+			t.Fatalf("missing-store error %q missing %q", text, want)
+		}
+	}
+	for _, want := range []string{"Run", "sync"} {
 		if !strings.Contains(text, want) {
 			t.Fatalf("missing-store error %q missing %q", text, want)
 		}
@@ -248,6 +344,7 @@ func TestMCPSQLEmptyStoreReturnsActionableEnvelope(t *testing.T) {
 		Columns     []string         `json:"columns"`
 		StoreStatus string           `json:"store_status"`
 		Resumable   bool             `json:"resumable"`
+		Truncated   bool             `json:"truncated"`
 		NextStep    string           `json:"next_step"`
 	}
 	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
@@ -265,12 +362,19 @@ func TestMCPSQLEmptyStoreReturnsActionableEnvelope(t *testing.T) {
 	if envelope.Resumable {
 		t.Fatalf("empty-store SQL envelope should not claim cursor support: %s", text)
 	}
+	if envelope.Truncated {
+		t.Fatalf("empty-store SQL envelope should not be truncated: %s", text)
+	}
 	if !strings.Contains(envelope.NextStep, "sync") {
 		t.Fatalf("empty-store SQL next_step should mention sync: %s", text)
 	}
 }
 
 func TestMCPSQLDomainTableMismatchIsActionable(t *testing.T) {
+	// Domain tables are snake_case resource names, so '-' is rewritten to '_'.
+	// This quoted name is not a framework, stream, or rebase table either.
+	const missingTable = "pp-missing-table"
+
 	resetMCPPathEnv(t)
 	path, err := mcpDBPath()
 	if err != nil {
@@ -285,7 +389,7 @@ func TestMCPSQLDomainTableMismatchIsActionable(t *testing.T) {
 	}
 
 	result, err := handleSQL(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
-		Arguments: map[string]any{"query": "SELECT * FROM widgets"},
+		Arguments: map[string]any{"query": `SELECT * FROM "` + missingTable + `"`},
 	}})
 	if err != nil {
 		t.Fatalf("handleSQL returned transport error: %v", err)
@@ -294,10 +398,233 @@ func TestMCPSQLDomainTableMismatchIsActionable(t *testing.T) {
 		t.Fatalf("handleSQL domain-table mismatch IsError = %v, want true", result != nil && result.IsError)
 	}
 	text := mcpTextContent(t, result)
-	for _, want := range []string{"resources(resource_type, id, data)", "resource_type", "json_extract", "widgets"} {
+	for _, want := range []string{"resources(resource_type, id, data)", "resource_type", "json_extract", missingTable} {
 		if !strings.Contains(text, want) {
 			t.Fatalf("domain-table mismatch error %q missing %q", text, want)
 		}
+	}
+}
+
+func setupEmptyMCPStore(t *testing.T) {
+	t.Helper()
+	resetMCPPathEnv(t)
+	path, err := mcpDBPath()
+	if err != nil {
+		t.Fatalf("mcpDBPath() error = %v", err)
+	}
+	db, err := store.Open(path)
+	if err != nil {
+		t.Fatalf("creating store: %v", err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatalf("closing store: %v", err)
+	}
+}
+
+func callMCPSQL(t *testing.T, ctx context.Context, query string) *mcplib.CallToolResult {
+	t.Helper()
+	result, err := handleSQL(ctx, mcplib.CallToolRequest{Params: mcplib.CallToolParams{
+		Arguments: map[string]any{"query": query},
+	}})
+	if err != nil {
+		t.Fatalf("handleSQL returned transport error: %v", err)
+	}
+	if result == nil {
+		t.Fatal("handleSQL returned nil result")
+	}
+	return result
+}
+
+type mcpSQLResultEnvelope struct {
+	Count         int              `json:"count"`
+	Columns       []string         `json:"columns"`
+	Rows          []map[string]any `json:"rows"`
+	Truncated     bool             `json:"truncated"`
+	ReturnedCount int              `json:"returned_count"`
+	MaxBytes      int              `json:"max_bytes"`
+	Note          string           `json:"note"`
+}
+
+func decodeMCPSQLEnvelope(t *testing.T, result *mcplib.CallToolResult) (string, mcpSQLResultEnvelope) {
+	t.Helper()
+	text := mcpTextContent(t, result)
+	if len(text) > bound.MaxBytes {
+		t.Fatalf("SQL result length = %d, want <= %d", len(text), bound.MaxBytes)
+	}
+	var envelope mcpSQLResultEnvelope
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("SQL result must be valid JSON: %v\n%s", err, text)
+	}
+	return text, envelope
+}
+
+func TestMCPSQLHugeResultStopsMaterialisation(t *testing.T) {
+	setupEmptyMCPStore(t)
+	result := callMCPSQL(t, context.Background(), `WITH RECURSIVE t(x) AS (
+		SELECT 1
+		UNION ALL
+		SELECT x+1 FROM t WHERE x < 4000
+	) SELECT x, hex(randomblob(512)) AS blob FROM t`)
+	if result.IsError {
+		t.Fatalf("huge SQL query IsError = true, want bounded success: %s", mcpTextContent(t, result))
+	}
+	text, envelope := decodeMCPSQLEnvelope(t, result)
+	if !envelope.Truncated {
+		t.Fatalf("huge SQL result should be truncated: %s", text)
+	}
+	if envelope.Count == 0 || envelope.Count >= 4000 {
+		t.Fatalf("bounded row count = %d, want a sample well below 4000", envelope.Count)
+	}
+	if envelope.ReturnedCount != envelope.Count {
+		t.Fatalf("returned_count = %d, want %d", envelope.ReturnedCount, envelope.Count)
+	}
+	if len(envelope.Rows) != envelope.Count {
+		t.Fatalf("rows = %d, want count %d", len(envelope.Rows), envelope.Count)
+	}
+	if envelope.MaxBytes != bound.MaxBytes {
+		t.Fatalf("max_bytes = %d, want %d", envelope.MaxBytes, bound.MaxBytes)
+	}
+	if envelope.Note == "" {
+		t.Fatalf("truncated SQL envelope missing note: %s", text)
+	}
+}
+
+func TestMCPSQLLongColumnNamesStaySQLEnvelope(t *testing.T) {
+	setupEmptyMCPStore(t)
+	query := "WITH RECURSIVE t(n) AS (SELECT 1 UNION ALL SELECT n+1 FROM t WHERE n < 20) SELECT "
+	for i := 0; i < 25; i++ {
+		if i > 0 {
+			query += ", "
+		}
+		name := strings.Repeat("col", 80) + strings.Repeat("x", i+1)
+		query += "'" + strings.Repeat("z", 400) + "' AS \"" + name + "\""
+	}
+	query += " FROM t"
+
+	result := callMCPSQL(t, context.Background(), query)
+	if result.IsError {
+		t.Fatalf("wide SQL query IsError = true: %s", mcpTextContent(t, result))
+	}
+	text, envelope := decodeMCPSQLEnvelope(t, result)
+	if len(text) > bound.MaxBytes {
+		t.Fatalf("wide SQL envelope length = %d, want <= %d", len(text), bound.MaxBytes)
+	}
+	if len(envelope.Columns) == 0 {
+		t.Fatalf("wide SQL result lost columns (preview fallback?): %s", text)
+	}
+	if envelope.Count == 0 && !envelope.Truncated {
+		t.Fatalf("wide SQL result returned no rows and did not truncate: %s", text)
+	}
+	if strings.Contains(text, `"preview"`) && !strings.Contains(text, `"columns"`) {
+		t.Fatalf("wide SQL result fell back to a generic preview: %s", text)
+	}
+}
+
+func TestMCPSQLCompleteResultNotTruncated(t *testing.T) {
+	setupEmptyMCPStore(t)
+	result := callMCPSQL(t, context.Background(), "SELECT 1 AS n")
+	if result.IsError {
+		t.Fatalf("complete SQL query IsError = true: %s", mcpTextContent(t, result))
+	}
+	text, envelope := decodeMCPSQLEnvelope(t, result)
+	if envelope.Truncated {
+		t.Fatalf("complete SQL result should not be truncated: %s", text)
+	}
+	if envelope.Count != 1 || len(envelope.Rows) != 1 {
+		t.Fatalf("complete SQL result = %s", text)
+	}
+	if envelope.ReturnedCount != 0 {
+		t.Fatalf("complete SQL result should omit returned_count, got %d in %s", envelope.ReturnedCount, text)
+	}
+}
+
+func TestMCPSQLAggregateKeepsOriginalSemantics(t *testing.T) {
+	setupEmptyMCPStore(t)
+	result := callMCPSQL(t, context.Background(), "SELECT COUNT(*) AS n FROM resources")
+	if result.IsError {
+		t.Fatalf("aggregate SQL query IsError = true: %s", mcpTextContent(t, result))
+	}
+	text, envelope := decodeMCPSQLEnvelope(t, result)
+	if envelope.Truncated {
+		t.Fatalf("aggregate SQL result should not be truncated: %s", text)
+	}
+	if envelope.Count != 1 || len(envelope.Rows) != 1 {
+		t.Fatalf("aggregate SQL should return one row: %s", text)
+	}
+	n, ok := envelope.Rows[0]["n"]
+	if !ok {
+		t.Fatalf("aggregate SQL missing n: %s", text)
+	}
+	switch v := n.(type) {
+	case float64:
+		if v != 0 {
+			t.Fatalf("COUNT(*) = %v, want 0", v)
+		}
+	default:
+		t.Fatalf("COUNT(*) type = %T value = %#v, want numeric 0", n, n)
+	}
+}
+
+func TestMCPSQLOversizedValueIsRefused(t *testing.T) {
+	setupEmptyMCPStore(t)
+	result := callMCPSQL(t, context.Background(), "SELECT hex(zeroblob(100000000)) AS blob")
+	if result == nil || !result.IsError {
+		t.Fatalf("oversized SQL value IsError = %v, want true: %s", result != nil && result.IsError, mcpTextContent(t, result))
+	}
+	text := mcpTextContent(t, result)
+	if !strings.Contains(text, "4194304") && !strings.Contains(text, "4 MiB") {
+		t.Fatalf("oversized SQL error %q must name the 4 MiB value cap", text)
+	}
+}
+
+func TestMCPSQLValueOneByteUnderCapReturns(t *testing.T) {
+	setupEmptyMCPStore(t)
+	if want := 4<<20 - 1; mcpSQLMaxValueBytes-1 != want {
+		t.Fatalf("mcpSQLMaxValueBytes-1 = %d, boundary query assumes %d", mcpSQLMaxValueBytes-1, want)
+	}
+	result := callMCPSQL(t, context.Background(), "SELECT zeroblob(4194303) AS blob")
+	if result.IsError {
+		t.Fatalf("one-byte-under-cap SQL query IsError = true: %s", mcpTextContent(t, result))
+	}
+	text, envelope := decodeMCPSQLEnvelope(t, result)
+	if envelope.Count == 0 && !envelope.Truncated {
+		t.Fatalf("one-byte-under-cap SQL result returned no rows: %s", text)
+	}
+}
+
+func TestMCPSQLLaterRowOversizedValueIsRefused(t *testing.T) {
+	setupEmptyMCPStore(t)
+	result := callMCPSQL(t, context.Background(), `WITH t(n) AS (SELECT 1 UNION ALL SELECT 2)
+SELECT CASE WHEN n = 1 THEN hex(zeroblob(1)) ELSE hex(zeroblob(100000000)) END AS blob FROM t`)
+	if result == nil || !result.IsError {
+		t.Fatalf("later-row oversized SQL value IsError = %v, want true: %s", result != nil && result.IsError, mcpTextContent(t, result))
+	}
+	text := mcpTextContent(t, result)
+	if !strings.Contains(text, "4194304") && !strings.Contains(text, "4 MiB") {
+		t.Fatalf("later-row oversized SQL error %q must name the 4 MiB value cap", text)
+	}
+}
+
+func TestMCPSQLCallerDeadlineCancelsSlowQuery(t *testing.T) {
+	setupEmptyMCPStore(t)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Nanosecond)
+	cancel()
+	start := time.Now()
+	result := callMCPSQL(t, ctx, `WITH RECURSIVE t(x) AS (
+		SELECT 1
+		UNION ALL
+		SELECT x+1 FROM t WHERE x < 8000000
+	) SELECT COUNT(*) AS n FROM t`)
+	elapsed := time.Since(start)
+	if elapsed > 2*time.Second {
+		t.Fatalf("cancelled SQL query was not bounded, elapsed %s", elapsed)
+	}
+	if !result.IsError {
+		t.Fatalf("slow SQL query IsError = false, want deadline error: %s", mcpTextContent(t, result))
+	}
+	text := mcpTextContent(t, result)
+	if !strings.Contains(strings.ToLower(text), "deadline") && !strings.Contains(strings.ToLower(text), "cancel") {
+		t.Fatalf("slow SQL error %q should mention deadline or cancel", text)
 	}
 }
 
@@ -591,6 +918,37 @@ func TestMCPToolResultTextBoundsOversizedNonGETResponses(t *testing.T) {
 	}
 	if envelope.Preview == "" {
 		t.Fatalf("preview result should include a bounded preview")
+	}
+}
+
+func TestMCPToolErrorBoundsEndpointErrors(t *testing.T) {
+	message := "provider returned HTTP 500: " + strings.Repeat("z", bound.MaxBytes+10000)
+	result := mcpToolError(message)
+	if !result.IsError {
+		t.Fatal("mcpToolError must mark the result as an error")
+	}
+
+	text := mcpTextContent(t, result)
+	if len(text) > bound.MaxBytes {
+		t.Fatalf("bounded endpoint error length = %d, want <= %d", len(text), bound.MaxBytes)
+	}
+
+	var envelope struct {
+		Truncated     bool   `json:"truncated"`
+		OriginalBytes int    `json:"original_bytes"`
+		Preview       string `json:"preview"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("bounded endpoint error must remain JSON: %v\\n%s", err, text)
+	}
+	if !envelope.Truncated {
+		t.Fatalf("bounded endpoint error did not mark truncation: %s", text)
+	}
+	if envelope.OriginalBytes != len(message) {
+		t.Fatalf("original_bytes = %d, want %d", envelope.OriginalBytes, len(message))
+	}
+	if envelope.Preview == "" {
+		t.Fatal("bounded endpoint error should include a preview")
 	}
 }
 
