@@ -1,0 +1,126 @@
+{
+  "status": "pass",
+  "coverage_hollow": false,
+  "hollow_features": [],
+  "matrix_size": 132,
+  "passed": 132,
+  "tests": [
+    {
+      "command": "hostels compare",
+      "status": "pass",
+      "dry_run": false,
+      "args": [
+        "hostels",
+        "compare",
+        "67481",
+        "15725",
+        "--check-in",
+        "2026-10-04",
+        "--check-out",
+        "2026-10-07",
+        "--guests",
+        "2",
+        "--agent"
+      ],
+      "source_live": true,
+      "has_price_units": false,
+      "sample_length": 4088,
+      "sample_prefix": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"comparison_basis\": \"derived whole-party stay estimates; curr"
+    },
+    {
+      "command": "hostels dates",
+      "status": "pass",
+      "dry_run": false,
+      "args": [
+        "hostels",
+        "dates",
+        "67481",
+        "--starts",
+        "2026-10-04,2026-10-05",
+        "--nights",
+        "3",
+        "--guests",
+        "2",
+        "--agent"
+      ],
+      "source_live": true,
+      "has_price_units": true,
+      "sample_length": 4108,
+      "sample_prefix": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"coverage\": \"each window has its own dated source request; mi"
+    },
+    {
+      "command": "hostels inspect",
+      "status": "pass",
+      "dry_run": false,
+      "args": [
+        "hostels",
+        "inspect",
+        "67481",
+        "--agent"
+      ],
+      "source_live": true,
+      "has_price_units": false,
+      "sample_length": 4094,
+      "sample_prefix": "{\"meta\":{\"source\":\"live\"},\"results\":{\"active\":[\"Affiliate\",\"Hostelworld\",\"BBW\"],\"canonical_url\":\"https://www.hostelworld"
+    },
+    {
+      "command": "hostels offers",
+      "status": "pass",
+      "dry_run": false,
+      "args": [
+        "hostels",
+        "offers",
+        "67481",
+        "--check-in",
+        "2026-10-04",
+        "--check-out",
+        "2026-10-07",
+        "--guests",
+        "2",
+        "--agent"
+      ],
+      "source_live": true,
+      "has_price_units": true,
+      "sample_length": 4108,
+      "sample_prefix": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"booking_url\": \"https://www.hostelworld.com/pwa/hosteldetails"
+    },
+    {
+      "command": "hostels saved",
+      "status": "pass",
+      "dry_run": false,
+      "args": [
+        "hostels",
+        "saved",
+        "--agent"
+      ],
+      "source_live": false,
+      "has_price_units": false,
+      "sample_length": 221,
+      "sample_prefix": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"freshness\": \"stale\",\n    \"notice\": \"saved dated prices are "
+    },
+    {
+      "command": "hostels search",
+      "status": "pass",
+      "dry_run": false,
+      "args": [
+        "hostels",
+        "search",
+        "--city-id",
+        "452",
+        "--check-in",
+        "2026-10-04",
+        "--check-out",
+        "2026-10-07",
+        "--guests",
+        "2",
+        "--limit",
+        "5",
+        "--agent"
+      ],
+      "source_live": true,
+      "has_price_units": false,
+      "sample_length": 3898,
+      "sample_prefix": "{\"meta\":{\"source\":\"live\"},\"results\":{\"city_id\":\"452\",\"filter_scope\":\"matching non-null source from-prices on one bounded"
+    }
+  ]
+}

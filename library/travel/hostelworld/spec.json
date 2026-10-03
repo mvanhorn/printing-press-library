@@ -1,0 +1,370 @@
+{
+  "name": "hostelworld",
+  "description": "Dated hostel bed and private-room planning with explicit price units and terms",
+  "version": "0.1.0",
+  "base_url": "https://prod.apigee.hostelworld.com",
+  "http_transport": "standard",
+  "health_check_path": "/legacy-hwapi-service/2.2/properties/67481/?application=web",
+  "auth": {
+    "type": "none"
+  },
+  "config": {
+    "format": "toml",
+    "path": "~/.config/hostelworld-pp-cli/config.toml"
+  },
+  "resources": {
+    "source": {
+      "description": "Observed read-only Hostelworld source contracts",
+      "endpoints": {
+        "locations": {
+          "method": "GET",
+          "path": "/autocomplete-service/v1/autocomplete/web",
+          "description": "Public destination suggestions; application identifier bootstrapped transiently",
+          "params": [
+            {
+              "name": "text",
+              "type": "string",
+              "required": true,
+              "description": "Destination or property search text",
+              "flag_name": "query"
+            },
+            {
+              "name": "v",
+              "type": "string",
+              "required": false,
+              "description": "",
+              "default": "control"
+            }
+          ],
+          "response": {
+            "type": "array",
+            "item": "Destination"
+          },
+          "happy_args": "--query=Osaka"
+        },
+        "property": {
+          "method": "GET",
+          "path": "/legacy-hwapi-service/2.2/properties/{id}/",
+          "description": "Public property facts and source rules",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "description": "Source numeric property ID",
+              "positional": true
+            },
+            {
+              "name": "application",
+              "type": "string",
+              "required": false,
+              "description": "",
+              "default": "web"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Property"
+          },
+          "happy_args": "id=67481"
+        },
+        "availability": {
+          "method": "GET",
+          "path": "/legacy-hwapi-service/2.2/properties/{id}/availability/",
+          "description": "Dated per-bed/per-room availability; source totals retain their units",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "description": "Source numeric property ID",
+              "positional": true
+            },
+            {
+              "name": "date-start",
+              "type": "string",
+              "required": true,
+              "description": "Explicit check-in YYYY-MM-DD",
+              "flag_name": "check-in"
+            },
+            {
+              "name": "num-nights",
+              "type": "int",
+              "required": true,
+              "description": "Stay length in nights",
+              "flag_name": "nights"
+            },
+            {
+              "name": "guests",
+              "type": "int",
+              "required": false,
+              "description": "Requested guests",
+              "default": 2
+            },
+            {
+              "name": "application",
+              "type": "string",
+              "required": false,
+              "description": "",
+              "default": "web"
+            },
+            {
+              "name": "show-rate-restrictions",
+              "type": "bool",
+              "required": false,
+              "description": "",
+              "default": true
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Availability"
+          },
+          "happy_args": "id=67481;--check-in=2026-10-04;--nights=3;--guests=2"
+        },
+        "city-search": {
+          "method": "GET",
+          "path": "/legacy-hwapi-service/2.2/cities/{id}/properties/",
+          "description": "Dated bounded city discovery; summary from-prices are not room quotes",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "description": "Resolved source city ID",
+              "positional": true
+            },
+            {
+              "name": "date-start",
+              "type": "string",
+              "required": true,
+              "description": "Explicit check-in YYYY-MM-DD",
+              "flag_name": "check-in"
+            },
+            {
+              "name": "num-nights",
+              "type": "int",
+              "required": true,
+              "description": "Stay length in nights",
+              "flag_name": "nights"
+            },
+            {
+              "name": "guests",
+              "type": "int",
+              "required": false,
+              "description": "Requested guests",
+              "default": 2
+            },
+            {
+              "name": "application",
+              "type": "string",
+              "required": false,
+              "description": "",
+              "default": "web"
+            },
+            {
+              "name": "currency",
+              "type": "string",
+              "required": false,
+              "description": "",
+              "default": "JPY"
+            },
+            {
+              "name": "per-page",
+              "type": "int",
+              "required": false,
+              "description": "",
+              "default": 10,
+              "flag_name": "page-size"
+            },
+            {
+              "name": "page",
+              "type": "int",
+              "required": false,
+              "description": "",
+              "default": 1
+            },
+            {
+              "name": "show-rooms",
+              "type": "int",
+              "required": false,
+              "description": "",
+              "default": 1
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "CitySearch"
+          },
+          "happy_args": "id=452;--check-in=2026-10-04;--nights=3;--guests=2;--page-size=5"
+        }
+      }
+    }
+  },
+  "types": {
+    "Destination": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "int"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "englishName",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        },
+        {
+          "name": "city",
+          "type": "object"
+        }
+      ]
+    },
+    "Property": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "transName",
+          "type": "string"
+        },
+        {
+          "name": "currency",
+          "type": "string"
+        },
+        {
+          "name": "isActive",
+          "type": "bool"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        },
+        {
+          "name": "checkIn",
+          "type": "object"
+        },
+        {
+          "name": "latestCheckOut",
+          "type": "string"
+        },
+        {
+          "name": "maxNumberOfGuestsPerBooking",
+          "type": "int"
+        },
+        {
+          "name": "city",
+          "type": "object"
+        },
+        {
+          "name": "facilities",
+          "type": "array"
+        },
+        {
+          "name": "policies",
+          "type": "array"
+        },
+        {
+          "name": "thingsToNote",
+          "type": "array"
+        },
+        {
+          "name": "taxInfo",
+          "type": "object"
+        },
+        {
+          "name": "feeInfo",
+          "type": "object"
+        }
+      ]
+    },
+    "Availability": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "rooms",
+          "type": "object"
+        },
+        {
+          "name": "cancellationPolicies",
+          "type": "array"
+        },
+        {
+          "name": "depositPercentage",
+          "type": "float"
+        },
+        {
+          "name": "freeCancellationAvailable",
+          "type": "bool"
+        },
+        {
+          "name": "freeCancellationAvailableUntil",
+          "type": "string"
+        },
+        {
+          "name": "specialEventConditions",
+          "type": "object"
+        }
+      ]
+    },
+    "CitySearch": {
+      "fields": [
+        {
+          "name": "properties",
+          "type": "array"
+        },
+        {
+          "name": "location",
+          "type": "object"
+        },
+        {
+          "name": "pagination",
+          "type": "object"
+        }
+      ]
+    }
+  },
+  "category": "travel",
+  "cache": {
+    "enabled": false
+  },
+  "learn": {
+    "entity_lookup_seeds": {
+      "destination": [
+        {
+          "canonical": "Tokyo, Japan",
+          "aliases": [
+            "tokyo"
+          ]
+        },
+        {
+          "canonical": "Osaka, Japan",
+          "aliases": [
+            "osaka"
+          ]
+        },
+        {
+          "canonical": "Kyoto, Japan",
+          "aliases": [
+            "kyoto"
+          ]
+        }
+      ]
+    }
+  }
+}

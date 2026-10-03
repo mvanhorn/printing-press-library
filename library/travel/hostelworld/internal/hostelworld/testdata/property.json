@@ -1,0 +1,377 @@
+{
+  "id": "67481",
+  "name": "Nui. Hostel & Bar Lounge",
+  "transName": "Nui. Hostel & Bar Lounge",
+  "currency": "JPY",
+  "isActive": [
+    "Affiliate",
+    "Hostelworld",
+    "BBW"
+  ],
+  "type": "HOSTEL",
+  "checkIn": {
+    "startsAt": "16",
+    "endsAt": "23"
+  },
+  "maxNumberOfGuestsPerBooking": 8,
+  "latestCheckOut": "11:00",
+  "rating": {
+    "valueForMoney": 94,
+    "security": 96,
+    "location": 91,
+    "staff": 96,
+    "atmosphere": 92,
+    "cleanliness": 96,
+    "facilities": 95,
+    "overall": 94
+  },
+  "totalRatings": "2569",
+  "facilities": [
+    {
+      "numericId": 2,
+      "name": "General",
+      "id": "FACILITYCATEGORYGENERAL",
+      "facilities": [
+        {
+          "numericId": 78,
+          "name": "Adaptors",
+          "id": "ADAPTORS"
+        },
+        {
+          "numericId": 28,
+          "name": "Bicycle Parking",
+          "id": "BICYCLEPARKING"
+        },
+        {
+          "numericId": 51,
+          "name": "Meeting Rooms",
+          "id": "MEETINGROOM"
+        }
+      ]
+    },
+    {
+      "numericId": 3,
+      "name": "Services",
+      "id": "FACILITYCATEGORYSERVICES",
+      "facilities": [
+        {
+          "numericId": 121,
+          "name": "Housekeeping",
+          "id": "HOUSEKEEPING"
+        },
+        {
+          "numericId": 15,
+          "name": "Luggage Storage",
+          "id": "LUGGAGESTORAGE"
+        },
+        {
+          "numericId": 153,
+          "name": "Reception (limited hours)",
+          "id": "RECEPTIONLIMITEDHOURS"
+        }
+      ]
+    },
+    {
+      "numericId": 5,
+      "name": "Entertainment",
+      "id": "FACILITYCATEGORYENTERTAINMENT",
+      "facilities": [
+        {
+          "numericId": 95,
+          "name": "Board Games",
+          "id": "BOARDGAMES"
+        },
+        {
+          "numericId": 4,
+          "name": "Internet Access",
+          "id": "INTERNETACCESS"
+        },
+        {
+          "numericId": 133,
+          "name": "Wi-Fi",
+          "id": "WIFI"
+        }
+      ]
+    },
+    {
+      "numericId": 4,
+      "name": "Food & Drinks",
+      "id": "FACILITYCATEGORYFOODANDDRINKS",
+      "facilities": [
+        {
+          "numericId": 12,
+          "name": "Bar",
+          "id": "BAR"
+        },
+        {
+          "numericId": 117,
+          "name": "Caf\u00e9",
+          "id": "CAF"
+        },
+        {
+          "numericId": 83,
+          "name": "Meals Available",
+          "id": "MEALSAVAILABLE"
+        },
+        {
+          "numericId": 2,
+          "name": "Restaurant",
+          "id": "RESTAURANT"
+        },
+        {
+          "numericId": 125,
+          "name": "Tea & Coffee Making Facilities",
+          "id": "TEACOFFEEMAKINGFACILITIES"
+        }
+      ]
+    },
+    {
+      "numericId": 8,
+      "name": "Laundry",
+      "id": "FACILITYCATEGORYLAUNDRY",
+      "facilities": [
+        {
+          "numericId": 102,
+          "name": "Dryer",
+          "id": "DRYER"
+        },
+        {
+          "numericId": 368,
+          "name": "Free Iron / Ironing Board",
+          "id": "FREEIRONIRONINGBOARD"
+        },
+        {
+          "numericId": 5,
+          "name": "Laundry Facilities",
+          "id": "LAUNDRYFACILITIES"
+        },
+        {
+          "numericId": 131,
+          "name": "Washing Machine",
+          "id": "WASHINGMACHINE"
+        }
+      ]
+    },
+    {
+      "numericId": 15,
+      "name": "Available for a Fee",
+      "id": "FACILITYCATEGORYAVAILABLEFORAFEE",
+      "facilities": [
+        {
+          "numericId": 7,
+          "name": "Bicycle Hire",
+          "id": "BICYCLEHIRE"
+        },
+        {
+          "numericId": 37,
+          "name": "Breakfast Not Included",
+          "id": "BREAKFASTNOTINCLUDED"
+        }
+      ]
+    },
+    {
+      "numericId": 13,
+      "name": "Bedroom",
+      "id": "FACILITYCATEGORYBEDROOM",
+      "facilities": [
+        {
+          "numericId": 50,
+          "name": "Air Conditioning",
+          "id": "AIRCONDITIONING"
+        },
+        {
+          "numericId": 119,
+          "name": "Hair Dryers",
+          "id": "HAIRDRYERS"
+        },
+        {
+          "numericId": 9,
+          "name": "Linen Included",
+          "id": "LINENINCLUDED"
+        },
+        {
+          "numericId": 111,
+          "name": "Reading Light",
+          "id": "READINGLIGHT"
+        },
+        {
+          "numericId": 87,
+          "name": "Towels Included",
+          "id": "TOWELSINCLUDED"
+        }
+      ]
+    },
+    {
+      "numericId": 11,
+      "name": "Safety & Security",
+      "id": "FACILITYCATEGORYSAFETYANDSECURITY",
+      "facilities": [
+        {
+          "numericId": 14,
+          "name": "Security Lockers",
+          "id": "LOCKERS"
+        }
+      ]
+    },
+    {
+      "numericId": 12,
+      "name": "Social Areas",
+      "id": "FACILITYCATEGORYSOCIALAREAS",
+      "facilities": [
+        {
+          "numericId": 24,
+          "name": "Common Room",
+          "id": "COMMONROOM"
+        }
+      ]
+    },
+    {
+      "numericId": 7,
+      "name": "Accessibility",
+      "id": "FACILITYCATEGORYACCESSIBILITY",
+      "facilities": [
+        {
+          "numericId": 27,
+          "name": "Elevator",
+          "id": "ELEVATOR"
+        }
+      ]
+    },
+    {
+      "numericId": 1,
+      "name": "Free",
+      "id": "FACILITYCATEGORYFREE",
+      "facilities": [
+        {
+          "numericId": 80,
+          "name": "Free City Maps",
+          "id": "FREECITYMAPS"
+        },
+        {
+          "numericId": 103,
+          "name": "Free Internet Access",
+          "id": "FREEINTERNETACCESS"
+        },
+        {
+          "numericId": 90,
+          "name": "Free WiFi",
+          "id": "FREEWIFI"
+        }
+      ]
+    },
+    {
+      "numericId": 9,
+      "name": "Wellness",
+      "id": "FACILITYCATEGORYWELLNESS",
+      "facilities": [
+        {
+          "numericId": 81,
+          "name": "Hot Showers",
+          "id": "HOTSHOWERS"
+        }
+      ]
+    },
+    {
+      "numericId": 6,
+      "name": "Kitchen",
+      "id": "FACILITYCATEGORYKITCHEN",
+      "facilities": [
+        {
+          "numericId": 100,
+          "name": "Fridge/Freezer",
+          "id": "FRIDGEFREEZER"
+        },
+        {
+          "numericId": 124,
+          "name": "Microwave",
+          "id": "MICROWAVE"
+        },
+        {
+          "numericId": 92,
+          "name": "Self-Catering Facilities",
+          "id": "KITCHEN"
+        },
+        {
+          "numericId": 101,
+          "name": "Utensils",
+          "id": "UTENSILS"
+        }
+      ]
+    }
+  ],
+  "latitude": "35.7038859",
+  "longitude": "139.7933951",
+  "address1": "2-14-13, Kuramae,",
+  "address2": "Taito-ku",
+  "city": {
+    "id": "452",
+    "name": "Tokyo",
+    "country": "Japan",
+    "idCountry": "107"
+  },
+  "paymentMethods": [
+    "Electron",
+    "JCB",
+    "Laser",
+    "Maestro",
+    "Mastercard",
+    "Visa",
+    "VisaDebit"
+  ],
+  "payments": {
+    "payNow": false
+  },
+  "depositPercentage": 12,
+  "cancellationPolicy": {
+    "depositOnly": {
+      "description": "This property has a 0 day cancellation policy. Failure to cancel within this time will result in a cancellation charge equal to the first night of your stay, unless otherwise stated (see 'Things to Note' information).",
+      "numberOfDays": "0"
+    },
+    "nonRefundable": {
+      "description": "Your booking is non-refundable. If you choose to cancel your booking, or in the case of a no-show, you will still be charged the full cost of your booking."
+    },
+    "freeCancellation": {
+      "description": "Your booking can be cancelled for free, if you cancel your booking 0 hours before arrival your deposit will be refunded to your payment card.  If you cancel within 0 hours, your deposit will not be refunded and the total of the first night's accommodation will be charged to your payment card."
+    }
+  },
+  "freeCancellation": {
+    "isAvailable": true,
+    "daysInAdvance": 1
+  },
+  "thingsToNote": [
+    "\u25c6 Payment\r\nHostelworld charges a deposit at the time of booking. The remaining balance, after deducting the deposit, must be paid directly to the hostel at check-in.\r\nWe accept cash in Japanese yen and credit cards.\r\n\r\n\u25c6 Check-in\r\nRegular check-in is available from 4:00 pm to 11:00 pm.\r\nLate check-in between 11:00 pm and midnight is available only with advance notice and is subject to an additional fee of JPY 500 per person.\r\nCheck-in after midnight is not available.\r\n\r\n\u25c6 Dormitory Room Allocation\r\nIf two or more guests book beds in a dormitory, we may be unable to assign everyone to the same room, depending on availability.\r\n\r\n\u25c6 Age Requirement\r\nGuests aged 6 or younger are not permitted to stay at the hostel.\r\n\r\n\u25c6 Cancellation Policy\r\nCancellation deadlines are based on Japan Standard Time.\r\nIf you cancel on your scheduled check-in date, you will be charged the remaining balance of the first night\u2019s accommodation fee, after deducting the deposit paid at the time of booking.\r\n\r\n\u25c6 No-Show Policy\r\nIf you do not arrive on your scheduled check-in date and do not contact us, you will be charged the remaining balance of the first night\u2019s accommodation fee, after deducting the deposit paid at the time of booking.\r\nAny remaining nights in the reservation may be cancelled on the following day.\r\n\r\n\u25c6 Guest Name\r\nWhen making a reservation, please enter the guest\u2019s full name in Roman letters exactly as it appears on their passport."
+  ],
+  "policies": [
+    "Taxes Included"
+  ],
+  "groupInformation": {
+    "additionalTerms": "",
+    "cancellationTerms": "cancellation policy\r\n:From 7 days before check-in date\r\n:Full amount of accommodation fee for all dates",
+    "listingInfo": "",
+    "groupTerms": "",
+    "remainderDue": "2 weeks prior to arrival.",
+    "groupMaxPax": 10,
+    "groupTypesAccepted": {
+      "1": "Holiday with Friends",
+      "4": "College / University",
+      "5": "Business Trip",
+      "7": "Sports Group",
+      "8": "Cultural Group"
+    },
+    "ageRangesAccepted": {
+      "3": "18-21",
+      "4": "21-35",
+      "5": "35-50",
+      "6": "50+"
+    }
+  },
+  "propertyExtraInfo": "",
+  "taxInfo": {
+    "included": true,
+    "taxes": []
+  },
+  "feeInfo": {
+    "included": true,
+    "fees": []
+  }
+}

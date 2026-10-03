@@ -1,0 +1,173 @@
+{
+  "id": "67481",
+  "cancellationPolicies": [
+    {
+      "label": "Free Cancellation rates",
+      "description": "If you cancel your booking before 23:59 3rd Oct 2026 (JST) your deposit will be refunded to your payment card. If you cancel after 23:59 3rd Oct 2026 (JST) or in the event of a no-show, your deposit will not be refunded and the total of the first night's accommodation will be charged to your payment card, unless otherwise stated (see 'Things to Note' information). Please note that cancellations must be made directly within your booking in My Account."
+    }
+  ],
+  "depositPercentage": 12,
+  "rooms": {
+    "dorms": [
+      {
+        "id": 575285,
+        "token": "x8_MixedXDorm_0_BASIC__",
+        "name": "Basic 8 Bed Mixed Dorm",
+        "description": "Dormitory style and range in size from 2 beds upwards.  They offer mixed accommodation.",
+        "labelDescription": "",
+        "capacity": "8",
+        "ensuite": "0",
+        "basicType": "Mixed Dorm",
+        "extendedType": "",
+        "grade": "Basic",
+        "bathroomFacilities": [],
+        "mealPlan": "",
+        "view": "",
+        "bedTypes": [],
+        "facilities": [],
+        "totalBedsAvailable": 7,
+        "totalRoomsAvailable": null,
+        "numberOfGuestsPerRoom": null,
+        "ratePlans": [
+          {
+            "id": 208596,
+            "paymentProcedure": {
+              "id": "depositPayable",
+              "label": "Deposit only",
+              "description": "<b>Deposit only</b><br>\nYour deposit will be non-refundable unless the Standard Flexible Booking option is available and you select it. T&C apply."
+            },
+            "isDefault": true,
+            "rateRuleViolations": [],
+            "ratePlanType": "STANDARD"
+          },
+          {
+            "id": 711934,
+            "paymentProcedure": {
+              "id": "depositPayable",
+              "label": "Deposit only",
+              "description": "<b>Deposit only</b><br>\nYour deposit will be non-refundable unless the Standard Flexible Booking option is available and you select it. T&C apply."
+            },
+            "isDefault": false,
+            "rateRuleViolations": [],
+            "ratePlanType": "BED_AND_BREAKFAST"
+          }
+        ],
+        "averagePricePerNight": [
+          {
+            "ratePlan": 208596,
+            "price": {
+              "value": "5636.67",
+              "currency": "JPY"
+            }
+          },
+          {
+            "ratePlan": 711934,
+            "price": {
+              "value": "6636.67",
+              "currency": "JPY"
+            }
+          }
+        ],
+        "lowestPricePerNight": {
+          "value": "5510.00",
+          "currency": "JPY"
+        },
+        "conditions": [],
+        "totalPrice": [
+          {
+            "ratePlan": 208596,
+            "price": {
+              "value": "16910.00",
+              "currency": "JPY"
+            }
+          },
+          {
+            "ratePlan": 711934,
+            "price": {
+              "value": "19910.00",
+              "currency": "JPY"
+            }
+          }
+        ],
+        "priceBreakdown": [
+          {
+            "ratePlan": 208596,
+            "date": "2026-10-04",
+            "price": {
+              "value": "5890.00",
+              "currency": "JPY"
+            }
+          },
+          {
+            "ratePlan": 208596,
+            "date": "2026-10-05",
+            "price": {
+              "value": "5510.00",
+              "currency": "JPY"
+            }
+          },
+          {
+            "ratePlan": 208596,
+            "date": "2026-10-06",
+            "price": {
+              "value": "5510.00",
+              "currency": "JPY"
+            }
+          },
+          {
+            "ratePlan": 711934,
+            "date": "2026-10-04",
+            "price": {
+              "value": "6890.00",
+              "currency": "JPY"
+            }
+          },
+          {
+            "ratePlan": 711934,
+            "date": "2026-10-05",
+            "price": {
+              "value": "6510.00",
+              "currency": "JPY"
+            }
+          },
+          {
+            "ratePlan": 711934,
+            "date": "2026-10-06",
+            "price": {
+              "value": "6510.00",
+              "currency": "JPY"
+            }
+          }
+        ]
+      }
+    ],
+    "privates": []
+  },
+  "specialEventConditions": null,
+  "freeCancellation": {
+    "label": "Free Cancellation rates",
+    "description": "If you cancel your booking before 23:59 3rd Oct 2026 (JST) your deposit will be refunded to your payment card. If you cancel after 23:59 3rd Oct 2026 (JST) or in the event of a no-show, your deposit will not be refunded and the total of the first night's accommodation will be charged to your payment card, unless otherwise stated (see 'Things to Note' information). Please note that cancellations must be made directly within your booking in My Account."
+  },
+  "lowestPricePerNight": {
+    "value": "5510.00",
+    "currency": "JPY"
+  },
+  "lowestPrivatePricePerNight": null,
+  "lowestDormPricePerNight": {
+    "value": "5510.00",
+    "currency": "JPY"
+  },
+  "lowestAveragePricePerNight": {
+    "value": "5636.67",
+    "currency": "JPY"
+  },
+  "lowestAverageDormPricePerNight": {
+    "value": "5636.67",
+    "currency": "JPY"
+  },
+  "lowestAveragePrivatePricePerNight": null,
+  "freeCancellationAvailable": true,
+  "freeCancellationAvailableUntil": "2026-10-03T23:59:59+09:00",
+  "promotions": [],
+  "vat": 0
+}

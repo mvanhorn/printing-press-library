@@ -1,0 +1,5 @@
+Manifest transcendence rows: 5 planned, 0 built. Phase 3 will not pass until all 5 ship.
+
+All five integrated features ship. Full Go tests/vet and CLI/MCP builds passed; eight live behavior assertions passed. Source units, unknown/restricted inventory, cancellation expiry, schema drift, contributor-profile exclusion and failure-body redaction have meaningful tests. Literal Cobra constructors and source annotations resolve all five planned features. Planning snapshots are manually saved and bounded; generic sync is hidden from help/MCP and explicitly initializes only the local cache with local_cache_only/provider_snapshot_refreshed=false. No approved feature is deferred or stubbed.
+
+Final acceptance expanded to117/117 after adding real help examples through the preserved hook. Same-reviewer convergence and exact staged/MCPB identity are cleared. Native canonical URLs include the source-name label; bare-ID404 routes are not emitted. No source booking/payment/account operation was implemented or executed.

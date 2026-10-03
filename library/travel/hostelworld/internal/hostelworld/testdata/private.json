@@ -1,0 +1,525 @@
+{
+  "id": "15725",
+  "cancellationPolicies": [
+    {
+      "label": "Deposit Only rates",
+      "description": "This property has a 2 day cancellation policy. Failure to cancel within this time will result in a cancellation charge equal to the first night of your stay, unless otherwise stated (see 'Things to Note' information)."
+    }
+  ],
+  "depositPercentage": 12,
+  "rooms": {
+    "dorms": [
+      {
+        "id": 3751,
+        "token": "x8_FemaleXDorm_0___",
+        "name": "8 Bed Female Dorm",
+        "description": "Female dormitory style and range in size from 2 beds upwards.  They offer female accommodation.",
+        "labelDescription": "",
+        "capacity": "8",
+        "ensuite": "0",
+        "basicType": "Female Dorm",
+        "extendedType": "",
+        "grade": "",
+        "bathroomFacilities": [],
+        "mealPlan": "",
+        "view": "",
+        "bedTypes": [],
+        "facilities": [],
+        "totalBedsAvailable": 13,
+        "totalRoomsAvailable": null,
+        "numberOfGuestsPerRoom": null,
+        "ratePlans": [
+          {
+            "id": 180303,
+            "paymentProcedure": {
+              "id": "depositPayable",
+              "label": "Deposit only",
+              "description": "<b>Deposit only</b><br>\nYour deposit will be non-refundable unless the Standard Flexible Booking option is available and you select it. T&C apply."
+            },
+            "isDefault": true,
+            "rateRuleViolations": [],
+            "ratePlanType": "STANDARD"
+          }
+        ],
+        "averagePricePerNight": [
+          {
+            "ratePlan": 180303,
+            "price": {
+              "value": "2996.00",
+              "currency": "JPY"
+            },
+            "originalPrice": {
+              "value": "2996.00",
+              "currency": "JPY"
+            }
+          }
+        ],
+        "lowestPricePerNight": {
+          "value": "2880.00",
+          "currency": "JPY"
+        },
+        "conditions": [],
+        "totalPrice": [
+          {
+            "ratePlan": 180303,
+            "price": {
+              "value": "8988.00",
+              "currency": "JPY"
+            },
+            "originalPrice": {
+              "value": "8988.00",
+              "currency": "JPY"
+            }
+          }
+        ],
+        "priceBreakdown": [
+          {
+            "ratePlan": 180303,
+            "date": "2026-10-04",
+            "price": {
+              "value": "3054.00",
+              "currency": "JPY"
+            }
+          },
+          {
+            "ratePlan": 180303,
+            "date": "2026-10-05",
+            "price": {
+              "value": "3054.00",
+              "currency": "JPY"
+            }
+          },
+          {
+            "ratePlan": 180303,
+            "date": "2026-10-06",
+            "price": {
+              "value": "2880.00",
+              "currency": "JPY"
+            }
+          }
+        ]
+      },
+      {
+        "id": 3750,
+        "token": "x8_MixedXDorm_0___",
+        "name": "8 Bed Mixed Dorm",
+        "description": "Dormitory style and range in size from 2 beds upwards.  They offer mixed accommodation.",
+        "labelDescription": "",
+        "capacity": "8",
+        "ensuite": "0",
+        "basicType": "Mixed Dorm",
+        "extendedType": "",
+        "grade": "",
+        "bathroomFacilities": [],
+        "mealPlan": "",
+        "view": "",
+        "bedTypes": [],
+        "facilities": [],
+        "totalBedsAvailable": 46,
+        "totalRoomsAvailable": null,
+        "numberOfGuestsPerRoom": null,
+        "ratePlans": [
+          {
+            "id": 180302,
+            "paymentProcedure": {
+              "id": "depositPayable",
+              "label": "Deposit only",
+              "description": "<b>Deposit only</b><br>\nYour deposit will be non-refundable unless the Standard Flexible Booking option is available and you select it. T&C apply."
+            },
+            "isDefault": true,
+            "rateRuleViolations": [],
+            "ratePlanType": "STANDARD"
+          }
+        ],
+        "averagePricePerNight": [
+          {
+            "ratePlan": 180302,
+            "price": {
+              "value": "2996.00",
+              "currency": "JPY"
+            },
+            "originalPrice": {
+              "value": "2996.00",
+              "currency": "JPY"
+            }
+          }
+        ],
+        "lowestPricePerNight": {
+          "value": "2880.00",
+          "currency": "JPY"
+        },
+        "conditions": [],
+        "totalPrice": [
+          {
+            "ratePlan": 180302,
+            "price": {
+              "value": "8988.00",
+              "currency": "JPY"
+            },
+            "originalPrice": {
+              "value": "8988.00",
+              "currency": "JPY"
+            }
+          }
+        ],
+        "priceBreakdown": [
+          {
+            "ratePlan": 180302,
+            "date": "2026-10-04",
+            "price": {
+              "value": "3054.00",
+              "currency": "JPY"
+            }
+          },
+          {
+            "ratePlan": 180302,
+            "date": "2026-10-05",
+            "price": {
+              "value": "3054.00",
+              "currency": "JPY"
+            }
+          },
+          {
+            "ratePlan": 180302,
+            "date": "2026-10-06",
+            "price": {
+              "value": "2880.00",
+              "currency": "JPY"
+            }
+          }
+        ]
+      }
+    ],
+    "privates": [
+      {
+        "id": 3749,
+        "token": "x4_Private_0___",
+        "name": "4 Bed Private Shared Bathroom",
+        "description": "In order to secure a Private Room, you will need to book the entire room.",
+        "labelDescription": "In order to secure a Private Room, you will need to book the entire room.\r\nShared Bathroom. Breakfast Included",
+        "capacity": "4",
+        "ensuite": "0",
+        "basicType": "Private",
+        "extendedType": "",
+        "grade": "",
+        "bathroomFacilities": [],
+        "mealPlan": "",
+        "view": "",
+        "bedTypes": [],
+        "facilities": [],
+        "totalBedsAvailable": 8,
+        "totalRoomsAvailable": 2,
+        "numberOfGuestsPerRoom": 4,
+        "ratePlans": [
+          {
+            "id": 180301,
+            "paymentProcedure": {
+              "id": "depositPayable",
+              "label": "Deposit only",
+              "description": "<b>Deposit only</b><br>\nYour deposit will be non-refundable unless the Standard Flexible Booking option is available and you select it. T&C apply."
+            },
+            "isDefault": true,
+            "rateRuleViolations": [],
+            "promotions": {
+              "promotionsIds": [
+                2637
+              ],
+              "totalDiscount": "13.00"
+            },
+            "ratePlanType": "STANDARD"
+          }
+        ],
+        "averagePricePerNight": [
+          {
+            "ratePlan": 180301,
+            "price": {
+              "value": "14936.16",
+              "currency": "JPY"
+            },
+            "originalPrice": {
+              "value": "17168.00",
+              "currency": "JPY"
+            }
+          }
+        ],
+        "lowestPricePerNight": {
+          "value": "13906.08",
+          "currency": "JPY"
+        },
+        "conditions": [],
+        "totalPrice": [
+          {
+            "ratePlan": 180301,
+            "price": {
+              "value": "44808.48",
+              "currency": "JPY"
+            },
+            "originalPrice": {
+              "value": "51504.00",
+              "currency": "JPY"
+            }
+          }
+        ],
+        "priceBreakdown": [
+          {
+            "ratePlan": 180301,
+            "date": "2026-10-04",
+            "price": {
+              "value": "3862.80",
+              "currency": "JPY"
+            }
+          },
+          {
+            "ratePlan": 180301,
+            "date": "2026-10-05",
+            "price": {
+              "value": "3862.80",
+              "currency": "JPY"
+            }
+          },
+          {
+            "ratePlan": 180301,
+            "date": "2026-10-06",
+            "price": {
+              "value": "3476.52",
+              "currency": "JPY"
+            }
+          }
+        ]
+      },
+      {
+        "id": 20703,
+        "token": "x6_Private_0___",
+        "name": "6 Bed Private Shared Bathroom",
+        "description": "In order to secure a Private Room, you will need to book the entire room.",
+        "labelDescription": "In order to secure a Private Room, you will need to book the entire room.\r\nShared Bathroom. Breakfast Included",
+        "capacity": "6",
+        "ensuite": "0",
+        "basicType": "Private",
+        "extendedType": "",
+        "grade": "",
+        "bathroomFacilities": [],
+        "mealPlan": "",
+        "view": "",
+        "bedTypes": [],
+        "facilities": [],
+        "totalBedsAvailable": 24,
+        "totalRoomsAvailable": 4,
+        "numberOfGuestsPerRoom": 6,
+        "ratePlans": [
+          {
+            "id": 180305,
+            "paymentProcedure": {
+              "id": "depositPayable",
+              "label": "Deposit only",
+              "description": "<b>Deposit only</b><br>\nYour deposit will be non-refundable unless the Standard Flexible Booking option is available and you select it. T&C apply."
+            },
+            "isDefault": true,
+            "rateRuleViolations": [],
+            "promotions": {
+              "promotionsIds": [
+                2637
+              ],
+              "totalDiscount": "13.00"
+            },
+            "ratePlanType": "STANDARD"
+          }
+        ],
+        "averagePricePerNight": [
+          {
+            "ratePlan": 180305,
+            "price": {
+              "value": "22858.38",
+              "currency": "JPY"
+            },
+            "originalPrice": {
+              "value": "26274.00",
+              "currency": "JPY"
+            }
+          }
+        ],
+        "lowestPricePerNight": {
+          "value": "21281.94",
+          "currency": "JPY"
+        },
+        "conditions": [],
+        "totalPrice": [
+          {
+            "ratePlan": 180305,
+            "price": {
+              "value": "68575.14",
+              "currency": "JPY"
+            },
+            "originalPrice": {
+              "value": "78822.00",
+              "currency": "JPY"
+            }
+          }
+        ],
+        "priceBreakdown": [
+          {
+            "ratePlan": 180305,
+            "date": "2026-10-04",
+            "price": {
+              "value": "3941.10",
+              "currency": "JPY"
+            }
+          },
+          {
+            "ratePlan": 180305,
+            "date": "2026-10-05",
+            "price": {
+              "value": "3941.10",
+              "currency": "JPY"
+            }
+          },
+          {
+            "ratePlan": 180305,
+            "date": "2026-10-06",
+            "price": {
+              "value": "3546.99",
+              "currency": "JPY"
+            }
+          }
+        ]
+      },
+      {
+        "id": 20704,
+        "token": "x8_Private_0___",
+        "name": "8 Bed Private Shared Bathroom",
+        "description": "In order to secure a Private Room, you will need to book the entire room.",
+        "labelDescription": "In order to secure a Private Room, you will need to book the entire room.\r\nShared Bathroom. Breakfast Included",
+        "capacity": "8",
+        "ensuite": "0",
+        "basicType": "Private",
+        "extendedType": "",
+        "grade": "",
+        "bathroomFacilities": [],
+        "mealPlan": "",
+        "view": "",
+        "bedTypes": [],
+        "facilities": [],
+        "totalBedsAvailable": 8,
+        "totalRoomsAvailable": 1,
+        "numberOfGuestsPerRoom": 8,
+        "ratePlans": [
+          {
+            "id": 180306,
+            "paymentProcedure": {
+              "id": "depositPayable",
+              "label": "Deposit only",
+              "description": "<b>Deposit only</b><br>\nYour deposit will be non-refundable unless the Standard Flexible Booking option is available and you select it. T&C apply."
+            },
+            "isDefault": true,
+            "rateRuleViolations": [],
+            "promotions": {
+              "promotionsIds": [
+                2637
+              ],
+              "totalDiscount": "13.00"
+            },
+            "ratePlanType": "STANDARD"
+          }
+        ],
+        "averagePricePerNight": [
+          {
+            "ratePlan": 180306,
+            "price": {
+              "value": "30477.84",
+              "currency": "JPY"
+            },
+            "originalPrice": {
+              "value": "35032.00",
+              "currency": "JPY"
+            }
+          }
+        ],
+        "lowestPricePerNight": {
+          "value": "28375.92",
+          "currency": "JPY"
+        },
+        "conditions": [],
+        "totalPrice": [
+          {
+            "ratePlan": 180306,
+            "price": {
+              "value": "91433.52",
+              "currency": "JPY"
+            },
+            "originalPrice": {
+              "value": "105096.00",
+              "currency": "JPY"
+            }
+          }
+        ],
+        "priceBreakdown": [
+          {
+            "ratePlan": 180306,
+            "date": "2026-10-04",
+            "price": {
+              "value": "3941.10",
+              "currency": "JPY"
+            }
+          },
+          {
+            "ratePlan": 180306,
+            "date": "2026-10-05",
+            "price": {
+              "value": "3941.10",
+              "currency": "JPY"
+            }
+          },
+          {
+            "ratePlan": 180306,
+            "date": "2026-10-06",
+            "price": {
+              "value": "3546.99",
+              "currency": "JPY"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "specialEventConditions": null,
+  "freeCancellation": {
+    "label": "Free Cancellation rates",
+    "description": "If you cancel your booking before 23:59 1st Oct 2026 (JST) your deposit will be refunded to your payment card. If you cancel after 23:59 1st Oct 2026 (JST) or in the event of a no-show, your deposit will not be refunded and the total of the first night's accommodation will be charged to your payment card, unless otherwise stated (see 'Things to Note' information). Please note that cancellations must be made directly within your booking in My Account."
+  },
+  "lowestPricePerNight": {
+    "value": "2880.00",
+    "currency": "JPY"
+  },
+  "lowestPrivatePricePerNight": {
+    "value": "13906.08",
+    "currency": "JPY"
+  },
+  "lowestDormPricePerNight": {
+    "value": "2880.00",
+    "currency": "JPY"
+  },
+  "lowestAveragePricePerNight": {
+    "value": "2996.00",
+    "currency": "JPY"
+  },
+  "lowestAverageDormPricePerNight": {
+    "value": "2996.00",
+    "currency": "JPY"
+  },
+  "lowestAveragePrivatePricePerNight": {
+    "value": "14936.16",
+    "currency": "JPY"
+  },
+  "freeCancellationAvailable": false,
+  "freeCancellationAvailableUntil": "2026-10-01T23:59:59+09:00",
+  "promotions": [
+    {
+      "id": 2637,
+      "type": "LOS",
+      "stack": false,
+      "name": "LENGTHOFSTAY",
+      "discount": 13
+    }
+  ],
+  "vat": 0
+}
