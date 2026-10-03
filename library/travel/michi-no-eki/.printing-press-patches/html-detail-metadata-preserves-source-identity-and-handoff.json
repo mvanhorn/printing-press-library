@@ -1,0 +1,19 @@
+{
+  "id": "html-detail-metadata-preserves-source-identity-and-handoff",
+  "schema_version": 2,
+  "summary": "Preserve useful bounded detail metadata even when the provider publishes only a generic head title and no eligible internal link; keep the generated help/dry-run seam.",
+  "reason": "Generated links-mode station get returned null; page mode alone lacked entity identity/canonical handoff on this source. A source-authored two-command adapter adds validated IDs/canonical URLs/JST provenance and reuses native parsers on one configured no-cache body, marking unrecognized identity fields unknown.",
+  "files": [
+    "internal/cli/michi_metadata.go",
+    "internal/cli/michi_metadata_test.go",
+    "internal/cli/stations_get.go",
+    "internal/cli/bulletins_get.go",
+    "spec.json",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Strict relevant tests PASS and independent13 local CLI probes PASS; real19187station and23237notice identity/canonical/publication metadata observed; fresh full live129/129 mandatory PASS with173 source-bound files; denied pages reject and generic unknown identity never becomes a factual claim.",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261003-001046-81800c96",
+  "base_printing_press_version": "4.32.5"
+}
