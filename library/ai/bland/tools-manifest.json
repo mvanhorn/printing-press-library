@@ -1,0 +1,217 @@
+{
+  "api_name": "bland",
+  "base_url": "https://api.bland.ai",
+  "description": "Send a task-driven call and follow it through to the result.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "in": "header",
+    "env_vars": [
+      "BLAND_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "BLAND_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "active_get-calls",
+      "description": "List active and queued calls. Returns the ActiveGetCallsResponse.",
+      "method": "GET",
+      "path": "/v1/active",
+      "params": []
+    },
+    {
+      "name": "calls_create",
+      "description": "Places a real outbound call. May incur charges. Required: phone_number, task. Optional: first_sentence, from, language (plus 9 more). Returns the new CallCreated.",
+      "method": "POST",
+      "path": "/v1/calls",
+      "params": [
+        {
+          "name": "first_sentence",
+          "type": "string",
+          "location": "body",
+          "description": "First sentence"
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "body",
+          "description": "From"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "Language"
+        },
+        {
+          "name": "max_duration",
+          "type": "int",
+          "location": "body",
+          "description": "Max duration"
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Metadata"
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "Model"
+        },
+        {
+          "name": "pathway_id",
+          "type": "string",
+          "location": "body",
+          "description": "Pathway id"
+        },
+        {
+          "name": "phone_number",
+          "type": "string",
+          "location": "body",
+          "description": "Phone number",
+          "required": true
+        },
+        {
+          "name": "record",
+          "type": "bool",
+          "location": "body",
+          "description": "Record"
+        },
+        {
+          "name": "request_data",
+          "type": "object",
+          "location": "body",
+          "description": "Request data"
+        },
+        {
+          "name": "task",
+          "type": "string",
+          "location": "body",
+          "description": "Task",
+          "required": true
+        },
+        {
+          "name": "voice",
+          "type": "string",
+          "location": "body",
+          "description": "Voice"
+        },
+        {
+          "name": "wait_for_greeting",
+          "type": "bool",
+          "location": "body",
+          "description": "Wait for greeting"
+        },
+        {
+          "name": "webhook",
+          "type": "string",
+          "location": "body",
+          "description": "Webhook"
+        }
+      ]
+    },
+    {
+      "name": "calls_get",
+      "description": "Get call status and outcome. Required: call_id. Returns array of CallsGetItem.",
+      "method": "GET",
+      "path": "/v1/calls/{call_id}",
+      "params": [
+        {
+          "name": "call_id",
+          "type": "string",
+          "location": "path",
+          "description": "Call id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calls_list",
+      "description": "List call history. Optional: limit (default: 100), from, to (plus 1 more). Returns the CallsListResponse.",
+      "method": "GET",
+      "path": "/v1/calls",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "From"
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "To"
+        },
+        {
+          "name": "completed",
+          "type": "bool",
+          "location": "query",
+          "description": "Completed"
+        }
+      ]
+    },
+    {
+      "name": "calls_stop_call",
+      "description": "Stop an active call. Required: call_id. Returns the new StopCallResponse.",
+      "method": "POST",
+      "path": "/v1/calls/{call_id}/stop",
+      "params": [
+        {
+          "name": "call_id",
+          "type": "string",
+          "location": "path",
+          "description": "Call id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "event-stream_get-call",
+      "description": "Get a call event stream. Required: call_id. Returns the EventStreamGetCallResponse.",
+      "method": "GET",
+      "path": "/v1/event_stream/{call_id}",
+      "params": [
+        {
+          "name": "call_id",
+          "type": "string",
+          "location": "path",
+          "description": "Call id",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Task-to-outcome runner",
+      "command": "calls task run",
+      "description": "Start one task call, wait for its final status, and return the transcript and outcome together."
+    },
+    {
+      "name": "Local task recall",
+      "command": "calls search-task",
+      "description": "Find prior calls made through this CLI by task wording and inspect their returned outcomes."
+    }
+  ]
+}
