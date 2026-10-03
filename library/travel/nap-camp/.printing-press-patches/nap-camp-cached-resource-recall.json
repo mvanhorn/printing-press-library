@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "nap-camp-cached-resource-recall",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261003-001152-6cdfd713",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Require cached resource identity to agree before direct aliases or synthesized patterns become exact recall hits.",
+  "reason": "Canonical teaching overlap and substituted identifier existence cannot erase an explicit conflicting cached identity.",
+  "files": [
+    "internal/learn/recall.go",
+    "internal/cli/nap_recall_identity_contract_test.go",
+    "README.md"
+  ],
+  "validated_outcome": "Actual CLI regressions cover literal/cross-alias direct conflicts, pattern and combined-path conflicts, true cached aliases, warned absent resources, and unchanged empty-identity classifications. Ambiguous direct aliases require a shared query/teaching/resource canonical; ordinary mismatch warnings name the actual cached alternative."
+}

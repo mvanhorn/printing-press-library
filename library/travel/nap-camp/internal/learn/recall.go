@@ -464,31 +464,24 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 			t := lastObserved.Time
 			hit.LastObservedAt = &t
 		}
-		validateResource(ctx, db, cfg, &hit, queryIdentity, storedEntitySlice, opts.ResourceTypeFields)
-		// Cross-alias promotion: if canonicals overlap, the entities
-		// are equivalent even when their literal forms differ. Override
-		// a Mismatch verdict so the learning isn't filtered into the
-		// mismatches bucket. The warning flags it for diagnostic clarity.
-		if canonicalOverlap && hit.EntityMatch == EntityMatchMismatch {
+		resourcePresent := validateResource(ctx, db, cfg, &hit, queryIdentity, storedEntitySlice, opts.ResourceTypeFields)
+		// A teaching alias cannot override a conflicting cached identity.
+		// Present resources must justify promotion with their own canonicals;
+		// absent resources retain the existing warning-bearing fallback.
+		resourceOverlap := !resourcePresent || canonicalInAll(queryCanonicals, storedCanonicals, resolver.ResolveSet(hit.ResourceEntities))
+		if canonicalOverlap && resourceOverlap && hit.EntityMatch == EntityMatchMismatch {
 			hit.EntityMatch = EntityMatchExact
 			hit.Warnings = append(hit.Warnings, WarningCrossAliasMatch)
 		}
 		if hit.EntityMatch == EntityMatchMismatch {
-			// Surface canonicals for the envelope-level similar-shape
-			// warning. Fall back to literal stored entities when the
-			// row has no canonical resolution -- better to name the
-			// raw entity than to silently drop the hint.
-			if len(storedCanonicals) > 0 {
-				for c := range storedCanonicals {
-					mismatchCanonicals[c] = struct{}{}
-				}
-			} else {
-				for _, e := range storedEntitySlice {
-					if e = strings.TrimSpace(e); e != "" {
-						mismatchCanonicals[e] = struct{}{}
-					}
-				}
+			// An explicit cached conflict names the actual alternative;
+			// absent or unknown resources retain teaching-based diagnostics.
+			alternativeEntities, alternativeCanonicals := storedEntitySlice, storedCanonicals
+			if resourcePresent && len(hit.ResourceEntities) > 0 {
+				alternativeEntities = hit.ResourceEntities
+				alternativeCanonicals = resolver.ResolveSet(hit.ResourceEntities)
 			}
+			addMismatchCanonicals(mismatchCanonicals, alternativeEntities, alternativeCanonicals)
 			mismatches = append(mismatches, hit)
 		} else {
 			hits = append(hits, hit)
@@ -517,7 +510,7 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 				continue
 			}
 			existing[key] = struct{}{}
-			hits = append(hits, Hit{
+			hit := Hit{
 				ResourceID:       ph.ResourceID,
 				ResourceType:     ph.ResourceType,
 				Venue:            ph.Venue,
@@ -528,7 +521,24 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 				ResourceEntities: ph.ResourceEntities,
 				Source:           SourcePattern,
 				LastObservedAt:   ph.LastObservedAt,
-			})
+			}
+			resourcePresent := validateResource(ctx, db, cfg, &hit, queryIdentity, nil, opts.ResourceTypeFields)
+			if resourcePresent && len(hit.ResourceEntities) > 0 {
+				if hit.EntityMatch == EntityMatchMismatch && setIntersects(queryCanonicals, resolver.ResolveSet(hit.ResourceEntities)) {
+					hit.EntityMatch = EntityMatchExact
+					hit.Warnings = append(hit.Warnings, WarningCrossAliasMatch)
+				}
+				if hit.EntityMatch == EntityMatchMismatch {
+					addMismatchCanonicals(mismatchCanonicals, hit.ResourceEntities, resolver.ResolveSet(hit.ResourceEntities))
+					mismatches = append(mismatches, hit)
+					continue
+				}
+			} else {
+				// With no extractable identity, keep the established identifier-
+				// verified pattern behavior; do not invent resource entities.
+				hit.EntityMatch = EntityMatchExact
+			}
+			hits = append(hits, hit)
 		}
 	}
 
@@ -659,7 +669,7 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 	return result, nil
 }
 
-func validateResource(ctx context.Context, db *sql.DB, cfg *entities.Config, hit *Hit, queryEntities, storedEntitySlice []string, fieldsByType map[string][]string) {
+func validateResource(ctx context.Context, db *sql.DB, cfg *entities.Config, hit *Hit, queryEntities, storedEntitySlice []string, fieldsByType map[string][]string) bool {
 	var data string
 	err := db.QueryRowContext(ctx,
 		`SELECT data FROM resources WHERE resource_type = ? AND id = ?`,
@@ -672,7 +682,7 @@ func validateResource(ctx context.Context, db *sql.DB, cfg *entities.Config, hit
 			hit.EntityMatch = EntityMatchUnknown
 		}
 		addLowConfidenceWarning(hit)
-		return
+		return false
 	}
 	var fields []string
 	if fieldsByType != nil {
@@ -682,6 +692,7 @@ func validateResource(ctx context.Context, db *sql.DB, cfg *entities.Config, hit
 	hit.ResourceEntities = resourceEntities
 	hit.EntityMatch = ClassifyEntityMatch(queryEntities, resourceEntities)
 	addLowConfidenceWarning(hit)
+	return true
 }
 
 func addLowConfidenceWarning(hit *Hit) {
@@ -848,6 +859,33 @@ func entitySlicesIntersect(a, b []string) bool {
 // setIntersects reports whether two canonical sets share at least one
 // element. Used as the cross-alias gate for entity-classification
 // promotion (Mismatch -> Exact when canonicals overlap).
+// canonicalInAll requires a single identity shared by every set. Pairwise
+// intersections can join different identities when a query alias is ambiguous.
+func canonicalInAll(a, b, c map[string]struct{}) bool {
+	for canonical := range a {
+		_, inB := b[canonical]
+		_, inC := c[canonical]
+		if inB && inC {
+			return true
+		}
+	}
+	return false
+}
+
+func addMismatchCanonicals(target map[string]struct{}, entities []string, canonicals map[string]struct{}) {
+	if len(canonicals) > 0 {
+		for canonical := range canonicals {
+			target[canonical] = struct{}{}
+		}
+		return
+	}
+	for _, entity := range entities {
+		if entity = strings.TrimSpace(entity); entity != "" {
+			target[entity] = struct{}{}
+		}
+	}
+}
+
 func setIntersects(a, b map[string]struct{}) bool {
 	if len(a) == 0 || len(b) == 0 {
 		return false

@@ -1,6 +1,6 @@
 {
   "status": "pass",
-  "source_fingerprint": "b09f532a1ed2eee5900b8b18ae190a5517dcef102923be4b50bc3d23c4724d07",
+  "source_fingerprint": "7db334f823b405f835688bf175bea8c0153fea36f74afd5a31045749839d12b5",
   "mcp_stdio": {
     "passed": true,
     "tool": "planner_compare",
@@ -28,7 +28,10 @@
     "learning_helpers_tested": 5,
     "learning_toggle_not_advertised_on_read_only_native": true,
     "learning_toggle_request_rejected": true,
-    "no_learn_harness_override": false
+    "no_learn_harness_override": false,
+    "cli_binary_sha256": "526b8154587ce4a5c304222378d2886cbc5ab11d9509d67f3a00c3ef791ac26c",
+    "mcp_binary_sha256": "6357c5df68adbe6f2e2dc22bb553ebedd0de795e6be82e0a18eb2167844024f1",
+    "runtime_version": "nap-camp-pp-cli 2026.10.1"
   },
   "regressions": [
     "actual failed-child MCP adapter preserves valid partial JSON with isError",
@@ -41,9 +44,39 @@
     "prefix verification requires one literal resource-type-scoped match; percent and underscore are literal",
     "named variadic strings split into individually validated operands; unsupported arrays and flag injection fail, scalar questions stay whole",
     "foreign redirect hops drop origin headers and invalid export formats fail before requests or output mutation",
-    "native read-only mirrors suppress automatic state changes; local-write learning helpers retain current committed active-WAL recall"
+    "native read-only mirrors suppress automatic state changes; local-write learning helpers retain current committed active-WAL recall",
+    "cached-resource conflicts cannot become exact direct aliases or synthesized-pattern hits; true aliases, warned absent rows and empty-identity compatibility remain",
+    "ambiguous direct aliases require a single canonical common to query, teaching and cached resource; mismatch warnings identify the actual cached alternative"
   ],
   "learning_state_scope": "fresh temporary test stores; no original or global learning state",
   "full_go_tests": "pass",
-  "upstream_skill_checks": "pass; 33 recipes, zero findings"
+  "upstream_skill_checks": "pass; 33 recipes, zero findings",
+  "normal_mode_transport": {
+    "passed": true,
+    "normal_mode": true,
+    "timeout_ms": 100,
+    "cli_binary_sha256": "526b8154587ce4a5c304222378d2886cbc5ab11d9509d67f3a00c3ef791ac26c",
+    "fixture": "isolated controlled local HTTP; no provider transaction",
+    "cases": [
+      {
+        "case": "throttle",
+        "exit_code": 5,
+        "seconds": 2.5616,
+        "stdout_bytes": 0,
+        "provider_context_present": true,
+        "explicit_timeout_context_present": true,
+        "success_or_availability_evidence": false
+      },
+      {
+        "case": "slow",
+        "exit_code": 5,
+        "seconds": 0.1174,
+        "stdout_bytes": 0,
+        "provider_context_present": true,
+        "explicit_timeout_context_present": true,
+        "success_or_availability_evidence": false
+      }
+    ],
+    "limitation": "Sustained normal-mode throttling can retry until request timeout; it then fails with provider context, not empty success or inferred availability."
+  }
 }

@@ -11,10 +11,10 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "b09f532a1ed2eee5900b8b18ae190a5517dcef102923be4b50bc3d23c4724d07",
+  "source_fingerprint": "7db334f823b405f835688bf175bea8c0153fea36f74afd5a31045749839d12b5",
   "source_files": {
     "cmd/nap-camp-pp-cli/main.go": "6a9c830a84fcf3429d5c2f391724545ea5ec22c6c60c76bf4572b07322a1f1c2",
-    "cmd/nap-camp-pp-mcp/main.go": "c8dd4ef9eb81f384478ef42447ba5f0f8ba76bd468a21a80417569b0f86f26f7",
+    "cmd/nap-camp-pp-mcp/main.go": "4dad07daefc62cf7cf753e25570f0ace79fb19de7ce26860998da6a30bfd021c",
     "go.mod": "5bab801552afc938e0539ade22ffbd5fb5b5684a05d5410239003a9038642894",
     "go.sum": "3d168ced4b630c0f6320209227bd73007c420042c61234003a2ac6d2363d663f",
     "internal/cache/cache.go": "3bc84bdc4a56f2093b015fb7dd2153b6a3cc803f029d89d1157b4f5975fe26b6",
@@ -42,6 +42,7 @@
     "internal/cli/nap_planner_errors.go": "920b5411e91b9f894d5188e4c41ce7058c3dda4a7a7547c067be65df998fb808",
     "internal/cli/nap_planning_test.go": "ddb8458def5c29eeadc406b7f20a605718cfd0c51eac86c83d71e78705e4ebe5",
     "internal/cli/nap_publication_contract_test.go": "918a14c2bb33c32a6c822c6a58ace6ed010696857d53510675b9e84f2c2dc300",
+    "internal/cli/nap_recall_identity_contract_test.go": "eb9b6d0aea5e4c06bf2c12426f968e86e90b4632797d71522b19a575f90684b5",
     "internal/cli/nap_requirements.go": "dc3adb701f2bd44b432c7e3878d600305fc5fa2153b2e8c3cba0415394b52d2f",
     "internal/cli/nap_transport_bound_test.go": "d44cc4dbd35a46e8cbd80305257e85c98537d3eeaec282d800b3692ca6f6a6fb",
     "internal/cli/planner.go": "a8ecfc64b974545a12ba67d5f3ac424c8a7085ee7fb6a56a8131836c64fcbc3b",
@@ -83,7 +84,7 @@
     "internal/cli/teach_playbook.go": "6fb360c5776016e339761e0a6e9da243365c594748e50e1fa82c8f492ea23761",
     "internal/cli/teach_playbook_test.go": "1dbfae9fba013e1fb8e4d35998ae709d4ce9a2be6c6ea37fb9d9c5b51a99a10b",
     "internal/cli/teach_test.go": "e2e58d4600452e461973dcd65aaa2525eed5e8b137f2f497decee07f0c4ac293",
-    "internal/cli/version.go": "e09971a19ec8ddee22febaaf25efec9d83880c76f8137e01b142d8d85429b0cf",
+    "internal/cli/version.go": "724ed4a22ab15966b03a2c89014c9c961fa35528dc9d6fce6519ab06e812b0bd",
     "internal/cli/which.go": "fb66a7d0ef1b1819ff775fa7dbac7fe5d8a6d231c048dace5da8595a6287b521",
     "internal/cli/which_test.go": "a2d4ab34e8bc3e36be55215ef0f5396392a7f7de3a4d132ca71f75a2556f4f92",
     "internal/client/client.go": "91fccea8711656af9a003aea5cb300e3949ceba55462bb1fff8be011fb571ffc",
@@ -151,7 +152,7 @@
     "internal/learn/promote.go": "2cb24f54907cf7085a903af17d336b3550e0347b99138daf54479d2859a1d4a1",
     "internal/learn/promote_test.go": "d4fac8c702d41b4de35df5be0a1c1e0ede9560bd6473d3ad5bc30bb1cd73ac3a",
     "internal/learn/protocol.go": "3d7c6047ff598e7729a472d36523c9c23ff3297b91b2f48d18a937ec601f3725",
-    "internal/learn/recall.go": "51d91ccd67d8e36e42255c6a0e33283540d5023b597e3ae46ed1dabc4585ce99",
+    "internal/learn/recall.go": "945b13ad2c8b3e3ff550e4dcb70d2a083a42883cbd974b51242d14afadf4a9ab",
     "internal/learn/recall_canonical_test.go": "bf0db48c9e34f5ad68317d79ba1a8b1a2240f8d25f2b0a485aaf86a6a0bdcef1",
     "internal/learn/recall_test.go": "81d2f86710266d72376e223f96051efc52f446e14f56c822b4b657a6bb4df370",
     "internal/learn/synthesize.go": "a00b1d3971afd663d89d8471675a37e043fc02cfe95ce6440e73eaaaa3d44841",
