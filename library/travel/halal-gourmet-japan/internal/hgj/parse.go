@@ -110,6 +110,19 @@ func ParseSearch(body []byte, kind, requestURL, observed string, limit int) (Sea
 			out.SourceTotal, _ = strconv.Atoi(strings.ReplaceAll(m[1], ",", ""))
 			break
 		}
+		if nodeText(p) == "No results found." {
+			for _, class := range strings.Fields(attr(p, "class")) {
+				// The source's explicit empty state is a deferred result-summary
+				// paragraph, not a numeric counter or a generic page sentence.
+				if strings.HasPrefix(class, "SearchResults-module__") && strings.HasSuffix(class, "__resultSummary") {
+					out.SourceTotal = 0
+					break
+				}
+			}
+			if out.SourceTotal == 0 {
+				break
+			}
+		}
 	}
 	seen := map[string]bool{}
 	prefix := "/restaurant/"
@@ -162,6 +175,9 @@ func ParseSearch(body []byte, kind, requestURL, observed string, limit int) (Sea
 	out.ParsedCount = len(out.Results)
 	if out.SourceTotal < 0 {
 		return out, fmt.Errorf("source search format changed: no explicit result count")
+	}
+	if out.SourceTotal == 0 && out.ParsedCount > 0 {
+		return out, fmt.Errorf("source search format changed: zero reported results but %d listing cards parsed", out.ParsedCount)
 	}
 	if out.SourceTotal > 0 && out.ParsedCount == 0 {
 		return out, fmt.Errorf("source reported %d results but no listing cards parsed", out.SourceTotal)

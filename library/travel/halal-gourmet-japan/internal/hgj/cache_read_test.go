@@ -103,8 +103,12 @@ func TestSavedReadGuardRejectsCheckpointBetweenMainAndWALStats(t *testing.T) {
 		t.Fatal(err)
 	}
 	interleaved := false
+	canonical, err := filepath.EvalSymlinks(path)
+	if err != nil {
+		t.Fatal(err)
+	}
 	stat := func(name string) (os.FileInfo, error) {
-		if name == path+"-wal" && !interleaved {
+		if name == canonical+"-wal" && !interleaved {
 			interleaved = true
 			if err := os.WriteFile(path, []byte("new checkpointed image"), 0600); err != nil {
 				return nil, err
@@ -118,5 +122,235 @@ func TestSavedReadGuardRejectsCheckpointBetweenMainAndWALStats(t *testing.T) {
 	}
 	if !interleaved {
 		t.Fatal("interleave was not exercised")
+	}
+}
+
+func TestSavedReadGuardResolvesAliasesAndRejectsAmbiguousHardLinks(t *testing.T) {
+	dir := t.TempDir()
+	path, alias := filepath.Join(dir, "cache.db"), filepath.Join(dir, "alias.db")
+	writer, err := store.Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	p := examplePlace(Restaurant, "300739")
+	p.Name = "checkpointed"
+	p.ObservedAt = time.Now().UTC().Format(time.RFC3339Nano)
+	if err = SaveSnapshot(context.Background(), writer.DB(), p); err != nil {
+		t.Fatal(err)
+	}
+	writer.Close()
+	if err = os.Symlink(path, alias); err != nil {
+		t.Skipf("symlink unavailable: %v", err)
+	}
+	guard, err := BeginSavedRead(alias)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = guard.Check(); err != nil {
+		t.Fatal(err)
+	}
+	writer, err = store.Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	p.Name = "committed in real WAL"
+	p.ObservedAt = time.Now().UTC().Format(time.RFC3339Nano)
+	if err = SaveSnapshot(context.Background(), writer.DB(), p); err != nil {
+		t.Fatal(err)
+	}
+	var visibility *CacheVisibilityError
+	if _, err = BeginSavedRead(alias); !errors.As(err, &visibility) {
+		t.Fatalf("symlink hid real WAL: %v", err)
+	}
+	if err = guard.Check(); !errors.As(err, &visibility) {
+		t.Fatalf("existing symlink guard accepted real WAL: %v", err)
+	}
+	writer.Close()
+	guard, err = BeginSavedRead(alias)
+	if err != nil {
+		t.Fatal(err)
+	}
+	reader, err := store.OpenReadOnly(alias)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, ok, err := Snapshot(context.Background(), reader.DB(), Selection{Restaurant, "300739"}, 0)
+	reader.Close()
+	if err != nil || !ok || got.Name != p.Name {
+		t.Fatalf("closed writer alias read lost current facts: %+v %v", got, err)
+	}
+	if err = guard.Check(); err != nil {
+		t.Fatal(err)
+	}
+	hard := filepath.Join(dir, "hard.db")
+	if err = os.Link(path, hard); err != nil {
+		t.Skipf("hard link unavailable: %v", err)
+	}
+	info, err := os.Stat(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, known := cacheLinkCount(info); !known {
+		t.Skip("host does not expose hard-link count")
+	}
+	for _, selected := range []string{path, alias, hard} {
+		if _, err = BeginSavedRead(selected); !errors.As(err, &visibility) {
+			t.Fatalf("multiple links accepted at %s: %v", selected, err)
+		}
+	}
+}
+
+func TestSavedReadGuardRejectsAliasRetargetingAndNewHardLink(t *testing.T) {
+	dir := t.TempDir()
+	first, second, alias := filepath.Join(dir, "first.db"), filepath.Join(dir, "second.db"), filepath.Join(dir, "alias.db")
+	for _, path := range []string{first, second} {
+		if err := os.WriteFile(path, []byte("same image"), 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := os.Symlink(first, alias); err != nil {
+		t.Skipf("symlink unavailable: %v", err)
+	}
+	guard, err := BeginSavedRead(alias)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = os.Remove(alias); err != nil {
+		t.Fatal(err)
+	}
+	if err = os.Symlink(second, alias); err != nil {
+		t.Fatal(err)
+	}
+	var visibility *CacheVisibilityError
+	if err = guard.Check(); !errors.As(err, &visibility) {
+		t.Fatalf("retargeted alias accepted: %v", err)
+	}
+	guard, err = BeginSavedRead(first)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = os.Link(first, filepath.Join(dir, "hard.db")); err != nil {
+		t.Skipf("hard link unavailable: %v", err)
+	}
+	info, err := os.Stat(first)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, known := cacheLinkCount(info); known {
+		if err = guard.Check(); !errors.As(err, &visibility) {
+			t.Fatalf("hard link created during read accepted: %v", err)
+		}
+	}
+}
+
+func TestSavedWriteGuardUsesCanonicalWALAndRejectsHardLinks(t *testing.T) {
+	dir := t.TempDir()
+	path, alias := filepath.Join(dir, "cache.db"), filepath.Join(dir, "alias.db")
+	first, err := store.Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	p := examplePlace(Restaurant, "300739")
+	p.Name = "first source observation"
+	p.ObservedAt = time.Now().UTC().Format(time.RFC3339Nano)
+	if err = SaveSnapshot(context.Background(), first.DB(), p); err != nil {
+		t.Fatal(err)
+	}
+	if err = os.Symlink(path, alias); err != nil {
+		first.Close()
+		t.Skipf("symlink unavailable: %v", err)
+	}
+	guard, err := BeginSavedWrite(alias)
+	if err != nil {
+		t.Fatal(err)
+	}
+	canonical, err := filepath.EvalSymlinks(path)
+	if err != nil || guard.Path() != canonical {
+		t.Fatalf("writer path=%s canonical=%s err=%v", guard.Path(), canonical, err)
+	}
+	second, err := store.Open(guard.Path())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = guard.Check(); err != nil {
+		t.Fatal(err)
+	}
+	p.Name = "new source observation"
+	p.ObservedAt = time.Now().Add(time.Millisecond).UTC().Format(time.RFC3339Nano)
+	if err = SaveSnapshot(context.Background(), second.DB(), p); err != nil {
+		t.Fatal(err)
+	}
+	if err = guard.Check(); err != nil {
+		t.Fatal(err)
+	}
+	second.Close()
+	first.Close()
+	if _, err = os.Stat(alias + "-wal"); !os.IsNotExist(err) {
+		t.Fatalf("alias WAL was created: %v", err)
+	}
+	reader, err := store.OpenReadOnly(alias)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, ok, err := Snapshot(context.Background(), reader.DB(), Selection{Restaurant, "300739"}, 0)
+	reader.Close()
+	if err != nil || !ok || got.Name != p.Name || got.ObservedAt != p.ObservedAt {
+		t.Fatalf("new observation was lost when canonical writer closed: %+v %v", got, err)
+	}
+	hard := filepath.Join(dir, "hard.db")
+	if err = os.Link(path, hard); err != nil {
+		t.Skipf("hard link unavailable: %v", err)
+	}
+	info, err := os.Stat(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, known := cacheLinkCount(info); !known {
+		t.Skip("host does not expose hard-link count")
+	}
+	var visibility *CacheVisibilityError
+	for _, selected := range []string{path, alias, hard} {
+		if _, err = BeginSavedWrite(selected); !errors.As(err, &visibility) {
+			t.Fatalf("hard-linked writer accepted at %s: %v", selected, err)
+		}
+	}
+}
+
+func TestSavedWriteGuardAllowsNewCacheAndDetectsAliasRetarget(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "new", "data", "cache.db")
+	guard, err := BeginSavedWrite(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writer, err := store.Open(guard.Path())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = guard.Check(); err != nil {
+		t.Fatal(err)
+	}
+	writer.Close()
+	alias := filepath.Join(dir, "alias.db")
+	if err = os.Symlink(path, alias); err != nil {
+		t.Skipf("symlink unavailable: %v", err)
+	}
+	guard, err = BeginSavedWrite(alias)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = os.Remove(alias); err != nil {
+		t.Fatal(err)
+	}
+	other := filepath.Join(dir, "other.db")
+	if err = os.WriteFile(other, []byte("other"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if err = os.Symlink(other, alias); err != nil {
+		t.Fatal(err)
+	}
+	var visibility *CacheVisibilityError
+	if err = guard.Check(); !errors.As(err, &visibility) {
+		t.Fatalf("writer alias retarget accepted: %v", err)
 	}
 }

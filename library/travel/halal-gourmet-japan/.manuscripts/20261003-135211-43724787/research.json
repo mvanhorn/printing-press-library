@@ -139,6 +139,18 @@
       {
         "symptom": "Source access failed or response format changed",
         "fix": "Read the explicit source error and use the canonical page; empty results never replace a failed request."
+      },
+      {
+        "symptom": "cache_visibility_unavailable for saved evidence",
+        "fix": "Finish and close active database writers, then retry. Saved get, all plans and MCP SQL conservatively reject a non-empty WAL (even checkpointed but untruncated) or changing path/database identity with CLI exit10. Readers and snapshot writers resolve symlinks to one canonical database; hard-linked databases are rejected where the host exposes link-count metadata. Use a database with one hard link and keep files in place until writers close. Live inspection with --no-cache remains available. Facts retain exact observed_at timestamps. Saved reads use private temporary immutable images copied from verified pinned file descriptors, bounded at128 MiB and removed after each read. A larger cache fails explicitly; use a smaller cache. Cache paths and resolved alias targets containing percent, question-mark or hash bytes are rejected before SQLite opening; choose a plain filesystem name. The temporary-directory path and its resolved target must also use plain filesystem names. Use an ordinary TMPDIR path. Snapshot writes retain normal SQLite transaction/WAL semantics; external same-user file replacement during writing is unsupported, and detected retargeting returns an explicit error."
+      },
+      {
+        "symptom": "Invalid global --data-source value",
+        "fix": "Choose auto, live or local as documented. This global framework validation currently exits1; domain input errors exit2."
+      },
+      {
+        "symptom": "Previewing source and cache work",
+        "fix": "Pass --dry-run with the same required ID, scoped query/prefecture or selected IDs and requirements. Pure leaf validation runs before the action receipt and before source/config/cache work. Standard framework learning may still record command activity; --no-learn disables it."
       }
     ],
     "when_to_use": "Use for Muslim travel planning in Japan where explicit food policies and prayer facilities matter. Inspect source facts and compare saved evidence across candidate stops; keep missing information visible.",

@@ -51,9 +51,6 @@ func configureHGJPlanCmd(cmd *cobra.Command, flags *rootFlags, name string, opti
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		restaurants, prayer, required := options.restaurants, options.prayer, options.required
 		dbPath, limit, maxKM := options.dbPath, options.limit, options.maxKM
-		if dryRunOK(flags) {
-			return writeDryRun(cmd.OutOrStdout(), flags, "plan "+name+" from saved detail observations")
-		}
 		if len(args) == 0 && hgjHumanBareHelp(cmd, flags) {
 			return cmd.Help()
 		}
@@ -86,15 +83,19 @@ func configureHGJPlanCmd(cmd *cobra.Command, flags *rootFlags, name string, opti
 				return usageErr(err)
 			}
 		}
+		if dryRunOK(flags) {
+			return writeDryRun(cmd.OutOrStdout(), flags, "plan "+name+" from saved detail observations")
+		}
 		ctx, cancel := boundCtx(cmd.Context(), flags)
 		defer cancel()
 		loaded := hgj.LoadedSnapshots{Places: []hgj.Place{}, Missing: []hgj.MissingSnapshot{}}
 		var db *store.Store
 		path := hgjDBPath(dbPath)
-		guard, err := hgj.BeginSavedRead(path)
+		guard, err := hgj.BeginSavedReadContext(ctx, path)
 		if err != nil {
 			return configErr(err)
 		}
+		defer guard.Close()
 		if _, statErr := os.Stat(path); os.IsNotExist(statErr) {
 			for _, s := range selections {
 				resource := "restaurants"
@@ -104,7 +105,7 @@ func configureHGJPlanCmd(cmd *cobra.Command, flags *rootFlags, name string, opti
 				loaded.Missing = append(loaded.Missing, hgj.MissingSnapshot{Selection: s, State: "detail_inspection_needed", Hint: fmt.Sprintf("run: %s %s get %s --data-source live", cmd.Root().Name(), resource, s.ID)})
 			}
 		} else {
-			db, err = store.OpenReadOnlyContext(ctx, path)
+			db, err = store.OpenReadOnlyContext(ctx, guard.Path())
 			if err != nil {
 				return configErr(err)
 			}

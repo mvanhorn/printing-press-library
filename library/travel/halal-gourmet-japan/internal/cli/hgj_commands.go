@@ -91,9 +91,6 @@ func configureHGJGetCmd(cmd *cobra.Command, flags *rootFlags, kind string, dbPat
 	cmd.Example = "  halal-gourmet-japan-pp-cli " + resource + " get " + id + " --agent\n  halal-gourmet-japan-pp-cli " + resource + " get " + id + " --data-source local --agent"
 	cmd.Annotations = map[string]string{"mcp:read-only": "false", "mcp:local-write": "true", "pp:domain-endpoint": resource + ".get", "pp:method": "GET", "pp:path": path, "pp:data-source": "auto", "pp:happy-args": "id=" + id, "pp:live-happy-path": "true", "pp:typed-exit-codes": "0,2,3,5,7,10"}
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		if dryRunOK(flags) {
-			return writeDryRun(cmd.OutOrStdout(), flags, "inspect "+kind+" full-detail page")
-		}
 		if len(args) == 0 && hgjHumanBareHelp(cmd, flags) {
 			return cmd.Help()
 		}
@@ -103,19 +100,23 @@ func configureHGJGetCmd(cmd *cobra.Command, flags *rootFlags, kind string, dbPat
 		if _, err := hgj.CanonicalURL(kind, args[0]); err != nil {
 			return usageErr(err)
 		}
+		if dryRunOK(flags) {
+			return writeDryRun(cmd.OutOrStdout(), flags, "inspect "+kind+" full-detail page")
+		}
 		ctx, cancel := boundCtx(cmd.Context(), flags)
 		defer cancel()
 		selection := hgj.Selection{Kind: kind, ID: args[0]}
 		if flags.dataSource == "local" {
 			path := hgjDBPath(*dbPath)
-			guard, err := hgj.BeginSavedRead(path)
+			guard, err := hgj.BeginSavedReadContext(ctx, path)
 			if err != nil {
 				return configErr(err)
 			}
+			defer guard.Close()
 			if _, err := os.Stat(path); os.IsNotExist(err) {
 				return notFoundErr(fmt.Errorf("no saved detail for %s:%s; run %s %s get %s --data-source live", kind, args[0], cmd.Root().Name(), resource, args[0]))
 			}
-			db, err := store.OpenReadOnlyContext(ctx, path)
+			db, err := store.OpenReadOnlyContext(ctx, guard.Path())
 			if err != nil {
 				return configErr(err)
 			}
@@ -143,12 +144,22 @@ func configureHGJGetCmd(cmd *cobra.Command, flags *rootFlags, kind string, dbPat
 			return hgjSourceError(cmd, flags, err)
 		}
 		if !flags.noCache {
-			db, err := store.OpenWithContext(ctx, hgjDBPath(*dbPath))
+			writeGuard, err := hgj.BeginSavedWrite(hgjDBPath(*dbPath))
+			if err != nil {
+				return configErr(err)
+			}
+			db, err := store.OpenWithContext(ctx, writeGuard.Path())
 			if err != nil {
 				return configErr(err)
 			}
 			defer db.Close()
+			if err = writeGuard.Check(); err != nil {
+				return configErr(err)
+			}
 			if err = hgj.SaveSnapshot(ctx, db.DB(), p); err != nil {
+				return configErr(err)
+			}
+			if err = writeGuard.Check(); err != nil {
 				return configErr(err)
 			}
 		}
@@ -167,9 +178,6 @@ func configureHGJSearchCmd(cmd *cobra.Command, flags *rootFlags, kind string, o 
 	cmd.Example = "  halal-gourmet-japan-pp-cli " + resource + " search --prefecture Tokyo --limit 5 --agent"
 	cmd.Annotations = map[string]string{"mcp:read-only": "true", "pp:domain-endpoint": resource + ".search", "pp:method": "GET", "pp:path": "/search", "pp:data-source": "live", "pp:happy-args": "--prefecture=Tokyo;--limit=5", "pp:typed-exit-codes": "0,2,3,5,7,10"}
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		if dryRunOK(flags) {
-			return writeDryRun(cmd.OutOrStdout(), flags, "GET source search cards")
-		}
 		if len(args) == 0 && hgjHumanBareHelp(cmd, flags) {
 			return cmd.Help()
 		}
@@ -181,6 +189,9 @@ func configureHGJSearchCmd(cmd *cobra.Command, flags *rootFlags, kind string, o 
 		}
 		if _, err := o.Values(); err != nil {
 			return usageErr(err)
+		}
+		if dryRunOK(flags) {
+			return writeDryRun(cmd.OutOrStdout(), flags, "GET source search cards")
 		}
 		ctx, cancel := boundCtx(cmd.Context(), flags)
 		defer cancel()
@@ -200,7 +211,7 @@ func configureHGJSearchCmd(cmd *cobra.Command, flags *rootFlags, kind string, o 
 
 // Human bare invocations can explore help; machine calls must satisfy command inputs.
 func hgjHumanBareHelp(cmd *cobra.Command, flags *rootFlags) bool {
-	return cmd.Flags().NFlag() == 0 && !flags.asJSON && !flags.noInput && !flags.agent && os.Getenv("HALAL_GOURMET_JAPAN_LEARN_SURFACE") != "mcp"
+	return cmd.Flags().NFlag() == 0 && !flags.dryRun && !flags.asJSON && !flags.noInput && !flags.agent && os.Getenv("HALAL_GOURMET_JAPAN_LEARN_SURFACE") != "mcp"
 }
 func hgjPrintDetail(cmd *cobra.Command, flags *rootFlags, p hgj.Place) error {
 	if flags.quiet || flags.plain || flags.csv {

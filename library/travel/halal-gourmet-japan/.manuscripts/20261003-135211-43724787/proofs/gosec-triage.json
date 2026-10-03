@@ -246,5 +246,16 @@
       "disposition": "no unresolved shipped security defect demonstrated",
       "rationale": "Ignored JSON encoder error affects best-effort diagnostic stderr, not saved facts, returned success, credentials or source planning."
     }
-  ]
+  ],
+  "scan_refresh": {
+    "ran_at": "2026-10-03T12:18:02.097022Z",
+    "source_candidate": "SQLite1.46.2 + libc1.70.0 and private saved-reader snapshot correction",
+    "scanner": "gosec2.26.1",
+    "complete": true,
+    "raw_findings": 30,
+    "same_rule_path_multiset_as_reviewed": true,
+    "source_owned_findings": 0,
+    "go_errors": {},
+    "basis": "Each existing finding retains its reachability/impact rationale; no ownership-only exemption."
+  }
 }

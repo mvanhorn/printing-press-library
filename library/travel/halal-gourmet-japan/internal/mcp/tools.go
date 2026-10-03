@@ -668,19 +668,18 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
 	}
-	db, toolErr := openMCPReadOnlyStore(path)
+	queryCtx, cancel := bound.WithSQLQueryDeadline(ctx)
+	defer cancel()
+	guard, err := hgj.BeginSavedReadContext(queryCtx, path)
+	if err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
+	defer guard.Close()
+	db, toolErr := openMCPReadOnlyStore(guard.Path())
 	if toolErr != nil {
 		return toolErr, nil
 	}
 	defer db.Close()
-
-	guard, err := hgj.BeginSavedRead(path)
-	if err != nil {
-		return mcplib.NewToolResultError(err.Error()), nil
-	}
-
-	queryCtx, cancel := bound.WithSQLQueryDeadline(ctx)
-	defer cancel()
 
 	conn, err := db.DB().Conn(queryCtx)
 	if err != nil {

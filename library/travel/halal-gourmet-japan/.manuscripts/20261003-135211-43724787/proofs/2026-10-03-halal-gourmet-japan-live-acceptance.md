@@ -1,24 +1,24 @@
 # Live acceptance — Halal Gourmet Japan
 
-Full Press matrix: PASS, 114/114 required tests, zero failures, 75 explicitly skipped/unverified framework or inapplicable probes. Public source GET/search paths produced real facts; both local-write inspection leaves used actual happy argv without --dry-run. No provider mutations were exercised.
+Final full Press matrix: PASS,114/114 required tests, zero failures,75 explicitly skipped/unverified framework or inapplicable probes. Both local-write inspection leaves use actual GET happy argv without dry-run. Source operations are public GETs; no provider mutations were exercised.
 
-The runner visits plan leaves before inspection leaves, so its planner responses correctly expose missing snapshots. Substantive planning correctness is additionally proved by completed live CLI and MCP saves followed by explicit saved get and all five plans: compare two records; match independent requirements; gaps retain absent certifier/expiry; pair reports 2.255 km straight-line distance; changes preserves factual history. Normal JSON, CLI --agent and MCP agent=true collections carry the same facts.
+The runner visits planning leaves before inspection leaves, so missing-snapshot responses are limited evidence. Completed real native and MCP saves separately prove saved get and all five plans with two loaded records: compare source conditions; match independent requirements; gaps preserve absent certifier/expiry; pair reports2.255 km straight-line distance; changes preserves factual history. Normal JSON and the full factual payload inside the documented agent/MCP envelope agree on all five plans. Observation times remain exact; no certification or current-access guarantee is inferred.
 
-Active writers fail explicitly across saved CLI reads/plans and MCP SQL; no stale successful facts are emitted. Closing writers restores correct saved observations. Observation timestamps and limitations remain visible. One single independent gpt-6.1-sol MAX reviewer rechecked fixes and returned PASS with no outstanding owned findings.
+The same single independent reviewer passes80 current-binary native/MCP cases including supported aliases, cooperating writers, formats and SQL guidance. Active writers fail closed across saved CLI reads/plans and MCP SQL, then exact committed facts recover after writers close. Verified-descriptor reader images, URI-sensitive selected/resolved cache and temporary path refusal, bounded copies and cleanup pass existing regressions. Ordinary SQLite writes remain transactional; unsupported external file replacement while writing is disclosed.
 
-The binary-owned phase5-acceptance.json binds this outcome to exact source hashes. Detailed private runtime transcripts stay outside publication manuscripts.
+Shipping MCP SELECT sqlite_version() reports3.51.3; module pins are sqlite1.46.2/libc1.70.0. Structured final proof accompanies this manuscript. The binary-owned phase5-acceptance.json binds the passing matrix to exact current source hashes. Private full runtime transcripts were inspected and deleted before publication.
 
 ## Representative latency and memory
 
-Single macOS CLI invocations with isolated state; live requests depend on network/cache conditions. No average or broad benchmark is claimed.
+Single macOS CLI invocations using isolated state and /usr/bin/time -l; these are representative measurements, not averages or routing benchmarks. Source bodies are capped at8 MiB, private saved-reader images at128 MiB, selections at20 IDs per kind and pairs at400 candidates.
 
 | Command | Seconds | Peak RSS MiB | Output bytes |
 |---|---:|---:|---:|
-| restaurants get | 0.386 | 29.64 | 4559 |
-| prayer get | 0.069 | 27.78 | 3741 |
-| restaurants search | 0.763 | 27.7 | 21607 |
-| plan compare | 0.012 | 20.2 | 9717 |
-| plan match | 0.012 | 20.28 | 1627 |
-| plan gaps | 0.012 | 20.02 | 1485 |
-| plan pair | 0.012 | 21.62 | 10454 |
-| plan changes | 0.015 | 20.45 | 961 |
+| restaurants get | 0.156 | 28.97 | 4559 |
+| prayer get | 0.161 | 28.34 | 3741 |
+| restaurants search | 0.812 | 29.67 | 21619 |
+| plan compare | 0.016 | 20.33 | 9717 |
+| plan match | 0.013 | 20.03 | 1265 |
+| plan gaps | 0.012 | 20.16 | 1485 |
+| plan pair | 0.012 | 21.09 | 10454 |
+| plan changes | 0.012 | 20.2 | 961 |

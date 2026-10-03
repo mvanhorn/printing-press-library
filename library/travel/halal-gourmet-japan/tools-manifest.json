@@ -126,32 +126,5 @@
         }
       ]
     }
-  ],
-  "novel_features": [
-    {
-      "name": "Selected-place evidence comparison",
-      "command": "plan compare",
-      "description": "Align the source-reported food and prayer facts of selected saved places."
-    },
-    {
-      "name": "Explicit condition matcher",
-      "command": "plan match",
-      "description": "See which requested source labels are reported and which need confirmation."
-    },
-    {
-      "name": "Missing planning-evidence triage",
-      "command": "plan gaps",
-      "description": "List missing certifier, certificate validity, hours and access evidence."
-    },
-    {
-      "name": "Food-and-prayer proximity pairs",
-      "command": "plan pair",
-      "description": "Pair selected restaurants and prayer places by straight-line distance."
-    },
-    {
-      "name": "Saved evidence changes",
-      "command": "plan changes",
-      "description": "See factual changes between the latest two successful observations."
-    }
   ]
 }

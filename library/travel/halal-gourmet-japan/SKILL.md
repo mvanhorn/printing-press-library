@@ -220,3 +220,9 @@ Register `halal-gourmet-japan-pp-mcp` with the MCP host. Keep the CLI sibling in
 Verify the binary, choose the narrow leaf command, inspect source results with `--agent`, and retain source URL, evidence scope and observation date in any answer. Describe reported facts and missing evidence without converting them into an assurance verdict.
 
 Finish all concurrent inspections before local planning. Saved detail reads, plans and MCP SQL refuse a non-empty WAL or a database change during the read with cache_visibility_unavailable (CLI exit 10), rather than return an older checkpoint as current. A checkpointed but untruncated WAL can also trigger this conservative guard; close remaining database writers and retry. Returned facts retain their exact observed_at times. The framework's invalid `--data-source` value currently exits 1; domain input errors exit 2.
+
+Readers and snapshot writers resolve symbolic links to one canonical database and verify selected-path identity. Databases with multiple hard links are rejected where the host exposes link-count metadata; use a database with one hard link. Keep database files in place until all writers close. Dry-run validates the same required inputs before source or snapshot work; standard framework learning can record command activity unless --no-learn is set.
+
+Saved readers use private temporary immutable images copied from verified pinned descriptors, bounded at128 MiB and removed after each read. Larger cache files fail explicitly; use a smaller cache. Cache paths and resolved alias targets containing percent, question-mark or hash bytes are rejected before SQLite opening; choose a plain filesystem name.
+
+The temporary-directory path and its resolved target also require plain filesystem names; use an ordinary TMPDIR path. Snapshot writers retain normal SQLite transaction/WAL semantics. External same-user file replacement during writing is unsupported; detected retargeting returns an explicit error.

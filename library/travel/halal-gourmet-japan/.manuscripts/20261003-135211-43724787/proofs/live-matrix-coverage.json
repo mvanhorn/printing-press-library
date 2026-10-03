@@ -3,6 +3,8 @@
   "required_passed": 114,
   "required_failed": 0,
   "skipped": 75,
+  "ran_at": "2026-10-03T12:25:53.034637Z",
+  "source_fingerprint": "bed79b4a286e2adb7b649e727d4691db76c5d4bb28a501676f01fce13d9fd2e9",
   "domain_happy_paths": [
     {
       "command": "plan changes",
@@ -18,7 +20,6 @@
       "status": "pass",
       "sample_capped_at_bytes": 4096,
       "source": "local",
-      "loaded_count": 0,
       "id": "300739"
     },
     {
@@ -35,7 +36,6 @@
       "status": "pass",
       "sample_capped_at_bytes": 4096,
       "source": "local",
-      "loaded_count": 0,
       "id": "300739"
     },
     {
@@ -52,7 +52,6 @@
       "status": "pass",
       "sample_capped_at_bytes": 4096,
       "source": "local",
-      "loaded_count": 0,
       "id": "300739"
     },
     {
@@ -71,7 +70,6 @@
       "status": "pass",
       "sample_capped_at_bytes": 4096,
       "source": "local",
-      "loaded_count": 0,
       "id": "300739"
     },
     {
@@ -90,7 +88,6 @@
       "status": "pass",
       "sample_capped_at_bytes": 4096,
       "source": "local",
-      "loaded_count": 0,
       "id": "300739"
     },
     {
@@ -152,6 +149,6 @@
       "id": "614872"
     }
   ],
-  "runner_hollow_coverage_fields": "not emitted by this binary report",
-  "planning_substantive_evidence": "agent-collection-evidence.json and reviewer-normal-round3.json: completed live save then all five plans, CLI normal/agent and MCP equality; no facts dropped"
+  "runner_hollow_coverage_fields": "not emitted by this binary report; actual GET argv and factual outputs independently inspected",
+  "planning_substantive_evidence": "Fresh agent-collection-evidence.json: completed CLI/MCP live saves, saved gets and all five plans loaded2; full normal/agent/MCP factual payloads equal."
 }

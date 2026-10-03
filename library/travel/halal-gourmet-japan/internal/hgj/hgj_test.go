@@ -89,6 +89,38 @@ func TestSearchCardsAndEmptyResults(t *testing.T) {
 		})
 	}
 }
+func TestObservedSourceEmptySummary(t *testing.T) {
+	for _, kind := range []string{Restaurant, Prayer} {
+		body := `<main><h1>Search Results</h1></main><div hidden id="S:2"><p class="SearchResults-module__KZpaDa__resultSummary">No results found.</p></div>`
+		got, err := ParseSearch([]byte(body), kind, Origin+"/search", at, 5)
+		if err != nil || got.SourceTotal != 0 || got.Results == nil || len(got.Results) != 0 {
+			t.Fatalf("explicit source empty state was not preserved: kind=%s result=%+v err=%v", kind, got, err)
+		}
+	}
+	if _, err := ParseSearch([]byte(`<main><p>No results found.</p></main>`), Restaurant, Origin+"/search", at, 5); err == nil {
+		t.Fatal("generic paragraph became a trusted source empty result")
+	}
+}
+
+func TestZeroResultSearchRejectsRelatedCards(t *testing.T) {
+	for _, kind := range []string{Restaurant, Prayer} {
+		prefix := "/restaurant/"
+		if kind == Prayer {
+			prefix = "/pray/"
+		}
+		for _, streamed := range []bool{false, true} {
+			card := `<a class="archive-box" href="` + prefix + `300739"><h3>Related place</h3></a>`
+			body := `<main><p>0 results found</p>` + card + `</main>`
+			if streamed {
+				body = `<main><p>0 results found</p></main><div hidden id="S:3">` + card + `</div>`
+			}
+			if _, err := ParseSearch([]byte(body), kind, Origin+"/search", at, 5); err == nil {
+				t.Fatalf("zero-result page accepted unrelated card: kind=%s streamed=%v", kind, streamed)
+			}
+		}
+	}
+}
+
 func TestStreamedSSRListingFragments(t *testing.T) {
 	body := `<html><body><main><h1>Search Results</h1><p>loading</p></main><div hidden id="S:2"><p>1 result found</p></div><div hidden id="S:3"><a class="archive-box" href="/restaurant/300739"><h3>Real streamed ramen</h3><img alt="Halal Certified"><span>+</span></a></div><section><a href="/restaurant/949742"><h3>Unrelated carousel</h3></a></section></body></html>`
 	got, e := ParseSearch([]byte(body), Restaurant, Origin+"/search", at, 5)
