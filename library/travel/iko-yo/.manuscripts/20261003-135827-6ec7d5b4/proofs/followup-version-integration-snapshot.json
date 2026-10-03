@@ -1,0 +1,38 @@
+{
+  "verdict": "PASS",
+  "scope": "metadata-only upstream version integration",
+  "reviewed_at": "2026-10-03T09:49:37.353958+00:00",
+  "head": "7321e6c93c1026b6631c32723084536db9af35de",
+  "comparison_base": "75d23015",
+  "seven_approved_fix_hashes_unchanged": {
+    "internal/cli/iko_yo_trip_helpers.go": true,
+    "internal/cli/trip_compare.go": true,
+    "internal/cli/iko_yo_trip_test.go": true,
+    "internal/trip/parse.go": true,
+    "internal/trip/client.go": true,
+    "internal/trip/navigation_test.go": true,
+    ".printing-press-patches/iko-yo-trip-facts-preserve-unknowns.json": true
+  },
+  "version_files_sha256": {
+    "internal/cli/version.go": "135374e2e8b4226130de0285f163465ae6cfd98148e24d93e83a12cc1a39153f",
+    "cmd/iko-yo-pp-mcp/main.go": "3fef150a5a6aaaa2333b00b4b9108f988fbfe1661eea4463db0bfe70469817fe"
+  },
+  "shipping_artifacts": {
+    "iko-yo-pp-cli": {
+      "sha256": "2d07bad2d7a4ea12beae85f09ebf4b58da06d10beea92b25cca4df31785f9f1b",
+      "bytes": 22459250
+    },
+    "iko-yo-pp-mcp": {
+      "sha256": "4e189f55b41ca77dcbe26918e24d734555da42666fdfde6a62da17436ec2f425",
+      "bytes": 25099586
+    }
+  },
+  "cli_version": "iko-yo-pp-cli 2026.10.1",
+  "mcp_server_info": {
+    "name": "Iko-yo Trip",
+    "version": "2026.10.1"
+  },
+  "register_trip_surface_preserved": true,
+  "upstream_ledger_and_stamps_preserved": true,
+  "original_and_focused_snapshots_preserved": true
+}

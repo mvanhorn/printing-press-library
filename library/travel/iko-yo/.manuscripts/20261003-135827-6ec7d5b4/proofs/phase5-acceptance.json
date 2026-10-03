@@ -11,10 +11,10 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "f008d983462063793987a33a7ea3695b8fa1021ab365fc95d5b84736de08e862",
+  "source_fingerprint": "af47767314708370e74cac915c2213a31521d9bd8749f9703ec26cbabf14781c",
   "source_files": {
     "cmd/iko-yo-pp-cli/main.go": "dfd0b58b34139ce30c85236782341de23b5c9753814961b726d82a1f36be9de7",
-    "cmd/iko-yo-pp-mcp/main.go": "bd0a57e48493806877380459bab5da33cc0242d195f61afa0651b23710648cd1",
+    "cmd/iko-yo-pp-mcp/main.go": "844c6fca1b516041a9a91a550f32fac853d96e321d22aa670d4e9130c83c84c0",
     "go.mod": "9051014a08b180677c93e7bc47cf496b87d66abaec83314e3f1a4177e13fe1a8",
     "go.sum": "60f22f1bdcbfee46666324e3e28275169d31775db9b352ad1acdb070ff4d22f3",
     "internal/cache/cache.go": "3bc84bdc4a56f2093b015fb7dd2153b6a3cc803f029d89d1157b4f5975fe26b6",
@@ -73,7 +73,7 @@
     "internal/cli/trip_discover_test.go": "b37c7eb24778d3459ade5f0fc62b816bbb3cfcceb24052c05b25a9d685f0654e",
     "internal/cli/trip_inspect.go": "ffe79d30f32f179ad72b407ac79933beeb6247d75283b3462dcb122872e12480",
     "internal/cli/trip_inspect_test.go": "d24f8f1bacdc71e35f1693d33eb7dedf62191ac1bc7ea917c6f5ca4b3f5d6fa1",
-    "internal/cli/version.go": "e09971a19ec8ddee22febaaf25efec9d83880c76f8137e01b142d8d85429b0cf",
+    "internal/cli/version.go": "724ed4a22ab15966b03a2c89014c9c961fa35528dc9d6fce6519ab06e812b0bd",
     "internal/cli/which.go": "64aba9881cf0377f73e7e87cc6f5ed48d55822ff9fc7a12f2aef0968464de989",
     "internal/cli/which_test.go": "a2d4ab34e8bc3e36be55215ef0f5396392a7f7de3a4d132ca71f75a2556f4f92",
     "internal/client/client.go": "7f0d80a5f90919cb5a898d136ba2e858f8b077fd3f5436fa6cd4a22167260b86",
