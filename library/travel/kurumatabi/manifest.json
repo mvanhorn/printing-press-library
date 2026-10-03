@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "kurumatabi-pp-mcp",
+  "display_name": "Kurumatabi / くるま旅",
+  "version": "0.1.0",
+  "description": "Plan Japanese overnight vehicle stops with explicit fit, facilities and unknowns.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/kurumatabi-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/kurumatabi-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

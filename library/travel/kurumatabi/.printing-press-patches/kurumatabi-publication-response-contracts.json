@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "kurumatabi-publication-response-contracts",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261003-001155-a814a8b2",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Bound verified HTML/JSON response reads and decompression, preserve agent evidence envelopes through selection, and report partial comparison failures with typed exit5.",
+  "reason": "Low-level source diagnostics share generated HTTP code; text responses must be bounded before parse/cache/retry, while generic binary streaming behavior remains compatible. Agent source/coverage and required fetch failures must remain machine visible. Nonempty comparison rows expose schema; unrelated nested empty arrays cannot excuse a selector typo.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/client_response_bounds_test.go",
+    "internal/cli/helpers.go",
+    "internal/cli/kurumatabi_publication_contracts_test.go",
+    "internal/cli/parks_compare.go",
+    "internal/cli/kurumatabi_runtime_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Behavior regressions cover success/error wire reads, lying Content-Length, body closure, decompression expansion/stacks, exact-limit acceptance, binary delivery, metadata/row/all-miss projections, partial comparison output and typed exits. Actual22-row comparison all-miss regressions cover complete/partial cases and selector error precedence; anchored known-empty field selection remains supported."
+}

@@ -1,0 +1,173 @@
+{
+  "api_name": "kurumatabi",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-02T16:22:20.960112Z",
+  "novel_features": [
+    {
+      "name": "Published vehicle compatibility",
+      "command": "parks fit",
+      "description": "Compare your vehicle with one park’s published dimensions and membership rules.",
+      "rationale": "This uses GET /park/{kind}/{id}.html or the cached normalized record to compare positive finite vehicle measurements in metres, vehicle category and requested membership with explicit bounds and conditions, producing evidence-linked decisions with no external dependencies.",
+      "example": "kurumatabi-pp-cli parks fit rvpark/1086 --length-m 6 --width-m 2.2 --height-m 3 --vehicle van --membership nonmember --agent",
+      "why_it_matters": "Large-motorhome service-stop planner can act on explicit evidence and unresolved checks.",
+      "group": "Vehicle and service decisions"
+    },
+    {
+      "name": "Evidence comparison",
+      "command": "parks compare",
+      "description": "Compare park evidence without inventing total prices or unknown facilities.",
+      "rationale": "This uses two or more GET /park/{kind}/{id}.html records or cached detail observations to align dimensions, category, service states, fee text, membership and reservation conditions into field-by-park evidence rows with no external dependencies.",
+      "example": "kurumatabi-pp-cli parks compare rvpark/1086 yypark/213 --agent",
+      "why_it_matters": "Pet-owning van planner; Club and nonmember tariff comparer can act on explicit evidence and unresolved checks.",
+      "group": "Observed park shortlists"
+    },
+    {
+      "name": "Waypoint proximity",
+      "command": "parks near",
+      "description": "Rank cached parks by straight-line distance from an explicit waypoint.",
+      "rationale": "This uses cached coordinates explicitly extracted from official detail map links to compute Haversine distances from validated latitude/longitude inputs, report missing-coordinate counts and rank the observed candidate pool with no external dependencies.",
+      "example": "kurumatabi-pp-cli parks near --latitude 36.7 --longitude 138.2 --limit 5 --agent",
+      "why_it_matters": "Pet-owning van planner can act on explicit evidence and unresolved checks.",
+      "group": "Observed park shortlists"
+    },
+    {
+      "name": "Observation evidence audit",
+      "command": "parks audit",
+      "description": "Surface disabled-icon conflicts, stale observations and qualified opening notes.",
+      "rationale": "This uses a park's cached or fetched section evidence, raw icon alt/file state, per-record conditions and opening notes to run a small explicit rule set that emits conflict and confirmation issues with citations and no external dependencies.",
+      "example": "kurumatabi-pp-cli parks audit rvpark/712 --agent",
+      "why_it_matters": "Club and nonmember tariff comparer; Large-motorhome service-stop planner can act on explicit evidence and unresolved checks.",
+      "group": "Observed park shortlists"
+    },
+    {
+      "name": "Required-service screening",
+      "command": "parks match",
+      "description": "Screen cached parks into proven, uncertain and ruled-out service matches.",
+      "rationale": "This uses cached normalized detail records and their raw proofs to evaluate a conjunction of requested service and membership predicates, partition candidates into proven_match, needs_confirmation and ruled_out, and list each predicate result with no external dependencies.",
+      "example": "kurumatabi-pp-cli parks match --require electricity,water,pets --membership nonmember --agent",
+      "why_it_matters": "Pet-owning van planner; Large-motorhome service-stop planner can act on explicit evidence and unresolved checks.",
+      "group": "Vehicle and service decisions"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Published vehicle compatibility",
+      "command": "parks fit",
+      "description": "Compare your vehicle with one park’s published dimensions and membership rules.",
+      "rationale": "This uses GET /park/{kind}/{id}.html or the cached normalized record to compare positive finite vehicle measurements in metres, vehicle category and requested membership with explicit bounds and conditions, producing evidence-linked decisions with no external dependencies.",
+      "example": "kurumatabi-pp-cli parks fit rvpark/1086 --length-m 6 --width-m 2.2 --height-m 3 --vehicle van --membership nonmember --agent",
+      "why_it_matters": "Large-motorhome service-stop planner can act on explicit evidence and unresolved checks.",
+      "group": "Vehicle and service decisions"
+    },
+    {
+      "name": "Evidence comparison",
+      "command": "parks compare",
+      "description": "Compare park evidence without inventing total prices or unknown facilities.",
+      "rationale": "This uses two or more GET /park/{kind}/{id}.html records or cached detail observations to align dimensions, category, service states, fee text, membership and reservation conditions into field-by-park evidence rows with no external dependencies.",
+      "example": "kurumatabi-pp-cli parks compare rvpark/1086 yypark/213 --agent",
+      "why_it_matters": "Pet-owning van planner; Club and nonmember tariff comparer can act on explicit evidence and unresolved checks.",
+      "group": "Observed park shortlists"
+    },
+    {
+      "name": "Waypoint proximity",
+      "command": "parks near",
+      "description": "Rank cached parks by straight-line distance from an explicit waypoint.",
+      "rationale": "This uses cached coordinates explicitly extracted from official detail map links to compute Haversine distances from validated latitude/longitude inputs, report missing-coordinate counts and rank the observed candidate pool with no external dependencies.",
+      "example": "kurumatabi-pp-cli parks near --latitude 36.7 --longitude 138.2 --limit 5 --agent",
+      "why_it_matters": "Pet-owning van planner can act on explicit evidence and unresolved checks.",
+      "group": "Observed park shortlists"
+    },
+    {
+      "name": "Observation evidence audit",
+      "command": "parks audit",
+      "description": "Surface disabled-icon conflicts, stale observations and qualified opening notes.",
+      "rationale": "This uses a park's cached or fetched section evidence, raw icon alt/file state, per-record conditions and opening notes to run a small explicit rule set that emits conflict and confirmation issues with citations and no external dependencies.",
+      "example": "kurumatabi-pp-cli parks audit rvpark/712 --agent",
+      "why_it_matters": "Club and nonmember tariff comparer; Large-motorhome service-stop planner can act on explicit evidence and unresolved checks.",
+      "group": "Observed park shortlists"
+    },
+    {
+      "name": "Required-service screening",
+      "command": "parks match",
+      "description": "Screen cached parks into proven, uncertain and ruled-out service matches.",
+      "rationale": "This uses cached normalized detail records and their raw proofs to evaluate a conjunction of requested service and membership predicates, partition candidates into proven_match, needs_confirmation and ruled_out, and list each predicate result with no external dependencies.",
+      "example": "kurumatabi-pp-cli parks match --require electricity,water,pets --membership nonmember --agent",
+      "why_it_matters": "Pet-owning van planner; Large-motorhome service-stop planner can act on explicit evidence and unresolved checks.",
+      "group": "Vehicle and service decisions"
+    }
+  ],
+  "narrative": {
+    "display_name": "Kurumatabi / くるま旅",
+    "headline": "Plan Japanese overnight vehicle stops with explicit fit, facilities and unknowns.",
+    "value_prop": "Search the official RV Park and Kurumatabi ecosystem, inspect vehicle limits and facility fees, then compare evidence and prepare a host handoff. Cached observations support proximity and required-service screening without claiming live vacancies or dated stay totals.",
+    "auth_narrative": "Public search and detail require no account. The native search session is memory-only and is used only to preserve filter pagination.",
+    "quickstart": [
+      {
+        "command": "kurumatabi-pp-cli doctor --dry-run",
+        "comment": "Check the local CLI without network or credentials."
+      },
+      {
+        "command": "kurumatabi-pp-cli parks search --prefecture nagano --type rvpark --limit 5 --agent",
+        "comment": "Discover a bounded official shortlist."
+      },
+      {
+        "command": "kurumatabi-pp-cli parks detail rvpark/1086 --agent",
+        "comment": "Read actual dimensions, tariffs and restrictions."
+      },
+      {
+        "command": "kurumatabi-pp-cli parks fit rvpark/1086 --length-m 6 --width-m 2.2 --height-m 3 --vehicle van --membership nonmember --agent",
+        "comment": "Check published constraints against a real van."
+      },
+      {
+        "command": "kurumatabi-pp-cli parks handoff rvpark/1086 --agent",
+        "comment": "Prepare booking contact and unresolved questions."
+      }
+    ],
+    "when_to_use": "Use for official Japanese RV park and permitted overnight-stop discovery, vehicle compatibility evidence, service comparison and booking preparation. Preserve per-record membership, fee and opening qualifications.",
+    "anti_triggers": [
+      "Making reservations or payments",
+      "Claiming dated vacancy or an inclusive stay quote",
+      "Inferring outdoor-camping permission from an overnight parking record",
+      "Road routing or clearance guarantees"
+    ],
+    "recipes": [
+      {
+        "title": "Bounded park shortlist",
+        "command": "kurumatabi-pp-cli parks search --prefecture nagano --type rvpark --agent --select results.id,results.name,meta",
+        "explanation": "Keep identifiers, Japanese names and source coverage."
+      },
+      {
+        "title": "Vehicle evidence",
+        "command": "kurumatabi-pp-cli parks fit rvpark/1086 --length-m 6 --width-m 2.2 --height-m 3 --vehicle van --membership nonmember --agent",
+        "explanation": "Unknown constraints require host confirmation."
+      },
+      {
+        "title": "Park comparison",
+        "command": "kurumatabi-pp-cli parks compare rvpark/1086 yypark/213 --agent",
+        "explanation": "Tariff audiences and fees remain separate."
+      },
+      {
+        "title": "Offline proximity",
+        "command": "kurumatabi-pp-cli parks near --latitude 36.7 --longitude 138.2 --limit 5 --agent",
+        "explanation": "Ranks only cached observed parks; distance is straight line."
+      },
+      {
+        "title": "Required services",
+        "command": "kurumatabi-pp-cli parks match --require electricity,water,pets --membership nonmember --agent",
+        "explanation": "Unknown evidence never becomes a proven match."
+      }
+    ],
+    "trigger_phrases": [
+      "find an RV park for my van",
+      "check Kurumatabi vehicle size",
+      "compare RV park dump stations",
+      "prepare RV park booking contacts",
+      "use kurumatabi",
+      "run kurumatabi"
+    ]
+  }
+}

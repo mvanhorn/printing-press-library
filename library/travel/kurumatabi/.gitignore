@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/kurumatabi-pp-cli
+/kurumatabi-pp-cli.exe
+/kurumatabi-pp-mcp
+/kurumatabi-pp-mcp.exe
+/bin/
+/build/
+/dist/

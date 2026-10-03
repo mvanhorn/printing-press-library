@@ -1,0 +1,73 @@
+name: kurumatabi
+category: travel
+description: "Find and compare Japanese RV parks using vehicle and facility evidence."
+cli_description: "Plan Japanese overnight vehicle stops with explicit fit, facilities and unknowns."
+version: "0.1.0"
+base_url: "https://www.kurumatabi.com"
+http_transport: standard
+health_check_path: "/park/search.php"
+auth:
+  type: none
+cache:
+  enabled: false
+mcp:
+  transport: [stdio]
+  endpoint_tools: hidden
+learn:
+  ticker_patterns: ['^(rvpark|yypark|kurumatabipark|gourmet|train|minpark|campjrva|camp3000)/[0-9]+$']
+  entity_lookup_seeds:
+    park_type:
+      - canonical: RVパーク
+        aliases: [rv park, rvpark]
+      - canonical: くるま旅パーク
+        aliases: [kurumatabi park, kurumatabipark]
+      - canonical: 湯YOUパーク
+        aliases: [youyou park, yypark]
+resources:
+  source:
+    description: "Inspect low-level public source links; use parks commands for planning."
+    endpoints:
+      catalog:
+        method: GET
+        path: "/park/search.php"
+        description: "List first-page canonical links from the public park catalog."
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/park/rvpark", "/park/yypark", "/park/kurumatabipark", "/park/gourmet", "/park/minpark", "/park/train", "/park/campjrva", "/park/camp3000"]
+        response:
+          type: array
+          item: SourceLink
+      page:
+        method: GET
+        path: "/park/{kind}/{id}.html"
+        description: "Inspect public source page metadata and links for a known park."
+        example: "  kurumatabi-pp-cli source page rvpark 1086 --json --compact"
+        happy_args: "kind=rvpark;id=1086"
+        params:
+          - name: kind
+            type: string
+            positional: true
+            required: true
+            example: rvpark
+            description: "Park URL kind from canonical search results, such as rvpark."
+          - name: id
+            type: string
+            positional: true
+            required: true
+            example: "1086"
+            description: "Stable numeric park identifier from the source URL."
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/park"]
+        response:
+          type: array
+          item: SourceLink
+types:
+  SourceLink:
+    fields:
+      - name: url
+        type: string
+      - name: text
+        type: string

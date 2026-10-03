@@ -1,0 +1,74 @@
+{
+  "api_name": "kurumatabi",
+  "base_url": "https://www.kurumatabi.com",
+  "description": "Plan Japanese overnight vehicle stops with explicit fit, facilities and unknowns.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "source_catalog",
+      "description": "List first-page canonical links from the public park catalog. Returns array of SourceLink.",
+      "method": "GET",
+      "path": "/park/search.php",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "source_page",
+      "description": "Inspect public source page metadata and links for a known park. Required: kind, id. Returns array of SourceLink.",
+      "method": "GET",
+      "path": "/park/{kind}/{id}.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "path",
+          "description": "Park URL kind from canonical search results, such as rvpark.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Stable numeric park identifier from the source URL.",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Published vehicle compatibility",
+      "command": "parks fit",
+      "description": "Compare your vehicle with one park’s published dimensions and membership rules."
+    },
+    {
+      "name": "Evidence comparison",
+      "command": "parks compare",
+      "description": "Compare park evidence without inventing total prices or unknown facilities."
+    },
+    {
+      "name": "Waypoint proximity",
+      "command": "parks near",
+      "description": "Rank cached parks by straight-line distance from an explicit waypoint."
+    },
+    {
+      "name": "Observation evidence audit",
+      "command": "parks audit",
+      "description": "Surface disabled-icon conflicts, stale observations and qualified opening notes."
+    },
+    {
+      "name": "Required-service screening",
+      "command": "parks match",
+      "description": "Screen cached parks into proven, uncertain and ruled-out service matches."
+    }
+  ]
+}

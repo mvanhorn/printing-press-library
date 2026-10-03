@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-10-02T19:03:04.773729Z",
+  "cli_dir": "\u003ccli-dir\u003e/kurumatabi-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "Client-profile list has no parameters and returns only local profile names; concise text accurately names its entire operation."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 868,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated learning command; needs generator-template enhancement to mention filters and limits. Actual read-only annotation and parameter help are correct; no park workflow is affected."
+    }
+  ]
+}

@@ -1,0 +1,392 @@
+{
+  "source_url": "https://www.kurumatabi.com/park/search.php",
+  "observed_at": "2026-10-03T01:21:13.099561+09:00",
+  "groups": {
+    "prefectures": [
+      {
+        "value": "全国",
+        "label": "全国"
+      },
+      {
+        "value": "hokkaidou",
+        "label": "--北海道エリア--"
+      },
+      {
+        "value": "hokkaido",
+        "label": "北海道"
+      },
+      {
+        "value": "tohoku",
+        "label": "--東北エリア--"
+      },
+      {
+        "value": "aomori",
+        "label": "青森県"
+      },
+      {
+        "value": "iwate",
+        "label": "岩手県"
+      },
+      {
+        "value": "miyagi",
+        "label": "宮城県"
+      },
+      {
+        "value": "akita",
+        "label": "秋田県"
+      },
+      {
+        "value": "yamagata",
+        "label": "山形県"
+      },
+      {
+        "value": "fukushima",
+        "label": "福島県"
+      },
+      {
+        "value": "kantou",
+        "label": "--関東エリア--"
+      },
+      {
+        "value": "ibaraki",
+        "label": "茨城県"
+      },
+      {
+        "value": "tochigi",
+        "label": "栃木県"
+      },
+      {
+        "value": "gunma",
+        "label": "群馬県"
+      },
+      {
+        "value": "saitama",
+        "label": "埼玉県"
+      },
+      {
+        "value": "chiba",
+        "label": "千葉県"
+      },
+      {
+        "value": "tokyo",
+        "label": "東京都"
+      },
+      {
+        "value": "kanagawa",
+        "label": "神奈川県"
+      },
+      {
+        "value": "hokuriku",
+        "label": "--北陸・甲信越エリア--"
+      },
+      {
+        "value": "niigata",
+        "label": "新潟県"
+      },
+      {
+        "value": "toyama",
+        "label": "富山県"
+      },
+      {
+        "value": "ishikawa",
+        "label": "石川県"
+      },
+      {
+        "value": "fukui",
+        "label": "福井県"
+      },
+      {
+        "value": "yamanashi",
+        "label": "山梨県"
+      },
+      {
+        "value": "nagano",
+        "label": "長野県"
+      },
+      {
+        "value": "toukai",
+        "label": "--東海エリア--"
+      },
+      {
+        "value": "gifu",
+        "label": "岐阜県"
+      },
+      {
+        "value": "shizuoka",
+        "label": "静岡県"
+      },
+      {
+        "value": "aichi",
+        "label": "愛知県"
+      },
+      {
+        "value": "mie",
+        "label": "三重県"
+      },
+      {
+        "value": "kansai",
+        "label": "--関西エリア--"
+      },
+      {
+        "value": "shiga",
+        "label": "滋賀県"
+      },
+      {
+        "value": "kyoto",
+        "label": "京都府"
+      },
+      {
+        "value": "osaka",
+        "label": "大阪府"
+      },
+      {
+        "value": "hyogo",
+        "label": "兵庫県"
+      },
+      {
+        "value": "nara",
+        "label": "奈良県"
+      },
+      {
+        "value": "wakayama",
+        "label": "和歌山県"
+      },
+      {
+        "value": "chugoku",
+        "label": "--中国エリア--"
+      },
+      {
+        "value": "tottori",
+        "label": "鳥取県"
+      },
+      {
+        "value": "shimane",
+        "label": "島根県"
+      },
+      {
+        "value": "okayama",
+        "label": "岡山県"
+      },
+      {
+        "value": "hiroshima",
+        "label": "広島県"
+      },
+      {
+        "value": "yamaguchi",
+        "label": "山口県"
+      },
+      {
+        "value": "shikoku",
+        "label": "--四国エリア--"
+      },
+      {
+        "value": "tokushima",
+        "label": "徳島県"
+      },
+      {
+        "value": "kagawa",
+        "label": "香川県"
+      },
+      {
+        "value": "ehime",
+        "label": "愛媛県"
+      },
+      {
+        "value": "kochi",
+        "label": "高知県"
+      },
+      {
+        "value": "kyushu",
+        "label": "--九州・沖縄エリア--"
+      },
+      {
+        "value": "fukuoka",
+        "label": "福岡県"
+      },
+      {
+        "value": "saga",
+        "label": "佐賀県"
+      },
+      {
+        "value": "nagasaki",
+        "label": "長崎県"
+      },
+      {
+        "value": "kumamoto",
+        "label": "熊本県"
+      },
+      {
+        "value": "oita",
+        "label": "大分県"
+      },
+      {
+        "value": "miyazaki",
+        "label": "宮崎県"
+      },
+      {
+        "value": "kagoshima",
+        "label": "鹿児島県"
+      },
+      {
+        "value": "okinawa",
+        "label": "沖縄県"
+      }
+    ],
+    "types": [
+      {
+        "value": "2",
+        "label": "RVパーク"
+      },
+      {
+        "value": "3",
+        "label": "湯YOUパーク"
+      },
+      {
+        "value": "4",
+        "label": "特割3000"
+      },
+      {
+        "value": "5",
+        "label": "提携キャンプ場"
+      },
+      {
+        "value": "7",
+        "label": "ぐるめパーク"
+      },
+      {
+        "value": "8",
+        "label": "民パーク"
+      },
+      {
+        "value": "9",
+        "label": "トレインパーク"
+      },
+      {
+        "value": "10",
+        "label": "くるま旅パーク"
+      }
+    ],
+    "facilities": [
+      {
+        "value": "1",
+        "label": "ごみ処理可能"
+      },
+      {
+        "value": "2",
+        "label": "電源あり"
+      },
+      {
+        "value": "3",
+        "label": "水道あり"
+      },
+      {
+        "value": "4",
+        "label": "発電機OK"
+      },
+      {
+        "value": "5",
+        "label": "入浴施設あり"
+      },
+      {
+        "value": "6",
+        "label": "ペットOK"
+      },
+      {
+        "value": "7",
+        "label": "プレミアム会員特典あり"
+      },
+      {
+        "value": "8",
+        "label": "24時間トイレあり"
+      },
+      {
+        "value": "9",
+        "label": "ダンプステーションあり"
+      },
+      {
+        "value": "10",
+        "label": "ドッグランあり"
+      }
+    ],
+    "periods": [
+      {
+        "value": "1",
+        "label": "通年"
+      },
+      {
+        "value": "10",
+        "label": "平日"
+      },
+      {
+        "value": "2",
+        "label": "日祝"
+      },
+      {
+        "value": "3",
+        "label": "日祝の前日"
+      },
+      {
+        "value": "4",
+        "label": "春休み"
+      },
+      {
+        "value": "5",
+        "label": "GW"
+      },
+      {
+        "value": "6",
+        "label": "夏休み"
+      },
+      {
+        "value": "7",
+        "label": "お盆"
+      },
+      {
+        "value": "8",
+        "label": "冬休み"
+      },
+      {
+        "value": "9",
+        "label": "年末年始"
+      }
+    ],
+    "vehicles": [
+      {
+        "value": "1",
+        "label": "フルコン"
+      },
+      {
+        "value": "2",
+        "label": "セミフルコン"
+      },
+      {
+        "value": "3",
+        "label": "バスコン"
+      },
+      {
+        "value": "4",
+        "label": "キャブコン"
+      },
+      {
+        "value": "5",
+        "label": "バンコン"
+      },
+      {
+        "value": "6",
+        "label": "トラベルトレーラー"
+      },
+      {
+        "value": "7",
+        "label": "軽キャンピングカー"
+      },
+      {
+        "value": "8",
+        "label": "一般車"
+      },
+      {
+        "value": "10",
+        "label": "その他"
+      }
+    ]
+  }
+}

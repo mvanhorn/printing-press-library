@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/kurumatabi-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20261003-001155-a814a8b2",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}
