@@ -1,0 +1,3 @@
+# Iko-yo Trip shipcheck
+
+Final verdict: ship. Canonical umbrella exited 0; all seven legs passed. Verify 30/30, 100%; Steinberger 84/100 Grade A; all five planned behaviors built. First sweep passed six legs and failed one narrative example before dogfood resynchronized generated narrative blocks; focused full-examples narrative validation then passed all nine. Second full umbrella passed with live source/DNS access. Verify auto-removed six dead generated helpers. Live P1/P2 behavioral assertions and targeted parser/store/CLI tests pass. Scope limitations are intentional and documented: selected Trip only, bounded publication-order listings, sparse/complex facts unknown, no seat inventory or core catalog. No known shipping-scope functional bugs at this gate.

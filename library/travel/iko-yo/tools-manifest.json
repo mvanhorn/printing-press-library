@@ -1,0 +1,135 @@
+{
+  "api_name": "iko-yo",
+  "base_url": "https://trip.iko-yo.net",
+  "description": "Iko-yo Trip: find selected family trips and compare published dates, fees and explicit family facts.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "events_get",
+      "description": "Inspect published Iko-yo Trip event facts. Required: id. Returns the html.",
+      "method": "GET",
+      "path": "/events/{event_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "wire_name": "event_id",
+          "type": "string",
+          "location": "path",
+          "description": "The event_id path segment",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_list",
+      "description": "Fetch structured links from /events. Returns the html.",
+      "method": "GET",
+      "path": "/events",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "events_prefecture",
+      "description": "Discover Iko-yo Trip events in a source prefecture. Required: prefecture, region. Returns the html.",
+      "method": "GET",
+      "path": "/events/regions/{region_id}/prefectures/{prefecture_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "prefecture",
+          "wire_name": "prefecture_id",
+          "type": "string",
+          "location": "path",
+          "description": "The prefecture_id path segment",
+          "required": true
+        },
+        {
+          "name": "region",
+          "wire_name": "region_id",
+          "type": "string",
+          "location": "path",
+          "description": "The region_id path segment",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_region",
+      "description": "Discover Iko-yo Trip events in a source region. Required: region. Returns the html.",
+      "method": "GET",
+      "path": "/events/regions/{region_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "region",
+          "wire_name": "region_id",
+          "type": "string",
+          "location": "path",
+          "description": "The region_id path segment",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "spots_get",
+      "description": "Inspect published Iko-yo Trip spot facts. Required: id. Returns the html.",
+      "method": "GET",
+      "path": "/spots/{spot_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "wire_name": "spot_id",
+          "type": "string",
+          "location": "path",
+          "description": "The spot_id path segment",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "spots_list",
+      "description": "Fetch structured links from /spots. Returns the html.",
+      "method": "GET",
+      "path": "/spots",
+      "no_auth": true,
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Bounded date-window discovery",
+      "command": "trip discover",
+      "description": "Find regional candidates while seeing exactly which listing pages and records were checked."
+    },
+    {
+      "name": "Evidence-backed family fact card",
+      "command": "trip inspect",
+      "description": "See published age, indoor, nursing and changing evidence with unknown fields exposed."
+    },
+    {
+      "name": "Qualified charge and application comparison",
+      "command": "trip compare",
+      "description": "Compare separate fee statements, payment conditions and explicit application intervals."
+    },
+    {
+      "name": "Family-constraint comparison",
+      "command": "trip compare",
+      "description": "Compare selected outings against age, requested amenities and a trip date using supported, excluded and unknown states."
+    },
+    {
+      "name": "Offline shortlist with retained coverage",
+      "command": "trip cached",
+      "description": "Search saved family facts with their original observation times and collection coverage."
+    }
+  ]
+}

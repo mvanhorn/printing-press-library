@@ -1,0 +1,24 @@
+{
+  "observed_at": "2026-10-03T06:05:21.770162+00:00",
+  "printing_press_version": "4.33.0",
+  "skill_version": "3.0.0",
+  "shared_preflight": "LOCAL_HOME/Projects/Personal/Coding/.japan-cli-builds/travel-styles-shared-preflight.json",
+  "native_browser": {
+    "core_home": "403 Forbidden",
+    "trip_faq": "reachable",
+    "trip_spot_8220": "verified",
+    "trip_event_8412": "verified",
+    "trip_event_region_6": "verified",
+    "trip_event_prefecture_11": "verified"
+  },
+  "ordinary_http": {
+    "https://trip.iko-yo.net/faq": 200,
+    "https://trip.iko-yo.net/spots": 200,
+    "https://trip.iko-yo.net/events": 200,
+    "https://trip.iko-yo.net/spots/8220": 200,
+    "https://trip.iko-yo.net/events/8412": 200
+  },
+  "environment": "Sandbox DNS fails; unsandboxed normal HTTP reaches Trip",
+  "scope": "Official Iko-yo Trip selected family experience/municipal event catalog",
+  "core_limitation": "Full core catalog returns 403; not integrated"
+}

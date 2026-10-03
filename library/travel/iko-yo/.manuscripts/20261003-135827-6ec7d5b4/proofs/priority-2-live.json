@@ -1,0 +1,116 @@
+[
+  {
+    "case": "bounded dated Saitama discovery",
+    "passed": true,
+    "elapsed_seconds": 1.811,
+    "args": [
+      "trip",
+      "discover",
+      "--kind",
+      "events",
+      "--region",
+      "6",
+      "--prefecture",
+      "11",
+      "--from",
+      "2026-11-14",
+      "--to",
+      "2026-11-15",
+      "--max-pages",
+      "2",
+      "--limit",
+      "5",
+      "--json"
+    ],
+    "stderr": ""
+  },
+  {
+    "case": "negative keyword has bounded zero note",
+    "passed": true,
+    "elapsed_seconds": 0.435,
+    "args": [
+      "trip",
+      "discover",
+      "--kind",
+      "events",
+      "--query",
+      "unicorn-no-real-match-839",
+      "--max-pages",
+      "1",
+      "--json"
+    ],
+    "stderr": ""
+  },
+  {
+    "case": "detail age facilities fees",
+    "passed": true,
+    "elapsed_seconds": 0.371,
+    "args": [
+      "trip",
+      "inspect",
+      "spots/8220",
+      "--json"
+    ],
+    "stderr": ""
+  },
+  {
+    "case": "comparison source requirements cutoff",
+    "passed": true,
+    "elapsed_seconds": 1.14,
+    "args": [
+      "trip",
+      "compare",
+      "--refs",
+      "spots/8220,events/8412",
+      "--on",
+      "2026-11-15",
+      "--as-of",
+      "2026-10-17",
+      "--age-months",
+      "24",
+      "--amenities",
+      "nursing",
+      "--json"
+    ],
+    "stderr": ""
+  },
+  {
+    "case": "offline cache retains detail observation",
+    "passed": true,
+    "elapsed_seconds": 0.017,
+    "args": [
+      "trip",
+      "cached",
+      "Mooovi",
+      "--kind",
+      "spots",
+      "--amenities",
+      "nursing",
+      "--max-scan-records",
+      "500",
+      "--json"
+    ],
+    "stderr": ""
+  },
+  {
+    "case": "agent local provenance and projection",
+    "passed": true,
+    "elapsed_seconds": 0.014,
+    "args": [
+      "trip",
+      "inspect",
+      "--ref",
+      "spots/8220",
+      "--data-source",
+      "local",
+      "--agent",
+      "--select",
+      "ref,data_source,observed_at"
+    ],
+    "stderr": ""
+  },
+  {
+    "case": "child resource usage",
+    "max_rss_bytes": 33619968
+  }
+]

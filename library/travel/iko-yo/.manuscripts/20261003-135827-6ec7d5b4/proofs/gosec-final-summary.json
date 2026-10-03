@@ -1,0 +1,192 @@
+{
+  "custom_findings": [],
+  "framework_candidates": [
+    {
+      "file": "internal/client/client.go",
+      "rule": "G119",
+      "line": "466",
+      "detail": "Sensitive headers should not be re-added in redirect policy callbacks"
+    },
+    {
+      "file": "internal/platform/gate.go",
+      "rule": "G101",
+      "line": "22",
+      "detail": "Potential hardcoded credentials"
+    },
+    {
+      "file": "internal/cli/teach.go",
+      "rule": "G703",
+      "line": "210",
+      "detail": "Path traversal via taint analysis"
+    },
+    {
+      "file": "internal/store/store.go",
+      "rule": "G201",
+      "line": "3763-3766",
+      "detail": "SQL string formatting"
+    },
+    {
+      "file": "internal/store/store.go",
+      "rule": "G201",
+      "line": "3460-3463",
+      "detail": "SQL string formatting"
+    },
+    {
+      "file": "internal/store/store.go",
+      "rule": "G201",
+      "line": "1504",
+      "detail": "SQL string formatting"
+    },
+    {
+      "file": "internal/store/store.go",
+      "rule": "G201",
+      "line": "1480",
+      "detail": "SQL string formatting"
+    },
+    {
+      "file": "internal/store/store.go",
+      "rule": "G202",
+      "line": "1031",
+      "detail": "SQL string concatenation"
+    },
+    {
+      "file": "internal/store/learnings.go",
+      "rule": "G202",
+      "line": "609",
+      "detail": "SQL string concatenation"
+    },
+    {
+      "file": "internal/platform/migration.go",
+      "rule": "G202",
+      "line": "156",
+      "detail": "SQL string concatenation"
+    },
+    {
+      "file": "internal/store/store.go",
+      "rule": "G304",
+      "line": "254",
+      "detail": "Potential file inclusion via variable"
+    },
+    {
+      "file": "internal/platform/ratelimit.go",
+      "rule": "G304",
+      "line": "148",
+      "detail": "Potential file inclusion via variable"
+    },
+    {
+      "file": "internal/platform/profile.go",
+      "rule": "G304",
+      "line": "510",
+      "detail": "Potential file inclusion via variable"
+    },
+    {
+      "file": "internal/learn/teach_log.go",
+      "rule": "G304",
+      "line": "112",
+      "detail": "Potential file inclusion via variable"
+    },
+    {
+      "file": "internal/learn/playbooks.go",
+      "rule": "G304",
+      "line": "73",
+      "detail": "Potential file inclusion via variable"
+    },
+    {
+      "file": "internal/config/config.go",
+      "rule": "G304",
+      "line": "105",
+      "detail": "Potential file inclusion via variable"
+    },
+    {
+      "file": "internal/cli/teach_playbook.go",
+      "rule": "G304",
+      "line": "376",
+      "detail": "Potential file inclusion via variable"
+    },
+    {
+      "file": "internal/cli/teach.go",
+      "rule": "G304",
+      "line": "150",
+      "detail": "Potential file inclusion via variable"
+    },
+    {
+      "file": "internal/cli/teach.go",
+      "rule": "G304",
+      "line": "127",
+      "detail": "Potential file inclusion via variable"
+    },
+    {
+      "file": "internal/cli/feedback.go",
+      "rule": "G304",
+      "line": "204",
+      "detail": "Potential file inclusion via variable"
+    },
+    {
+      "file": "internal/cli/feedback.go",
+      "rule": "G304",
+      "line": "66",
+      "detail": "Potential file inclusion via variable"
+    },
+    {
+      "file": "internal/cli/export.go",
+      "rule": "G304",
+      "line": "215",
+      "detail": "Potential file inclusion via variable"
+    },
+    {
+      "file": "internal/learn/journal.go",
+      "rule": "G117",
+      "line": "265",
+      "detail": "Marshaled struct field \"SessionKey\" (JSON key \"session_key\") matches secret pattern"
+    },
+    {
+      "file": "internal/platform/profile.go",
+      "rule": "G302",
+      "line": "302",
+      "detail": "Expect file permissions to be 0600 or less"
+    },
+    {
+      "file": "internal/cliutil/testenv/testenv.go",
+      "rule": "G302",
+      "line": "76",
+      "detail": "Expect file permissions to be 0600 or less"
+    },
+    {
+      "file": "internal/cliutil/testenv/sandbox_unix.go",
+      "rule": "G302",
+      "line": "15",
+      "detail": "Expect file permissions to be 0600 or less"
+    },
+    {
+      "file": "internal/client/client.go",
+      "rule": "G302",
+      "line": "836",
+      "detail": "Expect file permissions to be 0600 or less"
+    },
+    {
+      "file": "internal/store/store.go",
+      "rule": "G104",
+      "line": "3551",
+      "detail": "Errors unhandled"
+    },
+    {
+      "file": "internal/store/store.go",
+      "rule": "G104",
+      "line": "3294",
+      "detail": "Errors unhandled"
+    },
+    {
+      "file": "internal/learn/journal.go",
+      "rule": "G104",
+      "line": "278",
+      "detail": "Errors unhandled"
+    },
+    {
+      "file": "internal/client/client.go",
+      "rule": "G104",
+      "line": "1585",
+      "detail": "Errors unhandled"
+    }
+  ],
+  "note": "Generated/reserved framework candidates are upstream-owned; no custom security findings remain."
+}

@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "iko-yo-pp-mcp",
+  "display_name": "Iko-yo Trip",
+  "version": "0.1.0",
+  "description": "Find selected family trips and compare published dates, fees and explicit family facts.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/iko-yo-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/iko-yo-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

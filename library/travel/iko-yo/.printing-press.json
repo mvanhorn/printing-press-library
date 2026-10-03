@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-03T08:28:37.525104Z",
+  "printing_press_version": "4.33.0",
+  "api_name": "iko-yo",
+  "display_name": "Iko-yo Trip",
+  "cli_name": "iko-yo-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:d48c1292ca98aa436b14233e0ec39a361b5c30439d13e8e6451b5e6ca7f7489e",
+  "run_id": "20261003-135827-6ec7d5b4",
+  "category": "travel",
+  "description": "Iko-yo Trip: find selected family trips and compare published dates, fees and explicit family facts.",
+  "mcp_binary": "iko-yo-pp-mcp",
+  "mcp_tool_count": 6,
+  "mcp_public_tool_count": 6,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Bounded date-window discovery",
+      "command": "trip discover",
+      "description": "Find regional candidates while seeing exactly which listing pages and records were checked."
+    },
+    {
+      "name": "Evidence-backed family fact card",
+      "command": "trip inspect",
+      "description": "See published age, indoor, nursing and changing evidence with unknown fields exposed."
+    },
+    {
+      "name": "Qualified charge and application comparison",
+      "command": "trip compare",
+      "description": "Compare separate fee statements, payment conditions and explicit application intervals."
+    },
+    {
+      "name": "Family-constraint comparison",
+      "command": "trip compare",
+      "description": "Compare selected outings against age, requested amenities and a trip date using supported, excluded and unknown states."
+    },
+    {
+      "name": "Offline shortlist with retained coverage",
+      "command": "trip cached",
+      "description": "Search saved family facts with their original observation times and collection coverage."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Bounded date-window discovery",
+      "command": "trip discover",
+      "description": "Find regional candidates while seeing exactly which listing pages and records were checked."
+    },
+    {
+      "name": "Evidence-backed family fact card",
+      "command": "trip inspect",
+      "description": "See published age, indoor, nursing and changing evidence with unknown fields exposed."
+    },
+    {
+      "name": "Qualified charge and application comparison",
+      "command": "trip compare",
+      "description": "Compare separate fee statements, payment conditions and explicit application intervals."
+    },
+    {
+      "name": "Family-constraint comparison",
+      "command": "trip compare",
+      "description": "Compare selected outings against age, requested amenities and a trip date using supported, excluded and unknown states."
+    },
+    {
+      "name": "Offline shortlist with retained coverage",
+      "command": "trip cached",
+      "description": "Search saved family facts with their original observation times and collection coverage."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 30,
+    "total": 30,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 84,
+      "grade": "A",
+      "total": 84
+    }
+  }
+}

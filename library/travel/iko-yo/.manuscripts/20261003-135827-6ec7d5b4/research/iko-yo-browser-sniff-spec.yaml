@@ -1,0 +1,178 @@
+name: iko-yo
+description: Iko-yo Trip selected family spots and local events; core Iko-yo catalog is not integrated
+version: 0.1.0
+category: travel
+health_check_path: /events
+http_transport: standard
+mcp:
+    transport: [stdio]
+    endpoint_tools: hidden
+# Cache freshness stays manual: normalized saved facts are user-selected and no cheap complete refresh exists.
+cache:
+    enabled: false
+learn:
+    ticker_patterns: ["^(spots|events)/[1-9][0-9]{0,8}$"]
+    synonyms:
+        "diaper changing": changing
+        "nursing room": nursing
+    entity_lookup_seeds:
+        region:
+            - {canonical: 北海道, aliases: [hokkaido]}
+            - {canonical: 東北, aliases: [tohoku]}
+            - {canonical: 甲信越, aliases: [koshinetsu]}
+            - {canonical: 北陸, aliases: [hokuriku]}
+            - {canonical: 東海, aliases: [tokai]}
+            - {canonical: 関東, aliases: [kanto]}
+            - {canonical: 関西, aliases: [kansai]}
+            - {canonical: 中国, aliases: [chugoku]}
+            - {canonical: 四国, aliases: [shikoku]}
+            - {canonical: 九州, aliases: [kyushu]}
+            - {canonical: 沖縄, aliases: [okinawa]}
+        spot:
+            - {canonical: Moooviとこなめ, aliases: [Mooovi Tokoname, Mooovi]}
+base_url: https://trip.iko-yo.net
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/iko-yo-pp-cli/config.toml
+resources:
+    events:
+        description: Operations on events
+        endpoints:
+            get:
+                method: GET
+                path: /events/{event_id}
+                description: Inspect published Iko-yo Trip event facts
+                happy_args: "--id=8412"
+                params:
+                    - name: event_id
+                      flag_name: id
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: The event_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            prefecture:
+                method: GET
+                path: /events/regions/{region_id}/prefectures/{prefecture_id}
+                description: Discover Iko-yo Trip events in a source prefecture
+                happy_args: "--region=6;--prefecture=11"
+                params:
+                    - name: prefecture_id
+                      flag_name: prefecture
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: The prefecture_id path segment
+                      fields: []
+                    - name: region_id
+                      flag_name: region
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: The region_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            region:
+                method: GET
+                path: /events/regions/{region_id}
+                description: Discover Iko-yo Trip events in a source region
+                happy_args: "--region=6"
+                params:
+                    - name: region_id
+                      flag_name: region
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: The region_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list:
+                method: GET
+                path: /events
+                description: Fetch structured links from /events
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    spots:
+        description: Operations on spots
+        endpoints:
+            get:
+                method: GET
+                path: /spots/{spot_id}
+                description: Inspect published Iko-yo Trip spot facts
+                happy_args: "--id=8220"
+                params:
+                    - name: spot_id
+                      flag_name: id
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: The spot_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list:
+                method: GET
+                path: /spots
+                description: Fetch structured links from /spots
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+types: {}
