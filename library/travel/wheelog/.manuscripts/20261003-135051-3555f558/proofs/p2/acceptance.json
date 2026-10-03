@@ -1,0 +1,125 @@
+{
+  "status": "PASS",
+  "observed_at": "2026-10-03T08:01:09Z",
+  "checks": [
+    {
+      "case": "requested-question-discovery",
+      "status": "PASS",
+      "evidence": "requested-question-discovery.json"
+    },
+    {
+      "case": "question-comparison",
+      "status": "PASS",
+      "evidence": "question-comparison.json"
+    },
+    {
+      "case": "save-selected",
+      "status": "PASS",
+      "evidence": "save-selected.json"
+    },
+    {
+      "case": "nearest-saved",
+      "status": "PASS",
+      "evidence": "nearest-saved.json"
+    },
+    {
+      "case": "saved-recheck",
+      "status": "PASS",
+      "evidence": "saved-recheck.json"
+    },
+    {
+      "case": "changes-no-baseline",
+      "status": "PASS",
+      "evidence": "changes-no-baseline.json"
+    },
+    {
+      "case": "changes-live-refresh",
+      "status": "PASS",
+      "evidence": "changes-live-refresh.json"
+    },
+    {
+      "case": "changes-offline-pair",
+      "status": "PASS",
+      "evidence": "changes-offline-pair.json"
+    },
+    {
+      "case": "agent-projection",
+      "status": "PASS",
+      "evidence": "agent-projection.json"
+    },
+    {
+      "case": "empty-live-keyword",
+      "args": [
+        "spots",
+        "search",
+        "WheeLogNoSuchPublicPlace5560d46c",
+        "--limit",
+        "1",
+        "--data-source",
+        "live"
+      ],
+      "exit": 0,
+      "seconds": 0.956,
+      "output_bytes": 882
+    },
+    {
+      "case": "invalid-question",
+      "args": [
+        "spots",
+        "inspect",
+        "166345",
+        "--require-question",
+        "9999"
+      ],
+      "exit": 2,
+      "seconds": 0.01,
+      "output_bytes": 0
+    },
+    {
+      "case": "invalid-live-local",
+      "args": [
+        "shortlist",
+        "list",
+        "--data-source",
+        "live"
+      ],
+      "exit": 2,
+      "seconds": 0.011,
+      "output_bytes": 0
+    },
+    {
+      "case": "invalid-id",
+      "args": [
+        "spots",
+        "inspect",
+        "not-a-spot"
+      ],
+      "exit": 2,
+      "seconds": 0.01,
+      "output_bytes": 0
+    },
+    {
+      "case": "remove-local",
+      "args": [
+        "shortlist",
+        "remove",
+        "166347"
+      ],
+      "exit": 0,
+      "seconds": 0.018,
+      "output_bytes": 66
+    },
+    {
+      "case": "local-after-remove",
+      "args": [
+        "shortlist",
+        "list",
+        "--data-source",
+        "local"
+      ],
+      "exit": 0,
+      "seconds": 0.012,
+      "output_bytes": 5592
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "verdict": "PASS",
+  "fixture": "isolated synthetic source HTTP and normalized SQLite observations",
+  "hardlink_mutations_rejected": 3,
+  "alternate_sidecars_created": false,
+  "symlink_save_latest_positive_reports": 4,
+  "prior_positive_reports": 0,
+  "canonical_writer_close_preserved_newest_transition": true
+}

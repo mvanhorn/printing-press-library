@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "provider": "wheelog",
+    "source": "live"
+  },
+  "results": {
+    "coverage": {
+      "checked": 1,
+      "complete_coverage": false,
+      "listed": 1,
+      "live": 1,
+      "local": 0,
+      "max_scan_pages": 1,
+      "output_limit": 3,
+      "pages_requested": 1,
+      "scanned_records": 1,
+      "scope": "bounded_source_keyword_search",
+      "source_request_echo": {
+        "categoryList": [
+          "toilet"
+        ],
+        "endDatetime": "2026-10-02 14:59:59",
+        "isDetail": "1",
+        "pagenum": "1",
+        "questionList": null,
+        "startDatetime": "2026-10-01 15:00:00",
+        "type": "spot",
+        "word": "成田空港"
+      },
+      "unavailable": 0,
+      "unexpanded": 0
+    },
+    "fetch_failures": [],
+    "note": "Counts are crowdsourced question reports. Source record dates do not date individual reports or establish personal suitability, current conditions, measured dimensions or an accessible route.",
+    "results": [
+      {
+        "country": null,
+        "detail_status": "checked",
+        "id": 166345,
+        "name": "成田空港 多機能トイレ",
+        "record_created_at": "2026-10-02T04:52:05.173565Z",
+        "record_updated_at": "2026-10-02T04:52:05.173565Z",
+        "retrieved_at": "2026-10-03T08:14:15.294154Z",
+        "source_url": "https://app.wheelog.com/?spotId=166345\u0026la=ja"
+      }
+    ],
+    "source_query": {
+      "categories": [
+        "toilet"
+      ],
+      "input_timezone": "Asia/Tokyo",
+      "keyword": "成田空港",
+      "record_from_utc": "2026-10-01 15:00:00",
+      "record_to_utc": "2026-10-02 14:59:59"
+    }
+  }
+}

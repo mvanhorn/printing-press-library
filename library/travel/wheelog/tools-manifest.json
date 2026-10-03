@@ -1,0 +1,137 @@
+{
+  "api_name": "wheelog",
+  "base_url": "https://app.wheelog.com",
+  "description": "Find and compare recorded accessibility facts with gaps and conflicting reports visible.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "OS_CODE",
+      "value": "3"
+    },
+    {
+      "name": "APP_VERSION",
+      "value": "1"
+    },
+    {
+      "name": "APP_LANGUAGE",
+      "value": "ja"
+    },
+    {
+      "name": "X-Requested-With",
+      "value": "XMLHttpRequest"
+    },
+    {
+      "name": "Referer",
+      "value": "https://app.wheelog.com/?la=ja"
+    }
+  ],
+  "tools": [
+    {
+      "name": "spots_inspect",
+      "description": "Inspect allowlisted public accessibility question reports for a source spot ID. Required: id. Returns the new SpotRecord.",
+      "method": "POST",
+      "path": "/poi/custom/user/getWebSpotDetail",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "wire_name": "spotId",
+          "type": "int",
+          "location": "body",
+          "description": "Stable public WheeLog spot ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "spots_search",
+      "description": "Search public spot records by source keyword, category, and evidence record dates. Optional: query, category, from (plus 4 more). Returns array of TimelineRecord.",
+      "method": "POST",
+      "path": "/timeline/custom/user/getWebTimelineList",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "word",
+          "type": "string",
+          "location": "body",
+          "description": "Source keyword; original language often matches best."
+        },
+        {
+          "name": "category",
+          "wire_name": "categoryList[]",
+          "type": "string",
+          "location": "body",
+          "description": "Source category; public CLI accepts comma-separated categories."
+        },
+        {
+          "name": "from",
+          "wire_name": "startDatetime",
+          "type": "string",
+          "location": "body",
+          "description": "Inclusive evidence record date; public CLI converts its explicit timezone to UTC."
+        },
+        {
+          "name": "to",
+          "wire_name": "endDatetime",
+          "type": "string",
+          "location": "body",
+          "description": "Inclusive evidence record date; public CLI converts its explicit timezone to UTC."
+        },
+        {
+          "name": "page",
+          "wire_name": "pagenum",
+          "type": "int",
+          "location": "body",
+          "description": "Bounded page number."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Only public spot records are in scope."
+        },
+        {
+          "name": "isDetail",
+          "type": "int",
+          "location": "body",
+          "description": "Enable source keyword/category/date filters."
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Requested-question comparison",
+      "command": "spots compare",
+      "description": "Align requested source question IDs and report supporting, opposing, mixed, unknown and inapplicable evidence."
+    },
+    {
+      "name": "Detail-checked discovery",
+      "command": "spots search",
+      "description": "Expand a bounded keyword shortlist into actual detail evidence for requested questions."
+    },
+    {
+      "name": "Saved-observation changes",
+      "command": "shortlist changes",
+      "description": "Show exact changes between two allowlisted source observations for selected public places."
+    },
+    {
+      "name": "Recheck queue",
+      "command": "shortlist list",
+      "description": "Prioritize old, unknown or conflicting evidence in a saved shortlist with explicit reasons."
+    },
+    {
+      "name": "Nearest saved facilities",
+      "command": "shortlist list",
+      "description": "Rank saved public facilities by straight-line distance from an explicit origin."
+    }
+  ]
+}

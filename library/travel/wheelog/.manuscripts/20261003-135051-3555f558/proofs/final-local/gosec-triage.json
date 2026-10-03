@@ -1,0 +1,33 @@
+{
+  "counts": {
+    "generated": 28,
+    "hand_authored": 4
+  },
+  "hand_authored_findings": [
+    {
+      "file": "internal/platform/migration.go",
+      "rule": "G202",
+      "line": "156",
+      "details": "SQL string concatenation"
+    },
+    {
+      "file": "internal/cliutil/testenv/testenv.go",
+      "rule": "G302",
+      "line": "76",
+      "details": "Expect file permissions to be 0600 or less"
+    },
+    {
+      "file": "internal/client/wheelog_transport.go",
+      "rule": "G104",
+      "line": "42",
+      "details": "Errors unhandled"
+    },
+    {
+      "file": "internal/cli/wheelog_helpers.go",
+      "rule": "G104",
+      "line": "98",
+      "details": "Errors unhandled"
+    }
+  ],
+  "generated_findings_disposition": "Generator-owned findings are upstream retro candidates; source transport is restricted to anonymous HTTPS public read endpoints."
+}

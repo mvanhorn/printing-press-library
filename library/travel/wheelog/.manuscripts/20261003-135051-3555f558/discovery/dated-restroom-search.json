@@ -1,0 +1,38 @@
+{
+  "result": [
+    {
+      "resultCode": 0,
+      "message": ""
+    }
+  ],
+  "content": {
+    "request": {
+      "word": "成田空港",
+      "categoryList": [
+        "toilet"
+      ],
+      "questionList": null,
+      "startDatetime": "2026-10-01 15:00:00",
+      "endDatetime": "2026-10-02 14:59:59",
+      "type": "spot",
+      "isDetail": "1",
+      "pagenum": "1"
+    },
+    "timelineList": [
+      {
+        "type": "spot",
+        "timeline": {
+          "id": 166345,
+          "name": "成田空港 多機能トイレ",
+          "country": "",
+          "address": "日本 〒286-0104千葉県成田市古込古込1-1",
+          "location": "",
+          "created": "2026-10-02 04:52",
+          "updated": "",
+          "spotCategory": "toilet",
+          "noteAvailable": false
+        }
+      }
+    ]
+  }
+}

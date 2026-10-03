@@ -1,0 +1,47 @@
+{
+  "result": [
+    {
+      "resultCode": 0,
+      "message": ""
+    }
+  ],
+  "content": {
+    "spot": {
+      "id": 166344,
+      "name": "成田空港 エレベーター",
+      "country": "",
+      "address": "日本 〒286-0104千葉県成田市古込古込1-1",
+      "location": {
+        "lat": "35.7733158034394",
+        "lng": "140.387687534094"
+      },
+      "created": "2026-10-02 04:39:22.433139",
+      "updated": "2026-10-02 04:39:22.433139",
+      "spotCategory": {
+        "id": 2,
+        "category": "elevator",
+        "questionList": [
+          {
+            "id": 201,
+            "question": "２台以上乗れそう？",
+            "totalGood": 1,
+            "totalBad": 0
+          },
+          {
+            "id": 202,
+            "question": "車いす用の操作盤はある？",
+            "totalGood": 1,
+            "totalBad": 0
+          },
+          {
+            "id": 203,
+            "question": "鏡はある？",
+            "totalGood": 1,
+            "totalBad": 0
+          }
+        ]
+      },
+      "noteAvailable": true
+    }
+  }
+}

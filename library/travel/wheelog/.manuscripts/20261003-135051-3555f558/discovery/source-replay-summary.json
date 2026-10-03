@@ -1,0 +1,73 @@
+{
+  "observed_at": "2026-10-03T06:15:14.940218+00:00",
+  "cases": [
+    {
+      "name": "dated-restroom-search",
+      "method": "POST",
+      "path": "/timeline/custom/user/getWebTimelineList",
+      "status": 200,
+      "source_content_type": "text/html; charset=UTF-8",
+      "elapsed_ms": 1964.69,
+      "source_bytes": 1975,
+      "sanitization": "allowlisted public spot facts only; profile/photo/comment/narrative material excluded",
+      "request": {
+        "word": "成田空港",
+        "categoryList": [
+          "toilet"
+        ],
+        "questionList": null,
+        "startDatetime": "2026-10-01 15:00:00",
+        "endDatetime": "2026-10-02 14:59:59",
+        "type": "spot",
+        "isDetail": "1",
+        "pagenum": "1"
+      },
+      "count": 1,
+      "ids": [
+        166345
+      ]
+    },
+    {
+      "name": "restroom-detail",
+      "method": "POST",
+      "path": "/poi/custom/user/getWebSpotDetail",
+      "status": 200,
+      "source_content_type": "text/html; charset=UTF-8",
+      "elapsed_ms": 624.74,
+      "source_bytes": 3413,
+      "sanitization": "allowlisted public spot facts only; profile/photo/comment/narrative material excluded",
+      "request": null,
+      "id": 166345,
+      "category": "toilet",
+      "questions": 9
+    },
+    {
+      "name": "elevator-detail",
+      "method": "POST",
+      "path": "/poi/custom/user/getWebSpotDetail",
+      "status": 200,
+      "source_content_type": "text/html; charset=UTF-8",
+      "elapsed_ms": 608.44,
+      "source_bytes": 2621,
+      "sanitization": "allowlisted public spot facts only; profile/photo/comment/narrative material excluded",
+      "request": null,
+      "id": 166344,
+      "category": "elevator",
+      "questions": 3
+    },
+    {
+      "name": "ramp-detail",
+      "method": "POST",
+      "path": "/poi/custom/user/getWebSpotDetail",
+      "status": 200,
+      "source_content_type": "text/html; charset=UTF-8",
+      "elapsed_ms": 756.68,
+      "source_bytes": 2320,
+      "sanitization": "allowlisted public spot facts only; profile/photo/comment/narrative material excluded",
+      "request": null,
+      "id": 166347,
+      "category": "slope",
+      "questions": 0
+    }
+  ]
+}

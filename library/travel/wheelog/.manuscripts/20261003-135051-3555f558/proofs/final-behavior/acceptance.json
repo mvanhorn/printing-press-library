@@ -1,0 +1,88 @@
+{
+  "status": "PASS",
+  "scope": "actual nonempty selected public-facility workflows after final agent-output fixes",
+  "checks": [
+    {
+      "case": "save",
+      "args": [
+        "shortlist",
+        "save",
+        "166345",
+        "166344",
+        "166347",
+        "--data-source",
+        "live"
+      ],
+      "rows": 3,
+      "status": "PASS"
+    },
+    {
+      "case": "compare",
+      "args": [
+        "spots",
+        "compare",
+        "166345",
+        "166344",
+        "--require-question",
+        "102",
+        "--data-source",
+        "live"
+      ],
+      "rows": 2,
+      "status": "PASS"
+    },
+    {
+      "case": "refresh",
+      "args": [
+        "shortlist",
+        "changes",
+        "--data-source",
+        "live",
+        "--limit",
+        "3"
+      ],
+      "rows": 3,
+      "status": "PASS"
+    },
+    {
+      "case": "audit",
+      "args": [
+        "shortlist",
+        "list",
+        "--audit",
+        "--require-question",
+        "102",
+        "--data-source",
+        "local"
+      ],
+      "rows": 2,
+      "status": "PASS"
+    },
+    {
+      "case": "nearest",
+      "args": [
+        "shortlist",
+        "list",
+        "--origin",
+        "35.7742,140.3879",
+        "--radius-m",
+        "500",
+        "--data-source",
+        "local"
+      ],
+      "rows": 3,
+      "status": "PASS"
+    },
+    {
+      "case": "changes",
+      "args": [
+        "shortlist",
+        "changes",
+        "--data-source",
+        "local"
+      ],
+      "rows": 3,
+      "status": "PASS"
+    }
+  ]
+}

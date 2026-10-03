@@ -1,0 +1,27 @@
+{
+  "results": [],
+  "source_query": {
+    "categories": [],
+    "input_timezone": "Asia/Tokyo",
+    "keyword": "WheeLogNoSuchPublicPlace5560d46c",
+    "record_from_utc": null,
+    "record_to_utc": null
+  },
+  "coverage": {
+    "checked": 0,
+    "complete_coverage": false,
+    "empty_page_observed": true,
+    "listed": 0,
+    "live": 0,
+    "local": 0,
+    "max_scan_pages": 1,
+    "output_limit": 1,
+    "pages_requested": 1,
+    "scanned_records": 0,
+    "scope": "bounded_source_keyword_search",
+    "unavailable": 0,
+    "unexpanded": 0
+  },
+  "fetch_failures": [],
+  "note": "Counts are crowdsourced question reports. Source record dates do not date individual reports or establish personal suitability, current conditions, measured dimensions or an accessible route. No records matched within this bounded scope; widen the keyword or --max-scan-pages for live discovery."
+}

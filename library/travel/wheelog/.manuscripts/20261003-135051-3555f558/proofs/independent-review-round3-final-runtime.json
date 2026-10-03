@@ -1,0 +1,47 @@
+{
+  "verdict": "PASS",
+  "fixture": "isolated synthetic normalized saved observations; mock source was used for the symlink save, with no provider mutation",
+  "fixture_dir": "/private/tmp/wheelog-round3-final-mlphhfa6",
+  "cli_sha256": "ba8a2f058c83cf914d4ab3aa531795487bdffa669b21978c7ea7288fdac2003b",
+  "mcp_sha256": "d39f5b7a43efe2e71d64a5bdffe1f5609cc1ba043c60b7be7191f4267ce3c4b0",
+  "checks": [
+    {
+      "case": "shipping-cli-symlink-save-after-canonical-close",
+      "exit": 0,
+      "latest_positive_reports": 4,
+      "previous_positive_reports": 0
+    },
+    {
+      "case": "shipping-cli-hardlink-changes",
+      "exit": 10,
+      "visibility_error": true,
+      "alternate_sidecars": false
+    },
+    {
+      "case": "shipping-cli-hardlink-remove",
+      "exit": 10,
+      "visibility_error": true,
+      "alternate_sidecars": false
+    },
+    {
+      "case": "shipping-mcp-domain-surface",
+      "tool_count": 22,
+      "all_eight_domain_tools": true,
+      "no_import_or_hollow_shortlist": true
+    },
+    {
+      "case": "shipping-mcp-readonly-inspect",
+      "positive_reports": 2,
+      "bytes_permissions_unchanged": true,
+      "sidecars_created": false
+    },
+    {
+      "case": "shipping-mcp-active-wal",
+      "visibility_error": true
+    },
+    {
+      "case": "shipping-mcp-checkpointed-inspect",
+      "positive_reports": 0
+    }
+  ]
+}

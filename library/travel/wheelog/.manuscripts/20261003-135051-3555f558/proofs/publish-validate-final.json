@@ -1,0 +1,61 @@
+{
+  "passed": true,
+  "cli_name": "wheelog-pp-cli",
+  "api_name": "wheelog",
+  "help_output": "Wheelog CLI — Find and compare recorded accessibility facts with gaps and conflicting reports visible.\n\nHighlights (not in the official API docs):\n  • spots compare   Align requested source question IDs and report supporting, opposing, mixed, unknown and inapplicable evidence.\n  • spots search   Expand a bounded keyword shortlist into actual detail evidence for requested questions.\n  • shortlist changes   Show exact changes between two allowlisted source observations for selected public places.\n  • shortlist list   Prioritize old, unknown or conflicting evidence in a saved shortlist with explicit reasons.\n  • shortlist list   Rank saved public facilities by straight-line distance from an explicit origin.\n\nAgent mode: add --agent to any command for JSON output + non-interactive mode.\nHealth check: run 'wheelog-pp-cli doctor' to verify connectivity.\nSee README.md or the bundled SKILL.md for recipes.\n\nUsage:\n  wheelog-pp-cli [command]\n\nAvailable Commands:\n  agent-context  Emit structured JSON describing this CLI for agents\n  api            Browse API resource interfaces by raw name\n  categories     Show exact source category values and their question-ID ranges.\n  completion     Generate the autocompletion script for the specified shell\n  doctor         Check CLI health\n  feedback       Record feedback about this CLI (local by default; upstream opt-in)\n  help           Help about any command\n  learnings      Inspect or forget the local search_learnings table\n  playbook       Inspect or amend stored CLI playbooks\n  profile        Named sets of flags saved for reuse\n  recall         Check prior learnings for a query before running discovery (LLM-fired, pre-discovery)\n  shortlist      Work with shortlist\n  spots          Public crowdsourced facility accessibility evidence\n  teach          Record a query -\u003e resource mapping for future recall (LLM-fired, silent)\n  teach-lookup   Install a manual entity-lookup row (kind, canonical, value)\n  teach-pattern  Install a manual generalization pattern (query_template, resource_template, entity_kind)\n  teach-playbook Record a CLI playbook + free-text notes for a query family\n  version        Print version\n  which          Find the command that implements a capability\n\nFlags:\n      --agent                   Set agent-friendly output defaults (--json --compact --no-input --no-color)\n      --audit-dir string        Aggregate the receipt and index under this audit directory\n      --client-profile string   Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Read source: auto prefers live with labeled saved fallback; local uses saved evidence; live requires source requests. (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Summarize the intended action without executing the command (does not show request fields).\n  -h, --help                    help for wheelog-pp-cli\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved run profile; this does not select a client (see 'wheelog-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default auto)\n      --receipt                 Write an atomic private run receipt\n      --receipt-file string     Override the run receipt destination\n      --select string           Comma-separated fields to include in output (e.g. --select type,timeline)\n      --timeout duration        Request timeout (default 1m0s)\n  -v, --version                 version for wheelog-pp-cli\n      --yes                     Skip confirmation prompts (explicit confirmation for scripts)\n\nUse \"wheelog-pp-cli [command] --help\" for more information about a command.\n",
+  "checks": [
+    {
+      "name": "manifest",
+      "passed": true
+    },
+    {
+      "name": "transcendence",
+      "passed": true
+    },
+    {
+      "name": "phase5",
+      "passed": true
+    },
+    {
+      "name": "go mod tidy",
+      "passed": true
+    },
+    {
+      "name": "module path",
+      "passed": false,
+      "warning": "go.mod module path \"wheelog-pp-cli\" does not start with the canonical library prefix github.com/mvanhorn/printing-press-library/library/\u003ccategory\u003e/\u003cslug\u003e"
+    },
+    {
+      "name": "govulncheck",
+      "passed": true
+    },
+    {
+      "name": "go vet",
+      "passed": true
+    },
+    {
+      "name": "go build",
+      "passed": true
+    },
+    {
+      "name": "--help",
+      "passed": true
+    },
+    {
+      "name": "--version",
+      "passed": true
+    },
+    {
+      "name": "verify-skill",
+      "passed": true
+    },
+    {
+      "name": "patches",
+      "passed": true
+    },
+    {
+      "name": "manuscripts",
+      "passed": true
+    }
+  ]
+}

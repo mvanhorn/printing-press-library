@@ -1,0 +1,106 @@
+{
+  "status": "PASS",
+  "reviewed_at": "2026-10-03T12:28:29.463158+00:00",
+  "files": {
+    "README.md": {
+      "sha256": "0173a655e6065525a9f083067903ccd2659f2cbd34f73c3e0c504dde1cc83a36",
+      "mtime": "2026-10-03T12:14:23.608640+00:00"
+    },
+    "SKILL.md": {
+      "sha256": "d9e8bc7964ee8252d366865e949136af24de72905afb50cd609be6c0048a2718",
+      "mtime": "2026-10-03T12:14:23.608781+00:00"
+    },
+    "AGENTS.md": {
+      "sha256": "6094f67554cdb33417b282a37fb08377549662cc348b7633c10b2f215c2f5e0a",
+      "mtime": "2026-10-03T11:57:49.125659+00:00"
+    },
+    "go.mod": {
+      "sha256": "21d4bcf68a921ef3acb90ae1a0f6e2ad3de4b396a453f8e4ff7fb03f56b9306f",
+      "mtime": "2026-10-03T06:52:53.217554+00:00"
+    },
+    "go.sum": {
+      "sha256": "2b271855fe35ac6a8dfce861c55778e36f881202de7439be92c3a7b1aff34ea3",
+      "mtime": "2026-10-03T06:52:53.217270+00:00"
+    },
+    "internal/store/store.go": {
+      "sha256": "3cead28646123e8891281fe0840014a91eed82554075f0d2b801cba752fb92d6",
+      "mtime": "2026-10-03T11:53:23.038204+00:00"
+    },
+    "internal/store/wheelog_read.go": {
+      "sha256": "fc338a6882fdcf1ba712f5895e58fc7587702be139d4e9ac34268af79faf50f1",
+      "mtime": "2026-10-03T11:48:46.873559+00:00"
+    },
+    "internal/store/wheelog_read_test.go": {
+      "sha256": "f9cabfe15d55821606ccd843ac930bf173f5fdf00fdc74a1eaa2b6d2c2381cac",
+      "mtime": "2026-10-03T11:57:49.132200+00:00"
+    },
+    "internal/store/wheelog_snapshot.go": {
+      "sha256": "31c11889c9144fa93a3b6a41bddc20b64114f92914c62a037c5053be67488364",
+      "mtime": "2026-10-03T12:13:43.816531+00:00"
+    },
+    "internal/store/wheelog_write.go": {
+      "sha256": "dcfc1912975c4c3c9d583c67193deeed135fc3f469120b1fb7889db878bec18d",
+      "mtime": "2026-10-03T11:53:23.033482+00:00"
+    },
+    "internal/store/wheelog_write_test.go": {
+      "sha256": "6b5214a760fbb90f79bd3579068dff5611af5918ea7fbb45ac0bff8582fcdb89",
+      "mtime": "2026-10-03T11:45:57.970410+00:00"
+    },
+    "internal/store/wheelog_links_windows.go": {
+      "sha256": "091b8b25bd3c71ea1473a0b2197ba0f84a03e69f6d5c2f62c1285816f20dd90f",
+      "mtime": "2026-10-03T11:09:44.263887+00:00"
+    },
+    "internal/store/wheelog_links_other.go": {
+      "sha256": "12f52bd9674d384162ae21dfd871691b377911143df884227576101fe3b60d4a",
+      "mtime": "2026-10-03T11:09:44.263618+00:00"
+    },
+    "internal/store/wheelog_shortlist.go": {
+      "sha256": "07316b6403c0e66e14e49a7bef76394a88af9ad80dc10d49dbe0926bf102fbcb",
+      "mtime": "2026-10-03T11:53:18.676823+00:00"
+    },
+    "internal/cli/wheelog_helpers.go": {
+      "sha256": "8abece0336cc256dee10da2e76b29e2e7a470695573914cfcda4e3bb3309d026",
+      "mtime": "2026-10-03T11:09:44.395799+00:00"
+    },
+    "internal/cli/wheelog_saved_read_test.go": {
+      "sha256": "566de2c60550a6c958a531f7db9c875731ccb06b6e321fc28f3a475e549e38fa",
+      "mtime": "2026-10-03T11:15:38.410073+00:00"
+    },
+    "internal/cli/spots_search.go": {
+      "sha256": "00c18cc8e8d2874077296d48d618578dc811792e4d954e9510c77dff28bd1dee",
+      "mtime": "2026-10-03T10:37:49.220048+00:00"
+    },
+    "internal/cli/spots_inspect.go": {
+      "sha256": "866c29f97188809a78a81a41c93dacbb2c00b2c01e5e2cdb508dbc4a05dcfc49",
+      "mtime": "2026-10-03T10:37:49.180822+00:00"
+    },
+    "internal/cli/spots_compare.go": {
+      "sha256": "328383d09f4e1c48002c213bbef9a453e404e038170b0dd27b005bb410fdb7e2",
+      "mtime": "2026-10-03T10:37:49.200094+00:00"
+    },
+    "internal/cli/shortlist_changes.go": {
+      "sha256": "ea7d80b01230ca5e82cafd85f6474d51455d56e0e7d4192067171de3ee1368ee",
+      "mtime": "2026-10-03T10:39:26.837550+00:00"
+    },
+    "internal/mcp/wheelog_context.go": {
+      "sha256": "4e86d152de1a06d05aba9fa0e7ae85bc6d181caf1a40384a58de4b2082d150bd",
+      "mtime": "2026-10-03T08:22:50.865419+00:00"
+    },
+    "internal/mcp/tools.go": {
+      "sha256": "72993c31a1040c3fcf9dde62103259cdfe9c598cd244565acfade597900de2cd",
+      "mtime": "2026-10-03T08:19:34.384400+00:00"
+    },
+    ".printing-press-patches/public-facility-evidence-without-contributor-history.json": {
+      "sha256": "bb5dbeb6bf2a888aa02633a663956932357255d6205994940ffce924ec1fdbcd",
+      "mtime": "2026-10-03T11:57:49.125982+00:00"
+    },
+    "bin/wheelog-pp-cli": {
+      "sha256": "7cb9e321061b7fc3618f4e1a34e935ea43e284b8ef35f739716a2c13ea248fd2",
+      "mtime": "2026-10-03T12:17:58.913083+00:00"
+    },
+    "bin/wheelog-pp-mcp": {
+      "sha256": "d91729b33537eab01d89aeb7fdf8c6779a93ab8913c9656ae5b485d09e9139dd",
+      "mtime": "2026-10-03T12:17:59.369854+00:00"
+    }
+  }
+}
