@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "dba8338ad97b4145d3fa4b3ed5ca95dec46c56c9fd3f27aaae2c07f85c9c1bb1",
+  "source_fingerprint": "a3b495af15e861134702ad502afe6d45fbee608f30a90b8a30e3ea584d5a1ba8",
   "source_files": {
     "cmd/michi-no-eki-pp-cli/main.go": "71ea305d78633aaa8a6cd48af519771ee04bb4fee680a5c5a89f2726f0033131",
     "cmd/michi-no-eki-pp-mcp/main.go": "7d791bf2120fdc71881ca42677ae3adfbb22531fa5e122e28c85bf2ca1550f03",
@@ -134,7 +134,7 @@
     "internal/learn/patterns/apply.go": "ec4967bd1fc6e8b7ea3095dff6fd137bba56b92b2fdbfb14c000bf9bfa108456",
     "internal/learn/patterns/apply_test.go": "30b7e28b5e194990d404e3fa079d9c971def6ace45d084f3bcbd523c50414fe1",
     "internal/learn/patterns/doc.go": "0c403005814770da317447cb2051f3eed4f011c828fece17b05597b1acd50e72",
-    "internal/learn/patterns/extract.go": "81a61eef996c14a89d899cac685ce4aba514315d8fe490d6eb80ea827274dbe4",
+    "internal/learn/patterns/extract.go": "d624d8869cf097924736b55b984c481db0bb3e8951a8e5844013ab67a4a4fdd8",
     "internal/learn/patterns/extract_test.go": "b40fbe21ec417d7d60e51b2c867fb0ded6782fb851ecb92787060b3b78f123c3",
     "internal/learn/patterns/michi_boundaries_test.go": "6346c53f7aa63ce770b3058a1529b4da38bde4773c99a602cdd36bf881bc0c22",
     "internal/learn/patterns/store.go": "832805cdf975ba3983c3b16bd0aedc8a7f3792919d5647f6b361a18f266b01d8",
@@ -188,7 +188,7 @@
     "internal/platform/receipt.go": "333386566b638c6eebd65e9ac07199d0601ee08a8cd8938e668facf6ae08bedf",
     "internal/store/candidates.go": "7a883323731354354cdd9cfdffcc37e5feeb1de0d6cfeebe241efa0486d9659a",
     "internal/store/candidates_test.go": "261fcc799279930b24c220bedf920d5a9f647ed8eefdd959a38f024cabc1c728",
-    "internal/store/derived_patterns.go": "e360d4b255ba3588dd3d63cb3a899b1766983107d0f287e9ff05c8b2c74a2c07",
+    "internal/store/derived_patterns.go": "3a7546d329c38ee0c0b4dc0f18e1686cd8793bd8bd5b0c1f57ed75b89d286153",
     "internal/store/events.go": "09a444b02ca1f3132d5b3b6847a3432f086df98ce2ba04a94b01cd96f12ab9de",
     "internal/store/events_test.go": "670cab29058cd8cca31b63ed2270b59a6a92594619b65f44a44e85cb75f05f12",
     "internal/store/extras.go": "553f86af71bf7f4bd8bf4a83658de595c170406916f8492d3bf67b82c4ebb693",
@@ -199,7 +199,7 @@
     "internal/store/playbooks_test.go": "fec8e2d84b458a5aa2895b5da64d332ed2c7bf6dd5cf448cdd8ad34af42e59af",
     "internal/store/schema_version_test.go": "9b131371b329e5486602a897ac3c982b2215d61654f5a686f53fb42922b05878",
     "internal/store/store.go": "c69a57844b27188b8faa6186125a9946533d28833e068081c030a1a03d15aea0",
-    "internal/store/supported_patterns_test.go": "2c32f42ee6c6aab41012c5e96a507a4f2df4a4059b212db9cb2ea504c78426b3",
+    "internal/store/supported_patterns_test.go": "674adaf964226ad4db77b9fbfc039ec61f0ceec1ad3d8f9fc925684d2ea60cef",
     "internal/store/upsert_batch_test.go": "5929b9d6af5da1832ece232865850a591653e8a7922d116204efe961dc3c96bb",
     "internal/types/types.go": "02cc3b010b3a727b70745ea862a48379f4d3d5b4de58f19bae761c81bcde4b27",
     "spec.json": "927ac05482346df04d6d931ab91c06e003d66478ba4df3aa8a3ed20b2813b4ce"

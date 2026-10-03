@@ -224,3 +224,107 @@ func TestForgetRetainedLookupFailureRollsBack(t *testing.T) {
 		t.Fatalf("pattern/provenance was not rolled back: %#v %v", rows, err)
 	}
 }
+
+func TestForgetCannotRetainOrRevivePatternFromNegativeTeachings(t *testing.T) {
+	for _, prefix := range []bool{false, true} {
+		for _, action := range []string{store.LearningActionHide, store.LearningActionAlias} {
+			t.Run(map[bool]string{false: "exact", true: "prefix"}[prefix]+"/"+action, func(t *testing.T) {
+				s := openLearnings(t)
+				seedSurvivingPattern(t, s, prefix)
+				if n, err := s.ForgetLearnings(context.Background(), store.ForgetLearningsFilter{Query: "pitch France", Action: store.LearningActionBoost, All: true}); err != nil || n != 1 {
+					t.Fatal(n, err)
+				}
+				resource := "pitch-FR"
+				if prefix {
+					resource += "-session-fr"
+				}
+				if _, _, err := s.UpsertLearning(context.Background(), store.UpsertLearningInput{Query: "pitch France", QueryEntities: []string{"France"}, ResourceID: resource, ResourceType: "source", Action: action, AliasTarget: "replacement-FR", Source: store.LearningSourceTaught}); err != nil {
+					t.Fatal(err)
+				}
+				forgetJapan(t, s)
+				if generalizedItaly(t, s) {
+					t.Fatalf("%s counted as positive retained support", action)
+				}
+				if n, err := patterns.Extract(s.DB(), []string{"country"}); err != nil || n != 0 {
+					t.Fatalf("negative teaching revived inference: n=%d err=%v", n, err)
+				}
+				if generalizedItaly(t, s) {
+					t.Fatal("negative teaching re-extraction revived pattern")
+				}
+			})
+		}
+	}
+}
+
+func TestExtractUsesOnlyPositiveEligibleTeachingSources(t *testing.T) {
+	for _, tc := range []struct {
+		name, action, source string
+		want                 int
+	}{
+		{"hide", store.LearningActionHide, store.LearningSourceTaught, 0},
+		{"alias", store.LearningActionAlias, store.LearningSourceTaught, 0},
+		{"ineligible positive source", store.LearningActionBoost, store.LearningSourceManual, 0},
+		{"taught boost", store.LearningActionBoost, store.LearningSourceTaught, 1},
+		{"followup boost", store.LearningActionBoost, "inferred-followup", 1},
+		{"reach boost", store.LearningActionBoost, "inferred-reach", 1},
+		{"pair boost", store.LearningActionBoost, "inferred-pair", 1},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			s := openLearnings(t)
+			for _, r := range []struct{ country, code string }{{"Germany", "DE"}, {"France", "FR"}} {
+				if _, err := s.DB().Exec(`INSERT INTO entity_lookups(kind,canonical,value,source) VALUES('country',?,?,'seeded')`, r.country, r.code); err != nil {
+					t.Fatal(err)
+				}
+				if _, _, err := s.UpsertLearning(context.Background(), store.UpsertLearningInput{Query: "pitch " + r.country, QueryEntities: []string{r.country}, ResourceID: "pitch-" + r.code, ResourceType: "source", Action: tc.action, AliasTarget: "replacement-" + r.code, Source: tc.source}); err != nil {
+					t.Fatal(err)
+				}
+			}
+			if n, err := patterns.Extract(s.DB(), []string{"country"}); err != nil || n != tc.want {
+				t.Fatalf("effect/source extraction n=%d want=%d err=%v", n, tc.want, err)
+			}
+		})
+	}
+}
+
+func TestForgetPositiveSupportIgnoresNewestNegativeProvenance(t *testing.T) {
+	for _, action := range []string{store.LearningActionHide, store.LearningActionAlias} {
+		t.Run(action, func(t *testing.T) {
+			s := openLearnings(t)
+			id := seedSurvivingPattern(t, s, false)
+			if _, _, err := s.UpsertLearning(context.Background(), store.UpsertLearningInput{Query: "France pitch", QueryEntities: []string{"France"}, ResourceID: "pitch-FR", ResourceType: "source", Action: action, AliasTarget: "replacement-FR", Source: store.LearningSourceTaught}); err != nil {
+				t.Fatal(err)
+			}
+			forgetJapan(t, s)
+			if !generalizedItaly(t, s) {
+				t.Fatal("two positive supporters were lost")
+			}
+			rows, err := patterns.List(s.DB(), patterns.ListFilter{})
+			if err != nil || len(rows) != 1 || rows[0].ID != id || rows[0].ExampleQuery == "france pitch" {
+				t.Fatalf("negative row replaced positive provenance: %#v %v", rows, err)
+			}
+		})
+	}
+}
+
+func TestForgettingNegativeRowReconcilesLegacyInference(t *testing.T) {
+	s := openLearnings(t)
+	seedSurvivingPattern(t, s, false)
+	for _, r := range []struct{ country, code string }{{"Germany", "DE"}, {"France", "FR"}} {
+		if _, _, err := s.UpsertLearning(context.Background(), store.UpsertLearningInput{Query: "pitch " + r.country, QueryEntities: []string{r.country}, ResourceID: "pitch-" + r.code, ResourceType: "source", Action: store.LearningActionHide, Source: store.LearningSourceTaught}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	// Model the invalid inference left by the previous action-agnostic extractor.
+	if _, err := s.DB().Exec(`DELETE FROM search_learnings WHERE action='boost'`); err != nil {
+		t.Fatal(err)
+	}
+	if !generalizedItaly(t, s) {
+		t.Fatal("legacy inference fixture missing")
+	}
+	if n, err := s.ForgetLearnings(context.Background(), store.ForgetLearningsFilter{Query: "pitch France", Action: store.LearningActionHide, All: true}); err != nil || n != 1 {
+		t.Fatal(n, err)
+	}
+	if generalizedItaly(t, s) {
+		t.Fatal("negative-only family capture did not invalidate legacy inference")
+	}
+}

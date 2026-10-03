@@ -55,7 +55,7 @@ func reconcileDerivedPatterns(ctx context.Context, tx *sql.Tx, f derivedPatternF
 
 	rows, err = tx.QueryContext(ctx, `SELECT query_pattern,COALESCE(query_entities,'[]'),resource_id
  FROM search_learnings WHERE COALESCE(resource_type,'')=? AND COALESCE(venue,'')=?
- AND source IN ('taught','inferred-followup','inferred-reach','inferred-pair')
+ AND action='boost' AND source IN ('taught','inferred-followup','inferred-reach','inferred-pair')
  ORDER BY last_observed_at DESC,id DESC`, f.resourceType, f.venue)
 	if err != nil {
 		return err
