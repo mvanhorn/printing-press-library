@@ -336,15 +336,22 @@ type WorkRow struct {
 	Topic   string `json:"topic"`
 }
 
-// Curate selects works matching a topic/keyword (title or topic substring),
+// Curate selects works matching a topic/keyword (whole words in title or topic),
 // scoped optionally to a journal, sorted by "citations" or "date".
 func Curate(ctx context.Context, db *sql.DB, topic, issn, sort string, openAccessOnly bool, limit int) ([]WorkRow, error) {
 	if err := EnsureSchema(ctx, db); err != nil {
 		return nil, err
 	}
 	q := `SELECT title, doi, journal_name, pub_year, cited_count, COALESCE(topic,'')
-	      FROM lancet_works WHERE (title LIKE ? OR topic LIKE ?)`
-	args := []any{"%" + topic + "%", "%" + topic + "%"}
+	      FROM lancet_works WHERE 1=1`
+	var args []any
+	// Whole-word match (porter unicode61, AND across words). A topic with no
+	// searchable word (empty/whitespace/punctuation only) applies no text
+	// filter and returns every work, subject to the other filters.
+	if m := ftsMatchQuery(topic); m != "" {
+		q += ` AND rowid IN (SELECT rowid FROM lancet_works_fts WHERE lancet_works_fts MATCH ?)`
+		args = append(args, m)
+	}
 	if issn != "" {
 		q += ` AND journal_issn = ?`
 		args = append(args, issn)

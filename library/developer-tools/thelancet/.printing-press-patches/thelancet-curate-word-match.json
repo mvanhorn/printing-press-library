@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "thelancet-curate-word-match",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20260617-072858-2f9fe13e",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Curate matches whole words through an external-content FTS5 table lancet_works_fts(title, topic) with the porter unicode61 tokenizer, kept in sync by triggers and built once on open for older databases. Each query word is quoted and all must match.",
+  "reason": "The LIKE '%phrase%' filter matched inside words, so a short query hit unrelated works (ai in air, badge in badger), and a two-word query matched only the exact phrase. User text is quoted per token so it can never be read as FTS syntax. A failed index build is an error, never a silent return to LIKE.",
+  "files": [
+    "internal/lancet/fts.go",
+    "internal/lancet/queries.go",
+    "internal/lancet/store.go"
+  ],
+  "validated_outcome": "go test ./internal/lancet/ covers whole-word and multi-word matching, case, hostile input, trigger sync and backfill. On a real Lancet mirror, precision of the top 20 for ai went from 0 to 20; four processes opening an unindexed copy at once all succeeded."
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "thelancet-curate-data-source",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20260617-072858-2f9fe13e",
+  "base_printing_press_version": "4.24.0",
+  "summary": "curate honors --data-source: local never calls the live API, live skips the store, and auto keeps the store-first path but prints one stderr line when it falls back to the live OpenAlex search. Stdout is unchanged.",
+  "reason": "The live fallback ran whenever the store returned nothing, even under --data-source local, and said nothing. Live search covers title, abstract and full text and is a billed search request, so callers got rows of a different kind than the store returns without knowing it. Callers must be able to forbid it and to see when it happened.",
+  "files": [
+    "internal/cli/curate.go"
+  ],
+  "validated_outcome": "go test ./internal/cli/ -run Curate asserts local never calls live, live never opens the store, and auto falls back with the notice only on an empty store result. On a real Lancet mirror, local \"ai diagnosis\" went from 100 live rows to 0; other topics unchanged."
+}
