@@ -34,3 +34,42 @@ func TestPrefixVerificationIsLiteralUniqueAndResourceScoped(t *testing.T) {
 		}
 	}
 }
+
+func TestExplicitTeachingUpdatesScopeAndInferencePreservesPayload(t *testing.T) {
+	db := openTestDB(t)
+	original := samplePattern()
+	original.Source = SourceInferred
+	id, _, err := Upsert(db, original)
+	if err != nil {
+		t.Fatal(err)
+	}
+	taught := original
+	taught.Source = SourceTaught
+	taught.ResourceType = "pitches"
+	taught.EntityKind = "country"
+	taught.Venue = "kanto"
+	taught.ExampleQuery = "pitch Japan"
+	taught.ExampleResource = "pitch-JP"
+	for _, clear := range []bool{false, true} {
+		if clear {
+			taught.Venue = ""
+			taught.ExampleQuery = ""
+			taught.ExampleResource = ""
+		}
+		got, inserted, err := Upsert(db, taught)
+		if err != nil || inserted || got != id {
+			t.Fatal(got, inserted, err)
+		}
+		if _, _, err := Upsert(db, original); err != nil {
+			t.Fatal(err)
+		}
+		rows, err := List(db, ListFilter{})
+		if err != nil || len(rows) != 1 {
+			t.Fatal(rows, err)
+		}
+		r := rows[0]
+		if r.ID != id || r.Source != SourceTaught || r.ResourceType != taught.ResourceType || r.EntityKind != taught.EntityKind || r.Venue != taught.Venue || r.ExampleQuery != taught.ExampleQuery || r.ExampleResource != taught.ExampleResource {
+			t.Fatalf("explicit payload differs after inference %#v want %#v", r, taught)
+		}
+	}
+}

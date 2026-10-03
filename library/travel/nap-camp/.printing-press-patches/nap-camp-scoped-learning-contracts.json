@@ -4,15 +4,20 @@
   "applied_at": "2026-10-03",
   "base_run_id": "20261003-001152-6cdfd713",
   "base_printing_press_version": "4.32.5",
-  "summary": "Undo affected inferred learning families atomically and reject ambiguous or wildcard prefix verification.",
-  "reason": "Forgotten teachings must not remain active through derived patterns; explicit manual rules and unrelated families must survive, while prefix IDs are literal and must resolve uniquely.",
+  "summary": "Reconcile inferred rules from surviving bindings, record explicit manual scope, and verify literal unique prefixes.",
+  "reason": "Undo must remove unsupported inference without disabling rules still supported by retained distinct entity bindings; manual and unrelated rules remain.",
   "files": [
     "internal/store/learnings.go",
     "internal/learn/patterns/apply.go",
     "internal/learn/patterns/store.go",
     "internal/store/learning_publication_contracts_test.go",
     "internal/learn/patterns/publication_contracts_test.go",
-    "README.md"
+    "README.md",
+    "internal/entityvalue/lookup.go",
+    "internal/learn/lookups/store.go",
+    "internal/store/derived_patterns.go",
+    "internal/store/supported_patterns_test.go",
+    "internal/cli/nap_learning_contract_test.go"
   ],
-  "validated_outcome": "Temporary SQLite regressions cover end-to-end undo, non-example contributor invalidation, scoped/manual retention, transactional rollback, manual-source promotion and literal unique prefixes."
+  "validated_outcome": "Actual extraction/recall regressions preserve supported exact/prefix rules from all retained distinct bindings, remove unsupported rules, refresh example provenance, retain unrelated/manual intent and roll back both deletion/update failures. Explicit manual scope matches reported/applied payload and later inference cannot overwrite it; literal prefixes require one scoped match."
 }

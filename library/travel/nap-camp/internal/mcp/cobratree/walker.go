@@ -32,7 +32,14 @@ func RegisterAll(s *server.MCPServer, root *cobra.Command, cliPath func() (strin
 		if toolName == "" {
 			return
 		}
+		readOnly := isMCPReadOnly(cmd)
 		blockedStructuredArgs := blockedStructuredArgsForCommand(cmd)
+		if readOnly {
+			// The bridge enforces the read-only child context; caller flags
+			// cannot toggle automatic learning or create run receipts.
+			blockedStructuredArgs["no-learn"] = true
+			blockedStructuredArgs["receipt"] = true
+		}
 		positionals := positionalArgsForCommand(cmd, blockedStructuredArgs)
 		blockedCLIArgs := cliFlagBlockedArgs(blockedStructuredArgs, positionals)
 		allowedStructuredArgs := allowedStructuredArgsForCommand(cmd, blockedStructuredArgs, positionals, commandTakesArgs(cmd))
@@ -47,7 +54,6 @@ func RegisterAll(s *server.MCPServer, root *cobra.Command, cliPath func() (strin
 		if commandTakesArgs(cmd) && (len(positionals) == 0 || hasVariadic) {
 			options = append(options, mcplib.WithString("args", mcplib.Description("Additional positional arguments to append to the command. Raw flags are rejected; use structured flag parameters instead.")))
 		}
-		readOnly := isMCPReadOnly(cmd)
 		if readOnly {
 			options = append(options, mcplib.WithReadOnlyHintAnnotation(true), mcplib.WithDestructiveHintAnnotation(false))
 		}

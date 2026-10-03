@@ -68,8 +68,8 @@ type Opts struct {
 // matches the live query (via the same non-entity normalized form +
 // Jaccard threshold the direct recall path uses), substitutes the live
 // query's entity via lookups.Lookup, and verifies each substituted
-// candidate exists in the resources table (or matches a prefix LIKE
-// search for the prefix strategy). Returns the verified hits.
+// candidate exists in the resources table (or uniquely matches a literal
+// prefix for the prefix strategy). Returns the verified hits.
 //
 // queryEntities is the case-preserving entity slice extracted from the
 // live query by the caller (typically via learn.Normalize). The caller
