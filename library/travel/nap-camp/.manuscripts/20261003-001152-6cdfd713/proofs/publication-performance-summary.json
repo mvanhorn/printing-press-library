@@ -1,9 +1,9 @@
 {
   "status": "pass",
-  "observed_at": "2026-10-03T13:39:32.094822+00:00",
+  "observed_at": "2026-10-03T14:47:32.794628+00:00",
   "measurement_stage": "current canonical publication source after all reviewed publication repairs",
-  "source_fingerprint": "0589d1376c7ee41ee961cda777327743e4aa8fbce0183f7ec92a8c20b52ed0bb",
-  "binary_sha256": "08573b3d0522f7f7143a534b3b1bdc7517f17bd1a574c5f2fbdf9291cb66d8e5",
+  "source_fingerprint": "5bd92fbf1f697323eef7d7bdae621976581062abb2acaacbce5bb74da7c1e57e",
+  "binary_sha256": "15a4c64fb6ea0b89bbbf7d30deb9fdafab1962d8ce94320971daf7a33ac5cddc",
   "normal_mode": true,
   "scope": "Six representative commands x1 successful normal-mode process run; network/startup included; no latency threshold or percentile/SLA claim.",
   "performance": [
@@ -11,51 +11,51 @@
       "command": "discover",
       "runs": 1,
       "passed": 1,
-      "seconds": 0.5485,
+      "seconds": 0.6881,
       "stdout_bytes": 7806
     },
     {
       "command": "calendar",
       "runs": 1,
       "passed": 1,
-      "seconds": 1.1386,
+      "seconds": 0.9395,
       "stdout_bytes": 5187
     },
     {
       "command": "fit",
       "runs": 1,
       "passed": 1,
-      "seconds": 0.7239,
+      "seconds": 0.7374,
       "stdout_bytes": 3025
     },
     {
       "command": "compare",
       "runs": 1,
       "passed": 1,
-      "seconds": 1.7471,
+      "seconds": 1.7544,
       "stdout_bytes": 7040
     },
     {
       "command": "snapshot",
       "runs": 1,
       "passed": 1,
-      "seconds": 1.5633,
+      "seconds": 1.3618,
       "stdout_bytes": 32029
     },
     {
       "command": "changes",
       "runs": 1,
       "passed": 1,
-      "seconds": 0.011,
+      "seconds": 0.0108,
       "stdout_bytes": 361
     }
   ],
   "local_recall_result_cap_measurement": {
     "status": "pass",
-    "observed_at": "2026-10-03T13:35:34.534307+00:00",
+    "observed_at": "2026-10-03T14:38:45.608965+00:00",
     "synthetic_local_fixture": true,
     "source_scope": "Current publication-only source; ordinary compiled CLI recall against isolated SQLite stores.",
-    "binary_sha256": "08573b3d0522f7f7143a534b3b1bdc7517f17bd1a574c5f2fbdf9291cb66d8e5",
+    "binary_sha256": "15a4c64fb6ea0b89bbbf7d30deb9fdafab1962d8ce94320971daf7a33ac5cddc",
     "measurement_scope": "Five normal-mode process runs per size, including startup, store-open and optional local recall telemetry; no network and no latency/SLA threshold.",
     "work_contract": "--limit caps returned results; all matching entity bindings remain eligible for final identity validation and confidence/source ranking. It is not a database-query budget.",
     "cases": [
@@ -66,13 +66,13 @@
         "runs": 5,
         "passed": 5,
         "milliseconds": [
-          15.115,
-          13.913,
-          12.859,
-          11.963,
-          12.36
+          12.623,
+          11.955,
+          12.546,
+          13.07,
+          12.064
         ],
-        "median_milliseconds": 12.859,
+        "median_milliseconds": 12.546,
         "maximum_stdout_bytes": 577,
         "returned_results": 1,
         "later_highest_confidence_selected": true
@@ -84,13 +84,13 @@
         "runs": 5,
         "passed": 5,
         "milliseconds": [
-          14.367,
-          13.412,
-          13.585,
-          13.346,
-          13.792
+          13.819,
+          14.794,
+          13.855,
+          14.635,
+          14.788
         ],
-        "median_milliseconds": 13.585,
+        "median_milliseconds": 14.635,
         "maximum_stdout_bytes": 577,
         "returned_results": 1,
         "later_highest_confidence_selected": true
@@ -102,18 +102,18 @@
         "runs": 5,
         "passed": 5,
         "milliseconds": [
-          24.376,
-          23.789,
-          23.57,
-          23.915,
-          23.572
+          25.543,
+          25.276,
+          25.578,
+          24.37,
+          24.991
         ],
-        "median_milliseconds": 23.789,
+        "median_milliseconds": 25.276,
         "maximum_stdout_bytes": 577,
         "returned_results": 1,
         "later_highest_confidence_selected": true
       }
     ],
-    "source_fingerprint": "0589d1376c7ee41ee961cda777327743e4aa8fbce0183f7ec92a8c20b52ed0bb"
+    "source_fingerprint": "5bd92fbf1f697323eef7d7bdae621976581062abb2acaacbce5bb74da7c1e57e"
   }
 }

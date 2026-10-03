@@ -1,6 +1,6 @@
 {
   "status": "pass",
-  "source_fingerprint": "0589d1376c7ee41ee961cda777327743e4aa8fbce0183f7ec92a8c20b52ed0bb",
+  "source_fingerprint": "5bd92fbf1f697323eef7d7bdae621976581062abb2acaacbce5bb74da7c1e57e",
   "mcp_stdio": {
     "passed": true,
     "tool": "planner_compare",
@@ -29,8 +29,8 @@
     "learning_toggle_not_advertised_on_read_only_native": true,
     "learning_toggle_request_rejected": true,
     "no_learn_harness_override": false,
-    "cli_binary_sha256": "08573b3d0522f7f7143a534b3b1bdc7517f17bd1a574c5f2fbdf9291cb66d8e5",
-    "mcp_binary_sha256": "b964649abf15123a6f0b464c10d8fb973e67b329d352208aba8e5ff10fa61177",
+    "cli_binary_sha256": "15a4c64fb6ea0b89bbbf7d30deb9fdafab1962d8ce94320971daf7a33ac5cddc",
+    "mcp_binary_sha256": "2365a62dc6255ea417ee849a6cc3d2d24ff4826016e1625c2d7c678a77bc5727",
     "runtime_version": "nap-camp-pp-cli 2026.10.1"
   },
   "regressions": [
@@ -56,7 +56,8 @@
     "accepted typed IDs are removed from mismatch and alternative diagnostics before mismatch truncation, retaining separate rejected-only facts",
     "later higher-confidence lower-score pattern wins at result limit1; standalone Apply first binding and default/explicit caps remain",
     "unexpected SQLite payload-read and cancellation errors propagate explicitly in direct and pattern recall; only genuine missing rows retain warned compatibility fallback",
-    "comparable two-field resource keys keep arbitrary distinct taught type/ID tuples separate; actual two-teach limit2 recall preserves separator-containing pairs"
+    "comparable two-field resource keys keep arbitrary distinct taught type/ID tuples separate; actual two-teach limit2 recall preserves separator-containing pairs",
+    "initial extraction and undo reconciliation count only positive boost actions within eligible source classes; hide/alias rows cannot create, retain, resurrect or supply positive example provenance, while two positive bindings remain"
   ],
   "learning_state_scope": "fresh temporary test stores; no original or global learning state",
   "full_go_tests": "pass",
@@ -65,13 +66,13 @@
     "passed": true,
     "normal_mode": true,
     "timeout_ms": 100,
-    "cli_binary_sha256": "08573b3d0522f7f7143a534b3b1bdc7517f17bd1a574c5f2fbdf9291cb66d8e5",
+    "cli_binary_sha256": "15a4c64fb6ea0b89bbbf7d30deb9fdafab1962d8ce94320971daf7a33ac5cddc",
     "fixture": "isolated controlled local HTTP; no provider transaction",
     "cases": [
       {
         "case": "throttle",
         "exit_code": 5,
-        "seconds": 0.1115,
+        "seconds": 0.1116,
         "stdout_bytes": 0,
         "provider_context_present": true,
         "explicit_timeout_context_present": true,
@@ -80,7 +81,7 @@
       {
         "case": "slow",
         "exit_code": 5,
-        "seconds": 0.1114,
+        "seconds": 0.1178,
         "stdout_bytes": 0,
         "provider_context_present": true,
         "explicit_timeout_context_present": true,
