@@ -65,12 +65,23 @@ func TestDiscoverFollowsNextAndHonorsIndependentPageCap(t *testing.T) {
 	}
 }
 func TestDiscoverRejectsUnobservedPrefecture(t *testing.T) {
-	c := New(2)
-	c.http.Transport = roundTripFunc(func(req *http.Request) (*http.Response, error) {
-		return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{"text/html"}}, Body: io.NopCloser(strings.NewReader(navigationPage(1, false))), Request: req}, nil
-	})
-	_, _, e := c.Discover(context.Background(), "events", 6, 13, 1, Query{Kind: "events", AgeMonths: -1, Limit: 5})
-	if e == nil || !strings.Contains(e.Error(), "not an observed source option") {
-		t.Fatalf("invalid prefecture accepted: %v", e)
+	for _, tc := range []struct {
+		name       string
+		prefecture int
+		body       string
+	}{
+		{"missing ID", 13, navigationPage(1, false)},
+		{"same ID under wrong region", 11, strings.ReplaceAll(navigationPage(1, false), "/regions/6/", "/regions/5/")},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			c := New(2)
+			c.http.Transport = roundTripFunc(func(req *http.Request) (*http.Response, error) {
+				return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{"text/html"}}, Body: io.NopCloser(strings.NewReader(tc.body)), Request: req}, nil
+			})
+			_, _, err := c.Discover(context.Background(), "events", 6, tc.prefecture, 1, Query{Kind: "events", AgeMonths: -1, Limit: 5})
+			if err == nil || !strings.Contains(err.Error(), "not an observed source option") {
+				t.Fatalf("invalid prefecture accepted: %v", err)
+			}
+		})
 	}
 }

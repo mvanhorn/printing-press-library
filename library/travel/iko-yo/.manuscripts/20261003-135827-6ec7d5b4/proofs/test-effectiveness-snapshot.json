@@ -1,0 +1,29 @@
+{
+  "verdict": "PASS",
+  "scope": "two test-effectiveness changes only",
+  "reviewed_at": "2026-10-03T10:13:14.492349+00:00",
+  "canonical_source": "library/travel/iko-yo",
+  "comparison_base": "02f38026",
+  "head": "02f38026d43fa4653bc40d81784068e1c192cb82",
+  "working_tree_test_changes_reviewed": true,
+  "test_file_sha256": {
+    "internal/cli/iko_yo_trip_test.go": "b7653cefb951fef2afdc8a35f4049f3246dd190b552f3f1c244b88021c8e5c1b",
+    "internal/trip/navigation_test.go": "68b7af61302e3b19426e4e7fe94d318dfe97f46b25258844b9bc78fce6101b7f"
+  },
+  "production_and_patch_hashes_unchanged": {
+    "internal/cli/iko_yo_trip_helpers.go": true,
+    "internal/cli/trip_compare.go": true,
+    "internal/trip/parse.go": true,
+    "internal/trip/client.go": true,
+    ".printing-press-patches/iko-yo-trip-facts-preserve-unknowns.json": true
+  },
+  "version_source_hashes_unchanged": {
+    "internal/cli/version.go": true,
+    "cmd/iko-yo-pp-mcp/main.go": true
+  },
+  "installed_peer_hashes_unchanged": {
+    "iko-yo-pp-cli": true,
+    "iko-yo-pp-mcp": true
+  },
+  "earlier_snapshots_preserved": true
+}

@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "af47767314708370e74cac915c2213a31521d9bd8749f9703ec26cbabf14781c",
+  "source_fingerprint": "752c2c9da97ccfea03d0b41c733d50eb6480a4b2c3e2c70afe5e93d2d6def978",
   "source_files": {
     "cmd/iko-yo-pp-cli/main.go": "dfd0b58b34139ce30c85236782341de23b5c9753814961b726d82a1f36be9de7",
     "cmd/iko-yo-pp-mcp/main.go": "844c6fca1b516041a9a91a550f32fac853d96e321d22aa670d4e9130c83c84c0",
@@ -38,7 +38,7 @@
     "internal/cli/iko_yo_trip_endpoints.go": "b1e8705e083dec134214733d26d8fc0bee33f58d0a5fbee6685cc105bb4bcdf6",
     "internal/cli/iko_yo_trip_helpers.go": "ae4b60024bdd14f9e6a39c3ae668163d6a698a9c71c5f004e9d565015f6e1c3a",
     "internal/cli/iko_yo_trip_privacy.go": "fcf80ac3b47580101e1f33fafc8829059d3aa7c50dc60bd7b82db1683e762cb8",
-    "internal/cli/iko_yo_trip_test.go": "ad466834c44d4ad9f992f0a75c1260a40618c750b908b14f6be8017f7c054b85",
+    "internal/cli/iko_yo_trip_test.go": "4f64381a68ca4c270a7415a529fdb21df2138d10c02e4cab924be038bbfa2a4a",
     "internal/cli/learn_init.go": "928cca83cd943d0075b3caf20bd419a5bcef3476a1f25df79208c30028907a4c",
     "internal/cli/learn_init_test.go": "55e6dbfb8e9cf4d6da544980afd3aef434775efbf68ae88cce81437fc7e80e90",
     "internal/cli/learnings_candidates.go": "204741a9bd749f507b97024a9869f8b472f14d5a00019ba83ee6ccfb79afc348",
@@ -188,7 +188,7 @@
     "internal/store/upsert_batch_test.go": "5929b9d6af5da1832ece232865850a591653e8a7922d116204efe961dc3c96bb",
     "internal/trip/client.go": "54842dcd9e1cde0c99cd2643b0e8907326d5c90a668b6e87ee58ac3681d9e52e",
     "internal/trip/match.go": "abf2cd11e474c9c29e685370e51568c5cb5424f7b3a2dc4b68dd6170d063ad88",
-    "internal/trip/navigation_test.go": "b9bcddc56c70ee5c0ea17625471f8f9e783340d9e448d61c38cf94c53fed78d6",
+    "internal/trip/navigation_test.go": "17b2106ed92c88e8b1cfe20ece14ce69b4a2581e782b55e9a0a6697050382d85",
     "internal/trip/parse.go": "ee131bc54ca90023232e51440e26f99ab029de30271fae28a4dd0f60f898f667",
     "internal/trip/trip_test.go": "6b463efb433b5906a7c8e87fd64a98cbc3984d77640836aab2694f5fc3ccd4a3",
     "internal/trip/types.go": "b23e3fc01fd9ca6adfa75460828d3d67b3006d03d6cbefba17b381cadc1fe48b",
