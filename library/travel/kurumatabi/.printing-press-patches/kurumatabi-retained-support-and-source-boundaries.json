@@ -36,9 +36,11 @@
     "internal/mcp/recipe_intents_test.go",
     "internal/store/derived_patterns.go",
     "internal/store/learnings.go",
-    "internal/store/supported_patterns_test.go"
+    "internal/store/supported_patterns_test.go",
+    "internal/learn/patterns/extract.go",
+    "internal/store/positive_support_test.go"
   ],
-  "validated_outcome": "Full uncached source/canonical tests, vet/build/govuln/skill/publish validation and130 original-reviewer controls pass. Fresh binary-owned4.33.0 full live passed116/116,0failures,89explicitunverified; exact196-file fingerprint/per-file map matches canonical source. Final public/privacy/current-head closure follows.",
+  "validated_outcome": "Full uncached source/canonical tests, vet/build/govuln/skill/publish validation and original-reviewer combined positive-support/identity/source/agent controls pass. Fresh binary-owned4.33.0 full live passed116/116,0failures,89explicitunverified; the exact197-file fingerprint/per-file map matches canonical source. Final public/privacy/current-head closure follows.",
   "findings_addressed": [
     "F1",
     "F2",

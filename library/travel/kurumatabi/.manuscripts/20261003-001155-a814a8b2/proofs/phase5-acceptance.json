@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "01fdc2abbd17baf9d47a183620f3282f3a3fb620ce6a5657f7dbb6c5f3eea894",
+  "source_fingerprint": "137f44a51d05554a0e8d8af1f2a5cbf41ce7cd537fd8e25c749b4a1dcf9bd083",
   "source_files": {
     "cmd/kurumatabi-pp-cli/main.go": "3d0ba5873fa1dae0411227a0772c523663c35c3b3f98c956ef7edda16ea10466",
     "cmd/kurumatabi-pp-mcp/main.go": "a8619c0de8c9ea136d7a01d84c9d39c8c5c6a10b0b9ac36f903baa1955a2e57b",
@@ -130,7 +130,7 @@
     "internal/learn/patterns/apply.go": "a0f4ba3963a08da451c2a5000e9addf19c1527bc7614892a630c3536af13d632",
     "internal/learn/patterns/apply_test.go": "30b7e28b5e194990d404e3fa079d9c971def6ace45d084f3bcbd523c50414fe1",
     "internal/learn/patterns/doc.go": "0c403005814770da317447cb2051f3eed4f011c828fece17b05597b1acd50e72",
-    "internal/learn/patterns/extract.go": "ce10a2359fe06033a19a8469eabdb257814ddb08c33e74364259fbc19bfbd1eb",
+    "internal/learn/patterns/extract.go": "1d98a8c98b2e4c132647cda73225577ce6c9dd54488753e0f761ecdaf8cf93af",
     "internal/learn/patterns/extract_test.go": "b40fbe21ec417d7d60e51b2c867fb0ded6782fb851ecb92787060b3b78f123c3",
     "internal/learn/patterns/publication_contracts_test.go": "dfde4c04b915c3f952fac5d51d42675dadcf19a9b0839c147880bef7349daf06",
     "internal/learn/patterns/store.go": "832805cdf975ba3983c3b16bd0aedc8a7f3792919d5647f6b361a18f266b01d8",
@@ -194,7 +194,7 @@
     "internal/platform/receipt.go": "333386566b638c6eebd65e9ac07199d0601ee08a8cd8938e668facf6ae08bedf",
     "internal/store/candidates.go": "7a883323731354354cdd9cfdffcc37e5feeb1de0d6cfeebe241efa0486d9659a",
     "internal/store/candidates_test.go": "261fcc799279930b24c220bedf920d5a9f647ed8eefdd959a38f024cabc1c728",
-    "internal/store/derived_patterns.go": "ec5602cab0dc901d70c8c8eb341884054289578f02f38cf9601e1dce8e3ed88f",
+    "internal/store/derived_patterns.go": "ecb966e24f14035276c6daf07905dea3b20b7f98fb4166818880b1fd689f86b1",
     "internal/store/events.go": "b5c439e52fdab08df5a9bd4c5469e3a0104c340e598fa688e0956c946b3d41bc",
     "internal/store/events_test.go": "670cab29058cd8cca31b63ed2270b59a6a92594619b65f44a44e85cb75f05f12",
     "internal/store/extras.go": "553f86af71bf7f4bd8bf4a83658de595c170406916f8492d3bf67b82c4ebb693",
@@ -203,6 +203,7 @@
     "internal/store/learnings_test.go": "a82f8476b9c307f6db84788b563d4ed91fd1cec1273b4bda355011b47d071adf",
     "internal/store/playbooks.go": "c290e0a4ad7baaa4fbd60cfb57fd273e82c01319b153a28e9374de0811c150d2",
     "internal/store/playbooks_test.go": "fec8e2d84b458a5aa2895b5da64d332ed2c7bf6dd5cf448cdd8ad34af42e59af",
+    "internal/store/positive_support_test.go": "12480bddc02f3d142d77dfca2290ef6f8e555e14d6d67451076323f6642f8733",
     "internal/store/schema_version_test.go": "f9c7b5956262f49088281b77a48eed8a4006a935d79e5b6b76408ac4f2488978",
     "internal/store/store.go": "b42264087c75b98ad6004a9620181b8ec58972e78b14482119a6573937428cc4",
     "internal/store/supported_patterns_test.go": "f6fd62ac4eb3b795cebf3f894662c1a0bd6227b4dbf3d44ca1390b1fcd360226",
