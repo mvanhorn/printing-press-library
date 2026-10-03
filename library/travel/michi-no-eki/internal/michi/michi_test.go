@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
@@ -186,6 +187,99 @@ func TestQueryValidation(t *testing.T) {
 		})
 	}
 }
+func noticeIndexPage(start, n, next int) string {
+	var b strings.Builder
+	b.WriteString(`<main><div class="noticesList">`)
+	for i := 0; i < n; i++ {
+		id := start + i
+		fmt.Fprintf(&b, `<a href="/notices/views/%d"><time datetime="2026-9-30">2026年9月30日</time><span>長野県</span><p>お知らせ%d</p></a>`, id, id)
+	}
+	b.WriteString(`</div>`)
+	if next > 0 {
+		fmt.Fprintf(&b, `<a href="/notices?page=%d">next</a>`, next)
+	}
+	b.WriteString(`</main>`)
+	return b.String()
+}
+
+func TestStationNoticesRetainsScannedIndexBeforeDetailCap(t *testing.T) {
+	var mu sync.Mutex
+	fetched := map[string]int{}
+	src := &Source{BaseURL: Origin, Fetch: func(ctx context.Context, path string) ([]byte, error) {
+		switch {
+		case path == "/stations/views/10001":
+			return []byte(fixtureStation("試験駅A")), nil
+		case path == "/notices":
+			return []byte(noticeIndexPage(30000, 30, 1)), nil
+		case path == "/notices?page=1":
+			return []byte(noticeIndexPage(30030, 25, 0)), nil
+		case strings.HasPrefix(path, "/notices/views/"):
+			id := strings.TrimPrefix(path, "/notices/views/")
+			mu.Lock()
+			fetched[id]++
+			mu.Unlock()
+			station := "10002"
+			if id == "30000" || id == "30054" {
+				station = "10001"
+			}
+			return []byte(fixtureNotice(station)), nil
+		default:
+			return nil, fmt.Errorf("unexpected %s", path)
+		}
+	}}
+	v, err := src.StationNotices(context.Background(), "10001", 2, 50, 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v.ScannedPages != 2 || v.ScannedRecords != 55 || v.DetailRecords != 50 {
+		t.Fatalf("coverage = pages %d records %d details %d", v.ScannedPages, v.ScannedRecords, v.DetailRecords)
+	}
+	if len(fetched) != 50 || fetched["30054"] != 0 || fetched["30000"] != 1 {
+		t.Fatalf("detail fetches = %d, includes late id %d", len(fetched), fetched["30054"])
+	}
+	if len(v.Notices) != 1 || v.Notices[0].ID != "30000" || v.Notices[0].MatchReason != "explicit_station_id_link" {
+		t.Fatalf("matches = %+v", v.Notices)
+	}
+	if !strings.Contains(v.Note, "Scanned 55") || !strings.Contains(v.Note, "first 50") || !strings.Contains(v.Note, "not fetched") {
+		t.Fatalf("note does not describe the unopened index rows: %s", v.Note)
+	}
+}
+
+func TestExportNoticesFollowsIndexAndRejectsIncompleteCeiling(t *testing.T) {
+	src := &Source{BaseURL: Origin, Fetch: func(ctx context.Context, path string) ([]byte, error) {
+		switch path {
+		case "/notices":
+			return []byte(noticeIndexPage(50000, 2, 1)), nil
+		case "/notices?page=1":
+			return []byte(noticeIndexPage(50002, 2, 0)), nil
+		default:
+			return nil, fmt.Errorf("unexpected %s", path)
+		}
+	}}
+	rows, err := src.ExportNotices(context.Background(), 0)
+	if err != nil || len(rows) != 4 || rows[3].ID != "50003" {
+		t.Fatalf("unlimited export = %d %v", len(rows), err)
+	}
+	limited, err := src.ExportNotices(context.Background(), 3)
+	if err != nil || len(limited) != 3 || limited[2].ID != "50002" {
+		t.Fatalf("limited export = %+v %v", limited, err)
+	}
+
+	prev := maxBulletinExportPages
+	maxBulletinExportPages = 2
+	t.Cleanup(func() { maxBulletinExportPages = prev })
+	paging := &Source{BaseURL: Origin, Fetch: func(ctx context.Context, path string) ([]byte, error) {
+		page := 0
+		if strings.Contains(path, "page=") {
+			fmt.Sscanf(path, "/notices?page=%d", &page)
+		}
+		return []byte(noticeIndexPage(60000+page, 1, page+1)), nil
+	}}
+	if _, err := paging.ExportNotices(context.Background(), 0); err == nil || !strings.Contains(err.Error(), "incomplete") {
+		t.Fatalf("ceiling error = %v", err)
+	}
+}
+
 func TestSourceWorkflows(t *testing.T) {
 	src := fixtureSource()
 	ctx := context.Background()

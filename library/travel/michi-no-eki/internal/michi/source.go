@@ -208,6 +208,127 @@ func (s *Source) Readiness(ctx context.Context, id string) (map[string]any, erro
 	}
 	return map[string]any{"station": st, "general_guidance": GeneralGuidance(), "unresolved_questions": []string{"Confirm designated overnight space and permitted dates with the station operator.", "Confirm outdoor-camping rules separately.", "Confirm today's bath/food/shop hours, fees and charger operation.", "Confirm vehicle dimensions/access and current parking availability."}}, nil
 }
+func noticeIndexPath(page int) string {
+	if page > 0 {
+		return "/notices?page=" + strconv.Itoa(page)
+	}
+	return "/notices"
+}
+
+type scannedNotices struct {
+	records          []Notice
+	sourceURLs       []string
+	scannedPages     int
+	next             *int
+	publicationStart string
+	publicationEnd   string
+	observedAt       string
+}
+
+func (s *Source) scanNoticePages(ctx context.Context, pages int) (scannedNotices, error) {
+	out := scannedNotices{records: []Notice{}, sourceURLs: []string{}, observedAt: observedNow()}
+	page := 0
+	seen := map[string]bool{}
+	for i := 0; i < pages; i++ {
+		b, u, t, e := s.read(ctx, noticeIndexPath(page))
+		if e != nil {
+			return out, e
+		}
+		records, next, e := ParseNotices(b, page, u, t)
+		if e != nil {
+			return out, e
+		}
+		out.sourceURLs = append(out.sourceURLs, u)
+		out.scannedPages++
+		out.next = next
+		for _, n := range records {
+			if seen[n.ID] {
+				continue
+			}
+			seen[n.ID] = true
+			out.records = append(out.records, n)
+			if n.PublishedDate != "unknown" {
+				if out.publicationStart == "" || n.PublishedDate < out.publicationStart {
+					out.publicationStart = n.PublishedDate
+				}
+				if n.PublishedDate > out.publicationEnd {
+					out.publicationEnd = n.PublishedDate
+				}
+			}
+		}
+		if next == nil {
+			break
+		}
+		page = *next
+	}
+	return out, nil
+}
+
+func noticesFromScan(scanned scannedNotices, pages int) Notices {
+	start, end := scanned.publicationStart, scanned.publicationEnd
+	if start == "" {
+		start = "unknown"
+	}
+	if end == "" {
+		end = "unknown"
+	}
+	urls := scanned.sourceURLs
+	if urls == nil {
+		urls = []string{}
+	}
+	return Notices{Notices: []Notice{}, SourceURLs: urls, ObservedAt: scanned.observedAt, ScannedPages: scanned.scannedPages, ScannedRecords: len(scanned.records), MaxScanPages: pages, NextPage: scanned.next, PublicationStart: start, PublicationEnd: end, FetchFailures: []FetchFailure{}, MatchCoverage: "index metadata within scanned pages only", Note: "No matching notices means no match within scanned coverage; it does not establish live opening or absence of advisories."}
+}
+
+// maxBulletinExportPages refuses an incomplete bulletin export. --limit 0
+// follows the notice index until it ends; a positive limit stops once that
+// many records are collected. Crossing this bound while another page remains
+// is an error, not a truncated file. Tests may lower it.
+var maxBulletinExportPages = 500
+
+func (s *Source) ExportNotices(ctx context.Context, limit int) ([]Notice, error) {
+	if limit < 0 {
+		return nil, fmt.Errorf("--limit must be 0 (all available notices) or a positive maximum")
+	}
+	var out []Notice
+	seen := map[string]bool{}
+	seenPages := map[int]bool{}
+	page := 0
+	for scanned := 0; ; scanned++ {
+		if scanned >= maxBulletinExportPages {
+			return nil, fmt.Errorf("bulletin export stopped after %d index pages with more notices available; the result would be incomplete", maxBulletinExportPages)
+		}
+		if seenPages[page] {
+			return nil, fmt.Errorf("bulletin export repeated notice index page %d", page)
+		}
+		seenPages[page] = true
+		b, u, t, e := s.read(ctx, noticeIndexPath(page))
+		if e != nil {
+			return nil, e
+		}
+		records, next, e := ParseNotices(b, page, u, t)
+		if e != nil {
+			return nil, e
+		}
+		for _, n := range records {
+			if seen[n.ID] {
+				continue
+			}
+			seen[n.ID] = true
+			out = append(out, n)
+			if limit > 0 && len(out) >= limit {
+				return out, nil
+			}
+		}
+		if next == nil {
+			if out == nil {
+				out = []Notice{}
+			}
+			return out, nil
+		}
+		page = *next
+	}
+}
+
 func (s *Source) Notices(ctx context.Context, pages, limit int, prefecture, keyword string) (Notices, error) {
 	if pages < 1 || pages > 5 {
 		return Notices{}, fmt.Errorf("--max-scan-pages must be 1–5")
@@ -227,61 +348,23 @@ func (s *Source) Notices(ctx context.Context, pages, limit int, prefecture, keyw
 			}
 		}
 	}
-	out := Notices{Notices: []Notice{}, SourceURLs: []string{}, ObservedAt: observedNow(), MaxScanPages: pages, FetchFailures: []FetchFailure{}, MatchCoverage: "index metadata within scanned pages only", Note: "No matching notices means no match within scanned coverage; it does not establish live opening or absence of advisories."}
-	page := 0
-	seen := map[string]bool{}
-	for i := 0; i < pages; i++ {
-		path := "/notices"
-		if page > 0 {
-			path += "?page=" + strconv.Itoa(page)
+	scanned, e := s.scanNoticePages(ctx, pages)
+	out := noticesFromScan(scanned, pages)
+	if e != nil {
+		return out, e
+	}
+	for _, n := range scanned.records {
+		if len(prefNames) > 0 && !prefNames[normalize(n.Prefecture)] {
+			continue
 		}
-		b, u, t, e := s.read(ctx, path)
-		if e != nil {
-			return out, e
+		if keyword != "" && !strings.Contains(strings.ToLower(n.Title), strings.ToLower(keyword)) {
+			continue
 		}
-		records, next, e := ParseNotices(b, page, u, t)
-		if e != nil {
-			return out, e
+		if len(out.Notices) < limit {
+			out.Notices = append(out.Notices, n)
 		}
-		out.SourceURLs = append(out.SourceURLs, u)
-		out.ScannedPages++
-		out.NextPage = next
-		for _, n := range records {
-			if seen[n.ID] {
-				continue
-			}
-			seen[n.ID] = true
-			out.ScannedRecords++
-			if n.PublishedDate != "unknown" {
-				if out.PublicationStart == "" || n.PublishedDate < out.PublicationStart {
-					out.PublicationStart = n.PublishedDate
-				}
-				if n.PublishedDate > out.PublicationEnd {
-					out.PublicationEnd = n.PublishedDate
-				}
-			}
-			if len(prefNames) > 0 && !prefNames[normalize(n.Prefecture)] {
-				continue
-			}
-			if keyword != "" && !strings.Contains(strings.ToLower(n.Title), strings.ToLower(keyword)) {
-				continue
-			}
-			if len(out.Notices) < limit {
-				out.Notices = append(out.Notices, n)
-			}
-		}
-		if next == nil {
-			break
-		}
-		page = *next
 	}
 	out.ReturnedCount = len(out.Notices)
-	if out.PublicationStart == "" {
-		out.PublicationStart = "unknown"
-	}
-	if out.PublicationEnd == "" {
-		out.PublicationEnd = "unknown"
-	}
 	return out, nil
 }
 func (s *Source) StationNotices(ctx context.Context, id string, pages, detailCap, limit int) (Notices, error) {
@@ -294,20 +377,30 @@ func (s *Source) StationNotices(ctx context.Context, id string, pages, detailCap
 	if _, e := s.Station(ctx, id); e != nil {
 		return Notices{}, e
 	}
-	out, e := s.Notices(ctx, pages, 50, "", "")
+	if pages < 1 || pages > 5 {
+		return Notices{}, fmt.Errorf("--max-scan-pages must be 1–5")
+	}
+	scanned, e := s.scanNoticePages(ctx, pages)
 	if e != nil {
-		return out, e
+		return noticesFromScan(scanned, pages), e
 	}
-	index := out.Notices
-	if len(index) > detailCap {
-		index = index[:detailCap]
+	index := scanned.records
+	examined := index
+	if len(examined) > detailCap {
+		examined = examined[:detailCap]
 	}
+	out := noticesFromScan(scanned, pages)
 	out.Notices = []Notice{}
 	out.StationID = id
 	out.MaxDetailRecords = detailCap
-	out.MatchCoverage = "exact explicit station-ID links in examined detail pages; no name-based inference"
-	out.Note = "No match means no exact station link within the bounded page/detail scan; increase --max-scan-pages and --max-detail-records to inspect older coverage. Publication date is distinct from dates discussed in notice text."
-	results, errs := cliutil.FanoutRun(ctx, index, func(n Notice) string { return n.ID }, func(ctx context.Context, n Notice) (Notice, error) {
+	if len(index) > len(examined) {
+		out.MatchCoverage = "exact explicit station-ID links in the opened detail prefix of the scanned index; later index rows were not opened"
+		out.Note = fmt.Sprintf("Scanned %d index notices across %d pages; detail fetches opened the first %d only. Later index rows were not fetched, so a station link after that window is not a match. Publication date is distinct from dates discussed in notice text.", len(index), out.ScannedPages, len(examined))
+	} else {
+		out.MatchCoverage = "exact explicit station-ID links in examined detail pages; no name-based inference"
+		out.Note = "No match means no exact station link within the bounded page/detail scan; increase --max-scan-pages and --max-detail-records to inspect older coverage. Publication date is distinct from dates discussed in notice text."
+	}
+	results, errs := cliutil.FanoutRun(ctx, examined, func(n Notice) string { return n.ID }, func(ctx context.Context, n Notice) (Notice, error) {
 		detail, e := s.Notice(ctx, n.ID)
 		if e != nil {
 			return Notice{}, e
@@ -315,7 +408,7 @@ func (s *Source) StationNotices(ctx context.Context, id string, pages, detailCap
 		detail.Prefecture = n.Prefecture
 		return detail, nil
 	}, cliutil.WithConcurrency(3))
-	out.DetailRecords = len(index)
+	out.DetailRecords = len(examined)
 	for _, e := range errs {
 		out.FetchFailures = append(out.FetchFailures, FetchFailure{e.Source, strings.TrimRight(s.BaseURL, "/") + "/notices/views/" + e.Source, e.Err.Error()})
 	}
@@ -332,8 +425,8 @@ func (s *Source) StationNotices(ctx context.Context, id string, pages, detailCap
 		}
 	}
 	out.ReturnedCount = len(out.Notices)
-	if len(index) > 0 && len(results) == 0 {
-		return out, fmt.Errorf("all %d notice-detail fetches failed", len(index))
+	if len(examined) > 0 && len(results) == 0 {
+		return out, fmt.Errorf("all %d notice-detail fetches failed", len(examined))
 	}
 	return out, nil
 }

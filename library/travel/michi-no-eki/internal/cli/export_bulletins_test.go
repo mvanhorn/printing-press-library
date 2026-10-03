@@ -7,6 +7,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -100,6 +103,135 @@ func TestBulletinExportSingleNoticeRecord(t *testing.T) {
 	}
 	if strings.Contains(out, "<") {
 		t.Fatalf("export wrote HTML:\n%s", out)
+	}
+}
+
+func bulletinIndexPage(start, n, next int) string {
+	var b strings.Builder
+	b.WriteString(`<main><div class="noticesList">`)
+	for i := 0; i < n; i++ {
+		id := start + i
+		fmt.Fprintf(&b, `<a href="/notices/views/%d"><time datetime="2026-9-30">2026年9月30日</time><span>長野県</span><p>お知らせ%d</p></a>`, id, id)
+	}
+	b.WriteString(`</div>`)
+	if next > 0 {
+		fmt.Fprintf(&b, `<a href="/notices?page=%d">next</a>`, next)
+	}
+	b.WriteString(`</main>`)
+	return b.String()
+}
+
+func TestBulletinExportLimitZeroFollowsIndexPastNoticesCap(t *testing.T) {
+	var fetched []string
+	src := &michi.Source{BaseURL: michi.Origin, Fetch: func(ctx context.Context, path string) ([]byte, error) {
+		fetched = append(fetched, path)
+		switch path {
+		case "/notices":
+			return []byte(bulletinIndexPage(40000, 40, 1)), nil
+		case "/notices?page=1":
+			return []byte(bulletinIndexPage(40040, 11, 0)), nil
+		default:
+			t.Fatalf("unexpected path %s", path)
+			return nil, fmt.Errorf("unexpected path %s", path)
+		}
+	}}
+	n, out := exportBulletins(t, src, []string{"bulletins"}, "jsonl", 0)
+	if n != 51 {
+		t.Fatalf("count = %d, want 51 (limit 0 must not clamp to 50)", n)
+	}
+	lines := strings.Split(strings.TrimSpace(out), "\n")
+	if len(lines) != 51 {
+		t.Fatalf("lines = %d, want 51", len(lines))
+	}
+	if strings.Join(fetched, ",") != "/notices,/notices?page=1" {
+		t.Fatalf("fetched %v", fetched)
+	}
+}
+
+func TestBulletinExportPositiveLimitStopsWithoutScanningFurtherPages(t *testing.T) {
+	var fetched []string
+	src := &michi.Source{BaseURL: michi.Origin, Fetch: func(ctx context.Context, path string) ([]byte, error) {
+		fetched = append(fetched, path)
+		if path != "/notices" {
+			t.Fatalf("limit 7 fetched %s", path)
+		}
+		return []byte(bulletinIndexPage(41000, 40, 1)), nil
+	}}
+	n, out := exportBulletins(t, src, []string{"bulletins"}, "json", 7)
+	if n != 7 {
+		t.Fatalf("count = %d, want 7", n)
+	}
+	var recs []michi.Notice
+	if err := json.Unmarshal([]byte(out), &recs); err != nil {
+		t.Fatal(err)
+	}
+	if len(recs) != 7 || recs[0].ID != "41000" || recs[6].ID != "41006" {
+		t.Fatalf("records = %+v", recs)
+	}
+	if len(fetched) != 1 {
+		t.Fatalf("fetched %v", fetched)
+	}
+}
+
+func TestBulletinExportRejectsUnknownFormatAndNegativeLimit(t *testing.T) {
+	var buf bytes.Buffer
+	writer := bufio.NewWriter(&buf)
+	_, err := writeBulletinExportFromSource(context.Background(), nil, bulletinExportSource(), []string{"bulletins"}, "yaml", 0, writer)
+	if err == nil {
+		t.Fatal("yaml format accepted")
+	}
+	writer.Flush()
+	if buf.Len() != 0 {
+		t.Fatalf("invalid format wrote %q", buf.String())
+	}
+	buf.Reset()
+	writer = bufio.NewWriter(&buf)
+	_, err = writeBulletinExportFromSource(context.Background(), nil, bulletinExportSource(), []string{"bulletins"}, "jsonl", -3, writer)
+	if err == nil || !strings.Contains(err.Error(), "--limit") {
+		t.Fatalf("negative limit error = %v", err)
+	}
+	writer.Flush()
+	if buf.Len() != 0 {
+		t.Fatalf("negative limit wrote %q", buf.String())
+	}
+}
+
+func TestExportRejectsFormatAndLimitBeforeCreatingOutput(t *testing.T) {
+	dir := t.TempDir()
+	for _, args := range [][]string{
+		{"bulletins", "--format", "yaml", "--output", filepath.Join(dir, "yaml.json")},
+		{"bulletins", "--limit", "-1", "--output", filepath.Join(dir, "neg.json")},
+	} {
+		out := args[len(args)-1]
+		cmd := newExportCmd(&rootFlags{})
+		cmd.SetArgs(args)
+		cmd.SetOut(&bytes.Buffer{})
+		cmd.SetErr(&bytes.Buffer{})
+		if err := cmd.Execute(); err == nil {
+			t.Fatalf("accepted %v", args)
+		}
+		if _, err := os.Stat(out); !os.IsNotExist(err) {
+			t.Fatalf("output created for %v: %v", args, err)
+		}
+	}
+}
+
+func TestBulletinExportWritesNothingWhenIndexContinuesAndFails(t *testing.T) {
+	src := &michi.Source{BaseURL: michi.Origin, Fetch: func(ctx context.Context, path string) ([]byte, error) {
+		if path == "/notices" {
+			return []byte(bulletinIndexPage(42000, 2, 1)), nil
+		}
+		return nil, fmt.Errorf("index page failed")
+	}}
+	var buf bytes.Buffer
+	writer := bufio.NewWriter(&buf)
+	_, err := writeBulletinExportFromSource(context.Background(), nil, src, []string{"bulletins"}, "jsonl", 0, writer)
+	if err == nil {
+		t.Fatal("partial index exported")
+	}
+	writer.Flush()
+	if buf.Len() != 0 {
+		t.Fatalf("failed export wrote %q", buf.String())
 	}
 }
 

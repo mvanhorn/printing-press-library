@@ -12,12 +12,14 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/travel/michi-no-eki/internal/michi"
 )
 
-// noticesScanPages and noticesScanLimit are the notices command ceilings.
-// Bulletin export reuses that domain path instead of treating /notices as JSON.
-const (
-	noticesScanPages = 5
-	noticesScanLimit = 50
-)
+func validateExportFormat(format string) error {
+	switch format {
+	case "json", "jsonl":
+		return nil
+	default:
+		return usageErr(fmt.Errorf("--format must be json or jsonl"))
+	}
+}
 
 func writeParsedBulletinExport(parent context.Context, flags *rootFlags, args []string, format string, limit int, writer *bufio.Writer) (int, error) {
 	src, err := michiSource(flags)
@@ -30,6 +32,9 @@ func writeParsedBulletinExport(parent context.Context, flags *rootFlags, args []
 func writeBulletinExportFromSource(parent context.Context, flags *rootFlags, src *michi.Source, args []string, format string, limit int, writer *bufio.Writer) (int, error) {
 	ctx, cancel := boundCtx(parent, flags)
 	defer cancel()
+	if err := validateExportFormat(format); err != nil {
+		return 0, err
+	}
 	if len(args) > 1 {
 		id := args[1]
 		if err := michi.ValidateIDs(id); err != nil || strings.Contains(id, ",") {
@@ -47,17 +52,12 @@ func writeBulletinExportFromSource(parent context.Context, flags *rootFlags, src
 		}
 		return 1, nil
 	}
-	want := limit
-	if want <= 0 || want > noticesScanLimit {
-		want = noticesScanLimit
+	if limit < 0 {
+		return 0, usageErr(fmt.Errorf("--limit must be 0 (all available notices) or a positive maximum"))
 	}
-	page, err := src.Notices(ctx, noticesScanPages, want, "", "")
+	rows, err := src.ExportNotices(ctx, limit)
 	if err != nil {
 		return 0, classifyAPIErrorOnly(err)
-	}
-	rows := page.Notices
-	if limit > 0 && limit < len(rows) {
-		rows = rows[:limit]
 	}
 	if err := writeBulletinPayload(writer, format, rows, false); err != nil {
 		return 0, err
@@ -66,6 +66,9 @@ func writeBulletinExportFromSource(parent context.Context, flags *rootFlags, src
 }
 
 func writeBulletinPayload(w *bufio.Writer, format string, rows []michi.Notice, single bool) error {
+	if err := validateExportFormat(format); err != nil {
+		return err
+	}
 	if format == "jsonl" {
 		for _, row := range rows {
 			raw, err := json.Marshal(row)

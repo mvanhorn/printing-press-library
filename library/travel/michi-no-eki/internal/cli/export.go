@@ -48,6 +48,12 @@ large datasets as it has no memory pressure.`,
 			if !validResources[resource] {
 				return usageErr(fmt.Errorf("unknown resource %q; valid: %s", resource, strings.Join(validResourceList, ", ")))
 			}
+			if limit < 0 {
+				return usageErr(fmt.Errorf("--limit must be 0 (unlimited) or a positive maximum"))
+			}
+			if err := validateExportFormat(format); err != nil {
+				return err
+			}
 
 			c, err := flags.newClient()
 			if err != nil {

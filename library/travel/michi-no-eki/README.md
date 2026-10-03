@@ -49,7 +49,7 @@ michi-no-eki-pp-cli readiness 19187 --agent
 
 The twelve domain commands and saved-snapshot workflow are verified. Optional generated framework helpers have these limits:
 
-- `export bulletins` writes parsed notice records (JSON or JSONL) from the `notices`/`notice` parser, capped at 5 pages and 50 records. It does not emit provider HTML. Use `snapshot --ids ... --json` for factual station observations.
+- `export bulletins` writes parsed notice records (JSON or JSONL) from the `notices`/`notice` parser. `--limit 0` follows the notice index until it ends; a positive `--limit` stops at that many records. Export fails instead of writing a file when another index page remains after 500 pages. It does not emit provider HTML. Use `snapshot --ids ... --json` for factual station observations.
 - SQL/workflow-status text refers to sync, but this source has no domain sync or database-ingestion command.
 - Generic list/search link `image` fields can contain an HTML page URL when no image exists; the authored domain/detail workflows do not use that field.
 - Some optional learning helpers write local records despite read-only hints: `recall` and playbook listing append usage/audit records, and `learnings stats` can migrate the store and prune local telemetry, including with `--no-learn`. Source requests require no credentials. Credential-like custom headers such as `X-API-Key` are withheld on cross-origin redirects; do not configure other sensitive headers. Declared HTML requests are bounded to 5 MiB during wire reading and decompression; ordinary API/error bodies are bounded to 32 MiB. Successful generic binary envelopes retain their separate semantics.
@@ -125,7 +125,7 @@ michi-no-eki-pp-cli compare --ids 19187,19189 --agent --select stations.id,stati
 michi-no-eki-pp-cli find --prefecture nagano --facility onsen --limit 3 --agent --select stations.id,stations.name,scope,source_reported_total
 ```
 
-`find`/`nearby` return at most 50 rows; `--max-candidates` independently caps candidate examination (default 2000, maximum 5000). Declared HTML transport bounds wire bytes and each decode layer to 5 MiB; the domain parser rechecks that bound before parsing. This is a body-byte bound, not a total process RSS cap. Comparisons/snapshots accept at most 6 unique station IDs. `notices`/`station-notices` scan at most5 index pages; station-linked detail scans have their own cap (default 10, maximum 50). Root `--timeout` bounds the whole live domain workflow; generated request pacing applies, and domain observations bypass the response cache. Partial failures remain in `fetch_failures` and are reported to stderr. All-failure operations exit nonzero.
+`find`/`nearby` return at most 50 rows; `--max-candidates` independently caps candidate examination (default 2000, maximum 5000). Declared HTML transport bounds wire bytes and each decode layer to 5 MiB; the domain parser rechecks that bound before parsing. This is a body-byte bound, not a total process RSS cap. Comparisons/snapshots accept at most 6 unique station IDs. `notices`/`station-notices` scan at most 5 index pages. `station-notices` retains every notice on those pages, then opens at most `--max-detail-records` detail pages (default 10, maximum 50). A station link after that detail prefix is not a match. Root `--timeout` bounds the whole live domain workflow; generated request pacing applies, and domain observations bypass the response cache. Partial failures remain in `fetch_failures` and are reported to stderr. All-failure operations exit nonzero.
 
 ## Health Check
 
