@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_by": "publication evidence projection; acceptance remains binary-owned",
-  "observed_at": "2026-10-03T05:33:10.525729Z",
+  "observed_at": "2026-10-03T06:18:36.065932Z",
   "source": {
     "public_pages": [
       "https://carstay.jp/ja/stations/",
@@ -80,7 +80,7 @@
     "passed": 115,
     "failed": 0,
     "skipped": 92,
-    "ran_at": "2026-10-03T05:33:10.525729Z"
+    "ran_at": "2026-10-03T06:18:36.065932Z"
   },
   "live_kinds": {
     "help": {
@@ -108,59 +108,43 @@
   },
   "live_scope": "115 executed checks passed;92 runner-skipped/unverified rows are explicit, not counted as coverage. Native find generic-fixture happy/json are skipped; separate positive dated and Japanese-prefecture probes verify actual discovery.",
   "performance": {
-    "binary_sha256": "6922acd5cad8523dd45fca1311b908a38335a8ab14af42d94dbbba6684933154",
+    "binary_sha256": "897e74bcc1013bd0f7c5e3643d532b8919fa4f7c8548f6182af13acdd472bce4",
     "version": "carstay-pp-cli 0.0.0-dev",
     "runs_per_workflow": 3,
+    "method": "Real HTTP; three sequential end-to-end process executions per workflow in an isolated home. Agent envelopes/results and zero fetch failures were verified; no raw response bodies retained. Dated find measures a one-page scan with two-row output limit.",
     "samples": {
       "coverage": {
-        "elapsed_ms": [
-          726.26,
-          728.25,
-          724.48
-        ],
-        "median_ms": 726.26,
-        "observations": [
-          {
-            "envelope": "meta/results",
-            "result_count": 1
-          },
-          {
-            "envelope": "meta/results",
-            "result_count": 1
-          },
-          {
-            "envelope": "meta/results",
-            "result_count": 1
-          }
-        ],
         "arguments": [
           "spots",
           "coverage",
           "--agent",
           "--no-learn"
-        ]
-      },
-      "compare": {
-        "elapsed_ms": [
-          1859.22,
-          1362.56,
-          1590.23
         ],
-        "median_ms": 1590.23,
+        "elapsed_ms": [
+          918.54,
+          708.71,
+          744.05
+        ],
+        "median_ms": 744.05,
         "observations": [
           {
             "envelope": "meta/results",
-            "result_count": 2
+            "result_count": 1,
+            "fetch_failures": 0
           },
           {
             "envelope": "meta/results",
-            "result_count": 2
+            "result_count": 1,
+            "fetch_failures": 0
           },
           {
             "envelope": "meta/results",
-            "result_count": 2
+            "result_count": 1,
+            "fetch_failures": 0
           }
-        ],
+        ]
+      },
+      "compare": {
         "arguments": [
           "spots",
           "compare",
@@ -168,29 +152,32 @@
           "5cff4813839680041631c452",
           "--agent",
           "--no-learn"
-        ]
-      },
-      "dated_find": {
-        "elapsed_ms": [
-          743.47,
-          762.95,
-          766.7
         ],
-        "median_ms": 762.95,
+        "elapsed_ms": [
+          1462.7,
+          1339.1,
+          1515.59
+        ],
+        "median_ms": 1462.7,
         "observations": [
           {
             "envelope": "meta/results",
-            "result_count": 2
+            "result_count": 2,
+            "fetch_failures": 0
           },
           {
             "envelope": "meta/results",
-            "result_count": 2
+            "result_count": 2,
+            "fetch_failures": 0
           },
           {
             "envelope": "meta/results",
-            "result_count": 2
+            "result_count": 2,
+            "fetch_failures": 0
           }
-        ],
+        ]
+      },
+      "dated_find": {
         "arguments": [
           "spots",
           "find",
@@ -204,11 +191,34 @@
           "1",
           "--agent",
           "--no-learn"
+        ],
+        "elapsed_ms": [
+          712.19,
+          722.17,
+          744.35
+        ],
+        "median_ms": 722.17,
+        "observations": [
+          {
+            "envelope": "meta/results",
+            "result_count": 2,
+            "fetch_failures": 0
+          },
+          {
+            "envelope": "meta/results",
+            "result_count": 2,
+            "fetch_failures": 0
+          },
+          {
+            "envelope": "meta/results",
+            "result_count": 2,
+            "fetch_failures": 0
+          }
         ]
       }
     },
     "raw_responses_retained": false,
-    "method": "Real HTTP; three sequential end-to-end process executions per workflow in an isolated home. Agent envelopes/results were parsed; no raw response bodies were retained. Dated find measures a one-page scan with a two-row output limit."
+    "live_metadata_only_projection": "PASS: flat envelope, explicit row omission, source provenance"
   },
   "privacy": {
     "raw_source_responses_retained": false,
@@ -218,5 +228,11 @@
     "personal_host_paths": 0,
     "sessions_cookies_credentials_pipeline_receipts": "excluded",
     "optional_detector_enrichment": "gitleaks/trufflehog unavailable; no installation performed"
+  },
+  "publication_review_fixes": {
+    "incomplete_shortlists": "Preserve partial bounded JSON evidence; return API exit5 for any requested detail read failure; explicit requested/successful/complete/failure metadata.",
+    "metadata_only_agent_selection": "Flat meta/results envelope with results=[] and explicit results_omitted_by_select flag; full provenance retained.",
+    "generated_plain_public_reads": "8MiB+1 bounded reads before decode/cache/status retries; post-inflation cap; binary transfer flag/MIME and existing32MiB decoded limit retain prior behavior.",
+    "regressions": "Complete/partial/all-failed comparison, partial fit/audit, metadata projection, exact read cap, lying/missing lengths, body close200/429/503, gzip overflow and preserved binary envelope all pass."
   }
 }

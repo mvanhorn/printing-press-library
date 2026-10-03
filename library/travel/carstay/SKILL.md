@@ -149,6 +149,8 @@ Use `--agent`; one `{meta, results}` envelope preserves source/observation/date/
 
 Bound work independently of output: `--limit` default 10/max 50; directory `--max-scan-records` default 500/max 5000; dated `--max-scan-pages` default 2/max 10; compare/fit/audit at most 5 IDs. `--text-limit` bounds source text per field (default 2000/max 12000 characters); truncation links back to the original page. Inspect `scan_complete`, `matched_within_scan`, `source_text_truncated` and `meta.fetch_failures` before making a complete-coverage claim.
 
+Metadata-only agent selection keeps `{meta, results}` with `results=[]` and `meta.results_omitted_by_select=true`. Compare/fit/audit return nonzero when any requested detail read fails; partial rows retain `detail_fetch_complete=false`, requested/successful counts and `fetch_failures`.
+
 HTTP 429 is a source error, never zero inventory. Every public client call honors root `--timeout`; read pacing is capped at 2 requests/second. Source-contract errors remain failures rather than empty results.
 
 MCP companion inputs are scalar slots: compare requires `first` and `second`; fit/audit require `id`; additional IDs use `second`/`third`/`fourth`/`fifth` where applicable. Show/handoff require `id`; near requires `lat`/`lon`. Do not pass a space-joined variadic ID string.

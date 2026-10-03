@@ -119,6 +119,8 @@ carstay-pp-cli spots coverage --agent --select results.japanese_overnight,result
 carstay-pp-cli spots find carstay-impossible-query-9f04 --json
 ```
 
+With `--agent --select meta`, `results` is `[]` and `meta.results_omitted_by_select=true` distinguishes omitted rows from empty inventory. Shortlist commands (`compare`, `fit`, `audit`) preserve bounded partial evidence but exit with code 5 if any requested detail read fails; `detail_fetch_complete`, requested/successful counts and `fetch_failures` show the incomplete scope.
+
 Agent output has one `{meta, results}` envelope. `meta` records source, JST date meaning, scan scope and fetch failures. Empty results are `[]`. `--select` narrows fields; selected agent results retain provenance metadata. `--json` also works independently. Dry runs return JSON without source reads. The domain commands use public live reads; `--data-source local` returns a usage error instead of inventing cached inventory.
 
 Output and scan bounds are separate: `--limit` defaults to 10 (maximum 50); undated scans use `--max-scan-records` default 500 (maximum 5000). Dated scans use `--max-scan-pages` default 2 (maximum 10), with provider total and actual scanned rows reported. Shortlist commands cap IDs at 5. Source text defaults to 2000 Unicode characters per field; `--text-limit` can raise it to 12000, with truncation flagged and the canonical page linked. The HTTP client caps each response at 8 MiB, paces calls at at most 2 requests/second, and honors the root timeout. HTTP 429 is a typed failure, never an empty result.

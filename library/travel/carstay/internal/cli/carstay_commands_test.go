@@ -120,3 +120,27 @@ func TestNonfinitePublicRateIsUsageError(t *testing.T) {
 		}
 	}
 }
+
+func TestCarstayMetadataOnlyAgentSelection(t *testing.T) {
+	var out bytes.Buffer
+	cmd := &cobra.Command{}
+	cmd.SetOut(&out)
+	flags := &rootFlags{asJSON: true, agent: true, compact: true, selectFields: "meta.availability"}
+	view := carstayView{Meta: map[string]any{"source": "live", "availability": "unknown"}, Results: []map[string]any{{"id": "one"}}, FetchFailures: []map[string]string{}}
+	if err := carstayPrint(cmd, flags, view); err != nil {
+		t.Fatal(err)
+	}
+	var envelope struct {
+		Meta    map[string]any `json:"meta"`
+		Results []any          `json:"results"`
+	}
+	if err := json.Unmarshal(out.Bytes(), &envelope); err != nil {
+		t.Fatal(err)
+	}
+	if envelope.Results == nil || len(envelope.Results) != 0 || envelope.Meta["source"] != "live" || envelope.Meta["availability"] != "unknown" || envelope.Meta["results_omitted_by_select"] != true {
+		t.Fatalf("unstable metadata-only envelope: %s", out.String())
+	}
+	if !flags.agent || flags.selectFields != "meta.availability" {
+		t.Fatal("printing changed subsequent invocation flags")
+	}
+}

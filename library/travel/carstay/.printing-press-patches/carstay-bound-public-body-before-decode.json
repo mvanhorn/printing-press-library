@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261003-001121-929ee489",
+  "base_printing_press_version": "4.32.5",
+  "id": "carstay-bound-public-body-before-decode",
+  "summary": "Cap ordinary public JSON/text responses before allocation, decoding, cache writes or retries while preserving binary delivery.",
+  "reason": "The generated directory mirror/direct MCP endpoint reaches the shared client; native domain caps alone do not bound that actual source read path.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/carstay_response_bound_test.go"
+  ],
+  "validated_outcome": "Exact-cap success, cap+1 counted reads/body closure on200/429/503, lying/missing lengths, decoded gzip overflow and unchanged binary envelope cases pass."
+}

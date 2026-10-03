@@ -322,21 +322,24 @@ func carstayPrint(cmd *cobra.Command, flags *rootFlags, v carstayView) error {
 	flags.selectFields = ""
 	if flags.agent {
 		var fields map[string]json.RawMessage
-		if json.Unmarshal(selected, &fields) == nil {
-			if _, hasResults := fields["results"]; hasResults {
-				if _, hasMeta := fields["meta"]; !hasMeta {
-					fields["meta"], err = json.Marshal(v.Meta)
-					if err != nil {
-						return err
-					}
-				}
-				selected, err = json.Marshal(fields)
-				if err != nil {
-					return err
-				}
-			} else {
-				flags.agent = false
-			}
+		if err := json.Unmarshal(selected, &fields); err != nil {
+			return err
+		}
+		if fields == nil {
+			fields = map[string]json.RawMessage{}
+		}
+		if _, hasResults := fields["results"]; !hasResults {
+			fields["results"] = json.RawMessage(`[]`)
+			v.Meta["results_omitted_by_select"] = true
+		}
+		// Selection can narrow rows; provenance remains complete in agent mode.
+		fields["meta"], err = json.Marshal(v.Meta)
+		if err != nil {
+			return err
+		}
+		selected, err = json.Marshal(fields)
+		if err != nil {
+			return err
 		}
 	}
 	if err := flags.printJSON(cmd, json.RawMessage(selected)); err != nil {

@@ -1287,10 +1287,20 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			return nil, 0, lastErr
 		}
 
-		respBody, err := io.ReadAll(resp.Body)
+		// Public station JSON/text must be bounded before allocation, decoding,
+		// cache writes or retries. Preserve the existing binary-transfer path.
+		boundedPublicBody := !binaryResponse && !isBinaryResponseContentType(resp.Header.Get("Content-Type"))
+		var responseReader io.Reader = resp.Body
+		if boundedPublicBody {
+			responseReader = io.LimitReader(resp.Body, maxPublicResponseBodyBytes+1)
+		}
+		respBody, err := io.ReadAll(responseReader)
 		_ = resp.Body.Close()
 		if err != nil {
 			return nil, 0, fmt.Errorf("reading response: %w", err)
+		}
+		if boundedPublicBody && len(respBody) > maxPublicResponseBodyBytes {
+			return nil, 0, ErrPublicResponseTooLarge
 		}
 		// Decode after the read. A spec-set Accept-Encoding disables net/http's
 		// transparent gzip, but some hosts truncate the body unless that
@@ -1298,6 +1308,9 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		respBody, err = decodeContentEncoding(resp.Header.Get("Content-Encoding"), respBody)
 		if err != nil {
 			return nil, 0, fmt.Errorf("decoding response: %w", err)
+		}
+		if boundedPublicBody && len(respBody) > maxPublicResponseBodyBytes {
+			return nil, 0, ErrPublicResponseTooLarge
 		}
 
 		// Pace to the server-advertised budget when it ships rate-limit
@@ -1606,6 +1619,11 @@ func contentEncodingTokens(header string) []string {
 // deflate body can expand without bound; past this the request fails instead
 // of materializing the rest.
 const maxDecodedBodyBytes = 32 << 20
+
+// Match the native Carstay public client; binary delivery retains its contract.
+const maxPublicResponseBodyBytes = 8 << 20
+
+var ErrPublicResponseTooLarge = errors.New("public response exceeds the 8 MiB read cap")
 
 var ErrDecodedBodyTooLarge = errors.New("decoded response exceeds size limit")
 

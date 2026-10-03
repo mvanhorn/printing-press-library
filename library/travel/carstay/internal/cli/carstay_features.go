@@ -95,6 +95,7 @@ func carstayNovelRun(ctx context.Context, cmd *cobra.Command, flags *rootFlags, 
 	}
 	view.Meta["successful_stations"] = len(details)
 	view.Meta["requested_stations"] = len(selected)
+	view.Meta["detail_fetch_complete"] = len(view.FetchFailures) == 0
 	switch kind {
 	case "compare":
 		rows := []carstay.Spot{}
@@ -156,8 +157,8 @@ func carstayNovelRun(ctx context.Context, cmd *cobra.Command, flags *rootFlags, 
 	if err := carstayPrint(cmd, flags, view); err != nil {
 		return err
 	}
-	if len(details) == 0 {
-		return apiErr(fmt.Errorf("all requested station detail fetches failed"))
+	if len(view.FetchFailures) > 0 {
+		return apiErr(fmt.Errorf("incomplete station evidence: %d of %d requested detail fetches failed", len(view.FetchFailures), len(selected)))
 	}
 	return nil
 }
