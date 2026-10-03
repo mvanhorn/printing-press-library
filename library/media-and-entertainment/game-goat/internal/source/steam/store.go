@@ -46,11 +46,22 @@ const (
 	// MaxPageSize caps one service page (Valve accepts up to 100).
 	MaxPageSize = 100
 
+	// MaxSearchBatch caps SearchSuggestions max_results.
+	MaxSearchBatch = 1000
+
+	// MaxItemsPerRequest caps GetItems appids per request. The edge rejects
+	// query strings above ~8192 bytes (about 265 ids), so batch well below it.
+	MaxItemsPerRequest = 200
+
 	// earlyAccessTagID is the store's "Early Access" tag. Steam models early
 	// access as a tag, not as an app type.
 	earlyAccessTagID = 493
 	// tagCount is how many weighted tags the service is asked to return per item.
 	tagCount = 10
+	// parentTagCount is how many weighted tags the demos parent lookup asks
+	// for. Steam caps an item's tags at 20, and a full game's tags stand in for
+	// its demo's own tags (demos almost never carry tags).
+	parentTagCount = 20
 
 	// storeItemAssetBase prefixes the asset_url_format field of GetItems.
 	storeItemAssetBase = "https://shared.akamai.steamstatic.com/store_item_assets/"
@@ -60,6 +71,48 @@ const (
 // (remakes, re-releases, editions). Callers report the candidates instead of
 // guessing; a wrong match presents another game's reviews and price.
 var ErrAmbiguousApp = errors.New("steam: title matched multiple store apps")
+
+// ErrPartialLookup: some GetItems chunks in a batched full-game lookup failed
+// while others succeeded. The returned map carries the successful chunks; the
+// error names the last failing chunk so callers mark the source as partial
+// (steam_parent) without discarding the rows they did resolve.
+var ErrPartialLookup = errors.New("steam: some full-game lookups failed")
+
+// ErrTagNamesUnavailable: the store tag dictionary could not be fetched, so
+// tag NAMES are missing even though the tag ids are present. Non-fatal: the
+// summaries stay usable and callers mark steam_tags rather than failing.
+var ErrTagNamesUnavailable = errors.New("steam: store tag names unavailable")
+
+// ErrAppHidden: the app exists but is hidden from anonymous store requests
+// (age or region gate). It is deliberately its own message rather than an
+// ErrAppNotFound wrap: wrapping made the CLI report a hidden app as "no Steam
+// app matched the title", which is false. Is() keeps it a not-found for
+// existing handling and the CLI's not-found exit code; callers that can
+// distinguish the cases report the store record and demo state as unknown
+// instead of empty.
+var ErrAppHidden error = hiddenAppError{}
+
+// hiddenAppError is the comparable sentinel type behind ErrAppHidden.
+type hiddenAppError struct{}
+
+func (hiddenAppError) Error() string {
+	return "steam: app is hidden from anonymous store requests (age or region gate)"
+}
+
+func (hiddenAppError) Is(target error) bool {
+	return target == ErrAppNotFound
+}
+
+// hiddenAppNotFoundError carries the app id(s) into the hidden-app message
+// while keeping ErrAppHidden in the Unwrap chain, so errors.Is works for both
+// the hidden sentinel and ErrAppNotFound.
+type hiddenAppNotFoundError struct{ ids string }
+
+func (e hiddenAppNotFoundError) Error() string {
+	return fmt.Sprintf("steam: app %s is hidden from anonymous store requests (age or region gate); its store record and demo state are unknown", e.ids)
+}
+
+func (e hiddenAppNotFoundError) Unwrap() error { return ErrAppHidden }
 
 // AppType is the typed app taxonomy the store services expose. Steam models
 // "free to play" and "early access" as ATTRIBUTES (is_free, the Early Access
@@ -250,6 +303,19 @@ type BrowseOptions struct {
 	ReleasedOnly bool
 	Start        int
 	Count        int
+	// SkipTagNames skips the GetTagList request that fills Tag.Name. Callers
+	// that only need tag ids (or no tags) save that request.
+	SkipTagNames bool
+}
+
+// SearchPageOptions configures SearchPage: the same filters as Browse but over
+// the text-search endpoint, which reports a total but ignores offsets.
+type SearchPageOptions struct {
+	Types        []AppType
+	TagIDs       []int // every listed tag is required (AND across tags)
+	ComingSoon   bool  // unreleased items only (server-side coming_soon_only)
+	ReleasedOnly bool  // released items only (server-side released_only)
+	Limit        int   // capped at MaxSearchBatch; defaults to 100
 }
 
 // Page is one page of a paginated browse. Count is the number of items
@@ -263,6 +329,11 @@ type Page struct {
 
 // HasMore reports whether a further page exists after this one.
 func (p Page) HasMore() bool { return p.Start+p.Count < p.Total }
+
+// Truncated reports whether the service matched more records than this page
+// returned. It is the text-search view of HasMore: the endpoint has no offset,
+// so the only honest signal is total > returned.
+func (p *Page) Truncated() bool { return p.Total > len(p.Items) }
 
 // ---------------------------------------------------------------------------
 // Wire shapes (the services serialise protobuf fields as lowercase snake_case)
@@ -417,6 +488,66 @@ func (c *Client) search(ctx context.Context, term string, types []AppType, limit
 	return items, nil
 }
 
+// SearchPage returns ranked store items for a text term together with the
+// service's total match count. Unlike Search, an empty result is a legitimate
+// answer (an empty Page, not an error), and unlike Browse the endpoint ignores
+// offsets: Total may exceed the returned items, which Truncated reports.
+func (c *Client) SearchPage(ctx context.Context, term string, opts SearchPageOptions) (*Page, error) {
+	term = strings.TrimSpace(term)
+	if term == "" {
+		return nil, fmt.Errorf("steam: empty search term")
+	}
+	limit := opts.Limit
+	if limit <= 0 {
+		limit = 100
+	}
+	if limit > MaxSearchBatch {
+		limit = MaxSearchBatch
+	}
+	types := opts.Types
+	if len(types) == 0 {
+		types = []AppType{AppTypeGame}
+	}
+	tf, err := typeFilters(types)
+	if err != nil {
+		return nil, err
+	}
+	filters := map[string]any{"type_filters": tf}
+	if opts.ComingSoon {
+		filters["coming_soon_only"] = true
+	}
+	if opts.ReleasedOnly {
+		filters["released_only"] = true
+	}
+	if len(opts.TagIDs) > 0 {
+		// One group per tag: the service ORs within a group and ANDs across
+		// them, so every listed tag is required. Same shape as Browse.
+		groups := make([]map[string]any, 0, len(opts.TagIDs))
+		for _, id := range opts.TagIDs {
+			groups = append(groups, map[string]any{"tagids": []int{id}})
+		}
+		filters["tagids_must_match"] = groups
+	}
+	payload := map[string]any{
+		"search_term":  term,
+		"max_results":  limit,
+		"context":      storeContext(c),
+		"data_request": storeDataRequest(),
+		"filters":      filters,
+	}
+	var wire storeResponseWire
+	if err := c.serviceGet(ctx, searchSuggestionsPath, payload, &wire); err != nil {
+		return nil, err
+	}
+	items := convertItems(wire.Response.StoreItems)
+	return &Page{
+		Total: wire.Response.Metadata.TotalMatchingRecords,
+		Start: wire.Response.Metadata.Start,
+		Count: len(items),
+		Items: items,
+	}, nil
+}
+
 // Browse walks the store catalog with filters and real pagination. An empty
 // page is a legitimate answer (unlike Search), so only transport and decode
 // failures return an error.
@@ -472,7 +603,9 @@ func (c *Client) Browse(ctx context.Context, opts BrowseOptions) (*Page, error) 
 		return nil, err
 	}
 	items := convertItems(wire.Response.StoreItems)
-	c.attachTagNames(ctx, items)
+	if !opts.SkipTagNames {
+		c.attachTagNames(ctx, items)
+	}
 	return &Page{
 		Total: wire.Response.Metadata.TotalMatchingRecords,
 		Start: wire.Response.Metadata.Start,
@@ -484,11 +617,50 @@ func (c *Client) Browse(ctx context.Context, opts BrowseOptions) (*Page, error) 
 // Items returns full typed records for a batch of appids in one request. It is
 // the "app details as a full typed record" path: one request for many apps,
 // unlike the storefront appdetails endpoint. When no appid yields a record the
-// typed ErrAppNotFound is returned.
+// typed ErrAppNotFound is returned; when the only records for the requested ids
+// are hidden from anonymous requests (age or region gate), ErrAppHidden is
+// returned instead so callers report the record and demo state as unknown.
 func (c *Client) Items(ctx context.Context, appIDs []int64) ([]StoreItem, error) {
 	if len(appIDs) == 0 {
 		return nil, nil
 	}
+	var items []StoreItem
+	var lastErr error
+	var hidden []int64
+	for _, chunk := range chunkIDs(appIDs, MaxItemsPerRequest) {
+		wires, hiddenIDs, err := c.getItemsChunk(ctx, chunk, storeDataRequest())
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		hidden = append(hidden, hiddenIDs...)
+		if len(wires) == 0 {
+			lastErr = fmt.Errorf("%w: app %s (store service returned no record)", ErrAppNotFound, joinIDs(chunk))
+			continue
+		}
+		for _, w := range wires {
+			items = append(items, w.toStoreItem())
+		}
+	}
+	if len(items) == 0 {
+		if len(hidden) > 0 {
+			return nil, hiddenAppNotFoundError{ids: joinIDs(hidden)}
+		}
+		if lastErr != nil {
+			return nil, lastErr
+		}
+		return nil, fmt.Errorf("%w: app %s (store service returned no record)", ErrAppNotFound, joinIDs(appIDs))
+	}
+	c.attachTagNames(ctx, items)
+	return items, nil
+}
+
+// getItemsChunk issues one GetItems request for appIDs and returns the wire
+// records the service actually returned (success == 1 and visible) plus the
+// appids the service answered as hidden (success != 1 or visible false). Items,
+// AppSummaries, and DemoLinks all go through it; they differ only in
+// the data_request they need and in how they treat the hidden ids.
+func (c *Client) getItemsChunk(ctx context.Context, appIDs []int64, dataRequest map[string]any) ([]storeItemWire, []int64, error) {
 	ids := make([]map[string]any, 0, len(appIDs))
 	for _, id := range appIDs {
 		ids = append(ids, map[string]any{"appid": id})
@@ -496,24 +668,31 @@ func (c *Client) Items(ctx context.Context, appIDs []int64) ([]StoreItem, error)
 	payload := map[string]any{
 		"ids":          ids,
 		"context":      storeContext(c),
-		"data_request": storeDataRequest(),
+		"data_request": dataRequest,
 	}
 	var wire storeResponseWire
 	if err := c.serviceGet(ctx, getItemsPath, payload, &wire); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	items := make([]StoreItem, 0, len(wire.Response.StoreItems))
+	out := make([]storeItemWire, 0, len(wire.Response.StoreItems))
+	var hidden []int64
 	for _, w := range wire.Response.StoreItems {
-		if w.Success == 0 {
+		// Only EResult 1 (OK) is a real record. success:15 and visible:false
+		// mark an app hidden from anonymous requests (age or region gate);
+		// counting it as found yields an empty name and a false has_demo.
+		if w.Success != 1 || !w.Visible {
+			id := w.AppID
+			if id == 0 {
+				id = w.ID
+			}
+			if id != 0 {
+				hidden = append(hidden, id)
+			}
 			continue
 		}
-		items = append(items, w.toStoreItem())
+		out = append(out, w)
 	}
-	if len(items) == 0 {
-		return nil, fmt.Errorf("%w: app %s (store service returned no record)", ErrAppNotFound, joinIDs(appIDs))
-	}
-	c.attachTagNames(ctx, items)
-	return items, nil
+	return out, hidden, nil
 }
 
 // Item returns the full typed record for exactly one appid.
@@ -528,6 +707,127 @@ func (c *Client) Item(ctx context.Context, appID int64) (*StoreItem, error) {
 		}
 	}
 	return &items[0], nil
+}
+
+// AppSummary is the demos parent-lookup record: the full game's display name
+// plus its store tags. Demos rarely carry tags of their own, so the parent's
+// tags are what makes a demos row useful; name and tags arrive in the same
+// GetItems request.
+type AppSummary struct {
+	Name string `json:"name"`
+	Tags []Tag  `json:"tags,omitempty"`
+}
+
+// AppSummaries maps appids to their store name AND tags in ONE GetItems
+// request per MaxItemsPerRequest chunk, asking for include_tag_count (Steam
+// caps an item's tags at 20). Ids that yield no record are absent, matching
+// Items. Tag.Name is filled from the cached tag dictionary — the same one
+// a demos page already fetched for its own rows — so the parent lookup adds no
+// request.
+//
+// A non-nil map returned alongside a non-nil error means PARTIAL data: some
+// requests succeeded and the map carries their summaries. ErrPartialLookup
+// marks whole chunks that failed; ErrTagNamesUnavailable marks a failed tag
+// dictionary (names missing, ids retained). Both can be joined. Only when
+// every chunk fails does it return (nil, err) as before.
+func (c *Client) AppSummaries(ctx context.Context, ids []int64) (map[int64]AppSummary, error) {
+	unique := dedupePositiveIDs(ids)
+	summaries := make(map[int64]AppSummary, len(unique))
+	chunks := chunkIDs(unique, MaxItemsPerRequest)
+	requested := false
+	var lastErr error
+	for _, chunk := range chunks {
+		wires, _, err := c.getItemsChunk(ctx, chunk, map[string]any{
+			"include_basic_info": true,
+			"include_tag_count":  parentTagCount,
+		})
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		requested = true
+		for _, w := range wires {
+			appID := w.AppID
+			if appID == 0 {
+				appID = w.ID
+			}
+			if appID == 0 {
+				continue
+			}
+			summaries[appID] = AppSummary{Name: w.Name, Tags: tagsFrom(w)}
+		}
+	}
+	if len(chunks) > 0 && !requested {
+		return nil, lastErr
+	}
+	var partialErr error
+	if lastErr != nil {
+		partialErr = fmt.Errorf("%w: %w", ErrPartialLookup, lastErr)
+	}
+	var tagErr error
+	if err := c.attachSummaryTagNames(ctx, summaries); err != nil {
+		tagErr = fmt.Errorf("%w: %w", ErrTagNamesUnavailable, err)
+	}
+	return summaries, errors.Join(partialErr, tagErr)
+}
+
+// attachSummaryTagNames fills Tag.Name on each summary from the cached tag
+// dictionary. It returns the dictionary error so AppSummaries can mark
+// steam_tags: a dictionary failure leaves the ids usable but the names
+// unknown.
+func (c *Client) attachSummaryTagNames(ctx context.Context, summaries map[int64]AppSummary) error {
+	if len(summaries) == 0 {
+		return nil
+	}
+	names, err := c.tagNames(ctx)
+	if err != nil {
+		return err
+	}
+	for id, summary := range summaries {
+		applyTagNames(summary.Tags, names)
+		summaries[id] = summary
+	}
+	return nil
+}
+
+// DemoLinks maps each appid to the demo appids GetItems reports for it. A found
+// app without demos maps to a non-nil empty slice; ids with no record are
+// absent.
+func (c *Client) DemoLinks(ctx context.Context, ids []int64) (map[int64][]int64, error) {
+	unique := dedupePositiveIDs(ids)
+	links := make(map[int64][]int64, len(unique))
+	chunks := chunkIDs(unique, MaxItemsPerRequest)
+	requested := false
+	var lastErr error
+	for _, chunk := range chunks {
+		wires, _, err := c.getItemsChunk(ctx, chunk, map[string]any{
+			"include_basic_info":    true,
+			"include_related_items": true,
+		})
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		requested = true
+		for _, w := range wires {
+			appID := w.AppID
+			if appID == 0 {
+				appID = w.ID
+			}
+			if appID == 0 {
+				continue
+			}
+			demos := demoAppIDs(w.RelatedItems)
+			if demos == nil {
+				demos = []int64{}
+			}
+			links[appID] = demos
+		}
+	}
+	if len(chunks) > 0 && !requested {
+		return nil, lastErr
+	}
+	return links, nil
 }
 
 // ---------------------------------------------------------------------------
@@ -607,6 +907,14 @@ func (c *Client) tagNames(ctx context.Context) (map[int]string, error) {
 	return names, nil
 }
 
+// AttachTagNames fills Tag.Name on items from the cached tag dictionary. It is
+// the exported seam for callers (such as the demos --title path) whose endpoint
+// does not attach names itself. The dictionary is shared with ResolveTag, so a
+// caller that already resolved a --tag pays no extra request.
+func (c *Client) AttachTagNames(ctx context.Context, items []StoreItem) {
+	c.attachTagNames(ctx, items)
+}
+
 // attachTagNames fills Tag.Name from the tag dictionary. A failure is never
 // fatal: ids stay usable and the record still ships.
 func (c *Client) attachTagNames(ctx context.Context, items []StoreItem) {
@@ -618,10 +926,16 @@ func (c *Client) attachTagNames(ctx context.Context, items []StoreItem) {
 		return
 	}
 	for i := range items {
-		for j := range items[i].Tags {
-			if name, ok := names[items[i].Tags[j].ID]; ok {
-				items[i].Tags[j].Name = name
-			}
+		applyTagNames(items[i].Tags, names)
+	}
+}
+
+// applyTagNames copies names onto tags by id; ids absent from the dictionary
+// keep an empty Name and stay usable.
+func applyTagNames(tags []Tag, names map[int]string) {
+	for j := range tags {
+		if name, ok := names[tags[j].ID]; ok {
+			tags[j].Name = name
 		}
 	}
 }
@@ -936,6 +1250,36 @@ func joinIDs(ids []int64) string {
 		parts = append(parts, strconv.FormatInt(id, 10))
 	}
 	return strings.Join(parts, ",")
+}
+
+// chunkIDs splits ids into consecutive slices of at most size entries.
+func chunkIDs(ids []int64, size int) [][]int64 {
+	if size <= 0 {
+		size = MaxItemsPerRequest
+	}
+	var chunks [][]int64
+	for start := 0; start < len(ids); start += size {
+		end := start + size
+		if end > len(ids) {
+			end = len(ids)
+		}
+		chunks = append(chunks, ids[start:end])
+	}
+	return chunks
+}
+
+// dedupePositiveIDs drops non-positive appids and duplicates, preserving order.
+func dedupePositiveIDs(ids []int64) []int64 {
+	seen := make(map[int64]bool, len(ids))
+	out := make([]int64, 0, len(ids))
+	for _, id := range ids {
+		if id <= 0 || seen[id] {
+			continue
+		}
+		seen[id] = true
+		out = append(out, id)
+	}
+	return out
 }
 
 // ---------------------------------------------------------------------------

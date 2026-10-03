@@ -181,6 +181,8 @@ type ratingsCard struct {
 	RatingsCount int                `json:"ratings_count"`
 	Metacritic   *int               `json:"metacritic"`
 	Steam        *steam.SteamReview `json:"steam,omitempty"`
+	HasDemo      *bool              `json:"has_demo,omitempty"`
+	DemoAppIDs   []int64            `json:"demo_app_ids,omitempty"`
 	Sources      []ratingSourceRow  `json:"sources"`
 }
 
@@ -218,6 +220,8 @@ func buildRatingsCard(g rawgGame, review *steam.SteamReview) ratingsCard {
 	}
 	if review != nil {
 		card.Steam = review
+		card.HasDemo = review.HasDemo
+		card.DemoAppIDs = review.DemoAppIDs
 		card.Sources = append(card.Sources, ratingSourceRow{
 			Source:     "steam",
 			Score:      review.Score,
@@ -255,6 +259,19 @@ func renderRatingsCard(cmd *cobra.Command, card ratingsCard, meta ratingsMeta) e
 	}
 	if card.Steam != nil {
 		fmt.Fprintf(w, "  steam price:  %s\n", orDash(formatSteamPrice(card.Steam.Price)))
+	}
+	if card.HasDemo != nil {
+		if !*card.HasDemo {
+			fmt.Fprintln(w, "  steam demo:   no")
+		} else if len(card.DemoAppIDs) > 0 {
+			appids := make([]string, 0, len(card.DemoAppIDs))
+			for _, id := range card.DemoAppIDs {
+				appids = append(appids, strconv.FormatInt(id, 10))
+			}
+			fmt.Fprintf(w, "  steam demo:   yes (appid %s)\n", strings.Join(appids, ", "))
+		} else {
+			fmt.Fprintln(w, "  steam demo:   yes")
+		}
 	}
 	if len(meta.SourcesMissing) > 0 {
 		fmt.Fprintf(w, "  missing sources: %s (card degraded to the remaining sources)\n", strings.Join(meta.SourcesMissing, ", "))

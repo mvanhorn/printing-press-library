@@ -74,6 +74,10 @@ type gameRow struct {
 	Playtime     int      `json:"playtime"`
 	Genres       []string `json:"genres"`
 	Platforms    []string `json:"platforms"`
+	// SteamAppID/HasDemo/DemoAppIDs are filled only under discover --with-demos.
+	SteamAppID int64   `json:"steam_app_id,omitempty"`
+	HasDemo    *bool   `json:"has_demo,omitempty"`
+	DemoAppIDs []int64 `json:"demo_app_ids,omitempty"`
 }
 
 func refNames(refs []rawgNamedRef) []string {

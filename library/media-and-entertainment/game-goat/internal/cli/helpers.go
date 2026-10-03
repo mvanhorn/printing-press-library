@@ -2644,6 +2644,20 @@ func isCompactGravityField(name string) bool {
 	return false
 }
 
+// compactAlwaysKeepFields are keys the compact list projector keeps even when
+// they are present on fewer than 80% of rows. A field that is opt-in or derived
+// is legitimately sparse on a list -- a Steam demo annotation added by
+// --with-demos exists only for rows whose store record resolved -- and the
+// frequency rule would otherwise erase exactly the data the caller asked for.
+// The names are specific to the Steam/demo payloads (no unrelated command emits
+// them), so compaction for every other command is unchanged. Extend this set
+// rather than teaching the projector about one caller's schema.
+var compactAlwaysKeepFields = map[string]bool{
+	"steam_app_id": true, "has_demo": true, "demo_app_ids": true,
+	"app_id": true, "parent_app_id": true, "parent_name": true,
+	"parent_tags": true,
+}
+
 // compactListFields keeps only high-gravity fields for array responses.
 //
 // Two-layer keep rule:
@@ -2685,6 +2699,11 @@ func compactListFields(items []map[string]any, documentedFields ...map[string]bo
 		"date": true,
 		// Versioning
 		"version": true,
+	}
+	// Always-kept sparse fields (Steam demo annotations) that the 80%
+	// frequency rule below would otherwise drop.
+	for field := range compactAlwaysKeepFields {
+		keepFields[field] = true
 	}
 	for _, fields := range documentedFields {
 		for field := range fields {
