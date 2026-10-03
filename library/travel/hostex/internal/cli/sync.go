@@ -459,7 +459,16 @@ func syncResource(ctx context.Context, c interface {
 			params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
 			if cursor != "" {
 				params[pageSize.cursorParam] = cursor
+			} else if pageSize.cursorType == "offset" {
+				// PATCH(hostex-sync-fixes: Hostex rejects list calls without an explicit offset)
+				params[pageSize.cursorParam] = "0"
 			}
+		}
+		// PATCH(hostex-sync-fixes: /transactions requires start_date and end_date)
+		if resource == "transactions" {
+			// The API caps the range at 366 days: sync the last 365.
+			params["start_date"] = time.Now().AddDate(0, 0, -365).Format("2006-01-02")
+			params["end_date"] = time.Now().Format("2006-01-02")
 		}
 
 		// Set since filter
@@ -1561,7 +1570,6 @@ func parseSinceDuration(s string) (time.Time, error) {
 
 func defaultSyncResources() []string {
 	return []string{
-		"automation",
 		"calendar-share-links",
 		"channel-accounts",
 		"conversations",
@@ -1574,7 +1582,6 @@ func defaultSyncResources() []string {
 		"knowledge-bases",
 		"listings",
 		"message",
-		"pricing-ratios",
 		"properties",
 		"reservation-tags",
 		"reservations",
@@ -1688,7 +1695,7 @@ var resourceIDFieldOverrides = map[string]string{
 	"reservation-tags":     "request_id",
 	"reservations":         "request_id",
 	"review":               "request_id",
-	"reviews":              "request_id",
+	"reviews":              "reservation_code",
 	"room-types":           "request_id",
 	"staffs":               "request_id",
 	"tags":                 "request_id",

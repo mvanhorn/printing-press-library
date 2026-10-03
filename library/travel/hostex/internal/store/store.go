@@ -3381,7 +3381,7 @@ var resourceIDFieldOverrides = map[string]string{
 	"reservation-tags":     "request_id",
 	"reservations":         "request_id",
 	"review":               "request_id",
-	"reviews":              "request_id",
+	"reviews":              "reservation_code",
 	"room-types":           "request_id",
 	"staffs":               "request_id",
 	"tags":                 "request_id",
