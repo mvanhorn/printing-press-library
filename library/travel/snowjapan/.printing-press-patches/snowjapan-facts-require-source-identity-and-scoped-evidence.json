@@ -33,5 +33,5 @@
     "go.mod",
     "go.sum"
   ],
-  "validated_outcome": "Bounded live facts, exact offline detail projections, newest compatible history, observation-based freshness and declaration-bounded parsing remain source-backed; guarded canonical cache readers/writers reject active read journals, hard-link aliases and path changes instead of stale output or lost observations. Patched SQLite v1.46.2 with exact libc v1.70.0 runs engine3.51.3; reachable vulnerability and source/live gates are required on this pin."
+  "validated_outcome": "Bounded live facts, exact offline detail projections, newest compatible history, observation-based freshness and declaration-bounded parsing remain source-backed; guarded canonical cache readers/writers reject active read journals, hard-link aliases and path changes instead of stale output or lost observations. Patched SQLite v1.46.2 with exact libc v1.70.0 runs engine3.51.3; reachable vulnerability and source/live gates are required on this pin. Exact local detail and network-fallback freshness use the requested observation; collection freshness still reflects older saved rows."
 }

@@ -160,7 +160,7 @@ func hintIfStale(cmd *cobra.Command, db *store.Store, resource string, maxAge ti
 	}
 }
 
-func snowLocal(ctx context.Context, cmd *cobra.Command, flags *rootFlags, resource, season string, catalog bool) (result []snowjapan.Fact, captured bool, err error) {
+func snowLocal(ctx context.Context, cmd *cobra.Command, flags *rootFlags, resource, season string, catalog bool, detailID ...string) (result []snowjapan.Fact, captured bool, err error) {
 	path := snowDBPath(cmd)
 	if _, e := os.Stat(path); os.IsNotExist(e) {
 		fmt.Fprintf(cmd.ErrOrStderr(), "hint: no local mirror; run snowjapan-pp-cli sync --resources resorts, then sync seasons with --resource-param seasons:season=2025-2026\n")
@@ -233,6 +233,15 @@ func snowLocal(ctx context.Context, cmd *cobra.Command, flags *rootFlags, resour
 			return nil, false, fmt.Errorf("saved %s fact is invalid: %w", resource, e)
 		}
 		out = append(out, f)
+	}
+	if len(detailID) > 0 {
+		// A detail read reports the age of its selected observation. Other
+		// saved records still determine freshness for collection reads.
+		found, e := snowSavedDetail(out, detailID[0], resource)
+		if e != nil {
+			return nil, false, e
+		}
+		out = []snowjapan.Fact{found}
 	}
 	if catalog && complete {
 		firstObserved, _ := snowObservationRange(out)
@@ -450,7 +459,7 @@ func newSnowGet(flags *rootFlags, resource string) *cobra.Command {
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
 			if flags.dataSource == "local" {
-				rows, _, e := snowLocal(ctx, cmd, flags, resource, "", false)
+				rows, _, e := snowLocal(ctx, cmd, flags, resource, "", false, args[0])
 				if e != nil {
 					return e
 				}
@@ -470,7 +479,7 @@ func newSnowGet(flags *rootFlags, resource string) *cobra.Command {
 			}
 			if e != nil {
 				if flags.dataSource == "auto" && isNetworkError(e) {
-					rows, _, localErr := snowLocal(ctx, cmd, flags, resource, "", false)
+					rows, _, localErr := snowLocal(ctx, cmd, flags, resource, "", false, args[0])
 					var cached snowjapan.Fact
 					if localErr == nil {
 						cached, localErr = snowSavedDetail(rows, args[0], resource)

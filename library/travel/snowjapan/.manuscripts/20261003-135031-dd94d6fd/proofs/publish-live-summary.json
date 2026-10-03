@@ -6,7 +6,7 @@
   "unverified": 85,
   "matrix_size": 135,
   "level": "full",
-  "ran_at": "2026-10-03T12:22:58.797077Z",
+  "ran_at": "2026-10-03T12:56:12.095322Z",
   "private_raw_transcript_deleted": true,
   "real_planner_happy_paths": [
     {
@@ -53,5 +53,6 @@
   "modernc_sqlite": "v1.46.2",
   "modernc_libc": "v1.70.0",
   "review_fix_round": 2,
-  "cache_creation": "Exclusive basename creation confined to the canonical parent with os.Root"
+  "cache_creation": "Exclusive basename creation confined to the canonical parent with os.Root",
+  "detail_freshness": "Requested observation age for local/fallback details; oldest-row age retained for collections"
 }

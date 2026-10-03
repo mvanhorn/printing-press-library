@@ -2,11 +2,11 @@
 
 2026-10-03 — one dedicated fresh-context gpt-6.1-sol MAX reviewer, reused through fixes and publication re-review. No nested agents or Codex subprocesses.
 
-**Overall assessment: PASS.** All fourteen findings remain resolved. The confined new-cache creation delta passes relevant source tests and actual final native canonical/symlink-parent capture/readback. No P1/P2 findings remain; this verdict binds the final hashes below.
+**Overall assessment: PASS.** All fifteen findings are resolved, including single-detail freshness scope. The same fixture confirms fresh/stale behavior through actual CLI, network fallback and typed MCP; collection-wide freshness remains correct. No P1/P2 findings remain. This verdict binds the final hashes below.
 
 The review assessed the brief, source contracts, absorb manifest and brainstorm against implementation, public facts, CLI/MCP behavior, tests and documents. The five documented planners match the verified built set. Source evidence preserves the 478-row directory and 417-row completed 2025–2026 chart. Goryu's 151-day historical span and a nine-day overlap for 2026-03-28–2026-04-05 match source facts. Separate Kagura access-base rows remain ambiguous. Uncaptured winters, missing endpoints and inconsistent dates stay distinct.
 
-Publication corrections select the newest compatible snapshot pair, require detail projections for offline get/network fallback, bound exact report capture to 1–4 distinct dated IDs, and stop declaration normalization before unrelated scripts. Saved-fact freshness uses actual observation times, so partial captures cannot hide older rows. Independent forced-network, quoted-data, newer-catalog-change and partial-report freshness boundaries pass. Exact SSR identities fail closed, typed IDs cannot become flags, and provider/schema failures do not trigger fallback.
+Publication corrections select the newest compatible snapshot pair, require detail projections for offline get/network fallback, bound exact report capture to 1–4 distinct dated IDs, and stop declaration normalization before unrelated scripts. Saved-fact freshness uses actual observation times, so partial captures cannot hide older rows. Single-ID getters compute age after resolving the requested detail; unrelated old rows no longer produce false stale hints, while stale selected rows still warn. Identical before/after resort/report fixtures verify local CLI, automatic network fallback and typed MCP, plus unchanged collection oldest-row hints. Independent forced-network, quoted-data, newer-catalog-change and partial-report freshness boundaries pass. Exact SSR identities fail closed, typed IDs cannot become flags, and provider/schema failures do not trigger fallback.
 
 The cache P1 was concretely reproduced: an open writer saw committed test peak 3000 while the old package returned 1676 and an empty change list. New source guards refuse active read journals, resolve symlinks, reject ambiguous hard links and pin one non-expiring SQL connection. Actual final packaged get/planners reject active WAL and recover the committed values after close. A real getter command with a settled path swap/restore returns original 1676; removing only pinning makes it return foreign 3000. Persistent replacement discards output.
 
@@ -18,10 +18,10 @@ Effective and embedded dependencies are `modernc.org/sqlite v1.46.2` and `modern
 
 | Artifact | SHA-256 |
 |---|---|
-| CLI | `515add37cc623b6ea28858227f06d12a329fdd6b7fd9597a0857d34e9a83ee72` |
-| MCP | `dd459ead0acc0d8290e7b50567987872673c30f43a78a59cc34f079cbd5dc20c` |
-| Darwin ARM64 MCPB | `78031f21e069863e6ce36b51f46b106b6a2051fa6ddd828463b206dde8ada5e4` |
-| Normalized source fingerprint | `7a82dbf218c0fcb5521eacac031f84375c940ceffff2e56bfc0947b8b2385a79` |
+| CLI | `29b2bd9641d5636af48ec41260d45ab8de673185e9815fcad1121a5991943feb` |
+| MCP | `1241b91f5851a3a96507aff66806e9271b25e25f02bf4d328beab0713f5da7a7` |
+| Darwin ARM64 MCPB | `2239c2870aef799a507e02fe7e56441a5a80adfcd35bf81c802d01342ade7d91` |
+| Normalized source fingerprint | `de6fc16a807079b3063498430751d9fa6c020f321650e02fec663ed4639830b0` |
 
 ## Scope and evidence
 

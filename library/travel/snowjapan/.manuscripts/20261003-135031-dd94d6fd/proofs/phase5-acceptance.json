@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "7a82dbf218c0fcb5521eacac031f84375c940ceffff2e56bfc0947b8b2385a79",
+  "source_fingerprint": "de6fc16a807079b3063498430751d9fa6c020f321650e02fec663ed4639830b0",
   "source_files": {
     "cmd/snowjapan-pp-cli/main.go": "cbda165ffffd7061799a53703e1331ce510ccef0410609b4425293be670cbfb8",
     "cmd/snowjapan-pp-mcp/main.go": "58a5037c71ecb52f7b641842d8f6bfc2b8c39646ae4387b53cce94b08614d52b",
@@ -66,8 +66,8 @@
     "internal/cli/resource_paths.go": "538f842920e808e310c7fbc482e10f370a83fc24fbf1a81f7ca2a8cc6ab007f4",
     "internal/cli/root.go": "cba965778d9c316b543fa494f87dba697026fb93016dff5661dafa9a8bbd34e9",
     "internal/cli/root_test.go": "db72d536751fc9b34444f37e1cae6b40f3021f71d4cd976ebbf6793490f3a8fb",
-    "internal/cli/snowjapan_commands.go": "87452dcb54208e18ee3d577796c05a22c29986e24f1338140b71cd9787742c8e",
-    "internal/cli/snowjapan_evidence_test.go": "9c6095edc9cfc828885524bab13c7cd9fe71bdafe6b9dddef15cf1d33d525ecc",
+    "internal/cli/snowjapan_commands.go": "8d5de6568c3c980b59ba4cd8ed787db6c90bf6ce89ecdea87815bbd441bed2be",
+    "internal/cli/snowjapan_evidence_test.go": "0607eb67c08830fe461f177691a1f2156440e665cfa49084197c50e3ab595a77",
     "internal/cli/snowjapan_plan.go": "8ceeabb4b693c5eaa0dd62480083c2f36235b4dee44fd409119de71f33503d19",
     "internal/cli/snowjapan_plan_test.go": "b0b50f3f2ba462b9a5a967b86598953f0a9bbdb9e132f1f272c5299a835b2b1f",
     "internal/cli/teach.go": "3d2b7227d1ef94b59a598394f75bc10c9b2b28d1949fbc80d835d46451b41f71",

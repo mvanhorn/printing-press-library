@@ -178,6 +178,68 @@ func TestReportFreshnessDoesNotUseLaterPartialCapture(t *testing.T) {
 	}
 }
 
+func TestLocalDetailFreshnessUsesRequestedObservation(t *testing.T) {
+	for _, resource := range []string{"resorts", "reports"} {
+		for _, staleTarget := range []bool{false, true} {
+			name := resource + "/fresh-target"
+			if staleTarget {
+				name = resource + "/stale-target"
+			}
+			t.Run(name, func(t *testing.T) {
+				path := filepath.Join(t.TempDir(), "facts.db")
+				db, err := store.Open(path)
+				if err != nil {
+					t.Fatal(err)
+				}
+				fresh := time.Now().UTC().Format(time.RFC3339)
+				old := time.Now().UTC().Add(-2 * time.Hour).Format(time.RFC3339)
+				targetAt, otherAt := fresh, old
+				if staleTarget {
+					targetAt, otherAt = old, fresh
+				}
+				id, other, projection := "nagano-prefecture/hakuba-village/able-hakuba-goryu", "hokkaido/niseko-town/niseko-annupuri", "detail-v1"
+				if resource == "reports" {
+					id, other, projection = "hakuba-now-1st-october-2026", "niseko-now-1st-october-2026", "report-observations-v1"
+				}
+				var raw []json.RawMessage
+				for _, row := range []map[string]any{
+					{"id": id, "projection": projection, "observed_at": targetAt, "new_snow_cm": 0},
+					{"id": other, "projection": projection, "observed_at": otherAt, "new_snow_cm": 0},
+				} {
+					b, _ := json.Marshal(row)
+					raw = append(raw, b)
+				}
+				if _, _, err := db.UpsertBatch(resource, raw); err != nil {
+					t.Fatal(err)
+				}
+				if err := db.SaveSyncState(resource, "", 1); err != nil {
+					t.Fatal(err)
+				}
+				if err := db.Close(); err != nil {
+					t.Fatal(err)
+				}
+				root := &cobra.Command{Use: "test", SilenceErrors: true, SilenceUsage: true}
+				root.PersistentFlags().String("db", path, "")
+				root.AddCommand(newSnowGet(&rootFlags{dataSource: "local", agent: true, maxAge: 30 * time.Minute}, resource))
+				var out, hints bytes.Buffer
+				root.SetOut(&out)
+				root.SetErr(&hints)
+				root.SetArgs([]string{"get", id})
+				if err := root.Execute(); err != nil {
+					t.Fatal(err)
+				}
+				var result map[string]any
+				if err := json.Unmarshal(out.Bytes(), &result); err != nil || result["id"] != id || result["observed_at"] != targetAt {
+					t.Fatalf("wrong selected detail: output=%s error=%v", out.String(), err)
+				}
+				if staleTarget != strings.Contains(hints.String(), "hint: local "+resource+" include observations from "+old) {
+					t.Fatalf("freshness used unrelated rows: staleTarget=%v hints=%q", staleTarget, hints.String())
+				}
+			})
+		}
+	}
+}
+
 func TestSnowJapanSourceWriterRejectsURIPathsBeforeMigration(t *testing.T) {
 	for _, suffix := range []string{"?mode=memory", "#other", "%3Fother"} {
 		t.Run(suffix, func(t *testing.T) {
