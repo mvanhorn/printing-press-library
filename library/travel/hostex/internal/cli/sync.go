@@ -460,11 +460,11 @@ func syncResource(ctx context.Context, c interface {
 			if cursor != "" {
 				params[pageSize.cursorParam] = cursor
 			} else if pageSize.cursorType == "offset" {
-				// PATCH(hostex-sync-fixes: Hostex rejects list calls without an explicit offset)
+				// PATCH(hostex-sync-satisfies-required-list-params: Hostex rejects list calls without an explicit offset)
 				params[pageSize.cursorParam] = "0"
 			}
 		}
-		// PATCH(hostex-sync-fixes: /transactions requires start_date and end_date)
+		// PATCH(hostex-sync-satisfies-required-list-params: /transactions requires start_date and end_date)
 		if resource == "transactions" {
 			// The API caps the range at 366 days: sync the last 365.
 			params["start_date"] = time.Now().AddDate(0, 0, -365).Format("2006-01-02")
