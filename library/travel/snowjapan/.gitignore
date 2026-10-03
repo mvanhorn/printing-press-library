@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/snowjapan-pp-cli
+/snowjapan-pp-cli.exe
+/snowjapan-pp-mcp
+/snowjapan-pp-mcp.exe
+/bin/
+/build/
+/dist/

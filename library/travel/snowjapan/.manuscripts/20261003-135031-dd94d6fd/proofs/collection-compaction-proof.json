@@ -1,0 +1,60 @@
+[
+  {
+    "collection": "resorts",
+    "rows_checked": 3,
+    "critical_fields_preserved": [
+      "courses",
+      "id",
+      "installed_lifts",
+      "name",
+      "observed_at",
+      "source_url",
+      "vertical_m"
+    ],
+    "json_agent_field_parity": true
+  },
+  {
+    "collection": "seasons",
+    "rows_checked": 3,
+    "critical_fields_preserved": [
+      "endpoint_evidence_state",
+      "first_recorded_day",
+      "id",
+      "last_recorded_day",
+      "name",
+      "observed_at",
+      "resort_id",
+      "source_url",
+      "span_days"
+    ],
+    "json_agent_field_parity": true
+  },
+  {
+    "collection": "reports",
+    "rows_checked": 3,
+    "critical_fields_preserved": [
+      "id",
+      "observed_at",
+      "region",
+      "report_date",
+      "source_url"
+    ],
+    "json_agent_field_parity": true
+  },
+  {
+    "collection": "towns",
+    "rows_checked": 3,
+    "critical_fields_preserved": [
+      "ambiguous_endpoint_areas",
+      "confirmed_endpoint_areas",
+      "inconsistent_endpoint_areas",
+      "listed_areas",
+      "max_vertical_m",
+      "min_vertical_m",
+      "missing_endpoint_areas",
+      "prefecture",
+      "town"
+    ],
+    "json_agent_field_parity": true
+  }
+]

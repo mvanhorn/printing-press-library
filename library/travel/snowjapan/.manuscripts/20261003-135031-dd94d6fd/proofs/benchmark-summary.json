@@ -1,0 +1,10 @@
+{
+  "benchmark-live-search": {
+    "wall_seconds": 0.87,
+    "maximum_resident_bytes": 31604736
+  },
+  "benchmark-local-towns": {
+    "wall_seconds": 0.02,
+    "maximum_resident_bytes": 26460160
+  }
+}

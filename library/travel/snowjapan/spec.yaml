@@ -1,0 +1,117 @@
+name: snowjapan
+description: "Factual Japan ski-area planning from public SnowJapan resort charts and dated reports."
+cli_description: "Compare Japan ski areas with terrain facts, dated reports and explicit historical-season evidence."
+version: "0.1.0"
+category: travel
+base_url: "https://www.snowjapan.com"
+health_check_path: "/ski-areas"
+http_transport: standard
+auth:
+  type: none
+mcp:
+  transport: [stdio]
+learn:
+  entity_lookup_seeds:
+    resort:
+      - canonical: ABLE Hakuba Goryu Ski Area
+        aliases: [goryu, hakuba goryu, able hakuba goryu]
+      - canonical: Hakuba Happo-one Ski Area
+        aliases: [happo one, happo-one, hakuba happo one]
+    prefecture:
+      - canonical: Nagano Prefecture
+        aliases: [nagano, 長野]
+      - canonical: Hokkaido
+        aliases: [hokkaido, 北海道]
+  synonyms:
+    "most recent": "latest"
+resources:
+  resorts:
+    description: "Factual active-area directory and individual resort records; installed lifts are not current lift operations."
+    endpoints:
+      list:
+        method: GET
+        path: "/insights/japan-ski-areas-statistics"
+        description: "List source-owned national factual chart records through the bounded chart adapter."
+        response_format: html
+        response: {type: array, item: Resort}
+      get:
+        method: GET
+        path: "/ski-areas-in-japan/{id}"
+        description: "Inspect one exact canonical resort path with Japanese name, ability, lift and update-status facts."
+        response_format: html
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Canonical path suffix from a resort source_url, e.g. nagano-prefecture/hakuba-village/able-hakuba-goryu."
+        example: "  snowjapan-pp-cli resorts get nagano-prefecture/hakuba-village/able-hakuba-goryu --agent"
+        happy_args: "id=nagano-prefecture/hakuba-village/able-hakuba-goryu"
+        response: {type: object, item: Resort}
+  seasons:
+    description: "Confirmed first and last dates of completed winters, not continuous operation or upcoming forecasts."
+    endpoints:
+      list:
+        method: GET
+        path: "/insights/{season}-ski-season-dates-sort"
+        description: "List confirmed historical season chart rows through the bounded chart adapter."
+        response_format: html
+        params:
+          - name: season
+            type: string
+            required: true
+            description: "Published completed season label YYYY-YYYY; both years must be consecutive."
+        example: "  snowjapan-pp-cli seasons list --season 2025-2026 --agent"
+        happy_args: "--season=2025-2026"
+        response: {type: array, item: Season}
+  reports:
+    description: "Dated regional snow observations at reporter base/town level and canonical report links."
+    endpoints:
+      list:
+        method: GET
+        path: "/"
+        description: "List latest regional report metadata from the public homepage without report narratives."
+        response_format: html
+        response: {type: array, item: Report}
+      get:
+        method: GET
+        path: "/daily-snow-and-weather-reports/{id}"
+        description: "Read one dated report's base-level snow figures; new snow means since the previous report."
+        response_format: html
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Exact dated report slug from source_url, e.g. hakuba-now-1st-october-2026."
+        example: "  snowjapan-pp-cli reports get hakuba-now-1st-october-2026 --agent"
+        happy_args: "id=hakuba-now-1st-october-2026"
+        response: {type: object, item: Report}
+types:
+  Resort:
+    fields:
+      - {name: id, type: string}
+      - {name: name, type: string}
+      - {name: name_japanese, type: string}
+      - {name: town, type: string}
+      - {name: prefecture, type: string}
+      - {name: source_url, type: string}
+      - {name: observed_at, type: string}
+  Season:
+    fields:
+      - {name: id, type: string}
+      - {name: resort_id, type: string}
+      - {name: name, type: string}
+      - {name: season, type: string}
+      - {name: first_recorded_day, type: string}
+      - {name: last_recorded_day, type: string}
+      - {name: span_days, type: int}
+      - {name: source_url, type: string}
+      - {name: observed_at, type: string}
+  Report:
+    fields:
+      - {name: id, type: string}
+      - {name: region, type: string}
+      - {name: report_date, type: string}
+      - {name: source_url, type: string}
+      - {name: observed_at, type: string}
