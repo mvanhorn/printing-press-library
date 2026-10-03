@@ -23,7 +23,8 @@
     "internal/mcp/michi_state_annotations.go",
     "internal/mcp/michi_state_annotations_test.go",
     "README.md",
-    "SKILL.md"
+    "SKILL.md",
+    "internal/learn/patterns/apply.go"
   ],
   "markers": [
     "reconcileDerivedPatterns(ctx, tx, f)",
@@ -31,7 +32,10 @@
     "resourceAliasOverlap := !resourcePresent",
     "michiReadOnlyInvocation(rootCmd, executed,",
     "registerMichiOptionalStateAnnotations(s)",
-    "resourcePresent && len(hit.ResourceEntities) > 0"
+    "resourcePresent && len(hit.ResourceEntities) > 0",
+    "h.BoundEntity = ent",
+    "boundIdentity := []string{ph.BoundEntity}",
+    "NoLimit:         true,"
   ],
   "findings_addressed": [
     "F1",
@@ -40,5 +44,5 @@
     "F4",
     "F5"
   ],
-  "validated_outcome": "Real SQLite Extract/Recall/Apply and actual command/tool regressions pass, including support beyond newest50 and transaction rollback; fresh full source-bound acceptance and public package gates are recorded in the amendment proof."
+  "validated_outcome": "Real SQLite Extract/Apply/Recall and actual command/tool regressions cover compatible surviving support despite unusable cohort rows, valid example provenance, rollback, full explicit manual scope, direct/common-canonical and exact-bound-entity pattern identity, low-level/native/root-help journaling and unknown controls. Fresh acceptance follows the current-head repairs."
 }

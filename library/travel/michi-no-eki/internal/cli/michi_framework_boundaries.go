@@ -11,6 +11,7 @@ var michiReadOnlyCommands = map[string]bool{
 	"catalog": true, "guidance": true, "find": true, "nearby": true,
 	"station": true, "readiness": true, "notices": true, "notice": true,
 	"station-notices": true, "compare": true, "snapshot": true, "changes": true,
+	"stations": true, "bulletins": true,
 }
 
 // Suppress automatic journal/correction writes only for source workflows.

@@ -11,7 +11,7 @@ import (
 
 func TestMichiReadOnlyCallsLeaveNoLearningState(t *testing.T) {
 	t.Setenv("MICHI_NO_EKI_NO_LEARN", "")
-	for _, argv := range [][]string{{}, {"--json"}, {"--home", "TEST_HOME"}, {"--json", "--home", "TEST_HOME"}, {"catalog", "--json"}, {"catalog", "--help"}, {"catalog", "--wrong-native-flag"}, {"guidance", "--json"}} {
+	for _, argv := range [][]string{{}, {"--json"}, {"--home", "TEST_HOME"}, {"--json", "--home", "TEST_HOME"}, {"catalog", "--json"}, {"catalog", "--help"}, {"catalog", "--wrong-native-flag"}, {"guidance", "--json"}, {"stations", "get", "--id", "19187", "--dry-run", "--json"}, {"stations", "get", "--wrong-source-flag"}, {"stations", "get", "--help"}, {"bulletins", "list", "--dry-run", "--json"}, {"bulletins", "list", "--wrong-source-flag"}, {"bulletins", "list", "--help"}} {
 		t.Run("root-or-"+strings.Join(argv, " "), func(t *testing.T) {
 			home := t.TempDir()
 			restore, err := cliutil.SetHomeOverride(home)

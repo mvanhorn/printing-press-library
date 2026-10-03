@@ -518,6 +518,7 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 		JaccardMin:      jMin,
 		Limit:           limit,
 		AdditionalKinds: opts.PatternKinds,
+		NoLimit:         true,
 	})
 	if len(patternHits) > 0 {
 		existing := make(map[string]struct{}, len(hits))
@@ -529,7 +530,6 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 			if _, dup := existing[key]; dup {
 				continue
 			}
-			existing[key] = struct{}{}
 			hit := Hit{
 				ResourceID:       ph.ResourceID,
 				ResourceType:     ph.ResourceType,
@@ -542,10 +542,12 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 				Source:           SourcePattern,
 				LastObservedAt:   ph.LastObservedAt,
 			}
-			resourcePresent := validateResource(ctx, db, cfg, &hit, queryIdentity, nil, opts.ResourceTypeFields)
+			boundIdentity := []string{ph.BoundEntity}
+			resourcePresent := validateResource(ctx, db, cfg, &hit, boundIdentity, nil, opts.ResourceTypeFields)
 			if resourcePresent && len(hit.ResourceEntities) > 0 {
 				resourceCanonicals := resolver.ResolveSet(hit.ResourceEntities)
-				if hit.EntityMatch == EntityMatchMismatch && setIntersects(queryCanonicals, resourceCanonicals) {
+				boundCanonicals := resolver.ResolveSet(boundIdentity)
+				if hit.EntityMatch == EntityMatchMismatch && setIntersects(boundCanonicals, resourceCanonicals) {
 					hit.EntityMatch = EntityMatchExact
 					hit.Warnings = append(hit.Warnings, WarningCrossAliasMatch)
 				}
@@ -567,6 +569,7 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 				// evidence of current provider facts or resource identity.
 				hit.EntityMatch = EntityMatchExact
 			}
+			existing[key] = struct{}{}
 			hits = append(hits, hit)
 		}
 	}

@@ -31,6 +31,8 @@ const DefaultJaccardMin = 0.6
 // own per-hit metadata (warnings, last_observed_at lookups against the
 // learning row) that the pattern layer doesn't have.
 type Hit struct {
+	// BoundEntity records the query entity that produced this verified candidate.
+	BoundEntity      string
 	ResourceID       string
 	ResourceType     string
 	Venue            string
@@ -58,9 +60,11 @@ type Hit struct {
 // should try ahead of the built-in computed kinds when a template's
 // entity_kind doesn't have a direct slot in the template string.
 type Opts struct {
-	JaccardMin      float64
-	Limit           int
-	NoVerify        bool
+	JaccardMin float64
+	Limit      int
+	NoVerify   bool
+	// NoLimit is for callers that apply their final limit after identity validation.
+	NoLimit         bool
 	AdditionalKinds []string
 }
 
@@ -154,6 +158,7 @@ func Apply(ctx context.Context, db *sql.DB, query, nonEntityNormalized string, q
 			if !verified {
 				continue
 			}
+			h.BoundEntity = ent
 			h.Venue = venue
 			h.Confidence = confidence
 			h.MatchScore = score
@@ -195,7 +200,7 @@ func Apply(ctx context.Context, db *sql.DB, query, nonEntityNormalized string, q
 		return ai.After(aj)
 	})
 
-	if len(hits) > limit {
+	if !opts.NoLimit && len(hits) > limit {
 		hits = hits[:limit]
 	}
 	return hits, nil

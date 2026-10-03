@@ -165,3 +165,62 @@ func TestForgetSupportedPatternUpdateFailureRollsBack(t *testing.T) {
 		t.Fatalf("pattern rollback lost provenance %#v %v", rows, err)
 	}
 }
+
+func TestForgetIgnoresUnusableCohortRowsWhenTwoSupportersRemain(t *testing.T) {
+	for _, prefix := range []bool{false, true} {
+		for _, variant := range []string{"missing-lookup", "conflicting-resource", "multi-entity"} {
+			t.Run(map[bool]string{false: "exact", true: "prefix"}[prefix]+"/"+variant, func(t *testing.T) {
+				s := openLearnings(t)
+				id := seedSurvivingPattern(t, s, prefix)
+				query := "pitch Spain"
+				entities := []string{"Spain"}
+				resource := "pitch-ES"
+				if variant == "conflicting-resource" {
+					if _, err := s.DB().Exec(`INSERT INTO entity_lookups(kind,canonical,value,source) VALUES('country','Spain','ES','seeded')`); err != nil {
+						t.Fatal(err)
+					}
+					resource = "unrelated-ES"
+				}
+				if variant == "multi-entity" {
+					query = "pitch Spain Germany"
+					entities = []string{"Spain", "Germany"}
+				}
+				if _, _, err := s.UpsertLearning(context.Background(), store.UpsertLearningInput{Query: query, QueryEntities: entities, ResourceID: resource, ResourceType: "source", Source: store.LearningSourceTaught}); err != nil {
+					t.Fatal(err)
+				}
+				s.DB().SetMaxOpenConns(1)
+				forgetJapan(t, s)
+				s.DB().SetMaxOpenConns(4)
+				if !generalizedItaly(t, s) {
+					t.Fatal("unusable cohort row vetoed two compatible supporting teachings")
+				}
+				rows, err := patterns.List(s.DB(), patterns.ListFilter{})
+				if err != nil || len(rows) != 1 || rows[0].ID != id {
+					t.Fatalf("supported identity lost %#v %v", rows, err)
+				}
+				if strings.Contains(rows[0].ExampleQuery, "spain") || strings.Contains(rows[0].ExampleResource, "ES") || strings.Contains(rows[0].ExampleResource, "JP") {
+					t.Fatalf("example must be an actual surviving supporter: %#v", rows[0])
+				}
+			})
+		}
+	}
+}
+
+func TestForgetRetainedLookupFailureRollsBack(t *testing.T) {
+	s := openLearnings(t)
+	id := seedSurvivingPattern(t, s, false)
+	if _, err := s.DB().Exec(`DROP TABLE entity_lookups`); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.ForgetLearnings(context.Background(), store.ForgetLearningsFilter{Query: "pitch Japan", All: true}); err == nil {
+		t.Fatal("lookup SQL error must abort, not count as unusable evidence")
+	}
+	var n int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM search_learnings WHERE query_pattern='pitch japan'`).Scan(&n); err != nil || n != 1 {
+		t.Fatalf("teaching was not rolled back: %d %v", n, err)
+	}
+	rows, err := patterns.List(s.DB(), patterns.ListFilter{})
+	if err != nil || len(rows) != 1 || rows[0].ID != id || rows[0].ExampleResource != "pitch-JP" {
+		t.Fatalf("pattern/provenance was not rolled back: %#v %v", rows, err)
+	}
+}
