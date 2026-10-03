@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-02T18:22:11.132603Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "nap-camp",
+  "display_name": "なっぷ (Nap Camp)",
+  "cli_name": "nap-camp-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "nap-camp.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:4ad72b152b2d84c678799145ce6827785841fce77b9d37233194f8502b65cdf4",
+  "run_id": "20261003-001152-6cdfd713",
+  "category": "travel",
+  "description": "Plan campervan campsite stays with source-backed pitch rules and dated acceptance evidence.",
+  "mcp_binary": "nap-camp-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_public_tool_count": 7,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Selected-pitch requirement check",
+      "command": "planner fit",
+      "description": "Check one specific pitch for vehicle, group, pet and power requirements without certifying unreported dimensions."
+    },
+    {
+      "name": "Evidence shortlist comparison",
+      "command": "planner compare",
+      "description": "Compare a bounded shortlist of specific campsite/pitch pairs with the same requirements."
+    },
+    {
+      "name": "Consecutive acceptance windows",
+      "command": "planner windows",
+      "description": "Find candidate consecutive nights from dated source acceptance evidence."
+    },
+    {
+      "name": "Dated evidence snapshot",
+      "command": "planner snapshot",
+      "description": "Capture a compact dated observation spanning campsite, pitch and optional calendar."
+    },
+    {
+      "name": "Observation drift comparison",
+      "command": "planner changes",
+      "description": "Compare two saved observations of the same campsite and pitch."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Selected-pitch requirement check",
+      "command": "planner fit",
+      "description": "Check one specific pitch for vehicle, group, pet and power requirements without certifying unreported dimensions."
+    },
+    {
+      "name": "Evidence shortlist comparison",
+      "command": "planner compare",
+      "description": "Compare a bounded shortlist of specific campsite/pitch pairs with the same requirements."
+    },
+    {
+      "name": "Consecutive acceptance windows",
+      "command": "planner windows",
+      "description": "Find candidate consecutive nights from dated source acceptance evidence."
+    },
+    {
+      "name": "Dated evidence snapshot",
+      "command": "planner snapshot",
+      "description": "Capture a compact dated observation spanning campsite, pitch and optional calendar."
+    },
+    {
+      "name": "Observation drift comparison",
+      "command": "planner changes",
+      "description": "Compare two saved observations of the same campsite and pitch."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 41,
+    "total": 41,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 87,
+      "grade": "A",
+      "total": 87
+    }
+  }
+}

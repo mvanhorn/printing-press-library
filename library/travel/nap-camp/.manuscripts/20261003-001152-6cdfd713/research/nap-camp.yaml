@@ -1,0 +1,207 @@
+name: nap-camp
+description: Source-backed Japanese campsite and pitch planning with explicit vehicle,
+  date and price limits.
+cli_description: Plan campervan campsite stays with source-backed pitch rules and
+  dated acceptance evidence.
+version: 0.1.0
+category: travel
+base_url: https://www.nap-camp.com
+http_transport: standard
+health_check_path: /api/master
+spec_source: sniffed
+required_headers:
+- name: X-Requested-With
+  value: XMLHttpRequest
+- name: X-VERSION-2
+  value: '1'
+auth:
+  type: none
+config:
+  format: toml
+  path: ~/.config/nap-camp-pp-cli/config.toml
+mcp:
+  transport:
+  - stdio
+learn:
+  entity_lookup_seeds:
+    campsite:
+    - canonical: 長瀞オートキャンプ場
+      aliases:
+      - nagatoro auto camp
+      - nagatoro
+    region:
+    - canonical: 関東
+      aliases:
+      - kanto
+    - canonical: 北陸・甲信越
+      aliases:
+      - hokuriku koshinetsu
+    - canonical: 東海
+      aliases:
+      - tokai
+    - canonical: 関西
+      aliases:
+      - kansai
+    - canonical: 九州・沖縄
+      aliases:
+      - kyushu okinawa
+  synonyms:
+    camper van: campervan
+resources:
+  source:
+    description: Read-only source contracts; use campsite, pitch and planner commands
+      for bounded planning.
+    endpoints:
+      search:
+        method: GET
+        path: /api/search
+        description: Raw public campsite search; campervan filter is other=26; source
+          prices and dates are qualified, use campsite discover for bounded planning
+          output.
+        params:
+        - name: region_id
+          type: int
+          required: false
+          positional: false
+          description: ''
+          flag_name: region-id
+        - name: prefecture_id
+          type: int
+          required: false
+          positional: false
+          description: ''
+          flag_name: prefecture-id
+        - name: area_id
+          type: int
+          required: false
+          positional: false
+          description: ''
+          flag_name: area-id
+        - name: count
+          type: int
+          required: false
+          positional: false
+          description: Requested number of facilities per page
+          flag_name: page-size
+          default: 5
+        - name: page_id
+          type: int
+          required: false
+          positional: false
+          description: ''
+          flag_name: page
+          default: 1
+        - name: sort_id
+          type: int
+          required: false
+          positional: false
+          description: ''
+          flag_name: sort
+          default: 21
+        - name: other
+          type: string
+          required: false
+          positional: false
+          description: Comma-separated source filter IDs, e.g. 26,43 for campervan
+            and power
+          default: '26'
+        - name: check_in
+          type: string
+          required: false
+          positional: false
+          description: JST check-in YYYY-MM-DD
+          flag_name: check-in
+        - name: check_out
+          type: string
+          required: false
+          positional: false
+          description: JST checkout YYYY-MM-DD
+          flag_name: check-out
+        - name: freeword
+          type: string
+          required: false
+          positional: false
+          description: ''
+          flag_name: keyword
+        response:
+          type: object
+        happy_args: --region-id=2;--page-size=3
+      campsite:
+        method: GET
+        path: /api/campsite/{campsite_id}
+        description: Raw campsite detail including facility-level category labels,
+          season and fees; inspect the specific plan for vehicle limits.
+        params:
+        - &id001
+          name: campsite_id
+          type: string
+          required: true
+          positional: true
+          description: Stable numeric campsite ID; e.g. 11007
+        response:
+          type: object
+        happy_args: campsite_id=11007
+      plans:
+        method: GET
+        path: /api/campsite/{campsite_id}/plans
+        description: Raw plans for a facility; includes starting prices and per-plan
+          attributes.
+        params:
+        - *id001
+        response:
+          type: object
+        happy_args: campsite_id=11007
+      plan:
+        method: GET
+        path: /api/campsite/{campsite_id}/plans/{plan_id}
+        description: Raw specific plan rules, entry memo, pitch area, fees and cancellation
+          text.
+        params:
+        - *id001
+        - &id002
+          name: plan_id
+          type: string
+          required: true
+          positional: true
+          description: Stable numeric plan ID; e.g. 20005062
+        response:
+          type: object
+        happy_args: campsite_id=11007;plan_id=20005062
+      calendar:
+        method: GET
+        path: /api/campsite/{campsite_id}/plans/{plan_id}/reservation
+        description: Raw two-month acceptance calendar; zero nonacceptance prices
+          are unknown; use pitch calendar to constrain dates.
+        params:
+        - *id001
+        - *id002
+        - name: month
+          type: string
+          required: true
+          positional: false
+          description: JST month YYYY-MM; source may return following month too
+        response:
+          type: array
+          item: object
+        example: "  nap-camp-pp-cli source calendar 11007 20005062 --month 2026-10 --json"
+        happy_args: campsite_id=11007;plan_id=20005062;--month=2026-10
+      filters:
+        method: GET
+        path: /api/master
+        description: Raw source filter groups and Japanese labels; campervan-entry
+          source ID is 26.
+        params: &id003 []
+        response:
+          type: array
+          item: object
+        happy_args: ''
+      locations:
+        method: GET
+        path: /api/locations
+        description: Raw full source region, prefecture and area ID hierarchy; use
+          catalog for bounded projections.
+        params: *id003
+        response:
+          type: object
+        happy_args: ''
+types: {}

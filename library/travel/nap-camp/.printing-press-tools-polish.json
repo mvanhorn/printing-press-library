@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-10-02T18:01:52.894989Z",
+  "cli_dir": "\u003ccli-dir\u003e/nap-camp-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated platform command; lists local client-profile names without arguments, and is inactive for this no-adapter source. Template target: List configured local client-profile names."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 868,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated learn-loop command; accurate within learnings group, with query/source/resource/confidence/warnings filters exposed in schema. Template target: List recorded local learnings filtered by query, resource, source or confidence."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-10-02T17:41:08.270058Z"
+  }
+}

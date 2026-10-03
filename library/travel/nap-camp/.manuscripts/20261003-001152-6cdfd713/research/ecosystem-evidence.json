@@ -1,0 +1,36 @@
+{
+  "searched_terms": [
+    "nap-camp Claude Code plugin github",
+    "nap-camp MCP server model context protocol",
+    "nap-camp Claude skill SKILL.md github",
+    "nap-camp CLI tool github",
+    "nap-camp CLI npm",
+    "nap-camp MCP lobehub mcpmarket fastmcp",
+    "nap-camp automation workflow github",
+    "nap-camp SDK npm",
+    "nap-camp client PyPI"
+  ],
+  "outcome": "No relevant service-specific public CLI, SDK, MCP or skill established. Unrelated homonym results excluded.",
+  "official_plugins": {
+    "url": "https://api.github.com/repos/anthropics/claude-plugins-official/contents/external_plugins",
+    "status": 200,
+    "names": [
+      "asana",
+      "context7",
+      "discord",
+      "fakechat",
+      "firebase",
+      "github",
+      "gitlab",
+      "imessage",
+      "laravel-boost",
+      "linear",
+      "playwright",
+      "serena",
+      "telegram",
+      "terraform"
+    ],
+    "nap_camp_match": []
+  },
+  "no_prior_research": true
+}

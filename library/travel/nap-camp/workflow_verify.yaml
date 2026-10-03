@@ -1,0 +1,24 @@
+workflows:
+- name: Public campervan discovery to selected-pitch requirement and date evidence
+  primary: true
+  steps:
+  - command: campsite discover --region kanto --limit 2
+    mode: live
+    expect_fields:
+    - results
+    - source_total
+  - command: pitch inspect 11007 20005062
+    mode: live
+    expect_fields:
+    - pitch
+    - campsite
+  - command: planner fit 11007 20005062 --people 2 --power
+    mode: live
+    expect_fields:
+    - checks
+    - verdict
+  - command: planner windows 11007 20005062 --month 2026-10 --nights 2 --limit 3
+    mode: live
+    expect_fields:
+    - candidate_windows
+    - unknown_dates

@@ -1,0 +1,24 @@
+{
+  "id": 20005062,
+  "site_name": "V-ビューサイト ワイド [約140～150㎡]",
+  "basic_info": {
+    "master_site_type": "区画サイト",
+    "site_num": 5,
+    "site_scale": "100 ～150 平方メートル",
+    "site_is_prohibited_vehicle_type": 1,
+    "site_is_prohibited_vehicle_other_memo": "乗用車",
+    "site_ac_type": 0,
+    "site_ac_memo": "",
+    "site_pet_type": 1,
+    "site_pet_memo": "必ずリードを着用ください。キャンプ慣れしていない場合は同伴をお控えください。",
+    "check_in": "12:00",
+    "check_in_limit": "17:00",
+    "check_out": "11:00"
+  },
+  "price": {
+    "guideline": 5000,
+    "base": 5000,
+    "unit": 2000,
+    "tax_flg": true
+  }
+}

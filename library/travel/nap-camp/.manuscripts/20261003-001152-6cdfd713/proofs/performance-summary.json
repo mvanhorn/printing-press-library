@@ -1,0 +1,105 @@
+{
+  "observed_at": "2026-10-02T18:11:57.008622+00:00",
+  "binary_sha256": "aa5205aaeb7790d27f34c8f063a624188813c5717990ca3361d651b41e22eeb3",
+  "normal_mode": true,
+  "scope": "24 successful final measured invocations: six named scenarios (discover/calendar/fit/compare/snapshot/changes) x3 process runs and six supplementary scenarios (campsite/pitch/catalog/windows/negative-discovery/dated-discovery) x1. Fresh public GETs, network/startup included, no login or booking; nearest-rank small-sample p95, no latency threshold claim.",
+  "performance": [
+    {
+      "command": "discover",
+      "runs": 3,
+      "passed": 3,
+      "p50_seconds": 0.7823,
+      "p95_seconds": 0.806,
+      "max_stdout_bytes": 7830
+    },
+    {
+      "command": "campsite",
+      "runs": 1,
+      "passed": 1,
+      "p50_seconds": 0.8403,
+      "p95_seconds": 0.8403,
+      "max_stdout_bytes": 6381
+    },
+    {
+      "command": "pitch",
+      "runs": 1,
+      "passed": 1,
+      "p50_seconds": 0.8326,
+      "p95_seconds": 0.8326,
+      "max_stdout_bytes": 11091
+    },
+    {
+      "command": "calendar",
+      "runs": 3,
+      "passed": 3,
+      "p50_seconds": 1.0115,
+      "p95_seconds": 1.0308,
+      "max_stdout_bytes": 5208
+    },
+    {
+      "command": "catalog",
+      "runs": 1,
+      "passed": 1,
+      "p50_seconds": 0.6241,
+      "p95_seconds": 0.6241,
+      "max_stdout_bytes": 1023
+    },
+    {
+      "command": "fit",
+      "runs": 3,
+      "passed": 3,
+      "p50_seconds": 0.7413,
+      "p95_seconds": 0.7702,
+      "max_stdout_bytes": 3025
+    },
+    {
+      "command": "compare",
+      "runs": 3,
+      "passed": 3,
+      "p50_seconds": 1.735,
+      "p95_seconds": 1.7406,
+      "max_stdout_bytes": 7040
+    },
+    {
+      "command": "windows",
+      "runs": 1,
+      "passed": 1,
+      "p50_seconds": 1.021,
+      "p95_seconds": 1.021,
+      "max_stdout_bytes": 3361
+    },
+    {
+      "command": "snapshot",
+      "runs": 3,
+      "passed": 3,
+      "p50_seconds": 1.6019,
+      "p95_seconds": 1.7983,
+      "max_stdout_bytes": 32006
+    },
+    {
+      "command": "changes",
+      "runs": 3,
+      "passed": 3,
+      "p50_seconds": 0.0091,
+      "p95_seconds": 0.0096,
+      "max_stdout_bytes": 361
+    },
+    {
+      "command": "negative-discovery",
+      "runs": 1,
+      "passed": 1,
+      "p50_seconds": 0.3425,
+      "p95_seconds": 0.3425,
+      "max_stdout_bytes": 724
+    },
+    {
+      "command": "dated-discovery",
+      "runs": 1,
+      "passed": 1,
+      "p50_seconds": 1.2359,
+      "p95_seconds": 1.2359,
+      "max_stdout_bytes": 5538
+    }
+  ],
+  "status": "pass"
+}

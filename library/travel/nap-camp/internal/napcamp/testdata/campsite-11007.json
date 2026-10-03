@@ -1,0 +1,28 @@
+{
+  "id": 11007,
+  "name": "長瀞オートキャンプ場",
+  "region_name": "関東",
+  "prefecture_name": "埼玉",
+  "prefecture_name_en": "saitama",
+  "area_name": "秩父・長瀞",
+  "season_info": "<!DOCTYPE html><html><head></head><body><p>3月～12月<br />※1月〜2月は一部分のみの縮小営業となります</p></body></html>",
+  "holiday_info": "<!DOCTYPE html><html><head></head><body><p>公式HP年間カレンダーをご確認ください</p></body></html>",
+  "price_range": "1600-31000",
+  "master_list": {
+    "available_vehicle": [
+      24,
+      26,
+      89
+    ],
+    "equipment": [
+      43,
+      48,
+      50,
+      51,
+      52,
+      56,
+      57,
+      58
+    ]
+  }
+}

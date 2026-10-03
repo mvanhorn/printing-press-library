@@ -1,0 +1,139 @@
+{
+  "list_r": [
+    {
+      "id": 1,
+      "basic": {
+        "ja": "北海道・東北",
+        "en": "hokkaido_tohoku"
+      },
+      "extension": {
+        "count": 956
+      },
+      "list_p": [
+        {
+          "id": 1,
+          "basic": {
+            "ja": "北海道",
+            "en": "hokkaido",
+            "region_id": 1
+          },
+          "extension": {
+            "count": 452
+          }
+        },
+        {
+          "id": 2,
+          "basic": {
+            "ja": "青森",
+            "en": "aomori",
+            "region_id": 1
+          },
+          "extension": {
+            "count": 63
+          }
+        },
+        {
+          "id": 3,
+          "basic": {
+            "ja": "岩手",
+            "en": "iwate",
+            "region_id": 1
+          },
+          "extension": {
+            "count": 104
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "basic": {
+        "ja": "関東",
+        "en": "kanto"
+      },
+      "extension": {
+        "count": 1159
+      },
+      "list_p": [
+        {
+          "id": 13,
+          "basic": {
+            "ja": "東京",
+            "en": "tokyo",
+            "region_id": 2
+          },
+          "extension": {
+            "count": 75
+          }
+        },
+        {
+          "id": 14,
+          "basic": {
+            "ja": "神奈川",
+            "en": "kanagawa",
+            "region_id": 2
+          },
+          "extension": {
+            "count": 107
+          }
+        },
+        {
+          "id": 11,
+          "basic": {
+            "ja": "埼玉",
+            "en": "saitama",
+            "region_id": 2
+          },
+          "extension": {
+            "count": 112
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "basic": {
+        "ja": "北陸・甲信越",
+        "en": "hokushinetsu"
+      },
+      "extension": {
+        "count": 959
+      },
+      "list_p": [
+        {
+          "id": 15,
+          "basic": {
+            "ja": "山梨",
+            "en": "yamanashi",
+            "region_id": 3
+          },
+          "extension": {
+            "count": 296
+          }
+        },
+        {
+          "id": 16,
+          "basic": {
+            "ja": "長野",
+            "en": "nagano",
+            "region_id": 3
+          },
+          "extension": {
+            "count": 353
+          }
+        },
+        {
+          "id": 17,
+          "basic": {
+            "ja": "新潟",
+            "en": "niigata",
+            "region_id": 3
+          },
+          "extension": {
+            "count": 137
+          }
+        }
+      ]
+    }
+  ]
+}

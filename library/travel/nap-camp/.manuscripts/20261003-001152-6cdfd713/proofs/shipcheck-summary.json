@@ -1,0 +1,58 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "verdict": "PASS",
+  "started_at": "2026-10-02T18:07:02Z",
+  "elapsed_ms": 17554,
+  "legs": [
+    {
+      "name": "verify",
+      "passed": true,
+      "exit_code": 0,
+      "verdict": "PASS",
+      "elapsed_ms": 3802
+    },
+    {
+      "name": "validate-narrative",
+      "passed": true,
+      "exit_code": 0,
+      "verdict": "PASS",
+      "elapsed_ms": 684
+    },
+    {
+      "name": "dogfood",
+      "passed": true,
+      "exit_code": 0,
+      "verdict": "PASS",
+      "elapsed_ms": 3092
+    },
+    {
+      "name": "workflow-verify",
+      "passed": true,
+      "exit_code": 0,
+      "verdict": "PASS",
+      "elapsed_ms": 4261
+    },
+    {
+      "name": "apify-audit",
+      "passed": true,
+      "exit_code": 0,
+      "verdict": "PASS",
+      "elapsed_ms": 78
+    },
+    {
+      "name": "verify-skill",
+      "passed": true,
+      "exit_code": 0,
+      "verdict": "PASS",
+      "elapsed_ms": 2945
+    },
+    {
+      "name": "scorecard",
+      "passed": true,
+      "exit_code": 0,
+      "verdict": "PASS",
+      "elapsed_ms": 2687
+    }
+  ]
+}

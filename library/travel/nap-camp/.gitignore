@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/nap-camp-pp-cli
+/nap-camp-pp-cli.exe
+/nap-camp-pp-mcp
+/nap-camp-pp-mcp.exe
+/bin/
+/build/
+/dist/

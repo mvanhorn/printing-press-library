@@ -1,0 +1,55 @@
+version: 2
+project_name: nap-camp-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: nap-camp-pp-cli
+    main: ./cmd/nap-camp-pp-cli
+    binary: nap-camp-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/nap-camp/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: nap-camp-pp-mcp
+    main: ./cmd/nap-camp-pp-mcp
+    binary: nap-camp-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: nap-camp-pp-cli
+    repository:
+      owner: zjsng
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Plan campervan campsite stays with source-backed pitch rules and dated acceptance evidence."
+    install: |
+      bin.install "nap-camp-pp-cli"
+      bin.install "nap-camp-pp-mcp"

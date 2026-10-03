@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "id": "nap-camp-source-backed-planning",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261003-001152-6cdfd713",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Preserve conservative source-backed campsite/pitch/date planning and versioned local observations.",
+  "reason": "Facility campervan-entry categories differ from specific pitch restrictions; date acceptance and starting prices need explicit source qualifiers, bounds and unknowns. Public raw wrappers cannot compute source-backed checks, overnight windows or observation drift.",
+  "files": [
+    "internal/napcamp/napcamp.go",
+    "internal/napcamp/napcamp_test.go",
+    "internal/cli/nap_foundation.go",
+    "internal/cli/nap_requirements.go",
+    "internal/cli/planner_fit.go",
+    "internal/cli/planner_compare.go",
+    "internal/cli/planner_windows_cmd.go",
+    "internal/cli/planner_snapshot.go",
+    "internal/cli/planner_changes.go",
+    "README.md",
+    "SKILL.md",
+    "AGENTS.md",
+    "workflow_verify.yaml",
+    "internal/cli/nap_planning_test.go",
+    "internal/cli/planner.go"
+  ],
+  "validated_outcome": "Deterministic source contract/normalization tests pass for empty arrays, unknown dimensions/prices, specific-pitch contradictions, checkout-excluded windows, bounded results, atomic non-overwriting snapshots and comparable drift. Public-only live gates recorded separately."
+}

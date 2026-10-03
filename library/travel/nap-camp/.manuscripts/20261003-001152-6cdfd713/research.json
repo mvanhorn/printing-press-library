@@ -1,0 +1,162 @@
+{
+  "api_name": "nap-camp",
+  "novelty_score": 9,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-02T16:24:26.425035Z",
+  "novel_features": [
+    {
+      "name": "Selected-pitch requirement check",
+      "command": "planner fit",
+      "description": "Check one specific pitch for vehicle, group, pet and power requirements without certifying unreported dimensions.",
+      "rationale": "Combines campsite category with the selected plan and user requirements.",
+      "example": "nap-camp-pp-cli planner fit 11007 20005062 --people 2 --length-m 6 --agent",
+      "why_it_matters": "Choose this for explicit contradictions and unknowns on a chosen pitch.",
+      "group": "Pitch evidence"
+    },
+    {
+      "name": "Evidence shortlist comparison",
+      "command": "planner compare",
+      "description": "Compare a bounded shortlist of specific campsite/pitch pairs with the same requirements.",
+      "rationale": "Applies consistent cross-entity evidence checks to each selected pitch.",
+      "example": "nap-camp-pp-cli planner compare 11007:20005062 11007:20005063 --people 2 --agent",
+      "why_it_matters": "Choose this when comparing selected pitches across an itinerary.",
+      "group": "Pitch evidence"
+    },
+    {
+      "name": "Consecutive acceptance windows",
+      "command": "planner windows",
+      "description": "Find candidate consecutive nights from dated source acceptance evidence.",
+      "rationale": "Computes requested stay windows from the source status legend.",
+      "example": "nap-camp-pp-cli planner windows 11007 20005062 --month 2026-10 --nights 2 --agent",
+      "why_it_matters": "Choose this for multi-night planning with explicit unknown inventory.",
+      "group": "Dates and observations"
+    },
+    {
+      "name": "Dated evidence snapshot",
+      "command": "planner snapshot",
+      "description": "Capture a compact dated observation spanning campsite, pitch and optional calendar.",
+      "rationale": "Preserves related source facts and coverage for later comparison.",
+      "example": "nap-camp-pp-cli planner snapshot 11007 20005062 --month 2026-10 --agent",
+      "why_it_matters": "Choose this to save a reviewable itinerary observation.",
+      "group": "Dates and observations"
+    },
+    {
+      "name": "Observation drift comparison",
+      "command": "planner changes",
+      "description": "Compare two saved observations of the same campsite and pitch.",
+      "rationale": "Computes local fact changes while separating different date coverage.",
+      "example": "nap-camp-pp-cli planner changes before.json after.json --agent",
+      "why_it_matters": "Choose this to detect source changes without repeating HTTP requests.",
+      "group": "Dates and observations"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Selected-pitch requirement check",
+      "command": "planner fit",
+      "description": "Check one specific pitch for vehicle, group, pet and power requirements without certifying unreported dimensions.",
+      "rationale": "Combines campsite category with the selected plan and user requirements.",
+      "example": "nap-camp-pp-cli planner fit 11007 20005062 --people 2 --length-m 6 --agent",
+      "why_it_matters": "Choose this for explicit contradictions and unknowns on a chosen pitch.",
+      "group": "Pitch evidence"
+    },
+    {
+      "name": "Evidence shortlist comparison",
+      "command": "planner compare",
+      "description": "Compare a bounded shortlist of specific campsite/pitch pairs with the same requirements.",
+      "rationale": "Applies consistent cross-entity evidence checks to each selected pitch.",
+      "example": "nap-camp-pp-cli planner compare 11007:20005062 11007:20005063 --people 2 --agent",
+      "why_it_matters": "Choose this when comparing selected pitches across an itinerary.",
+      "group": "Pitch evidence"
+    },
+    {
+      "name": "Consecutive acceptance windows",
+      "command": "planner windows",
+      "description": "Find candidate consecutive nights from dated source acceptance evidence.",
+      "rationale": "Computes requested stay windows from the source status legend.",
+      "example": "nap-camp-pp-cli planner windows 11007 20005062 --month 2026-10 --nights 2 --agent",
+      "why_it_matters": "Choose this for multi-night planning with explicit unknown inventory.",
+      "group": "Dates and observations"
+    },
+    {
+      "name": "Dated evidence snapshot",
+      "command": "planner snapshot",
+      "description": "Capture a compact dated observation spanning campsite, pitch and optional calendar.",
+      "rationale": "Preserves related source facts and coverage for later comparison.",
+      "example": "nap-camp-pp-cli planner snapshot 11007 20005062 --month 2026-10 --agent",
+      "why_it_matters": "Choose this to save a reviewable itinerary observation.",
+      "group": "Dates and observations"
+    },
+    {
+      "name": "Observation drift comparison",
+      "command": "planner changes",
+      "description": "Compare two saved observations of the same campsite and pitch.",
+      "rationale": "Computes local fact changes while separating different date coverage.",
+      "example": "nap-camp-pp-cli planner changes before.json after.json --agent",
+      "why_it_matters": "Choose this to detect source changes without repeating HTTP requests.",
+      "group": "Dates and observations"
+    }
+  ],
+  "narrative": {
+    "display_name": "なっぷ (Nap Camp)",
+    "headline": "Plan campervan campsite stays with source-backed pitch rules and dated acceptance evidence.",
+    "value_prop": "Discover public campervan-entry campsites, inspect the specific pitch and compare a bounded shortlist. Planner commands distinguish source acceptance and starting prices from unknown vehicle clearance, vacancy and full totals.",
+    "auth_narrative": "Public read-only source contracts need no API key or account. Booking is a canonical-site handoff.",
+    "quickstart": [
+      {
+        "command": "nap-camp-pp-cli doctor --dry-run",
+        "comment": "Check installation without network requests."
+      },
+      {
+        "command": "nap-camp-pp-cli campsite discover --region kanto --limit 3 --json",
+        "comment": "Find bounded campervan-entry candidates."
+      },
+      {
+        "command": "nap-camp-pp-cli pitch inspect 11007 20005062 --json",
+        "comment": "Read the chosen pitch restrictions."
+      },
+      {
+        "command": "nap-camp-pp-cli planner fit 11007 20005062 --people 2 --power --agent",
+        "comment": "Surface contradictions and unresolved requirements."
+      }
+    ],
+    "when_to_use": "Use for public Nap Camp campsite and specific pitch planning, campervan-entry discovery, conservative requirements checks, dated source acceptance, and local observation comparisons. Keep Japanese names and URLs in the itinerary.",
+    "anti_triggers": [
+      "Bookings, payments, account actions or guaranteed inventory.",
+      "Vehicle clearance certification, driving routes or complete dated group/option quotes."
+    ],
+    "recipes": [
+      {
+        "title": "Compare specific pitches",
+        "command": "nap-camp-pp-cli planner compare 11007:20005062 11007:20005063 --people 2 --agent",
+        "explanation": "Each pair is checked independently; facility categories are not pitch permission."
+      },
+      {
+        "title": "Consecutive candidate nights",
+        "command": "nap-camp-pp-cli planner windows 11007 20005062 --month 2026-10 --nights 2 --limit 5 --agent",
+        "explanation": "Only nights with source acceptance statuses 1/2 form candidates; vacancy is unknown."
+      },
+      {
+        "title": "Narrow pitch facts",
+        "command": "nap-camp-pp-cli planner snapshot 11007 20005062 --agent --select campsite.name,pitch.vehicle_entry,pitch.power",
+        "explanation": "Return only the selected source facts; those fields do not establish vehicle dimensions or a full dated total."
+      },
+      {
+        "title": "Read a dated source calendar",
+        "command": "nap-camp-pp-cli pitch calendar 11007 20005062 --month 2026-10 --limit 7 --json",
+        "explanation": "Filter the two-month upstream response to the requested month; zero nonacceptance prices stay unknown."
+      }
+    ],
+    "trigger_phrases": [
+      "find campervan-entry campsites in Japan",
+      "check Nap Camp pitch restrictions",
+      "compare campsite pitches",
+      "read a campsite acceptance calendar",
+      "use nap-camp",
+      "run nap-camp"
+    ]
+  }
+}

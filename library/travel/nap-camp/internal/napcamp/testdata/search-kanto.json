@@ -1,0 +1,276 @@
+{
+  "info": {
+    "total_count": 578,
+    "current_page_id": "1",
+    "is_next_page": true
+  },
+  "result": [
+    {
+      "id": 11007,
+      "name": "長瀞オートキャンプ場",
+      "prefecture_name": "埼玉",
+      "prefecture_name_en": "saitama",
+      "area_name": "秩父・長瀞",
+      "review": {
+        "reviewsInfo": {
+          "total_count": 1659,
+          "points": {
+            "total": "4.58"
+          }
+        }
+      },
+      "plans": [
+        {
+          "id": 20005062,
+          "site_name": "V-ビューサイト ワイド [約140～150㎡]",
+          "basic_info": {
+            "master_site_type": "区画サイト",
+            "site_num": 5,
+            "site_scale": "100 ～150 平方メートル",
+            "site_is_prohibited_vehicle_type": 1,
+            "site_is_prohibited_vehicle_other_memo": "",
+            "site_ac_type": 0,
+            "site_ac_memo": "",
+            "site_pet_type": 1,
+            "site_pet_memo": "必ずリードを着用ください。キャンプ慣れしていない場合は同伴をお控えください。",
+            "check_in": "12:00",
+            "check_in_limit": "17:00",
+            "check_out": "11:00"
+          },
+          "price": {
+            "guideline": 5000,
+            "base": 5000,
+            "unit": 2000,
+            "tax_flg": true
+          }
+        },
+        {
+          "id": 20039691,
+          "site_name": "V-ビューサイト ワイド【数量限定☆お得なソロ広々プラン】[約140～150㎡] ",
+          "basic_info": {
+            "master_site_type": "区画サイト",
+            "site_num": 1,
+            "site_scale": "100 ～150 平方メートル",
+            "site_is_prohibited_vehicle_type": 1,
+            "site_is_prohibited_vehicle_other_memo": "",
+            "site_ac_type": 0,
+            "site_ac_memo": "",
+            "site_pet_type": 1,
+            "site_pet_memo": "必ずリードを着用ください。キャンプ慣れしていない場合は同伴をお控えください。",
+            "check_in": "12:00",
+            "check_in_limit": "17:00",
+            "check_out": "11:00"
+          },
+          "price": {
+            "guideline": 3200,
+            "base": 3200,
+            "unit": 0,
+            "tax_flg": true
+          }
+        },
+        {
+          "id": 20005063,
+          "site_name": "P-1 ガールズサイト【女性限定】",
+          "basic_info": {
+            "master_site_type": "区画サイト",
+            "site_num": 5,
+            "site_scale": "",
+            "site_is_prohibited_vehicle_type": 1,
+            "site_is_prohibited_vehicle_other_memo": "",
+            "site_ac_type": 1,
+            "site_ac_memo": "",
+            "site_pet_type": 1,
+            "site_pet_memo": "必ずリードを着用ください。キャンプ慣れしていない場合は同伴をお控えください。",
+            "check_in": "12:00",
+            "check_in_limit": "17:00",
+            "check_out": "11:00"
+          },
+          "price": {
+            "guideline": 2500,
+            "base": 2500,
+            "unit": 2000,
+            "tax_flg": true
+          }
+        }
+      ]
+    },
+    {
+      "id": 14281,
+      "name": "キャンプマナビス",
+      "prefecture_name": "千葉",
+      "prefecture_name_en": "chiba",
+      "area_name": "館山・南房総（白浜）",
+      "review": {
+        "reviewsInfo": {
+          "total_count": 654,
+          "points": {
+            "total": "4.55"
+          }
+        }
+      },
+      "plans": [
+        {
+          "id": 20026026,
+          "site_name": "森瓦・フェンス付（愛犬可）",
+          "basic_info": {
+            "master_site_type": "区画サイト",
+            "site_num": 6,
+            "site_scale": "",
+            "site_is_prohibited_vehicle_type": 1,
+            "site_is_prohibited_vehicle_other_memo": "",
+            "site_ac_type": 1,
+            "site_ac_memo": "",
+            "site_pet_type": 1,
+            "site_pet_memo": "場内では必ずリードを着けマナーを守ってください",
+            "check_in": "13:00",
+            "check_in_limit": "18:00",
+            "check_out": "11:00"
+          },
+          "price": {
+            "guideline": 8800,
+            "base": 8800,
+            "unit": 1100,
+            "tax_flg": false
+          }
+        },
+        {
+          "id": 20011080,
+          "site_name": "【ペア・ソロ限定】森瓦・フェンス付き（愛犬可）",
+          "basic_info": {
+            "master_site_type": "区画サイト",
+            "site_num": 2,
+            "site_scale": "",
+            "site_is_prohibited_vehicle_type": 1,
+            "site_is_prohibited_vehicle_other_memo": "",
+            "site_ac_type": 1,
+            "site_ac_memo": "",
+            "site_pet_type": 1,
+            "site_pet_memo": "場内では必ずリードを着けマナーを守ってください",
+            "check_in": "13:00",
+            "check_in_limit": "18:00",
+            "check_out": "11:00"
+          },
+          "price": {
+            "guideline": 6600,
+            "base": 6600,
+            "unit": 0,
+            "tax_flg": false
+          }
+        },
+        {
+          "id": 20027092,
+          "site_name": "森の瓦チップサイト・オーシャンビュー ",
+          "basic_info": {
+            "master_site_type": "区画サイト",
+            "site_num": 6,
+            "site_scale": "",
+            "site_is_prohibited_vehicle_type": 1,
+            "site_is_prohibited_vehicle_other_memo": "",
+            "site_ac_type": 1,
+            "site_ac_memo": "",
+            "site_pet_type": 0,
+            "site_pet_memo": "",
+            "check_in": "13:00",
+            "check_in_limit": "18:00",
+            "check_out": "11:00"
+          },
+          "price": {
+            "guideline": 8800,
+            "base": 8800,
+            "unit": 1100,
+            "tax_flg": false
+          }
+        }
+      ]
+    },
+    {
+      "id": 11999,
+      "name": "清水公園　キャンプ場",
+      "prefecture_name": "千葉",
+      "prefecture_name_en": "chiba",
+      "area_name": "松戸・柏・野田",
+      "review": {
+        "reviewsInfo": {
+          "total_count": 584,
+          "points": {
+            "total": "4.35"
+          }
+        }
+      },
+      "plans": [
+        {
+          "id": 20047411,
+          "site_name": "バンガロー",
+          "basic_info": {
+            "master_site_type": "バンガロー",
+            "site_num": 6,
+            "site_scale": "",
+            "site_is_prohibited_vehicle_type": 0,
+            "site_is_prohibited_vehicle_other_memo": "",
+            "site_ac_type": 1,
+            "site_ac_memo": "",
+            "site_pet_type": 0,
+            "site_pet_memo": "",
+            "check_in": "13:00",
+            "check_in_limit": "19:00",
+            "check_out": "10:00"
+          },
+          "price": {
+            "guideline": 11000,
+            "base": 11000,
+            "unit": 900,
+            "tax_flg": true
+          }
+        },
+        {
+          "id": 20047412,
+          "site_name": "オートキャンプ",
+          "basic_info": {
+            "master_site_type": "区画サイト",
+            "site_num": 6,
+            "site_scale": "約6m×10m",
+            "site_is_prohibited_vehicle_type": 1,
+            "site_is_prohibited_vehicle_other_memo": "",
+            "site_ac_type": 0,
+            "site_ac_memo": "",
+            "site_pet_type": 1,
+            "site_pet_memo": "ペットは必ずリードで繋いでください。",
+            "check_in": "13:00",
+            "check_in_limit": "18:00",
+            "check_out": "10:00"
+          },
+          "price": {
+            "guideline": 4000,
+            "base": 4000,
+            "unit": 900,
+            "tax_flg": true
+          }
+        },
+        {
+          "id": 20047442,
+          "site_name": "昼の部 BBQ炉付きプラン（2/12～11/30）",
+          "basic_info": {
+            "master_site_type": "区画サイト",
+            "site_num": 10,
+            "site_scale": "",
+            "site_is_prohibited_vehicle_type": 0,
+            "site_is_prohibited_vehicle_other_memo": "",
+            "site_ac_type": 0,
+            "site_ac_memo": "",
+            "site_pet_type": 1,
+            "site_pet_memo": "リードを繋いで下さい",
+            "check_in": "09:00",
+            "check_in_limit": "12:00",
+            "check_out": "16:00"
+          },
+          "price": {
+            "guideline": 4600,
+            "base": 4600,
+            "unit": 600,
+            "tax_flg": true
+          }
+        }
+      ]
+    }
+  ]
+}

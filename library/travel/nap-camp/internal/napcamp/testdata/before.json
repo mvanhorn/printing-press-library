@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-02T16:00:00Z",
+  "campsite": {
+    "id": "11007",
+    "name": "長瀞オートキャンプ場"
+  },
+  "pitch": {
+    "id": "20005062",
+    "power": "no"
+  },
+  "calendar": [],
+  "requested_month": "",
+  "source_urls": []
+}

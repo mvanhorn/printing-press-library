@@ -1,0 +1,222 @@
+{
+  "api_name": "nap-camp",
+  "base_url": "https://www.nap-camp.com",
+  "description": "Plan campervan campsite stays with source-backed pitch rules and dated acceptance evidence.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "X-Requested-With",
+      "value": "XMLHttpRequest"
+    },
+    {
+      "name": "X-VERSION-2",
+      "value": "1"
+    }
+  ],
+  "tools": [
+    {
+      "name": "source_calendar",
+      "description": "Raw two-month acceptance calendar; zero nonacceptance prices are unknown; use pitch calendar to constrain dates. Required: campsite_id, plan_id, month. Returns array of object.",
+      "method": "GET",
+      "path": "/api/campsite/{campsite_id}/plans/{plan_id}/reservation",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "campsite_id",
+          "type": "string",
+          "location": "path",
+          "description": "Stable numeric campsite ID; e.g. 11007",
+          "required": true
+        },
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "Stable numeric plan ID; e.g. 20005062",
+          "required": true
+        },
+        {
+          "name": "month",
+          "type": "string",
+          "location": "query",
+          "description": "JST month YYYY-MM; source may return following month too",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "source_campsite",
+      "description": "Raw campsite detail including facility-level category labels, season and fees; inspect the specific plan for vehicle limits. Required: campsite_id.",
+      "method": "GET",
+      "path": "/api/campsite/{campsite_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "campsite_id",
+          "type": "string",
+          "location": "path",
+          "description": "Stable numeric campsite ID; e.g. 11007",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "source_filters",
+      "description": "Raw source filter groups and Japanese labels; campervan-entry source ID is 26. Returns array of object.",
+      "method": "GET",
+      "path": "/api/master",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "source_locations",
+      "description": "Raw full source region, prefecture and area ID hierarchy; use catalog for bounded projections.",
+      "method": "GET",
+      "path": "/api/locations",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "source_plan",
+      "description": "Raw specific plan rules, entry memo, pitch area, fees and cancellation text. Required: campsite_id, plan_id.",
+      "method": "GET",
+      "path": "/api/campsite/{campsite_id}/plans/{plan_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "campsite_id",
+          "type": "string",
+          "location": "path",
+          "description": "Stable numeric campsite ID; e.g. 11007",
+          "required": true
+        },
+        {
+          "name": "plan_id",
+          "type": "string",
+          "location": "path",
+          "description": "Stable numeric plan ID; e.g. 20005062",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "source_plans",
+      "description": "Raw plans for a facility; includes starting prices and per-plan attributes. Required: campsite_id.",
+      "method": "GET",
+      "path": "/api/campsite/{campsite_id}/plans",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "campsite_id",
+          "type": "string",
+          "location": "path",
+          "description": "Stable numeric campsite ID; e.g. 11007",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "source_search",
+      "description": "Raw public campsite search; campervan filter is other=26; source prices and dates are qualified, use campsite discover for bounded planning output. Optional: region-id, prefecture-id, area-id (plus 7 more).",
+      "method": "GET",
+      "path": "/api/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "region-id",
+          "wire_name": "region_id",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "prefecture-id",
+          "wire_name": "prefecture_id",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "area-id",
+          "wire_name": "area_id",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Requested number of facilities per page"
+        },
+        {
+          "name": "page",
+          "wire_name": "page_id",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "sort",
+          "wire_name": "sort_id",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "other",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated source filter IDs, e.g. 26,43 for campervan and power"
+        },
+        {
+          "name": "check-in",
+          "wire_name": "check_in",
+          "type": "string",
+          "location": "query",
+          "description": "JST check-in YYYY-MM-DD"
+        },
+        {
+          "name": "check-out",
+          "wire_name": "check_out",
+          "type": "string",
+          "location": "query",
+          "description": "JST checkout YYYY-MM-DD"
+        },
+        {
+          "name": "keyword",
+          "wire_name": "freeword",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Selected-pitch requirement check",
+      "command": "planner fit",
+      "description": "Check one specific pitch for vehicle, group, pet and power requirements without certifying unreported dimensions."
+    },
+    {
+      "name": "Evidence shortlist comparison",
+      "command": "planner compare",
+      "description": "Compare a bounded shortlist of specific campsite/pitch pairs with the same requirements."
+    },
+    {
+      "name": "Consecutive acceptance windows",
+      "command": "planner windows",
+      "description": "Find candidate consecutive nights from dated source acceptance evidence."
+    },
+    {
+      "name": "Dated evidence snapshot",
+      "command": "planner snapshot",
+      "description": "Capture a compact dated observation spanning campsite, pitch and optional calendar."
+    },
+    {
+      "name": "Observation drift comparison",
+      "command": "planner changes",
+      "description": "Compare two saved observations of the same campsite and pitch."
+    }
+  ]
+}
