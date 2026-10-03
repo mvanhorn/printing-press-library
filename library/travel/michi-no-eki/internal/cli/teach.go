@@ -670,7 +670,7 @@ when learnings exist.`,
 			dbPath = learnDBPath(dbPath)
 			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
-				return fmt.Errorf("recall: %w", err)
+				return apiErr(fmt.Errorf("recall: %w", err))
 			}
 			defer s.Close()
 
@@ -682,7 +682,7 @@ when learnings exist.`,
 				ResourceTypeFields: learnResourceTypeFields(),
 			})
 			if err != nil {
-				return fmt.Errorf("recall: %w", err)
+				return apiErr(fmt.Errorf("recall: %w", err))
 			}
 			envelope.Found = result.Found
 			envelope.Normalized = result.Normalized
