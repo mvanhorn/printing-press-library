@@ -464,12 +464,25 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 			t := lastObserved.Time
 			hit.LastObservedAt = &t
 		}
-		validateResource(ctx, db, cfg, &hit, queryIdentity, storedEntitySlice, opts.ResourceTypeFields)
-		// Cross-alias promotion: if canonicals overlap, the entities
-		// are equivalent even when their literal forms differ. Override
-		// a Mismatch verdict so the learning isn't filtered into the
-		// mismatches bucket. The warning flags it for diagnostic clarity.
-		if canonicalOverlap && hit.EntityMatch == EntityMatchMismatch {
+		resourcePresent := validateResource(ctx, db, cfg, &hit, queryIdentity, storedEntitySlice, opts.ResourceTypeFields)
+		// A teaching alias establishes the query family, not the referenced
+		// resource's identity. A cached resource must itself resolve to the
+		// same query-and-teaching canonical before a mismatch can be an alias hit.
+		// Missing resources retain the existing explicitly warned fallback.
+		resourceAliasOverlap := !resourcePresent
+		if resourcePresent {
+			resourceCanonicals := resolver.ResolveSet(hit.ResourceEntities)
+			for canonical := range queryCanonicals {
+				if _, learned := storedCanonicals[canonical]; !learned {
+					continue
+				}
+				if _, actual := resourceCanonicals[canonical]; actual {
+					resourceAliasOverlap = true
+					break
+				}
+			}
+		}
+		if canonicalOverlap && resourceAliasOverlap && hit.EntityMatch == EntityMatchMismatch {
 			hit.EntityMatch = EntityMatchExact
 			hit.Warnings = append(hit.Warnings, WarningCrossAliasMatch)
 		}
@@ -517,7 +530,7 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 				continue
 			}
 			existing[key] = struct{}{}
-			hits = append(hits, Hit{
+			hit := Hit{
 				ResourceID:       ph.ResourceID,
 				ResourceType:     ph.ResourceType,
 				Venue:            ph.Venue,
@@ -528,7 +541,33 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 				ResourceEntities: ph.ResourceEntities,
 				Source:           SourcePattern,
 				LastObservedAt:   ph.LastObservedAt,
-			})
+			}
+			resourcePresent := validateResource(ctx, db, cfg, &hit, queryIdentity, nil, opts.ResourceTypeFields)
+			if resourcePresent && len(hit.ResourceEntities) > 0 {
+				resourceCanonicals := resolver.ResolveSet(hit.ResourceEntities)
+				if hit.EntityMatch == EntityMatchMismatch && setIntersects(queryCanonicals, resourceCanonicals) {
+					hit.EntityMatch = EntityMatchExact
+					hit.Warnings = append(hit.Warnings, WarningCrossAliasMatch)
+				}
+				if hit.EntityMatch == EntityMatchMismatch {
+					for canonical := range resourceCanonicals {
+						mismatchCanonicals[canonical] = struct{}{}
+					}
+					if len(resourceCanonicals) == 0 {
+						for _, entity := range hit.ResourceEntities {
+							mismatchCanonicals[entity] = struct{}{}
+						}
+					}
+					mismatches = append(mismatches, hit)
+					continue
+				}
+			} else {
+				// Keep the established identifier-verified pattern behavior
+				// when no cached identity fields are extractable. This is not
+				// evidence of current provider facts or resource identity.
+				hit.EntityMatch = EntityMatchExact
+			}
+			hits = append(hits, hit)
 		}
 	}
 
@@ -653,7 +692,7 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 	return result, nil
 }
 
-func validateResource(ctx context.Context, db *sql.DB, cfg *entities.Config, hit *Hit, queryEntities, storedEntitySlice []string, fieldsByType map[string][]string) {
+func validateResource(ctx context.Context, db *sql.DB, cfg *entities.Config, hit *Hit, queryEntities, storedEntitySlice []string, fieldsByType map[string][]string) bool {
 	var data string
 	err := db.QueryRowContext(ctx,
 		`SELECT data FROM resources WHERE resource_type = ? AND id = ?`,
@@ -666,7 +705,7 @@ func validateResource(ctx context.Context, db *sql.DB, cfg *entities.Config, hit
 			hit.EntityMatch = EntityMatchUnknown
 		}
 		addLowConfidenceWarning(hit)
-		return
+		return false
 	}
 	var fields []string
 	if fieldsByType != nil {
@@ -676,6 +715,7 @@ func validateResource(ctx context.Context, db *sql.DB, cfg *entities.Config, hit
 	hit.ResourceEntities = resourceEntities
 	hit.EntityMatch = ClassifyEntityMatch(queryEntities, resourceEntities)
 	addLowConfidenceWarning(hit)
+	return true
 }
 
 func addLowConfidenceWarning(hit *Hit) {

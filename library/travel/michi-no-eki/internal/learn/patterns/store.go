@@ -137,14 +137,22 @@ func Upsert(db *sql.DB, p Pattern) (int64, bool, error) {
 		p.QueryTemplate, p.ResourceTemplate, p.Strategy,
 	).Scan(&existingID)
 	if err == nil {
-		if _, err := tx.Exec(
-			`UPDATE search_patterns
-			 SET confidence = confidence + 1, last_observed_at = ?,
-			     source = CASE WHEN ? = 'taught' THEN 'taught' ELSE source END
-			 WHERE id = ?`,
-			now, p.Source, existingID,
-		); err != nil {
-			return 0, false, fmt.Errorf("patterns.Upsert bump confidence: %w", err)
+		// Explicit teaching amends the complete scope it reports as recorded.
+		// Inferred re-observation only bumps confidence/time, preserving any
+		// existing manually taught payload and its source.
+		if p.Source == SourceTaught {
+			_, err = tx.Exec(`UPDATE search_patterns
+			 SET confidence = confidence + 1, last_observed_at = ?, source = 'taught',
+			     resource_type = ?, venue = NULLIF(?, ''), entity_kind = ?,
+			     example_query = NULLIF(?, ''), example_resource = NULLIF(?, '')
+			 WHERE id = ?`, now, p.ResourceType, p.Venue, p.EntityKind,
+				p.ExampleQuery, p.ExampleResource, existingID)
+		} else {
+			_, err = tx.Exec(`UPDATE search_patterns
+			 SET confidence = confidence + 1, last_observed_at = ? WHERE id = ?`, now, existingID)
+		}
+		if err != nil {
+			return 0, false, fmt.Errorf("patterns.Upsert update existing pattern: %w", err)
 		}
 		if err := tx.Commit(); err != nil {
 			return 0, false, err

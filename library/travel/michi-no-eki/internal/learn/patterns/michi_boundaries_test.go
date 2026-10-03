@@ -59,3 +59,43 @@ func TestMichiExplicitPatternPromotesAndKeepsManualSource(t *testing.T) {
 		t.Fatalf("explicit pattern downgraded to %q", source)
 	}
 }
+
+func TestMichiManualPatternAmendsFullScopeAndClearsOptionalFields(t *testing.T) {
+	db := openApplyTestDB(t)
+	p := Pattern{QueryTemplate: "{entity} widget", ResourceTemplate: "PREFIX-{entity}", ResourceType: "widgets", Venue: "north", Strategy: StrategySubstitute, EntityKind: "lowercase", Source: SourceInferred, ExampleQuery: "old example", ExampleResource: "old resource"}
+	id, _, err := Upsert(db, p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	p.Source = SourceTaught
+	p.ResourceType = "gizmos"
+	p.Venue = "south"
+	p.EntityKind = "uppercase"
+	p.ExampleQuery = "new example"
+	p.ExampleResource = "new resource"
+	if got, inserted, err := Upsert(db, p); err != nil || inserted || got != id {
+		t.Fatalf("manual amend=%d/%v/%v", got, inserted, err)
+	}
+	p.Venue = ""
+	p.ExampleQuery = ""
+	p.ExampleResource = ""
+	if _, _, err := Upsert(db, p); err != nil {
+		t.Fatal(err)
+	}
+	p.Source = SourceInferred
+	p.ResourceType = "stale"
+	p.Venue = "stale"
+	p.EntityKind = "lowercase"
+	p.ExampleQuery = "stale"
+	p.ExampleResource = "stale"
+	if _, _, err := Upsert(db, p); err != nil {
+		t.Fatal(err)
+	}
+	var kind, venue, entity, source, query, resource string
+	if err := db.QueryRow(`SELECT resource_type,COALESCE(venue,''),entity_kind,source,COALESCE(example_query,''),COALESCE(example_resource,'') FROM search_patterns WHERE id=?`, id).Scan(&kind, &venue, &entity, &source, &query, &resource); err != nil {
+		t.Fatal(err)
+	}
+	if kind != "gizmos" || venue != "" || entity != "uppercase" || source != SourceTaught || query != "" || resource != "" {
+		t.Fatalf("manual scope overwritten: %q/%q/%q/%q/%q/%q", kind, venue, entity, source, query, resource)
+	}
+}

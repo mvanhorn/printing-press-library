@@ -45,6 +45,8 @@ Use the relevant booking/provider interface for campsite/RV inventory or transac
 
 ## Unique Capabilities
 
+Native station planning preserves read-only source behavior. Optional local learning has explicit write hints, validates cached resource identity, and preserves supported derived rules on targeted undo.
+
 These commands combine source evidence into bounded planning workflows.
 
 ### Accountable campervan stops
@@ -99,6 +101,21 @@ Use `find`, `station`, `notices`, `notice`, `catalog`, `guidance`, `snapshot`, a
 
 ## Recipes
 
+### Inspect optional local learning evidence
+
+```bash
+michi-no-eki-pp-cli recall "station 19187" --agent --debug-mismatches
+michi-no-eki-pp-cli learnings list --agent
+
+# Only when the user asks to undo this specific local teaching
+michi-no-eki-pp-cli learnings forget "station 19187" --resource 19187 --agent
+```
+
+These optional helpers write local learning/audit state; they do not fetch station evidence or populate a nationwide station cache. A known conflicting cached resource remains in `mismatches` and cannot become an exact hit through a teaching alias or synthesized pattern. Direct aliases require a canonical shared by query, teaching and cached resource. Identifier-verified patterns with no extractable cached identity retain their legacy matching behavior; that is not evidence of current provider identity or facts. Missing cached resources retain an explicit warning and still require a live source fetch. Undo reconciles only affected inferred families: two distinct compatible surviving examples preserve a rule, unsupported rules are removed, and explicitly taught or unrelated patterns remain. An explicit `teach-pattern` records its full declared scope; later inference cannot replace it.
+
+Native domain calls suppress automatic learning journals/corrections. The six stateful MCP helpers disclose local writes; normal optional recall results remain available.
+
+
 ### Compare stop evidence
 
 ```bash
@@ -149,6 +166,6 @@ Generated low-level link rows can place an HTML page URL in `image` when no imag
 
 Low-level detail metadata includes the requested numeric ID, canonical handoff URL, source URL and JST observation time. `entity_fields_status` distinguishes recognized native identity fields from generic page metadata with explicit unknowns. Domain `station`/`notice` remain the richer factual workflows.
 
-Optional framework SQL/workflow-status descriptions mention sync, but this source has no domain sync or database-ingestion workflow; use native domain commands and saved snapshots. Some generated learning helpers open writable stores or append local audit records despite read-only hints. `--no-learn` disables automatic domain-command journaling; it does not make those optional learning helpers write-free. CLI-only installation does not activate the optional MCP server.
+Optional framework SQL/workflow-status descriptions mention sync, but this source has no domain sync or database-ingestion workflow; use native domain commands and saved snapshots. Explicit optional learning helpers can open/create/migrate local stores or append audit/telemetry. Six MCP helpers (recall, learnings candidates/list/stats, playbook list and workflow status) declare those local writes with readOnly=false; direct SQL/context remain read-only. Native domain commands and help suppress automatic journals/corrections. `--no-learn` does not make explicit optional learning helpers write-free. CLI-only installation does not activate the optional MCP server.
 
 `export bulletins` writes parsed notice records from the same notice parser as `notices` and `notice`, as JSON or JSONL. `--limit 0` follows the notice index until it ends; a positive `--limit` stops once that many records are collected. If another index page remains after 500 pages, export fails instead of writing a partial file. A failed export leaves an existing `--output` file unchanged. It does not emit the raw HTML page. Use `snapshot --ids ... --json` for retained factual station observations.

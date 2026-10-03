@@ -1,0 +1,44 @@
+{
+  "schema_version": 2,
+  "id": "michi-no-eki-residual-learning-and-mcp-contracts",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261003-001046-81800c96",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Preserve factual alias/resource validation, supported local teaching rules, explicit pattern scope and truthful MCP state contracts.",
+  "reason": "The merged source could promote a known conflicting cached resource through a teaching alias or a synthesized pattern, remove rules still supported by retained teachings, keep stale manual pattern scope, and write automatic learning state through native read-only tools. This scoped amendment fixes those shipping behaviors while preserving merged export/redirect contracts and optional recall.",
+  "files": [
+    "internal/store/learnings.go",
+    "internal/store/derived_patterns.go",
+    "internal/store/supported_patterns_test.go",
+    "internal/entityvalue/lookup.go",
+    "internal/learn/lookups/store.go",
+    "internal/learn/patterns/store.go",
+    "internal/learn/patterns/michi_boundaries_test.go",
+    "internal/learn/recall.go",
+    "internal/learn/michi_alias_resource_test.go",
+    "internal/cli/root.go",
+    "internal/cli/michi_framework_boundaries.go",
+    "internal/cli/michi_framework_boundaries_test.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/michi_state_annotations.go",
+    "internal/mcp/michi_state_annotations_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "markers": [
+    "reconcileDerivedPatterns(ctx, tx, f)",
+    "p.Source == SourceTaught",
+    "resourceAliasOverlap := !resourcePresent",
+    "michiReadOnlyInvocation(rootCmd, executed,",
+    "registerMichiOptionalStateAnnotations(s)",
+    "resourcePresent && len(hit.ResourceEntities) > 0"
+  ],
+  "findings_addressed": [
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "F5"
+  ],
+  "validated_outcome": "Real SQLite Extract/Recall/Apply and actual command/tool regressions pass, including support beyond newest50 and transaction rollback; fresh full source-bound acceptance and public package gates are recorded in the amendment proof."
+}
