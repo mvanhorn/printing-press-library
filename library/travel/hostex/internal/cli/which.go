@@ -34,6 +34,9 @@ var whichIndex = []whichEntry{
 	{Command: "price-parity", Description: "Flag property-dates where per-channel listing price or min-stay diverges across channels.", Group: "Channel parity and revenue (portfolio)", WhyItMatters: "Use to catch silent revenue loss from channel price drift; for availability mismatch use oversell-watch."},
 	{Command: "oversell-watch", Description: "Flag dates a channel still shows bookable on a property that is blocked or booked on the master calendar.", Group: "Channel parity and revenue (portfolio)", WhyItMatters: "Use to catch double-sell risk; for price or min-stay drift use price-parity."},
 	{Command: "revenue-rollup", Description: "Net income minus expense by property or month over a date range, from the live ledger.", Group: "Channel parity and revenue (portfolio)", WhyItMatters: "Use for the Monday portfolio revenue review in one command."},
+	{Command: "listings update-prices", Description: "Update the prices of a channel listing for date ranges (live price change; dry-run first).", Group: "Listing calendar writes", WhyItMatters: "Use to change what guests pay on a channel for specific dates; always preview with --dry-run, prices are integers in the listing currency."},
+	{Command: "listings update-restrictions", Description: "Update the booking restrictions of a channel listing for date ranges: min/max stay, closed on arrival or departure.", Group: "Listing calendar writes", WhyItMatters: "Use to set minimum nights or close check-in on a channel for specific dates; preview with --dry-run."},
+	{Command: "listings update-inventories", Description: "Update the per-channel inventory of a listing for date ranges; does not change the property calendar.", Group: "Listing calendar writes", WhyItMatters: "Use to open or close one channel for specific dates; to block the property itself use availabilities update."},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.
@@ -98,14 +101,17 @@ func rankWhich(index []whichEntry, query string, limit int) []whichMatch {
 func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	score := 0
 	cmd := strings.ToLower(e.Command)
-	cmdTokens := strings.Fields(cmd)
+	// Hyphenated leaves ("update-prices") also match on their parts so a
+	// natural-language query like "update prices" resolves to them.
+	cmdTokens := strings.FieldsFunc(cmd, func(r rune) bool { return r == ' ' || r == '-' })
 	desc := strings.ToLower(e.Description)
 	group := strings.ToLower(e.Group)
 
-	// Exact token match on the command path (any token).
+	// Exact token match on the command path (any token). Singular and
+	// plural forms match ("restriction" finds "restrictions").
 	for _, qt := range qTokens {
 		for _, ct := range cmdTokens {
-			if qt == ct {
+			if qt == ct || whichStem(qt) == whichStem(ct) {
 				score += 3
 				break
 			}
@@ -129,6 +135,18 @@ func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 		}
 	}
 	return score
+}
+
+// whichStem folds a plural noun to its singular so "inventory" and
+// "inventories", or "restriction" and "restrictions", compare equal.
+func whichStem(t string) string {
+	switch {
+	case len(t) > 4 && strings.HasSuffix(t, "ies"):
+		return t[:len(t)-3] + "y"
+	case len(t) > 3 && strings.HasSuffix(t, "s") && !strings.HasSuffix(t, "ss"):
+		return t[:len(t)-1]
+	}
+	return t
 }
 
 func newWhichCmd(flags *rootFlags) *cobra.Command {

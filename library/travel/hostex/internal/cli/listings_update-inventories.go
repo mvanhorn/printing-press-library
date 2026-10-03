@@ -19,9 +19,17 @@ func newListingsUpdateInventoriesCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:         "update-inventories",
-		Short:       "Update the inventories of channel listings.",
-		Example:     "  hostex-pp-cli listings update-inventories --channel-type airbnb",
+		Use:   "update-inventories",
+		Short: "Update the inventories of channel listings.",
+		Long: `Update the inventories of channel listings.
+
+Body shape for --inventories (or the "inventories" key with --stdin):
+  [{"start_date":"YYYY-MM-DD","end_date":"YYYY-MM-DD","inventory":<integer>}]
+inventory is the number of available units for the range (0 closes the channel for those dates). end_date must be within 3 years from now.
+
+This only changes the per-channel inventory, not the property calendar (use availabilities update for that); a later availability change can overwrite it. Wrong values can cause oversells or sellouts. Run with --dry-run first. The API is asynchronous: success only means the task was queued, so confirm the result in the Hostex Host Portal (https://hostex.io/app/price).`,
+		Example: `  # Preview first, then drop --dry-run to send
+  hostex-pp-cli listings update-inventories --channel-type airbnb --listing-id <listing-id> --inventories '[{"start_date":"YYYY-MM-DD","end_date":"YYYY-MM-DD","inventory":1}]' --dry-run`,
 		Annotations: map[string]string{"pp:endpoint": "listings.update-inventories", "pp:method": "POST", "pp:path": "/listings/inventories"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with required input prints help
@@ -218,7 +226,7 @@ func newListingsUpdateInventoriesCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&bodyChannelType, "channel-type", "", "The type of the channel to be queried.")
-	cmd.Flags().StringVar(&bodyInventories, "inventories", "", "Inventories")
+	cmd.Flags().StringVar(&bodyInventories, "inventories", "", "JSON array of inventory ranges, e.g. '[{\"start_date\":\"YYYY-MM-DD\",\"end_date\":\"YYYY-MM-DD\",\"inventory\":1}]'. inventory is an integer count of available units; dates are YYYY-MM-DD and end_date must be within 3 years from now")
 	cmd.Flags().StringVar(&bodyListingId, "listing-id", "", "The unique identifier for different channels.")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 

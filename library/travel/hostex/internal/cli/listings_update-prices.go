@@ -19,9 +19,17 @@ func newListingsUpdatePricesCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:         "update-prices",
-		Short:       "Update the prices of channel listings.",
-		Example:     "  hostex-pp-cli listings update-prices --dry-run",
+		Use:   "update-prices",
+		Short: "Update the prices of channel listings.",
+		Long: `Update the prices of channel listings.
+
+Body shape for --prices (or the "prices" key with --stdin):
+  [{"start_date":"YYYY-MM-DD","end_date":"YYYY-MM-DD","price":<integer>}]
+price is an integer in the listing's currency (price=180 in USD is 180 dollars, not cents). end_date must be within 3 years from now.
+
+This changes what guests see and pay on the live channel. Run with --dry-run first and review the body. The API is asynchronous: success only means the task was queued, so confirm the result in the Hostex Host Portal (https://hostex.io/app/price).`,
+		Example: `  # Preview first, then drop --dry-run to send
+  hostex-pp-cli listings update-prices --channel-type airbnb --listing-id <listing-id> --prices '[{"start_date":"YYYY-MM-DD","end_date":"YYYY-MM-DD","price":180}]' --dry-run`,
 		Annotations: map[string]string{"pp:endpoint": "listings.update-prices", "pp:method": "POST", "pp:path": "/listings/prices"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with required input prints help
@@ -219,7 +227,7 @@ func newListingsUpdatePricesCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&bodyChannelType, "channel-type", "", "The type of the channel to be queried.")
 	cmd.Flags().StringVar(&bodyListingId, "listing-id", "", "The unique identifier for different channels.")
-	cmd.Flags().StringVar(&bodyPrices, "prices", "", "Prices")
+	cmd.Flags().StringVar(&bodyPrices, "prices", "", "JSON array of price ranges, e.g. '[{\"start_date\":\"YYYY-MM-DD\",\"end_date\":\"YYYY-MM-DD\",\"price\":180}]'. price is an integer in the listing currency (180 = 180 USD, not cents); dates are YYYY-MM-DD and end_date must be within 3 years from now")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

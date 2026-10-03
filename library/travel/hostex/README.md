@@ -211,13 +211,34 @@ hostex-pp-cli reservations query --agent --select data.reservations.stay_code,da
 
 Reservation payloads are large and deeply nested; --select narrows to the fields an agent needs so it doesn't burn context.
 
-### Dry-run a price push before sending it
+### Change listing prices: dry-run first, then send
 
 ```bash
-hostex-pp-cli listings update-prices --dry-run
+# 1. Preview the request body; nothing is sent
+hostex-pp-cli listings update-prices --channel-type airbnb --listing-id <listing-id> --prices '[{"start_date":"YYYY-MM-DD","end_date":"YYYY-MM-DD","price":180}]' --dry-run
+# 2. Same command without --dry-run to apply it
+hostex-pp-cli listings update-prices --channel-type airbnb --listing-id <listing-id> --prices '[{"start_date":"YYYY-MM-DD","end_date":"YYYY-MM-DD","price":180}]'
 ```
 
-Shows the request body that would be sent to the async price endpoint without mutating any channel.
+Replace the YYYY-MM-DD placeholders with a future date range. price is an integer in the listing currency (180 means 180 USD, not cents) and end_date must be within 3 years. This changes live guest-facing prices, so review the dry-run body first and never script the real call without a human check. The API is asynchronous: a success only means the task was queued, so verify the result in the Hostex Host Portal.
+
+### Set minimum stay or close check-in for a date range
+
+```bash
+# Preview, then repeat without --dry-run
+hostex-pp-cli listings update-restrictions --channel-type airbnb --listing-id <listing-id> --restrictions '[{"start_date":"YYYY-MM-DD","end_date":"YYYY-MM-DD","min_stay_on_arrival":3}]' --dry-run
+```
+
+Replace the YYYY-MM-DD placeholders with a future date range. Each range takes start_date and end_date plus any of closed_on_arrival, closed_on_departure, min_stay_on_arrival, max_stay_on_arrival, min_stay_through, max_stay_through, exact_stay_on_arrival (booleans or integers) and min_advance_reservation, max_advance_reservation (strings like 4D4H). Supported keys differ per channel. This changes live booking rules, so dry-run first.
+
+### Open or close one channel with inventory
+
+```bash
+# Preview, then repeat without --dry-run
+hostex-pp-cli listings update-inventories --channel-type airbnb --listing-id <listing-id> --inventories '[{"start_date":"YYYY-MM-DD","end_date":"YYYY-MM-DD","inventory":1}]' --dry-run
+```
+
+Replace the YYYY-MM-DD placeholders with a future date range. inventory is the integer number of units available on that channel for the range (0 closes it). It does not change the property calendar, and a later availability change can overwrite it; use availabilities update to block the property itself. Dry-run first, then confirm in the Host Portal.
 
 ### Offline search across synced guest threads
 

@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "write-commands-document-body-shape-in-cli",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20260627-060401-7471d49d",
+  "base_printing_press_version": "4.26.1",
+  "summary": "The listing calendar write commands (update-prices, update-restrictions, update-inventories) carry their JSON body shape, value types and live-change caution in --help, and `which` resolves natural-language write queries to them.",
+  "reason": "The spec types these array bodies only as a bare label, so an agent could not build a valid --prices/--restrictions/--inventories value from the CLI alone, and the curated `which` index only knew read-side novel commands, so write queries returned unrelated ops commands. A dogfood resync rewrites the curated index from novel features and drops these entries, so a regen must re-add them.",
+  "files": [
+    "internal/cli/listings_update-prices.go",
+    "internal/cli/listings_update-restrictions.go",
+    "internal/cli/listings_update-inventories.go",
+    "internal/cli/which.go",
+    "internal/cli/which_writes_test.go"
+  ],
+  "validated_outcome": "TestWhichRanksCalendarWritesFirst fails on the previous index (top match is ops-gaps) and passes after the patch."
+}

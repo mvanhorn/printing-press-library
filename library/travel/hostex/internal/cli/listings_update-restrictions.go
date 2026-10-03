@@ -19,9 +19,23 @@ func newListingsUpdateRestrictionsCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:         "update-restrictions",
-		Short:       "Update the restrictions of channel listings.",
-		Example:     "  hostex-pp-cli listings update-restrictions --channel-type airbnb",
+		Use:   "update-restrictions",
+		Short: "Update the restrictions of channel listings.",
+		Long: `Update the restrictions of channel listings.
+
+Body shape for --restrictions (or the "restrictions" key with --stdin):
+  [{"start_date":"YYYY-MM-DD","end_date":"YYYY-MM-DD","min_stay_on_arrival":3,"closed_on_arrival":false}]
+start_date and end_date are required (end_date within 3 years from now). Every other key is optional:
+  closed_on_arrival, closed_on_departure           boolean
+  min_stay_on_arrival, max_stay_on_arrival         integer nights
+  min_stay_through, max_stay_through               integer nights
+  exact_stay_on_arrival                            integer nights (booking.com only)
+  min_advance_reservation, max_advance_reservation string "xDxH", e.g. "4D" or "4D4H"
+Which keys apply depends on the channel (airbnb, booking.com, agoda, expedia, booking_site, trip.com); see the API docs for the per-key list.
+
+This changes live booking rules. Run with --dry-run first. The API is asynchronous: success only means the task was queued, so confirm the result in the Hostex Host Portal (https://hostex.io/app/price).`,
+		Example: `  # Preview first, then drop --dry-run to send
+  hostex-pp-cli listings update-restrictions --channel-type airbnb --listing-id <listing-id> --restrictions '[{"start_date":"YYYY-MM-DD","end_date":"YYYY-MM-DD","min_stay_on_arrival":3}]' --dry-run`,
 		Annotations: map[string]string{"pp:endpoint": "listings.update-restrictions", "pp:method": "POST", "pp:path": "/listings/restrictions"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with required input prints help
@@ -219,7 +233,7 @@ func newListingsUpdateRestrictionsCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&bodyChannelType, "channel-type", "", "The type of the channel to be queried.")
 	cmd.Flags().StringVar(&bodyListingId, "listing-id", "", "The unique identifier for different channels.")
-	cmd.Flags().StringVar(&bodyRestrictions, "restrictions", "", "Restrictions")
+	cmd.Flags().StringVar(&bodyRestrictions, "restrictions", "", "JSON array of restriction ranges, e.g. '[{\"start_date\":\"YYYY-MM-DD\",\"end_date\":\"YYYY-MM-DD\",\"min_stay_on_arrival\":3}]'. Dates are YYYY-MM-DD (end_date within 3 years from now). Optional per-range keys: closed_on_arrival, closed_on_departure (booleans); min_stay_on_arrival, max_stay_on_arrival, min_stay_through, max_stay_through, exact_stay_on_arrival (integers); min_advance_reservation, max_advance_reservation (strings like \"4D\" or \"4D4H\"). Support varies by channel")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd
