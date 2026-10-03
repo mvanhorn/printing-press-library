@@ -24,7 +24,7 @@ The pre-package bare module warning is expected; publish package requires and ch
 
 ## Fresh full live gate
 
-Actual command contract: cli-printing-press dogfood --live --level full --timeout 120s --research-dir RESEARCH --write-acceptance phase5-acceptance.json --json. It ran at 2026-10-03T06:33:53.10455Z and returned PASS: 116/116executed checks passed, 0failures, 89explicitly skipped/unverified. The binary minted the adjacent phase5-acceptance.json and its source fingerprint/per-file map; no marker was hand-edited and no skip was inferred. The raw JSON transcript lived in a private temporary directory outside manuscripts and was deleted after inspection.
+Actual command contract: cli-printing-press dogfood --live --level full --timeout 120s --research-dir RESEARCH --write-acceptance phase5-acceptance.json --json. It ran at 2026-10-03T07:42:29.975699Z and returned PASS: 116/116executed checks passed, 0failures, 89explicitly skipped/unverified. The binary minted the adjacent phase5-acceptance.json and its source fingerprint/per-file map; no marker was hand-edited and no skip was inferred. The raw JSON transcript lived in a private temporary directory outside manuscripts and was deleted after inspection.
 
 Nine native park leaves have live happy-path, JSON-fidelity, dry-run and help coverage. The generic runner skips five native negative rows based on positional detection; deterministic focused tests cover actual usage validation. Six BLOCKED_FIXTURE rows concern generated learning confirm/reject candidate IDs, not park workflows. Other skips are runner mutation/dry-run/export/fixture policies. These remain unverified rather than being represented as passes.
 
@@ -115,3 +115,9 @@ Flags:
 
 Use "kurumatabi-pp-cli [command] --help" for more information about a command.
 ```
+
+## Current review contracts
+
+All six current-head review gaps were corrected with deterministic behavior tests. The bounded scan cache retains all28observations while returning3rows and preserves richer details. Local/automatic detail reads reject card-only observations. Actual YY bath/onsen icons retain both source observations, with qualified fee uncertainty and explicit generic bath presence. Scoped transactional teaching undo invalidates only affected inferred structural query/resource/venue families, retains manual/unrelated rules and rolls back both changes on a dependency failure. Explicit manual pattern promotion cannot be downgraded by later inference. Verified prefix candidates are literal, case/type scoped and unique; ambiguous matches abstain.
+
+The real compiled companion's partial comparison was exercised through both native MCP mirror and recipe handlers. Each remains a failed tool with one usable partial JSON block, truthful2requested/1compared counts and the failedID, plus a separate UTF-8-safe diagnostic. Oversized evidence is a marked preview. Failure text is bounded at60,000bytes for evidence plus4,000for diagnostics. Full source and canonical package test suites, vet/build, reachable vulnerability checks, skill and publish validation pass for the reviewed source.

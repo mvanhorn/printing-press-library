@@ -73,6 +73,9 @@ func parkReadWithClient(ctx context.Context, cmd *cobra.Command, f *rootFlags, i
 		parkCacheHint(cmd, f, db, ps)
 		for _, p := range ps {
 			if p.ID == id {
+				if p.SourceLevel != "detail" {
+					return parks.Park{}, "local", notFoundErr(fmt.Errorf("park %s has only a cached %s observation; run parks detail %s --data-source live to cache per-record conditions", id, p.SourceLevel, id))
+				}
 				return p, "local", nil
 			}
 		}
@@ -90,7 +93,7 @@ func parkReadWithClient(ctx context.Context, cmd *cobra.Command, f *rootFlags, i
 				return parks.Park{}, "", ce
 			}
 			for _, old := range cached {
-				if old.ID == id {
+				if old.ID == id && old.SourceLevel == "detail" {
 					fmt.Fprintf(cmd.ErrOrStderr(), "warning: live detail failed (%v); returning cached observation from %s\n", e, old.ObservedAt)
 					parkCacheHint(cmd, f, db, []parks.Park{old})
 					return old, "local", nil
@@ -253,7 +256,7 @@ func newParkSearchCmd(f *rootFlags) *cobra.Command {
 			return parkError(e)
 		}
 		if !f.noCache {
-			if e = parks.Save(ctx, db, out.Results); e != nil {
+			if e = parks.Save(ctx, db, out.Observations); e != nil {
 				return e
 			}
 		}

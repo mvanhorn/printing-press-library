@@ -116,6 +116,7 @@ func (c *Client) Search(ctx context.Context, q Query) (SearchResult, error) {
 			break
 		}
 	}
+	all.Observations = append([]Park{}, all.Results...)
 	all.Meta.OutputTruncated = len(all.Results) > q.Limit
 	if all.Meta.OutputTruncated {
 		all.Results = all.Results[:q.Limit]

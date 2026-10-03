@@ -5,6 +5,7 @@ package cobratree
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os/exec"
 	"sort"
@@ -74,7 +75,7 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string, blocked
 		}
 		out, err := RunCLICommand(ctx, lookupPath, finalArgs)
 		if err != nil {
-			return boundedToolResultError(err.Error()), nil
+			return ToolResultErrorFromCLICommand(out, err), nil
 		}
 		return ToolResultFromCLICommand(out), nil
 	}
@@ -320,6 +321,32 @@ func ToolResultFromCLICommand(result CLICommandResult) *mcplib.CallToolResult {
 		toolResult.Content = append(toolResult.Content, mcplib.NewTextContent(bound.Text(strings.Join(result.StderrHints, "\n"))))
 	}
 	return toolResult
+}
+
+// ToolResultErrorFromCLICommand preserves bounded partial evidence while the
+// MCP tool remains failed. Small valid JSON is unchanged; oversized captured
+// output is an explicitly truncated preview. Legacy no-JSON errors stay intact.
+func ToolResultErrorFromCLICommand(result CLICommandResult, err error) *mcplib.CallToolResult {
+	if err == nil {
+		return ToolResultFromCLICommand(result)
+	}
+	stdout := strings.TrimSpace(result.Stdout)
+	if !json.Valid([]byte(stdout)) && len(result.Stdout) <= bound.MaxBytes {
+		return boundedToolResultError(err.Error())
+	}
+	toolResult := mcplib.NewToolResultText(bound.Text(result.Stdout))
+	toolResult.IsError = true
+	toolResult.Content = append(toolResult.Content, mcplib.NewTextContent(partialFailureDiagnostic(err.Error())))
+	return toolResult
+}
+
+func partialFailureDiagnostic(message string) string {
+	const limit = 4000
+	const suffix = "\n[diagnostic truncated]"
+	if len(message) <= limit {
+		return message
+	}
+	return strings.ToValidUTF8(message[:limit-len(suffix)], "") + suffix
 }
 
 // RunCLICommand executes the companion CLI while preserving stdout as the

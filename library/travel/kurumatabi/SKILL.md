@@ -193,3 +193,7 @@ The source tree includes an MCP build target mirroring the nine park planning co
 Run `kurumatabi-pp-cli parks filters --json` or `kurumatabi-pp-cli parks --help` to discover the current domain surface. Detailed semantics and current bounds are in the source README and command help.
 
 A partial comparison is emitted on stdout and returns exit5. Explicit file/webhook delivery occurs only after success; failed comparisons do not deliver the partial buffer.
+
+Search caches every observation in the bounded page scan before applying the returned-row limit. Detail, fit, compare, audit and handoff require detailed observations for local reads or automatic fallback; refresh a search-only card with `parks detail ID --data-source live`. Multiple bath/onsen icons retain every source observation and qualified fee evidence.
+
+MCP comparison failures retain bounded partial JSON in the first content block, with `isError: true` and a separate diagnostic capped at 4,000 bytes. Oversized evidence uses an explicit preview; total failure text is bounded to 64,000 bytes. `learnings forget` atomically removes matched teachings and affected inferred query/resource/venue families. Manually taught and unrelated rules remain. Verified prefix patterns require one literal match, including `%` and `_` characters.

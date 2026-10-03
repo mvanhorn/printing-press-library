@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "id": "kurumatabi-review-round1-contracts",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261003-001155-a814a8b2",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Preserve full bounded scan evidence, require detail completeness, merge facility icons, undo derived teachings atomically, verify unique literal prefixes, and retain failed MCP partial evidence.",
+  "reason": "Current-head review identified six real source and generated-framework contract gaps; source-backed output and agent/tool failure semantics must remain truthful.",
+  "files": [
+    "internal/parks/models.go",
+    "internal/parks/client.go",
+    "internal/cli/kurumatabi_runtime.go",
+    "internal/parks/parser.go",
+    "internal/store/learnings.go",
+    "internal/learn/patterns/apply.go",
+    "internal/learn/patterns/store.go",
+    "internal/cli/teach.go",
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/intents.go",
+    "internal/learn/patterns/publication_contracts_test.go",
+    "internal/store/learning_publication_contracts_test.go",
+    "internal/cli/kurumatabi_review_cache_test.go",
+    "internal/parks/icon_publication_contracts_test.go",
+    "internal/mcp/partial_publication_contracts_test.go",
+    "internal/mcp/cobratree/partial_publication_contracts_test.go"
+  ],
+  "validated_outcome": "Focused regressions PASS for all six findings:28 observed/3 returned with detail retention; card-only detail rejection; actual legacy bath icon evidence; scoped/manual-preserving transactional undo and rollback; literal/case/type/ambiguous prefix behavior; actual compiled CLI through native and recipe MCP failure adapters under the64KB text budget."
+}

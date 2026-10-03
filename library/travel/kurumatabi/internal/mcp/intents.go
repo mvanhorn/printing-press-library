@@ -63,7 +63,7 @@ func handleParkComparison(ctx context.Context, req mcplib.CallToolRequest) (*mcp
 
 	out, err := cobratree.RunCLICommand(ctx, recipeCLIPath, args)
 	if err != nil {
-		return mcplib.NewToolResultError(err.Error()), nil
+		return cobratree.ToolResultErrorFromCLICommand(out, err), nil
 	}
 	return cobratree.ToolResultFromCLICommand(out), nil
 }

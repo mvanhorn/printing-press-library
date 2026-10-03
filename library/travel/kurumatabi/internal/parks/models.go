@@ -87,8 +87,10 @@ type Meta struct {
 	Note                  string `json:"note"`
 }
 type SearchResult struct {
-	Meta    Meta   `json:"meta"`
-	Results []Park `json:"results"`
+	// Observations retains the full bounded scan for cache persistence only.
+	Observations []Park `json:"-"`
+	Meta         Meta   `json:"meta"`
+	Results      []Park `json:"results"`
 }
 type Query struct {
 	Prefecture string

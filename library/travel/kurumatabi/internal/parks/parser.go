@@ -180,7 +180,7 @@ func iconKey(src, alt string) string {
 		return "pets"
 	case strings.Contains(src, "bath_shower") || strings.Contains(src, "bath_shawer") || strings.Contains(alt, "シャワー"):
 		return "shower"
-	case strings.Contains(src, "facility_hotspring"):
+	case strings.Contains(src, "facility_hotspring") || strings.Contains(src, "bath_hotspring"):
 		return "bath"
 	case strings.Contains(src, "bath_") && !strings.Contains(src, "hotspring"):
 		return "bath"
@@ -217,6 +217,26 @@ func parseIcons(p *Park, n *html.Node) {
 		}
 		if f.Status != "no" {
 			f.Fee = feeValue(alt)
+		}
+		previous := p.Facilities[key]
+		if len(previous.Evidence) > 0 {
+			for _, evidence := range f.Evidence {
+				previous.Evidence = addUnique(previous.Evidence, evidence)
+			}
+			if previous.Status != f.Status {
+				if key == "bath" && (previous.Status == "yes" || f.Status == "yes") {
+					// Indoor baths and onsen are narrower observations of the
+					// generic bath category; one explicit positive is sufficient.
+					previous.Status = "yes"
+				} else {
+					previous.Status = "unknown"
+					p.Warnings = addUnique(p.Warnings, "conflicting_icon_evidence: "+key)
+				}
+			}
+			if previous.Fee != f.Fee {
+				previous.Fee = "unknown"
+			}
+			f = previous
 		}
 		p.Facilities[key] = f
 		if key == "dump_station" && !disabled {

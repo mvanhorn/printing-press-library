@@ -971,9 +971,10 @@ func newLearningsForgetCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.C
 
 	cmd := &cobra.Command{
 		Use:   "forget <query>",
-		Short: "Delete learnings matching a query (use --all to wipe every rule for that query)",
-		Long: `Removes rows from the search_learnings table so a bad teach can be
-undone without dropping the whole DB.
+		Short: "Forget teachings and affected inferred pattern families",
+		Long: `Removes matched search_learnings rows and their affected inferred pattern
+families atomically. Manually taught patterns and unrelated query/resource/venue
+families are preserved.
 
 Requires at least one of --resource, --action, or --all.`,
 		Example: `  QUERY="$(cat /path/to/question.txt)" kurumatabi-pp-cli learnings forget "$QUERY" --resource <id>

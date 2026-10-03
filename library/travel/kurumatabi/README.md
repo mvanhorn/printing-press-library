@@ -220,3 +220,7 @@ Unknown evidence never becomes a proven match.
 Source HTML/JSON response-body reads and each explicit decompression layer are bounded to 4 MiB. Go transparent gzip is already decoded when read through the transport body. A required comparison fetch failure emits the usable partial envelope once and exits 5. Agent field selection always retains source/coverage metadata and the top-level `results` field; metadata-only selection returns `results: []`.
 
 A partial comparison is emitted on stdout and returns exit5. Explicit file/webhook delivery occurs only after success; failed comparisons do not deliver the partial buffer.
+
+Search caches every observation in the bounded page scan before applying the returned-row limit. Detail, fit, compare, audit and handoff require detailed observations for local reads or automatic fallback; refresh a search-only card with `parks detail ID --data-source live`. Multiple bath/onsen icons retain every source observation and qualified fee evidence.
+
+MCP comparison failures retain bounded partial JSON in the first content block, with `isError: true` and a separate diagnostic capped at 4,000 bytes. Oversized evidence uses an explicit preview; total failure text is bounded to 64,000 bytes. `learnings forget` atomically removes matched teachings and affected inferred query/resource/venue families. Manually taught and unrelated rules remain. Verified prefix patterns require one literal match, including `%` and `_` characters.
