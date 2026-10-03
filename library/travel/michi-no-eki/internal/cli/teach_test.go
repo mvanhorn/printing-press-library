@@ -1654,3 +1654,41 @@ func TestTeachCommand_IntegratedPlaybookErrorDegrades(t *testing.T) {
 		t.Errorf("teach.log should mention playbook upsert; got %q", string(data))
 	}
 }
+
+func TestMichiRecallReadFailureHasRuntimeExitAndNoSuccess(t *testing.T) {
+	for _, mode := range []string{"direct", "pattern"} {
+		t.Run(mode, func(t *testing.T) {
+			home := withTempLearnHome(t)
+			dbPath := filepath.Join(home, "error.db")
+			s, err := store.OpenWithContext(context.Background(), dbPath)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, err := s.DB().Exec(`INSERT INTO resources(resource_type,id,data) VALUES('widgets','resource-alpha','{"name":"Alpha"}')`); err != nil {
+				t.Fatal(err)
+			}
+			if mode == "direct" {
+				if _, err := s.DB().Exec(`INSERT INTO search_learnings(query_pattern,query_entities,resource_id,resource_type,action,source,confidence) VALUES('find alpha details','["Alpha"]','resource-alpha','widgets','boost','taught',2)`); err != nil {
+					t.Fatal(err)
+				}
+			} else {
+				if _, err := s.DB().Exec(`INSERT INTO search_patterns(query_template,resource_template,resource_type,strategy,entity_kind,source,confidence) VALUES('find {entity} details','resource-{entity:lowercase}','widgets','substitute','lowercase','taught',2)`); err != nil {
+					t.Fatal(err)
+				}
+			}
+			if _, err := s.DB().Exec(`ALTER TABLE resources RENAME COLUMN data TO unreadable_data`); err != nil {
+				t.Fatal(err)
+			}
+			s.Close()
+			cmd := newRecallCmd(&rootFlags{agent: true}, entities.NewConfig())
+			var stdout, stderr bytes.Buffer
+			cmd.SetOut(&stdout)
+			cmd.SetErr(&stderr)
+			cmd.SetArgs([]string{"find Alpha details", "--db", dbPath})
+			err = cmd.Execute()
+			if err == nil || ExitCode(err) != 5 || strings.Contains(stdout.String(), `"found":true`) || strings.Contains(stdout.String(), `"found": true`) {
+				t.Fatalf("read failure emitted success or wrong exit: code=%d err=%v stdout=%q", ExitCode(err), err, stdout.String())
+			}
+		})
+	}
+}

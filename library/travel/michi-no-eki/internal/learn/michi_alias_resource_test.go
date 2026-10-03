@@ -2,6 +2,7 @@ package learn
 
 import (
 	"context"
+	"errors"
 	"strconv"
 	"strings"
 	"testing"
@@ -485,5 +486,58 @@ func TestMichiFinalDedupPreservesDifferentTypedResources(t *testing.T) {
 	}
 	if len(got.Results) != 2 || got.Results[0].ResourceType != "widgets" || got.Results[1].ResourceType != "other-widgets" || len(got.Mismatches) != 0 {
 		t.Fatalf("same IDs of different types collapsed: %+v", got)
+	}
+}
+
+func TestMichiRecallResourceReadFailuresDoNotBecomeFallbackHits(t *testing.T) {
+	for _, mode := range []string{"direct", "pattern"} {
+		for _, failure := range []string{"missing column", "null payload"} {
+			t.Run(mode+"/"+failure, func(t *testing.T) {
+				db := openRecallCanonicalTestDB(t)
+				if _, err := db.Exec(`INSERT INTO resources(resource_type,id,data) VALUES('widgets','resource-alpha','{"name":"Alpha"}')`); err != nil {
+					t.Fatal(err)
+				}
+				if mode == "direct" {
+					seedCanonicalLearning(t, db, "find alpha details", `["Alpha"]`, "resource-alpha", "widgets")
+				} else {
+					if _, _, err := patterns.Upsert(db, patterns.Pattern{QueryTemplate: "find {entity} details", ResourceTemplate: "resource-{entity:lowercase}", ResourceType: "widgets", Strategy: patterns.StrategySubstitute, EntityKind: "lowercase", Source: patterns.SourceTaught}); err != nil {
+						t.Fatal(err)
+					}
+				}
+				if failure == "missing column" {
+					if _, err := db.Exec(`ALTER TABLE resources RENAME COLUMN data TO unreadable_data`); err != nil {
+						t.Fatal(err)
+					}
+				} else {
+					if _, err := db.Exec(`ALTER TABLE resources RENAME TO readable_ids`); err != nil {
+						t.Fatal(err)
+					}
+					if _, err := db.Exec(`CREATE VIEW resources AS SELECT resource_type,id,NULL AS data,synced_at,updated_at FROM readable_ids`); err != nil {
+						t.Fatal(err)
+					}
+				}
+				got, err := Recall(context.Background(), db, "find Alpha details", Opts{EntityConfig: canonicalTestConfig(), ResourceTypeFields: map[string][]string{"widgets": {"name"}}})
+				if err == nil || got.Found || len(got.Results) != 0 {
+					t.Fatalf("failed cached identity read became successful fallback: result=%+v err=%v", got, err)
+				}
+			})
+		}
+	}
+}
+
+func TestMichiCancelledPayloadReadDoesNotBecomeMissingResource(t *testing.T) {
+	db := openRecallCanonicalTestDB(t)
+	if _, err := db.Exec(`INSERT INTO resources(resource_type,id,data) VALUES('widgets','resource-alpha','{"name":"Alpha"}')`); err != nil {
+		t.Fatal(err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	hit := Hit{ResourceID: "resource-alpha", ResourceType: "widgets", Confidence: 2}
+	present, err := validateResource(ctx, db, canonicalTestConfig(), &hit, []string{"Alpha"}, []string{"Alpha"}, map[string][]string{"widgets": {"name"}})
+	if present || !errors.Is(err, context.Canceled) {
+		t.Fatalf("cancellation was not preserved: present=%v err=%v", present, err)
+	}
+	if hit.EntityMatch == EntityMatchExact || strings.Contains(strings.Join(hit.Warnings, " "), WarningResourceNotInStore) {
+		t.Fatalf("cancelled read was represented as missing/exact: %+v", hit)
 	}
 }

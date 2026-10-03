@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"regexp"
 	"sort"
@@ -464,7 +465,10 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 			t := lastObserved.Time
 			hit.LastObservedAt = &t
 		}
-		resourcePresent := validateResource(ctx, db, cfg, &hit, queryIdentity, storedEntitySlice, opts.ResourceTypeFields)
+		resourcePresent, resourceErr := validateResource(ctx, db, cfg, &hit, queryIdentity, storedEntitySlice, opts.ResourceTypeFields)
+		if resourceErr != nil {
+			return result, resourceErr
+		}
 		// A teaching alias establishes the query family, not the referenced
 		// resource's identity. A cached resource must itself resolve to the
 		// same query-and-teaching canonical before a mismatch can be an alias hit.
@@ -545,7 +549,10 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 				LastObservedAt:   ph.LastObservedAt,
 			}
 			boundIdentity := []string{ph.BoundEntity}
-			resourcePresent := validateResource(ctx, db, cfg, &hit, boundIdentity, nil, opts.ResourceTypeFields)
+			resourcePresent, resourceErr := validateResource(ctx, db, cfg, &hit, boundIdentity, nil, opts.ResourceTypeFields)
+			if resourceErr != nil {
+				return result, resourceErr
+			}
 			if resourcePresent && len(hit.ResourceEntities) > 0 {
 				resourceCanonicals := resolver.ResolveSet(hit.ResourceEntities)
 				boundCanonicals := resolver.ResolveSet(boundIdentity)
@@ -736,23 +743,29 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 		result.Warnings = append(result.Warnings, TopWarningCandidatesPresent)
 	}
 
+	if err := ctx.Err(); err != nil {
+		return Result{}, fmt.Errorf("recall canceled: %w", err)
+	}
 	return result, nil
 }
 
-func validateResource(ctx context.Context, db *sql.DB, cfg *entities.Config, hit *Hit, queryEntities, storedEntitySlice []string, fieldsByType map[string][]string) bool {
+func validateResource(ctx context.Context, db *sql.DB, cfg *entities.Config, hit *Hit, queryEntities, storedEntitySlice []string, fieldsByType map[string][]string) (bool, error) {
 	var data string
 	err := db.QueryRowContext(ctx,
 		`SELECT data FROM resources WHERE resource_type = ? AND id = ?`,
 		hit.ResourceType, hit.ResourceID,
 	).Scan(&data)
-	if err != nil {
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return false, fmt.Errorf("recall cached resource %s/%s: %w", hit.ResourceType, hit.ResourceID, err)
+	}
+	if errors.Is(err, sql.ErrNoRows) {
 		hit.Warnings = append(hit.Warnings, WarningResourceNotInStore)
 		hit.EntityMatch = ClassifyEntityMatch(queryEntities, storedEntitySlice)
 		if hit.EntityMatch == EntityMatchPartial && len(queryEntities) == 0 && len(storedEntitySlice) == 0 {
 			hit.EntityMatch = EntityMatchUnknown
 		}
 		addLowConfidenceWarning(hit)
-		return false
+		return false, nil
 	}
 	var fields []string
 	if fieldsByType != nil {
@@ -762,7 +775,7 @@ func validateResource(ctx context.Context, db *sql.DB, cfg *entities.Config, hit
 	hit.ResourceEntities = resourceEntities
 	hit.EntityMatch = ClassifyEntityMatch(queryEntities, resourceEntities)
 	addLowConfidenceWarning(hit)
-	return true
+	return true, nil
 }
 
 func addLowConfidenceWarning(hit *Hit) {
