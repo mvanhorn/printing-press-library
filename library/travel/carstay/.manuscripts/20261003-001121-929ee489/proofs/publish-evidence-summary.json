@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_by": "sanitized amendment evidence projection; acceptance remains binary-owned",
-  "observed_at": "2026-10-03T13:02:24.528461Z",
+  "observed_at": "2026-10-03T13:41:11.026457Z",
   "producer_version": "4.32.5",
   "fresh_gate_runner_version": "4.33.0",
   "source": {
@@ -83,8 +83,8 @@
     "tests_skipped": 103,
     "tests_unverified": 103,
     "failed": 0,
-    "ran_at": "2026-10-03T13:02:24.528461Z",
-    "source_fingerprint": "f525657dd0e8bbebd64ff24c378d878e2a5ec2ac9cca427cd84bb9f6d5ad47d9",
+    "ran_at": "2026-10-03T13:41:11.026457Z",
+    "source_fingerprint": "d8f50ebb22960d9ba2adfe96c949cbab55a4b06602ee685efd9bae0aba1dc75f",
     "source_file_count": 191
   },
   "live_kinds": {
@@ -1278,8 +1278,8 @@
     }
   ],
   "performance": {
-    "measured_at": "2026-10-03T13:05:42.541505+00:00",
-    "binary_sha256": "de95140c9c8a6127e1ef3f3bc4683a2fea42b05c8b149fa13280081d56a8daf0",
+    "measured_at": "2026-10-03T13:44:54.033443+00:00",
+    "binary_sha256": "fa179ccc6912132423ab7384069b659fc40897eaf6dd5ad88930ecbb73ca5c6b",
     "version": "carstay-pp-cli 2026.10.1",
     "build_arguments": [
       "go",
@@ -1299,11 +1299,11 @@
           "--no-learn"
         ],
         "elapsed_ms": [
-          767.44,
-          871.1,
-          707.6
+          1087.72,
+          707.64,
+          853.56
         ],
-        "median_ms": 767.44,
+        "median_ms": 853.56,
         "observations": [
           {
             "envelope": "meta/results",
@@ -1335,11 +1335,11 @@
           "--no-learn"
         ],
         "elapsed_ms": [
-          1334.86,
-          1365.11,
-          1340.2
+          1356.52,
+          1361.04,
+          1371.19
         ],
-        "median_ms": 1340.2,
+        "median_ms": 1361.04,
         "observations": [
           {
             "envelope": "meta/results",
@@ -1377,11 +1377,11 @@
           "--no-learn"
         ],
         "elapsed_ms": [
-          724.67,
-          722.14,
-          702.55
+          740.75,
+          778.74,
+          997.64
         ],
-        "median_ms": 722.14,
+        "median_ms": 778.74,
         "observations": [
           {
             "envelope": "meta/results",
@@ -1442,5 +1442,6 @@
     ],
     "diagnostics": "Filter final emitted resource type+ID before mismatch cap; retain rejected-only namespaces and missing-cache teaching alternatives",
     "read_errors": "Function-backed SQL error/context cancellation and NULL-payload view with verified ID fail explicitly in direct and pattern paths; legitimate missing/unknown controls pass"
-  }
+  },
+  "typed_tuple_regression": "Actual two-teach/Recall limit-two preserves distinct (a|b,c) and (a,b|c) tuples; accepted result and rejected alternative maps preserve tuple identity."
 }

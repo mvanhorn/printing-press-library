@@ -242,3 +242,19 @@ func TestCarstayRecallRankedLimitPreservesFinalConfidenceOrder(t *testing.T) {
 		t.Fatalf("standalone score order changed: %+v %v", standalone, err)
 	}
 }
+
+func TestCarstayRecallDelimiterTuplesDoNotEraseRejectedEvidence(t *testing.T) {
+	db, opts := carstayRankedFixture(t)
+	opts.ResourceTypeFields = map[string][]string{"a|b": {"name"}, "a": {"name"}}
+	seedCanonicalLearning(t, db, "alpha widget today", `["Alpha"]`, "c", "a|b")
+	seedCanonicalLearning(t, db, "alpha widget today", `["Alpha"]`, "b|c", "a")
+	carstayRankedResource(t, db, "a|b", "c", `{"name":"Alpha"}`)
+	carstayRankedResource(t, db, "a", "b|c", `{"name":"Beta"}`)
+	got := carstayRankedRecall(t, db, "Alpha widget today", opts)
+	if len(got.Results) != 1 || got.Results[0].ResourceType != "a|b" || got.Results[0].ResourceID != "c" || len(got.Mismatches) != 1 || got.Mismatches[0].ResourceType != "a" || got.Mismatches[0].ResourceID != "b|c" {
+		t.Fatalf("accepted tuple erased distinct rejected tuple: %+v", got)
+	}
+	if !strings.Contains(strings.Join(got.Warnings, " "), WarningSimilarShapeDifferentEntity) {
+		t.Fatalf("distinct rejected alternatives lost: %+v", got)
+	}
+}

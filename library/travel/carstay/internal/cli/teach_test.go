@@ -1694,3 +1694,30 @@ func TestTeachPatternRecordedScopeMatchesStoredRecall(t *testing.T) {
 		t.Fatalf("recorded scope differs from recall: %+v %v", hits, err)
 	}
 }
+
+func TestCarstayRecallKeepsDistinctTypeIDTuplesContainingDelimiter(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "tuple.db")
+	for _, target := range []struct{ kind, id string }{{"a|b", "c"}, {"a", "b|c"}} {
+		_, stderr, err := runRootArgs(t, "teach", "--query", "Alpha widget today", "--resource-type", target.kind, "--resource", target.id, "--db", dbPath, "--agent")
+		if err != nil {
+			t.Fatalf("actual teach type%q id%q: %v %s", target.kind, target.id, err, stderr)
+		}
+	}
+	stdout, stderr, err := runRootArgs(t, "recall", "Alpha widget today", "--limit", "2", "--db", dbPath, "--agent")
+	if err != nil {
+		t.Fatalf("actual recall: %v %s", err, stderr)
+	}
+	var got learn.Result
+	unmarshalAgentResults(t, stdout, &got)
+	if !got.Found || len(got.Results) != 2 {
+		t.Fatalf("distinct stored tuples collapsed: %+v", got)
+	}
+	seen := map[[2]string]bool{}
+	for _, hit := range got.Results {
+		seen[[2]string{hit.ResourceType, hit.ResourceID}] = true
+	}
+	if !seen[[2]string{"a|b", "c"}] || !seen[[2]string{"a", "b|c"}] {
+		t.Fatalf("typed tuple identities changed: %+v", got)
+	}
+}

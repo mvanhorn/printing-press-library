@@ -279,7 +279,7 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 	// different entity, rather than the misleading
 	// no_learnings_for_query_family.
 	mismatchCanonicals := make(map[string]struct{})
-	mismatchAlternatives := make(map[string]map[string]struct{})
+	mismatchAlternatives := make(map[recallResourceKey]map[string]struct{})
 	recordMismatch := func(hit Hit, canonicals map[string]struct{}, fallback []string) {
 		key := hitKey(hit.ResourceType, hit.ResourceID)
 		if mismatchAlternatives[key] == nil {
@@ -524,7 +524,7 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 	_ = rows.Close()
 	// Keep the best accepted evidence for a typed target. A direct partial
 	// identity must not suppress a later exact pattern for the same target.
-	bestByKey := make(map[string]int, len(hits))
+	bestByKey := make(map[recallResourceKey]int, len(hits))
 	unique := make([]Hit, 0, len(hits))
 	addBestHit := func(hit Hit) {
 		key := hitKey(hit.ResourceType, hit.ResourceID)
@@ -602,7 +602,7 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 	}
 	// Filter against final emitted typed targets, before the mismatch cap.
 	// A target accepted elsewhere cannot also be a rejected alternative.
-	accepted := make(map[string]struct{}, len(hits))
+	accepted := make(map[recallResourceKey]struct{}, len(hits))
 	for _, hit := range hits {
 		accepted[hitKey(hit.ResourceType, hit.ResourceID)] = struct{}{}
 	}
@@ -812,8 +812,15 @@ func sourcePriority(source string) int {
 	return 0
 }
 
-func hitKey(resourceType, resourceID string) string {
-	return resourceType + "|" + resourceID
+// Keys preserve the actual tuple: optional teaching permits delimiters in
+// both components, so a joined string could merge distinct resources.
+type recallResourceKey struct {
+	resourceType string
+	resourceID   string
+}
+
+func hitKey(resourceType, resourceID string) recallResourceKey {
+	return recallResourceKey{resourceType: resourceType, resourceID: resourceID}
 }
 
 func entityMatchPriority(em string) int {

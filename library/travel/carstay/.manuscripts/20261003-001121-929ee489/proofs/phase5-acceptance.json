@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "f525657dd0e8bbebd64ff24c378d878e2a5ec2ac9cca427cd84bb9f6d5ad47d9",
+  "source_fingerprint": "d8f50ebb22960d9ba2adfe96c949cbab55a4b06602ee685efd9bae0aba1dc75f",
   "source_files": {
     "cmd/carstay-pp-cli/main.go": "1ce7400e5a1b190f65b882beb30b90f3ebc413dae9a36507669437b073fbd294",
     "cmd/carstay-pp-mcp/main.go": "2e0abf309b21b93d7a9ab7dd4aea18ade83ffe7c8cfb87dc29cbc5303ddd1577",
@@ -80,7 +80,7 @@
     "internal/cli/teach.go": "e03efb42407d0389a3a056c5aa1a9fd0c6004bdda21f8eca9e222a2ec1448c7c",
     "internal/cli/teach_playbook.go": "7131390d96eb36cfe5c05e992f8ad426d650035aca2459b50e78e96e479644fc",
     "internal/cli/teach_playbook_test.go": "2608b019b05d76f514f25c788fc8308e008eacd107da1cea6748ce551a0a8da4",
-    "internal/cli/teach_test.go": "e7651894291d3b76010937c701e8370d35018743493c5dd2e863059a948c3031",
+    "internal/cli/teach_test.go": "5a709a05f293355a443c23688baacb469d352852ea72122cd1ad8ca2bf74e7a1",
     "internal/cli/version.go": "724ed4a22ab15966b03a2c89014c9c961fa35528dc9d6fce6519ab06e812b0bd",
     "internal/cli/which.go": "39b31113a41a4b644df0781a9eba812c2a07aac0efbe4cfe4d6a5130e3a4fc95",
     "internal/cli/which_test.go": "a2d4ab34e8bc3e36be55215ef0f5396392a7f7de3a4d132ca71f75a2556f4f92",
@@ -120,7 +120,7 @@
     "internal/config/config.go": "c6d457ce6a9b80397f9fecca80feec6f3dd384cb4c2ee87a530f3a3219a7a173",
     "internal/entityvalue/lookup.go": "467f266b7afe4a756425d5ba20ad92c67e99d4d358fbe09df9b1de49245cf1b9",
     "internal/learn/carstay_alias_resource_test.go": "e83f0c2b5ff786baf53a771d776766ebd93f8e39dbafdf99cb7bd66e6b3f5926",
-    "internal/learn/carstay_ranked_bindings_test.go": "83a51ff359036bc3b70dc96ebb470727e1abf0e5208e5115081dacea4ba6465d",
+    "internal/learn/carstay_ranked_bindings_test.go": "207d7e0280a46f446fa5e97f55f150277889588791fc87e0c644f3c09b38b878",
     "internal/learn/carstay_recall_read_errors_test.go": "351f4e101883c301489aa92a5b8e0ecb1f7a9b5c4ebb4bc2c01bdfb6ebd0bdeb",
     "internal/learn/derive.go": "22d69abcc729ecc32220724e69ba3b4eb895511ab3ab9c7b7d9386ae3a47991d",
     "internal/learn/derive_test.go": "2e422c686c82187702f5ccb16c597c6261f4cb7caa12c38f66ea6e04f6a9acd6",
@@ -154,7 +154,7 @@
     "internal/learn/promote.go": "2cb24f54907cf7085a903af17d336b3550e0347b99138daf54479d2859a1d4a1",
     "internal/learn/promote_test.go": "d4fac8c702d41b4de35df5be0a1c1e0ede9560bd6473d3ad5bc30bb1cd73ac3a",
     "internal/learn/protocol.go": "3d7c6047ff598e7729a472d36523c9c23ff3297b91b2f48d18a937ec601f3725",
-    "internal/learn/recall.go": "d431e1336c35f85bf7819115e4bd85532c7fa82de3f417dd4d2937c47a77596c",
+    "internal/learn/recall.go": "d86fb91ca3c9173fb4f2f12b8db220414aed611533ed27b0838ee4d36a820c39",
     "internal/learn/recall_canonical_test.go": "b5236151db02d8e42988404407169da07f836dd58dc26bb983582522b6066272",
     "internal/learn/recall_test.go": "81d2f86710266d72376e223f96051efc52f446e14f56c822b4b657a6bb4df370",
     "internal/learn/synthesize.go": "a0b71c405e97d7bf533a2e3b630e21ebda1293b93d61921d2cff3bb3b8e2b7d4",
