@@ -99,6 +99,23 @@ large datasets as it has no memory pressure.`,
 				return nil
 			}
 
+			// /notices is HTML. Live bulletin export must emit parsed notice
+			// records from the notices command path; the JSON page loop
+			// below would persist the document or fail to decode it.
+			if resource == "bulletins" && !flags.dryRun {
+				count, err := writeParsedBulletinExport(cmd.Context(), flags, args, format, limit, writer)
+				if err != nil {
+					return err
+				}
+				if err := finishExport(); err != nil {
+					return err
+				}
+				if outputFile != "" {
+					fmt.Fprintf(os.Stderr, "Exported %d records to %s\n", count, outputFile)
+				}
+				return nil
+			}
+
 			config := resourceReadConfigFor(resource)
 			allItems := []json.RawMessage{}
 			var singlePayload json.RawMessage

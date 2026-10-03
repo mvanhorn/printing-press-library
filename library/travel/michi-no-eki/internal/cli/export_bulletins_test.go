@@ -1,0 +1,119 @@
+// Copyright 2026 zjsng and contributors. Licensed under Apache-2.0. See LICENSE.
+
+package cli
+
+import (
+	"bufio"
+	"bytes"
+	"context"
+	"encoding/json"
+	"strings"
+	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/travel/michi-no-eki/internal/michi"
+)
+
+const bulletinExportIndex = `<main><div class="noticesList"><a href="/notices/views/20001"><time datetime="2026-9-30">2026年9月30日</time><span>長野県</span><p>試験駅のお知らせ</p></a><a href="/notices/views/20002"><time datetime="2026-10-1">2026年10月1日</time><span>長野県</span><p>別の駅のお知らせ</p></a></div><!-- NOT-A-RECORD --><a href="/notices?page=1">2</a></main>`
+
+const bulletinExportDetail = `<article class="noticesView__content"><h3>試験日程のお知らせ</h3><a href="/stations/views/10001">試験駅</a><p>2026年10月6日は休業予定。掲載日は2026年9月30日。</p><p class="createdDate">2026年9月30日</p></article>`
+
+func bulletinExportSource() *michi.Source {
+	return &michi.Source{BaseURL: michi.Origin, Fetch: func(ctx context.Context, path string) ([]byte, error) {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
+		switch path {
+		case "/notices":
+			return []byte(bulletinExportIndex), nil
+		case "/notices?page=1":
+			return []byte(`<main><div class="noticesList"></div></main>`), nil
+		case "/notices/views/20001":
+			return []byte(bulletinExportDetail), nil
+		default:
+			return []byte(`<html><title>not a notice list</title></html>`), nil
+		}
+	}}
+}
+
+func exportBulletins(t *testing.T, src *michi.Source, args []string, format string, limit int) (int, string) {
+	t.Helper()
+	var buf bytes.Buffer
+	writer := bufio.NewWriter(&buf)
+	n, err := writeBulletinExportFromSource(context.Background(), nil, src, args, format, limit, writer)
+	if flushErr := writer.Flush(); flushErr != nil {
+		t.Fatal(flushErr)
+	}
+	if err != nil {
+		t.Fatal(err)
+	}
+	return n, buf.String()
+}
+
+func TestBulletinExportWritesJSONLRecords(t *testing.T) {
+	n, out := exportBulletins(t, bulletinExportSource(), []string{"bulletins"}, "jsonl", 0)
+	if n != 2 {
+		t.Fatalf("count = %d, want 2", n)
+	}
+	if strings.Contains(out, "NOT-A-RECORD") || strings.Contains(out, "noticesList") || strings.Contains(out, "<") {
+		t.Fatalf("export wrote HTML:\n%s", out)
+	}
+	lines := strings.Split(strings.TrimSpace(out), "\n")
+	if len(lines) != 2 {
+		t.Fatalf("lines = %d, want 2: %q", len(lines), out)
+	}
+	for i, wantID := range []string{"20001", "20002"} {
+		var rec michi.Notice
+		if err := json.Unmarshal([]byte(lines[i]), &rec); err != nil {
+			t.Fatalf("line %d is not a JSON record: %v\n%s", i, err, lines[i])
+		}
+		if rec.ID != wantID || rec.Title == "" || rec.PublishedDate == "unknown" {
+			t.Fatalf("record = %+v", rec)
+		}
+	}
+}
+
+func TestBulletinExportJSONArrayAndLimit(t *testing.T) {
+	n, out := exportBulletins(t, bulletinExportSource(), []string{"bulletins"}, "json", 1)
+	if n != 1 {
+		t.Fatalf("count = %d, want 1", n)
+	}
+	var recs []michi.Notice
+	if err := json.Unmarshal([]byte(out), &recs); err != nil {
+		t.Fatalf("json export did not decode: %v\n%s", err, out)
+	}
+	if len(recs) != 1 || recs[0].ID != "20001" {
+		t.Fatalf("records = %+v", recs)
+	}
+}
+
+func TestBulletinExportSingleNoticeRecord(t *testing.T) {
+	n, out := exportBulletins(t, bulletinExportSource(), []string{"bulletins", "20001"}, "json", 0)
+	if n != 1 {
+		t.Fatalf("count = %d, want 1", n)
+	}
+	var rec michi.Notice
+	if err := json.Unmarshal([]byte(out), &rec); err != nil {
+		t.Fatalf("single export did not decode: %v\n%s", err, out)
+	}
+	if rec.ID != "20001" || rec.PublishedDate != "2026-09-30" || len(rec.StationIDs) != 1 || rec.StationIDs[0] != "10001" {
+		t.Fatalf("record = %+v", rec)
+	}
+	if strings.Contains(out, "<") {
+		t.Fatalf("export wrote HTML:\n%s", out)
+	}
+}
+
+func TestBulletinExportRejectsUnparsedHTML(t *testing.T) {
+	src := &michi.Source{BaseURL: michi.Origin, Fetch: func(context.Context, string) ([]byte, error) {
+		return []byte(`<html><title>not a notice list</title></html>`), nil
+	}}
+	var buf bytes.Buffer
+	writer := bufio.NewWriter(&buf)
+	if _, err := writeBulletinExportFromSource(context.Background(), nil, src, []string{"bulletins"}, "jsonl", 0, writer); err == nil {
+		t.Fatal("unrecognized HTML exported")
+	}
+	writer.Flush()
+	if buf.Len() != 0 {
+		t.Fatalf("failed export wrote %q", buf.String())
+	}
+}

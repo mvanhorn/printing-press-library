@@ -9,6 +9,12 @@
     "handle": "zjsng",
     "name": "zjsng"
   },
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
   "owner": "zjsng",
   "printer": "zjsng",
   "printer_name": "zjsng",

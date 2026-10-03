@@ -406,6 +406,49 @@ func redirectLeavesOrigin(next *url.URL, via []*http.Request) bool {
 	return false
 }
 
+// withholdRedirectCredentials removes Authorization and credential-like
+// custom headers before a permitted off-origin hop. Go strips Authorization
+// and Cookie on many cross-origin redirects, but names such as X-API-Key
+// are copied onto the redirected request.
+func withholdRedirectCredentials(req *http.Request, cfg *config.Config) {
+	if req == nil {
+		return
+	}
+	var drop []string
+	if cfg != nil {
+		for name := range cfg.Headers {
+			if redirectCredentialHeader(name) {
+				drop = append(drop, name)
+			}
+		}
+	}
+	for name := range req.Header {
+		if redirectCredentialHeader(name) {
+			drop = append(drop, name)
+		}
+	}
+	req.Header.Del("Authorization")
+	req.Header.Del("Cookie")
+	req.Header.Del("Proxy-Authorization")
+	for _, name := range drop {
+		req.Header.Del(name)
+	}
+}
+
+func redirectCredentialHeader(name string) bool {
+	normalized := strings.ToLower(strings.ReplaceAll(strings.TrimSpace(name), "_", "-"))
+	switch normalized {
+	case "authorization", "proxy-authorization", "www-authenticate", "cookie", "cookie2":
+		return true
+	}
+	for _, marker := range []string{"api-key", "apikey", "auth-token", "access-token", "authorization", "cookie", "secret", "credential", "token"} {
+		if strings.Contains(normalized, marker) {
+			return true
+		}
+	}
+	return false
+}
+
 func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 	cacheDir := ""
 	if dir, err := cliutil.CacheDir(); err == nil {
@@ -440,11 +483,11 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 		}
 		// Re-stamp only when the hop stays on the origin. Custom headers
 		// are never in the set Go removes automatically, so this gate
-		// has to do the work itself.
-		if !redirectLeavesOrigin(req.URL, via) {
-			if h, err := c.authHeader(req.Context()); err == nil && h != "" {
-				req.Header.Set("Authorization", h)
-			}
+		// has to withhold credential-like names itself.
+		if redirectLeavesOrigin(req.URL, via) {
+			withholdRedirectCredentials(req, c.Config)
+		} else if h, err := c.authHeader(req.Context()); err == nil && h != "" {
+			req.Header.Set("Authorization", h)
 		}
 		return nil
 	}

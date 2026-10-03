@@ -143,7 +143,7 @@ Use `--agent`/`--json`; project with `--select` to reduce response size. Empty a
 
 Partial failures appear in `fetch_failures` and stderr; all-failure operations exit nonzero. The optional MCP mirrors for compare, snapshot and station-notices preserve bounded structured failure accounting in an explicitly failed tool result; they do not rerun the source operation. General exit codes:0 success,2 usage/input,3 not found,4 auth,5 API/runtime,7 rate limiting,10 configuration. Never turn a directory icon, headline count or empty notice scan into permission/inventory/status certainty.
 
-Use the domain CLI workflows for source extraction. Typed MCP HTML tools are hidden by the source spec because their generated handlers expose raw HTML; use the domain CLI or safe command mirrors. This public provider needs no credentials; do not add sensitive custom headers.
+Use the domain CLI workflows for source extraction. Typed MCP HTML tools are hidden by the source spec because their generated handlers expose raw HTML; use the domain CLI or safe command mirrors. This public provider needs no credentials. Credential-like headers such as `Authorization` and `X-API-Key` are withheld on a cross-origin redirect; do not add other sensitive custom headers.
 
 Generated low-level link rows can place an HTML page URL in `image` when no image is published; treat that field as unverified. Use normalized domain workflows for service evidence. Detail endpoint commands return page metadata rather than an empty link-only result.
 
@@ -151,4 +151,4 @@ Low-level detail metadata includes the requested numeric ID, canonical handoff U
 
 Optional framework SQL/workflow-status descriptions mention sync, but this source has no domain sync or database-ingestion workflow; use native domain commands and saved snapshots. Some generated learning helpers open writable stores or append local audit records despite read-only hints. `--no-learn` disables automatic domain-command journaling; it does not make those optional learning helpers write-free. CLI-only installation does not activate the optional MCP server.
 
-The generic `export` helper expects JSON and cannot export provider HTML notices. Use `snapshot --ids ... --json` for retained factual station observations.
+`export bulletins` writes parsed notice records from the same notice parser as `notices` and `notice`, as JSON or JSONL, within that scan ceiling (at most 5 pages and 50 records). It does not emit the raw HTML page. Use `snapshot --ids ... --json` for retained factual station observations.

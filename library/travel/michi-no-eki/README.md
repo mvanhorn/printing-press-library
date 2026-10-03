@@ -1,6 +1,7 @@
 # Michi-no-Eki
 
 Created by [@zjsng](https://github.com/zjsng) (zjsng).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 **Find and compare Japan roadside-station service stops with source evidence and explicit unknowns.**
 
@@ -48,10 +49,10 @@ michi-no-eki-pp-cli readiness 19187 --agent
 
 The twelve domain commands and saved-snapshot workflow are verified. Optional generated framework helpers have these limits:
 
-- `export` expects JSON and does not export provider HTML notices; use `snapshot --ids ... --json` for factual station observations.
+- `export bulletins` writes parsed notice records (JSON or JSONL) from the `notices`/`notice` parser, capped at 5 pages and 50 records. It does not emit provider HTML. Use `snapshot --ids ... --json` for factual station observations.
 - SQL/workflow-status text refers to sync, but this source has no domain sync or database-ingestion command.
 - Generic list/search link `image` fields can contain an HTML page URL when no image exists; the authored domain/detail workflows do not use that field.
-- Some optional learning helpers write local records despite read-only hints: `recall` and playbook listing append usage/audit records, and `learnings stats` can migrate the store and prune local telemetry, including with `--no-learn`. Source requests require no credentials; custom sensitive headers should not be configured. Declared HTML requests are bounded to 5 MiB during wire reading and decompression; ordinary API/error bodies are bounded to 32 MiB. Successful generic binary envelopes retain their separate semantics.
+- Some optional learning helpers write local records despite read-only hints: `recall` and playbook listing append usage/audit records, and `learnings stats` can migrate the store and prune local telemetry, including with `--no-learn`. Source requests require no credentials. Credential-like custom headers such as `X-API-Key` are withheld on cross-origin redirects; do not configure other sensitive headers. Declared HTML requests are bounded to 5 MiB during wire reading and decompression; ordinary API/error bodies are bounded to 32 MiB. Successful generic binary envelopes retain their separate semantics.
 
 Raw typed MCP HTML tools are hidden by the source spec. The optional runtime catalog has 29 tools including 12 domain mirrors; generated 4/4/full metadata describes four endpoint definitions and their no-auth readiness, not that runtime total. CLI-only installation leaves MCP installation to the user. The optional MCP mirrors for compare, snapshot and station-notices preserve bounded structured failure accounting in an explicitly failed tool result; they do not rerun the source operation. These generated limitations are retained as explicit template review evidence.
 
@@ -228,7 +229,7 @@ Compare user-saved factual observations without network.
 
 The package provides the CLI and agent skill. Typed MCP HTML endpoint tools are hidden by the source spec because their generated handlers expose raw HTML. Domain CLI workflows and their command mirrors provide factual extraction. CLI-only installation does not activate the optional MCP server.
 
-The provider requires no credentials. Do not add sensitive custom headers: the generated client can retain custom configuration headers across a foreign-origin redirect. Normal source requests use no credential headers. The generated HTTP transport requires HTTP/2; the public provider was verified with that transport. These template issues are recorded for a future Printing Press update; no Press files were modified.
+The provider requires no credentials. Credential-like headers such as `Authorization` and `X-API-Key` are withheld on a cross-origin redirect; other custom headers can still be copied, so do not configure sensitive non-credential names. Normal source requests use no credential headers. The generated HTTP transport requires HTTP/2; the public provider was verified with that transport.
 
 Generated low-level link rows can place an HTML page URL in `image` when no image is published; treat that field as unverified. Use normalized domain workflows for service evidence. Detail endpoint commands return page metadata rather than an empty link-only result.
 
