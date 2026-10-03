@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "michi-no-eki-learning-undo-and-literal-prefix-uniqueness",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261003-001046-81800c96",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Invalidate derived local rules on teaching undo and abstain on ambiguous literal-prefix recall.",
+  "reason": "The optional local learning framework must not recall a deleted teaching through a stale inferred rule or choose an arbitrary cached resource when a prefix matches several IDs. Explicitly taught rules remain deliberate user input. Native station discovery does not populate this optional cache.",
+  "files": [
+    "internal/store/learnings.go",
+    "internal/store/michi_forget_patterns_test.go",
+    "internal/learn/patterns/apply.go",
+    "internal/learn/patterns/store.go",
+    "internal/learn/patterns/michi_boundaries_test.go"
+  ],
+  "markers": [
+    "forgotLearningPatternTemplate",
+    "instr(id, ?) = 1 ORDER BY id LIMIT 2",
+    "source = CASE WHEN ? = 'taught' THEN 'taught' ELSE source END"
+  ],
+  "validated_outcome": "Temporary-store regressions cover scoped inferred-family cleanup, manually taught and unrelated retention, transaction rollback, literal percent/underscore/case, ambiguity abstention and one-way explicit source promotion. Final fresh full source-bound acceptance passed 129/129 after edits."
+}

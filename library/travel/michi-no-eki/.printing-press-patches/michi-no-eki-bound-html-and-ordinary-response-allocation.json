@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "michi-no-eki-bound-html-and-ordinary-response-allocation",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261003-001046-81800c96",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Bound declared HTML wire and decoded bodies before allocation grows, retaining ordinary and binary response distinctions.",
+  "reason": "Directory HTML must stay within5MiB even when MIME or Content-Length metadata is misleading; ordinary API/error bodies have32MiB bounds while successful generic binary envelopes retain their semantics.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/bounded_response.go",
+    "internal/client/bounded_response_test.go"
+  ],
+  "markers": [
+    "readResponseBody(resp.Body, responseLimit)",
+    "decodeContentEncodingWithLimit",
+    "responseBodyBudget"
+  ],
+  "validated_outcome": "Counted-reader, close/status/length, exact-boundary, compressed/stacked encoding and binary contract regressions; fresh full live gate after this change."
+}

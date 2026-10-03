@@ -1,0 +1,181 @@
+{
+  "name": "michi-no-eki",
+  "description": "Find and compare official Japan roadside-station service stops with source evidence and explicit unknowns.",
+  "version": "0.1.0",
+  "category": "travel",
+  "base_url": "https://www.michi-no-eki.jp",
+  "health_check_path": "/search",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "transport": [
+      "stdio"
+    ],
+    "endpoint_tools": "hidden"
+  },
+  "cache": {
+    "enabled": false
+  },
+  "learn": {
+    "entity_lookup_seeds": {
+      "prefecture": [
+        {
+          "canonical": "長野県",
+          "aliases": [
+            "nagano",
+            "長野"
+          ]
+        },
+        {
+          "canonical": "北海道",
+          "aliases": [
+            "hokkaido"
+          ]
+        },
+        {
+          "canonical": "山梨県",
+          "aliases": [
+            "yamanashi",
+            "山梨"
+          ]
+        }
+      ]
+    },
+    "synonyms": {
+      "onsen": "hot spring",
+      "michi no eki": "roadside station"
+    }
+  },
+  "resources": {
+    "stations": {
+      "description": "Official station HTML evidence and canonical detail links",
+      "endpoints": {
+        "search": {
+          "method": "GET",
+          "path": "/stations/search/{prefectures}/{facilities}/{keyword}",
+          "description": "Search provider HTML; multiple facilities are native OR. Use find for normalized fields and all/any filtering.",
+          "happy_args": "--prefectures=29;--facilities=105;--keyword=all",
+          "params": [
+            {
+              "name": "prefectures",
+              "type": "string",
+              "default": "all",
+              "description": "Provider prefecture IDs joined by + or all"
+            },
+            {
+              "name": "facilities",
+              "type": "string",
+              "default": "all",
+              "description": "Provider facility IDs joined by + or all (native any-of)"
+            },
+            {
+              "name": "keyword",
+              "type": "string",
+              "default": "all",
+              "description": "Japanese station text or all"
+            }
+          ],
+          "response": {
+            "type": "object"
+          },
+          "response_format": "html",
+          "html_extract": {
+            "mode": "links",
+            "link_prefixes": [
+              "/stations/views",
+              "/notices/views"
+            ]
+          }
+        },
+        "get": {
+          "method": "GET",
+          "path": "/stations/views/{id}",
+          "description": "Inspect canonical station HTML; use station for normalized parking/facility evidence.",
+          "happy_args": "--id=19187",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "description": "Numeric official station ID"
+            }
+          ],
+          "response": {
+            "type": "object"
+          },
+          "response_format": "html",
+          "html_extract": {
+            "mode": "page",
+            "link_prefixes": [
+              "/stations/views",
+              "/notices/views"
+            ]
+          },
+          "example": "  michi-no-eki-pp-cli stations get --id 19187 --json"
+        }
+      }
+    },
+    "bulletins": {
+      "description": "Published station notice HTML with source dates",
+      "endpoints": {
+        "list": {
+          "method": "GET",
+          "path": "/notices",
+          "description": "List published notice links; page is zero-based, not a date filter.",
+          "happy_args": "--page=0",
+          "params": [
+            {
+              "name": "page",
+              "type": "int",
+              "default": 0,
+              "description": "Zero-based provider page index"
+            }
+          ],
+          "response": {
+            "type": "object"
+          },
+          "response_format": "html",
+          "html_extract": {
+            "mode": "links",
+            "link_prefixes": [
+              "/stations/views",
+              "/notices/views"
+            ]
+          }
+        },
+        "get": {
+          "method": "GET",
+          "path": "/notices/views/{id}",
+          "description": "Read canonical notice HTML; use notice for bounded text and linked station identity.",
+          "happy_args": "--id=23237",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "description": "Numeric official notice ID"
+            }
+          ],
+          "response": {
+            "type": "object"
+          },
+          "response_format": "html",
+          "html_extract": {
+            "mode": "page",
+            "link_prefixes": [
+              "/stations/views",
+              "/notices/views"
+            ]
+          },
+          "example": "  michi-no-eki-pp-cli bulletins get --id 23237 --json"
+        }
+      }
+    }
+  },
+  "http_transport": "browser-chrome",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  }
+}

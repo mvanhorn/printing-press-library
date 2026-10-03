@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "michi-no-eki-preserve-mcp-failure-accounting",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261003-001046-81800c96",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Preserve source workflow failure accounting in an explicitly failed MCP result.",
+  "reason": "All-failed compare/snapshot and station-linked notice detail scans emit useful requested-ID and per-source failure evidence before a nonzero CLI exit. Source-owned adapters retain that bounded JSON without rerunning the companion CLI.",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/mcp/michi_failure_adapter.go",
+    "internal/mcp/michi_failure_adapter_test.go"
+  ],
+  "markers": [
+    "registerMichiFailureAdapters(s, cobratree.SiblingCLIPath)",
+    "michiFailedCompanionResult",
+    "result.IsError = true"
+  ],
+  "validated_outcome": "Observable registered-tool subprocess regressions cover partial success, all-failed exit 5, one invocation, preserved tool identity, input boundaries and aggregate byte bounds. Reserved cobratree remains unchanged; Final fresh full source-bound gate passed 129/129 after this change."
+}
