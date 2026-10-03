@@ -515,6 +515,7 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 	// applies to this query. Errors are swallowed; pattern hits are
 	// additive on top of direct hits.
 	patternHits, _ := patterns.Apply(ctx, db, query, normalized.NonEntityNormalized, queryIdentity, patterns.Opts{
+		NoLimit:         true,
 		JaccardMin:      jMin,
 		Limit:           limit,
 		AdditionalKinds: opts.PatternKinds,
@@ -529,8 +530,7 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 			if _, dup := existing[key]; dup {
 				continue
 			}
-			existing[key] = struct{}{}
-			hits = append(hits, Hit{
+			hit := Hit{
 				ResourceID:       ph.ResourceID,
 				ResourceType:     ph.ResourceType,
 				Venue:            ph.Venue,
@@ -541,7 +541,38 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 				ResourceEntities: ph.ResourceEntities,
 				Source:           SourcePattern,
 				LastObservedAt:   ph.LastObservedAt,
-			})
+			}
+
+			// Candidate existence is distinct from entity identity. Validate
+			// only the query entity actually substituted by this pattern.
+			boundIdentity := []string{ph.BoundEntity}
+			resourcePresent := validateResource(ctx, db, cfg, &hit, boundIdentity, nil, opts.ResourceTypeFields)
+			if resourcePresent && len(hit.ResourceEntities) > 0 {
+				resourceCanonicals := resolver.ResolveSet(hit.ResourceEntities)
+				boundCanonicals := resolver.ResolveSet(boundIdentity)
+				if hit.EntityMatch == EntityMatchMismatch && setIntersects(boundCanonicals, resourceCanonicals) {
+					hit.EntityMatch = EntityMatchExact
+					hit.Warnings = append(hit.Warnings, WarningCrossAliasMatch)
+				}
+				if hit.EntityMatch == EntityMatchMismatch {
+					for canonical := range resourceCanonicals {
+						mismatchCanonicals[canonical] = struct{}{}
+					}
+					if len(resourceCanonicals) == 0 {
+						for _, entity := range hit.ResourceEntities {
+							mismatchCanonicals[entity] = struct{}{}
+						}
+					}
+					mismatches = append(mismatches, hit)
+					continue
+				}
+			} else {
+				// Preserve the established identifier-verified fallback when
+				// cached identity is unavailable; this proves no provider facts.
+				hit.EntityMatch = EntityMatchExact
+			}
+			existing[key] = struct{}{}
+			hits = append(hits, hit)
 		}
 	}
 

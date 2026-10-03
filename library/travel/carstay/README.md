@@ -97,7 +97,7 @@ These commands compute bounded evidence views from the public Carstay station so
 
 ### Optional learning evidence
 
-Manual pattern teaching uses its current resource type, venue, entity kind and examples. Undo retains an inferred rule only when its remaining distinct bindings still support it. Recall keeps a known conflicting cached resource in the mismatch evidence.
+Manual pattern teaching uses its current resource type, venue, entity kind and examples. Undo retains an inferred rule only when its remaining distinct bindings still support it. Recall keeps a known conflicting cached resource in the mismatch evidence. Synthesized patterns validate only the entity actually substituted; another entity mentioned by the query cannot validate that target. Recall applies its result limit after identity validation and deduplication; standalone pattern application retains its own caps. An unavailable cached identity retains identifier-only pattern fallback and proves no provider facts.
 
 ```bash
 carstay-pp-cli recall 'Yamanashi overnight stop' --debug-mismatches --json
@@ -227,6 +227,6 @@ Check missing or qualified evidence without claiming vacancy.
 
 The MCP companion preserves bounded partial CLI evidence in the first content block when a tool fails, keeps `isError=true`, and separates diagnostics. Inspect both the failed-tool flag and `meta.fetch_failures`/coverage; partial rows never certify a complete shortlist.
 
-The optional local learning engine requires a unique literal prefix match before treating a cached resource ID as verified. Explicit pattern teaching records its current resource type, venue, entity kind and examples; later inference preserves that manual payload. Teaching undo atomically reconciles affected inferred query/resource/venue families: rules with at least two distinct retained bindings survive with refreshed examples, unsupported rules are removed, and explicit taught or unrelated patterns remain. Native `spots` reads use current provider evidence independently of these local learnings.
+The optional local learning engine requires a unique literal prefix match before treating a cached resource ID as verified. Explicit pattern teaching records its current resource type, venue, entity kind and examples; later inference preserves that manual payload. Teaching undo atomically reconciles affected inferred query/resource/venue families: rules with at least two distinct compatible retained bindings survive with examples from those supporters; stale or incompatible rows do not veto the compatible cohort, unsupported rules are removed, and explicit taught or unrelated patterns remain. Native `spots` reads use current provider evidence independently of these local learnings.
 
 The generated directory client refuses foreign effective-origin redirects before any inherited configured/per-call headers or cookies are sent. Same-origin normalized default ports, fresh auth signing and the ten-hop limit remain; policy refusals return directly. Existing binary body/MIME and stream timeout rules stay separately scoped. Native `spots` requests do not use configured credential headers; their source URLs are canonical provider references and do not attest the final redirect origin.

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_by": "sanitized amendment evidence projection; acceptance remains binary-owned",
-  "observed_at": "2026-10-03T10:18:07.407307Z",
+  "observed_at": "2026-10-03T11:31:17.012206Z",
   "producer_version": "4.32.5",
   "fresh_gate_runner_version": "4.33.0",
   "source": {
@@ -83,8 +83,8 @@
     "tests_skipped": 103,
     "tests_unverified": 103,
     "failed": 0,
-    "ran_at": "2026-10-03T10:18:07.407307Z",
-    "source_fingerprint": "79ed6a8d922a7ac73b64384ad6f298702353f84f9e2983ae825b66abcd3681fc",
+    "ran_at": "2026-10-03T11:31:17.012206Z",
+    "source_fingerprint": "29f82acb96f4f5d9fb9d80173e0ea7ff4534807eb5b19bd35cba29c0c21164f2",
     "source_file_count": 189
   },
   "live_kinds": {
@@ -1278,8 +1278,8 @@
     }
   ],
   "performance": {
-    "measured_at": "2026-10-03T10:19:24.911664+00:00",
-    "binary_sha256": "055432178f174f7c52e8ad4ccf37fe5c0c63a9c41cf095f54d2f3776f80120e8",
+    "measured_at": "2026-10-03T11:33:06.044034+00:00",
+    "binary_sha256": "bbba67cd7774f479ce8bc654fd3b0a9bae43510fbf364016dcc04ed84c5772cf",
     "version": "carstay-pp-cli 2026.10.1",
     "build_arguments": [
       "go",
@@ -1299,11 +1299,11 @@
           "--no-learn"
         ],
         "elapsed_ms": [
-          766.02,
-          719.45,
-          716.52
+          745.7,
+          701.73,
+          705.79
         ],
-        "median_ms": 719.45,
+        "median_ms": 705.79,
         "observations": [
           {
             "envelope": "meta/results",
@@ -1335,11 +1335,11 @@
           "--no-learn"
         ],
         "elapsed_ms": [
-          1364.13,
-          1363.43,
-          1375.91
+          1382.8,
+          1346.75,
+          1338.24
         ],
-        "median_ms": 1364.13,
+        "median_ms": 1346.75,
         "observations": [
           {
             "envelope": "meta/results",
@@ -1377,11 +1377,11 @@
           "--no-learn"
         ],
         "elapsed_ms": [
-          753.28,
-          1244.53,
-          717.93
+          726.11,
+          866.68,
+          712.0
         ],
-        "median_ms": 753.28,
+        "median_ms": 726.11,
         "observations": [
           {
             "envelope": "meta/results",
@@ -1417,5 +1417,7 @@
     "session_or_cookie_artifacts_included": false,
     "local_host_paths_included": false,
     "private_reports_or_receipts_included": false
-  }
+  },
+  "learning_regressions": "Compatible cohorts survive stale outliers with valid example provenance and retire at one supporter. Direct aliases and synthesized bound entities validate actual cached identity; result limits apply after validation/deduplication. Standalone pattern caps remain.",
+  "mcp_state_regressions": "Actual non-dry CLI local-HTTP fixture and generated resolver preserve stale-store/journal/cache bytes, avoid response-cache hits and suppress automatic refresh; ordinary CLI and intentionally writable helpers remain unchanged."
 }

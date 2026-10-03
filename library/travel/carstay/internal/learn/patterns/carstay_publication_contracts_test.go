@@ -3,6 +3,7 @@ package patterns
 
 import (
 	"context"
+	"fmt"
 	"testing"
 )
 
@@ -95,5 +96,27 @@ func TestExplicitTeachingReplacesScopeAndInferencePreservesPayload(t *testing.T)
 				t.Fatalf("explicit cleared examples not recorded: %+v %v", rows, err)
 			}
 		})
+	}
+}
+
+func TestCarstayStandaloneApplyKeepsCapsWhileRecallCanValidateAll(t *testing.T) {
+	db := openApplyTestDB(t)
+	for i := 0; i < 12; i++ {
+		id := fmt.Sprintf("fixture-%02d-alpha", i)
+		if _, err := db.Exec(`INSERT INTO resources(resource_type,id,data) VALUES('widgets',?,'{}')`, id); err != nil {
+			t.Fatal(err)
+		}
+		if _, _, err := Upsert(db, Pattern{QueryTemplate: "widget {entity}", ResourceTemplate: fmt.Sprintf("fixture-%02d-{entity:lowercase}", i), ResourceType: "widgets", Strategy: StrategySubstitute, EntityKind: "lowercase", Source: SourceTaught}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	for _, tc := range []struct {
+		opts Opts
+		want int
+	}{{Opts{}, 10}, {Opts{Limit: 1}, 1}, {Opts{NoLimit: true, Limit: 1}, 12}} {
+		hits, err := Apply(context.Background(), db, "Alpha widget", "widget", []string{"Alpha"}, tc.opts)
+		if err != nil || len(hits) != tc.want {
+			t.Fatalf("standalone/candidate bounds: count%d want%d err%v", len(hits), tc.want, err)
+		}
 	}
 }

@@ -383,28 +383,6 @@ func redirectHostIsBlockedLiteral(host string) bool {
 	return ip.IsLoopback() || ip.IsPrivate() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() || ip.IsUnspecified()
 }
 
-// redirectLeavesOrigin reports whether a redirect hop should drop custom
-// credentials. Host is compared against the original request so a foreign
-// hop (A -> B -> B) cannot re-stamp A's credential onto B. Same-host
-// http -> https keeps the credential. Once any hop in the chain was
-// https, later plaintext hops must not re-stamp; comparing only the
-// original URL and the immediate predecessor misses
-// http -> https -> http -> http.
-func redirectLeavesOrigin(next *url.URL, via []*http.Request) bool {
-	if next.Host != via[0].URL.Host {
-		return true
-	}
-	if next.Scheme == "https" {
-		return false
-	}
-	for _, hop := range via {
-		if hop.URL.Scheme == "https" {
-			return true
-		}
-	}
-	return false
-}
-
 func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 	cacheDir := ""
 	if dir, err := cliutil.CacheDir(); err == nil {

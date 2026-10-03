@@ -165,3 +165,71 @@ func TestForgetSupportedPatternUpdateFailureRollsBack(t *testing.T) {
 		t.Fatalf("pattern rollback lost provenance %#v %v", rows, err)
 	}
 }
+
+func TestForgetRetainsCompatibleCohortDespiteOutliers(t *testing.T) {
+	for _, prefix := range []bool{false, true} {
+		for _, variant := range []string{"conflicting-resource", "missing-lookup", "multi-entity"} {
+			t.Run(map[bool]string{false: "exact/", true: "prefix/"}[prefix]+variant, func(t *testing.T) {
+				s := openLearnings(t)
+				id := seedSurvivingPattern(t, s, prefix)
+				spain := "stop-ES"
+				if prefix {
+					spain += "-session-es"
+				}
+				if _, err := s.DB().Exec(`INSERT INTO entity_lookups(kind,canonical,value,source) VALUES('country','Spain','ES','seeded')`); err != nil {
+					t.Fatal(err)
+				}
+				if _, err := s.DB().Exec(`INSERT INTO resources(resource_type,id,data) VALUES('source',?,'{}')`, spain); err != nil {
+					t.Fatal(err)
+				}
+				query, entities, resource := "stop italy", `["Italy"]`, "stale-IT"
+				if variant == "missing-lookup" {
+					resource = "stop-IT"
+					if prefix {
+						resource += "-session-it"
+					}
+					if _, err := s.DB().Exec(`DELETE FROM entity_lookups WHERE canonical='Italy'`); err != nil {
+						t.Fatal(err)
+					}
+				}
+				if variant == "multi-entity" {
+					query, entities = "stop italy austria", `["Italy","Austria"]`
+				}
+				if _, err := s.DB().Exec(`INSERT INTO search_learnings(query_pattern,query_entities,resource_id,resource_type,action,source,confidence) VALUES(?,?,?,'source','boost','taught',2)`, query, entities, resource); err != nil {
+					t.Fatal(err)
+				}
+				s.DB().SetMaxOpenConns(1)
+				forgetJapan(t, s)
+				s.DB().SetMaxOpenConns(4)
+				rows, err := patterns.List(s.DB(), patterns.ListFilter{})
+				if err != nil || len(rows) != 1 || rows[0].ID != id {
+					t.Fatalf("two compatible supporters lost rule: %#v %v", rows, err)
+				}
+				if strings.Contains(strings.ToLower(rows[0].ExampleQuery), "italy") || strings.Contains(rows[0].ExampleResource, "stale") {
+					t.Fatalf("example selected a non-supporter: %#v", rows[0])
+				}
+				result, err := learn.Recall(context.Background(), s.DB(), "stop Spain", learn.Opts{})
+				if err != nil {
+					t.Fatal(err)
+				}
+				found := false
+				for _, hit := range result.Results {
+					if hit.Source == "pattern" && hit.ResourceID == spain {
+						found = true
+					}
+				}
+				if !found {
+					t.Fatalf("compatible cohort failed actual generalized recall: %+v", result)
+				}
+				n, err := s.ForgetLearnings(context.Background(), store.ForgetLearningsFilter{Query: "stop France", All: true})
+				if err != nil || n != 1 {
+					t.Fatalf("forget final compatible supporter: %d %v", n, err)
+				}
+				rows, err = patterns.List(s.DB(), patterns.ListFilter{})
+				if err != nil || len(rows) != 0 {
+					t.Fatalf("outlier counted as a second compatible binding: %#v %v", rows, err)
+				}
+			})
+		}
+	}
+}
