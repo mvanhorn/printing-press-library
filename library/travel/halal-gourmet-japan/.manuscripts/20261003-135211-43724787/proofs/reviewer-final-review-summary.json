@@ -1,0 +1,49 @@
+{
+  "status": "PASS",
+  "reviewed_at_utc": "2026-10-03T12:27:36.740064+00:00",
+  "reviewer": "single reused independent gpt-6.1-sol MAX reviewer",
+  "outstanding_findings": [],
+  "independent_final_checks": {
+    "full_go_tests": "PASS",
+    "full_go_vet": "PASS",
+    "current_shipping_cli_mcp_workflow_calls": 80,
+    "descriptor_substitution": "original row; private reader path; PASS",
+    "private_temp_uri_regression": "exit10; no facts; no fixture mutation; cleanup PASS",
+    "actual_shipping_sqlite_version": "3.51.3",
+    "shipping_sqlite_module": "v1.46.2",
+    "shipping_libc_module": "v1.70.0",
+    "sql_private_image_cleanup": "PASS"
+  },
+  "current_caveats": [
+    "Non-empty/untruncated WAL or changing public cache state produces an explicit visibility error.",
+    "Saved-reader private images are capped at 128 MiB; cache and resolved TMPDIR paths require plain filesystem names.",
+    "Use one hard link; rejection depends on host metadata. Keep ordinary SQLite writer files in place; external same-user replacement during writing is unsupported.",
+    "Invalid global data-source exits1; domain usage errors exit2."
+  ],
+  "artifacts": [
+    "phase-4.8-findings.md",
+    "phase-4.9-findings.md",
+    "phase-4.85-findings.md",
+    "phase-4.95-findings.md"
+  ],
+  "proofs": [
+    "reviewer-pinned-reader-scope-fixed.json",
+    "reviewer-reader-swap-fixed.json",
+    "reviewer-private-temp-uri-fixed.json",
+    "reviewer-sqlite-runtime-version-fixed.json",
+    "reviewer-final-search-boundaries.json",
+    "reviewer-final-cli-dry-run.json",
+    "reviewer-greptile-mcp-dry-run.json"
+  ],
+  "fingerprint_entries": 100,
+  "fingerprint_sealed_at_utc": "2026-10-03T12:30:44.086343+00:00",
+  "final_readme_sha256": "001acfc29f75b6beeebaa5fdd5fd98b8098d28a8d997b7e3e5269790077f19b2",
+  "all_reviewed_fingerprints_unchanged_after_owner_live_gate": true,
+  "owner_final_live_matrix": {
+    "passed": 114,
+    "failed": 0,
+    "explicit_framework_or_inapplicable_skips": 75,
+    "source_phase5_fingerprint": "bed79b4a286e2adb7b649e727d4691db76c5d4bb28a501676f01fce13d9fd2e9",
+    "reported_source_files": 177
+  }
+}

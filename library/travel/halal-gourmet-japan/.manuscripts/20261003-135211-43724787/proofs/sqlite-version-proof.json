@@ -1,0 +1,25 @@
+{
+  "status": "pass",
+  "ran_at": "2026-10-03T12:17:14.198249Z",
+  "tool": "sql",
+  "query": "SELECT sqlite_version() AS sqlite_version",
+  "response": {
+    "columns": [
+      "sqlite_version"
+    ],
+    "count": 1,
+    "resumable": false,
+    "rows": [
+      {
+        "sqlite_version": "3.51.3"
+      }
+    ],
+    "store_status": "ready",
+    "truncated": false
+  },
+  "module_versions": {
+    "modernc.org/sqlite": "v1.46.2",
+    "modernc.org/libc": "v1.70.0"
+  },
+  "primary_security_source": "https://www.sqlite.org/wal.html#walreset"
+}

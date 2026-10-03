@@ -1,0 +1,74 @@
+{
+  "status": "pass",
+  "ran_at": "2026-10-03T12:17:14.198249Z",
+  "source_inspection_read_after_save": [
+    {
+      "surface": "CLI",
+      "workflow": "restaurants live\u2192saved",
+      "identical": true,
+      "observed_at": "2026-10-03T12:17:12.803719Z"
+    },
+    {
+      "surface": "CLI",
+      "workflow": "prayer live\u2192saved",
+      "identical": true,
+      "observed_at": "2026-10-03T12:17:12.976934Z"
+    },
+    {
+      "surface": "MCP\u2192CLI",
+      "workflow": "restaurants live\u2192saved",
+      "identical": true,
+      "observed_at": "2026-10-03T12:17:13.934931Z"
+    },
+    {
+      "surface": "MCP\u2192CLI",
+      "workflow": "prayer live\u2192saved",
+      "identical": true,
+      "observed_at": "2026-10-03T12:17:14.013523Z"
+    }
+  ],
+  "collection_checks": [
+    {
+      "command": "plan compare",
+      "loaded_count": 2,
+      "results": 2,
+      "normal_cli_agent_mcp_facts_equal": true,
+      "agent_envelope": "meta + complete results payload",
+      "output_bytes": 7272
+    },
+    {
+      "command": "plan match",
+      "loaded_count": 2,
+      "results": 2,
+      "normal_cli_agent_mcp_facts_equal": true,
+      "agent_envelope": "meta + complete results payload",
+      "output_bytes": 1010
+    },
+    {
+      "command": "plan gaps",
+      "loaded_count": 2,
+      "results": 2,
+      "normal_cli_agent_mcp_facts_equal": true,
+      "agent_envelope": "meta + complete results payload",
+      "output_bytes": 1194
+    },
+    {
+      "command": "plan pair",
+      "loaded_count": 2,
+      "results": 1,
+      "normal_cli_agent_mcp_facts_equal": true,
+      "agent_envelope": "meta + complete results payload",
+      "output_bytes": 7425
+    },
+    {
+      "command": "plan changes",
+      "loaded_count": 2,
+      "results": 2,
+      "normal_cli_agent_mcp_facts_equal": true,
+      "agent_envelope": "meta + complete results payload",
+      "output_bytes": 916
+    }
+  ],
+  "ordinary_cli_mcp_workflows": "pass",
+  "sqlite_version": "3.51.3"
+}
