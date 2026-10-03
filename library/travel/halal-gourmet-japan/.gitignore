@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/halal-gourmet-japan-pp-cli
+/halal-gourmet-japan-pp-cli.exe
+/halal-gourmet-japan-pp-mcp
+/halal-gourmet-japan-pp-mcp.exe
+/bin/
+/build/
+/dist/

@@ -1,0 +1,73 @@
+{
+  "method": "single representative cold CLI invocations on macOS, /usr/bin/time -l maximum RSS; public GET reads with isolated local state, no routing benchmark",
+  "bounded_source_body_mib": 8,
+  "bounded_selected_ids_per_kind": 20,
+  "measurements": [
+    {
+      "command": "restaurants get",
+      "elapsed_seconds": 0.386,
+      "maximum_rss_mib": 29.64,
+      "output_bytes": 4559,
+      "exit": 0
+    },
+    {
+      "command": "prayer get",
+      "elapsed_seconds": 0.069,
+      "maximum_rss_mib": 27.78,
+      "output_bytes": 3741,
+      "exit": 0
+    },
+    {
+      "command": "restaurants search",
+      "elapsed_seconds": 0.763,
+      "maximum_rss_mib": 27.7,
+      "output_bytes": 21607,
+      "exit": 0
+    },
+    {
+      "command": "plan compare",
+      "elapsed_seconds": 0.012,
+      "maximum_rss_mib": 20.2,
+      "output_bytes": 9717,
+      "exit": 0,
+      "loaded_count": 2,
+      "results": 2
+    },
+    {
+      "command": "plan match",
+      "elapsed_seconds": 0.012,
+      "maximum_rss_mib": 20.28,
+      "output_bytes": 1627,
+      "exit": 0,
+      "loaded_count": 2,
+      "results": 2
+    },
+    {
+      "command": "plan gaps",
+      "elapsed_seconds": 0.012,
+      "maximum_rss_mib": 20.02,
+      "output_bytes": 1485,
+      "exit": 0,
+      "loaded_count": 2,
+      "results": 2
+    },
+    {
+      "command": "plan pair",
+      "elapsed_seconds": 0.012,
+      "maximum_rss_mib": 21.62,
+      "output_bytes": 10454,
+      "exit": 0,
+      "loaded_count": 2,
+      "results": 1
+    },
+    {
+      "command": "plan changes",
+      "elapsed_seconds": 0.015,
+      "maximum_rss_mib": 20.45,
+      "output_bytes": 961,
+      "exit": 0,
+      "loaded_count": 2,
+      "results": 2
+    }
+  ]
+}

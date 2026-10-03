@@ -1,0 +1,30 @@
+{
+  "status": "pass",
+  "full_matrix_required_passed": 114,
+  "full_matrix_failed": 0,
+  "framework_or_inapplicable_skipped": 75,
+  "ran_at": "2026-10-03T10:04:27.312334Z",
+  "provider_scope": "public HTTP GET only, no account mutations",
+  "real_GET_args": [
+    {
+      "command": "prayer get",
+      "args": [
+        "prayer",
+        "get",
+        "838884",
+        "--agent"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "restaurants get",
+      "args": [
+        "restaurants",
+        "get",
+        "300739",
+        "--agent"
+      ],
+      "status": "pass"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "halal-gourmet-japan-pp-mcp",
+  "display_name": "Halal Gourmet Japan",
+  "version": "0.1.0",
+  "description": "Compare explicit food and prayer evidence across Japan with source dates and honest unknowns.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/halal-gourmet-japan-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/halal-gourmet-japan-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

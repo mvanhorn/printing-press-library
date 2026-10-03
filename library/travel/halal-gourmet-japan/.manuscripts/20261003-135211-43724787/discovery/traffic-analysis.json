@@ -1,0 +1,160 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://halalgourmet.jp/",
+    "captured_at": "2026-10-03T06:10:52.840849+00:00",
+    "entry_count": 5,
+    "api_entry_count": 5,
+    "noise_entry_count": 0,
+    "host_distribution": {
+      "halalgourmet.jp": 5
+    }
+  },
+  "protocols": [
+    {
+      "label": "ssr_embedded_data",
+      "confidence": 1,
+      "details": {
+        "format": "Next.js RSC plus structured semantic HTML"
+      }
+    }
+  ],
+  "auth": {
+    "candidates": [],
+    "captcha_preflight": false
+  },
+  "protections": [],
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 1,
+    "reasons": [
+      "Exact public browser-observed HTML routes replay over ordinary HTTP without auth."
+    ]
+  },
+  "endpoint_clusters": [
+    {
+      "method": "GET",
+      "host": "halalgourmet.jp",
+      "path": "/",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "text/html"
+      ],
+      "size_class": "medium",
+      "response_shape": {
+        "kind": "html",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "conditions",
+            "type": "array"
+          },
+          {
+            "name": "source_url",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "halalgourmet.jp",
+      "path": "/search",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "text/html"
+      ],
+      "size_class": "medium",
+      "response_shape": {
+        "kind": "html",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "conditions",
+            "type": "array"
+          },
+          {
+            "name": "source_url",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "halalgourmet.jp",
+      "path": "/restaurant/{id}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "text/html"
+      ],
+      "size_class": "medium",
+      "response_shape": {
+        "kind": "html",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "conditions",
+            "type": "array"
+          },
+          {
+            "name": "source_url",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "halalgourmet.jp",
+      "path": "/pray/{id}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "text/html"
+      ],
+      "size_class": "medium",
+      "response_shape": {
+        "kind": "html",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "conditions",
+            "type": "array"
+          },
+          {
+            "name": "source_url",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  ],
+  "generation_hints": [
+    "Structured HTML extraction; no browser runtime"
+  ],
+  "warnings": []
+}

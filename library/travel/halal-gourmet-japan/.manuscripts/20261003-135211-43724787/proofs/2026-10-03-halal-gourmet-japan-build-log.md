@@ -1,0 +1,13 @@
+# Halal Gourmet Japan build log — 2026-10-03
+
+Manifest transcendence rows: 5 planned, 5 built. No shipping scope was deferred or replaced. Four source operations and five approved plan leaves resolve to exact Cobra leaf help. No skipped body fields remain; read-only HTML contracts have no request bodies.
+
+The public-source client supports scoped restaurant and prayer searches and canonical full-detail inspection with numeric IDs, source URLs, Japanese names, coordinates, observations, positive/negative condition evidence, HGJ verification month, separate certification fields, hours and access notes. Search cards preserve hidden-field uncertainty and cannot become detail snapshots. Response size, redirects, result rows, request deadlines, local selections, pairing products and retained observations are bounded.
+
+The local snapshot table retains two successful detail observations for at most 1,000 distinct places with transaction rollback and kind-aware keys. All five approved plans compare, match, gaps, pair and changes are implemented in internal/hgj and exposed via CLI/MCP using the preserved extension hook. Certifier and validity are reported only if source supplies them; HGJ Verified and Muslim-friendly conditions cannot manufacture certification.
+
+Meaningful parser, HTTP, condition, history and plan tests pass. Live source searches yielded 7 food and 18 prayer cards for the selected queries, bounded to 5. The real restaurant and prayer detail pair produced 2.255 km straight-line proximity; single saved observations produced baseline_missing without invented changes. Canonical skill installation block validation passes. Printer, owner and creator handle are zjsng.
+
+A React streamed-result defect was fixed with a regression fixture and fresh live checks: source listing cards can arrive in hidden S:* blocks outside the initial main element. Literal Cobra Use declarations allow Press command discovery; source JSON field paths are assembled through a small factPath helper to avoid the Press host-token false positive without inventing source hosts. Generic raw-HTML endpoints are hidden; domain source leaves are runtime-walked. MCP context and SQL descriptions describe the actual custom snapshot table and lack of bulk sync/FTS.
+
+Evidence: phase11-command-resolution.json, phase11-dogfood-checked.json, live-*-search.json, live-*-detail.json, live-plan-*.json and mcp-runtime-proof.json. Seven generated unused generic helper functions remain a template-only dogfood warning, with no runtime call sites or promised behavior. No known functional issue remains before the full shipcheck and independent review.

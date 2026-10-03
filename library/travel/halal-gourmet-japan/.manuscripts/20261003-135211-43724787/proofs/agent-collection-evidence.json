@@ -1,0 +1,31 @@
+{
+  "checks": [
+    {
+      "command": "plan compare",
+      "normal_json_agent_mcp_equal": true,
+      "rows": 2
+    },
+    {
+      "command": "plan match",
+      "normal_json_agent_mcp_equal": true,
+      "rows": 2
+    },
+    {
+      "command": "plan gaps",
+      "normal_json_agent_mcp_equal": true,
+      "rows": 2
+    },
+    {
+      "command": "plan pair",
+      "normal_json_agent_mcp_equal": true,
+      "rows": 1
+    },
+    {
+      "command": "plan changes",
+      "normal_json_agent_mcp_equal": true,
+      "rows": 2
+    }
+  ],
+  "certification_prayer_requirements_distance": "preserved",
+  "bounded_selections": true
+}

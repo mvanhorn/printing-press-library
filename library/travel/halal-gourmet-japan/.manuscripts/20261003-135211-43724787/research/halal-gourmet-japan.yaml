@@ -1,0 +1,142 @@
+name: halal-gourmet-japan
+description: Search food and prayer evidence across Japan without conflating source labels with certification.
+version: "0.1.0"
+category: travel
+printer: zjsng
+printer_name: Jet Sng
+mcp:
+  transport: [stdio]
+  endpoint_tools: hidden
+base_url: https://halalgourmet.jp
+http_transport: standard
+auth:
+  type: none
+learn:
+  ticker_patterns: ["^[0-9]{6}$"]
+  entity_lookup_seeds:
+    prefecture:
+      - canonical: Tokyo
+        aliases: [tokyo, 東京都, 東京]
+      - canonical: Kyoto
+        aliases: [kyoto, 京都府, 京都]
+      - canonical: Osaka
+        aliases: [osaka, 大阪府, 大阪]
+  synonyms:
+    pork-free: pork free
+    wi-fi: wifi
+resources:
+  restaurants:
+    description: Public restaurant condition evidence
+    endpoints:
+      search:
+        method: GET
+        path: /search
+        description: Search restaurants by destination and source filters
+        example: "  halal-gourmet-japan-pp-cli restaurants search --prefecture Tokyo --query ramen --limit 5 --agent"
+        happy_args: "--prefecture=Tokyo;--query=ramen;--limit=5"
+        params:
+          - name: q
+            flag_name: query
+            type: string
+            description: Keyword from the source search field
+          - name: prefecture
+            type: string
+            description: Japanese prefecture, such as Tokyo or Kyoto
+          - name: genre
+            type: string
+            description: Source cuisine label, such as Ramen
+          - name: feature
+            type: string
+            description: Source food condition key, such as certified
+          - name: category
+            type: string
+            default: restaurant
+            description: Source search target
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/restaurant]
+        response:
+          type: array
+          item: Place
+      get:
+        method: GET
+        path: /restaurant/{id}
+        description: Inspect restaurant food conditions and source verification
+        example: "  halal-gourmet-japan-pp-cli restaurants get 300739 --agent"
+        happy_args: "id=300739"
+        params:
+          - name: id
+            type: string
+            positional: true
+            required: true
+            description: Stable numeric source alias ID
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: object
+          item: Place
+  prayer:
+    description: Mosque and prayer-space condition evidence
+    endpoints:
+      search:
+        method: GET
+        path: /search
+        description: Search mosques and prayer spaces by destination
+        example: "  halal-gourmet-japan-pp-cli prayer search --prefecture Tokyo --limit 5 --agent"
+        happy_args: "--prefecture=Tokyo;--limit=5"
+        params:
+          - name: q
+            flag_name: query
+            type: string
+            description: Keyword from the source search field
+          - name: prefecture
+            type: string
+            description: Japanese prefecture, such as Tokyo or Kyoto
+          - name: category
+            type: string
+            default: prayer
+            description: Source search target
+          - name: placeType
+            flag_name: place-type
+            type: string
+            description: Source prayer type spaces or mosques
+          - name: prayerFeature
+            flag_name: prayer-feature
+            type: string
+            description: Source prayer facility key
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: [/pray]
+        response:
+          type: array
+          item: Place
+      get:
+        method: GET
+        path: /pray/{id}
+        description: Inspect prayer-space facilities and explicit access evidence
+        example: "  halal-gourmet-japan-pp-cli prayer get 838884 --agent"
+        happy_args: "id=838884"
+        params:
+          - name: id
+            type: string
+            positional: true
+            required: true
+            description: Stable numeric source alias ID
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: object
+          item: Place
+types:
+  Place:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: source_url
+        type: string
