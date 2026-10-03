@@ -238,7 +238,20 @@ func snowLocal(ctx context.Context, cmd *cobra.Command, flags *rootFlags, resour
 			fmt.Fprintf(cmd.ErrOrStderr(), "hint: complete local resort directory was captured at %s; explicitly sync --resources resorts to refresh\n", firstObserved)
 		}
 	} else if season == "" && !hintIfUnsynced(cmd, db, resource) {
-		hintIfStale(cmd, db, resource, flags.maxAge)
+		if len(out) > 0 {
+			// An exact capture refreshes only its own rows. The resource
+			// sync timestamp cannot establish the age of other saved
+			// observations or older list metadata.
+			firstObserved, _ := snowObservationRange(out)
+			at, parseErr := time.Parse(time.RFC3339, firstObserved)
+			if parseErr != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: saved %s observation time is invalid; explicitly sync to refresh\n", resource)
+			} else if flags.maxAge > 0 && time.Since(at) > flags.maxAge {
+				fmt.Fprintf(cmd.ErrOrStderr(), "hint: local %s include observations from %s; explicitly capture the older records to refresh\n", resource, firstObserved)
+			}
+		} else {
+			hintIfStale(cmd, db, resource, flags.maxAge)
+		}
 	}
 	return out, complete, nil
 }
@@ -385,6 +398,37 @@ func configureSnowResortsList(cmd *cobra.Command, flags *rootFlags, search bool)
 	cmd.Flags().Float64Var(&minLifts, "min-lifts", 0, "Minimum installed lift count; this does not filter current operating lifts")
 }
 
+// snowSavedDetail rejects a list projection instead of presenting it as an
+// inspected record. Automatic network fallback uses the same detail contract.
+func snowSavedDetail(rows []snowjapan.Fact, id, resource string) (snowjapan.Fact, error) {
+	var found snowjapan.Fact
+	var err error
+	if resource == "resorts" {
+		found, err = snowResolve(rows, id)
+	} else {
+		for _, row := range rows {
+			if snowName(row, "id") == id {
+				found = row
+				break
+			}
+		}
+		if found == nil {
+			err = fmt.Errorf("report is absent from the local mirror")
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	expected, selector := "detail-v1", "--resorts"
+	if resource == "reports" {
+		expected, selector = "report-observations-v1", "--reports"
+	}
+	if snowName(found, "projection") != expected {
+		return nil, fmt.Errorf("detail_not_captured: saved %s projection is %q; capture it with sync --resources %s %s %s", resource, snowName(found, "projection"), resource, selector, snowName(found, "id"))
+	}
+	return found, nil
+}
+
 func newSnowGet(flags *rootFlags, resource string) *cobra.Command {
 	sample := "nagano-prefecture/hakuba-village/able-hakuba-goryu"
 	if resource == "reports" {
@@ -405,21 +449,7 @@ func newSnowGet(flags *rootFlags, resource string) *cobra.Command {
 				if e != nil {
 					return e
 				}
-				id := args[0]
-				var found snowjapan.Fact
-				if resource == "resorts" {
-					found, e = snowResolve(rows, id)
-				} else {
-					for _, r := range rows {
-						if snowName(r, "id") == id {
-							found = r
-							break
-						}
-					}
-					if found == nil {
-						e = fmt.Errorf("report is absent from the local mirror; sync its exact id")
-					}
-				}
+				found, e := snowSavedDetail(rows, args[0], resource)
 				if e != nil {
 					return e
 				}
@@ -438,16 +468,7 @@ func newSnowGet(flags *rootFlags, resource string) *cobra.Command {
 					rows, _, localErr := snowLocal(ctx, cmd, flags, resource, "", false)
 					var cached snowjapan.Fact
 					if localErr == nil {
-						if resource == "resorts" {
-							cached, localErr = snowResolve(rows, args[0])
-						} else {
-							for _, r := range rows {
-								if snowName(r, "id") == args[0] {
-									cached = r
-									break
-								}
-							}
-						}
+						cached, localErr = snowSavedDetail(rows, args[0], resource)
 					}
 					if localErr == nil && cached != nil {
 						fmt.Fprintln(cmd.ErrOrStderr(), "warning: source network unavailable; returning explicitly dated local facts")
@@ -585,9 +606,9 @@ func newSnowReportsList(flags *rootFlags) *cobra.Command {
 }
 
 func newSnowSync(flags *rootFlags) *cobra.Command {
-	var resourceCSV, resortCSV, param string
+	var resourceCSV, resortCSV, reportCSV, param string
 	var resourceParams []string
-	cmd := &cobra.Command{Use: "sync", Short: "Explicitly save bounded source facts and resort observation history to local SQLite.", Example: "  snowjapan-pp-cli sync --resources resorts\n  snowjapan-pp-cli sync --resources seasons --resource-param seasons:season=2025-2026\n  snowjapan-pp-cli sync --resources resorts --resorts nagano-prefecture/hakuba-village/able-hakuba-goryu", Annotations: map[string]string{"mcp:local-write": "true", "pp:data-source": "live", "pp:happy-args": snowHappyArgs("--resources=resorts,seasons;--resource-param=seasons:season=2025-2026"), "pp:live-happy-path": "true"},
+	cmd := &cobra.Command{Use: "sync", Short: "Explicitly save bounded source facts and resort observation history to local SQLite.", Example: "  snowjapan-pp-cli sync --resources resorts\n  snowjapan-pp-cli sync --resources seasons --resource-param seasons:season=2025-2026\n  snowjapan-pp-cli sync --resources resorts --resorts nagano-prefecture/hakuba-village/able-hakuba-goryu\n  snowjapan-pp-cli sync --resources reports --reports hakuba-now-1st-october-2026", Annotations: map[string]string{"mcp:local-write": "true", "pp:data-source": "live", "pp:happy-args": snowHappyArgs("--resources=resorts,seasons;--resource-param=seasons:season=2025-2026"), "pp:live-happy-path": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "sync factual mirror")
@@ -629,6 +650,22 @@ func newSnowSync(flags *rootFlags) *cobra.Command {
 			if resortCSV != "" && (!seen["resorts"] || len(selected) != 1) {
 				return usageErr(fmt.Errorf("--resorts detail capture requires --resources resorts only"))
 			}
+			if reportCSV != "" {
+				if !seen["reports"] || len(selected) != 1 {
+					return usageErr(fmt.Errorf("--reports detail capture requires --resources reports only"))
+				}
+				ids := strings.Split(reportCSV, ",")
+				if len(ids) > 4 {
+					return usageErr(fmt.Errorf("--reports capture accepts at most four exact dated report ids"))
+				}
+				unique := map[string]bool{}
+				for _, id := range ids {
+					if id == "" || unique[id] {
+						return usageErr(fmt.Errorf("--reports requires distinct nonempty dated report ids"))
+					}
+					unique[id] = true
+				}
+			}
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
 			c := snowjapan.NewWithRateLimit(flags.rateLimit)
@@ -661,7 +698,18 @@ func newSnowSync(flags *rootFlags) *cobra.Command {
 				case "seasons":
 					facts, e = c.Seasons(ctx, season)
 				case "reports":
-					facts, e = c.Reports(ctx)
+					if reportCSV == "" {
+						facts, e = c.Reports(ctx)
+					} else {
+						for _, id := range strings.Split(reportCSV, ",") {
+							f, er := c.Report(ctx, id)
+							if er != nil {
+								e = er
+								break
+							}
+							facts = append(facts, f)
+						}
+					}
 				}
 				if e != nil {
 					return classifyAPIError(cmd.OutOrStdout(), e, flags)
@@ -700,6 +748,7 @@ func newSnowSync(flags *rootFlags) *cobra.Command {
 		}}
 	cmd.Flags().StringVar(&resourceCSV, "resources", "resorts", "Comma-separated factual resources to save: resorts,seasons,reports")
 	cmd.Flags().StringVar(&resortCSV, "resorts", "", "At most four exact canonical resort ids for detailed snapshot capture")
+	cmd.Flags().StringVar(&reportCSV, "reports", "", "At most four exact dated report ids to capture base/town snow observations")
 	cmd.Flags().StringVar(&param, "param", "", "Source parameter season=YYYY-YYYY for historical seasonal sync")
 	cmd.Flags().StringArrayVar(&resourceParams, "resource-param", nil, "Resource source parameter; supported form seasons:season=YYYY-YYYY")
 	return cmd

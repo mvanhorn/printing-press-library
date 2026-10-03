@@ -107,6 +107,9 @@ func TestDeclarationNeverEvaluatesJavascript(t *testing.T) {
 		{"literal date", `var _Flourish_data = {"date":new Date(123456),"text":"new Date(7)"};`, false},
 		{"executable expression", `var _Flourish_data = {"date":evil()};`, true},
 		{"nonliteral date", `var _Flourish_data = {"date":new Date(secret)};`, true},
+		{"unrelated trailing date", `var _Flourish_data = {"date":new Date(123456),"text":"new Date(7)"}; var unrelated = new Date(secret);`, false},
+		{"unrelated trailing incomplete string", `var _Flourish_data = {"nested":[{"date":new Date(123456)}],"text":"new Date(7)"}; var unrelated = "new Date(secret)`, false},
+		{"unclosed declared data", `var _Flourish_data = {"date":new Date(123456); var unrelated = {};`, true},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {

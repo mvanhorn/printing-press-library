@@ -82,3 +82,96 @@ func TestCoveragePartitionsInconsistentSourceEvidence(t *testing.T) {
 		t.Fatalf("coverage=%s", out.String())
 	}
 }
+
+func TestLocalGetRequiresCapturedDetailProjection(t *testing.T) {
+	for _, tc := range []struct {
+		resource, projection, id string
+		valid                    bool
+	}{
+		{"resorts", "catalog-v1", "nagano-prefecture/hakuba-village/able-hakuba-goryu", false},
+		{"resorts", "detail-v1", "nagano-prefecture/hakuba-village/able-hakuba-goryu", true},
+		{"reports", "report-metadata-v1", "hakuba-now-1st-october-2026", false},
+		{"reports", "report-observations-v1", "hakuba-now-1st-october-2026", true},
+	} {
+		t.Run(tc.projection, func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "facts.db")
+			db, err := store.Open(path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			raw, _ := json.Marshal(map[string]any{"id": tc.id, "projection": tc.projection, "observed_at": time.Now().UTC().Format(time.RFC3339), "new_snow_cm": 0})
+			if _, _, err := db.UpsertBatch(tc.resource, []json.RawMessage{raw}); err != nil {
+				t.Fatal(err)
+			}
+			db.Close()
+			root := &cobra.Command{Use: "test", SilenceErrors: true, SilenceUsage: true}
+			root.PersistentFlags().String("db", path, "")
+			root.AddCommand(newSnowGet(&rootFlags{dataSource: "local", agent: true}, tc.resource))
+			var out, diagnostic bytes.Buffer
+			root.SetOut(&out)
+			root.SetErr(&diagnostic)
+			root.SetArgs([]string{"get", tc.id})
+			err = root.Execute()
+			if !tc.valid {
+				if err == nil || !strings.Contains(err.Error(), "detail_not_captured") || !strings.Contains(err.Error(), "--"+tc.resource) {
+					t.Fatalf("list projection accepted: output=%s error=%v", out.String(), err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			var result map[string]any
+			if err := json.Unmarshal(out.Bytes(), &result); err != nil {
+				t.Fatal(err)
+			}
+			if result["projection"] != tc.projection || result["new_snow_cm"] != float64(0) {
+				t.Fatalf("detail fields lost: %s", out.String())
+			}
+		})
+	}
+}
+
+func TestReportCaptureSelectorsAreBoundedBeforeSourceReads(t *testing.T) {
+	for _, args := range [][]string{
+		{"--resources", "resorts", "--reports", "hakuba-now-1st-october-2026"},
+		{"--resources", "reports", "--reports", "a,b,c,d,e"},
+		{"--resources", "reports", "--reports", "a,a"},
+		{"--resources", "reports", "--reports", ",a"},
+	} {
+		root := &cobra.Command{Use: "test", SilenceErrors: true, SilenceUsage: true}
+		path := filepath.Join(t.TempDir(), "not-created.db")
+		root.PersistentFlags().String("db", path, "")
+		root.AddCommand(newSnowSync(&rootFlags{dataSource: "live"}))
+		root.SetArgs(append([]string{"sync"}, args...))
+		if err := root.Execute(); err == nil {
+			t.Fatalf("unbounded/mismatched selector accepted: %v", args)
+		}
+	}
+}
+
+func TestReportFreshnessDoesNotUseLaterPartialCapture(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "facts.db")
+	db, err := store.Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	old := time.Now().UTC().Add(-2 * time.Hour).Format(time.RFC3339)
+	metadata, _ := json.Marshal(map[string]any{"id": "niseko-now-1st-october-2026", "projection": "report-metadata-v1", "observed_at": old})
+	detail, _ := json.Marshal(map[string]any{"id": "hakuba-now-1st-october-2026", "projection": "report-observations-v1", "observed_at": time.Now().UTC().Format(time.RFC3339)})
+	if _, _, err := db.UpsertBatch("reports", []json.RawMessage{metadata, detail}); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.SaveSyncState("reports", "", 1); err != nil {
+		t.Fatal(err)
+	}
+	db.Close()
+	cmd := &cobra.Command{Use: "test"}
+	cmd.PersistentFlags().String("db", path, "")
+	var hints bytes.Buffer
+	cmd.SetErr(&hints)
+	rows, _, err := snowLocal(context.Background(), cmd, &rootFlags{maxAge: 30 * time.Minute}, "reports", "", false)
+	if err != nil || len(rows) != 2 || !strings.Contains(hints.String(), "hint: local reports include observations from "+old) {
+		t.Fatalf("fresh partial report capture hid older evidence: rows=%v error=%v hints=%q", rows, err, hints.String())
+	}
+}

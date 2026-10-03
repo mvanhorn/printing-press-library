@@ -20,7 +20,10 @@
     "internal/cli/plan_coverage.go",
     "internal/cli/plan_changes.go",
     "internal/cli/resorts_search.go",
-    "scripts/verify-live.sh"
+    "scripts/verify-live.sh",
+    "internal/snowjapan/source_test.go",
+    "internal/store/snowjapan_snapshots_test.go",
+    "internal/cli/snowjapan_evidence_test.go"
   ],
-  "validated_outcome": "Live source projections and independent CLI/MCP checks cover stable identities, historical units, explicit unsynced winters, numeric null/zero semantics and read-only local planners."
+  "validated_outcome": "Live source projections and independent CLI/MCP checks cover stable identities, complete historical units, unsynced winters, numeric null/zero semantics, newest compatible saved comparisons, exact offline detail projections and declaration-bounded non-executing chart parsing."
 }

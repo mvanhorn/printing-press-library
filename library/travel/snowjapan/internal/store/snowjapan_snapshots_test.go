@@ -138,3 +138,45 @@ func TestSnowJapanSeasonCaptureIsScopedAndAtomic(t *testing.T) {
 		t.Fatal("another winter's capture was treated as requested evidence")
 	}
 }
+
+func TestSnowJapanChangesUseMostRecentCompatibleProjection(t *testing.T) {
+	s, err := Open(filepath.Join(t.TempDir(), "facts.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	ctx := context.Background()
+	observations := []struct {
+		projection, at string
+		peak           int
+	}{
+		{"catalog-v1", "catalog-first", 100},
+		{"detail-v1", "detail-first", 150},
+		{"detail-v1", "detail-second", 150},
+		{"catalog-v1", "catalog-latest", 200},
+		{"detail-v1", "detail-latest", 250},
+	}
+	for i, observation := range observations {
+		raw := snapshot("a", observation.projection, observation.at, observation.peak)
+		if err := s.CaptureSnowJapan(ctx, []json.RawMessage{raw}, observation.projection == "catalog-v1"); err != nil {
+			t.Fatal(err)
+		}
+		if i < 3 {
+			continue
+		}
+		pair, err := s.SnowJapanSnapshotPair(ctx, "a")
+		if err != nil || len(pair) != 2 {
+			t.Fatalf("pair=%s error=%v", pair, err)
+		}
+		var latest, baseline map[string]any
+		if err := json.Unmarshal(pair[0], &latest); err != nil {
+			t.Fatal(err)
+		}
+		if err := json.Unmarshal(pair[1], &baseline); err != nil {
+			t.Fatal(err)
+		}
+		if latest["projection"] != observation.projection || latest["peak_m"] != float64(observation.peak) || baseline["projection"] != observation.projection {
+			t.Fatalf("newer saved facts hidden or incompatible baseline: %s", pair)
+		}
+	}
+}

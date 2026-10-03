@@ -179,7 +179,8 @@ func (s *Store) SnowJapanSeason(ctx context.Context, season string) ([]json.RawM
 }
 
 // SnowJapanSnapshotPair returns the latest two observations of the same
-// projection. A richer detail record is used only when it has two observations.
+// projection, choosing the most recently captured compatible pair. A newer
+// single observation cannot replace an available two-observation baseline.
 func (s *Store) SnowJapanSnapshotPair(ctx context.Context, id string) ([]json.RawMessage, error) {
 	var exists int
 	if err := s.db.QueryRowContext(ctx, `SELECT count(*) FROM sqlite_master WHERE type='table' AND name='snowjapan_snapshots'`).Scan(&exists); err != nil {
@@ -189,7 +190,7 @@ func (s *Store) SnowJapanSnapshotPair(ctx context.Context, id string) ([]json.Ra
 		return []json.RawMessage{}, nil
 	}
 	var projection string
-	err := s.db.QueryRowContext(ctx, `SELECT projection FROM snowjapan_snapshots WHERE id=? GROUP BY projection ORDER BY (COUNT(*)>=2) DESC, (projection='detail-v1') DESC LIMIT 1`, id).Scan(&projection)
+	err := s.db.QueryRowContext(ctx, `SELECT projection FROM snowjapan_snapshots WHERE id=? GROUP BY projection ORDER BY (COUNT(*)>=2) DESC, MAX(seq) DESC LIMIT 1`, id).Scan(&projection)
 	if err == sql.ErrNoRows {
 		return []json.RawMessage{}, nil
 	}

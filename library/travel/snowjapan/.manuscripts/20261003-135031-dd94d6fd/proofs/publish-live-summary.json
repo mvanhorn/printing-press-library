@@ -6,7 +6,7 @@
   "unverified": 85,
   "matrix_size": 135,
   "level": "full",
-  "ran_at": "2026-10-03T09:50:35.979286Z",
+  "ran_at": "2026-10-03T10:30:19.033083Z",
   "private_raw_transcript_deleted": true,
   "real_planner_happy_paths": [
     {
@@ -40,6 +40,14 @@
       "captured_source_evidence": true
     }
   ],
+  "offline_detail_checks": {
+    "report_projection": "report-observations-v1",
+    "new_snow_cm": 0,
+    "season_snowfall_cm": 0,
+    "resort_projection": "detail-v1"
+  },
   "sync_matrix_special_rule": "Skipped by Press; independently exercised by portable fixture setup",
-  "fixture": "Temporary public-source catalog, completed winter and two detailed observations; removed on exit"
+  "fixture": "Temporary public-source catalog, completed winter, two resort details and exact dated report observations; removed on exit",
+  "review_fix_round": 1,
+  "partial_capture_freshness": "Actual saved observation ranges; independently reviewed"
 }

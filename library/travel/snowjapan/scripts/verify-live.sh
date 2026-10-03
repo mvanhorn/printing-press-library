@@ -26,6 +26,16 @@ for task_observation in first second; do
     > "$task_proofs/fixture-detail-$task_observation.json"
 done
 
+"$task_cli" sync --resources reports --reports hakuba-now-1st-october-2026 \
+  --db "$task_db" --home "$task_fixture/home" --no-learn --agent \
+  > "$task_proofs/fixture-report-capture.json"
+"$task_cli" reports get hakuba-now-1st-october-2026 --data-source local \
+  --db "$task_db" --home "$task_fixture/home" --no-learn --agent \
+  > "$task_proofs/fixture-report-local.json"
+"$task_cli" resorts get able-hakuba-goryu --data-source local \
+  --db "$task_db" --home "$task_fixture/home" --no-learn --agent \
+  > "$task_proofs/fixture-resort-local.json"
+
 # This opt-in changes test annotation arguments only. Normal users retain
 # portable examples, the normal database path and explicit sync semantics.
 PP_SNOWJAPAN_FIXTURE_DB="$task_db" "$task_press" dogfood --live \

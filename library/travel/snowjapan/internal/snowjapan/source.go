@@ -184,10 +184,14 @@ func declaration(body []byte, name string, out any) error {
 		return fmt.Errorf("source schema changed: %s declaration absent", name)
 	}
 	raw := body[at[1]:]
+	if len(raw) == 0 || (raw[0] != '{' && raw[0] != '[') {
+		return fmt.Errorf("source declaration %s is not a data container", name)
+	}
 	// Accept only literal new Date(integer) outside quoted JSON strings.
 	// This is syntax normalization, never Javascript evaluation.
 	var b bytes.Buffer
 	inString, escaped := false, false
+	depth := 0
 	for i := 0; i < len(raw); i++ {
 		ch := raw[i]
 		if inString {
@@ -219,7 +223,15 @@ func declaration(body []byte, name string, out any) error {
 			i = j
 			continue
 		}
+		if ch == '{' || ch == '[' {
+			depth++
+		} else if ch == '}' || ch == ']' {
+			depth--
+		}
 		b.WriteByte(ch)
+		if depth == 0 {
+			break // Only normalize this declaration; trailing scripts are unrelated.
+		}
 	}
 	dec := json.NewDecoder(&b)
 	dec.UseNumber()

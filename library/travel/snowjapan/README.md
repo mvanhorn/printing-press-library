@@ -160,7 +160,16 @@ snowjapan-pp-cli sync --resources resorts --resorts nagano-prefecture/hakuba-vil
 snowjapan-pp-cli plan changes --resorts able-hakuba-goryu --agent
 ```
 
-The first capture has `missing_baseline`. Repeating the explicit detailed capture supplies a second observation; unchanged facts produce an empty change list.
+With no compatible pair, output has `missing_baseline`. Repeating the explicit detailed capture supplies a second observation; unchanged facts produce an empty change list. The comparison selects the most recently saved compatible pair across catalog and detail projections, so a newer catalog pair is not hidden by older detail observations.
+
+Offline `resorts get` and `reports get` require an exact detail capture. A list-only projection returns `detail_not_captured`, including a capture command, and cannot serve as automatic network fallback. To save a report’s numeric observations (up to four exact dated IDs):
+
+```bash
+snowjapan-pp-cli sync --resources reports --reports hakuba-now-1st-october-2026
+snowjapan-pp-cli reports get hakuba-now-1st-october-2026 --data-source local --agent
+```
+
+Ordinary report sync saves list metadata. A later list sync can replace the mirror row; repeat the exact detail capture before offline inspection. Freshness hints use the actual saved observation times; a fresh partial capture does not refresh unrelated older records.
 
 ## Source scope and evidence
 
