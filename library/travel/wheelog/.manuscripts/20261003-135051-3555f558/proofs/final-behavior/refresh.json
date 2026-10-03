@@ -1,0 +1,63 @@
+{
+  "meta": {
+    "provider": "wheelog",
+    "source": "live"
+  },
+  "results": {
+    "coverage": {
+      "examined": 3,
+      "live_observations": 3,
+      "output_limit": 3,
+      "saved": 3,
+      "scope": "selected_saved_spots"
+    },
+    "fetch_failures": [],
+    "note": "Changes describe recorded public-place fields and aggregate reports, not a physical improvement or deterioration. Local mode shows the last saved transition.",
+    "results": [
+      {
+        "cache_age_days": 3.0717592592592594e-8,
+        "changes": [],
+        "current_retrieved_at": "2026-10-03T09:45:21.377093Z",
+        "data_source": "live",
+        "id": 166344,
+        "name": "成田空港 エレベーター",
+        "previous_retrieved_at": "2026-10-03T09:45:19.140501Z",
+        "recheck_reasons": [],
+        "record_update_age_days": 1.2124878079629628,
+        "requirements": [],
+        "source_url": "https://app.wheelog.com/?spotId=166344\u0026la=ja",
+        "status": "unchanged"
+      },
+      {
+        "cache_age_days": 2.5081018518518518e-8,
+        "changes": [],
+        "current_retrieved_at": "2026-10-03T09:45:21.7104Z",
+        "data_source": "live",
+        "id": 166345,
+        "name": "成田空港 多機能トイレ",
+        "previous_retrieved_at": "2026-10-03T09:45:18.8105Z",
+        "recheck_reasons": [
+          "question_101_unreported"
+        ],
+        "record_update_age_days": 1.2036636458564816,
+        "requirements": [],
+        "source_url": "https://app.wheelog.com/?spotId=166345\u0026la=ja",
+        "status": "unchanged"
+      },
+      {
+        "cache_age_days": 5.300925925925926e-9,
+        "changes": [],
+        "current_retrieved_at": "2026-10-03T09:45:22.213214Z",
+        "data_source": "live",
+        "id": 166347,
+        "name": "京成線 成田空港駅 第2・第3ターミナル方面出口",
+        "previous_retrieved_at": "2026-10-03T09:45:19.640831Z",
+        "recheck_reasons": [],
+        "record_update_age_days": 1.1914563693287037,
+        "requirements": [],
+        "source_url": "https://app.wheelog.com/?spotId=166347\u0026la=ja",
+        "status": "unchanged"
+      }
+    ]
+  }
+}

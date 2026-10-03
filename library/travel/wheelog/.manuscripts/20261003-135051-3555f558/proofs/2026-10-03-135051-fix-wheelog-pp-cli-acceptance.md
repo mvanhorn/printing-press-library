@@ -1,0 +1,7 @@
+# WheeLog full acceptance
+
+Gate: PASS. Full binary-owned matrix: 106/106 mandatory checks pass, zero failures, no coverage_hollow or hollow_features. Safe anonymous provider reads and disposable local cache writes ran with --allow-destructive and reviewed live-happy-path annotations. Framework/fixture skips are recorded by the runner; no required novel feature is unverified.
+
+The first matrix identified annotation/fixture overlay errors (compare positional IDs plus --ids; unannotated keyword positional). Fixed explicit real positional annotations, including the safe local remove fixture, and reran the full matrix. No source behavior was weakened to pass a test. The cold alphabetical matrix encounters empty shortlist state before save; final-behavior separately proves actual nonempty save, comparison, live refresh, audit, proximity and offline observation transitions using three real public Narita facilities and default --agent output. Counts, labels, requirements, reasons, distances and exact change values survive. Canonical domain argv and supplemental structured evidence are under final-behavior/; raw matrix transcripts stay outside manuscripts.
+
+Independent reviewer phase14–17 PASS after code/docs/agent-output fixes. Go tests/vet/vulnerability check pass. Pinned security scan has no unresolved custom-source findings; generated warnings were independently assessed. A differential live date query includes record166345 in the October2 JST window and excludes it in October1; local fractional-second calendar boundaries are regression-tested.

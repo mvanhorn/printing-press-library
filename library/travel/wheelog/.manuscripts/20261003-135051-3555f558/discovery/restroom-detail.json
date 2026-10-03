@@ -1,0 +1,83 @@
+{
+  "result": [
+    {
+      "resultCode": 0,
+      "message": ""
+    }
+  ],
+  "content": {
+    "spot": {
+      "id": 166345,
+      "name": "成田空港 多機能トイレ",
+      "country": "",
+      "address": "日本 〒286-0104千葉県成田市古込古込1-1",
+      "location": {
+        "lat": "35.774154985466",
+        "lng": "140.387938991189"
+      },
+      "created": "2026-10-02 04:52:05.173565",
+      "updated": "2026-10-02 04:52:05.173565",
+      "spotCategory": {
+        "id": 1,
+        "category": "toilet",
+        "questionList": [
+          {
+            "id": 101,
+            "question": "清潔感はある？",
+            "totalGood": 0,
+            "totalBad": 0
+          },
+          {
+            "id": 102,
+            "question": "十分な転回スペースはある？",
+            "totalGood": 1,
+            "totalBad": 0
+          },
+          {
+            "id": 103,
+            "question": "手すりは両側にある？",
+            "totalGood": 1,
+            "totalBad": 0
+          },
+          {
+            "id": 104,
+            "question": "便座に横付けできる？",
+            "totalGood": 1,
+            "totalBad": 0
+          },
+          {
+            "id": 105,
+            "question": "便座に背もたれはある？",
+            "totalGood": 1,
+            "totalBad": 0
+          },
+          {
+            "id": 106,
+            "question": "オストメイトはある？",
+            "totalGood": 1,
+            "totalBad": 0
+          },
+          {
+            "id": 107,
+            "question": "介助用ベッドはある？",
+            "totalGood": 0,
+            "totalBad": 1
+          },
+          {
+            "id": 108,
+            "question": "ベビーベッドはある？",
+            "totalGood": 0,
+            "totalBad": 1
+          },
+          {
+            "id": 109,
+            "question": "男女の性別関係なく入れる？",
+            "totalGood": 1,
+            "totalBad": 0
+          }
+        ]
+      },
+      "noteAvailable": true
+    }
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "coverage": {
+    "matched": 2,
+    "output_limit": 10,
+    "radius_excluded": 0,
+    "returned": 2,
+    "scanned_saved_records": 3,
+    "scope": "saved_shortlist",
+    "unknown_coordinates": 0
+  },
+  "note": "Counts are crowdsourced question reports. Source record dates do not date individual reports or establish personal suitability, current conditions, measured dimensions or an accessible route. Distances are straight-line meters within saved coverage. The supplied origin is not saved.",
+  "results": [
+    {
+      "id": 166344,
+      "name": "成田空港 エレベーター",
+      "address": "日本 〒286-0104千葉県成田市古込古込1-1",
+      "country": null,
+      "category": "elevator",
+      "location": {
+        "latitude": 35.7733158034394,
+        "longitude": 140.387687534094
+      },
+      "record_created_at": "2026-10-02T04:39:22.433139Z",
+      "record_updated_at": "2026-10-02T04:39:22.433139Z",
+      "source_created_raw": "2026-10-02 04:39:22.433139",
+      "source_updated_raw": "2026-10-02 04:39:22.433139",
+      "retrieved_at": "2026-10-03T07:58:22.273458Z",
+      "source_url": "https://app.wheelog.com/?spotId=166344\u0026la=ja",
+      "questions": [
+        {
+          "id": 201,
+          "label": "２台以上乗れそう？",
+          "positive_reports": 1,
+          "negative_reports": 0,
+          "state": "reported_affirmative",
+          "report_observed_at": null
+        },
+        {
+          "id": 202,
+          "label": "車いす用の操作盤はある？",
+          "positive_reports": 1,
+          "negative_reports": 0,
+          "state": "reported_affirmative",
+          "report_observed_at": null
+        },
+        {
+          "id": 203,
+          "label": "鏡はある？",
+          "positive_reports": 1,
+          "negative_reports": 0,
+          "state": "reported_affirmative",
+          "report_observed_at": null
+        }
+      ],
+      "detail_status": "checked",
+      "data_source": "local",
+      "unsupported_facts": [
+        "measured_dimensions",
+        "individual_report_dates",
+        "current_open_status",
+        "accessible_routes"
+      ],
+      "requirements": [
+        {
+          "question_id": 102,
+          "state": "inapplicable",
+          "positive_reports": null,
+          "negative_reports": null,
+          "reason": "different_source_category"
+        }
+      ],
+      "record_update_age_days": 1.138198877199074,
+      "cache_age_days": 0.000006280914351851852,
+      "recheck_reasons": [
+        "question_102_inapplicable"
+      ]
+    },
+    {
+      "id": 166347,
+      "name": "京成線 成田空港駅 第2・第3ターミナル方面出口",
+      "address": "日本 〒286-0104千葉県成田市古込2",
+      "country": null,
+      "category": "slope",
+      "location": {
+        "latitude": 35.7727981428757,
+        "longitude": 140.388182401657
+      },
+      "record_created_at": "2026-10-02T05:09:40.383362Z",
+      "record_updated_at": "2026-10-02T05:09:40.383362Z",
+      "source_created_raw": "2026-10-02 05:09:40.383362",
+      "source_updated_raw": "2026-10-02 05:09:40.383362",
+      "retrieved_at": "2026-10-03T07:58:22.773053Z",
+      "source_url": "https://app.wheelog.com/?spotId=166347\u0026la=ja",
+      "questions": [],
+      "detail_status": "checked",
+      "data_source": "local",
+      "unsupported_facts": [
+        "measured_dimensions",
+        "individual_report_dates",
+        "current_open_status",
+        "accessible_routes"
+      ],
+      "requirements": [
+        {
+          "question_id": 102,
+          "state": "inapplicable",
+          "positive_reports": null,
+          "negative_reports": null,
+          "reason": "different_source_category"
+        }
+      ],
+      "record_update_age_days": 1.117157786712963,
+      "cache_age_days": 4.986226851851852e-7,
+      "recheck_reasons": [
+        "question_102_inapplicable"
+      ]
+    }
+  ]
+}

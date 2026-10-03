@@ -1,0 +1,59 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "case": "categories",
+      "mode": "--help",
+      "exit": 0,
+      "elapsed_ms": 563.4
+    },
+    {
+      "case": "categories",
+      "mode": "--dry-run",
+      "exit": 0,
+      "elapsed_ms": 12.2
+    },
+    {
+      "case": "categories",
+      "mode": "--json",
+      "exit": 0,
+      "elapsed_ms": 11.0
+    },
+    {
+      "case": "search",
+      "mode": "--help",
+      "exit": 0,
+      "elapsed_ms": 9.5
+    },
+    {
+      "case": "search",
+      "mode": "--dry-run",
+      "exit": 0,
+      "elapsed_ms": 8.8
+    },
+    {
+      "case": "search",
+      "mode": "--json",
+      "exit": 0,
+      "elapsed_ms": 1974.7
+    },
+    {
+      "case": "inspect",
+      "mode": "--help",
+      "exit": 0,
+      "elapsed_ms": 15.1
+    },
+    {
+      "case": "inspect",
+      "mode": "--dry-run",
+      "exit": 0,
+      "elapsed_ms": 13.3
+    },
+    {
+      "case": "inspect",
+      "mode": "--json",
+      "exit": 0,
+      "elapsed_ms": 631.9
+    }
+  ]
+}

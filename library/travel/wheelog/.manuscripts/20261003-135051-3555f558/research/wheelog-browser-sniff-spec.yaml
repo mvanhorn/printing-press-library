@@ -1,0 +1,113 @@
+name: wheelog
+description: Discovered API spec for wheelog
+version: 0.1.0
+base_url: https://app.wheelog.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/wheelog-pp-cli/config.toml
+resources:
+    poi:
+        description: Operations on getWebSpotDetail
+        endpoints:
+            create_getWebSpotDetail:
+                method: POST
+                path: /poi/custom/user/getWebSpotDetail
+                description: POST /poi/custom/user/getWebSpotDetail
+                params: []
+                body:
+                    - name: spotId
+                      type: integer
+                      required: true
+                      positional: false
+                      default: "166347"
+                      description: ""
+                      fields: []
+                request_content_type: application/x-www-form-urlencoded
+                response:
+                    type: array
+                    item: GetWebSpotDetailResult
+                pagination: null
+                response_path: result
+    timeline:
+        description: Operations on getWebTimelineList
+        endpoints:
+            create_getWebTimelineList:
+                method: POST
+                path: /timeline/custom/user/getWebTimelineList
+                description: POST /timeline/custom/user/getWebTimelineList
+                params: []
+                body:
+                    - name: categoryList[]
+                      type: string
+                      required: true
+                      positional: false
+                      default: toilet
+                      description: ""
+                      fields: []
+                    - name: endDatetime
+                      type: string
+                      required: true
+                      positional: false
+                      default: "2026-10-02 14:59:59"
+                      description: ""
+                      fields: []
+                    - name: isDetail
+                      type: integer
+                      required: true
+                      positional: false
+                      default: "1"
+                      description: ""
+                      fields: []
+                    - name: pagenum
+                      type: integer
+                      required: true
+                      positional: false
+                      default: "1"
+                      description: ""
+                      fields: []
+                    - name: startDatetime
+                      type: string
+                      required: true
+                      positional: false
+                      default: "2026-10-01 15:00:00"
+                      description: ""
+                      fields: []
+                    - name: type
+                      type: string
+                      required: true
+                      positional: false
+                      default: spot
+                      description: ""
+                      fields: []
+                    - name: word
+                      type: string
+                      required: true
+                      positional: false
+                      default: 成田空港
+                      description: ""
+                      fields: []
+                request_content_type: application/x-www-form-urlencoded
+                response:
+                    type: array
+                    item: GetWebTimelineListResult
+                pagination: null
+                response_path: result
+types:
+    GetWebSpotDetailResult:
+        fields:
+            - name: message
+              type: string
+            - name: resultCode
+              type: integer
+    GetWebTimelineListResult:
+        fields:
+            - name: message
+              type: string
+            - name: resultCode
+              type: integer

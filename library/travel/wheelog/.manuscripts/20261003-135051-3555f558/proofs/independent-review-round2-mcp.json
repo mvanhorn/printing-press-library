@@ -1,0 +1,986 @@
+{
+  "binary_sha256": "bf653d2c0a5582f032c442fde98f90cd9d3f6639384302a26b80248cec791c08",
+  "cli_sha256": "5490382d1648a58ae0aabcc84372fa9a56a1be73d65b6ba14af0253e3b744ced",
+  "checks": [
+    {
+      "tool": "categories",
+      "mode": "local-agent",
+      "output": {
+        "meta": {
+          "provider": "wheelog",
+          "source": "computed"
+        },
+        "results": {
+          "note": "Category membership is a source label. Inspect a spot for question labels and actual report counts.",
+          "observed_at": "2026-10-03",
+          "results": [
+            {
+              "name": "Restaurant",
+              "question_ids": [
+                401,
+                402,
+                403,
+                404,
+                405,
+                406,
+                407,
+                408,
+                409
+              ],
+              "value": "shop"
+            },
+            {
+              "name": "Station",
+              "question_ids": [
+                601,
+                602,
+                603,
+                604,
+                605
+              ],
+              "value": "station"
+            },
+            {
+              "name": "Hotel",
+              "question_ids": [
+                701,
+                702,
+                703,
+                704,
+                705,
+                706,
+                707,
+                708,
+                709,
+                710
+              ],
+              "value": "hotel"
+            },
+            {
+              "name": "Other",
+              "question_ids": [
+                501,
+                502,
+                503,
+                504,
+                505
+              ],
+              "value": "other"
+            },
+            {
+              "name": "Attraction",
+              "question_ids": [
+                1001,
+                1002,
+                1003,
+                1004,
+                1005,
+                1006,
+                1007,
+                1008
+              ],
+              "value": "favorite"
+            },
+            {
+              "name": "Restroom",
+              "question_ids": [
+                101,
+                102,
+                103,
+                104,
+                105,
+                106,
+                107,
+                108,
+                109
+              ],
+              "value": "toilet"
+            },
+            {
+              "name": "Elevator",
+              "question_ids": [
+                201,
+                202,
+                203
+              ],
+              "value": "elevator"
+            },
+            {
+              "name": "Parking",
+              "question_ids": [
+                301,
+                302,
+                303,
+                304,
+                305,
+                306,
+                307,
+                308
+              ],
+              "value": "parking"
+            },
+            {
+              "name": "Ramp",
+              "question_ids": [],
+              "value": "slope"
+            },
+            {
+              "name": "Barrier",
+              "question_ids": [],
+              "value": "barrierSpot"
+            }
+          ],
+          "source_url": "https://docs.wheelog.app/en/info/"
+        }
+      }
+    },
+    {
+      "tool": "spots_compare",
+      "mode": "local-agent",
+      "output": {
+        "meta": {
+          "provider": "wheelog",
+          "source": "local"
+        },
+        "results": {
+          "coverage": {
+            "available": 2,
+            "live": 0,
+            "local": 2,
+            "requested": 2,
+            "unavailable": 0
+          },
+          "fetch_failures": [],
+          "note": "Counts are crowdsourced question reports. Source record dates do not date individual reports or establish personal suitability, current conditions, measured dimensions or an accessible route.",
+          "results": [
+            {
+              "address": "日本 〒286-0104千葉県成田市古込古込1-1",
+              "cache_age_days": 0.048465721759259256,
+              "category": "toilet",
+              "country": null,
+              "data_source": "local",
+              "detail_status": "checked",
+              "id": 166345,
+              "location": {
+                "latitude": 35.774154985466,
+                "longitude": 140.387938991189
+              },
+              "name": "成田空港 多機能トイレ",
+              "questions": [
+                {
+                  "id": 101,
+                  "label": "清潔感はある？",
+                  "negative_reports": 0,
+                  "positive_reports": 0,
+                  "report_observed_at": null,
+                  "state": "unreported"
+                },
+                {
+                  "id": 102,
+                  "label": "十分な転回スペースはある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 103,
+                  "label": "手すりは両側にある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 104,
+                  "label": "便座に横付けできる？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 105,
+                  "label": "便座に背もたれはある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 106,
+                  "label": "オストメイトはある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 107,
+                  "label": "介助用ベッドはある？",
+                  "negative_reports": 1,
+                  "positive_reports": 0,
+                  "report_observed_at": null,
+                  "state": "reported_negative"
+                },
+                {
+                  "id": 108,
+                  "label": "ベビーベッドはある？",
+                  "negative_reports": 1,
+                  "positive_reports": 0,
+                  "report_observed_at": null,
+                  "state": "reported_negative"
+                },
+                {
+                  "id": 109,
+                  "label": "男女の性別関係なく入れる？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                }
+              ],
+              "recheck_reasons": [],
+              "record_created_at": "2026-10-02T04:52:05.173565Z",
+              "record_update_age_days": 1.177826429201389,
+              "record_updated_at": "2026-10-02T04:52:05.173565Z",
+              "requirements": [
+                {
+                  "label": "十分な転回スペースはある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "question_id": 102,
+                  "state": "reported_affirmative"
+                }
+              ],
+              "retrieved_at": "2026-10-03T07:58:21.938688Z",
+              "source_created_raw": "2026-10-02 04:52:05.173565",
+              "source_updated_raw": "2026-10-02 04:52:05.173565",
+              "source_url": "https://app.wheelog.com/?spotId=166345&la=ja",
+              "unsupported_facts": [
+                "measured_dimensions",
+                "individual_report_dates",
+                "current_open_status",
+                "accessible_routes"
+              ]
+            },
+            {
+              "address": "日本 〒286-0104千葉県成田市古込古込1-1",
+              "cache_age_days": 0.048461847129629636,
+              "category": "elevator",
+              "country": null,
+              "data_source": "local",
+              "detail_status": "checked",
+              "id": 166344,
+              "location": {
+                "latitude": 35.7733158034394,
+                "longitude": 140.387687534094
+              },
+              "name": "成田空港 エレベーター",
+              "questions": [
+                {
+                  "id": 201,
+                  "label": "２台以上乗れそう？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 202,
+                  "label": "車いす用の操作盤はある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 203,
+                  "label": "鏡はある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                }
+              ],
+              "recheck_reasons": [
+                "question_102_inapplicable"
+              ],
+              "record_created_at": "2026-10-02T04:39:22.433139Z",
+              "record_update_age_days": 1.186654443414352,
+              "record_updated_at": "2026-10-02T04:39:22.433139Z",
+              "requirements": [
+                {
+                  "negative_reports": null,
+                  "positive_reports": null,
+                  "question_id": 102,
+                  "reason": "different_source_category",
+                  "state": "inapplicable"
+                }
+              ],
+              "retrieved_at": "2026-10-03T07:58:22.273458Z",
+              "source_created_raw": "2026-10-02 04:39:22.433139",
+              "source_updated_raw": "2026-10-02 04:39:22.433139",
+              "source_url": "https://app.wheelog.com/?spotId=166344&la=ja",
+              "unsupported_facts": [
+                "measured_dimensions",
+                "individual_report_dates",
+                "current_open_status",
+                "accessible_routes"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "tool": "shortlist_list",
+      "mode": "local-nearest-agent",
+      "output": {
+        "meta": {
+          "provider": "wheelog",
+          "source": "local"
+        },
+        "results": {
+          "coverage": {
+            "matched": 3,
+            "output_limit": 10,
+            "radius_excluded": 0,
+            "returned": 3,
+            "scanned_saved_records": 3,
+            "scope": "saved_shortlist",
+            "unknown_coordinates": 0
+          },
+          "note": "Counts are crowdsourced question reports. Source record dates do not date individual reports or establish personal suitability, current conditions, measured dimensions or an accessible route. Distances are straight-line meters within saved coverage. The supplied origin is not saved.",
+          "results": [
+            {
+              "address": "日本 〒286-0104千葉県成田市古込古込1-1",
+              "cache_age_days": 0.04846586314814815,
+              "category": "toilet",
+              "country": null,
+              "data_source": "local",
+              "detail_status": "checked",
+              "id": 166345,
+              "location": {
+                "latitude": 35.774154985466,
+                "longitude": 140.387938991189
+              },
+              "name": "成田空港 多機能トイレ",
+              "questions": [
+                {
+                  "id": 101,
+                  "label": "清潔感はある？",
+                  "negative_reports": 0,
+                  "positive_reports": 0,
+                  "report_observed_at": null,
+                  "state": "unreported"
+                },
+                {
+                  "id": 102,
+                  "label": "十分な転回スペースはある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 103,
+                  "label": "手すりは両側にある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 104,
+                  "label": "便座に横付けできる？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 105,
+                  "label": "便座に背もたれはある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 106,
+                  "label": "オストメイトはある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 107,
+                  "label": "介助用ベッドはある？",
+                  "negative_reports": 1,
+                  "positive_reports": 0,
+                  "report_observed_at": null,
+                  "state": "reported_negative"
+                },
+                {
+                  "id": 108,
+                  "label": "ベビーベッドはある？",
+                  "negative_reports": 1,
+                  "positive_reports": 0,
+                  "report_observed_at": null,
+                  "state": "reported_negative"
+                },
+                {
+                  "id": 109,
+                  "label": "男女の性別関係なく入れる？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                }
+              ],
+              "recheck_reasons": [
+                "question_101_unreported"
+              ],
+              "record_created_at": "2026-10-02T04:52:05.173565Z",
+              "record_update_age_days": 1.1778265705902777,
+              "record_updated_at": "2026-10-02T04:52:05.173565Z",
+              "requirements": [],
+              "retrieved_at": "2026-10-03T07:58:21.938688Z",
+              "source_created_raw": "2026-10-02 04:52:05.173565",
+              "source_updated_raw": "2026-10-02 04:52:05.173565",
+              "source_url": "https://app.wheelog.com/?spotId=166345&la=ja",
+              "straight_line_distance_m": 6.1178087908589625,
+              "unsupported_facts": [
+                "measured_dimensions",
+                "individual_report_dates",
+                "current_open_status",
+                "accessible_routes"
+              ]
+            },
+            {
+              "address": "日本 〒286-0104千葉県成田市古込古込1-1",
+              "cache_age_days": 0.048461988449074074,
+              "category": "elevator",
+              "country": null,
+              "data_source": "local",
+              "detail_status": "checked",
+              "id": 166344,
+              "location": {
+                "latitude": 35.7733158034394,
+                "longitude": 140.387687534094
+              },
+              "name": "成田空港 エレベーター",
+              "questions": [
+                {
+                  "id": 201,
+                  "label": "２台以上乗れそう？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 202,
+                  "label": "車いす用の操作盤はある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 203,
+                  "label": "鏡はある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                }
+              ],
+              "recheck_reasons": [],
+              "record_created_at": "2026-10-02T04:39:22.433139Z",
+              "record_update_age_days": 1.1866545847337964,
+              "record_updated_at": "2026-10-02T04:39:22.433139Z",
+              "requirements": [],
+              "retrieved_at": "2026-10-03T07:58:22.273458Z",
+              "source_created_raw": "2026-10-02 04:39:22.433139",
+              "source_updated_raw": "2026-10-02 04:39:22.433139",
+              "source_url": "https://app.wheelog.com/?spotId=166344&la=ja",
+              "straight_line_distance_m": 100.16933557652443,
+              "unsupported_facts": [
+                "measured_dimensions",
+                "individual_report_dates",
+                "current_open_status",
+                "accessible_routes"
+              ]
+            },
+            {
+              "address": "日本 〒286-0104千葉県成田市古込2",
+              "cache_age_days": 0.04845620618055555,
+              "category": "slope",
+              "country": null,
+              "data_source": "local",
+              "detail_status": "checked",
+              "id": 166347,
+              "location": {
+                "latitude": 35.7727981428757,
+                "longitude": 140.388182401657
+              },
+              "name": "京成線 成田空港駅 第2・第3ターミナル方面出口",
+              "questions": [],
+              "recheck_reasons": [],
+              "record_created_at": "2026-10-02T05:09:40.383362Z",
+              "record_update_age_days": 1.1656134942708334,
+              "record_updated_at": "2026-10-02T05:09:40.383362Z",
+              "requirements": [],
+              "retrieved_at": "2026-10-03T07:58:22.773053Z",
+              "source_created_raw": "2026-10-02 05:09:40.383362",
+              "source_updated_raw": "2026-10-02 05:09:40.383362",
+              "source_url": "https://app.wheelog.com/?spotId=166347&la=ja",
+              "straight_line_distance_m": 157.9479188134212,
+              "unsupported_facts": [
+                "measured_dimensions",
+                "individual_report_dates",
+                "current_open_status",
+                "accessible_routes"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "tool": "spots_inspect",
+      "mode": "live-agent",
+      "output": {
+        "meta": {
+          "provider": "wheelog",
+          "source": "live"
+        },
+        "results": {
+          "address": "日本 〒286-0104千葉県成田市古込古込1-1",
+          "cache_age_days": 6.423611111111111e-09,
+          "category": "toilet",
+          "country": null,
+          "data_source": "live",
+          "detail_status": "checked",
+          "id": 166345,
+          "location": {
+            "latitude": 35.774154985466,
+            "longitude": 140.387938991189
+          },
+          "name": "成田空港 多機能トイレ",
+          "questions": [
+            {
+              "id": 101,
+              "label": "清潔感はある？",
+              "negative_reports": 0,
+              "positive_reports": 0,
+              "report_observed_at": null,
+              "state": "unreported"
+            },
+            {
+              "id": 102,
+              "label": "十分な転回スペースはある？",
+              "negative_reports": 0,
+              "positive_reports": 1,
+              "report_observed_at": null,
+              "state": "reported_affirmative"
+            },
+            {
+              "id": 103,
+              "label": "手すりは両側にある？",
+              "negative_reports": 0,
+              "positive_reports": 1,
+              "report_observed_at": null,
+              "state": "reported_affirmative"
+            },
+            {
+              "id": 104,
+              "label": "便座に横付けできる？",
+              "negative_reports": 0,
+              "positive_reports": 1,
+              "report_observed_at": null,
+              "state": "reported_affirmative"
+            },
+            {
+              "id": 105,
+              "label": "便座に背もたれはある？",
+              "negative_reports": 0,
+              "positive_reports": 1,
+              "report_observed_at": null,
+              "state": "reported_affirmative"
+            },
+            {
+              "id": 106,
+              "label": "オストメイトはある？",
+              "negative_reports": 0,
+              "positive_reports": 1,
+              "report_observed_at": null,
+              "state": "reported_affirmative"
+            },
+            {
+              "id": 107,
+              "label": "介助用ベッドはある？",
+              "negative_reports": 1,
+              "positive_reports": 0,
+              "report_observed_at": null,
+              "state": "reported_negative"
+            },
+            {
+              "id": 108,
+              "label": "ベビーベッドはある？",
+              "negative_reports": 1,
+              "positive_reports": 0,
+              "report_observed_at": null,
+              "state": "reported_negative"
+            },
+            {
+              "id": 109,
+              "label": "男女の性別関係なく入れる？",
+              "negative_reports": 0,
+              "positive_reports": 1,
+              "report_observed_at": null,
+              "state": "reported_affirmative"
+            }
+          ],
+          "recheck_reasons": [],
+          "record_created_at": "2026-10-02T04:52:05.173565Z",
+          "record_update_age_days": 1.1778357043171297,
+          "record_updated_at": "2026-10-02T04:52:05.173565Z",
+          "requirements": [
+            {
+              "label": "十分な転回スペースはある？",
+              "negative_reports": 0,
+              "positive_reports": 1,
+              "question_id": 102,
+              "state": "reported_affirmative"
+            }
+          ],
+          "retrieved_at": "2026-10-03T09:08:10.177863Z",
+          "source_created_raw": "2026-10-02 04:52:05.173565",
+          "source_updated_raw": "2026-10-02 04:52:05.173565",
+          "source_url": "https://app.wheelog.com/?spotId=166345&la=ja",
+          "unsupported_facts": [
+            "measured_dimensions",
+            "individual_report_dates",
+            "current_open_status",
+            "accessible_routes"
+          ]
+        }
+      }
+    }
+  ],
+  "tools": [
+    {
+      "name": "categories",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "context",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "learnings_candidates",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "learnings_confirm",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "learnings_forget",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "learnings_list",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "learnings_reject",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "learnings_stats",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "playbook_amend",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "playbook_list",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "recall",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "shortlist_changes",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "shortlist_list",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "shortlist_remove",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "shortlist_save",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "spots_compare",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "spots_inspect",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "spots_search",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "teach",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "teach_lookup",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "teach_pattern",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "teach_playbook",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    }
+  ],
+  "tool_count": 22,
+  "context": {
+    "api": "wheelog",
+    "archetype": "generic",
+    "command_mirror_capabilities": [
+      {
+        "cli_command": "spots compare",
+        "command": "spots compare",
+        "description": "Align requested source question IDs and report supporting, opposing, mixed, unknown and inapplicable evidence.",
+        "mcp_tool": "spots_compare",
+        "name": "Requested-question comparison",
+        "rationale": "Multiple exact-ID details align aggregate reports without inventing personal suitability.",
+        "via": "mcp-command-mirror"
+      },
+      {
+        "cli_command": "spots search",
+        "command": "spots search",
+        "description": "Expand a bounded keyword shortlist into actual detail evidence for requested questions.",
+        "mcp_tool": "spots_search",
+        "name": "Detail-checked discovery",
+        "rationale": "A search card or accepted question filter alone cannot establish what contributors reported.",
+        "via": "mcp-command-mirror"
+      },
+      {
+        "cli_command": "shortlist changes",
+        "command": "shortlist changes",
+        "description": "Show exact changes between two allowlisted source observations for selected public places.",
+        "mcp_tool": "shortlist_changes",
+        "name": "Saved-observation changes",
+        "rationale": "A saved baseline is needed to distinguish changed aggregate reports and record fields.",
+        "via": "mcp-command-mirror"
+      },
+      {
+        "cli_command": "shortlist list",
+        "command": "shortlist list",
+        "description": "Prioritize old, unknown or conflicting evidence in a saved shortlist with explicit reasons.",
+        "mcp_tool": "shortlist_list",
+        "name": "Recheck queue",
+        "rationale": "Local membership, source update times and retrieval times combine into a repeatable recheck queue.",
+        "via": "mcp-command-mirror"
+      },
+      {
+        "cli_command": "shortlist list",
+        "command": "shortlist list",
+        "description": "Rank saved public facilities by straight-line distance from an explicit origin.",
+        "mcp_tool": "shortlist_list",
+        "name": "Nearest saved facilities",
+        "rationale": "Local coordinates and exact category/question reports work together without geocoding or route assumptions.",
+        "via": "mcp-command-mirror"
+      }
+    ],
+    "description": "Find and compare recorded accessibility facts with gaps and conflicting reports visible.",
+    "evidence_note": "Aggregate question reports are crowdsourced evidence, not a guarantee of accessibility or current conditions. Record and retrieval dates do not date individual reports. Contributor profiles and personal histories are excluded.",
+    "learn_protocol": "1. Recall first: before answering a domain query, pass the question as an argv or MCP argument to recall --agent (never interpolate user-controlled text into a shell command line, quoted string, or heredoc: an apostrophe breaks quotes, and a body line equal to the delimiter breaks a heredoc). If a shell is required, write the question with a non-shell file tool, then QUERY=$(cat /path/to/question.txt) && recall \"$QUERY\" --agent. Apply any verified learnings, playbook steps, and notes it returns.\n2. Empty-store short-circuit: if the store has no learnings, playbooks, or candidates yet (recall finds nothing and learnings list and learnings candidates are both empty), skip recall for the rest of this session instead of taxing every query; resume recall-first once something has been taught.\n3. Candidates are try-then-confirm, never facts: entries in the recall envelope's candidates section are unverified. Follow each candidate's two-step next_action verbatim: run the trial command first, then run learnings confirm <id> only after the trial verified the behavior. Reject a wrong candidate with learnings reject <id>.\n4. Teach contract: after resolving a query the store could not answer, teach the structural query shape with identifiers stripped: never include names, emails, phone numbers, account ids, or other personal identifiers in taught queries or notes. Pass the query the same argv/MCP way as recall, or write it with a non-shell file tool then QUERY=$(cat /path/to/question.txt) && teach --query \"$QUERY\"; do not splice it into a shell command.\n5. Never re-teach what recall already surfaced as a candidate: confirm or reject that candidate instead of teaching a duplicate.",
+    "paths": {
+      "cache_dir": "/private/tmp/wheelog-review-round2/mcp-home/cache",
+      "config_dir": "/private/tmp/wheelog-review-round2/mcp-home/config",
+      "data_dir": "/private/tmp/wheelog-review-round2/mcp-home/data",
+      "state_dir": "/private/tmp/wheelog-review-round2/mcp-home/state"
+    },
+    "playbook": [
+      {
+        "insight": "Multiple exact-ID details align aggregate reports without inventing personal suitability.",
+        "topic": "Requested-question comparison"
+      },
+      {
+        "insight": "A search card or accepted question filter alone cannot establish what contributors reported.",
+        "topic": "Detail-checked discovery"
+      },
+      {
+        "insight": "A saved baseline is needed to distinguish changed aggregate reports and record fields.",
+        "topic": "Saved-observation changes"
+      },
+      {
+        "insight": "Local membership, source update times and retrieval times combine into a repeatable recheck queue.",
+        "topic": "Recheck queue"
+      },
+      {
+        "insight": "Local coordinates and exact category/question reports work together without geocoding or route assumptions.",
+        "topic": "Nearest saved facilities"
+      }
+    ],
+    "query_tips": [
+      "spots_search accepts query or a keyword argument; use --category with exact values from categories.",
+      "Use --max-scan-pages (1..5, default 1) to bound source page scanning. --limit controls returned records (1..50, default 5); it is not an upstream page-size parameter.",
+      "--details or --require-question fetch actual details for at most 5 candidates. spots_compare accepts 1..5 source IDs.",
+      "--from and --to select inclusive source record dates in --timezone (default Asia/Tokyo), converted to UTC; they do not select individual report dates or trip availability.",
+      "shortlist_list reads saved facilities only; --audit returns recheck reasons and --origin ranks by straight-line meters without establishing an accessible route.",
+      "auto prefers live with labeled saved fallback; live requires source reads; local uses saved public-place observations."
+    ],
+    "resources": [
+      {
+        "description": "Public crowdsourced facility accessibility evidence",
+        "endpoints": [
+          "inspect",
+          "search"
+        ],
+        "name": "spots",
+        "searchable": true
+      }
+    ],
+    "source_limits": {
+      "detail_reads": 5,
+      "saved_observations_per_spot": 2,
+      "saved_spots": 50,
+      "search_output_records": 50,
+      "search_scan_pages": 5
+    },
+    "tool_count": 22,
+    "tool_surface": "MCP exposes command mirrors through the companion wheelog-pp-cli binary; raw typed endpoint tools are hidden. Use the listed tool schemas and exact hyphenated flag names."
+  }
+}

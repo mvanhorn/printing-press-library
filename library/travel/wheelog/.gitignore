@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/wheelog-pp-cli
+/wheelog-pp-cli.exe
+/wheelog-pp-mcp
+/wheelog-pp-mcp.exe
+/bin/
+/build/
+/dist/

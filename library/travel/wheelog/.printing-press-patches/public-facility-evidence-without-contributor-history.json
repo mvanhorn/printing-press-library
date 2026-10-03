@@ -1,0 +1,39 @@
+{
+  "schema_version": 2,
+  "id": "public-facility-evidence-without-contributor-history",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261003-135051-3555f558",
+  "base_printing_press_version": "4.33.0",
+  "summary": "Keep WheeLog public facility evidence bounded and allowlisted, with exact aggregate report states, separate source/retrieval clocks and an explicit two-observation local shortlist. MCP context must describe the actual command mirror surface and CLI bounds.",
+  "reason": "The anonymous source envelope also includes contributor information and personal narratives; a reprint must rediscover its read-only request contract and strip those fields before cache or output. Search filters, aggregate reports and straight-line distance must never become guarantees of accessibility, individual report dates or a traversable route.",
+  "files": [
+    "internal/wheelog/evidence.go",
+    "internal/wheelog/evidence_test.go",
+    "internal/client/wheelog_transport.go",
+    "internal/client/wheelog_transport_test.go",
+    "internal/store/wheelog_shortlist.go",
+    "internal/store/wheelog_shortlist_test.go",
+    "internal/cli/wheelog_helpers.go",
+    "internal/cli/wheelog_hook.go",
+    "internal/cli/wheelog_behavior_test.go",
+    "internal/cli/wheelog_categories.go",
+    "internal/cli/wheelog_save.go",
+    "internal/cli/wheelog_remove.go",
+    "internal/cli/spots_search.go",
+    "internal/cli/spots_inspect.go",
+    "internal/cli/spots_compare.go",
+    "internal/cli/shortlist.go",
+    "internal/cli/shortlist_list.go",
+    "internal/cli/shortlist_changes.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/wheelog_context.go",
+    "internal/cli/wheelog_agent_evidence_test.go"
+  ],
+  "validated_outcome": "Parser/transport/store/CLI regression tests and live search, compare, save, audit, distance, change and removal checks preserve unknowns, inapplicable questions and zero-count updates. Default --agent preserves exact question/count/requirement evidence, recheck reasons, distances and change values across collections.",
+  "call_sites": [
+    "wheelogContextEvidence(ctx)",
+    "rootCmd.RemoveCommand(unsupported)",
+    "c.HTTPClient.Transport = client.WheelogTransport",
+    "printOutputWithFlagsMetaAndKeep(cmd.OutOrStdout()"
+  ]
+}

@@ -1,0 +1,197 @@
+{
+  "note": "Only allowlisted public-place facts and at most two observations per selected ID are saved.",
+  "results": [
+    {
+      "id": 166345,
+      "name": "成田空港 多機能トイレ",
+      "address": "日本 〒286-0104千葉県成田市古込古込1-1",
+      "country": null,
+      "category": "toilet",
+      "location": {
+        "latitude": 35.774154985466,
+        "longitude": 140.387938991189
+      },
+      "record_created_at": "2026-10-02T04:52:05.173565Z",
+      "record_updated_at": "2026-10-02T04:52:05.173565Z",
+      "source_created_raw": "2026-10-02 04:52:05.173565",
+      "source_updated_raw": "2026-10-02 04:52:05.173565",
+      "retrieved_at": "2026-10-03T07:58:21.938688Z",
+      "source_url": "https://app.wheelog.com/?spotId=166345\u0026la=ja",
+      "questions": [
+        {
+          "id": 101,
+          "label": "清潔感はある？",
+          "positive_reports": 0,
+          "negative_reports": 0,
+          "state": "unreported",
+          "report_observed_at": null
+        },
+        {
+          "id": 102,
+          "label": "十分な転回スペースはある？",
+          "positive_reports": 1,
+          "negative_reports": 0,
+          "state": "reported_affirmative",
+          "report_observed_at": null
+        },
+        {
+          "id": 103,
+          "label": "手すりは両側にある？",
+          "positive_reports": 1,
+          "negative_reports": 0,
+          "state": "reported_affirmative",
+          "report_observed_at": null
+        },
+        {
+          "id": 104,
+          "label": "便座に横付けできる？",
+          "positive_reports": 1,
+          "negative_reports": 0,
+          "state": "reported_affirmative",
+          "report_observed_at": null
+        },
+        {
+          "id": 105,
+          "label": "便座に背もたれはある？",
+          "positive_reports": 1,
+          "negative_reports": 0,
+          "state": "reported_affirmative",
+          "report_observed_at": null
+        },
+        {
+          "id": 106,
+          "label": "オストメイトはある？",
+          "positive_reports": 1,
+          "negative_reports": 0,
+          "state": "reported_affirmative",
+          "report_observed_at": null
+        },
+        {
+          "id": 107,
+          "label": "介助用ベッドはある？",
+          "positive_reports": 0,
+          "negative_reports": 1,
+          "state": "reported_negative",
+          "report_observed_at": null
+        },
+        {
+          "id": 108,
+          "label": "ベビーベッドはある？",
+          "positive_reports": 0,
+          "negative_reports": 1,
+          "state": "reported_negative",
+          "report_observed_at": null
+        },
+        {
+          "id": 109,
+          "label": "男女の性別関係なく入れる？",
+          "positive_reports": 1,
+          "negative_reports": 0,
+          "state": "reported_affirmative",
+          "report_observed_at": null
+        }
+      ],
+      "detail_status": "checked",
+      "data_source": "live",
+      "unsupported_facts": [
+        "measured_dimensions",
+        "individual_report_dates",
+        "current_open_status",
+        "accessible_routes"
+      ],
+      "requirements": [],
+      "record_update_age_days": 1.1293704802430555,
+      "cache_age_days": 0.000009772800925925925,
+      "recheck_reasons": [
+        "question_101_unreported"
+      ]
+    },
+    {
+      "id": 166344,
+      "name": "成田空港 エレベーター",
+      "address": "日本 〒286-0104千葉県成田市古込古込1-1",
+      "country": null,
+      "category": "elevator",
+      "location": {
+        "latitude": 35.7733158034394,
+        "longitude": 140.387687534094
+      },
+      "record_created_at": "2026-10-02T04:39:22.433139Z",
+      "record_updated_at": "2026-10-02T04:39:22.433139Z",
+      "source_created_raw": "2026-10-02 04:39:22.433139",
+      "source_updated_raw": "2026-10-02 04:39:22.433139",
+      "retrieved_at": "2026-10-03T07:58:22.273458Z",
+      "source_url": "https://app.wheelog.com/?spotId=166344\u0026la=ja",
+      "questions": [
+        {
+          "id": 201,
+          "label": "２台以上乗れそう？",
+          "positive_reports": 1,
+          "negative_reports": 0,
+          "state": "reported_affirmative",
+          "report_observed_at": null
+        },
+        {
+          "id": 202,
+          "label": "車いす用の操作盤はある？",
+          "positive_reports": 1,
+          "negative_reports": 0,
+          "state": "reported_affirmative",
+          "report_observed_at": null
+        },
+        {
+          "id": 203,
+          "label": "鏡はある？",
+          "positive_reports": 1,
+          "negative_reports": 0,
+          "state": "reported_affirmative",
+          "report_observed_at": null
+        }
+      ],
+      "detail_status": "checked",
+      "data_source": "live",
+      "unsupported_facts": [
+        "measured_dimensions",
+        "individual_report_dates",
+        "current_open_status",
+        "accessible_routes"
+      ],
+      "requirements": [],
+      "record_update_age_days": 1.1381984946412038,
+      "cache_age_days": 0.000005898356481481481,
+      "recheck_reasons": []
+    },
+    {
+      "id": 166347,
+      "name": "京成線 成田空港駅 第2・第3ターミナル方面出口",
+      "address": "日本 〒286-0104千葉県成田市古込2",
+      "country": null,
+      "category": "slope",
+      "location": {
+        "latitude": 35.7727981428757,
+        "longitude": 140.388182401657
+      },
+      "record_created_at": "2026-10-02T05:09:40.383362Z",
+      "record_updated_at": "2026-10-02T05:09:40.383362Z",
+      "source_created_raw": "2026-10-02 05:09:40.383362",
+      "source_updated_raw": "2026-10-02 05:09:40.383362",
+      "retrieved_at": "2026-10-03T07:58:22.773053Z",
+      "source_url": "https://app.wheelog.com/?spotId=166347\u0026la=ja",
+      "questions": [],
+      "detail_status": "checked",
+      "data_source": "live",
+      "unsupported_facts": [
+        "measured_dimensions",
+        "individual_report_dates",
+        "current_open_status",
+        "accessible_routes"
+      ],
+      "requirements": [],
+      "record_update_age_days": 1.1171574041203705,
+      "cache_age_days": 1.1603009259259259e-7,
+      "recheck_reasons": []
+    }
+  ],
+  "saved": 3,
+  "scope": "selected_public_spots"
+}

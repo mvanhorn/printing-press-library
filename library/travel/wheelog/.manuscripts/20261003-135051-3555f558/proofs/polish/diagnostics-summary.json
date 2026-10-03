@@ -1,0 +1,38 @@
+[
+  {
+    "check": "dogfood",
+    "exit": 0
+  },
+  {
+    "check": "verify",
+    "exit": 0
+  },
+  {
+    "check": "workflow-verify",
+    "exit": 0
+  },
+  {
+    "check": "verify-skill",
+    "exit": 0
+  },
+  {
+    "check": "scorecard",
+    "exit": 0
+  },
+  {
+    "check": "tools-audit",
+    "exit": 0
+  },
+  {
+    "check": "pii-audit",
+    "exit": 0
+  },
+  {
+    "check": "go-test",
+    "exit": 0
+  },
+  {
+    "check": "go-vet",
+    "exit": 0
+  }
+]
