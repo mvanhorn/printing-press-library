@@ -247,8 +247,8 @@ func TestRejectedPatternBindingCannotHideLaterValidTargetBinding(t *testing.T) {
 			if !result.Found || len(result.Results) != 1 || result.Results[0].ResourceID != "pitch-A" || result.Results[0].EntityMatch != learn.EntityMatchExact || result.Results[0].Confidence != 2 {
 				t.Fatalf("rejected Alpha binding suppressed valid Beta binding: %#v", result)
 			}
-			if len(result.Mismatches) != 1 || result.Mismatches[0].EntityMatch != learn.EntityMatchMismatch || result.Mismatches[0].Confidence != 3 {
-				t.Fatalf("rejected binding evidence lost: %#v", result)
+			if len(result.Mismatches) != 0 || slices.Contains(result.Warnings, learn.WarningSimilarShapeDifferentEntity+":Beta") {
+				t.Fatalf("accepted target retained rejected diagnostics: %#v", result)
 			}
 
 		})

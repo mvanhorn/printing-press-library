@@ -1,6 +1,6 @@
 {
   "status": "pass",
-  "source_fingerprint": "bf7d252ffce1b3b67ff15e0d41c4f18137097d504940b9cc58cefa2821ea00d4",
+  "source_fingerprint": "0589d1376c7ee41ee961cda777327743e4aa8fbce0183f7ec92a8c20b52ed0bb",
   "mcp_stdio": {
     "passed": true,
     "tool": "planner_compare",
@@ -29,8 +29,8 @@
     "learning_toggle_not_advertised_on_read_only_native": true,
     "learning_toggle_request_rejected": true,
     "no_learn_harness_override": false,
-    "cli_binary_sha256": "deb687c2e17aafb9b7e28bbc4956a47d0628bdc78544e6b7ee2e1b91cfad5af7",
-    "mcp_binary_sha256": "16426a14cf7f0779570e1548bb94d91929f5abe83f996319cd561a2cc2b777f6",
+    "cli_binary_sha256": "08573b3d0522f7f7143a534b3b1bdc7517f17bd1a574c5f2fbdf9291cb66d8e5",
+    "mcp_binary_sha256": "b964649abf15123a6f0b464c10d8fb973e67b329d352208aba8e5ff10fa61177",
     "runtime_version": "nap-camp-pp-cli 2026.10.1"
   },
   "regressions": [
@@ -50,7 +50,13 @@
     "compatible distinct retained supporters preserve exact/prefix rules despite stale, conflicting or multi-entity family rows; examples come only from valid supporters and one compatible support removes inference",
     "lookup infrastructure errors roll back both teaching and pattern changes",
     "actual pattern-selected entity controls cached literal/canonical checks; unrelated query entities cannot rescue conflicts, and rejected bindings cannot hide later valid target bindings",
-    "recall limits apply after cached-identity validation and deduplication; limit1 keeps a valid lower-ranked result while standalone pattern candidate limits remain"
+    "recall limits apply after cached-identity validation and deduplication; limit1 keeps a valid lower-ranked result while standalone pattern candidate limits remain",
+    "each verified binding of the same pattern reaches cached-identity validation; a conflicting first binding cannot hide a valid later binding",
+    "final entity/source/confidence/score rank chooses the best accepted typed-ID hit, improving a partial direct hit with an exact pattern while preserving exact direct priority",
+    "accepted typed IDs are removed from mismatch and alternative diagnostics before mismatch truncation, retaining separate rejected-only facts",
+    "later higher-confidence lower-score pattern wins at result limit1; standalone Apply first binding and default/explicit caps remain",
+    "unexpected SQLite payload-read and cancellation errors propagate explicitly in direct and pattern recall; only genuine missing rows retain warned compatibility fallback",
+    "comparable two-field resource keys keep arbitrary distinct taught type/ID tuples separate; actual two-teach limit2 recall preserves separator-containing pairs"
   ],
   "learning_state_scope": "fresh temporary test stores; no original or global learning state",
   "full_go_tests": "pass",
@@ -59,13 +65,13 @@
     "passed": true,
     "normal_mode": true,
     "timeout_ms": 100,
-    "cli_binary_sha256": "deb687c2e17aafb9b7e28bbc4956a47d0628bdc78544e6b7ee2e1b91cfad5af7",
+    "cli_binary_sha256": "08573b3d0522f7f7143a534b3b1bdc7517f17bd1a574c5f2fbdf9291cb66d8e5",
     "fixture": "isolated controlled local HTTP; no provider transaction",
     "cases": [
       {
         "case": "throttle",
         "exit_code": 5,
-        "seconds": 0.604,
+        "seconds": 0.1115,
         "stdout_bytes": 0,
         "provider_context_present": true,
         "explicit_timeout_context_present": true,
@@ -74,7 +80,7 @@
       {
         "case": "slow",
         "exit_code": 5,
-        "seconds": 0.1122,
+        "seconds": 0.1114,
         "stdout_bytes": 0,
         "provider_context_present": true,
         "explicit_timeout_context_present": true,
@@ -82,5 +88,6 @@
       }
     ],
     "limitation": "Sustained normal-mode throttling can retry until request timeout; it then fails with provider context, not empty success or inferred availability."
-  }
+  },
+  "recall_limit_contract": "Returned-result cap only; local matching bindings remain exhaustively eligible for final identity/source/confidence ranking and diagnostic consistency."
 }

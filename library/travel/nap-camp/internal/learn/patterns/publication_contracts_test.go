@@ -117,3 +117,31 @@ func TestApplyRetainsStandaloneCapsWhenRecallRequestsAllCandidates(t *testing.T)
 		})
 	}
 }
+
+func TestApplyAllBindingsIsOptInAndKeepsStandaloneFirstBinding(t *testing.T) {
+	db := openApplyTestDB(t)
+	seedResource(t, db, "source", "pitch-ALPHA", `{}`)
+	seedResource(t, db, "source", "pitch-BETA", `{}`)
+	if _, _, err := Upsert(db, Pattern{QueryTemplate: "pitch {entity}", ResourceTemplate: "pitch-{entity:uppercase}",
+		ResourceType: "source", Strategy: StrategySubstitute, EntityKind: "uppercase", Source: SourceTaught}); err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct {
+		name  string
+		opts  Opts
+		count int
+	}{
+		{"standalone", Opts{}, 1}, {"standalone-explicit-limit", Opts{Limit: 1}, 1},
+		{"all-bindings", Opts{AllBindings: true, NoLimit: true}, 2}, {"all-bindings-result-limit", Opts{AllBindings: true, Limit: 1}, 1},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			hits, err := Apply(context.Background(), db, "Alpha Beta pitch", "pitch", []string{"Alpha", "Beta"}, tc.opts)
+			if err != nil || len(hits) != tc.count || hits[0].ResourceID != "pitch-ALPHA" || hits[0].BoundEntity != "Alpha" {
+				t.Fatalf("binding contract: %#v %v", hits, err)
+			}
+			if tc.count == 2 && (hits[1].ResourceID != "pitch-BETA" || hits[1].BoundEntity != "Beta") {
+				t.Fatalf("second binding not carried: %#v", hits)
+			}
+		})
+	}
+}
