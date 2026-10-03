@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "nap-camp-bounded-transport",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261003-001152-6cdfd713",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Reject oversized Nap Camp HTTP bodies before full allocation, including raw source and compressed responses.",
+  "reason": "A post-read planning limit cannot bound transport allocation; success and error responses must fail explicitly with provider context rather than return partial evidence.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/response_bounds.go",
+    "internal/client/response_bounds_test.go",
+    "README.md",
+    ".manuscripts/20261003-001152-6cdfd713/proofs/normal-transport-summary.md",
+    "internal/cli/nap_transport_bound_test.go"
+  ],
+  "markers": [
+    "readResponseBody(resp.Body)"
+  ],
+  "validated_outcome": "Exact-limit complete HTTP JSON, transparent/explicit gzip, x-gzip, zlib/raw-deflate/stacked encoding boundaries, unknown/lying length and oversized200/429/503 tests pass with cap+1 read/body close/no partial data; raw/planner CLI errors contain provider context and no successful evidence."
+}

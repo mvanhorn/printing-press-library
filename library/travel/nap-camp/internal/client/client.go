@@ -1289,17 +1289,19 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			return nil, 0, lastErr
 		}
 
-		respBody, err := io.ReadAll(resp.Body)
+		// PATCH(nap-camp-bounded-transport): enforce the provider response bound
+		// before materializing it, including raw source and error responses.
+		respBody, err := readResponseBody(resp.Body)
 		_ = resp.Body.Close()
 		if err != nil {
-			return nil, 0, fmt.Errorf("reading response: %w", err)
+			return nil, resp.StatusCode, fmt.Errorf("Nap Camp %s %s: reading response: %w", method, c.displayURL(path, authHeader), err)
 		}
 		// Decode after the read. A spec-set Accept-Encoding disables net/http's
 		// transparent gzip, but some hosts truncate the body unless that
 		// header is present, so the header stays and the bytes are inflated here.
 		respBody, err = decodeContentEncoding(resp.Header.Get("Content-Encoding"), respBody)
 		if err != nil {
-			return nil, 0, fmt.Errorf("decoding response: %w", err)
+			return nil, resp.StatusCode, fmt.Errorf("Nap Camp %s %s: decoding response: %w", method, c.displayURL(path, authHeader), err)
 		}
 
 		// Pace to the server-advertised budget when it ships rate-limit
@@ -1607,7 +1609,7 @@ func contentEncodingTokens(header string) []string {
 // maxDecodedBodyBytes caps inflated Content-Encoding output. A small gzip or
 // deflate body can expand without bound; past this the request fails instead
 // of materializing the rest.
-const maxDecodedBodyBytes = 32 << 20
+const maxDecodedBodyBytes = maxResponseBodyBytes
 
 var ErrDecodedBodyTooLarge = errors.New("decoded response exceeds size limit")
 

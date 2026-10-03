@@ -101,5 +101,6 @@
       "max_stdout_bytes": 5538
     }
   ],
-  "status": "pass"
+  "status": "pass",
+  "measurement_stage": "earlier frozen local build; publication response-bound hardening followed these measurements"
 }

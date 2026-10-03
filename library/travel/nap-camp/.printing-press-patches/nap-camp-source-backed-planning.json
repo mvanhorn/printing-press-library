@@ -21,7 +21,8 @@
     "AGENTS.md",
     "workflow_verify.yaml",
     "internal/cli/nap_planning_test.go",
-    "internal/cli/planner.go"
+    "internal/cli/planner.go",
+    "internal/cli/nap_publication_contract_test.go"
   ],
   "validated_outcome": "Deterministic source contract/normalization tests pass for empty arrays, unknown dimensions/prices, specific-pitch contradictions, checkout-excluded windows, bounded results, atomic non-overwriting snapshots and comparable drift. Public-only live gates recorded separately."
 }

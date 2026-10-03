@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "3b7efbcae18b4fa36d20f3074e30fb77650378f713e3d9158522f1186d1553d5",
+  "source_fingerprint": "ca961cc02db535d1613291fa9310b14bdc05d27796f2a43efddb7870eca9aaec",
   "source_files": {
     "cmd/nap-camp-pp-cli/main.go": "6a9c830a84fcf3429d5c2f391724545ea5ec22c6c60c76bf4572b07322a1f1c2",
     "cmd/nap-camp-pp-mcp/main.go": "c8dd4ef9eb81f384478ef42447ba5f0f8ba76bd468a21a80417569b0f86f26f7",
@@ -38,7 +38,9 @@
     "internal/cli/nap_foundation.go": "7dc6632faa616cb525431223bff2b12c00a9806d12bcbe6ad5d316a132bc695f",
     "internal/cli/nap_planner_errors.go": "920b5411e91b9f894d5188e4c41ce7058c3dda4a7a7547c067be65df998fb808",
     "internal/cli/nap_planning_test.go": "ddb8458def5c29eeadc406b7f20a605718cfd0c51eac86c83d71e78705e4ebe5",
+    "internal/cli/nap_publication_contract_test.go": "918a14c2bb33c32a6c822c6a58ace6ed010696857d53510675b9e84f2c2dc300",
     "internal/cli/nap_requirements.go": "dc3adb701f2bd44b432c7e3878d600305fc5fa2153b2e8c3cba0415394b52d2f",
+    "internal/cli/nap_transport_bound_test.go": "d44cc4dbd35a46e8cbd80305257e85c98537d3eeaec282d800b3692ca6f6a6fb",
     "internal/cli/planner.go": "a8ecfc64b974545a12ba67d5f3ac424c8a7085ee7fb6a56a8131836c64fcbc3b",
     "internal/cli/planner_changes.go": "43859b1e1bd82de1748e228630c93161f5a5e951e4b19054b5fffa1560a75f21",
     "internal/cli/planner_changes_test.go": "9c97e7987bb017979840fa017e8985f13fbae4b3db6557e044ff4be4d8bd061e",
@@ -81,11 +83,13 @@
     "internal/cli/version.go": "e09971a19ec8ddee22febaaf25efec9d83880c76f8137e01b142d8d85429b0cf",
     "internal/cli/which.go": "fb66a7d0ef1b1819ff775fa7dbac7fe5d8a6d231c048dace5da8595a6287b521",
     "internal/cli/which_test.go": "a2d4ab34e8bc3e36be55215ef0f5396392a7f7de3a4d132ca71f75a2556f4f92",
-    "internal/client/client.go": "ff2f12f75524c3dcf60e6333fb43d27a3d18c1d50fa6ec9cd75719077fc7be82",
+    "internal/client/client.go": "5a47f8d0a76e080b5d037356e27b95d171e0801dcaf2f6c35c0feaef8bcf300d",
     "internal/client/client_test.go": "a6f3fdd58f1060f8785b216ffe5b7b44af0b38e5e3e72f72186f809005ba670c",
     "internal/client/client_verify_short_circuit_test.go": "3f7f4943f23fa11cd4a8e32b67df448404ff51e14116a9483b884e473c50b899",
     "internal/client/platform_budget_test.go": "8e3af8c41f4930934d50800edb86be790287d1c2b910da8b254076da9212668a",
     "internal/client/platform_rate_limit_test.go": "e288c170e6acd71062398cc770c38d298769053cf144d7578185d542b17f672f",
+    "internal/client/response_bounds.go": "06480e9afd920a5a8fc8b5172088394c24ddd99c8a9872dad0f64e53fccfa784",
+    "internal/client/response_bounds_test.go": "dc03bda3eab675a0cd4cde31560811be22af6370a982e81ac7e2db71786fe904",
     "internal/cliutil/cliutil_test.go": "aac5a2a7ba26091ae182ca55fcce8c27f49b13fcc756648e965e36a94e257dd2",
     "internal/cliutil/duration.go": "c9b28fae33b0b7e5cc92d3c32292bf053e3d8c6c4433b21ead8e9f7567c3f822",
     "internal/cliutil/duration_test.go": "bc148de709485f8564e2b40827e919a07476261e98be6416118f7afa99d0093a",

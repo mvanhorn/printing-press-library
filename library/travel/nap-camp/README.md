@@ -60,7 +60,7 @@ nap-camp-pp-cli planner fit 11007 20005062 --people 2 --power --agent
 - Discovery reads one explicit page, returns at most 50 facilities and at most three plan previews per facility. Inspections bound plan previews to 25. Calendar and windows are bounded. Text longer than 4,000 characters is marked in `text_truncated_fields`.
 - Data is observed from Japanese public listings and carries UTC observation timestamps, canonical URLs and source coverage. It is not a complete offline database or a driving-clearance routing tool.
 
-The domain rejects planning responses over 4 MiB and bounds returned lists/text, but the generated HTTP client reads an uncompressed body before that size check. This bounds normalized output, not initial response allocation. Compressed-body inflation has its own 32 MiB cap. This generated-client hardening limitation was identified during the local review and retained as a local retrospective candidate; ordinary public-source responses passed live checks.
+The published transport reads at most 4 MiB plus one overflow sentinel byte, then fails explicitly instead of returning a partial response. This applies to planning and raw source commands, success and error bodies, transparent decompression and explicit compressed-body inflation. Normalized list/text limits remain separate. The earlier local build had a post-read allocation limitation; the publication review resolved it in this CLI without changing the Printing Press.
 
 ## Commands
 

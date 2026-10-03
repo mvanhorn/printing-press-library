@@ -1,0 +1,53 @@
+{
+  "status": "pass",
+  "observed_at": "2026-10-03T06:18:34.253546+00:00",
+  "measurement_stage": "current canonical publication source after response-bound hardening",
+  "source_fingerprint": "ca961cc02db535d1613291fa9310b14bdc05d27796f2a43efddb7870eca9aaec",
+  "binary_sha256": "e7733306871c06a8178b92cc908c05c602a58550e5ca3ace9da2c9f06aad8818",
+  "normal_mode": true,
+  "scope": "Six representative commands x1 successful normal-mode process run; network/startup included; no latency threshold or percentile/SLA claim.",
+  "performance": [
+    {
+      "command": "discover",
+      "runs": 1,
+      "passed": 1,
+      "seconds": 1.0551,
+      "stdout_bytes": 7806
+    },
+    {
+      "command": "calendar",
+      "runs": 1,
+      "passed": 1,
+      "seconds": 1.0161,
+      "stdout_bytes": 5208
+    },
+    {
+      "command": "fit",
+      "runs": 1,
+      "passed": 1,
+      "seconds": 0.7401,
+      "stdout_bytes": 3025
+    },
+    {
+      "command": "compare",
+      "runs": 1,
+      "passed": 1,
+      "seconds": 1.7104,
+      "stdout_bytes": 7040
+    },
+    {
+      "command": "snapshot",
+      "runs": 1,
+      "passed": 1,
+      "seconds": 1.323,
+      "stdout_bytes": 32050
+    },
+    {
+      "command": "changes",
+      "runs": 1,
+      "passed": 1,
+      "seconds": 0.0182,
+      "stdout_bytes": 361
+    }
+  ]
+}
