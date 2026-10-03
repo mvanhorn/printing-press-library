@@ -6,7 +6,7 @@
   "unverified": 85,
   "matrix_size": 135,
   "level": "full",
-  "ran_at": "2026-10-03T10:30:19.033083Z",
+  "ran_at": "2026-10-03T12:22:58.797077Z",
   "private_raw_transcript_deleted": true,
   "real_planner_happy_paths": [
     {
@@ -46,8 +46,12 @@
     "season_snowfall_cm": 0,
     "resort_projection": "detail-v1"
   },
-  "sync_matrix_special_rule": "Skipped by Press; independently exercised by portable fixture setup",
-  "fixture": "Temporary public-source catalog, completed winter, two resort details and exact dated report observations; removed on exit",
-  "review_fix_round": 1,
-  "partial_capture_freshness": "Actual saved observation ranges; independently reviewed"
+  "sync_matrix_special_rule": "Skipped by Press; actual sync independently exercised by portable fixture",
+  "fixture": "Disposable complete directory, selected completed winter, two resort details and one exact dated report",
+  "cache_guard": "Canonical pinned readers/writers; active read journals and ambiguous aliases rejected",
+  "sqlite_version": "3.51.3",
+  "modernc_sqlite": "v1.46.2",
+  "modernc_libc": "v1.70.0",
+  "review_fix_round": 2,
+  "cache_creation": "Exclusive basename creation confined to the canonical parent with os.Root"
 }

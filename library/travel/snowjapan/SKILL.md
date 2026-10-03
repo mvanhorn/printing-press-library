@@ -167,6 +167,8 @@ snowjapan-pp-cli reports get hakuba-now-1st-october-2026 --data-source local --a
 
 Ordinary report sync saves list metadata. A later list sync can replace the mirror row; repeat the exact detail capture before offline inspection. Freshness hints use the actual saved observation times; a fresh partial capture does not refresh unrelated older records.
 
+Close any active database writer before reading local facts. Existing WAL/SHM/journal files make local reads fail with a retry instruction. Reads and captures resolve symlink targets, pin their SQL connection and verify database identity; hard-linked databases and URI-sensitive literal filenames are rejected to avoid ambiguous journals or the wrong file. Sync writes use the canonical database path, including for supported symlink aliases. External replacement of the database file during a write is unsupported; detected retargeting or identity changes fail the capture.
+
 ## Source scope and evidence
 
 Source fact rows preserve canonical URLs and observation times. Computed planners expose dataset source URLs and observed-time ranges in `.meta`; town summaries do not have individual resort permalinks. Resort statistics describe installed facilities, without live lift-operation claims. Detail `information_status` and `planned_window` are source labels; unconfirmed upcoming dates stay unconfirmed. A source update timestamp is not proof that every field was recently verified.

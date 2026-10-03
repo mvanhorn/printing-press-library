@@ -5,6 +5,7 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"reflect"
 	"sort"
@@ -488,12 +489,17 @@ func snowExactScope(rows []snowjapan.Fact, csv string) ([]snowjapan.Fact, error)
 	return out, nil
 }
 
-func snowSnapshotChanges(ctx context.Context, cmd *cobra.Command, rows []snowjapan.Fact, ids string) ([]snowjapan.Fact, error) {
-	db, e := store.OpenReadOnlyContext(ctx, snowDBPath(cmd))
+func snowSnapshotChanges(ctx context.Context, cmd *cobra.Command, rows []snowjapan.Fact, ids string) (result []snowjapan.Fact, err error) {
+	db, e := store.OpenSnowJapanReadOnlyContext(ctx, snowDBPath(cmd))
 	if e != nil {
 		return nil, e
 	}
-	defer db.Close()
+	defer func() {
+		if closeErr := db.Close(); closeErr != nil {
+			result = nil
+			err = errors.Join(err, closeErr)
+		}
+	}()
 	out := make([]snowjapan.Fact, 0)
 	seen := map[string]bool{}
 	for _, id := range strings.Split(ids, ",") {

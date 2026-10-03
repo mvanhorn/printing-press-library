@@ -3,7 +3,9 @@ package cli
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -173,5 +175,71 @@ func TestReportFreshnessDoesNotUseLaterPartialCapture(t *testing.T) {
 	rows, _, err := snowLocal(context.Background(), cmd, &rootFlags{maxAge: 30 * time.Minute}, "reports", "", false)
 	if err != nil || len(rows) != 2 || !strings.Contains(hints.String(), "hint: local reports include observations from "+old) {
 		t.Fatalf("fresh partial report capture hid older evidence: rows=%v error=%v hints=%q", rows, err, hints.String())
+	}
+}
+
+func TestSnowJapanSourceWriterRejectsURIPathsBeforeMigration(t *testing.T) {
+	for _, suffix := range []string{"?mode=memory", "#other", "%3Fother"} {
+		t.Run(suffix, func(t *testing.T) {
+			dir := t.TempDir()
+			base := filepath.Join(dir, "facts.db")
+			foreign := filepath.Join(dir, "foreign.db")
+			for _, path := range []string{base, foreign} {
+				db, err := store.Open(path)
+				if err != nil {
+					t.Fatal(err)
+				}
+				raw, _ := json.Marshal(map[string]any{"id": "a", "projection": "detail-v1", "observed_at": "at", "peak_m": 3000})
+				if _, _, err := db.UpsertBatch("resorts", []json.RawMessage{raw}); err != nil {
+					t.Fatal(err)
+				}
+				db.Close()
+			}
+			contents, err := os.ReadFile(foreign)
+			if err != nil {
+				t.Fatal(err)
+			}
+			literal := base + suffix
+			if err := os.WriteFile(literal, contents, 0o600); err != nil {
+				t.Fatal(err)
+			}
+			for _, path := range []string{literal, filepath.Join(dir, "new.db") + suffix} {
+				before := map[string][32]byte{}
+				for _, existing := range []string{base, foreign, literal} {
+					b, err := os.ReadFile(existing)
+					if err != nil {
+						t.Fatal(err)
+					}
+					before[existing] = sha256.Sum256(b)
+				}
+				root := &cobra.Command{Use: "test", SilenceErrors: true, SilenceUsage: true}
+				root.PersistentFlags().String("db", path, "")
+				root.AddCommand(newSnowSync(&rootFlags{dataSource: "live"}))
+				root.SetArgs([]string{"sync", "--resources", "reports", "--reports", "hakuba-now-1st-october-2026"})
+				var out bytes.Buffer
+				root.SetOut(&out)
+				root.SetErr(&out)
+				if err := root.Execute(); err == nil || !strings.Contains(err.Error(), "URI punctuation") {
+					t.Fatalf("source writer reached migration/capture: %v output=%s", err, out.String())
+				}
+				if out.Len() != 0 {
+					t.Fatalf("rejected capture emitted factual output: %s", out.String())
+				}
+				for existing, hash := range before {
+					b, err := os.ReadFile(existing)
+					if err != nil || sha256.Sum256(b) != hash {
+						t.Fatalf("wrong cache changed: %s", existing)
+					}
+				}
+				if _, err := os.Stat(filepath.Join(dir, "new.db")); !os.IsNotExist(err) {
+					t.Fatal("URI truncation created the wrong cache")
+				}
+				if path != literal {
+					if _, err := os.Stat(path); !os.IsNotExist(err) {
+						t.Fatal("rejected new literal cache was created")
+					}
+				}
+			}
+		})
 	}
 }

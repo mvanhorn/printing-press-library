@@ -160,17 +160,22 @@ func hintIfStale(cmd *cobra.Command, db *store.Store, resource string, maxAge ti
 	}
 }
 
-func snowLocal(ctx context.Context, cmd *cobra.Command, flags *rootFlags, resource, season string, catalog bool) ([]snowjapan.Fact, bool, error) {
+func snowLocal(ctx context.Context, cmd *cobra.Command, flags *rootFlags, resource, season string, catalog bool) (result []snowjapan.Fact, captured bool, err error) {
 	path := snowDBPath(cmd)
 	if _, e := os.Stat(path); os.IsNotExist(e) {
 		fmt.Fprintf(cmd.ErrOrStderr(), "hint: no local mirror; run snowjapan-pp-cli sync --resources resorts, then sync seasons with --resource-param seasons:season=2025-2026\n")
 		return []snowjapan.Fact{}, false, nil
 	}
-	db, e := store.OpenReadOnlyContext(ctx, path)
+	db, e := store.OpenSnowJapanReadOnlyContext(ctx, path)
 	if e != nil {
 		return nil, false, e
 	}
-	defer db.Close()
+	defer func() {
+		if closeErr := db.Close(); closeErr != nil {
+			result, captured = nil, false
+			err = errors.Join(err, closeErr)
+		}
+	}()
 	var raw []json.RawMessage
 	complete := false
 	if resource == "seasons" && season != "" {
@@ -237,7 +242,7 @@ func snowLocal(ctx context.Context, cmd *cobra.Command, flags *rootFlags, resour
 		} else if flags.maxAge > 0 && time.Since(at) > flags.maxAge {
 			fmt.Fprintf(cmd.ErrOrStderr(), "hint: complete local resort directory was captured at %s; explicitly sync --resources resorts to refresh\n", firstObserved)
 		}
-	} else if season == "" && !hintIfUnsynced(cmd, db, resource) {
+	} else if season == "" && !hintIfUnsynced(cmd, db.Store, resource) {
 		if len(out) > 0 {
 			// An exact capture refreshes only its own rows. The resource
 			// sync timestamp cannot establish the age of other saved
@@ -250,7 +255,7 @@ func snowLocal(ctx context.Context, cmd *cobra.Command, flags *rootFlags, resour
 				fmt.Fprintf(cmd.ErrOrStderr(), "hint: local %s include observations from %s; explicitly capture the older records to refresh\n", resource, firstObserved)
 			}
 		} else {
-			hintIfStale(cmd, db, resource, flags.maxAge)
+			hintIfStale(cmd, db.Store, resource, flags.maxAge)
 		}
 	}
 	return out, complete, nil
@@ -609,7 +614,7 @@ func newSnowSync(flags *rootFlags) *cobra.Command {
 	var resourceCSV, resortCSV, reportCSV, param string
 	var resourceParams []string
 	cmd := &cobra.Command{Use: "sync", Short: "Explicitly save bounded source facts and resort observation history to local SQLite.", Example: "  snowjapan-pp-cli sync --resources resorts\n  snowjapan-pp-cli sync --resources seasons --resource-param seasons:season=2025-2026\n  snowjapan-pp-cli sync --resources resorts --resorts nagano-prefecture/hakuba-village/able-hakuba-goryu\n  snowjapan-pp-cli sync --resources reports --reports hakuba-now-1st-october-2026", Annotations: map[string]string{"mcp:local-write": "true", "pp:data-source": "live", "pp:happy-args": snowHappyArgs("--resources=resorts,seasons;--resource-param=seasons:season=2025-2026"), "pp:live-happy-path": "true"},
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "sync factual mirror")
 			}
@@ -669,11 +674,11 @@ func newSnowSync(flags *rootFlags) *cobra.Command {
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
 			c := snowjapan.NewWithRateLimit(flags.rateLimit)
-			db, e := store.OpenWithContext(ctx, snowDBPath(cmd))
+			db, e := store.OpenSnowJapanWritableContext(ctx, snowDBPath(cmd))
 			if e != nil {
 				return e
 			}
-			defer db.Close()
+			defer func() { err = errors.Join(err, db.Close()) }()
 			summary := map[string]any{}
 			for _, resource := range selected {
 				var facts []snowjapan.Fact
@@ -743,6 +748,9 @@ func newSnowSync(flags *rootFlags) *cobra.Command {
 					return e
 				}
 				summary[resource] = map[string]any{"stored": stored, "complete_directory": resource == "resorts" && resortCSV == ""}
+			}
+			if e = db.Close(); e != nil {
+				return e
 			}
 			return snowPrint(cmd, flags, map[string]any{"synced": summary, "season": season, "source": "public factual projections only"}, "live")
 		}}
