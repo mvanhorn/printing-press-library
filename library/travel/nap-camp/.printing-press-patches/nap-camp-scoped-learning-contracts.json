@@ -4,8 +4,8 @@
   "applied_at": "2026-10-03",
   "base_run_id": "20261003-001152-6cdfd713",
   "base_printing_press_version": "4.32.5",
-  "summary": "Reconcile inferred rules from surviving bindings, record explicit manual scope, and verify literal unique prefixes.",
-  "reason": "Undo must remove unsupported inference without disabling rules still supported by retained distinct entity bindings; manual and unrelated rules remain.",
+  "summary": "Preserve inferred rules from compatible retained distinct bindings and valid provenance, while recording manual scope and literal unique prefixes.",
+  "reason": "Undo must remove unsupported inference without disabling rules still justified by at least two compatible retained entity/value bindings; unusable family members cannot veto those supports or become examples, and manual/unrelated rules remain.",
   "files": [
     "internal/store/learnings.go",
     "internal/learn/patterns/apply.go",
@@ -17,7 +17,8 @@
     "internal/learn/lookups/store.go",
     "internal/store/derived_patterns.go",
     "internal/store/supported_patterns_test.go",
-    "internal/cli/nap_learning_contract_test.go"
+    "internal/cli/nap_learning_contract_test.go",
+    "internal/store/compatible_support_test.go"
   ],
-  "validated_outcome": "Actual extraction/recall regressions preserve supported exact/prefix rules from all retained distinct bindings, remove unsupported rules, refresh example provenance, retain unrelated/manual intent and roll back both deletion/update failures. Explicit manual scope matches reported/applied payload and later inference cannot overwrite it; literal prefixes require one scoped match."
+  "validated_outcome": "Actual extraction/recall regressions preserve supported exact/prefix rules from all retained distinct bindings, remove unsupported rules, refresh example provenance, retain unrelated/manual intent and roll back both deletion/update failures. Explicit manual scope matches reported/applied payload and later inference cannot overwrite it; literal prefixes require one scoped match. Mixed valid/stale/conflicting/multi-entity cohorts preserve exact/prefix generalized recall and same rule IDs from two compatible supports, repair examples only from valid members, and remove inference after the compatible count drops to one."
 }

@@ -38,9 +38,12 @@ type Hit struct {
 	MatchScore       float64
 	EntityMatch      string
 	ResourceEntities []string
-	Source           string
-	PatternID        int64
-	LastObservedAt   *time.Time
+	// BoundEntity is the actual query entity used for substitution, not other
+	// query entities that may happen to match the candidate's cached identity.
+	BoundEntity    string `json:"-"`
+	Source         string
+	PatternID      int64
+	LastObservedAt *time.Time
 	// Meta carries structured diagnostic reasons when a pattern matched
 	// textually but failed verification (substitution miss, resource
 	// not in store, etc.). Empty on success.
@@ -58,8 +61,10 @@ type Hit struct {
 // should try ahead of the built-in computed kinds when a template's
 // entity_kind doesn't have a direct slot in the template string.
 type Opts struct {
-	JaccardMin      float64
-	Limit           int
+	JaccardMin float64
+	Limit      int
+	// NoLimit lets a caller validate candidates before applying its own bound.
+	NoLimit         bool
 	NoVerify        bool
 	AdditionalKinds []string
 }
@@ -154,6 +159,7 @@ func Apply(ctx context.Context, db *sql.DB, query, nonEntityNormalized string, q
 			if !verified {
 				continue
 			}
+			h.BoundEntity = ent
 			h.Venue = venue
 			h.Confidence = confidence
 			h.MatchScore = score
@@ -195,7 +201,7 @@ func Apply(ctx context.Context, db *sql.DB, query, nonEntityNormalized string, q
 		return ai.After(aj)
 	})
 
-	if len(hits) > limit {
+	if !opts.NoLimit && len(hits) > limit {
 		hits = hits[:limit]
 	}
 	return hits, nil

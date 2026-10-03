@@ -84,14 +84,14 @@ func reconcileDerivedPatterns(ctx context.Context, tx *sql.Tx, f derivedPatternF
 	}
 
 	for _, p := range patterns {
-		supported, err := retainedPatternSupport(ctx, tx, p, members)
+		example, err := retainedPatternSupport(ctx, tx, p, members)
 		if err != nil {
 			return err
 		}
-		if supported {
+		if example != nil {
 			// Example provenance may have named the forgotten contributor.
 			_, err = tx.ExecContext(ctx, `UPDATE search_patterns SET example_query=?,example_resource=?
-   WHERE id=? AND source='inferred'`, members[0].query, members[0].resource, p.id)
+   WHERE id=? AND source='inferred'`, example.query, example.resource, p.id)
 		} else {
 			_, err = tx.ExecContext(ctx, `DELETE FROM search_patterns WHERE id=? AND source='inferred'`, p.id)
 		}
@@ -121,52 +121,61 @@ func retainedFamilyTemplate(query string, entities []string) string {
 	return strings.Join(tokens, " ")
 }
 
-func retainedPatternSupport(ctx context.Context, tx *sql.Tx, p derivedPattern, members []retainedTeaching) (bool, error) {
+// retainedPatternSupport returns provenance only from compatible evidence for
+// this particular rule. An unusable family row is not support and cannot veto
+// other retained bindings. Lookup failures remain fatal to the owning undo tx.
+func retainedPatternSupport(ctx context.Context, tx *sql.Tx, p derivedPattern, members []retainedTeaching) (*retainedTeaching, error) {
 	if len(members) < 2 {
-		return false, nil
+		return nil, nil
 	}
 	slot := "{entity:" + p.kind + "}"
 	if !strings.Contains(p.resourceTemplate, slot) {
 		slot = "{entity}"
 	}
 	if !strings.Contains(p.resourceTemplate, slot) {
-		return false, nil
+		return nil, nil
 	}
 	entities, values := map[string]bool{}, map[string]bool{}
-	for _, m := range members {
-		// Match Extract's single-slot guard and reject conflicting evidence.
+	var example *retainedTeaching
+	for i, m := range members {
 		if len(m.entities) != 1 {
-			return false, nil
+			continue
 		}
 		entity := strings.TrimSpace(m.entities[0])
 		if entity == "" {
-			return false, nil
+			continue
 		}
 		value, found, err := entityvalue.Lookup(ctx, tx, p.kind, entity)
 		if err != nil {
-			return false, fmt.Errorf("verify retained entity binding: %w", err)
+			return nil, fmt.Errorf("verify retained entity binding: %w", err)
 		}
 		if !found || value == "" {
-			return false, nil
+			continue
 		}
 		candidate := strings.ReplaceAll(p.resourceTemplate, slot, value)
 		if strings.Contains(candidate, "{entity") {
-			return false, nil
+			continue
 		}
+		compatible := false
 		switch p.strategy {
 		case "substitute":
-			if candidate != m.resource {
-				return false, nil
-			}
+			compatible = candidate == m.resource
 		case "substitute-then-search-prefix":
-			if !strings.HasSuffix(candidate, "*") || !strings.HasPrefix(m.resource, strings.TrimSuffix(candidate, "*")) {
-				return false, nil
-			}
+			compatible = strings.HasSuffix(candidate, "*") && strings.HasPrefix(m.resource, strings.TrimSuffix(candidate, "*"))
 		default:
-			return false, nil
+			return nil, nil
+		}
+		if !compatible {
+			continue
 		}
 		entities[strings.ToLower(entity)] = true
 		values[value] = true
+		if example == nil {
+			example = &members[i]
+		}
 	}
-	return len(entities) >= 2 && len(values) >= 2, nil
+	if len(entities) >= 2 && len(values) >= 2 {
+		return example, nil
+	}
+	return nil, nil
 }

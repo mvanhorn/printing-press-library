@@ -1,9 +1,9 @@
 {
   "status": "pass",
-  "observed_at": "2026-10-03T10:13:43.357552+00:00",
+  "observed_at": "2026-10-03T11:32:32.059917+00:00",
   "measurement_stage": "current canonical publication source after all reviewed publication repairs",
-  "source_fingerprint": "7db334f823b405f835688bf175bea8c0153fea36f74afd5a31045749839d12b5",
-  "binary_sha256": "526b8154587ce4a5c304222378d2886cbc5ab11d9509d67f3a00c3ef791ac26c",
+  "source_fingerprint": "bf7d252ffce1b3b67ff15e0d41c4f18137097d504940b9cc58cefa2821ea00d4",
+  "binary_sha256": "deb687c2e17aafb9b7e28bbc4956a47d0628bdc78544e6b7ee2e1b91cfad5af7",
   "normal_mode": true,
   "scope": "Six representative commands x1 successful normal-mode process run; network/startup included; no latency threshold or percentile/SLA claim.",
   "performance": [
@@ -11,42 +11,42 @@
       "command": "discover",
       "runs": 1,
       "passed": 1,
-      "seconds": 0.4848,
+      "seconds": 0.6651,
       "stdout_bytes": 7806
     },
     {
       "command": "calendar",
       "runs": 1,
       "passed": 1,
-      "seconds": 0.8778,
+      "seconds": 0.9091,
       "stdout_bytes": 5208
     },
     {
       "command": "fit",
       "runs": 1,
       "passed": 1,
-      "seconds": 0.7582,
+      "seconds": 0.7315,
       "stdout_bytes": 3025
     },
     {
       "command": "compare",
       "runs": 1,
       "passed": 1,
-      "seconds": 1.7382,
+      "seconds": 1.7294,
       "stdout_bytes": 7040
     },
     {
       "command": "snapshot",
       "runs": 1,
       "passed": 1,
-      "seconds": 1.4436,
+      "seconds": 1.3494,
       "stdout_bytes": 32050
     },
     {
       "command": "changes",
       "runs": 1,
       "passed": 1,
-      "seconds": 0.0141,
+      "seconds": 0.0091,
       "stdout_bytes": 361
     }
   ]

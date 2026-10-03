@@ -1,6 +1,6 @@
 {
   "status": "pass",
-  "source_fingerprint": "7db334f823b405f835688bf175bea8c0153fea36f74afd5a31045749839d12b5",
+  "source_fingerprint": "bf7d252ffce1b3b67ff15e0d41c4f18137097d504940b9cc58cefa2821ea00d4",
   "mcp_stdio": {
     "passed": true,
     "tool": "planner_compare",
@@ -29,8 +29,8 @@
     "learning_toggle_not_advertised_on_read_only_native": true,
     "learning_toggle_request_rejected": true,
     "no_learn_harness_override": false,
-    "cli_binary_sha256": "526b8154587ce4a5c304222378d2886cbc5ab11d9509d67f3a00c3ef791ac26c",
-    "mcp_binary_sha256": "6357c5df68adbe6f2e2dc22bb553ebedd0de795e6be82e0a18eb2167844024f1",
+    "cli_binary_sha256": "deb687c2e17aafb9b7e28bbc4956a47d0628bdc78544e6b7ee2e1b91cfad5af7",
+    "mcp_binary_sha256": "16426a14cf7f0779570e1548bb94d91929f5abe83f996319cd561a2cc2b777f6",
     "runtime_version": "nap-camp-pp-cli 2026.10.1"
   },
   "regressions": [
@@ -46,7 +46,11 @@
     "foreign redirect hops drop origin headers and invalid export formats fail before requests or output mutation",
     "native read-only mirrors suppress automatic state changes; local-write learning helpers retain current committed active-WAL recall",
     "cached-resource conflicts cannot become exact direct aliases or synthesized-pattern hits; true aliases, warned absent rows and empty-identity compatibility remain",
-    "ambiguous direct aliases require a single canonical common to query, teaching and cached resource; mismatch warnings identify the actual cached alternative"
+    "ambiguous direct aliases require a single canonical common to query, teaching and cached resource; mismatch warnings identify the actual cached alternative",
+    "compatible distinct retained supporters preserve exact/prefix rules despite stale, conflicting or multi-entity family rows; examples come only from valid supporters and one compatible support removes inference",
+    "lookup infrastructure errors roll back both teaching and pattern changes",
+    "actual pattern-selected entity controls cached literal/canonical checks; unrelated query entities cannot rescue conflicts, and rejected bindings cannot hide later valid target bindings",
+    "recall limits apply after cached-identity validation and deduplication; limit1 keeps a valid lower-ranked result while standalone pattern candidate limits remain"
   ],
   "learning_state_scope": "fresh temporary test stores; no original or global learning state",
   "full_go_tests": "pass",
@@ -55,13 +59,13 @@
     "passed": true,
     "normal_mode": true,
     "timeout_ms": 100,
-    "cli_binary_sha256": "526b8154587ce4a5c304222378d2886cbc5ab11d9509d67f3a00c3ef791ac26c",
+    "cli_binary_sha256": "deb687c2e17aafb9b7e28bbc4956a47d0628bdc78544e6b7ee2e1b91cfad5af7",
     "fixture": "isolated controlled local HTTP; no provider transaction",
     "cases": [
       {
         "case": "throttle",
         "exit_code": 5,
-        "seconds": 2.5616,
+        "seconds": 0.604,
         "stdout_bytes": 0,
         "provider_context_present": true,
         "explicit_timeout_context_present": true,
@@ -70,7 +74,7 @@
       {
         "case": "slow",
         "exit_code": 5,
-        "seconds": 0.1174,
+        "seconds": 0.1122,
         "stdout_bytes": 0,
         "provider_context_present": true,
         "explicit_timeout_context_present": true,

@@ -28,7 +28,7 @@ installation records are intentionally excluded from these public manuscripts.
 Final amended runtime verification uses the released 2026.10.1 CLI and controlled
 normal-mode planner fixtures. Both sustained throttling and a slow response fail
 with exit 5, provider/deadline context and empty stdout. With a 100 ms request
-timeout, the throttling process took 2.56 seconds because retry backoff extends
-wall time; the slow response took 0.12 seconds. The timeout is a per-request
+timeout, the throttling process took 0.6040 seconds and the slow response took
+0.1122 seconds, including startup/backoff. The timeout is a per-request
 bound, not a total process deadline. Current binary hashes and exact measurements
 are recorded in the compact publication contracts proof.

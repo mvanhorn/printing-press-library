@@ -3,6 +3,7 @@ package cli
 
 import (
 	"context"
+	"fmt"
 	"path/filepath"
 	"slices"
 	"testing"
@@ -146,6 +147,110 @@ func TestActualRecallAmbiguousAliasNeedsSharedResourceCanonical(t *testing.T) {
 			if !wantFound && !slices.Contains(result.Warnings, learn.WarningSimilarShapeDifferentEntity+":Beta") {
 				t.Fatalf("cached alternative missing: %#v", result.Warnings)
 			}
+		})
+	}
+}
+
+func TestActualPatternRecallValidatesOnlyTheBoundEntity(t *testing.T) {
+	for _, tc := range []struct {
+		name, query, payload string
+		found                bool
+	}{
+		{"unrelated-literal", "Alpha Beta pitch", `{"name":"Beta"}`, false},
+		{"unrelated-alias", "Alpha Z1 pitch", `{"name":"Beta"}`, false},
+		{"actual-bound-alias", "Alpha Z1 pitch", `{"name":"A1"}`, true},
+		{"actual-bound-literal", "Alpha Beta pitch", `{"name":"Alpha"}`, true},
+		{"unknown-identity", "Alpha Beta pitch", `{}`, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			home := withTempLearnHome(t)
+			path := filepath.Join(home, "bound-pattern.db")
+			s, err := store.Open(path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := initLearn(context.Background(), s.DB()); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := s.DB().Exec(`INSERT INTO entity_lookups(kind,canonical,value,source) VALUES('campsite','Alpha','A1','taught'),('campsite','Beta','Z1','taught')`); err != nil {
+				t.Fatal(err)
+			}
+			// Only Alpha's substituted ID exists. The second query entity must
+			// not validate or rescue the target actually bound from Alpha.
+			if _, err := s.DB().Exec(`INSERT INTO resources(resource_type,id,data) VALUES('source','pitch-ALPHA',?)`, tc.payload); err != nil {
+				t.Fatal(err)
+			}
+			if _, _, err := patterns.Upsert(s.DB(), patterns.Pattern{QueryTemplate: "pitch {entity}", ResourceTemplate: "pitch-{entity:uppercase}", ResourceType: "source", EntityKind: "uppercase", Strategy: patterns.StrategySubstitute, Source: patterns.SourceTaught}); err != nil {
+				t.Fatal(err)
+			}
+			if err := s.Close(); err != nil {
+				t.Fatal(err)
+			}
+			stdout, stderr, err := runRootArgs(t, "recall", tc.query, "--db", path, "--agent", "--debug-mismatches")
+			if err != nil {
+				t.Fatalf("recall: %v %s", err, stderr)
+			}
+			var result learn.Result
+			unmarshalAgentResults(t, stdout, &result)
+			if result.Found != tc.found {
+				t.Fatalf("unrelated entity affected bound candidate: %#v", result)
+			}
+			if !tc.found && (len(result.Results) != 0 || len(result.Mismatches) != 1 || result.Mismatches[0].EntityMatch != learn.EntityMatchMismatch || !slices.Contains(result.Mismatches[0].ResourceEntities, "Beta")) {
+				t.Fatalf("bound conflict evidence lost: %#v", result)
+			}
+			if tc.found && (len(result.Results) != 1 || result.Results[0].EntityMatch != learn.EntityMatchExact || result.Results[0].ResourceID != "pitch-ALPHA") {
+				t.Fatalf("bound positive classification changed: %#v", result)
+			}
+		})
+	}
+}
+
+func TestRejectedPatternBindingCannotHideLaterValidTargetBinding(t *testing.T) {
+	for _, limit := range []int{0, 1} {
+		t.Run(fmt.Sprint(limit), func(t *testing.T) {
+			home := withTempLearnHome(t)
+			path := filepath.Join(home, "binding-dedup.db")
+			s, err := store.Open(path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := initLearn(context.Background(), s.DB()); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := s.DB().Exec(`INSERT INTO entity_lookups(kind,canonical,value,source) VALUES('primary','Alpha','A','taught'),('primary','Beta','B','taught'),('secondary','Beta','A','taught')`); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := s.DB().Exec(`INSERT INTO resources(resource_type,id,data) VALUES('source','pitch-A','{"name":"Beta"}')`); err != nil {
+				t.Fatal(err)
+			}
+			for _, p := range []patterns.Pattern{
+				{QueryTemplate: "pitch {entity}", ResourceTemplate: "pitch-{entity:primary}", ResourceType: "source", EntityKind: "primary", Confidence: 3, Strategy: patterns.StrategySubstitute, Source: patterns.SourceTaught},
+				{QueryTemplate: "pitch {entity}", ResourceTemplate: "pitch-{entity:secondary}", ResourceType: "source", EntityKind: "secondary", Confidence: 2, Strategy: patterns.StrategySubstitute, Source: patterns.SourceTaught},
+			} {
+				if _, _, err := patterns.Upsert(s.DB(), p); err != nil {
+					t.Fatal(err)
+				}
+			}
+			if err := s.Close(); err != nil {
+				t.Fatal(err)
+			}
+			args := []string{"recall", "Alpha Beta pitch", "--db", path, "--agent", "--debug-mismatches"}
+			if limit > 0 {
+				args = append(args, "--limit", fmt.Sprint(limit))
+			}
+			stdout, stderr, err := runRootArgs(t, args...)
+			if err != nil {
+				t.Fatalf("recall: %v %s", err, stderr)
+			}
+			var result learn.Result
+			unmarshalAgentResults(t, stdout, &result)
+			if !result.Found || len(result.Results) != 1 || result.Results[0].ResourceID != "pitch-A" || result.Results[0].EntityMatch != learn.EntityMatchExact || result.Results[0].Confidence != 2 {
+				t.Fatalf("rejected Alpha binding suppressed valid Beta binding: %#v", result)
+			}
+			if len(result.Mismatches) != 1 || result.Mismatches[0].EntityMatch != learn.EntityMatchMismatch || result.Mismatches[0].Confidence != 3 {
+				t.Fatalf("rejected binding evidence lost: %#v", result)
+			}
+
 		})
 	}
 }

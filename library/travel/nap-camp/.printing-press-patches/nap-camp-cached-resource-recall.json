@@ -9,7 +9,9 @@
   "files": [
     "internal/learn/recall.go",
     "internal/cli/nap_recall_identity_contract_test.go",
-    "README.md"
+    "README.md",
+    "internal/learn/patterns/apply.go",
+    "internal/learn/patterns/publication_contracts_test.go"
   ],
-  "validated_outcome": "Actual CLI regressions cover literal/cross-alias direct conflicts, pattern and combined-path conflicts, true cached aliases, warned absent resources, and unchanged empty-identity classifications. Ambiguous direct aliases require a shared query/teaching/resource canonical; ordinary mismatch warnings name the actual cached alternative."
+  "validated_outcome": "Actual CLI regressions cover literal/cross-alias direct conflicts, pattern and combined-path conflicts, true cached aliases, warned absent resources, and unchanged empty-identity classifications. Ambiguous direct aliases require a shared query/teaching/resource canonical; ordinary mismatch warnings name the actual cached alternative. Pattern hits carry their exact substituted entity; multi-entity CLI regressions reject unrelated literal/alias rescue while retaining bound literal/alias and empty-identity controls. Rejected pattern bindings do not register the target as accepted, so a later valid binding to the same ID remains recallable with rejected evidence preserved. The recall result bound applies after validation/dedup, retaining a valid lower-ranked binding at limit1 while standalone pattern Apply keeps default/explicit caps."
 }

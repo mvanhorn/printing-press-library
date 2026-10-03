@@ -4,6 +4,7 @@ package patterns
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	_ "modernc.org/sqlite"
 	"path/filepath"
 	"testing"
@@ -71,5 +72,48 @@ func TestExplicitTeachingUpdatesScopeAndInferencePreservesPayload(t *testing.T) 
 		if r.ID != id || r.Source != SourceTaught || r.ResourceType != taught.ResourceType || r.EntityKind != taught.EntityKind || r.Venue != taught.Venue || r.ExampleQuery != taught.ExampleQuery || r.ExampleResource != taught.ExampleResource {
 			t.Fatalf("explicit payload differs after inference %#v want %#v", r, taught)
 		}
+	}
+}
+
+func TestApplyCarriesActuallyVerifiedEntityAfterEarlierMiss(t *testing.T) {
+	for _, strategy := range []string{StrategySubstitute, StrategySubstituteThenSearchPrefix} {
+		t.Run(strategy, func(t *testing.T) {
+			db := openApplyTestDB(t)
+			resource, template := "pitch-BRAVO", "pitch-{entity:uppercase}"
+			if strategy == StrategySubstituteThenSearchPrefix {
+				resource += "-session"
+				template += "*"
+			}
+			seedResource(t, db, "source", resource, `{}`)
+			if _, _, err := Upsert(db, Pattern{QueryTemplate: "pitch {entity}", ResourceTemplate: template, ResourceType: "source", Strategy: strategy, EntityKind: "uppercase", Source: SourceTaught}); err != nil {
+				t.Fatal(err)
+			}
+			hits, err := Apply(context.Background(), db, "pitch Alpha Bravo", "pitch", []string{"Alpha", "Bravo"}, Opts{})
+			if err != nil || len(hits) != 1 || hits[0].ResourceID != resource || hits[0].BoundEntity != "Bravo" {
+				t.Fatalf("binding did not follow verified candidate: %#v %v", hits, err)
+			}
+		})
+	}
+}
+
+func TestApplyRetainsStandaloneCapsWhenRecallRequestsAllCandidates(t *testing.T) {
+	db := openApplyTestDB(t)
+	for i := 0; i < 12; i++ {
+		seedResource(t, db, "source", fmt.Sprintf("pitch-ALPHA-%d", i), `{}`)
+		if _, _, err := Upsert(db, Pattern{QueryTemplate: "pitch {entity}", ResourceTemplate: fmt.Sprintf("pitch-{entity:uppercase}-%d", i), ResourceType: "source", Strategy: StrategySubstitute, EntityKind: "uppercase", Source: SourceTaught}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	for _, tc := range []struct {
+		name  string
+		opts  Opts
+		count int
+	}{{"default", Opts{}, 10}, {"explicit", Opts{Limit: 2}, 2}, {"caller-filtering", Opts{NoLimit: true}, 12}} {
+		t.Run(tc.name, func(t *testing.T) {
+			hits, err := Apply(context.Background(), db, "pitch Alpha", "pitch", []string{"Alpha"}, tc.opts)
+			if err != nil || len(hits) != tc.count {
+				t.Fatalf("candidate cap contract changed: %d want%d %v", len(hits), tc.count, err)
+			}
+		})
 	}
 }
