@@ -129,3 +129,25 @@ func TestTripProfileCannotEnableAutomaticLearning(t *testing.T) {
 		}
 	}
 }
+
+func TestComparisonTablesPreserveFailedIdentities(t *testing.T) {
+	for _, mode := range []string{"csv", "plain"} {
+		var out, errout bytes.Buffer
+		cmd := RootCmd()
+		cmd.SetOut(&out)
+		cmd.SetErr(&errout)
+		flags := &rootFlags{csv: mode == "csv", plain: mode == "plain"}
+		v := tripComparison{Records: []trip.Assessment{{Record: trip.Record{ID: "8220", Ref: "spots/8220", Kind: "spots", Name: "Synthetic fact"}, Overall: "not_requested"}}, FetchFailures: []tripFailure{{Reference: "events/999999999", Error: "synthetic not found"}}, ComparedRecords: 1, RequestedRecords: 2}
+		if e := tripPrintComparison(cmd, flags, v); e != nil {
+			t.Fatal(e)
+		}
+		for _, want := range []string{"fetch_status", "fetch_error", "spots/8220", "events/999999999", "synthetic not found", "failed", "success"} {
+			if !strings.Contains(out.String(), want) {
+				t.Errorf("%s missing %s: %s", mode, want, out.String())
+			}
+		}
+		if v.ComparedRecords != 1 {
+			t.Fatal("failed record became denominator")
+		}
+	}
+}

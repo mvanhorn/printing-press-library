@@ -114,6 +114,10 @@ func newNovelTripCompareCmd(flags *rootFlags) *cobra.Command {
 			view.ComparedRecords = len(view.Records)
 			if len(view.FetchFailures) > 0 {
 				fmt.Fprintf(cmd.ErrOrStderr(), "warning: %d of %d Trip reads failed; comparison includes only %d successful records\n", len(view.FetchFailures), view.RequestedRecords, view.ComparedRecords)
+				for _, f := range view.FetchFailures {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: Trip read failed for %s: %s\n", f.Reference, f.Error)
+				}
+
 			}
 			if len(view.Records) == 0 {
 				return tripError(firstErr)

@@ -1,0 +1,111 @@
+{
+  "artifacts": {
+    "iko-yo-pp-cli": {
+      "sha256": "a03ae48310d4e250fb6b5a6f2f3dbf421e04e7ec679dd505f124e54ef39e3e0a",
+      "bytes": 22459250
+    },
+    "iko-yo-pp-mcp": {
+      "sha256": "c6ec1056185172082e5bba427ef8698cd33f4dfa1bfd0f290e0f097fcb7f2bc0",
+      "bytes": 25099586
+    }
+  },
+  "checks": [
+    {
+      "mode": "csv",
+      "exit_code": 0,
+      "passed": true,
+      "summary": [
+        {
+          "ref": "spots/8220",
+          "fetch_status": "success",
+          "fetch_error": "",
+          "overall": "not_requested",
+          "age_check": "not_requested",
+          "indoor_check": "not_requested",
+          "nursing_check": "not_requested",
+          "changing_check": "not_requested",
+          "stroller_check": "not_requested",
+          "date_check": "not_requested",
+          "application_check": "unknown",
+          "seat_availability": "unknown"
+        },
+        {
+          "ref": "events/999999999",
+          "fetch_status": "failed",
+          "fetch_error": "sql: no rows in result set",
+          "overall": "unknown",
+          "age_check": "unknown",
+          "indoor_check": "unknown",
+          "nursing_check": "unknown",
+          "changing_check": "unknown",
+          "stroller_check": "unknown",
+          "date_check": "unknown",
+          "application_check": "unknown",
+          "seat_availability": "unknown"
+        }
+      ],
+      "stderr": "warning: 1 of 2 Trip reads failed; comparison includes only 1 successful records\nwarning: Trip read failed for events/999999999: sql: no rows in result set\nChecks reflect only explicit published evidence. Fees retain qualifiers; application intervals are not inventory. Saved observations retain their original timestamps.\n"
+    },
+    {
+      "mode": "plain",
+      "exit_code": 0,
+      "passed": true,
+      "summary": [
+        {
+          "ref": "spots/8220",
+          "fetch_status": "success",
+          "fetch_error": "",
+          "overall": "not_requested",
+          "age_check": "not_requested",
+          "indoor_check": "not_requested",
+          "nursing_check": "not_requested",
+          "changing_check": "not_requested",
+          "stroller_check": "not_requested",
+          "date_check": "not_requested",
+          "application_check": "unknown",
+          "seat_availability": "unknown"
+        },
+        {
+          "ref": "events/999999999",
+          "fetch_status": "failed",
+          "fetch_error": "sql: no rows in result set",
+          "overall": "unknown",
+          "age_check": "unknown",
+          "indoor_check": "unknown",
+          "nursing_check": "unknown",
+          "changing_check": "unknown",
+          "stroller_check": "unknown",
+          "date_check": "unknown",
+          "application_check": "unknown",
+          "seat_availability": "unknown"
+        }
+      ],
+      "stderr": "warning: 1 of 2 Trip reads failed; comparison includes only 1 successful records\nwarning: Trip read failed for events/999999999: sql: no rows in result set\nChecks reflect only explicit published evidence. Fees retain qualifiers; application intervals are not inventory. Saved observations retain their original timestamps.\n"
+    },
+    {
+      "mode": "json",
+      "exit_code": 0,
+      "passed": true,
+      "summary": {
+        "requested_records": 2,
+        "compared_records": 1,
+        "failed_refs": [
+          "events/999999999"
+        ]
+      },
+      "stderr": "warning: 1 of 2 Trip reads failed; comparison includes only 1 successful records\nwarning: Trip read failed for events/999999999: sql: no rows in result set\n"
+    }
+  ],
+  "mcp_check": {
+    "passed": true,
+    "summary": {
+      "requested_records": 2,
+      "compared_records": 1,
+      "failed_refs": [
+        "events/999999999"
+      ]
+    },
+    "readonly": true,
+    "destructive": false
+  }
+}

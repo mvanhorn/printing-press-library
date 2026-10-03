@@ -185,6 +185,8 @@ func tripPrintRecord(cmd *cobra.Command, flags *rootFlags, r trip.Record) error 
 
 type tripCompareRow struct {
 	Ref              string `json:"ref"`
+	FetchStatus      string `json:"fetch_status"`
+	FetchError       string `json:"fetch_error"`
 	ID               string `json:"id"`
 	Kind             string `json:"kind"`
 	Name             string `json:"name"`
@@ -215,10 +217,14 @@ func tripPrintComparison(cmd *cobra.Command, flags *rootFlags, v tripComparison)
 		return nil
 	}
 	if flags.csv || flags.plain {
-		rows := make([]tripCompareRow, 0, len(v.Records))
+		rows := make([]tripCompareRow, 0, len(v.Records)+len(v.FetchFailures))
 		for _, a := range v.Records {
 			r := a.Record
-			rows = append(rows, tripCompareRow{Ref: r.Ref, ID: r.ID, Kind: r.Kind, Name: r.Name, Overall: a.Overall, AgeCheck: a.Age.Status, IndoorCheck: tripAmenityStatus(a, "indoor"), NursingCheck: tripAmenityStatus(a, "nursing"), ChangingCheck: tripAmenityStatus(a, "changing"), StrollerCheck: tripAmenityStatus(a, "stroller"), DateCheck: a.Schedule.Status, ApplicationCheck: a.Application.Status, ChildFees: r.Fees.Child, AdultFees: r.Fees.Adult, PublishedFees: r.Fees.PublishedText, Seats: r.Booking.Availability, ObservedAt: r.ObservedAt, DataSource: r.DataSource, SourceURL: r.SourceURL})
+			rows = append(rows, tripCompareRow{Ref: r.Ref, FetchStatus: "success", ID: r.ID, Kind: r.Kind, Name: r.Name, Overall: a.Overall, AgeCheck: a.Age.Status, IndoorCheck: tripAmenityStatus(a, "indoor"), NursingCheck: tripAmenityStatus(a, "nursing"), ChangingCheck: tripAmenityStatus(a, "changing"), StrollerCheck: tripAmenityStatus(a, "stroller"), DateCheck: a.Schedule.Status, ApplicationCheck: a.Application.Status, ChildFees: r.Fees.Child, AdultFees: r.Fees.Adult, PublishedFees: r.Fees.PublishedText, Seats: r.Booking.Availability, ObservedAt: r.ObservedAt, DataSource: r.DataSource, SourceURL: r.SourceURL})
+		}
+		for _, f := range v.FetchFailures {
+			kind, id, _ := trip.ParseReference(f.Reference)
+			rows = append(rows, tripCompareRow{Ref: f.Reference, ID: id, Kind: kind, FetchStatus: "failed", FetchError: f.Error, Overall: "unknown", AgeCheck: "unknown", IndoorCheck: "unknown", NursingCheck: "unknown", ChangingCheck: "unknown", StrollerCheck: "unknown", DateCheck: "unknown", ApplicationCheck: "unknown", Seats: "unknown", DataSource: "unknown", SourceURL: trip.BaseURL + "/" + f.Reference})
 		}
 		fmt.Fprintln(cmd.ErrOrStderr(), v.Note)
 		selected := *flags
