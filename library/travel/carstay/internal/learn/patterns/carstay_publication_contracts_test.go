@@ -99,7 +99,7 @@ func TestExplicitTeachingReplacesScopeAndInferencePreservesPayload(t *testing.T)
 	}
 }
 
-func TestCarstayStandaloneApplyKeepsCapsWhileRecallCanValidateAll(t *testing.T) {
+func TestCarstayStandaloneApplyKeepsDefaultAndExplicitCaps(t *testing.T) {
 	db := openApplyTestDB(t)
 	for i := 0; i < 12; i++ {
 		id := fmt.Sprintf("fixture-%02d-alpha", i)

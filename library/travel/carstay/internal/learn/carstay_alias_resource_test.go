@@ -151,7 +151,7 @@ func TestCarstayRecallLimitAppliesAfterPatternIdentityValidation(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !got.Found || len(got.Results) != 1 || got.Results[0].ResourceID != id || got.Results[0].Confidence != 2 || got.Results[0].EntityMatch != EntityMatchExact || len(got.Mismatches) != 1 {
+	if !got.Found || len(got.Results) != 1 || got.Results[0].ResourceID != id || got.Results[0].Confidence != 2 || got.Results[0].EntityMatch != EntityMatchExact || len(got.Mismatches) != 0 {
 		t.Fatalf("candidate cap hid validated lower-ranked binding: %+v", got)
 	}
 }
