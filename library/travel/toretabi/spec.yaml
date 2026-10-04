@@ -1,0 +1,58 @@
+name: toretabi
+description: "Inspect Japan rail-ticket conditions and linked official operator rules with explicit uncertainty."
+cli_description: "Inspect Japan rail-ticket conditions and linked official operator rules with explicit uncertainty."
+version: "0.0.0-dev"
+category: travel
+base_url: "https://www.toretabi.jp"
+http_transport: standard
+health_check_path: "/ticket/"
+auth:
+  type: none
+mcp:
+  transport: [stdio]
+learn:
+  ticker_patterns:
+    - '^(hokkaido|east|tokai|west|shikoku|kyushu)_[0-9]{3}$'
+  entity_lookup_seeds:
+    ticket:
+      - canonical: JR東海＆17私鉄 乗り鉄☆たびきっぷ
+        aliases: [乗り鉄たびきっぷ, tokai_043]
+      - canonical: えちごツーデーパス
+        aliases: [えちご2日パス, east_027]
+      - canonical: ANA／FDA／Peachきた北海道フリーパス
+        aliases: [きた北海道フリーパス, hokkaido_028]
+resources:
+  tickets:
+    description: "Read published Toretabi ticket evidence"
+    endpoints:
+      list:
+        method: GET
+        path: "/ticket/"
+        description: "Discover tickets in a bounded native area/type listing"
+        happy_args: "--area=1;--ticket-type=4"
+        params:
+          - name: area
+            type: string
+            description: "Native area code 1 to 11 from the source catalog"
+          - name: class
+            flag_name: ticket-type
+            type: string
+            description: "Native ticket type code: 1 early purchase, 2 multiple tickets, 3 return discount, 4 free area"
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/ticket"]
+      get:
+        method: GET
+        path: "/ticket/{id}.html"
+        description: "Inspect published sale/use periods and ticket conditions"
+        happy_args: "id=tokai_043"
+        params:
+          - name: id
+            type: string
+            positional: true
+            required: true
+            description: "Stable Toretabi ticket ID, for example tokai_043"
+        response_format: html
+        html_extract:
+          mode: page

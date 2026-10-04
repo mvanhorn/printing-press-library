@@ -1,0 +1,11 @@
+{
+  "source_fingerprint": "89e4550682e0bfce88723174054983da22c91f149719d77098ab2492f094bfdd",
+  "raw_source_hashes_checked": 173,
+  "mismatches": [],
+  "source_changed": false,
+  "tools_semantically_reviewed": 26,
+  "domain_tools": 4,
+  "diagnostics": "reused exact unchanged source results independently audited by sole round3 reviewer",
+  "report": "<private-run>/proofs/20261004-fix-toretabi-pp-cli-polish.md",
+  "written_at": "2026-10-04T15:09:51.970424+00:00"
+}

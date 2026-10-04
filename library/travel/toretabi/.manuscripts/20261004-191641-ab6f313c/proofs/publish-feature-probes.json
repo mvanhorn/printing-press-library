@@ -1,0 +1,44 @@
+{
+  "as_of": "2026-10-05",
+  "probes": [
+    {
+      "case": "regional",
+      "exit_code": 0,
+      "records": 3
+    },
+    {
+      "case": "central",
+      "exit_code": 0,
+      "id": "tokai_043",
+      "operator_status": "partial_rule_evidence",
+      "publisher_observed_at": "2026-10-04T15:21:58.523004Z",
+      "operator_observed_at": "2026-10-04T15:21:58.743255Z"
+    },
+    {
+      "case": "hokkaido",
+      "exit_code": 0,
+      "id": "hokkaido_028",
+      "operator_status": "partial_rule_evidence",
+      "publisher_observed_at": "2026-10-04T15:21:59.729341Z",
+      "operator_observed_at": "2026-10-04T15:22:00.963679Z"
+    },
+    {
+      "case": "compare",
+      "exit_code": 0,
+      "records": 2,
+      "jr_east_sales_state": "conditional"
+    },
+    {
+      "case": "cached",
+      "exit_code": 0,
+      "records": 3,
+      "ids": [
+        "east_027",
+        "tokai_043",
+        "hokkaido_028"
+      ]
+    }
+  ],
+  "private_home": "<private-scratch>",
+  "all_nonempty": true
+}

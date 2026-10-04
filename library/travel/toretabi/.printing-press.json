@@ -1,0 +1,116 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-04T11:23:14.682619Z",
+  "printing_press_version": "4.33.0",
+  "api_name": "toretabi",
+  "display_name": "Toretabi",
+  "cli_name": "toretabi-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:ef2ae7dd3fdd29d32bcf68db487361ebd3399d8923f39d3961c92a1fa8f62fc7",
+  "run_id": "20261004-191641-ab6f313c",
+  "category": "travel",
+  "description": "Inspect Japan rail-ticket conditions and linked official operator rules with explicit uncertainty.",
+  "mcp_binary": "toretabi-pp-mcp",
+  "mcp_tool_count": 4,
+  "mcp_public_tool_count": 4,
+  "mcp_ready": "full",
+  "api_version": "0.0.0-dev",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Bounded coverage audit",
+      "command": "tickets list",
+      "description": "Report native-filtered routes, scanned records and continuation so zero matches have a scope.",
+      "rationale": "Combines source-specific normalized evidence and bounded local observations.",
+      "example": "toretabi-pp-cli tickets list --area 1 --ticket-type 4 --max-pages 1 --limit 3 --agent",
+      "why_it_matters": "Report native-filtered routes, scanned records and continuation so zero matches have a scope.",
+      "group": "Japan rail-ticket evidence"
+    },
+    {
+      "name": "Date evidence comparison",
+      "command": "tickets compare",
+      "description": "Compare publisher and linked operator periods, corroboration and conflicts while preserving calendar uncertainty.",
+      "rationale": "Combines source-specific normalized evidence and bounded local observations.",
+      "example": "toretabi-pp-cli tickets compare tokai_043 east_027 --use-on 2026-10-10 --as-of 2026-10-04 --agent",
+      "why_it_matters": "Compare publisher and linked operator periods, corroboration and conflicts while preserving calendar uncertainty.",
+      "group": "Japan rail-ticket evidence"
+    },
+    {
+      "name": "Supplement and exception contrast",
+      "command": "tickets compare",
+      "description": "Contrast publisher and linked operator supplements and excluded trains with source clocks.",
+      "rationale": "Combines source-specific normalized evidence and bounded local observations.",
+      "example": "toretabi-pp-cli tickets compare tokai_043 east_027 --agent",
+      "why_it_matters": "Contrast publisher and linked operator supplements and excluded trains with source clocks.",
+      "group": "Japan rail-ticket evidence"
+    },
+    {
+      "name": "Purchase prerequisites",
+      "command": "tickets get",
+      "description": "Inspect linked operator fares, eligibility and purchase channels while keeping missing facts explicit.",
+      "rationale": "Combines source-specific normalized evidence and bounded local observations.",
+      "example": "toretabi-pp-cli tickets get hokkaido_028 --agent",
+      "why_it_matters": "Inspect linked operator fares, eligibility and purchase channels while keeping missing facts explicit.",
+      "group": "Japan rail-ticket evidence"
+    },
+    {
+      "name": "Timestamped offline shortlist",
+      "command": "tickets cached",
+      "description": "Read saved normalized evidence without refreshing the source.",
+      "rationale": "Combines source-specific normalized evidence and bounded local observations.",
+      "example": "toretabi-pp-cli tickets cached --limit 3 --agent",
+      "why_it_matters": "Read saved normalized evidence without refreshing the source.",
+      "group": "Japan rail-ticket evidence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Bounded coverage audit",
+      "command": "tickets list",
+      "description": "Report native-filtered routes, scanned records and continuation so zero matches have a scope."
+    },
+    {
+      "name": "Date evidence comparison",
+      "command": "tickets compare",
+      "description": "Compare publisher and linked operator periods, corroboration and conflicts while preserving calendar uncertainty."
+    },
+    {
+      "name": "Supplement and exception contrast",
+      "command": "tickets compare",
+      "description": "Contrast publisher and linked operator supplements and excluded trains with source clocks."
+    },
+    {
+      "name": "Purchase prerequisites",
+      "command": "tickets get",
+      "description": "Inspect linked operator fares, eligibility and purchase channels while keeping missing facts explicit."
+    },
+    {
+      "name": "Timestamped offline shortlist",
+      "command": "tickets cached",
+      "description": "Read saved normalized evidence without refreshing the source."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 27,
+    "total": 27,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 80,
+      "grade": "A",
+      "total": 80
+    }
+  }
+}

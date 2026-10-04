@@ -1,0 +1,43 @@
+{
+  "operation": "restore approved promotion artifacts",
+  "observed_at": "2026-10-04T15:12:01.520926+00:00",
+  "source_fingerprint": "89e4550682e0bfce88723174054983da22c91f149719d77098ab2492f094bfdd",
+  "promotion_exit_code": 0,
+  "known_refresh_drift_restored": {
+    "<reviewed-source>": [
+      {
+        "file": "build/toretabi-pp-mcp-darwin-arm64.mcpb",
+        "before": "77e478ede3403e1446cf4b314309248d160cde6aebfa1df03519524bb7362398",
+        "approved": "b946130f6fb8d9cfc7f63e42ccf2dba08e5c4495da147c0c2371208c23f0c934"
+      }
+    ],
+    "<isolated-press-home>/library/toretabi": [
+      {
+        "file": ".printing-press.json",
+        "before": "3515f3b2d93a34eab17f086dc77ca95dd4db13cbc0e70d06c0e82c30c0cfdc98",
+        "approved": "aea9deb673d1ae54b57df794afba8d6226ec6b78caa14547b160148839593e13"
+      },
+      {
+        "file": "tools-manifest.json",
+        "before": "3e093463f83691017e79c2570770a5db8816032dc9877d4ab9f1f0f9dc407835",
+        "approved": "d1f3c6759c5be18286fb41bca6c6d5d35651769c6fce79fb7d286fdf5f57b304"
+      },
+      {
+        "file": "build/toretabi-pp-mcp-darwin-arm64.mcpb",
+        "before": "77e478ede3403e1446cf4b314309248d160cde6aebfa1df03519524bb7362398",
+        "approved": "b946130f6fb8d9cfc7f63e42ccf2dba08e5c4495da147c0c2371208c23f0c934"
+      }
+    ]
+  },
+  "parity": {
+    "<reviewed-source>": {
+      "checked": 179,
+      "mismatches": []
+    },
+    "<isolated-press-home>/library/toretabi": {
+      "checked": 179,
+      "mismatches": []
+    }
+  },
+  "restored_from": "<isolated-press-home>/private-reviewed-artifacts/20261004-191641-ab6f313c"
+}

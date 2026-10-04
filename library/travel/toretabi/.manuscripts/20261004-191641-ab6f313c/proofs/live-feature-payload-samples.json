@@ -1,0 +1,375 @@
+{
+  "regional": {
+    "probe": "publish-feature-regional.json",
+    "original_sha256": "5f6ca8e6173a4192d8a1a99d0539c807ec74a0699c3ca4b85e178fe7f3148fa8",
+    "payload_excerpt": {
+      "observed_at": "2026-10-04T15:21:57.898662Z",
+      "coverage": {
+        "routes": [
+          "https://www.toretabi.jp/ticket/?area=1&class=4"
+        ],
+        "scanned_pages": 1,
+        "scanned_tickets": 6,
+        "matched_tickets": 6,
+        "max_pages": 1,
+        "returned": 3,
+        "continuation": null,
+        "complete": true,
+        "note": "Coverage describes this native-filtered bounded scan, not all Japan tickets. Output was capped by --limit."
+      },
+      "tickets": [
+        {
+          "id": "hokkaido_028",
+          "name_ja": "ANA／FDA／Peachきた北海道フリーパス",
+          "source_url": "https://www.toretabi.jp/ticket/hokkaido_028.html"
+        },
+        {
+          "id": "hokkaido_029",
+          "name_ja": "FDA／Peachひがし北海道フリーパス",
+          "source_url": "https://www.toretabi.jp/ticket/hokkaido_029.html"
+        },
+        {
+          "id": "hokkaido_010",
+          "name_ja": "はこだて旅するパスポート",
+          "source_url": "https://www.toretabi.jp/ticket/hokkaido_010.html"
+        }
+      ]
+    }
+  },
+  "central": {
+    "probe": "publish-feature-central.json",
+    "original_sha256": "09a69250d85c50ecfcb61afcabdf08530c0b4413f56351c03e52f14dd526564f",
+    "payload_excerpt": {
+      "id": "tokai_043",
+      "name_ja": "JR東海＆17私鉄 乗り鉄☆たびきっぷ",
+      "source_url": "https://www.toretabi.jp/ticket/tokai_043.html",
+      "observed_at": "2026-10-04T15:21:58.523004Z",
+      "price": {
+        "status": "unknown",
+        "amounts": [],
+        "reason": "No explicitly labelled ticket-price row in Toretabi evidence."
+      },
+      "validity_days": 2,
+      "inventory_status": "unknown",
+      "operator": {
+        "source_url": "https://railway.jr-central.co.jp/tickets/noritetsu-tabikippu-17/",
+        "observed_at": "2026-10-04T15:21:58.743255Z",
+        "scope_status": "verified_product_container",
+        "status": "partial_rule_evidence",
+        "edition_state": "published_start_year",
+        "sales": {
+          "evidence": {
+            "scope": null,
+            "text_ja": "2026年4月1日(水)より通年（発売は、利用開始の１ヶ月前からご利用となる期間の初日まで）",
+            "truncated": false
+          },
+          "start": "2026-04-01",
+          "end": null,
+          "intervals": [],
+          "explicit_dates": [
+            "2026-04-01"
+          ],
+          "year_round": true,
+          "conditional": true
+        },
+        "price": {
+          "status": "published",
+          "amounts": [
+            {
+              "category_ja": "おとな / 発売額",
+              "currency_basis": "explicit_yen_cell",
+              "amount": "9200",
+              "currency": "JPY",
+              "unit": "per_ticket",
+              "evidence": {
+                "scope": null,
+                "text_ja": "おとな / 発売額 / 9,200円",
+                "truncated": false
+              }
+            },
+            {
+              "category_ja": "こども / 発売額",
+              "currency_basis": "explicit_yen_cell",
+              "amount": "4330",
+              "currency": "JPY",
+              "unit": "per_ticket",
+              "evidence": {
+                "scope": null,
+                "text_ja": "こども / 発売額 / 4,330円",
+                "truncated": false
+              }
+            }
+          ],
+          "reason": "Amounts extracted from a labelled operator ticket-fare table; category/basis evidence preserved."
+        },
+        "validity_days": 2,
+        "rule_checks": [
+          {
+            "field": "validity_days",
+            "state": "corroborated",
+            "publisher_value": "2",
+            "operator_value": "2"
+          },
+          {
+            "field": "ticket_fares",
+            "state": "operator_only",
+            "publisher_value": null,
+            "operator_value": "おとな / 発売額:9200 JPY/per_ticket; こども / 発売額:4330 JPY/per_ticket"
+          },
+          {
+            "field": "sales_start",
+            "state": "operator_only",
+            "publisher_value": null,
+            "operator_value": "2026-04-01"
+          },
+          {
+            "field": "sales_end",
+            "state": "unknown",
+            "publisher_value": null,
+            "operator_value": null
+          },
+          {
+            "field": "use_start",
+            "state": "operator_only",
+            "publisher_value": null,
+            "operator_value": "2026-04-04"
+          },
+          {
+            "field": "use_end",
+            "state": "unknown",
+            "publisher_value": null,
+            "operator_value": null
+          }
+        ],
+        "all_rules_verified": false,
+        "unresolved": [
+          "calendar_exceptions",
+          "traveler_eligibility",
+          "complete_train_coverage",
+          "referenced_documents",
+          "operator_inventory"
+        ]
+      }
+    }
+  },
+  "hokkaido": {
+    "probe": "publish-feature-hokkaido.json",
+    "original_sha256": "dfdedc2431c720c21b87b7b6bf3b00501b4e5d7eafaa7ba67ee0691dd277a9e1",
+    "payload_excerpt": {
+      "id": "hokkaido_028",
+      "name_ja": "ANA／FDA／Peachきた北海道フリーパス",
+      "source_url": "https://www.toretabi.jp/ticket/hokkaido_028.html",
+      "observed_at": "2026-10-04T15:21:59.729341Z",
+      "price": {
+        "status": "unknown",
+        "amounts": [],
+        "reason": "No explicitly labelled ticket-price row in Toretabi evidence."
+      },
+      "validity_days": 3,
+      "inventory_status": "unknown",
+      "operator": {
+        "source_url": "https://www.jrhokkaido.co.jp/CM/Otoku/007246/",
+        "observed_at": "2026-10-04T15:22:00.963679Z",
+        "scope_status": "verified_product_container",
+        "status": "partial_rule_evidence",
+        "edition_state": "published_dated_window",
+        "sales": {
+          "evidence": {
+            "scope": null,
+            "text_ja": "・2026年４月１日～2027年３月31日",
+            "truncated": false
+          },
+          "start": "2026-04-01",
+          "end": "2027-03-31",
+          "intervals": [
+            {
+              "start": "2026-04-01",
+              "end": "2027-03-31",
+              "derivation": "explicit_years"
+            }
+          ],
+          "explicit_dates": [
+            "2026-04-01",
+            "2027-03-31"
+          ],
+          "year_round": false,
+          "conditional": true
+        },
+        "price": {
+          "status": "published",
+          "amounts": [
+            {
+              "category_ja": "ANAきた北海道フリーパス / 発売額 / 大人",
+              "currency_basis": "JR_Japan_fare_table_context_cell_unit_omitted",
+              "amount": "16670",
+              "currency": "JPY",
+              "unit": "per_ticket",
+              "evidence": {
+                "scope": null,
+                "text_ja": "ANAきた北海道フリーパス / 発売額 / 16,670",
+                "truncated": false
+              }
+            },
+            {
+              "category_ja": "ANAきた北海道フリーパス（Ｕ25用）（※１） / 発売額",
+              "currency_basis": "JR_Japan_fare_table_context_cell_unit_omitted",
+              "amount": "13990",
+              "currency": "JPY",
+              "unit": "per_ticket",
+              "evidence": {
+                "scope": null,
+                "text_ja": "ANAきた北海道フリーパス（Ｕ25用）（※１） / 発売額 / 13,990",
+                "truncated": false
+              }
+            }
+          ],
+          "reason": "Amounts extracted from a labelled operator ticket-fare table; category/basis evidence preserved."
+        },
+        "validity_days": 3,
+        "rule_checks": [
+          {
+            "field": "validity_days",
+            "state": "corroborated",
+            "publisher_value": "3",
+            "operator_value": "3"
+          },
+          {
+            "field": "ticket_fares",
+            "state": "operator_only",
+            "publisher_value": null,
+            "operator_value": "ANAきた北海道フリーパス / 発売額 / 大人:16670 JPY/per_ticket; ANAきた北海道フリーパス（Ｕ25用）（※１） / 発売額:13990 JPY/per_ticket"
+          },
+          {
+            "field": "sales_start",
+            "state": "operator_only",
+            "publisher_value": null,
+            "operator_value": "2026-04-01"
+          },
+          {
+            "field": "sales_end",
+            "state": "corroborated",
+            "publisher_value": "2027-03-31",
+            "operator_value": "2027-03-31"
+          },
+          {
+            "field": "use_start",
+            "state": "operator_only",
+            "publisher_value": null,
+            "operator_value": "2026-04-01"
+          },
+          {
+            "field": "use_end",
+            "state": "corroborated",
+            "publisher_value": "2027-04-03",
+            "operator_value": "2027-04-03"
+          }
+        ],
+        "all_rules_verified": false,
+        "unresolved": [
+          "calendar_exceptions",
+          "traveler_eligibility",
+          "complete_train_coverage",
+          "referenced_documents",
+          "operator_inventory"
+        ]
+      }
+    }
+  },
+  "compare": {
+    "probe": "publish-feature-compare.json",
+    "original_sha256": "3fb2cf8bed865792c59185982a6c53646ed3021ec354cacc994831994fd05395",
+    "payload_excerpt": {
+      "as_of": "2026-10-05",
+      "use_on": "2026-10-10",
+      "coverage": {
+        "complete": true,
+        "inspected": 2,
+        "requested": 2
+      },
+      "comparisons": [
+        {
+          "id": "tokai_043",
+          "operator_sales_check": {
+            "date": "2026-10-05",
+            "state": "conditional",
+            "reason": "Published weekday, holiday, sale lead-time or blackout rules need manual/operator confirmation.",
+            "evidence": {
+              "scope": null,
+              "text_ja": "2026年4月1日(水)より通年（発売は、利用開始の１ヶ月前からご利用となる期間の初日まで）",
+              "truncated": false
+            }
+          },
+          "operator_use_check": {
+            "date": "2026-10-10",
+            "state": "conditional",
+            "reason": "Published weekday, holiday, sale lead-time or blackout rules need manual/operator confirmation.",
+            "evidence": {
+              "scope": null,
+              "text_ja": "2026年4月4日(土)より通年\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\tGW・お盆・年末年始期間を含め、発売条件に該当する日であればご利用いただけます。",
+              "truncated": false
+            }
+          },
+          "operator_edition_state": "published_start_year"
+        },
+        {
+          "id": "east_027",
+          "operator_sales_check": {
+            "date": "2026-10-05",
+            "state": "conditional",
+            "reason": "Published weekday, holiday, sale lead-time or blackout rules need manual/operator confirmation.",
+            "evidence": {
+              "scope": null,
+              "text_ja": "2027年3月27日まで　\n※有効期間開始日の1ヶ月前から有効期間開始日までの発売です。\n例：2026年4月3日（金）～4日（土）にご利用のきっぷは4月3日（金）までの発売です。4月4日（土）の発売はいたしません。",
+              "truncated": false
+            }
+          },
+          "operator_use_check": {
+            "date": "2026-10-10",
+            "state": "conditional",
+            "reason": "Published weekday, holiday, sale lead-time or blackout rules need manual/operator confirmation.",
+            "evidence": {
+              "scope": null,
+              "text_ja": "2027年3月28日までの金・土曜・休日、GW、夏休み及び年末年始の設定した日の連続する２日間。\n\n※詳しくは下部にあります「詳細はこちら」をクリックの上ご確認ください。",
+              "truncated": false
+            }
+          },
+          "operator_edition_state": "published_dated_window"
+        }
+      ]
+    }
+  },
+  "cached": {
+    "probe": "publish-feature-cached.json",
+    "original_sha256": "8b3fe9873598432ad94414b6fe7a02950a134df0e831097e6025b9deaf16058f",
+    "payload_excerpt": {
+      "count": 3,
+      "capacity": 100,
+      "tickets": [
+        {
+          "id": "east_027",
+          "observed_at": "2026-10-04T15:22:02.660953000Z",
+          "stale": false,
+          "operator_observed_at": "2026-10-04T15:22:03.083503Z",
+          "operator_stale": false,
+          "operator_freshness": "fresh"
+        },
+        {
+          "id": "tokai_043",
+          "observed_at": "2026-10-04T15:22:01.724228000Z",
+          "stale": false,
+          "operator_observed_at": "2026-10-04T15:22:01.988989Z",
+          "operator_stale": false,
+          "operator_freshness": "fresh"
+        },
+        {
+          "id": "hokkaido_028",
+          "observed_at": "2026-10-04T15:21:59.729341000Z",
+          "stale": false,
+          "operator_observed_at": "2026-10-04T15:22:00.963679Z",
+          "operator_stale": false,
+          "operator_freshness": "fresh"
+        }
+      ]
+    }
+  }
+}

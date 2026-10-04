@@ -1,0 +1,110 @@
+{
+  "api_name": "toretabi",
+  "base_url": "https://www.toretabi.jp",
+  "description": "Inspect Japan rail-ticket conditions and linked official operator rules with explicit uncertainty.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "tickets_get",
+      "description": "Inspect published sale/use periods and ticket conditions. Required: id.",
+      "method": "GET",
+      "path": "/ticket/{id}.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Stable Toretabi ticket ID, for example tokai_043",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tickets_list",
+      "description": "Discover tickets in a bounded native area/type listing. Optional: area, ticket-type.",
+      "method": "GET",
+      "path": "/ticket/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "area",
+          "type": "string",
+          "location": "query",
+          "description": "Native area code 1 to 11 from the source catalog"
+        },
+        {
+          "name": "ticket-type",
+          "wire_name": "class",
+          "type": "string",
+          "location": "query",
+          "description": "Native ticket type code: 1 early purchase, 2 multiple tickets, 3 return discount, 4 free area"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Bounded coverage audit",
+      "command": "tickets list",
+      "description": "Report native-filtered routes, scanned records and continuation so zero matches have a scope.",
+      "rationale": "Combines source-specific normalized evidence and bounded local observations.",
+      "example": "toretabi-pp-cli tickets list --area 1 --ticket-type 4 --max-pages 1 --limit 3 --agent",
+      "why_it_matters": "Report native-filtered routes, scanned records and continuation so zero matches have a scope.",
+      "group": "Japan rail-ticket evidence"
+    },
+    {
+      "name": "Date evidence comparison",
+      "command": "tickets compare",
+      "description": "Compare publisher and linked operator periods, corroboration and conflicts while preserving calendar uncertainty.",
+      "rationale": "Combines source-specific normalized evidence and bounded local observations.",
+      "example": "toretabi-pp-cli tickets compare tokai_043 east_027 --use-on 2026-10-10 --as-of 2026-10-04 --agent",
+      "why_it_matters": "Compare publisher and linked operator periods, corroboration and conflicts while preserving calendar uncertainty.",
+      "group": "Japan rail-ticket evidence"
+    },
+    {
+      "name": "Supplement and exception contrast",
+      "command": "tickets compare",
+      "description": "Contrast publisher and linked operator supplements and excluded trains with source clocks.",
+      "rationale": "Combines source-specific normalized evidence and bounded local observations.",
+      "example": "toretabi-pp-cli tickets compare tokai_043 east_027 --agent",
+      "why_it_matters": "Contrast publisher and linked operator supplements and excluded trains with source clocks.",
+      "group": "Japan rail-ticket evidence"
+    },
+    {
+      "name": "Purchase prerequisites",
+      "command": "tickets get",
+      "description": "Inspect linked operator fares, eligibility and purchase channels while keeping missing facts explicit.",
+      "rationale": "Combines source-specific normalized evidence and bounded local observations.",
+      "example": "toretabi-pp-cli tickets get hokkaido_028 --agent",
+      "why_it_matters": "Inspect linked operator fares, eligibility and purchase channels while keeping missing facts explicit.",
+      "group": "Japan rail-ticket evidence"
+    },
+    {
+      "name": "Timestamped offline shortlist",
+      "command": "tickets cached",
+      "description": "Read saved normalized evidence without refreshing the source.",
+      "rationale": "Combines source-specific normalized evidence and bounded local observations.",
+      "example": "toretabi-pp-cli tickets cached --limit 3 --agent",
+      "why_it_matters": "Read saved normalized evidence without refreshing the source.",
+      "group": "Japan rail-ticket evidence"
+    }
+  ],
+  "surface": {
+    "api_endpoint_metadata_count": 2,
+    "domain_commands": [
+      "tickets list",
+      "tickets get",
+      "tickets compare",
+      "tickets cached"
+    ],
+    "domain_tool_count": 4,
+    "runtime_tool_count": 26,
+    "via": "Cobra command mirror; endpoint records describe underlying publisher HTTP routes, not raw registered tools"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "observed_at": "2026-10-04T15:17:35.770631+00:00",
+  "approved_fingerprint": "89e4550682e0bfce88723174054983da22c91f149719d77098ab2492f094bfdd",
+  "status": "PASS_WITH_RECORDED_INVOCATION_CORRECTION",
+  "installed": {
+    "toretabi-pp-cli": {
+      "path": "<installed-bin>/toretabi-pp-cli",
+      "sha256": "b9d909897c9aea49c9224ee12a0cdba13eceec8f49701e8bc4bed05653a9d8a7"
+    },
+    "toretabi-pp-mcp": {
+      "path": "<installed-bin>/toretabi-pp-mcp",
+      "sha256": "e2e4ddcb3f252b479cbb6959a2989423a455044cee7ed3cf2b8a27da737b1147"
+    },
+    "skill": {
+      "path": "<installed-skill>/SKILL.md",
+      "sha256": "5ebba8a26a294b4448ac04663da28020f7c8fba4f8aa6bab518354fca712f622"
+    }
+  },
+  "gates": [
+    {
+      "gate": "version_with_home_flags",
+      "exit_code": 1,
+      "status": "FAIL_INVOCATION",
+      "error": "--version --home PATH --no-learn rejected PATH as command; retry uses environment relocation and documented --version alone. No source change."
+    },
+    {
+      "gate": "version",
+      "exit_code": 0,
+      "status": "PASS",
+      "version": "toretabi-pp-cli 0.0.0-dev"
+    },
+    {
+      "gate": "live_get",
+      "exit_code": 0,
+      "status": "PASS",
+      "id": "tokai_043",
+      "operator_status": "partial_rule_evidence",
+      "publisher_observed_at": "2026-10-04T15:17:36.482186Z",
+      "operator_observed_at": "2026-10-04T15:17:36.73435Z"
+    },
+    {
+      "gate": "actual_installed_mcp_get",
+      "status": "PASS",
+      "id": "tokai_043",
+      "operator_status": "partial_rule_evidence"
+    }
+  ]
+}

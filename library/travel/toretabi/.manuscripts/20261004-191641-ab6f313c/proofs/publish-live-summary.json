@@ -1,0 +1,23 @@
+{
+  "operation": "fresh publish full live dogfood",
+  "started_at": "2026-10-04T15:19:34.710725+00:00",
+  "completed_at": "2026-10-04T15:19:46.131978+00:00",
+  "exit_code": 0,
+  "marker_status": "pass",
+  "matrix_rows": 175,
+  "status_counts": {
+    "pass": 89,
+    "skip": 86
+  },
+  "passing_kinds": {
+    "help": 32,
+    "happy_path": 21,
+    "json_fidelity": 21,
+    "dry_run_json": 11,
+    "error_path": 4
+  },
+  "failures": [],
+  "source_fingerprint": "89e4550682e0bfce88723174054983da22c91f149719d77098ab2492f094bfdd",
+  "private_raw_transcript_deleted": true,
+  "stderr_excerpt": ""
+}

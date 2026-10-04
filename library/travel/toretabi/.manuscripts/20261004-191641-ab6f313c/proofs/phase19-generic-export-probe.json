@@ -1,0 +1,7 @@
+{
+  "command": "toretabi-pp-cli export tickets tokai_043 --data-source live --no-cache --limit1 --json",
+  "exit_code": 5,
+  "successful_ticket_records": 0,
+  "error": "expected JSON, API returned HTML instead of JSON",
+  "disposition": "Generic framework export is unsupported for this HTML source. Use normalized tickets get/list/compare/cached JSON. README/SKILL claim only the domain workflows; no endpoint mirror or global framework repair."
+}

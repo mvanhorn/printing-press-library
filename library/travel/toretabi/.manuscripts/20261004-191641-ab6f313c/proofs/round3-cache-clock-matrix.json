@@ -1,0 +1,59 @@
+{
+  "fixture_type": "synthetic relative clocks over previously fetched public ticket records; these are test observations, not live source times",
+  "cases": [
+    {
+      "surface": "cli",
+      "max_age": "1s",
+      "passed": true,
+      "unchanged_cache_sha256": "eed77153645dbe2a030109c3c40bd5bf0ce016ebcb7eacbc0086486cf51bb80a",
+      "checks": [
+        "publisher_fresh_operator_old",
+        "publisher_old_operator_fresh",
+        "operator_clock_unknown",
+        "original_clocks_preserved",
+        "read_only_cache"
+      ]
+    },
+    {
+      "surface": "cli",
+      "max_age": "0",
+      "passed": true,
+      "unchanged_cache_sha256": "f5bb5d458534d4aa91293be7927ba65159762c247e886e9b2739dc2f34164301",
+      "checks": [
+        "publisher_fresh_operator_old",
+        "publisher_old_operator_fresh",
+        "operator_clock_unknown",
+        "original_clocks_preserved",
+        "read_only_cache"
+      ]
+    },
+    {
+      "surface": "mcp",
+      "max_age": "1s",
+      "passed": true,
+      "unchanged_cache_sha256": "4c7aea4f8b72c5e10e475b95e33b4bfd5709dcee4ff4afd6436fd4503f6351c3",
+      "checks": [
+        "publisher_fresh_operator_old",
+        "publisher_old_operator_fresh",
+        "operator_clock_unknown",
+        "original_clocks_preserved",
+        "read_only_cache"
+      ]
+    },
+    {
+      "surface": "mcp",
+      "max_age": "0",
+      "passed": true,
+      "unchanged_cache_sha256": "8269088248059eecaa7d4675c510e74e272fe8030875bb661d7f58eceb14cd13",
+      "checks": [
+        "publisher_fresh_operator_old",
+        "publisher_old_operator_fresh",
+        "operator_clock_unknown",
+        "original_clocks_preserved",
+        "read_only_cache"
+      ]
+    }
+  ],
+  "passed": 4,
+  "failed": 0
+}

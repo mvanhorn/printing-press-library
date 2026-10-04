@@ -1,0 +1,61 @@
+{
+  "operation": "publish validate after fresh live gate",
+  "started_at": "2026-10-04T15:21:51.405940+00:00",
+  "exit_code": 0,
+  "passed": true,
+  "checks": [
+    {
+      "name": "manifest",
+      "passed": true
+    },
+    {
+      "name": "transcendence",
+      "passed": true
+    },
+    {
+      "name": "phase5",
+      "passed": true
+    },
+    {
+      "name": "go mod tidy",
+      "passed": true
+    },
+    {
+      "name": "module path",
+      "passed": false,
+      "warning": "go.mod module path \"toretabi-pp-cli\" does not start with the canonical library prefix github.com/mvanhorn/printing-press-library/library/<category>/<slug>"
+    },
+    {
+      "name": "govulncheck",
+      "passed": true
+    },
+    {
+      "name": "go vet",
+      "passed": true
+    },
+    {
+      "name": "go build",
+      "passed": true
+    },
+    {
+      "name": "--help",
+      "passed": true
+    },
+    {
+      "name": "--version",
+      "passed": true
+    },
+    {
+      "name": "verify-skill",
+      "passed": true
+    },
+    {
+      "name": "patches",
+      "passed": true
+    },
+    {
+      "name": "manuscripts",
+      "passed": true
+    }
+  ]
+}

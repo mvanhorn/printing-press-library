@@ -1,0 +1,12 @@
+{
+  "cli_probe": [
+    "search",
+    "立山"
+  ],
+  "exit_code": 2,
+  "stdout": "",
+  "stderr": "Error: unknown command \"search\" for \"toretabi-pp-cli\"\n\nDid you mean this?\n\tteach\n\nRun 'toretabi-pp-cli --help' for usage.\n",
+  "mcp_search_tools": [],
+  "sql_description": "Run read-only SQL against local database. The framework store is separate from tickets.sqlite; use tickets_cached for ticket evidence. No ticket sync/search is implemented.",
+  "source_contract": "tickets list --query performs literal local filtering over bounded native area/type pages; no source q parameter is sent. Ticket cache is separate from framework SQL."
+}

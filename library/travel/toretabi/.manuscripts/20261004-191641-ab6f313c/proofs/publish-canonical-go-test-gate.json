@@ -1,0 +1,13 @@
+{
+  "command": [
+    "<toolchain>/go",
+    "test",
+    "-count=1",
+    "./..."
+  ],
+  "cwd": "<isolated-publish-clone>/library/travel/toretabi",
+  "started_at": "2026-10-04T15:31:14.600392+00:00",
+  "exit_code": 0,
+  "status": "PASS",
+  "scope": "canonical package module/import rewrite"
+}

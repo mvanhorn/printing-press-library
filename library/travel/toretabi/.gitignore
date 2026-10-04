@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/toretabi-pp-cli
+/toretabi-pp-cli.exe
+/toretabi-pp-mcp
+/toretabi-pp-mcp.exe
+/bin/
+/build/
+/dist/

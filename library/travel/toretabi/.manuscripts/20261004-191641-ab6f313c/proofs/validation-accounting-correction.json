@@ -1,0 +1,9 @@
+{
+  "recorded_at": "2026-10-04T14:08:14.038764+00:00",
+  "correction": "Earlier builder report of full round2 Go tests passing was incorrect. The full test failed the generated MCP special-tool description identity assertion, but the following vet command passed and the shell returned the final exit. Canonical shipcheck7/7 and live89/0 claims remain separately evidenced; they do not imply full Go-test success.",
+  "affected_evidence": "proofs/final-go-test.log",
+  "failed_test": "TestMCPRegisterToolsPreservesTypedSpecialTools",
+  "fix": "Preserve truthful framework/ticket-cache SQL guidance while retaining the expected special-tool description prefix; verify all final gates with their own exits and fail-fast dependent commands.",
+  "publication_or_install_before_discovery": false,
+  "final_gate_status": "Final corrected full Go tests and vet each exit0; all canonical7 legs exit0; final-gate-ledger binds records to 89e4550682e0bfce88723174054983da22c91f149719d77098ab2492f094bfdd"
+}

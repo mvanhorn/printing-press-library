@@ -1,0 +1,22 @@
+{
+  "source_fingerprint": "89e4550682e0bfce88723174054983da22c91f149719d77098ab2492f094bfdd",
+  "source_files_checked": 173,
+  "byte_identical": 94,
+  "canonical_module_import_gofmt_equivalent": 79,
+  "unexpected": [],
+  "removed_private_local_files": [
+    {
+      "file": "toretabi-cli",
+      "bytes": 22874786,
+      "sha256": "4eabff4e06a8a86e108a51ceaf1f2583ac855048c64b9db8938ec70e8397136a",
+      "reason": "local generated binary or private run-location state excluded from public package"
+    },
+    {
+      "file": "RUNSTATE.json",
+      "bytes": 1356,
+      "sha256": "e80d4555924fd9e006c6cfc2a20dd0ebce4e07f750f68fb73aea7fb188191d12",
+      "reason": "local generated binary or private run-location state excluded from public package"
+    }
+  ],
+  "package_no_binaries": true
+}

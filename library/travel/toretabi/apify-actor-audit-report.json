@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/toretabi-cli",
+  "research_dir": "\u003ccli-dir\u003e/20261004-191641-ab6f313c",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

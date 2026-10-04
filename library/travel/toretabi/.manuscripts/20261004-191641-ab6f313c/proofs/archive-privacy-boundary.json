@@ -1,0 +1,123 @@
+{
+  "status": "CURATED_PENDING_PACKAGE_SCAN",
+  "private_originals_retained": true,
+  "boundary": "Only research, bounded normalized samples and concise gate/review summaries are public. Full raw transcripts, response documents, extracted binaries, cache databases, session/auth state and synthetic cache homes remain outside manuscripts. Public provenance reports redact host paths; original proof hashes retained.",
+  "copied_originals": [
+    {
+      "path": "research/toretabi.yaml",
+      "original_sha256": "3e66804ec32cf4d6a3b27f9021694bfc0b46935f6f2d7e3682a9a6051ff589b6",
+      "public_sha256": "3e66804ec32cf4d6a3b27f9021694bfc0b46935f6f2d7e3682a9a6051ff589b6",
+      "host_paths_redacted": true
+    },
+    {
+      "path": "research/toretabi-absorb-manifest.md",
+      "original_sha256": "cdd8ffc546695dafd64cb51b536102f814c194d61ee567a3692a5b47bfb724ba",
+      "public_sha256": "cdd8ffc546695dafd64cb51b536102f814c194d61ee567a3692a5b47bfb724ba",
+      "host_paths_redacted": true
+    },
+    {
+      "path": "research/toretabi-brief.md",
+      "original_sha256": "3962acd9cc9ff1c6dfd86ff8b92a59a111b72b9df853f2ab58cae83db5bc625f",
+      "public_sha256": "3962acd9cc9ff1c6dfd86ff8b92a59a111b72b9df853f2ab58cae83db5bc625f",
+      "host_paths_redacted": true
+    },
+    {
+      "path": "research/toretabi-operator-evidence.md",
+      "original_sha256": "f3410d0a0f64316f81d6a4c7a863c8ed13177e26f448280cf64d3f8032e25707",
+      "public_sha256": "f3410d0a0f64316f81d6a4c7a863c8ed13177e26f448280cf64d3f8032e25707",
+      "host_paths_redacted": true
+    },
+    {
+      "path": "research.json",
+      "original_sha256": "edc2300fd4f555e81efdf56657cc8a53b61f73cbcf44e3f65dfeb8a519de53c8",
+      "public_sha256": "edc2300fd4f555e81efdf56657cc8a53b61f73cbcf44e3f65dfeb8a519de53c8",
+      "host_paths_redacted": true
+    },
+    {
+      "path": "discovery/observed-urls.txt",
+      "original_sha256": "a073b84d4405eae31c74853d81e896608813dfd56609012b9a63d1ad3f8bb1fe",
+      "public_sha256": "a073b84d4405eae31c74853d81e896608813dfd56609012b9a63d1ad3f8bb1fe",
+      "host_paths_redacted": true
+    },
+    {
+      "path": "proofs/phase5-acceptance.json",
+      "original_sha256": "9e0386427357820c9c808dd6f94114c7cb6368bcb527f0005f6f32bac6a4f4a4",
+      "public_sha256": "9e0386427357820c9c808dd6f94114c7cb6368bcb527f0005f6f32bac6a4f4a4",
+      "host_paths_redacted": false
+    },
+    {
+      "path": "proofs/phase18-acceptance-report.json",
+      "original_sha256": "d34197084ded3f11b0c0d51c8209d37c9a9531749b093d14d3171adb1bcfcd65",
+      "public_sha256": "d34197084ded3f11b0c0d51c8209d37c9a9531749b093d14d3171adb1bcfcd65",
+      "host_paths_redacted": true
+    },
+    {
+      "path": "proofs/round3-final-gate-ledger.json",
+      "original_sha256": "bb1002502ee4f987231d5a9a034c83407c1afa27f738b581316a10eb10311165",
+      "public_sha256": "4198dc7d6444bec4f08976b475e6512d3995fc09be5ba6bf5b75b1f1fbb89dbb",
+      "host_paths_redacted": true
+    },
+    {
+      "path": "proofs/round3-bundle-metadata.json",
+      "original_sha256": "9f075e8ac6ce1efbb769c03c14544c84e334f1cd8f585df63041d1c0040a7b68",
+      "public_sha256": "01964f517e4389a115306fceb929f26cc802e5233e026d8902d4633a89ec6e28",
+      "host_paths_redacted": true
+    },
+    {
+      "path": "proofs/round3-cache-clock-matrix.json",
+      "original_sha256": "010a620785bcee70dfb0ddf27b8d3586cac61988f1229754fa2170f7ffc2a9a2",
+      "public_sha256": "010a620785bcee70dfb0ddf27b8d3586cac61988f1229754fa2170f7ffc2a9a2",
+      "host_paths_redacted": true
+    },
+    {
+      "path": "proofs/phase-4.95-findings.md",
+      "original_sha256": "c8a556fbc2e9963a6549244d9b0d5f082eb5c423e8195638a17d2062e6b55c1b",
+      "public_sha256": "c8a556fbc2e9963a6549244d9b0d5f082eb5c423e8195638a17d2062e6b55c1b",
+      "host_paths_redacted": true
+    },
+    {
+      "path": "proofs/validation-accounting-correction.json",
+      "original_sha256": "b39eab7a5b666c154676755f4688a4855bee7d8a0f6d8e032d96d72de23916b4",
+      "public_sha256": "b39eab7a5b666c154676755f4688a4855bee7d8a0f6d8e032d96d72de23916b4",
+      "host_paths_redacted": true
+    },
+    {
+      "path": "proofs/20261004-fix-toretabi-pp-cli-polish.md",
+      "original_sha256": "07945ba05be9de74197b7aa1722f63063225480324bd25daa9deed287a6b2da4",
+      "public_sha256": "07945ba05be9de74197b7aa1722f63063225480324bd25daa9deed287a6b2da4",
+      "host_paths_redacted": true
+    },
+    {
+      "path": "proofs/phase19-generic-search-probe.json",
+      "original_sha256": "b11b3c2a8c5d8b3ff9747d11d714032c3570f3dbdaadeeafd7e20ce6f5ece571",
+      "public_sha256": "b11b3c2a8c5d8b3ff9747d11d714032c3570f3dbdaadeeafd7e20ce6f5ece571",
+      "host_paths_redacted": true
+    },
+    {
+      "path": "proofs/phase19-polish-accounting.json",
+      "original_sha256": "25209e9753fdabe5c481c30623b328534884778cee185e2bd4785d51561b66ec",
+      "public_sha256": "39ec88d0ac78657279b67472645ab9ef89500bad524f633ece41273097b2007f",
+      "host_paths_redacted": true
+    },
+    {
+      "path": "proofs/post-promotion-packet.json",
+      "original_sha256": "4ca30c2e9c40f6f649436be084866b793df010bebb37d3a302ec04499128439f",
+      "public_sha256": "b1da81b252c1d01e6ff33e4939bef30dda04111d6df4612e096253441cea9fa7",
+      "host_paths_redacted": true
+    },
+    {
+      "path": "proofs/reviewer-round3/review-receipt.json",
+      "original_sha256": "7f4390c571be053edb184bde1ce0bdae95818690dd0d1ea866e475df5f9abc87",
+      "public_sha256": "5e2036f9ef392f9b661449c992a094c92a99dcb6747de5f713bacf4785fa99e4",
+      "host_paths_redacted": true
+    }
+  ],
+  "excluded_classes": [
+    "raw live/dogfood transcripts",
+    "raw HTML/PDF documents",
+    "extracted binaries and duplicate bundles",
+    "runtime/cache SQLite files and WAL",
+    "auth/session state",
+    "private source/run absolute paths"
+  ]
+}

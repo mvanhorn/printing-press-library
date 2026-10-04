@@ -1,0 +1,101 @@
+{
+  "source_fingerprint": "89e4550682e0bfce88723174054983da22c91f149719d77098ab2492f094bfdd",
+  "gates": [
+    {
+      "gate": "go-test",
+      "started_at": "2026-10-04T14:15:45.853083+00:00",
+      "exit_code": 0,
+      "status": "PASS",
+      "command": [
+        "<toolchain>/go",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      "log": "<private-run>/proofs/round3-go-test.log"
+    },
+    {
+      "gate": "go-vet",
+      "started_at": "2026-10-04T14:16:00.230928+00:00",
+      "exit_code": 0,
+      "status": "PASS",
+      "command": [
+        "<toolchain>/go",
+        "vet",
+        "./..."
+      ],
+      "log": "<private-run>/proofs/round3-go-vet.log"
+    },
+    {
+      "gate": "govulncheck",
+      "started_at": "2026-10-04T14:16:00.623528+00:00",
+      "exit_code": 0,
+      "status": "PASS",
+      "command": [
+        "<private-workspace>/.japan-domestic-press/shared/tools/bin/govulncheck",
+        "./..."
+      ],
+      "log": "<private-run>/proofs/round3-govulncheck.log"
+    },
+    {
+      "gate": "gosec",
+      "started_at": "2026-10-04T14:15:46.546506+00:00",
+      "exit_code": 1,
+      "status": "PASS_HANDWRITTEN_WITH_FRAMEWORK_FINDINGS",
+      "command": [
+        "<private-workspace>/.japan-domestic-press/shared/tools/bin/gosec",
+        "-fmt=json",
+        "-out=<private-run>/proofs/round3-gosec.json",
+        "./..."
+      ],
+      "log": "<private-run>/proofs/round3-gosec.log",
+      "framework_findings": 32,
+      "handwritten_findings": []
+    },
+    {
+      "gate": "shipcheck/verify",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "gate": "shipcheck/validate-narrative",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "gate": "shipcheck/dogfood",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "gate": "shipcheck/workflow-verify",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "gate": "shipcheck/apify-audit",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "gate": "shipcheck/verify-skill",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "gate": "shipcheck/scorecard",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "gate": "live-dogfood-full",
+      "exit_code": 0,
+      "status": "PASS",
+      "passed": 89,
+      "failed": 0,
+      "skipped_unverified": 86,
+      "rows": 175
+    }
+  ],
+  "validation_correction": "Earlier round2 test+vet sequence masked a Go-test failure; all final gates here have their own recorded exit/status."
+}

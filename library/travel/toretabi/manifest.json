@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "toretabi-pp-mcp",
+  "display_name": "Toretabi",
+  "version": "0.0.0-dev",
+  "description": "Inspect Japan rail-ticket conditions and linked official operator rules with explicit uncertainty.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/toretabi-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/toretabi-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

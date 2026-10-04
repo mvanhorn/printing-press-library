@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "mandatory_vendor_secret_scan": "Press publish package exit0",
+  "pii_audit_exit_code": 0,
+  "pii_pending_findings": 0,
+  "structural_disallowed_files": [],
+  "raw_transcripts_or_session_state_included": false,
+  "private_host_run_state_removed": true,
+  "optional_gitleaks_available": false,
+  "workspace_personal_data": "No authenticated provider workspace or customer/person data used; public rail-ticket excerpts only.",
+  "files": 215
+}

@@ -1,0 +1,35 @@
+{
+  "source_fingerprint": "89e4550682e0bfce88723174054983da22c91f149719d77098ab2492f094bfdd",
+  "runner": "round3-live-dogfood.json, unchanged exact source; independently audited by the assigned reviewer",
+  "matrix_rows": 175,
+  "passed": 89,
+  "failed": 0,
+  "skipped_unverified_same_rows": 86,
+  "positive_happy_paths": 21,
+  "positive_json_fidelity": 21,
+  "required_behavior_evidence": {
+    "source_cli_mcp_cases": 18,
+    "independent_clock_cases": 4,
+    "bundle_cases": 5,
+    "nonempty_domain_paths": [
+      "tickets list",
+      "tickets get",
+      "tickets compare",
+      "tickets cached"
+    ],
+    "operator_regions": [
+      "JR Central",
+      "JR Hokkaido",
+      "JR East",
+      "JR West",
+      "JR Shikoku",
+      "JR Kyushu"
+    ]
+  },
+  "limitations": [
+    "Framework rows without safe meaningful input are skipped; skips do not count as successful behavior.",
+    "Empty runner-sandbox cache is supplemented by actual populated CLI/MCP/bundle cache probes.",
+    "Unknown prices and conditions, unsupported PDF extraction and complete traveler/calendar/inventory verification remain explicit."
+  ],
+  "test_accounting_correction": "Earlier round2 full Go-test claim was wrong because a following vet masked its failure; corrected source now has independent go-test0,vet0,govuln0 and each canonical leg0."
+}
