@@ -25,7 +25,9 @@ func newAnalyticsCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Run analytics queries on locally synced data",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Long: `Analyze locally synced data with count, group-by, and summary operations.
-Data must be synced first with the sync command.`,
+Data must be synced first with the sync command.
+
+Null or missing --group-by values are JSON null. Table output labels them (none); a literal (none) value is quoted.`,
 		Example: `  # Count records by type
   hostex-pp-cli analytics --type messages
 
@@ -45,7 +47,6 @@ Data must be synced first with the sync command.`,
 				return fmt.Errorf("opening local database: %w\nRun 'hostex-pp-cli sync' first.", err)
 			}
 			defer db.Close()
-
 			maybeEmitSyncHints(cmd, db, resourceType, flags.maxAge)
 
 			if resourceType == "" {
@@ -115,6 +116,7 @@ func runGroupBy(out io.Writer, db *store.Store, resourceType, field string, limi
 	}
 
 	counts := make(map[string]int)
+	nullCount := 0
 	validFields := make(map[string]struct{})
 	matchedAny := false
 	missingFieldCount := 0
@@ -131,8 +133,11 @@ func runGroupBy(out io.Writer, db *store.Store, resourceType, field string, limi
 		raw, ok := resolvedGroupValue(obj, field)
 		if ok {
 			matchedAny = true
-			val := fmt.Sprintf("%v", raw)
-			counts[val]++
+			if raw == nil {
+				nullCount++
+				continue
+			}
+			counts[fmt.Sprint(raw)]++
 		} else {
 			missingFieldCount++
 		}
@@ -141,16 +146,19 @@ func runGroupBy(out io.Writer, db *store.Store, resourceType, field string, limi
 		return fmt.Errorf("group-by field %q was not found in any %s record; valid group-by fields: %s", field, resourceType, formatGroupByFields(validFields))
 	}
 	if missingFieldCount > 0 {
-		counts["<nil>"] += missingFieldCount
+		nullCount += missingFieldCount
 	}
 
 	type kv struct {
-		Key   string `json:"value"`
-		Count int    `json:"count"`
+		Value any `json:"value"`
+		Count int `json:"count"`
 	}
 	var sorted []kv
 	for k, v := range counts {
 		sorted = append(sorted, kv{k, v})
+	}
+	if nullCount > 0 {
+		sorted = append(sorted, kv{Value: nil, Count: nullCount})
 	}
 	sort.Slice(sorted, func(i, j int) bool { return sorted[i].Count > sorted[j].Count })
 	if limit > 0 && len(sorted) > limit {
@@ -163,10 +171,23 @@ func runGroupBy(out io.Writer, db *store.Store, resourceType, field string, limi
 
 	fmt.Fprintf(out, "%s\tCount\n", field)
 	fmt.Fprintln(out, "---\t-----")
-	for _, kv := range sorted {
-		fmt.Fprintf(out, "%s\t%d\n", kv.Key, kv.Count)
+	for _, row := range sorted {
+		fmt.Fprintf(out, "%s\t%d\n", formatGroupByValue(row.Value), row.Count)
 	}
 	return nil
+}
+
+const missingGroupLabel = "(none)"
+
+func formatGroupByValue(v any) string {
+	if v == nil {
+		return missingGroupLabel
+	}
+	s := fmt.Sprint(v)
+	if s == missingGroupLabel {
+		return fmt.Sprintf("%q", s)
+	}
+	return s
 }
 
 func resolvedGroupValue(obj map[string]any, field string) (any, bool) {

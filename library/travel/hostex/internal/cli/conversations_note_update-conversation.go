@@ -17,24 +17,47 @@ func newConversationsNoteUpdateConversationCmd(flags *rootFlags) *cobra.Command 
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "update-conversation <conversation_id>",
-		Aliases: []string{"update"},
-		Short:   "Set or clear the host's private note attached to a conversation thread.",
-		// TODO: replace placeholder example values before relying on this for live dogfood.
-		Example:     "  hostex-pp-cli conversations note update-conversation 550e8400-e29b-41d4-a716-446655440000 --note example-value",
-		Annotations: map[string]string{"pp:endpoint": "note.update-conversation", "pp:method": "PATCH", "pp:path": "/conversations/{conversation_id}/note"},
+		Use:         "update-conversation <conversation_id>",
+		Aliases:     []string{"update"},
+		Short:       "Set or clear the host's private note attached to a conversation thread.",
+		Example:     "  hostex-pp-cli conversations note update-conversation 12345678 --note 'Guest asked for early check-in' --dry-run",
+		Annotations: map[string]string{"pp:endpoint": "note.update-conversation", "pp:method": "PATCH", "pp:path": "/conversations/{conversation_id}/note", "pp:requires-input": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with required input prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
 			// only read commands fall through so a bare call still executes.
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
 			}
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <conversation_id>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <conversation_id>"))
 			}
 			if !stdinBody {
-				if !cmd.Flags().Changed("note") && !flags.dryRun {
+				if !cmd.Flags().Changed("note") && bodyNote == "" && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "note")
 				}
 			}
@@ -48,7 +71,7 @@ func newConversationsNoteUpdateConversationCmd(flags *rootFlags) *cobra.Command 
 				return err
 			}
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -60,14 +83,15 @@ func newConversationsNoteUpdateConversationCmd(flags *rootFlags) *cobra.Command 
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
-				if bodyNote != "" {
-					body["note"] = bodyNote
+				bodyMap := map[string]any{}
+				body = bodyMap
+				if cmd.Flags().Changed("note") || bodyNote != "" {
+					bodyMap["note"] = bodyNote
 				}
 			}
 			data, statusCode, err := c.PatchWithParams(cmd.Context(), path, params, body)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			// Inspect the mutate response body for a partial-failure-shaped
 			// field (e.g. Google Ads `partialFailureError`). Several Google
@@ -160,15 +184,22 @@ func newConversationsNoteUpdateConversationCmd(flags *rootFlags) *cobra.Command 
 						}
 					}
 				}
+				// Mutation-riding reads (POST search, RPC-over-POST lists) return
+				// the same single-key collection envelopes as GET reads. Unwrap
+				// before filtering so rows nest once under the result key and
+				// --select filters rows, not envelope keys; plain created-object
+				// responses pass through unwrapSingleKeyArray untouched.
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
 				// generic high-gravity allow-list. Otherwise --compact still applies
 				// when --agent is on but the user did not name fields.
-				filtered := data
+				var selectErr error
+				filtered := unwrapSingleKeyArray(data)
 				if flags.selectFields != "" {
-					filtered = filterFields(filtered, flags.selectFields)
+					filtered, selectErr = filterFieldsChecked(filtered, flags.selectFields)
+					selectErr = selectErrorForDryRun(selectErr, flags, data)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, map[string]bool{"error_code": true, "request_id": true})
 				}
 				if len(filtered) > 0 {
 					var parsed any
@@ -184,28 +215,35 @@ func newConversationsNoteUpdateConversationCmd(flags *rootFlags) *cobra.Command 
 				if err != nil {
 					return err
 				}
-				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
+				resultKey := "data"
+				if flags.agent {
+					resultKey = "results"
+				}
+				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
+				if err != nil {
+					return err
+				}
+				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
 					return perr
 				}
 				if partialFailure != nil && !flags.allowPartialFailure {
 					return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "note", partialFailure.Message))
 				}
-				return nil
+				return selectErr
 			}
 			// Fall-through for mutate paths that did not hit the table or
 			// asJSON branches: --quiet, --csv, --plain, and default terminal
-			// raw output. printOutputWithFlags renders the body, then the
-			// typed partial-failure exit fires unless --allow-partial-failure
-			// downgrades it. Without this guard a partial failure would exit
-			// 0 for these output modes — the exact silent-swallow regression
-			// the surrounding patch is preventing for asJSON / piped output.
-			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
-				return perr
-			}
+			// raw output. printOutputWithFlagsMeta renders the body with live
+			// provenance, then the typed partial-failure exit fires unless
+			// --allow-partial-failure downgrades it. Without this guard a
+			// partial failure would exit 0 for these output modes — the exact
+			// silent-swallow regression the surrounding patch is preventing
+			// for asJSON / piped output.
+			printErr := printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"}, map[string]bool{"error_code": true, "request_id": true})
 			if partialFailure != nil && !flags.allowPartialFailure {
 				return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "note", partialFailure.Message))
 			}
-			return nil
+			return printErr
 		},
 	}
 	cmd.Flags().StringVar(&bodyNote, "note", "", "The host-side private note. Pass an empty string or `null` to clear the existing note. Max 5000 characters.")

@@ -5,6 +5,7 @@ package cliutil
 
 import (
 	"html"
+	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -23,6 +24,28 @@ func CleanText(s string) string {
 	return html.UnescapeString(strings.TrimSpace(s))
 }
 
+// ScrubTerminal prevents untrusted scalar values from altering terminal output.
+// Tabs and newlines become spaces; other control characters are removed.
+func ScrubTerminal(s string) string {
+	return strings.Map(func(r rune) rune {
+		if r == '\t' || r == '\n' {
+			return ' '
+		}
+		if r < 0x20 || (r >= 0x7f && r <= 0x9f) {
+			return -1
+		}
+		return r
+	}, s)
+}
+
+// EscapePathParam encodes a path-param value as one URL path segment.
+func EscapePathParam(value string) string {
+	if value == "." || value == ".." {
+		return strings.Repeat("%2E", len(value))
+	}
+	return url.PathEscape(value)
+}
+
 // ParseStoredTime parses timestamps read back from SQLite-backed generated
 // stores. modernc.org/sqlite can serialize time.Time using Go's native
 // time.String format, while hand-written sync code often stores RFC3339.
@@ -36,6 +59,8 @@ func ParseStoredTime(s string) time.Time {
 	for _, layout := range []string{
 		time.RFC3339Nano,
 		time.RFC3339,
+		"2006-01-02 15:04:05.999999999",
+		"2006-01-02 15:04:05",
 		"2006-01-02 15:04:05.999999999 -0700 MST",
 		"2006-01-02 15:04:05.999999 -0700 MST",
 		"2006-01-02 15:04:05.999 -0700 MST",

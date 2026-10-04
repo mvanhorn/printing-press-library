@@ -28,15 +28,27 @@ func newAutomationQueryActionsCmd(flags *rootFlags) *cobra.Command {
 		Aliases:     []string{"list"},
 		Short:       "Returns scheduled automation **actions** that are waiting to run: either automated **messages** (`type=message`",
 		Example:     "  hostex-pp-cli automation query-actions --type message",
-		Annotations: map[string]string{"pp:endpoint": "automation.query-actions", "pp:method": "GET", "pp:path": "/automation/actions", "mcp:read-only": "true", "pp:happy-args": "--type=message"},
+		Annotations: map[string]string{"pp:endpoint": "automation.query-actions", "pp:method": "GET", "pp:path": "/automation/actions", "mcp:read-only": "true", "pp:requires-input": "true", "pp:happy-args": "--type=message"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with required input prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
 			// only read commands fall through so a bare call still executes.
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
 			}
-			if !cmd.Flags().Changed("type") && !flags.dryRun {
+			if !cmd.Flags().Changed("type") && flagType == "" && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "type")
 			}
 			if cmd.Flags().Changed("type") {
@@ -63,7 +75,7 @@ func newAutomationQueryActionsCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "automation", path, map[string]string{
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "automation", path, retainCLIQueryParams(cmd, map[string]string{
 				"type":          formatCLIParamValue(flagType),
 				"keyword":       formatCLIParamValue(flagKeyword),
 				"stay_code":     formatCLIParamValue(flagStayCode),
@@ -73,10 +85,11 @@ func newAutomationQueryActionsCmd(flags *rootFlags) *cobra.Command {
 				"channel_types": formatCLIParamValue(flagChannelTypes),
 				"offset":        formatCLIParamValue(flagOffset),
 				"limit":         formatCLIParamValue(flagLimit),
-			}, nil, flagAll, "offset", "offset", "limit", "", "", cmd.ErrOrStderr())
+			}, map[string][]string{"type": {"type"}, "keyword": {"keyword"}, "stay_code": {"stay-code"}, "property_ids": {"property-ids"}, "start_time": {"start-time"}, "end_time": {"end-time"}, "channel_types": {"channel-types"}, "offset": {"offset"}, "limit": {"limit"}}, "offset", "offset"), nil, flagAll, "offset", "offset", "limit", 20, "", "", "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
+			outputData := collectionItemsForOutput(data, path)
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -84,7 +97,7 @@ func newAutomationQueryActionsCmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				_ = json.Unmarshal(outputData, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
@@ -93,22 +106,31 @@ func newAutomationQueryActionsCmd(flags *rootFlags) *cobra.Command {
 			// --plain) opt out of the auto-JSON path so piped consumers that asked for
 			// a non-JSON format reach the standard pipeline below.
 			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
+				var selectErr error
 				filtered := data
 				if flags.selectFields != "" {
-					filtered = filterFields(filtered, flags.selectFields)
+					filtered, selectErr = filterFieldsChecked(filtered, flags.selectFields)
+					selectErr = selectErrorForDryRun(selectErr, flags, data)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, map[string]bool{"error_code": true, "request_id": true})
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
 					return wrapErr
 				}
-				return printOutput(cmd.OutOrStdout(), wrapped, true)
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
+				if err := printOutput(cmd.OutOrStdout(), wrapped, true); err != nil {
+					return err
+				}
+				return selectErr
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -118,7 +140,11 @@ func newAutomationQueryActionsCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"error_code": true, "request_id": true})
 		},
 	}
 	cmd.Flags().StringVar(&flagType, "type", "", "Kind of scheduled action: `message` for automated guest messages, `review` for scheduled host reviews. (one of: message, review)")

@@ -108,6 +108,9 @@ POSTed as JSON after the local write.
 Write what surprised you or tripped you up, not a bug report. The
 loop is: agent notices friction -> one invocation -> captured -> the
 maintainer sees it.`,
+		Example: `  hostex-pp-cli feedback "docs said exclusive but the boundary is inclusive"
+  hostex-pp-cli feedback --stdin < notes.txt
+  hostex-pp-cli feedback list`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var text string
 			if useStdin {
@@ -191,6 +194,9 @@ func newFeedbackListCmd(flags *rootFlags) *cobra.Command {
   hostex-pp-cli feedback list --limit 5
   hostex-pp-cli feedback list --json`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
+			if dryRunOK(flags) {
+				return writeDryRun(cmd.OutOrStdout(), flags, "feedback list")
+			}
 			p, err := feedbackFilePath()
 			if err != nil {
 				return err

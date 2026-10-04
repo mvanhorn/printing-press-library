@@ -6,15 +6,18 @@ package client
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"strings"
 	"testing"
 	"time"
 	"unicode/utf8"
 
 	"github.com/mvanhorn/printing-press-library/library/travel/hostex/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/travel/hostex/internal/platform"
 )
 
 func TestTruncateBody(t *testing.T) {
@@ -102,6 +105,133 @@ func TestCacheKeyDelimitsSortedQueryParams(t *testing.T) {
 	}
 }
 
+func TestCacheKeyPartitionsTenantSelectingHeaders(t *testing.T) {
+	t.Parallel()
+
+	newClient := func(org string, extra map[string]string) *Client {
+		headers := map[string]string{}
+		for k, v := range extra {
+			headers[k] = v
+		}
+		if org != "" {
+			headers["ManagedOrganizationId"] = org
+		}
+		return &Client{
+			BaseURL: "https://api.example.test",
+			Config:  &config.Config{Path: "/home/user/.config/example-pp-cli/config.toml", Headers: headers},
+		}
+	}
+
+	keyA := newClient("customer-A", nil).cacheKeyFor(http.MethodGet, "/widgets", nil, nil, nil)
+	keyB := newClient("customer-B", nil).cacheKeyFor(http.MethodGet, "/widgets", nil, nil, nil)
+	if keyA == keyB {
+		t.Fatalf("tenant header did not partition cache keys: both produced %q", keyA)
+	}
+
+	acceptA := newClient("", map[string]string{"Accept": "application/json"}).cacheKeyFor(http.MethodGet, "/widgets", nil, nil, nil)
+	acceptB := newClient("", map[string]string{"Accept": "application/xml"}).cacheKeyFor(http.MethodGet, "/widgets", nil, nil, nil)
+	if acceptA == acceptB {
+		t.Fatalf("representation Accept header should still partition via the representation fold")
+	}
+
+	uaA := newClient("", map[string]string{"User-Agent": "cli-a"}).cacheKeyFor(http.MethodGet, "/widgets", nil, nil, nil)
+	uaB := newClient("", map[string]string{"User-Agent": "cli-b"}).cacheKeyFor(http.MethodGet, "/widgets", nil, nil, nil)
+	if uaA != uaB {
+		t.Fatalf("representation-only / transport headers must not partition as tenancy: %q != %q", uaA, uaB)
+	}
+
+	for _, header := range []string{"X-Customer-Id", "X-Shop-Id", "X-Project-Id"} {
+		keyA := newClient("", map[string]string{header: "tenant-a"}).cacheKeyFor(http.MethodGet, "/widgets", nil, nil, nil)
+		keyB := newClient("", map[string]string{header: "tenant-b"}).cacheKeyFor(http.MethodGet, "/widgets", nil, nil, nil)
+		if keyA == keyB {
+			t.Fatalf("%s tenant header did not partition cache keys: both produced %q", header, keyA)
+		}
+	}
+
+	reqA := newClient("", map[string]string{"X-Request-Id": "req-a"}).cacheKeyFor(http.MethodGet, "/widgets", nil, nil, nil)
+	reqB := newClient("", map[string]string{"X-Request-Id": "req-b"}).cacheKeyFor(http.MethodGet, "/widgets", nil, nil, nil)
+	if reqA != reqB {
+		t.Fatalf("tracing request-id headers must not partition as tenancy: %q != %q", reqA, reqB)
+	}
+}
+
+func TestPlatformCacheKeyContract(t *testing.T) {
+	newClient := func() *Client {
+		c := &Client{BaseURL: "https://api.example.test"}
+		err := c.BindPlatformSession(&platform.Session{
+			Profile: &platform.Profile{Name: "tenant-a"}, ProfileName: "tenant-a", CLI: "sample", Source: "sample",
+			CredentialFingerprint: "machine-keyed-fingerprint-a",
+			ExpectedIdentity:      map[string]string{"account_id": "a"}, ObservedIdentity: map[string]string{"account_id": "a"},
+			Paths: platform.Paths{CacheDir: t.TempDir()}, GateOutcome: platform.GateVerified,
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		return c
+	}
+	baseClient := newClient()
+	base := baseClient.cacheKeyFor(http.MethodPost, "/v1/items", map[string]string{"page": "1"}, map[string]string{"Revision": "2026-07"}, []byte(`{"query":"a"}`))
+	cases := map[string]func(*Client) string{
+		"profile": func(c *Client) string {
+			c.platformSession.ProfileName = "tenant-b"
+			return c.cacheKeyFor(http.MethodPost, "/v1/items", map[string]string{"page": "1"}, map[string]string{"Revision": "2026-07"}, []byte(`{"query":"a"}`))
+		},
+		"expected identity": func(c *Client) string {
+			c.platformSession.ExpectedIdentity = map[string]string{"account_id": "b"}
+			return c.cacheKeyFor(http.MethodPost, "/v1/items", map[string]string{"page": "1"}, map[string]string{"Revision": "2026-07"}, []byte(`{"query":"a"}`))
+		},
+		"observed identity": func(c *Client) string {
+			c.platformSession.ObservedIdentity = map[string]string{"account_id": "b"}
+			return c.cacheKeyFor(http.MethodPost, "/v1/items", map[string]string{"page": "1"}, map[string]string{"Revision": "2026-07"}, []byte(`{"query":"a"}`))
+		},
+		"credential": func(c *Client) string {
+			c.platformSession.CredentialFingerprint = "machine-keyed-fingerprint-b"
+			return c.cacheKeyFor(http.MethodPost, "/v1/items", map[string]string{"page": "1"}, map[string]string{"Revision": "2026-07"}, []byte(`{"query":"a"}`))
+		},
+		"method": func(c *Client) string {
+			return c.cacheKeyFor(http.MethodGet, "/v1/items", map[string]string{"page": "1"}, map[string]string{"Revision": "2026-07"}, []byte(`{"query":"a"}`))
+		},
+		"endpoint": func(c *Client) string {
+			return c.cacheKeyFor(http.MethodPost, "/v1/orders", map[string]string{"page": "1"}, map[string]string{"Revision": "2026-07"}, []byte(`{"query":"a"}`))
+		},
+		"query": func(c *Client) string {
+			return c.cacheKeyFor(http.MethodPost, "/v1/items", map[string]string{"page": "2"}, map[string]string{"Revision": "2026-07"}, []byte(`{"query":"a"}`))
+		},
+		"body": func(c *Client) string {
+			return c.cacheKeyFor(http.MethodPost, "/v1/items", map[string]string{"page": "1"}, map[string]string{"Revision": "2026-07"}, []byte(`{"query":"b"}`))
+		},
+		"API version header": func(c *Client) string {
+			return c.cacheKeyFor(http.MethodPost, "/v1/items", map[string]string{"page": "1"}, map[string]string{"Revision": "2027-01"}, []byte(`{"query":"a"}`))
+		},
+	}
+	for name, change := range cases {
+		if got := change(newClient()); got == base {
+			t.Errorf("%s did not alter platform cache key", name)
+		}
+	}
+}
+
+func TestMutationInvalidatesOnlyItsResourceTag(t *testing.T) {
+	c := &Client{BaseURL: "https://api.example.test", cacheDir: t.TempDir()}
+	c.writeCache("/v1/orders", nil, json.RawMessage(`{"resource":"orders"}`))
+	c.writeCache("/v1/customers", nil, json.RawMessage(`{"resource":"customers"}`))
+	c.invalidateCacheResource("/v1/orders/123")
+	if _, err := os.Stat(c.cacheResourceDir("/v1/orders")); !os.IsNotExist(err) {
+		t.Fatalf("orders resource cache still exists after invalidation: %v", err)
+	}
+	if _, err := os.Stat(c.cacheResourceDir("/v1/customers")); err != nil {
+		t.Fatalf("unrelated customers resource cache was removed: %v", err)
+	}
+	c.writeCache("/v1/orders", nil, json.RawMessage(`{"resource":"orders"}`))
+	c.invalidateCacheAfterMutation("/v1/orders/123")
+	if _, err := os.Stat(c.cacheResourceDir("/v1/orders")); !os.IsNotExist(err) {
+		t.Fatalf("mutation left the directly affected cache: %v", err)
+	}
+	if _, err := os.Stat(c.cacheResourceDir("/v1/customers")); !os.IsNotExist(err) {
+		t.Fatalf("mutation left a potentially related projection cache: %v", err)
+	}
+}
+
 func TestGetWithHeadersValuesPreservesRepeatedQueryParams(t *testing.T) {
 	t.Parallel()
 
@@ -128,5 +258,25 @@ func TestGetWithHeadersValuesPreservesRepeatedQueryParams(t *testing.T) {
 	}
 	if _, err := c.GetWithHeadersValues(context.Background(), "/titles", params, nil); err != nil {
 		t.Fatalf("GetWithHeadersValues returned error: %v", err)
+	}
+}
+
+func TestStreamingHTTPClientDropsWholeCallTimeout(t *testing.T) {
+	t.Parallel()
+
+	base := &http.Client{Timeout: 60 * time.Second, Transport: http.DefaultTransport}
+	got := StreamingHTTPClient(base, 30*time.Second)
+	if got.Timeout != 0 {
+		t.Fatalf("streaming client Timeout = %s, want 0 so binary bodies are not killed mid-flight", got.Timeout)
+	}
+	tr, ok := got.Transport.(*http.Transport)
+	if !ok {
+		t.Fatalf("streaming client Transport type = %T, want *http.Transport", got.Transport)
+	}
+	if tr.ResponseHeaderTimeout != 30*time.Second {
+		t.Fatalf("ResponseHeaderTimeout = %s, want 30s so header stalls still die", tr.ResponseHeaderTimeout)
+	}
+	if base.Timeout != 60*time.Second {
+		t.Fatalf("StreamingHTTPClient mutated the JSON client's Timeout to %s", base.Timeout)
 	}
 }

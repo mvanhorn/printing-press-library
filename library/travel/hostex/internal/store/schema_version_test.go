@@ -6,9 +6,13 @@ package store
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"testing"
@@ -16,6 +20,282 @@ import (
 
 	_ "modernc.org/sqlite"
 )
+
+func TestOpenHardensSQLiteFilePermissions(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Windows does not expose Unix permission bits")
+	}
+
+	for _, tc := range []struct {
+		name        string
+		precreateDB bool
+		wantDirMode os.FileMode
+	}{
+		{name: "fresh store", wantDirMode: 0o700},
+		{name: "pre-existing permissive store", precreateDB: true, wantDirMode: 0o755},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			dbPath := filepath.Join(t.TempDir(), "private", "data.db")
+			if tc.precreateDB {
+				if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
+					t.Fatalf("create permissive store dir: %v", err)
+				}
+				if err := os.WriteFile(dbPath, nil, 0o644); err != nil {
+					t.Fatalf("create permissive store: %v", err)
+				}
+			}
+
+			s, err := Open(dbPath)
+			if err != nil {
+				t.Fatalf("open store: %v", err)
+			}
+			defer s.Close()
+
+			assertPrivateMode(t, filepath.Dir(dbPath), tc.wantDirMode)
+			assertPrivateMode(t, dbPath, 0o600)
+			assertPrivateMode(t, dbPath+"-wal", 0o600)
+			assertPrivateMode(t, dbPath+"-shm", 0o600)
+		})
+	}
+}
+
+func TestOpenWithRelativePathDoesNotChmodWorkingDirectory(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Windows does not expose Unix permission bits")
+	}
+
+	workingDir := t.TempDir()
+	info, err := os.Stat(workingDir)
+	if err != nil {
+		t.Fatalf("stat working directory: %v", err)
+	}
+	wantDirMode := info.Mode().Perm()
+	t.Chdir(workingDir)
+
+	s, err := Open("data.db")
+	if err != nil {
+		t.Fatalf("open relative store: %v", err)
+	}
+	defer s.Close()
+
+	assertPrivateMode(t, ".", wantDirMode)
+	assertPrivateMode(t, "data.db", 0o600)
+	assertPrivateMode(t, "data.db-wal", 0o600)
+	assertPrivateMode(t, "data.db-shm", 0o600)
+}
+
+func TestHardenSQLiteFilesSkipsSymlinkSidecars(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Windows does not expose Unix permission bits")
+	}
+
+	dir := t.TempDir()
+	targetPath := filepath.Join(dir, "unrelated")
+	if err := os.WriteFile(targetPath, nil, 0o644); err != nil {
+		t.Fatalf("create unrelated file: %v", err)
+	}
+	dbPath := filepath.Join(dir, "data.db")
+	if err := os.Symlink(targetPath, dbPath+"-wal"); err != nil {
+		t.Fatalf("create WAL symlink: %v", err)
+	}
+	journalPath := dbPath + "-journal"
+	if err := os.WriteFile(journalPath, nil, 0o644); err != nil {
+		t.Fatalf("create journal sidecar: %v", err)
+	}
+
+	hardenSQLiteFiles(dbPath)
+
+	assertPrivateMode(t, targetPath, 0o644)
+	assertPrivateMode(t, journalPath, 0o600)
+}
+
+func TestHardenSQLiteFilesChmodsPermissiveRegularFiles(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Windows does not expose Unix permission bits")
+	}
+
+	dir := t.TempDir()
+	dbPath := filepath.Join(dir, "data.db")
+	for _, suffix := range []string{"", "-journal", "-wal", "-shm"} {
+		if err := os.WriteFile(dbPath+suffix, nil, 0o644); err != nil {
+			t.Fatalf("create %s: %v", suffix, err)
+		}
+	}
+
+	hardenSQLiteFiles(dbPath)
+
+	for _, suffix := range []string{"", "-journal", "-wal", "-shm"} {
+		assertPrivateMode(t, dbPath+suffix, 0o600)
+	}
+}
+
+func TestHardenSQLiteFilesKeepsLivePOSIXLocks(t *testing.T) {
+	if os.Getenv("PP_STORE_HARDEN_LOCK_PROBE") == "1" {
+		runHardenLockProbe()
+		return
+	}
+
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		t.Fatalf("begin holder tx: %v", err)
+	}
+	defer func() { _ = tx.Rollback() }()
+	if _, err := tx.Exec(`INSERT INTO resources (id, resource_type, data) VALUES (?, ?, ?)`, "lock-holder", "harden", `{"id":"lock-holder"}`); err != nil {
+		t.Fatalf("holder write: %v", err)
+	}
+
+	hardenSQLiteFiles(dbPath)
+
+	cmd := exec.Command(os.Args[0], "-test.run=^TestHardenSQLiteFilesKeepsLivePOSIXLocks$", "-test.count=1")
+	cmd.Env = append(os.Environ(),
+		"PP_STORE_HARDEN_LOCK_PROBE=1",
+		"PP_STORE_HARDEN_DB="+dbPath,
+	)
+	err = cmd.Run()
+	if err == nil {
+		t.Fatal("probe wrote while the parent still held an uncommitted write lock; hardenSQLiteFiles dropped POSIX locks")
+	}
+	exitErr, ok := err.(*exec.ExitError)
+	if !ok || exitErr.ExitCode() != 5 {
+		t.Fatalf("probe exit = %v, want busy/locked exit 5", err)
+	}
+}
+
+func runHardenLockProbe() {
+	dbPath := os.Getenv("PP_STORE_HARDEN_DB")
+	if dbPath == "" {
+		fmt.Fprintln(os.Stderr, "PP_STORE_HARDEN_DB is required")
+		os.Exit(2)
+	}
+	db, err := sql.Open("sqlite", dbPath+"?_txlock=immediate&_pragma=busy_timeout(250)&_pragma=mmap_size(0)")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "open probe: %v\n", err)
+		os.Exit(3)
+	}
+	defer db.Close()
+	db.SetMaxOpenConns(1)
+	_, err = db.Exec(`INSERT INTO resources (id, resource_type, data) VALUES ('probe', 'lock-probe', '{}')`)
+	if err == nil {
+		fmt.Fprintln(os.Stderr, "probe wrote under a live parent lock")
+		os.Exit(0)
+	}
+	lower := strings.ToLower(err.Error())
+	if strings.Contains(lower, "busy") || strings.Contains(lower, "locked") {
+		os.Exit(5)
+	}
+	fmt.Fprintf(os.Stderr, "probe write: %v\n", err)
+	os.Exit(4)
+}
+
+func TestHardenSQLiteFilesConcurrentWritersKeepIntegrity(t *testing.T) {
+	if os.Getenv("PP_STORE_HARDEN_WRITER") == "1" {
+		runHardenWriterHelper()
+		return
+	}
+
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open seed: %v", err)
+	}
+	if err := s.Close(); err != nil {
+		t.Fatalf("close seed: %v", err)
+	}
+
+	const helpers = 8
+	const rounds = 15
+	cmds := make([]*exec.Cmd, helpers)
+	for i := 0; i < helpers; i++ {
+		cmd := exec.Command(os.Args[0], "-test.run=^TestHardenSQLiteFilesConcurrentWritersKeepIntegrity$", "-test.count=1")
+		cmd.Env = append(os.Environ(),
+			"PP_STORE_HARDEN_WRITER=1",
+			"PP_STORE_HARDEN_DB="+dbPath,
+			fmt.Sprintf("PP_STORE_HARDEN_ID=%d", i),
+			fmt.Sprintf("PP_STORE_HARDEN_ROUNDS=%d", rounds),
+		)
+		if err := cmd.Start(); err != nil {
+			t.Fatalf("start writer %d: %v", i, err)
+		}
+		cmds[i] = cmd
+	}
+	for i, cmd := range cmds {
+		if err := cmd.Wait(); err != nil {
+			t.Fatalf("writer %d: %v", i, err)
+		}
+	}
+
+	reopened, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("reopen: %v", err)
+	}
+	defer reopened.Close()
+
+	var integrity string
+	if err := reopened.DB().QueryRow("PRAGMA integrity_check").Scan(&integrity); err != nil {
+		t.Fatalf("integrity_check: %v", err)
+	}
+	if integrity != "ok" {
+		t.Fatalf("integrity_check = %q, want ok", integrity)
+	}
+	var n int
+	if err := reopened.DB().QueryRow(`SELECT COUNT(*) FROM resources WHERE resource_type = 'concurrent'`).Scan(&n); err != nil {
+		t.Fatalf("count writers: %v", err)
+	}
+	if n != helpers*rounds {
+		t.Fatalf("concurrent rows = %d, want %d", n, helpers*rounds)
+	}
+	if runtime.GOOS != "windows" {
+		assertPrivateMode(t, dbPath, 0o600)
+		assertPrivateMode(t, dbPath+"-wal", 0o600)
+		assertPrivateMode(t, dbPath+"-shm", 0o600)
+	}
+}
+
+func runHardenWriterHelper() {
+	dbPath := os.Getenv("PP_STORE_HARDEN_DB")
+	if dbPath == "" {
+		fmt.Fprintln(os.Stderr, "PP_STORE_HARDEN_DB is required")
+		os.Exit(2)
+	}
+	id := os.Getenv("PP_STORE_HARDEN_ID")
+	rounds := 15
+	if v := os.Getenv("PP_STORE_HARDEN_ROUNDS"); v != "" {
+		if n, scanErr := fmt.Sscanf(v, "%d", &rounds); n != 1 || scanErr != nil || rounds <= 0 {
+			rounds = 15
+		}
+	}
+	s, err := Open(dbPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "open: %v\n", err)
+		os.Exit(3)
+	}
+	defer s.Close()
+	for i := 0; i < rounds; i++ {
+		rowID := fmt.Sprintf("w%s-%d", id, i)
+		if err := s.Upsert("concurrent", rowID, json.RawMessage(fmt.Sprintf(`{"id":%q}`, rowID))); err != nil {
+			fmt.Fprintf(os.Stderr, "upsert %s: %v\n", rowID, err)
+			os.Exit(4)
+		}
+	}
+}
+
+func assertPrivateMode(t *testing.T, path string, want os.FileMode) {
+	t.Helper()
+	info, err := os.Stat(path)
+	if err != nil {
+		t.Fatalf("stat %s: %v", path, err)
+	}
+	if got := info.Mode().Perm(); got != want {
+		t.Fatalf("%s mode = %04o, want %04o", path, got, want)
+	}
+}
 
 // TestSchemaVersion_StampedOnFreshDB verifies that opening a brand-new
 // database stamps the current schema version. This is the contract that
@@ -38,12 +318,107 @@ func TestSchemaVersion_StampedOnFreshDB(t *testing.T) {
 	}
 }
 
+func TestMigrateAddsSyncAttemptCompletion(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open legacy db: %v", err)
+	}
+	completedAt := "2026-08-01T12:34:56Z"
+	for _, stmt := range []string{
+		`CREATE TABLE sync_state (
+			resource_type TEXT PRIMARY KEY,
+			last_cursor TEXT,
+			last_synced_at DATETIME,
+			total_count INTEGER DEFAULT 0
+		)`,
+		`INSERT INTO sync_state(resource_type, last_cursor, last_synced_at, total_count)
+		 VALUES ('items', '', '` + completedAt + `', 7)`,
+		`INSERT INTO sync_state VALUES ('capped', 'page-2', '` + completedAt + `', 7)`,
+		`INSERT INTO sync_state VALUES ('unstamped', 'page-2', NULL, 7)`,
+		`INSERT INTO sync_state VALUES ('ambiguous', NULL, NULL, 0)`,
+		`PRAGMA user_version = 4`,
+	} {
+		if _, err := raw.Exec(stmt); err != nil {
+			raw.Close()
+			t.Fatalf("seed legacy sync_state (%s): %v", stmt, err)
+		}
+	}
+	if err := raw.Close(); err != nil {
+		t.Fatalf("close legacy db: %v", err)
+	}
+
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("migrate legacy db: %v", err)
+	}
+	defer s.Close()
+
+	var complete int
+	if err := s.DB().QueryRow(`SELECT last_attempt_complete FROM sync_state WHERE resource_type = 'items'`).Scan(&complete); err != nil {
+		t.Fatalf("read migrated completion marker: %v", err)
+	}
+	if complete != 0 {
+		t.Fatalf("legacy ambiguous marker = %d, want 0", complete)
+	}
+	for _, resource := range []string{"capped", "unstamped", "ambiguous"} {
+		if err := s.DB().QueryRow(`SELECT last_attempt_complete FROM sync_state WHERE resource_type = ?`, resource).Scan(&complete); err != nil || complete != 0 {
+			t.Fatalf("legacy %s marker = %d, err %v; want incomplete", resource, complete, err)
+		}
+		if _, _, _, err := s.GetSyncState(resource); err != nil {
+			t.Fatalf("read nullable legacy checkpoint %s: %v", resource, err)
+		}
+	}
+	if err := s.SaveSyncProgress("items", "page-2", 8); err != nil {
+		t.Fatalf("save partial progress: %v", err)
+	}
+	_, watermark, count, err := s.GetSyncState("items")
+	if err != nil {
+		t.Fatalf("read partial progress: %v", err)
+	}
+	wantWatermark, err := time.Parse(time.RFC3339, completedAt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !watermark.Equal(wantWatermark) || count != 8 {
+		t.Fatalf("partial progress = watermark %s, count %d; want %s, 8", watermark, count, wantWatermark)
+	}
+	if err := s.DB().QueryRow(`SELECT last_attempt_complete FROM sync_state WHERE resource_type = 'items'`).Scan(&complete); err != nil {
+		t.Fatal(err)
+	}
+	if complete != 0 {
+		t.Fatalf("partial completion marker = %d, want 0", complete)
+	}
+	if err := s.SaveSyncStateAt("items", "", 8, wantWatermark.Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.DB().QueryRow(`SELECT last_attempt_complete FROM sync_state WHERE resource_type = 'items'`).Scan(&complete); err != nil {
+		t.Fatal(err)
+	}
+	if complete != 1 {
+		t.Fatalf("completed marker = %d, want 1", complete)
+	}
+	if err := s.Close(); err != nil {
+		t.Fatal(err)
+	}
+	reopened, err := Open(dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer reopened.Close()
+	if err := reopened.DB().QueryRow(`SELECT last_attempt_complete FROM sync_state WHERE resource_type = 'items'`).Scan(&complete); err != nil || complete != 1 {
+		t.Fatalf("reopening reset proven completion: marker %d, err %v", complete, err)
+	}
+}
+
 // TestOpenAppliesPragmas pins the connection-string contract: the store
-// must open in WAL journal mode with a non-zero busy_timeout so a read
-// concurrent with a write waits on the lock instead of failing immediately
-// with SQLITE_BUSY. It fails the instant the DSN regresses to the mattn-
-// style _journal_mode=WAL form, which modernc.org/sqlite silently drops —
-// see the OpenReadOnly comment for the driver-syntax detail.
+// must use the profile-selected journal mode with a non-zero busy_timeout and
+// disabled mmap so the main database file stays pread-based. A mode=ro
+// handle reports delete journal mode (immutable=1 WAL skips the -shm map;
+// cache-profile RO omits immutable=1 so it takes SHARED — isolation is
+// TestOpenReadOnly_RollbackJournalNoTornRead). It fails the instant the DSN
+// regresses to the mattn-style pragma form, which modernc.org/sqlite
+// silently drops.
 func TestOpenAppliesPragmas(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 	s, err := Open(dbPath)
@@ -51,21 +426,24 @@ func TestOpenAppliesPragmas(t *testing.T) {
 		t.Fatalf("open: %v", err)
 	}
 	defer s.Close()
-
 	requirePragma(t, s.DB(), "journal_mode", "wal")
 	requirePragma(t, s.DB(), "busy_timeout", "5000")
+	requirePragma(t, s.DB(), "mmap_size", "0")
 
-	// The read-only handle (MCP sql/search, analytics) must see the same WAL
-	// file mode and carry the busy_timeout so it waits on a concurrent writer
-	// rather than erroring.
+	// The read-only handle (MCP sql/search, analytics) must carry the
+	// busy_timeout so it waits on a concurrent writer rather than erroring,
+	// and keep mmap disabled. A mode=ro connection reports journal_mode=delete
+	// even when the file is truncate or WAL; cache-profile isolation is the
+	// torn-read test, not this pragma.
 	ro, err := OpenReadOnly(dbPath)
 	if err != nil {
 		t.Fatalf("open read-only: %v", err)
 	}
 	defer ro.Close()
 
-	requirePragma(t, ro.DB(), "journal_mode", "wal")
+	requirePragma(t, ro.DB(), "journal_mode", "delete")
 	requirePragma(t, ro.DB(), "busy_timeout", "5000")
+	requirePragma(t, ro.DB(), "mmap_size", "0")
 }
 
 // requirePragma fails the test unless `PRAGMA <name>` reports want. It reads
@@ -79,6 +457,115 @@ func requirePragma(t *testing.T, db *sql.DB, name, want string) {
 	}
 	if got != want {
 		t.Fatalf("PRAGMA %s = %q, want %q", name, got, want)
+	}
+}
+
+// assertNoWALIndexSidecars fails if a read-only open recreated the WAL-index
+// mapping SQLite would otherwise place in -shm. mmap_size(0) does not govern
+// that mapping; the read-only DSN must skip it.
+func assertNoWALIndexSidecars(t *testing.T, dbPath string) {
+	t.Helper()
+	for _, sidecar := range []string{dbPath + "-shm", dbPath + "-wal"} {
+		if _, err := os.Stat(sidecar); err == nil {
+			t.Fatalf("read-only open created WAL sidecar %s", sidecar)
+		} else if !os.IsNotExist(err) {
+			t.Fatalf("stat %s: %v", sidecar, err)
+		}
+	}
+}
+
+// TestOpenReadOnly_SkipsWALIndexSidecars proves a settled WAL store can be
+// opened read-only without recreating -shm. The current-ro DSN (mmap_size 0
+// without immutable=1) remaps the WAL-index on the next open; that mapping
+// is the concurrent-reader fault surface.
+func TestOpenReadOnly_SkipsWALIndexSidecars(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	if err := s.Close(); err != nil {
+		t.Fatalf("close writer: %v", err)
+	}
+
+	ro, err := OpenReadOnly(dbPath)
+	if err != nil {
+		t.Fatalf("open read-only: %v", err)
+	}
+	defer ro.Close()
+
+	var n int
+	if err := ro.DB().QueryRow(`SELECT count(*) FROM sqlite_master`).Scan(&n); err != nil {
+		t.Fatalf("read-only query: %v", err)
+	}
+	if n < 1 {
+		t.Fatalf("read-only query returned empty catalog")
+	}
+	assertNoWALIndexSidecars(t, dbPath)
+}
+
+// TestOpenReadOnly_ConcurrentProcesses runs two sibling read-only processes
+// against one store. Serial access never hits the WAL-index fault; two
+// concurrent OpenReadOnly processes is the smallest reproduction.
+func TestOpenReadOnly_ConcurrentProcesses(t *testing.T) {
+	if os.Getenv("PP_STORE_RO_HELPER") == "1" {
+		runOpenReadOnlyHelper()
+		return
+	}
+
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open seed: %v", err)
+	}
+	if _, err := s.DB().Exec(`INSERT INTO resources (id, resource_type, data) VALUES (?, ?, ?)`, "ro-1", "concurrent", `{"id":"ro-1"}`); err != nil {
+		t.Fatalf("seed row: %v", err)
+	}
+	if err := s.Close(); err != nil {
+		t.Fatalf("close seed: %v", err)
+	}
+
+	const helpers = 2
+	cmds := make([]*exec.Cmd, helpers)
+	for i := 0; i < helpers; i++ {
+		cmd := exec.Command(os.Args[0], "-test.run=^TestOpenReadOnly_ConcurrentProcesses$", "-test.count=1")
+		cmd.Env = append(os.Environ(),
+			"PP_STORE_RO_HELPER=1",
+			"PP_STORE_RO_DB="+dbPath,
+		)
+		if err := cmd.Start(); err != nil {
+			t.Fatalf("start helper %d: %v", i, err)
+		}
+		cmds[i] = cmd
+	}
+	for i, cmd := range cmds {
+		if err := cmd.Wait(); err != nil {
+			t.Fatalf("helper %d: %v", i, err)
+		}
+	}
+	assertNoWALIndexSidecars(t, dbPath)
+}
+
+func runOpenReadOnlyHelper() {
+	dbPath := os.Getenv("PP_STORE_RO_DB")
+	if dbPath == "" {
+		fmt.Fprintln(os.Stderr, "PP_STORE_RO_DB is required")
+		os.Exit(2)
+	}
+	ro, err := OpenReadOnly(dbPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "open read-only: %v\n", err)
+		os.Exit(3)
+	}
+	defer ro.Close()
+	var n int
+	if err := ro.DB().QueryRow(`SELECT count(*) FROM resources`).Scan(&n); err != nil {
+		fmt.Fprintf(os.Stderr, "read-only query: %v\n", err)
+		os.Exit(4)
+	}
+	if n < 1 {
+		fmt.Fprintf(os.Stderr, "read-only count=%d\n", n)
+		os.Exit(5)
 	}
 }
 
@@ -112,6 +599,139 @@ func TestOpenReadOnly_DeleteModeDBDoesNotWrite(t *testing.T) {
 	var n int
 	if err := ro.DB().QueryRow(`SELECT count(*) FROM resources`).Scan(&n); err != nil {
 		t.Fatalf("read-only query on delete-mode DB: %v", err)
+	}
+}
+
+// TestOpenReadOnly_RollbackJournalNoTornRead proves a cache-profile
+// (TRUNCATE) reader opened during a spilled uncommitted UPDATE sees the
+// pre-transaction snapshot or SQLITE_BUSY, never a mix of old and new
+// pages. immutable=1 on this journal mode is the torn-read DSN.
+func TestOpenReadOnly_RollbackJournalNoTornRead(t *testing.T) {
+	t.Skip("WAL profile keeps immutable=1; torn-read isolation is the rollback-journal contract")
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	const n = 400
+	for i := 0; i < n; i++ {
+		id := fmt.Sprintf("row-%03d", i)
+		payload := fmt.Sprintf(`{"id":%q,"v":"old"}`, id)
+		if err := s.Upsert("items", id, json.RawMessage(payload)); err != nil {
+			s.Close()
+			t.Fatalf("seed %s: %v", id, err)
+		}
+	}
+	if err := s.Close(); err != nil {
+		t.Fatalf("close seed: %v", err)
+	}
+
+	writer, err := sql.Open("sqlite", dbPath+"?_txlock=immediate&_pragma=busy_timeout(5000)&_pragma=journal_mode(TRUNCATE)&_pragma=cache_size(-64)")
+	if err != nil {
+		t.Fatalf("open writer: %v", err)
+	}
+	defer writer.Close()
+	tx, err := writer.Begin()
+	if err != nil {
+		t.Fatalf("begin writer: %v", err)
+	}
+	if _, err := tx.Exec(`UPDATE resources SET data = json_replace(data, '$.v', 'new') WHERE resource_type = 'items'`); err != nil {
+		_ = tx.Rollback()
+		t.Fatalf("spill update: %v", err)
+	}
+
+	ro, err := OpenReadOnly(dbPath)
+	if err != nil {
+		_ = tx.Rollback()
+		if !strings.Contains(strings.ToLower(err.Error()), "busy") && !strings.Contains(strings.ToLower(err.Error()), "locked") {
+			t.Fatalf("open read-only during writer: %v", err)
+		}
+		return
+	}
+	rows, listErr := ro.List("items", 0)
+	_ = ro.Close()
+	if listErr != nil {
+		_ = tx.Rollback()
+		if !strings.Contains(strings.ToLower(listErr.Error()), "busy") && !strings.Contains(strings.ToLower(listErr.Error()), "locked") {
+			t.Fatalf("list during writer: %v", listErr)
+		}
+		return
+	}
+
+	old, neu := 0, 0
+	for _, raw := range rows {
+		body := string(raw)
+		if strings.Contains(body, `"v":"old"`) {
+			old++
+		}
+		if strings.Contains(body, `"v":"new"`) {
+			neu++
+		}
+	}
+	if err := tx.Rollback(); err != nil {
+		t.Fatalf("rollback writer: %v", err)
+	}
+	if old > 0 && neu > 0 {
+		t.Fatalf("torn read during uncommitted update: old=%d new=%d", old, neu)
+	}
+	if neu > 0 && old == 0 {
+		t.Fatalf("dirty read of uncommitted update: new=%d", neu)
+	}
+}
+
+// TestListScanStopsEarly pins that the local-list scan can stop without
+// consuming the rest of the partition.
+func TestListScanStopsEarly(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+	for i := 0; i < 50; i++ {
+		id := fmt.Sprintf("item-%03d", i)
+		if err := s.Upsert("items", id, json.RawMessage(fmt.Sprintf(`{"id":%q}`, id))); err != nil {
+			t.Fatalf("upsert %s: %v", id, err)
+		}
+	}
+	seen := 0
+	if err := s.ListScan("items", func(string, json.RawMessage) bool {
+		seen++
+		return seen < 3
+	}); err != nil {
+		t.Fatalf("ListScan: %v", err)
+	}
+	if seen != 3 {
+		t.Fatalf("ListScan visited %d rows, want 3", seen)
+	}
+}
+
+func TestTypedNewestFirstOrder(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+	if _, err := s.DB().Exec(`CREATE TABLE typed_synced (id TEXT, data TEXT, synced_at DATETIME)`); err != nil {
+		t.Fatalf("create synced table: %v", err)
+	}
+	order, ok := s.typedNewestFirstOrder("typed_synced")
+	if !ok || order != " ORDER BY synced_at DESC" {
+		t.Fatalf("synced_at order = %q ok=%v, want ORDER BY synced_at DESC", order, ok)
+	}
+	if _, err := s.DB().Exec(`CREATE TABLE typed_updated (id TEXT, data TEXT, synced_at DATETIME, updated_at DATETIME)`); err != nil {
+		t.Fatalf("create updated table: %v", err)
+	}
+	order, ok = s.typedNewestFirstOrder("typed_updated")
+	if !ok || order != " ORDER BY updated_at DESC" {
+		t.Fatalf("updated_at order = %q ok=%v, want ORDER BY updated_at DESC", order, ok)
+	}
+	if _, err := s.DB().Exec(`CREATE TABLE typed_none (id TEXT, data TEXT)`); err != nil {
+		t.Fatalf("create unordered table: %v", err)
+	}
+	if order, ok = s.typedNewestFirstOrder("typed_none"); ok {
+		t.Fatalf("unordered typed table must not claim newest-first order, got %q", order)
 	}
 }
 
@@ -694,9 +1314,9 @@ func TestMigrate_ResourcesFTSContentSchemaVersionNoRebuild(t *testing.T) {
 		raw.Close()
 		t.Fatalf("seed resources_fts row: %v", err)
 	}
-	if _, err := raw.Exec(fmt.Sprintf(`PRAGMA user_version = %d`, resourcesFTSContentSchemaVersion)); err != nil {
+	if _, err := raw.Exec(fmt.Sprintf(`PRAGMA user_version = %d`, resourcesFTSTokenizerSchemaVersion)); err != nil {
 		raw.Close()
-		t.Fatalf("stamp resources fts content schema version: %v", err)
+		t.Fatalf("stamp resources fts tokenizer schema version: %v", err)
 	}
 	raw.Close()
 
@@ -712,6 +1332,600 @@ func TestMigrate_ResourcesFTSContentSchemaVersionNoRebuild(t *testing.T) {
 	}
 	if content != "sentinel fts" {
 		t.Fatalf("resources_fts content = %s, want sentinel row preserved", content)
+	}
+}
+
+func TestMigrate_TokenizerRebuildsCJKSearch(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	stmts := []string{
+		`CREATE TABLE resources (
+			id TEXT NOT NULL,
+			resource_type TEXT NOT NULL,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (resource_type, id)
+		)`,
+		`CREATE VIRTUAL TABLE resources_fts USING fts5(
+			id, resource_type, content, tokenize='porter unicode61'
+		)`,
+		`INSERT INTO resources (id, resource_type, data) VALUES (
+			'C01636',
+			'eix',
+			'{"id":"C01636","name":"統全公寓大廈管理維護有限公司","trade":"營造工程行"}'
+		)`,
+		`INSERT INTO resources (id, resource_type, data) VALUES (
+			'ascii-1',
+			'eix',
+			'{"id":"ascii-1","name":"Pinky restaurant"}'
+		)`,
+		fmt.Sprintf(`PRAGMA user_version = %d`, resourcesFTSTokenizerSchemaVersion-1),
+	}
+	for _, stmt := range stmts {
+		if _, err := raw.Exec(stmt); err != nil {
+			raw.Close()
+			t.Fatalf("seed porter db (%s): %v", stmt, err)
+		}
+	}
+	if _, err := raw.Exec(
+		`INSERT INTO resources_fts (rowid, id, resource_type, content) VALUES (?, 'C01636', 'eix', '統全公寓大廈管理維護有限公司 營造工程行')`,
+		ftsRowID("eix", "C01636"),
+	); err != nil {
+		raw.Close()
+		t.Fatalf("seed porter fts row: %v", err)
+	}
+	if _, err := raw.Exec(
+		`INSERT INTO resources_fts (rowid, id, resource_type, content) VALUES (?, 'ascii-1', 'eix', 'Pinky restaurant')`,
+		ftsRowID("eix", "ascii-1"),
+	); err != nil {
+		raw.Close()
+		t.Fatalf("seed ascii fts row: %v", err)
+	}
+	raw.Close()
+
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open upgraded db: %v", err)
+	}
+	defer s.Close()
+
+	v, err := s.SchemaVersion()
+	if err != nil {
+		t.Fatalf("read schema version: %v", err)
+	}
+	if v != StoreSchemaVersion {
+		t.Fatalf("upgraded version = %d, want %d", v, StoreSchemaVersion)
+	}
+
+	cjkHits, err := s.Search("營造", 10)
+	if err != nil {
+		t.Fatalf("search CJK substring: %v", err)
+	}
+	if len(cjkHits) != 1 || !strings.Contains(string(cjkHits[0]), "C01636") {
+		t.Fatalf("CJK substring search = %q, want the Traditional Chinese row", cjkHits)
+	}
+
+	phraseHits, err := s.Search("營造工程", 10)
+	if err != nil {
+		t.Fatalf("search CJK phrase: %v", err)
+	}
+	if len(phraseHits) != 1 || !strings.Contains(string(phraseHits[0]), "C01636") {
+		t.Fatalf("CJK phrase search = %q, want the Traditional Chinese row", phraseHits)
+	}
+
+	idHits, err := s.Search("C01636", 10)
+	if err != nil {
+		t.Fatalf("search ASCII id: %v", err)
+	}
+	if len(idHits) != 1 || !strings.Contains(string(idHits[0]), "C01636") {
+		t.Fatalf("ASCII id search = %q, want the Traditional Chinese row", idHits)
+	}
+
+	asciiHits, err := s.Search("restaurant", 10)
+	if err != nil {
+		t.Fatalf("search ASCII token: %v", err)
+	}
+	if len(asciiHits) != 1 || !strings.Contains(string(asciiHits[0]), "ascii-1") {
+		t.Fatalf("ASCII token search = %q, want the restaurant row", asciiHits)
+	}
+}
+
+// TestMigrate_V3ToV6IsAdditive verifies that opening a v3-stamped database
+// preserves existing resources rows after the learn-table migrations run.
+// The learn migrations only add tables when the spec enables them — never
+// drop or rewrite resources. Without this regression coverage, a future
+// refactor that turns the additive step into a destructive one would silently
+// nuke every existing library CLI's local data on first reopen.
+func TestMigrate_V3ToV6IsAdditive(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE TABLE resources (
+		id TEXT NOT NULL,
+		resource_type TEXT NOT NULL,
+		data JSON NOT NULL,
+		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (resource_type, id)
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create v2 resources: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources (id, resource_type, data) VALUES ('user-1', 'user', '{"id":"user-1","name":"alice"}')`); err != nil {
+		raw.Close()
+		t.Fatalf("seed v2 row: %v", err)
+	}
+	if _, err := raw.Exec(`PRAGMA user_version = 3`); err != nil {
+		raw.Close()
+		t.Fatalf("stamp v3: %v", err)
+	}
+	raw.Close()
+
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open upgraded db: %v", err)
+	}
+	defer s.Close()
+
+	v, err := s.SchemaVersion()
+	if err != nil {
+		t.Fatalf("read schema version: %v", err)
+	}
+	if v != StoreSchemaVersion {
+		t.Fatalf("upgraded version = %d, want %d", v, StoreSchemaVersion)
+	}
+
+	data, err := s.Get("user", "user-1")
+	if err != nil {
+		t.Fatalf("get preserved row: %v", err)
+	}
+	if string(data) != `{"id":"user-1","name":"alice"}` {
+		t.Fatalf("preserved row payload = %s, want original", data)
+	}
+}
+
+// TestSchemaVersion_FreshDBHasPlaybooksTable verifies that a fresh learn-
+// enabled database carries the learning_playbooks table after Open. The
+// v7 migration is the canonical home of the playbook primitive; opening a
+// new DB must leave it queryable without an upgrade step.
+func TestSchemaVersion_FreshDBHasPlaybooksTable(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open fresh db: %v", err)
+	}
+	defer s.Close()
+
+	var name string
+	err = s.DB().QueryRow(
+		`SELECT name FROM sqlite_master WHERE type='table' AND name='learning_playbooks'`,
+	).Scan(&name)
+	if err != nil {
+		t.Fatalf("learning_playbooks table should exist after Open on a fresh learn-enabled DB: %v", err)
+	}
+	if name != "learning_playbooks" {
+		t.Fatalf("expected learning_playbooks, got %q", name)
+	}
+
+	// Schema sanity: inserting a row exercises the NOT NULL + DEFAULT
+	// constraints in the migration. If the canonical column shape ever
+	// drifts (e.g., a NOT NULL added without a DEFAULT), this fails fast.
+	if _, err := s.DB().Exec(
+		`INSERT INTO learning_playbooks (query_family, playbook_json) VALUES (?, ?)`,
+		"odds_for_X", `{"slots":["X"]}`,
+	); err != nil {
+		t.Fatalf("insert into learning_playbooks: %v", err)
+	}
+}
+
+// TestMigrate_V6ToV7AddsPlaybooks verifies that opening a v6-stamped
+// database upgrades to v7 by adding the learning_playbooks table without
+// touching any existing data. The v7 migration is purely additive; a
+// future refactor that turns it destructive would silently nuke every
+// existing library CLI's learn-loop state on first reopen.
+func TestMigrate_V6ToV7AddsPlaybooks(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	// Mirror the v6-stamped shape: resources composite key plus the
+	// learn-loop tables that existed at v6 (search_learnings,
+	// entity_lookups, search_patterns). Seed a row in each so we can
+	// prove the upgrade preserves them.
+	stmts := []string{
+		`CREATE TABLE resources (
+			id TEXT NOT NULL,
+			resource_type TEXT NOT NULL,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (resource_type, id)
+		)`,
+		`INSERT INTO resources (id, resource_type, data) VALUES ('user-1', 'user', '{"id":"user-1","name":"alice"}')`,
+		`CREATE TABLE search_learnings (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			query_pattern TEXT NOT NULL,
+			query_entities TEXT,
+			venue TEXT,
+			resource_type TEXT,
+			resource_id TEXT NOT NULL,
+			action TEXT NOT NULL,
+			alias_target TEXT,
+			source TEXT NOT NULL,
+			confidence INTEGER DEFAULT 1,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			last_observed_at DATETIME,
+			notes TEXT
+		)`,
+		`INSERT INTO search_learnings (query_pattern, resource_id, action, source) VALUES ('alice', 'user-1', 'boost', 'taught')`,
+		`PRAGMA user_version = 6`,
+	}
+	for _, stmt := range stmts {
+		if _, err := raw.Exec(stmt); err != nil {
+			raw.Close()
+			t.Fatalf("seed v6 db (%s): %v", stmt, err)
+		}
+	}
+	raw.Close()
+
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open upgraded db: %v", err)
+	}
+	defer s.Close()
+
+	v, err := s.SchemaVersion()
+	if err != nil {
+		t.Fatalf("read schema version: %v", err)
+	}
+	if v != StoreSchemaVersion {
+		t.Fatalf("upgraded version = %d, want %d", v, StoreSchemaVersion)
+	}
+
+	// learning_playbooks must exist post-upgrade and be writable.
+	var name string
+	if err := s.DB().QueryRow(
+		`SELECT name FROM sqlite_master WHERE type='table' AND name='learning_playbooks'`,
+	).Scan(&name); err != nil {
+		t.Fatalf("learning_playbooks should exist after v6->v7 upgrade: %v", err)
+	}
+	if _, err := s.DB().Exec(
+		`INSERT INTO learning_playbooks (query_family, notes_text) VALUES (?, ?)`,
+		"family_X", "hand-authored notes",
+	); err != nil {
+		t.Fatalf("insert into upgraded learning_playbooks: %v", err)
+	}
+
+	// Pre-existing data preserved: resources row, search_learnings row.
+	data, err := s.Get("user", "user-1")
+	if err != nil {
+		t.Fatalf("get preserved resources row: %v", err)
+	}
+	if string(data) != `{"id":"user-1","name":"alice"}` {
+		t.Fatalf("preserved row payload = %s, want original", data)
+	}
+	var learnedCount int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM search_learnings WHERE resource_id = 'user-1'`).Scan(&learnedCount); err != nil {
+		t.Fatalf("count preserved search_learnings: %v", err)
+	}
+	if learnedCount != 1 {
+		t.Fatalf("preserved search_learnings count = %d, want 1", learnedCount)
+	}
+}
+
+// TestMigrate_V6ToV7IsIdempotent verifies that running Open twice on a
+// learn-enabled DB does not double-migrate or trip a duplicate-table /
+// duplicate-index error. Every v7 migration statement uses IF NOT EXISTS,
+// so the second Open should reach the version stamp without an error and
+// leave learning_playbooks untouched.
+func TestMigrate_V6ToV7IsIdempotent(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	s1, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("first open: %v", err)
+	}
+	if _, err := s1.DB().Exec(
+		`INSERT INTO learning_playbooks (query_family, playbook_json) VALUES (?, ?)`,
+		"family_idem", `{"slots":["X"]}`,
+	); err != nil {
+		s1.Close()
+		t.Fatalf("seed playbook row: %v", err)
+	}
+	s1.Close()
+
+	s2, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("second open: %v", err)
+	}
+	defer s2.Close()
+
+	v, err := s2.SchemaVersion()
+	if err != nil {
+		t.Fatalf("read schema version after re-open: %v", err)
+	}
+	if v != StoreSchemaVersion {
+		t.Fatalf("re-opened version = %d, want %d", v, StoreSchemaVersion)
+	}
+
+	var count int
+	if err := s2.DB().QueryRow(`SELECT COUNT(*) FROM learning_playbooks WHERE query_family = 'family_idem'`).Scan(&count); err != nil {
+		t.Fatalf("count seeded playbook row: %v", err)
+	}
+	if count != 1 {
+		t.Fatalf("playbook row count after re-open = %d, want 1", count)
+	}
+}
+
+// requireTableExists fails unless name is a real table in the open store.
+func requireTableExists(t *testing.T, s *Store, name string) {
+	t.Helper()
+	var got string
+	if err := s.DB().QueryRow(
+		`SELECT name FROM sqlite_master WHERE type='table' AND name=?`, name,
+	).Scan(&got); err != nil {
+		t.Fatalf("table %s should exist: %v", name, err)
+	}
+}
+
+// TestSchemaVersion_FreshDBHasCandidateAndEventTables verifies a fresh
+// learn-enabled database opens at the current (v10) version with both new
+// tables queryable and their CHECK constraints enforced. Candidates are the
+// structural quarantine for CLI-derived observations; events are the
+// measurement substrate — neither may silently regress to a missing table
+// or an unchecked enum column.
+func TestSchemaVersion_FreshDBHasCandidateAndEventTables(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open fresh db: %v", err)
+	}
+	defer s.Close()
+
+	v, err := s.SchemaVersion()
+	if err != nil {
+		t.Fatalf("read schema version: %v", err)
+	}
+	if v != StoreSchemaVersion {
+		t.Fatalf("fresh learn db version = %d, want %d", v, StoreSchemaVersion)
+	}
+
+	requireTableExists(t, s, "learn_candidates")
+	requireTableExists(t, s, "learn_events")
+
+	if _, err := s.DB().Exec(
+		`INSERT INTO learn_candidates (class, payload, derivation_signature, query_family, command_path, created_at, updated_at, last_seen_at)
+		 VALUES ('flag_alias', '{"from":"--fmt","to":"--format"}', 'sig-1', 'family_X', 'items list', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z')`,
+	); err != nil {
+		t.Fatalf("insert valid candidate: %v", err)
+	}
+	if _, err := s.DB().Exec(
+		`INSERT INTO learn_candidates (class, payload, derivation_signature, created_at, updated_at, last_seen_at)
+		 VALUES ('bogus_class', '{}', 'sig-2', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z')`,
+	); err == nil {
+		t.Fatalf("candidate class CHECK should reject an unknown class")
+	}
+
+	if _, err := s.DB().Exec(
+		`INSERT INTO learn_events (ts, event, query_family_hash, matched_row_id, entity_match, surface)
+		 VALUES ('2026-01-01T00:00:00Z', 'recall_hit', 'hash-1', 1, 1, 'cli')`,
+	); err != nil {
+		t.Fatalf("insert valid event: %v", err)
+	}
+	if _, err := s.DB().Exec(
+		`INSERT INTO learn_events (ts, event) VALUES ('2026-01-01T00:00:00Z', 'bogus_event')`,
+	); err == nil {
+		t.Fatalf("event CHECK should reject an unknown event name")
+	}
+}
+
+// TestMigrate_V4ToV9AdditiveNoFTSContentRewrite verifies the learn-table
+// upgrade from a v4-stamped store: learn tables are created, the version
+// advances, and resources rows stay put. The tokenizer pin (current schema)
+// does rebuild resources_fts so porter indexes are not left behind.
+func TestMigrate_V4ToV9AdditiveNoFTSContentRewrite(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE TABLE resources (
+		id TEXT NOT NULL,
+		resource_type TEXT NOT NULL,
+		data JSON NOT NULL,
+		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (resource_type, id)
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create v4 resources: %v", err)
+	}
+	if _, err := raw.Exec(resourcesFTSCreateSQL); err != nil {
+		raw.Close()
+		t.Fatalf("create v4 resources_fts: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources (id, resource_type, data) VALUES ('user-1', 'user', '{"id":"user-1","name":"alice"}')`); err != nil {
+		raw.Close()
+		t.Fatalf("seed v4 resource: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources_fts (rowid, id, resource_type, content) VALUES (?, 'user-1', 'user', 'sentinel fts')`, ftsRowID("user", "user-1")); err != nil {
+		raw.Close()
+		t.Fatalf("seed v4 resources_fts row: %v", err)
+	}
+	if _, err := raw.Exec(`PRAGMA user_version = 4`); err != nil {
+		raw.Close()
+		t.Fatalf("stamp v4: %v", err)
+	}
+	raw.Close()
+
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open v4 db with current binary: %v", err)
+	}
+	defer s.Close()
+
+	v, err := s.SchemaVersion()
+	if err != nil {
+		t.Fatalf("read schema version: %v", err)
+	}
+	if v != StoreSchemaVersion {
+		t.Fatalf("upgraded version = %d, want %d", v, StoreSchemaVersion)
+	}
+
+	requireTableExists(t, s, "learn_candidates")
+	requireTableExists(t, s, "learn_events")
+
+	// Tokenizer pin is at the current schema version, so a v4 store must
+	// rebuild resources_fts. Content becomes extracted leaves; rowid stays
+	// content-addressed.
+	var content string
+	var rowid int64
+	if err := s.DB().QueryRow(`SELECT rowid, content FROM resources_fts WHERE id = 'user-1' AND resource_type = 'user'`).Scan(&rowid, &content); err != nil {
+		t.Fatalf("read resources_fts after v4 open: %v", err)
+	}
+	if content != "alice" {
+		t.Fatalf("resources_fts content = %q; the v4->current open must rebuild FTS from extracted leaves", content)
+	}
+	if want := ftsRowID("user", "user-1"); rowid != want {
+		t.Fatalf("resources_fts rowid = %d, want preserved %d", rowid, want)
+	}
+
+	data, err := s.Get("user", "user-1")
+	if err != nil {
+		t.Fatalf("get preserved v4 row: %v", err)
+	}
+	if string(data) != `{"id":"user-1","name":"alice"}` {
+		t.Fatalf("preserved v4 row payload = %s, want original", data)
+	}
+}
+
+// TestMigrate_V8ToV9AddsCandidatesAndEvents verifies the v8->current upgrade
+// is purely additive: a v8-stamped store (learn tables through
+// learning_playbooks) gains learn_candidates and learn_events, keeps every
+// learn row intact, and never touches FTS content.
+func TestMigrate_V8ToV9AddsCandidatesAndEvents(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	stmts := []string{
+		`CREATE TABLE resources (
+			id TEXT NOT NULL,
+			resource_type TEXT NOT NULL,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (resource_type, id)
+		)`,
+		`INSERT INTO resources (id, resource_type, data) VALUES ('user-1', 'user', '{"id":"user-1","name":"alice"}')`,
+		resourcesFTSCreateSQL,
+		`CREATE TABLE search_learnings (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			query_pattern TEXT NOT NULL,
+			query_entities TEXT,
+			venue TEXT,
+			resource_type TEXT,
+			resource_id TEXT NOT NULL,
+			action TEXT NOT NULL,
+			alias_target TEXT,
+			source TEXT NOT NULL,
+			confidence INTEGER DEFAULT 1,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			last_observed_at DATETIME,
+			notes TEXT
+		)`,
+		`INSERT INTO search_learnings (query_pattern, resource_id, action, source) VALUES ('alice', 'user-1', 'boost', 'taught')`,
+		`CREATE TABLE learning_playbooks (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			query_family TEXT NOT NULL UNIQUE,
+			playbook_json TEXT,
+			notes_text TEXT,
+			source TEXT NOT NULL DEFAULT 'taught',
+			confidence INTEGER NOT NULL DEFAULT 2,
+			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			last_observed_at TIMESTAMP
+		)`,
+		`INSERT INTO learning_playbooks (query_family, notes_text) VALUES ('family_X', 'hand-authored notes')`,
+		`PRAGMA user_version = 8`,
+	}
+	for _, stmt := range stmts {
+		if _, err := raw.Exec(stmt); err != nil {
+			raw.Close()
+			t.Fatalf("seed v8 db (%s): %v", stmt, err)
+		}
+	}
+	if _, err := raw.Exec(`INSERT INTO resources_fts (rowid, id, resource_type, content) VALUES (?, 'user-1', 'user', 'sentinel fts')`, ftsRowID("user", "user-1")); err != nil {
+		raw.Close()
+		t.Fatalf("seed v8 resources_fts row: %v", err)
+	}
+	raw.Close()
+
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open upgraded db: %v", err)
+	}
+	defer s.Close()
+
+	v, err := s.SchemaVersion()
+	if err != nil {
+		t.Fatalf("read schema version: %v", err)
+	}
+	if v != StoreSchemaVersion {
+		t.Fatalf("upgraded version = %d, want %d", v, StoreSchemaVersion)
+	}
+
+	// New tables exist and accept rows post-upgrade.
+	requireTableExists(t, s, "learn_candidates")
+	requireTableExists(t, s, "learn_events")
+	if _, err := s.DB().Exec(
+		`INSERT INTO learn_candidates (class, payload, derivation_signature, created_at, updated_at, last_seen_at)
+		 VALUES ('playbook_candidate', '{}', 'sig-up', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z')`,
+	); err != nil {
+		t.Fatalf("insert into upgraded learn_candidates: %v", err)
+	}
+	if _, err := s.DB().Exec(
+		`INSERT INTO learn_events (ts, event, surface) VALUES ('2026-01-01T00:00:00Z', 'teach', 'mcp')`,
+	); err != nil {
+		t.Fatalf("insert into upgraded learn_events: %v", err)
+	}
+
+	// Pre-existing learn data preserved.
+	var learnedCount int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM search_learnings WHERE resource_id = 'user-1'`).Scan(&learnedCount); err != nil {
+		t.Fatalf("count preserved search_learnings: %v", err)
+	}
+	if learnedCount != 1 {
+		t.Fatalf("preserved search_learnings count = %d, want 1", learnedCount)
+	}
+	var notes string
+	if err := s.DB().QueryRow(`SELECT notes_text FROM learning_playbooks WHERE query_family = 'family_X'`).Scan(&notes); err != nil {
+		t.Fatalf("read preserved playbook: %v", err)
+	}
+	if notes != "hand-authored notes" {
+		t.Fatalf("preserved playbook notes = %q, want original", notes)
+	}
+
+	// v8 is past the FTS content pin (4) but before the tokenizer pin, so
+	// the trigram rebuild must replace the porter sentinel with leaves.
+	var content string
+	if err := s.DB().QueryRow(`SELECT content FROM resources_fts WHERE id = 'user-1' AND resource_type = 'user'`).Scan(&content); err != nil {
+		t.Fatalf("read resources_fts after v8 open: %v", err)
+	}
+	if content != "alice" {
+		t.Fatalf("resources_fts content = %q; the v8->current open must rebuild FTS from extracted leaves", content)
 	}
 }
 
@@ -801,20 +2015,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Automation(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("automation")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "automation")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -830,6 +2042,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Automation(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from automation after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_automation_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from automation after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -865,20 +2089,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Availabilities(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("availabilities")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "availabilities")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -894,6 +2116,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Availabilities(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from availabilities after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_availabilities_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from availabilities after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -929,20 +2163,18 @@ func TestMigrate_AddsColumnsOnUpgrade_CalendarShareLinks(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("calendar_share_links")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "calendar_share_links")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -958,6 +2190,18 @@ func TestMigrate_AddsColumnsOnUpgrade_CalendarShareLinks(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from calendar_share_links after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_calendar_share_links_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from calendar_share_links after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -993,20 +2237,18 @@ func TestMigrate_AddsColumnsOnUpgrade_ChannelAccounts(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("channel_accounts")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "channel_accounts")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -1022,6 +2264,18 @@ func TestMigrate_AddsColumnsOnUpgrade_ChannelAccounts(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from channel_accounts after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_channel_accounts_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from channel_accounts after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -1057,20 +2311,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Conversations(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("conversations")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "conversations")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -1086,6 +2338,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Conversations(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from conversations after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_conversations_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from conversations after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -1121,20 +2385,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Note(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("note")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "note")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -1145,9 +2407,23 @@ func TestMigrate_AddsColumnsOnUpgrade_Note(t *testing.T) {
 
 	for _, want := range []string{
 		"conversations_id",
+		"bare_id",
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from note after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_note_conversations_id",
+		"idx_note_bare_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from note after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -1183,20 +2459,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Preapprovals(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("preapprovals")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "preapprovals")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -1207,9 +2481,23 @@ func TestMigrate_AddsColumnsOnUpgrade_Preapprovals(t *testing.T) {
 
 	for _, want := range []string{
 		"conversations_id",
+		"bare_id",
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from preapprovals after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_preapprovals_conversations_id",
+		"idx_preapprovals_bare_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from preapprovals after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -1245,20 +2533,18 @@ func TestMigrate_AddsColumnsOnUpgrade_SpecialOffers(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("special_offers")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "special_offers")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -1269,9 +2555,23 @@ func TestMigrate_AddsColumnsOnUpgrade_SpecialOffers(t *testing.T) {
 
 	for _, want := range []string{
 		"conversations_id",
+		"bare_id",
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from special_offers after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_special_offers_conversations_id",
+		"idx_special_offers_bare_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from special_offers after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -1307,20 +2607,18 @@ func TestMigrate_AddsColumnsOnUpgrade_CustomChannels(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("custom_channels")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "custom_channels")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -1336,6 +2634,18 @@ func TestMigrate_AddsColumnsOnUpgrade_CustomChannels(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from custom_channels after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_custom_channels_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from custom_channels after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -1371,20 +2681,18 @@ func TestMigrate_AddsColumnsOnUpgrade_ExpenseItems(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("expense_items")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "expense_items")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -1400,6 +2708,18 @@ func TestMigrate_AddsColumnsOnUpgrade_ExpenseItems(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from expense_items after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_expense_items_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from expense_items after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -1435,20 +2755,18 @@ func TestMigrate_AddsColumnsOnUpgrade_ExpenseMethods(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("expense_methods")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "expense_methods")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -1464,6 +2782,18 @@ func TestMigrate_AddsColumnsOnUpgrade_ExpenseMethods(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from expense_methods after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_expense_methods_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from expense_methods after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -1499,20 +2829,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Groups(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("groups")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "groups")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -1528,6 +2856,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Groups(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from groups after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_groups_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from groups after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -1563,20 +2903,18 @@ func TestMigrate_AddsColumnsOnUpgrade_IncomeItems(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("income_items")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "income_items")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -1592,6 +2930,18 @@ func TestMigrate_AddsColumnsOnUpgrade_IncomeItems(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from income_items after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_income_items_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from income_items after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -1627,20 +2977,18 @@ func TestMigrate_AddsColumnsOnUpgrade_IncomeMethods(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("income_methods")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "income_methods")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -1656,6 +3004,18 @@ func TestMigrate_AddsColumnsOnUpgrade_IncomeMethods(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from income_methods after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_income_methods_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from income_methods after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -1691,20 +3051,18 @@ func TestMigrate_AddsColumnsOnUpgrade_KnowledgeBases(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("knowledge_bases")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "knowledge_bases")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -1720,6 +3078,18 @@ func TestMigrate_AddsColumnsOnUpgrade_KnowledgeBases(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from knowledge_bases after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_knowledge_bases_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from knowledge_bases after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -1755,20 +3125,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Listings(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("listings")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "listings")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -1784,6 +3152,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Listings(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from listings after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_listings_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from listings after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -1819,20 +3199,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Oauth(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("oauth")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "oauth")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -1848,6 +3226,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Oauth(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from oauth after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_oauth_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from oauth after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -1883,20 +3273,18 @@ func TestMigrate_AddsColumnsOnUpgrade_PricingRatios(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("pricing_ratios")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "pricing_ratios")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -1912,6 +3300,18 @@ func TestMigrate_AddsColumnsOnUpgrade_PricingRatios(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from pricing_ratios after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_pricing_ratios_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from pricing_ratios after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -1947,20 +3347,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Properties(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("properties")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "properties")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -1976,6 +3374,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Properties(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from properties after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_properties_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from properties after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -2011,20 +3421,18 @@ func TestMigrate_AddsColumnsOnUpgrade_ReservationTags(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("reservation_tags")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "reservation_tags")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -2040,6 +3448,18 @@ func TestMigrate_AddsColumnsOnUpgrade_ReservationTags(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from reservation_tags after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_reservation_tags_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from reservation_tags after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -2075,20 +3495,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Reservations(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("reservations")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "reservations")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -2104,6 +3522,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Reservations(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from reservations after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_reservations_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from reservations after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -2139,20 +3569,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Allocate(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("allocate")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "allocate")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -2163,9 +3591,23 @@ func TestMigrate_AddsColumnsOnUpgrade_Allocate(t *testing.T) {
 
 	for _, want := range []string{
 		"reservations_id",
+		"bare_id",
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from allocate after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_allocate_reservations_id",
+		"idx_allocate_bare_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from allocate after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -2201,20 +3643,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Approve(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("approve")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "approve")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -2225,9 +3665,23 @@ func TestMigrate_AddsColumnsOnUpgrade_Approve(t *testing.T) {
 
 	for _, want := range []string{
 		"reservations_id",
+		"bare_id",
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from approve after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_approve_reservations_id",
+		"idx_approve_bare_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from approve after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -2263,20 +3717,18 @@ func TestMigrate_AddsColumnsOnUpgrade_CheckInDetails(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("check_in_details")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "check_in_details")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -2287,9 +3739,23 @@ func TestMigrate_AddsColumnsOnUpgrade_CheckInDetails(t *testing.T) {
 
 	for _, want := range []string{
 		"reservations_id",
+		"bare_id",
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from check_in_details after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_check_in_details_reservations_id",
+		"idx_check_in_details_bare_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from check_in_details after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -2325,20 +3791,18 @@ func TestMigrate_AddsColumnsOnUpgrade_CustomFields(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("custom_fields")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "custom_fields")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -2349,9 +3813,23 @@ func TestMigrate_AddsColumnsOnUpgrade_CustomFields(t *testing.T) {
 
 	for _, want := range []string{
 		"reservations_id",
+		"bare_id",
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from custom_fields after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_custom_fields_reservations_id",
+		"idx_custom_fields_bare_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from custom_fields after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -2387,20 +3865,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Decline(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("decline")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "decline")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -2411,9 +3887,23 @@ func TestMigrate_AddsColumnsOnUpgrade_Decline(t *testing.T) {
 
 	for _, want := range []string{
 		"reservations_id",
+		"bare_id",
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from decline after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_decline_reservations_id",
+		"idx_decline_bare_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from decline after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -2449,20 +3939,18 @@ func TestMigrate_AddsColumnsOnUpgrade_MoveToBox(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("move_to_box")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "move_to_box")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -2473,9 +3961,23 @@ func TestMigrate_AddsColumnsOnUpgrade_MoveToBox(t *testing.T) {
 
 	for _, want := range []string{
 		"reservations_id",
+		"bare_id",
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from move_to_box after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_move_to_box_reservations_id",
+		"idx_move_to_box_bare_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from move_to_box after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -2511,20 +4013,18 @@ func TestMigrate_AddsColumnsOnUpgrade_StayStatus(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("stay_status")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "stay_status")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -2535,9 +4035,23 @@ func TestMigrate_AddsColumnsOnUpgrade_StayStatus(t *testing.T) {
 
 	for _, want := range []string{
 		"reservations_id",
+		"bare_id",
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from stay_status after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_stay_status_reservations_id",
+		"idx_stay_status_bare_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from stay_status after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -2573,20 +4087,18 @@ func TestMigrate_AddsColumnsOnUpgrade_ReservationsTags(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("reservations_tags")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "reservations_tags")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -2597,9 +4109,23 @@ func TestMigrate_AddsColumnsOnUpgrade_ReservationsTags(t *testing.T) {
 
 	for _, want := range []string{
 		"reservations_id",
+		"bare_id",
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from reservations_tags after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_reservations_tags_reservations_id",
+		"idx_reservations_tags_bare_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from reservations_tags after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -2635,20 +4161,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Reviews(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("reviews")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "reviews")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -2664,6 +4188,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Reviews(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from reviews after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_reviews_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from reviews after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -2699,20 +4235,18 @@ func TestMigrate_AddsColumnsOnUpgrade_RoomTypes(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("room_types")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "room_types")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -2728,6 +4262,18 @@ func TestMigrate_AddsColumnsOnUpgrade_RoomTypes(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from room_types after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_room_types_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from room_types after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -2763,20 +4309,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Staffs(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("staffs")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "staffs")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -2792,6 +4336,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Staffs(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from staffs after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_staffs_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from staffs after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -2827,20 +4383,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Tags(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("tags")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "tags")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -2856,6 +4410,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Tags(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from tags after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_tags_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from tags after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -2891,20 +4457,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Tasks(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("tasks")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "tasks")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -2920,6 +4484,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Tasks(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from tasks after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_tasks_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from tasks after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -2955,20 +4531,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Transactions(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("transactions")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "transactions")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -2984,6 +4558,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Transactions(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from transactions after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_transactions_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from transactions after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -3019,20 +4605,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Webhooks(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("webhooks")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "webhooks")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -3048,6 +4632,18 @@ func TestMigrate_AddsColumnsOnUpgrade_Webhooks(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from webhooks after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{
+		"idx_webhooks_request_id",
+	} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from webhooks after migrate: %v", wantIdx, err)
 		}
 	}
 }
@@ -3083,20 +4679,18 @@ func TestMigrate_AddsColumnsOnUpgrade_SyncState(t *testing.T) {
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("sync_state")`)
+	// table_info hides generated columns; table_xinfo is the verify
+	// surface for VIRTUAL backfills such as bare_id.
+	rows, err := s.DB().Query(`SELECT name FROM pragma_table_xinfo(?)`, "sync_state")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("table_xinfo: %v", err)
 	}
 	defer rows.Close()
 
 	hasColumn := make(map[string]bool)
 	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			t.Fatalf("scan: %v", err)
 		}
 		hasColumn[name] = true
@@ -3112,6 +4706,16 @@ func TestMigrate_AddsColumnsOnUpgrade_SyncState(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from sync_state after migrate", want)
+		}
+	}
+
+	for _, wantIdx := range []string{} {
+		var got string
+		if err := s.DB().QueryRow(
+			`SELECT name FROM sqlite_master WHERE type='index' AND name=?`,
+			wantIdx,
+		).Scan(&got); err != nil {
+			t.Fatalf("%s index missing from sync_state after migrate: %v", wantIdx, err)
 		}
 	}
 }

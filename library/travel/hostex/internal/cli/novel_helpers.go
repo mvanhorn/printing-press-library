@@ -176,7 +176,7 @@ func novUnwrapData(raw json.RawMessage) json.RawMessage {
 
 // idString formats a JSON-decoded id (commonly a float64 from encoding/json)
 // as a plain string without scientific notation, so large integer ids like
-// 12704864 render as "12704864" rather than "1.2704864e+07".
+// 1234567 render as "1234567" rather than "1.2704864e+07".
 func idString(v any) string {
 	switch t := v.(type) {
 	case float64:

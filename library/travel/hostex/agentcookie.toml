@@ -14,4 +14,3 @@ default = false
 
 [sync.keys]
 HOSTEX_ACCESS_TOKEN = true
-HOSTEX_HOSTEX_ACCESS_TOKEN = true

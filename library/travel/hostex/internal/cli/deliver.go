@@ -5,12 +5,17 @@ package cli
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/travel/hostex/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/travel/hostex/internal/cliutil"
 )
 
 // DeliverSink describes where command output should be routed when
@@ -56,7 +61,8 @@ func ParseDeliverSink(spec string) (DeliverSink, error) {
 
 // Deliver routes a captured output buffer to the configured sink. stdout
 // is a no-op because the buffer has already been streamed to stdout via
-// the MultiWriter set up in root.go.
+// the MultiWriter set up in root.go. Binary-response commands unwrap the
+// envelope before calling Deliver so ordinary JSON is never decoded here.
 func Deliver(sink DeliverSink, body []byte, compact bool) error {
 	switch sink.Scheme {
 	case "", "stdout":
@@ -70,39 +76,104 @@ func Deliver(sink DeliverSink, body []byte, compact bool) error {
 	}
 }
 
+func unwrapBinaryDeliverBody(body []byte) (raw []byte, contentType string, ok bool) {
+	return client.UnwrapBinaryResponse(body)
+}
+
+func binaryDeliverPayload(body []byte) (raw []byte, contentType string) {
+	if raw, contentType, ok := unwrapBinaryDeliverBody(body); ok {
+		return raw, contentType
+	}
+	return body, ""
+}
+
+type binaryDeliverReceipt struct {
+	Delivered   bool   `json:"delivered"`
+	Sink        string `json:"sink"`
+	Target      string `json:"target"`
+	Bytes       int    `json:"bytes"`
+	ContentType string `json:"content_type,omitempty"`
+}
+
+func writeBinaryDeliverReceipt(w io.Writer, sink DeliverSink, raw []byte, contentType string) error {
+	return json.NewEncoder(w).Encode(binaryDeliverReceipt{
+		Delivered:   true,
+		Sink:        sink.Scheme,
+		Target:      sink.Target,
+		Bytes:       len(raw),
+		ContentType: contentType,
+	})
+}
+
 func deliverFile(path string, body []byte) error {
-	// Atomic write: tmp + rename. Protects agents from seeing a partial
-	// file if the process is interrupted mid-write.
+	// The directory is the operator's --deliver target. The final segment is
+	// checked by writeDownloadUnder so a name of ".." or with a separator
+	// cannot leave that directory.
 	dir := filepath.Dir(path)
-	if dir != "" && dir != "." {
-		if err := os.MkdirAll(dir, 0o700); err != nil {
-			return fmt.Errorf("creating deliver dir: %w", err)
-		}
+	if dir == "" {
+		dir = "."
+	}
+	return writeDownloadUnder(dir, filepath.Base(path), body)
+}
+
+// safeJoinUnder joins a single untrusted name (a response id or title) under
+// dir. Separators and ".." are rejected so the result cannot leave dir.
+func safeJoinUnder(dir, name string) (string, error) {
+	if name == "" || name == "." || name == ".." || filepath.IsAbs(name) || strings.ContainsAny(name, `/\`) {
+		return "", fmt.Errorf("download name %q is not a single path segment", name)
+	}
+	if strings.ContainsRune(name, 0) {
+		return "", fmt.Errorf("download name %q is not a single path segment", name)
+	}
+	root := filepath.Clean(dir)
+	joined := filepath.Join(root, name)
+	rel, err := filepath.Rel(root, joined)
+	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		return "", fmt.Errorf("download name %q escapes %s", name, dir)
+	}
+	return joined, nil
+}
+
+// writeDownloadUnder writes body as a 0600 file under a 0700 directory.
+// name is a response id or other API-supplied filename component.
+func writeDownloadUnder(dir, name string, body []byte) error {
+	path, err := safeJoinUnder(dir, name)
+	if err != nil {
+		return err
+	}
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		return fmt.Errorf("creating download dir: %w", err)
 	}
 	tmp := path + ".tmp"
 	if err := os.WriteFile(tmp, body, 0o600); err != nil {
-		return fmt.Errorf("writing deliver tmp: %w", err)
+		return fmt.Errorf("writing download: %w", err)
 	}
 	if err := os.Rename(tmp, path); err != nil {
-		return fmt.Errorf("replacing deliver file: %w", err)
+		_ = os.Remove(tmp)
+		return fmt.Errorf("replacing download: %w", err)
+	}
+	if err := os.Chmod(path, 0o600); err != nil {
+		return fmt.Errorf("setting download permissions: %w", err)
 	}
 	return nil
 }
 
 func deliverWebhook(url string, body []byte, compact bool) error {
+	_ = compact
 	contentType := "application/json"
-	if compact {
-		contentType = "application/x-ndjson"
-	}
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("building webhook request: %w", err)
 	}
 	req.Header.Set("Content-Type", contentType)
-	req.Header.Set("User-Agent", "hostex-pp-cli/deliver")
+	if ua := cliutil.EnvOverride("HOSTEX_USER_AGENT"); ua != "" {
+		req.Header.Set("User-Agent", ua)
+	} else {
+		req.Header.Set("User-Agent", "hostex-pp-cli/deliver")
+	}
 
-	client := &http.Client{Timeout: 30 * time.Second}
-	resp, err := client.Do(req)
+	httpClient := &http.Client{Timeout: 30 * time.Second}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("posting to webhook: %w", err)
 	}

@@ -35,24 +35,7 @@ func newSourceCatalogCmd(flags *rootFlags) *cobra.Command {
 				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			if !flags.dryRun {
-				data, err = extractHTMLResponse(data, htmlExtractionOptions{
-					Context: cmd.Context(),
-					Mode:    "links",
-					BaseURL: htmlExtractionRequestURL(c.BaseURL, path, htmlRequestParams),
-					LinkPrefixes: []string{
-						"/park/rvpark",
-						"/park/yypark",
-						"/park/kurumatabipark",
-						"/park/gourmet",
-						"/park/minpark",
-						"/park/train",
-						"/park/campjrva",
-						"/park/camp3000",
-					},
-					Limit:          0,
-					ScriptSelector: "script#__NEXT_DATA__",
-					JSONPath:       "",
-				})
+				data, err = extractHTMLResponse(data, sourceCatalogExtractionOptions(cmd.Context(), c.BaseURL, path, htmlRequestParams, 50))
 				if err != nil {
 					return err
 				}

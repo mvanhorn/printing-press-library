@@ -19,8 +19,8 @@ func newTasksUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyFee float64
 	var bodyLevel string
 	var bodyNote string
-	var bodyPropertyId string
-	var bodyStaffId string
+	var bodyPropertyId int
+	var bodyStaffId int
 	var bodyStatus string
 	var bodyType string
 	var stdinBody bool
@@ -28,11 +28,23 @@ func newTasksUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "update <id>",
 		Short:       "Update an existing task. All fields are optional; only the supplied fields are changed.",
-		Example:     "  hostex-pp-cli tasks update 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  hostex-pp-cli tasks update 123 --note 'Bring extra towels' --dry-run",
 		Annotations: map[string]string{"pp:endpoint": "tasks.update", "pp:method": "PATCH", "pp:path": "/tasks/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <id>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <id>"))
 			}
 			if !stdinBody {
 			}
@@ -46,7 +58,7 @@ func newTasksUpdateCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -58,45 +70,42 @@ func newTasksUpdateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
-				if bodyCurrency != "" {
-					body["currency"] = bodyCurrency
+				bodyMap := map[string]any{}
+				body = bodyMap
+				if cmd.Flags().Changed("currency") || bodyCurrency != "" {
+					bodyMap["currency"] = bodyCurrency
 				}
-				if bodyExpectedDate != "" {
-					body["expected_date"] = bodyExpectedDate
+				if cmd.Flags().Changed("expected-date") || bodyExpectedDate != "" {
+					bodyMap["expected_date"] = bodyExpectedDate
 				}
-				if bodyExpectedTime != "" {
-					body["expected_time"] = bodyExpectedTime
+				if cmd.Flags().Changed("expected-time") || bodyExpectedTime != "" {
+					bodyMap["expected_time"] = bodyExpectedTime
 				}
-				if bodyFee != 0.0 {
-					body["fee"] = bodyFee
+				if cmd.Flags().Changed("fee") || bodyFee != 0.0 {
+					bodyMap["fee"] = bodyFee
 				}
-				if bodyLevel != "" {
-					body["level"] = bodyLevel
+				if cmd.Flags().Changed("level") || bodyLevel != "" {
+					bodyMap["level"] = bodyLevel
 				}
-				if bodyNote != "" {
-					body["note"] = bodyNote
+				if cmd.Flags().Changed("note") || bodyNote != "" {
+					bodyMap["note"] = bodyNote
 				}
-				if bodyPropertyId != "" {
-					if err := setJSONBodyScalar(body, "property_id", "property-id", "int", bodyPropertyId); err != nil {
-						return err
-					}
+				if cmd.Flags().Changed("property-id") || bodyPropertyId != 0 {
+					bodyMap["property_id"] = bodyPropertyId
 				}
-				if bodyStaffId != "" {
-					if err := setJSONBodyScalar(body, "staff_id", "staff-id", "int", bodyStaffId); err != nil {
-						return err
-					}
+				if cmd.Flags().Changed("staff-id") || bodyStaffId != 0 {
+					bodyMap["staff_id"] = bodyStaffId
 				}
-				if bodyStatus != "" {
-					body["status"] = bodyStatus
+				if cmd.Flags().Changed("status") || bodyStatus != "" {
+					bodyMap["status"] = bodyStatus
 				}
-				if bodyType != "" {
-					body["type"] = bodyType
+				if cmd.Flags().Changed("type") || bodyType != "" {
+					bodyMap["type"] = bodyType
 				}
 			}
 			data, statusCode, err := c.PatchWithParams(cmd.Context(), path, params, body)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			// Inspect the mutate response body for a partial-failure-shaped
 			// field (e.g. Google Ads `partialFailureError`). Several Google
@@ -189,15 +198,22 @@ func newTasksUpdateCmd(flags *rootFlags) *cobra.Command {
 						}
 					}
 				}
+				// Mutation-riding reads (POST search, RPC-over-POST lists) return
+				// the same single-key collection envelopes as GET reads. Unwrap
+				// before filtering so rows nest once under the result key and
+				// --select filters rows, not envelope keys; plain created-object
+				// responses pass through unwrapSingleKeyArray untouched.
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
 				// generic high-gravity allow-list. Otherwise --compact still applies
 				// when --agent is on but the user did not name fields.
-				filtered := data
+				var selectErr error
+				filtered := unwrapSingleKeyArray(data)
 				if flags.selectFields != "" {
-					filtered = filterFields(filtered, flags.selectFields)
+					filtered, selectErr = filterFieldsChecked(filtered, flags.selectFields)
+					selectErr = selectErrorForDryRun(selectErr, flags, data)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, map[string]bool{"error_code": true, "request_id": true})
 				}
 				if len(filtered) > 0 {
 					var parsed any
@@ -213,28 +229,35 @@ func newTasksUpdateCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
+				resultKey := "data"
+				if flags.agent {
+					resultKey = "results"
+				}
+				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
+				if err != nil {
+					return err
+				}
+				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
 					return perr
 				}
 				if partialFailure != nil && !flags.allowPartialFailure {
 					return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "tasks", partialFailure.Message))
 				}
-				return nil
+				return selectErr
 			}
 			// Fall-through for mutate paths that did not hit the table or
 			// asJSON branches: --quiet, --csv, --plain, and default terminal
-			// raw output. printOutputWithFlags renders the body, then the
-			// typed partial-failure exit fires unless --allow-partial-failure
-			// downgrades it. Without this guard a partial failure would exit
-			// 0 for these output modes — the exact silent-swallow regression
-			// the surrounding patch is preventing for asJSON / piped output.
-			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
-				return perr
-			}
+			// raw output. printOutputWithFlagsMeta renders the body with live
+			// provenance, then the typed partial-failure exit fires unless
+			// --allow-partial-failure downgrades it. Without this guard a
+			// partial failure would exit 0 for these output modes — the exact
+			// silent-swallow regression the surrounding patch is preventing
+			// for asJSON / piped output.
+			printErr := printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"}, map[string]bool{"error_code": true, "request_id": true})
 			if partialFailure != nil && !flags.allowPartialFailure {
 				return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "tasks", partialFailure.Message))
 			}
-			return nil
+			return printErr
 		},
 	}
 	cmd.Flags().StringVar(&bodyCurrency, "currency", "", "Currency")
@@ -243,8 +266,8 @@ func newTasksUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().Float64Var(&bodyFee, "fee", 0.0, "Fee")
 	cmd.Flags().StringVar(&bodyLevel, "level", "", "Level")
 	cmd.Flags().StringVar(&bodyNote, "note", "", "Note")
-	cmd.Flags().StringVar(&bodyPropertyId, "property-id", "", "Pass `0` to detach the task from any property.")
-	cmd.Flags().StringVar(&bodyStaffId, "staff-id", "", "Pass `0` to unassign the task.")
+	cmd.Flags().IntVar(&bodyPropertyId, "property-id", 0, "Pass `0` to detach the task from any property.")
+	cmd.Flags().IntVar(&bodyStaffId, "staff-id", 0, "Pass `0` to unassign the task.")
 	cmd.Flags().StringVar(&bodyStatus, "status", "", "Status")
 	cmd.Flags().StringVar(&bodyType, "type", "", "Type")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")

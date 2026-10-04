@@ -8,8 +8,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
+	"strconv"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/travel/hostex/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
@@ -33,35 +36,43 @@ large datasets as it has no memory pressure.`,
 
   # Pipe to another tool
   hostex-pp-cli export <resource> --format jsonl | jq '.id'`,
-		Args: cobra.MinimumNArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		Args: cobra.RangeArgs(1, 2),
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			validResources := map[string]bool{
-				"availabilities": true,
-				"conversations":  true,
-				"groups":         true,
-				"listings":       true,
-				"properties":     true,
-				"reservations":   true,
-				"reviews":        true,
-				"staffs":         true,
-				"tags":           true,
-				"tasks":          true,
-				"transactions":   true,
-				"webhooks":       true,
+				"automation":           true,
+				"calendar-share-links": true,
+				"channel-accounts":     true,
+				"conversations":        true,
+				"groups":               true,
+				"knowledge-bases":      true,
+				"listings":             true,
+				"properties":           true,
+				"reservation-tags":     true,
+				"reservations":         true,
+				"reviews":              true,
+				"room-types":           true,
+				"staffs":               true,
+				"tags":                 true,
+				"tasks":                true,
+				"transactions":         true,
 			}
 			validResourceList := []string{
-				"availabilities",
+				"automation",
+				"calendar-share-links",
+				"channel-accounts",
 				"conversations",
 				"groups",
+				"knowledge-bases",
 				"listings",
 				"properties",
+				"reservation-tags",
 				"reservations",
 				"reviews",
+				"room-types",
 				"staffs",
 				"tags",
 				"tasks",
 				"transactions",
-				"webhooks",
 			}
 			resource := args[0]
 			if !validResources[resource] {
@@ -76,56 +87,137 @@ large datasets as it has no memory pressure.`,
 				c.NoCache = true
 			}
 
-			path := "/" + resource
+			path, err := resourceReadPath(resource)
+			if err != nil {
+				return usageErr(err)
+			}
+			singleItem := len(args) > 1
 			if len(args) > 1 {
-				path += "/" + args[1]
+				path, err = resourceDetailPath(resource, cliutil.EscapePathParam(args[1]))
+				if err != nil {
+					return usageErr(err)
+				}
 			}
 
 			var writer *bufio.Writer
+			var outFile *os.File
 			if outputFile != "" {
-				f, err := os.Create(outputFile)
+				f, err := openExportOutput(outputFile)
 				if err != nil {
-					return fmt.Errorf("creating output file: %w", err)
+					return err
 				}
-				defer f.Close()
+				outFile = f
 				writer = bufio.NewWriter(f)
-				defer writer.Flush()
+				defer func() {
+					if err != nil && outFile != nil {
+						_ = outFile.Close()
+					}
+				}()
 			} else {
 				writer = bufio.NewWriter(os.Stdout)
-				defer writer.Flush()
 			}
-
-			data, err := c.Get(cmd.Context(), path, nil)
-			if err != nil {
-				return classifyAPIError(err, flags)
-			}
-
-			switch format {
-			case "jsonl":
-				var items []json.RawMessage
-				if err := json.Unmarshal(data, &items); err != nil {
-					fmt.Fprintln(writer, string(data))
-					return nil
+			finishExport := func() error {
+				if err := writer.Flush(); err != nil {
+					return fmt.Errorf("flushing export: %w", err)
 				}
-				count := 0
+				if outFile != nil {
+					if err := outFile.Close(); err != nil {
+						return fmt.Errorf("closing export file: %w", err)
+					}
+					outFile = nil
+				}
+				return nil
+			}
+
+			config := resourceReadConfigFor(resource)
+			allItems := []json.RawMessage{}
+			var singlePayload json.RawMessage
+			count, page, cursor := 0, 0, ""
+			for {
+				remaining := 0
+				if limit > 0 {
+					remaining = limit - count
+				}
+				params := map[string]string(nil)
+				if !singleItem && config.paginationType != "" {
+					params = resourcePageParams(config, cursor, page, remaining)
+				}
+				data, err := c.Get(cmd.Context(), path, params)
+				if err != nil {
+					return classifyAPIError(cmd.OutOrStdout(), err, flags)
+				}
+				if singleItem {
+					count = 1
+					if format == "jsonl" {
+						if _, err := fmt.Fprintln(writer, string(data)); err != nil {
+							return fmt.Errorf("writing export: %w", err)
+						}
+					} else {
+						singlePayload = data
+					}
+					break
+				}
+				items, nextCursor, hasMore := extractResourcePage(data, config)
+				if items == nil {
+					items = []json.RawMessage{data}
+				}
 				for _, item := range items {
 					if limit > 0 && count >= limit {
 						break
 					}
-					fmt.Fprintln(writer, string(item))
+					if format == "jsonl" {
+						if _, err := fmt.Fprintln(writer, string(item)); err != nil {
+							return fmt.Errorf("writing export: %w", err)
+						}
+					} else {
+						allItems = append(allItems, item)
+					}
 					count++
 				}
-				if outputFile != "" {
-					fmt.Fprintf(os.Stderr, "Exported %d records to %s\n", count, outputFile)
+
+				if config.paginationType == "" || len(items) == 0 || (limit > 0 && count >= limit) {
+					break
 				}
-			default:
+				page++
+				var stop bool
+				cursor, stop, err = resourceNextCursor(config, cursor, nextCursor, hasMore)
+				if err != nil {
+					return fmt.Errorf("export pagination for %q: %w", resource, err)
+				}
+				if stop {
+					break
+				}
+				if config.limitParam != "" && !hasMore {
+					requested, _ := strconv.Atoi(params[config.limitParam])
+					if requested > 0 && len(items) < requested {
+						break
+					}
+				}
+				if page > 100000 {
+					return fmt.Errorf("export pagination exceeded 100000 pages for %q", resource)
+				}
+			}
+
+			if format != "jsonl" {
 				enc := json.NewEncoder(writer)
 				enc.SetIndent("", "  ")
-				var parsed any
-				if err := json.Unmarshal(data, &parsed); err != nil {
+				output := any(allItems)
+				if singleItem {
+					var value any
+					if err := json.Unmarshal(singlePayload, &value); err != nil {
+						return fmt.Errorf("decoding exported resource: %w", err)
+					}
+					output = value
+				}
+				if err := enc.Encode(output); err != nil {
 					return err
 				}
-				return enc.Encode(parsed)
+			}
+			if err := finishExport(); err != nil {
+				return err
+			}
+			if outputFile != "" {
+				fmt.Fprintf(os.Stderr, "Exported %d records to %s\n", count, outputFile)
 			}
 			return nil
 		},
@@ -137,4 +229,24 @@ large datasets as it has no memory pressure.`,
 	cmd.Flags().BoolVar(&noCache, "no-cache", false, "Bypass response cache for fresh data")
 
 	return cmd
+}
+
+// openExportOutput creates or truncates path as a private file. OpenFile's
+// mode applies only when the file is created; an existing 0644 file would
+// stay world-readable across the truncate, so the mode is set again after open.
+func openExportOutput(path string) (*os.File, error) {
+	if dir := filepath.Dir(path); dir != "" && dir != "." {
+		if err := os.MkdirAll(dir, 0o700); err != nil {
+			return nil, fmt.Errorf("creating output directory: %w", err)
+		}
+	}
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	if err != nil {
+		return nil, fmt.Errorf("creating output file: %w", err)
+	}
+	if err := f.Chmod(0o600); err != nil {
+		_ = f.Close()
+		return nil, fmt.Errorf("setting output file permissions: %w", err)
+	}
+	return f, nil
 }

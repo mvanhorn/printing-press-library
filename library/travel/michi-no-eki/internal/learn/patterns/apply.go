@@ -31,6 +31,8 @@ const DefaultJaccardMin = 0.6
 // own per-hit metadata (warnings, last_observed_at lookups against the
 // learning row) that the pattern layer doesn't have.
 type Hit struct {
+	// BoundEntity records the query entity that produced this verified candidate.
+	BoundEntity      string
 	ResourceID       string
 	ResourceType     string
 	Venue            string
@@ -58,9 +60,14 @@ type Hit struct {
 // should try ahead of the built-in computed kinds when a template's
 // entity_kind doesn't have a direct slot in the template string.
 type Opts struct {
-	JaccardMin      float64
-	Limit           int
-	NoVerify        bool
+	JaccardMin float64
+	Limit      int
+	NoVerify   bool
+	// NoLimit is for callers that apply their final limit after identity validation.
+	NoLimit bool
+	// AllBindings lets Recall validate alternate entity bindings from the same pattern.
+	// Standalone Apply retains its first-existing-candidate behavior by default.
+	AllBindings     bool
 	AdditionalKinds []string
 }
 
@@ -143,8 +150,6 @@ func Apply(ctx context.Context, db *sql.DB, query, nonEntityNormalized string, q
 			continue
 		}
 
-		var hit Hit
-		matched := false
 		for _, ent := range queryEntities {
 			candidate, ok := substituteCandidate(db, resourceTmpl, entityKind, ent, allKinds)
 			if !ok {
@@ -154,6 +159,7 @@ func Apply(ctx context.Context, db *sql.DB, query, nonEntityNormalized string, q
 			if !verified {
 				continue
 			}
+			h.BoundEntity = ent
 			h.Venue = venue
 			h.Confidence = confidence
 			h.MatchScore = score
@@ -164,14 +170,11 @@ func Apply(ctx context.Context, db *sql.DB, query, nonEntityNormalized string, q
 				t := lastObserved.Time
 				h.LastObservedAt = &t
 			}
-			hit = h
-			matched = true
-			break
+			hits = append(hits, h)
+			if !opts.AllBindings {
+				break
+			}
 		}
-		if !matched {
-			continue
-		}
-		hits = append(hits, hit)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("patterns.Apply rows: %w", err)
@@ -195,7 +198,7 @@ func Apply(ctx context.Context, db *sql.DB, query, nonEntityNormalized string, q
 		return ai.After(aj)
 	})
 
-	if len(hits) > limit {
+	if !opts.NoLimit && len(hits) > limit {
 		hits = hits[:limit]
 	}
 	return hits, nil
