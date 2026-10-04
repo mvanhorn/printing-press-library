@@ -175,6 +175,10 @@ func recheckSavedFacets(s Service) Service {
 		// and its bounded original evidence are reinterpreted.
 		price.Amounts = s.Price.Amounts
 		for _, q := range s.Price.Qualifiers {
+			// This derived qualifier was recomputed above; do not restore a waived obligation.
+			if q == "expenses" {
+				continue
+			}
 			found := false
 			for _, v := range price.Qualifiers {
 				if v == q {

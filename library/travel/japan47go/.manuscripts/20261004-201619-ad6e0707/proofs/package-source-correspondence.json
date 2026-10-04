@@ -1,14 +1,13 @@
 {
   "status": "PASS",
-  "source_fingerprint": "0d52ec33b849f0bb725dae9bc804d6a74ddede648ce2407f3d037aa2d8a35948",
-  "canonical_source_files": 167,
-  "all_per_file_digests_equal_acceptance": true,
+  "source_fingerprint": "63386b470e96c3b853fcf465f38269a60be9d402313445e6dac5ea723212d3ea",
+  "canonical_source_files": 168,
+  "all_per_file_digests_equal_current_approved_source": true,
   "official_v433_helper_unchanged": true,
-  "network_disabled": true,
-  "helper_modules_private_deleted": true,
-  "host_or_helper_receipts_in_public_manuscripts": 0,
+  "helper_network_disabled_private_deleted": true,
   "vendor_secret_scan": "PASS",
   "strict_PII_pending": 0,
-  "native_platform_metadata_preserved": "Darwin only",
-  "dense_prose_manuscripts": 5
+  "public_host_helper_receipts": 0,
+  "dense_prose_manuscripts": 5,
+  "native_platform_metadata_and_peer_hashes_preserved": true
 }

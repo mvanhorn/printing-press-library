@@ -100,6 +100,20 @@ var negativeNoReservation = regexp.MustCompile(`予約不要(?:ではありま�
 var conditionalRequestOption = regexp.MustCompile(`ただし|場合|限り|条件|要確認|応相談|要予約`)
 var separateExpenses = regexp.MustCompile(`(?:交通費|入場料|保険料|資料代|弁当代|食事代|昼食代|宿泊費)[^\n。、,;；]{0,12}別途|別途[^\n。、,;；]{0,12}(?:交通費|入場料|保険料|資料代|弁当代|食事代|昼食代|宿泊費)`)
 
+// An independent cancellation clause constrains operation, not request notice.
+// Unexplained continuation conditions still leave the request ambiguous.
+func hasRequestOptionCondition(original string) bool {
+	for _, clause := range strings.FieldsFunc(original, func(r rune) bool { return r == '。' || r == '\n' || r == ';' || r == '；' }) {
+		if !conditionalRequestOption.MatchString(clause) {
+			continue
+		}
+		if strings.Contains(clause, "予約") || strings.Contains(clause, "当日") || !strings.Contains(clause, "中止") {
+			return true
+		}
+	}
+	return false
+}
+
 func ParseRequest(s string) Request {
 	r := Request{Status: "unknown", LeadTimes: []LeadTime{}, Options: []string{}, Original: ""}
 	p := strings.Index(s, "【予約期限】")
@@ -142,7 +156,7 @@ func ParseRequest(s string) Request {
 			r.Options = append(r.Options, o)
 		}
 	}
-	if len(r.Options) > 0 && (negDay || negNone || conditionalRequestOption.MatchString(r.Original)) {
+	if len(r.Options) > 0 && (negDay || negNone || hasRequestOptionCondition(r.Original)) {
 		r.Status = "ambiguous"
 		return r
 	}
@@ -153,6 +167,22 @@ func ParseRequest(s string) Request {
 	}
 	return r
 }
+
+// Keep broad cost references for evidence, but only affirmative obligations
+// affect cost compatibility. A waiver applies to its matching cost clause.
+func hasSeparateExpenseObligation(original string) bool {
+	for _, clause := range strings.FieldsFunc(original, func(r rune) bool { return r == '。' || r == '\n' || r == '、' || r == ',' || r == ';' || r == '；' }) {
+		for _, match := range separateExpenses.FindAllStringIndex(clause, -1) {
+			tail := strings.TrimSpace(clause[match[1]:])
+			if strings.HasPrefix(tail, "不要") || strings.HasPrefix(tail, "は不要") {
+				continue
+			}
+			return true
+		}
+	}
+	return false
+}
+
 func ParsePrice(raw, description string) Price {
 	original := text(raw, 700)
 	desc := text(description, 1600)
@@ -171,7 +201,7 @@ func ParsePrice(raw, description string) Price {
 	p := Price{Status: "unknown", Amounts: []Amount{}, Qualifiers: []string{}, Original: original}
 	all := original + "\n" + strings.Join(feeLines, "\n")
 	free := strings.Contains(all, "無料")
-	separate := separateExpenses.MatchString(all)
+	separate := hasSeparateExpenseObligation(all)
 	expenses := strings.Contains(all, "実費") || separate
 	paid := strings.Contains(all, "有料")
 	matches := numeric.FindAllStringSubmatch(original, -1)

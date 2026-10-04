@@ -1,9 +1,10 @@
 {
   "status": "PASS",
   "same_sole_reviewer": true,
-  "all_original_and_G1_G2_G3_findings_closed": true,
-  "source_fingerprint": "0d52ec33b849f0bb725dae9bc804d6a74ddede648ce2407f3d037aa2d8a35948",
-  "source_files": 167,
+  "all_prior_and_N1_N2_findings_closed": true,
+  "reviewer_N12_receipt_sha256": "f9acce188eb32f2aab49e8922316d9732a4627ccb8f107d204a8734536bad65c",
+  "source_fingerprint": "63386b470e96c3b853fcf465f38269a60be9d402313445e6dac5ea723212d3ea",
+  "source_files": 168,
   "document_hashes": {
     "README.md": "8d68c1cfe78aa0b00e50119bc3fe29aa30eea46f99ea67381d941476d07d3d9f",
     "SKILL.md": "760792566ded330a7053c45242a52681c0b20f2f02496f7de9e446d142887774",
@@ -14,11 +15,10 @@
     "tools-manifest.json": "fb28dff7391c924a000ef15635cec167421b718e782966cce5cdda3d5c14f2aa"
   },
   "artifact_hashes": {
-    "japan47go-pp-cli": "9a42cca6d7174c5a4e946f503febf67563ad1431341854f2fbbe89fb5b853ece",
-    "japan47go-pp-mcp": "507736a87a8933ce4a869dc3fe3d87f32994e30ddec85e314ea6567f6f56fd9c",
-    "japan47go-pp-mcp-darwin-arm64.mcpb": "19c5d1fbddb86209513cb2f6208c70db9346194b91309f5050abaedbbfe10a9e"
+    "japan47go-pp-cli": "60639a6c849164a817e219cb2df9aa8c671db2f6799d628958526c29207751fc",
+    "japan47go-pp-mcp": "69f7af954fbae8096e1d3b554764b405b69537b19481a34a3ac787b99553e83f",
+    "japan47go-pp-mcp-darwin-arm64.mcpb": "614bf341afc1b70765a240de26481311f51133c748f2dc8f36af95aa98bef9f8"
   },
   "Go_minimum": "1.26.6",
-  "shipping_toolchain": "1.27.1",
-  "prior_scope_approvals_preserved": true
+  "shipping_toolchain": "1.27.1"
 }

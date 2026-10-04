@@ -1,0 +1,140 @@
+// Copyright 2026 zjsng and contributors. Licensed under Apache-2.0.
+package service
+
+import (
+	"context"
+	"crypto/sha256"
+	"os"
+	"path/filepath"
+	"reflect"
+	"strings"
+	"testing"
+)
+
+func TestRequestConditionsStayWithTheirClause(t *testing.T) {
+	for _, tc := range []struct{ evidence, status, notice string }{
+		{"予約不要。ただし、雨天の場合は中止", "known", "supported"},
+		{"当日予約可。ただし、雨天の場合は中止", "known", "supported"},
+		{"予約不要（空きがある場合のみ）", "ambiguous", "unknown"},
+		{"予約不要。ただし、予約が必要な場合は事前に連絡", "ambiguous", "unknown"},
+		{"予約不要。ただし、空きがある場合のみ", "ambiguous", "unknown"},
+		{"予約不要ではありません", "unknown", "unknown"},
+		{"当日予約不可", "unknown", "unknown"},
+		{"予約不要", "known", "supported"},
+		{"当日", "known", "supported"},
+		{"10日前（当日予約不可）", "known", "excluded"},
+	} {
+		t.Run(tc.evidence, func(t *testing.T) {
+			request := ParseRequest("【予約期限】" + tc.evidence)
+			x := Compare(Service{Request: request, Availability: "unknown", Schedule: Schedule{Operation: "unknown"}}, Constraints{On: "2026-11-01", AsOf: "2026-11-01"})
+			if request.Status != tc.status || x.Notice.State != tc.notice || request.Original != tc.evidence || x.Availability != "unknown" || x.Service.OpenNow != nil || x.Service.Schedule.Operation != "unknown" {
+				t.Fatalf("reservation and operation facets crossed: %+v", x)
+			}
+			if tc.notice == "excluded" && (x.Notice.Deadline == nil || *x.Notice.Deadline != "2026-10-22") {
+				t.Fatalf("ten-day deadline lost: %+v", x.Notice)
+			}
+		})
+	}
+}
+
+func TestSeparateCostPolarityControlsZeroCost(t *testing.T) {
+	for _, tc := range []struct{ raw, desc, status, free string }{
+		{"ガイド料無料、交通費は別途不要", "", "free", "supported"},
+		{"無料", "交通費は別途不要", "free", "supported"},
+		{"ガイド料無料、別途交通費は不要", "", "free", "supported"},
+		{"交通費は別途不要", "", "unknown", "unknown"},
+		{"ガイド料無料、交通費別途", "", "expenses", "excluded"},
+		{"ガイド料無料、交通費別途200円", "", "expenses", "excluded"},
+		{"ガイド料無料、交通費は別途不要、資料代は別途200円", "", "expenses", "excluded"},
+		{"ガイド料無料、交通費別途200円（予約不要）", "", "expenses", "excluded"},
+		{"無料（費用が一切発生しない）", "", "free", "supported"},
+		{"無料", "交通費無料、予約は別途受け付けます", "free", "supported"},
+	} {
+		t.Run(tc.raw+tc.desc, func(t *testing.T) {
+			price := ParsePrice(tc.raw, tc.desc)
+			x := Compare(Service{Price: price}, Constraints{RequireFree: true})
+			if price.Status != tc.status || x.Free.State != tc.free || price.TotalJPY != nil || !strings.Contains(price.Original, tc.raw) || (tc.desc != "" && !strings.Contains(price.Original, tc.desc)) {
+				t.Fatalf("waived and payable costs crossed: %+v", x)
+			}
+			expense := false
+			for _, q := range price.Qualifiers {
+				if q == "expenses" {
+					expense = true
+				}
+			}
+			if expense != (tc.status == "expenses") {
+				t.Fatalf("unsupported expense qualifier: %+v", price)
+			}
+			if strings.Contains(tc.raw, "200円") && (len(price.Amounts) != 1 || price.Amounts[0].JPY != 200 || price.Amounts[0].Unit != nil) {
+				t.Fatalf("stated amount/unit lost: %+v", price)
+			}
+		})
+	}
+}
+
+func TestLegacyClauseFacetsCorrectWithoutCacheWrites(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "observations.sqlite")
+	updated := "2026-04-30T11:58:29+09:00"
+	weather := Service{ID: tsumago, NameJA: "weather fixture", ObservedAt: "2026-10-04T12:00:00Z", SourceUpdatedAt: &updated, Availability: "unknown", Schedule: Schedule{Operation: "unknown"}, Request: Request{Status: "ambiguous", Options: []string{"予約不要"}, LeadTimes: []LeadTime{}, Original: "予約不要。ただし、雨天の場合は中止"}, Price: Price{Status: "expenses", Amounts: []Amount{}, Qualifiers: []string{"expenses", "guide_fee"}, Original: "ガイド料無料、交通費は別途不要"}}
+	paid := weather
+	paid.ID = "0ad62a4e-2987-4e83-af63-7a6dd69e0d98"
+	paid.NameJA = "paid fixture"
+	paid.Request = ParseRequest("【予約期限】予約不要")
+	paid.Price = ParsePrice("ガイド料無料、交通費は別途不要、資料代は別途1組200円", "")
+	for _, row := range []Service{weather, paid} {
+		if e := Save(context.Background(), path, row); e != nil {
+			t.Fatal(e)
+		}
+	}
+	before, e := os.ReadFile(path)
+	if e != nil {
+		t.Fatal(e)
+	}
+	stat, e := os.Stat(path)
+	if e != nil {
+		t.Fatal(e)
+	}
+	for _, query := range []string{"", tsumago, "fixture"} {
+		rows, n, e := Cached(context.Background(), path, query, 5)
+		want := 2
+		if query == tsumago {
+			want = 1
+		}
+		if e != nil || n != 2 || len(rows) != want {
+			t.Fatalf("bounded cache read: rows=%d scanned=%d err=%v", len(rows), n, e)
+		}
+		for _, row := range rows {
+			original := weather
+			if row.ID == paid.ID {
+				original = paid
+			}
+			x := Compare(row, Constraints{On: "2026-11-01", AsOf: "2026-11-01", RequireFree: true})
+			wantFree := "supported"
+			if row.ID == paid.ID {
+				wantFree = "excluded"
+			}
+			if x.Notice.State != "supported" || x.Free.State != wantFree || x.Availability != "unknown" || row.OpenNow != nil || row.Schedule.Operation != "unknown" {
+				t.Fatalf("cached facets differ from fresh: %+v", x)
+			}
+			freshRequest := ParseRequest("【予約期限】" + original.Request.Original)
+			freshPrice := ParsePrice(original.Price.Original, original.DescriptionEvidence)
+			if !reflect.DeepEqual(row.Request, freshRequest) || row.Price.Status != freshPrice.Status || !reflect.DeepEqual(row.Price.Qualifiers, freshPrice.Qualifiers) || !reflect.DeepEqual(row.Price.Amounts, original.Price.Amounts) || row.Price.Original != original.Price.Original || row.ObservedAt != original.ObservedAt || row.SourceUpdatedAt == nil || *row.SourceUpdatedAt != updated || row.Price.TotalJPY != nil || row.Transport != "local" {
+				t.Fatalf("cached evidence or clocks changed: %+v", row)
+			}
+			if (row.CacheWarning != nil) != (row.ID == weather.ID) {
+				t.Fatalf("warning without actual delta or missing warning: %+v", row)
+			}
+		}
+	}
+	after, e := os.ReadFile(path)
+	if e != nil {
+		t.Fatal(e)
+	}
+	finalStat, e := os.Stat(path)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if sha256.Sum256(before) != sha256.Sum256(after) || !stat.ModTime().Equal(finalStat.ModTime()) {
+		t.Fatal("cached read wrote database")
+	}
+}
