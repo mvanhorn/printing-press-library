@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "japan47go-pinned-sqlite",
+  "applied_at": "2026-10-04",
+  "base_run_id": "20261004-201619-ad6e0707",
+  "base_printing_press_version": "4.33.0",
+  "summary": "Keep sqlite1.60.1/libc1.77.1 and current toolchain.",
+  "reason": "Shared dependency smoke proves normal transactions on SQLite3.53.4; stale generator SQLite is excluded.",
+  "files": [
+    "go.mod",
+    "go.sum"
+  ],
+  "validated_outcome": "Focused service tests and actual CLI/MCP calls; full stable gates recorded in manuscript proofs."
+}

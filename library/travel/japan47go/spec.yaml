@@ -1,0 +1,69 @@
+name: japan47go
+description: "Published local guide and experience request facts"
+cli_description: "Find local guides and experiences with published request, fee and participant evidence."
+category: travel
+version: "0.0.0-dev"
+base_url: "https://www.japan47go.travel"
+http_transport: standard
+health_check_path: /ja
+auth:
+  type: none
+learn:
+  ticker_patterns:
+    - "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+  entity_lookup_seeds:
+    guide:
+      - canonical: 妻籠宿案内人の会
+        aliases: [妻籠ガイド, tsumago guide]
+      - canonical: 博多ガイドの会
+        aliases: [博多ガイド, hakata guide]
+      - canonical: 田主丸・かっぱガイド会
+        aliases: [かっぱガイド, tanushimaru guide]
+resources:
+  services:
+    description: "Local guide and experience evidence"
+    endpoints:
+      discover:
+        method: GET
+        path: /ja/search/result
+        description: "Discover bounded Japanese local service candidates"
+        happy_args: "--query=妻籠"
+        params:
+          - name: keyword
+            flag_name: query
+            type: string
+            description: "Japanese keyword sent to native source search"
+        response_format: html
+        html_extract:
+          mode: embedded-json
+          script_selector: "script#__NEXT_DATA__"
+          json_path: props.pageProps.items
+        response:
+          type: array
+          item: Service
+      inspect:
+        method: GET
+        path: /ja/detail/{id}
+        description: "Inspect published local guide or experience facts"
+        happy_args: "2980022e-ef99-4115-95e5-be5227cdc74e"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Source UUID or canonical JAPAN47GO detail URL"
+        response_format: html
+        html_extract:
+          mode: embedded-json
+          script_selector: "script#__NEXT_DATA__"
+          json_path: props.pageProps.article.data
+        response:
+          type: object
+          item: Service
+types:
+  Service:
+    fields:
+      - name: slug
+        type: string
+      - name: name
+        type: string

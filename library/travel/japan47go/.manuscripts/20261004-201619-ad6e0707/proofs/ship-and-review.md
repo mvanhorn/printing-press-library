@@ -1,0 +1,11 @@
+# Ship acceptance and sole review
+
+JAPAN47GO supplies five approved behaviors in four bounded service workflows. Canonical shipcheck passed all seven legs; recorded Steinberger76/100, gradeB. Current full live acceptance is80passed,0failed and80 unverified generated-framework probes; skips are not provider successes. All four domain happy paths executed and the real feature matrix has5passed,0failed,0skipped.
+
+One independent reviewer assessed phases14–17 on exact hashed source, native peers, actual extracted bundle and documentation. Required duration-range, candidate-ID, teach recipe and local-SQL description findings were corrected and rechecked in that same context. Final approval has no open findings. Esashi30分～2時間程度 is one30–120 minute range; Tatsuoka30分～1時間程度 is one30–60 range; Tsumago's30/45/60/90 minute courses remain distinct. The exact integrated file recipe recorded a real taught playbook, notes and services mapping.
+
+Runtime MCP lists21 tools overall and4 domain tools with actual normalized schemas. The four source calls return curated facts and truthful coverage. SQL describes the generated learning store, which is separate from the observation cache. No provider search/sync is claimed. The native MCPB was extracted and its two peer SHA256 hashes matched the independently reviewed binaries. Dependencies are Go1.27.1, sqlite1.60.1/libc1.77.1 and observed SQLite3.53.4. Native execution is Darwin arm64; Linux/Windows cross-builds passed but execution is unverified.
+
+Normal SQLite transactions retain at most200 normalized observations; delayed saves use instant-aware comparisons and cannot replace a newer observation. Saved reads are read-only and absent stores do not create storage. Focused rule, HTTP, pagination, privacy, bounds and concurrent/delayed-save tests passed. Scoped govulncheck and Go vet passed. Gosec has zero unresolved handwritten-code issues;31 inherited generated-code warnings were independently inspected and remain disclosed.
+
+The source marker, hash proof and review summary are machine-readable beside this manuscript. No marker or scoring harness was edited to pass a gate. Runtime remains0.0.0-dev pending the library's post-merge release accounting.

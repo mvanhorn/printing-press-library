@@ -1,0 +1,33 @@
+{
+  "status": "APPROVED",
+  "scope": "Narrow polish wire-provenance metadata and export disclosure addendum; same sole reviewer",
+  "source_fingerprint": "00818782b526bec1714e014bf170af19b1a515d96d20f276e87fe16216d69b20",
+  "raw_source_files_verified": 165,
+  "open_findings": [],
+  "document_hashes": {
+    "README.md": "8d68c1cfe78aa0b00e50119bc3fe29aa30eea46f99ea67381d941476d07d3d9f",
+    "SKILL.md": "760792566ded330a7053c45242a52681c0b20f2f02496f7de9e446d142887774",
+    "AGENTS.md": "b10597cc53d54430e2973dcbe6b890549cd3a6ad915d4bd53c005bf260c35546",
+    "SOURCE-SELECTION.md": "5fa5c65b56a86aa752683dcf56e097a38b7471d1197b0b56d34533965139bb07",
+    "manifest.json": "dbf4fcb616872147cb1a26b245ce6622ea65a28caa3d3c6af10d0ba71e793430",
+    ".printing-press.json": "9d9b42625aa169ea45cc191fde6bfa841c97e507357bc886e4e6b12b7aafed61",
+    "tools-manifest.json": "fb28dff7391c924a000ef15635cec167421b718e782966cce5cdda3d5c14f2aa"
+  },
+  "artifact_hashes": {
+    "japan47go-pp-cli": "e4245b5ebc4b4828c0a4fedeae1681a4c26b9024608f68bf4596a403db91bb0a",
+    "japan47go-pp-mcp": "64c9beb60a2d4a58087cfaac4ea7f9ba862f8740b129aec48033945b6e28bde8",
+    "japan47go-pp-mcp-darwin-arm64.mcpb": "b9cb94a54dd1f615205b7f5ec2bb91c373cb777b9ac1baca5c75a9bacb339d10"
+  },
+  "export_disclosure": "README:83 and SKILL:512 explicitly state generic live export rejects SSR with exit5/no service records, is not absence/closed/sold-out evidence, and direct reusable data to normalized --json workflows",
+  "structural_verify": {
+    "passed": 24,
+    "total": 24,
+    "critical": 0,
+    "resource_path_check": "PASS static route consistency only; not live-export capability proof"
+  },
+  "creator_handle_recheck": "PASS same sole reviewer; existing zjsng identity completed without changing code/artifacts",
+  "creator": {
+    "name": "zjsng",
+    "handle": "zjsng"
+  }
+}

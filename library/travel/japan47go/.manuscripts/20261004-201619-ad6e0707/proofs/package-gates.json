@@ -1,0 +1,80 @@
+{
+  "status": "PASS",
+  "recorded_at": "2026-10-04T16:20:11.577322+00:00",
+  "module_path": "github.com/mvanhorn/printing-press-library/library/travel/japan47go",
+  "checks": [
+    {
+      "check": "pii",
+      "exit_code": 0
+    },
+    {
+      "check": "skill",
+      "exit_code": 0
+    },
+    {
+      "check": "tests",
+      "exit_code": 0
+    },
+    {
+      "name": "manifest",
+      "passed": true
+    },
+    {
+      "name": "transcendence",
+      "passed": true
+    },
+    {
+      "name": "phase5",
+      "passed": true
+    },
+    {
+      "name": "go mod tidy",
+      "passed": true
+    },
+    {
+      "name": "module path",
+      "passed": true
+    },
+    {
+      "name": "govulncheck",
+      "passed": true
+    },
+    {
+      "name": "go vet",
+      "passed": true
+    },
+    {
+      "name": "go build",
+      "passed": true
+    },
+    {
+      "name": "--help",
+      "passed": true
+    },
+    {
+      "name": "--version",
+      "passed": true
+    },
+    {
+      "name": "verify-skill",
+      "passed": true
+    },
+    {
+      "name": "patches",
+      "passed": true
+    },
+    {
+      "name": "manuscripts",
+      "passed": true
+    }
+  ],
+  "vendor_prefix_secret_scan": "mandatory publish package PASS",
+  "strict_PII_scan": "zero pending findings",
+  "tier2_context_disposition": "Only explicit synthetic unit-test literals, documented command/API vocabulary, standard Apache license terms and existing public NOTICE author attribution; no captured traveler/provider personal information",
+  "redactions_needed": false,
+  "validator_metadata_restored_to_reviewed_bytes": [],
+  "source_library_approved_files_verified": 175,
+  "canonical_source_correspondence": "all165 normalized per-file hashes and aggregate equal current acceptance",
+  "raw_assessment_or_HTTP_payloads_published": false,
+  "release_ledger_hand_edits": false
+}

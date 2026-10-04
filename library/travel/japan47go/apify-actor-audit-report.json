@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/japan47go-cli",
+  "research_dir": "\u003ccli-dir\u003e/20261004-201619-ad6e0707",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

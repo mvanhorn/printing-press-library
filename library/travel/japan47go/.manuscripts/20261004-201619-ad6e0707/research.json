@@ -1,0 +1,178 @@
+{
+  "api_name": "japan47go",
+  "novelty_score": 7,
+  "alternatives": [],
+  "gaps": [
+    "Live availability is not published",
+    "Ambiguous notice and old hiatus remain unresolved",
+    "A bounded scan is not full inventory"
+  ],
+  "patterns": [
+    "public-html-ssr"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-04T12:18:50.037202Z",
+  "novel_features": [
+    {
+      "name": "Bounded local service discovery",
+      "command": "services discover",
+      "description": "Find Japanese guide and experience candidates with honest page coverage.",
+      "rationale": "Native source categories and matching counts require a bounded SSR contract.",
+      "example": "japan47go-pp-cli services discover --query 妻籠 --kind guides --max-pages 1 --limit 3 --agent",
+      "why_it_matters": "Find Japanese guide and experience candidates with honest page coverage.",
+      "group": "Local service decisions"
+    },
+    {
+      "name": "Published request conditions",
+      "command": "services inspect",
+      "description": "Inspect bounded Japanese request, duration, fee and schedule facts.",
+      "rationale": "Local guide association evidence must be curated while private fields are discarded.",
+      "example": "japan47go-pp-cli services inspect 2980022e-ef99-4115-95e5-be5227cdc74e --agent",
+      "why_it_matters": "Inspect bounded Japanese request, duration, fee and schedule facts.",
+      "group": "Local service decisions"
+    },
+    {
+      "name": "Notice and party compatibility",
+      "command": "services compare",
+      "description": "Check a requested date and party against explicit notice and participant rules.",
+      "rationale": "Calendar notice rules and published minimum parties must be evaluated together.",
+      "example": "japan47go-pp-cli services compare --ids 2980022e-ef99-4115-95e5-be5227cdc74e,0ad62a4e-2987-4e83-af63-7a6dd69e0d98 --on 2026-11-01 --as-of 2026-10-25 --party 1 --agent",
+      "why_it_matters": "Check a requested date and party against explicit notice and participant rules.",
+      "group": "Local service decisions"
+    },
+    {
+      "name": "Qualified fee comparison",
+      "command": "services compare",
+      "description": "Compare fees without turning expense-based volunteer services into free tours.",
+      "rationale": "Fee status, qualifiers and units need evidence rather than an invented total.",
+      "example": "japan47go-pp-cli services compare --ids 0ad62a4e-2987-4e83-af63-7a6dd69e0d98,c98eaa8d-a854-4494-88db-a04b6de17461 --require-free --agent",
+      "why_it_matters": "Compare fees without turning expense-based volunteer services into free tours.",
+      "group": "Local service decisions"
+    },
+    {
+      "name": "Saved service observations",
+      "command": "services saved",
+      "description": "Revisit saved normalized facts offline with original observation times.",
+      "rationale": "Source clocks and fetch clocks remain distinct in normalized local observations.",
+      "example": "japan47go-pp-cli services saved --query 妻籠 --limit 3 --agent",
+      "why_it_matters": "Revisit saved normalized facts offline with original observation times.",
+      "group": "Saved evidence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Bounded local service discovery",
+      "command": "services discover",
+      "description": "Find Japanese guide and experience candidates with honest page coverage.",
+      "rationale": "Native source categories and matching counts require a bounded SSR contract.",
+      "example": "japan47go-pp-cli services discover --query 妻籠 --kind guides --max-pages 1 --limit 3 --agent",
+      "why_it_matters": "Find Japanese guide and experience candidates with honest page coverage.",
+      "group": "Local service decisions"
+    },
+    {
+      "name": "Published request conditions",
+      "command": "services inspect",
+      "description": "Inspect bounded Japanese request, duration, fee and schedule facts.",
+      "rationale": "Local guide association evidence must be curated while private fields are discarded.",
+      "example": "japan47go-pp-cli services inspect 2980022e-ef99-4115-95e5-be5227cdc74e --agent",
+      "why_it_matters": "Inspect bounded Japanese request, duration, fee and schedule facts.",
+      "group": "Local service decisions"
+    },
+    {
+      "name": "Notice and party compatibility",
+      "command": "services compare",
+      "description": "Check a requested date and party against explicit notice and participant rules.",
+      "rationale": "Calendar notice rules and published minimum parties must be evaluated together.",
+      "example": "japan47go-pp-cli services compare --ids 2980022e-ef99-4115-95e5-be5227cdc74e,0ad62a4e-2987-4e83-af63-7a6dd69e0d98 --on 2026-11-01 --as-of 2026-10-25 --party 1 --agent",
+      "why_it_matters": "Check a requested date and party against explicit notice and participant rules.",
+      "group": "Local service decisions"
+    },
+    {
+      "name": "Qualified fee comparison",
+      "command": "services compare",
+      "description": "Compare fees without turning expense-based volunteer services into free tours.",
+      "rationale": "Fee status, qualifiers and units need evidence rather than an invented total.",
+      "example": "japan47go-pp-cli services compare --ids 0ad62a4e-2987-4e83-af63-7a6dd69e0d98,c98eaa8d-a854-4494-88db-a04b6de17461 --require-free --agent",
+      "why_it_matters": "Compare fees without turning expense-based volunteer services into free tours.",
+      "group": "Local service decisions"
+    },
+    {
+      "name": "Saved service observations",
+      "command": "services saved",
+      "description": "Revisit saved normalized facts offline with original observation times.",
+      "rationale": "Source clocks and fetch clocks remain distinct in normalized local observations.",
+      "example": "japan47go-pp-cli services saved --query 妻籠 --limit 3 --agent",
+      "why_it_matters": "Revisit saved normalized facts offline with original observation times.",
+      "group": "Saved evidence"
+    }
+  ],
+  "narrative": {
+    "display_name": "JAPAN47GO",
+    "headline": "Find local guides and experiences with published request, fee and participant evidence.",
+    "value_prop": "Discover a bounded Japanese shortlist, inspect local association conditions, and compare notice, party and fee rules before choosing a date. Saved observations retain their source and retrieval times; availability remains unknown.",
+    "auth_narrative": "Public anonymous JAPAN47GO SSR pages; no API key or browser required. Provider reads only.",
+    "quickstart": [
+      {
+        "command": "japan47go-pp-cli doctor --dry-run",
+        "comment": "Check the installed runtime."
+      },
+      {
+        "command": "japan47go-pp-cli services discover --query 妻籠 --kind guides --max-pages 1 --limit 3 --agent",
+        "comment": "Find Japanese guide and experience candidates with honest page coverage."
+      },
+      {
+        "command": "japan47go-pp-cli services inspect 2980022e-ef99-4115-95e5-be5227cdc74e --agent",
+        "comment": "Inspect bounded Japanese request, duration, fee and schedule facts."
+      },
+      {
+        "command": "japan47go-pp-cli services compare --ids 2980022e-ef99-4115-95e5-be5227cdc74e,0ad62a4e-2987-4e83-af63-7a6dd69e0d98 --on 2026-11-01 --as-of 2026-10-25 --party 1 --agent",
+        "comment": "Check a requested date and party against explicit notice and participant rules."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "No candidates in a bounded page window",
+        "fix": "Inspect coverage and broaden --query or deliberately increase --max-pages."
+      },
+      {
+        "symptom": "Saved observation is absent or old",
+        "fix": "Use services inspect UUID --refresh before relying on source conditions."
+      }
+    ],
+    "when_to_use": "Use for Japanese local guide-association request conditions and selected experiences where notice, party size, qualified fees or route durations matter. Inspect details before making a recommendation and cite the source with observation time.",
+    "anti_triggers": [
+      "Bookings, payments or messages",
+      "Live inventory, opening now or guaranteed operation",
+      "Broad complete event recommendations or personal suitability"
+    ],
+    "recipes": [
+      {
+        "title": "Guide candidates",
+        "command": "japan47go-pp-cli services discover --query 妻籠 --kind guides --max-pages 1 --limit 3 --agent",
+        "explanation": "Carry source query and page coverage into the answer."
+      },
+      {
+        "title": "Compact source conditions",
+        "command": "japan47go-pp-cli services inspect 2980022e-ef99-4115-95e5-be5227cdc74e --agent --select id,name_ja,source_url,request,price,durations_minutes,observed_at",
+        "explanation": "Keep decision facts and provenance visible."
+      },
+      {
+        "title": "Short notice and single traveler",
+        "command": "japan47go-pp-cli services compare --ids 2980022e-ef99-4115-95e5-be5227cdc74e,0ad62a4e-2987-4e83-af63-7a6dd69e0d98 --on 2026-11-01 --as-of 2026-10-25 --party 1 --agent",
+        "explanation": "Published-rule compatibility does not imply an available guide."
+      },
+      {
+        "title": "Saved evidence",
+        "command": "japan47go-pp-cli services saved --query 妻籠 --limit 3 --agent",
+        "explanation": "Use recorded fetch times rather than implying current facts."
+      }
+    ],
+    "trigger_phrases": [
+      "check JAPAN47GO guide request deadline",
+      "compare Japanese volunteer guide expenses",
+      "find local guide minimum participants",
+      "use japan47go",
+      "run japan47go"
+    ]
+  }
+}

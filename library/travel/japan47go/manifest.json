@@ -1,0 +1,25 @@
+{
+  "manifest_version": "0.3",
+  "name": "japan47go-pp-mcp",
+  "display_name": "JAPAN47GO",
+  "version": "0.0.0-dev",
+  "description": "Find local guides and experiences with published request, fee and participant evidence. This bundle targets Darwin arm64; build other platform peers separately.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/japan47go-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/japan47go-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin"
+    ]
+  }
+}
