@@ -17,9 +17,9 @@ metadata:
 
 # Kurumatabi / くるま旅
 
-## Source checkout before catalog release
+## Installation and amendment source
 
-This contribution awaits manual review. Until it is merged and indexed, build from its source checkout with `go build -o kurumatabi-pp-cli ./cmd/kurumatabi-pp-cli` and place the binary on the runtime PATH. The canonical public installer instructions below apply after the library catalog includes this CLI. Verify with `command -v kurumatabi-pp-cli` and plain `kurumatabi-pp-cli version`.
+The CLI is published in the travel catalog. This amendment awaits maintainer review; to try the proposed fixes before merge, build from its source checkout with `go build -o kurumatabi-pp-cli ./cmd/kurumatabi-pp-cli` and place the binary on the runtime PATH. The installer instructions below apply to the currently published CLI. Verify with `command -v kurumatabi-pp-cli` and plain `kurumatabi-pp-cli version`.
 
 ## Prerequisites: Install the CLI
 
@@ -191,7 +191,7 @@ Validate positive finite vehicle measurements in metres, finite coordinate range
 
 ## MCP Server Installation
 
-The source tree includes an MCP build target mirroring the nine park planning commands with read-only hints. Build it with `go build -o kurumatabi-pp-mcp ./cmd/kurumatabi-pp-mcp`. Raw HTML source diagnostics are excluded from MCP. No remote listener is deployed. Inspect the README/build tree before choosing an MCP installation surface.
+The source tree includes an MCP build target mirroring the nine park planning commands with source-aware local-state hints. Build it with `go build -o kurumatabi-pp-mcp ./cmd/kurumatabi-pp-mcp`. Raw HTML source diagnostics are excluded from MCP. No remote listener is deployed. Inspect the README/build tree before choosing an MCP installation surface.
 
 ## Direct Use
 
@@ -201,4 +201,31 @@ A partial comparison is emitted on stdout and returns exit5. Explicit file/webho
 
 Search caches every observation in the bounded page scan before applying the returned-row limit. Detail, fit, compare, audit and handoff require detailed observations for local reads or automatic fallback; refresh a search-only card with `parks detail ID --data-source live`. Multiple bath/onsen icons retain every source observation and qualified fee evidence.
 
-MCP comparison failures retain bounded partial JSON in the first content block, with `isError: true` and a separate diagnostic capped at 4,000 bytes. Oversized evidence uses an explicit preview; total failure text is bounded to 64,000 bytes. `learnings forget` atomically removes matched teachings and affected inferred query/resource/venue families. Manually taught and unrelated rules remain. Verified prefix patterns require one literal match, including `%` and `_` characters.
+MCP comparison failures retain bounded partial JSON in the first content block, with `isError: true` and a separate diagnostic capped at 4,000 bytes. Oversized evidence uses an explicit preview; total failure text is bounded to 64,000 bytes. `learnings forget` atomically removes matched teachings and reconciles existing inferred query/resource/venue families against all retained evidence. Supported rules keep their IDs and refreshed examples; unsupported rules are removed. Manually taught and unrelated rules remain. Explicit `teach-pattern` updates replace the complete recorded scope and examples; later inference preserves that manual definition. Verified prefix patterns require one literal match, including `%` and `_` characters.
+
+Native park MCP mirrors and the comparison recipe force `--no-learn` after caller arguments, preventing automatic journaling or preference derivation. Explicit recall and local-writing tools retain their own behavior. Ordinary CLI learning remains optional through the documented controls. Native reads can still refresh the evidence cache; `--no-cache` disables those cache writes and fallback.
+
+`export source` exports canonical link objects from the first catalog page as JSONL or a JSON array, with a limit of 1 through 200 links. It does not export detailed records or claim nationwide coverage. Invalid options and failed source reads leave a destination untouched; dry runs do not create output files. Source redirects must stay within the requested effective origin; foreign host, port or scheme changes are refused before custom credentials can be sent.
+
+MCP hints reflect durable effects: filters, near and match are read-only and do not expose receipt writes; search, detail, fit, compare, audit, handoff and the comparison recipe may refresh the evidence cache and advertise local writes. Explicit learning readers and workflow status also advertise local writes because their normal CLI paths can update learning/journal state. Typed context/SQL tools remain read-only. The named variadic `park-id` input for `parks_compare` accepts a whitespace-separated ID list; scalar text inputs remain one argument, and flag-like tokens are rejected.
+
+### Catalog links and safe agent recall
+
+```bash
+kurumatabi-pp-cli export --format json --limit 20 --no-learn source
+kurumatabi-pp-cli parks compare rvpark/1086 yypark/213 --agent --no-learn
+```
+
+The catalog export covers first-page link objects only. MCP named comparison input uses `park-id: "rvpark/1086 yypark/213"`; scalar recall questions remain one argument. Framework recall checks actual cached resource identity before promoting aliases. A known conflicting identity stays a mismatch; a missing resource stays explicitly warned and still requires fresh source verification.
+
+Source and agent capabilities include bounded catalog export, truthful MCP local-state hints, safe named comparisons and evidence-aware alias recall in addition to the five domain feature groups above.
+
+Synthesized recall checks any extractable cached identity too; a known conflicting target stays a mismatch. Identifier-verified patterns with no extractable identity retain their existing behavior without invented entities, and every recalled travel ID still needs fresh source verification.
+
+Synthesized identity validation follows the exact entity substituted into its resource ID; another entity in a compound query cannot validate a conflicting target. Forgetting a teaching preserves an inferred rule only when at least two distinct compatible bindings remain, ignores unusable rows, and repairs examples from those compatible supporters.
+
+Recall limits apply after cached identity validation and accepted-ID deduplication, so rejected candidates do not consume the requested result count.
+
+Recall checks later bindings when an earlier one conflicts, selects one compatible binding per pattern, and ranks before deduplicating typed resource IDs. Accepted targets are removed from contradictory mismatch alternatives. `--limit` caps returned results and diagnostic rows; it does not promise a cap on local validation work, which depends on the learned pattern store. Full validation preserves confidence and identity ranking.
+
+Only a genuinely absent cached resource uses the warned missing-row fallback. Cancellation and unreadable cached payloads fail the command; they do not produce an exact result.

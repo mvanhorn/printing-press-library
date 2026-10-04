@@ -76,6 +76,7 @@ These capabilities aren't available in any other tool for this API.
 - **`prices`** — Current prices across storefronts, cheapest first, with a --deals-only filter and the all-time low for context, localised to a --country currency (needs ITAD_API_KEY).
 - **`steam search`** — Plural keyless search of the Steam store across games, demos, DLC, soundtracks, software, video, mods, and hardware, with store tags, price, release date, platforms, and demo links on every row.
 - **`steam browse`** — Paginated Steam catalog browse filtered by app type, free-only, store tag, and coming-soon/released, localised with `--country`; "every free demo in my region" is one command.
+- **`steam demos`** — Demos only, each with the full game it belongs to: filter by `--tag` (every tag required, repeatable or comma-separated) or a single `--title` batch; released demos by default, `--coming-soon` for unreleased.
 
 ## Command Reference
 
@@ -156,6 +157,7 @@ These capabilities aren't available in any other tool for this API.
 - `game-goat-pp-cli steam search <term>` — Search the Steam store catalog for games, demos, DLC, soundtracks, and more.
 - `game-goat-pp-cli steam app <appid|title>` — One full typed Steam store record, including demo links and the review summary.
 - `game-goat-pp-cli steam browse` — Paginated Steam catalog browse with type, free, tag, and release filters.
+- `game-goat-pp-cli steam demos` — Demos-only listing with the full game each demo belongs to; released by default, filter by `--tag` (every tag required) or one `--title` batch.
 
 ### Finding the right command
 
@@ -226,6 +228,19 @@ game-goat-pp-cli steam browse --type demo --free --country DE --page 2 --agent
 ```
 
 Filtered catalog browse with real pagination: `--type`, `--free`, `--tag <name|tagid>` (repeat it or comma-separate; every tag is required), and `--coming-soon`/`--released`. `meta` carries `total`, `page`, `limit`, and `next_page`. Free-to-play and early access are attributes of a record rather than app types, so `--free` is how you ask for them.
+
+### Find a demo by tag or title
+
+```bash
+game-goat-pp-cli steam demos --tag Roguelike --limit 20 --agent
+game-goat-pp-cli steam demos --title portal --agent
+```
+
+`steam demos` is demos only: it fixes the app type to `demo` and never returns full games, and every row carries `parent_app_id`, `parent_name`, and `parent_tags` (the full game's store tag names, in Steam's order) for the full game it belongs to. The tags shown are the full game's: demos rarely carry tags of their own, so a demo's own tags appear as `tags` only when Steam lists any, and the human table's "full game tags" column shows the first three `parent_tags`. A bare `steam demos` lists the first page. Free-to-play titles are not demos, so use `steam browse --free` for those. Both paths return released demos ("available now") by default; `--coming-soon` swaps that for unreleased demos only, applied server-side so `meta.total` is the service's matching count. `--tag <name|tagid>` requires every tag (repeat it or comma-separate), and `--title` is a single search batch that defaults to 100 results (`--limit` up to 1000) and reports `meta.truncated` instead of a page cursor — `--page` is rejected with `--title`.
+
+Request budget per invocation (unchanged): a browse page costs 3 requests (one catalog query, one tag-name dictionary lookup, and one lookup for the full-game names AND tags of every parent on the page); the tag-name dictionary is fetched once and shared with `--tag` resolution and the parent lookup, so adding `--tag` adds no request; a `--title` batch costs 1 search request, 1 tag-dictionary request, plus one full-game name+tag lookup per 200 games.
+
+`steam app` always carries a `has_demo` boolean, and `ratings` adds `has_demo` and `demo_app_ids` when Steam resolves the game's appid. `discover` and `similar` can annotate every result with `has_demo` and `demo_app_ids` too, opt-in via `--with-demos`, which costs 1 extra RAWG request per result for its Steam store link plus 1 Steam request per 200 games.
 
 The full Steam data-source note (which endpoints are used, why `STEAM_API_KEY` is not needed, and the bundle limitation) is the "Steam data sources" section of the README.
 
