@@ -1,14 +1,14 @@
 {
   "status": "PASS",
-  "recorded_at": "2026-10-04T16:16:46.816105+00:00",
-  "official_cached_helper_version": "4.33.0",
-  "official_helper_sha256": "09aeb5b66477eec71fbfcbab3cb695b0fd2674ab5c312353375e186cc2d9aeda",
-  "helper_network": "GOPROXY=off GOSUMDB=off GOWORK=off",
-  "helper_or_source_modified": false,
-  "source_fingerprint": "00818782b526bec1714e014bf170af19b1a515d96d20f276e87fe16216d69b20",
-  "canonical_files": 165,
-  "all_per_file_digests_match_current_acceptance": true,
-  "module_rewrite": "japan47go-pp-cli -> github.com/mvanhorn/printing-press-library/library/travel/japan47go",
-  "normalization": "official module identity and Go AST self-import declarations only; all other source/dependencies/spec bytes retained",
-  "native_platform_metadata_restored": "exact approved Darwin-only manifest; no unverifiable Linux/Windows execution claim"
+  "source_fingerprint": "0d52ec33b849f0bb725dae9bc804d6a74ddede648ce2407f3d037aa2d8a35948",
+  "canonical_source_files": 167,
+  "all_per_file_digests_equal_acceptance": true,
+  "official_v433_helper_unchanged": true,
+  "network_disabled": true,
+  "helper_modules_private_deleted": true,
+  "host_or_helper_receipts_in_public_manuscripts": 0,
+  "vendor_secret_scan": "PASS",
+  "strict_PII_pending": 0,
+  "native_platform_metadata_preserved": "Darwin only",
+  "dense_prose_manuscripts": 5
 }

@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"time"
 )
@@ -141,6 +142,7 @@ func Cached(ctx context.Context, path, query string, limit int) ([]Service, int,
 		if e != nil {
 			return nil, 0, fmt.Errorf("invalid observation timestamp")
 		}
+		s = recheckSavedFacets(s)
 		s.Transport = "local"
 		s.CacheAgeSeconds = int64(time.Since(at).Seconds())
 		if s.CacheAgeSeconds < 0 {
@@ -154,4 +156,47 @@ func Cached(ctx context.Context, path, query string, limit int) ([]Service, int,
 		return nil, 0, e
 	}
 	return out, scanned, nil
+}
+
+// recheckSavedFacets corrects the two formerly overstated derived facets from
+// already-recorded evidence. It never writes or advances the source clocks.
+func recheckSavedFacets(s Service) Service {
+	changed := false
+	if strings.TrimSpace(s.Request.Original) != "" {
+		request := ParseRequest("【予約期限】" + s.Request.Original)
+		if !reflect.DeepEqual(request, s.Request) {
+			s.Request = request
+			changed = true
+		}
+	}
+	if separateExpenses.MatchString(s.Price.Original + "\n" + s.DescriptionEvidence) {
+		price := ParsePrice(s.Price.Original, s.DescriptionEvidence)
+		// Existing amounts/units remain recorded facts; only the cost obligation
+		// and its bounded original evidence are reinterpreted.
+		price.Amounts = s.Price.Amounts
+		for _, q := range s.Price.Qualifiers {
+			found := false
+			for _, v := range price.Qualifiers {
+				if v == q {
+					found = true
+					break
+				}
+			}
+			if !found {
+				price.Qualifiers = append(price.Qualifiers, q)
+			}
+		}
+		if !reflect.DeepEqual(price, s.Price) {
+			s.Price = price
+			changed = true
+		}
+	}
+	if changed {
+		warning := "Reinterpreted saved request/fee evidence; source observation time is unchanged."
+		if s.CacheWarning != nil && *s.CacheWarning != "" {
+			warning = *s.CacheWarning + " " + warning
+		}
+		s.CacheWarning = &warning
+	}
+	return s
 }

@@ -152,7 +152,11 @@ func serviceWarn(cmd *cobra.Command, s service.Service) {
 		fmt.Fprintf(cmd.ErrOrStderr(), "warning: %s uses saved observation from %s after source failure: %s\n", s.ID, s.ObservedAt, *s.SourceFailure)
 	}
 	if s.CacheWarning != nil {
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: %s source read succeeded but local save failed: %s\n", s.ID, *s.CacheWarning)
+		if s.Transport == "live" {
+			fmt.Fprintf(cmd.ErrOrStderr(), "warning: %s source read succeeded but local save failed: %s\n", s.ID, *s.CacheWarning)
+		} else {
+			fmt.Fprintf(cmd.ErrOrStderr(), "warning: %s saved observation: %s\n", s.ID, *s.CacheWarning)
+		}
 	}
 }
 func init() {

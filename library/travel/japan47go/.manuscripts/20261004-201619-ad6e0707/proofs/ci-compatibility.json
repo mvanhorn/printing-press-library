@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "official_cached_compiler": "go1.26.6 darwin/arm64",
+  "GOTOOLCHAIN": "local",
+  "actual_tests_vet_build_scoped_govuln_exit": 0,
+  "dependency_pins_unchanged": true,
+  "dependency_maximum_Go_floor": "1.26.0",
+  "shipping_toolchain": "go1.27.1",
+  "previous_CI_failure": "Go1.26.6 local runner rejected former go1.27.1 minimum before scanning; not a vulnerability finding",
+  "no_global_updater_or_installer": true
+}

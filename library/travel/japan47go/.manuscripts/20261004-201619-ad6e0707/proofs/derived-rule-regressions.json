@@ -1,0 +1,35 @@
+{
+  "status": "PASS",
+  "original_prohibited_same_day_and_separate_expense_regressions": true,
+  "conditional_legacy_request_uses_shared_parser": true,
+  "local_warnings_have_no_fetch_save_claim": true,
+  "explicit_separate200yen_excludes_zero_cost": true,
+  "actual_cached_inspect_compare_saved": [
+    {
+      "command": "inspect",
+      "exit_code": 0,
+      "conditional_legacy_matches_fresh": true,
+      "numeric_separate_cost_excluded": true,
+      "warning_has_no_fetch_or_save_claim": true,
+      "original_clocks_amount_unit_preserved": true
+    },
+    {
+      "command": "compare",
+      "exit_code": 0,
+      "conditional_legacy_matches_fresh": true,
+      "numeric_separate_cost_excluded": true,
+      "warning_has_no_fetch_or_save_claim": true,
+      "original_clocks_amount_unit_preserved": true
+    },
+    {
+      "command": "saved",
+      "exit_code": 0,
+      "conditional_legacy_matches_fresh": true,
+      "numeric_separate_cost_excluded": true,
+      "warning_has_no_fetch_or_save_claim": true,
+      "original_clocks_amount_unit_preserved": true
+    }
+  ],
+  "DB_hash_mtime_original_clocks_and_units_unchanged": true,
+  "fresh_live_guarantee": false
+}

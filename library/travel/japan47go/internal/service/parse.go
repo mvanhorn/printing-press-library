@@ -94,6 +94,12 @@ func PageProps(body []byte) (json.RawMessage, error) {
 	}
 	return nil, fmt.Errorf("source page has no __NEXT_DATA__ structured content")
 }
+
+var negativeSameDay = regexp.MustCompile(`当日[^\n・、,;；]{0,24}(?:不可|禁止|できません|出来ません|できない|出来ない|受け付けません|受け付けていません|事前予約が必要)`)
+var negativeNoReservation = regexp.MustCompile(`予約不要(?:ではありません|ではない|ではなく|でない)`)
+var conditionalRequestOption = regexp.MustCompile(`ただし|場合|限り|条件|要確認|応相談|要予約`)
+var separateExpenses = regexp.MustCompile(`(?:交通費|入場料|保険料|資料代|弁当代|食事代|昼食代|宿泊費)[^\n。、,;；]{0,12}別途|別途[^\n。、,;；]{0,12}(?:交通費|入場料|保険料|資料代|弁当代|食事代|昼食代|宿泊費)`)
+
 func ParseRequest(s string) Request {
 	r := Request{Status: "unknown", LeadTimes: []LeadTime{}, Options: []string{}, Original: ""}
 	p := strings.Index(s, "【予約期限】")
@@ -129,10 +135,16 @@ func ParseRequest(s string) Request {
 			seen[k] = true
 		}
 	}
+	negDay := negativeSameDay.MatchString(r.Original)
+	negNone := negativeNoReservation.MatchString(r.Original)
 	for _, o := range []string{"予約不要", "当日"} {
-		if strings.Contains(r.Original, o) {
+		if strings.Contains(r.Original, o) && !(o == "当日" && negDay) && !(o == "予約不要" && negNone) {
 			r.Options = append(r.Options, o)
 		}
+	}
+	if len(r.Options) > 0 && (negDay || negNone || conditionalRequestOption.MatchString(r.Original)) {
+		r.Status = "ambiguous"
+		return r
 	}
 	if len(r.LeadTimes)+len(r.Options) == 1 {
 		r.Status = "known"
@@ -147,7 +159,7 @@ func ParsePrice(raw, description string) Price {
 	feeLines := []string{}
 	numeric := regexp.MustCompile(`([0-9][0-9,]*)\s*円([～〜~]?)`)
 	for _, l := range strings.Split(desc, "\n") {
-		if strings.Contains(l, "料金") || numeric.MatchString(l) || strings.Contains(l, "無料") || strings.Contains(l, "実費") {
+		if strings.Contains(l, "料金") || numeric.MatchString(l) || strings.Contains(l, "無料") || strings.Contains(l, "実費") || separateExpenses.MatchString(l) {
 			feeLines = append(feeLines, l)
 		}
 	}
@@ -159,7 +171,8 @@ func ParsePrice(raw, description string) Price {
 	p := Price{Status: "unknown", Amounts: []Amount{}, Qualifiers: []string{}, Original: original}
 	all := original + "\n" + strings.Join(feeLines, "\n")
 	free := strings.Contains(all, "無料")
-	expenses := strings.Contains(all, "実費")
+	separate := separateExpenses.MatchString(all)
+	expenses := strings.Contains(all, "実費") || separate
 	paid := strings.Contains(all, "有料")
 	matches := numeric.FindAllStringSubmatch(original, -1)
 	for _, m := range matches {
@@ -192,7 +205,9 @@ func ParsePrice(raw, description string) Price {
 	if strings.Contains(all, "ガイド料") {
 		p.Qualifiers = append(p.Qualifiers, "guide_fee")
 	}
-	if free && (paid || expenses) {
+	if free && separate {
+		p.Status = "expenses"
+	} else if free && (paid || expenses) {
 		p.Status = "ambiguous"
 	} else if free {
 		p.Status = "free"

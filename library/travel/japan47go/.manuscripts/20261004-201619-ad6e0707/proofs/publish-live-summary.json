@@ -1,18 +1,11 @@
 {
   "status": "PASS",
-  "started_at": "2026-10-04T16:08:50.560276+00:00",
-  "completed_at": "2026-10-04T16:08:54.781321+00:00",
-  "exit_code": 0,
-  "source_fingerprint": "00818782b526bec1714e014bf170af19b1a515d96d20f276e87fe16216d69b20",
-  "matrix_size": 80,
-  "tests_passed": 80,
-  "tests_skipped": 80,
-  "tests_unverified": 80,
-  "auth_context": {
-    "type": "none"
-  },
-  "raw_transcript_deleted": true,
-  "domain_actual_happy_paths": [
+  "completed_at": "2026-10-04T18:40:09.074906+00:00",
+  "source_fingerprint": "0d52ec33b849f0bb725dae9bc804d6a74ddede648ce2407f3d037aa2d8a35948",
+  "passed": 80,
+  "failed": 0,
+  "skipped_unverified": 80,
+  "actual_domain_happy_paths": [
     {
       "command": "services compare",
       "kind": "happy_path",
@@ -34,5 +27,7 @@
       "status": "pass"
     }
   ],
-  "unsupported_generic_export": "Actual exit5 with zero output; preserved documented SSR limitation, not inventory evidence."
+  "installed_meaningful_live_inspect_and_saved": true,
+  "original_observation_time_preserved": true,
+  "raw_transcript_deleted": true
 }
