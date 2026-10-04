@@ -51,6 +51,7 @@ func init() {
 			bindGeography(geo, flags)
 			geo.AddCommand(newGeographyList(flags))
 		}
+		bindLocalFrameworkSearch(root, flags)
 		// Per-CLI metadata overrides preserve the generated framework callbacks.
 		for _, metadata := range []struct {
 			path  []string
@@ -86,10 +87,17 @@ func catalogAnnotate(cmd *cobra.Command, happy string, local bool) {
 	delete(cmd.Annotations, "pp:novel-scaffold")
 	cmd.Annotations["pp:happy-args"] = happy
 	cmd.Annotations["pp:data-source"] = "live"
-	// Public operations are GETs. Optional --save only caches selected evidence
-	// inside the CLI's bounded private cache; it never mutates external state.
 	cmd.Annotations["mcp:read-only"] = "true"
 	delete(cmd.Annotations, "mcp:local-write")
+	delete(cmd.Annotations, "pp:live-happy-path")
+	if cmd.Flags().Lookup("save") != nil {
+		// Provider operations remain GET-only, but the accepted save=true
+		// argument can change persistent selected evidence in the private cache.
+		cmd.Annotations["mcp:read-only"] = "false"
+		cmd.Annotations["mcp:local-write"] = "true"
+		cmd.Annotations["pp:live-happy-path"] = "true"
+		cmd.Annotations["pp:happy-args"] = happy + ";--save=true"
+	}
 	if local {
 		cmd.Annotations["pp:data-source"] = "local"
 	}
@@ -128,10 +136,14 @@ func saveProducts(ctx context.Context, flags *rootFlags, o *catalogOptions, p []
 
 func bindCatalogSearch(cmd *cobra.Command, flags *rootFlags, promoted bool) {
 	o := &catalogOptions{region: "10", limit: 10, maxRecords: 500}
+	if promoted {
+		cmd.Short = "Discover regional catalog summaries with optional private evidence saves; date filters are not availability"
+		cmd.Example = "  tabiwa-pp-cli catalog --region 20 --category transportation --limit 3 --save=true --agent"
+	}
 	if !promoted {
 		cmd.Use = "search [query]"
-		cmd.Short = "Discover bounded catalog summaries; a date filter does not establish availability"
-		cmd.Example = "  tabiwa-pp-cli catalog search --region 20 --category transportation --on 2026-10-28 --limit 3 --agent"
+		cmd.Short = "Discover bounded catalog summaries with optional private evidence saves; a date filter is not availability"
+		cmd.Example = "  tabiwa-pp-cli catalog search --region 20 --category transportation --on 2026-10-28 --limit 3 --save=true --agent"
 	}
 	addRegion(cmd, o)
 	addSave(cmd, o)
@@ -217,7 +229,7 @@ func bindCatalogSearch(cmd *cobra.Command, flags *rootFlags, promoted bool) {
 
 func newCatalogInspect(flags *rootFlags) *cobra.Command {
 	o := &catalogOptions{}
-	cmd := &cobra.Command{Use: "inspect [product-id]", Short: "Read exact catalog identity, price units and overview restriction evidence; complete terms stay unknown", Example: "  tabiwa-pp-cli catalog inspect J0000900 --region 10 --agent"}
+	cmd := &cobra.Command{Use: "inspect [product-id]", Short: "Read exact catalog identity, price units and overview restriction cues; optionally save private evidence; full terms stay unknown", Example: "  tabiwa-pp-cli catalog inspect J0000900 --region 10 --save=true --agent"}
 	addRegion(cmd, o)
 	addSave(cmd, o)
 	cmd.Flags().StringVar(&o.on, "on", "", "Requested Japan date YYYY-MM-DD; presence only means dated catalog membership")
@@ -271,7 +283,7 @@ func newCatalogInspect(flags *rootFlags) *cobra.Command {
 func newCatalogCompare(flags *rootFlags) *cobra.Command {
 	o := &catalogOptions{}
 	var ids []string
-	cmd := &cobra.Command{Use: "compare [product-ids...]", Short: "Compare at most five catalog products with separate price units and optional dated membership", Example: "  tabiwa-pp-cli catalog compare J0001900 J0000900 --region 10 --on 2026-10-28 --agent"}
+	cmd := &cobra.Command{Use: "compare [product-ids...]", Short: "Compare at most five catalog products with separate price units and dated membership; optionally save private evidence", Example: "  tabiwa-pp-cli catalog compare J0001900 J0000900 --region 10 --on 2026-10-28 --save=true --agent"}
 	addRegion(cmd, o)
 	addSave(cmd, o)
 	cmd.Flags().StringVar(&o.on, "on", "", "Requested Japan date YYYY-MM-DD; dated absence is not sold-out, closed or unavailable")

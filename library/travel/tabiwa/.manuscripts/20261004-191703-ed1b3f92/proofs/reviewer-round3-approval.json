@@ -195,9 +195,9 @@
   "canonical_acceptance_matches_current_raw_source": true,
   "canonical_per_file_hashes_match_marker_count": 170,
   "canonical_fingerprint_proof": "reviewer-round3-acceptance-correspondence.json",
-  "cached_helper_path": "/Users/zjsng/go/pkg/mod/github.com/mvanhorn/cli-printing-press/v4@v4.33.0/internal/pipeline/source_fingerprint.go",
+  "cached_helper_path": "<go-module-cache>/github.com/mvanhorn/cli-printing-press/v4@v4.33.0/internal/pipeline/source_fingerprint.go",
   "cached_helper_sha256": "09aeb5b66477eec71fbfcbab3cb695b0fd2674ab5c312353375e186cc2d9aeda",
-  "isolated_reproduction_workdir": "/tmp/tabiwa-press-fingerprint-recheck",
+  "isolated_reproduction_workdir": "<temporary>/tabiwa-press-fingerprint-recheck",
   "isolated_reproduction_command": "GOPROXY=off GOSUMDB=off GOWORK=off go test -mod=mod -run '^TestTabiwaReviewerCurrentAcceptanceFingerprint$' -count=1 -v",
   "fingerprint_method": {
     "file_bytes": "go.mod module identity and Go AST import declarations only; import entries/attached comments canonicalized and sorted; all bytes outside import declarations retained",

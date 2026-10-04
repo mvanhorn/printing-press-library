@@ -1,6 +1,6 @@
 {
-  "dir": "/Users/zjsng/Projects/Personal/Coding/tabiwa-cli",
-  "spec_path": "/Users/zjsng/Projects/Personal/Coding/tabiwa-cli/spec.yaml",
+  "dir": "<source-project>",
+  "spec_path": "<source-project>/spec.yaml",
   "spec_source": "bundled",
   "verdict": "PASS",
   "path_check": {

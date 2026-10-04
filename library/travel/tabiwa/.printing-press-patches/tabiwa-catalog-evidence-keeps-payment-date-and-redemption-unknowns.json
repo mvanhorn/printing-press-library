@@ -5,7 +5,7 @@
   "base_run_id": "20261004-191703-ed1b3f92",
   "base_printing_press_version": "4.33.0",
   "summary": "Public tabiwa catalog evidence must preserve payment units, overview limits and date-membership uncertainty with bounded normal SQLite saves.",
-  "reason": "Full detail pages require the source queue, so a regen must keep runtime reads on repeatable public catalog endpoints and must not upgrade summaries or date inclusion into full terms, covered routes or stock. MCP must invoke those same handwritten commands rather than pre-register raw endpoint handlers that ignore region preferences and normalization.",
+  "reason": "Full detail pages require the source queue, so a regen must keep runtime reads on repeatable public catalog endpoints and must not upgrade summaries or date inclusion into full terms, covered routes or stock. MCP must invoke those same handwritten commands rather than pre-register raw endpoint handlers that ignore region preferences and normalization. Generic root search must use supported local geography FTS, never an unsupported provider q; save-capable MCP tools must have truthful local-write hints.",
   "files": [
     "internal/tabiwa/source.go",
     "internal/tabiwa/saved.go",
@@ -22,7 +22,9 @@
     "internal/tabiwa/saved_test.go",
     "tools-manifest.json",
     "manifest.json",
-    ".printing-press.json"
+    ".printing-press.json",
+    "internal/cli/tabiwa_framework.go",
+    "internal/cli/tabiwa_framework_test.go"
   ],
-  "validated_outcome": "Delayed/equal source clocks cannot replace newer cached facts across RFC3339 fractions and offsets; bounds and newest-first retention/read order use real instants. Runtime MCP metadata/context matches normalized domain commands and native target peers. Public GET/cache reads remain read-only; real happy vectors exercise non-hollow catalog data. Per-CLI metadata overrides enrich geographic identifiers and two generated local framework tool descriptions without changing their callbacks. Saved-row cursor errors propagate before transactional eviction; all handwritten provider/cache security findings are cleared."
+  "validated_outcome": "Delayed/equal source clocks cannot replace newer cached facts across RFC3339 fractions and offsets; bounds and newest-first retention/read order use real instants. Runtime MCP metadata/context matches normalized domain commands and native target peers. Provider requests remain GET-only; save-capable MCP operations have local-write hints and actual isolated save fixtures. Per-CLI metadata overrides enrich geographic identifiers and two generated local framework tool descriptions without changing their callbacks. Saved-row cursor errors propagate before transactional eviction; all handwritten provider/cache security findings are cleared. SQL examples address synced geography, and supported two-key live dogfood opt-in exercises genuine bounded saves in isolated storage."
 }

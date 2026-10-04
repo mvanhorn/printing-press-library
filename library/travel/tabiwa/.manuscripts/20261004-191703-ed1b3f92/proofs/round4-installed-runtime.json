@@ -1,0 +1,4044 @@
+{
+  "observed_at": "2026-10-04T16:36:27.404637+00:00",
+  "home": "<temporary>/tabiwa-round4-runtime-8szjzzd4",
+  "binary_hashes": {
+    "<install-bin>/tabiwa-pp-cli": "dcb72bfe6eae24d652439fdbc0c607c2e7e2cbc072f5706680142a1ae565326c",
+    "<install-bin>/tabiwa-pp-mcp": "fe15a81203aa66efc14a8fa789418161c6502eb3a3ecce4fc6c77ce55d56fcec"
+  },
+  "checks": [
+    {
+      "name": "generic live refused exit",
+      "pass": true
+    },
+    {
+      "name": "unsupported live guidance and zeroHTTP",
+      "pass": true
+    },
+    {
+      "name": "default supported sync exit",
+      "pass": true
+    },
+    {
+      "name": "generic auto exit",
+      "pass": true
+    },
+    {
+      "name": "generic auto FTS/type/DB/limit/provenance",
+      "pass": true
+    },
+    {
+      "name": "generic auto zeroHTTP",
+      "pass": true
+    },
+    {
+      "name": "generic local exit",
+      "pass": true
+    },
+    {
+      "name": "generic local FTS/type/DB/limit/provenance",
+      "pass": true
+    },
+    {
+      "name": "generic local zeroHTTP",
+      "pass": true
+    },
+    {
+      "name": "generic empty exit",
+      "pass": true
+    },
+    {
+      "name": "generic impossible query empty",
+      "pass": true
+    },
+    {
+      "name": "native match exit",
+      "pass": true
+    },
+    {
+      "name": "native matching only",
+      "pass": true
+    },
+    {
+      "name": "native empty exit",
+      "pass": true
+    },
+    {
+      "name": "native impossible query empty",
+      "pass": true
+    },
+    {
+      "name": "runtime27 tools",
+      "pass": true
+    },
+    {
+      "name": "catalog_search honest local-write/save surface",
+      "pass": true
+    },
+    {
+      "name": "catalog_inspect honest local-write/save surface",
+      "pass": true
+    },
+    {
+      "name": "catalog_compare honest local-write/save surface",
+      "pass": true
+    },
+    {
+      "name": "catalog_saved still readOnly",
+      "pass": true
+    },
+    {
+      "name": "geography_list still readOnly",
+      "pass": true
+    },
+    {
+      "name": "SQL supported exact advertised geography query",
+      "pass": true
+    },
+    {
+      "name": "sql successful",
+      "pass": true
+    },
+    {
+      "name": "advertised SQL nonempty geography",
+      "pass": true
+    },
+    {
+      "name": "selected cache absent before default reads",
+      "pass": true
+    },
+    {
+      "name": "catalog_search successful",
+      "pass": true
+    },
+    {
+      "name": "catalog_search default no-save",
+      "pass": true
+    },
+    {
+      "name": "catalog_inspect successful",
+      "pass": true
+    },
+    {
+      "name": "catalog_inspect default no-save",
+      "pass": true
+    },
+    {
+      "name": "catalog_compare successful",
+      "pass": true
+    },
+    {
+      "name": "catalog_compare default no-save",
+      "pass": true
+    },
+    {
+      "name": "catalog_search successful",
+      "pass": true
+    },
+    {
+      "name": "catalog_search actual positive save",
+      "pass": true
+    },
+    {
+      "name": "catalog_inspect successful",
+      "pass": true
+    },
+    {
+      "name": "catalog_inspect actual positive save",
+      "pass": true
+    },
+    {
+      "name": "catalog_compare successful",
+      "pass": true
+    },
+    {
+      "name": "catalog_compare actual positive save",
+      "pass": true
+    },
+    {
+      "name": "catalog_saved successful",
+      "pass": true
+    },
+    {
+      "name": "saved2 observations and read unchanged bytes",
+      "pass": true
+    },
+    {
+      "name": "saved source clocks preserved",
+      "pass": true
+    },
+    {
+      "name": "context successful",
+      "pass": true
+    },
+    {
+      "name": "context truthful storage/mutation",
+      "pass": true
+    },
+    {
+      "name": "all provider requests GET-only and no auth/details",
+      "pass": true
+    }
+  ],
+  "cli": {
+    "generic live refused": {
+      "argv": [
+        "search",
+        "立山",
+        "--data-source",
+        "live",
+        "--json"
+      ],
+      "exit": 2,
+      "payload": null,
+      "stderr": "Error: root search has no live text-search equivalent; use catalog search QUERY --region REGION: no live equivalent for this command (requested \"live\"); use --data-source local or --data-source auto\n",
+      "request_indexes": []
+    },
+    "default supported sync": {
+      "argv": [
+        "sync",
+        "--strict",
+        "--json"
+      ],
+      "exit": 0,
+      "payload": {
+        "duration_ms": 2,
+        "errored": 0,
+        "resources": 1,
+        "success": 1,
+        "total_records": 2,
+        "warned": 0
+      },
+      "stderr": "{\"event\":\"sync_start\",\"resource\":\"geography\"}\n{\"event\":\"sync_progress\",\"resource\":\"geography\",\"fetched\":2,\"rate_rps\":2.0}\n{\"event\":\"sync_complete\",\"resource\":\"geography\",\"total\":2,\"duration_ms\":2}\n{\"event\":\"sync_summary\",\"total_records\":2,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":2}\n",
+      "request_indexes": [
+        0
+      ]
+    },
+    "generic auto": {
+      "argv": [
+        "search",
+        "富山",
+        "--data-source",
+        "auto",
+        "--type",
+        "geography",
+        "--db",
+        "<temporary>/tabiwa-round4-runtime-8szjzzd4/custom.db",
+        "--limit",
+        "1",
+        "--json"
+      ],
+      "exit": 0,
+      "payload": {
+        "meta": {
+          "reason": "user_requested",
+          "resource_type": "search",
+          "source": "local"
+        },
+        "results": [
+          {
+            "id": 16,
+            "name": "富山県",
+            "areas": []
+          }
+        ]
+      },
+      "stderr": "",
+      "request_indexes": []
+    },
+    "generic local": {
+      "argv": [
+        "search",
+        "富山",
+        "--data-source",
+        "local",
+        "--type",
+        "geography",
+        "--db",
+        "<temporary>/tabiwa-round4-runtime-8szjzzd4/custom.db",
+        "--limit",
+        "1",
+        "--json"
+      ],
+      "exit": 0,
+      "payload": {
+        "meta": {
+          "reason": "user_requested",
+          "resource_type": "search",
+          "source": "local"
+        },
+        "results": [
+          {
+            "id": 16,
+            "name": "富山県",
+            "areas": []
+          }
+        ]
+      },
+      "stderr": "",
+      "request_indexes": []
+    },
+    "generic empty": {
+      "argv": [
+        "search",
+        "zz_absent_tabiwa_2267",
+        "--type",
+        "geography",
+        "--json"
+      ],
+      "exit": 0,
+      "payload": {
+        "meta": {
+          "reason": "user_requested",
+          "resource_type": "search",
+          "source": "local"
+        },
+        "results": []
+      },
+      "stderr": "",
+      "request_indexes": []
+    },
+    "native match": {
+      "argv": [
+        "catalog",
+        "search",
+        "岡山",
+        "--region",
+        "20",
+        "--json"
+      ],
+      "exit": 0,
+      "payload": {
+        "products": [
+          {
+            "id": "J0000900",
+            "name": "岡山・香川ワイドパス",
+            "region": {
+              "id": "20",
+              "name": "北陸"
+            },
+            "ticket_type": "freepass",
+            "area_tags": [],
+            "categories": [],
+            "price": {
+              "display": "3,600円",
+              "amount": "3600",
+              "original_amount": null,
+              "unit": "JPY",
+              "kind": "quoted",
+              "basis": "unknown",
+              "points_only": null
+            },
+            "overview": "※直島は含まれません。",
+            "overview_truncated": false,
+            "restriction_evidence": [
+              {
+                "kind": "overview_cue",
+                "text": "※直島は含まれません。",
+                "truncated": false
+              }
+            ],
+            "restriction_evidence_truncated": false,
+            "usage_type_hints": "",
+            "published_status": "unknown",
+            "availability": "unknown",
+            "full_redemption_terms": "unknown",
+            "included_routes": "unknown",
+            "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0000900",
+            "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_type=&usage_date=",
+            "observed_at": "2026-10-04T16:36:27.641978000Z"
+          }
+        ],
+        "coverage": {
+          "scanned_records": 2,
+          "source_records": 2,
+          "scan_cap": 500,
+          "scan_complete": true,
+          "returned_products": 1,
+          "output_truncated": false
+        },
+        "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_type=&usage_date=",
+        "observed_at": "2026-10-04T16:36:27.641978000Z",
+        "date_filter_meaning": "published_catalog_filter_only; availability_unknown",
+        "note": "Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.",
+        "saved": false
+      },
+      "stderr": "",
+      "request_indexes": [
+        1
+      ]
+    },
+    "native empty": {
+      "argv": [
+        "catalog",
+        "search",
+        "zz_absent_tabiwa_2267",
+        "--region",
+        "20",
+        "--json"
+      ],
+      "exit": 0,
+      "payload": {
+        "products": [],
+        "coverage": {
+          "scanned_records": 2,
+          "source_records": 2,
+          "scan_cap": 500,
+          "scan_complete": true,
+          "returned_products": 0,
+          "output_truncated": false
+        },
+        "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_type=&usage_date=",
+        "observed_at": "2026-10-04T16:36:27.651185000Z",
+        "date_filter_meaning": "published_catalog_filter_only; availability_unknown",
+        "note": "No matching catalog summary was found within the scanned records and selected filters. Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.",
+        "saved": false
+      },
+      "stderr": "",
+      "request_indexes": [
+        2
+      ]
+    }
+  },
+  "mcp": [
+    {
+      "name": "sql",
+      "arguments": {
+        "query": "SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='geography'"
+      },
+      "payload": {
+        "columns": [
+          "json_extract(data,'$.name')"
+        ],
+        "count": 2,
+        "resumable": false,
+        "rows": [
+          {
+            "json_extract(data,'$.name')": "富山県"
+          },
+          {
+            "json_extract(data,'$.name')": "石川県"
+          }
+        ],
+        "store_status": "ready",
+        "truncated": false
+      },
+      "request_indexes": []
+    },
+    {
+      "name": "catalog_search",
+      "arguments": {
+        "query": "岡山",
+        "region": "20"
+      },
+      "payload": {
+        "products": [
+          {
+            "id": "J0000900",
+            "name": "岡山・香川ワイドパス",
+            "region": {
+              "id": "20",
+              "name": "北陸"
+            },
+            "ticket_type": "freepass",
+            "area_tags": [],
+            "categories": [],
+            "price": {
+              "display": "3,600円",
+              "amount": "3600",
+              "original_amount": null,
+              "unit": "JPY",
+              "kind": "quoted",
+              "basis": "unknown",
+              "points_only": null
+            },
+            "overview": "※直島は含まれません。",
+            "overview_truncated": false,
+            "restriction_evidence": [
+              {
+                "kind": "overview_cue",
+                "text": "※直島は含まれません。",
+                "truncated": false
+              }
+            ],
+            "restriction_evidence_truncated": false,
+            "usage_type_hints": "",
+            "published_status": "unknown",
+            "availability": "unknown",
+            "full_redemption_terms": "unknown",
+            "included_routes": "unknown",
+            "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0000900",
+            "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_type=&usage_date=",
+            "observed_at": "2026-10-04T16:36:27.832397000Z"
+          }
+        ],
+        "coverage": {
+          "scanned_records": 2,
+          "source_records": 2,
+          "scan_cap": 500,
+          "scan_complete": true,
+          "returned_products": 1,
+          "output_truncated": false
+        },
+        "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_type=&usage_date=",
+        "observed_at": "2026-10-04T16:36:27.832397000Z",
+        "date_filter_meaning": "published_catalog_filter_only; availability_unknown",
+        "note": "Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.",
+        "saved": false
+      },
+      "request_indexes": [
+        3
+      ]
+    },
+    {
+      "name": "catalog_inspect",
+      "arguments": {
+        "product-id": "J0001900",
+        "region": "20"
+      },
+      "payload": {
+        "availability": "unknown",
+        "catalog_membership": "listed",
+        "note": "Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.",
+        "observed_at": "2026-10-04T16:36:27.843154000Z",
+        "products": [
+          {
+            "id": "J0001900",
+            "name": "ポイント券",
+            "region": {
+              "id": "20",
+              "name": "北陸"
+            },
+            "ticket_type": "freepass",
+            "area_tags": [],
+            "categories": [],
+            "price": {
+              "display": "2,000P",
+              "amount": "2000",
+              "original_amount": null,
+              "unit": "WESTER_POINT",
+              "kind": "quoted",
+              "basis": "unknown",
+              "points_only": true
+            },
+            "overview": "※全額ポイント利用のみ。QRを提示。",
+            "overview_truncated": false,
+            "restriction_evidence": [
+              {
+                "kind": "overview_cue",
+                "text": "※全額ポイント利用のみ。QRを提示。",
+                "truncated": false
+              }
+            ],
+            "restriction_evidence_truncated": false,
+            "usage_type_hints": "",
+            "published_status": "unknown",
+            "availability": "unknown",
+            "full_redemption_terms": "unknown",
+            "included_routes": "unknown",
+            "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0001900",
+            "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_type=&usage_date=",
+            "observed_at": "2026-10-04T16:36:27.843154000Z"
+          }
+        ],
+        "requested_date": "",
+        "requested_id": "J0001900",
+        "saved": false,
+        "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_type=&usage_date="
+      },
+      "request_indexes": [
+        4
+      ]
+    },
+    {
+      "name": "catalog_compare",
+      "arguments": {
+        "ids": "J0001900,J0000900",
+        "region": "20"
+      },
+      "payload": {
+        "comparison_rule": "Units and unknown price bases are preserved; no points/cash conversion, savings estimate or price ranking.",
+        "comparisons": [
+          {
+            "availability": "unknown",
+            "catalog_membership": "listed",
+            "id": "J0001900",
+            "product": {
+              "id": "J0001900",
+              "name": "ポイント券",
+              "region": {
+                "id": "20",
+                "name": "北陸"
+              },
+              "ticket_type": "freepass",
+              "area_tags": [],
+              "categories": [],
+              "price": {
+                "display": "2,000P",
+                "amount": "2000",
+                "original_amount": null,
+                "unit": "WESTER_POINT",
+                "kind": "quoted",
+                "basis": "unknown",
+                "points_only": true
+              },
+              "overview": "※全額ポイント利用のみ。QRを提示。",
+              "overview_truncated": false,
+              "restriction_evidence": [
+                {
+                  "kind": "overview_cue",
+                  "text": "※全額ポイント利用のみ。QRを提示。",
+                  "truncated": false
+                }
+              ],
+              "restriction_evidence_truncated": false,
+              "usage_type_hints": "",
+              "published_status": "unknown",
+              "availability": "unknown",
+              "full_redemption_terms": "unknown",
+              "included_routes": "unknown",
+              "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0001900",
+              "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_ids=J0000900&ticket_type=&usage_date=",
+              "observed_at": "2026-10-04T16:36:27.853418000Z"
+            },
+            "requested_date_membership": "not_requested"
+          },
+          {
+            "availability": "unknown",
+            "catalog_membership": "listed",
+            "id": "J0000900",
+            "product": {
+              "id": "J0000900",
+              "name": "岡山・香川ワイドパス",
+              "region": {
+                "id": "20",
+                "name": "北陸"
+              },
+              "ticket_type": "freepass",
+              "area_tags": [],
+              "categories": [],
+              "price": {
+                "display": "3,600円",
+                "amount": "3600",
+                "original_amount": null,
+                "unit": "JPY",
+                "kind": "quoted",
+                "basis": "unknown",
+                "points_only": null
+              },
+              "overview": "※直島は含まれません。",
+              "overview_truncated": false,
+              "restriction_evidence": [
+                {
+                  "kind": "overview_cue",
+                  "text": "※直島は含まれません。",
+                  "truncated": false
+                }
+              ],
+              "restriction_evidence_truncated": false,
+              "usage_type_hints": "",
+              "published_status": "unknown",
+              "availability": "unknown",
+              "full_redemption_terms": "unknown",
+              "included_routes": "unknown",
+              "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0000900",
+              "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_ids=J0000900&ticket_type=&usage_date=",
+              "observed_at": "2026-10-04T16:36:27.853418000Z"
+            },
+            "requested_date_membership": "not_requested"
+          }
+        ],
+        "dated_observed_at": "",
+        "dated_source_url": "",
+        "note": "Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.",
+        "observed_at": "2026-10-04T16:36:27.853418000Z",
+        "requested_date": "",
+        "saved": false,
+        "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_ids=J0000900&ticket_type=&usage_date="
+      },
+      "request_indexes": [
+        5
+      ]
+    },
+    {
+      "name": "catalog_search",
+      "arguments": {
+        "query": "岡山",
+        "region": "20",
+        "save": true
+      },
+      "payload": {
+        "products": [
+          {
+            "id": "J0000900",
+            "name": "岡山・香川ワイドパス",
+            "region": {
+              "id": "20",
+              "name": "北陸"
+            },
+            "ticket_type": "freepass",
+            "area_tags": [],
+            "categories": [],
+            "price": {
+              "display": "3,600円",
+              "amount": "3600",
+              "original_amount": null,
+              "unit": "JPY",
+              "kind": "quoted",
+              "basis": "unknown",
+              "points_only": null
+            },
+            "overview": "※直島は含まれません。",
+            "overview_truncated": false,
+            "restriction_evidence": [
+              {
+                "kind": "overview_cue",
+                "text": "※直島は含まれません。",
+                "truncated": false
+              }
+            ],
+            "restriction_evidence_truncated": false,
+            "usage_type_hints": "",
+            "published_status": "unknown",
+            "availability": "unknown",
+            "full_redemption_terms": "unknown",
+            "included_routes": "unknown",
+            "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0000900",
+            "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_type=&usage_date=",
+            "observed_at": "2026-10-04T16:36:27.863471000Z"
+          }
+        ],
+        "coverage": {
+          "scanned_records": 2,
+          "source_records": 2,
+          "scan_cap": 500,
+          "scan_complete": true,
+          "returned_products": 1,
+          "output_truncated": false
+        },
+        "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_type=&usage_date=",
+        "observed_at": "2026-10-04T16:36:27.863471000Z",
+        "date_filter_meaning": "published_catalog_filter_only; availability_unknown",
+        "note": "Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.",
+        "saved": true
+      },
+      "request_indexes": [
+        6
+      ]
+    },
+    {
+      "name": "catalog_inspect",
+      "arguments": {
+        "product-id": "J0001900",
+        "region": "20",
+        "save": true
+      },
+      "payload": {
+        "availability": "unknown",
+        "catalog_membership": "listed",
+        "note": "Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.",
+        "observed_at": "2026-10-04T16:36:27.874504000Z",
+        "products": [
+          {
+            "id": "J0001900",
+            "name": "ポイント券",
+            "region": {
+              "id": "20",
+              "name": "北陸"
+            },
+            "ticket_type": "freepass",
+            "area_tags": [],
+            "categories": [],
+            "price": {
+              "display": "2,000P",
+              "amount": "2000",
+              "original_amount": null,
+              "unit": "WESTER_POINT",
+              "kind": "quoted",
+              "basis": "unknown",
+              "points_only": true
+            },
+            "overview": "※全額ポイント利用のみ。QRを提示。",
+            "overview_truncated": false,
+            "restriction_evidence": [
+              {
+                "kind": "overview_cue",
+                "text": "※全額ポイント利用のみ。QRを提示。",
+                "truncated": false
+              }
+            ],
+            "restriction_evidence_truncated": false,
+            "usage_type_hints": "",
+            "published_status": "unknown",
+            "availability": "unknown",
+            "full_redemption_terms": "unknown",
+            "included_routes": "unknown",
+            "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0001900",
+            "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_type=&usage_date=",
+            "observed_at": "2026-10-04T16:36:27.874504000Z"
+          }
+        ],
+        "requested_date": "",
+        "requested_id": "J0001900",
+        "saved": true,
+        "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_type=&usage_date="
+      },
+      "request_indexes": [
+        7
+      ]
+    },
+    {
+      "name": "catalog_compare",
+      "arguments": {
+        "ids": "J0001900,J0000900",
+        "region": "20",
+        "save": true
+      },
+      "payload": {
+        "comparison_rule": "Units and unknown price bases are preserved; no points/cash conversion, savings estimate or price ranking.",
+        "comparisons": [
+          {
+            "availability": "unknown",
+            "catalog_membership": "listed",
+            "id": "J0001900",
+            "product": {
+              "id": "J0001900",
+              "name": "ポイント券",
+              "region": {
+                "id": "20",
+                "name": "北陸"
+              },
+              "ticket_type": "freepass",
+              "area_tags": [],
+              "categories": [],
+              "price": {
+                "display": "2,000P",
+                "amount": "2000",
+                "original_amount": null,
+                "unit": "WESTER_POINT",
+                "kind": "quoted",
+                "basis": "unknown",
+                "points_only": true
+              },
+              "overview": "※全額ポイント利用のみ。QRを提示。",
+              "overview_truncated": false,
+              "restriction_evidence": [
+                {
+                  "kind": "overview_cue",
+                  "text": "※全額ポイント利用のみ。QRを提示。",
+                  "truncated": false
+                }
+              ],
+              "restriction_evidence_truncated": false,
+              "usage_type_hints": "",
+              "published_status": "unknown",
+              "availability": "unknown",
+              "full_redemption_terms": "unknown",
+              "included_routes": "unknown",
+              "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0001900",
+              "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_ids=J0000900&ticket_type=&usage_date=",
+              "observed_at": "2026-10-04T16:36:27.885666000Z"
+            },
+            "requested_date_membership": "not_requested"
+          },
+          {
+            "availability": "unknown",
+            "catalog_membership": "listed",
+            "id": "J0000900",
+            "product": {
+              "id": "J0000900",
+              "name": "岡山・香川ワイドパス",
+              "region": {
+                "id": "20",
+                "name": "北陸"
+              },
+              "ticket_type": "freepass",
+              "area_tags": [],
+              "categories": [],
+              "price": {
+                "display": "3,600円",
+                "amount": "3600",
+                "original_amount": null,
+                "unit": "JPY",
+                "kind": "quoted",
+                "basis": "unknown",
+                "points_only": null
+              },
+              "overview": "※直島は含まれません。",
+              "overview_truncated": false,
+              "restriction_evidence": [
+                {
+                  "kind": "overview_cue",
+                  "text": "※直島は含まれません。",
+                  "truncated": false
+                }
+              ],
+              "restriction_evidence_truncated": false,
+              "usage_type_hints": "",
+              "published_status": "unknown",
+              "availability": "unknown",
+              "full_redemption_terms": "unknown",
+              "included_routes": "unknown",
+              "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0000900",
+              "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_ids=J0000900&ticket_type=&usage_date=",
+              "observed_at": "2026-10-04T16:36:27.885666000Z"
+            },
+            "requested_date_membership": "not_requested"
+          }
+        ],
+        "dated_observed_at": "",
+        "dated_source_url": "",
+        "note": "Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.",
+        "observed_at": "2026-10-04T16:36:27.885666000Z",
+        "requested_date": "",
+        "saved": true,
+        "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_ids=J0000900&ticket_type=&usage_date="
+      },
+      "request_indexes": [
+        8
+      ]
+    },
+    {
+      "name": "catalog_saved",
+      "arguments": {
+        "region": "20"
+      },
+      "payload": {
+        "count": 2,
+        "note": "These are saved observations with original source clocks; they are not a current stock or terms check. Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.",
+        "observation_state": "saved_historical_evidence",
+        "products": [
+          {
+            "id": "J0000900",
+            "name": "岡山・香川ワイドパス",
+            "region": {
+              "id": "20",
+              "name": "北陸"
+            },
+            "ticket_type": "freepass",
+            "area_tags": [],
+            "categories": [],
+            "price": {
+              "display": "3,600円",
+              "amount": "3600",
+              "original_amount": null,
+              "unit": "JPY",
+              "kind": "quoted",
+              "basis": "unknown",
+              "points_only": null
+            },
+            "overview": "※直島は含まれません。",
+            "overview_truncated": false,
+            "restriction_evidence": [
+              {
+                "kind": "overview_cue",
+                "text": "※直島は含まれません。",
+                "truncated": false
+              }
+            ],
+            "restriction_evidence_truncated": false,
+            "usage_type_hints": "",
+            "published_status": "unknown",
+            "availability": "unknown",
+            "full_redemption_terms": "unknown",
+            "included_routes": "unknown",
+            "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0000900",
+            "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_ids=J0000900&ticket_type=&usage_date=",
+            "observed_at": "2026-10-04T16:36:27.885666000Z"
+          },
+          {
+            "id": "J0001900",
+            "name": "ポイント券",
+            "region": {
+              "id": "20",
+              "name": "北陸"
+            },
+            "ticket_type": "freepass",
+            "area_tags": [],
+            "categories": [],
+            "price": {
+              "display": "2,000P",
+              "amount": "2000",
+              "original_amount": null,
+              "unit": "WESTER_POINT",
+              "kind": "quoted",
+              "basis": "unknown",
+              "points_only": true
+            },
+            "overview": "※全額ポイント利用のみ。QRを提示。",
+            "overview_truncated": false,
+            "restriction_evidence": [
+              {
+                "kind": "overview_cue",
+                "text": "※全額ポイント利用のみ。QRを提示。",
+                "truncated": false
+              }
+            ],
+            "restriction_evidence_truncated": false,
+            "usage_type_hints": "",
+            "published_status": "unknown",
+            "availability": "unknown",
+            "full_redemption_terms": "unknown",
+            "included_routes": "unknown",
+            "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0001900",
+            "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_ids=J0000900&ticket_type=&usage_date=",
+            "observed_at": "2026-10-04T16:36:27.885666000Z"
+          }
+        ],
+        "region_id": "20"
+      },
+      "request_indexes": []
+    },
+    {
+      "name": "context",
+      "arguments": {},
+      "payload": {
+        "api": "tabiwa",
+        "archetype": "generic",
+        "command_mirror_capabilities": [
+          {
+            "cli_command": "catalog search",
+            "command": "catalog search",
+            "description": "Discover regional products with a dated catalog filter and explicit scanned coverage.",
+            "mcp_tool": "catalog_search",
+            "name": "Dated regional discovery",
+            "rationale": "Combines provider summaries with bounded normalized decision evidence.",
+            "via": "mcp-command-mirror"
+          },
+          {
+            "cli_command": "catalog compare",
+            "command": "catalog compare",
+            "description": "Compare points-only and yen-quoted products without inventing currency conversion.",
+            "mcp_tool": "catalog_compare",
+            "name": "Quoted payment units",
+            "rationale": "Combines provider summaries with bounded normalized decision evidence.",
+            "via": "mcp-command-mirror"
+          },
+          {
+            "cli_command": "catalog inspect",
+            "command": "catalog inspect",
+            "description": "Read original Japanese restriction and redemption hints while complete terms remain unknown.",
+            "mcp_tool": "catalog_inspect",
+            "name": "Overview restriction evidence",
+            "rationale": "Combines provider summaries with bounded normalized decision evidence.",
+            "via": "mcp-command-mirror"
+          },
+          {
+            "cli_command": "catalog compare",
+            "command": "catalog compare",
+            "description": "Show whether selected products appear in a requested-date catalog without claiming ticket stock.",
+            "mcp_tool": "catalog_compare",
+            "name": "Requested-date membership",
+            "rationale": "Combines provider summaries with bounded normalized decision evidence.",
+            "via": "mcp-command-mirror"
+          },
+          {
+            "cli_command": "catalog saved",
+            "command": "catalog saved",
+            "description": "Read saved selected products offline with their original observation times.",
+            "mcp_tool": "catalog_saved",
+            "name": "Saved decision evidence",
+            "rationale": "Combines provider summaries with bounded normalized decision evidence.",
+            "via": "mcp-command-mirror"
+          }
+        ],
+        "description": "Compare regional tabiwa catalog products with payment units and original restriction evidence.",
+        "domain_tool_count": 5,
+        "learn_protocol": "1. Recall first: before answering a domain query, pass the question as an argv or MCP argument to recall --agent (never interpolate user-controlled text into a shell command line, quoted string, or heredoc: an apostrophe breaks quotes, and a body line equal to the delimiter breaks a heredoc). If a shell is required, write the question with a non-shell file tool, then QUERY=$(cat /path/to/question.txt) && recall \"$QUERY\" --agent. Apply any verified learnings, playbook steps, and notes it returns.\n2. Empty-store short-circuit: if the store has no learnings, playbooks, or candidates yet (recall finds nothing and learnings list and learnings candidates are both empty), skip recall for the rest of this session instead of taxing every query; resume recall-first once something has been taught.\n3. Candidates are try-then-confirm, never facts: entries in the recall envelope's candidates section are unverified. Follow each candidate's two-step next_action verbatim: run the trial command first, then run learnings confirm <id> only after the trial verified the behavior. Reject a wrong candidate with learnings reject <id>.\n4. Teach contract: after resolving a query the store could not answer, teach the structural query shape with identifiers stripped: never include names, emails, phone numbers, account ids, or other personal identifiers in taught queries or notes. Pass the query the same argv/MCP way as recall, or write it with a non-shell file tool then QUERY=$(cat /path/to/question.txt) && teach --query \"$QUERY\"; do not splice it into a shell command.\n5. Never re-teach what recall already surfaced as a candidate: confirm or reject that candidate instead of teaching a duplicate.",
+        "paths": {
+          "cache_dir": "<temporary>/tabiwa-round4-runtime-8szjzzd4/cache",
+          "config_dir": "<temporary>/tabiwa-round4-runtime-8szjzzd4/config",
+          "data_dir": "<temporary>/tabiwa-round4-runtime-8szjzzd4/data",
+          "state_dir": "<temporary>/tabiwa-round4-runtime-8szjzzd4/state"
+        },
+        "playbook": [
+          {
+            "insight": "Combines provider summaries with bounded normalized decision evidence.",
+            "topic": "Dated regional discovery"
+          },
+          {
+            "insight": "Combines provider summaries with bounded normalized decision evidence.",
+            "topic": "Quoted payment units"
+          },
+          {
+            "insight": "Combines provider summaries with bounded normalized decision evidence.",
+            "topic": "Overview restriction evidence"
+          },
+          {
+            "insight": "Combines provider summaries with bounded normalized decision evidence.",
+            "topic": "Requested-date membership"
+          },
+          {
+            "insight": "Combines provider summaries with bounded normalized decision evidence.",
+            "topic": "Saved decision evidence"
+          }
+        ],
+        "query_tips": [
+          "Regional display preferences are region 10 せとうち, 20 北陸, 30 山陰 and 40 九州. Use geography_list for provider prefecture/area IDs, not national prefecture codes.",
+          "catalog_search defaults to 10 returned products (maximum 50) and scans at most 500 source records by default (maximum 1000). max-records and limit are independent; inspect coverage and truncation.",
+          "catalog_inspect reads one exact ID. catalog_compare accepts 2–5 distinct IDs; MCP ids is a comma-separated string and on is a Japan YYYY-MM-DD catalog filter.",
+          "Requested-date catalog membership is not eligibility, operation, stock or purchasability. Missing membership leaves availability unknown.",
+          "JPY and WESTER_POINT quotes are separate; points_only is a source boolean or null. Unknown quote bases remain unknown, except explicit per-vehicle overview evidence. No points/cash conversion or savings ranking is performed.",
+          "Restriction evidence is bounded original Japanese overview text; full redemption terms and included routes remain unknown. Full detail pages require the source queue and are excluded from CLI/MCP runtime reads.",
+          "catalog_search, catalog_inspect and catalog_compare are save-capable local-write tools, not read-only hints; provider requests are still GET-only. Use save explicitly to keep selected observations in the cache directory catalog/saved.db (maximum 50 products,24KiB per payload). Older/equal observations cannot replace newer instants; catalog_saved reads historical evidence without source calls or schema changes.",
+          "Generic root CLI search is local-only in auto/local modes; explicit live is unsupported, so use catalog_search for live product discovery. Generic search/sql use the separate framework data.db populated only with geography by sync. They do not query the selected catalog/saved.db store; use catalog_saved for that evidence."
+        ],
+        "resources": [
+          {
+            "commands": [
+              "search",
+              "inspect",
+              "compare",
+              "saved"
+            ],
+            "description": "Inspect published ticket catalog summaries and their limits",
+            "name": "catalog",
+            "searchable": true
+          },
+          {
+            "description": "Resolve provider region-specific prefecture and area identifiers",
+            "endpoints": [
+              "list"
+            ],
+            "name": "geography",
+            "syncable": true
+          }
+        ],
+        "tool_count": 27,
+        "tool_surface": "Domain catalog and geography tools invoke the same normalized, bounded Cobra callbacks as the companion tabiwa-pp-cli. Generic search/sql inspect only the geography populated by sync in the separate framework store; catalog_saved reads selected catalog observations."
+      },
+      "request_indexes": []
+    }
+  ],
+  "tools": [
+    {
+      "_meta": {
+        "pp:cli-command": "analytics",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Count generic synced records by --type or group by --group-by with --limit; returns counts from the framework store, not selected catalog evidence",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "group-by": {
+            "description": "Field to group by",
+            "type": "string"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Max groups to show (default: 25)",
+            "type": "number"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "type": {
+            "description": "Resource type to analyze",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "analytics"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "catalog compare",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "description": "Compare at most five catalog products with separate price units and dated membership; optionally save private evidence",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "ids": {
+            "description": "Two to five distinct product IDs separated by commas; use instead of positional IDs",
+            "type": "string"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "on": {
+            "description": "Requested Japan date YYYY-MM-DD; dated absence is not sold-out, closed or unavailable",
+            "type": "string"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "product-ids": {
+            "description": "Positional argument [product-ids...]",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "region": {
+            "description": "Regional catalog: 10 せとうち, 20 北陸, 30 山陰, 40 九州; a public display preference (default: 10)",
+            "type": "string"
+          },
+          "save": {
+            "description": "Save only returned normalized evidence locally; never purchases a ticket (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "catalog_compare"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "catalog inspect",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "description": "Read exact catalog identity, price units and overview restriction cues; optionally save private evidence; full terms stay unknown",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "on": {
+            "description": "Requested Japan date YYYY-MM-DD; presence only means dated catalog membership",
+            "type": "string"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "product-id": {
+            "description": "Positional argument [product-id]",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "region": {
+            "description": "Regional catalog: 10 せとうち, 20 北陸, 30 山陰, 40 九州; a public display preference (default: 10)",
+            "type": "string"
+          },
+          "save": {
+            "description": "Save only returned normalized evidence locally; never purchases a ticket (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "catalog_inspect"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "catalog saved",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Read previously selected catalog evidence offline with original observation times",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Maximum saved observations to return, from 1 to 50 (default: 10)",
+            "type": "number"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "region": {
+            "description": "Regional catalog: 10 せとうち, 20 北陸, 30 山陰, 40 九州; a public display preference (default: 10)",
+            "type": "string"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "catalog_saved"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "catalog search",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "description": "Discover bounded catalog summaries with optional private evidence saves; a date filter is not availability",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "area": {
+            "description": "Provider area ID from geography list; area tags do not guarantee pass coverage",
+            "type": "string"
+          },
+          "category": {
+            "description": "Provider category: transportation, tourism_experience, gourmet or other",
+            "type": "string"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Maximum returned normalized products, from 1 to 50 (default: 10)",
+            "type": "number"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "max-records": {
+            "description": "Maximum source catalog records scanned locally, from 1 to 1000; independent of --limit (default: 500)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "on": {
+            "description": "Requested Japan date YYYY-MM-DD; only filters the published catalog",
+            "type": "string"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "positional-query": {
+            "description": "Positional argument [query]",
+            "type": "string"
+          },
+          "prefecture": {
+            "description": "Provider prefecture ID from geography list; not a national code",
+            "type": "string"
+          },
+          "query": {
+            "description": "Case-insensitive text contained in the Japanese name or catalog overview; at most 100 characters",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "region": {
+            "description": "Regional catalog: 10 せとうち, 20 北陸, 30 山陰, 40 九州; a public display preference (default: 10)",
+            "type": "string"
+          },
+          "save": {
+            "description": "Save only returned normalized evidence locally; never purchases a ticket (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "type": {
+            "description": "Provider product type: freepass, ticket, multi-coupon or discount-coupon",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "catalog_search"
+    },
+    {
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first.",
+      "inputSchema": {
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "name": "context"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "export",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Export data to JSONL or JSON for backup, migration, or analysis",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "format": {
+            "description": "Output format: jsonl or json (default: jsonl)",
+            "type": "string"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "id": {
+            "description": "Positional argument [id]",
+            "type": "string"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Maximum records to export (0 = unlimited) (default: 0)",
+            "type": "number"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache for fresh data (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "resource": {
+            "description": "Positional argument <resource>",
+            "type": "string"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "resource"
+        ],
+        "type": "object"
+      },
+      "name": "export"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "geography list",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "List provider prefecture and area identifiers for --region; use IDs as discovery filters, not as proof of pass coverage",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "region": {
+            "description": "Regional catalog: 10 せとうち, 20 北陸, 30 山陰, 40 九州; a public display preference (default: 10)",
+            "type": "string"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "geography_list"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "learnings candidates",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "List quarantined local improvement candidates filtered by --class, --status and --limit; returns IDs, payloads and observation clocks for later judgment",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "class": {
+            "description": "Filter by class (flag_alias | playbook_candidate)",
+            "type": "string"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Maximum rows to return (default: capped) (default: 0)",
+            "type": "number"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "status": {
+            "description": "Filter by status (open | confirmed | rejected | expired; empty for all) (default: open)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "learnings_candidates"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "learnings confirm",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "description": "Confirm an open candidate: print its full payload, then materialize it",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "id": {
+            "description": "Positional argument <id>",
+            "type": "string"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "name": "learnings_confirm"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "learnings forget",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Delete learnings matching a query (use --all to wipe every rule for that query)",
+      "inputSchema": {
+        "properties": {
+          "action": {
+            "description": "Delete only rules with this action (boost | hide | alias_of)",
+            "type": "string"
+          },
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "all": {
+            "description": "Delete every rule for the supplied query (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "query": {
+            "description": "Positional argument <query>",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "resource": {
+            "description": "Delete only the rule for this resource_id",
+            "type": "string"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "name": "learnings_forget"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "learnings list",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "List recorded learnings from the local tabiwa-pp-cli search_learnings table",
+      "inputSchema": {
+        "properties": {
+          "action": {
+            "description": "Filter by action (boost | hide | alias_of)",
+            "type": "string"
+          },
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Maximum rows to return (default: 200)",
+            "type": "number"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "min-confidence": {
+            "description": "Filter by minimum confidence (default: 0)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "query": {
+            "description": "Filter by normalized query substring",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "resource": {
+            "description": "Filter by resource_id",
+            "type": "string"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "source": {
+            "description": "Filter by source (taught | manual-forget)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "warnings": {
+            "description": "Return teach-time warnings from teach.log instead of stored learning rows (default: false)",
+            "type": "boolean"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "learnings_list"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "learnings reject",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Reject a candidate and tombstone its derivation signature",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "id": {
+            "description": "Positional argument <id>",
+            "type": "string"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "name": "learnings_reject"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "learnings stats",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Report learn-loop effectiveness metrics from the local events table",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "learnings_stats"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "playbook amend",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "description": "Append a note to an existing playbook (LLM-fired self-correction, silent)",
+      "inputSchema": {
+        "properties": {
+          "add-note": {
+            "description": "The note text to append to the family's playbook (required)",
+            "type": "string"
+          },
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "query": {
+            "description": "The exact recall query whose family should be amended (required)",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "playbook_amend"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "playbook list",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "List stored playbooks (query_family, content presence, last observed)",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "playbook_list"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "recall",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Check prior learnings for a query before running discovery (LLM-fired, pre-discovery)",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "debug-mismatches": {
+            "description": "Include cross-entity mismatches in the envelope under mismatches[] (default: false)",
+            "type": "boolean"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Maximum number of learnings to return (default: 10)",
+            "type": "number"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "min-confidence": {
+            "description": "Minimum confidence to include in results (default: 1)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "query": {
+            "description": "Positional argument <query>",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "name": "recall"
+    },
+    {
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first.",
+      "inputSchema": {
+        "properties": {
+          "limit": {
+            "description": "Max results (default 25)",
+            "type": "number"
+          },
+          "query": {
+            "description": "Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "name": "search"
+    },
+    {
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first.",
+      "inputSchema": {
+        "properties": {
+          "query": {
+            "description": "SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='geography'. Sync supports geography only; selected product observations use catalog_saved, not this framework store.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "name": "sql"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "sync",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Sync API data to local SQLite for offline search and analysis",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "concurrency": {
+            "description": "Number of parallel sync workers (default: 4)",
+            "type": "number"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "full": {
+            "description": "Full resync (ignore previous checkpoint) (default: false)",
+            "type": "boolean"
+          },
+          "global-param": {
+            "description": "Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.",
+            "type": "string"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "latest-only": {
+            "description": "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins). (default: false)",
+            "type": "boolean"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "max-pages": {
+            "description": "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event) (default: 0)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "no-prune": {
+            "description": "Disable deletion reconciliation on --full (by default a full sync prunes local rows the API no longer returns after a complete walk) (default: false)",
+            "type": "boolean"
+          },
+          "param": {
+            "description": "Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=<id> does not double up on /parents/<id>/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.",
+            "type": "string"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "resource-param": {
+            "description": "Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.",
+            "type": "string"
+          },
+          "resources": {
+            "description": "Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).",
+            "type": "string"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "since": {
+            "description": "Incremental sync duration (e.g. 7d, 24h, 1w, 30m)",
+            "type": "string"
+          },
+          "strict": {
+            "description": "Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero). (default: false)",
+            "type": "boolean"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "sync"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "tail",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Stream live changes by polling the API at regular intervals",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "follow": {
+            "description": "Keep running (set --follow=false for single poll) (default: true)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "interval": {
+            "description": "Poll interval (default: 10s)",
+            "type": "string"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "positional-resource": {
+            "description": "Positional argument [resource]",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "resource": {
+            "description": "Resource type to tail",
+            "type": "string"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "tail"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "teach",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "description": "Record a query -> resource mapping for future recall (LLM-fired, silent)",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "no-validate": {
+            "description": "Suppress teach-time resource-shape validation (warnings to teach.log) (default: false)",
+            "type": "boolean"
+          },
+          "notes": {
+            "description": "Optional free-form note recorded in the audit log",
+            "type": "string"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "playbook-file": {
+            "description": "Optional path to a JSON playbook recording the CLI choreography for this query family",
+            "type": "string"
+          },
+          "playbook-json": {
+            "description": "Optional inline JSON playbook (mutually exclusive with --playbook-file; for agents without filesystem access)",
+            "type": "string"
+          },
+          "playbook-notes": {
+            "description": "Optional inline gotchas/workarounds for this query family (stored alongside the playbook)",
+            "type": "string"
+          },
+          "playbook-notes-file": {
+            "description": "Optional path to a markdown file with playbook notes",
+            "type": "string"
+          },
+          "query": {
+            "description": "User's original natural-language question (required)",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Silent on success (default true — designed for background invocation) (default: true)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "resource": {
+            "description": "Resource ID — repeat for multiple (required)",
+            "type": "string"
+          },
+          "resource-type": {
+            "description": "Resource type (required; e.g. matches a row in the local resources table)",
+            "type": "string"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "venue": {
+            "description": "Optional venue scope tag stored with the learning",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "teach"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "teach-lookup",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "description": "Install a manual entity-lookup row (kind, canonical, value)",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "canonical": {
+            "description": "Canonical entity name (required)",
+            "type": "string"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "kind": {
+            "description": "Entity kind, e.g. country, team (required, must not be a computed kind)",
+            "type": "string"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "value": {
+            "description": "Value/alias that should resolve to the canonical (required)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "teach_lookup"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "teach-pattern",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "description": "Install a manual generalization pattern (query_template, resource_template, entity_kind)",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "entity-kind": {
+            "description": "Entity kind name registered in entity_lookups (required)",
+            "type": "string"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "query-template": {
+            "description": "Query template with {entity} placeholder (required)",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "resource-template": {
+            "description": "Resource template with typed entity slot, e.g. PREFIX-{entity:country} (required)",
+            "type": "string"
+          },
+          "resource-type": {
+            "description": "Resource type for substituted IDs (required)",
+            "type": "string"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "strategy": {
+            "description": "Substitution strategy: substitute | substitute-then-search-prefix (default substitute)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "venue": {
+            "description": "Optional venue scope tag",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "teach_pattern"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "teach-playbook",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      },
+      "description": "Record a CLI playbook + free-text notes for a query family",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "notes": {
+            "description": "Free-text notes (gotchas, workarounds) -- mutually exclusive with --notes-file",
+            "type": "string"
+          },
+          "notes-file": {
+            "description": "Path to a markdown file with the notes",
+            "type": "string"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "playbook-file": {
+            "description": "Path to a JSON file with the playbook (steps, entity_slots, expected_tool_calls)",
+            "type": "string"
+          },
+          "playbook-json": {
+            "description": "Inline playbook JSON (steps, entity_slots, expected_tool_calls) -- mutually exclusive with --playbook-file",
+            "type": "string"
+          },
+          "query": {
+            "description": "Example query that anchors the family (required)",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "teach_playbook"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "workflow archive",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Sync all resources to local store for offline access and search",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "full": {
+            "description": "Full re-archive (ignore previous sync state) (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "max-pages": {
+            "description": "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event) (default: 0)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Maximum time to spend archiving (0 = no timeout) (default: 30m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "workflow_archive"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "workflow status",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Show local archive status and sync state for all resources",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "workflow_status"
+    }
+  ],
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/ticketList/area",
+      "query": {},
+      "region_cookie": null,
+      "auth": false
+    },
+    {
+      "method": "GET",
+      "path": "/ticketList/search",
+      "query": {},
+      "region_cookie": "regionId=20",
+      "auth": false
+    },
+    {
+      "method": "GET",
+      "path": "/ticketList/search",
+      "query": {},
+      "region_cookie": "regionId=20",
+      "auth": false
+    },
+    {
+      "method": "GET",
+      "path": "/ticketList/search",
+      "query": {},
+      "region_cookie": "regionId=20",
+      "auth": false
+    },
+    {
+      "method": "GET",
+      "path": "/ticketList/search",
+      "query": {
+        "ticket_ids": [
+          "J0001900"
+        ]
+      },
+      "region_cookie": "regionId=20",
+      "auth": false
+    },
+    {
+      "method": "GET",
+      "path": "/ticketList/search",
+      "query": {
+        "ticket_ids": [
+          "J0001900",
+          "J0000900"
+        ]
+      },
+      "region_cookie": "regionId=20",
+      "auth": false
+    },
+    {
+      "method": "GET",
+      "path": "/ticketList/search",
+      "query": {},
+      "region_cookie": "regionId=20",
+      "auth": false
+    },
+    {
+      "method": "GET",
+      "path": "/ticketList/search",
+      "query": {
+        "ticket_ids": [
+          "J0001900"
+        ]
+      },
+      "region_cookie": "regionId=20",
+      "auth": false
+    },
+    {
+      "method": "GET",
+      "path": "/ticketList/search",
+      "query": {
+        "ticket_ids": [
+          "J0001900",
+          "J0000900"
+        ]
+      },
+      "region_cookie": "regionId=20",
+      "auth": false
+    }
+  ],
+  "passed": 43,
+  "failed": 0
+}

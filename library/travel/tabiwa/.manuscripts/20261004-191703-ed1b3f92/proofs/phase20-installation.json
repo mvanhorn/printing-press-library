@@ -1,12 +1,12 @@
 {
   "observed_at": "2026-10-04T14:31:29.628082+00:00",
   "installed": {
-    "/Users/zjsng/go/bin/tabiwa-pp-cli": "5d93ef94a811e9dfdb74f91be8b4f73f566dd65740a9b5bb99c8dc70531f6ed0",
-    "/Users/zjsng/go/bin/tabiwa-pp-mcp": "ed7a7df1004541111263090aa4b290fbf007720b10ffc8a95067ed9a371689dc",
-    "/Users/zjsng/.agents/skills/pp-tabiwa/SKILL.md": "7317506365e66c245693f18091f4c7018fe9628ea1994e0d27bd6bfdd261ef82"
+    "<install-bin>/tabiwa-pp-cli": "5d93ef94a811e9dfdb74f91be8b4f73f566dd65740a9b5bb99c8dc70531f6ed0",
+    "<install-bin>/tabiwa-pp-mcp": "ed7a7df1004541111263090aa4b290fbf007720b10ffc8a95067ed9a371689dc",
+    "<installed-skill>/SKILL.md": "7317506365e66c245693f18091f4c7018fe9628ea1994e0d27bd6bfdd261ef82"
   },
-  "promoted_library": "/Users/zjsng/Projects/Personal/Coding/.japan-domestic-press/tabiwa/library/tabiwa",
-  "archive": "/Users/zjsng/Projects/Personal/Coding/.japan-domestic-press/tabiwa/manuscripts/tabiwa/20261004-191703-ed1b3f92",
+  "promoted_library": "<press-workspace>/library/tabiwa",
+  "archive": "<press-workspace>/manuscripts/tabiwa/20261004-191703-ed1b3f92",
   "source_fingerprint": "5dd940944f88e72290cb6d8cedab4e36e505520c3e01a8932f37deceac53bee9",
   "all170_source_and9_artifacts_match_approved_packet": true,
   "actual_cli_product": {

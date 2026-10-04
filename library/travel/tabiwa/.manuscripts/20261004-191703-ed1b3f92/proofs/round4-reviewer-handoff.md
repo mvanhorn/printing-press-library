@@ -1,0 +1,14 @@
+# Frozen SAME-reviewer Greptile fix recheck
+
+Source:<source-project>
+Packet:<press-workspace>/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92/proofs/round4-source-hashes.json
+Raw fingerprint:6c5745a6ec8dff6c1845ab0db7be454ab6b881fd3cf03db341a426f1401c7c5b
+172source hashes;9artifact hashes. Changed entries:internal/cli/tabiwa_catalog.go, internal/mcp/tools.go, internal/cli/tabiwa_framework.go, internal/cli/tabiwa_framework_test.go. Publichead a60db57af56ae93ebd0300b741506ed2b355fe05/PR2267draft;no install/promotion/GitHub update in this batch.
+
+Exactly3triaged findings fixed. Handwritten root-search override preserves the generated FTS/type/DB/limit callback,forces auto/local local-only with local provenance,and rejects explicit live with native catalog guidance;no provider q call. SQL actual schema describes supported geography and selected cache stays separate. Save-capable callbacks including promoted executable catalog use readOnly=false/local-write=true/live-happy-path=true;geography/saved remain reads. Examples include--save=true and full runner uses--allow-destructive with proven scoped HOME/XDG/disposable cwd. No runner/marker/cache algorithm/schema/transaction or tool-count redesign.
+
+Proofs:round4-runtime-behavior.json43actual assertions for generic FTS/customDB/no-provider/live refusal,exact geography SQL,default no-save and all3positiveMCP saves/GET-only;round4-mcp-live-samples.json5real public calls,all3savecapable operations nonempty/saved=true,2comparison/saved;round4-bundle-audit.json extractedCLI point payload and5actualMCP calls,peer bytes equal stage,pinsGo1.27.1/sqlite1.60.1/libc1.77.1,Darwinonly;round4-fix-gates.json full117/117+85disclosed skips,nohollow/actualsavevectors;phase5-acceptance.json canonical fingerprint2de2efccce9ab0ae5f6bfc7ed6b61fffdce4d547d6ed2ed0d3601828de66cc18;round4-runtime-metadata.json actual27/5;round4-boolean-fixture-receipt.md honest held failure then Boolean syntax correction. Runner samples can be clipped;actual publicMCP payloads are untruncated,not fabricated parses.
+
+Stable final Go tests/vetPASS,verify31/31,SKILL0,tools0,PII0;live scorecard5/5,90/A;scopedgovulncheck0;gosec33bundled/0custom. Previous closed chronology/cursor/dependency/platform fixes retained;saved.go rawhash unchanged. README/skill/context/tools reflect supported geography/local-write contracts. Patch includes handwritten helper/regression and prior lessons. Module,provider scope,catalog-only date/price/term unknowns stay unchanged.
+
+Recheck all3fixes against your exact prior triage proofs,source/artifact snapshots,canonical acceptance correspondence,actual emittedMCP/input/hints/context and extracted peers. Parent schedules this SAME context. Builder is fully frozen/idle for review before installation/promotion/GitHub writes.

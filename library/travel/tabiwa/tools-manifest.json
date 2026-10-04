@@ -276,12 +276,12 @@
         "pp:tenant-gate": "child-cli"
       },
       "annotations": {
-        "readOnlyHint": true,
+        "readOnlyHint": false,
         "destructiveHint": false,
         "idempotentHint": false,
-        "openWorldHint": true
+        "openWorldHint": false
       },
-      "description": "Compare at most five catalog products with separate price units and optional dated membership",
+      "description": "Compare at most five catalog products with separate price units and dated membership; optionally save private evidence",
       "inputSchema": {
         "properties": {
           "agent": {
@@ -790,12 +790,12 @@
         "pp:tenant-gate": "child-cli"
       },
       "annotations": {
-        "readOnlyHint": true,
+        "readOnlyHint": false,
         "destructiveHint": false,
         "idempotentHint": false,
-        "openWorldHint": true
+        "openWorldHint": false
       },
-      "description": "Read exact catalog identity, price units and overview restriction evidence; complete terms stay unknown",
+      "description": "Read exact catalog identity, price units and overview restriction cues; optionally save private evidence; full terms stay unknown",
       "inputSchema": {
         "properties": {
           "agent": {
@@ -1704,12 +1704,12 @@
         "pp:tenant-gate": "child-cli"
       },
       "annotations": {
-        "readOnlyHint": true,
+        "readOnlyHint": false,
         "destructiveHint": false,
         "idempotentHint": false,
-        "openWorldHint": true
+        "openWorldHint": false
       },
-      "description": "Discover bounded catalog summaries; a date filter does not establish availability",
+      "description": "Discover bounded catalog summaries with optional private evidence saves; a date filter is not availability",
       "inputSchema": {
         "properties": {
           "agent": {
@@ -5288,7 +5288,7 @@
       "inputSchema": {
         "properties": {
           "query": {
-            "description": "SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='catalog'.",
+            "description": "SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='geography'. Sync supports geography only; selected product observations use catalog_saved, not this framework store.",
             "type": "string"
           }
         },
@@ -5303,7 +5303,7 @@
         {
           "name": "query",
           "type": "string",
-          "description": "SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='catalog'.",
+          "description": "SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='geography'. Sync supports geography only; selected product observations use catalog_saved, not this framework store.",
           "required": true
         }
       ]

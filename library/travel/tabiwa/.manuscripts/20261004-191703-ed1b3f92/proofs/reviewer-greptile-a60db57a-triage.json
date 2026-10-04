@@ -1,0 +1,67 @@
+{
+  "reviewer": "/root/tabiwa_reviewer (same sole review context)",
+  "observed_at": "2026-10-04T15:36:28.999377+00:00",
+  "pr": "https://github.com/mvanhorn/printing-press-library/pull/2267",
+  "head": "a60db57af56ae93ebd0300b741506ed2b355fe05",
+  "task": "read-only Greptile triage; no implementation or GitHub writes",
+  "verdict": "changes_required",
+  "isolated_runtime_checks": 21,
+  "runtime_passes": 21,
+  "public_false_search_reproduced": true,
+  "runner_local_write_two_key_contract": "PASS",
+  "recommended_contract": "preserve CLI/MCP optional saving, annotate save-capable commands read-only=false/local-write=true, opt in through pp:live-happy-path=true and runner --allow-destructive, use real nonempty --save fixtures",
+  "findings": [
+    {
+      "id": "G1",
+      "priority": "P1",
+      "file": "internal/cli/search.go",
+      "line": 119,
+      "valid": true,
+      "recommendation": "Make root generic search local-only; reject explicit live with a catalog search pointer; preserve existing FTS/type/db behavior and truthful help."
+    },
+    {
+      "id": "G2",
+      "priority": "P2",
+      "file": "internal/mcp/tools.go",
+      "line": 62,
+      "valid": true,
+      "recommendation": "Advertise resources geography SQL example; selected catalog evidence stays in its separate saved cache."
+    },
+    {
+      "id": "G3",
+      "priority": "P2",
+      "file": "internal/cli/tabiwa_catalog.go",
+      "line": 86,
+      "valid": true,
+      "recommendation": "Whole-tool readOnlyHint must be false when optional save persists evidence; use supported two-key runner opt-in to keep acceptance real."
+    }
+  ],
+  "source_hashes": {
+    "internal/cli/search.go": "347782e843b9b08b4d5bbbd644d2da8472480867870275455290badcddc73408",
+    "internal/cli/tabiwa_catalog.go": "ce175a8b48b36cef892caaac694a9ab59dcaa492f57941b1f0527f38b7928674",
+    "internal/mcp/tools.go": "c7929fd35c692e2aa554bf639bb59c407cd47ea7c8e251dea68e84d4df518582",
+    "internal/cli/sync.go": "6f046d716f01789b57db1d3c910877e9040b61725fa39ccabb56eae7ec84bfe2",
+    "internal/tabiwa/source.go": "449b6e13f271ccb3122ce128a7e07c59e0a10e998147f917f4343cefe4bfabaf",
+    "internal/mcp/cobratree/typemap.go": "aa365660610575da182d7c644d9e1fb5fd151eeb763a86269676f2f72f3e4402",
+    "internal/mcp/cobratree/shellout.go": "c31b5809cd8ef01fbb81efbcedf50503ff6cbcd1351507b79d45fea626e89fb7"
+  },
+  "published_hashes": {
+    "internal/cli/search.go": "46611d15d5144ecbf78b1cb5609bd83a36de20413d40e87bd56a2b84a4a7c265",
+    "internal/cli/tabiwa_catalog.go": "0780b06c322a3d28532f402b6c33a43626cb7bc821121335f57f40dfd3d7e051",
+    "internal/mcp/tools.go": "352c69de5d58f4437678410e581e22f788f29807b48e013edb53abde5296ef8c",
+    "internal/cli/sync.go": "12faa2cbd39c07189176bd88eee18319e9dca1835a33c25cb6476c610fc4f826",
+    "internal/tabiwa/source.go": "9b7c14ecdd0b10f2a49dcc15d271d303a62d81ca8a676500c89eb414c58199ff",
+    "internal/mcp/cobratree/typemap.go": "aa365660610575da182d7c644d9e1fb5fd151eeb763a86269676f2f72f3e4402",
+    "internal/mcp/cobratree/shellout.go": "409272dfae92bf2d818aa2ec63e65abe5d5830be4a69cedaf2f964dde05a902e"
+  },
+  "proof_hashes": {
+    "reviewer-greptile-a60db57a-fixture.py": "3a8e012ee5e59ef8067b328eeb19c3dca9276337f17c8aa5af20f9fad9051521",
+    "reviewer-greptile-a60db57a-runtime.json": "d19cb7b6125bfdde40ff16fb43761577611acb7780305943770368872ffd80c0",
+    "reviewer-greptile-a60db57a-public.json": "0f39d62258d96d5834ea409d6ebb94093995a1b8030e39741f75909216f82704",
+    "reviewer-greptile-a60db57a-runner-contract.json": "6aaaaba00fd14fe18ea4595fa1182de59963ae5fe12e83feb52a6ba8e4f9c4bf",
+    "reviewer-greptile-a60db57a-runner-helper/go.mod": "1264c4253cc547d0caafa925965c1894c26aa3bd9589014bdac67ce43cbb4b7e",
+    "reviewer-greptile-a60db57a-runner-helper/go.sum": "7181cb8dc0c82aec83257886f76c97bd069856194172e8ae5261ee18e573dc59",
+    "reviewer-greptile-a60db57a-runner-helper/local_write_test.go": "a969d4f3d10aa98d112612e63cf1c746df46c8a846cbde5f4ed79860b737df32"
+  },
+  "supersedes": "Only the prior round3 interpretation of optional persistent save under readOnlyHint=true; closed cache, metadata and artifact findings remain closed. Existing approval covers old bytes but cannot establish current PR readiness with these new findings."
+}

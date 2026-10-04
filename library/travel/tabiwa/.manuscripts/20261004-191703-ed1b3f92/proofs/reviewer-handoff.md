@@ -3,18 +3,18 @@
 Review phases 14–17 using the sole fresh reviewer context /root/tabiwa_reviewer. The builder has not entered or completed those phases. Current receipt next: 14-agentic-skill-review. Read source AGENTS.md and current phase/receipt rules. No agents, nested Codex, global updaters, source booking/payment/account operations, or source access-control bypasses.
 
 ## Exact paths
-Source: /Users/zjsng/Projects/Personal/Coding/tabiwa-cli
-Run: /Users/zjsng/Projects/Personal/Coding/.japan-domestic-press/tabiwa/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92
-Run environment: /Users/zjsng/Projects/Personal/Coding/.japan-domestic-press/tabiwa/run-env.sh
-State: /Users/zjsng/Projects/Personal/Coding/.japan-domestic-press/tabiwa/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92/state.json
-Phase ledger: /Users/zjsng/Projects/Personal/Coding/.japan-domestic-press/tabiwa/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92/pipeline/phase-receipts.jsonl
-Research brief: /Users/zjsng/Projects/Personal/Coding/.japan-domestic-press/tabiwa/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92/research/tabiwa-brief.md
-Approved manifest: /Users/zjsng/Projects/Personal/Coding/.japan-domestic-press/tabiwa/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92/research/tabiwa-absorb-manifest.md
-Spec: /Users/zjsng/Projects/Personal/Coding/.japan-domestic-press/tabiwa/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92/research/tabiwa-spec.yaml (bundled copy spec.yaml)
-Research metadata: /Users/zjsng/Projects/Personal/Coding/.japan-domestic-press/tabiwa/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92/research.json
-CLI: /Users/zjsng/Projects/Personal/Coding/tabiwa-cli/build/stage/bin/tabiwa-pp-cli
-MCP: /Users/zjsng/Projects/Personal/Coding/tabiwa-cli/build/stage/bin/tabiwa-pp-mcp
-Bundle: /Users/zjsng/Projects/Personal/Coding/tabiwa-cli/build/tabiwa-pp-mcp-darwin-arm64.mcpb
+Source: <source-project>
+Run: <press-workspace>/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92
+Run environment: <press-workspace>/run-env.sh
+State: <press-workspace>/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92/state.json
+Phase ledger: <press-workspace>/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92/pipeline/phase-receipts.jsonl
+Research brief: <press-workspace>/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92/research/tabiwa-brief.md
+Approved manifest: <press-workspace>/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92/research/tabiwa-absorb-manifest.md
+Spec: <press-workspace>/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92/research/tabiwa-spec.yaml (bundled copy spec.yaml)
+Research metadata: <press-workspace>/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92/research.json
+CLI: <source-project>/build/stage/bin/tabiwa-pp-cli
+MCP: <source-project>/build/stage/bin/tabiwa-pp-mcp
+Bundle: <source-project>/build/tabiwa-pp-mcp-darwin-arm64.mcpb
 
 ## Exact approved scope and limits
 Four catalog commands plus geography list: bounded dated regional discovery; payment-unit comparison; overview restriction/redemption cues; requested-date catalog membership; saved selected observations. RegionId is a documented non-auth display preference (10 せとうち,20 北陸,30 山陰,40 九州). Public catalog and region reads work repeatedly. Full /eticketDetails HTTP enters Queue-it and is excluded. No account or queue cookies are imported. Canonical product URLs are handoffs only.

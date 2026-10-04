@@ -1,0 +1,856 @@
+{
+  "observed_at": "2026-10-04T15:27:48.519552+00:00",
+  "head": "a60db57af56ae93ebd0300b741506ed2b355fe05",
+  "fixture_script": "<temporary>/tabiwa-greptile-triage-a60db57a.py",
+  "isolation_home": "<isolated-storage>/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T/tabiwa-greptile-a60db57a-oo3lmp58",
+  "checks": [
+    {
+      "name": "tabiwa-pp-cli exact approved installed bytes",
+      "pass": true
+    },
+    {
+      "name": "tabiwa-pp-mcp exact approved installed bytes",
+      "pass": true
+    },
+    {
+      "name": "generic_live_search exits zero",
+      "pass": true
+    },
+    {
+      "name": "normalized_live_search exits zero",
+      "pass": true
+    },
+    {
+      "name": "generic impossible query returns unrelated two rows",
+      "pass": true
+    },
+    {
+      "name": "native same impossible query returns zero products",
+      "pass": true
+    },
+    {
+      "name": "generic forwards unsupported q without selected region",
+      "pass": true
+    },
+    {
+      "name": "native filters locally and selects region",
+      "pass": true
+    },
+    {
+      "name": "default_sync exits zero",
+      "pass": true
+    },
+    {
+      "name": "default sync created only isolated generic store",
+      "pass": true
+    },
+    {
+      "name": "supported default sync yields geography only",
+      "pass": true
+    },
+    {
+      "name": "MCP sql succeeds",
+      "pass": true
+    },
+    {
+      "name": "SQL advertised catalog example returns zero records",
+      "pass": true
+    },
+    {
+      "name": "SQL geography example returns two records",
+      "pass": true
+    },
+    {
+      "name": "save-capable tool advertises readOnlyHint true",
+      "pass": true
+    },
+    {
+      "name": "selected evidence cache initially absent",
+      "pass": true
+    },
+    {
+      "name": "MCP catalog_inspect succeeds",
+      "pass": true
+    },
+    {
+      "name": "MCP accepted save true creates persistent selected cache",
+      "pass": true
+    },
+    {
+      "name": "MCP catalog_saved succeeds",
+      "pass": true
+    },
+    {
+      "name": "saved tool returns selected persisted evidence",
+      "pass": true
+    },
+    {
+      "name": "all fixture provider operations are GET",
+      "pass": true
+    }
+  ],
+  "cli": {
+    "generic_live_search": {
+      "argv": [
+        "search",
+        "zz_tabiwa_greptile_no_match_2267_a60db57a",
+        "--data-source",
+        "live",
+        "--no-cache",
+        "--limit",
+        "3",
+        "--json",
+        "--no-learn"
+      ],
+      "exit_code": 0,
+      "stdout": {
+        "meta": {
+          "source": "live"
+        },
+        "results": [
+          {
+            "id": "J0001900",
+            "name": "ポイント券",
+            "price": "2,000P",
+            "is_point_only": true,
+            "overview": "※全額ポイント利用のみ。クレジットカードは利用できません。QRを提示。",
+            "ticket_type": "freepass"
+          },
+          {
+            "id": "J0000900",
+            "name": "岡山・香川ワイドパス",
+            "price": "3,600円",
+            "overview": "※直島は含まれません。",
+            "ticket_type": "freepass"
+          }
+        ]
+      },
+      "stderr": "",
+      "request_indexes": [
+        0
+      ]
+    },
+    "normalized_live_search": {
+      "argv": [
+        "catalog",
+        "search",
+        "zz_tabiwa_greptile_no_match_2267_a60db57a",
+        "--region",
+        "20",
+        "--no-cache",
+        "--limit",
+        "3",
+        "--json",
+        "--no-learn"
+      ],
+      "exit_code": 0,
+      "stdout": {
+        "products": [],
+        "coverage": {
+          "scanned_records": 2,
+          "source_records": 2,
+          "scan_cap": 500,
+          "scan_complete": true,
+          "returned_products": 0,
+          "output_truncated": false
+        },
+        "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_type=&usage_date=",
+        "observed_at": "2026-10-04T15:27:48.558157000Z",
+        "date_filter_meaning": "published_catalog_filter_only; availability_unknown",
+        "note": "No matching catalog summary was found within the scanned records and selected filters. Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.",
+        "saved": false
+      },
+      "stderr": "",
+      "request_indexes": [
+        1
+      ]
+    },
+    "default_sync": {
+      "argv": [
+        "sync",
+        "--strict",
+        "--json",
+        "--no-learn"
+      ],
+      "exit_code": 0,
+      "stdout": {
+        "duration_ms": 1,
+        "errored": 0,
+        "resources": 1,
+        "success": 1,
+        "total_records": 2,
+        "warned": 0
+      },
+      "stderr": "{\"event\":\"sync_start\",\"resource\":\"geography\"}\n{\"event\":\"sync_progress\",\"resource\":\"geography\",\"fetched\":2,\"rate_rps\":2.0}\n{\"event\":\"sync_complete\",\"resource\":\"geography\",\"total\":2,\"duration_ms\":1}\n{\"event\":\"sync_summary\",\"total_records\":2,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":1}\n",
+      "request_indexes": [
+        2
+      ]
+    }
+  },
+  "binary_hashes": {
+    "<install-bin>/tabiwa-pp-cli": "5d93ef94a811e9dfdb74f91be8b4f73f566dd65740a9b5bb99c8dc70531f6ed0",
+    "<install-bin>/tabiwa-pp-mcp": "ed7a7df1004541111263090aa4b290fbf007720b10ffc8a95067ed9a371689dc"
+  },
+  "generic_hits": [
+    {
+      "id": "J0001900",
+      "name": "ポイント券",
+      "price": "2,000P",
+      "is_point_only": true,
+      "overview": "※全額ポイント利用のみ。クレジットカードは利用できません。QRを提示。",
+      "ticket_type": "freepass"
+    },
+    {
+      "id": "J0000900",
+      "name": "岡山・香川ワイドパス",
+      "price": "3,600円",
+      "overview": "※直島は含まれません。",
+      "ticket_type": "freepass"
+    }
+  ],
+  "generic_resource_counts": [
+    [
+      "geography",
+      2
+    ]
+  ],
+  "runtime_tools": {
+    "sql": {
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first.",
+      "inputSchema": {
+        "properties": {
+          "query": {
+            "description": "SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='catalog'.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "name": "sql"
+    },
+    "catalog_search": {
+      "_meta": {
+        "pp:cli-command": "catalog search",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Discover bounded catalog summaries; a date filter does not establish availability",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "area": {
+            "description": "Provider area ID from geography list; area tags do not guarantee pass coverage",
+            "type": "string"
+          },
+          "category": {
+            "description": "Provider category: transportation, tourism_experience, gourmet or other",
+            "type": "string"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Maximum returned normalized products, from 1 to 50 (default: 10)",
+            "type": "number"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "max-records": {
+            "description": "Maximum source catalog records scanned locally, from 1 to 1000; independent of --limit (default: 500)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "on": {
+            "description": "Requested Japan date YYYY-MM-DD; only filters the published catalog",
+            "type": "string"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "positional-query": {
+            "description": "Positional argument [query]",
+            "type": "string"
+          },
+          "prefecture": {
+            "description": "Provider prefecture ID from geography list; not a national code",
+            "type": "string"
+          },
+          "query": {
+            "description": "Case-insensitive text contained in the Japanese name or catalog overview; at most 100 characters",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "region": {
+            "description": "Regional catalog: 10 せとうち, 20 北陸, 30 山陰, 40 九州; a public display preference (default: 10)",
+            "type": "string"
+          },
+          "save": {
+            "description": "Save only returned normalized evidence locally; never purchases a ticket (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "type": {
+            "description": "Provider product type: freepass, ticket, multi-coupon or discount-coupon",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "catalog_search"
+    },
+    "catalog_inspect": {
+      "_meta": {
+        "pp:cli-command": "catalog inspect",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Read exact catalog identity, price units and overview restriction evidence; complete terms stay unknown",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "on": {
+            "description": "Requested Japan date YYYY-MM-DD; presence only means dated catalog membership",
+            "type": "string"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "product-id": {
+            "description": "Positional argument [product-id]",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "region": {
+            "description": "Regional catalog: 10 せとうち, 20 北陸, 30 山陰, 40 九州; a public display preference (default: 10)",
+            "type": "string"
+          },
+          "save": {
+            "description": "Save only returned normalized evidence locally; never purchases a ticket (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "catalog_inspect"
+    },
+    "catalog_compare": {
+      "_meta": {
+        "pp:cli-command": "catalog compare",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Compare at most five catalog products with separate price units and optional dated membership",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "ids": {
+            "description": "Two to five distinct product IDs separated by commas; use instead of positional IDs",
+            "type": "string"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "on": {
+            "description": "Requested Japan date YYYY-MM-DD; dated absence is not sold-out, closed or unavailable",
+            "type": "string"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "product-ids": {
+            "description": "Positional argument [product-ids...]",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "region": {
+            "description": "Regional catalog: 10 せとうち, 20 北陸, 30 山陰, 40 九州; a public display preference (default: 10)",
+            "type": "string"
+          },
+          "save": {
+            "description": "Save only returned normalized evidence locally; never purchases a ticket (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "catalog_compare"
+    },
+    "catalog_saved": {
+      "_meta": {
+        "pp:cli-command": "catalog saved",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Read previously selected catalog evidence offline with original observation times",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Maximum saved observations to return, from 1 to 50 (default: 10)",
+            "type": "number"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "region": {
+            "description": "Regional catalog: 10 せとうち, 20 北陸, 30 山陰, 40 九州; a public display preference (default: 10)",
+            "type": "string"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "catalog_saved"
+    }
+  },
+  "mcp_calls": {
+    "sql": {
+      "arguments": {
+        "query": "SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='catalog'"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"columns\": [\n    \"json_extract(data,'$.name')\"\n  ],\n  \"count\": 0,\n  \"next_step\": \"The read-only SQL query returned no rows. Check resource_type filters, json_extract paths, or run sync again if data may be stale.\",\n  \"resumable\": false,\n  \"rows\": [],\n  \"store_status\": \"ready\",\n  \"truncated\": false\n}"
+          }
+        ]
+      },
+      "request_indexes": []
+    },
+    "catalog_inspect": {
+      "arguments": {
+        "product-id": "J0001900",
+        "region": "20",
+        "save": true
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"availability\": \"unknown\",\n  \"catalog_membership\": \"listed\",\n  \"note\": \"Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.\",\n  \"observed_at\": \"2026-10-04T15:27:48.592347000Z\",\n  \"products\": [\n    {\n      \"id\": \"J0001900\",\n      \"name\": \"ポイント券\",\n      \"region\": {\n        \"id\": \"20\",\n        \"name\": \"北陸\"\n      },\n      \"ticket_type\": \"freepass\",\n      \"area_tags\": [],\n      \"categories\": [],\n      \"price\": {\n        \"display\": \"2,000P\",\n        \"amount\": \"2000\",\n        \"original_amount\": null,\n        \"unit\": \"WESTER_POINT\",\n        \"kind\": \"quoted\",\n        \"basis\": \"unknown\",\n        \"points_only\": true\n      },\n      \"overview\": \"※全額ポイント利用のみ。クレジットカードは利用できません。QRを提示。\",\n      \"overview_truncated\": false,\n      \"restriction_evidence\": [\n        {\n          \"kind\": \"overview_cue\",\n          \"text\": \"※全額ポイント利用のみ。クレジットカードは利用できません。QRを提示。\",\n          \"truncated\": false\n        }\n      ],\n      \"restriction_evidence_truncated\": false,\n      \"usage_type_hints\": \"\",\n      \"published_status\": \"unknown\",\n      \"availability\": \"unknown\",\n      \"full_redemption_terms\": \"unknown\",\n      \"included_routes\": \"unknown\",\n      \"product_url\": \"https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0001900\",\n      \"source_url\": \"https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=\\u0026category_id=\\u0026prefecture_id=\\u0026ticket_ids=J0001900\\u0026ticket_type=\\u0026usage_date=\",\n      \"observed_at\": \"2026-10-04T15:27:48.592347000Z\"\n    }\n  ],\n  \"requested_date\": \"\",\n  \"requested_id\": \"J0001900\",\n  \"saved\": true,\n  \"source_url\": \"https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=\\u0026category_id=\\u0026prefecture_id=\\u0026ticket_ids=J0001900\\u0026ticket_type=\\u0026usage_date=\"\n}\n"
+          }
+        ]
+      },
+      "request_indexes": [
+        3
+      ]
+    },
+    "catalog_saved": {
+      "arguments": {
+        "region": "20"
+      },
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"count\": 1,\n  \"note\": \"These are saved observations with original source clocks; they are not a current stock or terms check. Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.\",\n  \"observation_state\": \"saved_historical_evidence\",\n  \"products\": [\n    {\n      \"id\": \"J0001900\",\n      \"name\": \"ポイント券\",\n      \"region\": {\n        \"id\": \"20\",\n        \"name\": \"北陸\"\n      },\n      \"ticket_type\": \"freepass\",\n      \"area_tags\": [],\n      \"categories\": [],\n      \"price\": {\n        \"display\": \"2,000P\",\n        \"amount\": \"2000\",\n        \"original_amount\": null,\n        \"unit\": \"WESTER_POINT\",\n        \"kind\": \"quoted\",\n        \"basis\": \"unknown\",\n        \"points_only\": true\n      },\n      \"overview\": \"※全額ポイント利用のみ。クレジットカードは利用できません。QRを提示。\",\n      \"overview_truncated\": false,\n      \"restriction_evidence\": [\n        {\n          \"kind\": \"overview_cue\",\n          \"text\": \"※全額ポイント利用のみ。クレジットカードは利用できません。QRを提示。\",\n          \"truncated\": false\n        }\n      ],\n      \"restriction_evidence_truncated\": false,\n      \"usage_type_hints\": \"\",\n      \"published_status\": \"unknown\",\n      \"availability\": \"unknown\",\n      \"full_redemption_terms\": \"unknown\",\n      \"included_routes\": \"unknown\",\n      \"product_url\": \"https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0001900\",\n      \"source_url\": \"https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=\\u0026category_id=\\u0026prefecture_id=\\u0026ticket_ids=J0001900\\u0026ticket_type=\\u0026usage_date=\",\n      \"observed_at\": \"2026-10-04T15:27:48.592347000Z\"\n    }\n  ],\n  \"region_id\": \"20\"\n}\n"
+          }
+        ]
+      },
+      "request_indexes": []
+    }
+  },
+  "mcp_geography_sql": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"columns\": [\n    \"name\"\n  ],\n  \"count\": 2,\n  \"resumable\": false,\n  \"rows\": [\n    {\n      \"name\": \"富山県\"\n    },\n    {\n      \"name\": \"石川県\"\n    }\n  ],\n  \"store_status\": \"ready\",\n  \"truncated\": false\n}"
+      }
+    ]
+  },
+  "mcp_stderr": "",
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/ticketList/search",
+      "query": {
+        "q": [
+          "zz_tabiwa_greptile_no_match_2267_a60db57a"
+        ]
+      },
+      "region_cookie": null,
+      "authorization_present": false
+    },
+    {
+      "method": "GET",
+      "path": "/ticketList/search",
+      "query": {
+        "area_id": [
+          ""
+        ],
+        "category_id": [
+          ""
+        ],
+        "prefecture_id": [
+          ""
+        ],
+        "ticket_type": [
+          ""
+        ],
+        "usage_date": [
+          ""
+        ]
+      },
+      "region_cookie": "regionId=20",
+      "authorization_present": false
+    },
+    {
+      "method": "GET",
+      "path": "/ticketList/area",
+      "query": {},
+      "region_cookie": null,
+      "authorization_present": false
+    },
+    {
+      "method": "GET",
+      "path": "/ticketList/search",
+      "query": {
+        "area_id": [
+          ""
+        ],
+        "category_id": [
+          ""
+        ],
+        "prefecture_id": [
+          ""
+        ],
+        "ticket_ids": [
+          "J0001900"
+        ],
+        "ticket_type": [
+          ""
+        ],
+        "usage_date": [
+          ""
+        ]
+      },
+      "region_cookie": "regionId=20",
+      "authorization_present": false
+    }
+  ],
+  "verdict": "three_findings_reproduced"
+}

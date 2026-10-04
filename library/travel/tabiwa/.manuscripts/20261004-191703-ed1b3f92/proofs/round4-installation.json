@@ -1,0 +1,13 @@
+{
+  "observed_at": "2026-10-04T16:34:49.818066+00:00",
+  "source_fingerprint": "6c5745a6ec8dff6c1845ab0db7be454ab6b881fd3cf03db341a426f1401c7c5b",
+  "all172source9artifacts_match_approval": true,
+  "installed": {
+    "<install-bin>/tabiwa-pp-cli": "dcb72bfe6eae24d652439fdbc0c607c2e7e2cbc072f5706680142a1ae565326c",
+    "<install-bin>/tabiwa-pp-mcp": "fe15a81203aa66efc14a8fa789418161c6502eb3a3ecce4fc6c77ce55d56fcec",
+    "<installed-skill>/SKILL.md": "75b4f6d527ba4ddf5ecadf691871bfbf78cb5e4a64e160a1acb4f0dadea67d48"
+  },
+  "native_bundle_sha256": "8c966a486508dce3580a77990867c3de5e86a091e8e8dec07cb8c6532c981c1c",
+  "refresh_method": "Exact approved byte copy;avoid known promotion-owned metadata resets;existing run pointer retained",
+  "approval": "reviewer-round4-approval.json"
+}

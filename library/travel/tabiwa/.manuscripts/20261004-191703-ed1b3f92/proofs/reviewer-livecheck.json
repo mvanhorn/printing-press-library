@@ -42,8 +42,8 @@
     ],
     "binary_refresh": {
       "action": "fresh",
-      "stage_path": "/Users/zjsng/Projects/Personal/Coding/tabiwa-cli/build/stage/bin/tabiwa-pp-cli",
-      "binary_path": "/Users/zjsng/Projects/Personal/Coding/tabiwa-cli/build/stage/bin/tabiwa-pp-cli",
+      "stage_path": "<source-project>/build/stage/bin/tabiwa-pp-cli",
+      "binary_path": "<source-project>/build/stage/bin/tabiwa-pp-cli",
       "reason": "staged binary is newer than Go sources"
     },
     "ran_at": "2026-10-04T12:17:47.141076Z",

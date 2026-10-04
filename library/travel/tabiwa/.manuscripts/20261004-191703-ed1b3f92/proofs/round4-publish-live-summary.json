@@ -1,0 +1,108 @@
+{
+  "verdict": "PASS",
+  "ran_at": "2026-10-04T16:34:50.088132Z",
+  "matrix_size": 117,
+  "passed": 117,
+  "failed": 0,
+  "skipped": 85,
+  "unverified": 85,
+  "coverage_hollow": false,
+  "allow_destructive": true,
+  "skip_reasons": {
+    "no positional argument": 22,
+    "command does not honour --dry-run": 9,
+    "mutating command; error_path would call live API without --dry-run": 10,
+    "mutating command dry-run only": 9,
+    "command path [export] has fewer segments than placeholders (2)": 3,
+    "no --dry-run short-circuit": 2,
+    "non-id positional \"text\" at depth 0": 3,
+    "blocked-fixture: required API parameter": 6,
+    "non-id positional \"query\" at depth 0": 7,
+    "non-id positional \"name\" at depth 0": 11,
+    "non-id positional \"resource\" at depth 0": 2,
+    "no-error-path-probe annotation": 1
+  },
+  "save_vectors": [
+    {
+      "command": "catalog",
+      "kind": "happy_path",
+      "args": [
+        "catalog",
+        "--region",
+        "20",
+        "--category",
+        "transportation",
+        "--limit",
+        "3",
+        "--save=true",
+        "--agent"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "catalog compare",
+      "kind": "happy_path",
+      "args": [
+        "catalog",
+        "compare",
+        "J0001900",
+        "J0000900",
+        "--region",
+        "10",
+        "--on",
+        "2026-10-28",
+        "--save=true",
+        "--agent"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "catalog inspect",
+      "kind": "happy_path",
+      "args": [
+        "catalog",
+        "inspect",
+        "J0000900",
+        "--region",
+        "10",
+        "--save=true",
+        "--agent"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "catalog saved",
+      "kind": "happy_path",
+      "args": [
+        "catalog",
+        "saved",
+        "--region",
+        "10",
+        "--limit",
+        "3",
+        "--agent"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "catalog search",
+      "kind": "happy_path",
+      "args": [
+        "catalog",
+        "search",
+        "立山",
+        "--region",
+        "20",
+        "--category",
+        "transportation",
+        "--on",
+        "2026-10-28",
+        "--limit",
+        "3",
+        "--save=true",
+        "--agent"
+      ],
+      "status": "pass"
+    }
+  ]
+}

@@ -59,7 +59,7 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("sql",
 			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='catalog'.")),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='geography'. Sync supports geography only; selected product observations use catalog_saved, not this framework store.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
@@ -896,7 +896,7 @@ func handleContextResult(s *server.MCPServer, _ context.Context, _ mcplib.CallTo
 		"tool_count":  len(s.ListTools()),
 		"paths":       paths,
 		// tool_surface tells agents which surface a capability lives on.
-		"tool_surface": "Domain catalog and geography tools invoke the same normalized, bounded Cobra callbacks as the companion tabiwa-pp-cli. Generic search/sql inspect the separate framework sync store; catalog_saved reads selected catalog observations.",
+		"tool_surface": "Domain catalog and geography tools invoke the same normalized, bounded Cobra callbacks as the companion tabiwa-pp-cli. Generic search/sql inspect only the geography populated by sync in the separate framework store; catalog_saved reads selected catalog observations.",
 		// learn_protocol is generated from the single shared source of
 		// truth (the exported constant internal/learn.RecallFirstProtocol)
 		// also consumed by the CLI agent-context command, so the MCP and
@@ -924,8 +924,8 @@ func handleContextResult(s *server.MCPServer, _ context.Context, _ mcplib.CallTo
 			"Requested-date catalog membership is not eligibility, operation, stock or purchasability. Missing membership leaves availability unknown.",
 			"JPY and WESTER_POINT quotes are separate; points_only is a source boolean or null. Unknown quote bases remain unknown, except explicit per-vehicle overview evidence. No points/cash conversion or savings ranking is performed.",
 			"Restriction evidence is bounded original Japanese overview text; full redemption terms and included routes remain unknown. Full detail pages require the source queue and are excluded from CLI/MCP runtime reads.",
-			"Use save explicitly to keep selected observations in the cache directory catalog/saved.db (maximum 50 products,24KiB per payload). Older/equal observations cannot replace newer instants; catalog_saved reads historical evidence without source calls or schema changes.",
-			"Generic search/sql use the separate framework data.db populated by sync. They do not query the selected catalog/saved.db store; use catalog_saved for that evidence.",
+			"catalog_search, catalog_inspect and catalog_compare are save-capable local-write tools, not read-only hints; provider requests are still GET-only. Use save explicitly to keep selected observations in the cache directory catalog/saved.db (maximum 50 products,24KiB per payload). Older/equal observations cannot replace newer instants; catalog_saved reads historical evidence without source calls or schema changes.",
+			"Generic root CLI search is local-only in auto/local modes; explicit live is unsupported, so use catalog_search for live product discovery. Generic search/sql use the separate framework data.db populated only with geography by sync. They do not query the selected catalog/saved.db store; use catalog_saved for that evidence.",
 		},
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.

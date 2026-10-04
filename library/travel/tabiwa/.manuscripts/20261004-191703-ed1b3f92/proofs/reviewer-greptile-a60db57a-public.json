@@ -1,0 +1,65 @@
+{
+  "observed_at": "2026-10-04T15:29:05.728921+00:00",
+  "source": "https://app.tabi-wester.westjr.co.jp",
+  "home": "<isolated-storage>/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T/tabiwa-greptile-public-a60db57a-pi4k8zp5",
+  "calls": [
+    {
+      "argv": [
+        "search",
+        "zz_tabiwa_greptile_no_match_2267_a60db57a",
+        "--data-source",
+        "live",
+        "--no-cache",
+        "--limit",
+        "3",
+        "--json",
+        "--no-learn"
+      ],
+      "exit_code": 0,
+      "count": 3,
+      "sample_ids_names": [
+        {
+          "id": "N1005300",
+          "name": "LAGOクルーズで行くたねや LAGO 大津～限定和菓子付き～"
+        },
+        {
+          "id": "N1005900",
+          "name": "神戸シーバス boh boh KOBE　お食事付き乗船プラン"
+        },
+        {
+          "id": "N4002000",
+          "name": "せとうち島たびクルーズ（うさぎコース尾道行き）"
+        }
+      ],
+      "coverage": null,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "catalog",
+        "search",
+        "zz_tabiwa_greptile_no_match_2267_a60db57a",
+        "--region",
+        "20",
+        "--no-cache",
+        "--limit",
+        "3",
+        "--json",
+        "--no-learn"
+      ],
+      "exit_code": 0,
+      "count": 0,
+      "sample_ids_names": [],
+      "coverage": {
+        "scanned_records": 214,
+        "source_records": 214,
+        "scan_cap": 500,
+        "scan_complete": true,
+        "returned_products": 0,
+        "output_truncated": false
+      },
+      "stderr": ""
+    }
+  ],
+  "confirmed": true
+}

@@ -1,8 +1,8 @@
 # tabiwa round2 focused recheck handoff
 All consolidated R1–R5 fixes are implemented; source is frozen for the same reviewer. Ledger remains sequence31 failed in phase17; reviewer may resume phase17 after its focused audit. No final approval/publication is claimed.
 
-Source: /Users/zjsng/Projects/Personal/Coding/tabiwa-cli
-Run: /Users/zjsng/Projects/Personal/Coding/.japan-domestic-press/tabiwa/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92
+Source: <source-project>
+Run: <press-workspace>/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92
 Hashes: proofs/round2-source-hashes.json (fingerprint ca8e23db2f8f02c2d985c30c640437194d92f1c9aa42f1ad31a2cc1269b8ac43)
 CLI/MCP: build/stage/bin/tabiwa-pp-cli and tabiwa-pp-mcp
 Native bundle: build/tabiwa-pp-mcp-darwin-arm64.mcpb

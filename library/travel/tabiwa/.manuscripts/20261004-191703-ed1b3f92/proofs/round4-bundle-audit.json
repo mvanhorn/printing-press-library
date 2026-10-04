@@ -1,0 +1,119 @@
+{
+  "observed_at": "2026-10-04T15:59:19.860985+00:00",
+  "members": [
+    "manifest.json",
+    "bin/tabiwa-pp-mcp",
+    "bin/tabiwa-pp-cli"
+  ],
+  "platforms": [
+    "darwin"
+  ],
+  "peers": {
+    "tabiwa-pp-cli": {
+      "member": "bin/tabiwa-pp-cli",
+      "sha256": "dcb72bfe6eae24d652439fdbc0c607c2e7e2cbc072f5706680142a1ae565326c",
+      "matches_staged": true,
+      "go_build_metadata": "<temporary>/tabiwa-bundle-check-nytfq6ox/tabiwa-pp-cli: go1.27.1\n\tpath\ttabiwa-pp-cli/cmd/tabiwa-pp-cli\n\tmod\ttabiwa-pp-cli\t(devel)\t\n\tdep\tgithub.com/dustin/go-humanize\tv1.0.1\th1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=\n\tdep\tgithub.com/google/uuid\tv1.6.0\th1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=\n\tdep\tgithub.com/mattn/go-isatty\tv0.0.24\th1:tGZZoVgT/KiqK1c8ocVLeDS8BSWMRd47J3Lbz7vsReI=\n\tdep\tgithub.com/ncruces/go-strftime\tv1.0.0\th1:HMFp8mLCTPp341M/ZnA4qaf7ZlsbTc+miZjCLOFAw7w=\n\tdep\tgithub.com/pelletier/go-toml/v2\tv2.2.4\th1:mye9XuhQ6gvn5h28+VilKrrPoQVanw5PMw/TB0t5Ec4=\n\tdep\tgithub.com/remyoudompheng/bigfft\tv0.0.0-20230129092748-24d4a6f8daec\th1:W09IVJc94icq4NjY3clb7Lk8O1qJ8BdBEF8z0ibU0rE=\n\tdep\tgithub.com/spf13/cobra\tv1.9.1\th1:CXSaggrXdbHK9CF+8ywj8Amf7PBRmPCOJugH954Nnlo=\n\tdep\tgithub.com/spf13/pflag\tv1.0.6\th1:jFzHGLGAlb3ruxLB8MhbI6A8+AQX/2eW4qeyNZXNp2o=\n\tdep\tgolang.org/x/sys\tv0.48.0\th1:bbX/i/6MgT9BVLM9RT1thmxL04yeTAhbEz4SyadbXoo=\n\tdep\tmodernc.org/libc\tv1.77.1\th1:Ct8j47QtiZ1Enj2DtFXQtUqrPCAjdCmPjtCuvrYQ0Hs=\n\tdep\tmodernc.org/mathutil\tv1.7.1\th1:GCZVGXdaN8gTqB1Mf/usp1Y/hSqgI2vAGGP4jZMCxOU=\n\tdep\tmodernc.org/memory\tv1.12.1\th1:nFMiWrpStgZczNl6XI9GnIk/rWhYIyHGUaR04pGbp9g=\n\tdep\tmodernc.org/sqlite\tv1.60.1\th1:/blz53O951KWFOso4QQvEs/Fq6cDBKLtMVrYNSeJVKw=\n\tbuild\t-buildmode=exe\n\tbuild\t-compiler=gc\n\tbuild\t-trimpath=true\n\tbuild\tDefaultGODEBUG=tracebacklabels=0,x509sslcertoverrideplatform=0\n\tbuild\tCGO_ENABLED=1\n\tbuild\tGOARCH=arm64\n\tbuild\tGOOS=darwin\n\tbuild\tGOARM64=v8.0\n"
+    },
+    "tabiwa-pp-mcp": {
+      "member": "bin/tabiwa-pp-mcp",
+      "sha256": "fe15a81203aa66efc14a8fa789418161c6502eb3a3ecce4fc6c77ce55d56fcec",
+      "matches_staged": true,
+      "go_build_metadata": "<temporary>/tabiwa-bundle-check-nytfq6ox/tabiwa-pp-mcp: go1.27.1\n\tpath\ttabiwa-pp-cli/cmd/tabiwa-pp-mcp\n\tmod\ttabiwa-pp-cli\t(devel)\t\n\tdep\tgithub.com/dustin/go-humanize\tv1.0.1\th1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=\n\tdep\tgithub.com/google/jsonschema-go\tv0.4.2\th1:tmrUohrwoLZZS/P3x7ex0WAVknEkBZM46iALbcqoRA8=\n\tdep\tgithub.com/google/uuid\tv1.6.0\th1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=\n\tdep\tgithub.com/mark3labs/mcp-go\tv0.57.0\th1:jzWKyCzdWnwnZt05cvcQQ+ngiUl2RnixXJa7Kj4qP1E=\n\tdep\tgithub.com/mattn/go-isatty\tv0.0.24\th1:tGZZoVgT/KiqK1c8ocVLeDS8BSWMRd47J3Lbz7vsReI=\n\tdep\tgithub.com/ncruces/go-strftime\tv1.0.0\th1:HMFp8mLCTPp341M/ZnA4qaf7ZlsbTc+miZjCLOFAw7w=\n\tdep\tgithub.com/pelletier/go-toml/v2\tv2.2.4\th1:mye9XuhQ6gvn5h28+VilKrrPoQVanw5PMw/TB0t5Ec4=\n\tdep\tgithub.com/remyoudompheng/bigfft\tv0.0.0-20230129092748-24d4a6f8daec\th1:W09IVJc94icq4NjY3clb7Lk8O1qJ8BdBEF8z0ibU0rE=\n\tdep\tgithub.com/santhosh-tekuri/jsonschema/v6\tv6.0.2\th1:KRzFb2m7YtdldCEkzs6KqmJw4nqEVZGK7IN2kJkjTuQ=\n\tdep\tgithub.com/spf13/cast\tv1.7.1\th1:cuNEagBQEHWN1FnbGEjCXL2szYEXqfJPbP2HNUaca9Y=\n\tdep\tgithub.com/spf13/cobra\tv1.9.1\th1:CXSaggrXdbHK9CF+8ywj8Amf7PBRmPCOJugH954Nnlo=\n\tdep\tgithub.com/spf13/pflag\tv1.0.6\th1:jFzHGLGAlb3ruxLB8MhbI6A8+AQX/2eW4qeyNZXNp2o=\n\tdep\tgithub.com/yosida95/uritemplate/v3\tv3.0.2\th1:Ed3Oyj9yrmi9087+NczuL5BwkIc4wvTb5zIM+UJPGz4=\n\tdep\tgolang.org/x/sys\tv0.48.0\th1:bbX/i/6MgT9BVLM9RT1thmxL04yeTAhbEz4SyadbXoo=\n\tdep\tgolang.org/x/text\tv0.39.0\th1:UbZz4pLOvn600D6Oh6GGEI6VAmndrEBLv8/6BEXzyus=\n\tdep\tmodernc.org/libc\tv1.77.1\th1:Ct8j47QtiZ1Enj2DtFXQtUqrPCAjdCmPjtCuvrYQ0Hs=\n\tdep\tmodernc.org/mathutil\tv1.7.1\th1:GCZVGXdaN8gTqB1Mf/usp1Y/hSqgI2vAGGP4jZMCxOU=\n\tdep\tmodernc.org/memory\tv1.12.1\th1:nFMiWrpStgZczNl6XI9GnIk/rWhYIyHGUaR04pGbp9g=\n\tdep\tmodernc.org/sqlite\tv1.60.1\th1:/blz53O951KWFOso4QQvEs/Fq6cDBKLtMVrYNSeJVKw=\n\tbuild\t-buildmode=exe\n\tbuild\t-compiler=gc\n\tbuild\t-trimpath=true\n\tbuild\tDefaultGODEBUG=tracebacklabels=0,x509sslcertoverrideplatform=0\n\tbuild\tCGO_ENABLED=1\n\tbuild\tGOARCH=arm64\n\tbuild\tGOOS=darwin\n\tbuild\tGOARM64=v8.0\n"
+    }
+  },
+  "actual_extracted_cli_payload": {
+    "meta": {
+      "source": "live"
+    },
+    "results": {
+      "availability": "unknown",
+      "catalog_membership": "listed",
+      "note": "Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.",
+      "observed_at": "2026-10-04T15:59:20.558938000Z",
+      "products": [
+        {
+          "area_tags": [
+            {
+              "id": "991",
+              "name": "その他"
+            },
+            {
+              "id": "121",
+              "name": "神戸・阪神"
+            },
+            {
+              "id": "122",
+              "name": "播磨"
+            }
+          ],
+          "availability": "unknown",
+          "categories": [
+            {
+              "id": "transportation",
+              "name": "交通"
+            }
+          ],
+          "full_redemption_terms": "unknown",
+          "id": "J0001900",
+          "included_routes": "unknown",
+          "name": "【WESTERポイント限定】tabiwa関西エリアQR1dayパス",
+          "observed_at": "2026-10-04T15:59:20.558938000Z",
+          "overview": "【4月1日利用分～】\n京阪神エリアを旅行する方におトク！対象エリアのJRが乗り放題になったきっぷ。\n\n【ご注意ください】\n※本チケットは全額WESTERポイントでの購入を条件とします。クレジットカードでの購入はできません。\n※本チケットはWESTERポイントの付与対象外となります。\n※JR線内自由周遊区間では「QRコード対応改札機にかざす」または「改札口付近に掲示されたQRコードを読み取り」でご乗車いただきます。詳細は商品詳細の「もっとみる」からご確認ください。\n※本商品はチケット分配機能を利用できる商品です。詳しくは商品詳細の「もっとみる」からご確認ください。",
+          "overview_truncated": false,
+          "price": {
+            "amount": "2000",
+            "basis": "unknown",
+            "display": "2,000P",
+            "kind": "quoted",
+            "original_amount": null,
+            "points_only": true,
+            "unit": "WESTER_POINT"
+          },
+          "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0001900",
+          "published_status": "unknown",
+          "region": {
+            "id": "10",
+            "name": "せとうち"
+          },
+          "restriction_evidence": [
+            {
+              "kind": "overview_cue",
+              "text": "【ご注意ください】",
+              "truncated": false
+            },
+            {
+              "kind": "overview_cue",
+              "text": "※本チケットは全額WESTERポイントでの購入を条件とします。クレジットカードでの購入はできません。",
+              "truncated": false
+            },
+            {
+              "kind": "overview_cue",
+              "text": "※本チケットはWESTERポイントの付与対象外となります。",
+              "truncated": false
+            },
+            {
+              "kind": "overview_cue",
+              "text": "※JR線内自由周遊区間では「QRコード対応改札機にかざす」または「改札口付近に掲示されたQRコードを読み取り」でご乗車いただきます。詳細は商品詳細の「もっとみる」からご確認ください。",
+              "truncated": false
+            },
+            {
+              "kind": "overview_cue",
+              "text": "※本商品はチケット分配機能を利用できる商品です。詳しくは商品詳細の「もっとみる」からご確認ください。",
+              "truncated": false
+            }
+          ],
+          "restriction_evidence_truncated": false,
+          "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_type=&usage_date=",
+          "ticket_type": "freepass",
+          "usage_type_hints": "JR区間はQRチケットで乗降"
+        }
+      ],
+      "requested_date": "",
+      "requested_id": "J0001900",
+      "saved": false,
+      "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_type=&usage_date="
+    }
+  },
+  "actual_extracted_mcp_tools_passed": 5
+}

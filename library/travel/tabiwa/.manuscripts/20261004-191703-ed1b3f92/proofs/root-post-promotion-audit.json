@@ -1,0 +1,9 @@
+{
+  "observed_at": "2026-10-04T14:34:10.243801+00:00",
+  "approved_raw_fingerprint": "5dd940944f88e72290cb6d8cedab4e36e505520c3e01a8932f37deceac53bee9",
+  "source_and_promoted_library_entries_independently_rehashed": 179,
+  "mismatches": [],
+  "nine_artifact_maps_identical": true,
+  "installed_cli_mcp_skill_rehashed_match": true,
+  "decision": "Exact approved bytes restored; existing sole reviewer approval remains applicable. Fresh publication live validation is still required."
+}

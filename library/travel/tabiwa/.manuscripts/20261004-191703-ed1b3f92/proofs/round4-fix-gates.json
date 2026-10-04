@@ -1,0 +1,161 @@
+{
+  "observed_at": "2026-10-04T16:05:22.265306+00:00",
+  "source_fingerprint": "6c5745a6ec8dff6c1845ab0db7be454ab6b881fd3cf03db341a426f1401c7c5b",
+  "canonical_acceptance_fingerprint": "2de2efccce9ab0ae5f6bfc7ed6b61fffdce4d547d6ed2ed0d3601828de66cc18",
+  "source_count": 172,
+  "artifact_count": 9,
+  "scope": "Exactly3 valid Greptile findings;no cache/framework/provider or tool-count expansion",
+  "controlled_runtime_assertions": 43,
+  "public_mcp_domain_passed": 5,
+  "extracted_bundle_actual_mcp_passed": 5,
+  "full_acceptance": {
+    "passed": 117,
+    "failed": 0,
+    "skipped": 85,
+    "unverified": 85,
+    "matrix_size": 117
+  },
+  "coverage_hollow": false,
+  "domain_happy_vectors": [
+    {
+      "command": "catalog",
+      "args": [
+        "catalog",
+        "--region",
+        "20",
+        "--category",
+        "transportation",
+        "--limit",
+        "3",
+        "--save=true",
+        "--agent"
+      ],
+      "status": "pass",
+      "saved_read_count": null,
+      "sample_may_be_truncated_by_runner": true,
+      "positive_save_payload_proofs": "round4-runtime-behavior.json and round4-mcp-live-samples.json;actual saved2 in runner"
+    },
+    {
+      "command": "catalog compare",
+      "args": [
+        "catalog",
+        "compare",
+        "J0001900",
+        "J0000900",
+        "--region",
+        "10",
+        "--on",
+        "2026-10-28",
+        "--save=true",
+        "--agent"
+      ],
+      "status": "pass",
+      "saved_read_count": null,
+      "sample_may_be_truncated_by_runner": true,
+      "positive_save_payload_proofs": "round4-runtime-behavior.json and round4-mcp-live-samples.json;actual saved2 in runner"
+    },
+    {
+      "command": "catalog inspect",
+      "args": [
+        "catalog",
+        "inspect",
+        "J0000900",
+        "--region",
+        "10",
+        "--save=true",
+        "--agent"
+      ],
+      "status": "pass",
+      "saved_read_count": null,
+      "sample_may_be_truncated_by_runner": true,
+      "positive_save_payload_proofs": "round4-runtime-behavior.json and round4-mcp-live-samples.json;actual saved2 in runner"
+    },
+    {
+      "command": "catalog saved",
+      "args": [
+        "catalog",
+        "saved",
+        "--region",
+        "10",
+        "--limit",
+        "3",
+        "--agent"
+      ],
+      "status": "pass",
+      "saved_read_count": 2,
+      "sample_may_be_truncated_by_runner": true,
+      "positive_save_payload_proofs": "round4-runtime-behavior.json and round4-mcp-live-samples.json;actual saved2 in runner"
+    },
+    {
+      "command": "catalog search",
+      "args": [
+        "catalog",
+        "search",
+        "立山",
+        "--region",
+        "20",
+        "--category",
+        "transportation",
+        "--on",
+        "2026-10-28",
+        "--limit",
+        "3",
+        "--save=true",
+        "--agent"
+      ],
+      "status": "pass",
+      "saved_read_count": null,
+      "sample_may_be_truncated_by_runner": true,
+      "positive_save_payload_proofs": "round4-runtime-behavior.json and round4-mcp-live-samples.json;actual saved2 in runner"
+    }
+  ],
+  "allow_destructive": true,
+  "command_live_happy_annotation": true,
+  "isolation": "Unmodified v4.33.0 runner uses scoped HOME/XDG,strips relocation variables,disposable cwd and cleanup;same-reviewer runner contract retained",
+  "skip_reasons": {
+    "no positional argument": 22,
+    "command does not honour --dry-run": 9,
+    "mutating command; error_path would call live API without --dry-run": 10,
+    "mutating command dry-run only": 9,
+    "command path [export] has fewer segments than placeholders (2)": 3,
+    "no --dry-run short-circuit": 2,
+    "non-id positional \"text\" at depth 0": 3,
+    "blocked-fixture: required API parameter": 6,
+    "non-id positional \"query\" at depth 0": 7,
+    "non-id positional \"name\" at depth 0": 11,
+    "non-id positional \"resource\" at depth 0": 2,
+    "no-error-path-probe annotation": 1
+  },
+  "first_failed_run": {
+    "passed": 111,
+    "failed": 6,
+    "coverage_hollow": true,
+    "cause": "Boolean overlay emitted --save true extra positionals;held correctly",
+    "fix": "Examples include --save=true,so unmodified overlay retains a single boolean token;no runner/marker edits"
+  },
+  "go_tests": "PASS",
+  "go_vet": "PASS",
+  "verify": {
+    "passed": 31,
+    "total": 31,
+    "failed": 0
+  },
+  "skill_findings": 0,
+  "tools_findings": 0,
+  "pii_findings": 0,
+  "live_scorecard": {
+    "score": 90,
+    "grade": "A (2 of 24 dimensions unverified: path_validity, auth_protocol)",
+    "passed": 5,
+    "failed": 0
+  },
+  "govulncheck": "No vulnerabilities found;./... only",
+  "gosec": {
+    "all_findings": 33,
+    "handwritten_tabiwa_findings": 0,
+    "framework_findings": 33
+  },
+  "cache_implementation_unchanged": true,
+  "provider_scope": "GETonly;no details/Queue-it/auth/booking/payment/redemption",
+  "publication_state": "PR2267draft at a60db57;no GitHub write in batch"
+}

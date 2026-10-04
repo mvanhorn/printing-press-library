@@ -4,6 +4,8 @@
 
 Inspect published catalog summaries and requested-date membership. Full ticket terms, route coverage and stock remain unknown; finish on the canonical product page.
 
+Generic root `search` uses local FTS over geography populated by `sync`; auto/local never perform provider text search, and explicit live is unsupported. Use `catalog search` for regional products. MCP search/SQL use that geography store. Save-capable catalog MCP tools are local writes because `save=true` persists selected private evidence; provider requests remain GET-only. Geography and saved-evidence tools remain reads.
+
 ## Install
 
 The recommended path installs both the `tabiwa-pp-cli` binary and the `pp-tabiwa` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

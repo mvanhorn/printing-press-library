@@ -1,0 +1,72 @@
+{
+  "observed_at": "2026-10-04T14:53:23.718604+00:00",
+  "status": "REVIEWABLE_WAITING_GREPTILE",
+  "task_complete": false,
+  "pr_url": "https://github.com/mvanhorn/printing-press-library/pull/2267",
+  "pr_number": 2267,
+  "head": "a60db57af56ae93ebd0300b741506ed2b355fe05",
+  "is_draft": false,
+  "author": "zjsng",
+  "head_owner": "zjsng",
+  "account_login_verified": "zjsng",
+  "token_override_names": [],
+  "clone": "<press-workspace>/.publish-repo-tabiwa-cli-dcb60d1f",
+  "branch": "feat/tabiwa",
+  "package": "<press-workspace>/.publish-repo-tabiwa-cli-dcb60d1f/library/travel/tabiwa",
+  "review_state_helper": "<press-workspace>/.publish-repo-tabiwa-cli-dcb60d1f/.github/scripts/pr-review-state/greptile_feedback.py",
+  "phase_receipt_log": "<press-workspace>/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92/pipeline/phase-receipts.jsonl",
+  "latest_phase": "21-next-steps",
+  "latest_sequence": 42,
+  "fresh_live": {
+    "passed": 105,
+    "failed": 0,
+    "skipped": 97,
+    "unverified": 97,
+    "coverage_hollow": false
+  },
+  "initial_ci": [
+    [
+      "Greptile policy gate",
+      "SKIPPED"
+    ],
+    [
+      "Govulncheck",
+      "SUCCESS"
+    ],
+    [
+      "Validate SKILL.md against shipped CLI source",
+      "SUCCESS"
+    ],
+    [
+      "Verify",
+      "SUCCESS"
+    ],
+    [
+      "Validate MCPB manifest contract",
+      "SUCCESS"
+    ],
+    [
+      "Scan",
+      "SUCCESS"
+    ]
+  ],
+  "readiness": "NOT_READY: no Greptile summary/current-head Review yet; draft-skipped policy check not accepted",
+  "readiness_log": "<press-workspace>/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92/pipeline/publish-readiness-initial.log",
+  "installed": {
+    "<install-bin>/tabiwa-pp-cli": "5d93ef94a811e9dfdb74f91be8b4f73f566dd65740a9b5bb99c8dc70531f6ed0",
+    "<install-bin>/tabiwa-pp-mcp": "ed7a7df1004541111263090aa4b290fbf007720b10ffc8a95067ed9a371689dc",
+    "<installed-skill>/SKILL.md": "7317506365e66c245693f18091f4c7018fe9628ea1994e0d27bd6bfdd261ef82"
+  },
+  "raw_source_fingerprint": "5dd940944f88e72290cb6d8cedab4e36e505520c3e01a8932f37deceac53bee9",
+  "native_bundle_sha256": "8fa363d3ffb9df41bb32dc44285c184dd504b098825693527f7295809f5d6952",
+  "next": [
+    "Wait for current-head Greptile Review and policy gate; allow automatic documented-timeout nudge before any manual bot request.",
+    "Personally read latest greptile-apps summary AND all inline comments; resolve actionable findings under repo policy.",
+    "If any implementation/source fix is required, freeze and request the SAME reviewer through root; do not push unreviewed source fixes.",
+    "Run unchanged repo greptile_feedback.py2267 and require READY with current head; confirm all otherCI stillSUCCESS.",
+    "Write final FINAL-REPORT.md and phase21 completion; do not merge or label auto-merge."
+  ],
+  "source_changes_since_approval": "None;canonical package module/import rewrite only; artifacts restored exactly after tool refresh.",
+  "correction_proof": "<press-workspace>/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92/proofs/phase20-correction.md",
+  "no_merge": true
+}

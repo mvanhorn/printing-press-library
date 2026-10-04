@@ -43,6 +43,6 @@
     "default_scan_cap": 500,
     "max_scan_cap": 1000
   },
-  "runtime_config_path": "/tmp/tabiwa-reviewer-runtime/config/config.json",
+  "runtime_config_path": "<temporary>/tabiwa-reviewer-runtime/config/config.json",
   "selected_saved_store": "catalog/saved.db under resolved cache directory; separate from generic data/data.db and SQL resources tables"
 }

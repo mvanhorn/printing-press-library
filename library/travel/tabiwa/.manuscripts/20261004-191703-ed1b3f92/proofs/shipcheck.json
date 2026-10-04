@@ -12,7 +12,7 @@
       "verdict": "PASS",
       "started_at": "2026-10-04T12:06:23Z",
       "elapsed_ms": 4668,
-      "command": "/Users/zjsng/go/bin/cli-printing-press verify --dir /Users/zjsng/Projects/Personal/Coding/tabiwa-cli --write-manifest /Users/zjsng/Projects/Personal/Coding/tabiwa-cli/.printing-press.json --spec /Users/zjsng/Projects/Personal/Coding/.japan-domestic-press/tabiwa/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92/research/tabiwa-spec.yaml --fix"
+      "command": "<install-bin>/cli-printing-press verify --dir <source-project> --write-manifest <source-project>/.printing-press.json --spec <press-workspace>/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92/research/tabiwa-spec.yaml --fix"
     },
     {
       "name": "validate-narrative",
@@ -21,7 +21,7 @@
       "verdict": "PASS",
       "started_at": "2026-10-04T12:06:27Z",
       "elapsed_ms": 123,
-      "command": "/Users/zjsng/go/bin/cli-printing-press validate-narrative --strict --full-examples --research /Users/zjsng/Projects/Personal/Coding/.japan-domestic-press/tabiwa/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92/research.json --binary /Users/zjsng/Projects/Personal/Coding/tabiwa-cli/build/stage/bin/tabiwa-pp-cli"
+      "command": "<install-bin>/cli-printing-press validate-narrative --strict --full-examples --research <press-workspace>/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92/research.json --binary <source-project>/build/stage/bin/tabiwa-pp-cli"
     },
     {
       "name": "dogfood",
@@ -30,7 +30,7 @@
       "verdict": "PASS",
       "started_at": "2026-10-04T12:06:27Z",
       "elapsed_ms": 1745,
-      "command": "/Users/zjsng/go/bin/cli-printing-press dogfood --dir /Users/zjsng/Projects/Personal/Coding/tabiwa-cli --spec /Users/zjsng/Projects/Personal/Coding/.japan-domestic-press/tabiwa/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92/research/tabiwa-spec.yaml --research-dir /Users/zjsng/Projects/Personal/Coding/.japan-domestic-press/tabiwa/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92"
+      "command": "<install-bin>/cli-printing-press dogfood --dir <source-project> --spec <press-workspace>/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92/research/tabiwa-spec.yaml --research-dir <press-workspace>/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92"
     },
     {
       "name": "workflow-verify",
@@ -39,7 +39,7 @@
       "verdict": "PASS",
       "started_at": "2026-10-04T12:06:29Z",
       "elapsed_ms": 14,
-      "command": "/Users/zjsng/go/bin/cli-printing-press workflow-verify --dir /Users/zjsng/Projects/Personal/Coding/tabiwa-cli"
+      "command": "<install-bin>/cli-printing-press workflow-verify --dir <source-project>"
     },
     {
       "name": "apify-audit",
@@ -48,7 +48,7 @@
       "verdict": "PASS",
       "started_at": "2026-10-04T12:06:29Z",
       "elapsed_ms": 26,
-      "command": "/Users/zjsng/go/bin/cli-printing-press apify-audit --dir /Users/zjsng/Projects/Personal/Coding/tabiwa-cli --research-dir /Users/zjsng/Projects/Personal/Coding/.japan-domestic-press/tabiwa/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92"
+      "command": "<install-bin>/cli-printing-press apify-audit --dir <source-project> --research-dir <press-workspace>/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92"
     },
     {
       "name": "verify-skill",
@@ -57,7 +57,7 @@
       "verdict": "PASS",
       "started_at": "2026-10-04T12:06:29Z",
       "elapsed_ms": 2657,
-      "command": "/Users/zjsng/go/bin/cli-printing-press verify-skill --dir /Users/zjsng/Projects/Personal/Coding/tabiwa-cli"
+      "command": "<install-bin>/cli-printing-press verify-skill --dir <source-project>"
     },
     {
       "name": "scorecard",
@@ -66,7 +66,7 @@
       "verdict": "PASS",
       "started_at": "2026-10-04T12:06:32Z",
       "elapsed_ms": 4421,
-      "command": "/Users/zjsng/go/bin/cli-printing-press scorecard --dir /Users/zjsng/Projects/Personal/Coding/tabiwa-cli --write-manifest /Users/zjsng/Projects/Personal/Coding/tabiwa-cli/.printing-press.json --research-dir /Users/zjsng/Projects/Personal/Coding/.japan-domestic-press/tabiwa/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92 --spec /Users/zjsng/Projects/Personal/Coding/.japan-domestic-press/tabiwa/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92/research/tabiwa-spec.yaml --live-check"
+      "command": "<install-bin>/cli-printing-press scorecard --dir <source-project> --write-manifest <source-project>/.printing-press.json --research-dir <press-workspace>/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92 --spec <press-workspace>/.runstate/tabiwa-cli-dcb60d1f/runs/20261004-191703-ed1b3f92/research/tabiwa-spec.yaml --live-check"
     }
   ]
 }

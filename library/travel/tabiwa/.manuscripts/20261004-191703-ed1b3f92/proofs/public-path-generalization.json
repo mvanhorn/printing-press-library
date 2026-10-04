@@ -1,0 +1,9 @@
+{
+  "observed_at": "2026-10-04T16:42:29.031310+00:00",
+  "scope": "Public manuscript copies only,all text file types including helper Go/module/Python receipts",
+  "private_originals_preserved": true,
+  "source_and_ledger_preserved": true,
+  "changed_file_count": 40,
+  "residual_absolute_developer_paths": 0,
+  "provenance_note": "Source/artifact fingerprints and helper hashes describe preserved private originals. Public generalized helper copies are explanatory receipts,not claimed byte-identical executable reproductions."
+}

@@ -1,0 +1,62 @@
+{
+  "actual_execution": {
+    "args": [
+      "save",
+      "--save",
+      "true",
+      "--json"
+    ],
+    "cwd": "<isolated-storage>/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T/printing-press-live-happy-1083327472",
+    "provider_method": "GET",
+    "relocation_env_present": false,
+    "storage_exists_at_execution": true,
+    "storage_file": "<isolated-storage>/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T/printing-press-subprocess-4210376962/.cache/fixture-pp-cli/selected.json"
+  },
+  "cached_sdk": "<go-module-cache>/github.com/mvanhorn/cli-printing-press/v4@v4.33.0",
+  "cases": [
+    {
+      "actual_argv": [
+        "save",
+        "--save",
+        "true",
+        "--dry-run"
+      ],
+      "allow_destructive": false,
+      "annotation": true,
+      "name": "annotation_alone",
+      "output_sample": "{\"dry_run\":true,\"action\":\"preview\"}\n",
+      "status": "pass"
+    },
+    {
+      "actual_argv": [
+        "save",
+        "--save",
+        "true",
+        "--dry-run"
+      ],
+      "allow_destructive": true,
+      "annotation": false,
+      "name": "operator_flag_alone",
+      "output_sample": "{\"dry_run\":true,\"action\":\"preview\"}\n",
+      "status": "pass"
+    },
+    {
+      "actual_argv": [
+        "save",
+        "--save",
+        "true",
+        "--json"
+      ],
+      "allow_destructive": true,
+      "annotation": true,
+      "name": "both_keys",
+      "output_sample": "{\"products\":[{\"id\":\"J0001900\",\"name\":\"\u003credacted\u003e\"}],\"saved\":true,\"storage_file\":\"<isolated-storage>/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T/printing-press-subprocess-4210376962/.cache/fixture-pp-cli/selected.json\"}",
+      "status": "pass"
+    }
+  ],
+  "isolation_cleanup_pass": true,
+  "operator_sentinel_unchanged": true,
+  "provider_methods": [
+    "GET"
+  ]
+}

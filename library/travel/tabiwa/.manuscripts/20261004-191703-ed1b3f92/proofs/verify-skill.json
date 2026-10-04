@@ -1,6 +1,6 @@
 {
-  "cli_dir": "/Users/zjsng/Projects/Personal/Coding/tabiwa-cli",
-  "skill_path": "/Users/zjsng/Projects/Personal/Coding/tabiwa-cli/SKILL.md",
+  "cli_dir": "<source-project>",
+  "skill_path": "<source-project>/SKILL.md",
   "checks_run": [
     "flag-names",
     "flag-commands",
