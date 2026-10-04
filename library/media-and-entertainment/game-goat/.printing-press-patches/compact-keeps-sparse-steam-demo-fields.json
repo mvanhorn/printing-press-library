@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "compact-keeps-sparse-steam-demo-fields",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20260927-155341-72694577",
+  "base_printing_press_version": "4.32.5",
+  "summary": "The compact/--agent list projection always keeps the Steam demo annotation fields (steam_app_id, has_demo, demo_app_ids) plus the demo-row identity fields (app_id, parent_app_id, parent_name), even when they are absent on most rows.",
+  "reason": "A fresh print's compactListFields keeps only high-gravity keys plus keys present in >=80% of rows. The --with-demos annotation is omitempty and genuinely sparse (a row is annotated only when its Steam record resolved, and demo_app_ids only when that app has demos), so a regen reintroduces the bug where `discover --with-demos --agent` prints has_demo but drops demo_app_ids and `similar ... --agent` drops both. The keep-set is deliberately limited to the Steam/demo payload names, which no unrelated command emits, so default (no --with-demos) compaction is unchanged.",
+  "files": [
+    "internal/cli/helpers.go"
+  ],
+  "validated_outcome": "Offline tests pass: discover --with-demos --agent keeps steam_app_id/has_demo/demo_app_ids on every Steam-linked row and demo_app_ids on the demo row; the same fields survive the printJSONFiltered path similar uses; default discover --agent output is byte-for-byte identical to the HEAD 1a45fcf3d golden."
+}

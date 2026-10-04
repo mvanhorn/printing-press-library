@@ -177,7 +177,7 @@ func Execute() (retErr error) {
 		journalInvocation(&flags, rootCmd, executedCmd, retErr, journalFailedFlag, journalSuggestedFlag)
 		// Derivation runs after the journal write so the entry this
 		// invocation just recorded is visible to the tail scan.
-		deriveFlagCorrections(&flags, rootCmd, executedCmd)
+		deriveFlagCorrections(&flags, rootCmd, executedCmd, retErr)
 	}()
 	if errors.Is(err, pflag.ErrHelp) {
 		return nil
@@ -551,7 +551,7 @@ func journalInvocation(flags *rootFlags, rootCmd, executed *cobra.Command, err e
 	// The master --no-learn switch kills journaling too. On the
 	// parse-failure path the flag was never parsed into rootFlags, so
 	// the raw args are consulted as well.
-	if noLearnActive(flags) || argsDisableLearn(os.Args[1:]) {
+	if michiReadOnlyInvocation(rootCmd, executed, err) || noLearnActive(flags) || argsDisableLearn(os.Args[1:]) {
 		return
 	}
 	exitCode := 0
@@ -673,8 +673,12 @@ var learnFamilyCommands = map[string]struct{}{
 // skipped under every switch the journal honors, and any failure is
 // swallowed — derivation may never fail, slow, or add output to the
 // command that triggered it.
-func deriveFlagCorrections(flags *rootFlags, rootCmd, executed *cobra.Command) {
-	if noLearnActive(flags) || argsDisableLearn(os.Args[1:]) || learn.JournalCaptureDisabled() {
+func deriveFlagCorrections(flags *rootFlags, rootCmd, executed *cobra.Command, invocationErrors ...error) {
+	var invocationErr error
+	if len(invocationErrors) > 0 {
+		invocationErr = invocationErrors[0]
+	}
+	if michiReadOnlyInvocation(rootCmd, executed, invocationErr) || noLearnActive(flags) || argsDisableLearn(os.Args[1:]) || learn.JournalCaptureDisabled() {
 		return
 	}
 	chain := journalVerbChain(rootCmd, executed)

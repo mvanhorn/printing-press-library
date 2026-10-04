@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/hostex-pp-cli
+/hostex-pp-cli.exe
+/hostex-pp-mcp
+/hostex-pp-mcp.exe
+/bin/
+/build/
+/dist/

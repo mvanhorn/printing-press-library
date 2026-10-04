@@ -38,9 +38,11 @@ type Hit struct {
 	MatchScore       float64
 	EntityMatch      string
 	ResourceEntities []string
-	Source           string
-	PatternID        int64
-	LastObservedAt   *time.Time
+	// BoundEntity is the exact query entity used for this verified substitution.
+	BoundEntity    string
+	Source         string
+	PatternID      int64
+	LastObservedAt *time.Time
 	// Meta carries structured diagnostic reasons when a pattern matched
 	// textually but failed verification (substitution miss, resource
 	// not in store, etc.). Empty on success.
@@ -58,8 +60,12 @@ type Hit struct {
 // should try ahead of the built-in computed kinds when a template's
 // entity_kind doesn't have a direct slot in the template string.
 type Opts struct {
-	JaccardMin      float64
-	Limit           int
+	JaccardMin float64
+	Limit      int
+	// NoLimit is for Recall to validate candidates before capping accepted hits.
+	NoLimit bool
+	// AllBindings lets Recall validate before selecting one compatible pattern binding.
+	AllBindings     bool
 	NoVerify        bool
 	AdditionalKinds []string
 }
@@ -143,9 +149,10 @@ func Apply(ctx context.Context, db *sql.DB, query, nonEntityNormalized string, q
 			continue
 		}
 
-		var hit Hit
-		matched := false
 		for _, ent := range queryEntities {
+			if err := ctx.Err(); err != nil {
+				return nil, err
+			}
 			candidate, ok := substituteCandidate(db, resourceTmpl, entityKind, ent, allKinds)
 			if !ok {
 				continue
@@ -157,21 +164,19 @@ func Apply(ctx context.Context, db *sql.DB, query, nonEntityNormalized string, q
 			h.Venue = venue
 			h.Confidence = confidence
 			h.MatchScore = score
-			h.EntityMatch = "exact" // substitution binding guarantees this
+			h.EntityMatch = "exact" // candidate existence is verified; recall checks its actual identity
+			h.BoundEntity = ent
 			h.Source = "pattern"
 			h.PatternID = id
 			if lastObserved.Valid {
 				t := lastObserved.Time
 				h.LastObservedAt = &t
 			}
-			hit = h
-			matched = true
-			break
+			hits = append(hits, h)
+			if !opts.AllBindings {
+				break
+			}
 		}
-		if !matched {
-			continue
-		}
-		hits = append(hits, hit)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("patterns.Apply rows: %w", err)
@@ -195,8 +200,11 @@ func Apply(ctx context.Context, db *sql.DB, query, nonEntityNormalized string, q
 		return ai.After(aj)
 	})
 
-	if len(hits) > limit {
+	if !opts.NoLimit && len(hits) > limit {
 		hits = hits[:limit]
+	}
+	if err := ctx.Err(); err != nil {
+		return nil, err
 	}
 	return hits, nil
 }

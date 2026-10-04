@@ -13,17 +13,18 @@ import (
 )
 
 func newReservationsCreateCmd(flags *rootFlags) *cobra.Command {
+	var bodyChannelId string
 	var bodyCheckInDate string
 	var bodyCheckOutDate string
 	var bodyCommissionAmount int
 	var bodyCurrency string
-	var bodyCustomChannelId string
+	var bodyCustomChannelId int
 	var bodyEmail string
 	var bodyGuestName string
-	var bodyIncomeMethodId string
+	var bodyIncomeMethodId int
 	var bodyMobile string
 	var bodyNumberOfGuests int
-	var bodyPropertyId string
+	var bodyPropertyId int
 	var bodyRateAmount int
 	var bodyReceivedAmount int
 	var bodyRemarks string
@@ -32,44 +33,56 @@ func newReservationsCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "create",
 		Short:       "Create a reservation (Direct Booking) in Hostex.",
-		Example:     "  hostex-pp-cli reservations create --check-in-date 2026-01-15",
-		Annotations: map[string]string{"pp:endpoint": "reservations.create", "pp:method": "POST", "pp:path": "/reservations"},
+		Example:     "  hostex-pp-cli reservations create --check-in-date 2026-11-01 --check-out-date 2026-11-04 --commission-amount 0 --currency EUR --custom-channel-id 1001 --guest-name 'Alex Rivera' --income-method-id 2001 --property-id 1234567 --rate-amount 540 --received-amount 540 --dry-run",
+		Annotations: map[string]string{"pp:endpoint": "reservations.create", "pp:method": "POST", "pp:path": "/reservations", "pp:requires-input": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with required input prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
 			// only read commands fall through so a bare call still executes.
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
 			}
 			if !stdinBody {
-				if !cmd.Flags().Changed("check-in-date") && !flags.dryRun {
+				if !cmd.Flags().Changed("check-in-date") && bodyCheckInDate == "" && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "check-in-date")
 				}
-				if !cmd.Flags().Changed("check-out-date") && !flags.dryRun {
+				if !cmd.Flags().Changed("check-out-date") && bodyCheckOutDate == "" && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "check-out-date")
 				}
-				if !cmd.Flags().Changed("commission-amount") && !flags.dryRun {
+				if !cmd.Flags().Changed("commission-amount") && bodyCommissionAmount == 0 && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "commission-amount")
 				}
-				if !cmd.Flags().Changed("currency") && !flags.dryRun {
+				if !cmd.Flags().Changed("currency") && bodyCurrency == "" && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "currency")
 				}
-				if !cmd.Flags().Changed("custom-channel-id") && !flags.dryRun {
+				if !cmd.Flags().Changed("custom-channel-id") && bodyCustomChannelId == 0 && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "custom-channel-id")
 				}
-				if !cmd.Flags().Changed("guest-name") && !flags.dryRun {
+				if !cmd.Flags().Changed("guest-name") && bodyGuestName == "" && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "guest-name")
 				}
-				if !cmd.Flags().Changed("income-method-id") && !flags.dryRun {
+				if !cmd.Flags().Changed("income-method-id") && bodyIncomeMethodId == 0 && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "income-method-id")
 				}
-				if !cmd.Flags().Changed("property-id") && !flags.dryRun {
+				if !cmd.Flags().Changed("property-id") && bodyPropertyId == 0 && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "property-id")
 				}
-				if !cmd.Flags().Changed("rate-amount") && !flags.dryRun {
+				if !cmd.Flags().Changed("rate-amount") && bodyRateAmount == 0 && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "rate-amount")
 				}
-				if !cmd.Flags().Changed("received-amount") && !flags.dryRun {
+				if !cmd.Flags().Changed("received-amount") && bodyReceivedAmount == 0 && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "received-amount")
 				}
 			}
@@ -79,7 +92,7 @@ func newReservationsCreateCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -91,59 +104,57 @@ func newReservationsCreateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
-				if bodyCheckInDate != "" {
-					body["check_in_date"] = bodyCheckInDate
+				bodyMap := map[string]any{}
+				body = bodyMap
+				if cmd.Flags().Changed("channel-id") || bodyChannelId != "" {
+					bodyMap["channel_id"] = bodyChannelId
 				}
-				if bodyCheckOutDate != "" {
-					body["check_out_date"] = bodyCheckOutDate
+				if cmd.Flags().Changed("check-in-date") || bodyCheckInDate != "" {
+					bodyMap["check_in_date"] = bodyCheckInDate
 				}
-				if bodyCommissionAmount != 0 {
-					body["commission_amount"] = bodyCommissionAmount
+				if cmd.Flags().Changed("check-out-date") || bodyCheckOutDate != "" {
+					bodyMap["check_out_date"] = bodyCheckOutDate
 				}
-				if bodyCurrency != "" {
-					body["currency"] = bodyCurrency
+				if cmd.Flags().Changed("commission-amount") || bodyCommissionAmount != 0 {
+					bodyMap["commission_amount"] = bodyCommissionAmount
 				}
-				if bodyCustomChannelId != "" {
-					if err := setJSONBodyScalar(body, "custom_channel_id", "custom-channel-id", "int", bodyCustomChannelId); err != nil {
-						return err
-					}
+				if cmd.Flags().Changed("currency") || bodyCurrency != "" {
+					bodyMap["currency"] = bodyCurrency
 				}
-				if bodyEmail != "" {
-					body["email"] = bodyEmail
+				if cmd.Flags().Changed("custom-channel-id") || bodyCustomChannelId != 0 {
+					bodyMap["custom_channel_id"] = bodyCustomChannelId
 				}
-				if bodyGuestName != "" {
-					body["guest_name"] = bodyGuestName
+				if cmd.Flags().Changed("email") || bodyEmail != "" {
+					bodyMap["email"] = bodyEmail
 				}
-				if bodyIncomeMethodId != "" {
-					if err := setJSONBodyScalar(body, "income_method_id", "income-method-id", "int", bodyIncomeMethodId); err != nil {
-						return err
-					}
+				if cmd.Flags().Changed("guest-name") || bodyGuestName != "" {
+					bodyMap["guest_name"] = bodyGuestName
 				}
-				if bodyMobile != "" {
-					body["mobile"] = bodyMobile
+				if cmd.Flags().Changed("income-method-id") || bodyIncomeMethodId != 0 {
+					bodyMap["income_method_id"] = bodyIncomeMethodId
 				}
-				if bodyNumberOfGuests != 0 {
-					body["number_of_guests"] = bodyNumberOfGuests
+				if cmd.Flags().Changed("mobile") || bodyMobile != "" {
+					bodyMap["mobile"] = bodyMobile
 				}
-				if bodyPropertyId != "" {
-					if err := setJSONBodyScalar(body, "property_id", "property-id", "int", bodyPropertyId); err != nil {
-						return err
-					}
+				if cmd.Flags().Changed("number-of-guests") || bodyNumberOfGuests != 0 {
+					bodyMap["number_of_guests"] = bodyNumberOfGuests
 				}
-				if bodyRateAmount != 0 {
-					body["rate_amount"] = bodyRateAmount
+				if cmd.Flags().Changed("property-id") || bodyPropertyId != 0 {
+					bodyMap["property_id"] = bodyPropertyId
 				}
-				if bodyReceivedAmount != 0 {
-					body["received_amount"] = bodyReceivedAmount
+				if cmd.Flags().Changed("rate-amount") || bodyRateAmount != 0 {
+					bodyMap["rate_amount"] = bodyRateAmount
 				}
-				if bodyRemarks != "" {
-					body["remarks"] = bodyRemarks
+				if cmd.Flags().Changed("received-amount") || bodyReceivedAmount != 0 {
+					bodyMap["received_amount"] = bodyReceivedAmount
+				}
+				if cmd.Flags().Changed("remarks") || bodyRemarks != "" {
+					bodyMap["remarks"] = bodyRemarks
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			// Inspect the mutate response body for a partial-failure-shaped
 			// field (e.g. Google Ads `partialFailureError`). Several Google
@@ -236,15 +247,22 @@ func newReservationsCreateCmd(flags *rootFlags) *cobra.Command {
 						}
 					}
 				}
+				// Mutation-riding reads (POST search, RPC-over-POST lists) return
+				// the same single-key collection envelopes as GET reads. Unwrap
+				// before filtering so rows nest once under the result key and
+				// --select filters rows, not envelope keys; plain created-object
+				// responses pass through unwrapSingleKeyArray untouched.
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
 				// generic high-gravity allow-list. Otherwise --compact still applies
 				// when --agent is on but the user did not name fields.
-				filtered := data
+				var selectErr error
+				filtered := unwrapSingleKeyArray(data)
 				if flags.selectFields != "" {
-					filtered = filterFields(filtered, flags.selectFields)
+					filtered, selectErr = filterFieldsChecked(filtered, flags.selectFields)
+					selectErr = selectErrorForDryRun(selectErr, flags, data)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, map[string]bool{"error_code": true, "request_id": true})
 				}
 				if len(filtered) > 0 {
 					var parsed any
@@ -260,41 +278,49 @@ func newReservationsCreateCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
+				resultKey := "data"
+				if flags.agent {
+					resultKey = "results"
+				}
+				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
+				if err != nil {
+					return err
+				}
+				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
 					return perr
 				}
 				if partialFailure != nil && !flags.allowPartialFailure {
 					return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "reservations", partialFailure.Message))
 				}
-				return nil
+				return selectErr
 			}
 			// Fall-through for mutate paths that did not hit the table or
 			// asJSON branches: --quiet, --csv, --plain, and default terminal
-			// raw output. printOutputWithFlags renders the body, then the
-			// typed partial-failure exit fires unless --allow-partial-failure
-			// downgrades it. Without this guard a partial failure would exit
-			// 0 for these output modes — the exact silent-swallow regression
-			// the surrounding patch is preventing for asJSON / piped output.
-			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
-				return perr
-			}
+			// raw output. printOutputWithFlagsMeta renders the body with live
+			// provenance, then the typed partial-failure exit fires unless
+			// --allow-partial-failure downgrades it. Without this guard a
+			// partial failure would exit 0 for these output modes — the exact
+			// silent-swallow regression the surrounding patch is preventing
+			// for asJSON / piped output.
+			printErr := printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"}, map[string]bool{"error_code": true, "request_id": true})
 			if partialFailure != nil && !flags.allowPartialFailure {
 				return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "reservations", partialFailure.Message))
 			}
-			return nil
+			return printErr
 		},
 	}
+	cmd.Flags().StringVar(&bodyChannelId, "channel-id", "", "Optional external reservation reference, typically the booking id in your own system.")
 	cmd.Flags().StringVar(&bodyCheckInDate, "check-in-date", "", "The check-in date for the reservation in YYYY-MM-DD format.")
 	cmd.Flags().StringVar(&bodyCheckOutDate, "check-out-date", "", "The check-out date for the reservation in YYYY-MM-DD format.")
 	cmd.Flags().IntVar(&bodyCommissionAmount, "commission-amount", 0, "The commission amount for the reservation.")
 	cmd.Flags().StringVar(&bodyCurrency, "currency", "", "The currency code for the reservation amounts.")
-	cmd.Flags().StringVar(&bodyCustomChannelId, "custom-channel-id", "", "The id of the custom channel through which the reservation is booked.")
+	cmd.Flags().IntVar(&bodyCustomChannelId, "custom-channel-id", 0, "The id of the custom channel through which the reservation is booked.")
 	cmd.Flags().StringVar(&bodyEmail, "email", "", "The email address of the primary guest.")
 	cmd.Flags().StringVar(&bodyGuestName, "guest-name", "", "The name of the primary guest.")
-	cmd.Flags().StringVar(&bodyIncomeMethodId, "income-method-id", "", "The identifier for the income method used for the reservation payment.")
+	cmd.Flags().IntVar(&bodyIncomeMethodId, "income-method-id", 0, "The identifier for the income method used for the reservation payment.")
 	cmd.Flags().StringVar(&bodyMobile, "mobile", "", "The mobile phone number of the primary guest.")
 	cmd.Flags().IntVar(&bodyNumberOfGuests, "number-of-guests", 0, "The total number of guests included in the reservation.")
-	cmd.Flags().StringVar(&bodyPropertyId, "property-id", "", "The id of the property for the reservation.")
+	cmd.Flags().IntVar(&bodyPropertyId, "property-id", 0, "The id of the property for the reservation.")
 	cmd.Flags().IntVar(&bodyRateAmount, "rate-amount", 0, "The total rate amount for the reservation.")
 	cmd.Flags().IntVar(&bodyReceivedAmount, "received-amount", 0, "The total amount received for the reservation.")
 	cmd.Flags().StringVar(&bodyRemarks, "remarks", "", "Any additional remarks related to the reservation.")

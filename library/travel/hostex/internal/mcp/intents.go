@@ -22,21 +22,27 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"github.com/mvanhorn/printing-press-library/library/travel/hostex/internal/mcp/bound"
+	"github.com/mvanhorn/printing-press-library/library/travel/hostex/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/travel/hostex/internal/mcp/cobratree"
 )
 
 // RegisterIntents adds generated intent tools to the MCP server.
 // This is called from RegisterTools when spec intents or recipe-lifted intents exist.
 func RegisterIntents(s *server.MCPServer) {
-	s.AddTool(
-		mcplib.NewTool("dry_run_a_price_push_before_sending_it",
+	{
+		recipePath := []string{
+			"listings",
+		}
+		opts := []mcplib.ToolOption{
 			mcplib.WithDescription("Shows the request body that would be sent to the async price endpoint without mutating any channel."),
-			mcplib.WithString("slug", mcplib.Required(), mcplib.Description("Override the recipe's positional slug value.")),
-			mcplib.WithBoolean("dry_run", mcplib.Description("Override the recipe's --dry-run value.")),
-		),
-		handleDryRunAPricePushBeforeSendingIt,
-	)
+			mcplib.WithOpenWorldHintAnnotation(true),
+		}
+		opts = append(opts, mcplib.WithString("slug", mcplib.Required(), mcplib.Description("Override the recipe's positional slug value.")))
+		if !recipeDestinationBlocked(recipePath, "dry-run") {
+			opts = append(opts, mcplib.WithBoolean("dry_run", mcplib.Description("Override the recipe's --dry-run value.")))
+		}
+		s.AddTool(mcplib.NewTool("dry_run_a_price_push_before_sending_it", opts...), handleDryRunAPricePushBeforeSendingIt)
+	}
 }
 
 // handleDryRunAPricePushBeforeSendingIt runs the dry_run_a_price_push_before_sending_it recipe intent: Shows the request body that would be sent to the async price endpoint without mutating any channel.
@@ -46,6 +52,9 @@ func handleDryRunAPricePushBeforeSendingIt(ctx context.Context, req mcplib.CallT
 	}
 
 	input := req.GetArguments()
+	recipePath := []string{
+		"listings",
+	}
 	args := []string{}
 	args = append(args, "listings")
 	var missingSlug bool
@@ -53,13 +62,21 @@ func handleDryRunAPricePushBeforeSendingIt(ctx context.Context, req mcplib.CallT
 	if missingSlug {
 		return mcplib.NewToolResultError("slug is required"), nil
 	}
-	args = appendRecipeBoolFlag(args, "dry-run", input["dry_run"], true)
+	if recipeDestinationBlocked(recipePath, "dry-run") {
+		if input != nil {
+			if _, ok := input["dry_run"]; ok {
+				return mcplib.NewToolResultError("unknown MCP parameter \"dry_run\""), nil
+			}
+		}
+	} else {
+		args = appendRecipeBoolFlag(args, "dry-run", input["dry_run"], true)
+	}
 
 	out, err := cobratree.RunCLICommand(ctx, recipeCLIPath, args)
 	if err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
-	return mcplib.NewToolResultText(bound.Text(out)), nil
+	return cobratree.ToolResultFromCLICommand(out), nil
 }
 
 var (
@@ -69,6 +86,30 @@ var (
 
 func init() {
 	recipeCLIPath, recipeCLIPathErr = cobratree.SiblingCLIPath()
+}
+
+// recipeCommandRoot is the Cobra tree consulted for write-sink annotations.
+// Recipe text does not carry mcp:write-flags; the live command does.
+var recipeCommandRoot = cli.RootCmd
+
+func recipeDestinationBlocked(path []string, flagName string) bool {
+	if flagName == "" || recipeCommandRoot == nil {
+		return cobratree.DestinationFlagBlocked(nil, flagName)
+	}
+	return cobratree.DestinationFlagBlocked(cobratree.CommandAtPath(recipeCommandRoot(), recipeCommandPath(path)), flagName)
+}
+
+// recipeCommandPath keeps the Cobra command words. Static flags such as
+// --json are stored on the same slice and are not part of the command path.
+func recipeCommandPath(path []string) []string {
+	out := make([]string, 0, len(path))
+	for _, token := range path {
+		if token == "" || strings.HasPrefix(token, "-") {
+			break
+		}
+		out = append(out, token)
+	}
+	return out
 }
 
 func appendRecipePositional(args []string, value any, required bool) ([]string, bool) {

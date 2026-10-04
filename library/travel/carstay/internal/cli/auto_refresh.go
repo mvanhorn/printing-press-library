@@ -68,6 +68,10 @@ func autoRefreshIfStale(ctx context.Context, flags *rootFlags, resources []strin
 	defer func() {
 		meta.ElapsedMS = time.Since(started).Milliseconds()
 	}()
+	if mcpReadOnlyChildActive() {
+		meta.Reason = "mcp_read_only"
+		return meta
+	}
 	if flags.dataSource != "auto" {
 		meta.Reason = "data_source_" + flags.dataSource
 		return meta

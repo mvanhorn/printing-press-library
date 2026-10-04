@@ -18,6 +18,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/travel/carstay/internal/cliutil/testenv"
 	"github.com/mvanhorn/printing-press-library/library/travel/carstay/internal/learn"
 	"github.com/mvanhorn/printing-press-library/library/travel/carstay/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/travel/carstay/internal/learn/patterns"
 	"github.com/mvanhorn/printing-press-library/library/travel/carstay/internal/store"
 )
 
@@ -1652,5 +1653,71 @@ func TestTeachCommand_IntegratedPlaybookErrorDegrades(t *testing.T) {
 	}
 	if !strings.Contains(string(data), "playbook upsert") {
 		t.Errorf("teach.log should mention playbook upsert; got %q", string(data))
+	}
+}
+
+func TestTeachPatternRecordedScopeMatchesStoredRecall(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "manual-scope.db")
+	s, err := store.OpenWithContext(context.Background(), dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { s.Close() })
+	inferred := patterns.Pattern{QueryTemplate: "station {entity}", ResourceTemplate: "000000000000000000000{entity:lowercase}", ResourceType: "activities", Venue: "old-venue", Strategy: patterns.StrategySubstitute, EntityKind: "uppercase", Source: patterns.SourceInferred}
+	id, _, err := patterns.Upsert(s.DB(), inferred)
+	if err != nil {
+		t.Fatal(err)
+	}
+	const resourceID = "000000000000000000000abc"
+	if err := s.Upsert("directory", resourceID, json.RawMessage(`{"id":"000000000000000000000abc","name":"Synthetic station"}`)); err != nil {
+		t.Fatal(err)
+	}
+	stdout, _, err := runRootArgs(t, "teach-pattern", "--query-template", inferred.QueryTemplate, "--resource-template", inferred.ResourceTemplate, "--resource-type", "directory", "--venue", "new-venue", "--entity-kind", "lowercase", "--db", dbPath, "--agent")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var reported map[string]any
+	unmarshalAgentResults(t, stdout, &reported)
+	if reported["recorded"] != true || reported["resource_type"] != "directory" || reported["venue"] != "new-venue" || reported["entity_kind"] != "lowercase" {
+		t.Fatalf("reported=%+v", reported)
+	}
+	if _, _, err := patterns.Upsert(s.DB(), inferred); err != nil {
+		t.Fatal(err)
+	}
+	rows, err := patterns.List(s.DB(), patterns.ListFilter{})
+	if err != nil || len(rows) != 1 || rows[0].ID != id || rows[0].Source != patterns.SourceTaught || rows[0].ResourceType != reported["resource_type"] || rows[0].Venue != reported["venue"] || rows[0].EntityKind != reported["entity_kind"] {
+		t.Fatalf("recorded scope differs from store: %+v %v", rows, err)
+	}
+	hits, err := patterns.Apply(context.Background(), s.DB(), "Abc station", "station", []string{"Abc"}, patterns.Opts{})
+	if err != nil || len(hits) != 1 || hits[0].ResourceID != resourceID || hits[0].ResourceType != "directory" || hits[0].Venue != "new-venue" {
+		t.Fatalf("recorded scope differs from recall: %+v %v", hits, err)
+	}
+}
+
+func TestCarstayRecallKeepsDistinctTypeIDTuplesContainingDelimiter(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "tuple.db")
+	for _, target := range []struct{ kind, id string }{{"a|b", "c"}, {"a", "b|c"}} {
+		_, stderr, err := runRootArgs(t, "teach", "--query", "Alpha widget today", "--resource-type", target.kind, "--resource", target.id, "--db", dbPath, "--agent")
+		if err != nil {
+			t.Fatalf("actual teach type%q id%q: %v %s", target.kind, target.id, err, stderr)
+		}
+	}
+	stdout, stderr, err := runRootArgs(t, "recall", "Alpha widget today", "--limit", "2", "--db", dbPath, "--agent")
+	if err != nil {
+		t.Fatalf("actual recall: %v %s", err, stderr)
+	}
+	var got learn.Result
+	unmarshalAgentResults(t, stdout, &got)
+	if !got.Found || len(got.Results) != 2 {
+		t.Fatalf("distinct stored tuples collapsed: %+v", got)
+	}
+	seen := map[[2]string]bool{}
+	for _, hit := range got.Results {
+		seen[[2]string{hit.ResourceType, hit.ResourceID}] = true
+	}
+	if !seen[[2]string{"a|b", "c"}] || !seen[[2]string{"a", "b|c"}] {
+		t.Fatalf("typed tuple identities changed: %+v", got)
 	}
 }

@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261003-120106-6f48c7c7",
+  "base_printing_press_version": "4.33.0",
+  "id": "hostex-auth-setup-url-has-no-stray-backtick",
+  "summary": "The Hostex setup URL is plain https://api.hostex.io/v3; the spec's auth description carries a stray trailing backtick that a regen copies into auth setup, doctor, MCP metadata and the manifests.",
+  "reason": "The official spec's securityScheme description ends the URL with a backtick, so the generated setup URL is not openable; auth set-token also reads the token from stdin, so docs must show a pipe.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/helpers.go",
+    "internal/cli/doctor.go",
+    "internal/mcp/tools.go",
+    ".printing-press.json",
+    "manifest.json",
+    "tools-manifest.json",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "grep finds no 'v3`' in the source tree; auth setup prints https://api.hostex.io/v3."
+}

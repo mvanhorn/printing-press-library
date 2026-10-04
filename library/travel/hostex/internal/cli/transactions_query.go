@@ -18,6 +18,7 @@ func newTransactionsQueryCmd(flags *rootFlags) *cobra.Command {
 	var flagOffset string
 	var flagLimit int
 	var flagPropertyId string
+	var flagReservationCode string
 	var flagStayCode string
 	var flagDirection string
 	var flagItemId string
@@ -31,7 +32,7 @@ func newTransactionsQueryCmd(flags *rootFlags) *cobra.Command {
 		Aliases:     []string{"list"},
 		Short:       "Query income and expense entries (also known as `transactions`) recorded against the operator",
 		Example:     "  hostex-pp-cli transactions query",
-		Annotations: map[string]string{"pp:endpoint": "transactions.query", "pp:method": "GET", "pp:path": "/transactions", "mcp:read-only": "true", "pp:happy-args": "--start-date=2026-01-01;--end-date=2026-12-31"},
+		Annotations: map[string]string{"pp:endpoint": "transactions.query", "pp:method": "GET", "pp:path": "/transactions", "mcp:read-only": "true", "pp:happy-args": "--start-date=2026-01-01;--end-date=2026-06-30"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("direction") {
 				allowedDirection := []string{"income", "expense"}
@@ -51,23 +52,25 @@ func newTransactionsQueryCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "transactions", path, map[string]string{
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "transactions", path, retainCLIQueryParams(cmd, map[string]string{
 				"id":                formatCLIParamValue(flagId),
 				"start_date":        formatCLIParamValue(flagStartDate),
 				"end_date":          formatCLIParamValue(flagEndDate),
 				"offset":            formatCLIParamValue(flagOffset),
 				"limit":             formatCLIParamValue(flagLimit),
 				"property_id":       formatCLIParamValue(flagPropertyId),
+				"reservation_code":  formatCLIParamValue(flagReservationCode),
 				"stay_code":         formatCLIParamValue(flagStayCode),
 				"direction":         formatCLIParamValue(flagDirection),
 				"item_id":           formatCLIParamValue(flagItemId),
 				"payment_method_id": formatCLIParamValue(flagPaymentMethodId),
 				"currency":          formatCLIParamValue(flagCurrency),
 				"keyword":           formatCLIParamValue(flagKeyword),
-			}, nil, flagAll, "offset", "offset", "limit", "", "", cmd.ErrOrStderr())
+			}, map[string][]string{"id": {"id"}, "start_date": {"start-date"}, "end_date": {"end-date"}, "offset": {"offset"}, "limit": {"limit"}, "property_id": {"property-id"}, "reservation_code": {"reservation-code"}, "stay_code": {"stay-code"}, "direction": {"direction"}, "item_id": {"item-id"}, "payment_method_id": {"payment-method-id"}, "currency": {"currency"}, "keyword": {"keyword"}}, "offset", "offset"), nil, flagAll, "offset", "offset", "limit", 20, "", "", "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
+			outputData := collectionItemsForOutput(data, path)
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -75,7 +78,7 @@ func newTransactionsQueryCmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				_ = json.Unmarshal(outputData, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
@@ -84,22 +87,31 @@ func newTransactionsQueryCmd(flags *rootFlags) *cobra.Command {
 			// --plain) opt out of the auto-JSON path so piped consumers that asked for
 			// a non-JSON format reach the standard pipeline below.
 			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
+				var selectErr error
 				filtered := data
 				if flags.selectFields != "" {
-					filtered = filterFields(filtered, flags.selectFields)
+					filtered, selectErr = filterFieldsChecked(filtered, flags.selectFields)
+					selectErr = selectErrorForDryRun(selectErr, flags, data)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, map[string]bool{"error_code": true, "request_id": true})
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
 					return wrapErr
 				}
-				return printOutput(cmd.OutOrStdout(), wrapped, true)
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
+				if err := printOutput(cmd.OutOrStdout(), wrapped, true); err != nil {
+					return err
+				}
+				return selectErr
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -109,7 +121,11 @@ func newTransactionsQueryCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"error_code": true, "request_id": true})
 		},
 	}
 	cmd.Flags().StringVar(&flagId, "id", "", "Internal id of a specific transaction entry.")
@@ -118,7 +134,8 @@ func newTransactionsQueryCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagOffset, "offset", "0", "The starting point from which to begin returning results.")
 	cmd.Flags().IntVar(&flagLimit, "limit", 20, "The maximum number of results to return. The maximum value is 100.")
 	cmd.Flags().StringVar(&flagPropertyId, "property-id", "", "Filter entries linked to the given property id (either directly recorded against the property")
-	cmd.Flags().StringVar(&flagStayCode, "stay-code", "", "Filter entries linked to the given stay (the `stay_code` returned by `GET /reservations`).")
+	cmd.Flags().StringVar(&flagReservationCode, "reservation-code", "", "Filter entries linked to the given reservation (the `reservation_code` returned by `GET /reservations`).")
+	cmd.Flags().StringVar(&flagStayCode, "stay-code", "", "Deprecated alias of `reservation_code`, kept for backward compatibility.")
 	cmd.Flags().StringVar(&flagDirection, "direction", "", "Filter by direction: `income` for money received, `expense` for money spent. (one of: income, expense)")
 	cmd.Flags().StringVar(&flagItemId, "item-id", "", "Filter by item id (the categorization of the entry).")
 	cmd.Flags().StringVar(&flagPaymentMethodId, "payment-method-id", "", "Filter by payment method id.")

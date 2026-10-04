@@ -136,6 +136,9 @@ func extractHTMLPageOrLinks(raw []byte, opts htmlExtractionOptions) (json.RawMes
 
 	switch strings.ToLower(strings.TrimSpace(opts.Mode)) {
 	case "links":
+		if page.Links == nil {
+			page.Links = []htmlLink{}
+		}
 		data, err := json.Marshal(page.Links)
 		return json.RawMessage(data), err
 	default:

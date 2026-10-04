@@ -8,7 +8,7 @@ Search designated overnight spots using the fuller Japanese source, compare faci
 
 ## Install from this source checkout
 
-This CLI is proposed for the public Printing Press library. The public installer and `@latest` Go installation become available after the PR is merged and the library release is published. Before then, use the source checkout from this PR and Go 1.26.6 or newer:
+Carstay is published in the Printing Press library. Build this source checkout to use the amendment fixes before they merge; the public catalog installer follows the current published release. Use Go 1.26.6 or newer:
 
 ```bash
 cd library/travel/carstay
@@ -17,7 +17,7 @@ go build -trimpath -o carstay-pp-cli ./cmd/carstay-pp-cli
 ./carstay-pp-cli spots coverage --agent
 ```
 
-Run the commands below with `./carstay-pp-cli`, or place the binary in a directory on your `$PATH`. The untagged source build reports `0.0.0-dev`; the library release process owns published version stamps.
+Run the commands below with `./carstay-pp-cli`, or place the binary in a directory on your `$PATH`. This checkout retains the current published version stamp (`2026.10.1`); the library release process assigns the next version after merge.
 
 Build the optional stdio MCP companion from the same directory with `go build -trimpath -o carstay-pp-mcp ./cmd/carstay-pp-mcp`. Start it with `./carstay-pp-mcp` in an MCP host that supports stdio. Building it does not change agent configuration.
 
@@ -95,6 +95,16 @@ These commands compute bounded evidence views from the public Carstay station so
   carstay-pp-cli spots coverage --prefecture Yamanashi --agent
   ```
 
+### Optional learning evidence
+
+Manual pattern teaching uses its current resource type, venue, entity kind and examples. Inference and undo use only positive `boost` teachings from eligible sources; `hide` and `alias_of` rows stay explicit local rules and never support a synthesized boost. Undo retains an inferred rule only when its remaining distinct positive bindings still support it. Recall keeps a known conflicting cached resource in the mismatch evidence. Synthesized patterns validate only the entity actually substituted; another entity mentioned by the query cannot validate that target. A pattern tries later query bindings after a cached identity conflict and contributes one valid binding. Recall keeps the best identity evidence for each resource type and ID, then applies its result limit; final returned targets do not also appear as rejected alternatives. Ordinary recall ranks pattern metadata by its final confidence order and stops identity reads once enough exact targets are settled. Direct teachings remain scanned; matching pattern metadata is scanned when pattern evaluation is needed, and `--debug-mismatches` may validate remaining patterns to collect rejected evidence. Standalone pattern application retains its first ID-verified binding, score ordering and caps. An unavailable cached identity retains identifier-only pattern fallback and proves no provider facts. Only a genuinely missing row uses the warned missing-resource fallback; cancellation and unexpected SQLite payload-read errors fail explicitly.
+
+```bash
+carstay-pp-cli recall 'Yamanashi overnight stop' --debug-mismatches --json
+```
+
+This optional helper may migrate or record local learning state; native `spots` provider evidence remains independent. The MCP mirror advertises these local effects. For a failed native MCP shortlist call, inspect `isError` and its first bounded evidence block before reading separate diagnostics.
+
 ## Commands
 
 | Command | Decision supported |
@@ -127,7 +137,9 @@ Output and scan bounds are separate: `--limit` defaults to 10 (maximum 50); unda
 
 The optional `carstay-pp-mcp` companion uses stdio. Its domain tools expose required scalar station IDs: compare takes `first`/`second` and optional `third`/`fourth`/`fifth`; fit/audit take `id` and up to four further scalar IDs; show/handoff take `id`; near requires numeric `lat`/`lon`. The package is rebuilt with the CLI; no agent configuration is changed.
 
-Generated learning read tools can open or migrate their local store despite a read-only hint. Recall can also record local events. `--no-learn` suppresses journaling/recall events but does not make every learning-store open read-only. Treat those framework operations as local writes; Carstay station requests are public GETs.
+Cached-resource alias recall requires one canonical shared by the query, teaching and actual cached resource; a conflicting target remains a mismatch. Missing-resource fallback keeps its explicit warning.
+
+Optional learning reads (`recall`, `learnings list/candidates/stats`, `playbook list`) are advertised as local writes in MCP: they keep their current store migration, event or pruning behavior and return current data or an explicit store-unavailable error while another SQLite writer holds WAL mode; after that writer closes, recall sees the committed data. Native read-only MCP mirrors enforce a child context that suppresses implicit journals, flag derivation, refresh/cache writes and receipts. Normal CLI optional journaling remains enabled unless `--no-learn` is selected; that switch does not make every learning-store open read-only. Carstay station requests are public GETs.
 
 ## Freshness
 
@@ -215,4 +227,6 @@ Check missing or qualified evidence without claiming vacancy.
 
 The MCP companion preserves bounded partial CLI evidence in the first content block when a tool fails, keeps `isError=true`, and separates diagnostics. Inspect both the failed-tool flag and `meta.fetch_failures`/coverage; partial rows never certify a complete shortlist.
 
-The optional local learning engine requires a unique literal prefix match before treating a cached resource ID as verified. Teaching undo atomically invalidates affected inferred query/resource/venue families while retaining explicit taught and unrelated patterns. Native `spots` reads use current provider evidence independently of these local learnings.
+The optional local learning engine requires a unique literal prefix match before treating a cached resource ID as verified. Explicit pattern teaching records its current resource type, venue, entity kind and examples; later inference preserves that manual payload. Teaching undo atomically reconciles affected inferred query/resource/venue families: rules with at least two distinct compatible retained bindings survive with examples from those supporters; stale or incompatible rows do not veto the compatible cohort, unsupported rules are removed, and explicit taught or unrelated patterns remain. Native `spots` reads use current provider evidence independently of these local learnings.
+
+The generated directory client refuses foreign effective-origin redirects before any inherited configured/per-call headers or cookies are sent. Same-origin normalized default ports, fresh auth signing and the ten-hop limit remain; policy refusals return directly. Existing binary body/MIME and stream timeout rules stay separately scoped. Native `spots` requests do not use configured credential headers; their source URLs are canonical provider references and do not attest the final redirect origin.
