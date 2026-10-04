@@ -1,0 +1,20 @@
+{
+  "id": "live-fixtures-and-safe-html-mcp-visibility",
+  "schema_version": 2,
+  "summary": "Preserve valid real help examples, annotation-free boolean happy paths, and source-hidden raw typed HTML MCP endpoints while keeping safe domain command mirrors.",
+  "reason": "Press boolean happy-arg map turns naked boolean flags into positional true; real saved snapshots need explicit fixtures. Raw typed HTML MCP handlers are unsuitable for factual extraction, so source mcp.endpoint_tools=hidden controls their visibility durably.",
+  "files": [
+    "spec.json",
+    "internal/cli/michi_core.go",
+    "internal/cli/changes.go",
+    "internal/cli/stations_get.go",
+    "internal/cli/bulletins_get.go",
+    "internal/mcp/tools.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Full live matrix PASS129/129 mandatory with zero failures/hollow features; exact source get Examples and computed/demo invocation shapes pass. Independent stdio check finds29 tools/all12domain mirrors and zero raw typed API aliases.",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261003-001046-81800c96",
+  "base_printing_press_version": "4.32.5"
+}

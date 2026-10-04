@@ -612,11 +612,10 @@ func (s *Store) ForgetLearnings(ctx context.Context, f ForgetLearningsFilter) (i
 		return 0, fmt.Errorf("forget learnings begin: %w", err)
 	}
 	defer tx.Rollback()
-	// Derived patterns have no row-level foreign key. Invalidate only the
+	// Derived patterns have no row-level foreign key. Reconcile only the
 	// structural families whose taught members are actually being removed.
 	// The store stays import-free of the learn tree.
-	type family struct{ template, resourceType, venue string }
-	families := map[family]bool{}
+	families := map[derivedPatternFamily]bool{}
 	rows, err := tx.QueryContext(ctx, "SELECT query_pattern, COALESCE(query_entities, '[]'), COALESCE(resource_type, ''), COALESCE(venue, ''), source FROM search_learnings WHERE "+where, args...)
 	if err != nil {
 		return 0, fmt.Errorf("forget learnings dependencies: %w", err)
@@ -635,7 +634,7 @@ func (s *Store) ForgetLearnings(ctx context.Context, f ForgetLearningsFilter) (i
 			continue
 		}
 		if template := derivedLearningTemplate(query, entities[0]); template != "" {
-			families[family{template, resourceType, venue}] = true
+			families[derivedPatternFamily{template, resourceType, venue}] = true
 		}
 	}
 	if err := rows.Err(); err != nil {
@@ -652,7 +651,7 @@ func (s *Store) ForgetLearnings(ctx context.Context, f ForgetLearningsFilter) (i
 		return 0, fmt.Errorf("forget learnings count: %w", err)
 	}
 	for f := range families {
-		if _, err := tx.ExecContext(ctx, `DELETE FROM search_patterns WHERE source = 'inferred' AND query_template = ? AND resource_type = ? AND COALESCE(venue, '') = ?`, f.template, f.resourceType, f.venue); err != nil {
+		if err := reconcileDerivedPatterns(ctx, tx, f); err != nil {
 			return 0, fmt.Errorf("forget derived learning patterns: %w", err)
 		}
 	}

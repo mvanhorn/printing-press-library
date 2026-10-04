@@ -1,0 +1,130 @@
+{
+  "api_name": "halal-gourmet-japan",
+  "base_url": "https://halalgourmet.jp",
+  "description": "Compare explicit food and prayer evidence across Japan with source dates and honest unknowns.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "prayer_get",
+      "description": "Inspect prayer-space facilities and explicit access evidence. Required: id. Returns the Place.",
+      "method": "GET",
+      "path": "/pray/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Stable numeric source alias ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "prayer_search",
+      "description": "Search mosques and prayer spaces by destination. Optional: query, prefecture, category (default: prayer) (plus 2 more). Returns array of Place.",
+      "method": "GET",
+      "path": "/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword from the source search field"
+        },
+        {
+          "name": "prefecture",
+          "type": "string",
+          "location": "query",
+          "description": "Japanese prefecture, such as Tokyo or Kyoto"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "query",
+          "description": "Source search target"
+        },
+        {
+          "name": "place-type",
+          "wire_name": "placeType",
+          "type": "string",
+          "location": "query",
+          "description": "Source prayer type spaces or mosques"
+        },
+        {
+          "name": "prayer-feature",
+          "wire_name": "prayerFeature",
+          "type": "string",
+          "location": "query",
+          "description": "Source prayer facility key"
+        }
+      ]
+    },
+    {
+      "name": "restaurants_get",
+      "description": "Inspect restaurant food conditions and source verification. Required: id. Returns the Place.",
+      "method": "GET",
+      "path": "/restaurant/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Stable numeric source alias ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "restaurants_search",
+      "description": "Search restaurants by destination and source filters. Optional: query, prefecture, genre (plus 2 more). Returns array of Place.",
+      "method": "GET",
+      "path": "/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword from the source search field"
+        },
+        {
+          "name": "prefecture",
+          "type": "string",
+          "location": "query",
+          "description": "Japanese prefecture, such as Tokyo or Kyoto"
+        },
+        {
+          "name": "genre",
+          "type": "string",
+          "location": "query",
+          "description": "Source cuisine label, such as Ramen"
+        },
+        {
+          "name": "feature",
+          "type": "string",
+          "location": "query",
+          "description": "Source food condition key, such as certified"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "query",
+          "description": "Source search target"
+        }
+      ]
+    }
+  ]
+}

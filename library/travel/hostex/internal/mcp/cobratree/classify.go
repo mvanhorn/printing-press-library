@@ -11,8 +11,12 @@ import (
 )
 
 const (
-	EndpointAnnotation = "pp:endpoint"
-	HiddenAnnotation   = "mcp:hidden"
+	EndpointAnnotation    = "pp:endpoint"
+	HiddenAnnotation      = "mcp:hidden"
+	APIResourceAnnotation = "pp:api-resource"
+	// Sub-resource parents set this without APIResourceAnnotation; both
+	// classify as commandGroup so help-only parents are not MCP tools.
+	ParentGroupAnnotation = "pp:parent-group"
 	// ReadOnlyAnnotation, when set on a Cobra command to "true"/"1"/"yes",
 	// causes the runtime walker to register the resulting MCP tool with
 	// readOnlyHint=true. Use for novel CLI commands that don't mutate
@@ -20,10 +24,27 @@ const (
 	// Without it, hosts like Claude Desktop default to "could write or
 	// delete" and demand permission per call.
 	ReadOnlyAnnotation = "mcp:read-only"
+	// LocalWriteAnnotation, when set on a Cobra command to "true"/"1"/"yes",
+	// marks a command whose only writes land in the CLI's own local store
+	// (teach-style learn writes, playbook notes) - never external state and
+	// never user-visible files. The walker registers the resulting MCP tool
+	// with destructiveHint=false and openWorldHint=false; readOnlyHint stays
+	// unset because the command genuinely writes locally. Commands that
+	// delete user-visible data keep honest destructive semantics and must
+	// not carry this annotation.
+	LocalWriteAnnotation = "mcp:local-write"
 	// PositionalWriteSinksAnnotation lists zero-based positional argument
 	// indexes that write to user-visible files when populated. It is enforced
 	// only on commands that also carry ReadOnlyAnnotation.
 	PositionalWriteSinksAnnotation = "mcp:write-positionals"
+	// FlagWriteSinksAnnotation lists Cobra flag names whose values choose a
+	// filesystem write destination. The walker drops them from the MCP schema
+	// and rejects them as arguments, including on read-only tools. An
+	// ancestor annotation covers a persistent flag that ancestor supplies and
+	// this command inherits. A nearer redeclaration of that persistent name
+	// is a different flag. Separate names with commas, semicolons, or
+	// whitespace. A leading "--" is ignored.
+	FlagWriteSinksAnnotation = "mcp:write-flags"
 )
 
 type commandKind int
@@ -31,6 +52,7 @@ type commandKind int
 const (
 	commandNovel commandKind = iota
 	commandEndpoint
+	commandGroup
 	commandFramework
 	commandHidden
 )
@@ -65,6 +87,7 @@ var frameworkCommands = map[string]bool{
 	"api":           true,
 	"auth":          true,
 	"completion":    true,
+	"context":       true,
 	"doctor":        true,
 	"feedback":      true,
 	"help":          true,
@@ -79,6 +102,9 @@ func classify(cmd *cobra.Command) commandKind {
 	}
 	if endpointID(cmd) != "" {
 		return commandEndpoint
+	}
+	if isGroupingParent(cmd) {
+		return commandGroup
 	}
 	if isTopLevelFrameworkCommand(cmd) {
 		return commandFramework
@@ -101,12 +127,139 @@ func endpointID(cmd *cobra.Command) string {
 	return strings.TrimSpace(cmd.Annotations[EndpointAnnotation])
 }
 
+func isGroupingParent(cmd *cobra.Command) bool {
+	return annotationIsTrue(cmd, APIResourceAnnotation) || annotationIsTrue(cmd, ParentGroupAnnotation)
+}
+
 func isMCPHidden(cmd *cobra.Command) bool {
 	return annotationIsTrue(cmd, HiddenAnnotation)
 }
 
 func isMCPReadOnly(cmd *cobra.Command) bool {
 	return annotationIsTrue(cmd, ReadOnlyAnnotation)
+}
+
+func isMCPLocalWrite(cmd *cobra.Command) bool {
+	return annotationIsTrue(cmd, LocalWriteAnnotation)
+}
+
+func annotationListParts(raw string) []string {
+	return strings.FieldsFunc(raw, func(r rune) bool {
+		return r == ',' || r == ';' || r == ' ' || r == '\t' || r == '\n'
+	})
+}
+
+func flagWriteSinkNames(cmd *cobra.Command) map[string]bool {
+	if cmd == nil {
+		return nil
+	}
+	out := map[string]bool{}
+	for name := range annotationFlagNames(cmd.Annotations) {
+		out[name] = true
+	}
+	// Persistent flags show up on the child, but the annotation stays on the
+	// command that declared them. A child-local flag of the same name is a
+	// different flag and keeps its own annotation. A nearer ancestor that
+	// redeclares the persistent name supplies the flag the child inherits,
+	// so a more distant annotation does not apply.
+	for parent := cmd.Parent(); parent != nil; parent = parent.Parent() {
+		for name := range annotationFlagNames(parent.Annotations) {
+			if inheritedWriteSink(cmd, name) && persistentFlagSupplier(cmd, name) == parent {
+				out[name] = true
+			}
+		}
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	return out
+}
+
+func annotationFlagNames(annotations map[string]string) map[string]bool {
+	if annotations == nil {
+		return nil
+	}
+	raw := strings.TrimSpace(annotations[FlagWriteSinksAnnotation])
+	if raw == "" {
+		return nil
+	}
+	out := map[string]bool{}
+	for _, part := range annotationListParts(raw) {
+		name := strings.TrimLeft(strings.TrimSpace(part), "-")
+		if name == "" {
+			continue
+		}
+		out[name] = true
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	return out
+}
+
+func inheritedWriteSink(cmd *cobra.Command, name string) bool {
+	if cmd == nil || name == "" {
+		return false
+	}
+	if cmd.NonInheritedFlags().Lookup(name) != nil {
+		return false
+	}
+	return cmd.InheritedFlags().Lookup(name) != nil
+}
+
+// persistentFlagSupplier is the nearest ancestor whose persistent flag set
+// defines name. Cobra keeps that flag and ignores a more distant one.
+func persistentFlagSupplier(cmd *cobra.Command, name string) *cobra.Command {
+	if cmd == nil || name == "" {
+		return nil
+	}
+	for parent := cmd.Parent(); parent != nil; parent = parent.Parent() {
+		if parent.PersistentFlags().Lookup(name) != nil {
+			return parent
+		}
+	}
+	return nil
+}
+
+// CommandAtPath returns the command reached by walking path from root.
+// Each segment matches the command name or a Cobra alias. Recipe tools use
+// it to apply the same write-sink rules as the walker.
+func CommandAtPath(root *cobra.Command, path []string) *cobra.Command {
+	if root == nil || len(path) == 0 {
+		return nil
+	}
+	cmd := root
+	for _, name := range path {
+		next := commandChild(cmd, name)
+		if next == nil {
+			return nil
+		}
+		cmd = next
+	}
+	return cmd
+}
+
+func commandChild(cmd *cobra.Command, name string) *cobra.Command {
+	if cmd == nil || name == "" {
+		return nil
+	}
+	for _, child := range cmd.Commands() {
+		if child != nil && (child.Name() == name || child.HasAlias(name)) {
+			return child
+		}
+	}
+	return nil
+}
+
+// DestinationFlagBlocked reports whether flagName chooses a filesystem write
+// destination for cmd. Unambiguous names are blocked on every command,
+// including a nil cmd. mcp:write-flags on cmd, and on ancestors when the
+// flag is inherited, are blocked too.
+func DestinationFlagBlocked(cmd *cobra.Command, flagName string) bool {
+	if blockedDestinationFlags[flagName] {
+		return true
+	}
+	return flagWriteSinkNames(cmd)[flagName]
 }
 
 func positionalWriteSinkIndexes(cmd *cobra.Command) map[int]bool {
@@ -118,9 +271,7 @@ func positionalWriteSinkIndexes(cmd *cobra.Command) map[int]bool {
 		return nil
 	}
 	out := map[int]bool{}
-	for _, part := range strings.FieldsFunc(raw, func(r rune) bool {
-		return r == ',' || r == ';' || r == ' ' || r == '\t' || r == '\n'
-	}) {
+	for _, part := range annotationListParts(raw) {
 		idx, err := strconv.Atoi(strings.TrimSpace(part))
 		if err != nil || idx < 0 {
 			continue

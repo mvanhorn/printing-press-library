@@ -1,0 +1,26 @@
+{
+  "planned_rows": 5,
+  "built_rows": 5,
+  "commands": [
+    {
+      "path": "trip discover",
+      "passed": true,
+      "usage": "iko-yo-pp-cli trip discover [flags]"
+    },
+    {
+      "path": "trip inspect",
+      "passed": true,
+      "usage": "iko-yo-pp-cli trip inspect [reference] [flags]"
+    },
+    {
+      "path": "trip compare",
+      "passed": true,
+      "usage": "iko-yo-pp-cli trip compare [references...] [flags]"
+    },
+    {
+      "path": "trip cached",
+      "passed": true,
+      "usage": "iko-yo-pp-cli trip cached [keyword] [flags]"
+    }
+  ]
+}

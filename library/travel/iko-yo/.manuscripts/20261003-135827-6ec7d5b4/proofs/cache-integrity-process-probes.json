@@ -1,0 +1,172 @@
+{
+  "checks": [
+    {
+      "case": "closed aliased detail and canonical TMPDIR",
+      "passed": true,
+      "details": {
+        "exit": 0,
+        "temporary_entries": 0
+      }
+    },
+    {
+      "case": "committed writer really holds WAL",
+      "passed": true,
+      "details": {
+        "wal_bytes": 8272,
+        "writer_sqlite_version": "3.53.4"
+      }
+    },
+    {
+      "case": "active WAL refuses cached",
+      "passed": true,
+      "details": {
+        "exit": 5,
+        "stdout_bytes": 0,
+        "stderr": "Error: cache has an active or ambiguous SQLite wal sidecar; close writers and retry"
+      }
+    },
+    {
+      "case": "active WAL refuses inspect",
+      "passed": true,
+      "details": {
+        "exit": 5,
+        "stdout_bytes": 0,
+        "stderr": "Error: cache has an active or ambiguous SQLite wal sidecar; close writers and retry"
+      }
+    },
+    {
+      "case": "active WAL refuses compare",
+      "passed": true,
+      "details": {
+        "exit": 5,
+        "stdout_bytes": 0,
+        "stderr": "Error: cache has an active or ambiguous SQLite wal sidecar; close writers and retry"
+      }
+    },
+    {
+      "case": "actual MCP SQL refuses active WAL",
+      "passed": true,
+      "details": {
+        "is_error": true,
+        "message": "['cache has an active or ambiguous SQLite wal sidecar; close writers and retry']"
+      }
+    },
+    {
+      "case": "checkpointed detail reads newest row",
+      "passed": true,
+      "details": {
+        "exit": 0
+      }
+    },
+    {
+      "case": "checkpointed MCP SQL reads newest row",
+      "passed": true,
+      "details": {
+        "count": 1,
+        "row_name": "Synthetic committed WAL update"
+      }
+    },
+    {
+      "case": "candidate SQLite runtime",
+      "passed": true,
+      "details": {
+        "version": "3.51.3"
+      }
+    },
+    {
+      "case": "actual MCP read-only SQL gate",
+      "passed": true,
+      "details": {
+        "is_error": true
+      }
+    },
+    {
+      "case": "actual MCP SQL scan bound and envelope",
+      "passed": true,
+      "details": {
+        "count": 5522,
+        "truncated": true,
+        "actual_mcp_text_bytes": 59923,
+        "max_bytes": 60000,
+        "temporary_entries": 0
+      }
+    },
+    {
+      "case": "normal private snapshots cleaned",
+      "passed": true,
+      "details": {
+        "temporary_entries": 0
+      }
+    },
+    {
+      "case": "unsafe TMPDIR ? refused and cleaned",
+      "passed": true,
+      "details": {
+        "exit": 5,
+        "temporary_entries": 0
+      }
+    },
+    {
+      "case": "unsafe new selected path ? refused",
+      "passed": true,
+      "details": {
+        "exit": 5
+      }
+    },
+    {
+      "case": "unsafe TMPDIR # refused and cleaned",
+      "passed": true,
+      "details": {
+        "exit": 5,
+        "temporary_entries": 0
+      }
+    },
+    {
+      "case": "unsafe new selected path # refused",
+      "passed": true,
+      "details": {
+        "exit": 5
+      }
+    },
+    {
+      "case": "unsafe TMPDIR % refused and cleaned",
+      "passed": true,
+      "details": {
+        "exit": 5,
+        "temporary_entries": 0
+      }
+    },
+    {
+      "case": "unsafe new selected path % refused",
+      "passed": true,
+      "details": {
+        "exit": 5
+      }
+    },
+    {
+      "case": "actual hardlinked reader refused",
+      "passed": true,
+      "details": {
+        "exit": 5
+      }
+    },
+    {
+      "case": "actual live alias save seen by held canonical writer",
+      "passed": true,
+      "details": {
+        "exit": 0,
+        "name_matches": true,
+        "alias_sidecars": []
+      }
+    },
+    {
+      "case": "canonical writer close retains actual live save",
+      "passed": true,
+      "details": {
+        "exit": 0
+      }
+    }
+  ],
+  "all_passed": true,
+  "probe_correction": "Budget measured from actual transmitted MCP text; default Python reserialization inserts spaces and is not the wire payload."
+}

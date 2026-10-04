@@ -1,0 +1,36 @@
+{
+  "binaries": {
+    "iko-yo-pp-cli": "3054463cecd0129fcaef3df57f13c91cc80abdd9d5fd6288cc5a512f47a65c89",
+    "iko-yo-pp-mcp": "94e2ff3177ad0fdfd83663430fed8fe2cf04398a4e857e08172980582c2b01a5"
+  },
+  "reviewed_sources": {
+    "AGENTS.md": "2acda3f6435baa45f7f53e0273da1279e0ff4bcddfd5ff8f41e9e07644718837",
+    "README.md": "8aa9e0b17fb315dabb3638643432f9e95f3783b43d80216fddf11d243dcda3a1",
+    "SKILL.md": "d7d2d508679f02f2b59059d33ca30e5376ebd9e2b8e1958a83f6abc4557fc5aa",
+    "cmd/iko-yo-pp-mcp/main.go": "38a4e3b728f1e337de10b5f36d6b4e123cb9049149fd16d9e52c55cc2b0a1adc",
+    "internal/cli/iko_yo_trip_endpoints.go": "1ab4694acf3f428c2bf99252bc093a9e72e20c5e3202c7c249dd40f5959a8bd4",
+    "internal/cli/iko_yo_trip_helpers.go": "e4cd84e60c150c744247d5be24e406a044c1a10f63ec2a9876f8cb9f5070139b",
+    "internal/cli/iko_yo_trip_privacy.go": "e04b69ef3c051961673289387ece848531aad7b457476b6398aa34d0942843a0",
+    "internal/cli/iko_yo_trip_test.go": "abdd153457d4e697495178ea59866bc9af3ad19d39fcf012a1022c55ddcfba49",
+    "internal/cli/trip.go": "c4384a054a535cb00af3034d048094ff2dfe0527cd86afa22641074440486312",
+    "internal/cli/trip_cached.go": "8278954a1922f750d16447047bf43db98621d291149357a74ababc5b8860318c",
+    "internal/cli/trip_cached_test.go": "015c44c2077b556180b25f705ad82e0232f9e42c58a07e935857169c92b71aea",
+    "internal/cli/trip_compare.go": "66e549cbbf0a89d7a345496b4a48f313edfba7a4aa9e382239b018b8628625d0",
+    "internal/cli/trip_compare_test.go": "4e14db4ce103718c2425796730868c5b80f5521291f9632903493d6f9a5d89e0",
+    "internal/cli/trip_discover.go": "70a6f13338e67364b79bae486a79d5253c55c7f527beb3fb2d2896dad5069096",
+    "internal/cli/trip_discover_test.go": "7696756786cf6b129e6a964c1628c25fb569e9f53740e8fbc26e9e5c79e30ebe",
+    "internal/cli/trip_inspect.go": "c0db71c7a782392f738312d3c66d98a21702908bcd36429a0a0b246f8f27e44d",
+    "internal/cli/trip_inspect_test.go": "d234cdd5c92e4a5ee9375a5f71c70aca39dfafd0ecc049cdabde38f6b895ea7f",
+    "internal/mcp/iko_yo_trip_surface.go": "e694f15310709768e5db554c92d355b2c9731232c50d00896e94b12ecdb6dd93",
+    "internal/mcp/iko_yo_trip_surface_test.go": "04ea1f3c117142280dc1cc6003f51142c3098f82a4e0a5bf9ea2985a1a6fda60",
+    "internal/store/iko_yo_trip.go": "4a313328fe1ea11e9497a8dd8417c9ad9acbdf7885f01dcb1461d2edd66e7d09",
+    "internal/store/iko_yo_trip_test.go": "3c6b3548ee0e4cdced557741ab842b02409c823dd4fe4f2fb22d3e7608a770b9",
+    "internal/trip/client.go": "b53cc5300a9ea9e76a247ff8b4a0457278e502c78f0c33f16925c4dead958552",
+    "internal/trip/match.go": "2eb78f2b55cbec34edf5064a48abd84cc9fe46d839e1d4e93a9ebc1cd1a26cf0",
+    "internal/trip/parse.go": "8cfdfbfeef7b71bff6cb493079869984621298fd2b08c5fb040ddf7eb8b7d832",
+    "internal/trip/trip_test.go": "821ac1dbac172ce67a417dcf9d47e8cea4dc44a4e23aabc0e38e64350b69a455",
+    "internal/trip/types.go": "6ad73d35df2b373a1d5f62dd335fc98579f427d165c7fbdbbda25d1e06e923cf"
+  },
+  "source_files": 26,
+  "post_signoff_recheck": "help/examples/fixture annotations only; release-review.md addendum"
+}

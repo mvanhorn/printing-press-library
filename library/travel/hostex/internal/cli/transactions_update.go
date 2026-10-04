@@ -15,19 +15,31 @@ import (
 func newTransactionsUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyActionAt string
 	var bodyAmount float64
-	var bodyItemId string
+	var bodyItemId int
 	var bodyNote string
-	var bodyPaymentMethodId string
+	var bodyPaymentMethodId int
 	var stdinBody bool
 
 	cmd := &cobra.Command{
 		Use:         "update <id>",
 		Short:       "Update an existing transaction entry. Only the fields listed below can be modified.",
-		Example:     "  hostex-pp-cli transactions update 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  hostex-pp-cli transactions update 123 --note 'Corrected amount' --dry-run",
 		Annotations: map[string]string{"pp:endpoint": "transactions.update", "pp:method": "PATCH", "pp:path": "/transactions/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <id>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <id>"))
 			}
 			if !stdinBody {
 			}
@@ -41,7 +53,7 @@ func newTransactionsUpdateCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -53,30 +65,27 @@ func newTransactionsUpdateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
-				if bodyActionAt != "" {
-					body["action_at"] = bodyActionAt
+				bodyMap := map[string]any{}
+				body = bodyMap
+				if cmd.Flags().Changed("action-at") || bodyActionAt != "" {
+					bodyMap["action_at"] = bodyActionAt
 				}
-				if bodyAmount != 0.0 {
-					body["amount"] = bodyAmount
+				if cmd.Flags().Changed("amount") || bodyAmount != 0.0 {
+					bodyMap["amount"] = bodyAmount
 				}
-				if bodyItemId != "" {
-					if err := setJSONBodyScalar(body, "item_id", "item-id", "int", bodyItemId); err != nil {
-						return err
-					}
+				if cmd.Flags().Changed("item-id") || bodyItemId != 0 {
+					bodyMap["item_id"] = bodyItemId
 				}
-				if bodyNote != "" {
-					body["note"] = bodyNote
+				if cmd.Flags().Changed("note") || bodyNote != "" {
+					bodyMap["note"] = bodyNote
 				}
-				if bodyPaymentMethodId != "" {
-					if err := setJSONBodyScalar(body, "payment_method_id", "payment-method-id", "int", bodyPaymentMethodId); err != nil {
-						return err
-					}
+				if cmd.Flags().Changed("payment-method-id") || bodyPaymentMethodId != 0 {
+					bodyMap["payment_method_id"] = bodyPaymentMethodId
 				}
 			}
 			data, statusCode, err := c.PatchWithParams(cmd.Context(), path, params, body)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			// Inspect the mutate response body for a partial-failure-shaped
 			// field (e.g. Google Ads `partialFailureError`). Several Google
@@ -169,15 +178,22 @@ func newTransactionsUpdateCmd(flags *rootFlags) *cobra.Command {
 						}
 					}
 				}
+				// Mutation-riding reads (POST search, RPC-over-POST lists) return
+				// the same single-key collection envelopes as GET reads. Unwrap
+				// before filtering so rows nest once under the result key and
+				// --select filters rows, not envelope keys; plain created-object
+				// responses pass through unwrapSingleKeyArray untouched.
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
 				// generic high-gravity allow-list. Otherwise --compact still applies
 				// when --agent is on but the user did not name fields.
-				filtered := data
+				var selectErr error
+				filtered := unwrapSingleKeyArray(data)
 				if flags.selectFields != "" {
-					filtered = filterFields(filtered, flags.selectFields)
+					filtered, selectErr = filterFieldsChecked(filtered, flags.selectFields)
+					selectErr = selectErrorForDryRun(selectErr, flags, data)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, map[string]bool{"error_code": true, "request_id": true})
 				}
 				if len(filtered) > 0 {
 					var parsed any
@@ -193,35 +209,42 @@ func newTransactionsUpdateCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
+				resultKey := "data"
+				if flags.agent {
+					resultKey = "results"
+				}
+				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
+				if err != nil {
+					return err
+				}
+				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
 					return perr
 				}
 				if partialFailure != nil && !flags.allowPartialFailure {
 					return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "transactions", partialFailure.Message))
 				}
-				return nil
+				return selectErr
 			}
 			// Fall-through for mutate paths that did not hit the table or
 			// asJSON branches: --quiet, --csv, --plain, and default terminal
-			// raw output. printOutputWithFlags renders the body, then the
-			// typed partial-failure exit fires unless --allow-partial-failure
-			// downgrades it. Without this guard a partial failure would exit
-			// 0 for these output modes — the exact silent-swallow regression
-			// the surrounding patch is preventing for asJSON / piped output.
-			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
-				return perr
-			}
+			// raw output. printOutputWithFlagsMeta renders the body with live
+			// provenance, then the typed partial-failure exit fires unless
+			// --allow-partial-failure downgrades it. Without this guard a
+			// partial failure would exit 0 for these output modes — the exact
+			// silent-swallow regression the surrounding patch is preventing
+			// for asJSON / piped output.
+			printErr := printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"}, map[string]bool{"error_code": true, "request_id": true})
 			if partialFailure != nil && !flags.allowPartialFailure {
 				return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "transactions", partialFailure.Message))
 			}
-			return nil
+			return printErr
 		},
 	}
 	cmd.Flags().StringVar(&bodyActionAt, "action-at", "", "New action time. Accepts ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`).")
 	cmd.Flags().Float64Var(&bodyAmount, "amount", 0.0, "New absolute amount. Always provide a positive value; the original `direction` (income or expense) is preserved.")
-	cmd.Flags().StringVar(&bodyItemId, "item-id", "", "New item categorization id.")
+	cmd.Flags().IntVar(&bodyItemId, "item-id", 0, "New item categorization id.")
 	cmd.Flags().StringVar(&bodyNote, "note", "", "New free-form note (max 500 characters).")
-	cmd.Flags().StringVar(&bodyPaymentMethodId, "payment-method-id", "", "New payment method id.")
+	cmd.Flags().IntVar(&bodyPaymentMethodId, "payment-method-id", 0, "New payment method id.")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

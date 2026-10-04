@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "tool_count": 24,
+  "tested_tool": "spots_inspect",
+  "public_detail_observed": true,
+  "exact_schema_parameters_verified": true
+}

@@ -1,0 +1,54 @@
+[
+  {
+    "tool": "resorts_list",
+    "rows_checked": 3,
+    "decision_fields_preserved": [
+      "courses",
+      "id",
+      "installed_lifts",
+      "name",
+      "observed_at",
+      "source_url",
+      "vertical_m"
+    ]
+  },
+  {
+    "tool": "seasons_list",
+    "rows_checked": 3,
+    "decision_fields_preserved": [
+      "endpoint_evidence_state",
+      "first_recorded_day",
+      "id",
+      "last_recorded_day",
+      "observed_at",
+      "resort_id",
+      "source_url",
+      "span_days"
+    ]
+  },
+  {
+    "tool": "reports_list",
+    "rows_checked": 3,
+    "decision_fields_preserved": [
+      "id",
+      "observed_at",
+      "region",
+      "report_date",
+      "source_url"
+    ]
+  },
+  {
+    "tool": "plan_towns",
+    "rows_checked": 3,
+    "decision_fields_preserved": [
+      "ambiguous_endpoint_areas",
+      "confirmed_endpoint_areas",
+      "inconsistent_endpoint_areas",
+      "listed_areas",
+      "max_vertical_m",
+      "min_vertical_m",
+      "missing_endpoint_areas",
+      "town"
+    ]
+  }
+]

@@ -1,0 +1,61 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-02T19:12:47.052269Z",
+  "printing_press_version": "4.32.5",
+  "api_name": "michi-no-eki",
+  "display_name": "Michi-no-Eki",
+  "cli_name": "michi-no-eki-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "spec.json",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:927ac05482346df04d6d931ab91c06e003d66478ba4df3aa8a3ed20b2813b4ce",
+  "run_id": "20261003-001046-81800c96",
+  "category": "travel",
+  "description": "Find and compare Japan roadside-station service stops with source evidence and explicit unknowns.",
+  "mcp_binary": "michi-no-eki-pp-mcp",
+  "mcp_tool_count": 4,
+  "mcp_public_tool_count": 4,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Stop evidence and unknowns",
+      "command": "readiness",
+      "description": "Inspect source facts and permission or service unknowns for one station ID"
+    },
+    {
+      "name": "Ordered station comparison",
+      "command": "compare",
+      "description": "Compare up to six ordered station IDs with source facts and per-ID failures"
+    },
+    {
+      "name": "Scoped straight-line nearby ranking",
+      "command": "nearby",
+      "description": "Rank source stations by straight-line kilometers from required latitude/longitude, scoped by area and facilities"
+    },
+    {
+      "name": "Bounded station-linked notices",
+      "command": "station-notices",
+      "description": "Find notices explicitly linked to one station ID within page/detail scan limits"
+    },
+    {
+      "name": "Offline observation diff",
+      "command": "changes",
+      "description": "Compare two saved snapshot files offline by stable station ID and factual fields, or use an explicit synthetic demo"
+    }
+  ]
+}

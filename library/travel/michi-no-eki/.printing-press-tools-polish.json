@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-10-02T19:06:10.536282Z",
+  "cli_dir": "<cli-dir>/michi-no-eki",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated client profile list has no positional parameters and returns client_profiles from platform.ListProfiles; read-only annotation exists and this private configuration command is excluded from the current MCP mirror. Richer result-shape wording belongs to the generator template."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 868,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated learnings list queries recorded local rows with query/source/resource/confidence/limit/warnings filters shown in flags and Examples; it is not provider station discovery. Its read-only hint describes the conceptual query, but OpenWithContext can create/migrate local state, so this is not a pure-read guarantee. Richer parameter-aware wording and local-effect hints belong to the generator template; the discrepancy is documented in Known Gaps and independent review."
+    }
+  ]
+}

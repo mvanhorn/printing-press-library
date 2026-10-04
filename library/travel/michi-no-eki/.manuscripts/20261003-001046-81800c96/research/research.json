@@ -1,0 +1,163 @@
+{
+  "api_name": "michi-no-eki",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-02T16:23:20.945463Z",
+  "novel_features": [
+    {
+      "name": "Stop evidence and unknowns",
+      "command": "readiness",
+      "description": "Inspect source facts and permission or service unknowns for one station ID",
+      "rationale": "This uses GET /stations/views/{id} factual fields plus a clearly separated, attributed MLIT rest-guidance reference to compute a mechanical evidence/unknowns envelope with no external dependencies.",
+      "example": "michi-no-eki-pp-cli readiness 19187 --agent",
+      "why_it_matters": "Campervan planner; trip agent can inspect source evidence without merging tabs manually.",
+      "group": "Accountable campervan stops"
+    },
+    {
+      "name": "Ordered station comparison",
+      "command": "compare",
+      "description": "Compare up to six ordered station IDs with source facts and per-ID failures",
+      "rationale": "This uses a bounded ordered set of GET /stations/views/{id} responses to compute aligned factual comparison rows with per-station provenance and missing/error states, with no external dependencies.",
+      "example": "michi-no-eki-pp-cli compare --ids 19187,19189 --agent",
+      "why_it_matters": "Campervan planner; trip agent can inspect source evidence without merging tabs manually.",
+      "group": "Accountable campervan stops"
+    },
+    {
+      "name": "Scoped straight-line nearby ranking",
+      "command": "nearby",
+      "description": "Rank source stations by straight-line kilometers from required latitude/longitude, scoped by area and facilities",
+      "rationale": "This uses GET /stations/search/{prefectures}/{facilities}/{keyword} map coordinates to compute Haversine kilometers and stable-ID tie ordering over the observed candidate set, with no external dependencies.",
+      "example": "michi-no-eki-pp-cli nearby --prefecture nagano --facility onsen --lat 35.8632686 --lon 138.2769108 --limit 3 --agent",
+      "why_it_matters": "Campervan planner can inspect source evidence without merging tabs manually.",
+      "group": "Accountable campervan stops"
+    },
+    {
+      "name": "Bounded station-linked notices",
+      "command": "station-notices",
+      "description": "Find notices explicitly linked to one station ID within page/detail scan limits",
+      "rationale": "This uses a bounded GET /notices index scan and its bounded notice-detail requests to join explicit /stations/views/{id} links,, to requested station IDs, with no external dependencies.",
+      "example": "michi-no-eki-pp-cli station-notices 19487 --max-scan-pages 1 --max-detail-records 10 --agent",
+      "why_it_matters": "Advisory researcher; trip agent can inspect source evidence without merging tabs manually.",
+      "group": "Accountable campervan stops"
+    },
+    {
+      "name": "Offline observation diff",
+      "command": "changes",
+      "description": "Compare two saved snapshot files offline by stable station ID and factual fields, or use an explicit synthetic demo",
+      "rationale": "This uses two user-retained JSON observations emitted by snapshot --ids to compute deterministic field and station-membership differences, observation times, and provenance without network requests or external dependencies.",
+      "example": "michi-no-eki-pp-cli changes --demo --agent",
+      "why_it_matters": "Trip agent; advisory researcher can inspect source evidence without merging tabs manually.",
+      "group": "Accountable campervan stops"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Stop evidence and unknowns",
+      "command": "readiness",
+      "description": "Inspect source facts and permission or service unknowns for one station ID",
+      "rationale": "This uses GET /stations/views/{id} factual fields plus a clearly separated, attributed MLIT rest-guidance reference to compute a mechanical evidence/unknowns envelope with no external dependencies.",
+      "example": "michi-no-eki-pp-cli readiness 19187 --agent",
+      "why_it_matters": "Campervan planner; trip agent can inspect source evidence without merging tabs manually.",
+      "group": "Accountable campervan stops"
+    },
+    {
+      "name": "Ordered station comparison",
+      "command": "compare",
+      "description": "Compare up to six ordered station IDs with source facts and per-ID failures",
+      "rationale": "This uses a bounded ordered set of GET /stations/views/{id} responses to compute aligned factual comparison rows with per-station provenance and missing/error states, with no external dependencies.",
+      "example": "michi-no-eki-pp-cli compare --ids 19187,19189 --agent",
+      "why_it_matters": "Campervan planner; trip agent can inspect source evidence without merging tabs manually.",
+      "group": "Accountable campervan stops"
+    },
+    {
+      "name": "Scoped straight-line nearby ranking",
+      "command": "nearby",
+      "description": "Rank source stations by straight-line kilometers from required latitude/longitude, scoped by area and facilities",
+      "rationale": "This uses GET /stations/search/{prefectures}/{facilities}/{keyword} map coordinates to compute Haversine kilometers and stable-ID tie ordering over the observed candidate set, with no external dependencies.",
+      "example": "michi-no-eki-pp-cli nearby --prefecture nagano --facility onsen --lat 35.8632686 --lon 138.2769108 --limit 3 --agent",
+      "why_it_matters": "Campervan planner can inspect source evidence without merging tabs manually.",
+      "group": "Accountable campervan stops"
+    },
+    {
+      "name": "Bounded station-linked notices",
+      "command": "station-notices",
+      "description": "Find notices explicitly linked to one station ID within page/detail scan limits",
+      "rationale": "This uses a bounded GET /notices index scan and its bounded notice-detail requests to join explicit /stations/views/{id} links,, to requested station IDs, with no external dependencies.",
+      "example": "michi-no-eki-pp-cli station-notices 19487 --max-scan-pages 1 --max-detail-records 10 --agent",
+      "why_it_matters": "Advisory researcher; trip agent can inspect source evidence without merging tabs manually.",
+      "group": "Accountable campervan stops"
+    },
+    {
+      "name": "Offline observation diff",
+      "command": "changes",
+      "description": "Compare two saved snapshot files offline by stable station ID and factual fields, or use an explicit synthetic demo",
+      "rationale": "This uses two user-retained JSON observations emitted by snapshot --ids to compute deterministic field and station-membership differences, observation times, and provenance without network requests or external dependencies.",
+      "example": "michi-no-eki-pp-cli changes --demo --agent",
+      "why_it_matters": "Trip agent; advisory researcher can inspect source evidence without merging tabs manually.",
+      "group": "Accountable campervan stops"
+    }
+  ],
+  "narrative": {
+    "display_name": "Michi-no-Eki",
+    "headline": "Find and compare Japan roadside-station service stops with source evidence and explicit unknowns.",
+    "value_prop": "Search the official Japanese directory by prefecture, source region, and facilities. Compare parking and published hours, rank nearby candidates, inspect bounded station notices, and compare saved observations without inferring camping permission.",
+    "auth_narrative": "Authorized directory routes require no authentication. No accounts, cookies or bookings are used.",
+    "quickstart": [
+      {
+        "command": "michi-no-eki-pp-cli doctor --dry-run",
+        "comment": "Check local command readiness without network."
+      },
+      {
+        "command": "michi-no-eki-pp-cli catalog --agent",
+        "comment": "Resolve official prefecture and facility vocabulary."
+      },
+      {
+        "command": "michi-no-eki-pp-cli find --prefecture nagano --facility onsen --limit 3 --agent",
+        "comment": "Find a bounded source-listed bath shortlist."
+      },
+      {
+        "command": "michi-no-eki-pp-cli readiness 19187 --agent",
+        "comment": "Inspect facts and unresolved overnight/current-service questions."
+      }
+    ],
+    "when_to_use": "Use for Japan roadside-station service stops, source-listed parking/food/bath/EV facilities, bounded dated notices and explicit unknowns. Use nearby for straight-line scoped candidates, compare for an existing shortlist, and readiness for unresolved permissions/status.",
+    "anti_triggers": [
+      "Booking or campsite/RV availability transactions",
+      "Driving routes or campervan clearance guarantees",
+      "Inferring overnight lodging/camping permission or live facility availability"
+    ],
+    "recipes": [
+      {
+        "title": "Compare stop evidence",
+        "command": "michi-no-eki-pp-cli compare --ids 19187,19189 --agent --select stations.id,stations.name,stations.parking,fetch_failures",
+        "explanation": "Return ordered station facts and explicit fetch gaps."
+      },
+      {
+        "title": "Nearby bath stops",
+        "command": "michi-no-eki-pp-cli nearby --prefecture nagano --facility onsen --lat 35.8632686 --lon 138.2769108 --limit 3 --agent",
+        "explanation": "Straight-line distance ranks scoped source candidates, not driving routes."
+      },
+      {
+        "title": "Station notice watch",
+        "command": "michi-no-eki-pp-cli station-notices 19487 --max-scan-pages 1 --max-detail-records 10 --agent",
+        "explanation": "Match exact linked station IDs within a bounded notice scan."
+      },
+      {
+        "title": "Offline observation changes",
+        "command": "michi-no-eki-pp-cli changes --before before.json --after after.json --agent",
+        "explanation": "Compare user-saved factual observations without network."
+      }
+    ],
+    "trigger_phrases": [
+      "find Nagano roadside stations with onsen",
+      "compare roadside-station parking",
+      "nearby Michi-no-Eki service stops",
+      "check station-linked notices",
+      "use michi-no-eki",
+      "run michi-no-eki"
+    ]
+  }
+}

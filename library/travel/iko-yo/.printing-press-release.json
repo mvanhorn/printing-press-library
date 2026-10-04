@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "iko-yo",
+  "cli_name": "iko-yo-pp-cli",
+  "version": "2026.10.1",
+  "released_at": "2026-10-03T09:33:06Z",
+  "source_commit": "168a3e6a67e42dbb34b6de4c36ef5002e0d94b9f",
+  "printing_press_version": "4.33.0",
+  "run_id": "20261003-135827-6ec7d5b4",
+  "changes": [
+    {
+      "title": "feat(iko-yo): add iko-yo",
+      "pr": 2251,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2251",
+      "commit": "168a3e6a67e42dbb34b6de4c36ef5002e0d94b9f"
+    }
+  ]
+}

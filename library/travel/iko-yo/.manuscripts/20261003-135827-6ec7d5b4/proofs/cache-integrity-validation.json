@@ -1,0 +1,185 @@
+{
+  "scope": "Iko-yo Trip cache correctness amendment, preserving prior comparison/navigation fixes",
+  "public_validation": {
+    "passed": true,
+    "checks": [
+      {
+        "name": "manifest",
+        "passed": true
+      },
+      {
+        "name": "transcendence",
+        "passed": true
+      },
+      {
+        "name": "phase5",
+        "passed": true
+      },
+      {
+        "name": "go mod tidy",
+        "passed": true
+      },
+      {
+        "name": "module path",
+        "passed": true
+      },
+      {
+        "name": "govulncheck",
+        "passed": true
+      },
+      {
+        "name": "go vet",
+        "passed": true
+      },
+      {
+        "name": "go build",
+        "passed": true
+      },
+      {
+        "name": "--help",
+        "passed": true
+      },
+      {
+        "name": "--version",
+        "passed": true
+      },
+      {
+        "name": "verify-skill",
+        "passed": true
+      },
+      {
+        "name": "patches",
+        "passed": true
+      },
+      {
+        "name": "manuscripts",
+        "passed": true
+      }
+    ]
+  },
+  "shipcheck": {
+    "passed": true,
+    "legs": [
+      {
+        "name": "verify",
+        "passed": true,
+        "exit_code": 0
+      },
+      {
+        "name": "validate-narrative",
+        "passed": true,
+        "exit_code": 0
+      },
+      {
+        "name": "dogfood",
+        "passed": true,
+        "exit_code": 0
+      },
+      {
+        "name": "workflow-verify",
+        "passed": true,
+        "exit_code": 0
+      },
+      {
+        "name": "apify-audit",
+        "passed": true,
+        "exit_code": 0
+      },
+      {
+        "name": "verify-skill",
+        "passed": true,
+        "exit_code": 0
+      },
+      {
+        "name": "scorecard",
+        "passed": true,
+        "exit_code": 0
+      }
+    ]
+  },
+  "live_features": {
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "features": [
+      {
+        "name": "Bounded date-window discovery",
+        "command": "trip discover",
+        "example": "iko-yo-pp-cli trip discover --kind events --region 6 --prefecture 11 --from 2026-11-14 --to 2026-11-15 --max-pages 2 --agent",
+        "status": "pass",
+        "sample_bytes": 2824
+      },
+      {
+        "name": "Evidence-backed family fact card",
+        "command": "trip inspect",
+        "example": "iko-yo-pp-cli trip inspect spots/8220 --agent",
+        "status": "pass",
+        "sample_bytes": 2939
+      },
+      {
+        "name": "Qualified charge and application comparison",
+        "command": "trip compare",
+        "example": "iko-yo-pp-cli trip compare spots/8220 events/8412 --on 2026-11-15 --as-of 2026-10-03 --agent",
+        "status": "pass",
+        "sample_bytes": 4110
+      },
+      {
+        "name": "Family-constraint comparison",
+        "command": "trip compare",
+        "example": "iko-yo-pp-cli trip compare spots/8220 events/8412 --on 2026-11-15 --age-months 24 --amenities indoor,nursing,changing --agent",
+        "status": "pass",
+        "sample_bytes": 4110
+      },
+      {
+        "name": "Offline shortlist with retained coverage",
+        "command": "trip cached",
+        "example": "iko-yo-pp-cli trip cached Mooovi --kind spots --agent",
+        "status": "pass",
+        "sample_bytes": 4010
+      }
+    ]
+  },
+  "regressions": [
+    "three actual saved CLI commands refuse committed active WAL with no fact output",
+    "actual lazy SQL reads original pinned snapshot rows despite selected-path substitution",
+    "canonical symlink save is visible to held ordinary writer and persists after close",
+    "actual live inspect hard-link refusal preserves canonical observation",
+    "two-cache/new-path URI refusal occurs before migration/write",
+    "private snapshot URI path refusal cleans operation-owned temporary copy",
+    "source MCP SQL refuses active WAL and preserves read-only gate"
+  ],
+  "sqlite": {
+    "module": "modernc.org/sqlite",
+    "version": "v1.46.2",
+    "libc": "v1.70.0",
+    "runtime": "3.51.3",
+    "reference": "https://sqlite.org/wal.html#walreset"
+  },
+  "audit": {
+    "tools_pending": 0,
+    "pii_pending": 0,
+    "pii_gate_failures": 0,
+    "new_custom_security_pending": 0
+  },
+  "artifacts": {
+    "iko-yo-pp-cli": "119037750ea24401aaee5bddeb19bf5ca843258806a50fe2f5b7a407bf5f251e",
+    "iko-yo-pp-mcp": "6874aa2f1632b7a16aafa451f728caf2a88d3423c6426f2506c533a6a06a4ef0"
+  },
+  "bundle_sha256": "712b6f226f3bfd80dc9f2731e3d810f80278e9df4d77f16b785fcbac9ac37455",
+  "release_accounting": "2026.10.1; ledger, changelog and runtime version files unchanged",
+  "limits": "Saved reads require checkpointed stable singly linked DB, private snapshots capped at128MiB; URI%?# paths refused; deliberate external replacement during writing unsupported; ordinary canonical SQLite transactions preserved.",
+  "framework_defect_record": "Generated immutable=1 ignores committed WAL; unescaped generated URI/path writers can select wrong cache. Source-owned wrappers bound these advertised Trip/MCP paths. No unsolicited retro or issue was filed.",
+  "independent_review": {
+    "passed": true,
+    "focused_top_level_tests": 12,
+    "actual_process_checks_passed": 21,
+    "actual_process_checks_failed": 0,
+    "source_hashes_rechecked": 17,
+    "review": "cache-integrity-review.md",
+    "snapshot": "cache-integrity-snapshot.json"
+  },
+  "local_promoted_validation": {
+    "passed": true,
+    "expected_warning": "bare module path; canonical publication module is validated separately"
+  }
+}

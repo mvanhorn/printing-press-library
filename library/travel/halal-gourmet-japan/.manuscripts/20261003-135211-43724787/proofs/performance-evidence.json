@@ -1,0 +1,76 @@
+{
+  "method": "single representative cold CLI invocations on macOS, /usr/bin/time -l maximum RSS; public GET reads with isolated local state",
+  "ran_at": "2026-10-03T12:17:14.198249Z",
+  "sqlite_version": "3.51.3",
+  "bounded_source_body_mib": 8,
+  "bounded_private_reader_image_mib": 128,
+  "bounded_selected_ids_per_kind": 20,
+  "measurements": [
+    {
+      "command": "restaurants get",
+      "elapsed_seconds": 0.156,
+      "maximum_rss_mib": 28.97,
+      "output_bytes": 4559,
+      "exit": 0
+    },
+    {
+      "command": "prayer get",
+      "elapsed_seconds": 0.161,
+      "maximum_rss_mib": 28.34,
+      "output_bytes": 3741,
+      "exit": 0
+    },
+    {
+      "command": "restaurants search",
+      "elapsed_seconds": 0.812,
+      "maximum_rss_mib": 29.67,
+      "output_bytes": 21619,
+      "exit": 0
+    },
+    {
+      "command": "plan compare",
+      "elapsed_seconds": 0.016,
+      "maximum_rss_mib": 20.33,
+      "output_bytes": 9717,
+      "exit": 0,
+      "loaded_count": 2,
+      "results": 2
+    },
+    {
+      "command": "plan match",
+      "elapsed_seconds": 0.013,
+      "maximum_rss_mib": 20.03,
+      "output_bytes": 1265,
+      "exit": 0,
+      "loaded_count": 2,
+      "results": 2
+    },
+    {
+      "command": "plan gaps",
+      "elapsed_seconds": 0.012,
+      "maximum_rss_mib": 20.16,
+      "output_bytes": 1485,
+      "exit": 0,
+      "loaded_count": 2,
+      "results": 2
+    },
+    {
+      "command": "plan pair",
+      "elapsed_seconds": 0.012,
+      "maximum_rss_mib": 21.09,
+      "output_bytes": 10454,
+      "exit": 0,
+      "loaded_count": 2,
+      "results": 1
+    },
+    {
+      "command": "plan changes",
+      "elapsed_seconds": 0.012,
+      "maximum_rss_mib": 20.2,
+      "output_bytes": 961,
+      "exit": 0,
+      "loaded_count": 2,
+      "results": 2
+    }
+  ]
+}

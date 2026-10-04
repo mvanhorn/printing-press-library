@@ -1,0 +1,465 @@
+{
+  "prefectures": [
+    {
+      "id": "10",
+      "name": "北海道",
+      "region_name": "北海道エリア",
+      "slug": "hokkaido",
+      "region": "hokkaido"
+    },
+    {
+      "id": "11",
+      "name": "青森県",
+      "region_name": "東北エリア",
+      "slug": "aomori",
+      "region": "tohoku"
+    },
+    {
+      "id": "13",
+      "name": "岩手県",
+      "region_name": "東北エリア",
+      "slug": "iwate",
+      "region": "tohoku"
+    },
+    {
+      "id": "14",
+      "name": "宮城県",
+      "region_name": "東北エリア",
+      "slug": "miyagi",
+      "region": "tohoku"
+    },
+    {
+      "id": "12",
+      "name": "秋田県",
+      "region_name": "東北エリア",
+      "slug": "akita",
+      "region": "tohoku"
+    },
+    {
+      "id": "15",
+      "name": "山形県",
+      "region_name": "東北エリア",
+      "slug": "yamagata",
+      "region": "tohoku"
+    },
+    {
+      "id": "16",
+      "name": "福島県",
+      "region_name": "東北エリア",
+      "slug": "fukushima",
+      "region": "tohoku"
+    },
+    {
+      "id": "17",
+      "name": "茨城県",
+      "region_name": "関東エリア",
+      "slug": "ibaraki",
+      "region": "kanto"
+    },
+    {
+      "id": "18",
+      "name": "栃木県",
+      "region_name": "関東エリア",
+      "slug": "tochigi",
+      "region": "kanto"
+    },
+    {
+      "id": "19",
+      "name": "群馬県",
+      "region_name": "関東エリア",
+      "slug": "gunma",
+      "region": "kanto"
+    },
+    {
+      "id": "20",
+      "name": "埼玉県",
+      "region_name": "関東エリア",
+      "slug": "saitama",
+      "region": "kanto"
+    },
+    {
+      "id": "21",
+      "name": "千葉県",
+      "region_name": "関東エリア",
+      "slug": "chiba",
+      "region": "kanto"
+    },
+    {
+      "id": "22",
+      "name": "東京都",
+      "region_name": "関東エリア",
+      "slug": "tokyo",
+      "region": "kanto"
+    },
+    {
+      "id": "23",
+      "name": "神奈川県",
+      "region_name": "関東エリア",
+      "slug": "kanagawa",
+      "region": "kanto"
+    },
+    {
+      "id": "24",
+      "name": "新潟県",
+      "region_name": "北陸エリア",
+      "slug": "niigata",
+      "region": "hokuriku"
+    },
+    {
+      "id": "25",
+      "name": "富山県",
+      "region_name": "北陸エリア",
+      "slug": "toyama",
+      "region": "hokuriku"
+    },
+    {
+      "id": "26",
+      "name": "石川県",
+      "region_name": "北陸エリア",
+      "slug": "ishikawa",
+      "region": "hokuriku"
+    },
+    {
+      "id": "27",
+      "name": "福井県",
+      "region_name": "近畿エリア",
+      "slug": "fukui",
+      "region": "kinki"
+    },
+    {
+      "id": "28",
+      "name": "山梨県",
+      "region_name": "関東エリア",
+      "slug": "yamanashi",
+      "region": "kanto"
+    },
+    {
+      "id": "29",
+      "name": "長野県",
+      "region_name": "中部エリア",
+      "slug": "nagano",
+      "region": "chubu"
+    },
+    {
+      "id": "30",
+      "name": "岐阜県",
+      "region_name": "中部エリア",
+      "slug": "gifu",
+      "region": "chubu"
+    },
+    {
+      "id": "31",
+      "name": "静岡県",
+      "region_name": "中部エリア",
+      "slug": "shizuoka",
+      "region": "chubu"
+    },
+    {
+      "id": "32",
+      "name": "愛知県",
+      "region_name": "中部エリア",
+      "slug": "aichi",
+      "region": "chubu"
+    },
+    {
+      "id": "33",
+      "name": "三重県",
+      "region_name": "中部エリア",
+      "slug": "mie",
+      "region": "chubu"
+    },
+    {
+      "id": "34",
+      "name": "滋賀県",
+      "region_name": "近畿エリア",
+      "slug": "shiga",
+      "region": "kinki"
+    },
+    {
+      "id": "35",
+      "name": "京都府",
+      "region_name": "近畿エリア",
+      "slug": "kyoto",
+      "region": "kinki"
+    },
+    {
+      "id": "36",
+      "name": "大阪府",
+      "region_name": "近畿エリア",
+      "slug": "osaka",
+      "region": "kinki"
+    },
+    {
+      "id": "37",
+      "name": "兵庫県",
+      "region_name": "近畿エリア",
+      "slug": "hyogo",
+      "region": "kinki"
+    },
+    {
+      "id": "38",
+      "name": "奈良県",
+      "region_name": "近畿エリア",
+      "slug": "nara",
+      "region": "kinki"
+    },
+    {
+      "id": "39",
+      "name": "和歌山県",
+      "region_name": "近畿エリア",
+      "slug": "wakayama",
+      "region": "kinki"
+    },
+    {
+      "id": "40",
+      "name": "鳥取県",
+      "region_name": "中国エリア",
+      "slug": "tottori",
+      "region": "chugoku"
+    },
+    {
+      "id": "41",
+      "name": "島根県",
+      "region_name": "中国エリア",
+      "slug": "shimane",
+      "region": "chugoku"
+    },
+    {
+      "id": "42",
+      "name": "岡山県",
+      "region_name": "中国エリア",
+      "slug": "okayama",
+      "region": "chugoku"
+    },
+    {
+      "id": "43",
+      "name": "広島県",
+      "region_name": "中国エリア",
+      "slug": "hiroshima",
+      "region": "chugoku"
+    },
+    {
+      "id": "44",
+      "name": "山口県",
+      "region_name": "中国エリア",
+      "slug": "yamaguchi",
+      "region": "chugoku"
+    },
+    {
+      "id": "45",
+      "name": "徳島県",
+      "region_name": "四国エリア",
+      "slug": "tokushima",
+      "region": "shikoku"
+    },
+    {
+      "id": "46",
+      "name": "香川県",
+      "region_name": "四国エリア",
+      "slug": "kagawa",
+      "region": "shikoku"
+    },
+    {
+      "id": "47",
+      "name": "愛媛県",
+      "region_name": "四国エリア",
+      "slug": "ehime",
+      "region": "shikoku"
+    },
+    {
+      "id": "48",
+      "name": "高知県",
+      "region_name": "四国エリア",
+      "slug": "kochi",
+      "region": "shikoku"
+    },
+    {
+      "id": "49",
+      "name": "福岡県",
+      "region_name": "九州・沖縄エリア",
+      "slug": "fukuoka",
+      "region": "kyushu-okinawa"
+    },
+    {
+      "id": "50",
+      "name": "佐賀県",
+      "region_name": "九州・沖縄エリア",
+      "slug": "saga",
+      "region": "kyushu-okinawa"
+    },
+    {
+      "id": "51",
+      "name": "長崎県",
+      "region_name": "九州・沖縄エリア",
+      "slug": "nagasaki",
+      "region": "kyushu-okinawa"
+    },
+    {
+      "id": "52",
+      "name": "熊本県",
+      "region_name": "九州・沖縄エリア",
+      "slug": "kumamoto",
+      "region": "kyushu-okinawa"
+    },
+    {
+      "id": "53",
+      "name": "大分県",
+      "region_name": "九州・沖縄エリア",
+      "slug": "oita",
+      "region": "kyushu-okinawa"
+    },
+    {
+      "id": "54",
+      "name": "宮崎県",
+      "region_name": "九州・沖縄エリア",
+      "slug": "miyazaki",
+      "region": "kyushu-okinawa"
+    },
+    {
+      "id": "55",
+      "name": "鹿児島県",
+      "region_name": "九州・沖縄エリア",
+      "slug": "kagoshima",
+      "region": "kyushu-okinawa"
+    },
+    {
+      "id": "56",
+      "name": "沖縄県",
+      "region_name": "九州・沖縄エリア",
+      "slug": "okinawa",
+      "region": "kyushu-okinawa"
+    }
+  ],
+  "source_url": "https://www.michi-no-eki.jp/",
+  "observed_at": "2026-10-03T01:14:12+09:00",
+  "regions": [
+    {
+      "slug": "hokkaido",
+      "name": "北海道エリア"
+    },
+    {
+      "slug": "tohoku",
+      "name": "東北エリア"
+    },
+    {
+      "slug": "kanto",
+      "name": "関東エリア"
+    },
+    {
+      "slug": "hokuriku",
+      "name": "北陸エリア"
+    },
+    {
+      "slug": "chubu",
+      "name": "中部エリア"
+    },
+    {
+      "slug": "kinki",
+      "name": "近畿エリア"
+    },
+    {
+      "slug": "chugoku",
+      "name": "中国エリア"
+    },
+    {
+      "slug": "shikoku",
+      "name": "四国エリア"
+    },
+    {
+      "slug": "kyushu-okinawa",
+      "name": "九州・沖縄エリア"
+    }
+  ],
+  "facilities": [
+    {
+      "id": "100",
+      "slug": "atm",
+      "name": "ATM"
+    },
+    {
+      "id": "101",
+      "slug": "baby-bed",
+      "name": "ベビーベッド"
+    },
+    {
+      "id": "102",
+      "slug": "restaurant",
+      "name": "レストラン"
+    },
+    {
+      "id": "103",
+      "slug": "cafe",
+      "name": "軽食・喫茶"
+    },
+    {
+      "id": "104",
+      "slug": "lodging",
+      "name": "宿泊施設"
+    },
+    {
+      "id": "105",
+      "slug": "onsen",
+      "name": "温泉施設"
+    },
+    {
+      "id": "106",
+      "slug": "campground",
+      "name": "キャンプ場等"
+    },
+    {
+      "id": "107",
+      "slug": "park",
+      "name": "公園"
+    },
+    {
+      "id": "108",
+      "slug": "observation-deck",
+      "name": "展望台"
+    },
+    {
+      "id": "109",
+      "slug": "museum",
+      "name": "美術館・博物館"
+    },
+    {
+      "id": "110",
+      "slug": "fuel",
+      "name": "ガソリンスタンド"
+    },
+    {
+      "id": "111",
+      "slug": "ev-charger",
+      "name": "EV充電施設"
+    },
+    {
+      "id": "112",
+      "slug": "wifi",
+      "name": "無線LAN"
+    },
+    {
+      "id": "113",
+      "slug": "shower",
+      "name": "シャワー"
+    },
+    {
+      "id": "114",
+      "slug": "experience",
+      "name": "体験施設"
+    },
+    {
+      "id": "115",
+      "slug": "tourist-info",
+      "name": "観光案内"
+    },
+    {
+      "id": "116",
+      "slug": "accessible-toilet",
+      "name": "身障者トイレ"
+    },
+    {
+      "id": "117",
+      "slug": "shop",
+      "name": "ショップ"
+    }
+  ]
+}

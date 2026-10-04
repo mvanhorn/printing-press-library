@@ -60,7 +60,7 @@ Rates are null until their denominator is non-zero. Everything is
 local-only: events never leave this machine.`,
 		Example: `  carstay-pp-cli learnings stats
   carstay-pp-cli learnings stats --json`,
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "false", "mcp:local-write": "true", "pp:local-state-read": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "learnings stats")

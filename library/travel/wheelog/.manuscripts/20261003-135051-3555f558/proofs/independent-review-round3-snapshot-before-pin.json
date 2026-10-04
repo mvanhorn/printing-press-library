@@ -1,0 +1,86 @@
+{
+  "review_status": "HOLD",
+  "captured_at": "2026-10-03T11:50:22.445946+00:00",
+  "files": {
+    "README.md": {
+      "sha256": "358faa8f83711210a996406de18ef93c8f50a1c66447fc29af2ab78672575de3",
+      "mtime": "2026-10-03T11:13:17.383534+00:00"
+    },
+    "SKILL.md": {
+      "sha256": "4520b779c9f16a0496715b2c3b41ca9759bc121b5789437a9feafa62c0eac71a",
+      "mtime": "2026-10-03T11:13:17.383873+00:00"
+    },
+    "AGENTS.md": {
+      "sha256": "440427382e210b56da1a8aed884a1214a7ad20fceb331f580884f141c6d312a8",
+      "mtime": "2026-10-03T08:38:14.055788+00:00"
+    },
+    "internal/store/store.go": {
+      "sha256": "85dab54e8d9fb14c52309891143bdffa3ec5a00d9292f5f35e867dcf8686dcb5",
+      "mtime": "2026-10-03T11:09:44.334229+00:00"
+    },
+    "internal/store/wheelog_read.go": {
+      "sha256": "fc338a6882fdcf1ba712f5895e58fc7587702be139d4e9ac34268af79faf50f1",
+      "mtime": "2026-10-03T11:48:46.873559+00:00"
+    },
+    "internal/store/wheelog_read_test.go": {
+      "sha256": "c3390fbac7915c1bbf056cd81e15cfc13f236acd93f2db83b1b3353a7b0685f3",
+      "mtime": "2026-10-03T11:48:46.873886+00:00"
+    },
+    "internal/store/wheelog_write.go": {
+      "sha256": "966a1e4a7bdf1a295cad36ab5af18187eaea6a6845d0d906785265dba4550c46",
+      "mtime": "2026-10-03T11:45:57.970274+00:00"
+    },
+    "internal/store/wheelog_write_test.go": {
+      "sha256": "6b5214a760fbb90f79bd3579068dff5611af5918ea7fbb45ac0bff8582fcdb89",
+      "mtime": "2026-10-03T11:45:57.970410+00:00"
+    },
+    "internal/store/wheelog_links_windows.go": {
+      "sha256": "091b8b25bd3c71ea1473a0b2197ba0f84a03e69f6d5c2f62c1285816f20dd90f",
+      "mtime": "2026-10-03T11:09:44.263887+00:00"
+    },
+    "internal/store/wheelog_links_other.go": {
+      "sha256": "12f52bd9674d384162ae21dfd871691b377911143df884227576101fe3b60d4a",
+      "mtime": "2026-10-03T11:09:44.263618+00:00"
+    },
+    "internal/store/wheelog_shortlist.go": {
+      "sha256": "515e0fa8913de2a5640a9f1fa4dbef0fc1eedfa126bcc89f42f4d24d0d0f4624",
+      "mtime": "2026-10-03T11:13:17.401680+00:00"
+    },
+    "internal/cli/wheelog_helpers.go": {
+      "sha256": "8abece0336cc256dee10da2e76b29e2e7a470695573914cfcda4e3bb3309d026",
+      "mtime": "2026-10-03T11:09:44.395799+00:00"
+    },
+    "internal/cli/wheelog_saved_read_test.go": {
+      "sha256": "566de2c60550a6c958a531f7db9c875731ccb06b6e321fc28f3a475e549e38fa",
+      "mtime": "2026-10-03T11:15:38.410073+00:00"
+    },
+    "internal/cli/spots_inspect.go": {
+      "sha256": "866c29f97188809a78a81a41c93dacbb2c00b2c01e5e2cdb508dbc4a05dcfc49",
+      "mtime": "2026-10-03T10:37:49.180822+00:00"
+    },
+    "internal/cli/spots_search.go": {
+      "sha256": "00c18cc8e8d2874077296d48d618578dc811792e4d954e9510c77dff28bd1dee",
+      "mtime": "2026-10-03T10:37:49.220048+00:00"
+    },
+    "internal/cli/spots_compare.go": {
+      "sha256": "328383d09f4e1c48002c213bbef9a453e404e038170b0dd27b005bb410fdb7e2",
+      "mtime": "2026-10-03T10:37:49.200094+00:00"
+    },
+    "internal/cli/shortlist_changes.go": {
+      "sha256": "ea7d80b01230ca5e82cafd85f6474d51455d56e0e7d4192067171de3ee1368ee",
+      "mtime": "2026-10-03T10:39:26.837550+00:00"
+    },
+    ".printing-press-patches/public-facility-evidence-without-contributor-history.json": {
+      "sha256": "65eb86368f6e952f971b0fbc26726aa6c129dcf7d3a3b51b1fd13eaedc4d24c7",
+      "mtime": "2026-10-03T11:17:20.934095+00:00"
+    },
+    "bin/wheelog-pp-cli": {
+      "sha256": "ba8a2f058c83cf914d4ab3aa531795487bdffa669b21978c7ea7288fdac2003b",
+      "mtime": "2026-10-03T11:15:40.579977+00:00"
+    },
+    "bin/wheelog-pp-mcp": {
+      "sha256": "d39f5b7a43efe2e71d64a5bdffe1f5609cc1ba043c60b7be7191f4267ce3c4b0",
+      "mtime": "2026-10-03T11:15:40.713071+00:00"
+    }
+  }
+}

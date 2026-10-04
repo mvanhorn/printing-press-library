@@ -1,0 +1,101 @@
+{
+  "review": "cache-integrity-amendment",
+  "verdict": "PASS",
+  "generated_at": "2026-10-03T12:52:26.393733+00:00",
+  "source_root": "library/travel/iko-yo",
+  "base_head": "23e2804d66dac99272715bb72af57d5e89abc36d",
+  "candidate_uncommitted": true,
+  "scope": "Cache guard, Trip read/write integration, source-owned MCP SQL opening and preserved SQL gate/bounds, dependency pins and corresponding docs/tests; earlier snapshots preserved.",
+  "source_sha256": {
+    "README.md": "059f35f2cb2d973abb21bc6d2c8fd20052c0065e9834882d9415c2bc1627b156",
+    "SKILL.md": "24d9ace772cbbd1116a1fe29de855b88df33f4b8830db7025407e5ac5503a5ac",
+    "go.mod": "91ef6ccb65a85730682e5b6066068ab0e50ec673bedf3a8be9d5aa5c8b8a8cce",
+    "go.sum": "aa9c34b9f2d48766aa4434089b8136bf94c2cd0a8ef066170d8ad7b92c475cd0",
+    "internal/cli/iko_yo_trip_helpers.go": "07c13fea4b68fd4c1a6cdabcbd18620ee45eddfe41b4327800d9bdd57d6e3a7a",
+    "internal/cli/trip_cached.go": "cbe3defc9a3374918ecad3c31fa93927a40fd2de3536a460d4168303fa0a82a8",
+    "internal/cli/trip_compare.go": "0e6ff84248cf829aa058dffc91b5ee287701746ca079ae929a0a7049aba7135b",
+    "internal/cli/iko_yo_trip_cache_test.go": "9dcbf8aaaed79005b96bd95e5536645aa980ae6534ef1e1320886e2da6c30b57",
+    "internal/mcp/iko_yo_trip_surface.go": "74800bfcec268a9b2e0cf4fd3fa4aa615c93b03039b5aa39cbe5c383fe0264f7",
+    "internal/mcp/iko_yo_trip_sql.go": "d252fc0e8c3bc7b9b2576fd7aad108330b3bd6506a8fe661803b016568a06449",
+    "internal/mcp/iko_yo_trip_sql_test.go": "daf9526c5eef1a408c791a031ab2eae7242e69fcda2f059e509db98964e92982",
+    ".printing-press-patches/iko-yo-cache-snapshot-integrity.json": "59baccf5519a2452ab253b538f736216ece91c1399bae073b15bfcc8f71ee491",
+    "internal/cacheguard/guard.go": "d99e0c8874ee827f2ba8a20884f4ca927e61201f2009b3bbc8c718b5228bfdeb",
+    "internal/cacheguard/guard_test.go": "e95e8080f06aeb6b8668c1a8b1495c79e73d027e045dce4771ebd0455d9b89a9",
+    "internal/cacheguard/links_other.go": "698994a2a1c1961f11f141e6737231232ef2047d83340d4dffdb9b88df8d5147",
+    "internal/cacheguard/links_unix.go": "7d181ceee119c08f66ee19835e89b6681bca2ab18f3a8da61cb0690ba905d091",
+    "internal/cacheguard/links_windows.go": "27252c87dddde16728ca94386e90d70fac71f752160cdf60a5db350c8a515ee5"
+  },
+  "artifacts": {
+    "library/travel/iko-yo/build/iko-yo-pp-cli": {
+      "sha256": "119037750ea24401aaee5bddeb19bf5ca843258806a50fe2f5b7a407bf5f251e",
+      "bytes": 22884578
+    },
+    "library/travel/iko-yo/build/iko-yo-pp-mcp": {
+      "sha256": "6874aa2f1632b7a16aafa451f728caf2a88d3423c6426f2506c533a6a06a4ef0",
+      "bytes": 25575282
+    },
+    "installed/iko-yo-pp-cli": {
+      "sha256": "119037750ea24401aaee5bddeb19bf5ca843258806a50fe2f5b7a407bf5f251e",
+      "bytes": 22884578
+    },
+    "installed/iko-yo-pp-mcp": {
+      "sha256": "6874aa2f1632b7a16aafa451f728caf2a88d3423c6426f2506c533a6a06a4ef0",
+      "bytes": 25575282
+    },
+    "local-library/iko-yo/build/iko-yo-pp-mcp-darwin-arm64.mcpb": {
+      "sha256": "712b6f226f3bfd80dc9f2731e3d810f80278e9df4d77f16b785fcbac9ac37455",
+      "bytes": 27404574
+    }
+  },
+  "candidate_installed_peers_equal": true,
+  "cli_version": "iko-yo-pp-cli 2026.10.1",
+  "dependencies": {
+    "modernc.org/sqlite": "v1.46.2",
+    "modernc.org/libc": "v1.70.0",
+    "actual_mcp_sqlite_version": "3.51.3"
+  },
+  "independent_checks": {
+    "focused_go_top_level_tests_passed": 12,
+    "actual_process_cases": 21,
+    "actual_process_all_passed": true,
+    "actual_mcp_bounded_text_bytes": 59923,
+    "actual_mcp_max_bytes": 60000,
+    "process_proof_sha256": "68dc6cad48d8ee8c28f1af1caaaecad338eb54692c92b202ab35c7623c804fea"
+  },
+  "open_findings": [],
+  "supported_writer_scope": "Normal SQLite canonical-path writes. Deliberate external same-user database inode swap/restore during writer open is unsupported; detected retargets error.",
+  "bundle_peers": {
+    "bin/iko-yo-pp-mcp": {
+      "sha256": "6874aa2f1632b7a16aafa451f728caf2a88d3423c6426f2506c533a6a06a4ef0",
+      "bytes": 25575282
+    },
+    "bin/iko-yo-pp-cli": {
+      "sha256": "119037750ea24401aaee5bddeb19bf5ca843258806a50fe2f5b7a407bf5f251e",
+      "bytes": 22884578
+    }
+  },
+  "bundle_version": "2026.10.1",
+  "bundle_peers_equal_candidates": true,
+  "supporting_gates": {
+    "pipeline/cache-shipcheck.json": {
+      "passed": true,
+      "sha256": "fc9b5588301e8cc6c36d0456dba3ff5b0d71c528d4c995811dbfe4cfe6daeb73"
+    },
+    "pipeline/cache-public-publish-validate.json": {
+      "passed": true,
+      "sha256": "7001805d4fb53816465e08a06fba2fa4a4b627910c7b531811e2a6c1af0ade93"
+    },
+    "library/travel/iko-yo/.manuscripts/20261003-135827-6ec7d5b4/proofs/live-gate-summary.json": {
+      "verdict": "PASS",
+      "matrix_size": 112,
+      "passed": 112,
+      "failed": 0,
+      "skipped": 93,
+      "unverified": 93,
+      "ran_at": "2026-10-03T12:42:40.096813Z"
+    }
+  },
+  "source_hash_recheck_changed_files": [],
+  "private_original_report_sha256": "a7c9132b4ac5ff8334218562152cda5ddeebbdab7682a7751c9cd7dc0a871cf6",
+  "public_report_sha256": "c6a6eb503ace285cee1f7887640ca0032acdab85d87e46ac561bfe03b8d5f5aa"
+}

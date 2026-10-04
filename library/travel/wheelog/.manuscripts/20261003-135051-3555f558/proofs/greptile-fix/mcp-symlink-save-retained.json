@@ -1,0 +1,12 @@
+{
+  "jsonrpc": "2.0",
+  "id": 6,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"note\": \"Only allowlisted public-place facts and at most two observations per selected ID are saved.\",\n  \"results\": [\n    {\n      \"id\": 166345,\n      \"name\": \"Synthetic source restroom\",\n      \"address\": \"\",\n      \"country\": null,\n      \"category\": \"toilet\",\n      \"location\": null,\n      \"record_created_at\": null,\n      \"record_updated_at\": null,\n      \"source_created_raw\": null,\n      \"source_updated_raw\": null,\n      \"retrieved_at\": \"2026-10-03T11:19:38.148907Z\",\n      \"source_url\": \"https://app.wheelog.com/?spotId=166345\\u0026la=ja\",\n      \"questions\": [\n        {\n          \"id\": 102,\n          \"label\": \"Turning space\",\n          \"positive_reports\": 4,\n          \"negative_reports\": 0,\n          \"state\": \"reported_affirmative\",\n          \"report_observed_at\": null\n        }\n      ],\n      \"detail_status\": \"checked\",\n      \"data_source\": \"live\",\n      \"unsupported_facts\": [\n        \"measured_dimensions\",\n        \"individual_report_dates\",\n        \"current_open_status\",\n        \"accessible_routes\"\n      ],\n      \"requirements\": [],\n      \"record_update_age_days\": null,\n      \"cache_age_days\": 8.094907407407407e-8,\n      \"recheck_reasons\": [\n        \"source_update_date_unknown\"\n      ]\n    }\n  ],\n  \"saved\": 1,\n  \"scope\": \"selected_public_spots\"\n}\n"
+      }
+    ]
+  }
+}

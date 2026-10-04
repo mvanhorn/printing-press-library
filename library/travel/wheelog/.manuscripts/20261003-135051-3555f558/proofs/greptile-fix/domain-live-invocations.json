@@ -1,0 +1,118 @@
+[
+  {
+    "command": "shortlist changes",
+    "kind": "happy_path",
+    "args": [
+      "shortlist",
+      "changes",
+      "--data-source",
+      "local",
+      "--limit",
+      "3",
+      "--agent"
+    ],
+    "status": "pass",
+    "output_bytes": 532,
+    "dry_run_in_argv": false
+  },
+  {
+    "command": "shortlist list",
+    "kind": "happy_path",
+    "args": [
+      "shortlist",
+      "list",
+      "--audit",
+      "--require-question",
+      "102",
+      "--data-source",
+      "local",
+      "--agent"
+    ],
+    "status": "pass",
+    "output_bytes": 694,
+    "dry_run_in_argv": false
+  },
+  {
+    "command": "shortlist remove",
+    "kind": "happy_path",
+    "args": [
+      "shortlist",
+      "remove",
+      "166347",
+      "--agent",
+      "--data-source",
+      "local"
+    ],
+    "status": "pass",
+    "output_bytes": 155,
+    "dry_run_in_argv": false
+  },
+  {
+    "command": "shortlist save",
+    "kind": "happy_path",
+    "args": [
+      "shortlist",
+      "save",
+      "166345",
+      "166344",
+      "--agent"
+    ],
+    "status": "pass",
+    "output_bytes": 3561,
+    "dry_run_in_argv": false
+  },
+  {
+    "command": "spots compare",
+    "kind": "happy_path",
+    "args": [
+      "spots",
+      "compare",
+      "166345",
+      "166344",
+      "--require-question",
+      "102",
+      "--agent",
+      "--data-source",
+      "live"
+    ],
+    "status": "pass",
+    "output_bytes": 3987,
+    "dry_run_in_argv": false
+  },
+  {
+    "command": "spots inspect",
+    "kind": "happy_path",
+    "args": [
+      "spots",
+      "inspect",
+      "166345",
+      "--require-question",
+      "102",
+      "--agent"
+    ],
+    "status": "pass",
+    "output_bytes": 2314,
+    "dry_run_in_argv": false
+  },
+  {
+    "command": "spots search",
+    "kind": "happy_path",
+    "args": [
+      "spots",
+      "search",
+      "成田空港",
+      "--category",
+      "toilet",
+      "--limit",
+      "3",
+      "--agent",
+      "--require-question",
+      "102",
+      "--data-source",
+      "live"
+    ],
+    "status": "pass",
+    "output_bytes": 4110,
+    "dry_run_in_argv": false
+  }
+]

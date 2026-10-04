@@ -1,0 +1,11 @@
+{
+  "url": "https://trip.iko-yo.net/events",
+  "http_status": "200",
+  "curl_exit": 0,
+  "useful_source_cards": true,
+  "bytes": 54484,
+  "observed_at": "2026-10-03T06:23:03.287759+00:00",
+  "decision": "PASS",
+  "auth": "none",
+  "transport": "standard_http"
+}

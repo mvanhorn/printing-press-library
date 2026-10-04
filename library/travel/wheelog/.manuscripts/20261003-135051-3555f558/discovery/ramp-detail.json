@@ -1,0 +1,28 @@
+{
+  "result": [
+    {
+      "resultCode": 0,
+      "message": ""
+    }
+  ],
+  "content": {
+    "spot": {
+      "id": 166347,
+      "name": "京成線 成田空港駅 第2・第3ターミナル方面出口",
+      "country": "",
+      "address": "日本 〒286-0104千葉県成田市古込2",
+      "location": {
+        "lat": "35.7727981428757",
+        "lng": "140.388182401657"
+      },
+      "created": "2026-10-02 05:09:40.383362",
+      "updated": "2026-10-02 05:09:40.383362",
+      "spotCategory": {
+        "id": 8,
+        "category": "slope",
+        "questionList": []
+      },
+      "noteAvailable": true
+    }
+  }
+}

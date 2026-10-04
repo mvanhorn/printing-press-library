@@ -1,0 +1,2 @@
+go build -trimpath -o bin/wheelog-pp-cli ./cmd/wheelog-pp-cli
+go build -trimpath -o bin/wheelog-pp-mcp ./cmd/wheelog-pp-mcp

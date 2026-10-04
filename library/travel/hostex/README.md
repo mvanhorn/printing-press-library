@@ -33,7 +33,7 @@ npx -y @mvanhorn/printing-press-library install hostex --agent claude-code --age
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.4 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/travel/hostex/cmd/hostex-pp-cli@latest
@@ -120,7 +120,7 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Authentication
 
-Hostex authenticates with a Hostex-Access-Token header. Create one in the Host Portal (OpenAPI Settings) with read-only or writable scope; tokens do not expire. Set it as HOSTEX_ACCESS_TOKEN. The server also accepts Authorization: Bearer, but prefer the dedicated header. A read-only token rejects every write with error_code 401.
+Hostex authenticates with a Hostex-Access-Token header. Create one in the Host Portal (OpenAPI Settings) with read-only or writable scope; tokens do not expire. Run `echo "$TOKEN" | hostex-pp-cli auth set-token` (the token is read from stdin) or export HOSTEX_ACCESS_TOKEN. The server also accepts Authorization: Bearer, but prefer the dedicated header. A read-only token rejects every write with error_code 401.
 
 ## Quick Start
 
@@ -134,8 +134,8 @@ hostex-pp-cli sync --resources reservations,properties --db ./hostex.db
 # Offline full-text search across synced reservations.
 hostex-pp-cli search "smith" --type reservations --db ./hostex.db
 
-# Live query with field projection to keep agent context small.
-hostex-pp-cli reservations query --json --select data.reservations.stay_code,data.reservations.status
+# Live query for one check-in window with field projection; both check-in dates are required together.
+hostex-pp-cli reservations query --start-check-in-date 2026-11-01 --end-check-in-date 2026-11-30 --json --select data.reservations.stay_code,data.reservations.status
 
 ```
 
@@ -198,47 +198,23 @@ These capabilities aren't available in any other tool for this API.
   hostex-pp-cli revenue-rollup --by property --month 2026-06 --agent
   ```
 
-  The scan stops after `--max-pages` pages of 100 ledger entries (default 50, so 5,000). When the range holds more than that, the output sets `truncated: true` and a warning goes to stderr rather than quietly understating the totals — re-run with a larger `--max-pages` or a narrower range.
-
 ## Recipes
-
 
 ### Project only what you need from a verbose reservation list
 
 ```bash
-hostex-pp-cli reservations query --agent --select data.reservations.stay_code,data.reservations.guest_name,data.reservations.check_in_date,data.reservations.status
+hostex-pp-cli reservations query --start-check-in-date 2026-11-01 --end-check-in-date 2026-11-30 --agent --select data.reservations.stay_code,data.reservations.guest_name,data.reservations.check_in_date,data.reservations.status
 ```
 
-Reservation payloads are large and deeply nested; --select narrows to the fields an agent needs so it doesn't burn context.
+Reservation payloads are large and deeply nested; --select narrows to the fields an agent needs so it doesn't burn context. The API returns HTTP 400 unless both check-in dates are given.
 
-### Change listing prices: dry-run first, then send
+### Dry-run a price push before sending it
 
 ```bash
-# 1. Preview the request body; nothing is sent
-hostex-pp-cli listings update-prices --channel-type airbnb --listing-id <listing-id> --prices '[{"start_date":"YYYY-MM-DD","end_date":"YYYY-MM-DD","price":180}]' --dry-run
-# 2. Same command without --dry-run to apply it
-hostex-pp-cli listings update-prices --channel-type airbnb --listing-id <listing-id> --prices '[{"start_date":"YYYY-MM-DD","end_date":"YYYY-MM-DD","price":180}]'
+hostex-pp-cli listings update-prices --channel-type airbnb --listing-id 1234567890 --prices '[{"start_date":"2026-11-01","end_date":"2026-11-30","price":180}]' --dry-run
 ```
 
-Replace the YYYY-MM-DD placeholders with a future date range. price is an integer in the listing currency (180 means 180 USD, not cents) and end_date must be within 3 years. This changes live guest-facing prices, so review the dry-run body first and never script the real call without a human check. The API is asynchronous: a success only means the task was queued, so verify the result in the Hostex Host Portal.
-
-### Set minimum stay or close check-in for a date range
-
-```bash
-# Preview, then repeat without --dry-run
-hostex-pp-cli listings update-restrictions --channel-type airbnb --listing-id <listing-id> --restrictions '[{"start_date":"YYYY-MM-DD","end_date":"YYYY-MM-DD","min_stay_on_arrival":3}]' --dry-run
-```
-
-Replace the YYYY-MM-DD placeholders with a future date range. Each range takes start_date and end_date plus any of closed_on_arrival, closed_on_departure, min_stay_on_arrival, max_stay_on_arrival, min_stay_through, max_stay_through, exact_stay_on_arrival (booleans or integers) and min_advance_reservation, max_advance_reservation (strings like 4D4H). Supported keys differ per channel. This changes live booking rules, so dry-run first.
-
-### Open or close one channel with inventory
-
-```bash
-# Preview, then repeat without --dry-run
-hostex-pp-cli listings update-inventories --channel-type airbnb --listing-id <listing-id> --inventories '[{"start_date":"YYYY-MM-DD","end_date":"YYYY-MM-DD","inventory":1}]' --dry-run
-```
-
-Replace the YYYY-MM-DD placeholders with a future date range. inventory is the integer number of units available on that channel for the range (0 closes it). It does not change the property calendar, and a later availability change can overwrite it; use availabilities update to block the property itself. Dry-run first, then confirm in the Host Portal.
+Shows the request body that would be sent to the async price endpoint without mutating any channel. Prices are integers in the listing currency; confirm the applied result in the Host Portal afterwards.
 
 ### Offline search across synced guest threads
 
@@ -248,13 +224,13 @@ hostex-pp-cli search "refund" --type conversations --db ./hostex.db
 
 After sync, full-text search runs locally with no API call and no rate-limit cost.
 
-### Confirm a revenue rollup is complete before reporting it
+### Read channel calendars before repricing
 
 ```bash
-hostex-pp-cli revenue-rollup --by month --from 2026-01-01 --to 2026-12-31 --max-pages 200 --agent
+hostex-pp-cli listings query-calendars --start-date 2026-11-01 --end-date 2026-11-30 --listings '[{"listing_id":"1234567890","channel_type":"airbnb"}]' --agent
 ```
 
-The ledger scan is capped so a high-volume account can't pin the CLI. Read `truncated` before trusting the numbers: `true` means the range outran the cap and income, expense and net are all understated. Raise `--max-pages` or narrow the range until it reads `false`.
+A read that happens to use POST, so it is safe to run live. Compare the current per-day prices with `pricing-ratios` (per-channel percentage over the lead channel) before pushing changes; the property base price itself can only be edited in the Host Portal.
 
 ## Usage
 
@@ -346,7 +322,7 @@ Manage conversations
 
 - **`hostex-pp-cli conversations get-details`** - This endpoint is used to retrieve the messages and details of a conversation. <br><br>We are constantly improving our API which could mean that message schema may change. In order to maintain a healthy integration, your Application must parse and ignore unexpected parameters instead of throwing errors.
 - **`hostex-pp-cli conversations query`** - This endpoint is used to query the list of conversations regarding guest inquiries.
-- **`hostex-pp-cli conversations send-message`** - Send a text or image message to the guest.
+- **`hostex-pp-cli conversations send-message`** - Send a text or image message to the guest. <br><br>**This endpoint is not idempotent and does not return a message ID.** If a request times out, the outcome is unknown — Hostex cannot determine whether the channel has already delivered the message, and this uncertainty cannot be resolved on our side, so no idempotency guarantee is offered. If you receive an error, retry as appropriate — in our experience, a guest receiving a duplicate message is better than a guest receiving no message at all.
 
 ### custom-channels
 
@@ -498,13 +474,17 @@ Schedule tasks such as cleaning, maintenance, reception, housekeeping and others
 Manage transactions
 
 - **`hostex-pp-cli transactions create`** - Record a new income or expense entry. What the entry is linked to is inferred from the request:
-- provide `stay_code` to record an entry against a specific stay,
+- provide `reservation_code` to record an entry against a reservation,
 - provide `property_id` to record an entry against a specific property,
-- provide neither to record an operator-level entry (not tied to any specific property or stay; only available to the master operator).
+- provide neither to record an operator-level entry (not tied to any specific property or reservation; only available to the master operator).
 
-`stay_code` and `property_id` are mutually exclusive.
+`reservation_code` and `property_id` are mutually exclusive.
 
-The `direction` field decides whether the entry is an `income` or an `expense`, which in turn determines which dictionaries are used for `item_id` (`GET /income_items` or `GET /expense_items`) and `payment_method_id` (`GET /income_methods` or `GET /expense_methods`). The `amount` is always provided as a positive number; the sign is derived from `direction`. The `currency` accompanies the amount and must be supplied unless `stay_code` is provided, in which case it is inherited from the reservation order and, if you do provide it, it must match the order's currency.
+A reservation-linked entry belongs to the reservation as a whole. On a multi-unit reservation (one `reservation_code`, several `stay_code`s) the amount is spread across the units in proportion to each unit's room revenue; it cannot be pinned to one unit, and the entry always reads back under the reservation's own code. To book a different amount against each unit — per-unit VAT, owner payout or cleaning fees — create one entry per property with `property_id` instead; the trade-off is that such an entry is not attached to the reservation.
+
+`stay_code` is still accepted as a deprecated alias of `reservation_code`: any stay code is resolved to its reservation, without an error or a warning, so it does not record the entry against that individual stay.
+
+The `direction` field decides whether the entry is an `income` or an `expense`, which in turn determines which dictionaries are used for `item_id` (`GET /income_items` or `GET /expense_items`) and `payment_method_id` (`GET /income_methods` or `GET /expense_methods`). The `amount` is always provided as a positive number; the sign is derived from `direction`. The `currency` accompanies the amount and must be supplied unless a reservation is provided, in which case it is inherited from the reservation order and, if you do provide it, it must match the order's currency.
 - **`hostex-pp-cli transactions delete`** - Delete a transaction entry. The operation is irreversible. Returns 404 if the entry does not exist or is not accessible to the current operator.
 - **`hostex-pp-cli transactions query`** - Query income and expense entries (also known as `transactions`) recorded against the operator, properties or reservations.
 
@@ -521,23 +501,39 @@ Manage webhooks
 - **`hostex-pp-cli webhooks update`** - Update the url or event subscriptions for a webhook. You can only update webhooks created by your own app.
 
 
+### Self-learning loop
+
+This CLI caches per-question discovery so repeat queries skip the walk and structurally similar queries get answered via entity substitution. The loop also self-captures: every invocation is journaled locally, and failed-flag corrections plus fresh teaches surface as candidates on the next `recall` for confirm/reject judgment. Agents call `recall` before discovery and fire `teach &` after answering. See the `## Automatic learning` section in `SKILL.md` for the full protocol.
+
+- **`hostex-pp-cli recall <query>`** - Look up cached resources for a query before running discovery
+- **`hostex-pp-cli teach`** - Record a query -> resource mapping (silent on success, safe to background with `&`)
+- **`hostex-pp-cli learnings list`** - Inspect taught rows
+- **`hostex-pp-cli learnings forget <query>`** - Undo a teach
+- **`hostex-pp-cli learnings candidates`** - List auto-captured candidates awaiting confirm/reject
+- **`hostex-pp-cli learnings stats`** - Local loop metrics: recall hit rate, teach-to-reuse, playbook resolution, candidate counts
+- **`hostex-pp-cli teach-pattern`** - Install a query/resource template up front
+- **`hostex-pp-cli teach-lookup`** - Add an entity mapping (e.g. country code, team alias) for pattern substitution
+
+Pass `--no-learn` or set `HOSTEX_NO_LEARN=true` to disable the loop for deterministic flows.
+
+The local store's schema version stamp is one-way: once this version of `hostex-pp-cli` opens the database, older binaries refuse it with a version error — upgrade the binary rather than downgrading.
+
 ## Output Formats
 
 ```bash
 # Human-readable table (default in terminal, JSON when piped)
-hostex-pp-cli availabilities query --property-ids example-value --start-date 2026-01-15 --end-date 2026-01-15
+hostex-pp-cli availabilities query --property-ids 1234567 --start-date 2026-11-01 --end-date 2026-11-30
 
 # JSON for scripting and agents
-hostex-pp-cli availabilities query --property-ids example-value --start-date 2026-01-15 --end-date 2026-01-15 --json
-
+hostex-pp-cli availabilities query --property-ids 1234567 --start-date 2026-11-01 --end-date 2026-11-30 --json
 # Filter to specific fields
-hostex-pp-cli availabilities query --property-ids example-value --start-date 2026-01-15 --end-date 2026-01-15 --json --select id,name,status
+hostex-pp-cli availabilities query --property-ids 1234567 --start-date 2026-11-01 --end-date 2026-11-30 --json --select data,error_code,error_msg
 
 # Dry run — show the request without sending
-hostex-pp-cli availabilities query --property-ids example-value --start-date 2026-01-15 --end-date 2026-01-15 --dry-run
+hostex-pp-cli availabilities query --property-ids 1234567 --start-date 2026-11-01 --end-date 2026-11-30 --dry-run
 
 # Agent mode — JSON + compact + no prompts in one flag
-hostex-pp-cli availabilities query --property-ids example-value --start-date 2026-01-15 --end-date 2026-01-15 --agent
+hostex-pp-cli availabilities query --property-ids 1234567 --start-date 2026-11-01 --end-date 2026-11-30 --agent
 ```
 
 ## Agent Usage
@@ -546,15 +542,15 @@ This CLI is designed for AI agent consumption:
 
 - **Non-interactive** - never prompts, every input is a flag
 - **Pipeable** - `--json` output to stdout, errors to stderr
-- **Filterable** - `--select id,name` returns only fields you need
+- **Filterable** - `--select <field>[,<field>...]` returns only fields you need
 - **Previewable** - `--dry-run` shows the request without sending
-- **Explicit retries** - add `--idempotent` to create retries and `--ignore-missing` to delete retries when a no-op success is acceptable
-- **Confirmable** - `--yes` for explicit confirmation of destructive actions
+- **Explicit retries** - add `--idempotent` to create retries and add `--ignore-missing` to delete retries when a no-op success is acceptable
+- **Explicit confirmation** - `--agent` does not imply `--yes`; pass `--yes` separately only after the target, arguments, and side effects are clear
 - **Piped input** - write commands can accept structured input when their help lists `--stdin`
 - **Offline-friendly** - sync/search commands can use the local SQLite store when available
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
-Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
+Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `6` partial failure, `7` rate limited, `8` async job submitted but not finished (rerun the printed recovery command; do not resubmit), `10` config error.
 
 ## Health Check
 
@@ -574,8 +570,7 @@ Environment variables:
 
 | Name | Kind | Required | Description |
 | --- | --- | --- | --- |
-| `HOSTEX_ACCESS_TOKEN` | per_call | No | Set to your API credential. |
-| `HOSTEX_HOSTEX_ACCESS_TOKEN` | per_call | No | Set to your API credential. |
+| `HOSTEX_ACCESS_TOKEN` | per_call | Yes | Set to your API credential. |
 
 ### agentcookie (optional)
 
@@ -595,3 +590,6 @@ If you use agentcookie to sync secrets across machines, this CLI auto-adopts age
 - **Writes fail with error_code 401 though the token is valid** — Your token is read-only scope. Create a writable token in the Host Portal; scope cannot be changed after creation.
 - **error_code 429** — Rate limit hit (per-token, per-endpoint, or per-thread). Back off for the seconds in the Retry-After header.
 - **error_code 420** — Account/subscription problem (expired, or Basic edition using a Pro feature). Only the host can fix it in the portal; do not retry.
+- **reservations query returns HTTP 400** — Pass both --start-check-in-date and --end-check-in-date; a single bound is rejected.
+- **sync reports empty transactions or older history is missing** — The transactions endpoint accepts at most 366 days, so sync mirrors the last 365 days. Backfill another window with --resource-param transactions:start_date=... transactions:end_date=....
+- **A price or restriction update returned success but the calendar is unchanged** — Calendar writes are asynchronous: success means the task was queued. Check the Host Portal price page for the applied result before retrying.

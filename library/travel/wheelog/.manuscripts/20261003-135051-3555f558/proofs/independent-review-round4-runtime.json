@@ -1,0 +1,78 @@
+{
+  "verdict": "PASS",
+  "fixture": "isolated synthetic normalized local observations; no provider calls or mutations",
+  "fixture_dir": "/private/tmp/wheelog-round4-review-riv3_r3_",
+  "cli_sha256": "53375f9d5947afa001a331cfae18ad53056c01fbdd7c678db2bb9c0576946a73",
+  "mcp_sha256": "f751a69e02676d9e6de40772d481356a20cd62f8b673cc8111902e4f37d09e0f",
+  "checks": [
+    {
+      "case": "readonly-private-URI-snapshot",
+      "positive_reports": 2,
+      "selected_bytes_permissions_unchanged": true,
+      "private_cleanup": true,
+      "source_sidecars": false,
+      "wrong_prefix_positive_reports": 0
+    },
+    {
+      "case": "SQL-error-cleanup",
+      "exit": 10,
+      "private_cleanup": true
+    },
+    {
+      "case": "64MiB-plus-one-refusal",
+      "exit": 10,
+      "private_cleanup": true,
+      "seconds_bounded": true
+    },
+    {
+      "case": "context-deadline-cleanup",
+      "exit": 10,
+      "private_cleanup": true
+    },
+    {
+      "case": "writable-URI-existing-new-and-resolved-alias",
+      "exit": 10,
+      "two_cache_bytes_unchanged": true,
+      "no_truncated_file_created": true
+    },
+    {
+      "case": "readonly-URI-alias",
+      "positive_reports": 2,
+      "private_cleanup": true
+    },
+    {
+      "case": "reserved-connection-normal-remove",
+      "exit": 0,
+      "rows_after": 0
+    },
+    {
+      "case": "missing-cache-no-state",
+      "exit": 0,
+      "directory_created": false,
+      "private_cleanup": true
+    },
+    {
+      "case": "rebuilt-MCP-surface",
+      "tools": 22,
+      "domain_tools": 8,
+      "no_import_or_hollow_shortlist": true
+    },
+    {
+      "case": "rebuilt-MCP-readonly-URI-temp",
+      "positive_reports": 2,
+      "bytes_permissions_unchanged": true,
+      "private_cleanup": true
+    },
+    {
+      "case": "rebuilt-MCP-active-WAL",
+      "visibility_error": true,
+      "private_cleanup": true
+    },
+    {
+      "case": "rebuilt-MCP-newest-zero",
+      "positive_reports": 0,
+      "state": "unreported",
+      "private_cleanup": true
+    }
+  ]
+}

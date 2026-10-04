@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-03T12:23:25.737832Z",
+  "printing_press_version": "4.33.0",
+  "api_name": "wheelog",
+  "display_name": "WheeLog",
+  "cli_name": "wheelog-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "Jet Sng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "Jet Sng",
+  "spec_path": "spec.json",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:3b9d58a257525af005783c8fc6fb6b00a843c2beff42f84fe73a806d6cc6158d",
+  "run_id": "20261003-135051-3555f558",
+  "category": "travel",
+  "description": "Find and compare recorded accessibility facts with gaps and conflicting reports visible.",
+  "mcp_binary": "wheelog-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Requested-question comparison",
+      "command": "spots compare",
+      "description": "Align requested source question IDs and report supporting, opposing, mixed, unknown and inapplicable evidence."
+    },
+    {
+      "name": "Detail-checked discovery",
+      "command": "spots search",
+      "description": "Expand a bounded keyword shortlist into actual detail evidence for requested questions."
+    },
+    {
+      "name": "Saved-observation changes",
+      "command": "shortlist changes",
+      "description": "Show exact changes between two allowlisted source observations for selected public places."
+    },
+    {
+      "name": "Recheck queue",
+      "command": "shortlist list",
+      "description": "Prioritize old, unknown or conflicting evidence in a saved shortlist with explicit reasons."
+    },
+    {
+      "name": "Nearest saved facilities",
+      "command": "shortlist list",
+      "description": "Rank saved public facilities by straight-line distance from an explicit origin."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Requested-question comparison",
+      "command": "spots compare",
+      "description": "Align requested source question IDs and report supporting, opposing, mixed, unknown and inapplicable evidence."
+    },
+    {
+      "name": "Detail-checked discovery",
+      "command": "spots search",
+      "description": "Expand a bounded keyword shortlist into actual detail evidence for requested questions."
+    },
+    {
+      "name": "Saved-observation changes",
+      "command": "shortlist changes",
+      "description": "Show exact changes between two allowlisted source observations for selected public places."
+    },
+    {
+      "name": "Recheck queue",
+      "command": "shortlist list",
+      "description": "Prioritize old, unknown or conflicting evidence in a saved shortlist with explicit reasons."
+    },
+    {
+      "name": "Nearest saved facilities",
+      "command": "shortlist list",
+      "description": "Rank saved public facilities by straight-line distance from an explicit origin."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 27,
+    "total": 27,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 83,
+      "grade": "A",
+      "total": 83
+    }
+  }
+}

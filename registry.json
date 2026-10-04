@@ -1012,6 +1012,12 @@
         "Read concise current provider conditions with source timestamps and notices."
       ],
       "path": "library/travel/airport-limousine",
+      "release": {
+        "cli_name": "airport-limousine-pp-cli",
+        "version": "2026.10.1",
+        "released_at": "2026-10-03T08:50:22Z",
+        "source_commit": "56d19bb46a8d7789e44011cffbbe212321e66dc6"
+      },
       "printer": "zjsng",
       "printer_name": "zjsng",
       "creator": {
@@ -4340,6 +4346,12 @@
         "Expose unresolved price, availability and qualified facility evidence before booking."
       ],
       "path": "library/travel/carstay",
+      "release": {
+        "cli_name": "carstay-pp-cli",
+        "version": "2026.10.1",
+        "released_at": "2026-10-03T08:50:22Z",
+        "source_commit": "411e0b1c46f4b428691df11e05cfac4468faf629"
+      },
       "printer": "zjsng",
       "printer_name": "zjsng",
       "creator": {
@@ -10331,9 +10343,9 @@
       "path": "library/media-and-entertainment/game-goat",
       "release": {
         "cli_name": "game-goat-pp-cli",
-        "version": "2026.9.1",
-        "released_at": "2026-09-28T08:53:15Z",
-        "source_commit": "ef535cbb1e579222ac067efc8f54489855716b64"
+        "version": "2026.10.1",
+        "released_at": "2026-10-03T08:50:22Z",
+        "source_commit": "ce18c33b7d9a74c1194ca48656b8eadeab513e66"
       },
       "printer": "bleighk",
       "printer_name": "Brad Knight",
@@ -12389,6 +12401,12 @@
         "Inspect adjacent service days and cross-midnight changes."
       ],
       "path": "library/travel/haneda-airport",
+      "release": {
+        "cli_name": "haneda-airport-pp-cli",
+        "version": "2026.10.1",
+        "released_at": "2026-10-03T08:50:22Z",
+        "source_commit": "190780345af7714ce1cc05e66afa0789e2ab5307"
+      },
       "printer": "zjsng",
       "printer_name": "zjsng",
       "creator": {
@@ -12608,6 +12626,12 @@
         "Read current source tables including municipal exceptions without asserting a station bike price."
       ],
       "path": "library/travel/hello-cycling",
+      "release": {
+        "cli_name": "hello-cycling-pp-cli",
+        "version": "2026.10.1",
+        "released_at": "2026-10-03T08:50:22Z",
+        "source_commit": "b9e23bc2aeed8109c752756985a2ce644b7b2ab0"
+      },
       "printer": "zjsng",
       "printer_name": "zjsng",
       "creator": {
@@ -12836,9 +12860,9 @@
       "path": "library/travel/hostex",
       "release": {
         "cli_name": "hostex-pp-cli",
-        "version": "2026.10.1",
-        "released_at": "2026-10-01T02:58:45Z",
-        "source_commit": "b9919bcc7c214bad576f361557ba39739090f277"
+        "version": "2026.10.3",
+        "released_at": "2026-10-03T08:50:22Z",
+        "source_commit": "cf00f9b957d51401bf8ddf03f009978031ec38d3"
       },
       "printer": "Bust011r",
       "printer_name": "Bust011r",
@@ -13367,6 +13391,51 @@
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "iko-yo",
+      "category": "travel",
+      "api": "Iko-yo Trip",
+      "description": "Iko-yo Trip: find selected family trips and compare published dates, fees and explicit family facts.",
+      "search_terms": [
+        "iko-yo",
+        "Iko-yo Trip",
+        "iko-yo-pp-cli",
+        "Iko-yo Trip: find selected family trips and compare published dates, fees and explicit family facts.",
+        "Bounded date-window discovery",
+        "trip discover",
+        "Find regional candidates while seeing exactly which listing pages and records were checked.",
+        "Evidence-backed family fact card",
+        "trip inspect",
+        "See published age, indoor, nursing and changing evidence with unknown fields exposed.",
+        "Qualified charge and application comparison",
+        "trip compare",
+        "Compare separate fee statements, payment conditions and explicit application intervals.",
+        "Family-constraint comparison",
+        "Compare selected outings against age, requested amenities and a trip date using supported, excluded and unknown states.",
+        "Offline shortlist with retained coverage",
+        "trip cached",
+        "Search saved family facts with their original observation times and collection coverage."
+      ],
+      "path": "library/travel/iko-yo",
+      "printer": "zjsng",
+      "printer_name": "zjsng",
+      "creator": {
+        "handle": "zjsng",
+        "name": "zjsng"
+      },
+      "mcp": {
+        "binary": "iko-yo-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 6,
+        "public_tool_count": 6,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
       }
     },
     {
@@ -14578,6 +14647,12 @@
         "Explain reporting hours, threshold conflicts, midnight service-day rollover and remaining unknowns."
       ],
       "path": "library/travel/jr-east-status",
+      "release": {
+        "cli_name": "jr-east-status-pp-cli",
+        "version": "2026.10.1",
+        "released_at": "2026-10-03T08:50:22Z",
+        "source_commit": "c5260a36e1108e560cc4070a661c652dab83e17c"
+      },
       "printer": "zjsng",
       "printer_name": "zjsng",
       "creator": {
@@ -15314,6 +15389,12 @@
         "Screen cached parks into proven, uncertain and ruled-out service matches."
       ],
       "path": "library/travel/kurumatabi",
+      "release": {
+        "cli_name": "kurumatabi-pp-cli",
+        "version": "2026.10.1",
+        "released_at": "2026-10-03T08:50:22Z",
+        "source_commit": "508a67b7f86aef2c901f2addb682adb84922720d"
+      },
       "printer": "zjsng",
       "printer_name": "zjsng",
       "creator": {
@@ -16781,6 +16862,57 @@
       }
     },
     {
+      "name": "michi-no-eki",
+      "category": "travel",
+      "api": "Michi-no-Eki",
+      "description": "Find and compare Japan roadside-station service stops with source evidence and explicit unknowns.",
+      "search_terms": [
+        "michi-no-eki",
+        "michi-no-eki-pp-cli",
+        "Find and compare Japan roadside-station service stops with source evidence and explicit unknowns.",
+        "Stop evidence and unknowns",
+        "readiness",
+        "Inspect source facts and permission or service unknowns for one station ID",
+        "Ordered station comparison",
+        "compare",
+        "Compare up to six ordered station IDs with source facts and per-ID failures",
+        "Scoped straight-line nearby ranking",
+        "nearby",
+        "Rank source stations by straight-line kilometers from required latitude/longitude, scoped by area and facilities",
+        "Bounded station-linked notices",
+        "station-notices",
+        "Find notices explicitly linked to one station ID within page/detail scan limits",
+        "Offline observation diff",
+        "changes",
+        "Compare two saved snapshot files offline by stable station ID and factual fields, or use an explicit synthetic demo"
+      ],
+      "path": "library/travel/michi-no-eki",
+      "printer": "zjsng",
+      "printer_name": "zjsng",
+      "creator": {
+        "handle": "zjsng",
+        "name": "zjsng"
+      },
+      "contributors": [
+        {
+          "handle": "tmchow",
+          "name": "Trevin Chow"
+        }
+      ],
+      "mcp": {
+        "binary": "michi-no-eki-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 4,
+        "public_tool_count": 4,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "midjourney",
       "category": "ai",
       "api": "Midjourney",
@@ -17621,6 +17753,12 @@
         "Compare two saved observations of the same campsite and pitch."
       ],
       "path": "library/travel/nap-camp",
+      "release": {
+        "cli_name": "nap-camp-pp-cli",
+        "version": "2026.10.1",
+        "released_at": "2026-10-03T08:50:22Z",
+        "source_commit": "cb49e7347b20e876eb1e4930f231ae6b2fa4e21a"
+      },
       "printer": "zjsng",
       "printer_name": "zjsng",
       "creator": {
@@ -23334,6 +23472,12 @@
         "Inspect source support, measurement unknowns and bounded request policy."
       ],
       "path": "library/travel/repark",
+      "release": {
+        "cli_name": "repark-pp-cli",
+        "version": "2026.10.1",
+        "released_at": "2026-10-03T08:50:22Z",
+        "source_commit": "fd5419e5778d57771bb18adeda6bd3a8945a1258"
+      },
       "printer": "zjsng",
       "printer_name": "Jet Sng",
       "creator": {
@@ -27258,6 +27402,12 @@
         "Preserves source cancellation/baggage and quote assumptions with explicit missing English day-before band."
       ],
       "path": "library/travel/sunflower-ferry",
+      "release": {
+        "cli_name": "sunflower-ferry-pp-cli",
+        "version": "2026.10.1",
+        "released_at": "2026-10-03T08:50:22Z",
+        "source_commit": "a213ec3d69202c84ca4c42ed503fffae6fcf1e7d"
+      },
       "printer": "zjsng",
       "printer_name": "zjsng",
       "creator": {
@@ -29324,6 +29474,12 @@
         "Compare matched-offer price and policy changes between two explicit retrieval snapshots."
       ],
       "path": "library/travel/traveloka",
+      "release": {
+        "cli_name": "traveloka-pp-cli",
+        "version": "2026.10.1",
+        "released_at": "2026-10-03T08:50:22Z",
+        "source_commit": "314227afc7b63186409c87c94c8788f05ec951b0"
+      },
       "printer": "zjsng",
       "printer_name": "Jet Sng",
       "creator": {

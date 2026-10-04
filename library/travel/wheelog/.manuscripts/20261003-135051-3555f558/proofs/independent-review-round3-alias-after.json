@@ -1,0 +1,32 @@
+{
+  "binary_sha256": "a2aeb734df149b421b87d3240340448b500bc36af2a5006d2c78938434789b7e",
+  "checks": [
+    {
+      "case": "active-symlink",
+      "exit": 10,
+      "stderr": "Error: cache_visibility_unavailable: the saved database has multiple hard links, so its WAL path cannot be verified. Close other database writers, then retry the saved read. Source discovery and inspection can use --data-source live.\n"
+    },
+    {
+      "case": "active-hardlink",
+      "exit": 10,
+      "stderr": "Error: cache_visibility_unavailable: the saved database has multiple hard links, so its WAL path cannot be verified. Close other database writers, then retry the saved read. Source discovery and inspection can use --data-source live.\n"
+    },
+    {
+      "case": "active-direct",
+      "exit": 10,
+      "stderr": "Error: cache_visibility_unavailable: a non-empty WAL may contain newer committed observations. Close other database writers, then retry the saved read. Source discovery and inspection can use --data-source live.\n"
+    },
+    {
+      "case": "checkpointed-symlink",
+      "exit": 0,
+      "stderr": "",
+      "positive_reports": 0
+    },
+    {
+      "case": "checkpointed-direct",
+      "exit": 0,
+      "stderr": "",
+      "positive_reports": 0
+    }
+  ]
+}

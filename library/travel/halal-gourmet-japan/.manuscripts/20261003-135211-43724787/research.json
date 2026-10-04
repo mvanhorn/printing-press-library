@@ -1,0 +1,197 @@
+{
+  "api_name": "halal-gourmet-japan",
+  "novelty_score": 82,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-03T06:20:52.713803Z",
+  "novel_features": [
+    {
+      "name": "Selected-place evidence comparison",
+      "command": "plan compare",
+      "description": "Align the source-reported food and prayer facts of selected saved places.",
+      "rationale": "Local full-detail snapshots preserve entity-aware unknowns and separate certification from platform verification.",
+      "example": "halal-gourmet-japan-pp-cli plan compare --restaurants 300739,949742 --prayer 838884 --agent",
+      "why_it_matters": "Compare full facts before choosing from a shortlist.",
+      "group": "Evidence planning"
+    },
+    {
+      "name": "Explicit condition matcher",
+      "command": "plan match",
+      "description": "See which requested source labels are reported and which need confirmation.",
+      "rationale": "Full-detail label evaluation avoids hidden card conditions and source-filter conjunction assumptions.",
+      "example": "halal-gourmet-japan-pp-cli plan match --restaurants 300739 --require certified,meat,prayer --agent",
+      "why_it_matters": "Test every explicit requirement without issuing a halal verdict.",
+      "group": "Evidence planning"
+    },
+    {
+      "name": "Missing planning-evidence triage",
+      "command": "plan gaps",
+      "description": "List missing certifier, certificate validity, hours and access evidence.",
+      "rationale": "Source-specific applicability and local snapshots turn unknown fields into concrete clarification questions.",
+      "example": "halal-gourmet-japan-pp-cli plan gaps --restaurants 300739 --prayer 838884 --agent",
+      "why_it_matters": "Prepare factual questions for selected food and prayer stops.",
+      "group": "Evidence planning"
+    },
+    {
+      "name": "Food-and-prayer proximity pairs",
+      "command": "plan pair",
+      "description": "Pair selected restaurants and prayer places by straight-line distance.",
+      "rationale": "Local coordinates join separate food and prayer entities with explicit access and route limitations.",
+      "example": "halal-gourmet-japan-pp-cli plan pair --restaurants 300739 --prayer 838884 --max-km 5 --agent",
+      "why_it_matters": "Assess proximity while preserving access and hours unknowns.",
+      "group": "Evidence planning"
+    },
+    {
+      "name": "Saved evidence changes",
+      "command": "plan changes",
+      "description": "See factual changes between the latest two successful observations.",
+      "rationale": "Bounded SQLite history provides a temporal comparison that one current page cannot.",
+      "example": "halal-gourmet-japan-pp-cli plan changes --restaurants 300739 --prayer 838884 --agent",
+      "why_it_matters": "Recheck a shortlist before visiting and inspect changed evidence.",
+      "group": "Saved observations"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Selected-place evidence comparison",
+      "command": "plan compare",
+      "description": "Align the source-reported food and prayer facts of selected saved places.",
+      "rationale": "Local full-detail snapshots preserve entity-aware unknowns and separate certification from platform verification.",
+      "example": "halal-gourmet-japan-pp-cli plan compare --restaurants 300739,949742 --prayer 838884 --agent",
+      "why_it_matters": "Compare full facts before choosing from a shortlist.",
+      "group": "Evidence planning"
+    },
+    {
+      "name": "Explicit condition matcher",
+      "command": "plan match",
+      "description": "See which requested source labels are reported and which need confirmation.",
+      "rationale": "Full-detail label evaluation avoids hidden card conditions and source-filter conjunction assumptions.",
+      "example": "halal-gourmet-japan-pp-cli plan match --restaurants 300739 --require certified,meat,prayer --agent",
+      "why_it_matters": "Test every explicit requirement without issuing a halal verdict.",
+      "group": "Evidence planning"
+    },
+    {
+      "name": "Missing planning-evidence triage",
+      "command": "plan gaps",
+      "description": "List missing certifier, certificate validity, hours and access evidence.",
+      "rationale": "Source-specific applicability and local snapshots turn unknown fields into concrete clarification questions.",
+      "example": "halal-gourmet-japan-pp-cli plan gaps --restaurants 300739 --prayer 838884 --agent",
+      "why_it_matters": "Prepare factual questions for selected food and prayer stops.",
+      "group": "Evidence planning"
+    },
+    {
+      "name": "Food-and-prayer proximity pairs",
+      "command": "plan pair",
+      "description": "Pair selected restaurants and prayer places by straight-line distance.",
+      "rationale": "Local coordinates join separate food and prayer entities with explicit access and route limitations.",
+      "example": "halal-gourmet-japan-pp-cli plan pair --restaurants 300739 --prayer 838884 --max-km 5 --agent",
+      "why_it_matters": "Assess proximity while preserving access and hours unknowns.",
+      "group": "Evidence planning"
+    },
+    {
+      "name": "Saved evidence changes",
+      "command": "plan changes",
+      "description": "See factual changes between the latest two successful observations.",
+      "rationale": "Bounded SQLite history provides a temporal comparison that one current page cannot.",
+      "example": "halal-gourmet-japan-pp-cli plan changes --restaurants 300739 --prayer 838884 --agent",
+      "why_it_matters": "Recheck a shortlist before visiting and inspect changed evidence.",
+      "group": "Saved observations"
+    }
+  ],
+  "narrative": {
+    "display_name": "Halal Gourmet Japan",
+    "headline": "Compare explicit food and prayer evidence across Japan with source dates and honest unknowns.",
+    "value_prop": "Search restaurants, mosques and prayer spaces by destination. Inspect full conditions, then compare saved evidence, match explicit requirements, identify missing facts, pair food and prayer stops, and track factual changes. Certification labels remain separate from HGJ verification and other conditions.",
+    "auth_narrative": "The scoped public pages require no account or API key. Requests use ordinary HTTPS and never book, post or alter an account.",
+    "quickstart": [
+      {
+        "command": "halal-gourmet-japan-pp-cli doctor --dry-run",
+        "comment": "Check installation without network or credentials."
+      },
+      {
+        "command": "halal-gourmet-japan-pp-cli restaurants search --prefecture Tokyo --query ramen --limit 5 --agent",
+        "comment": "Discover bounded restaurant cards; some conditions are hidden on cards."
+      },
+      {
+        "command": "halal-gourmet-japan-pp-cli restaurants get 300739 --agent",
+        "comment": "Save full restaurant facts and source verification."
+      },
+      {
+        "command": "halal-gourmet-japan-pp-cli prayer get 838884 --agent",
+        "comment": "Save full prayer-space facts and access unknowns."
+      },
+      {
+        "command": "halal-gourmet-japan-pp-cli plan match --restaurants 300739 --require certified,meat,prayer --agent",
+        "comment": "Evaluate each condition from saved full-detail evidence."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "No saved full-detail snapshot for a selected ID",
+        "fix": "Run the corresponding restaurants get ID or prayer get ID --data-source live before local planning."
+      },
+      {
+        "symptom": "Condition is not reported or hidden on a card",
+        "fix": "Inspect the full detail; ask the venue to clarify missing facts before relying on them."
+      },
+      {
+        "symptom": "Source access failed or response format changed",
+        "fix": "Read the explicit source error and use the canonical page; empty results never replace a failed request."
+      },
+      {
+        "symptom": "cache_visibility_unavailable for saved evidence",
+        "fix": "Finish and close active database writers, then retry. Saved get, all plans and MCP SQL conservatively reject a non-empty WAL (even checkpointed but untruncated) or changing path/database identity with CLI exit10. Readers and snapshot writers resolve symlinks to one canonical database; hard-linked databases are rejected where the host exposes link-count metadata. Use a database with one hard link and keep files in place until writers close. Live inspection with --no-cache remains available. Facts retain exact observed_at timestamps. Saved reads use private temporary immutable images copied from verified pinned file descriptors, bounded at128 MiB and removed after each read. A larger cache fails explicitly; use a smaller cache. Cache paths and resolved alias targets containing percent, question-mark or hash bytes are rejected before SQLite opening; choose a plain filesystem name. The temporary-directory path and its resolved target must also use plain filesystem names. Use an ordinary TMPDIR path. Snapshot writes retain normal SQLite transaction/WAL semantics; external same-user file replacement during writing is unsupported, and detected retargeting returns an explicit error."
+      },
+      {
+        "symptom": "Invalid global --data-source value",
+        "fix": "Choose auto, live or local as documented. This global framework validation currently exits1; domain input errors exit2."
+      },
+      {
+        "symptom": "Previewing source and cache work",
+        "fix": "Pass --dry-run with the same required ID, scoped query/prefecture or selected IDs and requirements. Pure leaf validation runs before the action receipt and before source/config/cache work. Standard framework learning may still record command activity; --no-learn disables it."
+      }
+    ],
+    "when_to_use": "Use for Muslim travel planning in Japan where explicit food policies and prayer facilities matter. Inspect source facts and compare saved evidence across candidate stops; keep missing information visible.",
+    "anti_triggers": [
+      "Do not use this CLI for a religious halal ruling, ingredient/allergy certainty or certification validity guarantee.",
+      "Do not use for bookings, reviews, messages, account writes, prayer times or route/access guarantees."
+    ],
+    "recipes": [
+      {
+        "title": "Narrow restaurant discovery",
+        "command": "halal-gourmet-japan-pp-cli restaurants search --prefecture Tokyo --query ramen --limit 5 --agent --select results.id,results.name,results.source_url",
+        "explanation": "Cards discover candidates; missing card icons are not a requirement verdict."
+      },
+      {
+        "title": "Inspect food and prayer evidence",
+        "command": "halal-gourmet-japan-pp-cli plan compare --restaurants 300739 --prayer 838884 --agent",
+        "explanation": "Load successful detail snapshots before comparing saved facts."
+      },
+      {
+        "title": "Clarify missing evidence",
+        "command": "halal-gourmet-japan-pp-cli plan gaps --restaurants 300739 --prayer 838884 --agent",
+        "explanation": "List unreported certifier, validity, applicable hours/access and coordinates."
+      },
+      {
+        "title": "Compare proximity",
+        "command": "halal-gourmet-japan-pp-cli plan pair --restaurants 300739 --prayer 838884 --max-km 5 --agent",
+        "explanation": "Straight-line distance is not a route, walking time or access guarantee."
+      },
+      {
+        "title": "Recheck saved observations",
+        "command": "halal-gourmet-japan-pp-cli plan changes --restaurants 300739 --agent",
+        "explanation": "Run restaurants get --data-source live again before comparing two successful observations."
+      }
+    ],
+    "trigger_phrases": [
+      "find halal condition evidence in Tokyo",
+      "compare halal certification and prayer space facts",
+      "check HGJ prayer-space facilities",
+      "what is missing from my Muslim travel shortlist",
+      "use halal-gourmet-japan",
+      "run halal-gourmet-japan"
+    ]
+  }
+}

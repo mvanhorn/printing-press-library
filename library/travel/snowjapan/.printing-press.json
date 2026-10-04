@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-03T09:37:20.654711Z",
+  "printing_press_version": "4.33.0",
+  "api_name": "snowjapan",
+  "display_name": "SnowJapan",
+  "cli_name": "snowjapan-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:498028b139bc815ae5171709971ff6cd0c225eca58a81519a3612f334ac42a4b",
+  "run_id": "20261003-135031-dd94d6fd",
+  "category": "travel",
+  "description": "Compare Japan ski areas with terrain facts, dated reports and explicit historical-season evidence.",
+  "mcp_binary": "snowjapan-pp-mcp",
+  "mcp_tool_count": 5,
+  "mcp_public_tool_count": 5,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Resort tradeoff frontier",
+      "command": "plan frontier",
+      "description": "Show nondominated resort choices for explicitly selected statistics."
+    },
+    {
+      "name": "Historical trip-window intersection",
+      "command": "plan windows",
+      "description": "Intersect a past trip window with recorded first/last season spans."
+    },
+    {
+      "name": "Municipality option portfolios",
+      "command": "plan towns",
+      "description": "Compare source-defined towns by known resort options and statistical ranges."
+    },
+    {
+      "name": "Historical evidence coverage",
+      "command": "plan coverage",
+      "description": "Find listed resorts with missing or ambiguous historical endpoint evidence."
+    },
+    {
+      "name": "Saved-fact changes",
+      "command": "plan changes",
+      "description": "See factual field changes between the latest two locally captured observations."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Resort tradeoff frontier",
+      "command": "plan frontier",
+      "description": "Show nondominated resort choices for explicitly selected statistics."
+    },
+    {
+      "name": "Historical trip-window intersection",
+      "command": "plan windows",
+      "description": "Intersect a past trip window with recorded first/last season spans."
+    },
+    {
+      "name": "Municipality option portfolios",
+      "command": "plan towns",
+      "description": "Compare source-defined towns by known resort options and statistical ranges."
+    },
+    {
+      "name": "Historical evidence coverage",
+      "command": "plan coverage",
+      "description": "Find listed resorts with missing or ambiguous historical endpoint evidence."
+    },
+    {
+      "name": "Saved-fact changes",
+      "command": "plan changes",
+      "description": "See factual field changes between the latest two locally captured observations."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 32,
+    "total": 32,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 81,
+      "grade": "A",
+      "total": 81
+    }
+  }
+}

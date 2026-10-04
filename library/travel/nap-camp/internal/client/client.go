@@ -440,10 +440,12 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 		// Re-stamp only when the hop stays on the origin. Custom headers
 		// are never in the set Go removes automatically, so this gate
 		// has to do the work itself.
-		if !redirectLeavesOrigin(req.URL, via) {
-			if h, err := c.authHeader(req.Context()); err == nil && h != "" {
-				req.Header.Set("Authorization", h)
-			}
+		if redirectLeavesOrigin(req.URL, via) {
+			// Configured and endpoint headers belong to the original origin.
+			// Go does not automatically strip custom credentials on redirects.
+			req.Header = make(http.Header)
+		} else if h, err := c.authHeader(req.Context()); err == nil && h != "" {
+			req.Header.Set("Authorization", h)
 		}
 		return nil
 	}

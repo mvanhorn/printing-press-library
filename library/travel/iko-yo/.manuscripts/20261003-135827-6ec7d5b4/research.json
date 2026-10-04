@@ -1,0 +1,189 @@
+{
+  "api_name": "iko-yo",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [
+    "Full core Iko-yo catalog blocked by HTTP 403",
+    "No live seat inventory",
+    "Date/keyword filtering is bounded and local; unknown schedules and facilities remain unknown"
+  ],
+  "patterns": [
+    "server-rendered public HTML",
+    "field-level factual evidence",
+    "bounded source windows"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-03T06:22:24.325611Z",
+  "novel_features": [
+    {
+      "name": "Bounded date-window discovery",
+      "command": "trip discover",
+      "description": "Find regional candidates while seeing exactly which listing pages and records were checked.",
+      "rationale": "Combines paginated municipal event archives with published date states and explicit collection coverage.",
+      "example": "iko-yo-pp-cli trip discover --kind events --region 6 --prefecture 11 --from 2026-11-14 --to 2026-11-15 --max-pages 2 --agent",
+      "why_it_matters": "Choose this when a trip window matters and complete source coverage is unavailable.",
+      "group": "Find family-trip candidates"
+    },
+    {
+      "name": "Evidence-backed family fact card",
+      "command": "trip inspect",
+      "description": "See published age, indoor, nursing and changing evidence with unknown fields exposed.",
+      "rationale": "Combines source basic-information tables with tightly bounded explicit factual statements.",
+      "example": "iko-yo-pp-cli trip inspect spots/8220 --agent",
+      "why_it_matters": "Choose this before deciding whether published family facts meet a requirement.",
+      "group": "Check published conditions"
+    },
+    {
+      "name": "Qualified charge and application comparison",
+      "command": "trip compare",
+      "description": "Compare separate fee statements, payment conditions and explicit application intervals.",
+      "rationale": "Aligns unlike spot and event facts while retaining qualifiers and availability uncertainty.",
+      "example": "iko-yo-pp-cli trip compare spots/8220 events/8412 --on 2026-11-15 --as-of 2026-10-03 --agent",
+      "why_it_matters": "Choose this to compare published costs and deadlines without assuming a total or seat availability.",
+      "group": "Check published conditions"
+    },
+    {
+      "name": "Family-constraint comparison",
+      "command": "trip compare",
+      "description": "Compare selected outings against age, requested amenities and a trip date using supported, excluded and unknown states.",
+      "rationale": "Builds an evidence matrix across normalized spot and event records.",
+      "example": "iko-yo-pp-cli trip compare spots/8220 events/8412 --on 2026-11-15 --age-months 24 --amenities indoor,nursing,changing --agent",
+      "why_it_matters": "Choose this for a small family shortlist that needs explicit constraints.",
+      "group": "Check published conditions"
+    },
+    {
+      "name": "Offline shortlist with retained coverage",
+      "command": "trip cached",
+      "description": "Search saved family facts with their original observation times and collection coverage.",
+      "rationale": "Joins normalized local records to the bounded collection that produced them.",
+      "example": "iko-yo-pp-cli trip cached Mooovi --kind spots --agent",
+      "why_it_matters": "Choose this to revisit saved records without network access.",
+      "group": "Revisit saved facts"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Bounded date-window discovery",
+      "command": "trip discover",
+      "description": "Find regional candidates while seeing exactly which listing pages and records were checked.",
+      "rationale": "Combines paginated municipal event archives with published date states and explicit collection coverage.",
+      "example": "iko-yo-pp-cli trip discover --kind events --region 6 --prefecture 11 --from 2026-11-14 --to 2026-11-15 --max-pages 2 --agent",
+      "why_it_matters": "Choose this when a trip window matters and complete source coverage is unavailable.",
+      "group": "Find family-trip candidates"
+    },
+    {
+      "name": "Evidence-backed family fact card",
+      "command": "trip inspect",
+      "description": "See published age, indoor, nursing and changing evidence with unknown fields exposed.",
+      "rationale": "Combines source basic-information tables with tightly bounded explicit factual statements.",
+      "example": "iko-yo-pp-cli trip inspect spots/8220 --agent",
+      "why_it_matters": "Choose this before deciding whether published family facts meet a requirement.",
+      "group": "Check published conditions"
+    },
+    {
+      "name": "Qualified charge and application comparison",
+      "command": "trip compare",
+      "description": "Compare separate fee statements, payment conditions and explicit application intervals.",
+      "rationale": "Aligns unlike spot and event facts while retaining qualifiers and availability uncertainty.",
+      "example": "iko-yo-pp-cli trip compare spots/8220 events/8412 --on 2026-11-15 --as-of 2026-10-03 --agent",
+      "why_it_matters": "Choose this to compare published costs and deadlines without assuming a total or seat availability.",
+      "group": "Check published conditions"
+    },
+    {
+      "name": "Family-constraint comparison",
+      "command": "trip compare",
+      "description": "Compare selected outings against age, requested amenities and a trip date using supported, excluded and unknown states.",
+      "rationale": "Builds an evidence matrix across normalized spot and event records.",
+      "example": "iko-yo-pp-cli trip compare spots/8220 events/8412 --on 2026-11-15 --age-months 24 --amenities indoor,nursing,changing --agent",
+      "why_it_matters": "Choose this for a small family shortlist that needs explicit constraints.",
+      "group": "Check published conditions"
+    },
+    {
+      "name": "Offline shortlist with retained coverage",
+      "command": "trip cached",
+      "description": "Search saved family facts with their original observation times and collection coverage.",
+      "rationale": "Joins normalized local records to the bounded collection that produced them.",
+      "example": "iko-yo-pp-cli trip cached Mooovi --kind spots --agent",
+      "why_it_matters": "Choose this to revisit saved records without network access.",
+      "group": "Revisit saved facts"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Iko-yo Trip",
+    "headline": "Iko-yo Trip: find selected family trips and compare published dates, fees and explicit family facts.",
+    "value_prop": "Discover Iko-yo Trip’s local experiences and municipal events, inspect evidence, and compare a small family shortlist. Keyword and date filters apply only to the reported bounded listing window; cached records retain their observation times. The full core Iko-yo catalog is not integrated.",
+    "auth_narrative": "The supported Trip pages use ordinary public HTTP and need no account or API key. Source records are published information, not live availability.",
+    "quickstart": [
+      {
+        "command": "iko-yo-pp-cli doctor --dry-run",
+        "comment": "Check the local CLI setup without a network request."
+      },
+      {
+        "command": "iko-yo-pp-cli trip discover --kind events --region 6 --prefecture 11 --max-pages 1 --agent",
+        "comment": "Read one Saitama event listing page and inspect its coverage."
+      },
+      {
+        "command": "iko-yo-pp-cli trip inspect spots/8220 --agent",
+        "comment": "Inspect published age, facilities and qualified child/adult fees."
+      },
+      {
+        "command": "iko-yo-pp-cli trip compare spots/8220 events/8412 --on 2026-11-15 --age-months 24 --amenities indoor,nursing --agent",
+        "comment": "Compare the selected facts and expose unknown requirements."
+      },
+      {
+        "command": "iko-yo-pp-cli trip cached Mooovi --agent",
+        "comment": "Revisit facts saved by earlier source reads."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "No matches in a bounded discovery window.",
+        "fix": "Inspect coverage and unknown-date counts, then increase trip discover --max-pages up to 5 or choose a source prefecture; this result does not establish source-wide absence."
+      },
+      {
+        "symptom": "An amenity, age band or event schedule is unknown.",
+        "fix": "Use trip inspect for the selected reference and follow its source/official links; missing evidence does not mean absent or eligible."
+      },
+      {
+        "symptom": "Core Iko-yo pages return 403.",
+        "fix": "Use the supported Trip commands; the core catalog is outside this integration."
+      }
+    ],
+    "when_to_use": "Use this CLI for selected Iko-yo Trip family spots, municipal events and local experiences across Japan. It is useful when event dates, separate fees, application conditions or explicit family facilities affect a small shortlist. Report the bounded source window and preserve unknown facts.",
+    "anti_triggers": [
+      "Full core Iko-yo catalog or core age-filter search",
+      "Bookings, payments, reviews, posts or account changes",
+      "Live seat availability or guaranteed age/accessibility suitability"
+    ],
+    "recipes": [
+      {
+        "title": "Narrow event candidates",
+        "command": "iko-yo-pp-cli trip discover --kind events --region 6 --prefecture 11 --max-pages 1 --agent --select records.ref,records.name,records.schedule,coverage",
+        "explanation": "Inspect published event dates and the exact scanned source window."
+      },
+      {
+        "title": "Published family facts",
+        "command": "iko-yo-pp-cli trip inspect spots/8220 --agent",
+        "explanation": "Read age and facility evidence and unknowns for one source record."
+      },
+      {
+        "title": "Compare a family shortlist",
+        "command": "iko-yo-pp-cli trip compare spots/8220 events/8412 --on 2026-11-15 --as-of 2026-10-03 --age-months 24 --amenities indoor,nursing,changing --agent",
+        "explanation": "Compare constraints, charge qualifiers and application boundaries."
+      },
+      {
+        "title": "Offline saved facts",
+        "command": "iko-yo-pp-cli trip cached Mooovi --kind spots --agent",
+        "explanation": "Search only previously saved normalized records with their provenance."
+      }
+    ],
+    "trigger_phrases": [
+      "find Iko-yo Trip family events in Saitama",
+      "compare published child and adult outing fees",
+      "check explicit nursing and changing facilities",
+      "use iko-yo",
+      "run iko-yo-pp-cli"
+    ]
+  }
+}

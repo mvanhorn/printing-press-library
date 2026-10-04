@@ -1,0 +1,322 @@
+{
+  "binary_sha256": "bb264ae969534c00cef883b68f3a91aa2e4a14a6af4d45f6856ba68ec3043864",
+  "fixture": "sanitized p2 public spot observations; local reads only",
+  "checks": [
+    {
+      "args": [
+        "categories"
+      ],
+      "exit": 0,
+      "output": {
+        "meta": {
+          "provider": "wheelog",
+          "source": "computed"
+        },
+        "results": {
+          "note": "Category membership is a source label. Inspect a spot for question labels and actual report counts.",
+          "observed_at": "2026-10-03",
+          "results": [
+            {
+              "name": "Restaurant"
+            },
+            {
+              "name": "Station"
+            },
+            {
+              "name": "Hotel"
+            },
+            {
+              "name": "Other"
+            },
+            {
+              "name": "Attraction"
+            },
+            {
+              "name": "Restroom"
+            },
+            {
+              "name": "Elevator"
+            },
+            {
+              "name": "Parking"
+            },
+            {
+              "name": "Ramp"
+            },
+            {
+              "name": "Barrier"
+            }
+          ],
+          "source_url": "https://docs.wheelog.app/en/info/"
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "args": [
+        "spots",
+        "inspect",
+        "166345",
+        "--require-question",
+        "102",
+        "--data-source",
+        "local",
+        "--db",
+        "/private/tmp/wheelog-review-round2/projection.db"
+      ],
+      "exit": 0,
+      "output": {
+        "meta": {
+          "provider": "wheelog",
+          "source": "local"
+        },
+        "results": {
+          "address": "日本 〒286-0104千葉県成田市古込古込1-1",
+          "cache_age_days": 0.03480698231481481,
+          "category": "toilet",
+          "country": null,
+          "data_source": "local",
+          "detail_status": "checked",
+          "id": 166345,
+          "location": {
+            "latitude": 35.774154985466,
+            "longitude": 140.387938991189
+          },
+          "name": "成田空港 多機能トイレ",
+          "questions": [
+            {
+              "id": 101,
+              "state": "unreported"
+            },
+            {
+              "id": 102,
+              "state": "reported_affirmative"
+            },
+            {
+              "id": 103,
+              "state": "reported_affirmative"
+            },
+            {
+              "id": 104,
+              "state": "reported_affirmative"
+            },
+            {
+              "id": 105,
+              "state": "reported_affirmative"
+            },
+            {
+              "id": 106,
+              "state": "reported_affirmative"
+            },
+            {
+              "id": 107,
+              "state": "reported_negative"
+            },
+            {
+              "id": 108,
+              "state": "reported_negative"
+            },
+            {
+              "id": 109,
+              "state": "reported_affirmative"
+            }
+          ],
+          "recheck_reasons": [],
+          "record_created_at": "2026-10-02T04:52:05.173565Z",
+          "record_update_age_days": 1.1641676897569444,
+          "record_updated_at": "2026-10-02T04:52:05.173565Z",
+          "requirements": [
+            {
+              "state": "reported_affirmative"
+            }
+          ],
+          "retrieved_at": "2026-10-03T07:58:21.938688Z",
+          "source_created_raw": "2026-10-02 04:52:05.173565",
+          "source_updated_raw": "2026-10-02 04:52:05.173565",
+          "source_url": "https://app.wheelog.com/?spotId=166345&la=ja",
+          "unsupported_facts": [
+            "measured_dimensions",
+            "individual_report_dates",
+            "current_open_status",
+            "accessible_routes"
+          ]
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "args": [
+        "spots",
+        "compare",
+        "166345",
+        "166344",
+        "--require-question",
+        "102",
+        "--data-source",
+        "local",
+        "--db",
+        "/private/tmp/wheelog-review-round2/projection.db"
+      ],
+      "exit": 0,
+      "output": {
+        "meta": {
+          "provider": "wheelog",
+          "source": "local"
+        },
+        "results": {
+          "coverage": {
+            "available": 2,
+            "live": 0,
+            "local": 2,
+            "requested": 2,
+            "unavailable": 0
+          },
+          "fetch_failures": [],
+          "note": "Counts are crowdsourced question reports. Source record dates do not date individual reports or establish personal suitability, current conditions, measured dimensions or an accessible route.",
+          "results": [
+            {
+              "country": null,
+              "detail_status": "checked",
+              "id": 166345,
+              "name": "成田空港 多機能トイレ",
+              "record_created_at": "2026-10-02T04:52:05.173565Z",
+              "record_updated_at": "2026-10-02T04:52:05.173565Z",
+              "retrieved_at": "2026-10-03T07:58:21.938688Z",
+              "source_url": "https://app.wheelog.com/?spotId=166345&la=ja"
+            },
+            {
+              "country": null,
+              "detail_status": "checked",
+              "id": 166344,
+              "name": "成田空港 エレベーター",
+              "record_created_at": "2026-10-02T04:39:22.433139Z",
+              "record_updated_at": "2026-10-02T04:39:22.433139Z",
+              "retrieved_at": "2026-10-03T07:58:22.273458Z",
+              "source_url": "https://app.wheelog.com/?spotId=166344&la=ja"
+            }
+          ]
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "args": [
+        "shortlist",
+        "list",
+        "--audit",
+        "--require-question",
+        "102",
+        "--data-source",
+        "local",
+        "--db",
+        "/private/tmp/wheelog-review-round2/projection.db"
+      ],
+      "exit": 0,
+      "output": {
+        "meta": {
+          "provider": "wheelog",
+          "source": "local"
+        },
+        "results": {
+          "coverage": {
+            "matched": 2,
+            "output_limit": 10,
+            "radius_excluded": 0,
+            "returned": 2,
+            "scanned_saved_records": 3,
+            "scope": "saved_shortlist",
+            "unknown_coordinates": 0
+          },
+          "note": "Counts are crowdsourced question reports. Source record dates do not date individual reports or establish personal suitability, current conditions, measured dimensions or an accessible route. Distances are straight-line meters within saved coverage. The supplied origin is not saved.",
+          "results": [
+            {
+              "country": null,
+              "detail_status": "checked",
+              "id": 166344,
+              "name": "成田空港 エレベーター",
+              "record_created_at": "2026-10-02T04:39:22.433139Z",
+              "record_updated_at": "2026-10-02T04:39:22.433139Z",
+              "retrieved_at": "2026-10-03T07:58:22.273458Z",
+              "source_url": "https://app.wheelog.com/?spotId=166344&la=ja"
+            },
+            {
+              "country": null,
+              "detail_status": "checked",
+              "id": 166347,
+              "name": "京成線 成田空港駅 第2・第3ターミナル方面出口",
+              "record_created_at": "2026-10-02T05:09:40.383362Z",
+              "record_updated_at": "2026-10-02T05:09:40.383362Z",
+              "retrieved_at": "2026-10-03T07:58:22.773053Z",
+              "source_url": "https://app.wheelog.com/?spotId=166347&la=ja"
+            }
+          ]
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "args": [
+        "shortlist",
+        "list",
+        "--origin",
+        "35.7742,140.3879",
+        "--data-source",
+        "local",
+        "--db",
+        "/private/tmp/wheelog-review-round2/projection.db"
+      ],
+      "exit": 0,
+      "output": {
+        "meta": {
+          "provider": "wheelog",
+          "source": "local"
+        },
+        "results": {
+          "coverage": {
+            "matched": 3,
+            "output_limit": 10,
+            "radius_excluded": 0,
+            "returned": 3,
+            "scanned_saved_records": 3,
+            "scope": "saved_shortlist",
+            "unknown_coordinates": 0
+          },
+          "note": "Counts are crowdsourced question reports. Source record dates do not date individual reports or establish personal suitability, current conditions, measured dimensions or an accessible route. Distances are straight-line meters within saved coverage. The supplied origin is not saved.",
+          "results": [
+            {
+              "country": null,
+              "detail_status": "checked",
+              "id": 166345,
+              "name": "成田空港 多機能トイレ",
+              "record_created_at": "2026-10-02T04:52:05.173565Z",
+              "record_updated_at": "2026-10-02T04:52:05.173565Z",
+              "retrieved_at": "2026-10-03T07:58:21.938688Z",
+              "source_url": "https://app.wheelog.com/?spotId=166345&la=ja"
+            },
+            {
+              "country": null,
+              "detail_status": "checked",
+              "id": 166344,
+              "name": "成田空港 エレベーター",
+              "record_created_at": "2026-10-02T04:39:22.433139Z",
+              "record_updated_at": "2026-10-02T04:39:22.433139Z",
+              "retrieved_at": "2026-10-03T07:58:22.273458Z",
+              "source_url": "https://app.wheelog.com/?spotId=166344&la=ja"
+            },
+            {
+              "country": null,
+              "detail_status": "checked",
+              "id": 166347,
+              "name": "京成線 成田空港駅 第2・第3ターミナル方面出口",
+              "record_created_at": "2026-10-02T05:09:40.383362Z",
+              "record_updated_at": "2026-10-02T05:09:40.383362Z",
+              "retrieved_at": "2026-10-03T07:58:22.773053Z",
+              "source_url": "https://app.wheelog.com/?spotId=166347&la=ja"
+            }
+          ]
+        }
+      },
+      "stderr": ""
+    }
+  ]
+}

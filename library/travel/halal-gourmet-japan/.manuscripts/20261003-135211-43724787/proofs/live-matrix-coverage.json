@@ -1,0 +1,154 @@
+{
+  "verdict": "PASS",
+  "required_passed": 114,
+  "required_failed": 0,
+  "skipped": 75,
+  "ran_at": "2026-10-03T12:25:53.034637Z",
+  "source_fingerprint": "bed79b4a286e2adb7b649e727d4691db76c5d4bb28a501676f01fce13d9fd2e9",
+  "domain_happy_paths": [
+    {
+      "command": "plan changes",
+      "args": [
+        "plan",
+        "changes",
+        "--restaurants",
+        "300739",
+        "--prayer",
+        "838884",
+        "--agent"
+      ],
+      "status": "pass",
+      "sample_capped_at_bytes": 4096,
+      "source": "local",
+      "id": "300739"
+    },
+    {
+      "command": "plan compare",
+      "args": [
+        "plan",
+        "compare",
+        "--restaurants",
+        "300739",
+        "--prayer",
+        "838884",
+        "--agent"
+      ],
+      "status": "pass",
+      "sample_capped_at_bytes": 4096,
+      "source": "local",
+      "id": "300739"
+    },
+    {
+      "command": "plan gaps",
+      "args": [
+        "plan",
+        "gaps",
+        "--restaurants",
+        "300739",
+        "--prayer",
+        "838884",
+        "--agent"
+      ],
+      "status": "pass",
+      "sample_capped_at_bytes": 4096,
+      "source": "local",
+      "id": "300739"
+    },
+    {
+      "command": "plan match",
+      "args": [
+        "plan",
+        "match",
+        "--restaurants",
+        "300739",
+        "--prayer",
+        "838884",
+        "--require",
+        "certified,prayer",
+        "--agent"
+      ],
+      "status": "pass",
+      "sample_capped_at_bytes": 4096,
+      "source": "local",
+      "id": "300739"
+    },
+    {
+      "command": "plan pair",
+      "args": [
+        "plan",
+        "pair",
+        "--restaurants",
+        "300739",
+        "--prayer",
+        "838884",
+        "--max-km",
+        "5",
+        "--agent"
+      ],
+      "status": "pass",
+      "sample_capped_at_bytes": 4096,
+      "source": "local",
+      "id": "300739"
+    },
+    {
+      "command": "prayer get",
+      "args": [
+        "prayer",
+        "get",
+        "838884",
+        "--agent"
+      ],
+      "status": "pass",
+      "sample_capped_at_bytes": 4096,
+      "source": "live",
+      "id": "838884"
+    },
+    {
+      "command": "prayer search",
+      "args": [
+        "prayer",
+        "search",
+        "--prefecture",
+        "Tokyo",
+        "--limit",
+        "5",
+        "--agent"
+      ],
+      "status": "pass",
+      "sample_capped_at_bytes": 4096,
+      "source": "live",
+      "id": "218698"
+    },
+    {
+      "command": "restaurants get",
+      "args": [
+        "restaurants",
+        "get",
+        "300739",
+        "--agent"
+      ],
+      "status": "pass",
+      "sample_capped_at_bytes": 4096,
+      "source": "live",
+      "id": "300739"
+    },
+    {
+      "command": "restaurants search",
+      "args": [
+        "restaurants",
+        "search",
+        "--prefecture",
+        "Tokyo",
+        "--limit",
+        "5",
+        "--agent"
+      ],
+      "status": "pass",
+      "sample_capped_at_bytes": 4096,
+      "source": "live",
+      "id": "614872"
+    }
+  ],
+  "runner_hollow_coverage_fields": "not emitted by this binary report; actual GET argv and factual outputs independently inspected",
+  "planning_substantive_evidence": "Fresh agent-collection-evidence.json: completed CLI/MCP live saves, saved gets and all five plans loaded2; full normal/agent/MCP factual payloads equal."
+}

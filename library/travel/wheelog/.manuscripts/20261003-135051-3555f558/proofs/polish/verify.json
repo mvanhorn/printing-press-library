@@ -1,0 +1,229 @@
+{
+  "verify": {
+    "mode": "mock",
+    "total": 27,
+    "passed": 27,
+    "failed": 0,
+    "critical": 0,
+    "pass_rate": 100,
+    "data_pipeline": true,
+    "data_pipeline_detail": "SKIP (CLI has no sync command)",
+    "freshness": {
+      "enabled": false,
+      "verdict": "SKIP",
+      "detail": "cache freshness helper not emitted"
+    },
+    "verdict": "PASS",
+    "results": [
+      {
+        "command": "resource-path:import",
+        "kind": "static",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "agent-context",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "api",
+        "kind": "local",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "categories",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "doctor",
+        "kind": "local",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "feedback",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "learnings",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "playbook",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "profile",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "recall",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "shortlist",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "spots",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "teach",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "teach-lookup",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "teach-pattern",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "teach-playbook",
+        "kind": "write",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "which",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      }
+    ],
+    "path_param_probes": [
+      {
+        "command": "learnings confirm",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "learnings forget",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "learnings reject",
+        "positionals": [
+          "12345"
+        ],
+        "passed": true
+      },
+      {
+        "command": "profile delete",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "profile save",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "profile show",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "profile use",
+        "positionals": [
+          "mock-query"
+        ],
+        "passed": true
+      },
+      {
+        "command": "shortlist remove",
+        "positionals": [
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "spots inspect",
+        "positionals": [
+          "mock-value"
+        ],
+        "passed": true
+      },
+      {
+        "command": "spots search",
+        "positionals": [
+          "mock-value"
+        ],
+        "passed": true
+      }
+    ],
+    "binary": "wheelog-pp-cli/wheelog-pp-cli"
+  }
+}

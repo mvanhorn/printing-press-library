@@ -30,9 +30,11 @@ import (
 func RegisterIntents(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("park_comparison",
-			mcplib.WithDescription("Tariff audiences and fees remain separate."),
+			mcplib.WithDescription("Tariff audiences and fees remain separate. May refresh the local source-evidence cache; no provider transaction."),
 			mcplib.WithString("path", mcplib.Required(), mcplib.Description("Override the recipe's positional path value.")),
 			mcplib.WithString("path2", mcplib.Required(), mcplib.Description("Override the recipe's positional path value.")),
+			mcplib.WithReadOnlyHintAnnotation(false),
+			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		handleParkComparison,
@@ -59,7 +61,7 @@ func handleParkComparison(ctx context.Context, req mcplib.CallToolRequest) (*mcp
 	if missingPath2 {
 		return mcplib.NewToolResultError("path2 is required"), nil
 	}
-	args = append(args, "--agent")
+	args = append(args, "--agent", "--no-learn")
 
 	out, err := cobratree.RunCLICommand(ctx, recipeCLIPath, args)
 	if err != nil {

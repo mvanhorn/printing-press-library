@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/michi-no-eki-pp-cli
+/michi-no-eki-pp-cli.exe
+/michi-no-eki-pp-mcp
+/michi-no-eki-pp-mcp.exe
+/bin/
+/build/
+/dist/

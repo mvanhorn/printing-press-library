@@ -1,0 +1,120 @@
+{
+  "api_name": "michi-no-eki",
+  "base_url": "https://www.michi-no-eki.jp",
+  "description": "Find and compare Japan roadside-station service stops with source evidence and explicit unknowns.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "bulletins_get",
+      "description": "Read canonical notice HTML; use notice for bounded text and linked station identity. Required: id.",
+      "method": "GET",
+      "path": "/notices/views/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric official notice ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bulletins_list",
+      "description": "List published notice links; page is zero-based, not a date filter. Optional: page (default: 0).",
+      "method": "GET",
+      "path": "/notices",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Zero-based provider page index"
+        }
+      ]
+    },
+    {
+      "name": "stations_get",
+      "description": "Inspect canonical station HTML; use station for normalized parking/facility evidence. Required: id.",
+      "method": "GET",
+      "path": "/stations/views/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric official station ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "stations_search",
+      "description": "Search provider HTML; multiple facilities are native OR. Use find for normalized fields and all/any filtering. Required: prefectures (default: all), facilities (default: all), keyword (default: all).",
+      "method": "GET",
+      "path": "/stations/search/{prefectures}/{facilities}/{keyword}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "prefectures",
+          "type": "string",
+          "location": "path",
+          "description": "Provider prefecture IDs joined by + or all",
+          "required": true
+        },
+        {
+          "name": "facilities",
+          "type": "string",
+          "location": "path",
+          "description": "Provider facility IDs joined by + or all (native any-of)",
+          "required": true
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "path",
+          "description": "Japanese station text or all",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Stop evidence and unknowns",
+      "command": "readiness",
+      "description": "Inspect source facts and permission or service unknowns for one station ID"
+    },
+    {
+      "name": "Ordered station comparison",
+      "command": "compare",
+      "description": "Compare up to six ordered station IDs with source facts and per-ID failures"
+    },
+    {
+      "name": "Scoped straight-line nearby ranking",
+      "command": "nearby",
+      "description": "Rank source stations by straight-line kilometers from required latitude/longitude, scoped by area and facilities"
+    },
+    {
+      "name": "Bounded station-linked notices",
+      "command": "station-notices",
+      "description": "Find notices explicitly linked to one station ID within page/detail scan limits"
+    },
+    {
+      "name": "Offline observation diff",
+      "command": "changes",
+      "description": "Compare two saved snapshot files offline by stable station ID and factual fields, or use an explicit synthetic demo"
+    }
+  ]
+}

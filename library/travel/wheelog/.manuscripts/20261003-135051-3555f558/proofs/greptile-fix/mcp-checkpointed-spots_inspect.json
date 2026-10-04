@@ -1,0 +1,12 @@
+{
+  "jsonrpc": "2.0",
+  "id": 15,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"id\": 166345,\n  \"name\": \"Synthetic saved restroom\",\n  \"address\": \"\",\n  \"country\": null,\n  \"category\": \"toilet\",\n  \"location\": null,\n  \"record_created_at\": null,\n  \"record_updated_at\": null,\n  \"source_created_raw\": null,\n  \"source_updated_raw\": null,\n  \"retrieved_at\": \"2026-10-03T10:55:33.420348Z\",\n  \"source_url\": \"https://app.wheelog.com/?spotId=166345\\u0026la=ja\",\n  \"questions\": [\n    {\n      \"id\": 102,\n      \"label\": \"Turning space\",\n      \"positive_reports\": 0,\n      \"negative_reports\": 0,\n      \"state\": \"unreported\",\n      \"report_observed_at\": null\n    }\n  ],\n  \"detail_status\": \"checked\",\n  \"data_source\": \"local\",\n  \"unsupported_facts\": [],\n  \"requirements\": [\n    {\n      \"question_id\": 102,\n      \"label\": \"Turning space\",\n      \"state\": \"unreported\",\n      \"positive_reports\": 0,\n      \"negative_reports\": 0\n    }\n  ],\n  \"record_update_age_days\": null,\n  \"cache_age_days\": 0.000013571967592592593,\n  \"recheck_reasons\": [\n    \"source_update_date_unknown\",\n    \"question_102_unreported\"\n  ]\n}\n"
+      }
+    ]
+  }
+}

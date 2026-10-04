@@ -1,0 +1,1005 @@
+{
+  "binary_sha256": "5490382d1648a58ae0aabcc84372fa9a56a1be73d65b6ba14af0253e3b744ced",
+  "source_fixture": "sanitized real p2 observations, local reads",
+  "checks": [
+    {
+      "case": "categories-auto",
+      "exit": 0,
+      "meta": {
+        "provider": "wheelog",
+        "source": "computed"
+      }
+    },
+    {
+      "case": "categories-local",
+      "exit": 0,
+      "meta": {
+        "provider": "wheelog",
+        "source": "computed"
+      }
+    },
+    {
+      "case": "categories-live",
+      "exit": 2,
+      "meta": null
+    },
+    {
+      "case": "categories-wrong",
+      "exit": 2,
+      "meta": null
+    },
+    {
+      "args": [
+        "spots",
+        "inspect",
+        "166345",
+        "--require-question",
+        "102",
+        "--data-source",
+        "local"
+      ],
+      "exit": 0,
+      "output": {
+        "meta": {
+          "provider": "wheelog",
+          "source": "local"
+        },
+        "results": {
+          "address": "日本 〒286-0104千葉県成田市古込古込1-1",
+          "cache_age_days": 0.047872393460648144,
+          "category": "toilet",
+          "country": null,
+          "data_source": "local",
+          "detail_status": "checked",
+          "id": 166345,
+          "location": {
+            "latitude": 35.774154985466,
+            "longitude": 140.387938991189
+          },
+          "name": "成田空港 多機能トイレ",
+          "questions": [
+            {
+              "id": 101,
+              "label": "清潔感はある？",
+              "negative_reports": 0,
+              "positive_reports": 0,
+              "report_observed_at": null,
+              "state": "unreported"
+            },
+            {
+              "id": 102,
+              "label": "十分な転回スペースはある？",
+              "negative_reports": 0,
+              "positive_reports": 1,
+              "report_observed_at": null,
+              "state": "reported_affirmative"
+            },
+            {
+              "id": 103,
+              "label": "手すりは両側にある？",
+              "negative_reports": 0,
+              "positive_reports": 1,
+              "report_observed_at": null,
+              "state": "reported_affirmative"
+            },
+            {
+              "id": 104,
+              "label": "便座に横付けできる？",
+              "negative_reports": 0,
+              "positive_reports": 1,
+              "report_observed_at": null,
+              "state": "reported_affirmative"
+            },
+            {
+              "id": 105,
+              "label": "便座に背もたれはある？",
+              "negative_reports": 0,
+              "positive_reports": 1,
+              "report_observed_at": null,
+              "state": "reported_affirmative"
+            },
+            {
+              "id": 106,
+              "label": "オストメイトはある？",
+              "negative_reports": 0,
+              "positive_reports": 1,
+              "report_observed_at": null,
+              "state": "reported_affirmative"
+            },
+            {
+              "id": 107,
+              "label": "介助用ベッドはある？",
+              "negative_reports": 1,
+              "positive_reports": 0,
+              "report_observed_at": null,
+              "state": "reported_negative"
+            },
+            {
+              "id": 108,
+              "label": "ベビーベッドはある？",
+              "negative_reports": 1,
+              "positive_reports": 0,
+              "report_observed_at": null,
+              "state": "reported_negative"
+            },
+            {
+              "id": 109,
+              "label": "男女の性別関係なく入れる？",
+              "negative_reports": 0,
+              "positive_reports": 1,
+              "report_observed_at": null,
+              "state": "reported_affirmative"
+            }
+          ],
+          "recheck_reasons": [],
+          "record_created_at": "2026-10-02T04:52:05.173565Z",
+          "record_update_age_days": 1.1772331009027777,
+          "record_updated_at": "2026-10-02T04:52:05.173565Z",
+          "requirements": [
+            {
+              "label": "十分な転回スペースはある？",
+              "negative_reports": 0,
+              "positive_reports": 1,
+              "question_id": 102,
+              "state": "reported_affirmative"
+            }
+          ],
+          "retrieved_at": "2026-10-03T07:58:21.938688Z",
+          "source_created_raw": "2026-10-02 04:52:05.173565",
+          "source_updated_raw": "2026-10-02 04:52:05.173565",
+          "source_url": "https://app.wheelog.com/?spotId=166345&la=ja",
+          "unsupported_facts": [
+            "measured_dimensions",
+            "individual_report_dates",
+            "current_open_status",
+            "accessible_routes"
+          ]
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "args": [
+        "spots",
+        "search",
+        "成田空港",
+        "--category",
+        "toilet",
+        "--require-question",
+        "102",
+        "--data-source",
+        "local"
+      ],
+      "exit": 0,
+      "output": {
+        "meta": {
+          "provider": "wheelog",
+          "source": "local"
+        },
+        "results": {
+          "coverage": {
+            "checked": 1,
+            "complete_coverage": false,
+            "listed": 1,
+            "live": 0,
+            "local": 1,
+            "max_scan_pages": 1,
+            "output_limit": 5,
+            "scanned_records": 3,
+            "scope": "saved_shortlist",
+            "unavailable": 0,
+            "unexpanded": 0
+          },
+          "fetch_failures": [],
+          "note": "Counts are crowdsourced question reports. Source record dates do not date individual reports or establish personal suitability, current conditions, measured dimensions or an accessible route.",
+          "results": [
+            {
+              "address": "日本 〒286-0104千葉県成田市古込古込1-1",
+              "cache_age_days": 0.047872682766203704,
+              "category": "toilet",
+              "country": null,
+              "data_source": "local",
+              "detail_status": "checked",
+              "id": 166345,
+              "location": {
+                "latitude": 35.774154985466,
+                "longitude": 140.387938991189
+              },
+              "name": "成田空港 多機能トイレ",
+              "questions": [
+                {
+                  "id": 101,
+                  "label": "清潔感はある？",
+                  "negative_reports": 0,
+                  "positive_reports": 0,
+                  "report_observed_at": null,
+                  "state": "unreported"
+                },
+                {
+                  "id": 102,
+                  "label": "十分な転回スペースはある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 103,
+                  "label": "手すりは両側にある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 104,
+                  "label": "便座に横付けできる？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 105,
+                  "label": "便座に背もたれはある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 106,
+                  "label": "オストメイトはある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 107,
+                  "label": "介助用ベッドはある？",
+                  "negative_reports": 1,
+                  "positive_reports": 0,
+                  "report_observed_at": null,
+                  "state": "reported_negative"
+                },
+                {
+                  "id": 108,
+                  "label": "ベビーベッドはある？",
+                  "negative_reports": 1,
+                  "positive_reports": 0,
+                  "report_observed_at": null,
+                  "state": "reported_negative"
+                },
+                {
+                  "id": 109,
+                  "label": "男女の性別関係なく入れる？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                }
+              ],
+              "recheck_reasons": [],
+              "record_created_at": "2026-10-02T04:52:05.173565Z",
+              "record_update_age_days": 1.1772333902083334,
+              "record_updated_at": "2026-10-02T04:52:05.173565Z",
+              "requirements": [
+                {
+                  "label": "十分な転回スペースはある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "question_id": 102,
+                  "state": "reported_affirmative"
+                }
+              ],
+              "retrieved_at": "2026-10-03T07:58:21.938688Z",
+              "source_created_raw": "2026-10-02 04:52:05.173565",
+              "source_updated_raw": "2026-10-02 04:52:05.173565",
+              "source_url": "https://app.wheelog.com/?spotId=166345&la=ja",
+              "unsupported_facts": [
+                "measured_dimensions",
+                "individual_report_dates",
+                "current_open_status",
+                "accessible_routes"
+              ]
+            }
+          ],
+          "source_query": {
+            "categories": [
+              "toilet"
+            ],
+            "execution": "saved_record_metadata_filter",
+            "input_timezone": "Asia/Tokyo",
+            "keyword": "成田空港",
+            "record_from_utc": null,
+            "record_to_utc": null
+          }
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "args": [
+        "spots",
+        "compare",
+        "166345",
+        "166344",
+        "--require-question",
+        "102",
+        "--data-source",
+        "local"
+      ],
+      "exit": 0,
+      "output": {
+        "meta": {
+          "provider": "wheelog",
+          "source": "local"
+        },
+        "results": {
+          "coverage": {
+            "available": 2,
+            "live": 0,
+            "local": 2,
+            "requested": 2,
+            "unavailable": 0
+          },
+          "fetch_failures": [],
+          "note": "Counts are crowdsourced question reports. Source record dates do not date individual reports or establish personal suitability, current conditions, measured dimensions or an accessible route.",
+          "results": [
+            {
+              "address": "日本 〒286-0104千葉県成田市古込古込1-1",
+              "cache_age_days": 0.047872971701388885,
+              "category": "toilet",
+              "country": null,
+              "data_source": "local",
+              "detail_status": "checked",
+              "id": 166345,
+              "location": {
+                "latitude": 35.774154985466,
+                "longitude": 140.387938991189
+              },
+              "name": "成田空港 多機能トイレ",
+              "questions": [
+                {
+                  "id": 101,
+                  "label": "清潔感はある？",
+                  "negative_reports": 0,
+                  "positive_reports": 0,
+                  "report_observed_at": null,
+                  "state": "unreported"
+                },
+                {
+                  "id": 102,
+                  "label": "十分な転回スペースはある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 103,
+                  "label": "手すりは両側にある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 104,
+                  "label": "便座に横付けできる？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 105,
+                  "label": "便座に背もたれはある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 106,
+                  "label": "オストメイトはある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 107,
+                  "label": "介助用ベッドはある？",
+                  "negative_reports": 1,
+                  "positive_reports": 0,
+                  "report_observed_at": null,
+                  "state": "reported_negative"
+                },
+                {
+                  "id": 108,
+                  "label": "ベビーベッドはある？",
+                  "negative_reports": 1,
+                  "positive_reports": 0,
+                  "report_observed_at": null,
+                  "state": "reported_negative"
+                },
+                {
+                  "id": 109,
+                  "label": "男女の性別関係なく入れる？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                }
+              ],
+              "recheck_reasons": [],
+              "record_created_at": "2026-10-02T04:52:05.173565Z",
+              "record_update_age_days": 1.1772336791435185,
+              "record_updated_at": "2026-10-02T04:52:05.173565Z",
+              "requirements": [
+                {
+                  "label": "十分な転回スペースはある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "question_id": 102,
+                  "state": "reported_affirmative"
+                }
+              ],
+              "retrieved_at": "2026-10-03T07:58:21.938688Z",
+              "source_created_raw": "2026-10-02 04:52:05.173565",
+              "source_updated_raw": "2026-10-02 04:52:05.173565",
+              "source_url": "https://app.wheelog.com/?spotId=166345&la=ja",
+              "unsupported_facts": [
+                "measured_dimensions",
+                "individual_report_dates",
+                "current_open_status",
+                "accessible_routes"
+              ]
+            },
+            {
+              "address": "日本 〒286-0104千葉県成田市古込古込1-1",
+              "cache_age_days": 0.04786909707175926,
+              "category": "elevator",
+              "country": null,
+              "data_source": "local",
+              "detail_status": "checked",
+              "id": 166344,
+              "location": {
+                "latitude": 35.7733158034394,
+                "longitude": 140.387687534094
+              },
+              "name": "成田空港 エレベーター",
+              "questions": [
+                {
+                  "id": 201,
+                  "label": "２台以上乗れそう？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 202,
+                  "label": "車いす用の操作盤はある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 203,
+                  "label": "鏡はある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                }
+              ],
+              "recheck_reasons": [
+                "question_102_inapplicable"
+              ],
+              "record_created_at": "2026-10-02T04:39:22.433139Z",
+              "record_update_age_days": 1.1860616933564814,
+              "record_updated_at": "2026-10-02T04:39:22.433139Z",
+              "requirements": [
+                {
+                  "negative_reports": null,
+                  "positive_reports": null,
+                  "question_id": 102,
+                  "reason": "different_source_category",
+                  "state": "inapplicable"
+                }
+              ],
+              "retrieved_at": "2026-10-03T07:58:22.273458Z",
+              "source_created_raw": "2026-10-02 04:39:22.433139",
+              "source_updated_raw": "2026-10-02 04:39:22.433139",
+              "source_url": "https://app.wheelog.com/?spotId=166344&la=ja",
+              "unsupported_facts": [
+                "measured_dimensions",
+                "individual_report_dates",
+                "current_open_status",
+                "accessible_routes"
+              ]
+            }
+          ]
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "args": [
+        "shortlist",
+        "list",
+        "--audit",
+        "--require-question",
+        "102",
+        "--data-source",
+        "local"
+      ],
+      "exit": 0,
+      "output": {
+        "meta": {
+          "provider": "wheelog",
+          "source": "local"
+        },
+        "results": {
+          "coverage": {
+            "matched": 2,
+            "output_limit": 10,
+            "radius_excluded": 0,
+            "returned": 2,
+            "scanned_saved_records": 3,
+            "scope": "saved_shortlist",
+            "unknown_coordinates": 0
+          },
+          "note": "Counts are crowdsourced question reports. Source record dates do not date individual reports or establish personal suitability, current conditions, measured dimensions or an accessible route. Distances are straight-line meters within saved coverage. The supplied origin is not saved.",
+          "results": [
+            {
+              "address": "日本 〒286-0104千葉県成田市古込古込1-1",
+              "cache_age_days": 0.04786938306712963,
+              "category": "elevator",
+              "country": null,
+              "data_source": "local",
+              "detail_status": "checked",
+              "id": 166344,
+              "location": {
+                "latitude": 35.7733158034394,
+                "longitude": 140.387687534094
+              },
+              "name": "成田空港 エレベーター",
+              "questions": [
+                {
+                  "id": 201,
+                  "label": "２台以上乗れそう？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 202,
+                  "label": "車いす用の操作盤はある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 203,
+                  "label": "鏡はある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                }
+              ],
+              "recheck_reasons": [
+                "question_102_inapplicable"
+              ],
+              "record_created_at": "2026-10-02T04:39:22.433139Z",
+              "record_update_age_days": 1.1860619793518519,
+              "record_updated_at": "2026-10-02T04:39:22.433139Z",
+              "requirements": [
+                {
+                  "negative_reports": null,
+                  "positive_reports": null,
+                  "question_id": 102,
+                  "reason": "different_source_category",
+                  "state": "inapplicable"
+                }
+              ],
+              "retrieved_at": "2026-10-03T07:58:22.273458Z",
+              "source_created_raw": "2026-10-02 04:39:22.433139",
+              "source_updated_raw": "2026-10-02 04:39:22.433139",
+              "source_url": "https://app.wheelog.com/?spotId=166344&la=ja",
+              "unsupported_facts": [
+                "measured_dimensions",
+                "individual_report_dates",
+                "current_open_status",
+                "accessible_routes"
+              ]
+            },
+            {
+              "address": "日本 〒286-0104千葉県成田市古込2",
+              "cache_age_days": 0.04786360076388888,
+              "category": "slope",
+              "country": null,
+              "data_source": "local",
+              "detail_status": "checked",
+              "id": 166347,
+              "location": {
+                "latitude": 35.7727981428757,
+                "longitude": 140.388182401657
+              },
+              "name": "京成線 成田空港駅 第2・第3ターミナル方面出口",
+              "questions": [],
+              "recheck_reasons": [
+                "question_102_inapplicable"
+              ],
+              "record_created_at": "2026-10-02T05:09:40.383362Z",
+              "record_update_age_days": 1.1650208888541667,
+              "record_updated_at": "2026-10-02T05:09:40.383362Z",
+              "requirements": [
+                {
+                  "negative_reports": null,
+                  "positive_reports": null,
+                  "question_id": 102,
+                  "reason": "different_source_category",
+                  "state": "inapplicable"
+                }
+              ],
+              "retrieved_at": "2026-10-03T07:58:22.773053Z",
+              "source_created_raw": "2026-10-02 05:09:40.383362",
+              "source_updated_raw": "2026-10-02 05:09:40.383362",
+              "source_url": "https://app.wheelog.com/?spotId=166347&la=ja",
+              "unsupported_facts": [
+                "measured_dimensions",
+                "individual_report_dates",
+                "current_open_status",
+                "accessible_routes"
+              ]
+            }
+          ]
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "args": [
+        "shortlist",
+        "list",
+        "--origin",
+        "35.7742,140.3879",
+        "--radius-m",
+        "500",
+        "--data-source",
+        "local"
+      ],
+      "exit": 0,
+      "output": {
+        "meta": {
+          "provider": "wheelog",
+          "source": "local"
+        },
+        "results": {
+          "coverage": {
+            "matched": 3,
+            "output_limit": 10,
+            "radius_excluded": 0,
+            "returned": 3,
+            "scanned_saved_records": 3,
+            "scope": "saved_shortlist",
+            "unknown_coordinates": 0
+          },
+          "note": "Counts are crowdsourced question reports. Source record dates do not date individual reports or establish personal suitability, current conditions, measured dimensions or an accessible route. Distances are straight-line meters within saved coverage. The supplied origin is not saved.",
+          "results": [
+            {
+              "address": "日本 〒286-0104千葉県成田市古込古込1-1",
+              "cache_age_days": 0.0478735375462963,
+              "category": "toilet",
+              "country": null,
+              "data_source": "local",
+              "detail_status": "checked",
+              "id": 166345,
+              "location": {
+                "latitude": 35.774154985466,
+                "longitude": 140.387938991189
+              },
+              "name": "成田空港 多機能トイレ",
+              "questions": [
+                {
+                  "id": 101,
+                  "label": "清潔感はある？",
+                  "negative_reports": 0,
+                  "positive_reports": 0,
+                  "report_observed_at": null,
+                  "state": "unreported"
+                },
+                {
+                  "id": 102,
+                  "label": "十分な転回スペースはある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 103,
+                  "label": "手すりは両側にある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 104,
+                  "label": "便座に横付けできる？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 105,
+                  "label": "便座に背もたれはある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 106,
+                  "label": "オストメイトはある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 107,
+                  "label": "介助用ベッドはある？",
+                  "negative_reports": 1,
+                  "positive_reports": 0,
+                  "report_observed_at": null,
+                  "state": "reported_negative"
+                },
+                {
+                  "id": 108,
+                  "label": "ベビーベッドはある？",
+                  "negative_reports": 1,
+                  "positive_reports": 0,
+                  "report_observed_at": null,
+                  "state": "reported_negative"
+                },
+                {
+                  "id": 109,
+                  "label": "男女の性別関係なく入れる？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                }
+              ],
+              "recheck_reasons": [
+                "question_101_unreported"
+              ],
+              "record_created_at": "2026-10-02T04:52:05.173565Z",
+              "record_update_age_days": 1.1772342449884259,
+              "record_updated_at": "2026-10-02T04:52:05.173565Z",
+              "requirements": [],
+              "retrieved_at": "2026-10-03T07:58:21.938688Z",
+              "source_created_raw": "2026-10-02 04:52:05.173565",
+              "source_updated_raw": "2026-10-02 04:52:05.173565",
+              "source_url": "https://app.wheelog.com/?spotId=166345&la=ja",
+              "straight_line_distance_m": 6.1178087908589625,
+              "unsupported_facts": [
+                "measured_dimensions",
+                "individual_report_dates",
+                "current_open_status",
+                "accessible_routes"
+              ]
+            },
+            {
+              "address": "日本 〒286-0104千葉県成田市古込古込1-1",
+              "cache_age_days": 0.04786966284722222,
+              "category": "elevator",
+              "country": null,
+              "data_source": "local",
+              "detail_status": "checked",
+              "id": 166344,
+              "location": {
+                "latitude": 35.7733158034394,
+                "longitude": 140.387687534094
+              },
+              "name": "成田空港 エレベーター",
+              "questions": [
+                {
+                  "id": 201,
+                  "label": "２台以上乗れそう？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 202,
+                  "label": "車いす用の操作盤はある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                },
+                {
+                  "id": 203,
+                  "label": "鏡はある？",
+                  "negative_reports": 0,
+                  "positive_reports": 1,
+                  "report_observed_at": null,
+                  "state": "reported_affirmative"
+                }
+              ],
+              "recheck_reasons": [],
+              "record_created_at": "2026-10-02T04:39:22.433139Z",
+              "record_update_age_days": 1.1860622591319443,
+              "record_updated_at": "2026-10-02T04:39:22.433139Z",
+              "requirements": [],
+              "retrieved_at": "2026-10-03T07:58:22.273458Z",
+              "source_created_raw": "2026-10-02 04:39:22.433139",
+              "source_updated_raw": "2026-10-02 04:39:22.433139",
+              "source_url": "https://app.wheelog.com/?spotId=166344&la=ja",
+              "straight_line_distance_m": 100.16933557652443,
+              "unsupported_facts": [
+                "measured_dimensions",
+                "individual_report_dates",
+                "current_open_status",
+                "accessible_routes"
+              ]
+            },
+            {
+              "address": "日本 〒286-0104千葉県成田市古込2",
+              "cache_age_days": 0.047863880625,
+              "category": "slope",
+              "country": null,
+              "data_source": "local",
+              "detail_status": "checked",
+              "id": 166347,
+              "location": {
+                "latitude": 35.7727981428757,
+                "longitude": 140.388182401657
+              },
+              "name": "京成線 成田空港駅 第2・第3ターミナル方面出口",
+              "questions": [],
+              "recheck_reasons": [],
+              "record_created_at": "2026-10-02T05:09:40.383362Z",
+              "record_update_age_days": 1.1650211687152778,
+              "record_updated_at": "2026-10-02T05:09:40.383362Z",
+              "requirements": [],
+              "retrieved_at": "2026-10-03T07:58:22.773053Z",
+              "source_created_raw": "2026-10-02 05:09:40.383362",
+              "source_updated_raw": "2026-10-02 05:09:40.383362",
+              "source_url": "https://app.wheelog.com/?spotId=166347&la=ja",
+              "straight_line_distance_m": 157.9479188134212,
+              "unsupported_facts": [
+                "measured_dimensions",
+                "individual_report_dates",
+                "current_open_status",
+                "accessible_routes"
+              ]
+            }
+          ]
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "args": [
+        "shortlist",
+        "changes",
+        "--data-source",
+        "local"
+      ],
+      "exit": 0,
+      "output": {
+        "meta": {
+          "provider": "wheelog",
+          "source": "local"
+        },
+        "results": {
+          "coverage": {
+            "examined": 3,
+            "live_observations": 0,
+            "output_limit": 5,
+            "saved": 3,
+            "scope": "selected_saved_spots"
+          },
+          "fetch_failures": [],
+          "note": "Changes describe recorded public-place fields and aggregate reports, not a physical improvement or deterioration. Local mode shows the last saved transition.",
+          "results": [
+            {
+              "cache_age_days": 0.047869952696759255,
+              "changes": [],
+              "current_retrieved_at": "2026-10-03T07:58:22.273458Z",
+              "data_source": "local",
+              "id": 166344,
+              "name": "成田空港 エレベーター",
+              "previous_retrieved_at": null,
+              "recheck_reasons": [],
+              "record_update_age_days": 1.1860625489814816,
+              "requirements": [],
+              "source_url": "https://app.wheelog.com/?spotId=166344&la=ja",
+              "status": "no_baseline"
+            },
+            {
+              "cache_age_days": 0.047873827384259264,
+              "changes": [],
+              "current_retrieved_at": "2026-10-03T07:58:21.938688Z",
+              "data_source": "local",
+              "id": 166345,
+              "name": "成田空港 多機能トイレ",
+              "previous_retrieved_at": null,
+              "recheck_reasons": [
+                "question_101_unreported"
+              ],
+              "record_update_age_days": 1.1772345348263888,
+              "requirements": [],
+              "source_url": "https://app.wheelog.com/?spotId=166345&la=ja",
+              "status": "no_baseline"
+            },
+            {
+              "cache_age_days": 0.04786417042824074,
+              "changes": [],
+              "current_retrieved_at": "2026-10-03T07:58:22.773053Z",
+              "data_source": "local",
+              "id": 166347,
+              "name": "京成線 成田空港駅 第2・第3ターミナル方面出口",
+              "previous_retrieved_at": null,
+              "recheck_reasons": [],
+              "record_update_age_days": 1.1650214585185186,
+              "requirements": [],
+              "source_url": "https://app.wheelog.com/?spotId=166347&la=ja",
+              "status": "no_baseline"
+            }
+          ]
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "case": "explicit-select",
+      "exit": 0,
+      "output": {
+        "meta": {
+          "provider": "wheelog",
+          "source": "local"
+        },
+        "results": {
+          "results": [
+            {
+              "id": 166344
+            },
+            {
+              "id": 166345
+            },
+            {
+              "id": 166347
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case": "import --help",
+      "exit": 2,
+      "stdout": "",
+      "stderr": "Error: unknown command \"import\" for \"wheelog-pp-cli\"\nRun 'wheelog-pp-cli --help' for usage.\n"
+    },
+    {
+      "case": "shortlist --help",
+      "exit": 0,
+      "stdout": "Work with shortlist\n\nUsage:\n  wheelog-pp-cli shortlist [command]\n\nExamples:\n  wheelog-pp-cli shortlist changes --data-source local --agent\n\nAvailable Commands:\n  changes     Compare saved source observations or fetch a bounded current observation.\n  list        Read saved facility evidence, recheck reasons or straight-line proximity.\n  remove      Remove one selected public spot from the local shortlist.\n  save        Save bounded normalized public spot observations to the local shortlist.\n\nFlags:\n  -h, --help   help for shortlist\n\n",
+      "stderr": ""
+    }
+  ]
+}

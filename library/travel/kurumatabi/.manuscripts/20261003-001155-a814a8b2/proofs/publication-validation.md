@@ -1,46 +1,46 @@
-# Publication validation and live evidence
+# Current-library amendment validation
 
-Printing Press4.32.5 validated the dedicated publication source, using Go1.27.1. Supported regeneration backfilled the existing creator handle from the same-person legacy printer zjsng; no manual creator rewrite or release-version bump was made. Supported creator regeneration preserved all20native code/asset guards before the documented publication fixes below. Local installed binaries/skills and historical proofs were preserved.
+The original print producer remains 4.32.5. The current-library amendment uses Printing Press 4.33.0 as its validator, full live gate runner and packager, with Go1.27.1. Current upstream release history and runtime declarations remain2026.10.1. This dedicated publication copy preserves the historical installed-source acceptance and personal installation.
 
 ## Authoritative validation
 
-| Check | Result | Note |
-|---|---|---|
-| manifest | PASS |  |
-| transcendence | PASS |  |
-| phase5 | PASS |  |
-| go mod tidy | PASS |  |
-| module path | WARN | go.mod module path "kurumatabi-pp-cli" does not start with the canonical library prefix github.com/mvanhorn/printing-press-library/library/<category>/<slug> |
-| govulncheck | PASS |  |
-| go vet | PASS |  |
-| go build | PASS |  |
-| --help | PASS |  |
-| --version | PASS |  |
-| verify-skill | PASS |  |
-| patches | PASS |  |
-| manuscripts | PASS |  |
+| Check | Result |
+|---|---|
+| manifest | PASS |
+| transcendence | PASS |
+| phase5 | PASS |
+| go mod tidy | PASS |
+| module path | PASS |
+| govulncheck | PASS |
+| go vet | PASS |
+| go build | PASS |
+| --help | PASS |
+| --version | PASS |
+| verify-skill | PASS |
+| patches | PASS |
+| manuscripts | PASS |
 
-The pre-package bare module warning is expected; publish package requires and checks the canonical module github.com/mvanhorn/printing-press-library/library/travel/kurumatabi. Reachable govulncheck, vet/build and help/version checks are scoped to this CLI. Required MCP metadata and the customization index are retained; generated registry/skill mirrors and release accounting are left to library automation.
+The source uses the canonical module github.com/mvanhorn/printing-press-library/library/travel/kurumatabi. The manifest creator and personal publication identity are zjsng. Release accounting, registry and skill mirrors remain owned by library automation.
 
 ## Fresh full live gate
 
-Actual command contract: cli-printing-press dogfood --live --level full --timeout 120s --research-dir RESEARCH --write-acceptance phase5-acceptance.json --json. It ran at 2026-10-03T07:42:29.975699Z and returned PASS: 116/116executed checks passed, 0failures, 89explicitly skipped/unverified. The binary minted the adjacent phase5-acceptance.json and its source fingerprint/per-file map; no marker was hand-edited and no skip was inferred. The raw JSON transcript lived in a private temporary directory outside manuscripts and was deleted after inspection.
+It ran at 2026-10-03T14:28:53.82222Z and returned PASS: 116/116 executed checks passed, 0 failures, 89 explicitly skipped/unverified. The binary minted adjacent phase5-acceptance.json and its exact source fingerprint/per-file map. No marker was hand-edited and no skip was inferred. The full gate used default learning in an isolated home; no NO_LEARN override was applied. Raw provider stdout was inspected privately and deleted.
 
-Nine native park leaves have live happy-path, JSON-fidelity, dry-run and help coverage. The generic runner skips five native negative rows based on positional detection; deterministic focused tests cover actual usage validation. Six BLOCKED_FIXTURE rows concern generated learning confirm/reject candidate IDs, not park workflows. Other skips are runner mutation/dry-run/export/fixture policies. These remain unverified rather than being represented as passes.
+Nine native park leaves have live happy-path, JSON-fidelity, dry-run and help coverage. Six generated learning confirm/reject rows remain BLOCKED_FIXTURE. Other unverified rows are explicit runner mutation, dry-run, export, positional-negative or fixture policies. They are not reported as passes. All five planning workflows are implemented; near/match cover observed caches only, with populated real observations independently checked during the original build.
 
-All five approved workflows are implemented. Live fit/compare/audit use real public details. Near/match cold-cache samples correctly return an empty observed pool with hints; populated cached ranking/matching was independently verified over29real observations during generation. This does not claim nationwide proximity coverage or source vacancy.
+## Reproduced amendment contracts
 
-Focused publication fixture/parser/CLI regressions passed uncached after minimization and email/widget-key removal. The preserved native tests also exercise modern/legacy icons, conservative membership/fee/disposal semantics, correct comparison denominators, source pagination, explicit429errors, agent envelopes and bounded SQLite concurrency. The full uncached test suite passed all13tested packages after the publication fixes; packaged build/vet/govuln/skill/validate and repository-specific package verifiers are required before the PR.
+Undo reconciles only the affected inferred family in one transaction, over all retained eligible positive boost rows. Extraction and retained-support reconciliation preserve the source allowlist and both require action=boost; hide/alias_of teachings remain intact and cannot sustain a positive rule or become its example. It counts compatible distinct entities and values, ignores unusable/conflicting rows, retains supported rule IDs, refreshes examples from compatible supporters, and removes unsupported rules. Transaction failure rolls back teaching and pattern effects together. Explicit teaching replaces the full manual scope/examples; later inferred upserts preserve that explicit definition.
 
-## Scoped publication fixes
+Direct alias promotion requires one canonical common to query, teaching and actual cached target. Synthesized hits validate the exact entity used by Apply to substitute their resource ID, so unrelated query entities cannot bless a conflict. Rejected bindings do not suppress later valid patterns to the same ID; accepted duplicate IDs remain suppressed. Recall applies its requested result limit after this validation and deduplication, while standalone Apply caps remain unchanged. Known conflicts remain factual mismatches, genuine aliases work, missing direct targets retain explicit warnings, and empty verified-ID patterns preserve their existing behavior without invented identities. Normal writable recall sees current committed WAL content. Only genuine sql.ErrNoRows uses the warned missing-row fallback; cancellation, schema and payload read errors propagate without a successful factual envelope. Recall tries later bindings after a conflict, selects one compatible binding per pattern, ranks before typed-ID deduplication, and removes accepted targets from rejected-only diagnostic rows before their cap. Alternative warnings use retained rejected-only rows. Composite resource-type/ID structs preserve legal delimiter-containing tuples without collisions. The result limit is not a universal local-work cap; full validation preserves confidence-before-score and identity ranking.
 
-The source diagnostic path now bounds HTML/JSON response-body reads to4MiB regardless of Content-Length (including Go transparently decoded gzip bodies) and bounds each explicit gzip/deflate decoding layer to the same limit before parsing, caching or status/retry decisions. The generated binary-delivery branch and its streaming timeout remain compatible; Kurumatabi has no verified binary source workflow. Deterministic tests exercise success/429/503 bodies, lying/unknown lengths, body closure, exact-limit acceptance, compressed expansion and chained encodings, plus preserved generic binary bytes.
+Foreign effective-origin source redirects are refused before custom credentials can be forwarded. Bounded catalog export emits first-page canonical park link objects, not detailed records or national coverage, as JSONL or JSON; invalid/failed/dry-run exports preserve destinations. Named variadic MCP comparison inputs split safe ID lists while preserving scalar questions and rejecting flag-like/nonscalar values. MCP hints describe intentional cache/learning writers; native calls suppress automatic learning and genuine read-only tools cannot request receipt writes. Normal CLI optional learning, cache and explicit receipt semantics remain documented.
 
-Agent selection preserves source and coverage metadata even when only metadata is selected; the stable results field becomes[] when no rows were requested. Partial park comparison emits one usable stdout envelope with requested/compared counts and failure IDs, then returns typed exit5. Explicit delivery occurs only after success, so failed comparison buffers are not delivered. The metadata/row/mixed/all-miss selector regressions, actual CLI oversize exit and partial comparison tests passed. Actual22-field complete and partial comparison matrices also reject bare/results-prefixed selector typos with exit2; unrelated nested empty arrays cannot suppress the miss, while known-empty anchored fields remain selectable. MCP wording describes its source build target rather than claiming a prebuilt binary is packaged.
+Previously merged source safeguards remain:4MiB response/decompression limits before parsing/cache/retry; usable partial comparison stdout with typed exit5; agent envelopes preserve source/coverage metadata; disabled/duplicate facility icons remain conservative; and local card evidence stays distinct from detail.
 
 ## Public artifact boundary
 
-This tree includes source/spec metadata, minimal contract fixtures and authored research/validation summaries. It excludes raw provider response dumps, runtime databases, private installed/final/publish reports, host filesystem paths, pipeline/receipt logs, cookie/session state, captured credentials and binaries. No booking/provider transaction was performed. The contribution awaits manual review; release version/catalog/skill mirror publication occurs after merge.
+The public tree contains source/spec metadata, minimal self-contained contract fixtures and authored summaries. It excludes raw provider dumps, runtime databases, private installed/final/publish reports, host paths, pipeline/receipt logs, cookie/session material, captured credentials and binaries. No provider transaction or booking was performed. Current-head CI/review determines readiness; maintainer review remains manual.
 
 ## Runtime help
 
@@ -66,7 +66,7 @@ Available Commands:
   api            Browse API resource interfaces by raw name
   completion     Generate the autocompletion script for the specified shell
   doctor         Check CLI health
-  export         Export data to JSONL or JSON for backup, migration, or analysis
+  export         Export bounded first-page catalog links as JSONL or JSON
   feedback       Record feedback about this CLI (local by default; upstream opt-in)
   help           Help about any command
   learnings      Inspect or forget the local search_learnings table
@@ -116,8 +116,4 @@ Flags:
 Use "kurumatabi-pp-cli [command] --help" for more information about a command.
 ```
 
-## Current review contracts
-
-All six current-head review gaps were corrected with deterministic behavior tests. The bounded scan cache retains all28observations while returning3rows and preserves richer details. Local/automatic detail reads reject card-only observations. Actual YY bath/onsen icons retain both source observations, with qualified fee uncertainty and explicit generic bath presence. Scoped transactional teaching undo invalidates only affected inferred structural query/resource/venue families, retains manual/unrelated rules and rolls back both changes on a dependency failure. Explicit manual pattern promotion cannot be downgraded by later inference. Verified prefix candidates are literal, case/type scoped and unique; ambiguous matches abstain.
-
-The real compiled companion's partial comparison was exercised through both native MCP mirror and recipe handlers. Each remains a failed tool with one usable partial JSON block, truthful2requested/1compared counts and the failedID, plus a separate UTF-8-safe diagnostic. Oversized evidence is a marked preview. Failure text is bounded at60,000bytes for evidence plus4,000for diagnostics. Full source and canonical package test suites, vet/build, reachable vulnerability checks, skill and publish validation pass for the reviewed source.
+Canonical packaged build, vet, full uncached tests, reachable govulncheck, skill and publish validation passed. The exact final4.33.0 normalized fingerprint/per-file map and all public bytes are checked separately before the amendment PR.

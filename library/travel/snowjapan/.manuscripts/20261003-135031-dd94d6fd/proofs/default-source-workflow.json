@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "default_database_path": true,
+  "learning_hooks_enabled": true,
+  "fixture_deleted": true,
+  "coverage_rows": 0,
+  "report_projection": "report-observations-v1",
+  "new_snow_cm": 0,
+  "season_snowfall_cm": 0,
+  "coverage_confirmed": 1,
+  "coverage_denominator": 1,
+  "coverage_rows_zero_expected": "Selected Goryu has confirmed historical endpoint evidence, so the gap list is empty",
+  "requested_season_captured": true,
+  "source_catalog_count": 478,
+  "historical_rows": 417
+}

@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "verdict": "PASS",
+  "started_at": "2026-10-03T07:53:40Z",
+  "elapsed_ms": 12607,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-03T07:53:40Z",
+      "elapsed_ms": 5507,
+      "command": "LOCAL_HOME/go/bin/cli-printing-press verify --dir CLI_DIR --write-manifest CLI_DIR/.printing-press.json --spec RUN_DIR/research/iko-yo-browser-sniff-spec.yaml --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-03T07:53:46Z",
+      "elapsed_ms": 199,
+      "command": "LOCAL_HOME/go/bin/cli-printing-press validate-narrative --strict --full-examples --research RUN_DIR/research.json --binary CLI_DIR/build/stage/bin/iko-yo-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-03T07:53:46Z",
+      "elapsed_ms": 1953,
+      "command": "LOCAL_HOME/go/bin/cli-printing-press dogfood --dir CLI_DIR --spec RUN_DIR/research/iko-yo-browser-sniff-spec.yaml --research-dir RUN_DIR"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-03T07:53:48Z",
+      "elapsed_ms": 15,
+      "command": "LOCAL_HOME/go/bin/cli-printing-press workflow-verify --dir CLI_DIR"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-03T07:53:48Z",
+      "elapsed_ms": 35,
+      "command": "LOCAL_HOME/go/bin/cli-printing-press apify-audit --dir CLI_DIR --research-dir RUN_DIR"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-03T07:53:48Z",
+      "elapsed_ms": 2448,
+      "command": "LOCAL_HOME/go/bin/cli-printing-press verify-skill --dir CLI_DIR"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-03T07:53:51Z",
+      "elapsed_ms": 2447,
+      "command": "LOCAL_HOME/go/bin/cli-printing-press scorecard --dir CLI_DIR --write-manifest CLI_DIR/.printing-press.json --research-dir RUN_DIR --spec RUN_DIR/research/iko-yo-browser-sniff-spec.yaml --live-check"
+    }
+  ]
+}

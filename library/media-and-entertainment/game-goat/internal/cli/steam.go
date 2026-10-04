@@ -1,4 +1,5 @@
 // Copyright 2026 Brad Knight and contributors. Licensed under Apache-2.0. See LICENSE.
+// pp:data-source live — keyless Steam store services and storefront endpoints.
 // PATCH(amend-2026-10-02: expose the keyless Steam store catalog as a command group)
 //
 // steam.go - the `steam` command group: the store-catalog surface over
@@ -38,12 +39,18 @@ type steamMeta struct {
 	ResolvedBy     string   `json:"resolved_by,omitempty"`
 	Types          []string `json:"types,omitempty"`
 	Tags           []string `json:"tags,omitempty"`
+	Title          string   `json:"title,omitempty"`
 	FreeOnly       bool     `json:"free_only,omitempty"`
 	Total          int      `json:"total,omitempty"`
 	Page           int      `json:"page,omitempty"`
 	Limit          int      `json:"limit,omitempty"`
 	NextPage       int      `json:"next_page,omitempty"`
 	SourcesMissing []string `json:"sources_missing,omitempty"`
+	// Truncated is the text-search view of "more matched than returned": the
+	// SearchSuggestions endpoint ignores offsets, so it is the only honest
+	// signal. A pointer keeps the field present (even when false) on the
+	// --title path and absent on the paginated browse path.
+	Truncated *bool `json:"truncated,omitempty"`
 }
 
 // steamSearchView is the search/browse envelope.
@@ -61,8 +68,15 @@ type steamAppView struct {
 
 type steamAppRow struct {
 	steam.StoreItem
+	// HasDemo is always present: true when the store record lists demos.
+	HasDemo bool                 `json:"has_demo"`
 	Reviews *steam.ReviewSummary `json:"reviews,omitempty"`
 }
+
+// steamClientHook lets tests point the per-request Steam client at an
+// httptest server (BaseURL and APIBaseURL). It is nil in production, so this is
+// a test seam only and leaves the runtime path unchanged.
+var steamClientHook func(c *steam.Client)
 
 // newSteamClient builds a store client for one request. Country and language
 // come from the flag/env resolution below; the base URLs stay overridable so
@@ -78,6 +92,9 @@ func newSteamClient(country, lang string) *steam.Client {
 	}
 	if v := strings.TrimSpace(cliutil.EnvOverride("STEAM_STORE_API_BASE_URL")); v != "" {
 		c.APIBaseURL = strings.TrimRight(v, "/")
+	}
+	if steamClientHook != nil {
+		steamClientHook(c)
 	}
 	return c
 }
@@ -162,6 +179,7 @@ paginated catalog browse with type/free/tag/release filters.
 	cmd.AddCommand(newSteamSearchCmd(flags))
 	cmd.AddCommand(newSteamAppCmd(flags))
 	cmd.AddCommand(newSteamBrowseCmd(flags))
+	cmd.AddCommand(newSteamDemosCmd(flags))
 	return cmd
 }
 
@@ -317,7 +335,7 @@ sources_missing rather than failing the command.
 			if ierr != nil {
 				return classifySteamError(ierr)
 			}
-			row := steamAppRow{StoreItem: *item}
+			row := steamAppRow{StoreItem: *item, HasDemo: len(item.DemoAppIDs) > 0}
 			meta := steamMeta{
 				Source:     "live",
 				Country:    resolvedCountry,
@@ -560,5 +578,6 @@ func init() {
 		whichEntry{Command: "steam search", Description: "Search the keyless Steam store catalog by term with an app-type filter (game, demo, dlc, soundtrack, software, video, mod, hardware). No Steam API key needed."},
 		whichEntry{Command: "steam app", Description: "Full typed Steam store record for one appid or title: type, release, platforms, tags, price, demo links, and the keyless review summary; resolves a trailing (YYYY) remake suffix."},
 		whichEntry{Command: "steam browse", Description: "Paginated Steam catalog browse filtered by app type, free-only, store tag, and coming-soon/released, localised with --country."},
+		whichEntry{Command: "steam demos", Description: "Find free demos available on Steam: demos only, filter by title and by tags (every tag required), each with the full game it belongs to."},
 	)
 }

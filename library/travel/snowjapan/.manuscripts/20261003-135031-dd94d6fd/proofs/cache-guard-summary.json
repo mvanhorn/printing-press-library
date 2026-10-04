@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "active_wal_get_and_changes": "Error without facts until writer closes; then committed peak3000 and1676\u21923000 change",
+  "canonical_and_symlink_writes": "Real report capture preserves unrelated open-writer peak3000 and saves0/0cm without alias sidecars",
+  "hard_link_writes": "Rejected before capture; report rows0 and canonical WAL bytes/hash unchanged",
+  "actual_sql_binding": "Real local get returns original1676 through path swap/restore; negative control without pinning returns foreign3000",
+  "identity_changes": "Actual source command replacement/retarget rejected; no factual output or report writes",
+  "concurrent_settled_reads": 8,
+  "uri_source_writer": "Actual sync with existing two-cache and absent new-path cases rejects %?# before migration; hashes unchanged and no truncated/new cache",
+  "readonly_writes": "Direct/CTE/PRAGMA writes rejected",
+  "unsupported": "External replacement of DB while writing; detected retargets error",
+  "reviewer": "Same dedicated fresh-context MAX reviewer"
+}

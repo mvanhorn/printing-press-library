@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "michi-no-eki-pp-mcp",
+  "display_name": "Michi-no-Eki",
+  "version": "0.1.0",
+  "description": "Find and compare Japan roadside-station service stops with source evidence and explicit unknowns.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/michi-no-eki-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/michi-no-eki-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

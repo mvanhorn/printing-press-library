@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-03T06:21:47.115061Z",
+  "printing_press_version": "4.33.0",
+  "api_name": "halal-gourmet-japan",
+  "display_name": "Halal Gourmet Japan",
+  "cli_name": "halal-gourmet-japan-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "Jet Sng",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:24c1524ee309a54c514171a0a08418586d70512817d50593e1aa18e926ab3850",
+  "run_id": "20261003-135211-43724787",
+  "category": "travel",
+  "description": "Compare explicit food and prayer evidence across Japan with source dates and honest unknowns.",
+  "mcp_binary": "halal-gourmet-japan-pp-mcp",
+  "mcp_tool_count": 4,
+  "mcp_public_tool_count": 4,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Selected-place evidence comparison",
+      "command": "plan compare",
+      "description": "Align the source-reported food and prayer facts of selected saved places."
+    },
+    {
+      "name": "Explicit condition matcher",
+      "command": "plan match",
+      "description": "See which requested source labels are reported and which need confirmation."
+    },
+    {
+      "name": "Missing planning-evidence triage",
+      "command": "plan gaps",
+      "description": "List missing certifier, certificate validity, hours and access evidence."
+    },
+    {
+      "name": "Food-and-prayer proximity pairs",
+      "command": "plan pair",
+      "description": "Pair selected restaurants and prayer places by straight-line distance."
+    },
+    {
+      "name": "Saved evidence changes",
+      "command": "plan changes",
+      "description": "See factual changes between the latest two successful observations."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Selected-place evidence comparison",
+      "command": "plan compare",
+      "description": "Align the source-reported food and prayer facts of selected saved places."
+    },
+    {
+      "name": "Explicit condition matcher",
+      "command": "plan match",
+      "description": "See which requested source labels are reported and which need confirmation."
+    },
+    {
+      "name": "Missing planning-evidence triage",
+      "command": "plan gaps",
+      "description": "List missing certifier, certificate validity, hours and access evidence."
+    },
+    {
+      "name": "Food-and-prayer proximity pairs",
+      "command": "plan pair",
+      "description": "Pair selected restaurants and prayer places by straight-line distance."
+    },
+    {
+      "name": "Saved evidence changes",
+      "command": "plan changes",
+      "description": "See factual changes between the latest two successful observations."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 26,
+    "total": 26,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 80,
+      "grade": "A",
+      "total": 80
+    }
+  }
+}

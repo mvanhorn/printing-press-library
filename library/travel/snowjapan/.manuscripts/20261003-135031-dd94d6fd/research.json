@@ -1,0 +1,179 @@
+{
+  "api_name": "snowjapan",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [
+    "Live lift operation unsupported; upcoming unupdated dates remain unconfirmed.",
+    "Live popular-region membership is not exposed by the replayable chart/SSR; use factual name/town/prefecture discovery."
+  ],
+  "patterns": [
+    "Factual public HTML/SSR projection; published chart data parsed without Javascript execution."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-03T06:27:25.11532Z",
+  "novel_features": [
+    {
+      "name": "Resort tradeoff frontier",
+      "command": "plan frontier",
+      "description": "Show nondominated resort choices for explicitly selected statistics.",
+      "rationale": "Compare many saved source facts without hiding traveler preferences in a score.",
+      "example": "snowjapan-pp-cli plan frontier --prefecture Nagano --maximize vertical,courses,longest --limit 10 --agent",
+      "why_it_matters": "When a traveler wants to expose numeric tradeoffs across a shortlist.",
+      "group": "Resort decisions"
+    },
+    {
+      "name": "Historical trip-window intersection",
+      "command": "plan windows",
+      "description": "Intersect a past trip window with recorded first/last season spans.",
+      "rationale": "Join resort identities with historical endpoints while preserving interruption uncertainty.",
+      "example": "snowjapan-pp-cli plan windows --season 2025-2026 --from 2026-03-28 --to 2026-04-05 --resorts able-hakuba-goryu --agent",
+      "why_it_matters": "When exact historical date boundaries matter.",
+      "group": "Historical evidence"
+    },
+    {
+      "name": "Municipality option portfolios",
+      "command": "plan towns",
+      "description": "Compare source-defined towns by known resort options and statistical ranges.",
+      "rationale": "Group resort facts and historical evidence by exact municipality without assuming proximity.",
+      "example": "snowjapan-pp-cli plan towns --prefecture Nagano --season 2025-2026 --limit 10 --agent",
+      "why_it_matters": "When deciding which municipalities warrant further resort inspection.",
+      "group": "Resort decisions"
+    },
+    {
+      "name": "Historical evidence coverage",
+      "command": "plan coverage",
+      "description": "Find listed resorts with missing or ambiguous historical endpoint evidence.",
+      "rationale": "Left-join the directory population to available season rows instead of mistaking omissions for closure.",
+      "example": "snowjapan-pp-cli plan coverage --season 2025-2026 --prefecture Nagano --limit 20 --agent",
+      "why_it_matters": "When plans need explicit unknowns for a changed shortlist.",
+      "group": "Historical evidence"
+    },
+    {
+      "name": "Saved-fact changes",
+      "command": "plan changes",
+      "description": "See factual field changes between the latest two locally captured observations.",
+      "rationale": "Use normalized local snapshots to distinguish changed source facts from missing baselines.",
+      "example": "snowjapan-pp-cli plan changes --resorts able-hakuba-goryu --agent",
+      "why_it_matters": "After an explicit capture or sync, to inspect source edits without continuous monitoring.",
+      "group": "Saved observations"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Resort tradeoff frontier",
+      "command": "plan frontier",
+      "description": "Show nondominated resort choices for explicitly selected statistics.",
+      "rationale": "Compare many saved source facts without hiding traveler preferences in a score.",
+      "example": "snowjapan-pp-cli plan frontier --prefecture Nagano --maximize vertical,courses,longest --limit 10 --agent",
+      "why_it_matters": "When a traveler wants to expose numeric tradeoffs across a shortlist.",
+      "group": "Resort decisions"
+    },
+    {
+      "name": "Historical trip-window intersection",
+      "command": "plan windows",
+      "description": "Intersect a past trip window with recorded first/last season spans.",
+      "rationale": "Join resort identities with historical endpoints while preserving interruption uncertainty.",
+      "example": "snowjapan-pp-cli plan windows --season 2025-2026 --from 2026-03-28 --to 2026-04-05 --resorts able-hakuba-goryu --agent",
+      "why_it_matters": "When exact historical date boundaries matter.",
+      "group": "Historical evidence"
+    },
+    {
+      "name": "Municipality option portfolios",
+      "command": "plan towns",
+      "description": "Compare source-defined towns by known resort options and statistical ranges.",
+      "rationale": "Group resort facts and historical evidence by exact municipality without assuming proximity.",
+      "example": "snowjapan-pp-cli plan towns --prefecture Nagano --season 2025-2026 --limit 10 --agent",
+      "why_it_matters": "When deciding which municipalities warrant further resort inspection.",
+      "group": "Resort decisions"
+    },
+    {
+      "name": "Historical evidence coverage",
+      "command": "plan coverage",
+      "description": "Find listed resorts with missing or ambiguous historical endpoint evidence.",
+      "rationale": "Left-join the directory population to available season rows instead of mistaking omissions for closure.",
+      "example": "snowjapan-pp-cli plan coverage --season 2025-2026 --prefecture Nagano --limit 20 --agent",
+      "why_it_matters": "When plans need explicit unknowns for a changed shortlist.",
+      "group": "Historical evidence"
+    },
+    {
+      "name": "Saved-fact changes",
+      "command": "plan changes",
+      "description": "See factual field changes between the latest two locally captured observations.",
+      "rationale": "Use normalized local snapshots to distinguish changed source facts from missing baselines.",
+      "example": "snowjapan-pp-cli plan changes --resorts able-hakuba-goryu --agent",
+      "why_it_matters": "After an explicit capture or sync, to inspect source edits without continuous monitoring.",
+      "group": "Saved observations"
+    }
+  ],
+  "narrative": {
+    "display_name": "SnowJapan",
+    "headline": "Compare Japan ski areas with terrain facts, dated reports and explicit historical-season evidence.",
+    "value_prop": "Search and inspect public SnowJapan resort facts, compare a small shortlist, and read dated regional snow observations. Saved facts support tradeoff comparisons, municipality portfolios, historical span intersections and transparent evidence gaps.",
+    "auth_narrative": "Public read-only HTML and provider-published charts; no account, API key or running browser is needed.",
+    "quickstart": [
+      {
+        "command": "snowjapan-pp-cli doctor --dry-run",
+        "comment": "Check the local command setup."
+      },
+      {
+        "command": "snowjapan-pp-cli resorts search --query Hakuba --limit 5 --agent",
+        "comment": "Find exact source identities for a ski shortlist."
+      },
+      {
+        "command": "snowjapan-pp-cli resorts get nagano-prefecture/hakuba-village/able-hakuba-goryu --agent",
+        "comment": "Inspect terrain, installed lifts and source update status."
+      },
+      {
+        "command": "snowjapan-pp-cli seasons list --season 2025-2026 --agent --select results.name,results.first_recorded_day,results.last_recorded_day,results.span_days",
+        "comment": "Inspect recorded endpoints from a completed winter."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Local planning output is empty",
+        "fix": "Run snowjapan-pp-cli sync --resources resorts, then sync seasons with --resource-param seasons:season=2025-2026."
+      },
+      {
+        "symptom": "Source fields or chart columns changed",
+        "fix": "Use the canonical source_url to inspect the provider page and update the parser; no empty success is returned on schema drift."
+      }
+    ],
+    "when_to_use": "Use for Japan ski-area discovery and factual shortlist comparisons, dated regional snow observations, and recorded historical season evidence. Explicitly sync facts for offline tradeoffs, municipality portfolios and evidence-gap checks.",
+    "anti_triggers": [
+      "Booking or buying lift tickets",
+      "Live open-lift status or safety guarantees",
+      "Predicting upcoming dates from past winters",
+      "Republishing editorial reports"
+    ],
+    "recipes": [
+      {
+        "title": "Bound the shortlist",
+        "command": "snowjapan-pp-cli resorts search --prefecture Nagano --limit 10 --agent --select results.name,results.vertical_m,results.source_url",
+        "explanation": "Request a small factual projection."
+      },
+      {
+        "title": "Inspect a dated observation",
+        "command": "snowjapan-pp-cli reports get hakuba-now-1st-october-2026 --agent",
+        "explanation": "Snowfall is measured at base/town since the prior report."
+      },
+      {
+        "title": "Audit historical gaps",
+        "command": "snowjapan-pp-cli plan coverage --season 2025-2026 --prefecture Nagano --limit 20 --agent",
+        "explanation": "After syncing the directory and requested winter, missing and ambiguous endpoint records stay distinct; neither establishes closure."
+      },
+      {
+        "title": "Compare past date boundaries",
+        "command": "snowjapan-pp-cli plan windows --season 2025-2026 --from 2026-03-28 --to 2026-04-05 --resorts able-hakuba-goryu --agent",
+        "explanation": "An overlap is a calendar span, with continuous operation unknown."
+      }
+    ],
+    "trigger_phrases": [
+      "compare Japan ski areas",
+      "check SnowJapan historical season dates",
+      "find ski resorts in Nagano",
+      "read a dated Hakuba snow observation",
+      "use SnowJapan",
+      "run snowjapan-pp-cli"
+    ]
+  }
+}

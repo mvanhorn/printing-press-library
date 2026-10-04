@@ -1,0 +1,4 @@
+Spec written to <press-home>/.runstate/wheelog-cli-5560d46c/runs/20261003-135051-3555f558/research/wheelog-browser-sniff-spec.yaml (2 endpoints across 2 resources)
+Traffic analysis written to <press-home>/.runstate/wheelog-cli-5560d46c/runs/20261003-135051-3555f558/discovery/traffic-analysis.json
+Samples written to <press-home>/.runstate/wheelog-cli-5560d46c/runs/20261003-135051-3555f558/research/wheelog-browser-sniff-spec-samples (2 endpoints)
+Run 'cli-printing-press generate --spec <press-home>/.runstate/wheelog-cli-5560d46c/runs/20261003-135051-3555f558/research/wheelog-browser-sniff-spec.yaml' to build the CLI

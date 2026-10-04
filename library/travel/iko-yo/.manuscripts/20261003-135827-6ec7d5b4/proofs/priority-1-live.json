@@ -1,0 +1,253 @@
+[
+  {
+    "command": [
+      "events",
+      "prefecture",
+      "--region",
+      "6",
+      "--prefecture",
+      "11"
+    ],
+    "checks": {
+      "help": {
+        "exit": 0,
+        "stderr": ""
+      },
+      "dry-run": {
+        "exit": 0,
+        "stderr": "",
+        "keys": [
+          "dry_run",
+          "action",
+          "would"
+        ]
+      },
+      "json": {
+        "exit": 0,
+        "stderr": "",
+        "keys": [
+          "records",
+          "coverage",
+          "scanned_records",
+          "matched_records",
+          "unknown_date_records",
+          "excluded_records",
+          "omitted_matches",
+          "note",
+          "scope"
+        ],
+        "facts": {
+          "count": 15,
+          "coverage": [
+            {
+              "kind": "events",
+              "region": 6,
+              "prefecture": 11,
+              "source_urls": [
+                "https://trip.iko-yo.net/events/regions/6/prefectures/11"
+              ],
+              "pages_scanned": 1,
+              "records_scanned": 15,
+              "next_page": 2,
+              "last_page": 24,
+              "remaining_pages": 23,
+              "complete_for_listing": false,
+              "source_complete": false,
+              "observed_at": "2026-10-03T07:10:18Z"
+            }
+          ],
+          "refs": [
+            "events/8412",
+            "events/8406",
+            "events/8374"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "command": [
+      "spots",
+      "get",
+      "--id",
+      "8220"
+    ],
+    "checks": {
+      "help": {
+        "exit": 0,
+        "stderr": ""
+      },
+      "dry-run": {
+        "exit": 0,
+        "stderr": "",
+        "keys": [
+          "dry_run",
+          "action",
+          "would"
+        ]
+      },
+      "json": {
+        "exit": 0,
+        "stderr": "",
+        "keys": [
+          "id",
+          "ref",
+          "kind",
+          "name",
+          "reading",
+          "location",
+          "address",
+          "tags",
+          "source_url",
+          "official_url",
+          "published_at",
+          "updated_at",
+          "observed_at",
+          "data_source",
+          "detail",
+          "published_hours",
+          "published_closed_days",
+          "published_access",
+          "schedule",
+          "age",
+          "amenities",
+          "fees",
+          "booking",
+          "evidence",
+          "collection"
+        ],
+        "facts": {
+          "ref": "spots/8220",
+          "age": {
+            "status": "published_range",
+            "min_months": 6,
+            "max_exclusive_months": 156,
+            "evidence_ids": [
+              "e3"
+            ],
+            "note": "Published age description only; admission and safety are not verified."
+          },
+          "fees": {
+            "published_text": "子供:300円\n大人:300円(レース開催日は本場入場料100円を含む)\n※決済は現金のみになっております",
+            "child_statement": "子供:300円",
+            "adult_statement": "大人:300円(レース開催日は本場入場料100円を含む)",
+            "currency": "JPY",
+            "unit": "unspecified",
+            "note": "Preserve qualifiers; no family total or dated quote is inferred."
+          },
+          "amenities": {
+            "changing": {
+              "status": "reported_present",
+              "evidence_ids": [
+                "e4"
+              ]
+            },
+            "indoor": {
+              "status": "reported_present",
+              "evidence_ids": [
+                "e1",
+                "e2"
+              ]
+            },
+            "nursing": {
+              "status": "reported_present",
+              "evidence_ids": [
+                "e4"
+              ]
+            },
+            "stroller": {
+              "status": "unknown",
+              "evidence_ids": []
+            }
+          },
+          "updated_at": "2026-09-01"
+        }
+      }
+    }
+  },
+  {
+    "command": [
+      "events",
+      "get",
+      "--id",
+      "8412"
+    ],
+    "checks": {
+      "help": {
+        "exit": 0,
+        "stderr": ""
+      },
+      "dry-run": {
+        "exit": 0,
+        "stderr": "",
+        "keys": [
+          "dry_run",
+          "action",
+          "would"
+        ]
+      },
+      "json": {
+        "exit": 0,
+        "stderr": "",
+        "keys": [
+          "id",
+          "ref",
+          "kind",
+          "name",
+          "reading",
+          "location",
+          "address",
+          "tags",
+          "source_url",
+          "official_url",
+          "published_at",
+          "updated_at",
+          "observed_at",
+          "data_source",
+          "detail",
+          "published_hours",
+          "published_closed_days",
+          "published_access",
+          "schedule",
+          "age",
+          "amenities",
+          "fees",
+          "booking",
+          "evidence",
+          "collection"
+        ],
+        "facts": {
+          "ref": "events/8412",
+          "schedule": {
+            "published_text": "2026年11月15日",
+            "start_date": "2026-11-15",
+            "end_date": "2026-11-15",
+            "precision": "single_date",
+            "status": "upcoming",
+            "note": "Published dates do not establish individual operating days or live availability."
+          },
+          "booking": {
+            "status": "application_or_reservation_mentioned",
+            "application_start": "2026-09-01",
+            "application_end": "2026-10-16",
+            "published_capacity_people": 30,
+            "lottery": {
+              "status": "lottery_mentioned",
+              "evidence_ids": [
+                "e1"
+              ]
+            },
+            "evidence_ids": [
+              "e1",
+              "e2",
+              "e3",
+              "e4",
+              "e5"
+            ],
+            "availability": "unknown"
+          }
+        }
+      }
+    }
+  }
+]

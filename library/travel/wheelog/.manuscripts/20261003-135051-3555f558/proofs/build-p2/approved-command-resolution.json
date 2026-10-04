@@ -1,0 +1,49 @@
+[
+  {
+    "path": [
+      "spots",
+      "search"
+    ],
+    "usage": "wheelog-pp-cli spots search [keyword] [flags]",
+    "status": "PASS"
+  },
+  {
+    "path": [
+      "spots",
+      "inspect"
+    ],
+    "usage": "wheelog-pp-cli spots inspect [spot-id] [flags]",
+    "status": "PASS"
+  },
+  {
+    "path": [
+      "categories"
+    ],
+    "usage": "wheelog-pp-cli categories [flags]",
+    "status": "PASS"
+  },
+  {
+    "path": [
+      "spots",
+      "compare"
+    ],
+    "usage": "wheelog-pp-cli spots compare [spot-id...] [flags]",
+    "status": "PASS"
+  },
+  {
+    "path": [
+      "shortlist",
+      "changes"
+    ],
+    "usage": "wheelog-pp-cli shortlist changes [flags]",
+    "status": "PASS"
+  },
+  {
+    "path": [
+      "shortlist",
+      "list"
+    ],
+    "usage": "wheelog-pp-cli shortlist list [flags]",
+    "status": "PASS"
+  }
+]

@@ -37,6 +37,7 @@ func TestRecipeIntentHandlerBuildsRecipeArgs(t *testing.T) {
 		"required-value",
 		"required-value",
 		"--agent",
+		"--no-learn",
 	}, " ")
 	if got != want {
 		t.Fatalf("handler output = %q, want %q", got, want)

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "station-notice-index-retained-before-detail-cap",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261003-001046-81800c96",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Station-notice matching retains every notice on the scanned index pages, then opens only the detail-record cap.",
+  "reason": "Reusing the notices command's 50-record output window drops later index rows before detail matching, so scanned page counts describe a broader check than the command performed. A regen must keep the full scanned index as the candidate list, apply the detail cap only to fetches, and say when later rows were not opened.",
+  "files": [
+    "internal/michi/source.go",
+    "internal/michi/michi_test.go",
+    "internal/cli/station_notices.go"
+  ],
+  "validated_outcome": "A 55-notice index keeps ScannedRecords at 55, opens only the detail cap, and reports that later index rows were not fetched."
+}

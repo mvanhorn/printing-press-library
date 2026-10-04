@@ -181,6 +181,9 @@ type AppDetails struct {
 	Name  string         `json:"name"`
 	Type  string         `json:"type,omitempty"`
 	Price *PriceOverview `json:"price_overview,omitempty"`
+	// DemoAppIDs is the appids of the demos the appdetails "demos" array
+	// names. Empty means the store reported none.
+	DemoAppIDs []int64 `json:"demo_app_ids,omitempty"`
 }
 
 // AppDetails fetches the detail record for one appid. The top-level
@@ -210,8 +213,15 @@ func (c *Client) AppDetails(ctx context.Context, appid int64) (*AppDetails, erro
 		return nil, fmt.Errorf("%w: app %d (empty appdetails response)", ErrAppNotFound, appid)
 	}
 	var wrapper struct {
-		Success bool       `json:"success"`
-		Data    AppDetails `json:"data"`
+		Success bool `json:"success"`
+		Data    struct {
+			Name  string         `json:"name"`
+			Type  string         `json:"type"`
+			Price *PriceOverview `json:"price_overview"`
+			Demos []struct {
+				AppID int64 `json:"appid"`
+			} `json:"demos"`
+		} `json:"data"`
 	}
 	if err := json.Unmarshal(raw, &wrapper); err != nil {
 		return nil, fmt.Errorf("steam: parsing appdetails entry for app %d: %w", appid, err)
@@ -219,6 +229,15 @@ func (c *Client) AppDetails(ctx context.Context, appid int64) (*AppDetails, erro
 	if !wrapper.Success {
 		return nil, fmt.Errorf("%w: app %d (appdetails success=false)", ErrAppNotFound, appid)
 	}
-	details := wrapper.Data
-	return &details, nil
+	details := &AppDetails{
+		Name:  wrapper.Data.Name,
+		Type:  wrapper.Data.Type,
+		Price: wrapper.Data.Price,
+	}
+	for _, d := range wrapper.Data.Demos {
+		if d.AppID != 0 {
+			details.DemoAppIDs = append(details.DemoAppIDs, d.AppID)
+		}
+	}
+	return details, nil
 }

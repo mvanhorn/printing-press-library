@@ -1,0 +1,104 @@
+{
+  "coverage_hollow": false,
+  "hollow_features": [],
+  "happy_paths": [
+    {
+      "command": "plan changes",
+      "status": "pass",
+      "args": [
+        "plan",
+        "changes",
+        "--resorts=able-hakuba-goryu",
+        "--agent",
+        "--db",
+        "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T//snowjapan-live-fixture.VAql0f/facts.sqlite"
+      ],
+      "reason": null,
+      "dry_run": false,
+      "unsynced": false,
+      "has_available_baseline": true
+    },
+    {
+      "command": "plan coverage",
+      "status": "pass",
+      "args": [
+        "plan",
+        "coverage",
+        "--prefecture=Nagano",
+        "--season=2025-2026",
+        "--limit=5",
+        "--agent",
+        "--db",
+        "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T//snowjapan-live-fixture.VAql0f/facts.sqlite"
+      ],
+      "reason": null,
+      "dry_run": false,
+      "unsynced": false,
+      "has_available_baseline": false
+    },
+    {
+      "command": "plan frontier",
+      "status": "pass",
+      "args": [
+        "plan",
+        "frontier",
+        "--prefecture=Nagano",
+        "--maximize=vertical,courses,longest",
+        "--limit=5",
+        "--agent",
+        "--db",
+        "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T//snowjapan-live-fixture.VAql0f/facts.sqlite"
+      ],
+      "reason": null,
+      "dry_run": false,
+      "unsynced": false,
+      "has_available_baseline": false
+    },
+    {
+      "command": "plan towns",
+      "status": "pass",
+      "args": [
+        "plan",
+        "towns",
+        "--prefecture=Nagano",
+        "--season=2025-2026",
+        "--limit=5",
+        "--agent",
+        "--db",
+        "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T//snowjapan-live-fixture.VAql0f/facts.sqlite"
+      ],
+      "reason": null,
+      "dry_run": false,
+      "unsynced": false,
+      "has_available_baseline": false
+    },
+    {
+      "command": "plan windows",
+      "status": "pass",
+      "args": [
+        "plan",
+        "windows",
+        "--season=2025-2026",
+        "--from=2026-03-28",
+        "--to=2026-04-05",
+        "--resorts=able-hakuba-goryu",
+        "--agent",
+        "--db",
+        "/var/folders/g1/l9g5162n4xzcm4dtpxlbrs8w0000gn/T//snowjapan-live-fixture.VAql0f/facts.sqlite"
+      ],
+      "reason": null,
+      "dry_run": false,
+      "unsynced": false,
+      "has_available_baseline": false
+    },
+    {
+      "command": "sync",
+      "status": "skip",
+      "args": [],
+      "reason": "sync command requires --dry-run",
+      "dry_run": false,
+      "unsynced": false,
+      "has_available_baseline": false
+    }
+  ]
+}

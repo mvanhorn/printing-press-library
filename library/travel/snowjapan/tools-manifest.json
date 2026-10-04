@@ -1,0 +1,104 @@
+{
+  "api_name": "snowjapan",
+  "base_url": "https://www.snowjapan.com",
+  "description": "Compare Japan ski areas with terrain facts, dated reports and explicit historical-season evidence.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "reports_get",
+      "description": "Read one dated report's base-level snow figures; new snow means since the previous report. Required: id. Returns the Report.",
+      "method": "GET",
+      "path": "/daily-snow-and-weather-reports/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Exact dated report slug from source_url, e.g. hakuba-now-1st-october-2026.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_list",
+      "description": "List latest regional report metadata from the public homepage without report narratives. Returns array of Report.",
+      "method": "GET",
+      "path": "/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "resorts_get",
+      "description": "Inspect one exact canonical resort path with Japanese name, ability, lift and update-status facts. Required: id. Returns the Resort.",
+      "method": "GET",
+      "path": "/ski-areas-in-japan/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Canonical path suffix from a resort source_url, e.g. nagano-prefecture/hakuba-village/able-hakuba-goryu.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "resorts_list",
+      "description": "List source-owned national factual chart records through the bounded chart adapter. Returns array of Resort.",
+      "method": "GET",
+      "path": "/insights/japan-ski-areas-statistics",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "seasons_list",
+      "description": "List confirmed historical season chart rows through the bounded chart adapter. Required: season. Returns array of Season.",
+      "method": "GET",
+      "path": "/insights/{season}-ski-season-dates-sort",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "season",
+          "type": "string",
+          "location": "path",
+          "description": "Published completed season label YYYY-YYYY; both years must be consecutive.",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Resort tradeoff frontier",
+      "command": "plan frontier",
+      "description": "Show nondominated resort choices for explicitly selected statistics."
+    },
+    {
+      "name": "Historical trip-window intersection",
+      "command": "plan windows",
+      "description": "Intersect a past trip window with recorded first/last season spans."
+    },
+    {
+      "name": "Municipality option portfolios",
+      "command": "plan towns",
+      "description": "Compare source-defined towns by known resort options and statistical ranges."
+    },
+    {
+      "name": "Historical evidence coverage",
+      "command": "plan coverage",
+      "description": "Find listed resorts with missing or ambiguous historical endpoint evidence."
+    },
+    {
+      "name": "Saved-fact changes",
+      "command": "plan changes",
+      "description": "See factual field changes between the latest two locally captured observations."
+    }
+  ]
+}

@@ -27,7 +27,7 @@ func newNovelAutomationPreviewCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
-				return nil
+				return writeDryRun(cmd.OutOrStdout(), flags, "check pending automation plans against conversation reply-state in the local mirror")
 			}
 			if err := rejectLiveDataSource(flags); err != nil {
 				return err

@@ -1,0 +1,58 @@
+{
+  "verdict": "PASS",
+  "passed": 135,
+  "failed": 0,
+  "skipped": 85,
+  "unverified": 85,
+  "matrix_size": 135,
+  "level": "full",
+  "ran_at": "2026-10-03T12:56:12.095322Z",
+  "private_raw_transcript_deleted": true,
+  "real_planner_happy_paths": [
+    {
+      "command": "plan frontier",
+      "status": "pass",
+      "dry_run": false,
+      "captured_source_evidence": true
+    },
+    {
+      "command": "plan windows",
+      "status": "pass",
+      "dry_run": false,
+      "captured_source_evidence": true
+    },
+    {
+      "command": "plan towns",
+      "status": "pass",
+      "dry_run": false,
+      "captured_source_evidence": true
+    },
+    {
+      "command": "plan coverage",
+      "status": "pass",
+      "dry_run": false,
+      "captured_source_evidence": true
+    },
+    {
+      "command": "plan changes",
+      "status": "pass",
+      "dry_run": false,
+      "captured_source_evidence": true
+    }
+  ],
+  "offline_detail_checks": {
+    "report_projection": "report-observations-v1",
+    "new_snow_cm": 0,
+    "season_snowfall_cm": 0,
+    "resort_projection": "detail-v1"
+  },
+  "sync_matrix_special_rule": "Skipped by Press; actual sync independently exercised by portable fixture",
+  "fixture": "Disposable complete directory, selected completed winter, two resort details and one exact dated report",
+  "cache_guard": "Canonical pinned readers/writers; active read journals and ambiguous aliases rejected",
+  "sqlite_version": "3.51.3",
+  "modernc_sqlite": "v1.46.2",
+  "modernc_libc": "v1.70.0",
+  "review_fix_round": 2,
+  "cache_creation": "Exclusive basename creation confined to the canonical parent with os.Root",
+  "detail_freshness": "Requested observation age for local/fallback details; oldest-row age retained for collections"
+}
