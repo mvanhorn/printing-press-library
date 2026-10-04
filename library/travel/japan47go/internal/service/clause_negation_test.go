@@ -147,12 +147,18 @@ func TestLegacyClauseFacetsCorrectWithoutCacheWrites(t *testing.T) {
 }
 
 func TestLegacyPriorContactRemainsUnknownWithoutCacheWrites(t *testing.T) {
-	for _, evidence := range []string{
-		"予約不要。ただし、前日までに連絡がない場合は中止",
-		"予約不要。ただし、前日までに連絡しない場合は中止",
-		"予約不要。ただし、雨天の場合または前日までに連絡がない場合は中止",
-		"予約不要。ただし、雨天の場合は中止。また、前日までに連絡がない場合は中止",
-	} {
+	var evidences []string
+	for _, connector := range []string{"ただし", "また", "なお", "但し", "尚"} {
+		for _, body := range []string{
+			"前日までに連絡がない場合は中止",
+			"前日までに連絡しない場合は中止",
+			"雨天の場合または前日までに連絡がない場合は中止",
+			"雨天の場合は中止。また、前日までに連絡がない場合は中止",
+		} {
+			evidences = append(evidences, "予約不要。"+connector+"、"+body)
+		}
+	}
+	for _, evidence := range evidences {
 		t.Run(evidence, func(t *testing.T) {
 			path := filepath.Join(t.TempDir(), "observations.sqlite")
 			updated := "2026-04-30T11:58:29+09:00"
@@ -199,6 +205,96 @@ func TestLegacyPriorContactRemainsUnknownWithoutCacheWrites(t *testing.T) {
 			correct.Request = ParseRequest("【予約期限】" + evidence)
 			if recheckSavedFacets(correct).CacheWarning != nil {
 				t.Fatal("unchanged contact projection warned")
+			}
+		})
+	}
+}
+
+func TestLeadingWeatherConnectorKeepsClauseBoundary(t *testing.T) {
+	cases := []struct{ evidence, status, notice string }{}
+	for _, connector := range []string{"ただし", "また", "なお", "但し", "尚"} {
+		for _, prefix := range []string{connector + "、", " " + connector + ", ", connector} {
+			cases = append(cases, struct{ evidence, status, notice string }{"予約不要。" + prefix + "雨天の場合は中止", "known", "supported"})
+		}
+		for _, body := range []string{
+			"前日までに連絡がない場合は中止",
+			"前日までに連絡しない場合は中止",
+			"雨天の場合または前日までに連絡がない場合は中止",
+			"雨天の場合は中止。また、前日までに連絡がない場合は中止",
+			"都合がつかない場合は中止",
+			"予約が必要な場合は事前に連絡",
+		} {
+			cases = append(cases, struct{ evidence, status, notice string }{"予約不要。" + connector + "、" + body, "ambiguous", "unknown"})
+		}
+	}
+	for _, evidence := range []string{
+		"予約不要。また、ただし、雨天の場合は中止",
+		"予約不要。ただし、また、雨天の場合は中止",
+		"予約不要。雨天の場合はまた、中止",
+		"予約不要。そして、雨天の場合は中止",
+	} {
+		cases = append(cases, struct{ evidence, status, notice string }{evidence, "ambiguous", "unknown"})
+	}
+	for _, tc := range cases {
+		t.Run(tc.evidence, func(t *testing.T) {
+			request := ParseRequest("【予約期限】" + tc.evidence)
+			x := Compare(Service{Request: request, Availability: "unknown", Schedule: Schedule{Operation: "unknown"}}, Constraints{On: "2026-11-01", AsOf: "2026-11-01"})
+			if request.Status != tc.status || x.Notice.State != tc.notice || x.Notice.Deadline != nil || request.Original != tc.evidence || x.Availability != "unknown" || x.Service.OpenNow != nil || x.Service.Schedule.Operation != "unknown" {
+				t.Fatalf("connector changed request or operation evidence: %+v", x)
+			}
+		})
+	}
+}
+
+func TestLegacyLeadingWeatherConnectorProjectsWithoutWrites(t *testing.T) {
+	for _, connector := range []string{"ただし", "また", "なお", "但し", "尚"} {
+		t.Run(connector, func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "observations.sqlite")
+			updated := "2026-04-30T11:58:29+09:00"
+			unit := "per_group"
+			evidence := "予約不要。" + connector + "、雨天の場合は中止"
+			old := Service{ID: tsumago, NameJA: "connector fixture", ObservedAt: "2026-10-04T12:00:00Z", SourceUpdatedAt: &updated, Availability: "unknown", Schedule: Schedule{Operation: "unknown"}, Request: Request{Status: "ambiguous", Options: []string{"予約不要"}, LeadTimes: []LeadTime{}, Original: evidence}, Price: Price{Status: "paid", Amounts: []Amount{{JPY: 200, Qualifier: "stated", Unit: &unit, Original: "200円"}}, Qualifiers: []string{}, TotalJPY: nil, Original: "1組200円"}}
+			if e := Save(context.Background(), path, old); e != nil {
+				t.Fatal(e)
+			}
+			before, e := os.ReadFile(path)
+			if e != nil {
+				t.Fatal(e)
+			}
+			stat, e := os.Stat(path)
+			if e != nil {
+				t.Fatal(e)
+			}
+			for _, query := range []string{"", tsumago, "fixture"} {
+				rows, n, e := Cached(context.Background(), path, query, 5)
+				if e != nil || n != 1 || len(rows) != 1 {
+					t.Fatal(rows, n, e)
+				}
+				row := rows[0]
+				fresh := ParseRequest("【予約期限】" + evidence)
+				x := Compare(row, Constraints{On: "2026-11-01", AsOf: "2026-11-01"})
+				if fresh.Status != "known" || x.Notice.State != "supported" || x.Notice.Deadline != nil || x.Availability != "unknown" || row.OpenNow != nil || row.Schedule.Operation != "unknown" || !reflect.DeepEqual(row.Request, fresh) {
+					t.Fatalf("legacy connector differs from fresh weather: %+v", x)
+				}
+				if row.Request.Original != evidence || row.ObservedAt != old.ObservedAt || row.SourceUpdatedAt == nil || *row.SourceUpdatedAt != updated || !reflect.DeepEqual(row.Price, old.Price) || row.CacheWarning == nil || row.Transport != "local" {
+					t.Fatalf("connector projection changed evidence, money, clocks or warning: %+v", row)
+				}
+			}
+			after, e := os.ReadFile(path)
+			if e != nil {
+				t.Fatal(e)
+			}
+			final, e := os.Stat(path)
+			if e != nil {
+				t.Fatal(e)
+			}
+			if sha256.Sum256(before) != sha256.Sum256(after) || !stat.ModTime().Equal(final.ModTime()) {
+				t.Fatal("connector projection wrote database")
+			}
+			correct := old
+			correct.Request = ParseRequest("【予約期限】" + evidence)
+			if recheckSavedFacets(correct).CacheWarning != nil {
+				t.Fatal("unchanged connector projection warned")
 			}
 		})
 	}

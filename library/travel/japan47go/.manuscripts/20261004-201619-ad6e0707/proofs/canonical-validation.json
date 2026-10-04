@@ -53,6 +53,5 @@
       "name": "manuscripts",
       "passed": true
     }
-  ],
-  "scope": "current canonical JAPAN47GO package; default reachable-symbol vulnerability scan"
+  ]
 }
