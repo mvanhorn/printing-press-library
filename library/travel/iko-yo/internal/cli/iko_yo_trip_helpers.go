@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/travel/iko-yo/internal/cacheguard"
 	"github.com/mvanhorn/printing-press-library/library/travel/iko-yo/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/travel/iko-yo/internal/store"
 	"github.com/mvanhorn/printing-press-library/library/travel/iko-yo/internal/trip"
@@ -33,27 +34,82 @@ func tripSave(ctx context.Context, flags *rootFlags, records []trip.Record) erro
 	if flags.noCache || len(records) == 0 {
 		return nil
 	}
-	db, err := store.OpenWithContext(ctx, defaultDBPath("iko-yo-pp-cli"))
+	guard, err := cacheguard.Write(defaultDBPath("iko-yo-pp-cli"))
 	if err != nil {
 		return err
 	}
-	defer db.Close()
-	return db.SaveTripRecords(ctx, records)
+	if err = guard.Identity(); err != nil {
+		return err
+	}
+	db, err := store.OpenWithContext(ctx, guard.Path())
+	if err != nil {
+		return err
+	}
+	db.DB().SetMaxOpenConns(1)
+	if err = db.DB().PingContext(ctx); err != nil {
+		return errors.Join(err, db.Close())
+	}
+	if err = guard.BindCreated(); err != nil {
+		return errors.Join(err, db.Close())
+	}
+	if err = guard.Identity(); err != nil {
+		return errors.Join(err, db.Close())
+	}
+	saveErr := db.SaveTripRecords(ctx, records)
+	identityErr := guard.Identity()
+	closeErr := db.Close()
+	return errors.Join(saveErr, identityErr, closeErr, guard.Identity())
 }
 func tripLocalRecord(ctx context.Context, ref string) (trip.Record, error) {
-	db, err := openStoreForRead(ctx, "iko-yo-pp-cli")
+	db, guard, err := tripOpenStoreForRead(ctx)
 	if err != nil {
 		return trip.Record{}, err
 	}
 	if db == nil {
+		if err := guard.Snapshot(); err != nil {
+			return trip.Record{}, err
+		}
 		return trip.Record{}, sql.ErrNoRows
 	}
-	defer db.Close()
 	r, err := db.TripRecord(ctx, ref)
+	err = tripFinishStoreRead(db, guard, err)
 	if err == nil && !r.Detail {
 		return r, fmt.Errorf("saved %s has listing facts only; use trip inspect --data-source live for family evidence", ref)
 	}
 	return r, err
+}
+
+// Keep the generated immutable reader inside a validated closed snapshot.
+func tripOpenStoreForRead(ctx context.Context) (*store.Store, *cacheguard.Guard, error) {
+	guard, err := cacheguard.Read(defaultDBPath("iko-yo-pp-cli"))
+	if err != nil {
+		return nil, nil, err
+	}
+	if !guard.Exists() {
+		return nil, guard, nil
+	}
+	path, err := guard.Clone(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+	db, err := store.OpenReadOnlyContext(ctx, path)
+	if err != nil {
+		return nil, nil, errors.Join(err, guard.Cleanup())
+	}
+	if err = guard.Snapshot(); err != nil {
+		return nil, nil, errors.Join(err, db.Close(), guard.Cleanup())
+	}
+	return db, guard, nil
+}
+
+func tripFinishStoreRead(db *store.Store, guard *cacheguard.Guard, readErr error) error {
+	closeErr := db.Close()
+	snapshotErr := guard.Snapshot()
+	cleanupErr := guard.Cleanup()
+	if snapshotErr != nil {
+		return errors.Join(snapshotErr, closeErr, cleanupErr)
+	}
+	return errors.Join(readErr, closeErr, cleanupErr)
 }
 func tripRead(ctx context.Context, cmd *cobra.Command, flags *rootFlags, c *trip.Client, ref string) (trip.Record, error) {
 	if flags.dataSource == "local" {
@@ -185,6 +241,8 @@ func tripPrintRecord(cmd *cobra.Command, flags *rootFlags, r trip.Record) error 
 
 type tripCompareRow struct {
 	Ref              string `json:"ref"`
+	FetchStatus      string `json:"fetch_status"`
+	FetchError       string `json:"fetch_error"`
 	ID               string `json:"id"`
 	Kind             string `json:"kind"`
 	Name             string `json:"name"`
@@ -215,10 +273,14 @@ func tripPrintComparison(cmd *cobra.Command, flags *rootFlags, v tripComparison)
 		return nil
 	}
 	if flags.csv || flags.plain {
-		rows := make([]tripCompareRow, 0, len(v.Records))
+		rows := make([]tripCompareRow, 0, len(v.Records)+len(v.FetchFailures))
 		for _, a := range v.Records {
 			r := a.Record
-			rows = append(rows, tripCompareRow{Ref: r.Ref, ID: r.ID, Kind: r.Kind, Name: r.Name, Overall: a.Overall, AgeCheck: a.Age.Status, IndoorCheck: tripAmenityStatus(a, "indoor"), NursingCheck: tripAmenityStatus(a, "nursing"), ChangingCheck: tripAmenityStatus(a, "changing"), StrollerCheck: tripAmenityStatus(a, "stroller"), DateCheck: a.Schedule.Status, ApplicationCheck: a.Application.Status, ChildFees: r.Fees.Child, AdultFees: r.Fees.Adult, PublishedFees: r.Fees.PublishedText, Seats: r.Booking.Availability, ObservedAt: r.ObservedAt, DataSource: r.DataSource, SourceURL: r.SourceURL})
+			rows = append(rows, tripCompareRow{Ref: r.Ref, FetchStatus: "success", ID: r.ID, Kind: r.Kind, Name: r.Name, Overall: a.Overall, AgeCheck: a.Age.Status, IndoorCheck: tripAmenityStatus(a, "indoor"), NursingCheck: tripAmenityStatus(a, "nursing"), ChangingCheck: tripAmenityStatus(a, "changing"), StrollerCheck: tripAmenityStatus(a, "stroller"), DateCheck: a.Schedule.Status, ApplicationCheck: a.Application.Status, ChildFees: r.Fees.Child, AdultFees: r.Fees.Adult, PublishedFees: r.Fees.PublishedText, Seats: r.Booking.Availability, ObservedAt: r.ObservedAt, DataSource: r.DataSource, SourceURL: r.SourceURL})
+		}
+		for _, f := range v.FetchFailures {
+			kind, id, _ := trip.ParseReference(f.Reference)
+			rows = append(rows, tripCompareRow{Ref: f.Reference, ID: id, Kind: kind, FetchStatus: "failed", FetchError: f.Error, Overall: "unknown", AgeCheck: "unknown", IndoorCheck: "unknown", NursingCheck: "unknown", ChangingCheck: "unknown", StrollerCheck: "unknown", DateCheck: "unknown", ApplicationCheck: "unknown", Seats: "unknown", DataSource: "unknown", SourceURL: trip.BaseURL + "/" + f.Reference})
 		}
 		fmt.Fprintln(cmd.ErrOrStderr(), v.Note)
 		selected := *flags

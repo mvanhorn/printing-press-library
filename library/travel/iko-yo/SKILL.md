@@ -52,7 +52,7 @@ Do not use this CLI for:
 
 ## Unique Capabilities
 
-Source-specific planning commands with explicit evidence and coverage.
+These capabilities aren't available in any other tool for this API.
 
 ### Find family-trip candidates
 - **`trip discover`** — Find regional candidates while seeing exactly which listing pages and records were checked.
@@ -136,6 +136,7 @@ Use Iko-yo Trip branding when presenting results. This is selected nationwide fa
 - Compare only explicit age and facility evidence. Missing amenities remain unknown. An indoor area does not imply an entirely indoor venue. Published age descriptions are not formal admission or safety guarantees.
 - Preserve separate child/adult fee statements and payment qualifiers. Do not derive a family total, dated quote or available seats. Application intervals, capacities and lottery terms are published evidence only.
 - Local facts retain `observed_at`. Auto inspect/compare tries live first; only a network failure permits saved-detail fallback with a warning. HTTP access errors and rate limits remain errors. Local scans cap records independently of returned matches and cap provenance to 5,000 memberships and 100 collections.
+- Saved Trip reads and MCP SQL require a stable, checkpointed cache and use a private snapshot capped at 128 MiB. If active sidecars or changed identity are reported, close writers and retry; do not interpret the error as an empty collection. Live saves use canonical SQLite transactions. Symlinks to singly linked targets work; hard links and `%`, `?` or `#` in selected/resolved/temp paths are refused. External cache replacement during writing is unsupported. `--no-cache` skips live snapshot saving.
 
 ## Recipes
 

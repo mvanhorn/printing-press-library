@@ -1,12 +1,15 @@
 {
   "status": "pass",
-  "source_fingerprint": "b1e8da230b42a23078b649c84066f7d6858f3052dd12e96ff5ef7b5fe244ed33",
+  "source_fingerprint": "5bd92fbf1f697323eef7d7bdae621976581062abb2acaacbce5bb74da7c1e57e",
   "mcp_stdio": {
     "passed": true,
     "tool": "planner_compare",
     "catalog_tool_count": 37,
     "required_first_pair": true,
     "advertised_variadic_args": true,
+    "named_variadic_partial_comparison_passed": true,
+    "unsupported_array_rejected": true,
+    "named_variadic_flag_injection_rejected": true,
     "protocol_error": false,
     "is_error": true,
     "partial_success_pairs": 1,
@@ -15,18 +18,77 @@
     "error_context_present": true,
     "tool_text_bytes": 3144,
     "bound_bytes": 60000,
-    "fixture_source": "controlled local public-shape regression fixtures; no provider transaction"
+    "fixture_source": "controlled local public-shape regression fixtures; no provider transaction",
+    "learning_control_normal_cli_journal_active": true,
+    "normal_explicit_teaching_control_active": true,
+    "read_only_native_mcp_learning_state_unchanged": true,
+    "writable_helper_hints_truthful": true,
+    "active_committed_wal_recall_current": true,
+    "explicit_recall_preserved": true,
+    "learning_helpers_tested": 5,
+    "learning_toggle_not_advertised_on_read_only_native": true,
+    "learning_toggle_request_rejected": true,
+    "no_learn_harness_override": false,
+    "cli_binary_sha256": "15a4c64fb6ea0b89bbbf7d30deb9fdafab1962d8ce94320971daf7a33ac5cddc",
+    "mcp_binary_sha256": "2365a62dc6255ea417ee849a6cc3d2d24ff4826016e1625c2d7c678a77bc5727",
+    "runtime_version": "nap-camp-pp-cli 2026.10.1"
   },
   "regressions": [
     "actual failed-child MCP adapter preserves valid partial JSON with isError",
     "opaque, capture-overflow, invalid UTF-8 and escaping overflow remain labeled bounded previews",
-    "actual extractor and production recall cannot retain a forgotten inferred contributor",
-    "scoped inferred-family undo preserves manual and unrelated query, resource-type and venue rules",
+    "actual extractor and production recall remove unsupported inference after undo",
+    "all retained distinct bindings preserve supported exact/prefix rules and refresh example provenance without a newest-50 window",
+    "scoped inference reconciliation preserves manual and unrelated query, resource-type and venue rules",
     "forced cascade error rolls back both teaching and pattern deletion",
-    "explicit same-pattern teaching promotes manual provenance and inference cannot downgrade it",
-    "prefix verification requires one literal resource-type-scoped match; percent and underscore are literal"
+    "explicit same-pattern teaching replaces declared scope/examples and later inference preserves manual payload",
+    "prefix verification requires one literal resource-type-scoped match; percent and underscore are literal",
+    "named variadic strings split into individually validated operands; unsupported arrays and flag injection fail, scalar questions stay whole",
+    "foreign redirect hops drop origin headers and invalid export formats fail before requests or output mutation",
+    "native read-only mirrors suppress automatic state changes; local-write learning helpers retain current committed active-WAL recall",
+    "cached-resource conflicts cannot become exact direct aliases or synthesized-pattern hits; true aliases, warned absent rows and empty-identity compatibility remain",
+    "ambiguous direct aliases require a single canonical common to query, teaching and cached resource; mismatch warnings identify the actual cached alternative",
+    "compatible distinct retained supporters preserve exact/prefix rules despite stale, conflicting or multi-entity family rows; examples come only from valid supporters and one compatible support removes inference",
+    "lookup infrastructure errors roll back both teaching and pattern changes",
+    "actual pattern-selected entity controls cached literal/canonical checks; unrelated query entities cannot rescue conflicts, and rejected bindings cannot hide later valid target bindings",
+    "recall limits apply after cached-identity validation and deduplication; limit1 keeps a valid lower-ranked result while standalone pattern candidate limits remain",
+    "each verified binding of the same pattern reaches cached-identity validation; a conflicting first binding cannot hide a valid later binding",
+    "final entity/source/confidence/score rank chooses the best accepted typed-ID hit, improving a partial direct hit with an exact pattern while preserving exact direct priority",
+    "accepted typed IDs are removed from mismatch and alternative diagnostics before mismatch truncation, retaining separate rejected-only facts",
+    "later higher-confidence lower-score pattern wins at result limit1; standalone Apply first binding and default/explicit caps remain",
+    "unexpected SQLite payload-read and cancellation errors propagate explicitly in direct and pattern recall; only genuine missing rows retain warned compatibility fallback",
+    "comparable two-field resource keys keep arbitrary distinct taught type/ID tuples separate; actual two-teach limit2 recall preserves separator-containing pairs",
+    "initial extraction and undo reconciliation count only positive boost actions within eligible source classes; hide/alias rows cannot create, retain, resurrect or supply positive example provenance, while two positive bindings remain"
   ],
   "learning_state_scope": "fresh temporary test stores; no original or global learning state",
   "full_go_tests": "pass",
-  "upstream_skill_checks": "pass; 33 recipes, zero findings"
+  "upstream_skill_checks": "pass; 33 recipes, zero findings",
+  "normal_mode_transport": {
+    "passed": true,
+    "normal_mode": true,
+    "timeout_ms": 100,
+    "cli_binary_sha256": "15a4c64fb6ea0b89bbbf7d30deb9fdafab1962d8ce94320971daf7a33ac5cddc",
+    "fixture": "isolated controlled local HTTP; no provider transaction",
+    "cases": [
+      {
+        "case": "throttle",
+        "exit_code": 5,
+        "seconds": 0.1116,
+        "stdout_bytes": 0,
+        "provider_context_present": true,
+        "explicit_timeout_context_present": true,
+        "success_or_availability_evidence": false
+      },
+      {
+        "case": "slow",
+        "exit_code": 5,
+        "seconds": 0.1178,
+        "stdout_bytes": 0,
+        "provider_context_present": true,
+        "explicit_timeout_context_present": true,
+        "success_or_availability_evidence": false
+      }
+    ],
+    "limitation": "Sustained normal-mode throttling can retry until request timeout; it then fails with provider context, not empty success or inferred availability."
+  },
+  "recall_limit_contract": "Returned-result cap only; local matching bindings remain exhaustively eligible for final identity/source/confidence ranking and diagnostic consistency."
 }

@@ -4,10 +4,12 @@
 package bound
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 	"unicode/utf8"
 )
 
@@ -16,7 +18,17 @@ const (
 	MaxItems = 50
 
 	maxPreviewBytes = 4000
+
+	// SQLQueryTimeout is the default MCP SQL execution deadline. A tighter
+	// caller deadline still wins because context.WithTimeout honors the parent.
+	SQLQueryTimeout = 5 * time.Second
+	// SQLMaxRows is a scan-time backstop so millions of tiny rows cannot
+	// allocate before the byte budget is reached. Typical results hit
+	// MaxBytes first.
+	SQLMaxRows = 10000
 )
+
+const SQLResultBoundNote = "SQL result was bounded during row scanning to stay within the MCP tool result budget. Narrow the query with WHERE, GROUP BY, or an aggregate."
 
 const (
 	endpointListNote    = "Typed MCP endpoint response was bounded for MCP output. Narrow the request with limit, offset, filters, search/sql, or a command-mirror tool with --agent/--compact/--select."
@@ -144,6 +156,77 @@ func Text(out string) string {
 	return previewEnvelope([]byte(out), textResultNote)
 }
 
+// WithMetadata applies the platform output contract after MCP bounding. It
+// keeps API-owned data/results/meta objects intact beneath data, records only
+// Printing Press compaction as a truncation reason, and never returns a result
+// above the MCP text budget.
+func WithMetadata(result string, metadata any) string {
+	metadataRaw, err := json.Marshal(metadata)
+	if err != nil {
+		return result
+	}
+	var meta map[string]any
+	if json.Unmarshal(metadataRaw, &meta) != nil {
+		return result
+	}
+	var payload any
+	if json.Unmarshal([]byte(result), &payload) != nil {
+		payload = result
+	}
+	if obj, ok := payload.(map[string]any); ok {
+		printingPressTruncated, _ := obj["_pp_truncated"].(bool)
+		if printingPressTruncated {
+			meta["truncated"] = true
+			if _, exists := meta["truncation_reasons"]; !exists {
+				meta["truncation_reasons"] = []map[string]any{
+					{
+						"kind": "mcp_output_limit", "configured": MaxBytes,
+						"observed": len(result), "more_available": true,
+					},
+				}
+			}
+			delete(obj, "_pp_truncated")
+		}
+	}
+	return marshalMetadataEnvelope(map[string]any{"data": payload, "meta": meta}, meta, result)
+}
+
+func marshalMetadataEnvelope(envelope map[string]any, meta map[string]any, original string) string {
+	if out, err := json.Marshal(envelope); err == nil && len(out) <= MaxBytes {
+		return string(out)
+	}
+	meta["truncated"] = true
+	meta["truncation_reasons"] = []map[string]any{
+		{
+			"kind": "mcp_output_limit", "configured": MaxBytes,
+			"observed": len(original), "more_available": true,
+		},
+	}
+	limit := maxPreviewBytes
+	if limit > len(original) {
+		limit = len(original)
+	}
+	for limit >= 0 {
+		out, err := json.Marshal(map[string]any{
+			"data": map[string]any{"preview": previewString([]byte(original), limit), "resumable": false},
+			"meta": meta,
+		})
+		if err == nil && len(out) <= MaxBytes {
+			return string(out)
+		}
+		if limit == 0 {
+			break
+		}
+		if limit < 512 {
+			limit = 0
+		} else {
+			limit -= 512
+		}
+	}
+	out, _ := json.Marshal(map[string]any{"data": map[string]any{"resumable": false}, "meta": meta})
+	return string(out)
+}
+
 func boundedSingleArrayObject(data json.RawMessage) ([]byte, bool) {
 	return boundedSingleArrayObjectWithNote(data, endpointListNote)
 }
@@ -226,6 +309,11 @@ func boundedSingleArrayPageObject(data json.RawMessage, opts PageOptions) ([]byt
 		return nil, false
 	}
 	nextUpstream := extractStringPath(data, opts.NextCursorPath)
+	if nextUpstream != "" {
+		if state, err := decodeEndpointCursor(opts.Cursor); err == nil && nextUpstream == state.UpstreamCursor {
+			nextUpstream = ""
+		}
+	}
 	return boundedPageListEnvelope(arrayField, items, data, endpointListNote, opts, obj, nextUpstream), true
 }
 
@@ -237,6 +325,7 @@ func boundedListEnvelope(field string, items []json.RawMessage, originalBytes in
 		}
 		if len(subset) < len(items) {
 			out["truncated"] = true
+			out["_pp_truncated"] = true
 			out["returned_count"] = len(subset)
 			out["original_bytes"] = originalBytes
 			out["max_bytes"] = MaxBytes
@@ -287,6 +376,7 @@ func boundedPageListEnvelope(field string, items []json.RawMessage, original jso
 		}
 		if nextCursor != "" {
 			out["truncated"] = true
+			out["_pp_truncated"] = true
 			out["next_cursor"] = nextCursor
 			out["original_bytes"] = len(original)
 			out["max_bytes"] = MaxBytes
@@ -440,6 +530,7 @@ func previewEnvelope(data []byte, note string) string {
 	}
 	for limit >= 0 {
 		out, err := json.Marshal(map[string]any{
+			"_pp_truncated":  true,
 			"truncated":      true,
 			"resumable":      false,
 			"original_bytes": len(data),
@@ -460,6 +551,7 @@ func previewEnvelope(data []byte, note string) string {
 		}
 	}
 	out, _ := json.Marshal(map[string]any{
+		"_pp_truncated":  true,
 		"truncated":      true,
 		"resumable":      false,
 		"original_bytes": len(data),
@@ -481,4 +573,80 @@ func previewString(data []byte, limit int) string {
 		limit--
 	}
 	return string(data[:limit])
+}
+
+// WithSQLQueryDeadline applies SQLQueryTimeout when the caller has no earlier
+// deadline. A tighter caller deadline still wins via the context parent.
+func WithSQLQueryDeadline(ctx context.Context) (context.Context, context.CancelFunc) {
+	return context.WithTimeout(ctx, SQLQueryTimeout)
+}
+
+// SQLScanState accumulates MCP SQL rows until the scan-time row or byte
+// budget is reached. It bounds materialisation before JSON encoding and
+// reserves space for columns plus envelope metadata so the SQL envelope
+// still serializes under MaxBytes.
+type SQLScanState struct {
+	Rows      []map[string]any
+	Truncated bool
+	used      int
+}
+
+// NewSQLScanState starts a scan budget that already includes column names
+// and worst-case SQL envelope metadata.
+func NewSQLScanState(columns []string) SQLScanState {
+	return SQLScanState{
+		Rows: []map[string]any{},
+		used: sqlEnvelopeBaseSize(columns),
+	}
+}
+
+func sqlEnvelopeBaseSize(columns []string) int {
+	if columns == nil {
+		columns = []string{}
+	}
+	encoded, err := json.Marshal(map[string]any{
+		"count":          SQLMaxRows,
+		"columns":        columns,
+		"rows":           []map[string]any{},
+		"store_status":   "ready",
+		"resumable":      false,
+		"truncated":      true,
+		"returned_count": SQLMaxRows,
+		"max_bytes":      MaxBytes,
+		"note":           SQLResultBoundNote,
+		"meta": map[string]any{
+			"source":           "local",
+			"oldest_synced_at": "2006-01-02T15:04:05Z",
+		},
+	})
+	if err != nil {
+		return MaxBytes + 1
+	}
+	return len(encoded)
+}
+
+// Add appends row when the resulting SQL envelope still fits MaxBytes. It
+// returns false when the row is rejected and marks Truncated so callers
+// stop scanning.
+func (s *SQLScanState) Add(row map[string]any) bool {
+	if len(s.Rows) >= SQLMaxRows {
+		s.Truncated = true
+		return false
+	}
+	encoded, err := json.Marshal(row)
+	if err != nil {
+		s.Truncated = true
+		return false
+	}
+	extra := len(encoded)
+	if len(s.Rows) > 0 {
+		extra++
+	}
+	if s.used+extra > MaxBytes {
+		s.Truncated = true
+		return false
+	}
+	s.Rows = append(s.Rows, row)
+	s.used += extra
+	return true
 }

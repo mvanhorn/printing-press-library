@@ -3,8 +3,10 @@ package lancet
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/thelancet/internal/cliutil"
 )
@@ -14,6 +16,9 @@ import (
 // searches the topic, and sorts by citations or date. This lets `curate` work
 // out-of-the-box before any refresh.
 func CurateLive(ctx context.Context, c Fetcher, topic, issn, sort string, openAccessOnly bool, limit int) ([]WorkRow, error) {
+	if sort == "per-year" {
+		return nil, fmt.Errorf("--sort per-year needs the local store (OpenAlex cannot rank by citations per year); run 'refresh' and use --data-source local, or sort by citations or date")
+	}
 	filter := FamilyISSNFilter()
 	if issn != "" {
 		filter = "primary_location.source.issn:" + issn
@@ -33,7 +38,7 @@ func CurateLive(ctx context.Context, c Fetcher, topic, issn, sort string, openAc
 		"filter":   filter,
 		"sort":     sortParam,
 		"per-page": strconv.Itoa(limit),
-		"select":   "doi,title,publication_year,cited_by_count,primary_topic,primary_location",
+		"select":   "doi,title,publication_year,publication_date,cited_by_count,primary_topic,primary_location",
 	}
 	raw, err := c.Get(ctx, "/works", params)
 	if err != nil {
@@ -44,6 +49,7 @@ func CurateLive(ctx context.Context, c Fetcher, topic, issn, sort string, openAc
 			DOI             string `json:"doi"`
 			Title           string `json:"title"`
 			PublicationYear int    `json:"publication_year"`
+			PublicationDate string `json:"publication_date"`
 			CitedByCount    int    `json:"cited_by_count"`
 			PrimaryTopic    *struct {
 				DisplayName string `json:"display_name"`
@@ -58,6 +64,7 @@ func CurateLive(ctx context.Context, c Fetcher, topic, issn, sort string, openAc
 	if err := json.Unmarshal(raw, &page); err != nil {
 		return nil, err
 	}
+	now := time.Now()
 	out := make([]WorkRow, 0, len(page.Results))
 	for _, r := range page.Results {
 		w := WorkRow{
@@ -66,6 +73,10 @@ func CurateLive(ctx context.Context, c Fetcher, topic, issn, sort string, openAc
 			Year:  r.PublicationYear,
 			Cited: r.CitedByCount,
 		}
+		if _, err := time.Parse("2006-01-02", r.PublicationDate); err == nil {
+			w.PubDate = r.PublicationDate
+		}
+		w.CitationsPerYear, _ = CitationsPerYear(now, w.PubDate, w.Year, w.Cited)
 		if r.PrimaryTopic != nil {
 			w.Topic = cliutil.CleanText(r.PrimaryTopic.DisplayName)
 		}

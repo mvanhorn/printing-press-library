@@ -409,6 +409,9 @@ See README.md or the bundled SKILL.md for recipes.`,
 			runLearnInitOnce(cmd.Context())
 			runPlaybookInitOnce(cmd.Context())
 		}
+		if mcpReadOnlyChildActive() {
+			flags.receiptEnabled = false
+		}
 		flags.timeoutExplicit = timeoutExplicitFrom(cmd, appliedProfile)
 		flags.agentSource = declaredAgentSource(cmd, flags)
 		return nil
@@ -546,7 +549,7 @@ func journalInvocation(flags *rootFlags, rootCmd, executed *cobra.Command, err e
 	// The master --no-learn switch kills journaling too. On the
 	// parse-failure path the flag was never parsed into rootFlags, so
 	// the raw args are consulted as well.
-	if noLearnActive(flags) || argsDisableLearn(os.Args[1:]) {
+	if mcpReadOnlyChildActive() || noLearnActive(flags) || argsDisableLearn(os.Args[1:]) {
 		return
 	}
 	exitCode := 0
@@ -669,7 +672,7 @@ var learnFamilyCommands = map[string]struct{}{
 // swallowed — derivation may never fail, slow, or add output to the
 // command that triggered it.
 func deriveFlagCorrections(flags *rootFlags, rootCmd, executed *cobra.Command) {
-	if noLearnActive(flags) || argsDisableLearn(os.Args[1:]) || learn.JournalCaptureDisabled() {
+	if mcpReadOnlyChildActive() || noLearnActive(flags) || argsDisableLearn(os.Args[1:]) || learn.JournalCaptureDisabled() {
 		return
 	}
 	chain := journalVerbChain(rootCmd, executed)
@@ -746,7 +749,7 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 		c.SetTimeoutExplicit(true)
 	}
 	c.DryRun = f.dryRun
-	c.NoCache = f.noCache
+	c.NoCache = f.noCache || mcpReadOnlyChildActive()
 	if err := bindPlatformClient(c, f); err != nil {
 		return nil, err
 	}

@@ -24,33 +24,60 @@ func newReservationsCheckInDetailsUpdateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "update <stay_code>",
-		Short: "Update check-in details for a stay including lock code, arrival/departure times, and deposit information.",
-		// TODO: replace placeholder example values before relying on this for live dogfood.
-		Example:     "  hostex-pp-cli reservations check-in-details update example-value",
-		Annotations: map[string]string{"pp:endpoint": "check-in-details.update", "pp:method": "PATCH", "pp:path": "/reservations/{stay_code}/check_in_details"},
+		Use:         "update <stay_code>",
+		Short:       "Update check-in details for a stay including lock code, arrival/departure times, and deposit information.",
+		Example:     "  hostex-pp-cli reservations check-in-details update HMABC123 --arrival-at-hour 15 --arrival-at-minute 0 --departure-at-hour 10 --departure-at-minute 0 --dry-run",
+		Annotations: map[string]string{"pp:endpoint": "check-in-details.update", "pp:method": "PATCH", "pp:path": "/reservations/{stay_code}/check_in_details", "pp:requires-input": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with required input prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
 			// only read commands fall through so a bare call still executes.
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
 			}
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <stay_code>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <stay_code>"))
 			}
 			if !stdinBody {
-				if !cmd.Flags().Changed("arrival-at-hour") && !flags.dryRun {
-					return fmt.Errorf("required flag \"%s\" not set", "arrival-at-hour")
+				if (cmd.Flags().Changed("arrival-at-hour") || bodyArrivalAtHour != 0) || (cmd.Flags().Changed("arrival-at-minute") || bodyArrivalAtMinute != 0) {
+					if !cmd.Flags().Changed("arrival-at-hour") && bodyArrivalAtHour == 0 && !flags.dryRun {
+						return fmt.Errorf("required flag \"%s\" not set", "arrival-at-hour")
+					}
+					if !cmd.Flags().Changed("arrival-at-minute") && bodyArrivalAtMinute == 0 && !flags.dryRun {
+						return fmt.Errorf("required flag \"%s\" not set", "arrival-at-minute")
+					}
 				}
-				if !cmd.Flags().Changed("arrival-at-minute") && !flags.dryRun {
-					return fmt.Errorf("required flag \"%s\" not set", "arrival-at-minute")
-				}
-				if !cmd.Flags().Changed("departure-at-hour") && !flags.dryRun {
-					return fmt.Errorf("required flag \"%s\" not set", "departure-at-hour")
-				}
-				if !cmd.Flags().Changed("departure-at-minute") && !flags.dryRun {
-					return fmt.Errorf("required flag \"%s\" not set", "departure-at-minute")
+				if (cmd.Flags().Changed("departure-at-hour") || bodyDepartureAtHour != 0) || (cmd.Flags().Changed("departure-at-minute") || bodyDepartureAtMinute != 0) {
+					if !cmd.Flags().Changed("departure-at-hour") && bodyDepartureAtHour == 0 && !flags.dryRun {
+						return fmt.Errorf("required flag \"%s\" not set", "departure-at-hour")
+					}
+					if !cmd.Flags().Changed("departure-at-minute") && bodyDepartureAtMinute == 0 && !flags.dryRun {
+						return fmt.Errorf("required flag \"%s\" not set", "departure-at-minute")
+					}
 				}
 			}
 			path := "/reservations/{stay_code}/check_in_details"
@@ -63,7 +90,7 @@ func newReservationsCheckInDetailsUpdateCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -75,47 +102,48 @@ func newReservationsCheckInDetailsUpdateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				{
 					nestedArrivalAt := map[string]any{}
-					if bodyArrivalAtHour != 0 {
+					if cmd.Flags().Changed("arrival-at-hour") || bodyArrivalAtHour != 0 {
 						nestedArrivalAt["hour"] = bodyArrivalAtHour
 					}
-					if bodyArrivalAtMinute != 0 {
+					if cmd.Flags().Changed("arrival-at-minute") || bodyArrivalAtMinute != 0 {
 						nestedArrivalAt["minute"] = bodyArrivalAtMinute
 					}
 					if len(nestedArrivalAt) > 0 {
-						body["arrival_at"] = nestedArrivalAt
+						bodyMap["arrival_at"] = nestedArrivalAt
 					}
 				}
 				{
 					nestedDepartureAt := map[string]any{}
-					if bodyDepartureAtHour != 0 {
+					if cmd.Flags().Changed("departure-at-hour") || bodyDepartureAtHour != 0 {
 						nestedDepartureAt["hour"] = bodyDepartureAtHour
 					}
-					if bodyDepartureAtMinute != 0 {
+					if cmd.Flags().Changed("departure-at-minute") || bodyDepartureAtMinute != 0 {
 						nestedDepartureAt["minute"] = bodyDepartureAtMinute
 					}
 					if len(nestedDepartureAt) > 0 {
-						body["departure_at"] = nestedDepartureAt
+						bodyMap["departure_at"] = nestedDepartureAt
 					}
 				}
-				if bodyDeposit != 0 {
-					body["deposit"] = bodyDeposit
+				if cmd.Flags().Changed("deposit") || bodyDeposit != 0 {
+					bodyMap["deposit"] = bodyDeposit
 				}
-				if bodyIdRequired != "" {
-					body["id_required"] = bodyIdRequired
+				if cmd.Flags().Changed("id-required") || bodyIdRequired != "" {
+					bodyMap["id_required"] = bodyIdRequired
 				}
-				if bodyLockCode != "" {
-					body["lock_code"] = bodyLockCode
+				if cmd.Flags().Changed("lock-code") || bodyLockCode != "" {
+					bodyMap["lock_code"] = bodyLockCode
 				}
-				if bodyLockCodeVisibleAfter != "" {
-					body["lock_code_visible_after"] = bodyLockCodeVisibleAfter
+				if cmd.Flags().Changed("lock-code-visible-after") || bodyLockCodeVisibleAfter != "" {
+					bodyMap["lock_code_visible_after"] = bodyLockCodeVisibleAfter
 				}
 			}
 			data, statusCode, err := c.PatchWithParams(cmd.Context(), path, params, body)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			// Inspect the mutate response body for a partial-failure-shaped
 			// field (e.g. Google Ads `partialFailureError`). Several Google
@@ -208,15 +236,22 @@ func newReservationsCheckInDetailsUpdateCmd(flags *rootFlags) *cobra.Command {
 						}
 					}
 				}
+				// Mutation-riding reads (POST search, RPC-over-POST lists) return
+				// the same single-key collection envelopes as GET reads. Unwrap
+				// before filtering so rows nest once under the result key and
+				// --select filters rows, not envelope keys; plain created-object
+				// responses pass through unwrapSingleKeyArray untouched.
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
 				// generic high-gravity allow-list. Otherwise --compact still applies
 				// when --agent is on but the user did not name fields.
-				filtered := data
+				var selectErr error
+				filtered := unwrapSingleKeyArray(data)
 				if flags.selectFields != "" {
-					filtered = filterFields(filtered, flags.selectFields)
+					filtered, selectErr = filterFieldsChecked(filtered, flags.selectFields)
+					selectErr = selectErrorForDryRun(selectErr, flags, data)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, map[string]bool{"error_code": true, "request_id": true})
 				}
 				if len(filtered) > 0 {
 					var parsed any
@@ -232,28 +267,35 @@ func newReservationsCheckInDetailsUpdateCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
+				resultKey := "data"
+				if flags.agent {
+					resultKey = "results"
+				}
+				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
+				if err != nil {
+					return err
+				}
+				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
 					return perr
 				}
 				if partialFailure != nil && !flags.allowPartialFailure {
 					return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "check-in-details", partialFailure.Message))
 				}
-				return nil
+				return selectErr
 			}
 			// Fall-through for mutate paths that did not hit the table or
 			// asJSON branches: --quiet, --csv, --plain, and default terminal
-			// raw output. printOutputWithFlags renders the body, then the
-			// typed partial-failure exit fires unless --allow-partial-failure
-			// downgrades it. Without this guard a partial failure would exit
-			// 0 for these output modes — the exact silent-swallow regression
-			// the surrounding patch is preventing for asJSON / piped output.
-			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
-				return perr
-			}
+			// raw output. printOutputWithFlagsMeta renders the body with live
+			// provenance, then the typed partial-failure exit fires unless
+			// --allow-partial-failure downgrades it. Without this guard a
+			// partial failure would exit 0 for these output modes — the exact
+			// silent-swallow regression the surrounding patch is preventing
+			// for asJSON / piped output.
+			printErr := printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"}, map[string]bool{"error_code": true, "request_id": true})
 			if partialFailure != nil && !flags.allowPartialFailure {
 				return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "check-in-details", partialFailure.Message))
 			}
-			return nil
+			return printErr
 		},
 	}
 	cmd.Flags().IntVar(&bodyArrivalAtHour, "arrival-at-hour", 0, "Hour in 24-hour format (0-23)")

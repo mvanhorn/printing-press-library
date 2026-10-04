@@ -1,0 +1,37 @@
+{
+  "verdict": "PASS",
+  "scope": "post-Greptile P2 comparison rows and navigation coverage only",
+  "reviewed_at": "2026-10-03T09:36:52.856399+00:00",
+  "canonical_source": "library/travel/iko-yo",
+  "base_head": "75d230150b2cd8e0ef06f40926554746b1b15338",
+  "working_tree_changes_reviewed": true,
+  "changed_source_sha256": {
+    "internal/cli/iko_yo_trip_helpers.go": "3037ad894d409c8a1aa45dffc05a383c5cc889b35ade3343be5ad0b9c2030d75",
+    "internal/cli/trip_compare.go": "a9eefe78139fde65c3304708d522b34098e3b2f1f654ed2a934720a15499ba47",
+    "internal/cli/iko_yo_trip_test.go": "5d396f1f1c4618e4c3c6ee180b3ba4b87bbf3ae136f748812c204fa162763af6",
+    "internal/trip/parse.go": "265b015a679e67405f1026652c8c9429ee578e9a90a5775aa8c8340589edf235",
+    "internal/trip/client.go": "27c48f3f5a99290076b31040ec1e2190929c40f9f3b0ca219a6311977fda34ca",
+    "internal/trip/navigation_test.go": "234be21074699fa3f2fdb30fc89d74397799215f1186c00e038bdad11d60768a",
+    ".printing-press-patches/iko-yo-trip-facts-preserve-unknowns.json": "c509a70524708e2db3ef29bf6e5d4ce4681336975e048cef7207371914adc669"
+  },
+  "shipping_artifacts": {
+    "iko-yo-pp-cli": {
+      "sha256": "a03ae48310d4e250fb6b5a6f2f3dbf421e04e7ec679dd505f124e54ef39e3e0a",
+      "bytes": 22459250
+    },
+    "iko-yo-pp-mcp": {
+      "sha256": "c6ec1056185172082e5bba427ef8698cd33f4dfa1bfd0f290e0f097fcb7f2bc0",
+      "bytes": 25099586
+    }
+  },
+  "canonical_full_gate": {
+    "verdict": "PASS",
+    "passed": 112,
+    "failed": 0,
+    "skipped": 93,
+    "unverified": 93,
+    "ran_at": "2026-10-03T09:18:13.459027Z"
+  },
+  "initial_review_preserved": true,
+  "hash_contract": "Direct file SHA256; not the Press-normalized source fingerprint."
+}

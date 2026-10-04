@@ -14,7 +14,7 @@ func newNovelTripCachedCmd(flags *rootFlags) *cobra.Command {
 	var age, limit, maxScan int
 	cmd := &cobra.Command{
 		Use: "cached [keyword]", Short: "Search selected saved Iko-yo Trip facts by keyword, date, age and amenities with observation times and scan coverage",
-		Long: "Read only selected Trip facts previously saved by discover or inspect. This is a partial local collection, not a synchronized catalog. Listing-only facts often lack age and facility evidence; unknown requirements are not confirmed matches. Observation timestamps remain unchanged. Collection provenance is bounded to 5,000 memberships and 100 collections. Constraint inputs are per-invocation and not automatically learned. " + trip.ScopeNote,
+		Long: "Read only selected Trip facts previously saved by discover or inspect. This is a partial local collection, not a synchronized catalog. Listing-only facts often lack age and facility evidence; unknown requirements are not confirmed matches. Observation timestamps remain unchanged. Collection provenance is bounded to 5,000 memberships and 100 collections. Reads require a stable, checkpointed cache; close active cache writers and retry on a sidecar error. Constraint inputs are per-invocation and not automatically learned. " + trip.ScopeNote,
 		Example: strings.Trim(`
   iko-yo-pp-cli trip cached Mooovi --kind spots --agent
   iko-yo-pp-cli trip cached --kind events --on 2026-11-15 --max-scan-records 500 --json`, "\n"),
@@ -45,7 +45,7 @@ func newNovelTripCachedCmd(flags *rootFlags) *cobra.Command {
 			}
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
-			db, err := openStoreForRead(ctx, "iko-yo-pp-cli")
+			db, guard, err := tripOpenStoreForRead(ctx)
 			if err != nil {
 				return tripError(err)
 			}
@@ -53,17 +53,22 @@ func newNovelTripCachedCmd(flags *rootFlags) *cobra.Command {
 			coverage := make([]trip.Coverage, 0)
 			total := 0
 			if db != nil {
-				defer db.Close()
-				hintIfUnsynced(cmd, db, kind)
-				hintIfStale(cmd, db, kind, flags.maxAge)
-				records, coverage, err = db.TripRecords(ctx, kind, maxScan)
-				if err != nil {
-					return tripError(err)
-				}
-				total, err = db.TripCacheCount(ctx, kind)
-				if err != nil {
-					return tripError(err)
-				}
+				readErr := func() error {
+					hintIfUnsynced(cmd, db, kind)
+					hintIfStale(cmd, db, kind, flags.maxAge)
+					records, coverage, err = db.TripRecords(ctx, kind, maxScan)
+					if err != nil {
+						return err
+					}
+					total, err = db.TripCacheCount(ctx, kind)
+					return err
+				}()
+				err = tripFinishStoreRead(db, guard, readErr)
+			} else {
+				err = guard.Snapshot()
+			}
+			if err != nil {
+				return tripError(err)
 			}
 			for i := range records {
 				records[i] = trip.RefreshStatus(records[i], tripToday())

@@ -5,6 +5,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"sort"
 	"strconv"
 	"strings"
@@ -37,8 +38,7 @@ func newNovelRevenueRollupCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
-				fmt.Fprintln(cmd.OutOrStdout(), "would query /transactions over the selected range and aggregate income-expense")
-				return nil
+				return writeDryRun(cmd.OutOrStdout(), flags, "query /transactions over the selected range and net income minus expense")
 			}
 			if err := rejectLocalDataSource(flags); err != nil {
 				return err
@@ -187,6 +187,11 @@ func newNovelRevenueRollupCmd(flags *rootFlags) *cobra.Command {
 
 			rows := make([]agg, 0, len(groups))
 			for _, a := range groups {
+				// Summing float amounts leaves binary noise (48373.78999999999);
+				// money is reported to the cent.
+				a.Income = math.Round(a.Income*100) / 100
+				a.Expense = math.Round(a.Expense*100) / 100
+				a.Net = math.Round(a.Net*100) / 100
 				rows = append(rows, *a)
 			}
 			sort.SliceStable(rows, func(i, j int) bool {

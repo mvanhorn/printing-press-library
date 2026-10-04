@@ -30,22 +30,34 @@ price is an integer in the listing's currency (price=180 in USD is 180 dollars, 
 This changes what guests see and pay on the live channel. Run with --dry-run first and review the body. The API is asynchronous: success only means the task was queued, so confirm the result in the Hostex Host Portal (https://hostex.io/app/price).`,
 		Example: `  # Preview first, then drop --dry-run to send
   hostex-pp-cli listings update-prices --channel-type airbnb --listing-id <listing-id> --prices '[{"start_date":"YYYY-MM-DD","end_date":"YYYY-MM-DD","price":180}]' --dry-run`,
-		Annotations: map[string]string{"pp:endpoint": "listings.update-prices", "pp:method": "POST", "pp:path": "/listings/prices"},
+		Annotations: map[string]string{"pp:endpoint": "listings.update-prices", "pp:method": "POST", "pp:path": "/listings/prices", "pp:requires-input": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with required input prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
 			// only read commands fall through so a bare call still executes.
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
 			}
 			if !stdinBody {
-				if !cmd.Flags().Changed("channel-type") && !flags.dryRun {
+				if !cmd.Flags().Changed("channel-type") && bodyChannelType == "" && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "channel-type")
 				}
-				if !cmd.Flags().Changed("listing-id") && !flags.dryRun {
+				if !cmd.Flags().Changed("listing-id") && bodyListingId == "" && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "listing-id")
 				}
-				if !cmd.Flags().Changed("prices") && !flags.dryRun {
+				if !cmd.Flags().Changed("prices") && bodyPrices == "" && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "prices")
 				}
 			}
@@ -55,7 +67,7 @@ This changes what guests see and pay on the live channel. Run with --dry-run fir
 				return err
 			}
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -67,24 +79,29 @@ This changes what guests see and pay on the live channel. Run with --dry-run fir
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
-				if bodyChannelType != "" {
-					body["channel_type"] = bodyChannelType
+				bodyMap := map[string]any{}
+				body = bodyMap
+				if cmd.Flags().Changed("channel-type") || bodyChannelType != "" {
+					bodyMap["channel_type"] = bodyChannelType
 				}
-				if bodyListingId != "" {
-					body["listing_id"] = bodyListingId
+				if cmd.Flags().Changed("listing-id") || bodyListingId != "" {
+					bodyMap["listing_id"] = bodyListingId
 				}
-				if bodyPrices != "" {
+				if cmd.Flags().Changed("prices") || bodyPrices != "" {
 					var parsedPrices any
 					if err := json.Unmarshal([]byte(bodyPrices), &parsedPrices); err != nil {
 						return fmt.Errorf("parsing --prices JSON: %w", err)
 					}
-					body["prices"] = parsedPrices
+					asArray, ok := parsedPrices.([]any)
+					if !ok {
+						return fmt.Errorf("--prices must be a JSON array, got JSON %T", parsedPrices)
+					}
+					bodyMap["prices"] = asArray
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			// Inspect the mutate response body for a partial-failure-shaped
 			// field (e.g. Google Ads `partialFailureError`). Several Google
@@ -177,15 +194,22 @@ This changes what guests see and pay on the live channel. Run with --dry-run fir
 						}
 					}
 				}
+				// Mutation-riding reads (POST search, RPC-over-POST lists) return
+				// the same single-key collection envelopes as GET reads. Unwrap
+				// before filtering so rows nest once under the result key and
+				// --select filters rows, not envelope keys; plain created-object
+				// responses pass through unwrapSingleKeyArray untouched.
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
 				// generic high-gravity allow-list. Otherwise --compact still applies
 				// when --agent is on but the user did not name fields.
-				filtered := data
+				var selectErr error
+				filtered := unwrapSingleKeyArray(data)
 				if flags.selectFields != "" {
-					filtered = filterFields(filtered, flags.selectFields)
+					filtered, selectErr = filterFieldsChecked(filtered, flags.selectFields)
+					selectErr = selectErrorForDryRun(selectErr, flags, data)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, map[string]bool{"error_code": true, "request_id": true})
 				}
 				if len(filtered) > 0 {
 					var parsed any
@@ -201,28 +225,35 @@ This changes what guests see and pay on the live channel. Run with --dry-run fir
 				if err != nil {
 					return err
 				}
-				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
+				resultKey := "data"
+				if flags.agent {
+					resultKey = "results"
+				}
+				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
+				if err != nil {
+					return err
+				}
+				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
 					return perr
 				}
 				if partialFailure != nil && !flags.allowPartialFailure {
 					return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "listings", partialFailure.Message))
 				}
-				return nil
+				return selectErr
 			}
 			// Fall-through for mutate paths that did not hit the table or
 			// asJSON branches: --quiet, --csv, --plain, and default terminal
-			// raw output. printOutputWithFlags renders the body, then the
-			// typed partial-failure exit fires unless --allow-partial-failure
-			// downgrades it. Without this guard a partial failure would exit
-			// 0 for these output modes — the exact silent-swallow regression
-			// the surrounding patch is preventing for asJSON / piped output.
-			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
-				return perr
-			}
+			// raw output. printOutputWithFlagsMeta renders the body with live
+			// provenance, then the typed partial-failure exit fires unless
+			// --allow-partial-failure downgrades it. Without this guard a
+			// partial failure would exit 0 for these output modes — the exact
+			// silent-swallow regression the surrounding patch is preventing
+			// for asJSON / piped output.
+			printErr := printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"}, map[string]bool{"error_code": true, "request_id": true})
 			if partialFailure != nil && !flags.allowPartialFailure {
 				return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "listings", partialFailure.Message))
 			}
-			return nil
+			return printErr
 		},
 	}
 	cmd.Flags().StringVar(&bodyChannelType, "channel-type", "", "The type of the channel to be queried.")

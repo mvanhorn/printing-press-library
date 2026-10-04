@@ -16,6 +16,11 @@ type SteamReview struct {
 	Negative int            `json:"negative"`
 	Total    int            `json:"total"`
 	Price    *PriceOverview `json:"price,omitempty"`
+	// DemoAppIDs lists the app's demos when the appdetails call succeeded.
+	DemoAppIDs []int64 `json:"demo_app_ids,omitempty"`
+	// HasDemo is known only when appdetails succeeded: nil means unknown,
+	// not false.
+	HasDemo *bool `json:"has_demo,omitempty"`
 }
 
 // bridgeClient is the shared process-wide client the bridge uses.
@@ -72,9 +77,14 @@ func enrichAppID(ctx context.Context, c *Client, appid int64) (*SteamReview, err
 		Negative: summary.Negative,
 		Total:    summary.Total,
 	}
-	// Optional price enrichment: never fail the review block for it.
+	// Optional appdetails enrichment: never fail the review block for it, but
+	// report demo data only when the call actually succeeded — a failed
+	// appdetails leaves has_demo unknown (nil), not false.
 	if details, derr := c.AppDetails(ctx, appid); derr == nil && details != nil {
 		review.Price = details.Price
+		review.DemoAppIDs = details.DemoAppIDs
+		hasDemo := len(details.DemoAppIDs) > 0
+		review.HasDemo = &hasDemo
 	}
 	return review, nil
 }

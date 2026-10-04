@@ -299,6 +299,9 @@ var ErrRedirectProtocolDowngrade = errors.New("refusing redirect: https to http 
 // ErrRedirectPrivateDestination is returned when a redirect leaves the origin for a local IP literal.
 var ErrRedirectPrivateDestination = errors.New("refusing redirect: loopback, private, link-local, or unspecified address")
 
+// ErrRedirectForeignOrigin rejects source redirects outside the requested effective origin.
+var ErrRedirectForeignOrigin = errors.New("refusing redirect: foreign source origin")
+
 // A followed redirect can change scheme or land on a local address the caller
 // never asked to reach. Only http and https are allowed. An https-to-http
 // downgrade on any earlier hop is refused. An off-origin hop is refused when
@@ -328,8 +331,13 @@ func redirectDestinationRefused(next *url.URL, via []*http.Request) error {
 			}
 		}
 	}
-	if redirectTargetLeavesOrigin(next, via) && redirectHostIsBlockedLiteral(next.Hostname()) {
-		return ErrRedirectPrivateDestination
+	if redirectTargetLeavesOrigin(next, via) {
+		if redirectHostIsBlockedLiteral(next.Hostname()) {
+			return ErrRedirectPrivateDestination
+		}
+		// Verified Kurumatabi routes are same-origin. Refuse before sending
+		// configured or per-call headers to a different source host/port.
+		return ErrRedirectForeignOrigin
 	}
 	return nil
 }
@@ -392,26 +400,10 @@ func redirectHostIsBlockedLiteral(host string) bool {
 	return ip.IsLoopback() || ip.IsPrivate() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() || ip.IsUnspecified()
 }
 
-// redirectLeavesOrigin reports whether a redirect hop should drop custom
-// credentials. Host is compared against the original request so a foreign
-// hop (A -> B -> B) cannot re-stamp A's credential onto B. Same-host
-// http -> https keeps the credential. Once any hop in the chain was
-// https, later plaintext hops must not re-stamp; comparing only the
-// original URL and the immediate predecessor misses
-// http -> https -> http -> http.
+// redirectLeavesOrigin applies the same effective-origin identity as the
+// source-destination guard, including equivalent default ports and host case.
 func redirectLeavesOrigin(next *url.URL, via []*http.Request) bool {
-	if next.Host != via[0].URL.Host {
-		return true
-	}
-	if next.Scheme == "https" {
-		return false
-	}
-	for _, hop := range via {
-		if hop.URL.Scheme == "https" {
-			return true
-		}
-	}
-	return false
+	return redirectTargetLeavesOrigin(next, via)
 }
 
 func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
@@ -1307,6 +1299,12 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		if err != nil {
 			if ctxErr := ctx.Err(); ctxErr != nil {
 				return nil, 0, ctxErr
+			}
+			// A source-origin/security refusal is deterministic, not a network outage.
+			for _, policyErr := range []error{ErrRedirectForeignOrigin, ErrRedirectUnsupportedScheme, ErrRedirectProtocolDowngrade, ErrRedirectPrivateDestination} {
+				if errors.Is(err, policyErr) {
+					return nil, 0, fmt.Errorf("%s %s: %w", method, c.displayURL(path, authHeader), policyErr)
+				}
 			}
 			lastErr = fmt.Errorf("%s %s: %w", method, c.displayURL(path, authHeader), c.maskError(err, authHeader))
 			// Transient network failure (connection reset, DNS blip, request

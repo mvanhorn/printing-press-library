@@ -8,11 +8,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"regexp"
 	"strings"
-	"unicode"
 
 	"github.com/mvanhorn/printing-press-library/library/travel/kurumatabi/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/travel/kurumatabi/internal/entityvalue"
 )
 
 // LookupRow is the canonical seed-row shape used by both the seeds
@@ -41,62 +40,11 @@ const (
 	SourceSeeded   = "seeded"
 )
 
-// computedKinds enumerates the kinds whose Lookup result is derived
-// purely from the canonical input by string transform, with no
-// reference to the database. Adding one is a source-code change
-// (the transform itself must be implemented in computedLookup below).
-var computedKinds = map[string]struct{}{
-	"lowercase":        {},
-	"uppercase":        {},
-	"kebab-case":       {},
-	"capitalize-first": {},
-	"slug":             {},
-}
+// IsComputedKind reports whether the shared resolver derives this kind.
+func IsComputedKind(kind string) bool { return entityvalue.IsComputedKind(kind) }
 
-// nonSlugRune matches every character that is NOT a lowercase ASCII
-// letter, digit, or hyphen. Used by the slug computed kind to strip
-// punctuation after kebab-casing.
-var nonSlugRune = regexp.MustCompile(`[^a-z0-9-]+`)
-
-// IsComputedKind reports whether kind is resolved by an in-package
-// string transform instead of by a row in entity_lookups.
-func IsComputedKind(kind string) bool {
-	_, ok := computedKinds[kind]
-	return ok
-}
-
-// computedLookup applies the named computed-kind transform to
-// canonical and returns the result with found=true. Unknown kinds
-// return ("", false).
 func computedLookup(kind, canonical string) (string, bool) {
-	switch kind {
-	case "lowercase":
-		return strings.ToLower(canonical), true
-	case "uppercase":
-		return strings.ToUpper(canonical), true
-	case "kebab-case":
-		return strings.ReplaceAll(strings.ToLower(canonical), " ", "-"), true
-	case "capitalize-first":
-		return capitalizeFirst(canonical), true
-	case "slug":
-		kebab := strings.ReplaceAll(strings.ToLower(canonical), " ", "-")
-		return nonSlugRune.ReplaceAllString(kebab, ""), true
-	}
-	return "", false
-}
-
-// capitalizeFirst returns canonical with the first rune uppercased
-// and the rest lowercased. Empty input returns empty output.
-func capitalizeFirst(canonical string) string {
-	if canonical == "" {
-		return ""
-	}
-	runes := []rune(canonical)
-	runes[0] = unicode.ToUpper(runes[0])
-	for i := 1; i < len(runes); i++ {
-		runes[i] = unicode.ToLower(runes[i])
-	}
-	return string(runes)
+	return entityvalue.Compute(kind, canonical)
 }
 
 // Lookup returns the value mapped to the (kind, canonical) pair, or
@@ -115,28 +63,7 @@ func Lookup(db *sql.DB, kind, canonical string) (string, bool, error) {
 	if db == nil {
 		return "", false, errors.New("lookups.Lookup: db is nil")
 	}
-	const q = `
-		SELECT value
-		FROM entity_lookups
-		WHERE kind = ? AND LOWER(canonical) = LOWER(?)
-		ORDER BY CASE source
-		  WHEN 'taught' THEN 0
-		  WHEN 'inferred' THEN 1
-		  WHEN 'synced' THEN 2
-		  WHEN 'seeded' THEN 3
-		  ELSE 4
-		END ASC, created_at ASC
-		LIMIT 1
-	`
-	var value string
-	err := db.QueryRow(q, kind, canonical).Scan(&value)
-	if errors.Is(err, sql.ErrNoRows) {
-		return "", false, nil
-	}
-	if err != nil {
-		return "", false, fmt.Errorf("lookups.Lookup query: %w", err)
-	}
-	return value, true, nil
+	return entityvalue.Lookup(context.Background(), db, kind, canonical)
 }
 
 // LookupAll returns every value mapped to the (kind, canonical) pair,

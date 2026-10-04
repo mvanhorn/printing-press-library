@@ -383,28 +383,6 @@ func redirectHostIsBlockedLiteral(host string) bool {
 	return ip.IsLoopback() || ip.IsPrivate() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() || ip.IsUnspecified()
 }
 
-// redirectLeavesOrigin reports whether a redirect hop should drop custom
-// credentials. Host is compared against the original request so a foreign
-// hop (A -> B -> B) cannot re-stamp A's credential onto B. Same-host
-// http -> https keeps the credential. Once any hop in the chain was
-// https, later plaintext hops must not re-stamp; comparing only the
-// original URL and the immediate predecessor misses
-// http -> https -> http -> http.
-func redirectLeavesOrigin(next *url.URL, via []*http.Request) bool {
-	if next.Host != via[0].URL.Host {
-		return true
-	}
-	if next.Scheme == "https" {
-		return false
-	}
-	for _, hop := range via {
-		if hop.URL.Scheme == "https" {
-			return true
-		}
-	}
-	return false
-}
-
 func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 	cacheDir := ""
 	if dir, err := cliutil.CacheDir(); err == nil {
@@ -432,15 +410,18 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 			// would cause Do to return the 3xx with nil error, which do()
 			// would then classify as a successful response and hand the HTML
 			// "Moved Permanently" body back to the caller.
-			return errors.New("stopped after 10 redirects")
+			return errCarstayRedirectLimit
 		}
 		if err := redirectDestinationRefused(req.URL, via); err != nil {
 			return err
 		}
-		// Re-stamp only when the hop stays on the origin. Custom headers
-		// are never in the set Go removes automatically, so this gate
-		// has to do the work itself.
-		if !redirectLeavesOrigin(req.URL, via) {
+		if err := refuseCarstayForeignRedirect(req.URL, via); err != nil {
+			return err
+		}
+		// Every accepted hop has the original effective origin. Refusing
+		// foreign hops protects inherited custom headers and cookies as
+		// well as auth; same-origin requests still receive fresh signatures.
+		if !redirectTargetLeavesOrigin(req.URL, via) {
 			if h, err := c.authHeader(req.Context()); err == nil && h != "" {
 				req.Header.Set("Authorization", h)
 			}
@@ -1269,6 +1250,9 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 				return nil, 0, ctxErr
 			}
 			lastErr = fmt.Errorf("%s %s: %w", method, c.displayURL(path, authHeader), c.maskError(err, authHeader))
+			if permanentCarstayRedirectError(err) {
+				return nil, 0, lastErr
+			}
 			// Transient network failure (connection reset, DNS blip, request
 			// timeout). Back off before retrying — same exponential schedule as
 			// the 5xx path below — so a brief outage does not burn every attempt

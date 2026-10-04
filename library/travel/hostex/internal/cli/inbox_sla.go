@@ -28,7 +28,7 @@ func newNovelInboxSlaCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
-				return nil
+				return writeDryRun(cmd.OutOrStdout(), flags, "rank open conversations by age from the local mirror")
 			}
 			if err := rejectLiveDataSource(flags); err != nil {
 				return err

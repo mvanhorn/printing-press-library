@@ -35,21 +35,23 @@ func newKnowledgeBasesQueryCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "knowledge-bases", path, map[string]string{
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "knowledge-bases", path, retainCLIQueryParams(cmd, map[string]string{
 				"offset":        formatCLIParamValue(flagOffset),
 				"limit":         formatCLIParamValue(flagLimit),
 				"property_ids":  formatCLIParamValue(flagPropertyIds),
 				"channel_types": formatCLIParamValue(flagChannelTypes),
-			}, nil, flagAll, "offset", "offset", "limit", "", "", cmd.ErrOrStderr())
+			}, map[string][]string{"offset": {"offset"}, "limit": {"limit"}, "property_ids": {"property-ids"}, "channel_types": {"channel-types"}}, "offset", "offset"), nil, flagAll, "offset", "offset", "limit", 10, "", "", "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			if asyncJobID := ExtractJobID(data, "request_id"); asyncJobID != "" {
+				asyncSubmittedAt := time.Now().UTC()
 				_ = RecordJob(JobRow{
 					JobID:          asyncJobID,
 					Resource:       "knowledge-bases",
 					Endpoint:       "query",
 					Status:         "submitted",
+					SubmittedAt:    asyncSubmittedAt,
 					StatusResource: "knowledge-bases",
 					StatusEndpoint: "get",
 				})
@@ -63,14 +65,21 @@ func newKnowledgeBasesQueryCmd(flags *rootFlags) *cobra.Command {
 						Timeout:  flagWaitTimeout,
 					})
 					if werr != nil {
+						// The job was accepted; only the wait failed. Keep the
+						// row "submitted" so `jobs get` still points at it, and
+						// hand back the ID plus the command that fetches the
+						// result instead of an error that invites a resubmit.
 						_ = RecordJob(JobRow{
-							JobID:    asyncJobID,
-							Resource: "knowledge-bases",
-							Endpoint: "query",
-							Status:   "errored",
-							Error:    werr.Error(),
+							JobID:          asyncJobID,
+							Resource:       "knowledge-bases",
+							Endpoint:       "query",
+							Status:         "submitted",
+							SubmittedAt:    asyncSubmittedAt,
+							StatusResource: "knowledge-bases",
+							StatusEndpoint: "get",
+							Error:          werr.Error(),
 						})
-						return werr
+						return asyncJobPendingErr(cmd, flags, asyncJobID, "hostex-pp-cli knowledge-bases get "+asyncJobID, werr)
 					}
 					if b, merr := json.Marshal(final); merr == nil {
 						data = b
@@ -85,6 +94,7 @@ func newKnowledgeBasesQueryCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 			}
+			outputData := collectionItemsForOutput(data, path)
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -92,7 +102,7 @@ func newKnowledgeBasesQueryCmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				_ = json.Unmarshal(outputData, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
@@ -101,22 +111,31 @@ func newKnowledgeBasesQueryCmd(flags *rootFlags) *cobra.Command {
 			// --plain) opt out of the auto-JSON path so piped consumers that asked for
 			// a non-JSON format reach the standard pipeline below.
 			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
+				var selectErr error
 				filtered := data
 				if flags.selectFields != "" {
-					filtered = filterFields(filtered, flags.selectFields)
+					filtered, selectErr = filterFieldsChecked(filtered, flags.selectFields)
+					selectErr = selectErrorForDryRun(selectErr, flags, data)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, map[string]bool{"error_code": true, "request_id": true})
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
 					return wrapErr
 				}
-				return printOutput(cmd.OutOrStdout(), wrapped, true)
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
+				if err := printOutput(cmd.OutOrStdout(), wrapped, true); err != nil {
+					return err
+				}
+				return selectErr
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -126,7 +145,11 @@ func newKnowledgeBasesQueryCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"}, map[string]bool{"error_code": true, "request_id": true})
 		},
 	}
 	cmd.Flags().StringVar(&flagOffset, "offset", "0", "Zero-based index of the first row to return. Default: 0.")

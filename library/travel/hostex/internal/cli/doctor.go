@@ -20,6 +20,22 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// Hand-coded auth flows can report credentials that are intentionally not
+// represented by the generated Config fields. Assign this from a same-package
+// author file after generation. This is a presence signal only; custom flows
+// own their transport and credential-probe validation.
+var doctorAuthConfiguredHook func() (bool, string)
+
+func doctorAuthConfiguredState(cfg *config.Config) (bool, string) {
+	if cfg != nil && cfg.CredentialConfigured() {
+		return true, cfg.AuthSource
+	}
+	if doctorAuthConfiguredHook != nil {
+		return doctorAuthConfiguredHook()
+	}
+	return false, ""
+}
+
 // looksLikeDoctorInterstitial reports whether the response body matches a known
 // bot-detection challenge page (Cloudflare, Akamai, Vercel, AWS WAF, DataDome,
 // PerimeterX). Only fires on the doctor probe — used to distinguish "transport
@@ -64,15 +80,29 @@ func looksLikeDoctorInterstitial(body []byte) string {
 	return ""
 }
 
+func doctorBodyLooksLikeHTML(body []byte) bool {
+	s := strings.TrimSpace(string(body))
+	if s == "" {
+		return false
+	}
+	lower := strings.ToLower(s)
+	if len(lower) > 2048 {
+		lower = lower[:2048]
+	}
+	return strings.HasPrefix(lower, "<!doctype html") || strings.HasPrefix(lower, "<html") ||
+		(strings.HasPrefix(lower, "<") && (strings.Contains(lower, "<html") || strings.Contains(lower, "<body") || strings.Contains(lower, "<head") || strings.Contains(lower, "<title")))
+}
+
 // suggestReadCommand walks the Cobra tree to find an endpoint-mirror command
 // an operator can run to confirm credentials work end-to-end. Picks the
 // first leaf that (a) carries the `pp:endpoint` annotation, so it actually
 // dials the API rather than reading a local file like `feedback list` or
-// `profile list`; (b) has a list/get verb; and (c) takes no positional
-// arguments, so the suggestion is copy-paste runnable. Returns the dotted
-// command path (e.g. "issues list") or "" when no such command exists —
-// common in mutation-only CLIs and in CLIs where every read command has
-// required positional arguments.
+// `profile list`; (b) has a list/get verb; (c) takes no positional
+// arguments; and (d) has no required flags (`pp:requires-input`), so a
+// bare invocation actually dials instead of printing help and exiting 0.
+// Returns the command path (e.g. "issues list") or "" when no such
+// command exists — common in mutation-only CLIs and in CLIs where every
+// read command has required input.
 func suggestReadCommand(root *cobra.Command) string {
 	if root == nil {
 		return ""
@@ -89,12 +119,10 @@ func suggestReadCommand(root *cobra.Command) string {
 				found = strings.Join(childPath, " ")
 				return
 			}
-			// Recurse even into Hidden parents: printed CLIs mark raw
-			// resource parents Hidden to keep --help curated, but their
-			// endpoint leaves remain runnable (`<cli> projects list`
-			// works). Skipping hidden subtrees would make this return ""
-			// in nearly every CLI. isSuggestableReadLeaf still rejects a
-			// leaf that is itself Hidden.
+			// Recurse even into Hidden grouping commands because their
+			// descendants can remain runnable and discoverable by direct
+			// invocation. isSuggestableReadLeaf still rejects a leaf that
+			// is itself Hidden.
 			walk(child, childPath)
 			if found != "" {
 				return
@@ -105,6 +133,8 @@ func suggestReadCommand(root *cobra.Command) string {
 	return found
 }
 
+const requiresInputAnnotation = "pp:requires-input"
+
 func isSuggestableReadLeaf(cmd *cobra.Command) bool {
 	if cmd == nil || cmd.Hidden || cmd.HasSubCommands() || !cmd.Runnable() {
 		return false
@@ -114,6 +144,11 @@ func isSuggestableReadLeaf(cmd *cobra.Command) bool {
 	// recreate the false-confidence failure mode the suggestion is
 	// supposed to avoid.
 	if cmd.Annotations["pp:endpoint"] == "" {
+		return false
+	}
+	// Required non-positional flags print help and exit 0 in default
+	// mode. Suggesting one would look like a successful token check.
+	if cmd.Annotations[requiresInputAnnotation] != "" {
 		return false
 	}
 	verb := strings.ToLower(strings.SplitN(cmd.Use, " ", 2)[0])
@@ -147,6 +182,22 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
   hostex-pp-cli doctor --fail-on warn
   hostex-pp-cli doctor --fail-on stale`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if dryRunOK(flags) {
+				return writeDryRun(cmd.OutOrStdout(), flags, "doctor")
+			}
+			if registeredPlatformSource != nil {
+				if flags.platformSession == nil {
+					return errors.New("verified client profile session is required")
+				}
+				report, err := platformDoctorV2Report(cmd.Context(), flags.platformSession)
+				if err != nil {
+					return err
+				}
+				if err := flags.printJSON(cmd, report); err != nil {
+					return err
+				}
+				return flags.platformGateError
+			}
 			report := map[string]any{}
 			pathsReport := collectPathsReport()
 			report["paths"] = pathsReport
@@ -176,15 +227,27 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 
 			// Check auth
 			authConfigured := false
-			if cfg != nil {
-				header := cfg.AuthHeader()
-				if header == "" {
-					report["auth"] = "not configured"
-					report["auth_hint"] = "Set one of: export HOSTEX_ACCESS_TOKEN=\"your-token-here\" or export HOSTEX_HOSTEX_ACCESS_TOKEN=\"your-token-here\""
-				} else {
-					authConfigured = true
-					report["auth"] = "configured"
-					report["auth_source"] = cfg.AuthSource
+			credentialRefused := cfg != nil && cfg.HasCredentialRefusals()
+			if credentialRefused {
+				report["auth"] = "refused: credential present but not loaded"
+				report["auth_refusals"] = cfg.CredentialRefusalSummaries()
+				report["credentials"] = "refused: credential present but not loaded"
+			} else {
+				if cfg != nil {
+					configured, authSource := doctorAuthConfiguredState(cfg)
+					if !configured {
+						report["auth"] = "not configured"
+						report["auth_hint"] = "Set your API key with: export HOSTEX_ACCESS_TOKEN=\"your-token-here\""
+						report["auth_key_url"] = "https://api.hostex.io/v3"
+					} else {
+						authConfigured = true
+						report["auth"] = "configured"
+						report["auth_source"] = authSource
+						if expiresAt, _, expired, ok := jwtCredentialExpiry(jwtExpirySource(cfg)); ok && expired {
+							report["auth"] = "ERROR token expired at " + expiresAt
+							report["auth_hint"] = "Set your API key with: export HOSTEX_ACCESS_TOKEN=\"your-token-here\""
+						}
+					}
 				}
 			}
 
@@ -195,27 +258,16 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			authEnvOptionalNames := []string{}
 			// Validation rejects multi-OR-group specs upstream, so the single optional-satisfied state is sufficient at runtime.
 			authEnvOptionalSatisfied := false
-			if strings.Contains("", " OR ") {
-				authEnvOptionalNames = append(authEnvOptionalNames, "HOSTEX_ACCESS_TOKEN")
-				if os.Getenv("HOSTEX_ACCESS_TOKEN") != "" {
-					authEnvSet = append(authEnvSet, "HOSTEX_ACCESS_TOKEN")
-					authEnvOptionalSatisfied = true
-				}
-			} else if os.Getenv("HOSTEX_ACCESS_TOKEN") != "" {
+			if os.Getenv("HOSTEX_ACCESS_TOKEN") != "" {
 				authEnvSet = append(authEnvSet, "HOSTEX_ACCESS_TOKEN")
-			} else {
-				authEnvInfo = append(authEnvInfo, "HOSTEX_ACCESS_TOKEN optional")
-			}
-			if strings.Contains("", " OR ") {
-				authEnvOptionalNames = append(authEnvOptionalNames, "HOSTEX_HOSTEX_ACCESS_TOKEN")
-				if os.Getenv("HOSTEX_HOSTEX_ACCESS_TOKEN") != "" {
-					authEnvSet = append(authEnvSet, "HOSTEX_HOSTEX_ACCESS_TOKEN")
-					authEnvOptionalSatisfied = true
+			} else if authConfigured {
+				authSource, _ := report["auth_source"].(string)
+				if authSource == "" {
+					authSource = "config"
 				}
-			} else if os.Getenv("HOSTEX_HOSTEX_ACCESS_TOKEN") != "" {
-				authEnvSet = append(authEnvSet, "HOSTEX_HOSTEX_ACCESS_TOKEN")
+				authEnvInfo = append(authEnvInfo, "credentials available from "+authSource)
 			} else {
-				authEnvInfo = append(authEnvInfo, "HOSTEX_HOSTEX_ACCESS_TOKEN optional")
+				authEnvRequiredMissing = append(authEnvRequiredMissing, "HOSTEX_ACCESS_TOKEN")
 			}
 			switch {
 			case len(authEnvRequiredMissing) > 0:
@@ -227,18 +279,19 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			case len(authEnvInfo) > 0:
 				report["env_vars"] = "INFO " + strings.Join(authEnvInfo, "; ")
 			default:
-				report["env_vars"] = fmt.Sprintf("OK %d/%d available", len(authEnvSet), 2)
+				report["env_vars"] = fmt.Sprintf("OK %d/%d available", len(authEnvSet), 1)
 			}
 
 			// Check API connectivity and validate credentials.
 			//
 			// The doctor uses the same client every other command uses --
 			// flags.newClient() returns a *client.Client wrapping whatever
-			// transport the spec declared (Surf for browser-chrome, stdlib
-			// for standard). A separate stdlib http.Client would silently
-			// bypass that choice and report false negatives against
-			// Cloudflare-fronted, Akamai-fronted, or otherwise bot-detected
-			// sites. By going through flags.newClient(), the doctor's
+			// transport the spec declared (the Chrome-compatible transport
+			// for browser-chrome, stdlib for standard). A separate stdlib
+			// http.Client would silently bypass that choice and report
+			// false negatives against Cloudflare-fronted, Akamai-fronted,
+			// or otherwise bot-detected sites. By going through
+			// flags.newClient(), the doctor's
 			// reachability verdict matches what real commands experience.
 			if cfg != nil && cfg.BaseURL != "" {
 				c, clientErr := flags.newClient()
@@ -246,7 +299,10 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					report["api"] = fmt.Sprintf("client init error: %s", clientErr)
 				} else {
 					// Step 1: Basic reachability via the configured transport.
-					reachBody, reachErr := c.Get(cmd.Context(), "/", nil)
+					// Health paths have no response_format field, so opt this
+					// probe into HTML: a 200 HTML homepage is reachable, and
+					// a Cloudflare challenge page can still be classified.
+					reachBody, reachErr := c.GetWithHeaders(cmd.Context(), "/", nil, map[string]string{client.HTMLResponseHeader: "true"})
 					var reachAPIErr *client.APIError
 					switch {
 					case reachErr == nil:
@@ -255,6 +311,8 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 						// 200 with a JS challenge page.
 						if vendor := looksLikeDoctorInterstitial(reachBody); vendor != "" {
 							report["api"] = fmt.Sprintf("blocked by %s interstitial — the configured transport reached the wall. Try a different network, wait for the IP-level rate limit to clear, or check that the browser-chrome transport is bound correctly.", vendor)
+						} else if doctorBodyLooksLikeHTML(reachBody) {
+							report["api"] = "reachable (HTML body at /)"
 						} else {
 							report["api"] = "reachable"
 						}
@@ -294,7 +352,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			} else if cfg != nil && cfg.BaseURL == "" {
 				report["api"] = "not configured (set base_url in config file)"
 			}
-			// Cache health: only reported when this CLI has a local store.
+			// Cache health: only reported when this CLI has generated sync.
 			// Surfaces rows + last_synced_at per resource, schema version,
 			// and a fresh/stale/unknown verdict so agents can introspect
 			// whether to trust the cached data before issuing queries.
@@ -350,6 +408,8 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					indicator = yellow("INFO")
 				case strings.HasPrefix(s, "ERROR"):
 					indicator = red("FAIL")
+				case strings.HasPrefix(s, "refused:"):
+					indicator = red("FAIL")
 				case strings.HasPrefix(s, "optional"):
 					// Optional-auth CLI with no key set — informational, not a failure.
 					indicator = yellow("INFO")
@@ -371,7 +431,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintf(w, "  %s %s: %s\n", indicator, ck.label, s)
 			}
 			// Print info keys without status indicator
-			for _, key := range []string{"config_path", "base_url", "auth_source", "credentials_location", "version"} {
+			for _, key := range []string{"config_path", "base_url", "auth_source", "auth_refusals", "credentials_location", "version"} {
 				if v, ok := report[key]; ok {
 					fmt.Fprintf(w, "  %s: %v\n", key, v)
 				}
@@ -379,6 +439,9 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			// Print auth setup hints (indented under Auth line)
 			if hint, ok := report["auth_hint"]; ok {
 				fmt.Fprintf(w, "  hint: %v\n", hint)
+			}
+			if keyURL, ok := report["auth_key_url"]; ok {
+				fmt.Fprintf(w, "  Get a key at: %v\n", keyURL)
 			}
 			// Cache section: render after the primary health block so it
 			// sits next to version info, mirroring the JSON report layout.
@@ -463,6 +526,16 @@ func pathsWarning(report map[string]any) string {
 }
 
 func renderPathsReport(w io.Writer, rep map[string]any) {
+	if status, _ := rep["status"].(string); status == "error" {
+		fmt.Fprintf(w, "  %s Paths: %s\n", red("FAIL"), status)
+		if v, ok := rep["detail"]; ok {
+			fmt.Fprintf(w, "    detail: %v\n", v)
+		}
+		if v, ok := rep["error"]; ok {
+			fmt.Fprintf(w, "    error: %v\n", v)
+		}
+		return
+	}
 	fmt.Fprintf(w, "  Paths:\n")
 	for _, kind := range []string{"config", "data", "state", "cache"} {
 		entry, ok := rep[kind].(map[string]any)
@@ -488,6 +561,7 @@ func collectCredentialsLocationReport(report map[string]any, cfg *config.Config)
 	if cfg == nil {
 		return
 	}
+	remediationHint := "run auth set-token or auth logout"
 	if cfg.CredentialSource != "" {
 		report["credentials_location"] = cfg.CredentialSource
 	} else {
@@ -517,9 +591,9 @@ func collectCredentialsLocationReport(report map[string]any, cfg *config.Config)
 	}
 	if credsPresent && len(locations) > 1 {
 		if legacySecretsElsewhere != "" {
-			report["credentials_location_warning"] = "WARN credentials stored in more than one location; legacy secrets remain at " + legacySecretsElsewhere + "; run auth set-token or auth logout to consolidate and remove legacy secrets"
+			report["credentials_location_warning"] = "WARN credentials stored in more than one location; legacy secrets remain at " + legacySecretsElsewhere + "; " + remediationHint + " to consolidate and remove legacy secrets"
 		} else {
-			report["credentials_location_warning"] = "WARN credentials stored in more than one location; current reads use credentials file; run auth set-token or auth logout to consolidate"
+			report["credentials_location_warning"] = "WARN credentials stored in more than one location; current reads use credentials file; " + remediationHint + " to consolidate"
 		}
 	}
 }
@@ -545,33 +619,60 @@ func legacyCredentialProbePaths(cfg *config.Config) []string {
 	return paths
 }
 
+// doctorInfoKeys are report entries rendered as information, not health
+// checks. Their free text (hints, paths, tool names) can contain "missing"
+// or "error" without meaning the CLI is unhealthy.
+var doctorInfoKeys = map[string]bool{
+	"config_path":                  true,
+	"base_url":                     true,
+	"auth_source":                  true,
+	"auth_domain":                  true,
+	"auth_hint":                    true,
+	"auth_key_url":                 true,
+	"auth_refusals":                true,
+	"version":                      true,
+	"cookie_tool":                  true,
+	"browser_session_proof_detail": true,
+	"credentials_location":         true,
+	"credentials_locations":        true,
+	"agentcookie":                  true,
+}
+
+func doctorIsInfoKey(key string) bool { return doctorInfoKeys[key] }
+
 // doctorExitForFailOn returns a non-nil error when the report's worst
 // status meets the --fail-on gate. "error" trips on failing sections, "warn"
 // trips on deliberate WARN sections plus errors, and "stale" trips on cache
 // freshness plus errors. The default empty string means never fail on status.
+// The gate value is matched case-insensitively.
 func doctorExitForFailOn(failOn string, report map[string]any) error {
+	failOn = strings.ToLower(strings.TrimSpace(failOn))
 	if failOn == "" {
 		return nil
 	}
 	worstError := false
 	worstWarn := false
 	worstStale := false
-	for _, v := range report {
+	for k, v := range report {
 		s, ok := v.(string)
-		if ok {
-			if strings.Contains(s, "error") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") || strings.Contains(s, "missing") {
-				worstError = true
-			}
-			if strings.HasPrefix(s, "WARN") {
+		if ok && !doctorIsInfoKey(k) {
+			low := strings.ToLower(s)
+			// A WARN prefix is the verdict. Explanatory text such as
+			// "neither accepted nor rejected" must not promote it to an error.
+			if strings.HasPrefix(low, "warn") {
 				worstWarn = true
+			} else if strings.HasPrefix(low, "error") || strings.HasPrefix(low, "refused:") || strings.HasPrefix(low, "rejected") || strings.Contains(low, "error") || strings.Contains(low, "unreachable") || strings.Contains(low, "invalid") || strings.Contains(low, "missing") {
+				worstError = true
 			}
 		}
 		if m, ok := v.(map[string]any); ok {
-			if st, _ := m["status"].(string); st == "error" {
+			st, _ := m["status"].(string)
+			switch strings.ToLower(st) {
+			case "error":
 				worstError = true
-			} else if st == "warn" {
+			case "warn":
 				worstWarn = true
-			} else if st == "stale" {
+			case "stale":
 				worstStale = true
 			}
 		}
@@ -595,10 +696,12 @@ func doctorExitForFailOn(failOn string, report map[string]any) error {
 	return nil
 }
 
-// collectCacheReport opens the local store, reads per-resource sync state,
-// and returns a map summarising cache health. Never panics on missing DB
-// or open failure; returns a map with status=unknown or status=error so the
-// caller can render and agents can interpret.
+// collectCacheReport opens the local store read-only, reads per-resource sync
+// state, and returns a map summarising cache health. Never panics on missing
+// DB or open failure; returns a map with status=unknown or status=error so
+// the caller can render and agents can interpret. A read-only open does not
+// run schema migration; migration_pending reports whether user_version is
+// behind this binary.
 //
 // staleAfterSpec is the CLI's configured threshold (e.g. "6h"); empty means
 // use the runtime default. The default is deliberately conservative (6h)
@@ -621,7 +724,7 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 	}
 	report["db_bytes"] = fi.Size()
 
-	s, err := store.OpenWithContext(ctx, dbPath)
+	s, err := store.OpenReadOnlyContext(ctx, dbPath)
 	if err != nil {
 		report["status"] = "error"
 		report["error"] = err.Error()
@@ -629,8 +732,10 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 	}
 	defer s.Close()
 
+	report["store_schema_version"] = store.StoreSchemaVersion
 	if v, verr := s.SchemaVersion(); verr == nil {
 		report["schema_version"] = v
+		report["migration_pending"] = v < store.StoreSchemaVersion
 	}
 
 	staleAfter := 6 * time.Hour
@@ -662,7 +767,7 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 			continue
 		}
 		r := map[string]any{"type": rtype, "rows": count}
-		if lastSynced.Valid {
+		if lastSynced.Valid && !lastSynced.Time.IsZero() {
 			haveAny = true
 			r["last_synced_at"] = lastSynced.Time.UTC().Format(time.RFC3339)
 			age := time.Since(lastSynced.Time)
@@ -683,9 +788,12 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 	report["stale_after"] = staleAfter.String()
 
 	switch {
-	case !haveAny && len(resources) == 0:
-		report["status"] = "unknown"
-		report["hint"] = "sync_state is empty; run 'hostex-pp-cli sync' to hydrate."
+	case !haveAny:
+		report["status"] = "empty"
+		// Only sync-tracked resources are counted here. A store seeded by
+		// other paths (built-in reference data, local writes) can hold rows
+		// while sync_state stays empty, so say what was measured.
+		report["hint"] = "No sync recorded; run 'hostex-pp-cli sync' to hydrate API-backed resources. Rows written by other paths are not tracked in sync_state."
 	case fresh:
 		report["status"] = "fresh"
 	default:
@@ -706,13 +814,24 @@ func renderCacheReport(w io.Writer, rep map[string]any) {
 		indicator = red("FAIL")
 	case "unknown":
 		indicator = yellow("INFO")
+	case "empty":
+		indicator = yellow("INFO")
 	}
 	fmt.Fprintf(w, "  %s Cache: %s\n", indicator, status)
+	if v, ok := rep["error"]; ok {
+		fmt.Fprintf(w, "    error: %v\n", v)
+	}
 	if v, ok := rep["db_path"]; ok {
 		fmt.Fprintf(w, "    db_path: %v\n", v)
 	}
 	if v, ok := rep["schema_version"]; ok {
 		fmt.Fprintf(w, "    schema_version: %v\n", v)
+	}
+	if v, ok := rep["store_schema_version"]; ok {
+		fmt.Fprintf(w, "    store_schema_version: %v\n", v)
+	}
+	if v, ok := rep["migration_pending"]; ok {
+		fmt.Fprintf(w, "    migration_pending: %v\n", v)
 	}
 	if v, ok := rep["db_bytes"]; ok {
 		fmt.Fprintf(w, "    db_bytes: %v\n", v)

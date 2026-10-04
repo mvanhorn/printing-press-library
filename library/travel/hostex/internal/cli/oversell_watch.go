@@ -33,8 +33,7 @@ func newNovelOversellWatchCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
-				fmt.Fprintf(cmd.OutOrStdout(), "would compare availabilities vs listing inventory over %s days\n", flagDays)
-				return nil
+				return writeDryRun(cmd.OutOrStdout(), flags, "compare availabilities against listing inventory")
 			}
 			if err := rejectLocalDataSource(flags); err != nil {
 				return err

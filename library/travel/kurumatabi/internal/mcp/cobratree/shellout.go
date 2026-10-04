@@ -73,6 +73,11 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string, blocked
 			}
 			finalArgs = append(finalArgs, rawPositionals...)
 		}
+		// Native park planning mirrors must not journal or derive preferences.
+		// Explicit learning/local-write commands keep their own semantics.
+		if len(prefixArgs) > 0 && prefixArgs[0] == "parks" {
+			finalArgs = append(finalArgs, "--no-learn")
+		}
 		out, err := RunCLICommand(ctx, lookupPath, finalArgs)
 		if err != nil {
 			return ToolResultErrorFromCLICommand(out, err), nil
@@ -116,6 +121,11 @@ func positionalArgsFromMCP(args map[string]any, positionals []positionalArg, rea
 		if !ok || value == nil {
 			continue
 		}
+		if positional.Variadic {
+			if _, ok := value.(string); !ok {
+				return nil, fmt.Errorf("structured variadic %q must be a string of arguments", positional.InputName)
+			}
+		}
 		var text string
 		switch tv := value.(type) {
 		case string:
@@ -139,7 +149,14 @@ func positionalArgsFromMCP(args map[string]any, positionals []positionalArg, rea
 		if readOnly && positionalWriteSinks[positionalIndex] && text != "-" {
 			return nil, fmt.Errorf("positional argument %d writes to %q; file output is not available for read-only MCP tools", positionalIndex+1, text)
 		}
-		out = append(out, text)
+		tokens := []string{text}
+		if positional.Variadic {
+			tokens = SplitShellArgs(text)
+		}
+		if err := validatePositionalArgsForMCPAtOffset(tokens, readOnly, positionalWriteSinks, len(out)); err != nil {
+			return nil, err
+		}
+		out = append(out, tokens...)
 	}
 	if err := validatePositionalArgsForMCP(out, readOnly, nil); err != nil {
 		return nil, err

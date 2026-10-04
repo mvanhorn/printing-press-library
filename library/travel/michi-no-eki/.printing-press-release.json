@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "michi-no-eki",
   "cli_name": "michi-no-eki-pp-cli",
-  "version": "2026.10.1",
-  "released_at": "2026-10-03T09:31:51Z",
-  "source_commit": "5d1107670534dca7d6c4692dd3849e9bb5541485",
+  "version": "2026.10.2",
+  "released_at": "2026-10-04T08:49:57Z",
+  "source_commit": "5c2673940c81928f98e0027a4b1a2393f8412f11",
   "printing_press_version": "4.32.5",
   "run_id": "20261003-001046-81800c96",
   "changes": [
     {
-      "title": "feat(michi-no-eki): add michi-no-eki (leftover of #2248)",
-      "pr": 2252,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2252",
-      "commit": "5d1107670534dca7d6c4692dd3849e9bb5541485"
+      "title": "fix(michi-no-eki): preserve learning evidence and read-only contracts",
+      "pr": 2260,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2260",
+      "commit": "5c2673940c81928f98e0027a4b1a2393f8412f11"
     }
   ]
 }
