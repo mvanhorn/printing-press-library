@@ -1,7 +1,6 @@
 {
   "status": "PASS",
   "prior_original_and_G123_findings_remain_closed": true,
-  "independent_cancellation_does_not_obscure_request_notice": true,
   "actual_request_conditions_still_ambiguous": true,
   "per_cost_polarity_preserves_waivers_and_positive_mixed200yen": true,
   "transport_waiver_alone_does_not_invent_whole_service_free": true,
@@ -41,5 +40,47 @@
     }
   ],
   "DB_hash_mtime_original_clocks_amounts_units_unchanged": true,
-  "availability_operation_open_now_not_invented": true
+  "availability_operation_open_now_not_invented": true,
+  "affirmative_whole_clause_rain_cancellation_notice_supported": true,
+  "contact_absence_action_mixed_split_and_unknown_cancellation_notice_unknown": true,
+  "no_prior_contact_deadline_invented": true,
+  "fresh_request_cases": 17,
+  "fresh_expense_cases": 10,
+  "legacy_prior_contact_cases": 4,
+  "legacy_read_selectors_each": 3,
+  "current_cached_commands": [
+    {
+      "command": "inspect-absence",
+      "exit": 0,
+      "prior_contact_unknown_weather_control_supported": true,
+      "no_invented_deadline": true,
+      "recorded_200yen_per_group_clocks_original_and_null_total_preserved": true,
+      "warning_only_actual_delta_truthful_saved_origin": true
+    },
+    {
+      "command": "inspect-action",
+      "exit": 0,
+      "prior_contact_unknown_weather_control_supported": true,
+      "no_invented_deadline": true,
+      "recorded_200yen_per_group_clocks_original_and_null_total_preserved": true,
+      "warning_only_actual_delta_truthful_saved_origin": true
+    },
+    {
+      "command": "compare",
+      "exit": 0,
+      "prior_contact_unknown_weather_control_supported": true,
+      "no_invented_deadline": true,
+      "recorded_200yen_per_group_clocks_original_and_null_total_preserved": true,
+      "warning_only_actual_delta_truthful_saved_origin": true
+    },
+    {
+      "command": "saved",
+      "exit": 0,
+      "prior_contact_unknown_weather_control_supported": true,
+      "no_invented_deadline": true,
+      "recorded_200yen_per_group_clocks_original_and_null_total_preserved": true,
+      "warning_only_actual_delta_truthful_saved_origin": true
+    }
+  ],
+  "N3_DB_hash_mtime_original_clocks_amounts_units_unchanged": true
 }

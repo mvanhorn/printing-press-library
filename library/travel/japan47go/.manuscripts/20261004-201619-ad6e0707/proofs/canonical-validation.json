@@ -1,6 +1,5 @@
 {
-  "status": "PASS",
-  "canonical_module": "github.com/mvanhorn/printing-press-library/library/travel/japan47go",
+  "passed": true,
   "checks": [
     {
       "name": "manifest",
@@ -55,6 +54,5 @@
       "passed": true
     }
   ],
-  "source_files_unchanged": 168,
-  "approved_metadata_native_peers_bundle_preserved": true
+  "scope": "current canonical JAPAN47GO package; default reachable-symbol vulnerability scan"
 }

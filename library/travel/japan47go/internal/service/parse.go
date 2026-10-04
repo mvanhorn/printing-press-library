@@ -98,16 +98,17 @@ func PageProps(body []byte) (json.RawMessage, error) {
 var negativeSameDay = regexp.MustCompile(`当日[^\n・、,;；]{0,24}(?:不可|禁止|できません|出来ません|できない|出来ない|受け付けません|受け付けていません|事前予約が必要)`)
 var negativeNoReservation = regexp.MustCompile(`予約不要(?:ではありません|ではない|ではなく|でない)`)
 var conditionalRequestOption = regexp.MustCompile(`ただし|場合|限り|条件|要確認|応相談|要予約`)
+var independentWeatherCancellation = regexp.MustCompile(`^\s*(?:ただし[、,]?\s*)?雨天の場合は中止\s*$`)
 var separateExpenses = regexp.MustCompile(`(?:交通費|入場料|保険料|資料代|弁当代|食事代|昼食代|宿泊費)[^\n。、,;；]{0,12}別途|別途[^\n。、,;；]{0,12}(?:交通費|入場料|保険料|資料代|弁当代|食事代|昼食代|宿泊費)`)
 
-// An independent cancellation clause constrains operation, not request notice.
+// Only a whole standalone rain-cancellation clause is known to constrain operation.
 // Unexplained continuation conditions still leave the request ambiguous.
 func hasRequestOptionCondition(original string) bool {
 	for _, clause := range strings.FieldsFunc(original, func(r rune) bool { return r == '。' || r == '\n' || r == ';' || r == '；' }) {
 		if !conditionalRequestOption.MatchString(clause) {
 			continue
 		}
-		if strings.Contains(clause, "予約") || strings.Contains(clause, "当日") || !strings.Contains(clause, "中止") {
+		if !independentWeatherCancellation.MatchString(clause) {
 			return true
 		}
 	}

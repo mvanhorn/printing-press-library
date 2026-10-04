@@ -1,7 +1,7 @@
 {
   "status": "PASS",
-  "completed_at": "2026-10-04T20:32:44.593090+00:00",
-  "source_fingerprint": "63386b470e96c3b853fcf465f38269a60be9d402313445e6dac5ea723212d3ea",
+  "completed_at": "2026-10-04T21:50:20.752473+00:00",
+  "source_fingerprint": "2fc9378f01d24af7878d265bbe84054e362a1e519a0d4d6801b6c7d2623787bc",
   "passed": 80,
   "failed": 0,
   "skipped_unverified": 80,
@@ -34,7 +34,7 @@
       "name_ja": "妻籠宿案内人の会",
       "source_url": "https://www.japan47go.travel/ja/detail/2980022e-ef99-4115-95e5-be5227cdc74e",
       "source_updated_at": "2026-05-22T12:56:31+09:00",
-      "observed_at": "2026-10-04T20:32:44.39483Z",
+      "observed_at": "2026-10-04T21:50:20.549067Z",
       "request": {
         "status": "known",
         "lead_times": [
@@ -88,7 +88,7 @@
       "name_ja": "博多ガイドの会",
       "source_url": "https://www.japan47go.travel/ja/detail/0ad62a4e-2987-4e83-af63-7a6dd69e0d98",
       "source_updated_at": "2026-04-30T11:58:29+09:00",
-      "observed_at": "2026-10-04T20:32:44.493685Z",
+      "observed_at": "2026-10-04T21:50:20.634555Z",
       "request": {
         "status": "known",
         "lead_times": [
@@ -126,7 +126,7 @@
       "name_ja": "田主丸・かっぱガイド会",
       "source_url": "https://www.japan47go.travel/ja/detail/c98eaa8d-a854-4494-88db-a04b6de17461",
       "source_updated_at": "2026-05-22T12:56:31+09:00",
-      "observed_at": "2026-10-04T20:32:44.578102Z",
+      "observed_at": "2026-10-04T21:50:20.734687Z",
       "request": {
         "status": "known",
         "lead_times": [
@@ -161,6 +161,8 @@
       "open_now": null
     }
   ],
-  "saved_original_observation_times_preserved": true,
-  "raw_transcripts_provider_payloads_not_retained": true
+  "saved_original_times_preserved": true,
+  "no_live_availability_guarantee": true,
+  "no_provider_mutations": true,
+  "raw_transcripts_private_deleted": true
 }

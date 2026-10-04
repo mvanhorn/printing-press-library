@@ -1,6 +1,6 @@
 {
   "status": "PASS",
-  "source_fingerprint": "63386b470e96c3b853fcf465f38269a60be9d402313445e6dac5ea723212d3ea",
+  "source_fingerprint": "2fc9378f01d24af7878d265bbe84054e362a1e519a0d4d6801b6c7d2623787bc",
   "canonical_source_files": 168,
   "all_per_file_digests_equal_current_approved_source": true,
   "official_v433_helper_unchanged": true,
@@ -9,5 +9,6 @@
   "strict_PII_pending": 0,
   "public_host_helper_receipts": 0,
   "dense_prose_manuscripts": 5,
-  "native_platform_metadata_and_peer_hashes_preserved": true
+  "native_platform_metadata_and_peer_hashes_preserved": true,
+  "canonical_validation_checks": 13
 }

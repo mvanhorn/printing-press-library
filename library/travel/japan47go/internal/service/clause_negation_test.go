@@ -15,6 +15,13 @@ func TestRequestConditionsStayWithTheirClause(t *testing.T) {
 	for _, tc := range []struct{ evidence, status, notice string }{
 		{"予約不要。ただし、雨天の場合は中止", "known", "supported"},
 		{"当日予約可。ただし、雨天の場合は中止", "known", "supported"},
+		{"予約不要。ただし、前日までに連絡がない場合は中止", "ambiguous", "unknown"},
+		{"予約不要。ただし、前日までに連絡しない場合は中止", "ambiguous", "unknown"},
+		{"予約不要。ただし、雨天の場合または前日までに連絡がない場合は中止", "ambiguous", "unknown"},
+		{"予約不要。ただし、雨天の場合は中止。また、前日までに連絡がない場合は中止", "ambiguous", "unknown"},
+		{"予約不要。ただし、都合がつかない場合は中止", "ambiguous", "unknown"},
+		{"予約不要。ただし、雨天以外の理由でも中止となる場合があります", "ambiguous", "unknown"},
+		{"予約不要。事前連絡不要", "known", "supported"},
 		{"予約不要（空きがある場合のみ）", "ambiguous", "unknown"},
 		{"予約不要。ただし、予約が必要な場合は事前に連絡", "ambiguous", "unknown"},
 		{"予約不要。ただし、空きがある場合のみ", "ambiguous", "unknown"},
@@ -136,5 +143,63 @@ func TestLegacyClauseFacetsCorrectWithoutCacheWrites(t *testing.T) {
 	}
 	if sha256.Sum256(before) != sha256.Sum256(after) || !stat.ModTime().Equal(finalStat.ModTime()) {
 		t.Fatal("cached read wrote database")
+	}
+}
+
+func TestLegacyPriorContactRemainsUnknownWithoutCacheWrites(t *testing.T) {
+	for _, evidence := range []string{
+		"予約不要。ただし、前日までに連絡がない場合は中止",
+		"予約不要。ただし、前日までに連絡しない場合は中止",
+		"予約不要。ただし、雨天の場合または前日までに連絡がない場合は中止",
+		"予約不要。ただし、雨天の場合は中止。また、前日までに連絡がない場合は中止",
+	} {
+		t.Run(evidence, func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "observations.sqlite")
+			updated := "2026-04-30T11:58:29+09:00"
+			unit := "per_group"
+			old := Service{ID: tsumago, NameJA: "contact fixture", ObservedAt: "2026-10-04T12:00:00Z", SourceUpdatedAt: &updated, Availability: "unknown", Schedule: Schedule{Operation: "unknown"}, Request: Request{Status: "known", Options: []string{"予約不要"}, LeadTimes: []LeadTime{}, Original: evidence}, Price: Price{Status: "paid", Amounts: []Amount{{JPY: 200, Qualifier: "stated", Unit: &unit, Original: "200円"}}, Qualifiers: []string{}, TotalJPY: nil, Original: "1組200円"}}
+			if e := Save(context.Background(), path, old); e != nil {
+				t.Fatal(e)
+			}
+			before, e := os.ReadFile(path)
+			if e != nil {
+				t.Fatal(e)
+			}
+			stat, e := os.Stat(path)
+			if e != nil {
+				t.Fatal(e)
+			}
+			for _, query := range []string{"", tsumago, "fixture"} {
+				rows, n, e := Cached(context.Background(), path, query, 5)
+				if e != nil || n != 1 || len(rows) != 1 {
+					t.Fatal(rows, n, e)
+				}
+				row := rows[0]
+				fresh := ParseRequest("【予約期限】" + evidence)
+				x := Compare(row, Constraints{On: "2026-11-01", AsOf: "2026-11-01"})
+				if x.Notice.State != "unknown" || x.Notice.Deadline != nil || x.Compatibility != "unknown" || x.Availability != "unknown" || row.OpenNow != nil || row.Schedule.Operation != "unknown" || len(row.Request.LeadTimes) != 0 || !reflect.DeepEqual(row.Request, fresh) {
+					t.Fatalf("contact condition became unconditional or invented a deadline: %+v", x)
+				}
+				if row.Request.Original != evidence || row.ObservedAt != old.ObservedAt || row.SourceUpdatedAt == nil || *row.SourceUpdatedAt != updated || !reflect.DeepEqual(row.Price, old.Price) || row.CacheWarning == nil || row.Transport != "local" {
+					t.Fatalf("read lost recorded evidence, money, clocks or warning: %+v", row)
+				}
+			}
+			after, e := os.ReadFile(path)
+			if e != nil {
+				t.Fatal(e)
+			}
+			final, e := os.Stat(path)
+			if e != nil {
+				t.Fatal(e)
+			}
+			if sha256.Sum256(before) != sha256.Sum256(after) || !stat.ModTime().Equal(final.ModTime()) {
+				t.Fatal("cached contact projection wrote database")
+			}
+			correct := old
+			correct.Request = ParseRequest("【予約期限】" + evidence)
+			if recheckSavedFacets(correct).CacheWarning != nil {
+				t.Fatal("unchanged contact projection warned")
+			}
+		})
 	}
 }
