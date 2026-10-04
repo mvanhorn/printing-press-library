@@ -18,7 +18,7 @@ func newReservationsUpdateBasicInfoCmd(flags *rootFlags) *cobra.Command {
 	var bodyCommissionAmount float64
 	var bodyCreator string
 	var bodyCurrency string
-	var bodyCustomChannelId string
+	var bodyCustomChannelId int
 	var bodyEmail string
 	var bodyGuestName string
 	var bodyMobile string
@@ -28,15 +28,26 @@ func newReservationsUpdateBasicInfoCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "update-basic-info <stay_code>",
-		Aliases: []string{"update"},
-		Short:   "Update basic information of a stay including guest details, dates, pricing, and other attributes.",
-		// TODO: replace placeholder example values before relying on this for live dogfood.
-		Example:     "  hostex-pp-cli reservations update-basic-info example-value",
+		Use:         "update-basic-info <stay_code>",
+		Aliases:     []string{"update"},
+		Short:       "Update basic information of a stay including guest details, dates, pricing, and other attributes.",
+		Example:     "  hostex-pp-cli reservations update-basic-info HMABC123 --guest-name 'Alex Rivera' --dry-run",
 		Annotations: map[string]string{"pp:endpoint": "reservations.update-basic-info", "pp:method": "PATCH", "pp:path": "/reservations/{stay_code}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <stay_code>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <stay_code>"))
 			}
 			if !stdinBody {
 			}
@@ -50,7 +61,7 @@ func newReservationsUpdateBasicInfoCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -62,49 +73,48 @@ func newReservationsUpdateBasicInfoCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
-				if bodyCheckInDate != "" {
-					body["check_in_date"] = bodyCheckInDate
+				bodyMap := map[string]any{}
+				body = bodyMap
+				if cmd.Flags().Changed("check-in-date") || bodyCheckInDate != "" {
+					bodyMap["check_in_date"] = bodyCheckInDate
 				}
-				if bodyCheckOutDate != "" {
-					body["check_out_date"] = bodyCheckOutDate
+				if cmd.Flags().Changed("check-out-date") || bodyCheckOutDate != "" {
+					bodyMap["check_out_date"] = bodyCheckOutDate
 				}
-				if bodyCommissionAmount != 0.0 {
-					body["commission_amount"] = bodyCommissionAmount
+				if cmd.Flags().Changed("commission-amount") || bodyCommissionAmount != 0.0 {
+					bodyMap["commission_amount"] = bodyCommissionAmount
 				}
-				if bodyCreator != "" {
-					body["creator"] = bodyCreator
+				if cmd.Flags().Changed("creator") || bodyCreator != "" {
+					bodyMap["creator"] = bodyCreator
 				}
-				if bodyCurrency != "" {
-					body["currency"] = bodyCurrency
+				if cmd.Flags().Changed("currency") || bodyCurrency != "" {
+					bodyMap["currency"] = bodyCurrency
 				}
-				if bodyCustomChannelId != "" {
-					if err := setJSONBodyScalar(body, "custom_channel_id", "custom-channel-id", "int", bodyCustomChannelId); err != nil {
-						return err
-					}
+				if cmd.Flags().Changed("custom-channel-id") || bodyCustomChannelId != 0 {
+					bodyMap["custom_channel_id"] = bodyCustomChannelId
 				}
-				if bodyEmail != "" {
-					body["email"] = bodyEmail
+				if cmd.Flags().Changed("email") || bodyEmail != "" {
+					bodyMap["email"] = bodyEmail
 				}
-				if bodyGuestName != "" {
-					body["guest_name"] = bodyGuestName
+				if cmd.Flags().Changed("guest-name") || bodyGuestName != "" {
+					bodyMap["guest_name"] = bodyGuestName
 				}
-				if bodyMobile != "" {
-					body["mobile"] = bodyMobile
+				if cmd.Flags().Changed("mobile") || bodyMobile != "" {
+					bodyMap["mobile"] = bodyMobile
 				}
-				if bodyNumberOfGuests != 0 {
-					body["number_of_guests"] = bodyNumberOfGuests
+				if cmd.Flags().Changed("number-of-guests") || bodyNumberOfGuests != 0 {
+					bodyMap["number_of_guests"] = bodyNumberOfGuests
 				}
-				if bodyRateAmount != 0.0 {
-					body["rate_amount"] = bodyRateAmount
+				if cmd.Flags().Changed("rate-amount") || bodyRateAmount != 0.0 {
+					bodyMap["rate_amount"] = bodyRateAmount
 				}
-				if bodyRemarks != "" {
-					body["remarks"] = bodyRemarks
+				if cmd.Flags().Changed("remarks") || bodyRemarks != "" {
+					bodyMap["remarks"] = bodyRemarks
 				}
 			}
 			data, statusCode, err := c.PatchWithParams(cmd.Context(), path, params, body)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			// Inspect the mutate response body for a partial-failure-shaped
 			// field (e.g. Google Ads `partialFailureError`). Several Google
@@ -197,15 +207,22 @@ func newReservationsUpdateBasicInfoCmd(flags *rootFlags) *cobra.Command {
 						}
 					}
 				}
+				// Mutation-riding reads (POST search, RPC-over-POST lists) return
+				// the same single-key collection envelopes as GET reads. Unwrap
+				// before filtering so rows nest once under the result key and
+				// --select filters rows, not envelope keys; plain created-object
+				// responses pass through unwrapSingleKeyArray untouched.
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
 				// generic high-gravity allow-list. Otherwise --compact still applies
 				// when --agent is on but the user did not name fields.
-				filtered := data
+				var selectErr error
+				filtered := unwrapSingleKeyArray(data)
 				if flags.selectFields != "" {
-					filtered = filterFields(filtered, flags.selectFields)
+					filtered, selectErr = filterFieldsChecked(filtered, flags.selectFields)
+					selectErr = selectErrorForDryRun(selectErr, flags, data)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, map[string]bool{"error_code": true, "request_id": true})
 				}
 				if len(filtered) > 0 {
 					var parsed any
@@ -221,28 +238,35 @@ func newReservationsUpdateBasicInfoCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
+				resultKey := "data"
+				if flags.agent {
+					resultKey = "results"
+				}
+				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
+				if err != nil {
+					return err
+				}
+				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
 					return perr
 				}
 				if partialFailure != nil && !flags.allowPartialFailure {
 					return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "reservations", partialFailure.Message))
 				}
-				return nil
+				return selectErr
 			}
 			// Fall-through for mutate paths that did not hit the table or
 			// asJSON branches: --quiet, --csv, --plain, and default terminal
-			// raw output. printOutputWithFlags renders the body, then the
-			// typed partial-failure exit fires unless --allow-partial-failure
-			// downgrades it. Without this guard a partial failure would exit
-			// 0 for these output modes — the exact silent-swallow regression
-			// the surrounding patch is preventing for asJSON / piped output.
-			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
-				return perr
-			}
+			// raw output. printOutputWithFlagsMeta renders the body with live
+			// provenance, then the typed partial-failure exit fires unless
+			// --allow-partial-failure downgrades it. Without this guard a
+			// partial failure would exit 0 for these output modes — the exact
+			// silent-swallow regression the surrounding patch is preventing
+			// for asJSON / piped output.
+			printErr := printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"}, map[string]bool{"error_code": true, "request_id": true})
 			if partialFailure != nil && !flags.allowPartialFailure {
 				return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "reservations", partialFailure.Message))
 			}
-			return nil
+			return printErr
 		},
 	}
 	cmd.Flags().StringVar(&bodyCheckInDate, "check-in-date", "", "The check-in date for the reservation in YYYY-MM-DD format.")
@@ -250,7 +274,7 @@ func newReservationsUpdateBasicInfoCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().Float64Var(&bodyCommissionAmount, "commission-amount", 0.0, "The commission amount for the reservation.")
 	cmd.Flags().StringVar(&bodyCreator, "creator", "", "The account of the creator.")
 	cmd.Flags().StringVar(&bodyCurrency, "currency", "", "The currency code for the reservation amounts.")
-	cmd.Flags().StringVar(&bodyCustomChannelId, "custom-channel-id", "", "The id of the custom channel.")
+	cmd.Flags().IntVar(&bodyCustomChannelId, "custom-channel-id", 0, "The id of the custom channel.")
 	cmd.Flags().StringVar(&bodyEmail, "email", "", "The email address of the guest.")
 	cmd.Flags().StringVar(&bodyGuestName, "guest-name", "", "The name of the primary guest.")
 	cmd.Flags().StringVar(&bodyMobile, "mobile", "", "The mobile phone number of the guest.")

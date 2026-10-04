@@ -26,6 +26,7 @@ type discoverView struct {
 func newDiscoverCmd(flags *rootFlags) *cobra.Command {
 	var fGenres, fTags, fPlatforms, fStores, fDevelopers, fPublishers, fDates, fOrdering, fMetacritic, fSearch string
 	var limit int
+	var withDemos bool
 
 	cmd := &cobra.Command{
 		Use:   "discover",
@@ -97,6 +98,14 @@ RAWG API: comma-separated ids or slugs for --genres/--tags/--platforms/
 			for _, g := range games {
 				rows = append(rows, toGameRow(g))
 			}
+			if withDemos {
+				failed, aerr := annotateRowsWithSteamDemos(cmd, c, rows)
+				if aerr != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: steam demo annotation unavailable: %v\n", aerr)
+				} else if failed > 0 {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: steam demo annotation: %d of %d Steam store-link lookups failed; demo state unknown for those rows\n", failed, len(rows))
+				}
+			}
 			view := discoverView{
 				Meta:    discoverMeta{Source: source, Count: len(rows), Filters: filters},
 				Results: rows,
@@ -108,7 +117,17 @@ RAWG API: comma-separated ids or slugs for --genres/--tags/--platforms/
 				fmt.Fprintln(cmd.OutOrStdout(), "No games matched those filters.")
 				return nil
 			}
-			return printAutoTable(cmd.OutOrStdout(), gameTableRows(rows))
+			items := gameTableRows(rows)
+			if withDemos {
+				// The auto table switches to a card layout above 8 fields, so
+				// swap the least informative column for the demo state to keep
+				// a real demo column.
+				for i := range items {
+					delete(items[i], "platforms")
+					items[i]["demo"] = steamDemoCell(rows[i].HasDemo)
+				}
+			}
+			return printAutoTable(cmd.OutOrStdout(), items)
 		},
 	}
 
@@ -123,6 +142,7 @@ RAWG API: comma-separated ids or slugs for --genres/--tags/--platforms/
 	cmd.Flags().StringVar(&fMetacritic, "metacritic", "", "Filter by Metacritic score range, e.g. 80,100")
 	cmd.Flags().StringVar(&fSearch, "search", "", "Also require a search-text match, e.g. \"Elden Ring\"")
 	cmd.Flags().IntVar(&limit, "limit", 20, "Maximum number of games to return (RAWG caps pages at 40)")
+	cmd.Flags().BoolVar(&withDemos, "with-demos", false, withDemosHelp)
 	return cmd
 }
 

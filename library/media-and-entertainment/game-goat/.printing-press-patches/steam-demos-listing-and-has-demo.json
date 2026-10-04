@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "id": "steam-demos-listing-and-has-demo",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20260927-155341-72694577",
+  "base_printing_press_version": "4.32.5",
+  "summary": "A demos-only `steam demos` command (app type = demo) lists free demos available on Steam with the full game each belongs to (parent_app_id, parent_name, parent_tags), filters by title and by tags (every tag required), and costs 3 requests per page; `steam app` and `ratings` report has_demo, and `discover`/`similar` add an opt-in --with-demos annotation.",
+  "reason": "The keyless store services can enumerate demos, but a regen without these hand changes loses the demos view and the demo annotations. Specific constraints a regen must keep: GetItems is chunked at 200 ids because the edge rejects query strings above about 8 KB; SearchSuggestions takes tagids_must_match and released_only/coming_soon_only server-side but ignores offsets, so --title is one batch (default 100, up to 1000) with meta.truncated; tags use one tagids_must_match group per tag so every tag is required; demos almost never carry tags, so rows show the full game's tags as parent_tags from the same GetItems that returns the full-game names; has_demo on ratings comes from the existing appdetails call at 0 extra requests; RAWG list results carry no Steam store link, so --with-demos costs one RAWG /games/{id}/stores call per result plus one Steam request per 200 games and stays opt-in. No new storage or cache is added; the B2 work (a local demos cache, --since/--until, --live-scan) is deferred.",
+  "files": [
+    "internal/source/steam/store.go",
+    "internal/source/steam/steam.go",
+    "internal/source/steam/cli_bridge.go",
+    "internal/cli/steam.go",
+    "internal/cli/steam_demos.go",
+    "internal/cli/steam_demo_annotate.go",
+    "internal/cli/ratings.go",
+    "internal/cli/discover.go",
+    "internal/cli/similar.go",
+    "internal/cli/games_search.go",
+    "internal/source/steam/store_test.go",
+    "internal/source/steam/steam_test.go",
+    "internal/cli/steam_demos_test.go",
+    "internal/cli/steam_demo_annotate_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Offline tests pass, each new-behaviour test shown failing first (on stubs, or by breaking the guarded code and restoring it). Live: `steam demos` pages with real next_page at 3 requests per page; `--title portal` returns total 24 with truncated false; `--tag Puzzle,Horror` returns 1,276 demos and every checked row's parent_tags carries both tags; has_demo shows on `steam app 379720` and `ratings DOOM --year 2016` (demo 479030); `similar`/`discover --with-demos` make 0 Steam lookups without the flag and one batched lookup with it; MCP surface went 68 -> 69 tools with nothing removed."
+}

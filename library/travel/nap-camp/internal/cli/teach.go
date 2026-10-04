@@ -644,7 +644,7 @@ Disabling: ` + noLearnEnvVar + `=true returns the empty shape even
 when learnings exist.`,
 		Example: `  QUERY="$(cat /path/to/question.txt)" nap-camp-pp-cli recall "$QUERY" --agent
   QUERY="$(cat /path/to/question.txt)" nap-camp-pp-cli recall "$QUERY" --agent --min-confidence 2`,
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "false", "mcp:local-write": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -871,7 +871,7 @@ func newLearningsListCmd(flags *rootFlags) *cobra.Command {
 		Example: `  nap-camp-pp-cli learnings list --agent
   nap-camp-pp-cli learnings list --query "$QUERY"
   nap-camp-pp-cli learnings list --warnings --agent`,
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "false", "mcp:local-write": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "learnings list")

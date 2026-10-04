@@ -6,6 +6,7 @@ package cobratree
 import (
 	"context"
 	"fmt"
+	"os"
 	"os/exec"
 	"sort"
 	"strconv"
@@ -72,7 +73,12 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string, blocked
 			}
 			finalArgs = append(finalArgs, rawPositionals...)
 		}
-		out, err := RunCLICommand(ctx, lookupPath, finalArgs)
+		runCtx := ctx
+		if readOnly {
+			// Preserve explicit recall while suppressing implicit state writes.
+			runCtx = context.WithValue(ctx, readOnlyChildContextKey{}, true)
+		}
+		out, err := RunCLICommand(runCtx, lookupPath, finalArgs)
 		if err != nil {
 			if strings.TrimSpace(out.Stdout) == "" {
 				return boundedToolResultError(err.Error()), nil
@@ -139,6 +145,17 @@ func positionalArgsFromMCP(args map[string]any, positionals []positionalArg, rea
 		}
 		if positionalIndex != len(out) {
 			return nil, fmt.Errorf("structured positional %q cannot be used while earlier positional arguments are omitted; provide the preceding positional arguments or use the args field", positional.InputName)
+		}
+		if positional.Variadic {
+			if _, ok := value.(string); !ok {
+				return nil, fmt.Errorf("structured variadic positional %q must be a string of shell words", positional.InputName)
+			}
+			tokens := SplitShellArgs(text)
+			if err := validatePositionalArgsForMCPAtOffset(tokens, readOnly, positionalWriteSinks, len(out)); err != nil {
+				return nil, err
+			}
+			out = append(out, tokens...)
+			continue
 		}
 		if text != "-" && strings.HasPrefix(text, "-") {
 			return nil, fmt.Errorf("flag-like positional argument %q not allowed in structured positional %q; use structured flag parameters instead", text, positional.InputName)
@@ -333,8 +350,19 @@ func ToolResultFromCLICommand(result CLICommandResult) *mcplib.CallToolResult {
 // RunCLICommand executes the companion CLI while preserving stdout as the
 // machine-readable channel. Hint and warning stderr lines are returned
 // separately on success so they cannot corrupt JSON results.
+type readOnlyChildContextKey struct{}
+
 func RunCLICommand(ctx context.Context, binPath string, args []string) (CLICommandResult, error) {
 	cmd := exec.CommandContext(ctx, binPath, args...) // #nosec G204 -- trusted companion CLI path, args pre-tokenized.
+	for _, entry := range os.Environ() {
+		name, _, _ := strings.Cut(entry, "=")
+		if !strings.EqualFold(name, "CARSTAY_MCP_READ_ONLY") {
+			cmd.Env = append(cmd.Env, entry)
+		}
+	}
+	if readOnly, _ := ctx.Value(readOnlyChildContextKey{}).(bool); readOnly {
+		cmd.Env = append(cmd.Env, "CARSTAY_MCP_READ_ONLY=true")
+	}
 	stdout := newCappedCapture()
 	stderr := newCappedCapture()
 	cmd.Stdout = stdout

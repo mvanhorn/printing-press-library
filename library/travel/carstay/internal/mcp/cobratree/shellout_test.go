@@ -1275,3 +1275,24 @@ func TestCarstayFailedMCPToolPreservesPartialEvidence(t *testing.T) {
 		}
 	}
 }
+
+func TestCarstayNamedVariadicWordsPreserveScalarAndRejectFlags(t *testing.T) {
+	positionals := []positionalArg{{InputName: "first", Required: true}, {InputName: "second", Required: true}, {InputName: "id", Variadic: true}}
+	args := map[string]any{"first": "632c59b82b614b99a252d1b2", "second": "5cff4813839680041631c452", "id": "000000000000000000000abc 000000000000000000000bcd"}
+	got, err := positionalArgsFromMCP(args, positionals, true, nil)
+	if err != nil || len(got) != 4 || got[2] != "000000000000000000000abc" || got[3] != "000000000000000000000bcd" {
+		t.Fatalf("got=%q err=%v", got, err)
+	}
+	args["id"] = "000000000000000000000abc '--receipt=true'"
+	if _, err := positionalArgsFromMCP(args, positionals, true, nil); err == nil {
+		t.Fatal("named variadic flag injection accepted")
+	}
+	args["id"] = []any{"000000000000000000000abc", "000000000000000000000bcd"}
+	if _, err := positionalArgsFromMCP(args, positionals, true, nil); err == nil {
+		t.Fatal("array accepted despite advertised string-only positional schema")
+	}
+	got, err = positionalArgsFromMCP(map[string]any{"query": "山梨 Lake Yamanaka"}, []positionalArg{{InputName: "query"}}, true, nil)
+	if err != nil || len(got) != 1 || got[0] != "山梨 Lake Yamanaka" {
+		t.Fatalf("scalar query was split: %q %v", got, err)
+	}
+}

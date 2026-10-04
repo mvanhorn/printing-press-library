@@ -868,3 +868,466 @@ func TestConversionHelpers(t *testing.T) {
 		t.Error("withinAYear must reject a two-year gap")
 	}
 }
+
+func TestItemsChunksAt200(t *testing.T) {
+	ids := make([]int64, 0, 450)
+	for i := int64(1); i <= 450; i++ {
+		ids = append(ids, i)
+	}
+	var requests, maxBatch int32
+	c := newTestCatalogClient(t, func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case getItemsPath:
+			atomic.AddInt32(&requests, 1)
+			payload := inputJSON(t, r)
+			list, _ := payload["ids"].([]any)
+			if int32(len(list)) > atomic.LoadInt32(&maxBatch) {
+				atomic.StoreInt32(&maxBatch, int32(len(list)))
+			}
+			parts := make([]string, 0, len(list))
+			for _, e := range list {
+				entry, _ := e.(map[string]any)
+				parts = append(parts, fmt.Sprintf(`{"appid":%v,"success":1,"visible":true,"name":"App %v"}`, entry["appid"], entry["appid"]))
+			}
+			fmt.Fprintf(w, `{"response":{"store_items":[%s]}}`, strings.Join(parts, ","))
+		case getTagListPath:
+			fmt.Fprint(w, tagListFixture)
+		default:
+			t.Errorf("unexpected path %s", r.URL.Path)
+			http.NotFound(w, r)
+		}
+	})
+
+	items, err := c.Items(context.Background(), ids)
+	if err != nil {
+		t.Fatalf("Items: %v", err)
+	}
+	if got := atomic.LoadInt32(&requests); got != 3 {
+		t.Fatalf("GetItems requests = %d, want 3 (450 ids / %d)", got, MaxItemsPerRequest)
+	}
+	if got := atomic.LoadInt32(&maxBatch); got > MaxItemsPerRequest {
+		t.Fatalf("largest batch = %d ids, want <= %d", got, MaxItemsPerRequest)
+	}
+	if len(items) != 450 {
+		t.Fatalf("items = %d, want all 450 returned across the chunks", len(items))
+	}
+}
+
+func TestBrowseSkipTagNamesMakesNoTagListRequest(t *testing.T) {
+	var queryRequests, tagRequests int32
+	c := newTestCatalogClient(t, func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case queryPath:
+			atomic.AddInt32(&queryRequests, 1)
+			fmt.Fprintf(w, `{"response":{"metadata":{"total_matching_records":1},"store_items":[%s]}}`, storeItemFixture)
+		case getTagListPath:
+			atomic.AddInt32(&tagRequests, 1)
+			fmt.Fprint(w, tagListFixture)
+		default:
+			t.Errorf("unexpected path %s", r.URL.Path)
+		}
+	})
+
+	if _, err := c.Browse(context.Background(), BrowseOptions{Types: []AppType{AppTypeGame}, SkipTagNames: true}); err != nil {
+		t.Fatalf("Browse with SkipTagNames: %v", err)
+	}
+	if got := atomic.LoadInt32(&tagRequests); got != 0 {
+		t.Errorf("GetTagList requests with SkipTagNames = %d, want 0", got)
+	}
+	if got := atomic.LoadInt32(&queryRequests); got != 1 {
+		t.Errorf("Query requests with SkipTagNames = %d, want 1", got)
+	}
+
+	// Same client (its tag dictionary is still cold): the default path must
+	// fetch the names once.
+	atomic.StoreInt32(&tagRequests, 0)
+	atomic.StoreInt32(&queryRequests, 0)
+	if _, err := c.Browse(context.Background(), BrowseOptions{Types: []AppType{AppTypeGame}}); err != nil {
+		t.Fatalf("Browse without SkipTagNames: %v", err)
+	}
+	if got := atomic.LoadInt32(&tagRequests); got != 1 {
+		t.Errorf("GetTagList requests without SkipTagNames = %d, want 1", got)
+	}
+}
+
+func TestSearchPageEncodesTermTagsAndLimit(t *testing.T) {
+	assertPayload := func(t *testing.T, opts SearchPageOptions, check func(map[string]any)) {
+		t.Helper()
+		var seen map[string]any
+		c := newTestCatalogClient(t, func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path != searchSuggestionsPath {
+				t.Errorf("unexpected path %s", r.URL.Path)
+				http.NotFound(w, r)
+				return
+			}
+			seen = inputJSON(t, r)
+			fmt.Fprint(w, `{"response":{"metadata":{"total_matching_records":0},"store_items":[]}}`)
+		})
+		if _, err := c.SearchPage(context.Background(), "portal", opts); err != nil {
+			t.Fatalf("SearchPage: %v", err)
+		}
+		if seen["search_term"] != "portal" {
+			t.Errorf("search_term = %v, want portal", seen["search_term"])
+		}
+		check(seen)
+	}
+
+	t.Run("limit above MaxSearchBatch clamps", func(t *testing.T) {
+		assertPayload(t, SearchPageOptions{Limit: 5000}, func(seen map[string]any) {
+			if got := seen["max_results"]; got != float64(MaxSearchBatch) {
+				t.Errorf("max_results = %v, want %d (clamped)", got, MaxSearchBatch)
+			}
+		})
+	})
+	t.Run("limit zero defaults to 100", func(t *testing.T) {
+		assertPayload(t, SearchPageOptions{Limit: 0}, func(seen map[string]any) {
+			if got := seen["max_results"]; got != float64(100) {
+				t.Errorf("max_results = %v, want 100 (default)", got)
+			}
+		})
+	})
+	t.Run("types filter", func(t *testing.T) {
+		assertPayload(t, SearchPageOptions{Types: []AppType{AppTypeDemo}}, func(seen map[string]any) {
+			tf := object(t, seen, "filters", "type_filters")
+			if len(tf) != 1 || tf["include_demos"] != true {
+				t.Errorf("type_filters = %v, want exactly {include_demos:true}", tf)
+			}
+		})
+	})
+	t.Run("default types is game", func(t *testing.T) {
+		assertPayload(t, SearchPageOptions{}, func(seen map[string]any) {
+			tf := object(t, seen, "filters", "type_filters")
+			if tf["include_games"] != true {
+				t.Errorf("type_filters = %v, want include_games by default", tf)
+			}
+		})
+	})
+	t.Run("tags become one group each", func(t *testing.T) {
+		assertPayload(t, SearchPageOptions{TagIDs: []int{1716, 1628}}, func(seen map[string]any) {
+			tags := object(t, seen, "filters")["tagids_must_match"]
+			list, ok := tags.([]any)
+			if !ok || len(list) != 2 {
+				t.Fatalf("tagids_must_match = %v, want two groups", tags)
+			}
+			for i, want := range []float64{1716, 1628} {
+				entry, _ := list[i].(map[string]any)
+				got, _ := entry["tagids"].([]any)
+				if len(got) != 1 || got[0] != want {
+					t.Errorf("group %d tagids = %v, want [%v]", i, entry["tagids"], want)
+				}
+			}
+		})
+	})
+}
+
+func TestSearchPageEncodesReleaseFilters(t *testing.T) {
+	assertPayload := func(t *testing.T, opts SearchPageOptions, check func(filters map[string]any)) {
+		t.Helper()
+		var seen map[string]any
+		c := newTestCatalogClient(t, func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path != searchSuggestionsPath {
+				t.Errorf("unexpected path %s", r.URL.Path)
+				http.NotFound(w, r)
+				return
+			}
+			seen = inputJSON(t, r)
+			fmt.Fprint(w, `{"response":{"metadata":{"total_matching_records":0},"store_items":[]}}`)
+		})
+		if _, err := c.SearchPage(context.Background(), "portal", opts); err != nil {
+			t.Fatalf("SearchPage: %v", err)
+		}
+		check(object(t, seen, "filters"))
+	}
+
+	t.Run("released only", func(t *testing.T) {
+		assertPayload(t, SearchPageOptions{ReleasedOnly: true}, func(filters map[string]any) {
+			if filters["released_only"] != true {
+				t.Errorf("released_only = %v, want true", filters["released_only"])
+			}
+			if _, ok := filters["coming_soon_only"]; ok {
+				t.Errorf("coming_soon_only must be absent with ReleasedOnly, got %v", filters["coming_soon_only"])
+			}
+		})
+	})
+	t.Run("coming soon only", func(t *testing.T) {
+		assertPayload(t, SearchPageOptions{ComingSoon: true}, func(filters map[string]any) {
+			if filters["coming_soon_only"] != true {
+				t.Errorf("coming_soon_only = %v, want true", filters["coming_soon_only"])
+			}
+			if _, ok := filters["released_only"]; ok {
+				t.Errorf("released_only must be absent with ComingSoon, got %v", filters["released_only"])
+			}
+		})
+	})
+	t.Run("neither", func(t *testing.T) {
+		assertPayload(t, SearchPageOptions{}, func(filters map[string]any) {
+			if _, ok := filters["released_only"]; ok {
+				t.Errorf("released_only must be absent by default, got %v", filters["released_only"])
+			}
+			if _, ok := filters["coming_soon_only"]; ok {
+				t.Errorf("coming_soon_only must be absent by default, got %v", filters["coming_soon_only"])
+			}
+		})
+	})
+}
+
+func TestSearchPageReportsTotalAndEmptyIsNotError(t *testing.T) {
+	c := newTestCatalogClient(t, func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, `{"response":{"metadata":{"total_matching_records":1500},"store_items":[%s,%s,%s]}}`, storeItemFixture, storeDemoFixture, storeDemoFixture)
+	})
+	page, err := c.SearchPage(context.Background(), "portal", SearchPageOptions{Limit: 3})
+	if err != nil {
+		t.Fatalf("SearchPage: %v", err)
+	}
+	if page.Total != 1500 {
+		t.Errorf("Total = %d, want 1500 (metadata.total_matching_records)", page.Total)
+	}
+	if len(page.Items) != 3 {
+		t.Errorf("Items = %d, want 3", len(page.Items))
+	}
+	if !page.Truncated() {
+		t.Error("Truncated() must be true when total (1500) exceeds returned items (3)")
+	}
+
+	empty := newTestCatalogClient(t, func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, `{"response":{"metadata":{"total_matching_records":0},"store_items":[]}}`)
+	})
+	emptyPage, err := empty.SearchPage(context.Background(), "nothing", SearchPageOptions{})
+	if err != nil {
+		t.Fatalf("an empty SearchPage is a legitimate answer, got error: %v", err)
+	}
+	if emptyPage.Total != 0 || len(emptyPage.Items) != 0 || emptyPage.Truncated() {
+		t.Errorf("empty page = %+v, want total 0, no items, not truncated", emptyPage)
+	}
+}
+
+func TestAppSummariesChunksAt200(t *testing.T) {
+	var items, maxChunk int32
+	c := newTestCatalogClient(t, func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case getItemsPath:
+			atomic.AddInt32(&items, 1)
+			payload := inputJSON(t, r)
+			list, _ := payload["ids"].([]any)
+			if n := int32(len(list)); n > atomic.LoadInt32(&maxChunk) {
+				atomic.StoreInt32(&maxChunk, n)
+			}
+			parts := make([]string, 0, len(list))
+			for _, e := range list {
+				entry, _ := e.(map[string]any)
+				parts = append(parts, fmt.Sprintf(`{"appid":%v,"success":1,"visible":true,"name":"Name %v"}`, entry["appid"], entry["appid"]))
+			}
+			fmt.Fprintf(w, `{"response":{"store_items":[%s]}}`, strings.Join(parts, ","))
+		case getTagListPath:
+			fmt.Fprint(w, tagListFixture)
+		default:
+			t.Errorf("unexpected path %s", r.URL.Path)
+		}
+	})
+
+	ids := make([]int64, 0, 450)
+	for i := int64(1); i <= 450; i++ {
+		ids = append(ids, i)
+	}
+	summaries, err := c.AppSummaries(context.Background(), ids)
+	if err != nil {
+		t.Fatalf("AppSummaries chunks: %v", err)
+	}
+	if len(summaries) != 450 || summaries[123].Name != "Name 123" || summaries[450].Name != "Name 450" {
+		t.Errorf("summaries = %d entries, want all 450 names mapped", len(summaries))
+	}
+	if got := atomic.LoadInt32(&items); got != 3 {
+		t.Errorf("GetItems requests = %d, want exactly 3 for 450 ids", got)
+	}
+	if got := atomic.LoadInt32(&maxChunk); got > MaxItemsPerRequest {
+		t.Errorf("largest GetItems chunk = %d ids, want <= %d", got, MaxItemsPerRequest)
+	}
+}
+
+func TestDemoLinksMapsDemosAndChunks(t *testing.T) {
+	var seen map[string]any
+	c := newTestCatalogClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != getItemsPath {
+			t.Errorf("unexpected path %s", r.URL.Path)
+			http.NotFound(w, r)
+			return
+		}
+		seen = inputJSON(t, r)
+		fmt.Fprint(w, `{"response":{"store_items":[
+			{"appid":1,"success":1,"visible":true,"name":"With Demo","related_items":{"demos":[{"appid":5,"description":""}]}},
+			{"appid":2,"success":1,"visible":true,"name":"No Demo"}
+		]}}`)
+	})
+
+	links, err := c.DemoLinks(context.Background(), []int64{1, 2, 999})
+	if err != nil {
+		t.Fatalf("DemoLinks: %v", err)
+	}
+	if len(links) != 2 {
+		t.Fatalf("links = %v, want exactly the two found ids", links)
+	}
+	if demos := links[1]; len(demos) != 1 || demos[0] != 5 {
+		t.Errorf("links[1] = %v, want [5]", demos)
+	}
+	noDemo, ok := links[2]
+	if !ok {
+		t.Fatal("app 2 must be present with an empty demo list")
+	}
+	if noDemo == nil || len(noDemo) != 0 {
+		t.Errorf("links[2] = %v, want a non-nil empty slice", noDemo)
+	}
+	if _, ok := links[999]; ok {
+		t.Error("an id with no returned record must be absent from the map")
+	}
+	dataReq := object(t, seen, "data_request")
+	if dataReq["include_related_items"] != true || dataReq["include_basic_info"] != true {
+		t.Errorf("data_request = %v, want basic_info and related_items", dataReq)
+	}
+
+	// Chunking: 450 ids means three GetItems requests.
+	var items int32
+	chunkClient := newTestCatalogClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != getItemsPath {
+			return
+		}
+		atomic.AddInt32(&items, 1)
+		fmt.Fprint(w, `{"response":{"store_items":[]}}`)
+	})
+	ids := make([]int64, 0, 450)
+	for i := int64(1); i <= 450; i++ {
+		ids = append(ids, i)
+	}
+	if _, err := chunkClient.DemoLinks(context.Background(), ids); err != nil {
+		t.Fatalf("DemoLinks chunks: %v", err)
+	}
+	if got := atomic.LoadInt32(&items); got != 3 {
+		t.Errorf("GetItems requests = %d, want 3 for 450 ids", got)
+	}
+}
+
+// TestItemsHiddenAppIsTypedNotFound: GetItems answers an app hidden from
+// anonymous requests (age or region gate) with success:15 and visible:false.
+// That is not a found record: only success:1 is real. Item must return the
+// typed ErrAppHidden (which wraps ErrAppNotFound) rather than an empty record.
+func TestItemsHiddenAppIsTypedNotFound(t *testing.T) {
+	c := newTestCatalogClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != getItemsPath {
+			t.Errorf("unexpected path %s", r.URL.Path)
+			http.NotFound(w, r)
+			return
+		}
+		fmt.Fprint(w, `{"response":{"store_items":[{"item_type":0,"id":1245690,"success":15,"visible":false,"name":"","store_url_path":"app/0/","store_url_slug":"","appid":0}]}}`)
+	})
+	_, err := c.Item(context.Background(), 1245690)
+	if !errors.Is(err, ErrAppHidden) {
+		t.Fatalf("Item error = %v, want ErrAppHidden", err)
+	}
+	if !errors.Is(err, ErrAppNotFound) {
+		t.Fatalf("Item error = %v, want it to wrap ErrAppNotFound", err)
+	}
+	if !strings.Contains(err.Error(), "1245690") || !strings.Contains(err.Error(), "hidden") {
+		t.Fatalf("Item error = %v, want it to mention 1245690 and hidden", err)
+	}
+}
+
+// TestDemoLinksOmitsHiddenApp: a hidden appid is simply absent from the map so
+// callers report has_demo as unknown instead of false; a normal record still maps.
+func TestDemoLinksOmitsHiddenApp(t *testing.T) {
+	c := newTestCatalogClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != getItemsPath {
+			t.Errorf("unexpected path %s", r.URL.Path)
+			http.NotFound(w, r)
+			return
+		}
+		fmt.Fprint(w, `{"response":{"store_items":[
+			{"item_type":0,"id":1245690,"success":15,"visible":false,"name":"","appid":0},
+			{"item_type":0,"id":379720,"appid":379720,"success":1,"visible":true,"name":"DOOM","related_items":{"demos":[{"appid":479030}]}}
+		]}}`)
+	})
+	links, err := c.DemoLinks(context.Background(), []int64{1245690, 379720})
+	if err != nil {
+		t.Fatalf("DemoLinks: %v", err)
+	}
+	if len(links) != 1 {
+		t.Fatalf("links = %v, want only the found id", links)
+	}
+	if _, ok := links[1245690]; ok {
+		t.Error("a hidden app must be absent from the demo-link map")
+	}
+	if demos := links[379720]; len(demos) != 1 || demos[0] != 479030 {
+		t.Errorf("links[379720] = %v, want [479030]", demos)
+	}
+}
+
+// TestAppSummariesOmitsHiddenApp: same rule for summaries — hidden ids are absent.
+func TestAppSummariesOmitsHiddenApp(t *testing.T) {
+	c := newTestCatalogClient(t, func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case getItemsPath:
+			fmt.Fprint(w, `{"response":{"store_items":[
+			{"item_type":0,"id":1245690,"success":15,"visible":false,"name":"","appid":0},
+			{"item_type":0,"id":379720,"appid":379720,"success":1,"visible":true,"name":"DOOM"}
+		]}}`)
+		case getTagListPath:
+			fmt.Fprint(w, tagListFixture)
+		default:
+			t.Errorf("unexpected path %s", r.URL.Path)
+		}
+	})
+	summaries, err := c.AppSummaries(context.Background(), []int64{1245690, 379720})
+	if err != nil {
+		t.Fatalf("AppSummaries: %v", err)
+	}
+	if len(summaries) != 1 || summaries[379720].Name != "DOOM" {
+		t.Fatalf("summaries = %v, want only 379720 mapped to DOOM", summaries)
+	}
+	if _, ok := summaries[1245690]; ok {
+		t.Error("a hidden app must be absent from the summary map")
+	}
+}
+
+// TestAppSummariesPartialFailureSignals: when some GetItems chunks fail but
+// others succeed, AppSummaries returns the successful summaries alongside an
+// error wrapping ErrPartialLookup rather than discarding them. The second
+// chunk answers malformed JSON (status 200) so there is no 5xx retry.
+func TestAppSummariesPartialFailureSignals(t *testing.T) {
+	var calls int32
+	c := newTestCatalogClient(t, func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case getItemsPath:
+			if atomic.AddInt32(&calls, 1) == 1 {
+				payload := inputJSON(t, r)
+				list, _ := payload["ids"].([]any)
+				parts := make([]string, 0, len(list))
+				for _, e := range list {
+					entry, _ := e.(map[string]any)
+					parts = append(parts, fmt.Sprintf(`{"appid":%v,"success":1,"visible":true,"name":"Name %v"}`, entry["appid"], entry["appid"]))
+				}
+				fmt.Fprintf(w, `{"response":{"store_items":[%s]}}`, strings.Join(parts, ","))
+				return
+			}
+			fmt.Fprint(w, `{"response":`)
+		case getTagListPath:
+			fmt.Fprint(w, tagListFixture)
+		default:
+			t.Errorf("unexpected path %s", r.URL.Path)
+		}
+	})
+	ids := make([]int64, 0, 201)
+	for i := int64(1); i <= 201; i++ {
+		ids = append(ids, i)
+	}
+	summaries, err := c.AppSummaries(context.Background(), ids)
+	if !errors.Is(err, ErrPartialLookup) {
+		t.Fatalf("AppSummaries error = %v, want ErrPartialLookup", err)
+	}
+	if summaries == nil {
+		t.Fatal("summaries = nil, want the first chunk's names")
+	}
+	if summaries[1].Name != "Name 1" || summaries[200].Name != "Name 200" {
+		t.Errorf("summaries = %d entries, want the first chunk resolved", len(summaries))
+	}
+	if _, ok := summaries[201]; ok {
+		t.Errorf("summaries[201] present, want the failed chunk absent")
+	}
+}

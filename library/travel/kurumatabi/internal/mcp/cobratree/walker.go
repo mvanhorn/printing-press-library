@@ -32,24 +32,33 @@ func RegisterAll(s *server.MCPServer, root *cobra.Command, cliPath func() (strin
 		if toolName == "" {
 			return
 		}
+		effects := kurumatabiMirroredEffects(cmd, path)
 		blockedStructuredArgs := blockedStructuredArgsForCommand(cmd)
+		if effects.readOnly && cmd.Root().Name() == "kurumatabi-pp-cli" {
+			// A genuinely read-only tool cannot opt into a durable run receipt.
+			blockedStructuredArgs["receipt"] = true
+		}
 		positionals := positionalArgsForCommand(cmd, blockedStructuredArgs)
 		blockedCLIArgs := cliFlagBlockedArgs(blockedStructuredArgs, positionals)
 		allowedStructuredArgs := allowedStructuredArgsForCommand(cmd, blockedStructuredArgs, positionals, commandTakesArgs(cmd))
-		options := []mcplib.ToolOption{mcplib.WithDescription(descriptionFor(cmd))}
+		description := descriptionFor(cmd)
+		if effects.description != "" {
+			description += " " + effects.description
+		}
+		options := []mcplib.ToolOption{mcplib.WithDescription(description)}
 		options = append(options, toolOptionsForFlags(cmd, blockedStructuredArgs, positionals)...)
 		if commandTakesArgs(cmd) && len(positionals) == 0 {
 			options = append(options, mcplib.WithString("args", mcplib.Description("Additional positional arguments to append to the command. Raw flags are rejected; use structured flag parameters instead.")))
 		}
 		readOnly := isMCPReadOnly(cmd)
-		if readOnly {
+		if effects.readOnly {
 			options = append(options, mcplib.WithReadOnlyHintAnnotation(true), mcplib.WithDestructiveHintAnnotation(false))
 		}
-		if !readOnly && isMCPLocalWrite(cmd) {
+		if !effects.readOnly && effects.localWrite {
 			// Local-write tier: the command's only writes land in the CLI's
 			// own local store, so the tool is neither destructive nor
 			// open-world; readOnlyHint stays unset because it does write.
-			options = append(options, mcplib.WithDestructiveHintAnnotation(false), mcplib.WithOpenWorldHintAnnotation(false))
+			options = append(options, mcplib.WithReadOnlyHintAnnotation(false), mcplib.WithDestructiveHintAnnotation(false), mcplib.WithOpenWorldHintAnnotation(effects.openWorld))
 		}
 		tool := mcplib.NewTool(toolName, options...)
 		if tool.Meta == nil {

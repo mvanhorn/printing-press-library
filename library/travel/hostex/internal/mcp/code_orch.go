@@ -3,14 +3,15 @@
 
 // Package mcp — code-orchestration thin surface.
 //
-// Two tools cover the entire API: <api>_search to discover endpoints, and
-// <api>_execute to invoke one. This collapses a large API (50+ endpoints)
+// Three tools cover the entire API: <api>_search to discover endpoints,
+// <api>_get to inspect one GET endpoint, and <api>_execute to invoke one.
+// This collapses a large API (50+ endpoints)
 // to ~1K tokens of tool definitions while preserving full coverage — the
 // agent writes the composition logic in its own sandbox.
 //
 // Pattern source: Anthropic 2026-04-22 "Building agents that reach
 // production systems with MCP" — Cloudflare's MCP server covers ~2,500
-// endpoints in roughly 1K tokens via the same search+execute shape.
+// endpoints in roughly 1K tokens via the same search, get, and execute shape.
 
 package mcp
 
@@ -24,20 +25,35 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/travel/hostex/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/travel/hostex/internal/mcp/bound"
 )
 
-// RegisterCodeOrchestrationTools registers the two agent-facing tools that
-// cover the whole API surface. Called from RegisterTools in place of the
-// per-endpoint registrations when MCP.Orchestration is "code".
+// RegisterCodeOrchestrationTools registers the agent-facing tools that cover
+// the whole API surface. Called from RegisterTools in place of the per-endpoint
+// registrations when MCP.Orchestration is "code".
 func RegisterCodeOrchestrationTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("hostex_search",
 			mcplib.WithDescription("Search the hostex API for endpoints matching a natural-language query. Returns a ranked list of {endpoint_id, method, path, summary} entries. Call this first to find the endpoint to execute."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Natural-language description of what you want to do.")),
-			mcplib.WithNumber("limit", mcplib.Description("Max endpoints to return (default 10).")),
+			mcplib.WithNumber("limit", mcplib.Description("Max endpoints to return (default 10, max 100).")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(false),
 		),
 		handleCodeOrchSearch,
+	)
+
+	s.AddTool(
+		mcplib.NewTool("hostex_get",
+			mcplib.WithDescription("Get metadata for one GET endpoint by its endpoint_id (from hostex_search). This registry-only lookup never calls the API."),
+			mcplib.WithString("endpoint_id", mcplib.Required(), mcplib.Description("GET endpoint identifier returned by hostex_search (e.g., \"users.list\").")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(false),
+		),
+		handleCodeOrchGet,
 	)
 
 	s.AddTool(
@@ -51,7 +67,7 @@ func RegisterCodeOrchestrationTools(s *server.MCPServer) {
 }
 
 // codeOrchEndpoint captures the small slice of endpoint metadata the
-// search+execute pair needs at runtime. `keywords` is a precomputed
+// registry tools need at runtime. `keywords` is a precomputed
 // lowercase stream of description + path tokens used for naive ranking;
 // anything more sophisticated belongs on the agent side.
 type codeOrchEndpoint struct {
@@ -70,6 +86,9 @@ type codeOrchEndpoint struct {
 	// string instead of dumping them into the JSON body. Derived from the
 	// same mcpParamBindings location data the per-endpoint tools use.
 	QueryParams []codeOrchParamBinding
+	// Keep declared headers out of query/body routing so execution sends them
+	// through the request-header map.
+	HeaderParams []codeOrchParamBinding
 	// HeaderOverrides carries per-endpoint request headers (e.g. an
 	// Accept override for binary-only response endpoints). Without
 	// threading these through, the code-orchestration execute path
@@ -81,12 +100,14 @@ type codeOrchEndpoint struct {
 	// params object; a strict-mapping API rejects an object at the body
 	// root with HTTP 422 "Invalid json".
 	BodyIsArray bool
+	Mutating    bool
 	keywords    []string
 }
 
 type codeOrchParamBinding struct {
 	PublicName string
 	WireName   string
+	Default    string
 }
 
 // codeOrchEndpoints is the generator-populated registry covering every
@@ -101,6 +122,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"plan_id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("automation", "delete-action", "Removes a **waiting** message or review automation plan without running it (same as deleting an upcoming action in the", "/automation/actions/{plan_id}"),
 	},
 	{
@@ -111,6 +134,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"plan_id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("automation", "execute-action", "Dispatches a **waiting** message or review automation plan immediately (same behavior as executing an upcoming action", "/automation/actions/{plan_id}/execute"),
 	},
 	{
@@ -121,6 +146,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "type", WireName: "type"}, {PublicName: "keyword", WireName: "keyword"}, {PublicName: "stay_code", WireName: "stay_code"}, {PublicName: "property_ids", WireName: "property_ids"}, {PublicName: "start_time", WireName: "start_time"}, {PublicName: "end_time", WireName: "end_time"}, {PublicName: "channel_types", WireName: "channel_types"}, {PublicName: "limit", WireName: "limit"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("automation", "query-actions", "Returns scheduled automation **actions** that are waiting to run: either automated **messages** (`type=message`", "/automation/actions"),
 	},
 	{
@@ -131,6 +158,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "property_ids", WireName: "property_ids"}, {PublicName: "start_date", WireName: "start_date"}, {PublicName: "end_date", WireName: "end_date"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("availabilities", "query", "By sending a request to this endpoint, you can retrieve the availabilities of the properties.", "/availabilities"),
 	},
 	{
@@ -141,6 +170,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("availabilities", "update", "Use this endpoint to update property availabilities.", "/availabilities"),
 	},
 	{
@@ -151,6 +182,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("calendar-share-links", "create", "Create a new public calendar share link.", "/calendar_share_links"),
 	},
 	{
@@ -161,6 +194,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("calendar-share-links", "delete", "Permanently invalidate a calendar share link.", "/calendar_share_links/{id}"),
 	},
 	{
@@ -171,6 +206,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "limit", WireName: "limit"}, {PublicName: "id", WireName: "id"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("calendar-share-links", "query", "List the operator's public calendar share links.", "/calendar_share_links"),
 	},
 	{
@@ -181,6 +218,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "id", WireName: "id"}, {PublicName: "channel_type", WireName: "channel_type"}, {PublicName: "limit", WireName: "limit"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("channel-accounts", "query", "Query the third-party channel accounts (Airbnb, Booking.com, etc.) that the operator has connected.", "/channel_accounts"),
 	},
 	{
@@ -191,6 +230,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"conversation_id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("conversations", "get-details", "This endpoint is used to retrieve the messages and details of a conversation.", "/conversations/{conversation_id}"),
 	},
 	{
@@ -201,17 +242,21 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "limit", WireName: "limit"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("conversations", "query", "This endpoint is used to query the list of conversations regarding guest inquiries.", "/conversations"),
 	},
 	{
 		ID:             "conversations.send-message",
 		Method:         "POST",
 		Path:           "/conversations/{conversation_id}",
-		Summary:        "Send a text or image message to the guest.",
+		Summary:        "Send a text or image message to the guest. **This endpoint is not idempotent and does not return a message ID.",
 		Positional:     []string{"conversation_id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
-		keywords:       codeOrchKeywords("conversations", "send-message", "Send a text or image message to the guest.", "/conversations/{conversation_id}"),
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
+		keywords:       codeOrchKeywords("conversations", "send-message", "Send a text or image message to the guest. **This endpoint is not idempotent and does not return a message ID.", "/conversations/{conversation_id}"),
 	},
 	{
 		ID:             "conversations.note.update-conversation",
@@ -221,6 +266,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"conversation_id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("conversations", "update-conversation", "Set or clear the host's private note attached to a conversation thread.", "/conversations/{conversation_id}/note"),
 	},
 	{
@@ -231,6 +278,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"conversation_id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("conversations", "send", "Pre-approve the guest's inquiry in a conversation", "/conversations/{conversation_id}/preapprovals"),
 	},
 	{
@@ -241,6 +290,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"conversation_id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("conversations", "get", "List the special offers and pre-approvals that have been sent in a conversation, with their current status.", "/conversations/{conversation_id}/special_offers"),
 	},
 	{
@@ -251,6 +302,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"conversation_id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("conversations", "send", "Send a special offer to the guest in a conversation.", "/conversations/{conversation_id}/special_offers"),
 	},
 	{
@@ -261,6 +314,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"conversation_id", "special_offer_id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("conversations", "withdraw", "Withdraw a previously sent special offer or pre-approval that is still active.", "/conversations/{conversation_id}/special_offers/{special_offer_id}"),
 	},
 	{
@@ -271,6 +326,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("custom-channels", "query", "Query custom channels created from the [Custom Options Page](https://hostex.io/app/settings/custom-options).", "/custom_channels"),
 	},
 	{
@@ -281,6 +338,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("expense-items", "query", "Query the dictionary of expense item categorizations available to the operator.", "/expense_items"),
 	},
 	{
@@ -291,6 +350,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("expense-methods", "query", "Query the dictionary of payment methods available to the operator for expense entries.", "/expense_methods"),
 	},
 	{
@@ -301,6 +362,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("groups", "create", "Create a new property group. Optionally pre-attach properties at creation time via `property_ids`.", "/groups"),
 	},
 	{
@@ -311,6 +374,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("groups", "delete", "Delete a property group.", "/groups/{id}"),
 	},
 	{
@@ -321,6 +386,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "limit", WireName: "limit"}, {PublicName: "id", WireName: "id"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("groups", "query", "You can query property groups by making a request to this endpoint.", "/groups"),
 	},
 	{
@@ -331,6 +398,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("groups", "update", "Update a property group.", "/groups/{id}"),
 	},
 	{
@@ -341,6 +410,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("income-items", "query", "Query the dictionary of income item categorizations available to the operator.", "/income_items"),
 	},
 	{
@@ -351,6 +422,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("income-methods", "query", "Query the dictionary of payment methods available to the operator for income entries.", "/income_methods"),
 	},
 	{
@@ -361,6 +434,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("knowledge-bases", "create", "Create a new knowledge base entry for the HostGPT automation assistant.", "/knowledge_bases"),
 	},
 	{
@@ -371,6 +446,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("knowledge-bases", "delete", "Delete a knowledge base entry by its ID.", "/knowledge_bases/{id}"),
 	},
 	{
@@ -381,6 +458,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("knowledge-bases", "get", "Retrieve the full details of a single knowledge base entry by its ID.", "/knowledge_bases/{id}"),
 	},
 	{
@@ -391,6 +470,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "limit", WireName: "limit"}, {PublicName: "property_ids", WireName: "property_ids"}, {PublicName: "channel_types", WireName: "channel_types"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("knowledge-bases", "query", "You can query knowledge base entries by making a request to this endpoint.", "/knowledge_bases"),
 	},
 	{
@@ -401,6 +482,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("knowledge-bases", "update", "Replace an existing knowledge base entry.", "/knowledge_bases/{id}"),
 	},
 	{
@@ -411,6 +494,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "listing_id", WireName: "listing_id"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("listings", "get-airbnb-price-and-rules", "Fetch the current pricing, availability rules and booking settings of an Airbnb listing in real time from Airbnb.", "/listings/airbnb/price_and_rules"),
 	},
 	{
@@ -421,6 +506,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "listing_id", WireName: "listing_id"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("listings", "get-vrbo-price-and-rules", "Get the pricing and rules of a Vrbo listing as currently recorded by Hostex.", "/listings/vrbo/price_and_rules"),
 	},
 	{
@@ -431,6 +518,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "channel_account_id", WireName: "channel_account_id"}, {PublicName: "listing_id", WireName: "listing_id"}, {PublicName: "channel_type", WireName: "channel_type"}, {PublicName: "limit", WireName: "limit"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("listings", "query", "Query the listings (third-party properties) synced from the operator's connected channel accounts.", "/listings"),
 	},
 	{
@@ -441,6 +530,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("listings", "query-calendars", "By sending a request to this endpoint, you can retrieve calendar information for multiple listings.", "/listings/calendar"),
 	},
 	{
@@ -451,6 +542,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("listings", "update-airbnb-price-and-rules", "Update the listing-level pricing, fees, booking settings and availability rules of an Airbnb listing.", "/listings/airbnb/price_and_rules"),
 	},
 	{
@@ -461,6 +554,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("listings", "update-inventories", "Update the inventories of channel listings.", "/listings/inventories"),
 	},
 	{
@@ -471,6 +566,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("listings", "update-prices", "Update the prices of channel listings.", "/listings/prices"),
 	},
 	{
@@ -481,6 +578,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("listings", "update-restrictions", "Update the restrictions of channel listings.", "/listings/restrictions"),
 	},
 	{
@@ -491,6 +590,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("listings", "update-vrbo-price-and-rules", "Update the listing-level pricing, fees and booking rules of a Vrbo listing.", "/listings/vrbo/price_and_rules"),
 	},
 	{
@@ -501,6 +602,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("oauth", "obtain-token", "This endpoint is used to obtain a new access token using various OAuth 2.0 grant types or refresh an existing token.", "/oauth/authorizations"),
 	},
 	{
@@ -511,6 +614,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("oauth", "revoke-token", "This endpoint allows clients to revoke an access or refresh token.", "/oauth/revoke"),
 	},
 	{
@@ -521,6 +626,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "property_id", WireName: "property_id"}, {PublicName: "room_type_id", WireName: "room_type_id"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("pricing-ratios", "query", "Return the per-channel pricing ratio of each OTA listing linked to a property (`property_id`)", "/pricing_ratios"),
 	},
 	{
@@ -531,6 +638,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("properties", "create-property", "Create a new property (room) under the current operator.", "/properties"),
 	},
 	{
@@ -541,6 +650,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "limit", WireName: "limit"}, {PublicName: "id", WireName: "id"}, {PublicName: "group_id", WireName: "group_id"}, {PublicName: "tag_id", WireName: "tag_id"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("properties", "query", "You can query properties by making a request to this endpoint.", "/properties"),
 	},
 	{
@@ -551,6 +662,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reservation-tags", "create", "Create a new reservation tag in the operator's dictionary. Color is auto-assigned from the Hostex palette.", "/reservation_tags"),
 	},
 	{
@@ -561,6 +674,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reservation-tags", "delete", "Delete one of the operator's custom reservation tags.", "/reservation_tags/{id}"),
 	},
 	{
@@ -571,6 +686,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "limit", WireName: "limit"}, {PublicName: "id", WireName: "id"}, {PublicName: "keyword", WireName: "keyword"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reservation-tags", "query", "List the operator's reservation tag dictionary.", "/reservation_tags"),
 	},
 	{
@@ -581,6 +698,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"reservation_code"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reservations", "cancel", "Cancel a direct booking reservation in Hostex.", "/reservations/{reservation_code}"),
 	},
 	{
@@ -591,6 +710,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reservations", "create", "Create a reservation (Direct Booking) in Hostex.", "/reservations"),
 	},
 	{
@@ -601,6 +722,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "reservation_code", WireName: "reservation_code"}, {PublicName: "channel_id", WireName: "channel_id"}, {PublicName: "property_id", WireName: "property_id"}, {PublicName: "status", WireName: "status"}, {PublicName: "start_check_in_date", WireName: "start_check_in_date"}, {PublicName: "end_check_in_date", WireName: "end_check_in_date"}, {PublicName: "start_check_out_date", WireName: "start_check_out_date"}, {PublicName: "end_check_out_date", WireName: "end_check_out_date"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "channel_type", WireName: "channel_type"}, {PublicName: "limit", WireName: "limit"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reservations", "query", "You can query reservations by making a request to this endpoint.", "/reservations"),
 	},
 	{
@@ -611,6 +734,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"stay_code"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reservations", "update-basic-info", "Update basic information of a stay including guest details, dates, pricing, and other attributes.", "/reservations/{stay_code}"),
 	},
 	{
@@ -621,6 +746,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"stay_code"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reservations", "reservation", "Allocate a reservation to a specific property.", "/reservations/{stay_code}/allocate"),
 	},
 	{
@@ -631,6 +758,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"reservation_code"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reservations", "reservation", "Approve a pending reservation request. The reservation must be in `wait_accept` status.", "/reservations/{reservation_code}/approve"),
 	},
 	{
@@ -641,6 +770,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"stay_code"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reservations", "update", "Update check-in details for a stay including lock code, arrival/departure times, and deposit information.", "/reservations/{stay_code}/check_in_details"),
 	},
 	{
@@ -651,6 +782,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"stay_code"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reservations", "query", "Query custom fields for a stay.", "/reservations/{stay_code}/custom_fields"),
 	},
 	{
@@ -661,6 +794,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"stay_code"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reservations", "update", "Update custom fields for a stay.", "/reservations/{stay_code}/custom_fields"),
 	},
 	{
@@ -671,6 +806,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"reservation_code"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reservations", "reservation", "Decline a pending reservation request. The reservation must be in `wait_accept` status.", "/reservations/{reservation_code}/decline"),
 	},
 	{
@@ -681,6 +818,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"stay_code"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reservations", "move-reservation-to-box", "Move a stay of the reservation to the reservation box.", "/reservations/{stay_code}/move_to_box"),
 	},
 	{
@@ -691,6 +830,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"stay_code"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reservations", "update", "Update the stay status of a reservation.", "/reservations/{stay_code}/stay_status"),
 	},
 	{
@@ -701,6 +842,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"stay_code"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reservations", "add", "Add a tag to a reservation. If the tag does not exist, it will be created automatically.", "/reservations/{stay_code}/tags"),
 	},
 	{
@@ -711,6 +854,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"stay_code"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reservations", "remove", "Remove a tag from a reservation.", "/reservations/{stay_code}/tags"),
 	},
 	{
@@ -721,6 +866,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"reservation_code"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reviews", "create", "Create review or reply for a reservation.", "/reviews/{reservation_code}"),
 	},
 	{
@@ -731,6 +878,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "reservation_code", WireName: "reservation_code"}, {PublicName: "property_id", WireName: "property_id"}, {PublicName: "review_status", WireName: "review_status"}, {PublicName: "start_check_out_date", WireName: "start_check_out_date"}, {PublicName: "end_check_out_date", WireName: "end_check_out_date"}, {PublicName: "limit", WireName: "limit"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("reviews", "query", "Query reviews like the [Reviews Page](https://hostex.io/app/reviews).", "/reviews"),
 	},
 	{
@@ -741,6 +890,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("room-types", "create", "Create a new room type under the current operator.", "/room_types"),
 	},
 	{
@@ -751,6 +902,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "limit", WireName: "limit"}, {PublicName: "id", WireName: "id"}, {PublicName: "tag_id", WireName: "tag_id"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("room-types", "query", "You can query room types by making a request to this endpoint.", "/room_types"),
 	},
 	{
@@ -761,6 +914,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("staffs", "create", "Create a schedule staff. The staff is created as active by default.", "/staffs"),
 	},
 	{
@@ -771,6 +926,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("staffs", "delete", "Delete a staff permanently along with their property assignments.", "/staffs/{id}"),
 	},
 	{
@@ -781,6 +938,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "limit", WireName: "limit"}, {PublicName: "id", WireName: "id"}, {PublicName: "is_active", WireName: "is_active"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("staffs", "query", "You can query schedule staffs (cleaners / operators / receptionists, etc.) by making a request to this endpoint.", "/staffs"),
 	},
 	{
@@ -791,6 +950,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("staffs", "update", "Update an existing staff. All fields are optional; only the supplied fields are changed.", "/staffs/{id}"),
 	},
 	{
@@ -801,6 +962,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tags", "create", "Create a new property tag. Optionally pre-attach properties via `property_ids` and / or room types via `room_type_ids`.", "/tags"),
 	},
 	{
@@ -811,6 +974,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tags", "delete", "Delete a property tag.", "/tags/{id}"),
 	},
 	{
@@ -821,6 +986,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "limit", WireName: "limit"}, {PublicName: "id", WireName: "id"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tags", "query", "You can query tags by making a request to this endpoint.", "/tags"),
 	},
 	{
@@ -831,6 +998,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tags", "update", "Update a property tag.", "/tags/{id}"),
 	},
 	{
@@ -841,6 +1010,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tasks", "create", "Create a schedule task.", "/tasks"),
 	},
 	{
@@ -851,6 +1022,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tasks", "delete", "Delete a task permanently. Returns 404 if the task does not exist or is not accessible to the current operator.", "/tasks/{id}"),
 	},
 	{
@@ -861,6 +1034,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{{PublicName: "id", WireName: "id"}, {PublicName: "limit", WireName: "limit"}, {PublicName: "start_date", WireName: "start_date"}, {PublicName: "end_date", WireName: "end_date"}, {PublicName: "staff_id", WireName: "staff_id"}, {PublicName: "property_id", WireName: "property_id"}, {PublicName: "type", WireName: "type"}, {PublicName: "status", WireName: "status"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tasks", "query", "You can query schedule tasks (cleaning / maintain / reception / housekeeping / others)", "/tasks"),
 	},
 	{
@@ -871,6 +1046,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("tasks", "update", "Update an existing task. All fields are optional; only the supplied fields are changed.", "/tasks/{id}"),
 	},
 	{
@@ -881,6 +1058,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("transactions", "create", "Record a new income or expense entry.", "/transactions"),
 	},
 	{
@@ -891,6 +1070,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("transactions", "delete", "Delete a transaction entry. The operation is irreversible.", "/transactions/{id}"),
 	},
 	{
@@ -900,7 +1081,9 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Query income and expense entries (also known as `transactions`) recorded against the operator",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "id", WireName: "id"}, {PublicName: "start_date", WireName: "start_date"}, {PublicName: "end_date", WireName: "end_date"}, {PublicName: "limit", WireName: "limit"}, {PublicName: "property_id", WireName: "property_id"}, {PublicName: "stay_code", WireName: "stay_code"}, {PublicName: "direction", WireName: "direction"}, {PublicName: "item_id", WireName: "item_id"}, {PublicName: "payment_method_id", WireName: "payment_method_id"}, {PublicName: "currency", WireName: "currency"}, {PublicName: "keyword", WireName: "keyword"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "id", WireName: "id"}, {PublicName: "start_date", WireName: "start_date"}, {PublicName: "end_date", WireName: "end_date"}, {PublicName: "limit", WireName: "limit"}, {PublicName: "property_id", WireName: "property_id"}, {PublicName: "reservation_code", WireName: "reservation_code"}, {PublicName: "stay_code", WireName: "stay_code"}, {PublicName: "direction", WireName: "direction"}, {PublicName: "item_id", WireName: "item_id"}, {PublicName: "payment_method_id", WireName: "payment_method_id"}, {PublicName: "currency", WireName: "currency"}, {PublicName: "keyword", WireName: "keyword"}},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("transactions", "query", "Query income and expense entries (also known as `transactions`) recorded against the operator", "/transactions"),
 	},
 	{
@@ -911,6 +1094,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("transactions", "update", "Update an existing transaction entry. Only the fields listed below can be modified.", "/transactions/{id}"),
 	},
 	{
@@ -921,6 +1106,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("webhooks", "create", "Create a webhook.", "/webhooks"),
 	},
 	{
@@ -931,6 +1118,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("webhooks", "delete", "You can only delete webhooks created by your own app if they are manageable.", "/webhooks/{id}"),
 	},
 	{
@@ -941,6 +1130,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("webhooks", "query", "Query Webhooks like the [Webhooks Page](https://hostex.io/app/api/web-hooks).", "/webhooks"),
 	},
 	{
@@ -951,6 +1142,8 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Positional:     []string{"id"},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
+		HeaderParams:   []codeOrchParamBinding{},
+		Mutating:       false,
 		keywords:       codeOrchKeywords("webhooks", "update", "Update the url or event subscriptions for a webhook. You can only update webhooks created by your own app.", "/webhooks/{id}"),
 	},
 }
@@ -993,16 +1186,47 @@ func codeOrchKeywords(resource, endpoint, summary, path string) []string {
 	return out
 }
 
+func codeOrchEndpointMetadata(ep *codeOrchEndpoint) map[string]any {
+	out := map[string]any{
+		"endpoint_id": ep.ID,
+		"method":      ep.Method,
+		"path":        ep.Path,
+		"summary":     ep.Summary,
+	}
+	return out
+}
+
+func findCodeOrchEndpoint(id string) *codeOrchEndpoint {
+	for i := range codeOrchEndpoints {
+		if codeOrchEndpoints[i].ID == id {
+			return &codeOrchEndpoints[i]
+		}
+	}
+	return nil
+}
+
+const (
+	codeOrchSearchDefaultLimit = 10
+	codeOrchSearchMaxLimit     = 100
+)
+
+func codeOrchSearchLimit(args map[string]any) int {
+	if v, ok := args["limit"].(float64); ok && v > 0 {
+		if v > float64(codeOrchSearchMaxLimit) {
+			return codeOrchSearchMaxLimit
+		}
+		return int(v)
+	}
+	return codeOrchSearchDefaultLimit
+}
+
 func handleCodeOrchSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
 	query, ok := args["query"].(string)
 	if !ok || strings.TrimSpace(query) == "" {
 		return mcplib.NewToolResultError("query is required"), nil
 	}
-	limit := 10
-	if v, ok := args["limit"].(float64); ok && v > 0 {
-		limit = int(v)
-	}
+	limit := codeOrchSearchLimit(args)
 
 	terms := codeOrchKeywords("", "", query, "")
 	type scored struct {
@@ -1033,17 +1257,33 @@ func handleCodeOrchSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcp
 
 	out := make([]map[string]any, 0, len(results))
 	for _, r := range results {
-		out = append(out, map[string]any{
-			"endpoint_id": r.ep.ID,
-			"method":      r.ep.Method,
-			"path":        r.ep.Path,
-			"summary":     r.ep.Summary,
-			"score":       r.score,
-		})
+		item := codeOrchEndpointMetadata(r.ep)
+		item["score"] = r.score
+		out = append(out, item)
 	}
 	text, err := bound.JSON(map[string]any{"count": len(out), "results": out})
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("encoding search results: %v", err)), nil
+	}
+	return mcplib.NewToolResultText(text), nil
+}
+
+func handleCodeOrchGet(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	args := req.GetArguments()
+	id, ok := args["endpoint_id"].(string)
+	if !ok || id == "" {
+		return mcplib.NewToolResultError("endpoint_id is required (call hostex_search first)"), nil
+	}
+	ep := findCodeOrchEndpoint(id)
+	if ep == nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("unknown endpoint_id %q — call hostex_search to discover valid ids", id)), nil
+	}
+	if ep.Method != "GET" {
+		return mcplib.NewToolResultError(fmt.Sprintf("endpoint_id %q is %s, but hostex_get only permits GET endpoints", id, ep.Method)), nil
+	}
+	text, err := bound.JSON(codeOrchEndpointMetadata(ep))
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("encoding endpoint metadata: %v", err)), nil
 	}
 	return mcplib.NewToolResultText(text), nil
 }
@@ -1055,13 +1295,7 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 		return mcplib.NewToolResultError("endpoint_id is required (call hostex_search first)"), nil
 	}
 
-	var ep *codeOrchEndpoint
-	for i := range codeOrchEndpoints {
-		if codeOrchEndpoints[i].ID == id {
-			ep = &codeOrchEndpoints[i]
-			break
-		}
-	}
+	ep := findCodeOrchEndpoint(id)
 	if ep == nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("unknown endpoint_id %q — call hostex_search to discover valid ids", id)), nil
 	}
@@ -1071,17 +1305,44 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 		params = map[string]any{}
 	}
 
-	c, err := newMCPClient()
+	c, platformSession, err := newMCPClient(ctx)
 	if err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
+
+	if platformSession != nil {
+		defer platformSession.ZeroCredentials()
+	}
+	if err := cli.AdoptMCPOutputSemantics(platformSession, params); err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
 
 	path := ep.Path
 	for _, p := range ep.Positional {
-		if v, ok := params[p]; ok {
-			path = strings.ReplaceAll(path, "{"+p+"}", formatMCPParamValue(v))
+		if v, ok := params[p]; ok && strings.Contains(path, "{"+p+"}") {
+			path = strings.ReplaceAll(path, "{"+p+"}", mcpPathValue(v))
 			delete(params, p)
 		}
+	}
+
+	hdrs := make(map[string]string, len(ep.HeaderOverrides)+len(ep.HeaderParams))
+	for k, v := range ep.HeaderOverrides {
+		hdrs[k] = v
+	}
+	for _, binding := range ep.HeaderParams {
+		if binding.Default != "" {
+			hdrs[binding.WireName] = binding.Default
+		}
+		for _, key := range []string{binding.PublicName, binding.WireName} {
+			if v, ok := params[key]; ok {
+				hdrs[binding.WireName] = formatMCPParamValue(v)
+				delete(params, key)
+				break
+			}
+		}
+	}
+	if len(hdrs) == 0 {
+		hdrs = nil
 	}
 
 	// Route params to their runtime slots. GET/DELETE params are query
@@ -1107,7 +1368,6 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 		}
 	}
 
-	hdrs := ep.HeaderOverrides
 	writeBody := func() any {
 		if ep.BodyIsArray {
 			return codeOrchArrayBody(params)
@@ -1118,9 +1378,17 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	switch ep.Method {
 	case "GET":
 		if len(hdrs) > 0 {
-			data, err = c.GetWithHeaders(ctx, path, query, hdrs)
+			if ep.Mutating {
+				data, err = c.GetMutatingWithHeaders(ctx, path, query, hdrs)
+			} else {
+				data, err = c.GetWithHeaders(ctx, path, query, hdrs)
+			}
 		} else {
-			data, err = c.Get(ctx, path, query)
+			if ep.Mutating {
+				data, err = c.GetMutating(ctx, path, query)
+			} else {
+				data, err = c.Get(ctx, path, query)
+			}
 		}
 	case "DELETE":
 		if len(hdrs) > 0 {
@@ -1155,7 +1423,11 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	if err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
-	return mcplib.NewToolResultText(bound.EndpointResponse(ep.Method, data)), nil
+	text := bound.EndpointResponse(ep.Method, data)
+	if platformSession != nil {
+		text = bound.WithMetadata(text, platformSession.OutputMetadata())
+	}
+	return mcplib.NewToolResultText(text), nil
 }
 
 // codeOrchWriteBody returns the value handed to the client layer as the

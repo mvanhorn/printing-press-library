@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "steam-demos-show-parent-game-tags",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20260927-155341-72694577",
+  "base_printing_press_version": "4.32.5",
+  "summary": "steam demos rows carry parent_tags (the full game's tag names) because demos almost never have tags of their own; the parent lookup returns name AND tags in the one GetItems request the page already made, so the budget stays at 3 requests per page.",
+  "reason": "Live measurement: 0 of 100 demos carried store tags, while 100 of 100 of their full games did, so a demos row showed an empty tag column exactly when the caller needed the game's genre signal. Folding tags into the existing parent GetItems request (include_tag_count: 20, Steam's per-item cap) keeps the request budget unchanged. A regen that reverts to AppNames or drops include_tag_count reintroduces empty tag columns or a 4th request; the compact keep-set must also retain parent_tags, which is sparse whenever parents do not resolve.",
+  "files": [
+    "internal/source/steam/store.go",
+    "internal/cli/steam_demos.go",
+    "internal/cli/helpers.go",
+    "internal/cli/steam_demos_test.go"
+  ],
+  "validated_outcome": "Offline tests pass: parent_tags equals the full game's tag names in order; a 5-demo/3-parent page issues exactly 3 requests and the GetItems data_request carries include_tag_count; parent_appid 0 and hidden parents yield rows with null parent_tags and no parent_name while resolvable rows stay populated; --agent compaction keeps parent_tags; temporarily dropping include_tag_count makes TestDemosParentTagsFromFullGame fail."
+}

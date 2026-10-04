@@ -32,7 +32,15 @@ func RegisterAll(s *server.MCPServer, root *cobra.Command, cliPath func() (strin
 		if toolName == "" {
 			return
 		}
+		localEffects := carstayLearningReadHasLocalEffects(path)
+		readOnly := isMCPReadOnly(cmd) && !localEffects
 		blockedStructuredArgs := blockedStructuredArgsForCommand(cmd)
+		if readOnly {
+			// The trusted child context preserves reads without letting caller
+			// flags disable recall or request state-writing receipts.
+			blockedStructuredArgs["no-learn"] = true
+			blockedStructuredArgs["receipt"] = true
+		}
 		positionals := positionalArgsForCommand(cmd, blockedStructuredArgs)
 		blockedCLIArgs := cliFlagBlockedArgs(blockedStructuredArgs, positionals)
 		allowedStructuredArgs := allowedStructuredArgsForCommand(cmd, blockedStructuredArgs, positionals, commandTakesArgs(cmd))
@@ -41,15 +49,14 @@ func RegisterAll(s *server.MCPServer, root *cobra.Command, cliPath func() (strin
 		if commandTakesArgs(cmd) && len(positionals) == 0 {
 			options = append(options, mcplib.WithString("args", mcplib.Description("Additional positional arguments to append to the command. Raw flags are rejected; use structured flag parameters instead.")))
 		}
-		readOnly := isMCPReadOnly(cmd)
 		if readOnly {
 			options = append(options, mcplib.WithReadOnlyHintAnnotation(true), mcplib.WithDestructiveHintAnnotation(false))
 		}
-		if !readOnly && isMCPLocalWrite(cmd) {
+		if !readOnly && (isMCPLocalWrite(cmd) || localEffects) {
 			// Local-write tier: the command's only writes land in the CLI's
 			// own local store, so the tool is neither destructive nor
 			// open-world; readOnlyHint stays unset because it does write.
-			options = append(options, mcplib.WithDestructiveHintAnnotation(false), mcplib.WithOpenWorldHintAnnotation(false))
+			options = append(options, mcplib.WithReadOnlyHintAnnotation(false), mcplib.WithDestructiveHintAnnotation(false), mcplib.WithOpenWorldHintAnnotation(false))
 		}
 		tool := mcplib.NewTool(toolName, options...)
 		if tool.Meta == nil {

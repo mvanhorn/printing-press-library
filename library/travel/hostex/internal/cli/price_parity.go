@@ -28,8 +28,7 @@ func newNovelPriceParityCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "--property=12704864"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
-				fmt.Fprintf(cmd.OutOrStdout(), "would query pricing_ratios + listings/calendar for property %q over %s days\n", flagProperty, flagDays)
-				return nil
+				return writeDryRun(cmd.OutOrStdout(), flags, "query pricing_ratios and listings/calendar for one property and diff channel prices")
 			}
 			if err := rejectLocalDataSource(flags); err != nil {
 				return err
