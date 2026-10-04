@@ -1654,3 +1654,73 @@ func TestTeachCommand_IntegratedPlaybookErrorDegrades(t *testing.T) {
 		t.Errorf("teach.log should mention playbook upsert; got %q", string(data))
 	}
 }
+
+func TestMichiRecallReadFailureHasRuntimeExitAndNoSuccess(t *testing.T) {
+	for _, mode := range []string{"direct", "pattern"} {
+		t.Run(mode, func(t *testing.T) {
+			home := withTempLearnHome(t)
+			dbPath := filepath.Join(home, "error.db")
+			s, err := store.OpenWithContext(context.Background(), dbPath)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, err := s.DB().Exec(`INSERT INTO resources(resource_type,id,data) VALUES('widgets','resource-alpha','{"name":"Alpha"}')`); err != nil {
+				t.Fatal(err)
+			}
+			if mode == "direct" {
+				if _, err := s.DB().Exec(`INSERT INTO search_learnings(query_pattern,query_entities,resource_id,resource_type,action,source,confidence) VALUES('find alpha details','["Alpha"]','resource-alpha','widgets','boost','taught',2)`); err != nil {
+					t.Fatal(err)
+				}
+			} else {
+				if _, err := s.DB().Exec(`INSERT INTO search_patterns(query_template,resource_template,resource_type,strategy,entity_kind,source,confidence) VALUES('find {entity} details','resource-{entity:lowercase}','widgets','substitute','lowercase','taught',2)`); err != nil {
+					t.Fatal(err)
+				}
+			}
+			if _, err := s.DB().Exec(`ALTER TABLE resources RENAME COLUMN data TO unreadable_data`); err != nil {
+				t.Fatal(err)
+			}
+			s.Close()
+			cmd := newRecallCmd(&rootFlags{agent: true}, entities.NewConfig())
+			var stdout, stderr bytes.Buffer
+			cmd.SetOut(&stdout)
+			cmd.SetErr(&stderr)
+			cmd.SetArgs([]string{"find Alpha details", "--db", dbPath})
+			err = cmd.Execute()
+			if err == nil || ExitCode(err) != 5 || strings.Contains(stdout.String(), `"found":true`) || strings.Contains(stdout.String(), `"found": true`) {
+				t.Fatalf("read failure emitted success or wrong exit: code=%d err=%v stdout=%q", ExitCode(err), err, stdout.String())
+			}
+		})
+	}
+}
+
+func TestMichiRecallKeepsDistinctTaughtDelimiterTuples(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "tuples.db")
+	for _, tuple := range [][2]string{{"a|b", "c"}, {"a", "b|c"}} {
+		if _, _, err := runRootArgs(t, "teach", "--query", "find Alpha details", "--resource", tuple[1], "--resource-type", tuple[0], "--db", dbPath); err != nil {
+			t.Fatal(err)
+		}
+	}
+	cmd := newRecallCmd(&rootFlags{agent: true}, entities.NewConfig())
+	var stdout, stderr bytes.Buffer
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&stderr)
+	cmd.SetArgs([]string{"find Alpha details", "--db", dbPath, "--limit", "2"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatal(err)
+	}
+	var got recallEnvelope
+	if err := json.Unmarshal(stdout.Bytes(), &got); err != nil {
+		t.Fatal(err)
+	}
+	if !got.Found || len(got.Results) != 2 {
+		t.Fatalf("two actual teachings lost one distinct tuple: %+v", got)
+	}
+	seen := map[[2]string]bool{}
+	for _, hit := range got.Results {
+		seen[[2]string{hit.ResourceType, hit.ResourceID}] = true
+	}
+	if !seen[[2]string{"a|b", "c"}] || !seen[[2]string{"a", "b|c"}] {
+		t.Fatalf("wrong tuple results: %+v", got)
+	}
+}

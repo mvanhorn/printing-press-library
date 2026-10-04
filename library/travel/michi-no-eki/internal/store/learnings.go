@@ -620,8 +620,7 @@ func (s *Store) ForgetLearnings(ctx context.Context, f ForgetLearningsFilter) (i
 	if err != nil {
 		return 0, fmt.Errorf("forget learnings families: %w", err)
 	}
-	type family struct{ template, resourceType, venue string }
-	families := map[family]struct{}{}
+	families := map[derivedPatternFamily]struct{}{}
 	for rows.Next() {
 		var queryPattern, entitiesJSON, resourceType, venue string
 		if err := rows.Scan(&queryPattern, &entitiesJSON, &resourceType, &venue); err != nil {
@@ -629,7 +628,7 @@ func (s *Store) ForgetLearnings(ctx context.Context, f ForgetLearningsFilter) (i
 			return 0, fmt.Errorf("forget learnings family scan: %w", err)
 		}
 		if template := forgotLearningPatternTemplate(queryPattern, entitiesJSON); template != "" {
-			families[family{template, resourceType, venue}] = struct{}{}
+			families[derivedPatternFamily{template, resourceType, venue}] = struct{}{}
 		}
 	}
 	if err := rows.Err(); err != nil {
@@ -639,13 +638,6 @@ func (s *Store) ForgetLearnings(ctx context.Context, f ForgetLearningsFilter) (i
 	if err := rows.Close(); err != nil {
 		return 0, fmt.Errorf("forget learnings family close: %w", err)
 	}
-	for f := range families {
-		if _, err := tx.ExecContext(ctx, `DELETE FROM search_patterns WHERE source = 'inferred'
-			AND query_template = ? AND resource_type = ? AND COALESCE(venue, '') = ?`,
-			f.template, f.resourceType, f.venue); err != nil {
-			return 0, fmt.Errorf("forget learnings inferred patterns: %w", err)
-		}
-	}
 	res, err := tx.ExecContext(ctx, "DELETE FROM search_learnings WHERE "+where, args...)
 	if err != nil {
 		return 0, fmt.Errorf("forget learnings: %w", err)
@@ -653,6 +645,11 @@ func (s *Store) ForgetLearnings(ctx context.Context, f ForgetLearningsFilter) (i
 	n, err := res.RowsAffected()
 	if err != nil {
 		return 0, fmt.Errorf("forget learnings count: %w", err)
+	}
+	for f := range families {
+		if err := reconcileDerivedPatterns(ctx, tx, f); err != nil {
+			return 0, fmt.Errorf("forget learnings inferred patterns: %w", err)
+		}
 	}
 	if err := tx.Commit(); err != nil {
 		return 0, fmt.Errorf("forget learnings commit: %w", err)
@@ -667,22 +664,7 @@ func forgotLearningPatternTemplate(queryPattern, entitiesJSON string) string {
 	if json.Unmarshal([]byte(entitiesJSON), &entities) != nil || len(entities) != 1 {
 		return ""
 	}
-	skip := map[string]bool{}
-	for _, entity := range entities {
-		skip[strings.ToLower(strings.TrimSpace(entity))] = true
-	}
-	tokens := []string{}
-	for _, token := range strings.Fields(queryPattern) {
-		if !skip[strings.ToLower(token)] {
-			tokens = append(tokens, token)
-		}
-	}
-	if len(tokens) == 0 {
-		return ""
-	}
-	tokens = append(tokens, "{entity}")
-	sort.Strings(tokens)
-	return strings.Join(tokens, " ")
+	return retainedFamilyTemplate(queryPattern, entities)
 }
 
 // RecallMatch is one row returned by Recall — a learning that scored

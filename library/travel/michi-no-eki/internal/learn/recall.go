@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"regexp"
 	"sort"
@@ -277,7 +278,7 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 	// then sees that a structurally-similar learning exists for a
 	// different entity, rather than the misleading
 	// no_learnings_for_query_family.
-	mismatchCanonicals := make(map[string]struct{})
+	mismatchCanonicals := make(map[resourceKey]map[string]struct{})
 
 	for rows.Next() {
 		var (
@@ -464,28 +465,48 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 			t := lastObserved.Time
 			hit.LastObservedAt = &t
 		}
-		validateResource(ctx, db, cfg, &hit, queryIdentity, storedEntitySlice, opts.ResourceTypeFields)
-		// Cross-alias promotion: if canonicals overlap, the entities
-		// are equivalent even when their literal forms differ. Override
-		// a Mismatch verdict so the learning isn't filtered into the
-		// mismatches bucket. The warning flags it for diagnostic clarity.
-		if canonicalOverlap && hit.EntityMatch == EntityMatchMismatch {
+		resourcePresent, resourceErr := validateResource(ctx, db, cfg, &hit, queryIdentity, storedEntitySlice, opts.ResourceTypeFields)
+		if resourceErr != nil {
+			return result, resourceErr
+		}
+		// A teaching alias establishes the query family, not the referenced
+		// resource's identity. A cached resource must itself resolve to the
+		// same query-and-teaching canonical before a mismatch can be an alias hit.
+		// Missing resources retain the existing explicitly warned fallback.
+		resourceAliasOverlap := !resourcePresent
+		if resourcePresent {
+			resourceCanonicals := resolver.ResolveSet(hit.ResourceEntities)
+			for canonical := range queryCanonicals {
+				if _, learned := storedCanonicals[canonical]; !learned {
+					continue
+				}
+				if _, actual := resourceCanonicals[canonical]; actual {
+					resourceAliasOverlap = true
+					break
+				}
+			}
+		}
+		if canonicalOverlap && resourceAliasOverlap && hit.EntityMatch == EntityMatchMismatch {
 			hit.EntityMatch = EntityMatchExact
 			hit.Warnings = append(hit.Warnings, WarningCrossAliasMatch)
 		}
 		if hit.EntityMatch == EntityMatchMismatch {
+			key := hitKey(hit.ResourceType, hit.ResourceID)
+			if mismatchCanonicals[key] == nil {
+				mismatchCanonicals[key] = make(map[string]struct{})
+			}
 			// Surface canonicals for the envelope-level similar-shape
 			// warning. Fall back to literal stored entities when the
 			// row has no canonical resolution -- better to name the
 			// raw entity than to silently drop the hint.
 			if len(storedCanonicals) > 0 {
 				for c := range storedCanonicals {
-					mismatchCanonicals[c] = struct{}{}
+					mismatchCanonicals[key][c] = struct{}{}
 				}
 			} else {
 				for _, e := range storedEntitySlice {
 					if e = strings.TrimSpace(e); e != "" {
-						mismatchCanonicals[e] = struct{}{}
+						mismatchCanonicals[key][e] = struct{}{}
 					}
 				}
 			}
@@ -505,19 +526,17 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 		JaccardMin:      jMin,
 		Limit:           limit,
 		AdditionalKinds: opts.PatternKinds,
+		NoLimit:         true,
+		AllBindings:     true,
 	})
 	if len(patternHits) > 0 {
-		existing := make(map[string]struct{}, len(hits))
-		for _, h := range hits {
-			existing[hitKey(h.ResourceType, h.ResourceID)] = struct{}{}
-		}
+		acceptedPatterns := make(map[int64]struct{})
 		for _, ph := range patternHits {
-			key := hitKey(ph.ResourceType, ph.ResourceID)
-			if _, dup := existing[key]; dup {
+			if _, accepted := acceptedPatterns[ph.PatternID]; accepted {
 				continue
 			}
-			existing[key] = struct{}{}
-			hits = append(hits, Hit{
+			key := hitKey(ph.ResourceType, ph.ResourceID)
+			hit := Hit{
 				ResourceID:       ph.ResourceID,
 				ResourceType:     ph.ResourceType,
 				Venue:            ph.Venue,
@@ -528,11 +547,79 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 				ResourceEntities: ph.ResourceEntities,
 				Source:           SourcePattern,
 				LastObservedAt:   ph.LastObservedAt,
-			})
+			}
+			boundIdentity := []string{ph.BoundEntity}
+			resourcePresent, resourceErr := validateResource(ctx, db, cfg, &hit, boundIdentity, nil, opts.ResourceTypeFields)
+			if resourceErr != nil {
+				return result, resourceErr
+			}
+			if resourcePresent && len(hit.ResourceEntities) > 0 {
+				resourceCanonicals := resolver.ResolveSet(hit.ResourceEntities)
+				boundCanonicals := resolver.ResolveSet(boundIdentity)
+				if hit.EntityMatch == EntityMatchMismatch && setIntersects(boundCanonicals, resourceCanonicals) {
+					hit.EntityMatch = EntityMatchExact
+					hit.Warnings = append(hit.Warnings, WarningCrossAliasMatch)
+				}
+				if hit.EntityMatch == EntityMatchMismatch {
+					if mismatchCanonicals[key] == nil {
+						mismatchCanonicals[key] = make(map[string]struct{})
+					}
+					for canonical := range resourceCanonicals {
+						mismatchCanonicals[key][canonical] = struct{}{}
+					}
+					if len(resourceCanonicals) == 0 {
+						for _, entity := range hit.ResourceEntities {
+							mismatchCanonicals[key][entity] = struct{}{}
+						}
+					}
+					mismatches = append(mismatches, hit)
+					continue
+				}
+			} else {
+				// Keep the established identifier-verified pattern behavior
+				// when no cached identity fields are extractable. This is not
+				// evidence of current provider facts or resource identity.
+				hit.EntityMatch = EntityMatchExact
+			}
+			// Consume a pattern only after this binding passes identity validation.
+			// A valid duplicate counts as its first accepted binding; a conflicting
+			// duplicate must leave later bindings available for validation. Typed-ID
+			// deduplication follows final ranking of all accepted evidence below.
+			acceptedPatterns[ph.PatternID] = struct{}{}
+			hits = append(hits, hit)
 		}
 	}
 
+	// Diagnostics describe the final identity decision for a typed resource.
+	// A rejected binding cannot contradict a later accepted binding to that ID.
+	accepted := make(map[resourceKey]struct{}, len(hits))
+	for _, h := range hits {
+		key := hitKey(h.ResourceType, h.ResourceID)
+		accepted[key] = struct{}{}
+		delete(mismatchCanonicals, key)
+	}
+	remainingMismatches := mismatches[:0]
+	for _, h := range mismatches {
+		if _, ok := accepted[hitKey(h.ResourceType, h.ResourceID)]; !ok {
+			remainingMismatches = append(remainingMismatches, h)
+		}
+	}
+	mismatches = remainingMismatches
+
 	sortHits(hits)
+	// Deduplicate only after ranking validated evidence. An earlier partial or
+	// lower-confidence binding must not hide a better hit for the same typed ID.
+	bestHits := hits[:0]
+	seen := make(map[resourceKey]struct{}, len(hits))
+	for _, h := range hits {
+		key := hitKey(h.ResourceType, h.ResourceID)
+		if _, duplicate := seen[key]; duplicate {
+			continue
+		}
+		seen[key] = struct{}{}
+		bestHits = append(bestHits, h)
+	}
+	hits = bestHits
 	sortHits(mismatches)
 
 	if len(hits) > limit {
@@ -567,8 +654,14 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 	// similar-shape learning exists for a different entity, instead
 	// of treating it as a cold start.
 	if len(mismatchCanonicals) > 0 {
-		canonicals := make([]string, 0, len(mismatchCanonicals))
-		for c := range mismatchCanonicals {
+		remainingCanonicals := make(map[string]struct{})
+		for _, evidence := range mismatchCanonicals {
+			for canonical := range evidence {
+				remainingCanonicals[canonical] = struct{}{}
+			}
+		}
+		canonicals := make([]string, 0, len(remainingCanonicals))
+		for c := range remainingCanonicals {
 			canonicals = append(canonicals, c)
 		}
 		sort.Strings(canonicals)
@@ -650,23 +743,29 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 		result.Warnings = append(result.Warnings, TopWarningCandidatesPresent)
 	}
 
+	if err := ctx.Err(); err != nil {
+		return Result{}, fmt.Errorf("recall canceled: %w", err)
+	}
 	return result, nil
 }
 
-func validateResource(ctx context.Context, db *sql.DB, cfg *entities.Config, hit *Hit, queryEntities, storedEntitySlice []string, fieldsByType map[string][]string) {
+func validateResource(ctx context.Context, db *sql.DB, cfg *entities.Config, hit *Hit, queryEntities, storedEntitySlice []string, fieldsByType map[string][]string) (bool, error) {
 	var data string
 	err := db.QueryRowContext(ctx,
 		`SELECT data FROM resources WHERE resource_type = ? AND id = ?`,
 		hit.ResourceType, hit.ResourceID,
 	).Scan(&data)
-	if err != nil {
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return false, fmt.Errorf("recall cached resource %s/%s: %w", hit.ResourceType, hit.ResourceID, err)
+	}
+	if errors.Is(err, sql.ErrNoRows) {
 		hit.Warnings = append(hit.Warnings, WarningResourceNotInStore)
 		hit.EntityMatch = ClassifyEntityMatch(queryEntities, storedEntitySlice)
 		if hit.EntityMatch == EntityMatchPartial && len(queryEntities) == 0 && len(storedEntitySlice) == 0 {
 			hit.EntityMatch = EntityMatchUnknown
 		}
 		addLowConfidenceWarning(hit)
-		return
+		return false, nil
 	}
 	var fields []string
 	if fieldsByType != nil {
@@ -676,6 +775,7 @@ func validateResource(ctx context.Context, db *sql.DB, cfg *entities.Config, hit
 	hit.ResourceEntities = resourceEntities
 	hit.EntityMatch = ClassifyEntityMatch(queryEntities, resourceEntities)
 	addLowConfidenceWarning(hit)
+	return true, nil
 }
 
 func addLowConfidenceWarning(hit *Hit) {
@@ -721,8 +821,14 @@ func sourcePriority(source string) int {
 	return 0
 }
 
-func hitKey(resourceType, resourceID string) string {
-	return resourceType + "|" + resourceID
+// Keep the two unrestricted teaching fields distinct, including delimiter bytes.
+type resourceKey struct {
+	resourceType string
+	resourceID   string
+}
+
+func hitKey(resourceType, resourceID string) resourceKey {
+	return resourceKey{resourceType: resourceType, resourceID: resourceID}
 }
 
 func entityMatchPriority(em string) int {

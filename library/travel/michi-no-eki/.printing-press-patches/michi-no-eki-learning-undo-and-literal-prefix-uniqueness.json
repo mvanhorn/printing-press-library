@@ -16,7 +16,7 @@
   "markers": [
     "forgotLearningPatternTemplate",
     "instr(id, ?) = 1 ORDER BY id LIMIT 2",
-    "source = CASE WHEN ? = 'taught' THEN 'taught' ELSE source END"
+    "p.Source == SourceTaught"
   ],
   "validated_outcome": "Temporary-store regressions cover scoped inferred-family cleanup, manually taught and unrelated retention, transaction rollback, literal percent/underscore/case, ambiguity abstention and one-way explicit source promotion. Final fresh full source-bound acceptance passed 129/129 after edits."
 }
