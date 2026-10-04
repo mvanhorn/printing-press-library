@@ -19,6 +19,7 @@ type positionalArg struct {
 	InputName string
 	Display   string
 	Required  bool
+	Variadic  bool
 }
 
 func toolOptionsForFlags(cmd *cobra.Command, blocked map[string]bool, positionals []positionalArg) []mcplib.ToolOption {
@@ -29,6 +30,9 @@ func toolOptionsForFlags(cmd *cobra.Command, blocked map[string]bool, positional
 			return
 		}
 		if reservedStructuredArgs[flag.Name] {
+			return
+		}
+		if blocked[flag.Name] {
 			return
 		}
 		if seen[flag.Name] {
@@ -52,6 +56,32 @@ func toolOptionsForFlags(cmd *cobra.Command, blocked map[string]bool, positional
 		opts = append(opts, toolOptionForPositional(positional))
 	}
 	return opts
+}
+
+func allowedStructuredArgsForCommand(cmd *cobra.Command, blocked map[string]bool, positionals []positionalArg, allowRawArgs bool) map[string]bool {
+	allowed := map[string]bool{}
+	if allowRawArgs {
+		allowed["args"] = true
+	}
+	seen := map[string]bool{}
+	addFlag := func(flag *pflag.Flag) {
+		if flag == nil || flag.Hidden || flag.Deprecated != "" {
+			return
+		}
+		if reservedStructuredArgs[flag.Name] || blocked[flag.Name] || seen[flag.Name] {
+			return
+		}
+		seen[flag.Name] = true
+		allowed[flag.Name] = true
+	}
+	if cmd != nil {
+		cmd.NonInheritedFlags().VisitAll(addFlag)
+		cmd.InheritedFlags().VisitAll(addFlag)
+	}
+	for _, positional := range positionals {
+		allowed[positional.InputName] = true
+	}
+	return allowed
 }
 
 func toolOptionForFlag(flag *pflag.Flag) mcplib.ToolOption {
@@ -121,6 +151,7 @@ func positionalArgsForCommand(cmd *cobra.Command, blocked map[string]bool) []pos
 		}
 	})
 	var out []positionalArg
+	seenPositional := map[string]bool{}
 	for _, match := range positionalTokenPattern.FindAllStringSubmatch(cmd.Use, -1) {
 		if len(match) < 2 {
 			continue
@@ -130,8 +161,12 @@ func positionalArgsForCommand(cmd *cobra.Command, blocked map[string]bool) []pos
 			continue
 		}
 		required := strings.HasPrefix(raw, "<")
-		name := strings.Trim(raw, "<>[]")
-		name = strings.TrimSuffix(name, "...")
+		variadic := strings.Contains(raw, "...")
+		// Strip positional decorations outright. A nested variadic like
+		// "[<slug>...]" leaves an inner ">" that end-trimming cannot reach
+		// (the "..." shields it), which would emit an invalid schema key.
+		name := strings.NewReplacer("<", "", ">", "", "[", "", "]", "").Replace(raw)
+		name = strings.TrimSuffix(strings.TrimSpace(name), "...")
 		name = strings.TrimSpace(name)
 		if name == "" {
 			continue
@@ -140,10 +175,25 @@ func positionalArgsForCommand(cmd *cobra.Command, blocked map[string]bool) []pos
 		if reservedStructuredArgs[inputName] || flagNames[inputName] {
 			inputName = "positional-" + inputName
 		}
+		// Collapse repeats of the same name (e.g. "<slug> [<slug>...]") into a
+		// single positional slot; distinct-index dedup happens downstream.
+		if seenPositional[inputName] {
+			if variadic {
+				for i := range out {
+					if out[i].InputName == inputName {
+						out[i].Variadic = true
+						break
+					}
+				}
+			}
+			continue
+		}
+		seenPositional[inputName] = true
 		out = append(out, positionalArg{
 			InputName: inputName,
 			Display:   raw,
 			Required:  required,
+			Variadic:  variadic,
 		})
 	}
 	return out
@@ -152,6 +202,12 @@ func positionalArgsForCommand(cmd *cobra.Command, blocked map[string]bool) []pos
 func blockedStructuredArgsForCommand(cmd *cobra.Command) map[string]bool {
 	blocked := map[string]bool{}
 	for name := range reservedStructuredArgs {
+		blocked[name] = true
+	}
+	for name := range blockedDestinationFlags {
+		blocked[name] = true
+	}
+	for name := range flagWriteSinkNames(cmd) {
 		blocked[name] = true
 	}
 	if cmd == nil {

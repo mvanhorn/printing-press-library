@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-10-03",
+  "base_run_id": "20261003-120106-6f48c7c7",
+  "base_printing_press_version": "4.33.0",
+  "id": "hostex-sync-reconcile-skips-partial-windows",
+  "summary": "A full sync prunes local rows only inside the window it actually fetched: /transactions prunes within its action-date window, and --since or other --param filters skip reconcile.",
+  "reason": "The 4.33.0 generator prunes the whole local table against the IDs a --full sync saw; Hostex transactions are always fetched through a date window (action time, operator timezone), so unbounded pruning would delete older history backfilled with --resource-param.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/store/store.go",
+    "internal/cli/sync_reconcile_partial_test.go",
+    "internal/store/reconcile_date_window_test.go"
+  ],
+  "call_sites": [
+    "partial_window",
+    "ReconcileDateWindow"
+  ],
+  "validated_outcome": "Tests: in-window transactions deleted upstream are pruned while older rows survive, a filtered fetch emits exactly one partial_window skip event, and a whole-table fetch still prunes. Live probe confirmed the /transactions window filters on the action_at date. The prune bounds use the operator-local date at the start of action_at (Hostex stamps the operator's offset), covered by TestReconcileDateWindowUsesOperatorLocalDate."
+}

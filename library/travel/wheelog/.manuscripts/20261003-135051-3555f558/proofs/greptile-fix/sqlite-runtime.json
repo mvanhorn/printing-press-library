@@ -1,0 +1,8 @@
+{
+  "sqlite_module": "v1.60.1",
+  "sqlite_runtime": "3.53.4",
+  "libc_module": "v1.77.1",
+  "sqlite_required_libc": "v1.77.1",
+  "exact_libc_match": true,
+  "verdict": "PASS"
+}

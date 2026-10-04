@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "details": {
+    "count": 5522,
+    "truncated": true,
+    "actual_mcp_text_bytes": 59923,
+    "max_bytes": 60000,
+    "temporary_entries": 0
+  }
+}

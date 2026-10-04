@@ -191,7 +191,7 @@ func ParseListing(raw []byte, kind, pageURL string, now time.Time) (Page, error)
 				out.NextURL = href
 			}
 		}
-		if m := regexp.MustCompile(`/` + kind + `/regions/[0-9]+/prefectures/([0-9]+)$`).FindStringSubmatch(u.Path); m != nil {
+		if m := regexp.MustCompile(`/` + kind + `/regions/[0-9]+/prefectures/([0-9]+)$`).FindStringSubmatch(u.Path); m != nil && u.RawQuery == "" {
 			v, _ := strconv.Atoi(m[1])
 			out.Areas[v] = href
 		}

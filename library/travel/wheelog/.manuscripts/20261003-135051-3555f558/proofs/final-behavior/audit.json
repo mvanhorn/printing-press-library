@@ -1,0 +1,125 @@
+{
+  "meta": {
+    "provider": "wheelog",
+    "source": "local"
+  },
+  "results": {
+    "coverage": {
+      "matched": 2,
+      "output_limit": 10,
+      "radius_excluded": 0,
+      "returned": 2,
+      "scanned_saved_records": 3,
+      "scope": "saved_shortlist",
+      "unknown_coordinates": 0
+    },
+    "note": "Counts are crowdsourced question reports. Source record dates do not date individual reports or establish personal suitability, current conditions, measured dimensions or an accessible route. Distances are straight-line meters within saved coverage. The supplied origin is not saved.",
+    "results": [
+      {
+        "address": "日本 〒286-0104千葉県成田市古込古込1-1",
+        "cache_age_days": 0.00000982304398148148,
+        "category": "elevator",
+        "country": null,
+        "data_source": "local",
+        "detail_status": "checked",
+        "id": 166344,
+        "location": {
+          "latitude": 35.7733158034394,
+          "longitude": 140.387687534094
+        },
+        "name": "成田空港 エレベーター",
+        "questions": [
+          {
+            "id": 201,
+            "label": "２台以上乗れそう？",
+            "negative_reports": 0,
+            "positive_reports": 1,
+            "report_observed_at": null,
+            "state": "reported_affirmative"
+          },
+          {
+            "id": 202,
+            "label": "車いす用の操作盤はある？",
+            "negative_reports": 0,
+            "positive_reports": 1,
+            "report_observed_at": null,
+            "state": "reported_affirmative"
+          },
+          {
+            "id": 203,
+            "label": "鏡はある？",
+            "negative_reports": 0,
+            "positive_reports": 1,
+            "report_observed_at": null,
+            "state": "reported_affirmative"
+          }
+        ],
+        "recheck_reasons": [
+          "question_102_inapplicable"
+        ],
+        "record_created_at": "2026-10-02T04:39:22.433139Z",
+        "record_update_age_days": 1.2124976002893517,
+        "record_updated_at": "2026-10-02T04:39:22.433139Z",
+        "requirements": [
+          {
+            "negative_reports": null,
+            "positive_reports": null,
+            "question_id": 102,
+            "reason": "different_source_category",
+            "state": "inapplicable"
+          }
+        ],
+        "retrieved_at": "2026-10-03T09:45:21.377093Z",
+        "source_created_raw": "2026-10-02 04:39:22.433139",
+        "source_updated_raw": "2026-10-02 04:39:22.433139",
+        "source_url": "https://app.wheelog.com/?spotId=166344\u0026la=ja",
+        "unsupported_facts": [
+          "measured_dimensions",
+          "individual_report_dates",
+          "current_open_status",
+          "accessible_routes"
+        ]
+      },
+      {
+        "address": "日本 〒286-0104千葉県成田市古込2",
+        "cache_age_days": 1.4575231481481483e-7,
+        "category": "slope",
+        "country": null,
+        "data_source": "local",
+        "detail_status": "checked",
+        "id": 166347,
+        "location": {
+          "latitude": 35.7727981428757,
+          "longitude": 140.388182401657
+        },
+        "name": "京成線 成田空港駅 第2・第3ターミナル方面出口",
+        "questions": [],
+        "recheck_reasons": [
+          "question_102_inapplicable"
+        ],
+        "record_created_at": "2026-10-02T05:09:40.383362Z",
+        "record_update_age_days": 1.1914565097800927,
+        "record_updated_at": "2026-10-02T05:09:40.383362Z",
+        "requirements": [
+          {
+            "negative_reports": null,
+            "positive_reports": null,
+            "question_id": 102,
+            "reason": "different_source_category",
+            "state": "inapplicable"
+          }
+        ],
+        "retrieved_at": "2026-10-03T09:45:22.213214Z",
+        "source_created_raw": "2026-10-02 05:09:40.383362",
+        "source_updated_raw": "2026-10-02 05:09:40.383362",
+        "source_url": "https://app.wheelog.com/?spotId=166347\u0026la=ja",
+        "unsupported_facts": [
+          "measured_dimensions",
+          "individual_report_dates",
+          "current_open_status",
+          "accessible_routes"
+        ]
+      }
+    ]
+  }
+}

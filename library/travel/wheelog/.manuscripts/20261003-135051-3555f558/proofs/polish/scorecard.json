@@ -1,0 +1,103 @@
+{
+  "live_check": {
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "features": [
+      {
+        "name": "Requested-question comparison",
+        "command": "spots compare",
+        "example": "wheelog-pp-cli spots compare 166345 166344 --require-question 102 --agent",
+        "status": "pass",
+        "output_sample": "{\"meta\":{\"provider\":\"wheelog\",\"source\":\"live\"},\"results\":{\"coverage\":{\"available\":2,\"live\":2,\"local\":0,\"requested\":2,\"unavailable\":0},\"fetch_failures\":[],\"note\":\"Counts are crowdsourced question reports. Source record dates do not date individual reports or establish personal suitability, current conditions, measured dimensions or an accessible route.\",\"results\":[{\"address\":\"\u003credacted\u003e\",\"cache_age_days\":2.546296296296296e-10,\"category\":\"toilet\",\"country\":null,\"data_source\":\"live\",\"detail_status\":\"checked\",\"id\":166345,\"location\":{\"latitude\":35.774154985466,\"longitude\":140.387938991189},\"name\":\"\u003credacted\u003e\",\"questions\":[{\"id\":101,\"label\":\"清潔感はある？\",\"negative_reports\":0,\"positive_reports\":0,\"report_observed_at\":null,\"state\":\"unreported\"},{\"id\":102,\"label\":\"十分な転回スペースはある？\",\"negative_reports\":0,\"positive_reports\":1,\"report_observed_at\":null,\"state\":\"reported_affirmative\"},{\"id\":103,\"label\":\"手すりは両側にある？\",\"negative_reports\":0,\"positive_reports\":1,\"report_observed_at\":null,\"state\":\"reported_affirmative\"},{\"id\":104,\"label\":\"便座に横付けできる？\",\"negative_reports\":0,\"positive_reports\":1,\"report_observed_at\":null,\"state\":\"reported_affirmative\"},{\"id\":105,\"label\":\"便座に背もたれはある？\",\"negative_reports\":0,\"positive_reports\":1,\"report_observed_at\":null,\"state\":\"reported_affirmative\"},{\"id\":106,\"label\":\"オストメイトはある？\",\"negative_reports\":0,\"positive_reports\":1,\"report_observed_at\":null,\"state\":\"reported_affirmative\"},{\"id\":107,\"label\":\"介助用ベッドはある？\",\"negative_reports\":1,\"positive_reports\":0,\"report_observed_at\":null,\"state\":\"reported_negative\"},{\"id\":108,\"label\":\"ベビーベッドはある？\",\"negative_reports\":1,\"positive_reports\":0,\"report_observed_at\":null,\"state\":\"reported_negative\"},{\"id\":109,\"label\":\"男女の性別関係なく入れる？\",\"negative_reports\":0,\"positive_reports\":1,\"report_observed_at\":null,\"state\":\"reported_affirmative\"}],\"recheck_reasons\":[],\"record_created_at\":\"2026-10-02T04:52:05.173565Z\",\"record_update_age_days\":1.2048561223958334,\"record_updated_at\":\"2026-10-02T04:52:05.173565Z\",\"requirements\":[{\"label\":\"十分な転回スペースはある？\",\"negative_reports\":0,\"positive_reports\":1,\"question_id\":102,\"state\":\"reported_affirmative\"}],\"retrieved_at\":\"2026-10-03T09:47:04.742518Z\",\"source_created_raw\":\"2026-10-02 04:52:05.173565\",\"source_updated_raw\":\"2026-10-02 04:52:05.173565\",\"source_url\":\"https://app.wheelog.com/?spotId=166345\u0026la=ja\",\"unsupported_facts\":[\"measured_dimensions\",\"individual_report_dates\",\"current_open_status\",\"accessible_routes\"]},{\"address\":\"\u003credacted\u003e\",\"cache_age_days\":1.5046296296296296e-10,\"category\":\"elevator\",\"country\":null,\"data_source\":\"live\",\"detail_status\":\"checked\",\"id\":166344,\"location\":{\"latitude\":35.7733158034394,\"longitude\":140.387687534094},\"name\":\"\u003credacted\u003e\",\"questions\":[{\"id\":201,\"label\":\"２台以上乗れそう？\",\"negative_reports\":0,\"positive_reports\":1,\"report_observed_at\":null,\"state\":\"reported_affirmative\"},{\"id\":202,\"label\":\"車いす用の操作盤はある？\",\"negative_reports\":0,\"positive_reports\":1,\"report_observed_at\":null,\"state\":\"reported_affirmative\"},{\"id\":203,\"label\":\"鏡はある？\",\"negative_reports\":0,\"positive_reports\":1,\"report_observed_at\":null,\"state\":\"reported_affirmative\"}],\"recheck_reasons\":[\"question_102_inapplicable\"],\"record_created_at\":\"2026-10-02T04:39:22.433139Z\",\"record_update_age_days\":1.213688047349537,\"record_updated_at\":\"2026-10-02T04:39:22.433139Z\",\"requirements\":[{\"negative_reports\":null,\"positive_reports\":null,\"question_id\":102,\"reason\":\"different_source_category\",\"state\":\"inapplicable\"}],\"retrieved_at\":\"2026-10-03T09:47:05.080417Z\",\"source_created_raw\":\"2026-10-02 04:39:22.433139\",\"source_updated_raw\":\"2026-10-02 04:39:22.433139\",\"source_url\":\"https://app.wheelog.com/?spotId=166344\u0026la=ja\",\"unsupported_facts\":[\"measured_dimensions\",\"individual_report_dates\",\"current_open_status\",\"accessible_routes\"]}]}}"
+      },
+      {
+        "name": "Detail-checked discovery",
+        "command": "spots search",
+        "example": "wheelog-pp-cli spots search 成田空港 --category toilet --require-question 102 --limit 3 --agent",
+        "status": "pass",
+        "output_sample": "{\"meta\":{\"provider\":\"wheelog\",\"source\":\"live\"},\"results\":{\"coverage\":{\"checked\":3,\"complete_coverage\":false,\"listed\":3,\"live\":3,\"local\":0,\"max_scan_pages\":1,\"output_limit\":3,\"pages_requested\":1,\"scanned_records\":3,\"scope\":\"bounded_source_keyword_search\",\"source_request_echo\":{\"categoryList\":[\"toilet\"],\"endDatetime\":null,\"isDetail\":\"1\",\"pagenum\":\"1\",\"questionList\":null,\"startDatetime\":null,\"type\":\"spot\",\"word\":\"成田空港\"},\"unavailable\":0,\"unexpanded\":0},\"fetch_failures\":[],\"note\":\"Counts are crowdsourced question reports. Source record dates do not date individual reports or establish personal suitability, current conditions, measured dimensions or an accessible route.\",\"results\":[{\"address\":\"\u003credacted\u003e\",\"cache_age_days\":1.9675925925925928e-10,\"category\":\"toilet\",\"country\":null,\"data_source\":\"live\",\"detail_status\":\"checked\",\"id\":166345,\"location\":{\"latitude\":35.774154985466,\"longitude\":140.387938991189},\"name\":\"\u003credacted\u003e\",\"questions\":[{\"id\":101,\"label\":\"清潔感はある？\",\"negative_reports\":0,\"positive_reports\":0,\"report_observed_at\":null,\"state\":\"unreported\"},{\"id\":102,\"label\":\"十分な転回スペースはある？\",\"negative_reports\":0,\"positive_reports\":1,\"report_observed_at\":null,\"state\":\"reported_affirmative\"},{\"id\":103,\"label\":\"手すりは両側にある？\",\"negative_reports\":0,\"positive_reports\":1,\"report_observed_at\":null,\"state\":\"reported_affirmative\"},{\"id\":104,\"label\":\"便座に横付けできる？\",\"negative_reports\":0,\"positive_reports\":1,\"report_observed_at\":null,\"state\":\"reported_affirmative\"},{\"id\":105,\"label\":\"便座に背もたれはある？\",\"negative_reports\":0,\"positive_reports\":1,\"report_observed_at\":null,\"state\":\"reported_affirmative\"},{\"id\":106,\"label\":\"オストメイトはある？\",\"negative_reports\":0,\"positive_reports\":1,\"report_observed_at\":null,\"state\":\"reported_affirmative\"},{\"id\":107,\"label\":\"介助用ベッドはある？\",\"negative_reports\":1,\"positive_reports\":0,\"report_observed_at\":null,\"state\":\"reported_negative\"},{\"id\":108,\"label\":\"ベビーベッドはある？\",\"negative_reports\":1,\"positive_reports\":0,\"report_observed_at\":null,\"state\":\"reported_negative\"},{\"id\":109,\"label\":\"男女の性別関係なく入れる？\",\"negative_reports\":0,\"positive_reports\":1,\"report_observed_at\":null,\"state\":\"reported_affirmative\"}],\"recheck_reasons\":[],\"record_created_at\":\"2026-10-02T04:52:05.173565Z\",\"record_update_age_days\":1.2049011823263889,\"record_updated_at\":\"2026-10-02T04:52:05.173565Z\",\"requirements\":[{\"label\":\"十分な転回スペースはある？\",\"negative_reports\":0,\"positive_reports\":1,\"question_id\":102,\"state\":\"reported_affirmative\"}],\"retrieved_at\":\"2026-10-03T09:47:08.635701Z\",\"source_created_raw\":\"2026-10-02 04:52:05.173565\",\"source_updated_raw\":\"2026-10-02 04:52:05.173565\",\"source_url\":\"https://app.wheelog.com/?spotId=166345\u0026la=ja\",\"unsupported_facts\":[\"measured_dimensions\",\"individual_report_dates\",\"current_open_status\",\"accessible_routes\"]},{\"address\":\"\u003credacted\u003e\",\"cache_age_days\":2.0833333333333334e-10,\"category\":\"toilet\",\"country\":null,\"data_source\":\"live\",\"detail_status\":\"checked\",\"id\":164781,\"location\":{\"latitude\":35.7788379139987,\"longitude\":140.38387645036},\"name\":\"\u003credacted\u003e\",\"questions\":[{\"id\":101,\"label\":\"清潔感はある？\",\"negative_reports\":0,\"positive_reports\":1,\"report_observed_at\":null,\"state\":\"reported_affirmative\"},{\"id\":102,\"label\":\"十分な転回スペースはある？\",\"negative_reports\":0,\"positive_reports\":1,\"report_observed_at\":null,\"state\":\"reported_affirmative\"},{\"id\":103,\"label\":\"手すりは両側にある？\",\"negative_reports\":0,\"positive_reports\":1,\"report_observed_at\":null,\"state\":\"reported_affirmative\"},{\"id\":104,\"label\":\"便座に横付けできる？\",\"negative_reports\":0,\"positive_reports\":1,\"report_observed_at\":null,\"state\":\"reported_affirmative\"},{\"id\":105,\"label\":\"便座に背もたれはある？\",\"negative_reports\":0,\"positive_reports\":1,\"report_observed_at\":null,\"state\":\"reported_affirmative\"},{\"id\":106,\"label\":\"オストメイトはある？\",\"negative_reports\":0,\"positive_reports\":1,\"report_observed_at\":null,\"state\"…[truncated]"
+      },
+      {
+        "name": "Saved-observation changes",
+        "command": "shortlist changes",
+        "example": "wheelog-pp-cli shortlist changes --data-source local --agent",
+        "status": "pass",
+        "output_sample": "{\n  \"meta\": {\n    \"provider\": \"wheelog\",\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"coverage\": {\n      \"examined\": 0,\n      \"live_observations\": 0,\n      \"output_limit\": 5,\n      \"saved\": 0,\n      \"scope\": \"selected_saved_spots\"\n    },\n    \"fetch_failures\": [],\n    \"note\": \"Changes describe recorded public-place fields and aggregate reports, not a physical improvement or deterioration. Local mode shows the last saved transition.\",\n    \"results\": []\n  }\n}\n"
+      },
+      {
+        "name": "Recheck queue",
+        "command": "shortlist list",
+        "example": "wheelog-pp-cli shortlist list --audit --require-question 102 --max-record-age 180d --agent",
+        "status": "pass",
+        "output_sample": "{\n  \"meta\": {\n    \"provider\": \"wheelog\",\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"coverage\": {\n      \"matched\": 0,\n      \"output_limit\": 10,\n      \"radius_excluded\": 0,\n      \"returned\": 0,\n      \"scanned_saved_records\": 0,\n      \"scope\": \"saved_shortlist\",\n      \"unknown_coordinates\": 0\n    },\n    \"note\": \"Counts are crowdsourced question reports. Source record dates do not date individual reports or establish personal suitability, current conditions, measured dimensions or an accessible route. Distances are straight-line meters within saved coverage. The supplied origin is not saved.\",\n    \"results\": []\n  }\n}\n"
+      },
+      {
+        "name": "Nearest saved facilities",
+        "command": "shortlist list",
+        "example": "wheelog-pp-cli shortlist list --origin 35.7742,140.3879 --radius-m 500 --category toilet --agent",
+        "status": "pass",
+        "output_sample": "{\n  \"meta\": {\n    \"provider\": \"wheelog\",\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"coverage\": {\n      \"matched\": 0,\n      \"output_limit\": 10,\n      \"radius_excluded\": 0,\n      \"returned\": 0,\n      \"scanned_saved_records\": 0,\n      \"scope\": \"saved_shortlist\",\n      \"unknown_coordinates\": 0\n    },\n    \"note\": \"Counts are crowdsourced question reports. Source record dates do not date individual reports or establish personal suitability, current conditions, measured dimensions or an accessible route. Distances are straight-line meters within saved coverage. The supplied origin is not saved.\",\n    \"results\": []\n  }\n}\n"
+      }
+    ],
+    "binary_refresh": {
+      "action": "fresh",
+      "stage_path": "wheelog-pp-cli/build/stage/bin/wheelog-pp-cli",
+      "binary_path": "wheelog-pp-cli/build/stage/bin/wheelog-pp-cli",
+      "reason": "staged binary is newer than Go sources"
+    },
+    "ran_at": "2026-10-03T09:47:03.640614Z",
+    "status": "available",
+    "checked": 5,
+    "evaluated": 5,
+    "pass_rate_pct": 100
+  },
+  "scorecard": {
+    "api_name": "wheelog",
+    "steinberger": {
+      "output_modes": 10,
+      "auth": 10,
+      "error_handling": 8,
+      "terminal_ux": 9,
+      "readme": 10,
+      "doctor": 10,
+      "agent_native": 10,
+      "mcp_quality": 6,
+      "mcp_description_quality": 0,
+      "mcp_token_efficiency": 10,
+      "mcp_remote_transport": 0,
+      "mcp_tool_design": 0,
+      "mcp_surface_strategy": 0,
+      "local_cache": 10,
+      "cache_freshness": 3,
+      "breadth": 9,
+      "vision": 6,
+      "workflows": 10,
+      "insight": 10,
+      "agent_workflow_readiness": 9,
+      "path_validity": 0,
+      "auth_protocol": 0,
+      "data_pipeline_integrity": 7,
+      "sync_correctness": 7,
+      "type_fidelity": 5,
+      "dead_code": 5,
+      "live_api_verification": 0,
+      "total": 83,
+      "percentage": 83
+    },
+    "competitor_scores": null,
+    "overall_grade": "A",
+    "gap_report": [
+      "MCP: 2 tools (2 public, 0 auth-required) — readiness: full"
+    ],
+    "unscored_dimensions": [
+      "mcp_description_quality",
+      "mcp_remote_transport",
+      "mcp_tool_design",
+      "mcp_surface_strategy",
+      "path_validity",
+      "auth_protocol",
+      "live_api_verification"
+    ]
+  }
+}

@@ -379,6 +379,10 @@ type similarResult struct {
 	Genres       []string `json:"genres"`
 	Tier         string   `json:"tier"` // studio | mechanics | genre
 	Reason       string   `json:"reason,omitempty"`
+	// SteamAppID/HasDemo/DemoAppIDs are filled only under --with-demos.
+	SteamAppID int64   `json:"steam_app_id,omitempty"`
+	HasDemo    *bool   `json:"has_demo,omitempty"`
+	DemoAppIDs []int64 `json:"demo_app_ids,omitempty"`
 }
 
 type similarMeta struct {
@@ -401,6 +405,7 @@ type similarView struct {
 func newSimilarCmd(flags *rootFlags) *cobra.Command {
 	var year string
 	var limit int
+	var withDemos bool
 
 	cmd := &cobra.Command{
 		Use:   "similar <title>",
@@ -586,6 +591,14 @@ join over free-tier endpoints is by design.`,
 			if len(results) == 0 {
 				notes = append(notes, "no tier produced a match")
 			}
+			if withDemos && len(results) > 0 {
+				failed, aerr := annotateSimilarSteamDemos(cmd, c, results)
+				if aerr != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: steam demo annotation unavailable: %v\n", aerr)
+				} else if failed > 0 {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: steam demo annotation: %d of %d Steam store-link lookups failed; demo state unknown for those rows\n", failed, len(results))
+				}
+			}
 
 			view := similarView{
 				Meta: similarMeta{
@@ -604,13 +617,23 @@ join over free-tier endpoints is by design.`,
 				return nil
 			}
 			tw := newTabWriter(w)
-			fmt.Fprintln(tw, strings.Join([]string{bold("SIMILAR"), bold("TIER"), bold("RATING"), bold("GENRES"), bold("REASON")}, "\t"))
+			header := []string{bold("SIMILAR"), bold("TIER"), bold("RATING")}
+			if withDemos {
+				header = append(header, bold("DEMO"))
+			}
+			header = append(header, bold("GENRES"), bold("REASON"))
+			fmt.Fprintln(tw, strings.Join(header, "\t"))
 			for _, r := range results {
 				rating := "-"
 				if r.Rating > 0 {
 					rating = fmt.Sprintf("%.1f (%d)", r.Rating, r.RatingsCount)
 				}
-				fmt.Fprintln(tw, strings.Join([]string{r.Name, r.Tier, rating, truncateList(r.Genres, 3), r.Reason}, "\t"))
+				cols := []string{r.Name, r.Tier, rating}
+				if withDemos {
+					cols = append(cols, steamDemoCell(r.HasDemo))
+				}
+				cols = append(cols, truncateList(r.Genres, 3), r.Reason)
+				fmt.Fprintln(tw, strings.Join(cols, "\t"))
 			}
 			return tw.Flush()
 		},
@@ -618,6 +641,7 @@ join over free-tier endpoints is by design.`,
 
 	cmd.Flags().StringVar(&year, "year", "", "Pin the title to a release year when remakes share a name (e.g. 2018)")
 	cmd.Flags().IntVar(&limit, "limit", 10, "maximum similar games to return (1-20)")
+	cmd.Flags().BoolVar(&withDemos, "with-demos", false, withDemosHelp)
 	return cmd
 }
 

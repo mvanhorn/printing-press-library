@@ -1,0 +1,80 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "manifest",
+      "passed": true
+    },
+    {
+      "name": "transcendence",
+      "passed": true
+    },
+    {
+      "name": "phase5",
+      "passed": true
+    },
+    {
+      "name": "go mod tidy",
+      "passed": true
+    },
+    {
+      "name": "module path",
+      "passed": true
+    },
+    {
+      "name": "govulncheck",
+      "passed": true
+    },
+    {
+      "name": "go vet",
+      "passed": true
+    },
+    {
+      "name": "go build",
+      "passed": true
+    },
+    {
+      "name": "--help",
+      "passed": true
+    },
+    {
+      "name": "--version",
+      "passed": true
+    },
+    {
+      "name": "verify-skill",
+      "passed": true
+    },
+    {
+      "name": "patches",
+      "passed": true
+    },
+    {
+      "name": "manuscripts",
+      "passed": true
+    }
+  ],
+  "source_fingerprint": "752c2c9da97ccfea03d0b41c733d50eb6480a4b2c3e2c70afe5e93d2d6def978",
+  "full_live_gate": {
+    "status": "pass",
+    "tests_passed": 112,
+    "tests_skipped": 93,
+    "tests_unverified": 93
+  },
+  "regression_guards": {
+    "passed": true,
+    "checks": [
+      {
+        "mutation": "comparison_count",
+        "expected_runtime_failure_observed": true,
+        "exit_code": 1
+      },
+      {
+        "mutation": "canonical_geography",
+        "expected_runtime_failure_observed": true,
+        "exit_code": 1
+      }
+    ]
+  },
+  "review": "same sole MAX reviewer: test-effectiveness PASS; unchanged production/peer hashes"
+}

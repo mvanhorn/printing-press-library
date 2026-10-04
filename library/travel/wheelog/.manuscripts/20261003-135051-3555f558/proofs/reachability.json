@@ -1,0 +1,9 @@
+{
+  "observed_at": "2026-10-03T06:31:25.375915+00:00",
+  "method": "GET",
+  "url": "https://app.wheelog.com/?la=ja",
+  "status": 200,
+  "bounded_body_bytes_read": 65536,
+  "decision": "PASS",
+  "source_post_replay_evidence": "discovery/source-replay-summary.json"
+}

@@ -1,0 +1,152 @@
+{
+  "results": [
+    {
+      "id": 166345,
+      "name": "成田空港 多機能トイレ",
+      "address": "日本 〒286-0104千葉県成田市古込古込1-1",
+      "country": null,
+      "category": "toilet",
+      "location": {
+        "latitude": 35.774154985466,
+        "longitude": 140.387938991189
+      },
+      "record_created_at": "2026-10-02T04:52:05.173565Z",
+      "record_updated_at": "2026-10-02T04:52:05.173565Z",
+      "source_created_raw": "2026-10-02 04:52:05.173565",
+      "source_updated_raw": "2026-10-02 04:52:05.173565",
+      "retrieved_at": "2026-10-03T07:58:20.22725Z",
+      "source_url": "https://app.wheelog.com/?spotId=166345\u0026la=ja",
+      "questions": [
+        {
+          "id": 101,
+          "label": "清潔感はある？",
+          "positive_reports": 0,
+          "negative_reports": 0,
+          "state": "unreported",
+          "report_observed_at": null
+        },
+        {
+          "id": 102,
+          "label": "十分な転回スペースはある？",
+          "positive_reports": 1,
+          "negative_reports": 0,
+          "state": "reported_affirmative",
+          "report_observed_at": null
+        },
+        {
+          "id": 103,
+          "label": "手すりは両側にある？",
+          "positive_reports": 1,
+          "negative_reports": 0,
+          "state": "reported_affirmative",
+          "report_observed_at": null
+        },
+        {
+          "id": 104,
+          "label": "便座に横付けできる？",
+          "positive_reports": 1,
+          "negative_reports": 0,
+          "state": "reported_affirmative",
+          "report_observed_at": null
+        },
+        {
+          "id": 105,
+          "label": "便座に背もたれはある？",
+          "positive_reports": 1,
+          "negative_reports": 0,
+          "state": "reported_affirmative",
+          "report_observed_at": null
+        },
+        {
+          "id": 106,
+          "label": "オストメイトはある？",
+          "positive_reports": 1,
+          "negative_reports": 0,
+          "state": "reported_affirmative",
+          "report_observed_at": null
+        },
+        {
+          "id": 107,
+          "label": "介助用ベッドはある？",
+          "positive_reports": 0,
+          "negative_reports": 1,
+          "state": "reported_negative",
+          "report_observed_at": null
+        },
+        {
+          "id": 108,
+          "label": "ベビーベッドはある？",
+          "positive_reports": 0,
+          "negative_reports": 1,
+          "state": "reported_negative",
+          "report_observed_at": null
+        },
+        {
+          "id": 109,
+          "label": "男女の性別関係なく入れる？",
+          "positive_reports": 1,
+          "negative_reports": 0,
+          "state": "reported_affirmative",
+          "report_observed_at": null
+        }
+      ],
+      "detail_status": "checked",
+      "data_source": "live",
+      "unsupported_facts": [
+        "measured_dimensions",
+        "individual_report_dates",
+        "current_open_status",
+        "accessible_routes"
+      ],
+      "requirements": [
+        {
+          "question_id": 102,
+          "label": "十分な転回スペースはある？",
+          "state": "reported_affirmative",
+          "positive_reports": 1,
+          "negative_reports": 0
+        }
+      ],
+      "record_update_age_days": 1.1293408995023149,
+      "cache_age_days": 3.7037037037037036e-10,
+      "recheck_reasons": []
+    }
+  ],
+  "source_query": {
+    "categories": [
+      "toilet"
+    ],
+    "input_timezone": "Asia/Tokyo",
+    "keyword": "成田空港",
+    "record_from_utc": "2026-10-01 15:00:00",
+    "record_to_utc": "2026-10-02 14:59:59"
+  },
+  "coverage": {
+    "checked": 1,
+    "complete_coverage": false,
+    "listed": 1,
+    "live": 1,
+    "local": 0,
+    "max_scan_pages": 1,
+    "output_limit": 3,
+    "pages_requested": 1,
+    "scanned_records": 1,
+    "scope": "bounded_source_keyword_search",
+    "source_request_echo": {
+      "word": "成田空港",
+      "categoryList": [
+        "toilet"
+      ],
+      "questionList": null,
+      "startDatetime": "2026-10-01 15:00:00",
+      "endDatetime": "2026-10-02 14:59:59",
+      "type": "spot",
+      "pagenum": "1",
+      "isDetail": "1"
+    },
+    "unavailable": 0,
+    "unexpanded": 0
+  },
+  "fetch_failures": [],
+  "note": "Counts are crowdsourced question reports. Source record dates do not date individual reports or establish personal suitability, current conditions, measured dimensions or an accessible route."
+}

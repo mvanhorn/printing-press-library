@@ -20,13 +20,13 @@ func newNovelStayBriefCmd(flags *rootFlags) *cobra.Command {
 			"Reads the local mirror; run `hostex-pp-cli sync` first. To scan many stays for\n" +
 			"problems use `ops-gaps` instead.",
 		Example:     "  hostex-pp-cli stay-brief HMABC123 --agent",
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:no-error-path-probe": "true"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:no-error-path-probe": "true", "pp:happy-args": "stay_code=HMABC123"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
 			}
 			if dryRunOK(flags) {
-				return nil
+				return writeDryRun(cmd.OutOrStdout(), flags, "assemble one stay dossier from the local mirror")
 			}
 			if err := rejectLiveDataSource(flags); err != nil {
 				return err

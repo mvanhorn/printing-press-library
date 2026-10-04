@@ -1,0 +1,57 @@
+{
+  "coverage": {
+    "examined": 3,
+    "live_observations": 0,
+    "output_limit": 5,
+    "saved": 3,
+    "scope": "selected_saved_spots"
+  },
+  "fetch_failures": [],
+  "note": "Changes describe recorded public-place fields and aggregate reports, not a physical improvement or deterioration. Local mode shows the last saved transition.",
+  "results": [
+    {
+      "cache_age_days": 0.000009948773148148148,
+      "changes": [],
+      "current_retrieved_at": "2026-10-03T07:58:23.453572Z",
+      "data_source": "local",
+      "id": 166344,
+      "name": "成田空港 エレベーター",
+      "previous_retrieved_at": "2026-10-03T07:58:22.273458Z",
+      "recheck_reasons": [],
+      "record_update_age_days": 1.138216203784722,
+      "requirements": [],
+      "source_url": "https://app.wheelog.com/?spotId=166344\u0026la=ja",
+      "status": "unchanged"
+    },
+    {
+      "cache_age_days": 0.000006055208333333333,
+      "changes": [],
+      "current_retrieved_at": "2026-10-03T07:58:23.789987Z",
+      "data_source": "local",
+      "id": 166345,
+      "name": "成田空港 多機能トイレ",
+      "previous_retrieved_at": "2026-10-03T07:58:21.938688Z",
+      "recheck_reasons": [
+        "question_101_unreported"
+      ],
+      "record_update_age_days": 1.1293881897222222,
+      "requirements": [],
+      "source_url": "https://app.wheelog.com/?spotId=166345\u0026la=ja",
+      "status": "unchanged"
+    },
+    {
+      "cache_age_days": 2.4040509259259257e-7,
+      "changes": [],
+      "current_retrieved_at": "2026-10-03T07:58:24.292393Z",
+      "data_source": "local",
+      "id": 166347,
+      "name": "京成線 成田空港駅 第2・第3ターミナル方面出口",
+      "previous_retrieved_at": "2026-10-03T07:58:22.773053Z",
+      "recheck_reasons": [],
+      "record_update_age_days": 1.117175113449074,
+      "requirements": [],
+      "source_url": "https://app.wheelog.com/?spotId=166347\u0026la=ja",
+      "status": "unchanged"
+    }
+  ]
+}

@@ -1,7 +1,9 @@
 {
   "schema_version": 1,
-  "generated_by": "publication evidence projection; acceptance remains binary-owned",
-  "observed_at": "2026-10-03T07:31:13.566811Z",
+  "generated_by": "sanitized amendment evidence projection; acceptance remains binary-owned",
+  "observed_at": "2026-10-03T14:41:23.390471Z",
+  "producer_version": "4.32.5",
+  "fresh_gate_runner_version": "4.33.0",
   "source": {
     "public_pages": [
       "https://carstay.jp/ja/stations/",
@@ -10,7 +12,7 @@
     "auth": "none",
     "date_semantics": "JST calendar dates; provider-filtered candidates, availability unknown",
     "price_semantics": "JPY starting references/night; complete dated quote unknown",
-    "vehicle_semantics": "parking-space dimensions do not certify vehicle or pitch acceptance"
+    "vehicle_semantics": "Parking-space dimensions do not certify vehicle or pitch acceptance"
   },
   "verification": {
     "mock_passed": 32,
@@ -75,14 +77,15 @@
   },
   "fresh_full_live": {
     "level": "full",
-    "verdict": "PASS",
-    "matrix_size": 115,
-    "passed": 115,
+    "status": "pass",
+    "matrix_size": 109,
+    "tests_passed": 109,
+    "tests_skipped": 103,
+    "tests_unverified": 103,
     "failed": 0,
-    "skipped": 92,
-    "ran_at": "2026-10-03T07:31:13.566811Z",
-    "source_fingerprint": "015626704db4ab4aea82c37efac937a36ee7f50eb3a406e09e0dc36fee0d6779",
-    "source_file_count": 180
+    "ran_at": "2026-10-03T14:41:23.390471Z",
+    "source_fingerprint": "905c0266a25814e6633bdf6b2593e7c443a32c1fd5e6f35f75f18012a62822f4",
+    "source_file_count": 192
   },
   "live_kinds": {
     "help": {
@@ -97,21 +100,1187 @@
       "skip": 13
     },
     "error_path": {
-      "skip": 28,
-      "pass": 10
+      "skip": 29,
+      "pass": 9
     },
     "dry_run_json": {
-      "pass": 17,
-      "skip": 21
+      "pass": 12,
+      "skip": 26
     },
     "error_path_real": {
-      "skip": 17
+      "skip": 22
     }
   },
-  "live_scope": "115 executed checks passed; 92 runner-skipped/unverified rows are explicit, not counted as coverage. Native find generic-fixture happy/json are skipped; separate positive dated and Japanese-prefecture probes verify actual discovery.",
+  "live_scope": "109 executed checks passed; 103 runner-skipped/unverified rows remain explicit and are not counted as tested coverage. Separate positive source timing probes verify dated discovery and complete comparisons.",
+  "live_matrix": [
+    {
+      "command": "directory",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "directory",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "directory",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "directory",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "directory",
+      "kind": "dry_run_json",
+      "status": "pass"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "doctor",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "export",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "export",
+      "kind": "happy_path",
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "json_fidelity",
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "export",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "feedback",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "feedback",
+      "kind": "happy_path",
+      "status": "skip",
+      "reason": "non-id positional \"text\" at depth 0"
+    },
+    {
+      "command": "feedback",
+      "kind": "json_fidelity",
+      "status": "skip",
+      "reason": "non-id positional \"text\" at depth 0"
+    },
+    {
+      "command": "feedback",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "feedback",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "non-id positional \"text\" at depth 0"
+    },
+    {
+      "command": "feedback",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "dry_run_json",
+      "status": "pass"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "happy_path",
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "json_fidelity",
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "happy_path",
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "json_fidelity",
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "learnings list",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "learnings list",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "learnings list",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "learnings list",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings list",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "learnings list",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "happy_path",
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"id\""
+    },
+    {
+      "command": "learnings reject",
+      "kind": "json_fidelity",
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"id\""
+    },
+    {
+      "command": "learnings reject",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"id\""
+    },
+    {
+      "command": "learnings reject",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "playbook list",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "playbook list",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "playbook list",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "playbook list",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "playbook list",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "playbook list",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile list",
+      "kind": "dry_run_json",
+      "status": "pass"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "status": "pass"
+    },
+    {
+      "command": "profile show",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "no --dry-run short-circuit"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "recall",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "recall",
+      "kind": "happy_path",
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "recall",
+      "kind": "json_fidelity",
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "recall",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "recall",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "recall",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "status": "pass"
+    },
+    {
+      "command": "search",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "command does not honour --dry-run"
+    },
+    {
+      "command": "spots",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "spots",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "spots",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "spots",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "spots",
+      "kind": "dry_run_json",
+      "status": "pass"
+    },
+    {
+      "command": "spots audit",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "spots audit",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "spots audit",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "spots audit",
+      "kind": "error_path",
+      "status": "pass"
+    },
+    {
+      "command": "spots audit",
+      "kind": "dry_run_json",
+      "status": "pass"
+    },
+    {
+      "command": "spots compare",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "spots compare",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "spots compare",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "spots compare",
+      "kind": "error_path",
+      "status": "pass"
+    },
+    {
+      "command": "spots compare",
+      "kind": "dry_run_json",
+      "status": "pass"
+    },
+    {
+      "command": "spots coverage",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "spots coverage",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "spots coverage",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "spots coverage",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "spots coverage",
+      "kind": "dry_run_json",
+      "status": "pass"
+    },
+    {
+      "command": "spots find",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "spots find",
+      "kind": "happy_path",
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "spots find",
+      "kind": "json_fidelity",
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "spots find",
+      "kind": "error_path",
+      "status": "pass"
+    },
+    {
+      "command": "spots find",
+      "kind": "dry_run_json",
+      "status": "pass"
+    },
+    {
+      "command": "spots fit",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "spots fit",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "spots fit",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "spots fit",
+      "kind": "error_path",
+      "status": "pass"
+    },
+    {
+      "command": "spots fit",
+      "kind": "dry_run_json",
+      "status": "pass"
+    },
+    {
+      "command": "spots handoff",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "spots handoff",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "spots handoff",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "spots handoff",
+      "kind": "error_path",
+      "status": "pass"
+    },
+    {
+      "command": "spots handoff",
+      "kind": "dry_run_json",
+      "status": "pass"
+    },
+    {
+      "command": "spots near",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "spots near",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "spots near",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "spots near",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "spots near",
+      "kind": "dry_run_json",
+      "status": "pass"
+    },
+    {
+      "command": "spots show",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "spots show",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "spots show",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "spots show",
+      "kind": "error_path",
+      "status": "pass"
+    },
+    {
+      "command": "spots show",
+      "kind": "dry_run_json",
+      "status": "pass"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "sync",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "teach",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "teach",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "teach",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "teach",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "teach",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "status": "pass"
+    },
+    {
+      "command": "which",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "no --dry-run short-circuit"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "status": "pass"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "status": "pass"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "status": "pass"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "dry_run_json",
+      "status": "skip",
+      "reason": "command does not honour --dry-run"
+    }
+  ],
   "performance": {
-    "binary_sha256": "de95d2341140e08d0613d749c8d36ded221965e0b17fd60adf5049cde435de5a",
-    "version": "carstay-pp-cli 0.0.0-dev",
+    "measured_at": "2026-10-03T14:46:35.752040+00:00",
+    "binary_sha256": "4097ee0c33a432e28c17bf0966cd0658f56888d677d0eed42c16fbceaaf15015",
+    "version": "carstay-pp-cli 2026.10.1",
     "build_arguments": [
       "go",
       "build",
@@ -120,7 +1289,7 @@
       "./cmd/carstay-pp-cli"
     ],
     "runs_per_workflow": 3,
-    "method": "Real HTTP; three sequential end-to-end process executions per workflow in an isolated home. Agent envelopes/results, zero fetch failures and complete successful comparison verified; no raw responses retained. Dated find measures one source page/two output rows. Git VCS embedding disabled explicitly for reproducible source-binary identity.",
+    "method": "Real public HTTP; three sequential complete process executions per workflow in isolated local state. No raw responses retained. Comparison requires complete bounded detail coverage; dated search is candidacy only.",
     "samples": {
       "coverage": {
         "arguments": [
@@ -130,26 +1299,29 @@
           "--no-learn"
         ],
         "elapsed_ms": [
-          721.33,
-          723.12,
-          869.52
+          972.84,
+          890.62,
+          721.05
         ],
-        "median_ms": 723.12,
+        "median_ms": 890.62,
         "observations": [
           {
             "envelope": "meta/results",
             "result_count": 1,
-            "fetch_failures": 0
+            "fetch_failures": 0,
+            "stdout_bytes": 10799
           },
           {
             "envelope": "meta/results",
             "result_count": 1,
-            "fetch_failures": 0
+            "fetch_failures": 0,
+            "stdout_bytes": 10799
           },
           {
             "envelope": "meta/results",
             "result_count": 1,
-            "fetch_failures": 0
+            "fetch_failures": 0,
+            "stdout_bytes": 10799
           }
         ]
       },
@@ -163,26 +1335,29 @@
           "--no-learn"
         ],
         "elapsed_ms": [
-          1363.22,
-          1353.18,
-          1333.88
+          1396.38,
+          1418.22,
+          1360.16
         ],
-        "median_ms": 1353.18,
+        "median_ms": 1396.38,
         "observations": [
           {
             "envelope": "meta/results",
             "result_count": 2,
-            "fetch_failures": 0
+            "fetch_failures": 0,
+            "stdout_bytes": 8821
           },
           {
             "envelope": "meta/results",
             "result_count": 2,
-            "fetch_failures": 0
+            "fetch_failures": 0,
+            "stdout_bytes": 8821
           },
           {
             "envelope": "meta/results",
             "result_count": 2,
-            "fetch_failures": 0
+            "fetch_failures": 0,
+            "stdout_bytes": 8821
           }
         ]
       },
@@ -202,26 +1377,29 @@
           "--no-learn"
         ],
         "elapsed_ms": [
-          703.69,
-          729.13,
-          710.82
+          744.33,
+          753.9,
+          735.62
         ],
-        "median_ms": 710.82,
+        "median_ms": 744.33,
         "observations": [
           {
             "envelope": "meta/results",
             "result_count": 2,
-            "fetch_failures": 0
+            "fetch_failures": 0,
+            "stdout_bytes": 2950
           },
           {
             "envelope": "meta/results",
             "result_count": 2,
-            "fetch_failures": 0
+            "fetch_failures": 0,
+            "stdout_bytes": 2950
           },
           {
             "envelope": "meta/results",
             "result_count": 2,
-            "fetch_failures": 0
+            "fetch_failures": 0,
+            "stdout_bytes": 2950
           }
         ]
       }
@@ -229,21 +1407,42 @@
     "raw_responses_retained": false,
     "live_metadata_only_projection": "PASS"
   },
-  "privacy": {
-    "raw_source_responses_retained": false,
-    "raw_dogfood_transcript_retained": false,
-    "vendor_prefix_package_scan": "PASS",
-    "strict_pii_audit": "PASS",
-    "personal_host_paths": 0,
-    "sessions_cookies_credentials_pipeline_receipts": "excluded",
-    "optional_detector_enrichment": "gitleaks/trufflehog unavailable; no installation performed"
+  "mcp_scope": {
+    "runtime_tools": 31,
+    "native_state": "Trusted read-only mirrors suppress implicit local writes; intentionally writable learning readers have explicit false read-only hints.",
+    "failure_contract": "Bounded partial stdout remains the first evidence block, isError stays true and diagnostics remain separate."
   },
-  "publication_review_fixes": {
-    "incomplete_shortlists": "Preserve partial bounded JSON evidence; ordinary partial failures return API exit 5. Rate/cancellation abort through their classified nonzero path. Requested/successful/complete/failure metadata makes rendered partial scope explicit.",
-    "metadata_only_agent_selection": "Flat meta/results envelope with results=[] and explicit results_omitted_by_select flag; full provenance retained.",
-    "generated_plain_public_reads": "8 MiB+1 bounded reads before decode/cache/status retries; post-inflation cap; binary transfer flag/MIME and existing 32 MiB decoded limit retain prior behavior.",
-    "regressions": "Complete/partial/all-failed comparison, partial fit/audit, metadata projection, exact read cap, lying/missing lengths, body closure at 200/429/503, gzip overflow and preserved binary envelope all pass.",
-    "mcp_partial_evidence": "Failed command tools preserve bounded stdout evidence first, keep IsError=true, and separate bounded diagnostics/hints; empty stdout keeps prior errors. Actual subprocess exit5 regression preserves meta/results/fetch_failures and failure classification.",
-    "learning_identity_and_undo": "Verified prefix lookup requires one literal, resource-type-scoped ID match and abstains on ambiguity. Forgetting selected teachings atomically invalidates only inferred patterns in their structural query/type/venue families; manually taught and unrelated patterns remain. Explicit teaching promotes an inferred pattern and later inference cannot demote it. Actual extractor/recall, wildcard/case/type/ambiguity, scoped undo and rollback regressions pass."
-  }
+  "privacy": {
+    "raw_provider_responses_retained": false,
+    "session_or_cookie_artifacts_included": false,
+    "local_host_paths_included": false,
+    "private_reports_or_receipts_included": false
+  },
+  "learning_regressions": "Compatible cohorts survive stale outliers with valid example provenance and retire at one supporter. Direct aliases and synthesized bound entities validate actual cached identity. A rejected existing binding leaves later bindings of the same pattern available; valid duplicates consume one binding after identity validation. Best typed-target ranking retains partial-to-exact upgrades and direct exact priority. Final emitted targets are removed from rejected alternatives before the mismatch cap. Recall ranks pattern metadata by final confidence, score and time; ordinary limit-one identity work is one read among twelve or thirty valid patterns. Direct teachings remain scanned, metadata is scanned when patterns are needed, and debug mismatch evidence can require more reads. Standalone first-binding, score-first and default/explicit caps remain. Cancellation and unexpected SQL/Scan errors propagate; only genuine missing rows receive warned fallback, while existing unknown identities retain explicit scoped behavior.",
+  "mcp_state_regressions": "Actual non-dry CLI local-HTTP fixture and generated resolver preserve stale-store/journal/cache bytes, avoid response-cache hits and suppress automatic refresh; ordinary CLI and intentionally writable helpers remain unchanged.",
+  "ranked_binding_regression_evidence": {
+    "actual_engine": "Recall and Apply with temporary SQLite only",
+    "provider_requests": 0,
+    "same_pattern_strategies": [
+      "substitute",
+      "substitute-then-search-prefix"
+    ],
+    "identity_payload_reads_at_limit_one": {
+      "12_patterns": 1,
+      "30_patterns": 1
+    },
+    "ranking_controls": [
+      "later higher confidence",
+      "later higher score",
+      "later newer recency",
+      "same-ID direct partial to pattern exact",
+      "direct exact priority",
+      "valid duplicate consumes one pattern",
+      "conflicting duplicate allows later binding"
+    ],
+    "diagnostics": "Filter final emitted resource type+ID before mismatch cap; retain rejected-only namespaces and missing-cache teaching alternatives",
+    "read_errors": "Function-backed SQL error/context cancellation and NULL-payload view with verified ID fail explicitly in direct and pattern paths; legitimate missing/unknown controls pass"
+  },
+  "typed_tuple_regression": "Actual two-teach/Recall limit-two preserves distinct (a|b,c) and (a,b|c) tuples; accepted result and rejected alternative maps preserve tuple identity.",
+  "positive_support_regression": "Both initial extraction and retained-family reconciliation admit only positive boost actions from the unchanged eligible source whitelist. Real hide/alias_of rows cannot retain, supply example provenance, or recreate a synthesized positive rule; genuine positives/manual/unrelated/atomic controls remain."
 }

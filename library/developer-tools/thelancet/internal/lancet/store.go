@@ -53,7 +53,7 @@ func EnsureSchema(ctx context.Context, db *sql.DB) error {
 			return fmt.Errorf("lancet schema: %w", err)
 		}
 	}
-	return nil
+	return ensureWorksFTS(ctx, db)
 }
 
 // WorkCount returns the number of works in the local store, optionally scoped

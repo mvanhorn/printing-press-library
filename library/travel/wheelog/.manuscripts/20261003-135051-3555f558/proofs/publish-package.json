@@ -1,0 +1,9 @@
+{
+  "staged_dir": "<press-home>/.publication-staging/wheelog-_x1tno59/package/library/travel/wheelog",
+  "cli_name": "wheelog-pp-cli",
+  "api_name": "wheelog",
+  "category": "travel",
+  "module_path": "github.com/mvanhorn/printing-press-library/library/travel/wheelog",
+  "manuscripts_included": true,
+  "run_id": "20261003-135051-3555f558"
+}

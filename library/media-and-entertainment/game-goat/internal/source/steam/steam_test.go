@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -291,4 +292,128 @@ func TestSteamReviewForTitleUnresolvedTitleTypedError(t *testing.T) {
 	if !errors.Is(err, ErrAppNotFound) {
 		t.Fatalf("SteamReviewForTitle error = %v, want ErrAppNotFound", err)
 	}
+}
+
+func TestAppDetailsDecodesDemos(t *testing.T) {
+	withDemos := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, `{"379720":{"success":true,"data":{"name":"DOOM","type":"game","demos":[{"appid":479030,"description":""}]}}}`)
+	})
+	det, err := withDemos.AppDetails(context.Background(), 379720)
+	if err != nil {
+		t.Fatalf("AppDetails: %v", err)
+	}
+	if len(det.DemoAppIDs) != 1 || det.DemoAppIDs[0] != 479030 {
+		t.Errorf("DemoAppIDs = %v, want [479030]", det.DemoAppIDs)
+	}
+
+	withoutDemos := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, `{"367520":{"success":true,"data":{"name":"Hollow Knight","type":"game"}}}`)
+	})
+	bare, err := withoutDemos.AppDetails(context.Background(), 367520)
+	if err != nil {
+		t.Fatalf("AppDetails without demos: %v", err)
+	}
+	if bare.DemoAppIDs != nil {
+		t.Errorf("DemoAppIDs = %v, want nil when appdetails has no demos", bare.DemoAppIDs)
+	}
+}
+
+func TestEnrichAppIDSetsHasDemoOnlyWhenDetailsSucceed(t *testing.T) {
+	const reviewBody = `{"success":1,"query_summary":{"review_score_desc":"Very Positive","total_positive":100,"total_negative":5,"total_reviews":105,"review_score":9}}`
+
+	setup := func(t *testing.T, appdetails func(http.ResponseWriter)) (*Client, *int32, *int32) {
+		t.Helper()
+		var reviewReqs, detailReqs int32
+		c := newTestCatalogClient(t, func(w http.ResponseWriter, r *http.Request) {
+			switch {
+			case strings.HasPrefix(r.URL.Path, "/appreviews/"):
+				atomic.AddInt32(&reviewReqs, 1)
+				fmt.Fprint(w, reviewBody)
+			case r.URL.Path == "/api/appdetails":
+				atomic.AddInt32(&detailReqs, 1)
+				appdetails(w)
+			default:
+				t.Errorf("unexpected path %s", r.URL.Path)
+			}
+		})
+		return c, &reviewReqs, &detailReqs
+	}
+
+	t.Run("details ok with demos", func(t *testing.T) {
+		c, reviews, details := setup(t, func(w http.ResponseWriter) {
+			fmt.Fprint(w, `{"1245690":{"success":true,"data":{"name":"Elden Ring","demos":[{"appid":5}]}}}`)
+		})
+		review, err := enrichAppID(context.Background(), c, 1245690)
+		if err != nil {
+			t.Fatalf("enrichAppID: %v", err)
+		}
+		if review.HasDemo == nil || !*review.HasDemo {
+			t.Errorf("HasDemo = %v, want true when appdetails reports a demo", review.HasDemo)
+		}
+		if len(review.DemoAppIDs) != 1 || review.DemoAppIDs[0] != 5 {
+			t.Errorf("DemoAppIDs = %v, want [5]", review.DemoAppIDs)
+		}
+		if got := atomic.LoadInt32(reviews) + atomic.LoadInt32(details); got != 2 {
+			t.Errorf("requests = %d, want 2 (appreviews + appdetails)", got)
+		}
+	})
+
+	t.Run("details ok without demos", func(t *testing.T) {
+		c, reviews, details := setup(t, func(w http.ResponseWriter) {
+			fmt.Fprint(w, `{"1245690":{"success":true,"data":{"name":"Elden Ring"}}}`)
+		})
+		review, err := enrichAppID(context.Background(), c, 1245690)
+		if err != nil {
+			t.Fatalf("enrichAppID: %v", err)
+		}
+		if review.HasDemo == nil || *review.HasDemo {
+			t.Errorf("HasDemo = %v, want false (known, no demos)", review.HasDemo)
+		}
+		if review.DemoAppIDs != nil {
+			t.Errorf("DemoAppIDs = %v, want nil", review.DemoAppIDs)
+		}
+		if got := atomic.LoadInt32(reviews) + atomic.LoadInt32(details); got != 2 {
+			t.Errorf("requests = %d, want 2", got)
+		}
+	})
+
+	t.Run("details success false leaves has_demo unknown", func(t *testing.T) {
+		c, reviews, details := setup(t, func(w http.ResponseWriter) {
+			fmt.Fprint(w, `{"1245690":{"success":false}}`)
+		})
+		review, err := enrichAppID(context.Background(), c, 1245690)
+		if err != nil {
+			t.Fatalf("the review must still ship when appdetails fails: %v", err)
+		}
+		if review.HasDemo != nil {
+			t.Errorf("HasDemo = %v, want nil when appdetails failed", review.HasDemo)
+		}
+		if review.DemoAppIDs != nil {
+			t.Errorf("DemoAppIDs = %v, want nil when appdetails failed", review.DemoAppIDs)
+		}
+		if got := atomic.LoadInt32(reviews) + atomic.LoadInt32(details); got != 2 {
+			t.Errorf("requests = %d, want 2 (no new request added to this path)", got)
+		}
+	})
+
+	t.Run("details HTTP 500 leaves has_demo unknown", func(t *testing.T) {
+		c, reviews, details := setup(t, func(w http.ResponseWriter) {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprint(w, "boom")
+		})
+		review, err := enrichAppID(context.Background(), c, 1245690)
+		if err != nil {
+			t.Fatalf("the review must still ship when appdetails fails: %v", err)
+		}
+		if review.HasDemo != nil {
+			t.Errorf("HasDemo = %v, want nil when appdetails failed", review.HasDemo)
+		}
+		if got := atomic.LoadInt32(reviews); got != 1 {
+			t.Errorf("appreviews requests = %d, want 1", got)
+		}
+		// The 5xx retry policy is unchanged: one retry, exactly as before.
+		if got := atomic.LoadInt32(details); got != 2 {
+			t.Errorf("appdetails requests = %d, want 2 (one retry)", got)
+		}
+	})
 }

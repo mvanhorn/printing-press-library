@@ -1,0 +1,23 @@
+{
+  "binary_sha256": "825da15eda6b9b69d837a717ed6e2a76817d910efbe2cea4a225055f9d8f1925",
+  "checks": [
+    {
+      "case": "missing",
+      "exit": 0,
+      "stdout": "{\n  \"meta\": {\n    \"provider\": \"wheelog\",\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"coverage\": {\n      \"matched\": 0,\n      \"output_limit\": 10,\n      \"radius_excluded\": 0,\n      \"returned\": 0,\n      \"scanned_saved_records\": 0,\n      \"scope\": \"saved_shortlist\",\n      \"unknown_coordinates\": 0\n    },\n    \"note\": \"Counts are crowdsourced question reports. Source record dates do not date individual reports or establish personal suitability, current conditions, measured dimensions or an accessible route. Distances are straight-line meters within saved coverage. The supplied origin is not saved.\",\n    \"results\": []\n  }\n}\n",
+      "stderr": "Saved shortlist is empty; use shortlist save with selected spot IDs.\n"
+    },
+    {
+      "case": "corrupt",
+      "exit": 10,
+      "stdout": "",
+      "stderr": "Error: file is not a database (26)\n"
+    },
+    {
+      "case": "uninitialized",
+      "exit": 0,
+      "stdout": "{\n  \"meta\": {\n    \"provider\": \"wheelog\",\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"coverage\": {\n      \"matched\": 0,\n      \"output_limit\": 10,\n      \"radius_excluded\": 0,\n      \"returned\": 0,\n      \"scanned_saved_records\": 0,\n      \"scope\": \"saved_shortlist\",\n      \"unknown_coordinates\": 0\n    },\n    \"note\": \"Counts are crowdsourced question reports. Source record dates do not date individual reports or establish personal suitability, current conditions, measured dimensions or an accessible route. Distances are straight-line meters within saved coverage. The supplied origin is not saved.\",\n    \"results\": []\n  }\n}\n",
+      "stderr": "Saved shortlist is empty; use shortlist save with selected spot IDs.\n"
+    }
+  ]
+}

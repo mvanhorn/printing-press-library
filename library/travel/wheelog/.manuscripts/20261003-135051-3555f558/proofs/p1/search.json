@@ -1,0 +1,69 @@
+{
+  "results": [
+    {
+      "id": 166345,
+      "name": "成田空港 多機能トイレ",
+      "address": "日本 〒286-0104千葉県成田市古込古込1-1",
+      "country": null,
+      "category": "toilet",
+      "location": null,
+      "record_created_at": "2026-10-02T04:52:00Z",
+      "record_updated_at": null,
+      "source_created_raw": "2026-10-02 04:52",
+      "source_updated_raw": null,
+      "retrieved_at": "2026-10-03T07:11:38.718183Z",
+      "source_url": "https://app.wheelog.com/?spotId=166345\u0026la=ja",
+      "questions": [],
+      "detail_status": "not_expanded",
+      "data_source": "live",
+      "unsupported_facts": [
+        "measured_dimensions",
+        "individual_report_dates",
+        "current_open_status",
+        "accessible_routes"
+      ],
+      "requirements": [],
+      "record_update_age_days": null,
+      "cache_age_days": 1.7361111111111112e-10,
+      "recheck_reasons": [
+        "missing_checked_detail",
+        "source_update_date_unknown"
+      ]
+    }
+  ],
+  "source_query": {
+    "categories": [
+      "toilet"
+    ],
+    "input_timezone": "Asia/Tokyo",
+    "keyword": "成田空港",
+    "record_from_utc": "2026-10-01 15:00:00",
+    "record_to_utc": "2026-10-02 14:59:59"
+  },
+  "coverage": {
+    "checked": 0,
+    "complete_coverage": false,
+    "listed": 1,
+    "max_scan_pages": 1,
+    "output_limit": 3,
+    "pages_requested": 1,
+    "scanned_records": 1,
+    "scope": "bounded_source_keyword_search",
+    "source_request_echo": {
+      "word": "成田空港",
+      "categoryList": [
+        "toilet"
+      ],
+      "questionList": null,
+      "startDatetime": "2026-10-01 15:00:00",
+      "endDatetime": "2026-10-02 14:59:59",
+      "type": "spot",
+      "pagenum": "1",
+      "isDetail": "1"
+    },
+    "unavailable": 0,
+    "unexpanded": 1
+  },
+  "fetch_failures": [],
+  "note": "Counts are crowdsourced question reports. Source record dates do not date individual reports or establish personal suitability, current conditions, measured dimensions or an accessible route."
+}

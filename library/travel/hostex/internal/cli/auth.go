@@ -6,6 +6,9 @@ package cli
 import (
 	"fmt"
 	"os"
+	"os/exec"
+	"runtime"
+	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/travel/hostex/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/travel/hostex/internal/config"
@@ -14,9 +17,10 @@ import (
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "auth",
-		Short: "Manage authentication for Hostex",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "auth",
+		Short:       "Manage authentication for Hostex",
+		Annotations: map[string]string{"pp:parent-group": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newAuthSetupCmd(flags))
@@ -38,20 +42,44 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 		Example: "  hostex-pp-cli auth setup\n  hostex-pp-cli auth setup --launch",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			w := cmd.OutOrStdout()
-			fmt.Fprintln(w, "No setup URL is configured for this CLI; check the API's docs.")
+			fmt.Fprintln(w, "Get a key at: https://api.hostex.io/v3")
 			fmt.Fprintln(w, "")
-			fmt.Fprintln(w, "Set one of:")
+			fmt.Fprintln(w, "Then set:")
 			fmt.Fprintln(w, "  export HOSTEX_ACCESS_TOKEN=\"your-token-here\"")
-			fmt.Fprintln(w, "  export HOSTEX_HOSTEX_ACCESS_TOKEN=\"your-token-here\"")
+			fmt.Fprintln(w, "  echo \"$TOKEN\" | hostex-pp-cli auth set-token")
 			if !launch {
 				return nil
 			}
-			fmt.Fprintln(cmd.ErrOrStderr(), "no setup URL configured; cannot launch")
+			launchURL := "https://api.hostex.io/v3"
+			if cliutil.IsVerifyEnv() {
+				fmt.Fprintf(w, "would launch: %s\n", launchURL)
+				return nil
+			}
+			if err := openSetupURL(launchURL); err != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "could not open browser automatically: %v\nopen this URL manually: %s\n", err, launchURL)
+			}
 			return nil
 		},
 	}
 	cmd.Flags().BoolVar(&launch, "launch", false, "Open the setup URL in your default browser")
 	return cmd
+}
+
+// openSetupURL opens url in the OS default browser. Per the side-effect rule,
+// the caller short-circuits with cliutil.IsVerifyEnv() before this is reached.
+func openSetupURL(url string) error {
+	var c *exec.Cmd
+	switch runtime.GOOS {
+	case "darwin":
+		c = exec.Command("open", url)
+	case "linux":
+		c = exec.Command("xdg-open", url)
+	case "windows":
+		c = exec.Command("rundll32", "url.dll,FileProtocolHandler", url)
+	default:
+		return fmt.Errorf("unsupported OS: %s", runtime.GOOS)
+	}
+	return c.Start()
 }
 
 func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
@@ -68,6 +96,8 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			w := cmd.OutOrStdout()
 			header := cfg.AuthHeader()
 			authed := header != ""
+			refusals := cfg.CredentialRefusalSummaries()
+			credentialRefused := len(refusals) > 0
 			// JSON envelope: {authenticated, verified, source, config}. When not
 			// authenticated, write the envelope first then return authErr
 			// so exit code carries the auth-failure signal.
@@ -78,28 +108,52 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 					"source":        cfg.AuthSource,
 					"config":        cfg.Path,
 				}
+				if credentialRefused {
+					out["credential_refused"] = true
+					out["credential_refusals"] = refusals
+				}
+				if authed {
+					if expiresAt, _, expired, ok := jwtCredentialExpiry(jwtExpirySource(cfg)); ok {
+						out["token_expires"] = expiresAt
+						out["token_expired"] = expired
+					}
+				}
 				if printErr := printJSONFiltered(w, out, flags); printErr != nil {
 					return printErr
+				}
+				if !authed && credentialRefused {
+					return authErr(cfg.CredentialRefusalError())
 				}
 				if !authed {
 					return authErr(fmt.Errorf("no credentials configured"))
 				}
 				return nil
 			}
+			if !authed && credentialRefused {
+				fmt.Fprintln(w, red("Credentials present but refused"))
+				for _, refusal := range refusals {
+					fmt.Fprintf(w, "  %s\n", refusal)
+				}
+				return authErr(cfg.CredentialRefusalError())
+			}
 			if !authed {
 				fmt.Fprintln(w, red("Not authenticated"))
 				fmt.Fprintln(w, "")
-				fmt.Fprintln(w, "Set one of:")
-				fmt.Fprintln(w, "")
-				fmt.Fprintln(w, "Optional request credentials:")
+				fmt.Fprintln(w, "Set your token:")
 				fmt.Fprintln(w, "  export HOSTEX_ACCESS_TOKEN=\"your-token-here\"")
-				fmt.Fprintln(w, "  export HOSTEX_HOSTEX_ACCESS_TOKEN=\"your-token-here\"")
+				fmt.Fprintf(w, "  echo \"$TOKEN\" | hostex-pp-cli auth set-token\n")
 				return authErr(fmt.Errorf("no credentials configured"))
 			}
 
 			fmt.Fprintln(w, green("Credentials present (not verified)"))
 			fmt.Fprintf(w, "  Source: %s\n", cfg.AuthSource)
 			fmt.Fprintf(w, "  Config: %s\n", cfg.Path)
+			if _, line, expired, ok := jwtCredentialExpiry(jwtExpirySource(cfg)); ok {
+				fmt.Fprintf(w, "  Token expires: %s\n", line)
+				if expired {
+					fmt.Fprintf(w, "  %s\n", "Set your API key with: export HOSTEX_ACCESS_TOKEN=\"your-token-here\"")
+				}
+			}
 			return nil
 		},
 	}
@@ -107,11 +161,32 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 
 func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:     "set-token <token>",
-		Short:   "Save an API token to the credentials file",
-		Example: "  hostex-pp-cli auth set-token YOUR_TOKEN_HERE",
-		Args:    cobra.ExactArgs(1),
+		Use:   "set-token",
+		Short: "Save an API token to the credentials file",
+		Long: "Save an API token to the credentials file.\n\n" +
+			"The token is read from stdin so it never appears in process arguments or shell history.",
+		Example: "  echo \"$TOKEN\" | hostex-pp-cli auth set-token\n  hostex-pp-cli auth set-token < token-file",
+		// PATCH(set-token-positional-compat): earlier releases took the token
+		// as a positional argument. Keep accepting it so existing scripts do
+		// not break, but steer callers to stdin, which keeps the token out of
+		// process listings and shell history.
+		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			var token string
+			var err error
+			if len(args) == 1 {
+				token = strings.TrimSpace(args[0])
+				if token == "" {
+					return authErr(fmt.Errorf("empty token argument"))
+				}
+				fmt.Fprintln(cmd.ErrOrStderr(), "warning: passing the token as an argument exposes it in process listings and shell history; pipe it on stdin instead")
+			} else {
+				token, err = readSecretFromStdin(cmd.InOrStdin())
+				if err != nil {
+					return authErr(err)
+				}
+			}
+
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)
@@ -128,7 +203,7 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 			// AccessToken. Writing the token to AccessToken via SaveTokens
 			// would persist the bytes but leave doctor reporting "not
 			// configured" — the slot the header builder consults stays empty.
-			if err := cfg.SaveCredential(args[0]); err != nil {
+			if err := cfg.SaveCredential(token); err != nil {
 				return configErr(fmt.Errorf("saving token: %w", err))
 			}
 
@@ -183,9 +258,6 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 			envStillSet := ""
 			if envStillSet == "" && os.Getenv("HOSTEX_ACCESS_TOKEN") != "" {
 				envStillSet = "HOSTEX_ACCESS_TOKEN"
-			}
-			if envStillSet == "" && os.Getenv("HOSTEX_HOSTEX_ACCESS_TOKEN") != "" {
-				envStillSet = "HOSTEX_HOSTEX_ACCESS_TOKEN"
 			}
 
 			// JSON envelope: {cleared: true, note?: "<env_var> env var is still set"}.

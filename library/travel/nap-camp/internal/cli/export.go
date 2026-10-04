@@ -49,6 +49,10 @@ large datasets as it has no memory pressure.`,
 				return usageErr(fmt.Errorf("unknown resource %q; valid: %s", resource, strings.Join(validResourceList, ", ")))
 			}
 
+			if format != "jsonl" && format != "json" {
+				return usageErr(fmt.Errorf("unsupported export format %q; valid: jsonl, json", format))
+			}
+
 			c, err := flags.newClient()
 			if err != nil {
 				return err

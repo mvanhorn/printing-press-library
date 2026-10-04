@@ -35,7 +35,8 @@
     "internal/trip/types.go",
     "internal/mcp/iko_yo_trip_surface.go",
     "cmd/iko-yo-pp-mcp/main.go",
-    "internal/mcp/iko_yo_trip_surface_test.go"
+    "internal/mcp/iko_yo_trip_surface_test.go",
+    "internal/trip/navigation_test.go"
   ],
   "validated_outcome": "Live bounded date, fact, application, cache and provenance assertions pass with parser/store/CLI regression checks.",
   "markers": [

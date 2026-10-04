@@ -1,7 +1,7 @@
 {
-  "passed": 147,
+  "passed": 141,
   "failed": 0,
-  "skipped": 100,
+  "skipped": 111,
   "level": "full",
   "tests": [
     {
@@ -263,8 +263,15 @@
     },
     {
       "command": "learnings candidates",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "learnings candidates",
       "kind": "dry_run_json",
-      "status": "pass"
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
     },
     {
       "command": "learnings confirm",
@@ -359,8 +366,15 @@
     },
     {
       "command": "learnings list",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "learnings list",
       "kind": "dry_run_json",
-      "status": "pass"
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
     },
     {
       "command": "learnings purge",
@@ -453,8 +467,15 @@
     },
     {
       "command": "learnings stats",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "learnings stats",
       "kind": "dry_run_json",
-      "status": "pass"
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
     },
     {
       "command": "pitch calendar",
@@ -694,8 +715,15 @@
     },
     {
       "command": "playbook list",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "playbook list",
       "kind": "dry_run_json",
-      "status": "pass"
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
     },
     {
       "command": "profile delete",
@@ -878,12 +906,20 @@
     {
       "command": "recall",
       "kind": "error_path",
-      "status": "pass"
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "recall",
+      "kind": "error_path_real",
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
     },
     {
       "command": "recall",
       "kind": "dry_run_json",
-      "status": "pass"
+      "status": "skip",
+      "reason": "mutating command requires --allow-destructive"
     },
     {
       "command": "search",

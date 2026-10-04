@@ -1,0 +1,268 @@
+{
+  "name": "wheelog",
+  "description": "Find and compare recorded accessibility evidence for public places.",
+  "version": "0.1.0",
+  "base_url": "https://app.wheelog.com",
+  "http_transport": "standard",
+  "spec_source": "sniffed",
+  "auth": {
+    "type": "none"
+  },
+  "learn": {
+    "entity_lookup_seeds": {
+      "category": [
+        {
+          "canonical": "toilet",
+          "aliases": [
+            "restroom",
+            "accessible toilet"
+          ]
+        },
+        {
+          "canonical": "elevator",
+          "aliases": [
+            "lift"
+          ]
+        },
+        {
+          "canonical": "parking",
+          "aliases": [
+            "car park"
+          ]
+        },
+        {
+          "canonical": "shop",
+          "aliases": [
+            "restaurant",
+            "cafe"
+          ]
+        },
+        {
+          "canonical": "station",
+          "aliases": [
+            "train station",
+            "bus stop"
+          ]
+        },
+        {
+          "canonical": "hotel",
+          "aliases": [
+            "lodging",
+            "inn"
+          ]
+        },
+        {
+          "canonical": "other",
+          "aliases": [
+            "other facilities"
+          ]
+        },
+        {
+          "canonical": "favorite",
+          "aliases": [
+            "attraction",
+            "tourist attraction"
+          ]
+        },
+        {
+          "canonical": "slope",
+          "aliases": [
+            "ramp"
+          ]
+        },
+        {
+          "canonical": "barrierSpot",
+          "aliases": [
+            "barrier"
+          ]
+        }
+      ]
+    }
+  },
+  "required_headers": [
+    {
+      "name": "OS_CODE",
+      "value": "3"
+    },
+    {
+      "name": "APP_VERSION",
+      "value": "1"
+    },
+    {
+      "name": "APP_LANGUAGE",
+      "value": "ja"
+    },
+    {
+      "name": "X-Requested-With",
+      "value": "XMLHttpRequest"
+    },
+    {
+      "name": "Referer",
+      "value": "https://app.wheelog.com/?la=ja"
+    }
+  ],
+  "config": {
+    "format": "toml",
+    "path": "~/.config/wheelog-pp-cli/config.toml"
+  },
+  "resources": {
+    "spots": {
+      "description": "Public crowdsourced facility accessibility evidence",
+      "endpoints": {
+        "search": {
+          "method": "POST",
+          "mutation": false,
+          "path": "/timeline/custom/user/getWebTimelineList",
+          "description": "Search public spot records by source keyword, category, and evidence record dates.",
+          "request_content_type": "application/x-www-form-urlencoded",
+          "response_format": "json",
+          "response_path": "content.timelineList",
+          "response": {
+            "type": "array",
+            "item": "TimelineRecord"
+          },
+          "happy_args": "--query=成田空港;--limit=3",
+          "example": "  wheelog-pp-cli spots search --query 成田空港 --category toilet --limit 3 --agent",
+          "body": [
+            {
+              "name": "word",
+              "flag_name": "query",
+              "type": "string",
+              "required": false,
+              "description": "Source keyword; original language often matches best."
+            },
+            {
+              "name": "categoryList[]",
+              "flag_name": "category",
+              "type": "string",
+              "required": false,
+              "description": "Source category; public CLI accepts comma-separated categories."
+            },
+            {
+              "name": "startDatetime",
+              "flag_name": "from",
+              "type": "string",
+              "required": false,
+              "description": "Inclusive evidence record date; public CLI converts its explicit timezone to UTC."
+            },
+            {
+              "name": "endDatetime",
+              "flag_name": "to",
+              "type": "string",
+              "required": false,
+              "description": "Inclusive evidence record date; public CLI converts its explicit timezone to UTC."
+            },
+            {
+              "name": "pagenum",
+              "flag_name": "page",
+              "type": "int",
+              "required": false,
+              "default": 1,
+              "description": "Bounded page number."
+            },
+            {
+              "name": "type",
+              "type": "string",
+              "required": false,
+              "default": "spot",
+              "description": "Only public spot records are in scope."
+            },
+            {
+              "name": "isDetail",
+              "type": "int",
+              "required": false,
+              "default": 1,
+              "description": "Enable source keyword/category/date filters."
+            }
+          ]
+        },
+        "inspect": {
+          "method": "POST",
+          "mutation": false,
+          "path": "/poi/custom/user/getWebSpotDetail",
+          "description": "Inspect allowlisted public accessibility question reports for a source spot ID.",
+          "request_content_type": "application/x-www-form-urlencoded",
+          "response_format": "json",
+          "response_path": "content.spot",
+          "response": {
+            "type": "object",
+            "item": "SpotRecord"
+          },
+          "happy_args": "--id=166345",
+          "example": "  wheelog-pp-cli spots inspect --id 166345 --agent",
+          "body": [
+            {
+              "name": "spotId",
+              "flag_name": "id",
+              "type": "int",
+              "required": true,
+              "description": "Stable public WheeLog spot ID."
+            }
+          ]
+        }
+      }
+    }
+  },
+  "types": {
+    "TimelineRecord": {
+      "fields": [
+        {
+          "name": "type",
+          "type": "string"
+        },
+        {
+          "name": "timeline",
+          "type": "object"
+        }
+      ]
+    },
+    "SpotRecord": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "int"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "address",
+          "type": "string"
+        },
+        {
+          "name": "country",
+          "type": "string"
+        },
+        {
+          "name": "created",
+          "type": "string"
+        },
+        {
+          "name": "updated",
+          "type": "string"
+        },
+        {
+          "name": "location",
+          "type": "object"
+        },
+        {
+          "name": "spotCategory",
+          "type": "object"
+        }
+      ]
+    }
+  },
+  "category": "travel",
+  "mcp": {
+    "transport": [
+      "stdio"
+    ],
+    "endpoint_tools": "hidden"
+  },
+  "cache": {
+    "enabled": false
+  },
+  "printer": "zjsng",
+  "printer_name": "Jet Sng"
+}

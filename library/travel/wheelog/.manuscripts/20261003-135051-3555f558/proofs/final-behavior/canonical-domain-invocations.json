@@ -1,0 +1,113 @@
+[
+  {
+    "command": "categories",
+    "args": [
+      "categories",
+      "--agent"
+    ],
+    "status": "pass",
+    "output_bytes": 1064
+  },
+  {
+    "command": "shortlist changes",
+    "args": [
+      "shortlist",
+      "changes",
+      "--data-source",
+      "local",
+      "--limit",
+      "3",
+      "--agent"
+    ],
+    "status": "pass",
+    "output_bytes": 532
+  },
+  {
+    "command": "shortlist list",
+    "args": [
+      "shortlist",
+      "list",
+      "--audit",
+      "--require-question",
+      "102",
+      "--data-source",
+      "local",
+      "--agent"
+    ],
+    "status": "pass",
+    "output_bytes": 694
+  },
+  {
+    "command": "shortlist remove",
+    "args": [
+      "shortlist",
+      "remove",
+      "166347",
+      "--agent",
+      "--data-source",
+      "local"
+    ],
+    "status": "pass",
+    "output_bytes": 155
+  },
+  {
+    "command": "shortlist save",
+    "args": [
+      "shortlist",
+      "save",
+      "166345",
+      "166344",
+      "--agent"
+    ],
+    "status": "pass",
+    "output_bytes": 3320
+  },
+  {
+    "command": "spots compare",
+    "args": [
+      "spots",
+      "compare",
+      "166345",
+      "166344",
+      "--require-question",
+      "102",
+      "--agent",
+      "--data-source",
+      "live"
+    ],
+    "status": "pass",
+    "output_bytes": 3719
+  },
+  {
+    "command": "spots inspect",
+    "args": [
+      "spots",
+      "inspect",
+      "166345",
+      "--require-question",
+      "102",
+      "--agent"
+    ],
+    "status": "pass",
+    "output_bytes": 2101
+  },
+  {
+    "command": "spots search",
+    "args": [
+      "spots",
+      "search",
+      "成田空港",
+      "--category",
+      "toilet",
+      "--limit",
+      "3",
+      "--agent",
+      "--require-question",
+      "102",
+      "--data-source",
+      "live"
+    ],
+    "status": "pass",
+    "output_bytes": 3764
+  }
+]

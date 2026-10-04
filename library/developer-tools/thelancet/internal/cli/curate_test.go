@@ -3,8 +3,155 @@
 
 package cli
 
-import "testing"
+import (
+	"bytes"
+	"context"
+	"strings"
+	"testing"
 
-func TestNovelCurateCommandTODO(t *testing.T) {
-	t.Skip("TODO: implement table-driven tests for curate")
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/thelancet/internal/lancet"
+)
+
+// runCurateStubbed runs `curate` with stubbed local/live sources and reports
+// how often each was called, plus stdout and stderr.
+func runCurateStubbed(t *testing.T, dataSource string, local, live []lancet.WorkRow) (localCalls, liveCalls int, stdout, stderr string) {
+	t.Helper()
+	return runCurateStubbedDB(t, dataSource, true, local, live)
+}
+
+// runCurateStubbedDB is runCurateStubbed with control over whether the stubbed
+// local database file exists (dbFound=false simulates a missing database).
+func runCurateStubbedDB(t *testing.T, dataSource string, dbFound bool, local, live []lancet.WorkRow) (localCalls, liveCalls int, stdout, stderr string) {
+	t.Helper()
+	origLocal, origLive := curateLocalFn, curateLiveFn
+	t.Cleanup(func() { curateLocalFn, curateLiveFn = origLocal, origLive })
+	curateLocalFn = func(ctx context.Context, path, topic, issn, sortBy string, openAccess bool, limit int) ([]lancet.WorkRow, bool, error) {
+		localCalls++
+		return local, dbFound, nil
+	}
+	curateLiveFn = func(ctx context.Context, flags *rootFlags, topic, issn, sortBy string, openAccess bool, limit int) ([]lancet.WorkRow, error) {
+		liveCalls++
+		return live, nil
+	}
+	flags := &rootFlags{dataSource: dataSource, asJSON: true}
+	cmd := newNovelCurateCmd(flags)
+	var out, errb bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&errb)
+	cmd.SetArgs([]string{"--topic", "ai diagnosis", "--db", "unused.db"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("curate: %v", err)
+	}
+	return localCalls, liveCalls, out.String(), errb.String()
+}
+
+var curateLiveRows = []lancet.WorkRow{{Title: "Live paper", Year: 2024, Cited: 5}}
+var curateLocalRows = []lancet.WorkRow{{Title: "Local paper", Year: 2023, Cited: 9}}
+
+func TestCurateLocalNeverCallsLive(t *testing.T) {
+	_, liveCalls, out, errOut := runCurateStubbed(t, "local", nil, curateLiveRows)
+	if liveCalls != 0 {
+		t.Fatalf("local mode called live %d times, want 0", liveCalls)
+	}
+	if strings.TrimSpace(out) != "[]" {
+		t.Fatalf("stdout = %q, want []", out)
+	}
+	if !strings.Contains(errOut, "no local matches") {
+		t.Fatalf("stderr = %q, want a 'no local matches' hint", errOut)
+	}
+}
+
+func TestCurateLiveSkipsLocal(t *testing.T) {
+	localCalls, liveCalls, out, _ := runCurateStubbed(t, "live", curateLocalRows, curateLiveRows)
+	if localCalls != 0 {
+		t.Fatalf("live mode queried local %d times, want 0", localCalls)
+	}
+	if liveCalls != 1 || !strings.Contains(out, "Live paper") {
+		t.Fatalf("live calls = %d, stdout = %q", liveCalls, out)
+	}
+}
+
+func TestCurateAutoEmptyLocalFallsBackWithNotice(t *testing.T) {
+	_, liveCalls, out, errOut := runCurateStubbed(t, "auto", nil, curateLiveRows)
+	if liveCalls != 1 || !strings.Contains(out, "Live paper") {
+		t.Fatalf("live calls = %d, stdout = %q", liveCalls, out)
+	}
+	if strings.Count(errOut, "\n") != 1 || !strings.Contains(errOut, "no local matches") || !strings.Contains(errOut, "title, abstract and full text") || !strings.Contains(errOut, "falling back to the live OpenAlex search") {
+		t.Fatalf("stderr = %q, want exactly one fallback notice", errOut)
+	}
+}
+
+func TestCurateAutoNonEmptyLocalStaysLocal(t *testing.T) {
+	_, liveCalls, out, errOut := runCurateStubbed(t, "auto", curateLocalRows, curateLiveRows)
+	if liveCalls != 0 || !strings.Contains(out, "Local paper") {
+		t.Fatalf("live calls = %d, stdout = %q", liveCalls, out)
+	}
+	if errOut != "" {
+		t.Fatalf("stderr = %q, want no notice", errOut)
+	}
+}
+
+func TestCurateLocalMissingDBNeverCallsLive(t *testing.T) {
+	_, liveCalls, out, errOut := runCurateStubbedDB(t, "local", false, nil, curateLiveRows)
+	if liveCalls != 0 {
+		t.Fatalf("local mode called live %d times, want 0", liveCalls)
+	}
+	if strings.TrimSpace(out) != "[]" {
+		t.Fatalf("stdout = %q, want []", out)
+	}
+	if !strings.Contains(errOut, "local database not found") || !strings.Contains(errOut, "never calls the live API") {
+		t.Fatalf("stderr = %q, want missing-database hint", errOut)
+	}
+}
+
+func TestCurateAutoMissingDBFallsBackWithNotice(t *testing.T) {
+	_, liveCalls, out, errOut := runCurateStubbedDB(t, "auto", false, nil, curateLiveRows)
+	if liveCalls != 1 || !strings.Contains(out, "Live paper") {
+		t.Fatalf("live calls = %d, stdout = %q", liveCalls, out)
+	}
+	if strings.Count(errOut, "\n") != 1 || !strings.Contains(errOut, "local database not found") || !strings.Contains(errOut, "falling back to the live OpenAlex search") {
+		t.Fatalf("stderr = %q, want exactly one fallback notice", errOut)
+	}
+}
+
+func TestCuratePerYearLivePathErrors(t *testing.T) {
+	for _, ds := range []string{"live", "auto"} {
+		t.Run(ds, func(t *testing.T) {
+			origLocal, origLive := curateLocalFn, curateLiveFn
+			t.Cleanup(func() { curateLocalFn, curateLiveFn = origLocal, origLive })
+			liveCalls := 0
+			curateLocalFn = func(ctx context.Context, path, topic, issn, sortBy string, openAccess bool, limit int) ([]lancet.WorkRow, bool, error) {
+				return nil, true, nil
+			}
+			curateLiveFn = func(ctx context.Context, flags *rootFlags, topic, issn, sortBy string, openAccess bool, limit int) ([]lancet.WorkRow, error) {
+				liveCalls++
+				return curateLiveRows, nil
+			}
+			cmd := newNovelCurateCmd(&rootFlags{dataSource: ds, asJSON: true})
+			var out, errb bytes.Buffer
+			cmd.SetOut(&out)
+			cmd.SetErr(&errb)
+			cmd.SetArgs([]string{"--topic", "ai", "--sort", "per-year", "--db", "unused.db"})
+			err := cmd.Execute()
+			if err == nil || !strings.Contains(err.Error(), "local store") {
+				t.Fatalf("err = %v, want a 'needs the local store' error", err)
+			}
+			if liveCalls != 0 || strings.Contains(out.String(), "Live paper") {
+				t.Fatalf("live was used silently: calls=%d stdout=%q", liveCalls, out.String())
+			}
+		})
+	}
+}
+
+// "velocity" is reserved for a future recent-window metric, so it is rejected for now.
+func TestCurateRejectsVelocitySort(t *testing.T) {
+	cmd := newNovelCurateCmd(&rootFlags{dataSource: "local", asJSON: true})
+	var out, errb bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&errb)
+	cmd.SetArgs([]string{"--topic", "ai", "--sort", "velocity", "--db", "unused.db"})
+	err := cmd.Execute()
+	if err == nil || !strings.Contains(err.Error(), "'citations', 'date' or 'per-year'") {
+		t.Fatalf("err = %v, want rejection listing citations, date and per-year", err)
+	}
 }

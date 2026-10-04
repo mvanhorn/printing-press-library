@@ -1,0 +1,122 @@
+{
+  "note": "Category membership is a source label. Inspect a spot for question labels and actual report counts.",
+  "observed_at": "2026-10-03",
+  "results": [
+    {
+      "value": "shop",
+      "name": "Restaurant",
+      "question_ids": [
+        401,
+        402,
+        403,
+        404,
+        405,
+        406,
+        407,
+        408,
+        409
+      ]
+    },
+    {
+      "value": "station",
+      "name": "Station",
+      "question_ids": [
+        601,
+        602,
+        603,
+        604,
+        605
+      ]
+    },
+    {
+      "value": "hotel",
+      "name": "Hotel",
+      "question_ids": [
+        701,
+        702,
+        703,
+        704,
+        705,
+        706,
+        707,
+        708,
+        709,
+        710
+      ]
+    },
+    {
+      "value": "other",
+      "name": "Other",
+      "question_ids": [
+        501,
+        502,
+        503,
+        504,
+        505
+      ]
+    },
+    {
+      "value": "favorite",
+      "name": "Attraction",
+      "question_ids": [
+        1001,
+        1002,
+        1003,
+        1004,
+        1005,
+        1006,
+        1007,
+        1008
+      ]
+    },
+    {
+      "value": "toilet",
+      "name": "Restroom",
+      "question_ids": [
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109
+      ]
+    },
+    {
+      "value": "elevator",
+      "name": "Elevator",
+      "question_ids": [
+        201,
+        202,
+        203
+      ]
+    },
+    {
+      "value": "parking",
+      "name": "Parking",
+      "question_ids": [
+        301,
+        302,
+        303,
+        304,
+        305,
+        306,
+        307,
+        308
+      ]
+    },
+    {
+      "value": "slope",
+      "name": "Ramp",
+      "question_ids": []
+    },
+    {
+      "value": "barrierSpot",
+      "name": "Barrier",
+      "question_ids": []
+    }
+  ],
+  "source_url": "https://docs.wheelog.app/en/info/"
+}

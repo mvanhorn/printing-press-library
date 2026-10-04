@@ -4,6 +4,7 @@ package cli
 import (
 	"bytes"
 	"context"
+	"encoding/csv"
 	"encoding/json"
 	"github.com/mvanhorn/printing-press-library/library/travel/iko-yo/internal/cliutil/testenv"
 	"github.com/mvanhorn/printing-press-library/library/travel/iko-yo/internal/store"
@@ -126,6 +127,76 @@ func TestTripProfileCannotEnableAutomaticLearning(t *testing.T) {
 		suppressed, e := cmd.PersistentFlags().GetBool("no-learn")
 		if e != nil || !suppressed {
 			t.Errorf("Trip learning suppression was overridden by %v", args)
+		}
+	}
+}
+
+func TestComparisonTablesPreserveFailedIdentities(t *testing.T) {
+	testenv.Isolate(t)
+	db, err := store.OpenWithContext(context.Background(), defaultDBPath("iko-yo-pp-cli"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := os.ReadFile("../trip/testdata/spots-8220.html")
+	if err != nil {
+		t.Fatal(err)
+	}
+	record, err := trip.ParseDetail(raw, "spots/8220", time.Date(2026, 10, 3, 0, 0, 0, 0, time.UTC))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = db.SaveTripRecords(context.Background(), []trip.Record{record}); err != nil {
+		t.Fatal(err)
+	}
+	if err = db.Close(); err != nil {
+		t.Fatal(err)
+	}
+	for _, mode := range []string{"json", "csv", "plain"} {
+		var out, errout bytes.Buffer
+		cmd := RootCmd()
+		cmd.SetOut(&out)
+		cmd.SetErr(&errout)
+		cmd.SetArgs([]string{"trip", "compare", "spots/8220", "events/999999999", "--data-source", "local", "--" + mode})
+		if err := cmd.Execute(); err != nil {
+			t.Fatal(err)
+		}
+		if !strings.Contains(errout.String(), "1 of 2 Trip reads failed; comparison includes only 1 successful records") || !strings.Contains(errout.String(), "events/999999999") {
+			t.Fatalf("%s missing failure/count warning: %s", mode, errout.String())
+		}
+		if mode == "json" {
+			var v tripComparison
+			if err := json.Unmarshal(out.Bytes(), &v); err != nil {
+				t.Fatal(err)
+			}
+			if v.RequestedRecords != 2 || v.ComparedRecords != 1 || len(v.Records) != 1 || v.Records[0].Record.Ref != "spots/8220" || len(v.FetchFailures) != 1 || v.FetchFailures[0].Reference != "events/999999999" {
+				t.Fatalf("failed reads entered command comparison count: %+v", v)
+			}
+			continue
+		}
+		reader := csv.NewReader(strings.NewReader(out.String()))
+		if mode == "plain" {
+			reader.Comma = '\t'
+		}
+		rows, err := reader.ReadAll()
+		if err != nil || len(rows) != 3 {
+			t.Fatalf("%s expected header and two command rows: %s %v", mode, out.String(), err)
+		}
+		column := map[string]int{}
+		for i, name := range rows[0] {
+			column[name] = i
+		}
+		for _, name := range []string{"ref", "fetch_status", "fetch_error", "overall", "age_check", "date_check", "seat_availability"} {
+			if _, ok := column[name]; !ok {
+				t.Fatalf("%s missing column %s", mode, name)
+			}
+		}
+		if rows[1][column["ref"]] != "spots/8220" || rows[1][column["fetch_status"]] != "success" || rows[2][column["ref"]] != "events/999999999" || rows[2][column["fetch_status"]] != "failed" || rows[2][column["fetch_error"]] == "" {
+			t.Fatalf("%s lost failed command identity: %+v", mode, rows)
+		}
+		for _, name := range []string{"overall", "age_check", "date_check", "seat_availability"} {
+			if rows[2][column[name]] != "unknown" {
+				t.Fatalf("%s failed row invented %s: %+v", mode, name, rows[2])
+			}
 		}
 	}
 }

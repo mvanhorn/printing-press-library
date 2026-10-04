@@ -1,0 +1,18 @@
+{
+  "fixture": "controlled normalized timestamps, final fractional second and next-day midnight",
+  "expected_ids": [
+    166345
+  ],
+  "actual_ids": [
+    166345
+  ],
+  "exit": 0,
+  "query": {
+    "categories": [],
+    "execution": "saved_record_metadata_filter",
+    "input_timezone": "Asia/Tokyo",
+    "keyword": "",
+    "record_from_utc": "2026-10-01 15:00:00",
+    "record_to_utc": "2026-10-02 14:59:59"
+  }
+}

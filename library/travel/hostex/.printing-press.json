@@ -1,7 +1,7 @@
 {
-  "schema_version": 1,
-  "generated_at": "2026-06-27T06:09:10.260873Z",
-  "printing_press_version": "4.26.1",
+  "schema_version": 2,
+  "generated_at": "2026-10-03T10:33:38.497178Z",
+  "printing_press_version": "4.33.0",
   "api_name": "hostex",
   "display_name": "Hostex",
   "cli_name": "hostex-pp-cli",
@@ -12,34 +12,23 @@
   "owner": "bust011r",
   "printer": "Bust011r",
   "printer_name": "Bust011r",
+  "spec_path": "spec.json",
   "spec_format": "openapi3",
-  "spec_checksum": "sha256:c4110eab65ece6cc3f46623fb9c7d4e83f8ae35c99f697b8c6ac18cf5cd9bef7",
-  "run_id": "20260627-060401-7471d49d",
+  "spec_source": "official",
+  "spec_checksum": "sha256:b52f89631c63e23fd6b051fa52d0bcf17e9b76360784cf74bd1276ff61822441",
+  "run_id": "20261003-120106-6f48c7c7",
   "category": "travel",
   "description": "Every Hostex v3 operation, plus a local SQLite mirror that answers cross-property questions no single Hostex call can — occupancy gaps, revenue rollups, and guest-message SLA, offline.",
   "mcp_binary": "hostex-pp-mcp",
   "mcp_tool_count": 86,
   "mcp_ready": "full",
-  "api_version": "3.9.0",
+  "api_version": "3.15.0",
   "auth_type": "api_key",
   "auth_preference": "HostexAccessToken",
   "auth_env_vars": [
-    "HOSTEX_HOSTEX_ACCESS_TOKEN"
+    "HOSTEX_ACCESS_TOKEN"
   ],
-  "auth_env_var_specs": [
-    {
-      "name": "HOSTEX_ACCESS_TOKEN",
-      "kind": "per_call",
-      "required": false,
-      "sensitive": true
-    },
-    {
-      "name": "HOSTEX_HOSTEX_ACCESS_TOKEN",
-      "kind": "per_call",
-      "required": false,
-      "sensitive": true
-    }
-  ],
+  "auth_key_url": "https://api.hostex.io/v3",
   "novel_features": [
     {
       "name": "Operations gap finder",
@@ -76,5 +65,57 @@
       "command": "revenue-rollup",
       "description": "Net income minus expense by property or month over a date range, from the live ledger."
     }
-  ]
+  ],
+  "novel_features_built": [
+    {
+      "name": "Operations gap finder",
+      "command": "ops-gaps",
+      "description": "Find imminent or occupied stays with no cleaning task or missing check-in details."
+    },
+    {
+      "name": "Stay brief dossier",
+      "command": "stay-brief",
+      "description": "One dossier for a single stay: reservation, guest, thread state, tasks, transactions, and review."
+    },
+    {
+      "name": "Inbox SLA triage",
+      "command": "inbox-sla",
+      "description": "Rank open guest conversations by age since the last guest message and flag threads past your SLA."
+    },
+    {
+      "name": "Automation preview",
+      "command": "automation-preview",
+      "description": "List pending automated messages and reviews and flag any whose thread a human has already handled."
+    },
+    {
+      "name": "Cross-channel price parity",
+      "command": "price-parity",
+      "description": "Flag property-dates where per-channel listing price or min-stay diverges across channels."
+    },
+    {
+      "name": "Oversell / double-sell watch",
+      "command": "oversell-watch",
+      "description": "Flag dates a channel still shows bookable on a property that is blocked or booked on the master calendar."
+    },
+    {
+      "name": "Revenue rollup",
+      "command": "revenue-rollup",
+      "description": "Net income minus expense by property or month over a date range, from the live ledger."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 104,
+    "total": 104,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 91,
+      "grade": "A",
+      "total": 91
+    }
+  }
 }

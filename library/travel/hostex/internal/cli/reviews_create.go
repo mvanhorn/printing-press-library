@@ -24,14 +24,25 @@ func newReviewsCreateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create <reservation_code>",
-		Short: "Create review or reply for a reservation.",
-		// TODO: replace placeholder example values before relying on this for live dogfood.
-		Example:     "  hostex-pp-cli reviews create example-value",
+		Use:         "create <reservation_code>",
+		Short:       "Create review or reply for a reservation.",
+		Example:     "  hostex-pp-cli reviews create HMABC123 --stdin --dry-run",
 		Annotations: map[string]string{"pp:endpoint": "reviews.create", "pp:method": "POST", "pp:path": "/reviews/{reservation_code}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <reservation_code>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <reservation_code>"))
 			}
 			if !stdinBody {
 			}
@@ -45,7 +56,7 @@ func newReviewsCreateCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -57,41 +68,42 @@ func newReviewsCreateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				{
 					nestedCategoryRatings := map[string]any{}
-					if bodyCategoryRatingsCleanliness != 0.0 {
+					if cmd.Flags().Changed("category-ratings-cleanliness") || bodyCategoryRatingsCleanliness != 0.0 {
 						nestedCategoryRatings["cleanliness"] = bodyCategoryRatingsCleanliness
 					}
-					if bodyCategoryRatingsCommunication != 0.0 {
+					if cmd.Flags().Changed("category-ratings-communication") || bodyCategoryRatingsCommunication != 0.0 {
 						nestedCategoryRatings["communication"] = bodyCategoryRatingsCommunication
 					}
-					if bodyCategoryRatingsOverallRating != 0.0 {
+					if cmd.Flags().Changed("category-ratings-overall-rating") || bodyCategoryRatingsOverallRating != 0.0 {
 						nestedCategoryRatings["overall_rating"] = bodyCategoryRatingsOverallRating
 					}
-					if bodyCategoryRatingsRecommend != 0.0 {
+					if cmd.Flags().Changed("category-ratings-recommend") || bodyCategoryRatingsRecommend != 0.0 {
 						nestedCategoryRatings["recommend"] = bodyCategoryRatingsRecommend
 					}
-					if bodyCategoryRatingsRespectOfHouseRules != 0.0 {
+					if cmd.Flags().Changed("category-ratings-respect-of-house-rules") || bodyCategoryRatingsRespectOfHouseRules != 0.0 {
 						nestedCategoryRatings["respect_of_house_rules"] = bodyCategoryRatingsRespectOfHouseRules
 					}
 					if len(nestedCategoryRatings) > 0 {
-						body["category_ratings"] = nestedCategoryRatings
+						bodyMap["category_ratings"] = nestedCategoryRatings
 					}
 				}
-				if bodyHostReplyContent != "" {
-					body["host_reply_content"] = bodyHostReplyContent
+				if cmd.Flags().Changed("host-reply-content") || bodyHostReplyContent != "" {
+					bodyMap["host_reply_content"] = bodyHostReplyContent
 				}
-				if bodyHostReviewContent != "" {
-					body["host_review_content"] = bodyHostReviewContent
+				if cmd.Flags().Changed("host-review-content") || bodyHostReviewContent != "" {
+					bodyMap["host_review_content"] = bodyHostReviewContent
 				}
-				if bodyHostReviewScore != 0.0 {
-					body["host_review_score"] = bodyHostReviewScore
+				if cmd.Flags().Changed("host-review-score") || bodyHostReviewScore != 0.0 {
+					bodyMap["host_review_score"] = bodyHostReviewScore
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
 			// Inspect the mutate response body for a partial-failure-shaped
 			// field (e.g. Google Ads `partialFailureError`). Several Google
@@ -184,15 +196,22 @@ func newReviewsCreateCmd(flags *rootFlags) *cobra.Command {
 						}
 					}
 				}
+				// Mutation-riding reads (POST search, RPC-over-POST lists) return
+				// the same single-key collection envelopes as GET reads. Unwrap
+				// before filtering so rows nest once under the result key and
+				// --select filters rows, not envelope keys; plain created-object
+				// responses pass through unwrapSingleKeyArray untouched.
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
 				// generic high-gravity allow-list. Otherwise --compact still applies
 				// when --agent is on but the user did not name fields.
-				filtered := data
+				var selectErr error
+				filtered := unwrapSingleKeyArray(data)
 				if flags.selectFields != "" {
-					filtered = filterFields(filtered, flags.selectFields)
+					filtered, selectErr = filterFieldsChecked(filtered, flags.selectFields)
+					selectErr = selectErrorForDryRun(selectErr, flags, data)
 				} else if flags.compact {
-					filtered = compactFields(filtered)
+					filtered = compactFields(filtered, map[string]bool{"error_code": true, "request_id": true})
 				}
 				if len(filtered) > 0 {
 					var parsed any
@@ -208,28 +227,35 @@ func newReviewsCreateCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
+				resultKey := "data"
+				if flags.agent {
+					resultKey = "results"
+				}
+				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
+				if err != nil {
+					return err
+				}
+				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
 					return perr
 				}
 				if partialFailure != nil && !flags.allowPartialFailure {
 					return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "reviews", partialFailure.Message))
 				}
-				return nil
+				return selectErr
 			}
 			// Fall-through for mutate paths that did not hit the table or
 			// asJSON branches: --quiet, --csv, --plain, and default terminal
-			// raw output. printOutputWithFlags renders the body, then the
-			// typed partial-failure exit fires unless --allow-partial-failure
-			// downgrades it. Without this guard a partial failure would exit
-			// 0 for these output modes — the exact silent-swallow regression
-			// the surrounding patch is preventing for asJSON / piped output.
-			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
-				return perr
-			}
+			// raw output. printOutputWithFlagsMeta renders the body with live
+			// provenance, then the typed partial-failure exit fires unless
+			// --allow-partial-failure downgrades it. Without this guard a
+			// partial failure would exit 0 for these output modes — the exact
+			// silent-swallow regression the surrounding patch is preventing
+			// for asJSON / piped output.
+			printErr := printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"}, map[string]bool{"error_code": true, "request_id": true})
 			if partialFailure != nil && !flags.allowPartialFailure {
 				return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "reviews", partialFailure.Message))
 			}
-			return nil
+			return printErr
 		},
 	}
 	cmd.Flags().Float64Var(&bodyCategoryRatingsCleanliness, "category-ratings-cleanliness", 0.0, "Cleanliness rating. The value is between 0 and 5.")

@@ -12,9 +12,9 @@ import (
 )
 
 // whichEntry is one row of the curated capability index. The index is seeded
-// at generation time from the verified NovelFeature list that drives the
-// SKILL.md feature section, so the command a `which` query returns is
-// guaranteed to exist and to match what the skill advertises.
+// at generation time from novel hero features first, then promoted endpoint
+// commands, deduped by Command so a novel that replaced a promoted leaf keeps
+// the hero copy.
 type whichEntry struct {
 	Command      string `json:"command"`
 	Description  string `json:"description"`
@@ -22,10 +22,9 @@ type whichEntry struct {
 	WhyItMatters string `json:"why_it_matters,omitempty"`
 }
 
-// whichIndex is the curated list of capabilities this CLI advertises as
-// its hero features. Endpoint-level commands are discoverable via
-// `--help`; `which` exists to resolve a natural-language capability
-// query to one of the commands the skill says matter most.
+// whichIndex is the curated list of capabilities this CLI advertises.
+// Novel hero features come first (declaration-order ties); promoted
+// endpoint commands follow so natural-language queries can find them.
 var whichIndex = []whichEntry{
 	{Command: "ops-gaps", Description: "Find imminent or occupied stays with no cleaning task or missing check-in details.", Group: "Operations: stop problems before guests do", WhyItMatters: "Reach for this to catch turnover and check-in problems before a guest complains, instead of eyeballing the calendar."},
 	{Command: "stay-brief", Description: "One dossier for a single stay: reservation, guest, thread state, tasks, transactions, and review.", Group: "Operations: stop problems before guests do", WhyItMatters: "Use when you need the full picture of one stay; to scan many stays for problems use ops-gaps."},
@@ -34,9 +33,13 @@ var whichIndex = []whichEntry{
 	{Command: "price-parity", Description: "Flag property-dates where per-channel listing price or min-stay diverges across channels.", Group: "Channel parity and revenue (portfolio)", WhyItMatters: "Use to catch silent revenue loss from channel price drift; for availability mismatch use oversell-watch."},
 	{Command: "oversell-watch", Description: "Flag dates a channel still shows bookable on a property that is blocked or booked on the master calendar.", Group: "Channel parity and revenue (portfolio)", WhyItMatters: "Use to catch double-sell risk; for price or min-stay drift use price-parity."},
 	{Command: "revenue-rollup", Description: "Net income minus expense by property or month over a date range, from the live ledger.", Group: "Channel parity and revenue (portfolio)", WhyItMatters: "Use for the Monday portfolio revenue review in one command."},
-	{Command: "listings update-prices", Description: "Update the prices of a channel listing for date ranges (live price change; dry-run first).", Group: "Listing calendar writes", WhyItMatters: "Use to change what guests pay on a channel for specific dates; always preview with --dry-run, prices are integers in the listing currency."},
-	{Command: "listings update-restrictions", Description: "Update the booking restrictions of a channel listing for date ranges: min/max stay, closed on arrival or departure.", Group: "Listing calendar writes", WhyItMatters: "Use to set minimum nights or close check-in on a channel for specific dates; preview with --dry-run."},
-	{Command: "listings update-inventories", Description: "Update the per-channel inventory of a listing for date ranges; does not change the property calendar.", Group: "Listing calendar writes", WhyItMatters: "Use to open or close one channel for specific dates; to block the property itself use availabilities update."},
+	{Command: "channel-accounts", Description: "Query the third-party channel accounts (Airbnb, Booking.com, etc.) that the operator has connected.", Group: "channel-accounts", WhyItMatters: "Query the third-party channel accounts (Airbnb, Booking."},                            // pp:which-promoted
+	{Command: "custom-channels", Description: "Query custom channels created from the [Custom Options Page](https://hostex.io/app/settings/custom-options).", Group: "custom-channels", WhyItMatters: "Query custom channels created from the [Custom Options Page](https://hostex."}, // pp:which-promoted
+	{Command: "expense-items", Description: "Query the dictionary of expense item categorizations available to the operator.", Group: "expense-items", WhyItMatters: "Query the dictionary of expense item categorizations available to the operator."},                               // pp:which-promoted
+	{Command: "expense-methods", Description: "Query the dictionary of payment methods available to the operator for expense entries.", Group: "expense-methods", WhyItMatters: "Query the dictionary of payment methods available to the operator for expense entries."},             // pp:which-promoted
+	{Command: "income-items", Description: "Query the dictionary of income item categorizations available to the operator.", Group: "income-items", WhyItMatters: "Query the dictionary of income item categorizations available to the operator."},                                   // pp:which-promoted
+	{Command: "income-methods", Description: "Query the dictionary of payment methods available to the operator for income entries.", Group: "income-methods", WhyItMatters: "Query the dictionary of payment methods available to the operator for income entries."},                 // pp:which-promoted
+	{Command: "pricing-ratios", Description: "Return the per-channel pricing ratio of each OTA listing linked to a property (`property_id`)", Group: "pricing-ratios", WhyItMatters: "Return the per-channel pricing ratio of each OTA listing linked to a property (`property_id`)"}, // pp:which-promoted
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.
@@ -54,8 +57,9 @@ type whichMatch struct {
 //
 //	+3  exact token match on the command's leaf or full path
 //	+2  substring match on the command (any part)
-//	+2  substring match on the description
-//	+1  group tag contains the query as a word
+//	+2  substring match on description or why_it_matters
+//	+1  per-token match on description or why_it_matters (capped at 3)
+//	+1  group tag contains the query as a whole token
 //
 // Ties break on declaration order in the index. An empty query returns
 // every entry at score 0 in declaration order - this is the "list all"
@@ -72,7 +76,9 @@ func rankWhich(index []whichEntry, query string, limit int) []whichMatch {
 		}
 		return out
 	}
-	qTokens := strings.Fields(q)
+	// Sub-tokenize the query the same way command paths are split, so a
+	// pasted hyphenated capability (repos-list-for-authenticated) matches.
+	qTokens := whichSubTokens(q)
 
 	scored := make([]whichMatch, 0, len(index))
 	for i, e := range index {
@@ -82,7 +88,14 @@ func rankWhich(index []whichEntry, query string, limit int) []whichMatch {
 	}
 
 	sort.SliceStable(scored, func(i, j int) bool {
-		return scored[i].Score > scored[j].Score
+		if scored[i].Score != scored[j].Score {
+			return scored[i].Score > scored[j].Score
+		}
+		// Specificity tie-break: at equal score prefer the command with the
+		// fewest capability sub-tokens - the canonical operation over variants
+		// carrying extra words the request never used.
+		return len(whichSubTokens(strings.ToLower(scored[i].Entry.Command))) <
+			len(whichSubTokens(strings.ToLower(scored[j].Entry.Command)))
 	})
 	// Drop zero-score matches when the query was non-empty; agents
 	// branching on exit code rely on "no match" meaning no confidence.
@@ -100,53 +113,293 @@ func rankWhich(index []whichEntry, query string, limit int) []whichMatch {
 
 func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	score := 0
+	writeMatch := false
 	cmd := strings.ToLower(e.Command)
-	// Hyphenated leaves ("update-prices") also match on their parts so a
-	// natural-language query like "update prices" resolves to them.
-	cmdTokens := strings.FieldsFunc(cmd, func(r rune) bool { return r == ' ' || r == '-' })
+	// PATCH(write-commands-document-body-shape-in-cli): a write command only
+	// answers a query that asks to change something, so a read query such as
+	// "check listing price drift" never lands on it.
+	if strings.Contains(cmd, "update-") {
+		if !whichHasWriteIntent(qTokens) {
+			return 0
+		}
+		writeMatch = true
+	}
+	// Sub-token split (spaces, hyphens, underscores, slashes): a capability
+	// word buried in a hyphenated leaf (repos-list-for-authenticated) must be
+	// matchable by the words a human asks with, or every command in a group
+	// ties on the group token alone and index order decides the answer.
+	cmdTokens := whichSubTokens(cmd)
+	commandParts := strings.Fields(cmd)
+	leaf := ""
+	if len(commandParts) > 0 {
+		leaf = commandParts[len(commandParts)-1]
+	}
 	desc := strings.ToLower(e.Description)
+	descTokens := whichSubTokens(desc)
+	why := strings.ToLower(e.WhyItMatters)
+	whyTokens := whichSubTokens(why)
 	group := strings.ToLower(e.Group)
 
-	// Exact token match on the command path (any token). Singular and
-	// plural forms match ("restriction" finds "restrictions").
+	// Exact token match on the command path (any token). Filler words
+	// credit a command only when they are the whole unsplit leaf
+	// ("run a" → "a"), not a hyphenated sub-token ("in" vs "check-in").
 	for _, qt := range qTokens {
+		if whichIncidentalToken(qt) && !whichTokenMatch(qt, leaf) {
+			continue
+		}
 		for _, ct := range cmdTokens {
-			if qt == ct || whichStem(qt) == whichStem(ct) {
+			if whichTokenMatch(qt, ct) {
 				score += 3
 				break
 			}
 		}
 	}
 	// Substring match on the full command (covers hyphenated leaves).
+	// An incidental-only query must still name the whole command or leaf
+	// so "in" does not admit "check-in" via the trailing fragment.
 	if strings.Contains(cmd, query) {
+		if !whichAllIncidental(qTokens) || whichTokenMatch(query, leaf) || whichTokenMatch(query, cmd) {
+			score += 2
+		}
+	}
+	// Description and rationale are correlated prose fields. Share the existing
+	// per-token cap so repeating the same query in both fields cannot outweigh
+	// an exact command match. A rationale-only match needs two tokens or an
+	// exact multi-token phrase to avoid promoting incidental prose words.
+	descPhrase := strings.Contains(desc, query)
+	descCredit := whichFieldCredit(qTokens, descTokens)
+	whyCredit := whichFieldCredit(qTokens, whyTokens)
+	whyPhrase := len(qTokens) > 1 && strings.Contains(why, query)
+	if score == 0 && whyCredit < 2 && !whyPhrase {
+		whyCredit = 0
+	}
+	if descPhrase || whyPhrase {
 		score += 2
 	}
-	// Substring match on the description.
-	if strings.Contains(desc, query) {
-		score += 2
+	if whyCredit > descCredit {
+		score += whyCredit
+	} else {
+		score += descCredit
 	}
-	// Group tag match.
-	if group != "" {
-		for _, qt := range qTokens {
-			if strings.Contains(group, qt) {
+	// Group tag match requires a whole token, not an arbitrary substring.
+	// Filler words credit a group only when they are the whole group name.
+	groupTokens := whichSubTokens(group)
+	groupMatched := false
+	for _, qt := range qTokens {
+		if whichIncidentalToken(qt) && !whichTokenMatch(qt, group) {
+			continue
+		}
+		for _, gt := range groupTokens {
+			if whichTokenMatch(qt, gt) {
 				score += 1
+				groupMatched = true
+				break
+			}
+		}
+		if groupMatched {
+			break
+		}
+	}
+	// Possessive aliasing: "my/mine/me/current" in a request is API-speak for
+	// the authenticated caller; commands scoped to the authenticated user must
+	// outrank generic listings for possessive asks.
+	possessive := false
+	for _, qt := range qTokens {
+		switch qt {
+		case "my", "mine", "me", "current":
+			possessive = true
+		}
+	}
+	if possessive {
+		for _, ct := range cmdTokens {
+			if ct == "authenticated" || ct == "me" {
+				score += 3
 				break
 			}
 		}
 	}
+	// Read-intent default: penalize write-verb commands when the request never
+	// asked for a write, so neutral asks can never rank a destructive command
+	// first on a tie.
+	if score > 0 {
+		queryWrite := false
+		for _, qt := range qTokens {
+			if whichWriteVerbs[qt] || whichCalendarWriteVerbs[qt] {
+				queryWrite = true
+				break
+			}
+		}
+		if !queryWrite {
+			for _, ct := range cmdTokens {
+				if whichWriteVerbs[ct] {
+					score -= 2
+					break
+				}
+			}
+		}
+	}
+	// Specificity: a command leaf carrying capability sub-tokens the request never
+	// used is a variant, not the canonical answer ("activity-list-repos-
+	// starred-by-authenticated" for a repositories ask). Parent resource tokens
+	// are excluded so a valid nested command is not erased by its path. A
+	// single-token leaf has no variant to disambiguate; the penalty may still
+	// down-rank it but must not zero a description/path hit by itself.
+	// A write command skips this: "update" in its leaf is the verb the query
+	// expressed through a synonym ("change", "set").
+	if score > 0 && len(qTokens) > 1 && !writeMatch {
+		leafTokens := whichSubTokens(leaf)
+		unmatched := 0
+		for _, ct := range leafTokens {
+			hit := false
+			for _, qt := range qTokens {
+				if whichTokenMatch(qt, ct) {
+					hit = true
+					break
+				}
+			}
+			if !hit {
+				unmatched++
+			}
+		}
+		if unmatched > 3 {
+			unmatched = 3
+		}
+		if len(leafTokens) < 2 && unmatched >= score {
+			unmatched = score - 1
+		}
+		score -= unmatched
+	}
+	// A write command that matched a write-intent query outranks the read-side
+	// commands that share its nouns ("change the price").
+	if writeMatch && score > 0 {
+		score += 3
+	}
 	return score
 }
 
-// whichStem folds a plural noun to its singular so "inventory" and
-// "inventories", or "restriction" and "restrictions", compare equal.
-func whichStem(t string) string {
-	switch {
-	case len(t) > 4 && strings.HasSuffix(t, "ies"):
-		return t[:len(t)-3] + "y"
-	case len(t) > 3 && strings.HasSuffix(t, "s") && !strings.HasSuffix(t, "ss"):
-		return t[:len(t)-1]
+func whichFieldCredit(qTokens, fieldTokens []string) int {
+	credit := 0
+	matched := make(map[string]struct{})
+	for _, qt := range qTokens {
+		if whichIncidentalToken(qt) {
+			continue
+		}
+		for _, ft := range fieldTokens {
+			if whichTokenMatch(qt, ft) {
+				key := whichTokenKey(ft)
+				if _, ok := matched[key]; ok {
+					break
+				}
+				matched[key] = struct{}{}
+				credit++
+				break
+			}
+		}
+		if credit == 3 {
+			break
+		}
 	}
-	return t
+	return credit
+}
+
+func whichTokenKey(token string) string {
+	token = strings.Trim(strings.ToLower(token), ".,:;!?()[]{}\"'")
+	if alias := whichTokenAliases[token]; alias != "" {
+		return alias
+	}
+	return whichSingular(token)
+}
+
+func whichTokenMatch(a, b string) bool {
+	a = strings.Trim(strings.ToLower(a), ".,:;!?()[]{}\"'")
+	b = strings.Trim(strings.ToLower(b), ".,:;!?()[]{}\"'")
+	if a == "" || b == "" {
+		return false
+	}
+	if a == b {
+		return true
+	}
+	if whichSingular(a) == whichSingular(b) {
+		return true
+	}
+	return whichTokenAliases[a] != "" && whichTokenAliases[a] == whichTokenAliases[b]
+}
+
+func whichSubTokens(cmd string) []string {
+	return strings.FieldsFunc(cmd, func(r rune) bool {
+		return r == ' ' || r == '-' || r == '_' || r == '/'
+	})
+}
+
+func whichIncidentalToken(token string) bool {
+	token = strings.Trim(strings.ToLower(token), ".,:;!?()[]{}\"'")
+	if token == "" {
+		return true
+	}
+	return whichIncidentalTokens[token]
+}
+
+func whichAllIncidental(qTokens []string) bool {
+	if len(qTokens) == 0 {
+		return false
+	}
+	for _, qt := range qTokens {
+		if !whichIncidentalToken(qt) {
+			return false
+		}
+	}
+	return true
+}
+
+// The closed API-verb set for write-shaped commands. A request that never
+// asked for a write must not tie-break into a destructive command.
+var whichWriteVerbs = map[string]bool{
+	"delete": true, "remove": true, "update": true, "create": true, "set": true,
+	"add": true, "replace": true, "rename": true, "transfer": true, "merge": true,
+	"lock": true, "unlock": true, "star": true, "unstar": true, "follow": true,
+	"unfollow": true, "block": true, "unblock": true, "mute": true, "archive": true,
+	"unarchive": true, "cancel": true, "send": true, "upload": true, "subscribe": true,
+	"unsubscribe": true, "dismiss": true, "approve": true, "decline": true,
+	"post": true, "put": true, "write": true, "edit": true, "modify": true,
+	"publish": true, "share": true, "comment": true, "grant": true, "revoke": true,
+}
+
+var whichTokenAliases = map[string]string{
+	"repo": "repository", "repos": "repository", "repository": "repository", "repositories": "repository",
+}
+
+// Filler words that must not create a which match by themselves. Possessive
+// aliases (my/mine/me/current) stay significant so authenticated-scoped
+// commands can still outrank generic listings.
+var whichIncidentalTokens = map[string]bool{
+	"a": true, "an": true, "the": true, "i": true,
+	"is": true, "are": true, "was": true, "were": true, "be": true, "been": true, "being": true,
+	"of": true, "to": true, "in": true, "on": true, "at": true, "for": true, "with": true, "from": true, "by": true, "about": true,
+	"what": true, "which": true, "who": true, "whom": true, "whose": true, "how": true, "when": true, "why": true, "where": true,
+	"will": true, "would": true, "could": true, "should": true, "may": true, "might": true, "can": true, "shall": true,
+	"do": true, "does": true, "did": true, "have": true, "has": true, "had": true,
+	"and": true, "or": true, "but": true, "if": true, "then": true, "than": true,
+	"this": true, "that": true, "these": true, "those": true, "it": true, "its": true,
+}
+
+func whichSingular(s string) string {
+	if len(s) > 3 && strings.HasSuffix(s, "ies") {
+		return strings.TrimSuffix(s, "ies") + "y"
+	}
+	// PATCH(write-commands-document-body-shape-in-cli): "es" is a plural
+	// ending only after s, x, z, ch or sh (classes, taxes, watches); "prices",
+	// "rules" and "changes" are the singular plus "s".
+	if len(s) > 3 && strings.HasSuffix(s, "es") {
+		for _, suffix := range []string{"sses", "xes", "zes", "ches", "shes"} {
+			if strings.HasSuffix(s, suffix) {
+				return strings.TrimSuffix(s, "es")
+			}
+		}
+	}
+	if len(s) > 2 && strings.HasSuffix(s, "s") {
+		return strings.TrimSuffix(s, "s")
+	}
+	return s
 }
 
 func newWhichCmd(flags *rootFlags) *cobra.Command {
@@ -162,7 +415,8 @@ func newWhichCmd(flags *rootFlags) *cobra.Command {
 
 Exit codes:
   0  at least one match found
-  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one`,
+  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one. Machine output (--json/--csv/--plain/--quiet, or a pipe) still exits 2 and writes {"matches":[]} (or the equivalent empty table) to stdout.`,
+		SilenceUsage: true,
 		Example: `  hostex-pp-cli which "stale tickets"
   hostex-pp-cli which "bottleneck"
   hostex-pp-cli which --limit 1 "send message"
@@ -180,14 +434,22 @@ Exit codes:
 			}
 
 			if len(matches) == 0 {
-				// Under --json, return an empty matches envelope at exit 0
-				// so agents can branch on `matches.length == 0` instead of
-				// parsing a usage error message. Non-JSON keeps the typed
-				// exit-2 path so terminal users see the help hint.
-				if flags.asJSON {
-					return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+				// Machine output still uses the typed exit-2 no-match path.
+				// --json (and piped auto-JSON) emit {"matches":[]} on stdout
+				// so agents can branch on the envelope without treating exit 0
+				// as success. Human terminals keep the usage error only.
+				asJSON := flags.asJSON
+				if !asJSON && !isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain {
+					asJSON = true
+				}
+				if asJSON || flags.csv || flags.plain || flags.quiet {
+					outputFlags := *flags
+					outputFlags.asJSON = asJSON || flags.asJSON
+					if err := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 						"matches": []whichMatch{},
-					}, flags)
+					}, &outputFlags); err != nil {
+						return err
+					}
 				}
 				return usageErr(fmt.Errorf("no match for %q; try '%s --help' for the full command list", query, cmd.Root().Name()))
 			}

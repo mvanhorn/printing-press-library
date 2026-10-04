@@ -1,0 +1,48 @@
+[
+  {
+    "stage": "readonly-private-snapshot",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"id\": 166345,\n  \"name\": \"Synthetic review restroom\",\n  \"address\": \"\",\n  \"country\": null,\n  \"category\": \"toilet\",\n  \"location\": null,\n  \"record_created_at\": null,\n  \"record_updated_at\": null,\n  \"source_created_raw\": null,\n  \"source_updated_raw\": null,\n  \"retrieved_at\": \"2026-10-03T12:00:00Z\",\n  \"source_url\": \"https://app.wheelog.com/?spotId=166345\\u0026la=ja\",\n  \"questions\": [\n    {\n      \"id\": 102,\n      \"label\": \"Turning space\",\n      \"positive_reports\": 2,\n      \"negative_reports\": 0,\n      \"state\": \"reported_affirmative\",\n      \"report_observed_at\": null\n    }\n  ],\n  \"detail_status\": \"checked\",\n  \"data_source\": \"local\",\n  \"unsupported_facts\": [\n    \"accessible_routes\",\n    \"individual_report_dates\",\n    \"measured_dimensions\",\n    \"current_open_status\"\n  ],\n  \"requirements\": [\n    {\n      \"question_id\": 102,\n      \"label\": \"Turning space\",\n      \"state\": \"reported_affirmative\",\n      \"positive_reports\": 2,\n      \"negative_reports\": 0\n    }\n  ],\n  \"record_update_age_days\": null,\n  \"cache_age_days\": 0.008568571064814815,\n  \"recheck_reasons\": [\n    \"source_update_date_unknown\"\n  ]\n}\n"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "stage": "active-wal",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 4,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "cli wheelog-pp-cli/bin/wheelog-pp-cli: exit status 10 (stderr: Error: cache_visibility_unavailable: a non-empty WAL may contain newer committed observations. Close other database writers, then retry the saved read. Source discovery and inspection can use --data-source live.)"
+          }
+        ],
+        "isError": true
+      }
+    }
+  },
+  {
+    "stage": "checkpointed",
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 5,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"id\": 166345,\n  \"name\": \"Synthetic review restroom\",\n  \"address\": \"\",\n  \"country\": null,\n  \"category\": \"toilet\",\n  \"location\": null,\n  \"record_created_at\": null,\n  \"record_updated_at\": null,\n  \"source_created_raw\": null,\n  \"source_updated_raw\": null,\n  \"retrieved_at\": \"2026-10-03T12:00:00Z\",\n  \"source_url\": \"https://app.wheelog.com/?spotId=166345\\u0026la=ja\",\n  \"questions\": [\n    {\n      \"id\": 102,\n      \"label\": \"Turning space\",\n      \"positive_reports\": 0,\n      \"negative_reports\": 0,\n      \"state\": \"unreported\",\n      \"report_observed_at\": null\n    }\n  ],\n  \"detail_status\": \"checked\",\n  \"data_source\": \"local\",\n  \"unsupported_facts\": [\n    \"accessible_routes\",\n    \"individual_report_dates\",\n    \"measured_dimensions\",\n    \"current_open_status\"\n  ],\n  \"requirements\": [\n    {\n      \"question_id\": 102,\n      \"label\": \"Turning space\",\n      \"state\": \"unreported\",\n      \"positive_reports\": 0,\n      \"negative_reports\": 0\n    }\n  ],\n  \"record_update_age_days\": null,\n  \"cache_age_days\": 0.008568800706018518,\n  \"recheck_reasons\": [\n    \"source_update_date_unknown\",\n    \"question_102_unreported\"\n  ]\n}\n"
+          }
+        ]
+      }
+    }
+  }
+]

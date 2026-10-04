@@ -236,6 +236,13 @@ type ReservationTagsQueryResponse struct {
 	RequestId string          `json:"request_id"`
 }
 
+type ReservationsCreateResponse struct {
+	Data      json.RawMessage `json:"data"`
+	ErrorCode int             `json:"error_code"`
+	ErrorMsg  string          `json:"error_msg"`
+	RequestId string          `json:"request_id"`
+}
+
 type ReservationsQueryResponse struct {
 	Data      json.RawMessage `json:"data"`
 	ErrorCode int             `json:"error_code"`
