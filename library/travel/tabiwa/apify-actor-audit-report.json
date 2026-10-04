@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/tabiwa-cli",
+  "research_dir": "\u003ccli-dir\u003e/20261004-191703-ed1b3f92",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

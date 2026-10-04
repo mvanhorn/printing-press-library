@@ -1,0 +1,396 @@
+{
+  "tool_count": 27,
+  "domain_tools": [
+    {
+      "_meta": {
+        "pp:cli-command": "catalog compare",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Compare at most five catalog products with separate price units and optional dated membership",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "on": {
+            "description": "Requested Japan date YYYY-MM-DD; dated absence is not sold-out, closed or unavailable",
+            "type": "string"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "product-ids": {
+            "description": "Positional argument [product-ids...]",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "region": {
+            "description": "Regional catalog: 10 せとうち, 20 北陸, 30 山陰, 40 九州; a public display preference (default: 10)",
+            "type": "string"
+          },
+          "save": {
+            "description": "Save only returned normalized evidence locally; never purchases a ticket (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "catalog_compare"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "catalog inspect",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Read exact catalog identity, price units and overview restriction evidence; complete terms stay unknown",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "on": {
+            "description": "Requested Japan date YYYY-MM-DD; presence only means dated catalog membership",
+            "type": "string"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "product-id": {
+            "description": "Positional argument [product-id]",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "region": {
+            "description": "Regional catalog: 10 せとうち, 20 北陸, 30 山陰, 40 九州; a public display preference (default: 10)",
+            "type": "string"
+          },
+          "save": {
+            "description": "Save only returned normalized evidence locally; never purchases a ticket (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "catalog_inspect"
+    },
+    {
+      "_meta": {
+        "pp:cli-command": "catalog saved",
+        "pp:tenant-gate": "child-cli"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Read previously selected catalog evidence offline with original observation times",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set agent-friendly output defaults (--json --compact --no-input --no-color) (default: false)",
+            "type": "boolean"
+          },
+          "client-profile": {
+            "description": "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Maximum saved observations to return, from 1 to 50 (default: 10)",
+            "type": "number"
+          },
+          "max-age": {
+            "description": "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default: 30m0s)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "no-learn": {
+            "description": "Disable the teach/recall learning loop for this invocation (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable; default auto — pace to server rate-limit headers) (default: auto)",
+            "type": "number"
+          },
+          "receipt": {
+            "description": "Write an atomic private run receipt (default: false)",
+            "type": "boolean"
+          },
+          "region": {
+            "description": "Regional catalog: 10 せとうち, 20 北陸, 30 山陰, 40 九州; a public display preference (default: 10)",
+            "type": "string"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,price)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 1m0s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (explicit confirmation for scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "catalog_saved"
+    },
+    {
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "Discover catalog summaries with regional and date filters; not live stock. Optional: type, category, prefecture (plus 2 more). Returns array of Product.",
+      "inputSchema": {
+        "properties": {
+          "area": {
+            "description": "Provider area ID from geography list; area tags do not guarantee pass coverage",
+            "type": "string"
+          },
+          "category": {
+            "description": "Provider category identifier for catalog discovery",
+            "type": "string"
+          },
+          "on": {
+            "description": "Requested Japan calendar date YYYY-MM-DD; catalog inclusion is not availability",
+            "type": "string"
+          },
+          "prefecture": {
+            "description": "Provider prefecture ID from geography list; not a national prefecture code",
+            "type": "string"
+          },
+          "type": {
+            "description": "Provider product type; freepass does not prove included routes",
+            "type": "string"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "catalog_search"
+    },
+    {
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "description": "List source prefecture and area IDs for a selected regional catalog. Returns array of Place.",
+      "inputSchema": {
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "name": "geography_list"
+    }
+  ]
+}

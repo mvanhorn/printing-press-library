@@ -1,0 +1,25 @@
+{
+  "manifest_version": "0.3",
+  "name": "tabiwa-pp-mcp",
+  "display_name": "tabiwa by WESTER catalog",
+  "version": "0.0.0-dev",
+  "description": "Compare regional tabiwa catalog products with payment units and original restriction evidence.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/tabiwa-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/tabiwa-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin"
+    ]
+  }
+}

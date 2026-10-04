@@ -1,0 +1,225 @@
+{
+  "verdict": "PASS",
+  "ran_at": "2026-10-04T14:35:37.092879Z",
+  "matrix_size": 105,
+  "passed": 105,
+  "failed": 0,
+  "skipped": 97,
+  "unverified": 97,
+  "coverage_hollow": false,
+  "skip_reasons": {
+    "no positional argument": 22,
+    "command does not honour --dry-run": 5,
+    "mutating command dry-run only": 9,
+    "mutating command requires --allow-destructive": 17,
+    "command path [export] has fewer segments than placeholders (2)": 3,
+    "mutating command; error_path would call live API without --dry-run": 8,
+    "non-id positional \"text\" at depth 0": 3,
+    "blocked-fixture: required API parameter": 6,
+    "non-id positional \"query\" at depth 0": 9,
+    "non-id positional \"name\" at depth 0": 11,
+    "no --dry-run short-circuit": 1,
+    "non-id positional \"resource\" at depth 0": 2,
+    "no-error-path-probe annotation": 1
+  },
+  "domain_happy": [
+    {
+      "command": "catalog",
+      "kind": "happy_path",
+      "args": [
+        "catalog",
+        "--region",
+        "20",
+        "--category",
+        "transportation",
+        "--limit",
+        "3"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "catalog",
+      "kind": "json_fidelity",
+      "args": [
+        "catalog",
+        "--region",
+        "20",
+        "--category",
+        "transportation",
+        "--limit",
+        "3",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "catalog compare",
+      "kind": "happy_path",
+      "args": [
+        "catalog",
+        "compare",
+        "J0001900",
+        "J0000900",
+        "--region",
+        "10",
+        "--on",
+        "2026-10-28",
+        "--agent"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "catalog compare",
+      "kind": "json_fidelity",
+      "args": [
+        "catalog",
+        "compare",
+        "J0001900",
+        "J0000900",
+        "--region",
+        "10",
+        "--on",
+        "2026-10-28",
+        "--agent"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "catalog inspect",
+      "kind": "happy_path",
+      "args": [
+        "catalog",
+        "inspect",
+        "J0000900",
+        "--region",
+        "10",
+        "--agent"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "catalog inspect",
+      "kind": "json_fidelity",
+      "args": [
+        "catalog",
+        "inspect",
+        "J0000900",
+        "--region",
+        "10",
+        "--agent"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "catalog saved",
+      "kind": "happy_path",
+      "args": [
+        "catalog",
+        "saved",
+        "--region",
+        "10",
+        "--limit",
+        "3",
+        "--agent"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "catalog saved",
+      "kind": "json_fidelity",
+      "args": [
+        "catalog",
+        "saved",
+        "--region",
+        "10",
+        "--limit",
+        "3",
+        "--agent"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "catalog search",
+      "kind": "happy_path",
+      "args": [
+        "catalog",
+        "search",
+        "立山",
+        "--region",
+        "20",
+        "--category",
+        "transportation",
+        "--on",
+        "2026-10-28",
+        "--limit",
+        "3",
+        "--agent"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "catalog search",
+      "kind": "json_fidelity",
+      "args": [
+        "catalog",
+        "search",
+        "立山",
+        "--region",
+        "20",
+        "--category",
+        "transportation",
+        "--on",
+        "2026-10-28",
+        "--limit",
+        "3",
+        "--agent"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "geography",
+      "kind": "happy_path",
+      "args": [
+        "geography",
+        "--region",
+        "20"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "geography",
+      "kind": "json_fidelity",
+      "args": [
+        "geography",
+        "--region",
+        "20",
+        "--json"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "geography list",
+      "kind": "happy_path",
+      "args": [
+        "geography",
+        "list",
+        "--region",
+        "20",
+        "--agent"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "geography list",
+      "kind": "json_fidelity",
+      "args": [
+        "geography",
+        "list",
+        "--region",
+        "20",
+        "--agent"
+      ],
+      "status": "pass"
+    }
+  ]
+}

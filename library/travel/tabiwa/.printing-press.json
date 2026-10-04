@@ -1,0 +1,100 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-04T11:25:37.909374Z",
+  "printing_press_version": "4.33.0",
+  "api_name": "tabiwa",
+  "display_name": "tabiwa by WESTER catalog",
+  "cli_name": "tabiwa-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:d34d9b79196232c7586ef5a37a3ddc214612660a3837c51874b0cb8e5e21fc83",
+  "run_id": "20261004-191703-ed1b3f92",
+  "category": "travel",
+  "description": "Compare regional tabiwa catalog products with payment units and original restriction evidence.",
+  "mcp_binary": "tabiwa-pp-mcp",
+  "mcp_tool_count": 27,
+  "mcp_public_tool_count": 27,
+  "mcp_ready": "full",
+  "api_version": "0.0.0-dev",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Dated regional discovery",
+      "command": "catalog search",
+      "description": "Discover regional products with a dated catalog filter and explicit scanned coverage."
+    },
+    {
+      "name": "Quoted payment units",
+      "command": "catalog compare",
+      "description": "Compare points-only and yen-quoted products without inventing currency conversion."
+    },
+    {
+      "name": "Overview restriction evidence",
+      "command": "catalog inspect",
+      "description": "Read original Japanese restriction and redemption hints while complete terms remain unknown."
+    },
+    {
+      "name": "Requested-date membership",
+      "command": "catalog compare",
+      "description": "Show whether selected products appear in a requested-date catalog without claiming ticket stock."
+    },
+    {
+      "name": "Saved decision evidence",
+      "command": "catalog saved",
+      "description": "Read saved selected products offline with their original observation times."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Dated regional discovery",
+      "command": "catalog search",
+      "description": "Discover regional products with a dated catalog filter and explicit scanned coverage."
+    },
+    {
+      "name": "Quoted payment units",
+      "command": "catalog compare",
+      "description": "Compare points-only and yen-quoted products without inventing currency conversion."
+    },
+    {
+      "name": "Overview restriction evidence",
+      "command": "catalog inspect",
+      "description": "Read original Japanese restriction and redemption hints while complete terms remain unknown."
+    },
+    {
+      "name": "Requested-date membership",
+      "command": "catalog compare",
+      "description": "Show whether selected products appear in a requested-date catalog without claiming ticket stock."
+    },
+    {
+      "name": "Saved decision evidence",
+      "command": "catalog saved",
+      "description": "Read saved selected products offline with their original observation times."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 93.54838709677419,
+    "passed": 29,
+    "total": 31,
+    "failed": 2,
+    "data_pipeline": true,
+    "verdict": "WARN"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 91,
+      "grade": "A",
+      "total": 91
+    }
+  },
+  "mcp_domain_tool_count": 5,
+  "mcp_framework_tool_count": 22,
+  "mcp_tool_count_meaning": "All runtime tools/list entries; domain and framework counts partition that total."
+}

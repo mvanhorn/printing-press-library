@@ -1,0 +1,112 @@
+{
+  "observed_at": "2026-10-04T14:31:29.628082+00:00",
+  "installed": {
+    "/Users/zjsng/go/bin/tabiwa-pp-cli": "5d93ef94a811e9dfdb74f91be8b4f73f566dd65740a9b5bb99c8dc70531f6ed0",
+    "/Users/zjsng/go/bin/tabiwa-pp-mcp": "ed7a7df1004541111263090aa4b290fbf007720b10ffc8a95067ed9a371689dc",
+    "/Users/zjsng/.agents/skills/pp-tabiwa/SKILL.md": "7317506365e66c245693f18091f4c7018fe9628ea1994e0d27bd6bfdd261ef82"
+  },
+  "promoted_library": "/Users/zjsng/Projects/Personal/Coding/.japan-domestic-press/tabiwa/library/tabiwa",
+  "archive": "/Users/zjsng/Projects/Personal/Coding/.japan-domestic-press/tabiwa/manuscripts/tabiwa/20261004-191703-ed1b3f92",
+  "source_fingerprint": "5dd940944f88e72290cb6d8cedab4e36e505520c3e01a8932f37deceac53bee9",
+  "all170_source_and9_artifacts_match_approved_packet": true,
+  "actual_cli_product": {
+    "meta": {
+      "source": "live"
+    },
+    "results": {
+      "availability": "unknown",
+      "catalog_membership": "listed",
+      "note": "Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.",
+      "observed_at": "2026-10-04T14:31:24.052888000Z",
+      "products": [
+        {
+          "area_tags": [
+            {
+              "id": "991",
+              "name": "その他"
+            },
+            {
+              "id": "121",
+              "name": "神戸・阪神"
+            },
+            {
+              "id": "122",
+              "name": "播磨"
+            }
+          ],
+          "availability": "unknown",
+          "categories": [
+            {
+              "id": "transportation",
+              "name": "交通"
+            }
+          ],
+          "full_redemption_terms": "unknown",
+          "id": "J0001900",
+          "included_routes": "unknown",
+          "name": "【WESTERポイント限定】tabiwa関西エリアQR1dayパス",
+          "observed_at": "2026-10-04T14:31:24.052888000Z",
+          "overview": "【4月1日利用分～】\n京阪神エリアを旅行する方におトク！対象エリアのJRが乗り放題になったきっぷ。\n\n【ご注意ください】\n※本チケットは全額WESTERポイントでの購入を条件とします。クレジットカードでの購入はできません。\n※本チケットはWESTERポイントの付与対象外となります。\n※JR線内自由周遊区間では「QRコード対応改札機にかざす」または「改札口付近に掲示されたQRコードを読み取り」でご乗車いただきます。詳細は商品詳細の「もっとみる」からご確認ください。\n※本商品はチケット分配機能を利用できる商品です。詳しくは商品詳細の「もっとみる」からご確認ください。",
+          "overview_truncated": false,
+          "price": {
+            "amount": "2000",
+            "basis": "unknown",
+            "display": "2,000P",
+            "kind": "quoted",
+            "original_amount": null,
+            "points_only": true,
+            "unit": "WESTER_POINT"
+          },
+          "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0001900",
+          "published_status": "unknown",
+          "region": {
+            "id": "10",
+            "name": "せとうち"
+          },
+          "restriction_evidence": [
+            {
+              "kind": "overview_cue",
+              "text": "【ご注意ください】",
+              "truncated": false
+            },
+            {
+              "kind": "overview_cue",
+              "text": "※本チケットは全額WESTERポイントでの購入を条件とします。クレジットカードでの購入はできません。",
+              "truncated": false
+            },
+            {
+              "kind": "overview_cue",
+              "text": "※本チケットはWESTERポイントの付与対象外となります。",
+              "truncated": false
+            },
+            {
+              "kind": "overview_cue",
+              "text": "※JR線内自由周遊区間では「QRコード対応改札機にかざす」または「改札口付近に掲示されたQRコードを読み取り」でご乗車いただきます。詳細は商品詳細の「もっとみる」からご確認ください。",
+              "truncated": false
+            },
+            {
+              "kind": "overview_cue",
+              "text": "※本商品はチケット分配機能を利用できる商品です。詳しくは商品詳細の「もっとみる」からご確認ください。",
+              "truncated": false
+            }
+          ],
+          "restriction_evidence_truncated": false,
+          "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_type=&usage_date=",
+          "ticket_type": "freepass",
+          "usage_type_hints": "JR区間はQRチケットで乗降"
+        }
+      ],
+      "requested_date": "",
+      "requested_id": "J0001900",
+      "saved": false,
+      "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_type=&usage_date="
+    }
+  },
+  "actual_mcp_domain_calls_passed": 5,
+  "receipt_correction": {
+    "premature_success_sequence": 39,
+    "explicit_failure_correction_sequence": 41,
+    "actual_archive_install_completion": "This proof;after sequence41,before publication",
+    "promotion_delta": "Press reset manifest.platforms and repacked bundle; library tool/print metadata reverted generated shapes. Source Go and peers unchanged. Restored all metadata/artifacts byte-for-byte to approved9hashes."
+  }
+}

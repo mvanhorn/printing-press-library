@@ -1,0 +1,51 @@
+{
+  "kind": "controlled_local_failure_probes",
+  "assertions": [
+    {
+      "name": "date failure emits error without partial comparisons",
+      "pass": true
+    },
+    {
+      "name": "native command deadline reaches sibling HTTP request",
+      "pass": true
+    },
+    {
+      "name": "invalid filter errors before source request",
+      "pass": true
+    }
+  ],
+  "probes": [
+    {
+      "label": "dated second read fails",
+      "exit": 5,
+      "elapsed_seconds": 0.5323235420510173,
+      "requests": 2,
+      "stdout": {
+        "code": 5,
+        "error": "requested-date catalog failed; comparison is incomplete: public catalog returned HTTP 503; source read failed, availability is unknown"
+      },
+      "stderr": "Error: requested-date catalog failed; comparison is incomplete: public catalog returned HTTP 503; source read failed, availability is unknown\n"
+    },
+    {
+      "label": "native sibling request timeout",
+      "exit": 5,
+      "elapsed_seconds": 0.04072620812803507,
+      "requests": 1,
+      "stdout": {
+        "code": 5,
+        "error": "catalog read failed: Get \"http://127.0.0.1:55973/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_type=&usage_date=\": context deadline exceeded"
+      },
+      "stderr": "Error: catalog read failed: Get \"http://127.0.0.1:55973/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_type=&usage_date=\": context deadline exceeded\n"
+    },
+    {
+      "label": "invalid region before source",
+      "exit": 2,
+      "elapsed_seconds": 0.009784207679331303,
+      "requests": 0,
+      "stdout": null,
+      "stderr": "Error: --region must be 10 (せとうち), 20 (北陸), 30 (山陰) or 40 (九州)\n"
+    }
+  ],
+  "passed": 3,
+  "failed": 0
+}

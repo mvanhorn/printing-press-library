@@ -1,0 +1,150 @@
+{
+  "api_name": "tabiwa",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-04T11:24:13.209765Z",
+  "novel_features": [
+    {
+      "name": "Dated regional discovery",
+      "command": "catalog search",
+      "description": "Discover regional products with a dated catalog filter and explicit scanned coverage.",
+      "rationale": "Combines provider summaries with bounded normalized decision evidence.",
+      "example": "tabiwa-pp-cli catalog search --region 20 --category transportation --on 2026-10-28 --limit 3 --agent",
+      "why_it_matters": "Discover regional products with a dated catalog filter and explicit scanned coverage.",
+      "group": "Catalog decisions"
+    },
+    {
+      "name": "Quoted payment units",
+      "command": "catalog compare",
+      "description": "Compare points-only and yen-quoted products without inventing currency conversion.",
+      "rationale": "Combines provider summaries with bounded normalized decision evidence.",
+      "example": "tabiwa-pp-cli catalog compare J0001900 J0000900 --region 10 --agent",
+      "why_it_matters": "Compare points-only and yen-quoted products without inventing currency conversion.",
+      "group": "Catalog decisions"
+    },
+    {
+      "name": "Overview restriction evidence",
+      "command": "catalog inspect",
+      "description": "Read original Japanese restriction and redemption hints while complete terms remain unknown.",
+      "rationale": "Combines provider summaries with bounded normalized decision evidence.",
+      "example": "tabiwa-pp-cli catalog inspect J0000900 --region 10 --agent",
+      "why_it_matters": "Read original Japanese restriction and redemption hints while complete terms remain unknown.",
+      "group": "Catalog decisions"
+    },
+    {
+      "name": "Requested-date membership",
+      "command": "catalog compare",
+      "description": "Show whether selected products appear in a requested-date catalog without claiming ticket stock.",
+      "rationale": "Combines provider summaries with bounded normalized decision evidence.",
+      "example": "tabiwa-pp-cli catalog compare J0001900 J0000900 --region 10 --on 2026-10-28 --agent",
+      "why_it_matters": "Show whether selected products appear in a requested-date catalog without claiming ticket stock.",
+      "group": "Catalog decisions"
+    },
+    {
+      "name": "Saved decision evidence",
+      "command": "catalog saved",
+      "description": "Read saved selected products offline with their original observation times.",
+      "rationale": "Combines provider summaries with bounded normalized decision evidence.",
+      "example": "tabiwa-pp-cli catalog saved --region 10 --limit 3 --agent",
+      "why_it_matters": "Read saved selected products offline with their original observation times.",
+      "group": "Catalog decisions"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Dated regional discovery",
+      "command": "catalog search",
+      "description": "Discover regional products with a dated catalog filter and explicit scanned coverage.",
+      "rationale": "Combines provider summaries with bounded normalized decision evidence.",
+      "example": "tabiwa-pp-cli catalog search --region 20 --category transportation --on 2026-10-28 --limit 3 --agent",
+      "why_it_matters": "Discover regional products with a dated catalog filter and explicit scanned coverage.",
+      "group": "Catalog decisions"
+    },
+    {
+      "name": "Quoted payment units",
+      "command": "catalog compare",
+      "description": "Compare points-only and yen-quoted products without inventing currency conversion.",
+      "rationale": "Combines provider summaries with bounded normalized decision evidence.",
+      "example": "tabiwa-pp-cli catalog compare J0001900 J0000900 --region 10 --agent",
+      "why_it_matters": "Compare points-only and yen-quoted products without inventing currency conversion.",
+      "group": "Catalog decisions"
+    },
+    {
+      "name": "Overview restriction evidence",
+      "command": "catalog inspect",
+      "description": "Read original Japanese restriction and redemption hints while complete terms remain unknown.",
+      "rationale": "Combines provider summaries with bounded normalized decision evidence.",
+      "example": "tabiwa-pp-cli catalog inspect J0000900 --region 10 --agent",
+      "why_it_matters": "Read original Japanese restriction and redemption hints while complete terms remain unknown.",
+      "group": "Catalog decisions"
+    },
+    {
+      "name": "Requested-date membership",
+      "command": "catalog compare",
+      "description": "Show whether selected products appear in a requested-date catalog without claiming ticket stock.",
+      "rationale": "Combines provider summaries with bounded normalized decision evidence.",
+      "example": "tabiwa-pp-cli catalog compare J0001900 J0000900 --region 10 --on 2026-10-28 --agent",
+      "why_it_matters": "Show whether selected products appear in a requested-date catalog without claiming ticket stock.",
+      "group": "Catalog decisions"
+    },
+    {
+      "name": "Saved decision evidence",
+      "command": "catalog saved",
+      "description": "Read saved selected products offline with their original observation times.",
+      "rationale": "Combines provider summaries with bounded normalized decision evidence.",
+      "example": "tabiwa-pp-cli catalog saved --region 10 --limit 3 --agent",
+      "why_it_matters": "Read saved selected products offline with their original observation times.",
+      "group": "Catalog decisions"
+    }
+  ],
+  "narrative": {
+    "display_name": "tabiwa by WESTER catalog",
+    "headline": "Compare regional tabiwa catalog products with payment units and original restriction evidence.",
+    "value_prop": "Inspect published catalog summaries and requested-date membership. Full ticket terms, route coverage and stock remain unknown; finish on the canonical product page.",
+    "auth_narrative": "Public catalog reads need no login. The only sent cookie is the documented regionId display preference. Queue-it full detail pages are excluded from runtime access.",
+    "quickstart": [
+      {
+        "command": "tabiwa-pp-cli catalog search --region 20 --category transportation --on 2026-10-28 --limit 3 --agent",
+        "comment": "Start with a bounded dated catalog shortlist."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Source queue, HTML challenge or network error",
+        "fix": "Stop and use the canonical browser link; do not retry around access controls."
+      }
+    ],
+    "when_to_use": "Use for tabiwa regional transport/attraction bundles and coupons, points-only prices, overview restriction evidence and saved catalog shortlists.",
+    "anti_triggers": [
+      "Do not use for bookings, payments, purchased tickets, rewards balances or redemption actions.",
+      "Do not infer real availability, full redemption policies, included routes or savings from catalog labels."
+    ],
+    "recipes": [
+      {
+        "title": "Payment units",
+        "command": "tabiwa-pp-cli catalog compare J0001900 J0000900 --region 10 --agent",
+        "explanation": "Compare points-only and yen-quoted products without inventing currency conversion."
+      },
+      {
+        "title": "Source restrictions",
+        "command": "tabiwa-pp-cli catalog inspect J0000900 --region 10 --agent",
+        "explanation": "Read original Japanese restriction and redemption hints while complete terms remain unknown."
+      },
+      {
+        "title": "Compact discovery",
+        "command": "tabiwa-pp-cli catalog search --region 20 --category transportation --limit 3 --agent --select products.id,products.name,products.price,coverage",
+        "explanation": "Keep identity, unit-qualified quotes and scan coverage."
+      }
+    ],
+    "trigger_phrases": [
+      "compare tabiwa passes",
+      "tabiwa points-only ticket",
+      "tabiwa catalog restrictions",
+      "use tabiwa",
+      "run tabiwa-pp-cli"
+    ]
+  }
+}

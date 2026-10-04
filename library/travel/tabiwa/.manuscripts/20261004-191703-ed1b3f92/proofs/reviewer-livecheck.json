@@ -1,0 +1,105 @@
+{
+  "live_check": {
+    "passed": 2,
+    "failed": 0,
+    "skipped": 3,
+    "features": [
+      {
+        "name": "Dated regional discovery",
+        "command": "catalog search",
+        "example": "tabiwa-pp-cli catalog search --region 20 --category transportation --on 2026-10-28 --limit 3 --agent",
+        "status": "pass",
+        "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"coverage\":{\"output_truncated\":true,\"returned_products\":3,\"scan_cap\":500,\"scan_complete\":true,\"scanned_records\":33,\"source_records\":33},\"date_filter_meaning\":\"published_catalog_filter_only; availability_unknown\",\"note\":\"Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.\",\"observed_at\":\"2026-10-04T12:17:51.217871000Z\",\"products\":[{\"area_tags\":[{\"id\":\"102\",\"name\":\"\u003credacted\u003e\"}],\"availability\":\"unknown\",\"categories\":[{\"id\":\"transportation\",\"name\":\"\u003credacted\u003e\"}],\"full_redemption_terms\":\"unknown\",\"id\":\"N3005600\",\"included_routes\":\"unknown\",\"name\":\"\u003credacted\u003e\",\"observed_at\":\"2026-10-04T12:17:51.217871000Z\",\"overview\":\"【10月より運賃規定に伴い下記の「もっとみる」より別チケットをご確認の上、ご購入ください。】\\n\\nフリー乗車区間の 市内電車と鉄道線（電鉄富山駅から南富山駅までの区間）、バス(富山駅前から280円区間)が1日乗り放題です。\\n※バスは高速バス、季節運行バス、臨時バスなど特殊路線及びコミュニティバス（まいどはやバス等）を除く、一般路線に限ります。\",\"overview_truncated\":false,\"price\":{\"amount\":\"650\",\"basis\":\"unknown\",\"display\":\"650円\",\"kind\":\"quoted\",\"original_amount\":null,\"points_only\":null,\"unit\":\"JPY\"},\"product_url\":\"https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=N3005600\",\"published_status\":\"unknown\",\"region\":{\"id\":\"20\",\"name\":\"\u003credacted\u003e\"},\"requested_date\":\"2026-10-28\",\"restriction_evidence\":[{\"kind\":\"overview_cue\",\"text\":\"※バスは高速バス、季節運行バス、臨時バスなど特殊路線及びコミュニティバス（まいどはやバス等）を除く、一般路線に限ります。\",\"truncated\":false}],\"restriction_evidence_truncated\":false,\"source_url\":\"https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=\u0026category_id=transportation\u0026prefecture_id=\u0026ticket_type=\u0026usage_date=2026-10-28\",\"ticket_type\":\"freepass\",\"usage_type_hints\":\"\"},{\"area_tags\":[{\"id\":\"112\",\"name\":\"\u003credacted\u003e\"}],\"availability\":\"unknown\",\"categories\":[{\"id\":\"tourism_experience\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"transportation\",\"name\":\"\u003credacted\u003e\"}],\"full_redemption_terms\":\"unknown\",\"id\":\"J0002900\",\"included_routes\":\"unknown\",\"name\":\"\u003credacted\u003e\",\"observed_at\":\"2026-10-04T12:17:51.217871000Z\",\"overview\":\"【4月15日利用分～】\\n標高3,000メートル級の峰々が連なる北アルプスを貫き、日本海側の富山と信州の信濃大町を結ぶ、標高差2,500メートル、全長約90キロにおよぶ壮大な「立山黒部アルペンルート」を、ケーブルカーやロープウェイ、電気バスなどを乗り継いで通り抜ける片道タイプのチケットです。\",\"overview_truncated\":false,\"price\":{\"amount\":\"14360\",\"basis\":\"unknown\",\"display\":\"14,360円\",\"kind\":\"quoted\",\"original_amount\":null,\"points_only\":null,\"unit\":\"JPY\"},\"product_url\":\"https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0002900\",\"published_status\":\"unknown\",\"region\":{\"id\":\"20\",\"name\":\"\u003credacted\u003e\"},\"requested_date\":\"2026-10-28\",\"restriction_evidence\":[],\"restriction_evidence_truncated\":false,\"source_url\":\"https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=\u0026category_id=transportation\u0026prefecture_id=\u0026ticket_type=\u0026usage_date=2026-10-28\",\"ticket_type\":\"freepass\",\"usage_type_hints\":\"\"},{\"area_tags\":[{\"id\":\"103\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"102\",\"name\":\"\u003credacted\u003e\"}],\"availability\":\"unknown\",\"categories\":[{\"id\":\"transportation\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"tourism_experience\",\"name\":\"\u003credacted\u003e\"}],\"full_redemption_terms\":\"unknown\",\"id\":\"J0002800\",\"included_routes\":\"unknown\",\"name\":\"\u003credacted\u003e\",\"observed_at\":\"2026-10-04T12:17:51.217871000Z\",\"overview\":\"【4月15日利用分～】\\n標高3,000メートル級の峰々が連なる北アルプスを貫き、日本海側の富山と信州の信濃大町を結ぶ、標高差2,500メートル、全90キロにお…[truncated]"
+      },
+      {
+        "name": "Quoted payment units",
+        "command": "catalog compare",
+        "example": "tabiwa-pp-cli catalog compare J0001900 J0000900 --region 10 --agent",
+        "status": "skip",
+        "reason": "mutating example requires --allow-destructive"
+      },
+      {
+        "name": "Overview restriction evidence",
+        "command": "catalog inspect",
+        "example": "tabiwa-pp-cli catalog inspect J0000900 --region 10 --agent",
+        "status": "skip",
+        "reason": "mutating example requires --allow-destructive"
+      },
+      {
+        "name": "Requested-date membership",
+        "command": "catalog compare",
+        "example": "tabiwa-pp-cli catalog compare J0001900 J0000900 --region 10 --on 2026-10-28 --agent",
+        "status": "skip",
+        "reason": "mutating example requires --allow-destructive"
+      },
+      {
+        "name": "Saved decision evidence",
+        "command": "catalog saved",
+        "example": "tabiwa-pp-cli catalog saved --region 10 --limit 3 --agent",
+        "status": "pass",
+        "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"count\": 0,\n    \"note\": \"These are saved observations with original source clocks; they are not a current stock or terms check. Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.\",\n    \"observation_state\": \"saved_historical_evidence\",\n    \"products\": [],\n    \"region_id\": \"10\"\n  }\n}\n"
+      }
+    ],
+    "binary_refresh": {
+      "action": "fresh",
+      "stage_path": "/Users/zjsng/Projects/Personal/Coding/tabiwa-cli/build/stage/bin/tabiwa-pp-cli",
+      "binary_path": "/Users/zjsng/Projects/Personal/Coding/tabiwa-cli/build/stage/bin/tabiwa-pp-cli",
+      "reason": "staged binary is newer than Go sources"
+    },
+    "ran_at": "2026-10-04T12:17:47.141076Z",
+    "status": "available",
+    "checked": 5,
+    "evaluated": 2,
+    "pass_rate_pct": 100
+  },
+  "scorecard": {
+    "api_name": "tabiwa",
+    "steinberger": {
+      "output_modes": 10,
+      "auth": 10,
+      "error_handling": 8,
+      "terminal_ux": 8,
+      "readme": 10,
+      "doctor": 10,
+      "agent_native": 10,
+      "mcp_quality": 8,
+      "mcp_description_quality": 10,
+      "mcp_token_efficiency": 10,
+      "mcp_remote_transport": 10,
+      "mcp_tool_design": 0,
+      "mcp_surface_strategy": 0,
+      "local_cache": 10,
+      "cache_freshness": 5,
+      "breadth": 9,
+      "vision": 9,
+      "workflows": 10,
+      "insight": 9,
+      "agent_workflow_readiness": 9,
+      "path_validity": 0,
+      "auth_protocol": 0,
+      "data_pipeline_integrity": 7,
+      "sync_correctness": 10,
+      "type_fidelity": 5,
+      "dead_code": 5,
+      "live_api_verification": 0,
+      "total": 90,
+      "percentage": 90
+    },
+    "competitor_scores": null,
+    "overall_grade": "A (2 of 24 dimensions unverified: path_validity, auth_protocol)",
+    "gap_report": [
+      "MCP: 2 tools (2 public, 0 auth-required) — readiness: full"
+    ],
+    "unscored_dimensions": [
+      "mcp_tool_design",
+      "mcp_surface_strategy",
+      "path_validity",
+      "auth_protocol",
+      "live_api_verification"
+    ],
+    "unverified_dimensions": [
+      "path_validity",
+      "auth_protocol"
+    ]
+  }
+}

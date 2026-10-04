@@ -1,0 +1,48 @@
+{
+  "observed_at": "2026-10-04T12:37:20.793428+00:00",
+  "method": "actual bundle ZIP extraction; go version -m on both extracted peers; actual MCP initialize/tools-list/context calls",
+  "bundle": "build/tabiwa-pp-mcp-darwin-arm64.mcpb",
+  "embedded_peers_match_stage": true,
+  "embedded_cli_sha256": "f51f959e795d1d4b1dccbc54b30513a56c25b08cf4439354a8755a00cc694551",
+  "embedded_mcp_sha256": "39423e5aa0932e10d0e3ac2373715ed546333eeeba71aaffcd0fc6c7693aeda0",
+  "embedded_build_info": {
+    "go": "go1.27.1",
+    "GOOS": "darwin",
+    "GOARCH": "arm64",
+    "modernc.org/sqlite": "v1.60.1",
+    "modernc.org/libc": "v1.77.1"
+  },
+  "bundle_manifest_advertised_platforms": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "runtime_total_tools": 27,
+  "runtime_domain_tools": [
+    "catalog_search",
+    "catalog_inspect",
+    "catalog_compare",
+    "catalog_saved",
+    "geography_list"
+  ],
+  "current_metadata_counts": {
+    "mcp_tool_count": 2,
+    "mcp_public_tool_count": 2
+  },
+  "current_tools_manifest_domain_tools": [
+    "catalog_search",
+    "geography_list"
+  ],
+  "runtime_context_false_tips": [
+    "Pagination uses cursor-based paging. Pass after parameter for subsequent pages.",
+    "Control page size with the limit parameter (default 100)."
+  ],
+  "actual_catalog_bounds": {
+    "default_limit": 10,
+    "max_limit": 50,
+    "default_scan_cap": 500,
+    "max_scan_cap": 1000
+  },
+  "runtime_config_path": "/tmp/tabiwa-reviewer-runtime/config/config.json",
+  "selected_saved_store": "catalog/saved.db under resolved cache directory; separate from generic data/data.db and SQL resources tables"
+}

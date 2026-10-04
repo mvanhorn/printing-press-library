@@ -1,0 +1,23 @@
+{
+  "platforms": [
+    "darwin"
+  ],
+  "peers": {
+    "tabiwa-pp-cli": {
+      "sha256": "cd55612e65d04201ebda04819004191ca5b94c9005cc4be538979765103c43c7",
+      "stage_match": true,
+      "sqlite": "1.60.1",
+      "libc": "1.77.1",
+      "goos": "darwin",
+      "goarch": "arm64"
+    },
+    "tabiwa-pp-mcp": {
+      "sha256": "30efc2daad1f443d7794d22c7d72e4fda5c1c6ce14423900fbed6cccf70103de",
+      "stage_match": true,
+      "sqlite": "1.60.1",
+      "libc": "1.77.1",
+      "goos": "darwin",
+      "goarch": "arm64"
+    }
+  }
+}

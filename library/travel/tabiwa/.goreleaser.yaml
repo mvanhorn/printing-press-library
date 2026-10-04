@@ -1,0 +1,55 @@
+version: 2
+project_name: tabiwa-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: tabiwa-pp-cli
+    main: ./cmd/tabiwa-pp-cli
+    binary: tabiwa-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/tabiwa/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: tabiwa-pp-mcp
+    main: ./cmd/tabiwa-pp-mcp
+    binary: tabiwa-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: tabiwa-pp-cli
+    repository:
+      owner: zjsng
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Compare regional tabiwa catalog products with payment units and original restriction evidence."
+    install: |
+      bin.install "tabiwa-pp-cli"
+      bin.install "tabiwa-pp-mcp"

@@ -1,0 +1,14 @@
+# Phase 17 independent code/security review — final round2
+
+PASS — no unresolved findings. R1–R5 and the earlier phase15 warnings are resolved. Exact approved source fingerprint: ca8e23db2f8f02c2d985c30c640437194d92f1c9aa42f1ad31a2cc1269b8ac43. All170 source hashes and all8 packet artifact hashes (including the three native binary/bundle artifacts) match the frozen round2 packet; audited documentation, metadata, patch ledger, module and spec hashes are additionally captured in reviewer-final-approval.json.
+
+Four independently run focused cache tests pass, including the original reviewer overlay that failed before the fix. Older/equal observations cannot replace newer instants; nanoseconds, fractional representations and timezone offsets retain original clocks; read sorting and global50-record retention compare actual instants. Reads remain read-only without migration or source calls; transactions, payload limits and context bounds remain intact.
+
+Independent final runtime/artifact proof passes34/34 assertions. The actual MCP tools/list has27 total/5domain/22framework tools; every emitted input schema, description and annotation matches tools-manifest.json. Catalog-specific context states real output/scan bounds, region/provider identifiers, ids string, payment units, unknown/full-detail limits and separate selected/generic stores. An actual nonempty live two-ID comparison retained point-only/no-card/QR and Naoshima exclusion evidence, unknown stock/full terms/routes and exact newly saved source clocks; existing saved reads preserved database bytes/mode/mtime. Actual doctor and documents agree on JSON config.
+
+Actual final MCPB extraction confirms Darwin-only compatibility, both embedded peers byte-identical to stage and build-info pins modernc/sqlite1.60.1/libc1.77.1 on Go1.27.1/darwin-arm64. No stale bundle dependency or peer was accepted.
+
+Autofix summary: five finding groups corrected by builder in one fix pass across two review rounds; original findings are retained in phase-4.95-round1-findings.md, with frozen change/hash receipts and builder patch record authoritative. No implementation edit was made by reviewer.
+Template-shape/out-of-scope accounting: recorded metadata/document candidates were corrected only for this CLI; no global updater, upstream issue/publication, internal/cliutil or internal/mcp/cobratree repair was performed.
+Review path: the same sole direct reviewer context, covering correctness, security, maintainability and domain/output contracts; no nested reviewer or Codex invocation. Unchanged full suites were not repeated; builder's round2 tests/vet/build and seven-leg shipcheck remain supporting proofs.
+Convergence: findings cleared at round2. This closes phase17 review and permits phase18 live acceptance; it does not assert phase18, promotion, installation or publication completion.

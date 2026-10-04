@@ -1,0 +1,78 @@
+name: tabiwa
+category: travel
+description: "Read public tabiwa catalog evidence for regional products; full redemption terms and stock remain unknown."
+version: "0.0.0-dev"
+base_url: "https://app.tabi-wester.westjr.co.jp"
+health_check_path: "/ticketList/area"
+http_transport: standard
+auth:
+  type: none
+resources:
+  catalog:
+    description: "Inspect published ticket catalog summaries and their limits"
+    endpoints:
+      search:
+        method: GET
+        path: "/ticketList/search"
+        description: "Discover catalog summaries with regional and date filters; not live stock"
+        happy_args: "--limit=3"
+        params:
+          - name: ticket_type
+            flag_name: type
+            type: string
+            description: "Provider product type; freepass does not prove included routes"
+            enum: [freepass, ticket, multi-coupon, discount-coupon]
+          - name: category_id
+            flag_name: category
+            type: string
+            description: "Provider category identifier for catalog discovery"
+            enum: [transportation, tourism_experience, gourmet, other]
+          - name: prefecture_id
+            flag_name: prefecture
+            type: string
+            description: "Provider prefecture ID from geography list; not a national prefecture code"
+          - name: area_id
+            flag_name: area
+            type: string
+            description: "Provider area ID from geography list; area tags do not guarantee pass coverage"
+          - name: usage_date
+            flag_name: on
+            type: string
+            format: date
+            description: "Requested Japan calendar date YYYY-MM-DD; catalog inclusion is not availability"
+        response:
+          type: array
+          item: Product
+        response_path: response
+  geography:
+    description: "Resolve provider region-specific prefecture and area identifiers"
+    endpoints:
+      list:
+        method: GET
+        path: "/ticketList/area"
+        description: "List source prefecture and area IDs for a selected regional catalog"
+        response:
+          type: array
+          item: Place
+        response_path: response
+types:
+  Product:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: price
+        type: string
+      - name: overview
+        type: string
+      - name: ticket_type
+        type: string
+      - name: is_point_only
+        type: bool
+  Place:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string

@@ -1,0 +1,3 @@
+# Phase 15 documentation recheck
+
+PASS — README/SKILL/AGENTS correctness verified on the round2 frozen candidate. Actual doctor resolves config/config.json. Unsupported TOML/credentials/legacy-secret migration prose is removed; the blank config path and nonexistent root list reference are corrected. The native bundle is described as Darwin arm64 only. Approved five feature descriptions remain aligned with unchanged research.json; catalog-only scope, points/JPY units, source clocks, overview limits, no-login and unknown stock/full-term/route policies remain candid. Exact reviewed document/metadata hashes are recorded in reviewer-final-approval.json. Earlier warnings are resolved.

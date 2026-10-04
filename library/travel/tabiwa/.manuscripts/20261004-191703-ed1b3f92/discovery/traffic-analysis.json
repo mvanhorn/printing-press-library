@@ -1,0 +1,9 @@
+{
+  "reachability": {
+    "mode": "standard_http",
+    "evidence": "Repeated anonymous JSON catalog and area reads; full detail pages excluded due Queue-it."
+  },
+  "auth": {
+    "type": "none"
+  }
+}

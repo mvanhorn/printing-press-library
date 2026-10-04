@@ -1,0 +1,1325 @@
+{
+  "observed_at": "2026-10-04T11:49:51.257211+00:00",
+  "passed": 10,
+  "failed": 0,
+  "samples": [
+    {
+      "label": "regional geography 10",
+      "argv": [
+        "geography",
+        "list",
+        "--region",
+        "10",
+        "--agent"
+      ],
+      "exit_code": 0,
+      "payload": {
+        "meta": {
+          "source": "live"
+        },
+        "results": {
+          "note": "These are provider identifiers and geographic tags; they do not prove included pass routes.",
+          "observed_at": "2026-10-04T11:49:42.707147000Z",
+          "prefectures": [
+            {
+              "areas": [
+                {
+                  "id": "121",
+                  "name": "神戸・阪神"
+                },
+                {
+                  "id": "123",
+                  "name": "但馬"
+                },
+                {
+                  "id": "122",
+                  "name": "播磨"
+                },
+                {
+                  "id": "124",
+                  "name": "丹波"
+                },
+                {
+                  "id": "125",
+                  "name": "淡路"
+                }
+              ],
+              "id": 12,
+              "name": "兵庫県"
+            },
+            {
+              "areas": [
+                {
+                  "id": "31",
+                  "name": "岡山・玉野・備前"
+                },
+                {
+                  "id": "32",
+                  "name": "倉敷・総社・井笠"
+                },
+                {
+                  "id": "33",
+                  "name": "津山・美作・蒜山"
+                },
+                {
+                  "id": "34",
+                  "name": "高梁・新見"
+                }
+              ],
+              "id": 3,
+              "name": "岡山県"
+            },
+            {
+              "areas": [
+                {
+                  "id": "14",
+                  "name": "広島・宮島"
+                },
+                {
+                  "id": "11",
+                  "name": "福山・尾道"
+                },
+                {
+                  "id": "12",
+                  "name": "三原・竹原"
+                },
+                {
+                  "id": "13",
+                  "name": "呉・江田島"
+                },
+                {
+                  "id": "15",
+                  "name": "庄原・三次・芸北"
+                }
+              ],
+              "id": 1,
+              "name": "広島県"
+            },
+            {
+              "areas": [
+                {
+                  "id": "42",
+                  "name": "山口・防府"
+                },
+                {
+                  "id": "44",
+                  "name": "萩・長門"
+                },
+                {
+                  "id": "41",
+                  "name": "岩国・柳井・周南"
+                },
+                {
+                  "id": "43",
+                  "name": "下関・宇部・美祢"
+                }
+              ],
+              "id": 4,
+              "name": "山口県"
+            },
+            {
+              "areas": [
+                {
+                  "id": "61",
+                  "name": "徳島・鳴門"
+                },
+                {
+                  "id": "62",
+                  "name": "大歩危・祖谷・剣山"
+                },
+                {
+                  "id": "63",
+                  "name": "阿南・日和佐"
+                }
+              ],
+              "id": 6,
+              "name": "徳島県"
+            },
+            {
+              "areas": [
+                {
+                  "id": "51",
+                  "name": "高松・さぬき"
+                },
+                {
+                  "id": "53",
+                  "name": "琴平・丸亀・坂出"
+                },
+                {
+                  "id": "52",
+                  "name": "小豆島・直島・豊島"
+                }
+              ],
+              "id": 5,
+              "name": "香川県"
+            },
+            {
+              "areas": [
+                {
+                  "id": "21",
+                  "name": "松山・中予"
+                },
+                {
+                  "id": "22",
+                  "name": "今治・新居浜・東予"
+                },
+                {
+                  "id": "23",
+                  "name": "南予・宇和島"
+                }
+              ],
+              "id": 2,
+              "name": "愛媛県"
+            },
+            {
+              "areas": [
+                {
+                  "id": "71",
+                  "name": "高知・土佐・南国"
+                },
+                {
+                  "id": "72",
+                  "name": "足摺・四万十"
+                },
+                {
+                  "id": "73",
+                  "name": "安芸・室戸"
+                }
+              ],
+              "id": 7,
+              "name": "高知県"
+            },
+            {
+              "areas": [
+                {
+                  "id": "991",
+                  "name": "その他"
+                }
+              ],
+              "id": 99,
+              "name": "その他"
+            }
+          ],
+          "region": {
+            "id": "10",
+            "name": "せとうち"
+          },
+          "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/area"
+        }
+      }
+    },
+    {
+      "label": "regional geography 20",
+      "argv": [
+        "geography",
+        "list",
+        "--region",
+        "20",
+        "--agent"
+      ],
+      "exit_code": 0,
+      "payload": {
+        "meta": {
+          "source": "live"
+        },
+        "results": {
+          "note": "These are provider identifiers and geographic tags; they do not prove included pass routes.",
+          "observed_at": "2026-10-04T11:49:42.870704000Z",
+          "prefectures": [
+            {
+              "areas": [
+                {
+                  "id": "82",
+                  "name": "福井・大野・勝山"
+                },
+                {
+                  "id": "81",
+                  "name": "三国・あわら"
+                },
+                {
+                  "id": "83",
+                  "name": "武生・鯖江"
+                },
+                {
+                  "id": "84",
+                  "name": "敦賀・若狭"
+                }
+              ],
+              "id": 8,
+              "name": "福井県"
+            },
+            {
+              "areas": [
+                {
+                  "id": "93",
+                  "name": "金沢"
+                },
+                {
+                  "id": "94",
+                  "name": "加賀・小松・白山"
+                },
+                {
+                  "id": "92",
+                  "name": "七尾・和倉温泉・羽咋"
+                },
+                {
+                  "id": "91",
+                  "name": "輪島・珠洲"
+                }
+              ],
+              "id": 9,
+              "name": "石川県"
+            },
+            {
+              "areas": [
+                {
+                  "id": "102",
+                  "name": "富山"
+                },
+                {
+                  "id": "101",
+                  "name": "高岡・氷見・砺波"
+                },
+                {
+                  "id": "103",
+                  "name": "立山・黒部"
+                }
+              ],
+              "id": 10,
+              "name": "富山県"
+            },
+            {
+              "areas": [
+                {
+                  "id": "111",
+                  "name": "糸魚川"
+                },
+                {
+                  "id": "112",
+                  "name": "白馬・大町"
+                }
+              ],
+              "id": 11,
+              "name": "糸魚川・白馬"
+            },
+            {
+              "areas": [
+                {
+                  "id": "992",
+                  "name": "その他"
+                }
+              ],
+              "id": 98,
+              "name": "その他"
+            }
+          ],
+          "region": {
+            "id": "20",
+            "name": "北陸"
+          },
+          "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/area"
+        }
+      }
+    },
+    {
+      "label": "regional geography 30",
+      "argv": [
+        "geography",
+        "list",
+        "--region",
+        "30",
+        "--agent"
+      ],
+      "exit_code": 0,
+      "payload": {
+        "meta": {
+          "source": "live"
+        },
+        "results": {
+          "note": "These are provider identifiers and geographic tags; they do not prove included pass routes.",
+          "observed_at": "2026-10-04T11:49:43.055502000Z",
+          "prefectures": [
+            {
+              "areas": [
+                {
+                  "id": "131",
+                  "name": "鳥取・岩美・若桜・智頭"
+                },
+                {
+                  "id": "132",
+                  "name": "倉吉・三朝・はわい・東郷"
+                },
+                {
+                  "id": "133",
+                  "name": "米子・境港・大山・日野"
+                }
+              ],
+              "id": 13,
+              "name": "鳥取県"
+            },
+            {
+              "areas": [
+                {
+                  "id": "141",
+                  "name": "松江・安来・奥出雲・玉造温泉"
+                },
+                {
+                  "id": "142",
+                  "name": "出雲・石見銀山・温泉津"
+                },
+                {
+                  "id": "143",
+                  "name": "浜田・益田・津和野・有福温泉"
+                }
+              ],
+              "id": 14,
+              "name": "島根県"
+            },
+            {
+              "areas": [
+                {
+                  "id": "993",
+                  "name": "その他"
+                }
+              ],
+              "id": 97,
+              "name": "その他"
+            }
+          ],
+          "region": {
+            "id": "30",
+            "name": "山陰"
+          },
+          "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/area"
+        }
+      }
+    },
+    {
+      "label": "regional geography 40",
+      "argv": [
+        "geography",
+        "list",
+        "--region",
+        "40",
+        "--agent"
+      ],
+      "exit_code": 0,
+      "payload": {
+        "meta": {
+          "source": "live"
+        },
+        "results": {
+          "note": "These are provider identifiers and geographic tags; they do not prove included pass routes.",
+          "observed_at": "2026-10-04T11:49:43.270187000Z",
+          "prefectures": [
+            {
+              "areas": [
+                {
+                  "id": "152",
+                  "name": "福岡・太宰府・糸島"
+                },
+                {
+                  "id": "151",
+                  "name": "門司・小倉"
+                },
+                {
+                  "id": "153",
+                  "name": "久留米・大牟田"
+                },
+                {
+                  "id": "154",
+                  "name": "飯塚・田川"
+                }
+              ],
+              "id": 15,
+              "name": "福岡県"
+            },
+            {
+              "areas": [
+                {
+                  "id": "162",
+                  "name": "熊本・菊池・山鹿"
+                },
+                {
+                  "id": "163",
+                  "name": "阿蘇・黒川・杖立"
+                },
+                {
+                  "id": "161",
+                  "name": "天草・八代・人吉"
+                }
+              ],
+              "id": 16,
+              "name": "熊本県"
+            },
+            {
+              "areas": [
+                {
+                  "id": "171",
+                  "name": "鹿児島・指宿"
+                },
+                {
+                  "id": "172",
+                  "name": "出水・霧島"
+                },
+                {
+                  "id": "173",
+                  "name": "鹿屋・その他"
+                }
+              ],
+              "id": 17,
+              "name": "鹿児島県"
+            },
+            {
+              "areas": [
+                {
+                  "id": "181",
+                  "name": "佐賀・鳥栖"
+                },
+                {
+                  "id": "183",
+                  "name": "嬉野・武雄・太良"
+                },
+                {
+                  "id": "182",
+                  "name": "唐津・伊万里・呼子"
+                }
+              ],
+              "id": 18,
+              "name": "佐賀県"
+            },
+            {
+              "areas": [
+                {
+                  "id": "191",
+                  "name": "長崎・雲仙・島原"
+                },
+                {
+                  "id": "192",
+                  "name": "佐世保・平戸・ハウステンボス"
+                },
+                {
+                  "id": "193",
+                  "name": "壱岐・対馬・五島"
+                }
+              ],
+              "id": 19,
+              "name": "長崎県"
+            },
+            {
+              "areas": [
+                {
+                  "id": "201",
+                  "name": "大分・佐伯"
+                },
+                {
+                  "id": "202",
+                  "name": "別府・中津・国東"
+                },
+                {
+                  "id": "203",
+                  "name": "湯布院・日田・九重"
+                }
+              ],
+              "id": 20,
+              "name": "大分県"
+            },
+            {
+              "areas": [
+                {
+                  "id": "211",
+                  "name": "宮崎・都城・日南"
+                },
+                {
+                  "id": "212",
+                  "name": "高千穂・延岡・日向"
+                }
+              ],
+              "id": 21,
+              "name": "宮崎県"
+            },
+            {
+              "areas": [
+                {
+                  "id": "994",
+                  "name": "その他"
+                }
+              ],
+              "id": 96,
+              "name": "その他"
+            }
+          ],
+          "region": {
+            "id": "40",
+            "name": "九州"
+          },
+          "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/area"
+        }
+      }
+    },
+    {
+      "label": "dated regional discovery",
+      "argv": [
+        "catalog",
+        "search",
+        "--region",
+        "20",
+        "--category",
+        "transportation",
+        "--on",
+        "2026-10-28",
+        "--limit",
+        "3",
+        "--agent"
+      ],
+      "exit_code": 0,
+      "payload": {
+        "meta": {
+          "source": "live"
+        },
+        "results": {
+          "coverage": {
+            "output_truncated": true,
+            "returned_products": 3,
+            "scan_cap": 500,
+            "scan_complete": true,
+            "scanned_records": 33,
+            "source_records": 33
+          },
+          "date_filter_meaning": "published_catalog_filter_only; availability_unknown",
+          "note": "Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.",
+          "observed_at": "2026-10-04T11:49:46.667306000Z",
+          "products": [
+            {
+              "area_tags": [
+                {
+                  "id": "102",
+                  "name": "富山"
+                }
+              ],
+              "availability": "unknown",
+              "categories": [
+                {
+                  "id": "transportation",
+                  "name": "交通"
+                }
+              ],
+              "full_redemption_terms": "unknown",
+              "id": "N3005600",
+              "included_routes": "unknown",
+              "name": "富山地方鉄道　市内電車・バス１日ふりーきっぷ",
+              "observed_at": "2026-10-04T11:49:46.667306000Z",
+              "overview": "【10月より運賃規定に伴い下記の「もっとみる」より別チケットをご確認の上、ご購入ください。】\n\nフリー乗車区間の 市内電車と鉄道線（電鉄富山駅から南富山駅までの区間）、バス(富山駅前から280円区間)が1日乗り放題です。\n※バスは高速バス、季節運行バス、臨時バスなど特殊路線及びコミュニティバス（まいどはやバス等）を除く、一般路線に限ります。",
+              "overview_truncated": false,
+              "price": {
+                "amount": "650",
+                "basis": "unknown",
+                "display": "650円",
+                "kind": "quoted",
+                "original_amount": null,
+                "points_only": null,
+                "unit": "JPY"
+              },
+              "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=N3005600",
+              "published_status": "unknown",
+              "region": {
+                "id": "20",
+                "name": "北陸"
+              },
+              "requested_date": "2026-10-28",
+              "restriction_evidence": [
+                {
+                  "kind": "overview_cue",
+                  "text": "※バスは高速バス、季節運行バス、臨時バスなど特殊路線及びコミュニティバス（まいどはやバス等）を除く、一般路線に限ります。",
+                  "truncated": false
+                }
+              ],
+              "restriction_evidence_truncated": false,
+              "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=transportation&prefecture_id=&ticket_type=&usage_date=2026-10-28",
+              "ticket_type": "freepass",
+              "usage_type_hints": ""
+            },
+            {
+              "area_tags": [
+                {
+                  "id": "112",
+                  "name": "白馬・大町"
+                }
+              ],
+              "availability": "unknown",
+              "categories": [
+                {
+                  "id": "tourism_experience",
+                  "name": "観光・体験"
+                },
+                {
+                  "id": "transportation",
+                  "name": "交通"
+                }
+              ],
+              "full_redemption_terms": "unknown",
+              "id": "J0002900",
+              "included_routes": "unknown",
+              "name": "【長野側入込（片道）】立山黒部アルペンtabiwaパス",
+              "observed_at": "2026-10-04T11:49:46.667306000Z",
+              "overview": "【4月15日利用分～】\n標高3,000メートル級の峰々が連なる北アルプスを貫き、日本海側の富山と信州の信濃大町を結ぶ、標高差2,500メートル、全長約90キロにおよぶ壮大な「立山黒部アルペンルート」を、ケーブルカーやロープウェイ、電気バスなどを乗り継いで通り抜ける片道タイプのチケットです。",
+              "overview_truncated": false,
+              "price": {
+                "amount": "14360",
+                "basis": "unknown",
+                "display": "14,360円",
+                "kind": "quoted",
+                "original_amount": null,
+                "points_only": null,
+                "unit": "JPY"
+              },
+              "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0002900",
+              "published_status": "unknown",
+              "region": {
+                "id": "20",
+                "name": "北陸"
+              },
+              "requested_date": "2026-10-28",
+              "restriction_evidence": [],
+              "restriction_evidence_truncated": false,
+              "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=transportation&prefecture_id=&ticket_type=&usage_date=2026-10-28",
+              "ticket_type": "freepass",
+              "usage_type_hints": ""
+            },
+            {
+              "area_tags": [
+                {
+                  "id": "103",
+                  "name": "立山・黒部"
+                },
+                {
+                  "id": "102",
+                  "name": "富山"
+                }
+              ],
+              "availability": "unknown",
+              "categories": [
+                {
+                  "id": "transportation",
+                  "name": "交通"
+                },
+                {
+                  "id": "tourism_experience",
+                  "name": "観光・体験"
+                }
+              ],
+              "full_redemption_terms": "unknown",
+              "id": "J0002800",
+              "included_routes": "unknown",
+              "name": "【富山側入込（片道）】立山黒部アルペンtabiwaパス",
+              "observed_at": "2026-10-04T11:49:46.667306000Z",
+              "overview": "【4月15日利用分～】\n標高3,000メートル級の峰々が連なる北アルプスを貫き、日本海側の富山と信州の信濃大町を結ぶ、標高差2,500メートル、全90キロにおよぶ壮大な「立山黒部アルペンルート」を、ケーブルカーやロープウェイ、電気バスなどを乗り継いで通り抜ける片道タイプのチケットです。",
+              "overview_truncated": false,
+              "price": {
+                "amount": "14360",
+                "basis": "unknown",
+                "display": "14,360円",
+                "kind": "quoted",
+                "original_amount": null,
+                "points_only": null,
+                "unit": "JPY"
+              },
+              "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0002800",
+              "published_status": "unknown",
+              "region": {
+                "id": "20",
+                "name": "北陸"
+              },
+              "requested_date": "2026-10-28",
+              "restriction_evidence": [],
+              "restriction_evidence_truncated": false,
+              "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=transportation&prefecture_id=&ticket_type=&usage_date=2026-10-28",
+              "ticket_type": "freepass",
+              "usage_type_hints": ""
+            }
+          ],
+          "requested_date": "2026-10-28",
+          "saved": false,
+          "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=transportation&prefecture_id=&ticket_type=&usage_date=2026-10-28"
+        }
+      }
+    },
+    {
+      "label": "points-only overview restrictions",
+      "argv": [
+        "catalog",
+        "inspect",
+        "J0001900",
+        "--region",
+        "10",
+        "--agent"
+      ],
+      "exit_code": 0,
+      "payload": {
+        "meta": {
+          "source": "live"
+        },
+        "results": {
+          "availability": "unknown",
+          "catalog_membership": "listed",
+          "note": "Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.",
+          "observed_at": "2026-10-04T11:49:46.879347000Z",
+          "products": [
+            {
+              "area_tags": [
+                {
+                  "id": "991",
+                  "name": "その他"
+                },
+                {
+                  "id": "121",
+                  "name": "神戸・阪神"
+                },
+                {
+                  "id": "122",
+                  "name": "播磨"
+                }
+              ],
+              "availability": "unknown",
+              "categories": [
+                {
+                  "id": "transportation",
+                  "name": "交通"
+                }
+              ],
+              "full_redemption_terms": "unknown",
+              "id": "J0001900",
+              "included_routes": "unknown",
+              "name": "【WESTERポイント限定】tabiwa関西エリアQR1dayパス",
+              "observed_at": "2026-10-04T11:49:46.879347000Z",
+              "overview": "【4月1日利用分～】\n京阪神エリアを旅行する方におトク！対象エリアのJRが乗り放題になったきっぷ。\n\n【ご注意ください】\n※本チケットは全額WESTERポイントでの購入を条件とします。クレジットカードでの購入はできません。\n※本チケットはWESTERポイントの付与対象外となります。\n※JR線内自由周遊区間では「QRコード対応改札機にかざす」または「改札口付近に掲示されたQRコードを読み取り」でご乗車いただきます。詳細は商品詳細の「もっとみる」からご確認ください。\n※本商品はチケット分配機能を利用できる商品です。詳しくは商品詳細の「もっとみる」からご確認ください。",
+              "overview_truncated": false,
+              "price": {
+                "amount": "2000",
+                "basis": "unknown",
+                "display": "2,000P",
+                "kind": "quoted",
+                "original_amount": null,
+                "points_only": true,
+                "unit": "WESTER_POINT"
+              },
+              "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0001900",
+              "published_status": "unknown",
+              "region": {
+                "id": "10",
+                "name": "せとうち"
+              },
+              "restriction_evidence": [
+                {
+                  "kind": "overview_cue",
+                  "text": "【ご注意ください】",
+                  "truncated": false
+                },
+                {
+                  "kind": "overview_cue",
+                  "text": "※本チケットは全額WESTERポイントでの購入を条件とします。クレジットカードでの購入はできません。",
+                  "truncated": false
+                },
+                {
+                  "kind": "overview_cue",
+                  "text": "※本チケットはWESTERポイントの付与対象外となります。",
+                  "truncated": false
+                },
+                {
+                  "kind": "overview_cue",
+                  "text": "※JR線内自由周遊区間では「QRコード対応改札機にかざす」または「改札口付近に掲示されたQRコードを読み取り」でご乗車いただきます。詳細は商品詳細の「もっとみる」からご確認ください。",
+                  "truncated": false
+                },
+                {
+                  "kind": "overview_cue",
+                  "text": "※本商品はチケット分配機能を利用できる商品です。詳しくは商品詳細の「もっとみる」からご確認ください。",
+                  "truncated": false
+                }
+              ],
+              "restriction_evidence_truncated": false,
+              "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_type=&usage_date=",
+              "ticket_type": "freepass",
+              "usage_type_hints": "JR区間はQRチケットで乗降"
+            }
+          ],
+          "requested_date": "",
+          "requested_id": "J0001900",
+          "saved": false,
+          "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_type=&usage_date="
+        }
+      }
+    },
+    {
+      "label": "explicit route exclusion overview",
+      "argv": [
+        "catalog",
+        "inspect",
+        "J0000900",
+        "--region",
+        "10",
+        "--agent"
+      ],
+      "exit_code": 0,
+      "payload": {
+        "meta": {
+          "source": "live"
+        },
+        "results": {
+          "availability": "unknown",
+          "catalog_membership": "listed",
+          "note": "Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.",
+          "observed_at": "2026-10-04T11:49:47.071028000Z",
+          "products": [
+            {
+              "area_tags": [
+                {
+                  "id": "52",
+                  "name": "小豆島・直島・豊島"
+                },
+                {
+                  "id": "53",
+                  "name": "琴平・丸亀・坂出"
+                },
+                {
+                  "id": "31",
+                  "name": "岡山・玉野・備前"
+                },
+                {
+                  "id": "32",
+                  "name": "倉敷・総社・井笠"
+                },
+                {
+                  "id": "51",
+                  "name": "高松・さぬき"
+                }
+              ],
+              "availability": "unknown",
+              "categories": [
+                {
+                  "id": "transportation",
+                  "name": "交通"
+                }
+              ],
+              "full_redemption_terms": "unknown",
+              "id": "J0000900",
+              "included_routes": "unknown",
+              "name": "岡山・香川ワイドパス",
+              "observed_at": "2026-10-04T11:49:47.071028000Z",
+              "overview": "【4月1日利用分～】\n岡山、香川・小豆島を旅行する方におトク！JR、船舶、バスがセットになった乗り放題きっぷ。\n※利用区間は、下記「利用区間・利用可能交通機関等」よりご確認ください。（例.記載のない「直島」等は含まれません。）",
+              "overview_truncated": false,
+              "price": {
+                "amount": "3600",
+                "basis": "unknown",
+                "display": "3,600円",
+                "kind": "quoted",
+                "original_amount": null,
+                "points_only": null,
+                "unit": "JPY"
+              },
+              "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0000900",
+              "published_status": "unknown",
+              "region": {
+                "id": "10",
+                "name": "せとうち"
+              },
+              "restriction_evidence": [
+                {
+                  "kind": "overview_cue",
+                  "text": "※利用区間は、下記「利用区間・利用可能交通機関等」よりご確認ください。（例.記載のない「直島」等は含まれません。）",
+                  "truncated": false
+                }
+              ],
+              "restriction_evidence_truncated": false,
+              "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0000900&ticket_type=&usage_date=",
+              "ticket_type": "freepass",
+              "usage_type_hints": ""
+            }
+          ],
+          "requested_date": "",
+          "requested_id": "J0000900",
+          "saved": false,
+          "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0000900&ticket_type=&usage_date="
+        }
+      }
+    },
+    {
+      "label": "dated unit-qualified comparison and save",
+      "argv": [
+        "catalog",
+        "compare",
+        "J0001900",
+        "J0000900",
+        "--region",
+        "10",
+        "--on",
+        "2026-10-28",
+        "--save",
+        "--agent"
+      ],
+      "exit_code": 0,
+      "payload": {
+        "meta": {
+          "source": "live"
+        },
+        "results": {
+          "comparison_rule": "Units and unknown price bases are preserved; no points/cash conversion, savings estimate or price ranking.",
+          "comparisons": [
+            {
+              "availability": "unknown",
+              "catalog_membership": "listed",
+              "id": "J0001900",
+              "product": {
+                "area_tags": [
+                  {
+                    "id": "991",
+                    "name": "その他"
+                  },
+                  {
+                    "id": "121",
+                    "name": "神戸・阪神"
+                  },
+                  {
+                    "id": "122",
+                    "name": "播磨"
+                  }
+                ],
+                "availability": "unknown",
+                "categories": [
+                  {
+                    "id": "transportation",
+                    "name": "交通"
+                  }
+                ],
+                "full_redemption_terms": "unknown",
+                "id": "J0001900",
+                "included_routes": "unknown",
+                "name": "【WESTERポイント限定】tabiwa関西エリアQR1dayパス",
+                "observed_at": "2026-10-04T11:49:47.709673000Z",
+                "overview": "【4月1日利用分～】\n京阪神エリアを旅行する方におトク！対象エリアのJRが乗り放題になったきっぷ。\n\n【ご注意ください】\n※本チケットは全額WESTERポイントでの購入を条件とします。クレジットカードでの購入はできません。\n※本チケットはWESTERポイントの付与対象外となります。\n※JR線内自由周遊区間では「QRコード対応改札機にかざす」または「改札口付近に掲示されたQRコードを読み取り」でご乗車いただきます。詳細は商品詳細の「もっとみる」からご確認ください。\n※本商品はチケット分配機能を利用できる商品です。詳しくは商品詳細の「もっとみる」からご確認ください。",
+                "overview_truncated": false,
+                "price": {
+                  "amount": "2000",
+                  "basis": "unknown",
+                  "display": "2,000P",
+                  "kind": "quoted",
+                  "original_amount": null,
+                  "points_only": true,
+                  "unit": "WESTER_POINT"
+                },
+                "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0001900",
+                "published_status": "unknown",
+                "region": {
+                  "id": "10",
+                  "name": "せとうち"
+                },
+                "restriction_evidence": [
+                  {
+                    "kind": "overview_cue",
+                    "text": "【ご注意ください】",
+                    "truncated": false
+                  },
+                  {
+                    "kind": "overview_cue",
+                    "text": "※本チケットは全額WESTERポイントでの購入を条件とします。クレジットカードでの購入はできません。",
+                    "truncated": false
+                  },
+                  {
+                    "kind": "overview_cue",
+                    "text": "※本チケットはWESTERポイントの付与対象外となります。",
+                    "truncated": false
+                  },
+                  {
+                    "kind": "overview_cue",
+                    "text": "※JR線内自由周遊区間では「QRコード対応改札機にかざす」または「改札口付近に掲示されたQRコードを読み取り」でご乗車いただきます。詳細は商品詳細の「もっとみる」からご確認ください。",
+                    "truncated": false
+                  },
+                  {
+                    "kind": "overview_cue",
+                    "text": "※本商品はチケット分配機能を利用できる商品です。詳しくは商品詳細の「もっとみる」からご確認ください。",
+                    "truncated": false
+                  }
+                ],
+                "restriction_evidence_truncated": false,
+                "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_ids=J0000900&ticket_type=&usage_date=",
+                "ticket_type": "freepass",
+                "usage_type_hints": "JR区間はQRチケットで乗降"
+              },
+              "requested_date_membership": "listed"
+            },
+            {
+              "availability": "unknown",
+              "catalog_membership": "listed",
+              "id": "J0000900",
+              "product": {
+                "area_tags": [
+                  {
+                    "id": "52",
+                    "name": "小豆島・直島・豊島"
+                  },
+                  {
+                    "id": "53",
+                    "name": "琴平・丸亀・坂出"
+                  },
+                  {
+                    "id": "31",
+                    "name": "岡山・玉野・備前"
+                  },
+                  {
+                    "id": "32",
+                    "name": "倉敷・総社・井笠"
+                  },
+                  {
+                    "id": "51",
+                    "name": "高松・さぬき"
+                  }
+                ],
+                "availability": "unknown",
+                "categories": [
+                  {
+                    "id": "transportation",
+                    "name": "交通"
+                  }
+                ],
+                "full_redemption_terms": "unknown",
+                "id": "J0000900",
+                "included_routes": "unknown",
+                "name": "岡山・香川ワイドパス",
+                "observed_at": "2026-10-04T11:49:47.709673000Z",
+                "overview": "【4月1日利用分～】\n岡山、香川・小豆島を旅行する方におトク！JR、船舶、バスがセットになった乗り放題きっぷ。\n※利用区間は、下記「利用区間・利用可能交通機関等」よりご確認ください。（例.記載のない「直島」等は含まれません。）",
+                "overview_truncated": false,
+                "price": {
+                  "amount": "3600",
+                  "basis": "unknown",
+                  "display": "3,600円",
+                  "kind": "quoted",
+                  "original_amount": null,
+                  "points_only": null,
+                  "unit": "JPY"
+                },
+                "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0000900",
+                "published_status": "unknown",
+                "region": {
+                  "id": "10",
+                  "name": "せとうち"
+                },
+                "restriction_evidence": [
+                  {
+                    "kind": "overview_cue",
+                    "text": "※利用区間は、下記「利用区間・利用可能交通機関等」よりご確認ください。（例.記載のない「直島」等は含まれません。）",
+                    "truncated": false
+                  }
+                ],
+                "restriction_evidence_truncated": false,
+                "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_ids=J0000900&ticket_type=&usage_date=",
+                "ticket_type": "freepass",
+                "usage_type_hints": ""
+              },
+              "requested_date_membership": "listed"
+            }
+          ],
+          "dated_observed_at": "2026-10-04T11:49:51.050634000Z",
+          "dated_source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_ids=J0000900&ticket_type=&usage_date=2026-10-28",
+          "note": "Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.",
+          "observed_at": "2026-10-04T11:49:47.709673000Z",
+          "requested_date": "2026-10-28",
+          "saved": true,
+          "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_ids=J0000900&ticket_type=&usage_date="
+        }
+      }
+    },
+    {
+      "label": "saved source observations",
+      "argv": [
+        "catalog",
+        "saved",
+        "--region",
+        "10",
+        "--limit",
+        "3",
+        "--agent"
+      ],
+      "exit_code": 0,
+      "payload": {
+        "meta": {
+          "source": "local"
+        },
+        "results": {
+          "count": 2,
+          "note": "These are saved observations with original source clocks; they are not a current stock or terms check. Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.",
+          "observation_state": "saved_historical_evidence",
+          "products": [
+            {
+              "area_tags": [
+                {
+                  "id": "52",
+                  "name": "小豆島・直島・豊島"
+                },
+                {
+                  "id": "53",
+                  "name": "琴平・丸亀・坂出"
+                },
+                {
+                  "id": "31",
+                  "name": "岡山・玉野・備前"
+                },
+                {
+                  "id": "32",
+                  "name": "倉敷・総社・井笠"
+                },
+                {
+                  "id": "51",
+                  "name": "高松・さぬき"
+                }
+              ],
+              "availability": "unknown",
+              "categories": [
+                {
+                  "id": "transportation",
+                  "name": "交通"
+                }
+              ],
+              "full_redemption_terms": "unknown",
+              "id": "J0000900",
+              "included_routes": "unknown",
+              "name": "岡山・香川ワイドパス",
+              "observed_at": "2026-10-04T11:49:47.709673000Z",
+              "overview": "【4月1日利用分～】\n岡山、香川・小豆島を旅行する方におトク！JR、船舶、バスがセットになった乗り放題きっぷ。\n※利用区間は、下記「利用区間・利用可能交通機関等」よりご確認ください。（例.記載のない「直島」等は含まれません。）",
+              "overview_truncated": false,
+              "price": {
+                "amount": "3600",
+                "basis": "unknown",
+                "display": "3,600円",
+                "kind": "quoted",
+                "original_amount": null,
+                "points_only": null,
+                "unit": "JPY"
+              },
+              "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0000900",
+              "published_status": "unknown",
+              "region": {
+                "id": "10",
+                "name": "せとうち"
+              },
+              "restriction_evidence": [
+                {
+                  "kind": "overview_cue",
+                  "text": "※利用区間は、下記「利用区間・利用可能交通機関等」よりご確認ください。（例.記載のない「直島」等は含まれません。）",
+                  "truncated": false
+                }
+              ],
+              "restriction_evidence_truncated": false,
+              "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_ids=J0000900&ticket_type=&usage_date=",
+              "ticket_type": "freepass",
+              "usage_type_hints": ""
+            },
+            {
+              "area_tags": [
+                {
+                  "id": "991",
+                  "name": "その他"
+                },
+                {
+                  "id": "121",
+                  "name": "神戸・阪神"
+                },
+                {
+                  "id": "122",
+                  "name": "播磨"
+                }
+              ],
+              "availability": "unknown",
+              "categories": [
+                {
+                  "id": "transportation",
+                  "name": "交通"
+                }
+              ],
+              "full_redemption_terms": "unknown",
+              "id": "J0001900",
+              "included_routes": "unknown",
+              "name": "【WESTERポイント限定】tabiwa関西エリアQR1dayパス",
+              "observed_at": "2026-10-04T11:49:47.709673000Z",
+              "overview": "【4月1日利用分～】\n京阪神エリアを旅行する方におトク！対象エリアのJRが乗り放題になったきっぷ。\n\n【ご注意ください】\n※本チケットは全額WESTERポイントでの購入を条件とします。クレジットカードでの購入はできません。\n※本チケットはWESTERポイントの付与対象外となります。\n※JR線内自由周遊区間では「QRコード対応改札機にかざす」または「改札口付近に掲示されたQRコードを読み取り」でご乗車いただきます。詳細は商品詳細の「もっとみる」からご確認ください。\n※本商品はチケット分配機能を利用できる商品です。詳しくは商品詳細の「もっとみる」からご確認ください。",
+              "overview_truncated": false,
+              "price": {
+                "amount": "2000",
+                "basis": "unknown",
+                "display": "2,000P",
+                "kind": "quoted",
+                "original_amount": null,
+                "points_only": true,
+                "unit": "WESTER_POINT"
+              },
+              "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0001900",
+              "published_status": "unknown",
+              "region": {
+                "id": "10",
+                "name": "せとうち"
+              },
+              "restriction_evidence": [
+                {
+                  "kind": "overview_cue",
+                  "text": "【ご注意ください】",
+                  "truncated": false
+                },
+                {
+                  "kind": "overview_cue",
+                  "text": "※本チケットは全額WESTERポイントでの購入を条件とします。クレジットカードでの購入はできません。",
+                  "truncated": false
+                },
+                {
+                  "kind": "overview_cue",
+                  "text": "※本チケットはWESTERポイントの付与対象外となります。",
+                  "truncated": false
+                },
+                {
+                  "kind": "overview_cue",
+                  "text": "※JR線内自由周遊区間では「QRコード対応改札機にかざす」または「改札口付近に掲示されたQRコードを読み取り」でご乗車いただきます。詳細は商品詳細の「もっとみる」からご確認ください。",
+                  "truncated": false
+                },
+                {
+                  "kind": "overview_cue",
+                  "text": "※本商品はチケット分配機能を利用できる商品です。詳しくは商品詳細の「もっとみる」からご確認ください。",
+                  "truncated": false
+                }
+              ],
+              "restriction_evidence_truncated": false,
+              "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_ids=J0000900&ticket_type=&usage_date=",
+              "ticket_type": "freepass",
+              "usage_type_hints": "JR区間はQRチケットで乗降"
+            }
+          ],
+          "region_id": "10"
+        }
+      }
+    },
+    {
+      "label": "missing product keeps stock unknown",
+      "argv": [
+        "catalog",
+        "inspect",
+        "J9999999",
+        "--region",
+        "10",
+        "--agent"
+      ],
+      "exit_code": 0,
+      "payload": {
+        "meta": {
+          "source": "live"
+        },
+        "results": {
+          "availability": "unknown",
+          "catalog_membership": "not_listed_in_selected_catalog",
+          "note": "Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.",
+          "observed_at": "2026-10-04T11:49:51.255767000Z",
+          "products": [],
+          "requested_date": "",
+          "requested_id": "J9999999",
+          "saved": false,
+          "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J9999999&ticket_type=&usage_date="
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/tabiwa-pp-cli
+/tabiwa-pp-cli.exe
+/tabiwa-pp-mcp
+/tabiwa-pp-mcp.exe
+/bin/
+/build/
+/dist/
+.printing-press-tools-polish.json
+.printing-press-pii-polish.json
+tabiwa-cli

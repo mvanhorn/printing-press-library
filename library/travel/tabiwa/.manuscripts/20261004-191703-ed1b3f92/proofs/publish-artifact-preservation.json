@@ -1,0 +1,13 @@
+{
+  "package_privacy_clean": true,
+  "packaged_metadata_tools": 27,
+  "packaged_metadata_domain_tools": 5,
+  "native_manifest_platforms": [
+    "darwin"
+  ],
+  "validation_owned_artifact_refresh_restored_to_approved_hashes": [
+    "build/stage/bin/tabiwa-pp-cli"
+  ],
+  "source_and_library_all179_match_approved": true,
+  "source_implementation_changes": false
+}

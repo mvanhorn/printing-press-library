@@ -1,0 +1,846 @@
+{
+  "observed_at": "2026-10-04T13:12:18.140568+00:00",
+  "assertions": [
+    {
+      "name": "actual bundle declares only Darwin",
+      "pass": true
+    },
+    {
+      "name": "source and bundled manifests match",
+      "pass": true
+    },
+    {
+      "name": "actual embedded peer matches stage tabiwa-pp-cli",
+      "pass": true
+    },
+    {
+      "name": "extracted build-info succeeds tabiwa-pp-cli",
+      "pass": true
+    },
+    {
+      "name": "extracted SQLite/libc and target current tabiwa-pp-cli",
+      "pass": true
+    },
+    {
+      "name": "actual embedded peer matches stage tabiwa-pp-mcp",
+      "pass": true
+    },
+    {
+      "name": "extracted build-info succeeds tabiwa-pp-mcp",
+      "pass": true
+    },
+    {
+      "name": "extracted SQLite/libc and target current tabiwa-pp-mcp",
+      "pass": true
+    },
+    {
+      "name": "metadata accounts for all 27 actual tools",
+      "pass": true
+    },
+    {
+      "name": "metadata input schemas match actual emitted schemas",
+      "pass": true
+    },
+    {
+      "name": "metadata descriptions and annotations match emitted tools",
+      "pass": true
+    },
+    {
+      "name": "domain and framework counts partition actual tools",
+      "pass": true
+    },
+    {
+      "name": "printing metadata has explicit runtime counts",
+      "pass": true
+    },
+    {
+      "name": "comparison ids actual string schema",
+      "pass": true
+    },
+    {
+      "name": "all five domain contracts normalized objects",
+      "pass": true
+    },
+    {
+      "name": "actual MCP call succeeds context",
+      "pass": true
+    },
+    {
+      "name": "context current total and domain counts",
+      "pass": true
+    },
+    {
+      "name": "context removed false cursor and default100 claims",
+      "pass": true
+    },
+    {
+      "name": "context describes independent output and scan limits",
+      "pass": true
+    },
+    {
+      "name": "context keeps separate stores and unknowns",
+      "pass": true
+    },
+    {
+      "name": "actual MCP call succeeds catalog_saved",
+      "pass": true
+    },
+    {
+      "name": "fixed saved read preserves existing cache bytes mode and clock",
+      "pass": true
+    },
+    {
+      "name": "actual MCP call succeeds catalog_compare",
+      "pass": true
+    },
+    {
+      "name": "actual live compare keeps both unit-qualified products",
+      "pass": true
+    },
+    {
+      "name": "actual live compare keeps full-term and stock unknown",
+      "pass": true
+    },
+    {
+      "name": "actual live compare retains card QR and Naoshima restrictions",
+      "pass": true
+    },
+    {
+      "name": "actual MCP call succeeds catalog_saved",
+      "pass": true
+    },
+    {
+      "name": "fixed native save persists new source clocks exactly",
+      "pass": true
+    },
+    {
+      "name": "saved observations remain historical",
+      "pass": true
+    },
+    {
+      "name": "actual normalized output has declared top-level contract catalog_compare",
+      "pass": true
+    },
+    {
+      "name": "actual normalized output has declared top-level contract catalog_saved",
+      "pass": true
+    },
+    {
+      "name": "doctor actual config model remains JSON",
+      "pass": true
+    },
+    {
+      "name": "unsupported config prose removed README.md",
+      "pass": true
+    },
+    {
+      "name": "unsupported config prose removed SKILL.md",
+      "pass": true
+    }
+  ],
+  "probes": [
+    {
+      "tool": "context",
+      "arguments": {},
+      "payload": {
+        "api": "tabiwa",
+        "archetype": "generic",
+        "command_mirror_capabilities": [
+          {
+            "cli_command": "catalog search",
+            "command": "catalog search",
+            "description": "Discover regional products with a dated catalog filter and explicit scanned coverage.",
+            "mcp_tool": "catalog_search",
+            "name": "Dated regional discovery",
+            "rationale": "Combines provider summaries with bounded normalized decision evidence.",
+            "via": "mcp-command-mirror"
+          },
+          {
+            "cli_command": "catalog compare",
+            "command": "catalog compare",
+            "description": "Compare points-only and yen-quoted products without inventing currency conversion.",
+            "mcp_tool": "catalog_compare",
+            "name": "Quoted payment units",
+            "rationale": "Combines provider summaries with bounded normalized decision evidence.",
+            "via": "mcp-command-mirror"
+          },
+          {
+            "cli_command": "catalog inspect",
+            "command": "catalog inspect",
+            "description": "Read original Japanese restriction and redemption hints while complete terms remain unknown.",
+            "mcp_tool": "catalog_inspect",
+            "name": "Overview restriction evidence",
+            "rationale": "Combines provider summaries with bounded normalized decision evidence.",
+            "via": "mcp-command-mirror"
+          },
+          {
+            "cli_command": "catalog compare",
+            "command": "catalog compare",
+            "description": "Show whether selected products appear in a requested-date catalog without claiming ticket stock.",
+            "mcp_tool": "catalog_compare",
+            "name": "Requested-date membership",
+            "rationale": "Combines provider summaries with bounded normalized decision evidence.",
+            "via": "mcp-command-mirror"
+          },
+          {
+            "cli_command": "catalog saved",
+            "command": "catalog saved",
+            "description": "Read saved selected products offline with their original observation times.",
+            "mcp_tool": "catalog_saved",
+            "name": "Saved decision evidence",
+            "rationale": "Combines provider summaries with bounded normalized decision evidence.",
+            "via": "mcp-command-mirror"
+          }
+        ],
+        "description": "Compare regional tabiwa catalog products with payment units and original restriction evidence.",
+        "domain_tool_count": 5,
+        "learn_protocol": "1. Recall first: before answering a domain query, pass the question as an argv or MCP argument to recall --agent (never interpolate user-controlled text into a shell command line, quoted string, or heredoc: an apostrophe breaks quotes, and a body line equal to the delimiter breaks a heredoc). If a shell is required, write the question with a non-shell file tool, then QUERY=$(cat /path/to/question.txt) && recall \"$QUERY\" --agent. Apply any verified learnings, playbook steps, and notes it returns.\n2. Empty-store short-circuit: if the store has no learnings, playbooks, or candidates yet (recall finds nothing and learnings list and learnings candidates are both empty), skip recall for the rest of this session instead of taxing every query; resume recall-first once something has been taught.\n3. Candidates are try-then-confirm, never facts: entries in the recall envelope's candidates section are unverified. Follow each candidate's two-step next_action verbatim: run the trial command first, then run learnings confirm <id> only after the trial verified the behavior. Reject a wrong candidate with learnings reject <id>.\n4. Teach contract: after resolving a query the store could not answer, teach the structural query shape with identifiers stripped: never include names, emails, phone numbers, account ids, or other personal identifiers in taught queries or notes. Pass the query the same argv/MCP way as recall, or write it with a non-shell file tool then QUERY=$(cat /path/to/question.txt) && teach --query \"$QUERY\"; do not splice it into a shell command.\n5. Never re-teach what recall already surfaced as a candidate: confirm or reject that candidate instead of teaching a duplicate.",
+        "paths": {
+          "cache_dir": "/tmp/tabiwa-reviewer-runtime/cache",
+          "config_dir": "/tmp/tabiwa-reviewer-runtime/config",
+          "data_dir": "/tmp/tabiwa-reviewer-runtime/data",
+          "state_dir": "/tmp/tabiwa-reviewer-runtime/state"
+        },
+        "playbook": [
+          {
+            "insight": "Combines provider summaries with bounded normalized decision evidence.",
+            "topic": "Dated regional discovery"
+          },
+          {
+            "insight": "Combines provider summaries with bounded normalized decision evidence.",
+            "topic": "Quoted payment units"
+          },
+          {
+            "insight": "Combines provider summaries with bounded normalized decision evidence.",
+            "topic": "Overview restriction evidence"
+          },
+          {
+            "insight": "Combines provider summaries with bounded normalized decision evidence.",
+            "topic": "Requested-date membership"
+          },
+          {
+            "insight": "Combines provider summaries with bounded normalized decision evidence.",
+            "topic": "Saved decision evidence"
+          }
+        ],
+        "query_tips": [
+          "Regional display preferences are region 10 せとうち, 20 北陸, 30 山陰 and 40 九州. Use geography_list for provider prefecture/area IDs, not national prefecture codes.",
+          "catalog_search defaults to 10 returned products (maximum 50) and scans at most 500 source records by default (maximum 1000). max-records and limit are independent; inspect coverage and truncation.",
+          "catalog_inspect reads one exact ID. catalog_compare accepts 2–5 distinct IDs; MCP ids is a comma-separated string and on is a Japan YYYY-MM-DD catalog filter.",
+          "Requested-date catalog membership is not eligibility, operation, stock or purchasability. Missing membership leaves availability unknown.",
+          "JPY and WESTER_POINT quotes are separate; points_only is a source boolean or null. Unknown quote bases remain unknown, except explicit per-vehicle overview evidence. No points/cash conversion or savings ranking is performed.",
+          "Restriction evidence is bounded original Japanese overview text; full redemption terms and included routes remain unknown. Full detail pages require the source queue and are excluded from CLI/MCP runtime reads.",
+          "Use save explicitly to keep selected observations in the cache directory catalog/saved.db (maximum 50 products,24KiB per payload). Older/equal observations cannot replace newer instants; catalog_saved reads historical evidence without source calls or schema changes.",
+          "Generic search/sql use the separate framework data.db populated by sync. They do not query the selected catalog/saved.db store; use catalog_saved for that evidence."
+        ],
+        "resources": [
+          {
+            "commands": [
+              "search",
+              "inspect",
+              "compare",
+              "saved"
+            ],
+            "description": "Inspect published ticket catalog summaries and their limits",
+            "name": "catalog",
+            "searchable": true
+          },
+          {
+            "description": "Resolve provider region-specific prefecture and area identifiers",
+            "endpoints": [
+              "list"
+            ],
+            "name": "geography",
+            "syncable": true
+          }
+        ],
+        "tool_count": 27,
+        "tool_surface": "Domain catalog and geography tools invoke the same normalized, bounded Cobra callbacks as the companion tabiwa-pp-cli. Generic search/sql inspect the separate framework sync store; catalog_saved reads selected catalog observations."
+      }
+    },
+    {
+      "tool": "catalog_saved",
+      "arguments": {
+        "region": "10",
+        "limit": 5,
+        "agent": true
+      },
+      "payload": {
+        "meta": {
+          "source": "local"
+        },
+        "results": {
+          "count": 2,
+          "note": "These are saved observations with original source clocks; they are not a current stock or terms check. Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.",
+          "observation_state": "saved_historical_evidence",
+          "products": [
+            {
+              "area_tags": [
+                {
+                  "id": "52",
+                  "name": "小豆島・直島・豊島"
+                },
+                {
+                  "id": "53",
+                  "name": "琴平・丸亀・坂出"
+                },
+                {
+                  "id": "31",
+                  "name": "岡山・玉野・備前"
+                },
+                {
+                  "id": "32",
+                  "name": "倉敷・総社・井笠"
+                },
+                {
+                  "id": "51",
+                  "name": "高松・さぬき"
+                }
+              ],
+              "availability": "unknown",
+              "categories": [
+                {
+                  "id": "transportation",
+                  "name": "交通"
+                }
+              ],
+              "full_redemption_terms": "unknown",
+              "id": "J0000900",
+              "included_routes": "unknown",
+              "name": "岡山・香川ワイドパス",
+              "observed_at": "2026-10-04T13:09:52.504819000Z",
+              "overview": "【4月1日利用分～】\n岡山、香川・小豆島を旅行する方におトク！JR、船舶、バスがセットになった乗り放題きっぷ。\n※利用区間は、下記「利用区間・利用可能交通機関等」よりご確認ください。（例.記載のない「直島」等は含まれません。）",
+              "overview_truncated": false,
+              "price": {
+                "amount": "3600",
+                "basis": "unknown",
+                "display": "3,600円",
+                "kind": "quoted",
+                "original_amount": null,
+                "points_only": null,
+                "unit": "JPY"
+              },
+              "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0000900",
+              "published_status": "unknown",
+              "region": {
+                "id": "10",
+                "name": "せとうち"
+              },
+              "restriction_evidence": [
+                {
+                  "kind": "overview_cue",
+                  "text": "※利用区間は、下記「利用区間・利用可能交通機関等」よりご確認ください。（例.記載のない「直島」等は含まれません。）",
+                  "truncated": false
+                }
+              ],
+              "restriction_evidence_truncated": false,
+              "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_ids=J0000900&ticket_type=&usage_date=",
+              "ticket_type": "freepass",
+              "usage_type_hints": ""
+            },
+            {
+              "area_tags": [
+                {
+                  "id": "991",
+                  "name": "その他"
+                },
+                {
+                  "id": "121",
+                  "name": "神戸・阪神"
+                },
+                {
+                  "id": "122",
+                  "name": "播磨"
+                }
+              ],
+              "availability": "unknown",
+              "categories": [
+                {
+                  "id": "transportation",
+                  "name": "交通"
+                }
+              ],
+              "full_redemption_terms": "unknown",
+              "id": "J0001900",
+              "included_routes": "unknown",
+              "name": "【WESTERポイント限定】tabiwa関西エリアQR1dayパス",
+              "observed_at": "2026-10-04T13:09:52.504819000Z",
+              "overview": "【4月1日利用分～】\n京阪神エリアを旅行する方におトク！対象エリアのJRが乗り放題になったきっぷ。\n\n【ご注意ください】\n※本チケットは全額WESTERポイントでの購入を条件とします。クレジットカードでの購入はできません。\n※本チケットはWESTERポイントの付与対象外となります。\n※JR線内自由周遊区間では「QRコード対応改札機にかざす」または「改札口付近に掲示されたQRコードを読み取り」でご乗車いただきます。詳細は商品詳細の「もっとみる」からご確認ください。\n※本商品はチケット分配機能を利用できる商品です。詳しくは商品詳細の「もっとみる」からご確認ください。",
+              "overview_truncated": false,
+              "price": {
+                "amount": "2000",
+                "basis": "unknown",
+                "display": "2,000P",
+                "kind": "quoted",
+                "original_amount": null,
+                "points_only": true,
+                "unit": "WESTER_POINT"
+              },
+              "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0001900",
+              "published_status": "unknown",
+              "region": {
+                "id": "10",
+                "name": "せとうち"
+              },
+              "restriction_evidence": [
+                {
+                  "kind": "overview_cue",
+                  "text": "【ご注意ください】",
+                  "truncated": false
+                },
+                {
+                  "kind": "overview_cue",
+                  "text": "※本チケットは全額WESTERポイントでの購入を条件とします。クレジットカードでの購入はできません。",
+                  "truncated": false
+                },
+                {
+                  "kind": "overview_cue",
+                  "text": "※本チケットはWESTERポイントの付与対象外となります。",
+                  "truncated": false
+                },
+                {
+                  "kind": "overview_cue",
+                  "text": "※JR線内自由周遊区間では「QRコード対応改札機にかざす」または「改札口付近に掲示されたQRコードを読み取り」でご乗車いただきます。詳細は商品詳細の「もっとみる」からご確認ください。",
+                  "truncated": false
+                },
+                {
+                  "kind": "overview_cue",
+                  "text": "※本商品はチケット分配機能を利用できる商品です。詳しくは商品詳細の「もっとみる」からご確認ください。",
+                  "truncated": false
+                }
+              ],
+              "restriction_evidence_truncated": false,
+              "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_ids=J0000900&ticket_type=&usage_date=",
+              "ticket_type": "freepass",
+              "usage_type_hints": "JR区間はQRチケットで乗降"
+            }
+          ],
+          "region_id": "10"
+        }
+      }
+    },
+    {
+      "tool": "catalog_compare",
+      "arguments": {
+        "ids": "J0001900,J0000900",
+        "region": "10",
+        "on": "2026-10-28",
+        "save": true,
+        "agent": true
+      },
+      "payload": {
+        "meta": {
+          "source": "live"
+        },
+        "results": {
+          "comparison_rule": "Units and unknown price bases are preserved; no points/cash conversion, savings estimate or price ranking.",
+          "comparisons": [
+            {
+              "availability": "unknown",
+              "catalog_membership": "listed",
+              "id": "J0001900",
+              "product": {
+                "area_tags": [
+                  {
+                    "id": "991",
+                    "name": "その他"
+                  },
+                  {
+                    "id": "121",
+                    "name": "神戸・阪神"
+                  },
+                  {
+                    "id": "122",
+                    "name": "播磨"
+                  }
+                ],
+                "availability": "unknown",
+                "categories": [
+                  {
+                    "id": "transportation",
+                    "name": "交通"
+                  }
+                ],
+                "full_redemption_terms": "unknown",
+                "id": "J0001900",
+                "included_routes": "unknown",
+                "name": "【WESTERポイント限定】tabiwa関西エリアQR1dayパス",
+                "observed_at": "2026-10-04T13:12:19.066001000Z",
+                "overview": "【4月1日利用分～】\n京阪神エリアを旅行する方におトク！対象エリアのJRが乗り放題になったきっぷ。\n\n【ご注意ください】\n※本チケットは全額WESTERポイントでの購入を条件とします。クレジットカードでの購入はできません。\n※本チケットはWESTERポイントの付与対象外となります。\n※JR線内自由周遊区間では「QRコード対応改札機にかざす」または「改札口付近に掲示されたQRコードを読み取り」でご乗車いただきます。詳細は商品詳細の「もっとみる」からご確認ください。\n※本商品はチケット分配機能を利用できる商品です。詳しくは商品詳細の「もっとみる」からご確認ください。",
+                "overview_truncated": false,
+                "price": {
+                  "amount": "2000",
+                  "basis": "unknown",
+                  "display": "2,000P",
+                  "kind": "quoted",
+                  "original_amount": null,
+                  "points_only": true,
+                  "unit": "WESTER_POINT"
+                },
+                "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0001900",
+                "published_status": "unknown",
+                "region": {
+                  "id": "10",
+                  "name": "せとうち"
+                },
+                "restriction_evidence": [
+                  {
+                    "kind": "overview_cue",
+                    "text": "【ご注意ください】",
+                    "truncated": false
+                  },
+                  {
+                    "kind": "overview_cue",
+                    "text": "※本チケットは全額WESTERポイントでの購入を条件とします。クレジットカードでの購入はできません。",
+                    "truncated": false
+                  },
+                  {
+                    "kind": "overview_cue",
+                    "text": "※本チケットはWESTERポイントの付与対象外となります。",
+                    "truncated": false
+                  },
+                  {
+                    "kind": "overview_cue",
+                    "text": "※JR線内自由周遊区間では「QRコード対応改札機にかざす」または「改札口付近に掲示されたQRコードを読み取り」でご乗車いただきます。詳細は商品詳細の「もっとみる」からご確認ください。",
+                    "truncated": false
+                  },
+                  {
+                    "kind": "overview_cue",
+                    "text": "※本商品はチケット分配機能を利用できる商品です。詳しくは商品詳細の「もっとみる」からご確認ください。",
+                    "truncated": false
+                  }
+                ],
+                "restriction_evidence_truncated": false,
+                "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_ids=J0000900&ticket_type=&usage_date=",
+                "ticket_type": "freepass",
+                "usage_type_hints": "JR区間はQRチケットで乗降"
+              },
+              "requested_date_membership": "listed"
+            },
+            {
+              "availability": "unknown",
+              "catalog_membership": "listed",
+              "id": "J0000900",
+              "product": {
+                "area_tags": [
+                  {
+                    "id": "52",
+                    "name": "小豆島・直島・豊島"
+                  },
+                  {
+                    "id": "53",
+                    "name": "琴平・丸亀・坂出"
+                  },
+                  {
+                    "id": "31",
+                    "name": "岡山・玉野・備前"
+                  },
+                  {
+                    "id": "32",
+                    "name": "倉敷・総社・井笠"
+                  },
+                  {
+                    "id": "51",
+                    "name": "高松・さぬき"
+                  }
+                ],
+                "availability": "unknown",
+                "categories": [
+                  {
+                    "id": "transportation",
+                    "name": "交通"
+                  }
+                ],
+                "full_redemption_terms": "unknown",
+                "id": "J0000900",
+                "included_routes": "unknown",
+                "name": "岡山・香川ワイドパス",
+                "observed_at": "2026-10-04T13:12:19.066001000Z",
+                "overview": "【4月1日利用分～】\n岡山、香川・小豆島を旅行する方におトク！JR、船舶、バスがセットになった乗り放題きっぷ。\n※利用区間は、下記「利用区間・利用可能交通機関等」よりご確認ください。（例.記載のない「直島」等は含まれません。）",
+                "overview_truncated": false,
+                "price": {
+                  "amount": "3600",
+                  "basis": "unknown",
+                  "display": "3,600円",
+                  "kind": "quoted",
+                  "original_amount": null,
+                  "points_only": null,
+                  "unit": "JPY"
+                },
+                "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0000900",
+                "published_status": "unknown",
+                "region": {
+                  "id": "10",
+                  "name": "せとうち"
+                },
+                "restriction_evidence": [
+                  {
+                    "kind": "overview_cue",
+                    "text": "※利用区間は、下記「利用区間・利用可能交通機関等」よりご確認ください。（例.記載のない「直島」等は含まれません。）",
+                    "truncated": false
+                  }
+                ],
+                "restriction_evidence_truncated": false,
+                "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_ids=J0000900&ticket_type=&usage_date=",
+                "ticket_type": "freepass",
+                "usage_type_hints": ""
+              },
+              "requested_date_membership": "listed"
+            }
+          ],
+          "dated_observed_at": "2026-10-04T13:12:22.706068000Z",
+          "dated_source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_ids=J0000900&ticket_type=&usage_date=2026-10-28",
+          "note": "Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.",
+          "observed_at": "2026-10-04T13:12:19.066001000Z",
+          "requested_date": "2026-10-28",
+          "saved": true,
+          "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_ids=J0000900&ticket_type=&usage_date="
+        }
+      }
+    },
+    {
+      "tool": "catalog_saved",
+      "arguments": {
+        "region": "10",
+        "limit": 5,
+        "agent": true
+      },
+      "payload": {
+        "meta": {
+          "source": "local"
+        },
+        "results": {
+          "count": 2,
+          "note": "These are saved observations with original source clocks; they are not a current stock or terms check. Catalog summaries and area tags do not confirm included routes, passenger-specific fares, complete redemption terms, operating status, seats or purchasability. Open the canonical product page for final terms.",
+          "observation_state": "saved_historical_evidence",
+          "products": [
+            {
+              "area_tags": [
+                {
+                  "id": "52",
+                  "name": "小豆島・直島・豊島"
+                },
+                {
+                  "id": "53",
+                  "name": "琴平・丸亀・坂出"
+                },
+                {
+                  "id": "31",
+                  "name": "岡山・玉野・備前"
+                },
+                {
+                  "id": "32",
+                  "name": "倉敷・総社・井笠"
+                },
+                {
+                  "id": "51",
+                  "name": "高松・さぬき"
+                }
+              ],
+              "availability": "unknown",
+              "categories": [
+                {
+                  "id": "transportation",
+                  "name": "交通"
+                }
+              ],
+              "full_redemption_terms": "unknown",
+              "id": "J0000900",
+              "included_routes": "unknown",
+              "name": "岡山・香川ワイドパス",
+              "observed_at": "2026-10-04T13:12:19.066001000Z",
+              "overview": "【4月1日利用分～】\n岡山、香川・小豆島を旅行する方におトク！JR、船舶、バスがセットになった乗り放題きっぷ。\n※利用区間は、下記「利用区間・利用可能交通機関等」よりご確認ください。（例.記載のない「直島」等は含まれません。）",
+              "overview_truncated": false,
+              "price": {
+                "amount": "3600",
+                "basis": "unknown",
+                "display": "3,600円",
+                "kind": "quoted",
+                "original_amount": null,
+                "points_only": null,
+                "unit": "JPY"
+              },
+              "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0000900",
+              "published_status": "unknown",
+              "region": {
+                "id": "10",
+                "name": "せとうち"
+              },
+              "restriction_evidence": [
+                {
+                  "kind": "overview_cue",
+                  "text": "※利用区間は、下記「利用区間・利用可能交通機関等」よりご確認ください。（例.記載のない「直島」等は含まれません。）",
+                  "truncated": false
+                }
+              ],
+              "restriction_evidence_truncated": false,
+              "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_ids=J0000900&ticket_type=&usage_date=",
+              "ticket_type": "freepass",
+              "usage_type_hints": ""
+            },
+            {
+              "area_tags": [
+                {
+                  "id": "991",
+                  "name": "その他"
+                },
+                {
+                  "id": "121",
+                  "name": "神戸・阪神"
+                },
+                {
+                  "id": "122",
+                  "name": "播磨"
+                }
+              ],
+              "availability": "unknown",
+              "categories": [
+                {
+                  "id": "transportation",
+                  "name": "交通"
+                }
+              ],
+              "full_redemption_terms": "unknown",
+              "id": "J0001900",
+              "included_routes": "unknown",
+              "name": "【WESTERポイント限定】tabiwa関西エリアQR1dayパス",
+              "observed_at": "2026-10-04T13:12:19.066001000Z",
+              "overview": "【4月1日利用分～】\n京阪神エリアを旅行する方におトク！対象エリアのJRが乗り放題になったきっぷ。\n\n【ご注意ください】\n※本チケットは全額WESTERポイントでの購入を条件とします。クレジットカードでの購入はできません。\n※本チケットはWESTERポイントの付与対象外となります。\n※JR線内自由周遊区間では「QRコード対応改札機にかざす」または「改札口付近に掲示されたQRコードを読み取り」でご乗車いただきます。詳細は商品詳細の「もっとみる」からご確認ください。\n※本商品はチケット分配機能を利用できる商品です。詳しくは商品詳細の「もっとみる」からご確認ください。",
+              "overview_truncated": false,
+              "price": {
+                "amount": "2000",
+                "basis": "unknown",
+                "display": "2,000P",
+                "kind": "quoted",
+                "original_amount": null,
+                "points_only": true,
+                "unit": "WESTER_POINT"
+              },
+              "product_url": "https://app.tabi-wester.westjr.co.jp/eticketDetails?ticket_id=J0001900",
+              "published_status": "unknown",
+              "region": {
+                "id": "10",
+                "name": "せとうち"
+              },
+              "restriction_evidence": [
+                {
+                  "kind": "overview_cue",
+                  "text": "【ご注意ください】",
+                  "truncated": false
+                },
+                {
+                  "kind": "overview_cue",
+                  "text": "※本チケットは全額WESTERポイントでの購入を条件とします。クレジットカードでの購入はできません。",
+                  "truncated": false
+                },
+                {
+                  "kind": "overview_cue",
+                  "text": "※本チケットはWESTERポイントの付与対象外となります。",
+                  "truncated": false
+                },
+                {
+                  "kind": "overview_cue",
+                  "text": "※JR線内自由周遊区間では「QRコード対応改札機にかざす」または「改札口付近に掲示されたQRコードを読み取り」でご乗車いただきます。詳細は商品詳細の「もっとみる」からご確認ください。",
+                  "truncated": false
+                },
+                {
+                  "kind": "overview_cue",
+                  "text": "※本商品はチケット分配機能を利用できる商品です。詳しくは商品詳細の「もっとみる」からご確認ください。",
+                  "truncated": false
+                }
+              ],
+              "restriction_evidence_truncated": false,
+              "source_url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?area_id=&category_id=&prefecture_id=&ticket_ids=J0001900&ticket_ids=J0000900&ticket_type=&usage_date=",
+              "ticket_type": "freepass",
+              "usage_type_hints": "JR区間はQRチケットで乗降"
+            }
+          ],
+          "region_id": "10"
+        }
+      }
+    },
+    {
+      "kind": "actual doctor config model; not counted as product coverage",
+      "exit": 0,
+      "payload": {
+        "api": "reachable",
+        "auth": "not required",
+        "base_url": "https://app.tabi-wester.westjr.co.jp",
+        "cache": {
+          "db_path": "/tmp/tabiwa-reviewer-runtime/data/data.db",
+          "hint": "Database not created yet; run 'tabiwa-pp-cli sync' to hydrate.",
+          "status": "unknown"
+        },
+        "config": "ok",
+        "config_path": "/tmp/tabiwa-reviewer-runtime/config/config.json",
+        "paths": {
+          "cache": {
+            "dir": "/tmp/tabiwa-reviewer-runtime/cache",
+            "rung": "--home",
+            "source": "--home"
+          },
+          "config": {
+            "dir": "/tmp/tabiwa-reviewer-runtime/config",
+            "rung": "--home",
+            "source": "--home"
+          },
+          "data": {
+            "dir": "/tmp/tabiwa-reviewer-runtime/data",
+            "rung": "--home",
+            "source": "--home"
+          },
+          "state": {
+            "dir": "/tmp/tabiwa-reviewer-runtime/state",
+            "rung": "--home",
+            "source": "--home"
+          },
+          "status": "ok"
+        },
+        "verify_mode": "normal operation",
+        "version": "0.0.0-dev"
+      }
+    }
+  ],
+  "bundle": {
+    "sha256": "0902a0e481f14504a2b74c18e9eb38f36f0273e8734f5439149d09415da00a07",
+    "manifest": {
+      "manifest_version": "0.3",
+      "name": "tabiwa-pp-mcp",
+      "display_name": "tabiwa by WESTER catalog",
+      "version": "0.0.0-dev",
+      "description": "Compare regional tabiwa catalog products with payment units and original restriction evidence.",
+      "author": {
+        "name": "CLI Printing Press"
+      },
+      "license": "Apache-2.0",
+      "server": {
+        "type": "binary",
+        "entry_point": "bin/tabiwa-pp-mcp",
+        "mcp_config": {
+          "command": "${__dirname}/bin/tabiwa-pp-mcp",
+          "args": []
+        }
+      },
+      "compatibility": {
+        "claude_desktop": ">=1.0.0",
+        "platforms": [
+          "darwin"
+        ]
+      }
+    },
+    "peers": [
+      {
+        "name": "tabiwa-pp-cli",
+        "sha256": "cd55612e65d04201ebda04819004191ca5b94c9005cc4be538979765103c43c7",
+        "build_info": "/tmp/tabiwa-round2-extracted-tabiwa-pp-cli: go1.27.1\n\tpath\ttabiwa-pp-cli/cmd/tabiwa-pp-cli\n\tmod\ttabiwa-pp-cli\t(devel)\t\n\tdep\tgithub.com/dustin/go-humanize\tv1.0.1\th1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=\n\tdep\tgithub.com/google/uuid\tv1.6.0\th1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=\n\tdep\tgithub.com/mattn/go-isatty\tv0.0.24\th1:tGZZoVgT/KiqK1c8ocVLeDS8BSWMRd47J3Lbz7vsReI=\n\tdep\tgithub.com/ncruces/go-strftime\tv1.0.0\th1:HMFp8mLCTPp341M/ZnA4qaf7ZlsbTc+miZjCLOFAw7w=\n\tdep\tgithub.com/pelletier/go-toml/v2\tv2.2.4\th1:mye9XuhQ6gvn5h28+VilKrrPoQVanw5PMw/TB0t5Ec4=\n\tdep\tgithub.com/remyoudompheng/bigfft\tv0.0.0-20230129092748-24d4a6f8daec\th1:W09IVJc94icq4NjY3clb7Lk8O1qJ8BdBEF8z0ibU0rE=\n\tdep\tgithub.com/spf13/cobra\tv1.9.1\th1:CXSaggrXdbHK9CF+8ywj8Amf7PBRmPCOJugH954Nnlo=\n\tdep\tgithub.com/spf13/pflag\tv1.0.6\th1:jFzHGLGAlb3ruxLB8MhbI6A8+AQX/2eW4qeyNZXNp2o=\n\tdep\tgolang.org/x/sys\tv0.48.0\th1:bbX/i/6MgT9BVLM9RT1thmxL04yeTAhbEz4SyadbXoo=\n\tdep\tmodernc.org/libc\tv1.77.1\th1:Ct8j47QtiZ1Enj2DtFXQtUqrPCAjdCmPjtCuvrYQ0Hs=\n\tdep\tmodernc.org/mathutil\tv1.7.1\th1:GCZVGXdaN8gTqB1Mf/usp1Y/hSqgI2vAGGP4jZMCxOU=\n\tdep\tmodernc.org/memory\tv1.12.1\th1:nFMiWrpStgZczNl6XI9GnIk/rWhYIyHGUaR04pGbp9g=\n\tdep\tmodernc.org/sqlite\tv1.60.1\th1:/blz53O951KWFOso4QQvEs/Fq6cDBKLtMVrYNSeJVKw=\n\tbuild\t-buildmode=exe\n\tbuild\t-compiler=gc\n\tbuild\tDefaultGODEBUG=tracebacklabels=0,x509sslcertoverrideplatform=0\n\tbuild\tCGO_ENABLED=1\n\tbuild\tCGO_CFLAGS=\n\tbuild\tCGO_CPPFLAGS=\n\tbuild\tCGO_CXXFLAGS=\n\tbuild\tCGO_LDFLAGS=\n\tbuild\tGOARCH=arm64\n\tbuild\tGOOS=darwin\n\tbuild\tGOARM64=v8.0\n"
+      },
+      {
+        "name": "tabiwa-pp-mcp",
+        "sha256": "30efc2daad1f443d7794d22c7d72e4fda5c1c6ce14423900fbed6cccf70103de",
+        "build_info": "/tmp/tabiwa-round2-extracted-tabiwa-pp-mcp: go1.27.1\n\tpath\ttabiwa-pp-cli/cmd/tabiwa-pp-mcp\n\tmod\ttabiwa-pp-cli\t(devel)\t\n\tdep\tgithub.com/dustin/go-humanize\tv1.0.1\th1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=\n\tdep\tgithub.com/google/jsonschema-go\tv0.4.2\th1:tmrUohrwoLZZS/P3x7ex0WAVknEkBZM46iALbcqoRA8=\n\tdep\tgithub.com/google/uuid\tv1.6.0\th1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=\n\tdep\tgithub.com/mark3labs/mcp-go\tv0.57.0\th1:jzWKyCzdWnwnZt05cvcQQ+ngiUl2RnixXJa7Kj4qP1E=\n\tdep\tgithub.com/mattn/go-isatty\tv0.0.24\th1:tGZZoVgT/KiqK1c8ocVLeDS8BSWMRd47J3Lbz7vsReI=\n\tdep\tgithub.com/ncruces/go-strftime\tv1.0.0\th1:HMFp8mLCTPp341M/ZnA4qaf7ZlsbTc+miZjCLOFAw7w=\n\tdep\tgithub.com/pelletier/go-toml/v2\tv2.2.4\th1:mye9XuhQ6gvn5h28+VilKrrPoQVanw5PMw/TB0t5Ec4=\n\tdep\tgithub.com/remyoudompheng/bigfft\tv0.0.0-20230129092748-24d4a6f8daec\th1:W09IVJc94icq4NjY3clb7Lk8O1qJ8BdBEF8z0ibU0rE=\n\tdep\tgithub.com/santhosh-tekuri/jsonschema/v6\tv6.0.2\th1:KRzFb2m7YtdldCEkzs6KqmJw4nqEVZGK7IN2kJkjTuQ=\n\tdep\tgithub.com/spf13/cast\tv1.7.1\th1:cuNEagBQEHWN1FnbGEjCXL2szYEXqfJPbP2HNUaca9Y=\n\tdep\tgithub.com/spf13/cobra\tv1.9.1\th1:CXSaggrXdbHK9CF+8ywj8Amf7PBRmPCOJugH954Nnlo=\n\tdep\tgithub.com/spf13/pflag\tv1.0.6\th1:jFzHGLGAlb3ruxLB8MhbI6A8+AQX/2eW4qeyNZXNp2o=\n\tdep\tgithub.com/yosida95/uritemplate/v3\tv3.0.2\th1:Ed3Oyj9yrmi9087+NczuL5BwkIc4wvTb5zIM+UJPGz4=\n\tdep\tgolang.org/x/sys\tv0.48.0\th1:bbX/i/6MgT9BVLM9RT1thmxL04yeTAhbEz4SyadbXoo=\n\tdep\tgolang.org/x/text\tv0.39.0\th1:UbZz4pLOvn600D6Oh6GGEI6VAmndrEBLv8/6BEXzyus=\n\tdep\tmodernc.org/libc\tv1.77.1\th1:Ct8j47QtiZ1Enj2DtFXQtUqrPCAjdCmPjtCuvrYQ0Hs=\n\tdep\tmodernc.org/mathutil\tv1.7.1\th1:GCZVGXdaN8gTqB1Mf/usp1Y/hSqgI2vAGGP4jZMCxOU=\n\tdep\tmodernc.org/memory\tv1.12.1\th1:nFMiWrpStgZczNl6XI9GnIk/rWhYIyHGUaR04pGbp9g=\n\tdep\tmodernc.org/sqlite\tv1.60.1\th1:/blz53O951KWFOso4QQvEs/Fq6cDBKLtMVrYNSeJVKw=\n\tbuild\t-buildmode=exe\n\tbuild\t-compiler=gc\n\tbuild\tDefaultGODEBUG=tracebacklabels=0,x509sslcertoverrideplatform=0\n\tbuild\tCGO_ENABLED=1\n\tbuild\tCGO_CFLAGS=\n\tbuild\tCGO_CPPFLAGS=\n\tbuild\tCGO_CXXFLAGS=\n\tbuild\tCGO_LDFLAGS=\n\tbuild\tGOARCH=arm64\n\tbuild\tGOOS=darwin\n\tbuild\tGOARM64=v8.0\n"
+      }
+    ]
+  },
+  "passed": 34,
+  "failed": 0
+}

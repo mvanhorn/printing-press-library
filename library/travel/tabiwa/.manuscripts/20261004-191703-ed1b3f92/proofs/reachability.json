@@ -1,0 +1,15 @@
+{
+  "observed_at": "2026-10-04T11:25:14.999460+00:00",
+  "method": "GET",
+  "url": "https://app.tabi-wester.westjr.co.jp/ticketList/search?ticket_ids=J0001900",
+  "status": 200,
+  "anonymous": true,
+  "response_count": 1,
+  "sample": {
+    "id": "J0001900",
+    "name": "【WESTERポイント限定】tabiwa関西エリアQR1dayパス",
+    "price": "2,000P",
+    "is_point_only": true
+  },
+  "full_detail_status": "queue_access_excluded"
+}
