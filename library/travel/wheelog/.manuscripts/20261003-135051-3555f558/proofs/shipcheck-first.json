@@ -1,0 +1,72 @@
+{
+  "passed": false,
+  "exit_code": 3,
+  "verdict": "FAIL",
+  "started_at": "2026-10-03T08:02:31Z",
+  "elapsed_ms": 15041,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-03T08:02:31Z",
+      "elapsed_ms": 3207,
+      "command": "<user-home>/go/bin/cli-printing-press verify --dir wheelog-pp-cli --write-manifest wheelog-pp-cli/.printing-press.json --spec <press-home>/.runstate/wheelog-cli-5560d46c/runs/20261003-135051-3555f558/research/wheelog.yaml --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 1,
+      "passed": false,
+      "verdict": "FAIL",
+      "started_at": "2026-10-03T08:02:34Z",
+      "elapsed_ms": 687,
+      "command": "<user-home>/go/bin/cli-printing-press validate-narrative --strict --full-examples --research <press-home>/.runstate/wheelog-cli-5560d46c/runs/20261003-135051-3555f558/research.json --binary wheelog-pp-cli/build/stage/bin/wheelog-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 3,
+      "passed": false,
+      "verdict": "FAIL",
+      "started_at": "2026-10-03T08:02:35Z",
+      "elapsed_ms": 1577,
+      "command": "<user-home>/go/bin/cli-printing-press dogfood --dir wheelog-pp-cli --spec <press-home>/.runstate/wheelog-cli-5560d46c/runs/20261003-135051-3555f558/research/wheelog.yaml --research-dir <press-home>/.runstate/wheelog-cli-5560d46c/runs/20261003-135051-3555f558"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-03T08:02:36Z",
+      "elapsed_ms": 15,
+      "command": "<user-home>/go/bin/cli-printing-press workflow-verify --dir wheelog-pp-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-03T08:02:36Z",
+      "elapsed_ms": 31,
+      "command": "<user-home>/go/bin/cli-printing-press apify-audit --dir wheelog-pp-cli --research-dir <press-home>/.runstate/wheelog-cli-5560d46c/runs/20261003-135051-3555f558"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-03T08:02:36Z",
+      "elapsed_ms": 2323,
+      "command": "<user-home>/go/bin/cli-printing-press verify-skill --dir wheelog-pp-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-10-03T08:02:39Z",
+      "elapsed_ms": 7199,
+      "command": "<user-home>/go/bin/cli-printing-press scorecard --dir wheelog-pp-cli --write-manifest wheelog-pp-cli/.printing-press.json --research-dir <press-home>/.runstate/wheelog-cli-5560d46c/runs/20261003-135051-3555f558 --spec <press-home>/.runstate/wheelog-cli-5560d46c/runs/20261003-135051-3555f558/research/wheelog.yaml --live-check"
+    }
+  ]
+}

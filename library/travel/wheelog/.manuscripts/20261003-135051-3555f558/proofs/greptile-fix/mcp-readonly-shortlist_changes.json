@@ -1,0 +1,12 @@
+{
+  "jsonrpc": "2.0",
+  "id": 7,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"coverage\": {\n    \"examined\": 1,\n    \"live_observations\": 0,\n    \"output_limit\": 1,\n    \"saved\": 1,\n    \"scope\": \"selected_saved_spots\"\n  },\n  \"fetch_failures\": [],\n  \"note\": \"Changes describe recorded public-place fields and aggregate reports, not a physical improvement or deterioration. Local mode shows the last saved transition.\",\n  \"results\": [\n    {\n      \"cache_age_days\": 0.000012718726851851853,\n      \"changes\": [],\n      \"current_retrieved_at\": \"2026-10-03T10:55:33.420348Z\",\n      \"data_source\": \"local\",\n      \"id\": 166345,\n      \"name\": \"Synthetic saved restroom\",\n      \"previous_retrieved_at\": null,\n      \"recheck_reasons\": [\n        \"source_update_date_unknown\"\n      ],\n      \"record_update_age_days\": null,\n      \"requirements\": [\n        {\n          \"question_id\": 102,\n          \"label\": \"Turning space\",\n          \"state\": \"reported_affirmative\",\n          \"positive_reports\": 2,\n          \"negative_reports\": 0\n        }\n      ],\n      \"source_url\": \"https://app.wheelog.com/?spotId=166345\\u0026la=ja\",\n      \"status\": \"no_baseline\"\n    }\n  ]\n}\n"
+      }
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "fixture": "isolated synthetic local caches; no provider mutation",
+  "binary_sha256": "ba8a2f058c83cf914d4ab3aa531795487bdffa669b21978c7ea7288fdac2003b",
+  "selected_path": "/private/tmp/wheelog-writer-question-16k22nzs/saved?literal.db",
+  "other_path": "/private/tmp/wheelog-writer-question-16k22nzs/saved",
+  "exit": 0,
+  "stdout": "{\n  \"meta\": {\n    \"provider\": \"wheelog\",\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"id\": 166345,\n    \"status\": \"removed_from_selected_shortlist\"\n  }\n}\n",
+  "stderr": "",
+  "rows_after": {
+    "selected": 1,
+    "unselected": 0
+  }
+}

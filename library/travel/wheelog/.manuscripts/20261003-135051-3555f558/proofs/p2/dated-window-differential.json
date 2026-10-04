@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "provider": "wheelog",
+    "source": "live"
+  },
+  "results": {
+    "coverage": {
+      "checked": 0,
+      "complete_coverage": false,
+      "empty_page_observed": true,
+      "listed": 0,
+      "live": 0,
+      "local": 0,
+      "max_scan_pages": 1,
+      "output_limit": 3,
+      "pages_requested": 1,
+      "scanned_records": 0,
+      "scope": "bounded_source_keyword_search",
+      "unavailable": 0,
+      "unexpanded": 0
+    },
+    "fetch_failures": [],
+    "note": "Counts are crowdsourced question reports. Source record dates do not date individual reports or establish personal suitability, current conditions, measured dimensions or an accessible route. No records matched within this bounded scope; widen the keyword or --max-scan-pages for live discovery.",
+    "results": [],
+    "source_query": {
+      "categories": [
+        "toilet"
+      ],
+      "input_timezone": "Asia/Tokyo",
+      "keyword": "成田空港",
+      "record_from_utc": "2026-09-30 15:00:00",
+      "record_to_utc": "2026-10-01 14:59:59"
+    }
+  }
+}

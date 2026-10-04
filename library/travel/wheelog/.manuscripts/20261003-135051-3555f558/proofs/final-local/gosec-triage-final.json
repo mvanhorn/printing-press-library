@@ -1,0 +1,6 @@
+{
+  "scanner_exit": 1,
+  "total_findings": 30,
+  "custom_source_findings": [],
+  "generated_disposition": "Independent reviewer examined generated warnings and confirmed no actionable WheeLog runtime defect."
+}

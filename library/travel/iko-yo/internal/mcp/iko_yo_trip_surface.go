@@ -39,7 +39,7 @@ func RegisterTripSurface(s *server.MCPServer) {
 		})
 	if entry := s.GetTool("sql"); entry != nil {
 		entry.Tool.Description = "Run read-only SQL over selected public facts saved by trip_discover or trip_inspect. This is a partial local collection, not a complete catalog; resources(resource_type,id,data) holds normalized events/spots JSON. Prefer trip_cached for bounded keyword and evidence filters."
-		s.AddTool(entry.Tool, entry.Handler)
+		s.AddTool(entry.Tool, handleTripSQL)
 	}
 	if entry := s.GetTool("published_family_facts"); entry != nil {
 		mcplib.WithReadOnlyHintAnnotation(true)(&entry.Tool)

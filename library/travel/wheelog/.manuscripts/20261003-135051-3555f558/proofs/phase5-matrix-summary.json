@@ -1,0 +1,11 @@
+{
+  "verdict": "PASS",
+  "matrix_size": 106,
+  "passed": 106,
+  "failed": 0,
+  "skipped": 68,
+  "coverage_hollow": null,
+  "hollow_features": null,
+  "exit_code": 0,
+  "failures": []
+}

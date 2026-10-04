@@ -12,57 +12,55 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// isNilOrEmpty checks whether a JSON object has nil or empty values for
-// common identifier fields (title, name, identifier, id).
-// Also checks nested "document" objects for search result wrappers.
+// isNilOrEmpty checks whether a JSON search hit is only an empty shell.
 func isNilOrEmpty(raw json.RawMessage) bool {
 	var obj map[string]interface{}
 	if err := json.Unmarshal(raw, &obj); err != nil {
 		return true
 	}
-	// Check top-level fields
-	for _, key := range []string{"title", "name", "identifier", "id"} {
-		if v, ok := obj[key]; ok {
-			if v == nil {
-				continue
-			}
-			if s, ok := v.(string); ok && strings.TrimSpace(s) != "" {
-				return false
-			}
-			// Non-string, non-nil value (e.g. numeric ID) — keep it
-			if _, ok := v.(string); !ok {
-				return false
-			}
-		}
-	}
-	// Check nested "document" for search result wrappers like {score, document: {name, ...}}
-	if doc, ok := obj["document"]; ok {
-		if docMap, ok := doc.(map[string]interface{}); ok {
-			for _, key := range []string{"title", "name", "identifier", "id", "slug"} {
-				if v, ok := docMap[key]; ok && v != nil {
-					if s, ok := v.(string); ok && strings.TrimSpace(s) != "" {
-						return false
-					}
-					if _, ok := v.(string); !ok {
-						return false
-					}
-				}
-			}
-		}
-	}
-	// If the object has a "score" field, it's likely a search result — keep it
 	if _, ok := obj["score"]; ok {
 		return false
 	}
-	return true
+	return !hasAnyNonEmptySearchValue(obj)
+}
+
+func hasAnyNonEmptySearchValue(v any) bool {
+	switch typed := v.(type) {
+	case nil:
+		return false
+	case string:
+		return strings.TrimSpace(typed) != ""
+	case bool, float64:
+		return true
+	case []any:
+		for _, item := range typed {
+			if hasAnyNonEmptySearchValue(item) {
+				return true
+			}
+		}
+	case map[string]any:
+		for _, item := range typed {
+			if hasAnyNonEmptySearchValue(item) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // extractSearchResults unwraps API search responses by checking common envelope paths.
-func extractSearchResults(data json.RawMessage) []json.RawMessage {
+func extractSearchResults(data json.RawMessage, responsePaths ...string) []json.RawMessage {
 	// Try direct array first
 	var items []json.RawMessage
 	if json.Unmarshal(data, &items) == nil {
 		return items
+	}
+	for _, responsePath := range responsePaths {
+		if pathData, ok := responsePayloadAtPath(data, responsePath); ok {
+			if json.Unmarshal(pathData, &items) == nil {
+				return items
+			}
+		}
 	}
 	// Try common wrapper paths: data, results, items
 	var wrapped map[string]json.RawMessage
@@ -86,25 +84,20 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "search <query>",
-		Short: "Full-text search across synced data or live API",
-		Long: `Search data using FTS5 full-text search on locally synced data,
-or hit the API's search endpoint when available.
+		Short: "Search locally synced data",
+		Long: `Search locally synced data using FTS5 full-text search.
 
-In auto mode (default): uses the API search endpoint if the API has one,
-otherwise searches local data. Falls back to local on network failure.
-In live mode: uses the API search endpoint only.
-In local mode: searches locally synced data only.`,
-		Example: `  # Search (uses API endpoint if available, local FTS otherwise)
-  hostex-pp-cli search "error timeout"
+This API has no dedicated search endpoint, so live mode is unavailable.
+Run sync first to populate the local search index.`,
+		Example: `  # Search locally synced data
+  hostex-pp-cli search "status"
 
-  # Force local search only
-  hostex-pp-cli search "payment failed" --data-source local
-
+  # Force local search explicitly
+  hostex-pp-cli search "status" --data-source local
   # Search a specific resource type locally
-  hostex-pp-cli search "critical" --type transactions --data-source local
-
+  hostex-pp-cli search "status" --type automation --data-source local
   # JSON output for piping
-  hostex-pp-cli search "critical" --json --limit 20`,
+  hostex-pp-cli search "status" --json --limit 20`,
 		Annotations: map[string]string{"mcp:hidden": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -129,7 +122,6 @@ In local mode: searches locally synced data only.`,
 				return fmt.Errorf("opening local database: %w\nRun 'hostex-pp-cli sync' first to populate the local database.", err)
 			}
 			defer db.Close()
-
 			maybeEmitSyncHints(cmd, db, resourceType, flags.maxAge)
 
 			var results []json.RawMessage
@@ -209,9 +201,13 @@ func outputSearchResults(cmd *cobra.Command, flags *rootFlags, results []json.Ra
 		if flags.csv || flags.plain || flags.quiet {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		}
+		var selectErr error
 		outputFlags := *flags
 		if flags.selectFields != "" {
-			data = filterFields(data, flags.selectFields)
+			// Search returns determinate SQLite or live-search rows even when
+			// the persistent --dry-run flag is set; it is not a dry-run plan
+			// path, so an all-miss --select must still exit 2.
+			data, selectErr = filterFieldsChecked(data, flags.selectFields)
 			outputFlags.selectFields = ""
 			outputFlags.compact = false
 		} else if flags.compact {
@@ -222,7 +218,10 @@ func outputSearchResults(cmd *cobra.Command, flags *rootFlags, results []json.Ra
 		if err != nil {
 			return err
 		}
-		return printOutputWithFlags(cmd.OutOrStdout(), wrapped, &outputFlags)
+		if err := printOutputWithFlags(cmd.OutOrStdout(), wrapped, &outputFlags); err != nil {
+			return err
+		}
+		return selectErr
 	}
 
 	if len(results) == 0 {

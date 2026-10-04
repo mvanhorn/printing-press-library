@@ -131,6 +131,7 @@ func (c *Client) Discover(ctx context.Context, kind string, region, prefecture, 
 		if prefecture > 0 {
 			target += fmt.Sprintf("/prefectures/%d", prefecture)
 		}
+		listingURL := target
 		cap := maxPages / len(kinds)
 		if i < maxPages%len(kinds) {
 			cap++
@@ -147,7 +148,7 @@ func (c *Client) Discover(ctx context.Context, kind string, region, prefecture, 
 				return out, all, err
 			}
 			if prefecture > 0 {
-				if _, valid := page.Areas[prefecture]; !valid {
+				if observedArea, valid := page.Areas[prefecture]; !valid || observedArea != listingURL {
 					return out, all, fmt.Errorf("--prefecture %d is not an observed source option for --region %d", prefecture, region)
 				}
 			}

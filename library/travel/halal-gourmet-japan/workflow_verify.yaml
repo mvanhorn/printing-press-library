@@ -1,0 +1,33 @@
+workflows:
+  - name: Japan food and prayer evidence shortlist
+    primary: true
+    steps:
+      - command: restaurants search --prefecture Tokyo --query ramen --limit 5 --no-learn
+        extract: {restaurant_id: "$.results[0].id"}
+        mode: live
+        expect_fields: [results, source_total, source_url]
+      - command: restaurants get ${restaurant_id} --no-learn
+        mode: live
+        expect_fields: [id, kind, conditions, certification, verification, evidence_scope]
+      - command: prayer search --prefecture Tokyo --place-type spaces --prayer-feature wudu --limit 5 --no-learn
+        extract: {prayer_id: "$.results[0].id"}
+        mode: live
+        expect_fields: [results, source_total, source_url]
+      - command: prayer get ${prayer_id} --no-learn
+        mode: live
+        expect_fields: [id, kind, conditions, access_state, hours_state, evidence_scope]
+      - command: plan compare --restaurants ${restaurant_id} --prayer ${prayer_id} --no-learn
+        mode: local
+        expect_fields: [results, selected_count, loaded_count, missing_snapshots]
+      - command: plan match --restaurants ${restaurant_id} --prayer ${prayer_id} --require certified,prayer --no-learn
+        mode: local
+        expect_fields: [results, selected_count, loaded_count, missing_snapshots]
+      - command: plan gaps --restaurants ${restaurant_id} --prayer ${prayer_id} --no-learn
+        mode: local
+        expect_fields: [results, selected_count, loaded_count, missing_snapshots]
+      - command: plan pair --restaurants ${restaurant_id} --prayer ${prayer_id} --max-km 100 --no-learn
+        mode: local
+        expect_fields: [results, candidate_pairs, matched_pairs, skipped_coordinate_pairs]
+      - command: plan changes --restaurants ${restaurant_id} --prayer ${prayer_id} --no-learn
+        mode: local
+        expect_fields: [results, selected_count, loaded_count, missing_snapshots]

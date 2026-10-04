@@ -1,0 +1,84 @@
+{
+  "meta": {
+    "provider": "wheelog",
+    "source": "live"
+  },
+  "results": {
+    "id": 166345,
+    "name": "成田空港 多機能トイレ",
+    "questions": [
+      {
+        "id": 101,
+        "label": "清潔感はある？",
+        "positive_reports": 0,
+        "negative_reports": 0,
+        "state": "unreported",
+        "report_observed_at": null
+      },
+      {
+        "id": 102,
+        "label": "十分な転回スペースはある？",
+        "positive_reports": 1,
+        "negative_reports": 0,
+        "state": "reported_affirmative",
+        "report_observed_at": null
+      },
+      {
+        "id": 103,
+        "label": "手すりは両側にある？",
+        "positive_reports": 1,
+        "negative_reports": 0,
+        "state": "reported_affirmative",
+        "report_observed_at": null
+      },
+      {
+        "id": 104,
+        "label": "便座に横付けできる？",
+        "positive_reports": 1,
+        "negative_reports": 0,
+        "state": "reported_affirmative",
+        "report_observed_at": null
+      },
+      {
+        "id": 105,
+        "label": "便座に背もたれはある？",
+        "positive_reports": 1,
+        "negative_reports": 0,
+        "state": "reported_affirmative",
+        "report_observed_at": null
+      },
+      {
+        "id": 106,
+        "label": "オストメイトはある？",
+        "positive_reports": 1,
+        "negative_reports": 0,
+        "state": "reported_affirmative",
+        "report_observed_at": null
+      },
+      {
+        "id": 107,
+        "label": "介助用ベッドはある？",
+        "positive_reports": 0,
+        "negative_reports": 1,
+        "state": "reported_negative",
+        "report_observed_at": null
+      },
+      {
+        "id": 108,
+        "label": "ベビーベッドはある？",
+        "positive_reports": 0,
+        "negative_reports": 1,
+        "state": "reported_negative",
+        "report_observed_at": null
+      },
+      {
+        "id": 109,
+        "label": "男女の性別関係なく入れる？",
+        "positive_reports": 1,
+        "negative_reports": 0,
+        "state": "reported_affirmative",
+        "report_observed_at": null
+      }
+    ]
+  }
+}

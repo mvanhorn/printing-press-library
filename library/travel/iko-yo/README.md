@@ -144,7 +144,7 @@ iko-yo-pp-cli trip cached Mooovi --agent
 
 ## Unique Features
 
-Source-specific planning commands with explicit evidence and coverage.
+These capabilities aren't available in any other tool for this API.
 
 ### Find family-trip candidates
 - **`trip discover`** — Find regional candidates while seeing exactly which listing pages and records were checked.
@@ -233,6 +233,8 @@ This integration uses Iko-yo Trip's selected nationwide family experiences and m
 | `trip cached` | Partial saved facts only; independently bounded record scan with original observation times and bounded collection provenance. |
 
 A zero match describes the scanned window only. Dates are published schedules, fees retain payment/admission qualifiers, and capacity or lotteries do not establish current seats. Missing amenities stay unknown. Local-only commands reject forced live sourcing; live discovery rejects forced local sourcing. Auto detail reads fall back to an existing observation only on network failure, with a warning; HTTP access errors and rate limits remain errors.
+
+Saved Trip reads and MCP SQL use a private snapshot of at most 128 MiB. They refuse active WAL/journal sidecars or a changed database identity; close other cache writers and retry. Live saves use the canonical database path and normal SQLite transactions, including concurrent SQLite writers. Symlinks to a singly linked database are supported; hard links and `%`, `?` or `#` in selected, resolved or temporary snapshot paths are rejected before SQLite opens them. External file replacement during writing is unsupported; detected retargeting returns an error. Use `--no-cache` for a live Trip read without saving facts.
 
 ## Usage
 

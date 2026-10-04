@@ -1,0 +1,12 @@
+dogfood: using spec wheelog-pp-cli/spec.json (bundled)
+warning: no servers defined in spec; generated CLI will require base_url in config
+warning: accepted root-level 'mcp:' for backwards compatibility; rename to 'x-mcp:' per OpenAPI extension convention
+dogfood: synced .printing-press.json (novel_features) from novel_features_built
+dogfood: synced README.md (Unique Features) from novel_features_built
+dogfood: synced SKILL.md (Unique Capabilities) from novel_features_built
+dogfood: synced internal/cli/which.go (whichIndex) from novel_features_built
+dogfood: synced README.md (Quick Start) from research.json narrative
+dogfood: synced README.md (Troubleshooting) from research.json narrative
+dogfood: synced README.md (Recipes) from research.json narrative
+dogfood: synced SKILL.md (Recipes) from research.json narrative
+Error: dogfood failed

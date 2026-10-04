@@ -9,195 +9,102 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
-	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/travel/kurumatabi/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/travel/kurumatabi/internal/client"
 	"github.com/spf13/cobra"
 )
 
 func newExportCmd(flags *rootFlags) *cobra.Command {
-	var format string
-	var outputFile string
+	var format, outputFile string
 	var limit int
 	var noCache bool
-
 	cmd := &cobra.Command{
-		Use:   "export <resource> [id]",
-		Short: "Export data to JSONL or JSON for backup, migration, or analysis",
-		Long: `Export paginated API data to a local file. Supports JSONL (one JSON object
-per line, streaming-friendly) and JSON (array). JSONL is recommended for
-large datasets as it has no memory pressure.`,
-		Example: `  # Export all items as JSONL (streaming, recommended for large datasets)
-  kurumatabi-pp-cli export <resource> --format jsonl --output data.jsonl
-
-  # Export with limit
-  kurumatabi-pp-cli export <resource> --format jsonl --limit 1000
-
-  # Pipe to another tool
-  kurumatabi-pp-cli export <resource> --format jsonl | jq '.id'`,
-		Args: cobra.RangeArgs(1, 2),
+		Use:   "export <resource>",
+		Short: "Export bounded first-page catalog links as JSONL or JSON",
+		Long: `Export source extracts canonical park link objects from the public catalog's
+first page. It does not paginate, export detailed park records, or claim national
+coverage. JSONL writes one object per line; JSON writes an array. The HTML response
+is bounded at 4 MiB and the returned link count at --limit (1 through 200).`,
+		Example: `  kurumatabi-pp-cli export source --format jsonl --limit 20
+  kurumatabi-pp-cli export source --format json --output links.json`,
+		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			validResources := map[string]bool{
-				"source": true,
+			if args[0] != "source" {
+				return usageErr(fmt.Errorf("unknown resource %q; valid: source", args[0]))
 			}
-			validResourceList := []string{
-				"source",
+			if format != "jsonl" && format != "json" {
+				return usageErr(fmt.Errorf("unsupported export format %q; use jsonl or json", format))
 			}
-			resource := args[0]
-			if !validResources[resource] {
-				return usageErr(fmt.Errorf("unknown resource %q; valid: %s", resource, strings.Join(validResourceList, ", ")))
+			if limit < 1 || limit > 200 {
+				return usageErr(fmt.Errorf("export limit must be between 1 and 200"))
 			}
-
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-			if noCache {
-				c.NoCache = true
-			}
-
-			path, err := resourceReadPath(resource)
+			c.NoCache = c.NoCache || noCache
+			path := "/park/search.php"
+			data, err := c.GetWithHeaders(cmd.Context(), path, nil, map[string]string{client.HTMLResponseHeader: "true"})
 			if err != nil {
-				return usageErr(err)
+				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}
-			singleItem := len(args) > 1
-			if len(args) > 1 {
-				path, err = resourceDetailPath(resource, cliutil.EscapePathParam(args[1]))
-				if err != nil {
-					return usageErr(err)
-				}
+			if flags.dryRun {
+				return printOutput(cmd.OutOrStdout(), data, true)
 			}
-
-			var writer *bufio.Writer
+			data, err = extractHTMLResponse(data, sourceCatalogExtractionOptions(cmd.Context(), c.BaseURL, path, nil, limit))
+			if err != nil {
+				return err
+			}
+			var links []json.RawMessage
+			if err = json.Unmarshal(data, &links); err != nil {
+				return fmt.Errorf("decoding extracted links: %w", err)
+			}
+			if links == nil {
+				links = []json.RawMessage{}
+			}
+			// Complete the bounded source read before opening/truncating a destination.
+			writer := bufio.NewWriter(cmd.OutOrStdout())
 			var outFile *os.File
 			if outputFile != "" {
-				f, err := openExportOutput(outputFile)
+				outFile, err = openExportOutput(outputFile)
 				if err != nil {
 					return err
 				}
-				outFile = f
-				writer = bufio.NewWriter(f)
 				defer func() {
-					if err != nil && outFile != nil {
+					if outFile != nil {
 						_ = outFile.Close()
 					}
 				}()
-			} else {
-				writer = bufio.NewWriter(os.Stdout)
+				writer = bufio.NewWriter(outFile)
 			}
-			finishExport := func() error {
-				if err := writer.Flush(); err != nil {
-					return fmt.Errorf("flushing export: %w", err)
-				}
-				if outFile != nil {
-					if err := outFile.Close(); err != nil {
-						return fmt.Errorf("closing export file: %w", err)
+			enc := json.NewEncoder(writer)
+			if format == "jsonl" {
+				for _, link := range links {
+					if err = enc.Encode(link); err != nil {
+						return fmt.Errorf("writing export: %w", err)
 					}
-					outFile = nil
 				}
-				return nil
+			} else if err = enc.Encode(links); err != nil {
+				return fmt.Errorf("writing export: %w", err)
 			}
-
-			config := resourceReadConfigFor(resource)
-			allItems := []json.RawMessage{}
-			var singlePayload json.RawMessage
-			count, page, cursor := 0, 0, ""
-			for {
-				remaining := 0
-				if limit > 0 {
-					remaining = limit - count
-				}
-				params := map[string]string(nil)
-				if !singleItem && config.paginationType != "" {
-					params = resourcePageParams(config, cursor, page, remaining)
-				}
-				data, err := c.Get(cmd.Context(), path, params)
+			if err = writer.Flush(); err != nil {
+				return fmt.Errorf("flushing export: %w", err)
+			}
+			if outFile != nil {
+				err = outFile.Close()
+				outFile = nil
 				if err != nil {
-					return classifyAPIError(cmd.OutOrStdout(), err, flags)
+					return fmt.Errorf("closing export: %w", err)
 				}
-				if singleItem {
-					count = 1
-					if format == "jsonl" {
-						if _, err := fmt.Fprintln(writer, string(data)); err != nil {
-							return fmt.Errorf("writing export: %w", err)
-						}
-					} else {
-						singlePayload = data
-					}
-					break
-				}
-				items, nextCursor, hasMore := extractResourcePage(data, config)
-				if items == nil {
-					items = []json.RawMessage{data}
-				}
-				for _, item := range items {
-					if limit > 0 && count >= limit {
-						break
-					}
-					if format == "jsonl" {
-						if _, err := fmt.Fprintln(writer, string(item)); err != nil {
-							return fmt.Errorf("writing export: %w", err)
-						}
-					} else {
-						allItems = append(allItems, item)
-					}
-					count++
-				}
-
-				if config.paginationType == "" || len(items) == 0 || (limit > 0 && count >= limit) {
-					break
-				}
-				page++
-				var stop bool
-				cursor, stop, err = resourceNextCursor(config, cursor, nextCursor, hasMore)
-				if err != nil {
-					return fmt.Errorf("export pagination for %q: %w", resource, err)
-				}
-				if stop {
-					break
-				}
-				if config.limitParam != "" && !hasMore {
-					requested, _ := strconv.Atoi(params[config.limitParam])
-					if requested > 0 && len(items) < requested {
-						break
-					}
-				}
-				if page > 100000 {
-					return fmt.Errorf("export pagination exceeded 100000 pages for %q", resource)
-				}
-			}
-
-			if format != "jsonl" {
-				enc := json.NewEncoder(writer)
-				enc.SetIndent("", "  ")
-				output := any(allItems)
-				if singleItem {
-					var value any
-					if err := json.Unmarshal(singlePayload, &value); err != nil {
-						return fmt.Errorf("decoding exported resource: %w", err)
-					}
-					output = value
-				}
-				if err := enc.Encode(output); err != nil {
-					return err
-				}
-			}
-			if err := finishExport(); err != nil {
-				return err
-			}
-			if outputFile != "" {
-				fmt.Fprintf(os.Stderr, "Exported %d records to %s\n", count, outputFile)
+				fmt.Fprintf(cmd.ErrOrStderr(), "Exported %d first-page catalog links to %s\n", len(links), outputFile)
 			}
 			return nil
 		},
 	}
-
 	cmd.Flags().StringVar(&format, "format", "jsonl", "Output format: jsonl or json")
 	cmd.Flags().StringVarP(&outputFile, "output", "o", "", "Output file path (default: stdout)")
-	cmd.Flags().IntVar(&limit, "limit", 0, "Maximum records to export (0 = unlimited)")
+	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum first-page links to export (1 through 200)")
 	cmd.Flags().BoolVar(&noCache, "no-cache", false, "Bypass response cache for fresh data")
-
 	return cmd
 }
 

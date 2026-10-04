@@ -288,7 +288,7 @@ func newPlaybookListCmd(flags *rootFlags) *cobra.Command {
 		Use:         "list",
 		Short:       "List stored playbooks (query_family, content presence, last observed)",
 		Example:     `  carstay-pp-cli playbook list --agent`,
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "false", "mcp:local-write": "true", "pp:local-state-read": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "playbook list")

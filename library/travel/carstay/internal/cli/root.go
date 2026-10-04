@@ -420,6 +420,9 @@ See README.md or the bundled SKILL.md for recipes.`,
 			runLearnInitOnce(cmd.Context())
 			runPlaybookInitOnce(cmd.Context())
 		}
+		if mcpReadOnlyChildActive() {
+			flags.receiptEnabled = false
+		}
 		flags.timeoutExplicit = timeoutExplicitFrom(cmd, appliedProfile)
 		flags.agentSource = declaredAgentSource(cmd, flags)
 		return nil
@@ -519,7 +522,7 @@ func commandIsHelpInvocation(cmd *cobra.Command) bool {
 // conventional GET/HEAD, doctor, help) must not run schema migration as a
 // side effect of learn/playbook init.
 func commandMayWriteStore(cmd *cobra.Command) bool {
-	if cmd == nil {
+	if mcpReadOnlyChildActive() || cmd == nil {
 		return false
 	}
 	if commandIsHelpInvocation(cmd) {
@@ -529,6 +532,11 @@ func commandMayWriteStore(cmd *cobra.Command) bool {
 		return false
 	}
 	ann := cmd.Annotations
+	// These readers retain their existing own RW open/event/prune behavior.
+	// Their truthful MCP hint must not introduce a new pre-run seeding pass.
+	if ann["pp:local-state-read"] == "true" {
+		return false
+	}
 	if ann["mcp:read-only"] == "true" {
 		return false
 	}
@@ -556,7 +564,7 @@ func journalInvocation(flags *rootFlags, rootCmd, executed *cobra.Command, err e
 	// The master --no-learn switch kills journaling too. On the
 	// parse-failure path the flag was never parsed into rootFlags, so
 	// the raw args are consulted as well.
-	if noLearnActive(flags) || argsDisableLearn(os.Args[1:]) {
+	if mcpReadOnlyChildActive() || noLearnActive(flags) || argsDisableLearn(os.Args[1:]) {
 		return
 	}
 	exitCode := 0
@@ -679,7 +687,7 @@ var learnFamilyCommands = map[string]struct{}{
 // swallowed — derivation may never fail, slow, or add output to the
 // command that triggered it.
 func deriveFlagCorrections(flags *rootFlags, rootCmd, executed *cobra.Command) {
-	if noLearnActive(flags) || argsDisableLearn(os.Args[1:]) || learn.JournalCaptureDisabled() {
+	if mcpReadOnlyChildActive() || noLearnActive(flags) || argsDisableLearn(os.Args[1:]) || learn.JournalCaptureDisabled() {
 		return
 	}
 	chain := journalVerbChain(rootCmd, executed)
@@ -756,7 +764,7 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 		c.SetTimeoutExplicit(true)
 	}
 	c.DryRun = f.dryRun
-	c.NoCache = f.noCache
+	c.NoCache = f.noCache || mcpReadOnlyChildActive()
 	if err := bindPlatformClient(c, f); err != nil {
 		return nil, err
 	}

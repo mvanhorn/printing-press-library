@@ -8,6 +8,8 @@ builds:
     binary: hostex-pp-cli
     env:
       - CGO_ENABLED=0
+    flags:
+      - -trimpath
     ldflags:
       - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/hostex/internal/cli.version={{ .Version }}
     targets:
@@ -22,6 +24,8 @@ builds:
     binary: hostex-pp-mcp
     env:
       - CGO_ENABLED=0
+    flags:
+      - -trimpath
     ldflags:
       - -s -w -X main.version={{ .Version }}
     targets:

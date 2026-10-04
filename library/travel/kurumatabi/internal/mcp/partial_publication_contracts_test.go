@@ -31,7 +31,7 @@ func TestActualComparisonPartialThroughMirrorAndRecipe(t *testing.T) {
 		t.Fatalf("companion build: %v: %s", err, output)
 	}
 	testenv.Isolate(t, cliutil.DataDir)
-	t.Setenv("KURUMATABI_NO_LEARN", "true")
+	t.Setenv("KURUMATABI_NO_LEARN", "")
 	dir, err := cliutil.DataDir()
 	if err != nil {
 		t.Fatal(err)
@@ -54,12 +54,18 @@ func TestActualComparisonPartialThroughMirrorAndRecipe(t *testing.T) {
 	if !ok {
 		t.Fatal("native compare was not mirrored")
 	}
-	req := mcplib.CallToolRequest{Params: mcplib.CallToolParams{Arguments: map[string]any{"args": "rvpark/1086 yypark/213", "agent": true, "data-source": "local"}}}
+	req := mcplib.CallToolRequest{Params: mcplib.CallToolParams{Arguments: map[string]any{"args": "rvpark/1086 yypark/213", "agent": true, "data-source": "local", "no-learn": false}}}
 	mirrored, err := tool.Handler(context.Background(), req)
 	if err != nil {
 		t.Fatal(err)
 	}
 	assertPartialParkMCP(t, mirrored)
+	named := mcplib.CallToolRequest{Params: mcplib.CallToolParams{Arguments: map[string]any{"park-id": "rvpark/1086 yypark/213", "agent": true, "data-source": "local", "no-learn": false}}}
+	namedPartial, err := tool.Handler(context.Background(), named)
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertPartialParkMCP(t, namedPartial)
 	// The recipe has no source-mode argument; trusted companion selection is
 	// simulated by a wrapper that forces the same isolated local scenario.
 	wrapper := filepath.Join(t.TempDir(), "local-companion.sh")
@@ -79,6 +85,44 @@ func TestActualComparisonPartialThroughMirrorAndRecipe(t *testing.T) {
 		t.Fatal(err)
 	}
 	assertPartialParkMCP(t, recipe)
+	yyBody, err := os.ReadFile("../parks/testdata/yypark-213.html")
+	if err != nil {
+		t.Fatal(err)
+	}
+	yy, err := parks.ParseDetail("yypark/213", yyBody, time.Now())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = parks.Save(context.Background(), filepath.Join(dir, "data.db"), []parks.Park{yy}); err != nil {
+		t.Fatal(err)
+	}
+	complete, err := tool.Handler(context.Background(), named)
+	if err != nil || complete.IsError {
+		t.Fatalf("named comparison failed: %v %+v", err, complete)
+	}
+	var completeEnv struct {
+		Meta struct {
+			Requested int `json:"requested_records"`
+			Compared  int `json:"compared_records"`
+		} `json:"meta"`
+		Results []parks.CompareField `json:"results"`
+	}
+	if err = json.Unmarshal([]byte(complete.Content[0].(mcplib.TextContent).Text), &completeEnv); err != nil || completeEnv.Meta.Requested != 2 || completeEnv.Meta.Compared != 2 || len(completeEnv.Results) != 22 {
+		t.Fatalf("named variadic envelope lost: %+v err=%v", completeEnv, err)
+	}
+	named.Params.Arguments = map[string]any{"park-id": "rvpark/1086 --no-learn=false --data-source=live", "agent": true, "data-source": "local"}
+	injected, err := tool.Handler(context.Background(), named)
+	if err != nil || !injected.IsError || !strings.Contains(injected.Content[0].(mcplib.TextContent).Text, "flag-like") {
+		t.Fatalf("named variadic flag accepted: %+v %v", injected, err)
+	}
+	// The caller did not disable learning; the trusted native adapters did.
+	stateDir, err := cliutil.StateDir()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = os.Stat(filepath.Join(stateDir, "learn")); !os.IsNotExist(err) {
+		t.Fatalf("read-only planning created learning journal/offset state: %v", err)
+	}
 }
 
 func assertPartialParkMCP(t *testing.T, result *mcplib.CallToolResult) {

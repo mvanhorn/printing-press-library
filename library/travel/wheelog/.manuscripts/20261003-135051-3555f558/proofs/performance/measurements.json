@@ -1,0 +1,33 @@
+{
+  "case": "dated keyword search plus one actual detail",
+  "wall_seconds": 3.023,
+  "maximum_resident_set_bytes": 25346048,
+  "stdout_bytes": 1643,
+  "command_exit": 0,
+  "coverage": {
+    "checked": 1,
+    "complete_coverage": false,
+    "listed": 1,
+    "live": 1,
+    "local": 0,
+    "max_scan_pages": 1,
+    "output_limit": 3,
+    "pages_requested": 1,
+    "scanned_records": 1,
+    "scope": "bounded_source_keyword_search",
+    "source_request_echo": {
+      "categoryList": [
+        "toilet"
+      ],
+      "endDatetime": "2026-10-02 14:59:59",
+      "isDetail": "1",
+      "pagenum": "1",
+      "questionList": null,
+      "startDatetime": "2026-10-01 15:00:00",
+      "type": "spot",
+      "word": "\u6210\u7530\u7a7a\u6e2f"
+    },
+    "unavailable": 0,
+    "unexpanded": 0
+  }
+}

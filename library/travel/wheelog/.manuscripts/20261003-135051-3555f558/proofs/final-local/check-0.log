@@ -1,0 +1,20 @@
+?   	wheelog-pp-cli/cmd/wheelog-pp-cli	[no test files]
+?   	wheelog-pp-cli/cmd/wheelog-pp-mcp	[no test files]
+?   	wheelog-pp-cli/internal/cache	[no test files]
+ok  	wheelog-pp-cli/internal/cli	(cached)
+?   	wheelog-pp-cli/internal/cli/playbooks	[no test files]
+ok  	wheelog-pp-cli/internal/client	(cached)
+ok  	wheelog-pp-cli/internal/cliutil	12.341s
+?   	wheelog-pp-cli/internal/cliutil/testenv	[no test files]
+?   	wheelog-pp-cli/internal/config	[no test files]
+ok  	wheelog-pp-cli/internal/learn	2.902s
+ok  	wheelog-pp-cli/internal/learn/entities	0.435s
+ok  	wheelog-pp-cli/internal/learn/lookups	3.472s
+ok  	wheelog-pp-cli/internal/learn/patterns	1.372s
+ok  	wheelog-pp-cli/internal/mcp	(cached)
+ok  	wheelog-pp-cli/internal/mcp/bound	1.725s
+ok  	wheelog-pp-cli/internal/mcp/cobratree	9.132s
+ok  	wheelog-pp-cli/internal/platform	2.276s
+ok  	wheelog-pp-cli/internal/store	(cached)
+?   	wheelog-pp-cli/internal/types	[no test files]
+ok  	wheelog-pp-cli/internal/wheelog	(cached)

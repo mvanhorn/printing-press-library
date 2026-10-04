@@ -1,0 +1,183 @@
+{
+  "api_name": "wheelog",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [
+    "No guaranteed wheelchair-accessible route or personal suitability assessment.",
+    "No typed measured dimensions or individual vote observation dates on the verified public web surface.",
+    "Only bounded keyword/page discovery and selected saved spots; no worldwide bulk sync.",
+    "Contributor/profile, photo, comment, narrative and TrackLog data excluded."
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-03T06:30:36.355061Z",
+  "novel_features": [
+    {
+      "name": "Requested-question comparison",
+      "command": "spots compare",
+      "description": "Align requested source question IDs and report supporting, opposing, mixed, unknown and inapplicable evidence.",
+      "rationale": "Multiple exact-ID details align aggregate reports without inventing personal suitability.",
+      "example": "wheelog-pp-cli spots compare 166345 166344 --require-question 102 --agent",
+      "why_it_matters": "Choose this when comparing an explicit shortlist against source question evidence.",
+      "group": "Recorded evidence"
+    },
+    {
+      "name": "Detail-checked discovery",
+      "command": "spots search",
+      "description": "Expand a bounded keyword shortlist into actual detail evidence for requested questions.",
+      "rationale": "A search card or accepted question filter alone cannot establish what contributors reported.",
+      "example": "wheelog-pp-cli spots search 成田空港 --category toilet --require-question 102 --limit 3 --agent",
+      "why_it_matters": "Choose this when candidate search results need actual question counts before triage.",
+      "group": "Recorded evidence"
+    },
+    {
+      "name": "Saved-observation changes",
+      "command": "shortlist changes",
+      "description": "Show exact changes between two allowlisted source observations for selected public places.",
+      "rationale": "A saved baseline is needed to distinguish changed aggregate reports and record fields.",
+      "example": "wheelog-pp-cli shortlist changes --data-source local --agent",
+      "why_it_matters": "Choose this to inspect source evidence changes without asserting physical changes.",
+      "group": "Saved shortlist"
+    },
+    {
+      "name": "Recheck queue",
+      "command": "shortlist list",
+      "description": "Prioritize old, unknown or conflicting evidence in a saved shortlist with explicit reasons.",
+      "rationale": "Local membership, source update times and retrieval times combine into a repeatable recheck queue.",
+      "example": "wheelog-pp-cli shortlist list --audit --require-question 102 --max-record-age 180d --agent",
+      "why_it_matters": "Choose this for saved-list maintenance and missing or conflicting question evidence.",
+      "group": "Saved shortlist"
+    },
+    {
+      "name": "Nearest saved facilities",
+      "command": "shortlist list",
+      "description": "Rank saved public facilities by straight-line distance from an explicit origin.",
+      "rationale": "Local coordinates and exact category/question reports work together without geocoding or route assumptions.",
+      "example": "wheelog-pp-cli shortlist list --origin 35.7742,140.3879 --radius-m 500 --category toilet --agent",
+      "why_it_matters": "Choose this for offline proximity within the saved shortlist, with no route promise.",
+      "group": "Saved shortlist"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Requested-question comparison",
+      "command": "spots compare",
+      "description": "Align requested source question IDs and report supporting, opposing, mixed, unknown and inapplicable evidence.",
+      "rationale": "Multiple exact-ID details align aggregate reports without inventing personal suitability.",
+      "example": "wheelog-pp-cli spots compare 166345 166344 --require-question 102 --agent",
+      "why_it_matters": "Choose this when comparing an explicit shortlist against source question evidence.",
+      "group": "Recorded evidence"
+    },
+    {
+      "name": "Detail-checked discovery",
+      "command": "spots search",
+      "description": "Expand a bounded keyword shortlist into actual detail evidence for requested questions.",
+      "rationale": "A search card or accepted question filter alone cannot establish what contributors reported.",
+      "example": "wheelog-pp-cli spots search 成田空港 --category toilet --require-question 102 --limit 3 --agent",
+      "why_it_matters": "Choose this when candidate search results need actual question counts before triage.",
+      "group": "Recorded evidence"
+    },
+    {
+      "name": "Saved-observation changes",
+      "command": "shortlist changes",
+      "description": "Show exact changes between two allowlisted source observations for selected public places.",
+      "rationale": "A saved baseline is needed to distinguish changed aggregate reports and record fields.",
+      "example": "wheelog-pp-cli shortlist changes --data-source local --agent",
+      "why_it_matters": "Choose this to inspect source evidence changes without asserting physical changes.",
+      "group": "Saved shortlist"
+    },
+    {
+      "name": "Recheck queue",
+      "command": "shortlist list",
+      "description": "Prioritize old, unknown or conflicting evidence in a saved shortlist with explicit reasons.",
+      "rationale": "Local membership, source update times and retrieval times combine into a repeatable recheck queue.",
+      "example": "wheelog-pp-cli shortlist list --audit --require-question 102 --max-record-age 180d --agent",
+      "why_it_matters": "Choose this for saved-list maintenance and missing or conflicting question evidence.",
+      "group": "Saved shortlist"
+    },
+    {
+      "name": "Nearest saved facilities",
+      "command": "shortlist list",
+      "description": "Rank saved public facilities by straight-line distance from an explicit origin.",
+      "rationale": "Local coordinates and exact category/question reports work together without geocoding or route assumptions.",
+      "example": "wheelog-pp-cli shortlist list --origin 35.7742,140.3879 --radius-m 500 --category toilet --agent",
+      "why_it_matters": "Choose this for offline proximity within the saved shortlist, with no route promise.",
+      "group": "Saved shortlist"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "WheeLog",
+    "headline": "Find and compare recorded accessibility facts with gaps and conflicting reports visible.",
+    "value_prop": "Search public WheeLog spots, inspect category-specific equipment questions, and compare a bounded shortlist. Save normalized public-place evidence for offline lookup, recheck triage, straight-line proximity and exact observation changes.",
+    "auth_narrative": "The supported public spot surface works anonymously over ordinary HTTPS. No account, API key, cookies or resident browser is needed.",
+    "quickstart": [
+      {
+        "command": "wheelog-pp-cli doctor --dry-run",
+        "comment": "Check the CLI setup without making source requests."
+      },
+      {
+        "command": "wheelog-pp-cli categories --agent",
+        "comment": "Choose an exact category and understand its question-ID range."
+      },
+      {
+        "command": "wheelog-pp-cli spots search 成田空港 --category toilet --limit 3 --agent",
+        "comment": "Find original source spot IDs for a public facility keyword."
+      },
+      {
+        "command": "wheelog-pp-cli spots inspect 166345 --agent --select id,name,questions",
+        "comment": "Read aggregate equipment reports for a selected source spot."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "No keyword matches",
+        "fix": "Use the original place name or a broader source keyword; an empty bounded result is not proof of no accessible facilities."
+      },
+      {
+        "symptom": "A question has zero or conflicting reports",
+        "fix": "Inspect the retained positive/negative counts and use the canonical source page for further checking."
+      },
+      {
+        "symptom": "Source request is unavailable",
+        "fix": "Use --data-source local for saved evidence or retry the bounded source request later."
+      }
+    ],
+    "when_to_use": "Use WheeLog for public crowdsourced wheelchair-accessibility spot evidence, exact source question comparisons and a small offline public-facility shortlist. Japan is the initial travel use case; source keywords can cover other countries. Preserve report counts, unknowns and source record dates when describing results.",
+    "anti_triggers": [
+      "Guaranteed accessible routes or personal wheelchair suitability.",
+      "Measured dimensions, live opening conditions or per-report observation dates not supplied by the public source.",
+      "Contributor profiles, personal TrackLogs, messages, posts, bookings or account changes."
+    ],
+    "recipes": [
+      {
+        "title": "Dated restroom records",
+        "command": "wheelog-pp-cli spots search 成田空港 --category toilet --from 2026-10-02 --to 2026-10-02 --timezone Asia/Tokyo --limit 3 --agent",
+        "explanation": "Request the explicit Japanese record-date window; output echoes the UTC backend interval."
+      },
+      {
+        "title": "Requested equipment comparison",
+        "command": "wheelog-pp-cli spots compare 166345 166344 --require-question 102 --agent",
+        "explanation": "Keep inapplicable, unreported, conflicting and unavailable evidence distinct."
+      },
+      {
+        "title": "Small inspection output",
+        "command": "wheelog-pp-cli spots inspect 166345 --agent --select id,name,questions",
+        "explanation": "Return only selected public spot and question facts."
+      },
+      {
+        "title": "Offline shortlist rechecks",
+        "command": "wheelog-pp-cli shortlist list --audit --require-question 102 --data-source local --agent",
+        "explanation": "Prioritize local evidence gaps without network requests."
+      }
+    ],
+    "trigger_phrases": [
+      "find WheeLog accessibility evidence",
+      "compare recorded toilet equipment",
+      "inspect a WheeLog public spot",
+      "check my saved accessibility shortlist",
+      "use wheelog",
+      "run wheelog-pp-cli"
+    ]
+  }
+}

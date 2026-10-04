@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/travel/iko-yo/internal/cacheguard"
 	"github.com/mvanhorn/printing-press-library/library/travel/iko-yo/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/travel/iko-yo/internal/trip"
 	"github.com/spf13/cobra"
@@ -84,6 +85,14 @@ func newNovelTripCompareCmd(flags *rootFlags) *cobra.Command {
 			ctx, capCancel := context.WithTimeout(ctx, time.Minute)
 			defer capCancel()
 			c := trip.New(flags.rateLimit)
+			var localSnapshot *cacheguard.Guard
+			if flags.dataSource == "local" {
+				var err error
+				localSnapshot, err = cacheguard.Read(defaultDBPath("iko-yo-pp-cli"))
+				if err != nil {
+					return tripError(err)
+				}
+			}
 			view := tripComparison{Records: make([]trip.Assessment, 0), FetchFailures: make([]tripFailure, 0), RequestedRecords: len(canonical), On: on, AsOf: asOf, Note: "Checks reflect only explicit published evidence. Fees retain qualifiers; application intervals are not inventory. Saved observations retain their original timestamps.", Scope: trip.ScopeNote}
 			source := ""
 			var firstErr error
@@ -114,11 +123,20 @@ func newNovelTripCompareCmd(flags *rootFlags) *cobra.Command {
 			view.ComparedRecords = len(view.Records)
 			if len(view.FetchFailures) > 0 {
 				fmt.Fprintf(cmd.ErrOrStderr(), "warning: %d of %d Trip reads failed; comparison includes only %d successful records\n", len(view.FetchFailures), view.RequestedRecords, view.ComparedRecords)
+				for _, f := range view.FetchFailures {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: Trip read failed for %s: %s\n", f.Reference, f.Error)
+				}
+
 			}
 			if len(view.Records) == 0 {
 				return tripError(firstErr)
 			}
 			tripSource(cmd, flags, source)
+			if localSnapshot != nil {
+				if err := localSnapshot.Snapshot(); err != nil {
+					return tripError(err)
+				}
+			}
 			return tripPrintComparison(cmd, flags, view)
 		},
 	}

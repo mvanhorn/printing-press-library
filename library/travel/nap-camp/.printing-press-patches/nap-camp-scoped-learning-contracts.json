@@ -4,15 +4,23 @@
   "applied_at": "2026-10-03",
   "base_run_id": "20261003-001152-6cdfd713",
   "base_printing_press_version": "4.32.5",
-  "summary": "Undo affected inferred learning families atomically and reject ambiguous or wildcard prefix verification.",
-  "reason": "Forgotten teachings must not remain active through derived patterns; explicit manual rules and unrelated families must survive, while prefix IDs are literal and must resolve uniquely.",
+  "summary": "Preserve inferred rules from compatible retained distinct bindings and valid provenance, while recording manual scope and literal unique prefixes.",
+  "reason": "Undo must remove unsupported inference without disabling rules still justified by at least two compatible retained entity/value bindings; unusable family members cannot veto those supports or become examples, and manual/unrelated rules remain.",
   "files": [
     "internal/store/learnings.go",
     "internal/learn/patterns/apply.go",
     "internal/learn/patterns/store.go",
     "internal/store/learning_publication_contracts_test.go",
     "internal/learn/patterns/publication_contracts_test.go",
-    "README.md"
+    "README.md",
+    "internal/entityvalue/lookup.go",
+    "internal/learn/lookups/store.go",
+    "internal/store/derived_patterns.go",
+    "internal/store/supported_patterns_test.go",
+    "internal/cli/nap_learning_contract_test.go",
+    "internal/store/compatible_support_test.go",
+    "internal/learn/patterns/extract.go",
+    "internal/store/positive_support_test.go"
   ],
-  "validated_outcome": "Temporary SQLite regressions cover end-to-end undo, non-example contributor invalidation, scoped/manual retention, transactional rollback, manual-source promotion and literal unique prefixes."
+  "validated_outcome": "Actual extraction/recall regressions preserve supported exact/prefix rules from all retained distinct bindings, remove unsupported rules, refresh example provenance, retain unrelated/manual intent and roll back both deletion/update failures. Explicit manual scope matches reported/applied payload and later inference cannot overwrite it; literal prefixes require one scoped match. Mixed valid/stale/conflicting/multi-entity cohorts preserve exact/prefix generalized recall and same rule IDs from two compatible supports, repair examples only from valid members, and remove inference after the compatible count drops to one. Both initial extraction and retained-cohort reconciliation filter action=boost within the existing eligible-source whitelist before grouping/windowing. Real UpsertLearning hide/alias rows cannot create, preserve, resurrect or supply examples for positive inference; valid positive cohorts and negative rows remain intact."
 }

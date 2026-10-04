@@ -1,0 +1,6 @@
+{
+  "cli": "wheelog-pp-cli",
+  "library_dir": "<press-home>/library/wheelog",
+  "preserved_patches": [],
+  "promoted": true
+}

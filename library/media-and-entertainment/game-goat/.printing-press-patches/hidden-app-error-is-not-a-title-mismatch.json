@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "hidden-app-error-is-not-a-title-mismatch",
+  "applied_at": "2026-10-03",
+  "base_run_id": "20260927-155341-72694577",
+  "base_printing_press_version": "4.32.5",
+  "summary": "Steam Items reports an app hidden from anonymous store requests with its own message (`steam: app <id> is hidden from anonymous store requests (age or region gate); its store record and demo state are unknown`) while still satisfying errors.Is for both ErrAppHidden and ErrAppNotFound.",
+  "reason": "ErrAppHidden used to be fmt.Errorf(\"%w: hidden...\", ErrAppNotFound), so its text inherited ErrAppNotFound's \"no Steam app matched the title\" and `steam app 1245690` reported a found-but-gated app as a title mismatch. A hiddenAppError sentinel with Is(target) == (target == ErrAppNotFound) keeps not-found handling and exit code 3 without reusing the wrong wording.",
+  "files": [
+    "internal/source/steam/store.go"
+  ],
+  "validated_outcome": "Offline test TestSteamAppHiddenMessageIsNotTitleMatch passes: the Item error contains \"is hidden from anonymous store requests\", does not contain \"matched the title\", and errors.Is is true for both sentinels."
+}

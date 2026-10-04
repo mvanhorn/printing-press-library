@@ -1,0 +1,39 @@
+{
+  "status": "pass",
+  "full_matrix_required_passed": 114,
+  "full_matrix_failed": 0,
+  "framework_or_inapplicable_skipped": 75,
+  "ran_at": "2026-10-03T12:25:53.034637Z",
+  "source_fingerprint": "bed79b4a286e2adb7b649e727d4691db76c5d4bb28a501676f01fce13d9fd2e9",
+  "provider_scope": "public HTTP GET only, no account mutations; private Press sandbox local state",
+  "final_corrections": "dry-run input validation; zero-count contradiction and real empty-summary parsing; verified-descriptor private reader images; canonical ordinary writers; selected/resolved cache and temporary URI path validation; SQLite3.51.3 patch",
+  "real_GET_args": [
+    {
+      "command": "prayer get",
+      "args": [
+        "prayer",
+        "get",
+        "838884",
+        "--agent"
+      ],
+      "status": "pass",
+      "sample_capped_at_bytes": 4096,
+      "source": "live",
+      "id": "838884"
+    },
+    {
+      "command": "restaurants get",
+      "args": [
+        "restaurants",
+        "get",
+        "300739",
+        "--agent"
+      ],
+      "status": "pass",
+      "sample_capped_at_bytes": 4096,
+      "source": "live",
+      "id": "300739"
+    }
+  ],
+  "sqlite_version": "3.51.3"
+}

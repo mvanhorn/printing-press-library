@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"regexp"
 	"sort"
@@ -278,6 +279,25 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 	// different entity, rather than the misleading
 	// no_learnings_for_query_family.
 	mismatchCanonicals := make(map[string]struct{})
+	mismatchAlternatives := make(map[recallResourceKey]map[string]struct{})
+	recordMismatch := func(hit Hit, canonicals map[string]struct{}, fallback []string) {
+		key := hitKey(hit.ResourceType, hit.ResourceID)
+		if mismatchAlternatives[key] == nil {
+			mismatchAlternatives[key] = make(map[string]struct{})
+		}
+		if len(canonicals) > 0 {
+			for c := range canonicals {
+				mismatchAlternatives[key][c] = struct{}{}
+			}
+		} else {
+			for _, e := range fallback {
+				if e = strings.TrimSpace(e); e != "" {
+					mismatchAlternatives[key][e] = struct{}{}
+				}
+			}
+		}
+		mismatches = append(mismatches, hit)
+	}
 
 	for rows.Next() {
 		var (
@@ -464,32 +484,33 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 			t := lastObserved.Time
 			hit.LastObservedAt = &t
 		}
-		validateResource(ctx, db, cfg, &hit, queryIdentity, storedEntitySlice, opts.ResourceTypeFields)
-		// Cross-alias promotion: if canonicals overlap, the entities
-		// are equivalent even when their literal forms differ. Override
-		// a Mismatch verdict so the learning isn't filtered into the
-		// mismatches bucket. The warning flags it for diagnostic clarity.
-		if canonicalOverlap && hit.EntityMatch == EntityMatchMismatch {
+		resourcePresent, resourceErr := validateResource(ctx, db, cfg, &hit, queryIdentity, storedEntitySlice, opts.ResourceTypeFields)
+		if resourceErr != nil {
+			return result, fmt.Errorf("recall cached resource: %w", resourceErr)
+		}
+		// A teaching alias establishes the query family, not the referenced
+		// resource's identity. A cached resource must itself resolve to the
+		// same query-and-teaching canonical before a mismatch can be an alias hit.
+		// Missing resources retain the existing explicitly warned fallback.
+		resourceAliasOverlap := !resourcePresent
+		if resourcePresent {
+			resourceCanonicals := resolver.ResolveSet(hit.ResourceEntities)
+			for canonical := range queryCanonicals {
+				if _, learned := storedCanonicals[canonical]; !learned {
+					continue
+				}
+				if _, actual := resourceCanonicals[canonical]; actual {
+					resourceAliasOverlap = true
+					break
+				}
+			}
+		}
+		if canonicalOverlap && resourceAliasOverlap && hit.EntityMatch == EntityMatchMismatch {
 			hit.EntityMatch = EntityMatchExact
 			hit.Warnings = append(hit.Warnings, WarningCrossAliasMatch)
 		}
 		if hit.EntityMatch == EntityMatchMismatch {
-			// Surface canonicals for the envelope-level similar-shape
-			// warning. Fall back to literal stored entities when the
-			// row has no canonical resolution -- better to name the
-			// raw entity than to silently drop the hint.
-			if len(storedCanonicals) > 0 {
-				for c := range storedCanonicals {
-					mismatchCanonicals[c] = struct{}{}
-				}
-			} else {
-				for _, e := range storedEntitySlice {
-					if e = strings.TrimSpace(e); e != "" {
-						mismatchCanonicals[e] = struct{}{}
-					}
-				}
-			}
-			mismatches = append(mismatches, hit)
+			recordMismatch(hit, storedCanonicals, storedEntitySlice)
 		} else {
 			hits = append(hits, hit)
 		}
@@ -498,46 +519,106 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 		return result, fmt.Errorf("recall rows: %w", err)
 	}
 
-	// Generalization layer: ask the pattern engine whether any template
-	// applies to this query. Errors are swallowed; pattern hits are
-	// additive on top of direct hits.
-	patternHits, _ := patterns.Apply(ctx, db, query, normalized.NonEntityNormalized, queryIdentity, patterns.Opts{
-		JaccardMin:      jMin,
-		Limit:           limit,
-		AdditionalKinds: opts.PatternKinds,
-	})
-	if len(patternHits) > 0 {
-		existing := make(map[string]struct{}, len(hits))
-		for _, h := range hits {
-			existing[hitKey(h.ResourceType, h.ResourceID)] = struct{}{}
-		}
-		for _, ph := range patternHits {
-			key := hitKey(ph.ResourceType, ph.ResourceID)
-			if _, dup := existing[key]; dup {
-				continue
+	// Ranked lazy acceptance tries later bindings after rejection and stops
+	// ordinary identity reads once enough exact distinct output is settled.
+	_ = rows.Close()
+	// Keep the best accepted evidence for a typed target. A direct partial
+	// identity must not suppress a later exact pattern for the same target.
+	bestByKey := make(map[recallResourceKey]int, len(hits))
+	unique := make([]Hit, 0, len(hits))
+	addBestHit := func(hit Hit) {
+		key := hitKey(hit.ResourceType, hit.ResourceID)
+		if index, exists := bestByKey[key]; exists {
+			if hitRanksBefore(hit, unique[index]) {
+				unique[index] = hit
 			}
-			existing[key] = struct{}{}
-			hits = append(hits, Hit{
-				ResourceID:       ph.ResourceID,
-				ResourceType:     ph.ResourceType,
-				Venue:            ph.Venue,
-				Action:           LearningActionBoost,
-				Confidence:       ph.Confidence,
-				MatchScore:       ph.MatchScore,
-				EntityMatch:      EntityMatchExact,
-				ResourceEntities: ph.ResourceEntities,
-				Source:           SourcePattern,
-				LastObservedAt:   ph.LastObservedAt,
-			})
+			return
+		}
+		bestByKey[key] = len(unique)
+		unique = append(unique, hit)
+	}
+	for _, hit := range hits {
+		addBestHit(hit)
+	}
+	exactBoundSatisfied := func() bool {
+		exact := 0
+		for _, hit := range unique {
+			if hit.EntityMatch == EntityMatchExact {
+				exact++
+			}
+		}
+		return exact >= limit
+	}
+	if opts.DebugMismatches || !exactBoundSatisfied() {
+		var patternResourceErr error
+		_, patternErr := patterns.Apply(ctx, db, query, normalized.NonEntityNormalized, queryIdentity, patterns.Opts{
+			JaccardMin: jMin, Limit: limit, AdditionalKinds: opts.PatternKinds,
+			AcceptCandidate: func(ph patterns.Hit) (bool, bool) {
+				hit := Hit{ResourceID: ph.ResourceID, ResourceType: ph.ResourceType, Venue: ph.Venue, Action: LearningActionBoost, Confidence: ph.Confidence, MatchScore: ph.MatchScore, EntityMatch: EntityMatchExact, Source: SourcePattern, LastObservedAt: ph.LastObservedAt}
+				boundIdentity := []string{ph.BoundEntity}
+				present, resourceErr := validateResource(ctx, db, cfg, &hit, boundIdentity, nil, opts.ResourceTypeFields)
+				if resourceErr != nil {
+					patternResourceErr = resourceErr
+					return false, true
+				}
+				if present && len(hit.ResourceEntities) > 0 {
+					resourceCanonicals := resolver.ResolveSet(hit.ResourceEntities)
+					if hit.EntityMatch == EntityMatchMismatch && setIntersects(resolver.ResolveSet(boundIdentity), resourceCanonicals) {
+						hit.EntityMatch = EntityMatchExact
+						hit.Warnings = append(hit.Warnings, WarningCrossAliasMatch)
+					}
+					if hit.EntityMatch == EntityMatchMismatch {
+						recordMismatch(hit, resourceCanonicals, hit.ResourceEntities)
+						return false, false
+					}
+				} else {
+					// Identifier-only fallback proves no provider facts.
+					hit.EntityMatch = EntityMatchExact
+				}
+				// Validate before deduplicating. A valid duplicate consumes this
+				// pattern's one binding; a conflicting duplicate tries the next.
+				addBestHit(hit)
+				// Accepted pattern identities are exact (including the explicit
+				// ID-only fallback), with unchanged confidence/score. The ranked
+				// iterator therefore cannot hide a stronger later accepted hit.
+				// Debug reads continue to establish rejected-only alternatives.
+				return true, !opts.DebugMismatches && exactBoundSatisfied()
+			},
+		})
+		if patternResourceErr != nil {
+			return result, fmt.Errorf("recall pattern cached resource: %w", patternResourceErr)
+		}
+		if ctx.Err() != nil {
+			return result, ctx.Err()
+		}
+		if errors.Is(patternErr, context.Canceled) || errors.Is(patternErr, context.DeadlineExceeded) {
+			return result, patternErr
 		}
 	}
-
+	hits = unique
 	sortHits(hits)
-	sortHits(mismatches)
-
 	if len(hits) > limit {
 		hits = hits[:limit]
 	}
+	// Filter against final emitted typed targets, before the mismatch cap.
+	// A target accepted elsewhere cannot also be a rejected alternative.
+	accepted := make(map[recallResourceKey]struct{}, len(hits))
+	for _, hit := range hits {
+		accepted[hitKey(hit.ResourceType, hit.ResourceID)] = struct{}{}
+	}
+	kept := mismatches[:0]
+	for _, hit := range mismatches {
+		key := hitKey(hit.ResourceType, hit.ResourceID)
+		if _, ok := accepted[key]; ok {
+			continue
+		}
+		kept = append(kept, hit)
+		for canonical := range mismatchAlternatives[key] {
+			mismatchCanonicals[canonical] = struct{}{}
+		}
+	}
+	mismatches = kept
+	sortHits(mismatches)
 	if len(mismatches) > limit {
 		mismatches = mismatches[:limit]
 	}
@@ -659,12 +740,18 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 	return result, nil
 }
 
-func validateResource(ctx context.Context, db *sql.DB, cfg *entities.Config, hit *Hit, queryEntities, storedEntitySlice []string, fieldsByType map[string][]string) {
+func validateResource(ctx context.Context, db *sql.DB, cfg *entities.Config, hit *Hit, queryEntities, storedEntitySlice []string, fieldsByType map[string][]string) (bool, error) {
 	var data string
 	err := db.QueryRowContext(ctx,
 		`SELECT data FROM resources WHERE resource_type = ? AND id = ?`,
 		hit.ResourceType, hit.ResourceID,
 	).Scan(&data)
+	if ctx.Err() != nil {
+		return false, ctx.Err()
+	}
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return false, err
+	}
 	if err != nil {
 		hit.Warnings = append(hit.Warnings, WarningResourceNotInStore)
 		hit.EntityMatch = ClassifyEntityMatch(queryEntities, storedEntitySlice)
@@ -672,7 +759,7 @@ func validateResource(ctx context.Context, db *sql.DB, cfg *entities.Config, hit
 			hit.EntityMatch = EntityMatchUnknown
 		}
 		addLowConfidenceWarning(hit)
-		return
+		return false, nil
 	}
 	var fields []string
 	if fieldsByType != nil {
@@ -682,6 +769,7 @@ func validateResource(ctx context.Context, db *sql.DB, cfg *entities.Config, hit
 	hit.ResourceEntities = resourceEntities
 	hit.EntityMatch = ClassifyEntityMatch(queryEntities, resourceEntities)
 	addLowConfidenceWarning(hit)
+	return true, nil
 }
 
 func addLowConfidenceWarning(hit *Hit) {
@@ -691,33 +779,30 @@ func addLowConfidenceWarning(hit *Hit) {
 }
 
 func sortHits(hits []Hit) {
-	sort.SliceStable(hits, func(i, j int) bool {
-		pi := entityMatchPriority(hits[i].EntityMatch)
-		pj := entityMatchPriority(hits[j].EntityMatch)
-		if pi != pj {
-			return pi < pj
-		}
-		si := sourcePriority(hits[i].Source)
-		sj := sourcePriority(hits[j].Source)
-		if si != sj {
-			return si < sj
-		}
-		if hits[i].Confidence != hits[j].Confidence {
-			return hits[i].Confidence > hits[j].Confidence
-		}
-		if hits[i].MatchScore != hits[j].MatchScore {
-			return hits[i].MatchScore > hits[j].MatchScore
-		}
-		ai := time.Time{}
-		aj := time.Time{}
-		if hits[i].LastObservedAt != nil {
-			ai = *hits[i].LastObservedAt
-		}
-		if hits[j].LastObservedAt != nil {
-			aj = *hits[j].LastObservedAt
-		}
-		return ai.After(aj)
-	})
+	sort.SliceStable(hits, func(i, j int) bool { return hitRanksBefore(hits[i], hits[j]) })
+}
+
+func hitRanksBefore(a, b Hit) bool {
+	if pa, pb := entityMatchPriority(a.EntityMatch), entityMatchPriority(b.EntityMatch); pa != pb {
+		return pa < pb
+	}
+	if sa, sb := sourcePriority(a.Source), sourcePriority(b.Source); sa != sb {
+		return sa < sb
+	}
+	if a.Confidence != b.Confidence {
+		return a.Confidence > b.Confidence
+	}
+	if a.MatchScore != b.MatchScore {
+		return a.MatchScore > b.MatchScore
+	}
+	at, bt := time.Time{}, time.Time{}
+	if a.LastObservedAt != nil {
+		at = *a.LastObservedAt
+	}
+	if b.LastObservedAt != nil {
+		bt = *b.LastObservedAt
+	}
+	return at.After(bt)
 }
 
 func sourcePriority(source string) int {
@@ -727,8 +812,15 @@ func sourcePriority(source string) int {
 	return 0
 }
 
-func hitKey(resourceType, resourceID string) string {
-	return resourceType + "|" + resourceID
+// Keys preserve the actual tuple: optional teaching permits delimiters in
+// both components, so a joined string could merge distinct resources.
+type recallResourceKey struct {
+	resourceType string
+	resourceID   string
+}
+
+func hitKey(resourceType, resourceID string) recallResourceKey {
+	return recallResourceKey{resourceType: resourceType, resourceID: resourceID}
 }
 
 func entityMatchPriority(em string) int {

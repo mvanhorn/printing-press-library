@@ -1,0 +1,261 @@
+{
+  "scan_complete": true,
+  "go_errors": {},
+  "raw_findings": 30,
+  "owned_findings": 0,
+  "unresolved_security_findings": 0,
+  "triage_basis": "actual call sites, source data flow, literal/identifier validation, directory vs file permissions and observed error propagation; ownership alone is not an exemption",
+  "findings": [
+    {
+      "rule": "G119",
+      "file": "internal/client/client.go",
+      "line": "466",
+      "reachability": "not used by the source-specific HTTP client",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "Generic client re-adds Authorization only when redirectLeavesOrigin is false, after destination refusal. This API has auth none and custom GET client rejects cross-origin redirects."
+    },
+    {
+      "rule": "G101",
+      "file": "internal/platform/gate.go",
+      "line": "22",
+      "reachability": "reachable framework support",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "GateInvalidCredentials is the literal classification invalid_credentials, not a credential value."
+    },
+    {
+      "rule": "G703",
+      "file": "internal/cli/teach.go",
+      "line": "210",
+      "reachability": "reachable framework support",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "State writes/readbacks use CLI-resolved private paths or fixed log suffixes. scrubLogFile receives only fixed learn audit/error paths, never raw query as path. --config, playbook and notes-file are intentional user-selected input-file interfaces. Snapshot journal derives from the explicitly selected cache file and creates mode0600. No provider field becomes a filesystem path."
+    },
+    {
+      "rule": "G201",
+      "file": "internal/store/store.go",
+      "line": "3936-3939",
+      "reachability": "reachable framework support",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "SQL names are allowlisted or validated with validIdentifierRE; ListField escapes double-quoted resolved identifiers. Values are placeholders. Parent-key migration escapes quote literals; migration VACUUM escapes path quotes; learning deletion concatenates fixed clauses with bound values. No source response enters a SQL fragment."
+    },
+    {
+      "rule": "G201",
+      "file": "internal/store/store.go",
+      "line": "3633-3636",
+      "reachability": "reachable framework support",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "SQL names are allowlisted or validated with validIdentifierRE; ListField escapes double-quoted resolved identifiers. Values are placeholders. Parent-key migration escapes quote literals; migration VACUUM escapes path quotes; learning deletion concatenates fixed clauses with bound values. No source response enters a SQL fragment."
+    },
+    {
+      "rule": "G201",
+      "file": "internal/store/store.go",
+      "line": "1525",
+      "reachability": "reachable framework support",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "SQL names are allowlisted or validated with validIdentifierRE; ListField escapes double-quoted resolved identifiers. Values are placeholders. Parent-key migration escapes quote literals; migration VACUUM escapes path quotes; learning deletion concatenates fixed clauses with bound values. No source response enters a SQL fragment."
+    },
+    {
+      "rule": "G201",
+      "file": "internal/store/store.go",
+      "line": "1501",
+      "reachability": "reachable framework support",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "SQL names are allowlisted or validated with validIdentifierRE; ListField escapes double-quoted resolved identifiers. Values are placeholders. Parent-key migration escapes quote literals; migration VACUUM escapes path quotes; learning deletion concatenates fixed clauses with bound values. No source response enters a SQL fragment."
+    },
+    {
+      "rule": "G202",
+      "file": "internal/store/store.go",
+      "line": "1049",
+      "reachability": "reachable framework support",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "SQL names are allowlisted or validated with validIdentifierRE; ListField escapes double-quoted resolved identifiers. Values are placeholders. Parent-key migration escapes quote literals; migration VACUUM escapes path quotes; learning deletion concatenates fixed clauses with bound values. No source response enters a SQL fragment."
+    },
+    {
+      "rule": "G202",
+      "file": "internal/store/learnings.go",
+      "line": "609",
+      "reachability": "reachable framework support",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "SQL names are allowlisted or validated with validIdentifierRE; ListField escapes double-quoted resolved identifiers. Values are placeholders. Parent-key migration escapes quote literals; migration VACUUM escapes path quotes; learning deletion concatenates fixed clauses with bound values. No source response enters a SQL fragment."
+    },
+    {
+      "rule": "G202",
+      "file": "internal/platform/migration.go",
+      "line": "156",
+      "reachability": "reachable framework support",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "SQL names are allowlisted or validated with validIdentifierRE; ListField escapes double-quoted resolved identifiers. Values are placeholders. Parent-key migration escapes quote literals; migration VACUUM escapes path quotes; learning deletion concatenates fixed clauses with bound values. No source response enters a SQL fragment."
+    },
+    {
+      "rule": "G304",
+      "file": "internal/store/store.go",
+      "line": "254",
+      "reachability": "reachable framework support",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "State writes/readbacks use CLI-resolved private paths or fixed log suffixes. scrubLogFile receives only fixed learn audit/error paths, never raw query as path. --config, playbook and notes-file are intentional user-selected input-file interfaces. Snapshot journal derives from the explicitly selected cache file and creates mode0600. No provider field becomes a filesystem path."
+    },
+    {
+      "rule": "G304",
+      "file": "internal/platform/ratelimit.go",
+      "line": "148",
+      "reachability": "reachable framework support",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "State writes/readbacks use CLI-resolved private paths or fixed log suffixes. scrubLogFile receives only fixed learn audit/error paths, never raw query as path. --config, playbook and notes-file are intentional user-selected input-file interfaces. Snapshot journal derives from the explicitly selected cache file and creates mode0600. No provider field becomes a filesystem path."
+    },
+    {
+      "rule": "G304",
+      "file": "internal/platform/profile.go",
+      "line": "510",
+      "reachability": "reachable framework support",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "State writes/readbacks use CLI-resolved private paths or fixed log suffixes. scrubLogFile receives only fixed learn audit/error paths, never raw query as path. --config, playbook and notes-file are intentional user-selected input-file interfaces. Snapshot journal derives from the explicitly selected cache file and creates mode0600. No provider field becomes a filesystem path."
+    },
+    {
+      "rule": "G304",
+      "file": "internal/learn/teach_log.go",
+      "line": "112",
+      "reachability": "reachable framework support",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "State writes/readbacks use CLI-resolved private paths or fixed log suffixes. scrubLogFile receives only fixed learn audit/error paths, never raw query as path. --config, playbook and notes-file are intentional user-selected input-file interfaces. Snapshot journal derives from the explicitly selected cache file and creates mode0600. No provider field becomes a filesystem path."
+    },
+    {
+      "rule": "G304",
+      "file": "internal/learn/playbooks.go",
+      "line": "73",
+      "reachability": "reachable framework support",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "State writes/readbacks use CLI-resolved private paths or fixed log suffixes. scrubLogFile receives only fixed learn audit/error paths, never raw query as path. --config, playbook and notes-file are intentional user-selected input-file interfaces. Snapshot journal derives from the explicitly selected cache file and creates mode0600. No provider field becomes a filesystem path."
+    },
+    {
+      "rule": "G304",
+      "file": "internal/config/config.go",
+      "line": "104",
+      "reachability": "reachable framework support",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "State writes/readbacks use CLI-resolved private paths or fixed log suffixes. scrubLogFile receives only fixed learn audit/error paths, never raw query as path. --config, playbook and notes-file are intentional user-selected input-file interfaces. Snapshot journal derives from the explicitly selected cache file and creates mode0600. No provider field becomes a filesystem path."
+    },
+    {
+      "rule": "G304",
+      "file": "internal/cli/teach_playbook.go",
+      "line": "376",
+      "reachability": "reachable framework support",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "State writes/readbacks use CLI-resolved private paths or fixed log suffixes. scrubLogFile receives only fixed learn audit/error paths, never raw query as path. --config, playbook and notes-file are intentional user-selected input-file interfaces. Snapshot journal derives from the explicitly selected cache file and creates mode0600. No provider field becomes a filesystem path."
+    },
+    {
+      "rule": "G304",
+      "file": "internal/cli/teach.go",
+      "line": "150",
+      "reachability": "reachable framework support",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "State writes/readbacks use CLI-resolved private paths or fixed log suffixes. scrubLogFile receives only fixed learn audit/error paths, never raw query as path. --config, playbook and notes-file are intentional user-selected input-file interfaces. Snapshot journal derives from the explicitly selected cache file and creates mode0600. No provider field becomes a filesystem path."
+    },
+    {
+      "rule": "G304",
+      "file": "internal/cli/teach.go",
+      "line": "127",
+      "reachability": "reachable framework support",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "State writes/readbacks use CLI-resolved private paths or fixed log suffixes. scrubLogFile receives only fixed learn audit/error paths, never raw query as path. --config, playbook and notes-file are intentional user-selected input-file interfaces. Snapshot journal derives from the explicitly selected cache file and creates mode0600. No provider field becomes a filesystem path."
+    },
+    {
+      "rule": "G304",
+      "file": "internal/cli/feedback.go",
+      "line": "204",
+      "reachability": "reachable framework support",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "State writes/readbacks use CLI-resolved private paths or fixed log suffixes. scrubLogFile receives only fixed learn audit/error paths, never raw query as path. --config, playbook and notes-file are intentional user-selected input-file interfaces. Snapshot journal derives from the explicitly selected cache file and creates mode0600. No provider field becomes a filesystem path."
+    },
+    {
+      "rule": "G304",
+      "file": "internal/cli/feedback.go",
+      "line": "66",
+      "reachability": "reachable framework support",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "State writes/readbacks use CLI-resolved private paths or fixed log suffixes. scrubLogFile receives only fixed learn audit/error paths, never raw query as path. --config, playbook and notes-file are intentional user-selected input-file interfaces. Snapshot journal derives from the explicitly selected cache file and creates mode0600. No provider field becomes a filesystem path."
+    },
+    {
+      "rule": "G117",
+      "file": "internal/learn/journal.go",
+      "line": "265",
+      "reachability": "reachable framework support",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "SessionKey is a correlation key: default parent-pid string or SHA256 of harness session identifiers, never a provider credential. Explicit LEARN_SESSION is a user-chosen correlation override."
+    },
+    {
+      "rule": "G302",
+      "file": "internal/platform/profile.go",
+      "line": "302",
+      "reachability": "reachable framework support",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "writePrivateFile calls Chmod0700 on the directory, then creates/chmods the temporary file0600; directory execute bit is required."
+    },
+    {
+      "rule": "G302",
+      "file": "internal/cliutil/testenv/testenv.go",
+      "line": "76",
+      "reachability": "test-only: no production imports",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "Chmod0700 is a private directory sandbox, not a credential file. Testenv has no imports in non-test Go sources."
+    },
+    {
+      "rule": "G302",
+      "file": "internal/cliutil/testenv/sandbox_unix.go",
+      "line": "15",
+      "reachability": "test-only: no production imports",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "Chmod0700 is a private directory sandbox, not a credential file. Testenv has no imports in non-test Go sources."
+    },
+    {
+      "rule": "G302",
+      "file": "internal/client/client.go",
+      "line": "836",
+      "reachability": "reachable framework support",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "ensureCachePerms calls directory Chmod0700 and file Chmod0600. Detector flags the directory call; credential/cache files remain0600."
+    },
+    {
+      "rule": "G104",
+      "file": "internal/store/store.go",
+      "line": "3724",
+      "reachability": "unused sync metadata getters: no production call sites",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "GetSyncCursor and GetLastSyncedAt are absent from CLI/MCP call sites; no sync command is advertised. Source saved reads propagate scan/date errors and use visibility guard."
+    },
+    {
+      "rule": "G104",
+      "file": "internal/store/store.go",
+      "line": "3467",
+      "reachability": "unused sync metadata getters: no production call sites",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "GetSyncCursor and GetLastSyncedAt are absent from CLI/MCP call sites; no sync command is advertised. Source saved reads propagate scan/date errors and use visibility guard."
+    },
+    {
+      "rule": "G104",
+      "file": "internal/learn/journal.go",
+      "line": "278",
+      "reachability": "reachable framework support",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "Close error is ignored only after Write already failed and that primary error is returned. Normal write path returns Close error."
+    },
+    {
+      "rule": "G104",
+      "file": "internal/client/client.go",
+      "line": "1585",
+      "reachability": "generic debug-stderr path; custom source client does not use it",
+      "disposition": "no unresolved shipped security defect demonstrated",
+      "rationale": "Ignored JSON encoder error affects best-effort diagnostic stderr, not saved facts, returned success, credentials or source planning."
+    }
+  ],
+  "scan_refresh": {
+    "ran_at": "2026-10-03T12:18:02.097022Z",
+    "source_candidate": "SQLite1.46.2 + libc1.70.0 and private saved-reader snapshot correction",
+    "scanner": "gosec2.26.1",
+    "complete": true,
+    "raw_findings": 30,
+    "same_rule_path_multiset_as_reviewed": true,
+    "source_owned_findings": 0,
+    "go_errors": {},
+    "basis": "Each existing finding retains its reachability/impact rationale; no ownership-only exemption."
+  }
+}

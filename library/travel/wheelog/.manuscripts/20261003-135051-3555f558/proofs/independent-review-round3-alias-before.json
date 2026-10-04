@@ -1,0 +1,9 @@
+{
+  "case": "hard-link alias hides active original WAL",
+  "exit": 0,
+  "name": "Checkpointed fixture",
+  "positive_reports": 2,
+  "wal_bytes": 12392,
+  "nlink": 2,
+  "stderr": ""
+}

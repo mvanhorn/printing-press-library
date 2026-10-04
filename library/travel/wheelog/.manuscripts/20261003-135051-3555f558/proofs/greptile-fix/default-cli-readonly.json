@@ -1,0 +1,47 @@
+{
+  "meta": {
+    "provider": "wheelog",
+    "source": "local"
+  },
+  "results": {
+    "address": "",
+    "cache_age_days": 0.000004218171296296296,
+    "category": "toilet",
+    "country": null,
+    "data_source": "local",
+    "detail_status": "checked",
+    "id": 166345,
+    "location": null,
+    "name": "Synthetic saved restroom",
+    "questions": [
+      {
+        "id": 102,
+        "label": "Turning space",
+        "negative_reports": 0,
+        "positive_reports": 2,
+        "report_observed_at": null,
+        "state": "reported_affirmative"
+      }
+    ],
+    "recheck_reasons": [
+      "source_update_date_unknown"
+    ],
+    "record_created_at": null,
+    "record_update_age_days": null,
+    "record_updated_at": null,
+    "requirements": [
+      {
+        "label": "Turning space",
+        "negative_reports": 0,
+        "positive_reports": 2,
+        "question_id": 102,
+        "state": "reported_affirmative"
+      }
+    ],
+    "retrieved_at": "2026-10-03T12:08:24.660352Z",
+    "source_created_raw": null,
+    "source_updated_raw": null,
+    "source_url": "",
+    "unsupported_facts": []
+  }
+}
