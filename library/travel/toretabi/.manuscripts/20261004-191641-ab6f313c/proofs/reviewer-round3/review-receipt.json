@@ -1,6 +1,6 @@
 {
   "observed_at": "2026-10-04T14:44:40.307882+00:00",
-  "reviewer": "/root/toretabi_reviewer",
+  "reviewer": "toretabi_reviewer",
   "review_round": 3,
   "overall_status": "PASS",
   "approval": true,
@@ -245,7 +245,7 @@
     "bundle_sha256": "b946130f6fb8d9cfc7f63e42ccf2dba08e5c4495da147c0c2371208c23f0c934"
   },
   "acceptance_correspondence": {
-    "helper_path": "/Users/zjsng/go/pkg/mod/github.com/mvanhorn/cli-printing-press/v4@v4.33.0/internal/pipeline/source_fingerprint.go",
+    "helper_path": "github.com/mvanhorn/cli-printing-press/v4@v4.33.0/internal/pipeline/source_fingerprint.go",
     "helper_sha256": "09aeb5b66477eec71fbfcbab3cb695b0fd2674ab5c312353375e186cc2d9aeda",
     "current_fingerprint": "89e4550682e0bfce88723174054983da22c91f149719d77098ab2492f094bfdd",
     "marker_fingerprint": "89e4550682e0bfce88723174054983da22c91f149719d77098ab2492f094bfdd",
