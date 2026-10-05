@@ -456,3 +456,48 @@ func TestUJCNewCommitHoldsWhenSearchChanged(t *testing.T) {
 		t.Fatalf("members = %d (%v), want none: the old filters' members were written", len(members), err)
 	}
 }
+
+// TestUJCNewCommitHoldsWhenAnotherRunAdvanced: when two new runs read the
+// same saved search and the other one advances it first, this run's older
+// read must not overwrite the newer baseline (Greptile, PR #2271, round 2).
+func TestUJCNewCommitHoldsWhenAnotherRunAdvanced(t *testing.T) {
+	site := ujcNewFake(t)
+	ujcIsolate(t, site.URL, "")
+	path := ujcDefaultDB()
+	ujcSeedFullSync(t, path, site, time.Now().Add(-time.Hour))
+	db := ujcOpenStore(t, path)
+	ctx := context.Background()
+	now := time.Now().UTC()
+	if _, _, err := uberjobs.SaveSearch(ctx, db, "all-of-it", uberjobs.Filters{}, now); err != nil {
+		t.Fatal(err)
+	}
+	var c *uberjobs.Client
+	sv, _ := uberjobs.GetSearch(ctx, db, "all-of-it")
+	if _, _, err := runNewSearch(ctx, ujcFlags(), &c, db, "local", *sv, 50, now); err != nil {
+		t.Fatalf("first run (baseline): %v", err)
+	}
+	sv, _ = uberjobs.GetSearch(ctx, db, "all-of-it")
+	plan, err := planNewSearch(ctx, ujcFlags(), &c, db, "local", *sv, 50, now)
+	if err != nil || !plan.advances {
+		t.Fatalf("plan = %+v, %v; want an advancing plan", plan.row, err)
+	}
+	// Another run advances the same search (a newer read) before this one commits.
+	newer := site.Postings(t)[:3]
+	if _, err := uberjobs.AdvanceMembership(ctx, db, "all-of-it", newer, false, now.Add(time.Minute)); err != nil {
+		t.Fatal(err)
+	}
+	err = commitPlans(ctx, db, []newPlan{plan})
+	if err == nil || !strings.Contains(err.Error(), "changed while new was reading") {
+		t.Fatalf("commit after another run advanced: err = %v, want the changed-search error", err)
+	}
+	members, err := uberjobs.Members(ctx, db, "all-of-it")
+	present := 0
+	for _, m := range members {
+		if m.RemovedOn == nil {
+			present++
+		}
+	}
+	if err != nil || present != len(newer) {
+		t.Fatalf("present members = %d (%v), want the newer run's %d", present, err, len(newer))
+	}
+}

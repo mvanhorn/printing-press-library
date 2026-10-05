@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "ac27a43087b4772c9660bbf4f0afb96a39ce9d6fb9712719c5aa8b1c10789cf9",
+  "source_fingerprint": "34960a9006c8b8dc1ab3d248e1d0e6676b35f821cb171045b53ce1273a4a90fd",
   "source_files": {
     "cmd/uber-jobs-pp-cli/main.go": "57f584bab9bf4ae4700d1ef084f84c2014924943810aa06cb70262b49df62cce",
     "cmd/uber-jobs-pp-mcp/http_auth_test.go": "cb9ccc624ea99501cf825b485e88d288133ba4d2cebb2f8fdab0d38d8cfca621",
@@ -44,7 +44,7 @@
     "internal/cli/learnings_candidates_test.go": "3a4871d69a96837d6b19ce38702de4a1101a6460d6ad8118db4645d8791310da",
     "internal/cli/learnings_stats.go": "ca0c5680dc750fab017e2ce358aa4275c2e18eaf62feff1ed35265b885901979",
     "internal/cli/learnings_stats_test.go": "a083735d21d547d61a9e03da5db6de9a7fcc060f09b52dcd5d0f95ab51629347",
-    "internal/cli/new.go": "33fc6f5cae02c039bd4a607853e9d5bbb1c8a4cc1b18cbeb5c6b6e5fe0421918",
+    "internal/cli/new.go": "88b05f0d711a110a321158252e75fa348190df15170ac3a7ebf44f0498e00ee7",
     "internal/cli/new_test.go": "83567562775400fc3b5dc65f7f6c62ce7efc84bfb9de113d05657ea1f00dec62",
     "internal/cli/platform_cli_test.go": "6c9cac7f42431d6ae7600478fdb2b5bf19dce5f9cc7b6e77460091d76510a2c3",
     "internal/cli/platform_client.go": "8d552a060d4065d33a4decc5ee87bd31cda2c86776bffde414fad15de60ff03b",
@@ -78,7 +78,7 @@
     "internal/cli/uberjobs_cmd_guard_doctor_test.go": "12b9f9535e411c3ce4e01482e2e2a89b0b9f9381361f60fcd120f1bf7ac1ec19",
     "internal/cli/uberjobs_cmd_helpers_test.go": "2483702f1999a45efed433ac6916542d246fc2b2c1396c6135dd87b43411e23a",
     "internal/cli/uberjobs_cmd_regressions_test.go": "fb5ce9a5c78496dd2e227541314cf9fc94d75ce5eb81dcc8292ad18622faaede",
-    "internal/cli/uberjobs_cmd_review_test.go": "9df2a9cfac8991e359f96c16291b1c2a8636eb2309b973349126f2f6c3aa86df",
+    "internal/cli/uberjobs_cmd_review_test.go": "37b18b5b024979291872360738c70ac7e685d293359301d3ce18efa5facf7408",
     "internal/cli/uberjobs_cmd_saved_new_test.go": "cbaa5df37554c6cab8bd7a9c07f05fd017d815ecbcd63c1d90be83a9b2e4c78a",
     "internal/cli/uberjobs_cmd_screen_stats_test.go": "33e9d9c50f88e6bf27b20ad9c13d4b975d25479c9d72290e5266d10e5bffa5c9",
     "internal/cli/uberjobs_common.go": "31c8c75a01f8065f884a37d786cca54977346de56058fd31e735f9db04a81f45",

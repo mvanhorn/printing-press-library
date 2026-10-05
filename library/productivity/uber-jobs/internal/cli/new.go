@@ -589,15 +589,18 @@ func localReadForNew(ctx context.Context, db *sql.DB, sv uberjobs.SavedSearch, m
 	return r, nil
 }
 
-// searchUnchanged fails when the saved search was replaced or deleted after
-// it was read (a concurrent save or searches --delete), so a commit never
-// writes members computed with filters the search no longer has.
+// searchUnchanged fails when the saved search changed after it was read: a
+// concurrent save or searches --delete replaced it, or another new run
+// advanced it. A commit then never writes members computed with filters the
+// search no longer has, nor an older read over a newer baseline.
 func searchUnchanged(ctx context.Context, tx *sql.Tx, sv uberjobs.SavedSearch) error {
 	cur, err := uberjobs.GetSearch(ctx, tx, sv.Name)
 	if err != nil {
 		return fmt.Errorf("re-reading saved search %q: %w", sv.Name, err)
 	}
-	if cur == nil || filtersJSON(cur.Filters) != filtersJSON(sv.Filters) || deref(cur.BaselineAt, "") != deref(sv.BaselineAt, "") {
+	if cur == nil || filtersJSON(cur.Filters) != filtersJSON(sv.Filters) ||
+		deref(cur.BaselineAt, "") != deref(sv.BaselineAt, "") ||
+		deref(cur.LastAdvancedAt, "") != deref(sv.LastAdvancedAt, "") {
 		return fmt.Errorf("saved search %q changed while new was reading it; run new again", sv.Name)
 	}
 	return nil
