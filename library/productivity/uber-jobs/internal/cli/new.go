@@ -422,6 +422,9 @@ func planNewSearch(ctx context.Context, flags *rootFlags, cp **uberjobs.Client, 
 		row.Note = fmt.Sprintf("baseline established with %d postings; later runs list what changed", len(read.postings))
 		plan.advances, plan.firstTaken = true, true
 		plan.commit = func(ctx context.Context, tx *sql.Tx) error {
+			if err := searchUnchanged(ctx, tx, sv); err != nil {
+				return err
+			}
 			if _, err := uberjobs.AdvanceMembershipTx(ctx, tx, sv.Name, read.postings, true, read.asOf); err != nil {
 				return fmt.Errorf("taking the baseline of %q: %w", sv.Name, err)
 			}
@@ -473,6 +476,9 @@ func planNewSearch(ctx context.Context, flags *rootFlags, cp **uberjobs.Client, 
 	}
 	plan.advances = true
 	plan.commit = func(ctx context.Context, tx *sql.Tx) error {
+		if err := searchUnchanged(ctx, tx, sv); err != nil {
+			return err
+		}
 		if _, err := uberjobs.AdvanceMembershipTx(ctx, tx, sv.Name, read.postings, false, read.asOf); err != nil {
 			return fmt.Errorf("advancing the baseline of %q: %w", sv.Name, err)
 		}
@@ -547,12 +553,23 @@ func localReadForNew(ctx context.Context, db *sql.DB, sv uberjobs.SavedSearch, m
 		return r, err
 	}
 	r.scanned = len(stored)
+	later := 0
+	if last != nil {
+		if later, err = uberjobs.SyncRunsAfter(ctx, db, last.ID); err != nil {
+			return r, err
+		}
+	}
 	switch {
 	case last == nil:
 		r.reason = "the local store has no complete sync; run: uber-jobs-pp-cli sync"
 		return r, nil
 	case strings.TrimSpace(membership.Query) != "":
 		r.reason = "a keyword search cannot be applied exactly offline; run new against the live site"
+		return r, nil
+	case later > 0:
+		// A keyword or fallback sync since then changed the open rows, so
+		// they no longer match the complete sync this read would claim.
+		r.reason = fmt.Sprintf("%d sync run(s) after the last complete sync (%s) changed the local store, so it no longer matches that snapshot; run a full sync first", later, last.FinishedAt)
 		return r, nil
 	case sv.LastAdvancedAt != nil && last.FinishedAt < *sv.LastAdvancedAt:
 		r.reason = fmt.Sprintf("the last complete sync (%s) is older than this search's last advance (%s); run sync first", last.FinishedAt, *sv.LastAdvancedAt)
@@ -570,6 +587,20 @@ func localReadForNew(ctx context.Context, db *sql.DB, sv uberjobs.SavedSearch, m
 	}
 	r.usable, r.complete, r.asOf = true, true, asOf
 	return r, nil
+}
+
+// searchUnchanged fails when the saved search was replaced or deleted after
+// it was read (a concurrent save or searches --delete), so a commit never
+// writes members computed with filters the search no longer has.
+func searchUnchanged(ctx context.Context, tx *sql.Tx, sv uberjobs.SavedSearch) error {
+	cur, err := uberjobs.GetSearch(ctx, tx, sv.Name)
+	if err != nil {
+		return fmt.Errorf("re-reading saved search %q: %w", sv.Name, err)
+	}
+	if cur == nil || filtersJSON(cur.Filters) != filtersJSON(sv.Filters) || deref(cur.BaselineAt, "") != deref(sv.BaselineAt, "") {
+		return fmt.Errorf("saved search %q changed while new was reading it; run new again", sv.Name)
+	}
+	return nil
 }
 
 // removedStatuses labels members that left a search. With no filters the read

@@ -170,7 +170,7 @@ func SaveSearch(ctx context.Context, db *sql.DB, name string, f Filters, now tim
 }
 
 // GetSearch returns one saved search, or nil when absent.
-func GetSearch(ctx context.Context, db *sql.DB, name string) (*SavedSearch, error) {
+func GetSearch(ctx context.Context, db Querier, name string) (*SavedSearch, error) {
 	var s SavedSearch
 	var filters string
 	var baseline, advanced, checked sql.NullString
@@ -363,6 +363,11 @@ ON CONFLICT(name, posting_id) DO UPDATE SET title = excluded.title, last_seen = 
 		return 0, err
 	}
 	return int(removed), nil
+}
+
+// Querier is a *sql.DB or a *sql.Tx.
+type Querier interface {
+	QueryRowContext(ctx context.Context, query string, args ...any) *sql.Row
 }
 
 // Execer is a *sql.DB or a *sql.Tx.

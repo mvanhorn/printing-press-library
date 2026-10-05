@@ -380,3 +380,79 @@ func TestUJCLocalReadsNeverCreateTheStore(t *testing.T) {
 		}
 	}
 }
+
+// TestUJCCareersRefusalExitsSevenPromptly: a refused raw careers request
+// exits 7 at once, after one request, rather than waiting out the synthetic
+// Retry-After inside the generated retry loop (Greptile, PR #2271).
+func TestUJCCareersRefusalExitsSevenPromptly(t *testing.T) {
+	ujcResetGuardRefusal(t)
+	site := ujcNewFake(t)
+	site.SetMode("429")
+	ujcIsolate(t, site.URL, "")
+	start := time.Now()
+	r := ujcRun(t, "", "careers", "search", "--countries", "Germany", "--json")
+	ujcWantCode(t, r, 7)
+	if took := time.Since(start); took > 5*time.Second {
+		t.Fatalf("a refusal took %v to surface, want it at once", took)
+	}
+	if n := site.Count(""); n != 1 {
+		t.Fatalf("the site saw %d requests, want 1", n)
+	}
+}
+
+// TestUJCNewLocalRefusesAfterPartialSync: a keyword or fallback sync after
+// the last complete sync changes the open rows, so a local read would mix
+// two snapshots; new must not diff or baseline from it (Greptile, PR #2271).
+func TestUJCNewLocalRefusesAfterPartialSync(t *testing.T) {
+	site := ujcNewFake(t)
+	ujcIsolate(t, site.URL, "")
+	db := ujcDefaultDB()
+	ujcSeedFullSync(t, db, site, time.Now().Add(-2*time.Hour))
+	ujcWantCode(t, ujcRun(t, "", "save", "gbr", "", "--country", "GBR", "--json"), 0)
+	ujcWithStore(t, db, func(sdb *sql.DB) {
+		ujcInsertSyncRun(t, sdb, time.Now().Add(-time.Hour), time.Now().Add(-time.Hour), "query", true)
+	})
+	r := ujcRun(t, "", "new", "gbr", "--data-source", "local", "--json")
+	ujcWantCode(t, r, 0)
+	rows := ujcRows(ujcEnvelope(t, r.Stdout))
+	if note, _ := rows[0]["note"].(string); len(rows) != 1 || rows[0]["baseline_established"] != false || !strings.Contains(note, "after the last complete sync") {
+		t.Fatalf("new after a partial sync = %v, want no baseline and the partial-sync reason", rows)
+	}
+}
+
+// TestUJCNewCommitHoldsWhenSearchChanged: a save that replaces the filters
+// between new's read and its commit must not be overwritten by members
+// computed with the old filters (Greptile, PR #2271).
+func TestUJCNewCommitHoldsWhenSearchChanged(t *testing.T) {
+	site := ujcNewFake(t)
+	ujcIsolate(t, site.URL, "")
+	path := ujcDefaultDB()
+	ujcSeedFullSync(t, path, site, time.Now().Add(-time.Hour))
+	db := ujcOpenStore(t, path)
+	ctx := context.Background()
+	now := time.Now().UTC()
+	if _, _, err := uberjobs.SaveSearch(ctx, db, "all-of-it", uberjobs.Filters{}, now); err != nil {
+		t.Fatal(err)
+	}
+	sv, err := uberjobs.GetSearch(ctx, db, "all-of-it")
+	if err != nil || sv == nil {
+		t.Fatalf("GetSearch: %v %v", sv, err)
+	}
+	var c *uberjobs.Client
+	plan, err := planNewSearch(ctx, ujcFlags(), &c, db, "local", *sv, 50, now)
+	if err != nil || !plan.advances {
+		t.Fatalf("plan = %+v, %v; want an advancing first baseline", plan.row, err)
+	}
+	// A concurrent save replaces the filters before new commits.
+	if _, _, err := uberjobs.SaveSearch(ctx, db, "all-of-it", uberjobs.Filters{Team: "Legal"}, now); err != nil {
+		t.Fatal(err)
+	}
+	err = commitPlans(ctx, db, []newPlan{plan})
+	if err == nil || !strings.Contains(err.Error(), "changed while new was reading") {
+		t.Fatalf("commit after a concurrent save: err = %v, want the changed-search error", err)
+	}
+	members, err := uberjobs.Members(ctx, db, "all-of-it")
+	if err != nil || len(members) != 0 {
+		t.Fatalf("members = %d (%v), want none: the old filters' members were written", len(members), err)
+	}
+}

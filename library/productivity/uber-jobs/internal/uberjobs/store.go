@@ -235,6 +235,14 @@ FROM uj_sync_runs WHERE scope = 'all' AND complete = 1 AND scan_cap_hit = 0 ORDE
 	return &r, nil
 }
 
+// SyncRunsAfter counts the sync runs recorded after the run with id: keyword,
+// partial or fallback reads that changed the store after that run.
+func SyncRunsAfter(ctx context.Context, db *sql.DB, id int64) (int, error) {
+	var n int
+	err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM uj_sync_runs WHERE id > ?`, id).Scan(&n)
+	return n, err
+}
+
 // FirstSyncAt returns when the store first saw any complete full read.
 func FirstSyncAt(ctx context.Context, db *sql.DB) (time.Time, bool) {
 	var s sql.NullString
