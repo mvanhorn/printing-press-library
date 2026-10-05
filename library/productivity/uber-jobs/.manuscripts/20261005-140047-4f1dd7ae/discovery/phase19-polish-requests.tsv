@@ -1,0 +1,35 @@
+2026-10-05T18:50:43Z	uber-jobs-pp-cli	GET	http://127.0.0.1:50091/api/jobs/search/?page=1&pagesize=1	200	149
+2026-10-05T18:50:47Z	uber-jobs-pp-cli(generated client)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1	ERR:Forbidden	0
+2026-10-05T18:50:50Z	uber-jobs-pp-cli	GET	http://127.0.0.1:50091/en/jobs/	200	193
+2026-10-05T18:50:54Z	uber-jobs-pp-cli	GET	http://127.0.0.1:50091/api/jobs/search/?page=1&pagesize=1	200	149
+2026-10-05T18:50:57Z	uber-jobs-pp-cli	GET	http://127.0.0.1:50091/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=1	200	149
+2026-10-05T18:51:01Z	uber-jobs-pp-cli	GET	http://127.0.0.1:50091/api/jobs/search/?countries=Netherlands&page=1&pagesize=1	200	149
+2026-10-05T18:51:04Z	uber-jobs-pp-cli	GET	http://127.0.0.1:50091/api/jobs/search/?page=1&pagesize=1	200	149
+2026-10-05T18:59:43Z	uber-jobs-pp-cli	GET	http://127.0.0.1:52777/api/jobs/search/?page=1&pagesize=1	200	149
+2026-10-05T18:59:46Z	uber-jobs-pp-cli(generated client)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1	ERR:Forbidden	0
+2026-10-05T18:59:50Z	uber-jobs-pp-cli	GET	http://127.0.0.1:52777/en/jobs/	200	193
+2026-10-05T18:59:53Z	uber-jobs-pp-cli	GET	http://127.0.0.1:52777/api/jobs/search/?page=1&pagesize=1	200	149
+2026-10-05T18:59:57Z	uber-jobs-pp-cli	GET	http://127.0.0.1:52777/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=1	200	149
+2026-10-05T19:00:00Z	uber-jobs-pp-cli	GET	http://127.0.0.1:52777/api/jobs/search/?countries=Netherlands&page=1&pagesize=1	200	149
+2026-10-05T19:00:04Z	uber-jobs-pp-cli	GET	http://127.0.0.1:52777/api/jobs/search/?page=1&pagesize=1	200	149
+2026-10-05T19:12:02Z	uber-jobs-pp-cli	GET	http://127.0.0.1:56676/api/jobs/search/?page=1&pagesize=1	200	149
+2026-10-05T19:12:06Z	uber-jobs-pp-cli(generated client)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1	ERR:Forbidden	0
+2026-10-05T19:12:09Z	uber-jobs-pp-cli	GET	http://127.0.0.1:56676/en/jobs/	200	193
+2026-10-05T19:12:13Z	uber-jobs-pp-cli	GET	http://127.0.0.1:56676/api/jobs/search/?page=1&pagesize=1	200	149
+2026-10-05T19:12:16Z	uber-jobs-pp-cli	GET	http://127.0.0.1:56676/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=1	200	149
+2026-10-05T19:12:20Z	uber-jobs-pp-cli	GET	http://127.0.0.1:56676/api/jobs/search/?countries=Netherlands&page=1&pagesize=1	200	149
+2026-10-05T19:12:23Z	uber-jobs-pp-cli	GET	http://127.0.0.1:56676/api/jobs/search/?page=1&pagesize=1	200	149
+2026-10-05T19:23:09Z	uber-jobs-pp-cli	GET	http://127.0.0.1:60323/api/jobs/search/?page=1&pagesize=1	200	149
+2026-10-05T19:23:13Z	uber-jobs-pp-cli(generated client)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1	ERR:Forbidden	0
+2026-10-05T19:23:16Z	uber-jobs-pp-cli	GET	http://127.0.0.1:60323/en/jobs/	200	193
+2026-10-05T19:23:20Z	uber-jobs-pp-cli	GET	http://127.0.0.1:60323/api/jobs/search/?page=1&pagesize=1	200	149
+2026-10-05T19:23:23Z	uber-jobs-pp-cli	GET	http://127.0.0.1:60323/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=1	200	149
+2026-10-05T19:23:27Z	uber-jobs-pp-cli	GET	http://127.0.0.1:60323/api/jobs/search/?countries=Netherlands&page=1&pagesize=1	200	149
+2026-10-05T19:23:30Z	uber-jobs-pp-cli	GET	http://127.0.0.1:60323/api/jobs/search/?page=1&pagesize=1	200	149
+2026-10-05T19:28:37Z	uber-jobs-pp-cli	GET	http://127.0.0.1:61955/api/jobs/search/?page=1&pagesize=1	200	149
+2026-10-05T19:28:41Z	uber-jobs-pp-cli(generated client)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1	ERR:Forbidden	0
+2026-10-05T19:28:44Z	uber-jobs-pp-cli	GET	http://127.0.0.1:61955/en/jobs/	200	193
+2026-10-05T19:28:48Z	uber-jobs-pp-cli	GET	http://127.0.0.1:61955/api/jobs/search/?page=1&pagesize=1	200	149
+2026-10-05T19:28:51Z	uber-jobs-pp-cli	GET	http://127.0.0.1:61955/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=1	200	149
+2026-10-05T19:28:55Z	uber-jobs-pp-cli	GET	http://127.0.0.1:61955/api/jobs/search/?countries=Netherlands&page=1&pagesize=1	200	149
+2026-10-05T19:28:58Z	uber-jobs-pp-cli	GET	http://127.0.0.1:61955/api/jobs/search/?page=1&pagesize=1	200	149

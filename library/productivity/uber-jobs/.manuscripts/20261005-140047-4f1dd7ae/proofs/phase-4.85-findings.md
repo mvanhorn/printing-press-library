@@ -1,0 +1,12 @@
+# Phase 4.85 agentic output review (2026-10-05)
+
+## How it ran (deviation from the sub-skill, owner rules applied)
+The printing-press-output-review sub-skill would run `scorecard --live-check --json` with the default 10 s, 4-way live check and let its reviewer subagent run more CLI commands, which would be Uber traffic from a subagent. The owner's rules forbid subagent traffic and require one sequential, logged stream. So the main loop ran the sub-skill's Step 1 itself, as one live leg: cli-printing-press scorecard --dir "$CLI_WORK_DIR" --research-dir "$API_RUN_DIR" --live-check --live-check-timeout 90s --json -> live_check passed 6, failed 0, skipped 3 (new, save, searches: local-write); 7 requests, all 200, merged into the ledger. Step 2's reviewer (one Opus agent) judged only the saved samples plus the main session's complete live outputs (scratchpad/live-sample/*), and ran nothing.
+
+## Result: WARN, 3 findings (Wave B warnings). OWNER DECISION: "Fix all three" -> all fixed with regression tests, mutation-proven
+1. Semantic match: --country NLD returned a row whose country_code is GBR (it matches through a secondary Amsterdam location, by design). Fix: postings and screen add a meta.note "N of M postings match --country through a secondary location; country_code is always the primary location (see locations[])" (secondaryCountryNote; TestUJCSecondaryCountryNote).
+2. Format: screen evidence was cut at "Sr.". Fix: Sentences no longer ends a sentence on common abbreviations (Sr., Jr., Mr., Dr., St., e.g., i.e., etc., vs., Inc., Ltd., Co., No., approx.) or single-letter initials (TestSentencesKeepAbbreviationsAndInitials).
+3. Field consistency: the first new run reported baseline_size 0 while its note said 17. Fix: baseline_size is now the baseline after the run (TestUJCNewBaselineSizeAfterEstablish).
+- Dismissed by the reviewer (correct as is): "~~ ~~" lines come from the site's own HTML; the escaped & is standard JSON escaping; nulls on 303232 match empty site fields; compact key order comes from the harness's re-serialisation; the qualification fields are null by contract.
+- Cross-checks that agreed: stats and facets 583 jobs / 38 countries; NLD 7 and GBR 23 in both stats and postings; posted_7d matches screen --posted-within 7d; get returns the exact id; ordering correct.
+- After the fixes: go test ./... 14/14 ok; go test -race (uberjobs, cli) ok; staged binaries rebuilt.

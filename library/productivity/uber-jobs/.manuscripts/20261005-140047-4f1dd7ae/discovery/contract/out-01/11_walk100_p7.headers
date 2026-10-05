@@ -1,0 +1,14 @@
+HTTP/2.0 200 OK
+Age: 0
+Cache-Control: public
+Cf-Cache-Status: DYNAMIC
+Cf-Ray: a45c01f24ba46dd9-KHI
+Content-Type: application/json
+Date: Mon, 05 Oct 2026 11:15:17 GMT
+Server: cloudflare
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+Vary: rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch | accept-encoding
+X-Content-Type-Options: nosniff
+X-Matched-Path: /api/jobs/search
+X-Vercel-Cache: MISS
+X-Vercel-Id: sin1::bom1::lgdkp-1791198917533-073a03f35529

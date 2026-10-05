@@ -1,0 +1,159 @@
+{
+ "home": "~/printing-press/.runstate/personal-74f0f171/runs/20261005-140047-4f1dd7ae/proofs/uj-prestep-home-cg2gkwcx",
+ "stopped_on_refusal": false,
+ "results": [
+  {
+   "label": "postings --team (server key)",
+   "args": [
+    "postings",
+    "--team",
+    "Engineer",
+    "--limit",
+    "0",
+    "--data-source",
+    "live"
+   ],
+   "rc": 0,
+   "rows": 108,
+   "hits": 108,
+   "source": "jobs.uber.com",
+   "requests": 2,
+   "secs": 5.1,
+   "ok": true,
+   "why": ""
+  },
+  {
+   "label": "postings --team --work-pattern (client-side)",
+   "args": [
+    "postings",
+    "--team",
+    "Engineer",
+    "--work-pattern",
+    "Regular",
+    "--limit",
+    "0",
+    "--data-source",
+    "live"
+   ],
+   "rc": 0,
+   "rows": 108,
+   "hits": 108,
+   "source": "jobs.uber.com",
+   "requests": 0,
+   "secs": 0.1,
+   "ok": true,
+   "why": ""
+  },
+  {
+   "label": "postings --team --sub-team (server keys)",
+   "args": [
+    "postings",
+    "--team",
+    "Engineer",
+    "--sub-team",
+    "Software Engineering",
+    "--limit",
+    "0",
+    "--data-source",
+    "live"
+   ],
+   "rc": 0,
+   "rows": 67,
+   "hits": 67,
+   "source": "jobs.uber.com",
+   "requests": 2,
+   "secs": 6.1,
+   "ok": true,
+   "why": ""
+  },
+  {
+   "label": "postings --contract-type (server key)",
+   "args": [
+    "postings",
+    "--contract-type",
+    "Full time",
+    "--limit",
+    "5",
+    "--data-source",
+    "live"
+   ],
+   "rc": 0,
+   "rows": 5,
+   "hits": 577,
+   "source": "jobs.uber.com",
+   "requests": 2,
+   "secs": 8.7,
+   "ok": true,
+   "why": ""
+  },
+  {
+   "label": "save with --team/--sub-team/--contract-type/--work-pattern",
+   "args": [
+    "save",
+    "eng-swe",
+    "",
+    "--team",
+    "Engineer",
+    "--sub-team",
+    "Software Engineering",
+    "--contract-type",
+    "Full time",
+    "--work-pattern",
+    "Regular"
+   ],
+   "rc": 0,
+   "rows": 1,
+   "hits": 1,
+   "source": "local",
+   "requests": 0,
+   "secs": 0.0,
+   "ok": true,
+   "why": ""
+  },
+  {
+   "label": "new on that saved search (live baseline)",
+   "args": [
+    "new",
+    "eng-swe",
+    "--data-source",
+    "live"
+   ],
+   "rc": 0,
+   "rows": 1,
+   "hits": 1,
+   "source": "jobs.uber.com",
+   "requests": 2,
+   "secs": 5.3,
+   "ok": true,
+   "why": ""
+  },
+  {
+   "label": "screen with --team/--sub-team/--contract-type/--work-pattern",
+   "args": [
+    "screen",
+    "--team",
+    "Engineer",
+    "--sub-team",
+    "Software Engineering",
+    "--contract-type",
+    "Full time",
+    "--work-pattern",
+    "Regular",
+    "--require",
+    "experience",
+    "--verdict",
+    "all",
+    "--data-source",
+    "local"
+   ],
+   "rc": 0,
+   "rows": 69,
+   "hits": 69,
+   "source": "local",
+   "requests": 0,
+   "secs": 0.1,
+   "ok": true,
+   "why": ""
+  }
+ ]
+}

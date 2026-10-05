@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "uber-jobs-pp-mcp",
+  "display_name": "Uber Careers",
+  "version": "0.1.0",
+  "description": "Every public Uber job posting as one tracker-ready JSON feed with offline history, new-since diffs and a fallback when the careers site refuses",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/uber-jobs-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/uber-jobs-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

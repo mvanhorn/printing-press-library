@@ -1,0 +1,224 @@
+{
+ "source": "owner HAR /en/jobs/?page=2&pagesize=10 RSC payload, captured 2026-10-05T07:07:31Z",
+ "countries": [
+  "Argentina",
+  "Australia",
+  "Belgium",
+  "Brazil",
+  "Canada",
+  "Chile",
+  "Colombia",
+  "Costa Rica",
+  "Denmark",
+  "Ecuador",
+  "Egypt",
+  "Finland",
+  "France",
+  "Germany",
+  "Hong Kong",
+  "India",
+  "Ireland",
+  "Italy",
+  "Japan",
+  "Kenya",
+  "Korea, Republic of",
+  "Malaysia",
+  "Mexico",
+  "Netherlands",
+  "New Zealand",
+  "Panama",
+  "Philippines",
+  "Poland",
+  "Portugal",
+  "South Africa",
+  "Spain",
+  "Sweden",
+  "Taiwan",
+  "Türkiye",
+  "United Arab Emirates",
+  "United Kingdom",
+  "United States"
+ ],
+ "teams": [
+  "Administration",
+  "Business Development",
+  "Customer Support",
+  "Engineer",
+  "Finance",
+  "Legal",
+  "Marketing",
+  "Operations",
+  "People",
+  "Places",
+  "Policy & Comms",
+  "Product",
+  "Risk Management",
+  "Sales",
+  "Science",
+  "System Operations",
+  "Technical Security",
+  "University"
+ ],
+ "subTeams": [
+  "Account Management",
+  "Accounting",
+  "Actuarial",
+  "Administrative Business Partner",
+  "Applications Engineering",
+  "Applied Science",
+  "Brand Marketing",
+  "Business & Sales",
+  "Business Development",
+  "Business Operations",
+  "Business Process",
+  "Client Success",
+  "Cloud Engineering",
+  "Communications",
+  "Compensation",
+  "Corporate Development",
+  "Counsel",
+  "Customer Experience",
+  "Customer Support",
+  "Data Science",
+  "Engineering",
+  "Human Resources",
+  "Information Security",
+  "Infrastructure Engineering",
+  "Insurance",
+  "Internal Audit",
+  "Learning & Development",
+  "Marketing Operations",
+  "Operations",
+  "Operations Management",
+  "Payments Operations",
+  "People Analytics",
+  "People Operations",
+  "Performance Marketing",
+  "Policy",
+  "Product Design",
+  "Product Management",
+  "Product Operations",
+  "Program Management",
+  "Quality & Compliance",
+  "Regulatory Affairs & Policy",
+  "Risk & Safety",
+  "Risk Analysis",
+  "Sales",
+  "Sales Enablement",
+  "Sales Operations",
+  "Security Technology",
+  "Software Engineering",
+  "Strategic Finance",
+  "Strategy & Planning",
+  "Talent Acquisition",
+  "Technical Program Management",
+  "Treasury"
+ ],
+ "contractTypes": [
+  "Full time"
+ ],
+ "workPatterns": [
+  "Direct NCG Hire",
+  "Fixed Term",
+  "Intern",
+  "Regular"
+ ],
+ "departments": [],
+ "companies": [],
+ "experienceLevels": [],
+ "employmentTypes": [],
+ "teamToSubTeamMappings": {
+  "Engineer": [
+   "Applications Engineering",
+   "Cloud Engineering",
+   "Information Security",
+   "Infrastructure Engineering",
+   "Software Engineering",
+   "Technical Program Management"
+  ],
+  "People": [
+   "Compensation",
+   "Human Resources",
+   "People Analytics",
+   "People Operations",
+   "Program Management",
+   "Talent Acquisition"
+  ],
+  "Sales": [
+   "Account Management",
+   "Client Success",
+   "Sales",
+   "Sales Enablement",
+   "Sales Operations"
+  ],
+  "Business Development": [
+   "Business Development"
+  ],
+  "Operations": [
+   "Business Operations",
+   "Operations Management",
+   "Strategy & Planning"
+  ],
+  "Marketing": [
+   "Brand Marketing",
+   "Marketing Operations",
+   "Performance Marketing"
+  ],
+  "Customer Support": [
+   "Customer Experience",
+   "Customer Support",
+   "Learning & Development",
+   "Program Management",
+   "Quality & Compliance",
+   "Risk & Safety"
+  ],
+  "Product": [
+   "Product Design",
+   "Product Management",
+   "Product Operations"
+  ],
+  "Risk Management": [
+   "Actuarial",
+   "Insurance",
+   "Risk Analysis"
+  ],
+  "Finance": [
+   "Accounting",
+   "Business Process",
+   "Corporate Development",
+   "Internal Audit",
+   "Strategic Finance",
+   "Treasury"
+  ],
+  "Policy & Comms": [
+   "Communications",
+   "Policy"
+  ],
+  "Legal": [
+   "Counsel",
+   "Operations",
+   "Regulatory Affairs & Policy"
+  ],
+  "University": [
+   "Business & Sales",
+   "Engineering",
+   "Operations"
+  ],
+  "Places": [
+   "Program Management"
+  ],
+  "System Operations": [
+   "Payments Operations"
+  ],
+  "Administration": [
+   "Administrative Business Partner"
+  ],
+  "Science": [
+   "Applied Science",
+   "Data Science"
+  ],
+  "Technical Security": [
+   "Security Technology"
+  ]
+ }
+}

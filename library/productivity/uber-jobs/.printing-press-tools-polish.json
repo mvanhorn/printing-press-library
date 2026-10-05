@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-10-05T19:00:19.143362Z",
+  "cli_dir": "\u003ccli-dir\u003e/uber-jobs-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-10-05T18:51:53.601567Z"
+  }
+}

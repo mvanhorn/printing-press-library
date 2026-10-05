@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/uber-jobs-pp-cli
+/uber-jobs-pp-cli.exe
+/uber-jobs-pp-mcp
+/uber-jobs-pp-mcp.exe
+/bin/
+/build/
+/dist/

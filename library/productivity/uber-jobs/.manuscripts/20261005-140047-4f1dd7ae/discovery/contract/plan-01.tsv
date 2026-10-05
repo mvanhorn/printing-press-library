@@ -1,0 +1,37 @@
+# uber-jobs discovery contract plan 01 (owner rules 1-3, 5-6). Every URL is from the HAR or the site JS; JOB_QUERY_KEYS only.
+size_probe	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1	application/json
+full_single	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1000	application/json
+default_noparams	GET	https://jobs.uber.com/api/jobs/search/	application/json
+p2_default_size	GET	https://jobs.uber.com/api/jobs/search/?page=2	application/json
+walk100_p1	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=100	application/json
+walk100_p2	GET	https://jobs.uber.com/api/jobs/search/?page=2&pagesize=100	application/json
+walk100_p3	GET	https://jobs.uber.com/api/jobs/search/?page=3&pagesize=100	application/json
+walk100_p4	GET	https://jobs.uber.com/api/jobs/search/?page=4&pagesize=100	application/json
+walk100_p5	GET	https://jobs.uber.com/api/jobs/search/?page=5&pagesize=100	application/json
+walk100_p6	GET	https://jobs.uber.com/api/jobs/search/?page=6&pagesize=100	application/json
+walk100_p7	GET	https://jobs.uber.com/api/jobs/search/?page=7&pagesize=100	application/json
+deep_page	GET	https://jobs.uber.com/api/jobs/search/?page=999&pagesize=10	application/json
+search_nonsense	GET	https://jobs.uber.com/api/jobs/search/?search=zzqqxvnonsense&page=1&pagesize=100	application/json
+search_engineer	GET	https://jobs.uber.com/api/jobs/search/?search=engineer&page=1&pagesize=100	application/json
+search_operations	GET	https://jobs.uber.com/api/jobs/search/?search=operations&page=1&pagesize=100	application/json
+countries_nonsense	GET	https://jobs.uber.com/api/jobs/search/?countries=Zzqqland&page=1&pagesize=100	application/json
+countries_germany	GET	https://jobs.uber.com/api/jobs/search/?countries=Germany&page=1&pagesize=100	application/json
+countries_us	GET	https://jobs.uber.com/api/jobs/search/?countries=United+States&page=1&pagesize=100	application/json
+countries_brackets	GET	https://jobs.uber.com/api/jobs/search/?countries%5B%5D=Germany&page=1&pagesize=100	application/json
+countries_multi	GET	https://jobs.uber.com/api/jobs/search/?countries=Germany&countries=Canada&page=1&pagesize=100	application/json
+team_nonsense	GET	https://jobs.uber.com/api/jobs/search/?team=Zzqq&page=1&pagesize=100	application/json
+team_engineer	GET	https://jobs.uber.com/api/jobs/search/?team=Engineer&page=1&pagesize=100	application/json
+team_finance	GET	https://jobs.uber.com/api/jobs/search/?team=Finance&page=1&pagesize=100	application/json
+subteam_nonsense	GET	https://jobs.uber.com/api/jobs/search/?subTeam=Zzqq&page=1&pagesize=100	application/json
+subteam_bizops	GET	https://jobs.uber.com/api/jobs/search/?subTeam=Business+Operations&page=1&pagesize=100	application/json
+subteam_custsupport	GET	https://jobs.uber.com/api/jobs/search/?subTeam=Customer+Support&page=1&pagesize=100	application/json
+contract_fulltime	GET	https://jobs.uber.com/api/jobs/search/?contractTypes=Full+time&page=1&pagesize=100	application/json
+contract_nonsense	GET	https://jobs.uber.com/api/jobs/search/?contractTypes=Zzqq&page=1&pagesize=100	application/json
+location_berlin	GET	https://jobs.uber.com/api/jobs/search/?location=Berlin&page=1&pagesize=100	application/json
+location_nonsense	GET	https://jobs.uber.com/api/jobs/search/?location=Zzqqville&page=1&pagesize=100	application/json
+latlng_berlin_50	GET	https://jobs.uber.com/api/jobs/search/?lat=52.52&lng=13.4&radius=50&page=1&pagesize=100	application/json
+experience_nonsense	GET	https://jobs.uber.com/api/jobs/search/?experience=Zzqq&page=1&pagesize=100	application/json
+businessunits_nonsense	GET	https://jobs.uber.com/api/jobs/search/?businessUnits=Zzqq&page=1&pagesize=100	application/json
+recently_viewed	POST	https://jobs.uber.com/api/jobs/recently-viewed/	application/json	{"jobIds":["302906","160425","999999999"],"locale":"en"}
+recommendations	POST	https://jobs.uber.com/api/jobs/recommendations/	application/json	{"viewJobIds":["302906"],"maxJobs":5}
+facets_html	GET	https://jobs.uber.com/en/jobs/	text/html

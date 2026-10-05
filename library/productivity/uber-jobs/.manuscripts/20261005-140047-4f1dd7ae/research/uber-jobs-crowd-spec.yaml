@@ -1,0 +1,63 @@
+name: uber-jobs
+description: Discovered API spec for uber-jobs (crowd-sniff)
+version: 0.1.0
+base_url: https://jobs.uber.com
+spec_source: community
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/uber-jobs-pp-cli/config.toml
+resources:
+    app:
+        description: Operations on all
+        endpoints:
+            list_all:
+                method: GET
+                path: /api/app/all
+                description: GET /api/app/all
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    loadSearchJobsResults:
+        description: Operations on loadSearchJobsResults
+        endpoints:
+            list_loadSearchJobsResults:
+                method: GET
+                path: /api/loadSearchJobsResults
+                description: GET /api/loadSearchJobsResults
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+    role:
+        description: Operations on role
+        endpoints:
+            list_role:
+                method: GET
+                path: /api/role
+                description: GET /api/role
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: code-search
+types: {}

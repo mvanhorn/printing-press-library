@@ -1,0 +1,344 @@
+== overall ==
+creator: {'name': 'WebInspector', 'version': '537.36'} browser: None
+entries: 589
+first: 2026-10-05T07:03:55.872Z last: 2026-10-05T07:09:32.159Z
+mime top: [('text/x-component', 145), ('text/plain', 92), ('application/javascript', 86), ('text/javascript', 64), ('image/avif', 54), ('font/woff2', 32), ('text/html', 22), ('video/mp4', 22), ('image/gif', 21), ('text/css', 10), ('image/svg+xml', 6), ('application/manifest+json', 5)]
+base64 bodies: 124 image responses: 94
+image body chars: 30,181,455 of 69,250,980 total body chars
+hosts:
+   261 jobs.uber.com
+    95 uber-careers-v2-cdn.happydance.website
+    52 o.clarity.ms
+    50 dbvzsad39da5n.cloudfront.net
+    25 www.google.com
+    23 www.google-analytics.com
+    11 www.google.com.pk
+    10 maps.googleapis.com
+    10 places.googleapis.com
+     9 googleads.g.doubleclick.net
+     8 www.googletagmanager.com
+     8 analytics.google.com
+     6 jess.prod.joveo.com
+     3 tags.tiqcdn.com
+     3 ad.doubleclick.net
+     2 jotrack.s3.amazonaws.com
+     2 embed.jochat.ai
+     2 www.clarity.ms
+     2 scripts.clarity.ms
+     2 c.clarity.ms
+     2 fonts.googleapis.com
+     2 d3f70emg10ruwo.cloudfront.net
+     1 c.bing.com
+
+== secrets ==
+request header hits (cookie/auth/token): {':authority': 514}
+response set-cookie hits: {}
+entries with non-empty request.cookies: 0 response.cookies: 0
+challenge-platform requests: 0 []
+entries mentioning cf_clearance in request/resp headers: 0
+
+== uber.com first-party requests (non-image) ==
+  2026-10-05T07:03:55.872Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/160013/?_rsc=1mzkx
+  2026-10-05T07:03:55.873Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/160013/?_rsc=5l2ek
+  2026-10-05T07:03:55.873Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/160013/?_rsc=m8eig
+  2026-10-05T07:03:59.146Z GET 200       0 text/html                https://jobs.uber.com/en/jobs/
+  2026-10-05T07:03:59.394Z GET 200       0 application/manifest+jso https://jobs.uber.com/manifest.webmanifest
+  2026-10-05T07:04:00.042Z GET 200       0 text/x-component         https://jobs.uber.com/en/?_rsc=1tnrg
+  2026-10-05T07:04:00.050Z GET 200       0 text/x-component         https://jobs.uber.com/en/people-stories/?_rsc=1tnrg
+  2026-10-05T07:04:00.051Z GET 200       0 text/x-component         https://jobs.uber.com/en/sitemap/?_rsc=1tnrg
+  2026-10-05T07:04:00.051Z GET 200       0 text/x-component         https://jobs.uber.com/en/cookies/?_rsc=1tnrg
+  2026-10-05T07:04:00.121Z POST 308       0 text/plain               https://jobs.uber.com/api/jobs/recently-viewed
+     resp: {'server': 'cloudflare', 'cache-control': 'public, max-age=0, must-revalidate', 'x-vercel-cache': None, 'age': None, 'cf-cache-status': 'DYNAMIC', 'content-type': 'text/plain', 'location': '/api/jobs/recently-viewed/'}
+  2026-10-05T07:04:00.202Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/saved-jobs/?_rsc=1tnrg
+  2026-10-05T07:04:00.207Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/302497/?_rsc=1tnrg
+  2026-10-05T07:04:00.220Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/302496/?_rsc=1tnrg
+  2026-10-05T07:04:00.223Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/302500/?_rsc=1tnrg
+  2026-10-05T07:04:00.267Z POST 200       0 application/json         https://jobs.uber.com/api/jobs/recently-viewed/
+     resp: {'server': 'cloudflare', 'cache-control': 'private, max-age=60, stale-while-revalidate=30', 'x-vercel-cache': 'MISS', 'age': None, 'cf-cache-status': 'DYNAMIC', 'content-type': 'application/json', 'location': None}
+  2026-10-05T07:04:00.364Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/153856/?_rsc=1tnrg
+  2026-10-05T07:04:00.428Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/saved-jobs/?_rsc=q16pe
+  2026-10-05T07:04:00.627Z GET 200       0 text/x-component         https://jobs.uber.com/en/?_rsc=yybeg
+  2026-10-05T07:04:00.642Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/302497/?_rsc=1mzkx
+  2026-10-05T07:04:00.701Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/302497/?_rsc=5l2ek
+  2026-10-05T07:04:00.794Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/302497/?_rsc=m8eig
+  2026-10-05T07:04:00.834Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/302496/?_rsc=1mzkx
+  2026-10-05T07:04:00.870Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/302496/?_rsc=5l2ek
+  2026-10-05T07:04:00.978Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/302496/?_rsc=m8eig
+  2026-10-05T07:04:01.238Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/302500/?_rsc=1mzkx
+  2026-10-05T07:04:01.259Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/302500/?_rsc=5l2ek
+  2026-10-05T07:04:01.289Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/302500/?_rsc=m8eig
+  2026-10-05T07:04:01.399Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/153856/?_rsc=1mzkx
+  2026-10-05T07:04:01.425Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/153856/?_rsc=5l2ek
+  2026-10-05T07:04:01.467Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/153856/?_rsc=m8eig
+  2026-10-05T07:04:07.605Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/160013/?_rsc=1tnrg
+  2026-10-05T07:04:07.778Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/160013/?_rsc=1mzkx
+  2026-10-05T07:04:07.779Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/160013/?_rsc=5l2ek
+  2026-10-05T07:04:07.779Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/160013/?_rsc=m8eig
+  2026-10-05T07:04:20.405Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/302278/?_rsc=1tnrg
+  2026-10-05T07:04:20.891Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/302278/?_rsc=1mzkx
+  2026-10-05T07:04:20.891Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/302278/?_rsc=5l2ek
+  2026-10-05T07:04:20.891Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/302278/?_rsc=m8eig
+  2026-10-05T07:04:36.948Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/303121/?_rsc=1tnrg
+  2026-10-05T07:04:37.394Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/303121/?_rsc=1mzkx
+  2026-10-05T07:04:37.394Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/303121/?_rsc=5l2ek
+  2026-10-05T07:04:37.394Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/303121/?_rsc=m8eig
+  2026-10-05T07:04:49.039Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/303008/?_rsc=1tnrg
+  2026-10-05T07:04:49.500Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/303008/?_rsc=1mzkx
+  2026-10-05T07:04:49.500Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/303008/?_rsc=5l2ek
+  2026-10-05T07:04:49.500Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/303008/?_rsc=m8eig
+  2026-10-05T07:04:54.989Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/302447/?_rsc=1tnrg
+  2026-10-05T07:04:55.626Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/302447/?_rsc=1mzkx
+  2026-10-05T07:04:55.626Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/302447/?_rsc=5l2ek
+  2026-10-05T07:04:55.626Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/302447/?_rsc=m8eig
+  2026-10-05T07:05:15.331Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/302498/?_rsc=1tnrg
+  2026-10-05T07:05:15.758Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/302498/?_rsc=1mzkx
+  2026-10-05T07:05:15.758Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/302498/?_rsc=5l2ek
+  2026-10-05T07:05:15.758Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/302498/?_rsc=m8eig
+  2026-10-05T07:07:16.795Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/?radius=120&_rsc=17gzl
+  2026-10-05T07:07:18.124Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/?_rsc=17gzl
+  2026-10-05T07:07:29.703Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/160425/?_rsc=1tnrg
+  2026-10-05T07:07:29.703Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/303038/?_rsc=1tnrg
+  2026-10-05T07:07:29.703Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/158863/?_rsc=1tnrg
+  2026-10-05T07:07:30.130Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/160425/?_rsc=1mzkx
+  2026-10-05T07:07:30.131Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/160425/?_rsc=5l2ek
+  2026-10-05T07:07:30.157Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/160425/?_rsc=m8eig
+  2026-10-05T07:07:30.161Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/303038/?_rsc=1mzkx
+  2026-10-05T07:07:30.543Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/303038/?_rsc=5l2ek
+  2026-10-05T07:07:30.596Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/303038/?_rsc=m8eig
+  2026-10-05T07:07:30.609Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/158863/?_rsc=1mzkx
+  2026-10-05T07:07:30.688Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/158863/?_rsc=5l2ek
+  2026-10-05T07:07:31.049Z GET 200       0 text/x-component         https://jobs.uber.com/en/jobs/158863/?_rsc=m8eig
+  2026-10-05T07:07:31.279Z GET 308       0 text/html                https://jobs.uber.com/en/jobs?page=2&pagesize=10
+  2026-10-05T07:07:31.425Z GET 200  222773 text/html                https://jobs.uber.com/en/jobs/?page=2&pagesize=10
+  2026-10-05T07:07:31.672Z GET 200      63 application/manifest+jso https://jobs.uber.com/manifest.webmanifest
+  2026-10-05T07:07:32.090Z GET 200    1478 text/x-component         https://jobs.uber.com/en/?_rsc=1tnrg
+  2026-10-05T07:07:32.145Z GET 200   73426 application/json         https://jobs.uber.com/api/jobs/search/?page=2
+     resp: {'server': 'cloudflare', 'cache-control': 'public', 'x-vercel-cache': 'STALE', 'age': '15081', 'cf-cache-status': 'DYNAMIC', 'content-type': 'application/json', 'location': None}
+  2026-10-05T07:07:32.150Z POST 308       0 text/plain               https://jobs.uber.com/api/jobs/recently-viewed
+     resp: {'server': 'cloudflare', 'cache-control': 'public, max-age=0, must-revalidate', 'x-vercel-cache': None, 'age': None, 'cf-cache-status': 'DYNAMIC', 'content-type': 'text/plain', 'location': '/api/jobs/recently-viewed/'}
+  2026-10-05T07:07:32.174Z GET 200    1720 text/x-component         https://jobs.uber.com/en/jobs/saved-jobs/?_rsc=1tnrg
+  2026-10-05T07:07:32.268Z GET 200  187326 text/x-component         https://jobs.uber.com/en/?_rsc=yybeg
+  2026-10-05T07:07:32.269Z GET 200     961 text/x-component         https://jobs.uber.com/en/?_rsc=pkpaw
+  2026-10-05T07:07:32.269Z GET 200   61938 text/x-component         https://jobs.uber.com/en/?_rsc=xsmrx
+  2026-10-05T07:07:32.303Z POST 200    1225 application/json         https://jobs.uber.com/api/jobs/recently-viewed/
+     resp: {'server': 'cloudflare', 'cache-control': 'private, max-age=60, stale-while-revalidate=30', 'x-vercel-cache': 'MISS', 'age': None, 'cf-cache-status': 'DYNAMIC', 'content-type': 'application/json', 'location': None}
+  2026-10-05T07:07:32.347Z GET 200    2020 text/x-component         https://jobs.uber.com/en/jobs/302964/?_rsc=1tnrg
+  2026-10-05T07:07:32.434Z GET 200    2020 text/x-component         https://jobs.uber.com/en/jobs/160425/?_rsc=1tnrg
+  2026-10-05T07:07:32.445Z GET 200    1987 text/x-component         https://jobs.uber.com/en/jobs/302906/?_rsc=1tnrg
+  2026-10-05T07:07:32.451Z GET 200   82751 text/x-component         https://jobs.uber.com/en/jobs/saved-jobs/?_rsc=q16pe
+  2026-10-05T07:07:32.614Z GET 200    5039 text/x-component         https://jobs.uber.com/en/jobs/160425/?_rsc=1mzkx
+  2026-10-05T07:07:32.646Z GET 200     584 text/x-component         https://jobs.uber.com/en/jobs/160425/?_rsc=1r6r8
+  2026-10-05T07:07:32.650Z GET 200     584 text/x-component         https://jobs.uber.com/en/jobs/160425/?_rsc=5l2ek
+  2026-10-05T07:07:32.804Z GET 200    5024 text/x-component         https://jobs.uber.com/en/jobs/302964/?_rsc=1mzkx
+  2026-10-05T07:07:32.805Z GET 200     584 text/x-component         https://jobs.uber.com/en/jobs/302964/?_rsc=5l2ek
+  2026-10-05T07:07:32.902Z GET 200  649621 text/x-component         https://jobs.uber.com/en/jobs/302964/?_rsc=m8eig
+  2026-10-05T07:07:32.955Z GET 200    4961 text/x-component         https://jobs.uber.com/en/jobs/302906/?_rsc=1mzkx
+  2026-10-05T07:07:32.955Z GET 200     584 text/x-component         https://jobs.uber.com/en/jobs/302906/?_rsc=5l2ek
+  2026-10-05T07:07:32.955Z GET 200  239561 text/x-component         https://jobs.uber.com/en/jobs/302906/?_rsc=m8eig
+  2026-10-05T07:07:33.117Z GET 200  646696 text/x-component         https://jobs.uber.com/en/jobs/160425/?_rsc=m8eig
+  2026-10-05T07:07:33.252Z GET 200    2006 text/x-component         https://jobs.uber.com/en/jobs/302734/?_rsc=1tnrg
+  2026-10-05T07:07:33.298Z GET 200    1994 text/x-component         https://jobs.uber.com/en/jobs/303168/?_rsc=1tnrg
+  2026-10-05T07:07:33.664Z GET 200    4943 text/x-component         https://jobs.uber.com/en/jobs/302734/?_rsc=1mzkx
+  2026-10-05T07:07:33.664Z GET 200     584 text/x-component         https://jobs.uber.com/en/jobs/302734/?_rsc=5l2ek
+  2026-10-05T07:07:33.664Z GET 200  897250 text/x-component         https://jobs.uber.com/en/jobs/302734/?_rsc=m8eig
+  2026-10-05T07:07:33.771Z GET 200    1996 text/x-component         https://jobs.uber.com/en/jobs/302779/?_rsc=1tnrg
+  2026-10-05T07:07:34.081Z GET 200    5065 text/x-component         https://jobs.uber.com/en/jobs/303168/?_rsc=1mzkx
+  2026-10-05T07:07:34.105Z GET 200     584 text/x-component         https://jobs.uber.com/en/jobs/303168/?_rsc=5l2ek
+  2026-10-05T07:07:34.200Z GET 200    5171 text/x-component         https://jobs.uber.com/en/jobs/302779/?_rsc=1mzkx
+  2026-10-05T07:07:34.221Z GET 200     584 text/x-component         https://jobs.uber.com/en/jobs/302779/?_rsc=5l2ek
+  2026-10-05T07:07:34.525Z GET 200  359654 text/x-component         https://jobs.uber.com/en/jobs/302779/?_rsc=m8eig
+  2026-10-05T07:07:34.561Z GET 200  539177 text/x-component         https://jobs.uber.com/en/jobs/303168/?_rsc=m8eig
+  2026-10-05T07:07:36.526Z GET 200    1593 text/x-component         https://jobs.uber.com/en/people-stories/life-at-uber/riding-towards-a-better-future-why-raquel-joined-uber/?_rsc=1p5ur
+  2026-10-05T07:07:36.542Z GET 200      63 application/manifest+jso https://jobs.uber.com/manifest.webmanifest
+  2026-10-05T07:07:36.944Z GET 200  138698 text/x-component         https://jobs.uber.com/en/people-stories/life-at-uber/riding-towards-a-better-future-why-raquel-joined-uber/?_rsc=l9gi4
+  2026-10-05T07:07:49.273Z GET 200    1594 text/x-component         https://jobs.uber.com/en/jobs/?_rsc=1p5ur
+  2026-10-05T07:07:49.315Z GET 200    2020 text/x-component         https://jobs.uber.com/en/jobs/302055/?_rsc=1p5ur
+  2026-10-05T07:07:49.315Z GET 200    1827 text/x-component         https://jobs.uber.com/en/jobs/303050/?_rsc=1p5ur
+  2026-10-05T07:07:49.315Z GET 200    2020 text/x-component         https://jobs.uber.com/en/jobs/300082/?_rsc=1p5ur
+  2026-10-05T07:07:49.445Z GET 200    2395 text/x-component         https://jobs.uber.com/en/jobs/?_rsc=yqx82
+  2026-10-05T07:07:49.647Z GET 200  137876 text/x-component         https://jobs.uber.com/en/jobs/?_rsc=172dj
+  2026-10-05T07:07:49.762Z GET 200    5070 text/x-component         https://jobs.uber.com/en/jobs/300082/?_rsc=yqx82
+  2026-10-05T07:07:49.764Z GET 200    4931 text/x-component         https://jobs.uber.com/en/jobs/303050/?_rsc=yqx82
+  2026-10-05T07:07:49.764Z GET 200     584 text/x-component         https://jobs.uber.com/en/jobs/303050/?_rsc=dhi65
+  2026-10-05T07:07:49.764Z GET 200  132090 text/x-component         https://jobs.uber.com/en/jobs/303050/?_rsc=1moif
+  2026-10-05T07:07:50.221Z GET 200    5074 text/x-component         https://jobs.uber.com/en/jobs/302055/?_rsc=yqx82
+  2026-10-05T07:07:50.222Z GET 200     584 text/x-component         https://jobs.uber.com/en/jobs/302055/?_rsc=dhi65
+  2026-10-05T07:07:50.224Z GET 200  646633 text/x-component         https://jobs.uber.com/en/jobs/302055/?_rsc=1moif
+  2026-10-05T07:07:50.225Z GET 200     584 text/x-component         https://jobs.uber.com/en/jobs/300082/?_rsc=dhi65
+  2026-10-05T07:07:50.627Z GET 200  653447 text/x-component         https://jobs.uber.com/en/jobs/300082/?_rsc=1moif
+  2026-10-05T07:07:56.198Z GET 200    1595 text/x-component         https://jobs.uber.com/en/benefits/?_rsc=1p5ur
+  2026-10-05T07:07:56.625Z GET 200  132416 text/x-component         https://jobs.uber.com/en/benefits/?_rsc=14n7q
+  2026-10-05T07:08:02.229Z GET 200    1595 text/x-component         https://jobs.uber.com/en/what-moves-us/life-at-uber/?_rsc=1p5ur
+  2026-10-05T07:08:02.429Z GET 200  136025 text/x-component         https://jobs.uber.com/en/what-moves-us/life-at-uber/?_rsc=10yzr
+  2026-10-05T07:08:11.266Z GET 200  136025 text/x-component         https://jobs.uber.com/en/what-moves-us/life-at-uber/?_rsc=1h8qj
+  2026-10-05T07:08:11.427Z GET 200      63 application/manifest+jso https://jobs.uber.com/manifest.webmanifest
+  2026-10-05T07:08:17.679Z GET 200    1595 text/x-component         https://jobs.uber.com/en/people-stories/life-at-uber/?_rsc=2ud5t
+  2026-10-05T07:08:17.701Z GET 200    1595 text/x-component         https://jobs.uber.com/en/people-stories/life-at-uber/from-brazil-to-nyc-seeing-impact-in-real-time/?_rsc=2ud5t
+  2026-10-05T07:08:17.701Z GET 200    1593 text/x-component         https://jobs.uber.com/en/people-stories/life-at-uber/redefining-my-career-through-maternity-leave-at-uber/?_rsc=2ud5t
+  2026-10-05T07:08:17.701Z GET 200    1593 text/x-component         https://jobs.uber.com/en/people-stories/life-at-uber/how-teamwork-drives-sales-and-speed-at-uber-eats/?_rsc=2ud5t
+  2026-10-05T07:08:17.862Z GET 200    1595 text/x-component         https://jobs.uber.com/en/people-stories/life-at-uber/why-i-bet-my-next-chapter-on-uber-inside-anilabh-pandey-s-first-7-months/?_rsc=2ud5t
+  2026-10-05T07:08:17.871Z GET 200  107705 text/x-component         https://jobs.uber.com/en/people-stories/life-at-uber/from-brazil-to-nyc-seeing-impact-in-real-time/?_rsc=1s7vw
+  2026-10-05T07:08:18.272Z GET 200  158660 text/x-component         https://jobs.uber.com/en/people-stories/life-at-uber/why-i-bet-my-next-chapter-on-uber-inside-anilabh-pandey-s-first-7-months/?_rsc=vozde
+  2026-10-05T07:08:18.689Z GET 200    1595 text/x-component         https://jobs.uber.com/en/what-moves-us/how-we-hire/?_rsc=2ud5t
+  2026-10-05T07:08:18.873Z GET 200  124176 text/x-component         https://jobs.uber.com/en/what-moves-us/how-we-hire/?_rsc=10ec1
+  2026-10-05T07:08:19.142Z GET 200    1595 text/x-component         https://jobs.uber.com/en/teams/?_rsc=2ud5t
+  2026-10-05T07:08:19.284Z GET 200    1595 text/x-component         https://jobs.uber.com/en/what-moves-us/brands/?_rsc=2ud5t
+  2026-10-05T07:08:19.525Z GET 200  123949 text/x-component         https://jobs.uber.com/en/what-moves-us/brands/?_rsc=1x72d
+  2026-10-05T07:08:20.107Z GET 200  124986 text/x-component         https://jobs.uber.com/en/teams/?_rsc=ebalg
+  2026-10-05T07:08:20.481Z GET 200    1595 text/x-component         https://jobs.uber.com/en/people-stories/?_rsc=2ud5t
+  2026-10-05T07:08:20.481Z GET 200    1595 text/x-component         https://jobs.uber.com/en/sitemap/?_rsc=2ud5t
+  2026-10-05T07:08:20.481Z GET 200    1595 text/x-component         https://jobs.uber.com/en/cookies/?_rsc=2ud5t
+  2026-10-05T07:08:20.759Z GET 200    2744 text/x-component         https://jobs.uber.com/en/cookies/?_rsc=otlwg
+  2026-10-05T07:08:20.759Z GET 200     584 text/x-component         https://jobs.uber.com/en/cookies/?_rsc=sdjqp
+  2026-10-05T07:08:20.760Z GET 200    2740 text/x-component         https://jobs.uber.com/en/sitemap/?_rsc=otlwg
+  2026-10-05T07:08:20.760Z GET 200    3567 text/x-component         https://jobs.uber.com/en/people-stories/?_rsc=otlwg
+  2026-10-05T07:08:20.935Z GET 200     584 text/x-component         https://jobs.uber.com/en/people-stories/?_rsc=sdjqp
+  2026-10-05T07:08:20.942Z GET 200  577242 text/x-component         https://jobs.uber.com/en/people-stories/?_rsc=4jzs8
+  2026-10-05T07:08:20.942Z GET 200     584 text/x-component         https://jobs.uber.com/en/sitemap/?_rsc=sdjqp
+  2026-10-05T07:08:21.022Z GET 200  244848 text/x-component         https://jobs.uber.com/en/sitemap/?_rsc=4jzs8
+  2026-10-05T07:08:21.274Z GET 200   58821 text/x-component         https://jobs.uber.com/en/cookies/?_rsc=4jzs8
+  2026-10-05T07:08:21.775Z GET 200  152415 text/x-component         https://jobs.uber.com/en/people-stories/life-at-uber/redefining-my-career-through-maternity-leave-at-uber/?_rsc=4s5s6
+  2026-10-05T07:08:21.776Z GET 200  146242 text/x-component         https://jobs.uber.com/en/people-stories/life-at-uber/how-teamwork-drives-sales-and-speed-at-uber-eats/?_rsc=147v9
+  2026-10-05T07:08:21.830Z GET 200  134535 text/x-component         https://jobs.uber.com/en/people-stories/life-at-uber/?_rsc=svg4r
+  2026-10-05T07:08:23.512Z GET 200      63 application/manifest+jso https://jobs.uber.com/manifest.webmanifest
+
+== search API ==
+url: https://jobs.uber.com/api/jobs/search/?page=2 status: 200
+  request header names: [':authority', ':method', ':path', ':scheme', 'accept', 'accept-encoding', 'accept-language', 'cache-control', 'pragma', 'priority', 'referer', 'sec-ch-ua', 'sec-ch-ua-mobile', 'sec-ch-ua-platform', 'sec-fetch-dest', 'sec-fetch-mode', 'sec-fetch-site', 'user-agent']
+  body bytes: 73426
+  top keys: {'jobs': 'list', 'totalPages': 59, 'totalJobs': 581, 'page': 2, 'pageSize': 10}
+  jobs: 10
+  row keys: ['@search.score', 'AdditionalDescription1', 'AdditionalText', 'ContractType', 'Description', 'DisplayDate', 'ExperienceLevel', 'Id', 'Locations', 'QuestionsRaw', 'Reference', 'Remote', 'Salary', 'Summary', 'Teams', 'Title', 'Urls', 'WorkPattern']
+   Id=302906 Ref=302906 same=True DisplayDate=2026-10-02T21:46:44Z nloc=1 CC=[None] Country=['United States'] score=1.6835864 AddText='Finance Internal Audit' Urls=['/en/jobs/302906/']
+   Id=160425 Ref=160425 same=True DisplayDate=2026-10-02T20:50:31Z nloc=1 CC=[None] Country=['Germany'] score=1.6780093 AddText='Operations Business Operations' Urls=['/en/jobs/160425/']
+   Id=302964 Ref=302964 same=True DisplayDate=2026-10-02T19:49:58Z nloc=2 CC=[None, None] Country=['United States', 'United States'] score=1.6720023 AddText='Operations Business Operations' Urls=['/en/jobs/302964/']
+   Id=303168 Ref=303168 same=True DisplayDate=2026-10-02T18:29:49Z nloc=1 CC=[None] Country=['Portugal'] score=1.6640509 AddText='Customer Support Customer Support' Urls=['/en/jobs/303168/']
+   Id=302734 Ref=302734 same=True DisplayDate=2026-10-02T17:18:49Z nloc=1 CC=[None] Country=['United States'] score=1.6570072 AddText='Engineer Infrastructure Engineering' Urls=['/en/jobs/302734/']
+   Id=302779 Ref=302779 same=True DisplayDate=2026-10-02T17:13:04Z nloc=2 CC=[None, None] Country=['United States', 'United States'] score=1.6564368 AddText='Sales Sales Operations' Urls=['/en/jobs/302779/']
+   Id=301078 Ref=301078 same=True DisplayDate=2026-10-02T17:12:02Z nloc=1 CC=[None] Country=['United States'] score=1.6563343 AddText='Engineer Infrastructure Engineering' Urls=['/en/jobs/301078/']
+   Id=300313 Ref=300313 same=True DisplayDate=2026-10-02T15:29:40Z nloc=1 CC=[None] Country=['Canada'] score=1.646179 AddText='Sales Account Management' Urls=['/en/jobs/300313/']
+   Id=302264 Ref=302264 same=True DisplayDate=2026-10-02T15:14:07Z nloc=1 CC=[None] Country=['Spain'] score=1.6446363 AddText='Sales Sales' Urls=['/en/jobs/302264/']
+   Id=302569 Ref=302569 same=True DisplayDate=2026-10-02T12:49:58Z nloc=1 CC=[None] Country=['South Africa'] score=1.6303357 AddText='Sales Client Success' Urls=['/en/jobs/302569/']
+  Location keys: ['Address', 'City', 'Country', 'CountryCode', 'Identifier', 'LocationPoint', 'PostalCode', 'Region']
+  Salary: ['Currency', 'Description', 'MaxValue', 'MinValue', 'Period']
+  Urls keys: ['Culture', 'IsDefault', 'Url']
+  DisplayDate newest-first: True
+
+== recently-viewed / recommendations / subscribe ==
+  POST 308 https://jobs.uber.com/api/jobs/recently-viewed
+    postData: {"jobIds":["158863","303038","160425"],"locale":"en"}
+    location: /api/jobs/recently-viewed/
+  POST 200 https://jobs.uber.com/api/jobs/recently-viewed/
+    postData: {"jobIds":["158863","303038","160425"],"locale":"en"}
+    location: None
+  POST 308 https://jobs.uber.com/api/jobs/recently-viewed
+    postData: {"jobIds":["158863","303038","160425"],"locale":"en"}
+    location: /api/jobs/recently-viewed/
+  POST 200 https://jobs.uber.com/api/jobs/recently-viewed/
+    postData: {"jobIds":["158863","303038","160425"],"locale":"en"}
+    location: None
+    top: ['jobs'] row keys: ['id', 'locations', 'teams', 'title', 'url'] n: 3
+
+== JS constants ==
+js entries: 152
+  00cbce61c5056944.js: ['oraclecloud', 'beamery', 'myworkdayjobs']
+    oraclecloud ctx: nsent:i}=(0,a.useGTM)();return(0,t.useEffect)(()=>{r&&i(e.includes("A"))},[e,r,i]),null}])},146544,e=>{"use strict";var t=e.i(843206),a=e.i(892078);let r=["pages.beamery.com","flows.beamery.com",".myworkdayjobs.com","myworkdayjobs-impl.com",".fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs"];function i(e,t){if(!t?.trim())return e;try{let a=new URL(e);return new URLSearchParams(t.startsWith("?")?t.slice(1):t).forEach((e,t)=>{a.searchParams.has(t)||a.searchParams.set(t,e
+    beamery ctx: .i(205998);e.s(["CookieConsentBridge",0,({cookieValue:e,isInitialized:r})=>{let{setHasConsent:i}=(0,a.useGTM)();return(0,t.useEffect)(()=>{r&&i(e.includes("A"))},[e,r,i]),null}])},146544,e=>{"use strict";var t=e.i(843206),a=e.i(892078);let r=["pages.beamery.com","flows.beamery.com",".myworkdayjobs.com","myworkdayjobs-impl.com",".fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs"];function i(e,t){if(!t?.trim())return e;try{let a=new URL(e);return new URLSearchParams(t.sta
+    myworkdayjobs ctx: e",0,({cookieValue:e,isInitialized:r})=>{let{setHasConsent:i}=(0,a.useGTM)();return(0,t.useEffect)(()=>{r&&i(e.includes("A"))},[e,r,i]),null}])},146544,e=>{"use strict";var t=e.i(843206),a=e.i(892078);let r=["pages.beamery.com","flows.beamery.com",".myworkdayjobs.com","myworkdayjobs-impl.com",".fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs"];function i(e,t){if(!t?.trim())return e;try{let a=new URL(e);return new URLSearchParams(t.startsWith("?")?t.slice(1):t).forEach(
+  3942953a9490a5bd.js: ['JOB_QUERY_KEYS']
+    ctx: .toggles=this.toggles.filter(t=>t.id!==e),this}};e.s(["default",0,n])},88795,e=>{"use strict";e.s(["JOB_QUERY_KEYS",0,{search:"search",location:"location",locations:"locations",countries:"countries",team:"team",subTeam:"subTeam",contractTypes:"contractTypes",experience:"experience",businessUnits:"businessUnits",latitude:"lat",longitude:"lng",radius:"radius",page:"page",pageSize:"pagesize"},"JOB_QUERY_LEGACY_ALIASES",0,{search:["keyword"],location:["mylocation"],team:["teams"],subTeam:["subTeams","subteam"]},"roundCoordinate",0,e=>Math.round(100*e)/100])},269576,e=>{"use strict";let t="__hdGooglePlacesInit",i=null;e.s(["AUTOCOMPLETE_DEBOUNCE_MS",0,500,"AUTOCOMPLETE_MIN_CHARS",0,3,"getGooglePlacesApiKey",0,()=>"AIza[REDACTED-google-places-key]".trim(),"loadGooglePlacesScript",0,e=>{if
+  f95f3dab2574ffe0.js: ['JOB_QUERY_KEYS']
+    ctx: w.clearTimeout(q.current),U.current=null;let n=new URLSearchParams,r=y.trim(),a=k.trim();r&&n.set(d.JOB_QUERY_KEYS.search,r),a&&n.set(d.JOB_QUERY_KEYS.location,a),null!==T&&null!==_&&(n.set(d.JOB_QUERY_KEYS.latitude,String((0,d.roundCoordinate)(T))),n.set(d.JOB_QUERY_KEYS.longitude,String((0,d.roundCoordinate)(_))));let o=e?.trim()||"/jobs",s=n.toString(),l=s?`${o}${o.includes("?")?"&":"?"}${s}`:o,c=/^https?:\/\//i.test(o);x(()=>{(i(),c)?window.location.assign(l):h.push(l)})},className:"flex flex-col gap-1.5 lg:gap-3",variants:m,custom:1,initial:"initial",animate:"enter",exit:"exit",children:[(0,t.jsxs)("div",{className:"relative isolate",children:[(0,t.jsx)("label",{htmlFor:"nav-search-keyword",className:"sr-only",children:"Search roles by title, skill or keyword"}),(0,t.jsx)(c.Input,{id:
+  acae5e775ff0f9ad.js: ['JOB_QUERY_KEYS', '/api/jobs/search/?', 'recently-viewed', 'subscribe']
+    ctx: ]:opacity-100!";(0,i.useEffect)(()=>{let e,t,i=(t=Number.parseInt((e=new URLSearchParams(eh)).get(s.JOB_QUERY_KEYS.radius)||"",10),{search:(e.get(s.JOB_QUERY_KEYS.search)??"").trim(),myLocation:(e.get(s.JOB_QUERY_KEYS.location)??"").trim(),radiusMiles:Number.isFinite(t)?$(t):100,latitude:_(e.get(s.JOB_QUERY_KEYS.latitude)),longitude:_(e.get(s.JOB_QUERY_KEYS.longitude)),team:(e.get(s.JOB_QUERY_KEYS.team)??"").trim(),subTeam:(e.get(s.JOB_QUERY_KEYS.subTeam)??"").trim(),countries:e.getAll(s.JOB_QUERY_KEYS.countries).map(e=>e.trim()).filter(Boolean)}),r=i.countries.length>0;Z(i.search),D(r?"":i.myLocation),T(""),C(i.radiusMiles),L(r?null:i.latitude),B(r?null:i.longitude),M(i.team),Y(i.subTeam),G(i.countries),eo([]),es(!1),ed(-1),en(null)},[eh]);let e_=(0,i.useMemo)(()=>y(e.teams??[]),[e.teams]
+    search ctx: =(0,n.useState)(!(o&&t)),[c,m]=(0,n.useState)(null);return(0,n.useEffect)(()=>{if(o&&a.current){s(a.current),d(!1),m(null);return}let t=new AbortController;return(async()=>{d(!0),m(null);try{let i=e?`/api/jobs/search/?${e}`:"/api/jobs/search/",r=await fetch(i,{method:"GET",signal:t.signal});if(!r.ok)throw Error(`Search
+    rv ctx: sonalisation)(),[s,l]=(0,i.useState)([]);return((0,i.useEffect)(()=>{let t=new AbortController;return async function(){let i=u.slice(0,3);if(0===i.length)return l([]);try{let r=await fetch("/api/jobs/recently-viewed",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jobIds:i,locale:e}),signal:t.signal});if(!r.ok)throw Error(`Failed to load recently viewed jobs: ${r.st
+  97261491313315cc.js: ['recommendations']
+    recommendations ctx: ([e],[t])=>e.localeCompare(t)).map(([e,t])=>`${e}:${t}`).join("|"),[b.viewJobIds]);(0,i.useEffect)(()=>{if(!N)return void y(e);let t=new AbortController;return async function(){try{let i=await fetch("/api/jobs/recommendations",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({viewJobIds:b.viewJobIds,maxJobs:c}),signal:t.signal});if(!i.ok)throw Error(`Failed to fetch recommendations: ${i.status}`);let l=await i.json()
+  gtm.js: ['oraclecloud']
+    oraclecloud ctx: ],"arg1":"job_detail_scroll"},{"function":"_eq","arg0":["macro",1],"arg1":"cta_interaction"},{"function":"_cn","arg0":["macro",69],"arg1":"uber.com"},{"function":"_eq","arg0":["macro",1],"arg1":"gtm.js"},{"function":"_cn","arg0":["macro",69],"arg1":"oraclecloud.com"},{"function":"_eq","arg0":["macro",1],"arg1":"gtm.historyChange"},{"function":"_eq","arg0":["macro",1],"arg1":"job_save_remove_all"},{"function":"_eq","arg0":["macro",1],"arg1":"job_matcher"},{"function":"_eq","arg0":["macro",1],"arg
+  js: ['oraclecloud']
+    oraclecloud ctx: _name":"gtm.configContainerId","vtp_dataLayerVersion":1},{"function":"__c","vtp_value":"google.com.pk"},{"function":"__c","vtp_value":0}],   "tags":[{"function":"__ogt_cross_domain","priority":22,"vtp_rules":["list","uber\\.com","iaziqy\\.fa\\.ocs\\.oraclecloud\\.com"],"tag_id":13},{"function":"__ogt_auto_events","priority":22,"vtp_enableOutboundClick":true,"vtp_enableScroll":true,"vtp_enableDownload":true,"vtp_enableHistoryEvents":true,"vtp_enableForm":true,"vtp_enableVideo":true,"vtp_enablePag
+  342653a353678b52.js: ['recommendations']
+    recommendations ctx: ([e],[t])=>e.localeCompare(t)).map(([e,t])=>`${e}:${t}`).join("|"),[b.viewJobIds]);(0,i.useEffect)(()=>{if(!N)return void y(e);let t=new AbortController;return async function(){try{let i=await fetch("/api/jobs/recommendations",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({viewJobIds:b.viewJobIds,maxJobs:c}),signal:t.signal});if(!i.ok)throw Error(`Failed to fetch recommendations: ${i.status}`);let l=await i.json()
+  1bc3d069faa4a8ff.js: ['recommendations']
+    recommendations ctx: ([e],[t])=>e.localeCompare(t)).map(([e,t])=>`${e}:${t}`).join("|"),[b.viewJobIds]);(0,i.useEffect)(()=>{if(!N)return void y(e);let t=new AbortController;return async function(){try{let i=await fetch("/api/jobs/recommendations",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({viewJobIds:b.viewJobIds,maxJobs:c}),signal:t.signal});if(!i.ok)throw Error(`Failed to fetch recommendations: ${i.status}`);let l=await i.json()
+  22891f53fda2c124.js: ['recommendations']
+    recommendations ctx: ([e],[t])=>e.localeCompare(t)).map(([e,t])=>`${e}:${t}`).join("|"),[v.viewJobIds]);(0,i.useEffect)(()=>{if(!N)return void y(e);let t=new AbortController;return async function(){try{let i=await fetch("/api/jobs/recommendations",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({viewJobIds:v.viewJobIds,maxJobs:c}),signal:t.signal});if(!i.ok)throw Error(`Failed to fetch recommendations: ${i.status}`);let l=await i.json()
+  ChatBox-Dbnutb7k.js: ['myworkdayjobs']
+    myworkdayjobs ctx: erenceNumber:"178326",ctsName:"projects/tao-cts/tenants/811dc48a-bf7e-4130-8e16-e182b3a31585/jobs/97972568561984198",title:"Job",description:"Some Description",experience:"6-8 Years",qualifications:"",responsibilities:"",originalUrl:"https://ccf.wd1.myworkdayjobs.com/en-US/ClevelandClinicCareers/job/Lutheran-Hospital/Registered-Nurse---Behavioral-Health_178326",applyUrl:null,category:{test:"Nursing Patient Care"},department:"Nursing Float-Lutheran Hospital",employmentType:"Full time",derivedEmpl
+  index-vE4YbR0w.js: ['myworkdayjobs']
+    myworkdayjobs ctx: y poster . <br> <br> Cleveland Clinic Health System is pleased to be an equal employment employer: Women / Minorities / Veterans / Individuals with Disabilities <br>",experience:null,qualifications:"",responsibilities:"",originalUrl:"https://ccf.wd1.myworkdayjobs.com/en-US/ClevelandClinicCareers/job/St-Lucie-West-Med-Center/Office-Clerical-Coordinator_199271",applyUrl:null,category:"Administrative",department:"Pediatrics SLW-Cleveland Clinic Martin Health",employmentType:"Full time",derivedEmplo
+  constant-C7khHjHB.js: ['myworkdayjobs']
+    myworkdayjobs ctx: erenceNumber:"178326",ctsName:"projects/tao-cts/tenants/811dc48a-bf7e-4130-8e16-e182b3a31585/jobs/97972568561984198",title:"Job",description:"Some Description",experience:"6-8 Years",qualifications:"",responsibilities:"",originalUrl:"https://ccf.wd1.myworkdayjobs.com/en-US/ClevelandClinicCareers/job/Lutheran-Hospital/Registered-Nurse---Behavioral-Health_178326",applyUrl:null,category:{test:"Nursing Patient Care"},department:"",employmentType:"Full time",derivedEmploymentType:null,jobLocationType
+  22891f53fda2c124.js: ['recommendations']
+    recommendations ctx: ([e],[t])=>e.localeCompare(t)).map(([e,t])=>`${e}:${t}`).join("|"),[v.viewJobIds]);(0,i.useEffect)(()=>{if(!N)return void y(e);let t=new AbortController;return async function(){try{let i=await fetch("/api/jobs/recommendations",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({viewJobIds:v.viewJobIds,maxJobs:c}),signal:t.signal});if(!i.ok)throw Error(`Failed to fetch recommendations: ${i.status}`);let l=await i.json()
+  3eb6426ad756955d.js: ['recommendations', 'subscribe']
+    recommendations ctx: ([e],[t])=>e.localeCompare(t)).map(([e,t])=>`${e}:${t}`).join("|"),[v.viewJobIds]);(0,l.useEffect)(()=>{if(!N)return void y(e);let t=new AbortController;return async function(){try{let l=await fetch("/api/jobs/recommendations",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({viewJobIds:v.viewJobIds,maxJobs:c}),signal:t.signal});if(!l.ok)throw Error(`Failed to fetch recommendations: ${l.status}`);let i=await l.json()
+  3eb6426ad756955d.js: ['recommendations', 'subscribe']
+    recommendations ctx: ([e],[t])=>e.localeCompare(t)).map(([e,t])=>`${e}:${t}`).join("|"),[v.viewJobIds]);(0,l.useEffect)(()=>{if(!N)return void y(e);let t=new AbortController;return async function(){try{let l=await fetch("/api/jobs/recommendations",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({viewJobIds:v.viewJobIds,maxJobs:c}),signal:t.signal});if(!l.ok)throw Error(`Failed to fetch recommendations: ${l.status}`);let i=await l.json()
+
+== legacy aliases / radius default (grep all JS) ==
+  mylocation: 1 hits
+  subTeams: 7 hits
+  subteam: 75 hits
+  keyword: 18 hits
+  radius: 57 hits
+  pagesize: 7 hits
+    alias ctx: ["default",0,n])},88795,e=>{"use strict";e.s(["JOB_QUERY_KEYS",0,{search:"search",location:"location",locations:"locations",countries:"countries",team:"team",subTeam:"subTeam",contractTypes:"contractTypes",experience:"experience",businessUnits:"businessUnits",latitude:"lat",longitude:"lng",radius:"radius",page:"page",pageSize:"pagesize"},"JOB_QUERY_LEGACY_ALIASES",0,{search:["keyword"],location:["mylocation"],team:["teams"],subTeam:["subTeams","subteam"]},"roundCoordinate",0,e=>Math.round(100*e)/100])},269576,e=>{"use strict";let t="__hdGooglePlacesInit",i=null;e.s(["AUTOCOMPLETE_DEBOUNCE_MS",0,500,"AUTOCOMPLETE_MIN_CHARS",0,3,"getGooglePlacesApiKey",0,()=>"AIza[REDACTED-google-places-key]
+    radius ctx: abled]:opacity-100!";(0,i.useEffect)(()=>{let e,t,i=(t=Number.parseInt((e=new URLSearchParams(eh)).get(s.JOB_QUERY_KEYS.radius)||"",10),{search:(e.get(s.JOB_QUERY_KEYS.search)??"").trim(),myLocation:(e.get(s.JOB_QUERY_KEYS.location)??"").tr
+
+== /en/jobs/ HTML: RSC facets, JSON-LD, totals ==
+  https://jobs.uber.com/en/jobs/ status=200 bytes=0 __next_f=0 json-ld=False __NEXT_DATA__=False
+    countries: (not found)
+    teams: (not found)
+    subTeams: (not found)
+    teamToSubTeamMappings: (not found)
+    contractTypes: (not found)
+    workPatterns: (not found)
+    departments: (not found)
+    companies: (not found)
+    experienceLevels: (not found)
+    employmentTypes: (not found)
+    totalJobs: (not found)
+    totalPages: (not found)
+  https://jobs.uber.com/en/jobs?page=2&pagesize=10 status=308 bytes=0 __next_f=0 json-ld=False __NEXT_DATA__=False
+    countries: (not found)
+    teams: (not found)
+    subTeams: (not found)
+    teamToSubTeamMappings: (not found)
+    contractTypes: (not found)
+    workPatterns: (not found)
+    departments: (not found)
+    companies: (not found)
+    experienceLevels: (not found)
+    employmentTypes: (not found)
+    totalJobs: (not found)
+    totalPages: (not found)
+  https://jobs.uber.com/en/jobs/?page=2&pagesize=10 status=200 bytes=222773 __next_f=46 json-ld=False __NEXT_DATA__=False
+    countries: n=37 sample=['Argentina', 'Australia', 'Belgium', 'Brazil', 'Canada', 'Chile']
+    teams: n=18 sample=['Administration', 'Business Development', 'Customer Support', 'Engineer', 'Finance', 'Legal']
+    subTeams: n=53 sample=['Account Management', 'Accounting', 'Actuarial', 'Administrative Business Partner', 'Applications Engineering', 'Applied Science']
+    teamToSubTeamMappings: {"Engineer":["Applications Engineering","Cloud Engineering","Information Security","Infrastructure Engineering","Softwar
+    contractTypes: n=1 sample=['Full time']
+    workPatterns: n=4 sample=['Direct NCG Hire', 'Fixed Term', 'Intern', 'Regular']
+    departments: n=0 sample=[]
+    companies: n=0 sample=[]
+    experienceLevels: n=0 sample=[]
+    employmentTypes: n=0 sample=[]
+    totalJobs: 578
+    totalPages: 58
+
+== RSC prefetch /en/jobs/{id}/ and radius ==
+rsc entries: 145
+rsc with empty body: 64
+   200 0 https://jobs.uber.com/en/jobs/?radius=120&_rsc=17gzl
+   200 0 https://jobs.uber.com/en/jobs/?_rsc=17gzl
+   200 1594 https://jobs.uber.com/en/jobs/?_rsc=1p5ur
+   200 2395 https://jobs.uber.com/en/jobs/?_rsc=yqx82
+   200 137876 https://jobs.uber.com/en/jobs/?_rsc=172dj
+job-id rsc stubs: 92 sizes: [0, 0, 0] ... [649621, 653447, 897250]
+query keys seen on jobs.uber.com: {'_rsc': 145, 'dpl': 71, 'radius': 1, 'page': 3, 'pagesize': 2}
+
+== media host ==
+happydance hosts: ['uber-careers-v2-cdn.happydance.website']

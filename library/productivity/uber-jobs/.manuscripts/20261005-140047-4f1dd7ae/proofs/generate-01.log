@@ -1,0 +1,17 @@
+info: learn: defaulting self-learning loop on (opt out with learn.disabled: true)
+info: learn.enabled promotes VisionSet.Store=true (the learn package depends on internal/store)
+PASS go mod tidy
+PASS ensure safe golang.org/x/net
+PASS ensure safe golang.org/x/text
+PASS ensure safe github.com/enetx/http
+PASS go test ./...
+PASS govulncheck ./...
+PASS go vet ./...
+PASS go build ./...
+PASS build runnable binary
+PASS uber-jobs-pp-cli --help
+PASS uber-jobs-pp-cli version
+PASS uber-jobs-pp-cli doctor
+agentcookie: skipping uber-jobs (cookie-only or no env-var auth)
+Generated uber-jobs at ~/printing-press/.runstate/personal-74f0f171/runs/20261005-140047-4f1dd7ae/working/uber-jobs-pp-cli
+Bundled ~/printing-press/.runstate/personal-74f0f171/runs/20261005-140047-4f1dd7ae/working/uber-jobs-pp-cli/build/uber-jobs-pp-mcp-darwin-arm64.mcpb

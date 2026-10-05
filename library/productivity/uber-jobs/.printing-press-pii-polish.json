@@ -1,0 +1,62 @@
+{
+  "timestamp": "2026-10-05T19:41:23.182291Z",
+  "cli_dir": "\u003ccli-dir\u003e/uber-jobs",
+  "findings": [
+    {
+      "kind": "postal-address",
+      "file": "internal/uberjobs/testdata/oracle_detail.json",
+      "line": 1,
+      "column": 25935,
+      "matched_span": "175 Greenwich Street",
+      "status": "accepted",
+      "note": "Uber New York office label from the public Oracle requisition detail (workLocation.LocationName)",
+      "category": "api_provider_data",
+      "evidence_context": "Oracle requisition detail fixture, field workLocation[0].LocationName: {\"LocationId\": 300000024223431, \"LocationName\": \"USA New York (175 Greenwich Street)\", \"AddressLine1\": null, ...}. This is the employer's New York office label on a public job posting, not a person's address."
+    },
+    {
+      "kind": "postal-address",
+      "file": "internal/uberjobs/testdata/oracle_list.json",
+      "line": 1,
+      "column": 29141,
+      "matched_span": "175 Greenwich Street",
+      "status": "accepted",
+      "note": "Uber New York office facet value (workLocationsFacet.Name) with a posting count of 102",
+      "category": "api_provider_data",
+      "evidence_context": "Oracle requisition search fixture, facet list workLocationsFacet: {\"Id\": 300000024223431, \"Name\": \"USA New York (175 Greenwich Street)\", \"TotalCount\": 102}. A public facet value naming the employer's New York office with its posting count."
+    },
+    {
+      "kind": "postal-address",
+      "file": "internal/uberjobs/testdata/oracle_list.json",
+      "line": 1,
+      "column": 29417,
+      "matched_span": "200 Mathilda Place",
+      "status": "accepted",
+      "note": "Uber Sunnyvale office facet value (workLocationsFacet.Name) with a posting count of 54",
+      "category": "api_provider_data",
+      "evidence_context": "Oracle requisition search fixture, facet list workLocationsFacet: {\"Id\": 300000024214870, \"Name\": \"USA Sunnyvale (200 Mathilda Place)\", \"TotalCount\": 54}. A public facet value naming the employer's Sunnyvale office."
+    },
+    {
+      "kind": "postal-address",
+      "file": "internal/uberjobs/testdata/oracle_list.json",
+      "line": 1,
+      "column": 29670,
+      "matched_span": "1191 Second Avenue",
+      "status": "accepted",
+      "note": "Uber Seattle office facet value (workLocationsFacet.Name) with a posting count of 32",
+      "category": "api_provider_data",
+      "evidence_context": "Oracle requisition search fixture, facet list workLocationsFacet: {\"Id\": 300000024222429, \"Name\": \"USA Seattle (1191 Second Avenue)\", \"TotalCount\": 32}. A public facet value naming the employer's Seattle office."
+    },
+    {
+      "kind": "postal-address",
+      "file": "internal/uberjobs/testdata/oracle_list.json",
+      "line": 1,
+      "column": 29853,
+      "matched_span": "2 Leman Street",
+      "status": "accepted",
+      "note": "Uber London office facet value (workLocationsFacet.Name) with a posting count of 14",
+      "category": "api_provider_data",
+      "evidence_context": "Oracle requisition search fixture, facet list workLocationsFacet: {\"Id\": 300000024206761, \"Name\": \"GBR London (2 Leman Street)\", \"TotalCount\": 14}. A public facet value naming the employer's London office."
+    }
+  ],
+  "findings_count_before": 5
+}

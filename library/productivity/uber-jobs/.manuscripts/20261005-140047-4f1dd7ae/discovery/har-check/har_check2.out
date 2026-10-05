@@ -1,0 +1,116 @@
+== body bytes by mime ==
+  video/mp4                      22 entries   20,342,820 chars (29.4%)
+  image/jpeg                      3 entries   18,912,000 chars (27.3%)
+  text/x-component              145 entries    7,841,046 chars (11.3%)
+  image/webp                      5 entries    7,045,472 chars (10.2%)
+  application/javascript         86 entries    5,924,127 chars (8.6%)
+  image/avif                     54 entries    3,586,012 chars (5.2%)
+  text/javascript                64 entries    2,713,907 chars (3.9%)
+  application/octet-stream        2 entries      885,688 chars (1.3%)
+  image/png                       5 entries      633,156 chars (0.9%)
+  font/woff2                     32 entries      629,672 chars (0.9%)
+
+== large job-id RSC payloads ==
+count: 9
+  302964 m8eig bytes=649,621 desc=True self-id=True keys=['DisplayDate', 'QuestionsRaw', 'Reference', 'datePosted']
+    oracle urls: ['https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/147313/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/302964/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in']
+    json-ld: True
+  302906 m8eig bytes=239,561 desc=True self-id=True keys=['DisplayDate', 'QuestionsRaw', 'Reference', 'datePosted']
+    oracle urls: ['https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/147313/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/302906/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in']
+    json-ld: True
+  160425 m8eig bytes=646,696 desc=True self-id=True keys=['DisplayDate', 'QuestionsRaw', 'Reference', 'datePosted']
+    oracle urls: ['https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/147313/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/160425/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in']
+    json-ld: True
+  302734 m8eig bytes=897,250 desc=True self-id=True keys=['DisplayDate', 'QuestionsRaw', 'Reference', 'datePosted']
+    oracle urls: ['https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/147313/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/302734/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in']
+    json-ld: True
+  302779 m8eig bytes=359,654 desc=True self-id=True keys=['DisplayDate', 'QuestionsRaw', 'Reference', 'datePosted']
+    oracle urls: ['https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/147313/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/302779/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in']
+    json-ld: True
+  303168 m8eig bytes=539,177 desc=True self-id=True keys=['DisplayDate', 'QuestionsRaw', 'Reference', 'datePosted']
+    oracle urls: ['https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/159647/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/303168/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in']
+    json-ld: True
+  303050 1moif bytes=132,090 desc=True self-id=True keys=['DisplayDate', 'QuestionsRaw', 'Reference', 'datePosted']
+    oracle urls: ['https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/147313/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/303050/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in']
+    json-ld: True
+  302055 1moif bytes=646,633 desc=True self-id=True keys=['DisplayDate', 'QuestionsRaw', 'Reference', 'datePosted']
+    oracle urls: ['https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/147313/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/302055/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in']
+    json-ld: True
+  300082 1moif bytes=653,447 desc=True self-id=True keys=['DisplayDate', 'QuestionsRaw', 'Reference', 'datePosted']
+    oracle urls: ['https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/159647/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/300082/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in']
+    json-ld: True
+
+  context near own id 302906 (pos 116861):
+    10-02T21:46:44Z","UpdateDate":"2026-10-02T22:05:07.516Z","Reference":"302906","Teams":["Finance"],"SubTeams":["Internal Audit"],"ContractType":"Full time","EmploymentType":null,"WorkPattern":"Regular","ExperienceLevel":null,"Department":null,"Company":null,"Remote":false,"PrimaryLocationPoint":null,"Id":"302906","OriginalId":"[OriginalId]","Title":"Senior - FRM Advisory","Salary":{"MinValue":null,"MaxValue":null,"Currency":null,"Period":null,"Description":"\n<p>For New York City, NY-based roles: The base salary range for this role is USD $122,000 per year - USD $135,000 per …","City":"New York City","Region":"New York","Country":"United States","CountryCode":null,"Address":"New York, NY, USA","PostalCode":null,"LocationPoint":{"type":"Point","coordinates":[-74.0059728,40.7127753],"crs":{"type":"name","properties":{"name":"EPSG:4326"}}}}],"Urls":[{"Culture":"en-us","Url":"/en/jobs/302906/","IsDefault":true}]},"relatedContent":{"teams":[{"id":"c6790c2f-37db-409b-aa66-862fe72935ef","name":"Finance","contentType":"team","createDate":"2025-11-11T13:32:14.587Z","updateDate":"2026-06-04T21:34:51.283Z","route":{"path":"/en/teams/finance/"},"properties":{"associatedCategories":["Finance"],"associatedTeams":["Finance"],"associatedParentCategories":[],"mastImages":[],"featuredTeamMemberName":"Christopher","featuredTeamMemberPhoto":{"id":3699,"name":"Bg 130671 1745988354070","url":"https://uber-careers-v2-cdn.happydance.website/cdn-cgi/image/format=auto/media/vmbdgvs3/bg_130671_1745988354070.jpg","mediaType":"Image","altText":"a person in a blue shirt","width":1500,"height":1733,"crops":[]},"featuredTeamMemberTitle":"Strategic Finance","featuredTeamMemberLabel":"Meet the team","featuredTeamMemberLink":{"route":{"path":"/en/people-stories/inside-the-work/behind-the-decisions-that-move-uber-forward/"},"queryString":null,"title":"Behind the decisions that move Uber forward","target":"_self","destinationId":"umb://document/20f91007a1ef40b0a0e20d681fd1ebe8","destinationType":"Content","linkType":"Content"},"sidebarImage":{"id":2449,"name":"Bengaluru Photos 25","url":"https://uber-careers-v2-cdn.happydance.website/cdn-cgi/image/format=auto/media/gihjiquz/bengaluru_photos-25.jpg","mediaType":"Image","altText":"a person and person looking at a computer screen","width":1920,"height":1281,"crops":[{"url":"https://uber-careers-v2-cdn.happydance.website/cdn-cgi/image/fit=cover,width=600,height=600,format=auto/media/gihjiquz/bengaluru_photos-25.jpg","cropAlias":"Square","device":"Desktop"}]},"uBeco
+
+  PascalCase keys: [('Identifier', 11), ('City', 11), ('Region', 11), ('Country', 11), ('CountryCode', 6), ('Address', 6), ('PostalCode', 6), ('LocationPoint', 6), ('ApplicationUrl', 5), ('Teams', 5), ('Id', 5), ('Title', 5), ('Locations', 5), ('Urls', 5), ('Culture', 4), ('Url', 4), ('IsDefault', 4), ('Description', 2), ('DisplayDate', 2), ('ContractType', 2), ('AdditionalText', 1), ('Hash', 1), ('QuestionsRaw', 1), ('Summary', 1), ('AdditionalDescription1', 1), ('AdditionalDescription2', 1), ('AdditionalDescription3', 1), ('UpdateDate', 1), ('Reference', 1), ('SubTeams', 1), ('EmploymentType', 1), ('WorkPattern', 1), ('ExperienceLevel', 1), ('Department', 1), ('Company', 1), ('Remote', 1), ('PrimaryLocationPoint', 1), ('OriginalId', 1), ('Salary', 1), ('MinValue', 1), ('MaxValue', 1), ('Currency', 1), ('Period', 1)]
+
+  apply-ish urls: ['https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/147313/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/302906/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in']
+
+  date fields: [('DisplayDate', '2026-10-02T21:46:44Z'), ('UpdateDate', '2026-10-02T22:05:07.516Z'), ('createDate', '2022-06-30T14:21:57Z'), ('createDate', '2022-07-15T17:22:25Z'), ('createDate', '2022-07-15T17:23:36Z'), ('createDate', '2025-11-11T13:32:14.587Z'), ('createDate', '2025-11-11T13:45:15.573Z'), ('createDate', '2025-11-27T08:53:50.963Z'), ('createDate', '2025-12-12T19:25:06.563Z'), ('createDate', '2026-05-05T17:24:06.457Z'), ('displayDate', '2024-12-09T12:00:00Z'), ('displayDate', '2025-12-12T12:00:00Z'), ('displayDate', '2025-12-23T12:00:00Z'), ('displayDate', '2026-02-06T12:00:00Z'), ('displayDate', '2026-05-05T12:00:00Z'), ('displayDate', '2026-07-15T12:00:00Z'), ('displayDate', '2026-08-06T12:00:00Z'), ('displayDate', '2026-09-09T05:34:04Z'), ('updateDate', '2025-12-12T19:25:06.563Z'), ('updateDate', '2026-02-26T15:20:31.077Z')]
+
+== HTML page embedded rows ==
+  ids in HTML (order, first 30): ['301974', '153856', '302500', '302496', '302497', '160013', '302278', '303121', '303008', '302447'] unique: 10
+  page: ['1']
+  pageSize: ['10']
+  totalJobs: ['578']
+  totalPages: ['58']
+  API page=2 ids: ['302906', '160425', '302964', '303168', '302734', '302779', '301078', '300313', '302264', '302569']
+
+== other date shapes in API rows ==
+   302906 {'DisplayDate': '2026-10-02T21:46:44Z', 'ContractType': 'Full time', 'WorkPattern': 'Regular', 'ExperienceLevel': None, 'Remote': False, 'Teams': ['Finance'], 'Summary': None}
+     Salary: {'MinValue': None, 'MaxValue': None, 'Currency': None, 'Period': None, 'Description': "\n<p>For New York City, NY-based roles: The base salary range for this role is USD $122,000 per year - USD $135,000 per year.</p><p>You will be eligible to participate in Uber's bonus program, and may be offered an equity award & other types of comp. All full-time employees are eligible to participate in a 401(k) plan. You will also be eligible for various benefits.</p>"}
+     Loc0: {'Identifier': '', 'City': 'New York City', 'Region': 'New York', 'Country': 'United States', 'CountryCode': None, 'Address': 'New York, NY, USA', 'PostalCode': None} LP type: dict
+     AdditionalDescription1: 
+     QuestionsRaw: None
+     Description head: <p><strong>About the role and team&nbsp;</strong></p><p>At Uber, we're not just moving people and things; we're building a global business grounded in integrity. Our Financial Risk Management (FRM) Ad
+   160425 {'DisplayDate': '2026-10-02T20:50:31Z', 'ContractType': 'Full time', 'WorkPattern': 'Regular', 'ExperienceLevel': None, 'Remote': False, 'Teams': ['Operations'], 'Summary': None}
+     Salary: {'MinValue': None, 'MaxValue': None, 'Currency': None, 'Period': None, 'Description': ''}
+     Loc0: {'Identifier': '', 'City': 'Berlin', 'Region': '', 'Country': 'Germany', 'CountryCode': None, 'Address': 'Berlin, Germany', 'PostalCode': None} LP type: dict
+     AdditionalDescription1: 
+     QuestionsRaw: None
+     Description head: <p><strong>About the Team</strong></p><p>The Rider Operations team in Germany serves as the operational engine driving growth across one of Uber’s most key European markets. Operating at the intersect
+   302964 {'DisplayDate': '2026-10-02T19:49:58Z', 'ContractType': 'Full time', 'WorkPattern': 'Regular', 'ExperienceLevel': None, 'Remote': False, 'Teams': ['Operations'], 'Summary': None}
+     Salary: {'MinValue': None, 'MaxValue': None, 'Currency': None, 'Period': None, 'Description': "\n<p>For New York City, NY-based roles: The base salary range for this role is USD $106,000 per year - USD $118,000 per year.</p><br><p>For San Francisco, CA-based roles: The base salary range for this role is USD $106,000 per year - USD $118,000 per year.</p><br><p>For all US locations, you will be eligible to participate in Uber's bonus program, and may be offered an equity award & other types of comp. All full-time employees are eligible to participate in a 401(k) plan. You will also be eligible for various benefits.</p>"}
+     Loc0: {'Identifier': '', 'City': 'San Francisco', 'Region': 'California', 'Country': 'United States', 'CountryCode': None, 'Address': 'San Francisco, CA, USA', 'PostalCode': None} LP type: dict
+     AdditionalDescription1: 
+     QuestionsRaw: None
+     Description head: <p><strong>About the Role&nbsp;</strong></p><p>This operations role sits within Uber for Business - one of Uber’s fastest growing business units in terms of topline performance. Within this org, you'l
+
+== recently-viewed body ==
+   {"id": "158863", "title": "Growth Strategy Manager, Uber Direct - Finland", "url": "/en/jobs/158863", "locations": [{"Identifier": "", "City": "Uusimaa", "Region": "", "Country": "Finland", "CountryCode": null, "Address": "Uusimaa, Finland", "PostalCode": null, "LocationPoint": {"type": "Point", "coordinates": [25.2716209, 60.21872], "crs": {"type": "name", "properties": {"name": "EPSG:4326"}}}}], "teams": ["Operations"]}
+
+== sitemap RSC: job links? ==
+  job links: 0
+
+== iaziqy mentions ==
+   /en/jobs/ ctx: -center gap-2 bg-[#B1B1B1] [body[data-bg=white]_&amp;]:bg-[#eee]" href="https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" 
+   /en/ ctx: itle":"","path":"","target":""},"externalLoginLink":{"title":"","path":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in","target":"_blank"},"scrollableEvpStatement":"What moves us move
+   /en/ ctx: itle":"","path":"","target":""},"externalLoginLink":{"title":"","path":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in","target":"_blank"},"scrollableEvpStatement":"What moves us move
+   /gtag/js ctx: "function":"__ogt_cross_domain","priority":22,"vtp_rules":["list","uber\\.com","iaziqy\\.fa\\.ocs\\.oraclecloud\\.com"],"tag_id":13},{"function":"__ogt_auto_events","priority":22,"vtp_enableOutboundClick":true,"vtp_enableScroll":true,"vtp_e
+   /en/jobs/saved-jobs/ ctx: itle":"","path":"","target":""},"externalLoginLink":{"title":"","path":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in","target":"_blank"},"scrollableEvpStatement":"What moves us move
+   /en/jobs/302964/ ctx: l,"displayDate":"2026-09-09T05:34:04Z","dueDate":null,"applicationUrl":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/147313/apply/email?mode=location","hasApplicationUrl":true,"extraConte
+   /en/jobs/302906/ ctx: l,"displayDate":"2026-09-09T05:34:04Z","dueDate":null,"applicationUrl":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/147313/apply/email?mode=location","hasApplicationUrl":true,"extraConte
+   /en/jobs/160425/ ctx: l,"displayDate":"2026-09-09T05:34:04Z","dueDate":null,"applicationUrl":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/147313/apply/email?mode=location","hasApplicationUrl":true,"extraConte
+   /en/jobs/302734/ ctx: l,"displayDate":"2026-09-09T05:34:04Z","dueDate":null,"applicationUrl":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/147313/apply/email?mode=location","hasApplicationUrl":true,"extraConte
+   /en/jobs/302779/ ctx: l,"displayDate":"2026-09-09T05:34:04Z","dueDate":null,"applicationUrl":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/147313/apply/email?mode=location","hasApplicationUrl":true,"extraConte
+   /en/jobs/303168/ ctx: l,"displayDate":"2026-06-19T07:30:00Z","dueDate":null,"applicationUrl":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/159647/apply/email?mode=location","hasApplicationUrl":true,"extraConte
+   -uber/riding-towards-a-better-future-why-raquel-joined-uber/ ctx: itle":"","path":"","target":""},"externalLoginLink":{"title":"","path":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in","target":"_blank"},"scrollableEvpStatement":"What moves us move
+   /en/jobs/ ctx: itle":"","path":"","target":""},"externalLoginLink":{"title":"","path":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in","target":"_blank"},"scrollableEvpStatement":"What moves us move
+   /en/jobs/303050/ ctx: l,"displayDate":"2026-09-09T05:34:04Z","dueDate":null,"applicationUrl":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/147313/apply/email?mode=location","hasApplicationUrl":true,"extraConte
+   /en/jobs/302055/ ctx: l,"displayDate":"2026-09-09T05:34:04Z","dueDate":null,"applicationUrl":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/147313/apply/email?mode=location","hasApplicationUrl":true,"extraConte
+   /en/jobs/300082/ ctx: l,"displayDate":"2026-06-19T07:30:00Z","dueDate":null,"applicationUrl":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/159647/apply/email?mode=location","hasApplicationUrl":true,"extraConte
+   /en/benefits/ ctx: itle":"","path":"","target":""},"externalLoginLink":{"title":"","path":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in","target":"_blank"},"scrollableEvpStatement":"What moves us move
+   /en/what-moves-us/life-at-uber/ ctx: itle":"","path":"","target":""},"externalLoginLink":{"title":"","path":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in","target":"_blank"},"scrollableEvpStatement":"What moves us move
+   /en/what-moves-us/life-at-uber/ ctx: itle":"","path":"","target":""},"externalLoginLink":{"title":"","path":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in","target":"_blank"},"scrollableEvpStatement":"What moves us move
+   /life-at-uber/from-brazil-to-nyc-seeing-impact-in-real-time/ ctx: itle":"","path":"","target":""},"externalLoginLink":{"title":"","path":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in","target":"_blank"},"scrollableEvpStatement":"What moves us move
+   next-chapter-on-uber-inside-anilabh-pandey-s-first-7-months/ ctx: itle":"","path":"","target":""},"externalLoginLink":{"title":"","path":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in","target":"_blank"},"scrollableEvpStatement":"What moves us move
+   /en/what-moves-us/how-we-hire/ ctx: itle":"","path":"","target":""},"externalLoginLink":{"title":"","path":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in","target":"_blank"},"scrollableEvpStatement":"What moves us move
+   /en/what-moves-us/brands/ ctx: itle":"","path":"","target":""},"externalLoginLink":{"title":"","path":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in","target":"_blank"},"scrollableEvpStatement":"What moves us move
+   /en/teams/ ctx: itle":"","path":"","target":""},"externalLoginLink":{"title":"","path":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in","target":"_blank"},"scrollableEvpStatement":"What moves us move
+   /en/people-stories/ ctx: itle":"","path":"","target":""},"externalLoginLink":{"title":"","path":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in","target":"_blank"},"scrollableEvpStatement":"What moves us move
+   /en/sitemap/ ctx: itle":"","path":"","target":""},"externalLoginLink":{"title":"","path":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in","target":"_blank"},"scrollableEvpStatement":"What moves us move
+   /en/cookies/ ctx: itle":"","path":"","target":""},"externalLoginLink":{"title":"","path":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in","target":"_blank"},"scrollableEvpStatement":"What moves us move
+   t-uber/redefining-my-career-through-maternity-leave-at-uber/ ctx: itle":"","path":"","target":""},"externalLoginLink":{"title":"","path":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in","target":"_blank"},"scrollableEvpStatement":"What moves us move
+   fe-at-uber/how-teamwork-drives-sales-and-speed-at-uber-eats/ ctx: itle":"","path":"","target":""},"externalLoginLink":{"title":"","path":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in","target":"_blank"},"scrollableEvpStatement":"What moves us move
+   /en/people-stories/life-at-uber/ ctx: itle":"","path":"","target":""},"externalLoginLink":{"title":"","path":"https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/my-profile/sign-in","target":"_blank"},"scrollableEvpStatement":"What moves us move

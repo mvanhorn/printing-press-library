@@ -1,0 +1,3854 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://jobs.uber.com/en/jobs/160013/?_rsc=1mzkx",
+    "entry_count": 589,
+    "api_entry_count": 16,
+    "noise_entry_count": 573,
+    "host_distribution": {
+      "ad.doubleclick.net": 3,
+      "analytics.google.com": 8,
+      "c.bing.com": 1,
+      "c.clarity.ms": 2,
+      "d3f70emg10ruwo.cloudfront.net": 2,
+      "dbvzsad39da5n.cloudfront.net": 50,
+      "embed.jochat.ai": 2,
+      "fonts.googleapis.com": 2,
+      "googleads.g.doubleclick.net": 9,
+      "jess.prod.joveo.com": 6,
+      "jobs.uber.com": 261,
+      "jotrack.s3.amazonaws.com": 2,
+      "maps.googleapis.com": 10,
+      "o.clarity.ms": 52,
+      "places.googleapis.com": 10,
+      "scripts.clarity.ms": 2,
+      "tags.tiqcdn.com": 3,
+      "uber-careers-v2-cdn.happydance.website": 95,
+      "www.clarity.ms": 2,
+      "www.google-analytics.com": 23,
+      "www.google.com": 25,
+      "www.google.com.pk": 11,
+      "www.googletagmanager.com": 8
+    },
+    "http_version_distribution": {
+      "h2": 424,
+      "h3": 109,
+      "http/1.1": 56
+    },
+    "time_start": "2026-10-05T07:03:55.872Z",
+    "time_end": "2026-10-05T07:09:32.159Z"
+  },
+  "secondary_hosts": [
+    {
+      "host": "analytics.google.com",
+      "count": 8,
+      "reason": "telemetry host"
+    },
+    {
+      "host": "maps.googleapis.com",
+      "count": 2,
+      "reason": "non-primary host"
+    },
+    {
+      "host": "places.googleapis.com",
+      "count": 5,
+      "reason": "non-primary host"
+    }
+  ],
+  "reachability": {
+    "mode": "browser_http",
+    "confidence": 0.78,
+    "reasons": [
+      "bot-protection signals observed; use browser-like HTTP transport"
+    ],
+    "evidence": [
+      {
+        "entry_index": 309,
+        "method": "GET",
+        "host": "jess.prod.joveo.com",
+        "path": "/v2",
+        "status": 200,
+        "content_type": "text/html",
+        "reason": "browser-rendered page marker"
+      },
+      {
+        "entry_index": 0,
+        "method": "GET",
+        "host": "jobs.uber.com",
+        "path": "/en/jobs/160013/",
+        "status": 200,
+        "content_type": "text/x-component",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 1,
+        "method": "GET",
+        "host": "jobs.uber.com",
+        "path": "/en/jobs/160013/",
+        "status": 200,
+        "content_type": "text/x-component",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 2,
+        "method": "GET",
+        "host": "jobs.uber.com",
+        "path": "/en/jobs/160013/",
+        "status": 200,
+        "content_type": "text/x-component",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 4,
+        "method": "GET",
+        "host": "jobs.uber.com",
+        "path": "/en/jobs/",
+        "status": 200,
+        "content_type": "text/html",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 5,
+        "method": "GET",
+        "host": "jobs.uber.com",
+        "path": "/_next/static/media/UberMoveText_Bold-s.p.05c34f70.woff2",
+        "status": 200,
+        "content_type": "font/woff2",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 6,
+        "method": "GET",
+        "host": "jobs.uber.com",
+        "path": "/_next/static/media/UberMoveText_Light-s.p.7583dd6f.woff2",
+        "status": 200,
+        "content_type": "font/woff2",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 7,
+        "method": "GET",
+        "host": "jobs.uber.com",
+        "path": "/_next/static/media/UberMoveText_Medium-s.p.ddf9369c.woff2",
+        "status": 200,
+        "content_type": "font/woff2",
+        "reason": "Cloudflare header or challenge marker"
+      }
+    ]
+  },
+  "protocols": [
+    {
+      "label": "rpc_envelope",
+      "confidence": 0.8,
+      "evidence": [
+        {
+          "entry_index": 161,
+          "method": "POST",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/AutocompletePlaces",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "RPC envelope markers"
+        },
+        {
+          "entry_index": 162,
+          "method": "OPTIONS",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/AutocompletePlaces",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "RPC envelope markers"
+        },
+        {
+          "entry_index": 164,
+          "method": "POST",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/GetPlace",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "RPC envelope markers"
+        },
+        {
+          "entry_index": 165,
+          "method": "OPTIONS",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/GetPlace",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "RPC envelope markers"
+        },
+        {
+          "entry_index": 173,
+          "method": "POST",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/AutocompletePlaces",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "RPC envelope markers"
+        },
+        {
+          "entry_index": 174,
+          "method": "OPTIONS",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/AutocompletePlaces",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "RPC envelope markers"
+        },
+        {
+          "entry_index": 175,
+          "method": "POST",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/AutocompletePlaces",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "RPC envelope markers"
+        },
+        {
+          "entry_index": 176,
+          "method": "OPTIONS",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/AutocompletePlaces",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "RPC envelope markers"
+        },
+        {
+          "entry_index": 177,
+          "method": "POST",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/GetPlace",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "RPC envelope markers"
+        },
+        {
+          "entry_index": 178,
+          "method": "OPTIONS",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/GetPlace",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "RPC envelope markers"
+        },
+        {
+          "entry_index": 290,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/f95f3dab2574ffe0.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "RPC envelope markers"
+        }
+      ]
+    },
+    {
+      "label": "rest_json",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 45,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/manifest.webmanifest",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 52,
+          "method": "POST",
+          "host": "jobs.uber.com",
+          "path": "/api/jobs/recently-viewed",
+          "status": 308,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 59,
+          "method": "POST",
+          "host": "jobs.uber.com",
+          "path": "/api/jobs/recently-viewed/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 158,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps/api/mapsjs/gen_204",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 301,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/manifest.webmanifest",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 303,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/api/jobs/search/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 304,
+          "method": "POST",
+          "host": "jobs.uber.com",
+          "path": "/api/jobs/recently-viewed",
+          "status": 308,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 317,
+          "method": "POST",
+          "host": "jobs.uber.com",
+          "path": "/api/jobs/recently-viewed/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 414,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/manifest.webmanifest",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 494,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/manifest.webmanifest",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 573,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/manifest.webmanifest",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        }
+      ]
+    },
+    {
+      "label": "browser_rendered",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "entry_index": 309,
+          "method": "GET",
+          "host": "jess.prod.joveo.com",
+          "path": "/v2",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "browser-rendered page marker"
+        }
+      ]
+    },
+    {
+      "label": "html_scrape",
+      "confidence": 0.55,
+      "evidence": [
+        {
+          "entry_index": 260,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 309,
+          "method": "GET",
+          "host": "jess.prod.joveo.com",
+          "path": "/v2",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "candidates": [
+      {
+        "type": "api_key",
+        "confidence": 0.85,
+        "header_names": [
+          "x-goog-api-key"
+        ],
+        "evidence": [
+          {
+            "entry_index": 161,
+            "method": "POST",
+            "host": "places.googleapis.com",
+            "path": "/$rpc/google.maps.places.v1.Places/AutocompletePlaces",
+            "status": 200,
+            "content_type": "application/json+protobuf",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 164,
+            "method": "POST",
+            "host": "places.googleapis.com",
+            "path": "/$rpc/google.maps.places.v1.Places/GetPlace",
+            "status": 200,
+            "content_type": "application/json+protobuf",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 173,
+            "method": "POST",
+            "host": "places.googleapis.com",
+            "path": "/$rpc/google.maps.places.v1.Places/AutocompletePlaces",
+            "status": 200,
+            "content_type": "application/json+protobuf",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 175,
+            "method": "POST",
+            "host": "places.googleapis.com",
+            "path": "/$rpc/google.maps.places.v1.Places/AutocompletePlaces",
+            "status": 200,
+            "content_type": "application/json+protobuf",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 177,
+            "method": "POST",
+            "host": "places.googleapis.com",
+            "path": "/$rpc/google.maps.places.v1.Places/GetPlace",
+            "status": 200,
+            "content_type": "application/json+protobuf",
+            "reason": "API key-like header"
+          }
+        ]
+      },
+      {
+        "type": "api_key",
+        "confidence": 0.7,
+        "query_names": [
+          "key"
+        ],
+        "evidence": [
+          {
+            "entry_index": 151,
+            "method": "GET",
+            "host": "maps.googleapis.com",
+            "path": "/maps/api/js",
+            "status": 200,
+            "content_type": "text/javascript",
+            "reason": "auth-like query parameter"
+          }
+        ]
+      }
+    ]
+  },
+  "protections": [
+    {
+      "label": "cloudflare",
+      "confidence": 0.9,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/160013/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/160013/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/160013/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMoveText_Bold-s.p.05c34f70.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMoveText_Light-s.p.7583dd6f.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMoveText_Medium-s.p.ddf9369c.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMoveText_Regular-s.p.05c1635f.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMove_Bold-s.p.d924021a.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMove_Light-s.p.88853406.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMove_Medium-s.p.eff5761a.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMove_Regular-s.p.caf5b142.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 13,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/551a0367c39d995a.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 14,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/f42363b27d63d8e2.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 15,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/c65ad755527df44d.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 16,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/b14929950d338644.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 17,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/2a71a56a26d15aa1.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 18,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/8871135e68c8f231.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 19,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/turbopack-20ee86bbfef47ace.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 20,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/86d385dacc8f6252.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 21,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/5f4fd6081132cac5.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 22,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/53a95ecc65818199.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 23,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/fa98109a5e9f3001.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 24,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/a3fe18dc99846d16.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 25,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/846cfee69842e9c2.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 26,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/9e2334dda9e481a3.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 27,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/00cbce61c5056944.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 28,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/85764477a1a61847.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 29,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/3942953a9490a5bd.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 30,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/93a5feda9ff303a2.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 31,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/562d81ac93986645.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 32,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/035419f568496961.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 33,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/40236cc019049f5a.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 34,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/f95f3dab2574ffe0.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 35,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/d5be75f133766307.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 36,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/5f2c83ed7c151ae2.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 37,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/37a8ccebd3b05b1c.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 38,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/e057a802cfcab610.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 39,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/acae5e775ff0f9ad.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 40,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/ec05baea7a9fbcbc.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 41,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/97261491313315cc.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 42,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/909271944f28b356.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 45,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/manifest.webmanifest",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 48,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 49,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/people-stories/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 50,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/sitemap/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 51,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/cookies/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 52,
+          "method": "POST",
+          "host": "jobs.uber.com",
+          "path": "/api/jobs/recently-viewed",
+          "status": 308,
+          "content_type": "text/plain",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 55,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/saved-jobs/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 56,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302497/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 57,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302496/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 58,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302500/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 59,
+          "method": "POST",
+          "host": "jobs.uber.com",
+          "path": "/api/jobs/recently-viewed/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 60,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMoveText_Bold-s.p.05c34f70.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 61,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMoveText_Light-s.p.7583dd6f.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 62,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMoveText_Medium-s.p.ddf9369c.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 63,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMoveText_Regular-s.p.05c1635f.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 64,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMove_Bold-s.p.d924021a.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 65,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMove_Light-s.p.88853406.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 66,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMove_Medium-s.p.eff5761a.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 67,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMove_Regular-s.p.caf5b142.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 68,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/153856/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 73,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/saved-jobs/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 79,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/1bc3d069faa4a8ff.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 80,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 82,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302497/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 85,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302497/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 88,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/342653a353678b52.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 89,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302497/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 92,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302496/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 93,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302496/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 94,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302496/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 97,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/22891f53fda2c124.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 98,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302500/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 99,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302500/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 100,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302500/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 101,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/153856/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 102,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/153856/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 103,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/153856/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 144,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/160013/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 147,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/160013/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 148,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/160013/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 149,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/160013/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 166,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302278/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 169,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302278/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 170,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302278/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 171,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302278/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 180,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/303121/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 181,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/303121/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 182,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/303121/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 183,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/303121/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 186,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/303008/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 188,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/303008/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 189,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/303008/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 190,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/303008/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 195,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302447/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 196,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302447/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 197,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302447/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 198,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302447/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 202,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302498/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 203,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302498/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 204,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302498/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 205,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302498/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 214,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 227,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 246,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/160425/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 247,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/303038/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 248,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/158863/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 250,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/160425/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 251,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/160425/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 252,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/160425/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 253,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/303038/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 254,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/303038/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 255,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/303038/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 256,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/158863/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 257,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/158863/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 258,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/158863/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 259,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs",
+          "status": 308,
+          "content_type": "text/html",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 260,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 261,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMoveText_Bold-s.p.05c34f70.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 262,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMoveText_Light-s.p.7583dd6f.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 263,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMoveText_Medium-s.p.ddf9369c.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 264,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMoveText_Regular-s.p.05c1635f.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 265,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMove_Bold-s.p.d924021a.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 266,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMove_Light-s.p.88853406.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 267,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMove_Medium-s.p.eff5761a.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 268,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMove_Regular-s.p.caf5b142.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 269,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/551a0367c39d995a.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 270,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/f42363b27d63d8e2.css",
+          "status": 200,
+          "content_type": "text/css",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 271,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/c65ad755527df44d.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 272,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/b14929950d338644.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 273,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/2a71a56a26d15aa1.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 274,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/8871135e68c8f231.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 275,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/turbopack-20ee86bbfef47ace.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 276,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/86d385dacc8f6252.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 277,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/5f4fd6081132cac5.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 278,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/53a95ecc65818199.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 279,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/fa98109a5e9f3001.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 280,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/a3fe18dc99846d16.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 281,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/846cfee69842e9c2.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 282,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/9e2334dda9e481a3.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 283,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/00cbce61c5056944.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 284,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/85764477a1a61847.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 285,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/3942953a9490a5bd.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 286,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/93a5feda9ff303a2.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 287,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/562d81ac93986645.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 288,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/035419f568496961.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 289,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/40236cc019049f5a.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 290,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/f95f3dab2574ffe0.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 291,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/d5be75f133766307.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 292,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/5f2c83ed7c151ae2.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 293,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/37a8ccebd3b05b1c.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 294,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/e057a802cfcab610.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 295,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/acae5e775ff0f9ad.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 296,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/ec05baea7a9fbcbc.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 297,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/97261491313315cc.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 298,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/909271944f28b356.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 301,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/manifest.webmanifest",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 302,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 303,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/api/jobs/search/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 304,
+          "method": "POST",
+          "host": "jobs.uber.com",
+          "path": "/api/jobs/recently-viewed",
+          "status": 308,
+          "content_type": "text/plain",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 305,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/saved-jobs/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 310,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 311,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 312,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 317,
+          "method": "POST",
+          "host": "jobs.uber.com",
+          "path": "/api/jobs/recently-viewed/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 318,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMoveText_Bold-s.p.05c34f70.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 319,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMoveText_Light-s.p.7583dd6f.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 320,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMoveText_Medium-s.p.ddf9369c.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 321,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMoveText_Regular-s.p.05c1635f.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 322,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMove_Bold-s.p.d924021a.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 323,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMove_Light-s.p.88853406.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 324,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMove_Medium-s.p.eff5761a.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 325,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/media/UberMove_Regular-s.p.caf5b142.woff2",
+          "status": 200,
+          "content_type": "font/woff2",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 326,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302964/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 327,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/160425/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 328,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302906/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 330,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/342653a353678b52.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 331,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/saved-jobs/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 342,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/160425/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 345,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/160425/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 346,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/1bc3d069faa4a8ff.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 347,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/160425/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 348,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302964/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 349,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302964/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 350,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302964/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 351,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302906/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 352,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302906/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 353,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302906/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 358,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/160425/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 359,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/22891f53fda2c124.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 371,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302734/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 381,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/303168/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 387,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302734/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 388,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302734/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 389,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302734/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 392,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302779/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 393,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/303168/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 394,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/303168/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 397,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302779/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 398,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302779/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 399,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302779/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 400,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/303168/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 407,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/22891f53fda2c124.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 413,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/people-stories/life-at-uber/riding-towards-a-better-future-why-raquel-joined-uber/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 414,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/manifest.webmanifest",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 416,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/people-stories/life-at-uber/riding-towards-a-better-future-why-raquel-joined-uber/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 422,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/e0d360604b7b34b6.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 423,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/3eb6426ad756955d.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 436,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 437,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302055/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 438,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/303050/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 439,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/300082/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 440,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 441,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 443,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/300082/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 445,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/303050/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 446,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/303050/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 447,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/303050/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 448,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302055/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 449,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302055/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 450,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/302055/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 451,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/300082/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 452,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/jobs/300082/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 460,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/benefits/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 463,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/benefits/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 468,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/what-moves-us/life-at-uber/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 469,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/what-moves-us/life-at-uber/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 474,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/what-moves-us/life-at-uber/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 480,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/e0d360604b7b34b6.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 481,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/_next/static/chunks/3eb6426ad756955d.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 494,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/manifest.webmanifest",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 518,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/people-stories/life-at-uber/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 519,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/people-stories/life-at-uber/from-brazil-to-nyc-seeing-impact-in-real-time/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 520,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/people-stories/life-at-uber/redefining-my-career-through-maternity-leave-at-uber/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 521,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/people-stories/life-at-uber/how-teamwork-drives-sales-and-speed-at-uber-eats/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 522,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/people-stories/life-at-uber/why-i-bet-my-next-chapter-on-uber-inside-anilabh-pandey-s-first-7-months/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 523,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/people-stories/life-at-uber/from-brazil-to-nyc-seeing-impact-in-real-time/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 526,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/people-stories/life-at-uber/why-i-bet-my-next-chapter-on-uber-inside-anilabh-pandey-s-first-7-months/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 528,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/what-moves-us/how-we-hire/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 529,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/what-moves-us/how-we-hire/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 531,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/teams/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 534,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/what-moves-us/brands/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 540,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/what-moves-us/brands/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 545,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/teams/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 546,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/people-stories/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 547,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/sitemap/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 548,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/cookies/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 549,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/cookies/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 550,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/cookies/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 551,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/sitemap/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 552,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/people-stories/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 555,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/people-stories/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 556,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/people-stories/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 557,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/sitemap/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 558,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/sitemap/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 559,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/cookies/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 563,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/people-stories/life-at-uber/redefining-my-career-through-maternity-leave-at-uber/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 564,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/people-stories/life-at-uber/how-teamwork-drives-sales-and-speed-at-uber-eats/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 565,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/en/people-stories/life-at-uber/",
+          "status": 200,
+          "content_type": "text/x-component",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 573,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/manifest.webmanifest",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "Cloudflare header or challenge marker"
+        }
+      ]
+    }
+  ],
+  "endpoint_clusters": [
+    {
+      "host": "jobs.uber.com",
+      "method": "POST",
+      "path": "/api/jobs/recently-viewed",
+      "count": 2,
+      "statuses": [
+        308
+      ],
+      "content_types": [
+        "text/plain"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "jobIds",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "locale",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {},
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 52,
+          "method": "POST",
+          "host": "jobs.uber.com",
+          "path": "/api/jobs/recently-viewed",
+          "status": 308,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 304,
+          "method": "POST",
+          "host": "jobs.uber.com",
+          "path": "/api/jobs/recently-viewed",
+          "status": 308,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "jobs.uber.com",
+      "method": "POST",
+      "path": "/api/jobs/recently-viewed/",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "jobIds",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "locale",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "jobs",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 59,
+          "method": "POST",
+          "host": "jobs.uber.com",
+          "path": "/api/jobs/recently-viewed/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 317,
+          "method": "POST",
+          "host": "jobs.uber.com",
+          "path": "/api/jobs/recently-viewed/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "jobs.uber.com",
+      "method": "GET",
+      "path": "/api/jobs/search/",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "large",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "jobs",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "page",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "pageSize",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "totalJobs",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "totalPages",
+            "type": "integer",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 303,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/api/jobs/search/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "jobs.uber.com",
+      "method": "GET",
+      "path": "/manifest.webmanifest",
+      "count": 4,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/manifest+json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "start_url",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "theme_color",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 301,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/manifest.webmanifest",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 414,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/manifest.webmanifest",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 494,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/manifest.webmanifest",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 573,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/manifest.webmanifest",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "maps.googleapis.com",
+      "method": "GET",
+      "path": "/maps/api/js",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "text/javascript"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 151,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps/api/js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "maps.googleapis.com",
+      "method": "GET",
+      "path": "/maps/api/mapsjs/gen_204",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 158,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps/api/mapsjs/gen_204",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "places.googleapis.com",
+      "method": "POST",
+      "path": "/$rpc/google.maps.places.v1.Places/AutocompletePlaces",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json+protobuf"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "unknown"
+      },
+      "response_shape": {},
+      "observed_auth": [
+        "x-goog-api-key"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 161,
+          "method": "POST",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/AutocompletePlaces",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 173,
+          "method": "POST",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/AutocompletePlaces",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 175,
+          "method": "POST",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/AutocompletePlaces",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "places.googleapis.com",
+      "method": "POST",
+      "path": "/$rpc/google.maps.places.v1.Places/GetPlace",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json+protobuf"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "unknown"
+      },
+      "response_shape": {},
+      "observed_auth": [
+        "x-goog-api-key"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 164,
+          "method": "POST",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/GetPlace",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 177,
+          "method": "POST",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/GetPlace",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "request_sequences": [
+    {
+      "label": "observed_api_flow",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 52,
+          "method": "POST",
+          "host": "jobs.uber.com",
+          "path": "/api/jobs/recently-viewed",
+          "status": 308,
+          "content_type": "text/plain",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 59,
+          "method": "POST",
+          "host": "jobs.uber.com",
+          "path": "/api/jobs/recently-viewed/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 151,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps/api/js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 158,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps/api/mapsjs/gen_204",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 161,
+          "method": "POST",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/AutocompletePlaces",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 164,
+          "method": "POST",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/GetPlace",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 173,
+          "method": "POST",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/AutocompletePlaces",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 175,
+          "method": "POST",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/AutocompletePlaces",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "observed API request order"
+        }
+      ],
+      "notes": [
+        "HAR timing available for at least one request."
+      ]
+    }
+  ],
+  "pagination": [
+    {
+      "location": "query",
+      "name": "page",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 303,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/api/jobs/search/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "pagination-like query parameter"
+        }
+      ]
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "create_AutocompletePlaces",
+      "resource": "AutocompletePlaces",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /$rpc/google.maps.places.v1.Places/AutocompletePlaces traffic.",
+      "evidence": [
+        {
+          "entry_index": 161,
+          "method": "POST",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/AutocompletePlaces",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 173,
+          "method": "POST",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/AutocompletePlaces",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 175,
+          "method": "POST",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/AutocompletePlaces",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_GetPlace",
+      "resource": "GetPlace",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /$rpc/google.maps.places.v1.Places/GetPlace traffic.",
+      "evidence": [
+        {
+          "entry_index": 164,
+          "method": "POST",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/GetPlace",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 177,
+          "method": "POST",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/GetPlace",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_recently_viewed",
+      "resource": "recently_viewed",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/jobs/recently-viewed traffic.",
+      "evidence": [
+        {
+          "entry_index": 52,
+          "method": "POST",
+          "host": "jobs.uber.com",
+          "path": "/api/jobs/recently-viewed",
+          "status": 308,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 304,
+          "method": "POST",
+          "host": "jobs.uber.com",
+          "path": "/api/jobs/recently-viewed",
+          "status": 308,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_gen_204",
+      "resource": "gen_204",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /maps/api/mapsjs/gen_204 traffic.",
+      "evidence": [
+        {
+          "entry_index": 158,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps/api/mapsjs/gen_204",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_js",
+      "resource": "js",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /maps/api/js traffic.",
+      "evidence": [
+        {
+          "entry_index": 151,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps/api/js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_manifest.webmanifest",
+      "resource": "manifest.webmanifest",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /manifest.webmanifest traffic.",
+      "evidence": [
+        {
+          "entry_index": 301,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/manifest.webmanifest",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 414,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/manifest.webmanifest",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 494,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/manifest.webmanifest",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 573,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/manifest.webmanifest",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_search",
+      "resource": "search",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/jobs/search/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 303,
+          "method": "GET",
+          "host": "jobs.uber.com",
+          "path": "/api/jobs/search/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "generation_hints": [
+    "browser_http_transport",
+    "has_rpc_envelope",
+    "requires_js_rendering",
+    "requires_protected_client",
+    "weak_schema_confidence"
+  ],
+  "warnings": [
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 151,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps/api/js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 152,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps-api-v3/api/js/66/7/intl/en_gb/controls.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 153,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps-api-v3/api/js/66/7/intl/en_gb/places.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 154,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps-api-v3/api/js/66/7/intl/en_gb/places_impl.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 155,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps-api-v3/api/js/66/7/intl/en_gb/common.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 156,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps-api-v3/api/js/66/7/intl/en_gb/util.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 157,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps-api-v3/api/js/66/7/intl/en_gb/main.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 158,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps/api/mapsjs/gen_204",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 159,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps-api-v3/api/js/66/7/intl/en_gb/places.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 160,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps-api-v3/api/js/66/7/intl/en_gb/log.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 304,
+          "method": "POST",
+          "host": "jobs.uber.com",
+          "path": "/api/jobs/recently-viewed",
+          "status": 308,
+          "content_type": "text/plain",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 52,
+          "method": "POST",
+          "host": "jobs.uber.com",
+          "path": "/api/jobs/recently-viewed",
+          "status": 308,
+          "content_type": "text/plain",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 59,
+          "method": "POST",
+          "host": "jobs.uber.com",
+          "path": "/api/jobs/recently-viewed/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "reserved_resource_name",
+      "message": "resource name \"jobs\" may conflict with a reserved Printing Press command or template; consider renaming it to a domain-specific command name",
+      "confidence": 1
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 126,
+          "method": "GET",
+          "host": "d3f70emg10ruwo.cloudfront.net",
+          "path": "/0mbkx2660g1m5/Screenshot 2025-12-08 at 1.58.58 PM--37f660a2-436a-4f27-ac84-781c1d7979d9.png",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 161,
+          "method": "POST",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/AutocompletePlaces",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 164,
+          "method": "POST",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/GetPlace",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 173,
+          "method": "POST",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/AutocompletePlaces",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 175,
+          "method": "POST",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/AutocompletePlaces",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 177,
+          "method": "POST",
+          "host": "places.googleapis.com",
+          "path": "/$rpc/google.maps.places.v1.Places/GetPlace",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 370,
+          "method": "GET",
+          "host": "d3f70emg10ruwo.cloudfront.net",
+          "path": "/0mbkx2660g1m5/Screenshot 2025-12-08 at 1.58.58 PM--37f660a2-436a-4f27-ac84-781c1d7979d9.png",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    }
+  ]
+}

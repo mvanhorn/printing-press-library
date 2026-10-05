@@ -1,0 +1,165 @@
+
+=== verify ===
+Runtime Verification: ~/printing-press/.runstate/personal-74f0f171/runs/20261005-140047-4f1dd7ae/working/uber-jobs-pp-cli/uber-jobs-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+resource-path:export           static       PASS   PASS     PASS     3/3
+resource-path:import           static       PASS   PASS     PASS     3/3
+agent-context                  write        PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+careers                        read         PASS   PASS     PASS     3/3
+check                          read         PASS   PASS     FAIL     2/3
+doctor                         local        PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+facets                         write        PASS   PASS     FAIL     2/3
+feedback                       write        PASS   PASS     PASS     3/3
+get                            read         PASS   PASS     FAIL     2/3
+import                         data-layer   PASS   PASS     PASS     3/3
+learnings                      read         PASS   PASS     PASS     3/3
+new                            write        PASS   PASS     FAIL     2/3
+playbook                       write        PASS   PASS     PASS     3/3
+postings                       read         PASS   PASS     FAIL     2/3
+profile                        write        PASS   PASS     PASS     3/3
+recall                         read         PASS   PASS     PASS     3/3
+save                           write        PASS   PASS     PASS     3/3
+screen                         read         PASS   PASS     FAIL     2/3
+searches                       write        PASS   PASS     PASS     3/3
+stats                          read         PASS   PASS     FAIL     2/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+teach                          write        PASS   PASS     PASS     3/3
+teach-lookup                   write        PASS   PASS     PASS     3/3
+teach-pattern                  write        PASS   PASS     PASS     3/3
+teach-playbook                 write        PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS learnings confirm
+  PASS learnings forget
+  PASS learnings reject
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+
+Data Pipeline: SKIP (CLI has no sync command)
+Pass Rate: 100% (35/35 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+OK: 12 narrative commands resolved and full examples passed
+
+=== dogfood ===
+dogfood: using spec ~/printing-press/.runstate/personal-74f0f171/runs/20261005-140047-4f1dd7ae/working/uber-jobs-pp-cli/spec.yaml (bundled)
+dogfood: caller --spec=~/printing-press/.runstate/personal-74f0f171/runs/20261005-140047-4f1dd7ae/research/uber-jobs-spec.yaml overridden by bundled ~/printing-press/.runstate/personal-74f0f171/runs/20261005-140047-4f1dd7ae/working/uber-jobs-pp-cli/spec.yaml
+Dogfood Report: uber-jobs-pp-cli
+================================
+
+Path Validity:     0/0 valid (SKIP)
+  Detail: internal-yaml spec: paths validated at parse time
+
+Auth Protocol:     MATCH
+  Generated: Uses "unknown" prefix
+  Detail: no bot/bearer/basic scheme detected
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    7 dead (WARN)
+  - compactFields (defined, never called)
+  - handleBinaryResponseDelivery (defined, never called)
+  - paginatedGetWithResponsePath (defined, never called)
+  - readSecretFromStdin (defined, never called)
+  - retainCLIQueryParams (defined, never called)
+  - retainExplicitQueryParams (defined, never called)
+  - successfulNoop (defined, never called)
+
+Data Pipeline:     PARTIAL
+  Sync: SKIP (no sync command)
+  Search: uses generic Search only or direct SQL
+  Domain tables: 4
+
+Examples:          10/10 commands have examples (PASS)
+
+Novel Features:    9/9 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: WARN
+  - 7 dead helper functions found
+
+=== workflow-verify ===
+Workflow Verification: uber-jobs-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== apify-audit ===
+Apify Actor Audit
+=================
+
+No Apify actor references found.
+
+Verdict: pass
+  - no Apify actor references found, skipping
+
+=== verify-skill ===
+=== uber-jobs-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command)
+  ✓ canonical-sections passed
+
+=== scorecard ===
+Quality Scorecard: uber-jobs
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       8/10
+  Terminal UX          10/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          9/10
+  MCP Desc Quality     10/10
+  MCP Token Efficiency 10/10
+  MCP Remote Transport 10/10
+  MCP Tool Design      10/10
+  MCP Surface Strategy N/A
+  Local Cache          10/10
+  Cache Freshness      3/10
+  Breadth              10/10
+  Vision               6/10
+  Workflows            10/10
+  Insight              10/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           10/10
+  Auth Protocol           N/A
+  Data Pipeline Integrity 10/10
+  Sync Correctness        7/10
+  Live API Verification   N/A
+  Type Fidelity           5/5
+  Dead Code               0/5
+
+  Total: 86/100 - Grade A
+  Note: omitted from denominator: mcp_surface_strategy, auth_protocol, live_api_verification
+
+Gaps:
+  - dead_code scored 0/5 - needs improvement
+  - MCP: 2 tools (2 public, 0 auth-required) — readiness: full
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         24.435s
+  validate-narrative  PASS    0         972ms
+  dogfood           PASS    0         3.324s
+  workflow-verify   PASS    0         14ms
+  apify-audit       PASS    0         48ms
+  verify-skill      PASS    0         4.442s
+  scorecard         PASS    0         262ms
+
+Verdict: PASS (7/7 legs passed)

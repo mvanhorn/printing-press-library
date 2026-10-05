@@ -1,0 +1,20 @@
+{
+  "url": "https://jobs.uber.com/api/jobs/search/",
+  "mode": "standard_http",
+  "confidence": 0.95,
+  "probes": [
+    {
+      "transport": "stdlib",
+      "status": 200,
+      "elapsed_ms": 2438,
+      "content_type": "application/json"
+    }
+  ],
+  "recommendation": {
+    "runtime": "standard_http",
+    "needs_browser_capture": false,
+    "needs_clearance_cookie": false,
+    "rationale": "Plain stdlib HTTP returned a non-error response; no special transport needed."
+  },
+  "partial": true
+}

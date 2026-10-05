@@ -1,0 +1,351 @@
+{
+  "api_name": "uber-jobs",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "ats-scrapers",
+      "url": "https://github.com/kalil0321/ats-scrapers",
+      "language": "Python",
+      "install_method": "",
+      "stars": 168,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "headstart",
+      "url": "https://github.com/sarthakjain004/headstart",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "fetchaller-mcp",
+      "url": "https://github.com/Averyy/fetchaller-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "openings-mcp",
+      "url": "https://github.com/amikai/openings-mcp",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "freehire",
+      "url": "https://github.com/strelov1/freehire",
+      "language": "Go",
+      "install_method": "",
+      "stars": 816,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "JobSpy",
+      "url": "https://github.com/speedyapply/JobSpy",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "jobradar",
+      "url": "https://github.com/adityasingh2400/jobradar",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-05T09:50:14Z",
+  "novel_features": [
+    {
+      "name": "New-since per saved search",
+      "command": "new",
+      "description": "See which Uber postings appeared in or closed from a saved search since its last complete scan",
+      "rationale": "Diffs each saved search's baseline id set against the local posting history and advances only after a complete uncapped sync, which no Uber endpoint offers",
+      "example": "uber-jobs-pp-cli new uk-strategy --agent",
+      "why_it_matters": "Reach for this on a recurring check of a market so an agent reports only what changed instead of re-listing everything. Create the name with save first (an unknown name exits 3); the first run only takes the baseline; when the careers site refuses, saved searches with a keyword are not diffed, and ones with a work pattern exit 7 (or, in auto mode, use the last local sync)",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Tracker liveness check",
+      "command": "check",
+      "description": "Report whether each known posting id is still open, closed, never seen or unknown, with the date it closed",
+      "rationale": "Answers from complete-scan history kept in the local store, and reports a refused scan as unknown rather than closed",
+      "example": "uber-jobs-pp-cli check 302906 160425 --json",
+      "why_it_matters": "Use this to keep tracker rows honest in one call instead of one lookup per id",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Disqualifier screen with evidence",
+      "command": "screen",
+      "description": "Keep or drop postings by phrases in their description and show the sentence each phrase matched",
+      "rationale": "Runs full-text matching over HTML-stripped descriptions in the local store, which the careers site cannot filter on",
+      "example": "uber-jobs-pp-cli screen --country NLD --posted-within 7d --exclude \"fluent Dutch\" --verdict all --agent",
+      "why_it_matters": "Use this to rule out postings that need sponsorship, relocation or a language, with the evidence sentence an agent can quote. The match is literal, so read the sentence (--verdict all) to judge negations. Check meta.source: under the Oracle fallback descriptions are null, every posting is unscreened and the default --verdict keep is empty. In auto mode it reads the last local sync whatever its age (meta.note gives the date)",
+      "group": "Screening without reading every posting"
+    },
+    {
+      "name": "Hiring stats with churn",
+      "command": "stats",
+      "description": "Count open, newly posted, opened and closed Uber postings per country, team, subteam or category",
+      "rationale": "Joins postings, every location of multi-location postings, and first-seen and closed-on history in the local store",
+      "example": "uber-jobs-pp-cli stats --by country --json",
+      "why_it_matters": "Use this for a market read-out of where Uber is hiring and how fast roles turn over; opened_30d and closed_30d stay null until the local store's first complete sync is 30 days old, and are always null on a live read. In auto mode it counts from the last local sync whatever its age (meta.note gives the date)",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Tracker-ready postings feed",
+      "command": "postings",
+      "description": "List Uber postings for an ISO3 market, newest first, in the single envelope a job tracker parses",
+      "rationale": "Maps ISO3 codes to the site's country names, reads the whole corpus in one fresh page and sorts by the true posting date, which the site's relevance order does not",
+      "example": "uber-jobs-pp-cli postings --country GBR --limit 100 --offset 0 --sort recent --json --data-source live",
+      "why_it_matters": "Use this as the default read for any market pull; it keeps the tracker's flags and field names stable",
+      "group": "Tracker-ready reads"
+    },
+    {
+      "name": "Get one posting by id",
+      "command": "get",
+      "description": "Fetch one Uber posting by its id and exit not-found when the site no longer lists it",
+      "rationale": "Asserts that the returned id equals the requested one instead of trusting the first search hit",
+      "example": "uber-jobs-pp-cli get 302906 --json",
+      "why_it_matters": "Use this when an agent has one id and needs the full posting or a reliable gone signal",
+      "group": "Tracker-ready reads"
+    },
+    {
+      "name": "Filter values from the site",
+      "command": "facets",
+      "description": "List the countries, teams, subteams, contract types and work patterns the careers site currently offers",
+      "rationale": "Reads the facet lists the site embeds in its job list page, the only source of exact filter values and of the ISO3 map",
+      "example": "uber-jobs-pp-cli facets --json",
+      "why_it_matters": "Use this before filtering so team and country values match the site exactly",
+      "group": "Tracker-ready reads"
+    },
+    {
+      "name": "Save a named search",
+      "command": "save",
+      "description": "Store a named set of filters so new can diff it on every later run",
+      "rationale": "Keeps saved searches in the local store, so a typo in new exits not-found instead of silently starting a fresh baseline",
+      "example": "uber-jobs-pp-cli save uk-strategy --country GBR --base-query strategy",
+      "why_it_matters": "Use this once per recurring market check before running new",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "List and delete saved searches",
+      "command": "searches",
+      "description": "Show every saved search with its filters, baseline size and last advance, or delete one by name",
+      "rationale": "Reads the saved-search tables in the local store, which no Uber endpoint holds",
+      "example": "uber-jobs-pp-cli searches --json",
+      "why_it_matters": "Use this to audit what new will diff, or to prune stale searches",
+      "group": "Local history that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "New-since per saved search",
+      "command": "new",
+      "description": "See which Uber postings appeared in or closed from a saved search since its last complete scan",
+      "rationale": "Diffs each saved search's baseline id set against the local posting history and advances only after a complete uncapped sync, which no Uber endpoint offers",
+      "example": "uber-jobs-pp-cli new uk-strategy --agent",
+      "why_it_matters": "Reach for this on a recurring check of a market so an agent reports only what changed instead of re-listing everything. Create the name with save first (an unknown name exits 3); the first run only takes the baseline; when the careers site refuses, saved searches with a keyword are not diffed, and ones with a work pattern exit 7 (or, in auto mode, use the last local sync)",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Tracker liveness check",
+      "command": "check",
+      "description": "Report whether each known posting id is still open, closed, never seen or unknown, with the date it closed",
+      "rationale": "Answers from complete-scan history kept in the local store, and reports a refused scan as unknown rather than closed",
+      "example": "uber-jobs-pp-cli check 302906 160425 --json",
+      "why_it_matters": "Use this to keep tracker rows honest in one call instead of one lookup per id",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Disqualifier screen with evidence",
+      "command": "screen",
+      "description": "Keep or drop postings by phrases in their description and show the sentence each phrase matched",
+      "rationale": "Runs full-text matching over HTML-stripped descriptions in the local store, which the careers site cannot filter on",
+      "example": "uber-jobs-pp-cli screen --country NLD --posted-within 7d --exclude \"fluent Dutch\" --verdict all --agent",
+      "why_it_matters": "Use this to rule out postings that need sponsorship, relocation or a language, with the evidence sentence an agent can quote. The match is literal, so read the sentence (--verdict all) to judge negations. Check meta.source: under the Oracle fallback descriptions are null, every posting is unscreened and the default --verdict keep is empty. In auto mode it reads the last local sync whatever its age (meta.note gives the date)",
+      "group": "Screening without reading every posting"
+    },
+    {
+      "name": "Hiring stats with churn",
+      "command": "stats",
+      "description": "Count open, newly posted, opened and closed Uber postings per country, team, subteam or category",
+      "rationale": "Joins postings, every location of multi-location postings, and first-seen and closed-on history in the local store",
+      "example": "uber-jobs-pp-cli stats --by country --json",
+      "why_it_matters": "Use this for a market read-out of where Uber is hiring and how fast roles turn over; opened_30d and closed_30d stay null until the local store's first complete sync is 30 days old, and are always null on a live read. In auto mode it counts from the last local sync whatever its age (meta.note gives the date)",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Tracker-ready postings feed",
+      "command": "postings",
+      "description": "List Uber postings for an ISO3 market, newest first, in the single envelope a job tracker parses",
+      "rationale": "Maps ISO3 codes to the site's country names, reads the whole corpus in one fresh page and sorts by the true posting date, which the site's relevance order does not",
+      "example": "uber-jobs-pp-cli postings --country GBR --limit 100 --offset 0 --sort recent --json --data-source live",
+      "why_it_matters": "Use this as the default read for any market pull; it keeps the tracker's flags and field names stable",
+      "group": "Tracker-ready reads"
+    },
+    {
+      "name": "Get one posting by id",
+      "command": "get",
+      "description": "Fetch one Uber posting by its id and exit not-found when the site no longer lists it",
+      "rationale": "Asserts that the returned id equals the requested one instead of trusting the first search hit",
+      "example": "uber-jobs-pp-cli get 302906 --json",
+      "why_it_matters": "Use this when an agent has one id and needs the full posting or a reliable gone signal",
+      "group": "Tracker-ready reads"
+    },
+    {
+      "name": "Filter values from the site",
+      "command": "facets",
+      "description": "List the countries, teams, subteams, contract types and work patterns the careers site currently offers",
+      "rationale": "Reads the facet lists the site embeds in its job list page, the only source of exact filter values and of the ISO3 map",
+      "example": "uber-jobs-pp-cli facets --json",
+      "why_it_matters": "Use this before filtering so team and country values match the site exactly",
+      "group": "Tracker-ready reads"
+    },
+    {
+      "name": "Save a named search",
+      "command": "save",
+      "description": "Store a named set of filters so new can diff it on every later run",
+      "rationale": "Keeps saved searches in the local store, so a typo in new exits not-found instead of silently starting a fresh baseline",
+      "example": "uber-jobs-pp-cli save uk-strategy --country GBR --base-query strategy",
+      "why_it_matters": "Use this once per recurring market check before running new",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "List and delete saved searches",
+      "command": "searches",
+      "description": "Show every saved search with its filters, baseline size and last advance, or delete one by name",
+      "rationale": "Reads the saved-search tables in the local store, which no Uber endpoint holds",
+      "example": "uber-jobs-pp-cli searches --json",
+      "why_it_matters": "Use this to audit what new will diff, or to prune stale searches",
+      "group": "Local history that compounds"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Uber Careers",
+    "headline": "Every public Uber job posting as one tracker-ready JSON feed with offline history, new-since diffs and a fallback when the careers site refuses",
+    "value_prop": "Pull open Uber postings by country, team or keyword into the single envelope a job tracker already parses, keep a local history of what opened and closed, and screen descriptions for sponsorship or language disqualifiers with the matching sentence shown. When the careers site refuses a request, reads fall back to Uber's own Oracle candidate-experience API instead of returning nothing. That fallback has limits: description and job_category are null; --team, --sub-team, --contract-type, --work-pattern and the description filters have no fallback (the command exits 7 instead); neither do facets or the raw careers commands; and new does not diff saved searches that use a keyword.",
+    "auth_narrative": "No account and no key are needed because the CLI reads public postings only and never signs in, applies or subscribes to alerts",
+    "quickstart": [
+      {
+        "command": "uber-jobs-pp-cli doctor --dry-run",
+        "comment": "Confirm the binary runs, without touching the network"
+      },
+      {
+        "command": "uber-jobs-pp-cli postings --country GBR --limit 20 --sort recent --json",
+        "comment": "The newest postings in one market, in the tracker's envelope"
+      },
+      {
+        "command": "uber-jobs-pp-cli sync --json",
+        "comment": "Mirror every open posting locally so history and offline commands work"
+      },
+      {
+        "command": "uber-jobs-pp-cli save uk-strategy --country GBR --base-query strategy",
+        "comment": "Name a search once so new can diff it on every later run"
+      },
+      {
+        "command": "uber-jobs-pp-cli new uk-strategy",
+        "comment": "See what appeared or closed in that search since its last complete scan (the first run takes the baseline)"
+      },
+      {
+        "command": "uber-jobs-pp-cli stats --by country",
+        "comment": "Where Uber is hiring right now, with churn once history builds up"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Exit code 7 with a careers-site refusal message",
+        "fix": "Neither the careers site nor the Oracle fallback answered; the error text says which refused. Nothing more is sent to that host until 00:00 UTC, so rerun after then, or use --data-source local to read the last sync"
+      },
+      {
+        "symptom": "The DNS or transport exit code from any command",
+        "fix": "Check your resolver or VPN split DNS, then run uber-jobs-pp-cli doctor"
+      },
+      {
+        "symptom": "new reports baseline_advanced false",
+        "fix": "Read that row's note for the cause. Run uber-jobs-pp-cli sync --json only when it names a missing or stale local sync; after a refusal, wait until 00:00 UTC, since a fallback sync never counts as a complete one"
+      },
+      {
+        "symptom": "A posting looks missing right after it went live",
+        "fix": "Search replies are edge-cached for hours; new and check tolerate the lag, so rerun after the cache refreshes"
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs Uber's public job postings as structured data, such as building a shortlist for a market, keeping a job tracker's Uber rows current, or reporting where Uber is hiring. It never writes to Uber: sync, save, searches --delete and new write only the CLI's local store. Run sync on a schedule to build the history that check, stats and screen read offline, so repeated checks report only what changed.",
+    "anti_triggers": [
+      "Applying to an Uber job or filling in an application form",
+      "Subscribing to Uber job alerts or managing a candidate profile",
+      "Job postings at any employer other than Uber",
+      "Uber rides, Uber Eats or any other Uber product API"
+    ],
+    "recipes": [
+      {
+        "title": "Newest postings in a market",
+        "command": "uber-jobs-pp-cli postings --country USA --limit 50 --sort recent --agent --select results.id,results.title,results.posted_on,results.location",
+        "explanation": "Narrows a large envelope to the four fields an agent needs for a shortlist"
+      },
+      {
+        "title": "Postings from the last 7 days",
+        "command": "uber-jobs-pp-cli postings --country GBR --posted-within 7d --sort recent --json",
+        "explanation": "Answers \"what is new this week\" without a saved search; recency comes from the true posting date"
+      },
+      {
+        "title": "Weekly new-since check",
+        "command": "uber-jobs-pp-cli new --all --json",
+        "explanation": "Runs every saved search and returns what appeared or closed since each baseline"
+      },
+      {
+        "title": "Screen out language requirements",
+        "command": "uber-jobs-pp-cli screen --country NLD --exclude \"fluent Dutch\" --verdict all --json",
+        "explanation": "Gives every Netherlands posting a keep or drop verdict and quotes the sentence each phrase matched; the match is literal, so a negation such as \"no fluent Dutch needed\" also drops"
+      },
+      {
+        "title": "Are my tracked postings still open",
+        "command": "uber-jobs-pp-cli check 302906 160425 --json",
+        "explanation": "One call returns open, closed, never_seen or unknown for each id"
+      },
+      {
+        "title": "Build the local history",
+        "command": "uber-jobs-pp-cli sync --json",
+        "explanation": "Run it daily: closures get dates, and check, stats and screen answer from the local store"
+      }
+    ],
+    "trigger_phrases": [
+      "find uber jobs in the uk",
+      "what uber jobs were posted this week",
+      "is this uber job still open",
+      "where is uber hiring",
+      "use uber-jobs",
+      "run uber-jobs"
+    ]
+  }
+}

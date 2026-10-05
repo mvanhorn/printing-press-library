@@ -1,0 +1,257 @@
+# uber-jobs internal spec, authored 2026-10-05 from the browser-sniff spec and discovery/api-contract-notes.md.
+# Only reads are kept (rule 4). Noise hosts were dropped: Google Places/Maps, the manifest, analytics.
+# The writes in the site JS (subscribe, subscribeConfirm, unsubscribe), sign-in and apply are deliberately absent.
+# The tracker-contract `postings` command and the Oracle fallback are hand-written, not spec endpoints.
+# learn: entity seeds below use the exact upstream facet values as canonical.
+name: uber-jobs
+description: "Uber careers postings as one tracker-ready JSON feed with offline history and new-since diffs"
+version: "0.1.0"
+base_url: "https://jobs.uber.com"
+http_transport: standard
+health_check_path: "/api/jobs/search/?page=1&pagesize=1"
+category: productivity
+required_headers:
+  - name: User-Agent
+    value: "uber-jobs-pp-cli/0.1.0"
+  - name: Accept
+    value: "application/json"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/uber-jobs-pp-cli/config.toml"
+
+learn:
+  ticker_patterns:
+    - "^[0-9]{6}$"
+  synonyms:
+    "newest": "recent"
+    "most recent": "recent"
+    "latest": "recent"
+  entity_lookup_seeds:
+    country:
+      - canonical: United States
+        aliases: [usa, us, america, united states of america]
+      - canonical: United Kingdom
+        aliases: [gbr, uk, britain, england]
+      - canonical: Germany
+        aliases: [deu, de]
+      - canonical: Netherlands
+        aliases: [nld, holland, the netherlands]
+      - canonical: India
+        aliases: [ind]
+      - canonical: Canada
+        aliases: [can]
+      - canonical: Mexico
+        aliases: [mex]
+      - canonical: Brazil
+        aliases: [bra, brasil]
+      - canonical: Spain
+        aliases: [esp]
+      - canonical: France
+        aliases: [fra]
+      - canonical: Japan
+        aliases: [jpn]
+      - canonical: Australia
+        aliases: [aus]
+      - canonical: "Korea, Republic of"
+        aliases: [kor, south korea, korea]
+      - canonical: Türkiye
+        aliases: [tur, turkey, turkiye]
+      - canonical: United Arab Emirates
+        aliases: [are, uae]
+      - canonical: Saudi Arabia
+        aliases: [sau, ksa]
+    team:
+      - canonical: Engineer
+        aliases: [engineering, swe, software engineer, eng]
+      - canonical: Operations
+        aliases: [ops, operations team]
+      - canonical: Sales
+        aliases: [account executive, sales team]
+      - canonical: Customer Support
+        aliases: [support, cs, customer service]
+      - canonical: Product
+        aliases: [product management, pm]
+      - canonical: Science
+        aliases: [data science, applied science, ds]
+      - canonical: University
+        aliases: [new grad, graduate, campus, intern]
+    work_pattern:
+      - canonical: Intern
+        aliases: [internship, interns]
+      - canonical: Direct NCG Hire
+        aliases: [new college grad, ncg]
+      - canonical: Fixed Term
+        aliases: [contract, temporary, fixed-term]
+      - canonical: Regular
+        aliases: [permanent, full-time employee]
+
+resources:
+  careers:
+    description: "Raw Uber careers search and id lookup, faithful to the site API wire keys"
+    endpoints:
+      search:
+        method: GET
+        path: "/api/jobs/search/"
+        description: "Search Uber careers postings with the site's own query keys and page numbering"
+        example: "  uber-jobs-pp-cli careers search --countries Germany --page-size 100"
+        happy_args: "--countries=Germany;--page-size=100"
+        params:
+          - name: search
+            flag_name: query
+            type: string
+            description: "Keyword search over title, description and team labels (the site's search key)"
+          - name: countries
+            flag_name: countries
+            type: string
+            description: "Country name exactly as the site lists it (Germany, United States); matches any location"
+          - name: team
+            type: string
+            description: "Team name exactly as the site lists it (Engineer, Finance, Operations)"
+          - name: subTeam
+            flag_name: sub-team
+            type: string
+            description: "Sub-team name exactly as the site lists it (Business Operations, Customer Support)"
+          - name: contractTypes
+            flag_name: contract-type
+            type: string
+            description: "Contract type exactly as the site lists it (Full time)"
+          - name: location
+            type: string
+            description: "Free-text location the site resolves itself (Berlin, New York City)"
+          - name: lat
+            type: float
+            description: "Latitude for a radius search, used with --lng and --radius"
+          - name: lng
+            type: float
+            description: "Longitude for a radius search, used with --lat and --radius"
+          - name: radius
+            type: int
+            description: "Radius in miles around --lat and --lng (the site default is 100)"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number, starting at 1"
+          - name: pagesize
+            flag_name: page-size
+            type: int
+            default: 100
+            description: "Rows per page; the site honours large values and 1000 returns the whole corpus in one page"
+        response:
+          type: array
+          item: Posting
+        response_path: jobs
+      lookup:
+        method: POST
+        path: "/api/jobs/recently-viewed/"
+        mutation: false
+        description: "Look up Uber careers postings by id through the site's batch lookup; unknown ids are silently dropped"
+        example: "  uber-jobs-pp-cli careers lookup --job-ids '[\"302906\",\"160425\"]'"
+        happy_args: "--job-ids=[\"302906\"]"
+        request_content_type: application/json
+        body:
+          - name: jobIds
+            flag_name: job-ids
+            type: array
+            required: true
+            description: "JSON array of posting ids as strings"
+          - name: locale
+            type: string
+            default: "en"
+            description: "Locale for the lookup (en)"
+        response:
+          type: array
+          item: LookupPosting
+        response_path: jobs
+
+types:
+  Posting:
+    fields:
+      - name: Id
+        type: string
+      - name: Reference
+        type: string
+      - name: Title
+        type: string
+      - name: Description
+        type: string
+      - name: Summary
+        type: string
+      - name: AdditionalText
+        type: string
+      - name: AdditionalDescription1
+        type: string
+      - name: DisplayDate
+        type: string
+        format: date-time
+      - name: Teams
+        type: array
+      - name: ContractType
+        type: string
+      - name: WorkPattern
+        type: string
+      - name: ExperienceLevel
+        type: string
+      - name: Remote
+        type: bool
+      - name: Salary
+        type: ref:Salary
+      - name: Locations
+        type: '[]ref:Location'
+      - name: Urls
+        type: '[]ref:Url'
+      - name: '@search.score'
+        type: number
+  LookupPosting:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: url
+        type: string
+      - name: locations
+        type: '[]ref:Location'
+      - name: teams
+        type: array
+  Location:
+    fields:
+      - name: Identifier
+        type: string
+      - name: City
+        type: string
+      - name: Region
+        type: string
+      - name: Country
+        type: string
+      - name: CountryCode
+        type: string
+      - name: Address
+        type: string
+      - name: PostalCode
+        type: string
+      - name: LocationPoint
+        type: object
+  Salary:
+    fields:
+      - name: MinValue
+        type: number
+      - name: MaxValue
+        type: number
+      - name: Currency
+        type: string
+      - name: Period
+        type: string
+      - name: Description
+        type: string
+  Url:
+    fields:
+      - name: Culture
+        type: string
+      - name: Url
+        type: string
+      - name: IsDefault
+        type: bool

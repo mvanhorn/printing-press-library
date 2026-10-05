@@ -1,0 +1,171 @@
+{
+  "api_name": "uber-jobs",
+  "base_url": "https://jobs.uber.com",
+  "description": "Every public Uber job posting as one tracker-ready JSON feed with offline history, new-since diffs and a fallback when the careers site refuses",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "uber-jobs-pp-cli/0.1.0"
+    },
+    {
+      "name": "Accept",
+      "value": "application/json"
+    }
+  ],
+  "tools": [
+    {
+      "name": "careers_lookup",
+      "description": "Look up Uber careers postings by id through the site's batch lookup; unknown ids are silently dropped. Required: job-ids. Optional: locale (default: en). Returns array of LookupPosting.",
+      "method": "POST",
+      "path": "/api/jobs/recently-viewed/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "job-ids",
+          "wire_name": "jobIds",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of posting ids as strings",
+          "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "body",
+          "description": "Locale for the lookup (en)"
+        }
+      ]
+    },
+    {
+      "name": "careers_search",
+      "description": "Search Uber careers postings with the site's own query keys and page numbering. Optional: query, countries, team (plus 8 more). Returns array of Posting.",
+      "method": "GET",
+      "path": "/api/jobs/search/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword search over title, description and team labels (the site's search key)"
+        },
+        {
+          "name": "countries",
+          "type": "string",
+          "location": "query",
+          "description": "Country name exactly as the site lists it (Germany, United States); matches any location"
+        },
+        {
+          "name": "team",
+          "type": "string",
+          "location": "query",
+          "description": "Team name exactly as the site lists it (Engineer, Finance, Operations)"
+        },
+        {
+          "name": "sub-team",
+          "wire_name": "subTeam",
+          "type": "string",
+          "location": "query",
+          "description": "Sub-team name exactly as the site lists it (Business Operations, Customer Support)"
+        },
+        {
+          "name": "contract-type",
+          "wire_name": "contractTypes",
+          "type": "string",
+          "location": "query",
+          "description": "Contract type exactly as the site lists it (Full time)"
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text location the site resolves itself (Berlin, New York City)"
+        },
+        {
+          "name": "lat",
+          "type": "float",
+          "location": "query",
+          "description": "Latitude for a radius search, used with --lng and --radius"
+        },
+        {
+          "name": "lng",
+          "type": "float",
+          "location": "query",
+          "description": "Longitude for a radius search, used with --lat and --radius"
+        },
+        {
+          "name": "radius",
+          "type": "int",
+          "location": "query",
+          "description": "Radius in miles around --lat and --lng (the site default is 100)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number, starting at 1"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pagesize",
+          "type": "int",
+          "location": "query",
+          "description": "Rows per page; the site honours large values and 1000 returns the whole corpus in one page"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "New-since per saved search",
+      "command": "new",
+      "description": "See which Uber postings appeared in or closed from a saved search since its last complete scan"
+    },
+    {
+      "name": "Tracker liveness check",
+      "command": "check",
+      "description": "Report whether each known posting id is still open, closed, never seen or unknown, with the date it closed"
+    },
+    {
+      "name": "Disqualifier screen with evidence",
+      "command": "screen",
+      "description": "Keep or drop postings by phrases in their description and show the sentence each phrase matched"
+    },
+    {
+      "name": "Hiring stats with churn",
+      "command": "stats",
+      "description": "Count open, newly posted, opened and closed Uber postings per country, team, subteam or category"
+    },
+    {
+      "name": "Tracker-ready postings feed",
+      "command": "postings",
+      "description": "List Uber postings for an ISO3 market, newest first, in the single envelope a job tracker parses"
+    },
+    {
+      "name": "Get one posting by id",
+      "command": "get",
+      "description": "Fetch one Uber posting by its id and exit not-found when the site no longer lists it"
+    },
+    {
+      "name": "Filter values from the site",
+      "command": "facets",
+      "description": "List the countries, teams, subteams, contract types and work patterns the careers site currently offers"
+    },
+    {
+      "name": "Save a named search",
+      "command": "save",
+      "description": "Store a named set of filters so new can diff it on every later run"
+    },
+    {
+      "name": "List and delete saved searches",
+      "command": "searches",
+      "description": "Show every saved search with its filters, baseline size and last advance, or delete one by name"
+    }
+  ]
+}

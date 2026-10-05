@@ -1,0 +1,10 @@
+2026-10-05T19:29:08Z	uber-jobs-pp-cli(generated client)	POST	https://jobs.uber.com/api/jobs/recently-viewed/	200	398
+2026-10-05T19:29:11Z	uber-jobs-pp-cli(generated client)	POST	https://jobs.uber.com/api/jobs/recently-viewed/	200	398
+2026-10-05T19:29:15Z	uber-jobs-pp-cli(generated client)	GET	https://jobs.uber.com/api/jobs/search/?countries=Germany&page=1&pagesize=100	200	132265
+2026-10-05T19:29:19Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1	200	6736
+2026-10-05T19:29:22Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=633	200	4018973
+2026-10-05T19:29:26Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/en/jobs/	200	208210
+2026-10-05T19:29:29Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=1	200	5860
+2026-10-05T19:29:33Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=73	200	141190
+2026-10-05T19:29:36Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?countries=Netherlands&page=1&pagesize=1	200	6856
+2026-10-05T19:29:40Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?countries=Netherlands&page=1&pagesize=57	200	41028

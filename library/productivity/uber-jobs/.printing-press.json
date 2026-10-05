@@ -1,0 +1,137 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-05T19:29:55.00611Z",
+  "printing_press_version": "4.33.0",
+  "api_name": "uber-jobs",
+  "display_name": "Uber Careers",
+  "cli_name": "uber-jobs-pp-cli",
+  "creator": {
+    "handle": "qazmataz",
+    "name": "qazmataz"
+  },
+  "owner": "qazmataz",
+  "printer": "qazmataz",
+  "printer_name": "qazmataz",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:87bea49168e03e324917d8431e13600ce3788e8599dbf642388891e9b7cb830b",
+  "run_id": "20261005-140047-4f1dd7ae",
+  "category": "productivity",
+  "description": "Every public Uber job posting as one tracker-ready JSON feed with offline history, new-since diffs and a fallback when the careers site refuses",
+  "mcp_binary": "uber-jobs-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "New-since per saved search",
+      "command": "new",
+      "description": "See which Uber postings appeared in or closed from a saved search since its last complete scan"
+    },
+    {
+      "name": "Tracker liveness check",
+      "command": "check",
+      "description": "Report whether each known posting id is still open, closed, never seen or unknown, with the date it closed"
+    },
+    {
+      "name": "Disqualifier screen with evidence",
+      "command": "screen",
+      "description": "Keep or drop postings by phrases in their description and show the sentence each phrase matched"
+    },
+    {
+      "name": "Hiring stats with churn",
+      "command": "stats",
+      "description": "Count open, newly posted, opened and closed Uber postings per country, team, subteam or category"
+    },
+    {
+      "name": "Tracker-ready postings feed",
+      "command": "postings",
+      "description": "List Uber postings for an ISO3 market, newest first, in the single envelope a job tracker parses"
+    },
+    {
+      "name": "Get one posting by id",
+      "command": "get",
+      "description": "Fetch one Uber posting by its id and exit not-found when the site no longer lists it"
+    },
+    {
+      "name": "Filter values from the site",
+      "command": "facets",
+      "description": "List the countries, teams, subteams, contract types and work patterns the careers site currently offers"
+    },
+    {
+      "name": "Save a named search",
+      "command": "save",
+      "description": "Store a named set of filters so new can diff it on every later run"
+    },
+    {
+      "name": "List and delete saved searches",
+      "command": "searches",
+      "description": "Show every saved search with its filters, baseline size and last advance, or delete one by name"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "New-since per saved search",
+      "command": "new",
+      "description": "See which Uber postings appeared in or closed from a saved search since its last complete scan"
+    },
+    {
+      "name": "Tracker liveness check",
+      "command": "check",
+      "description": "Report whether each known posting id is still open, closed, never seen or unknown, with the date it closed"
+    },
+    {
+      "name": "Disqualifier screen with evidence",
+      "command": "screen",
+      "description": "Keep or drop postings by phrases in their description and show the sentence each phrase matched"
+    },
+    {
+      "name": "Hiring stats with churn",
+      "command": "stats",
+      "description": "Count open, newly posted, opened and closed Uber postings per country, team, subteam or category"
+    },
+    {
+      "name": "Tracker-ready postings feed",
+      "command": "postings",
+      "description": "List Uber postings for an ISO3 market, newest first, in the single envelope a job tracker parses"
+    },
+    {
+      "name": "Get one posting by id",
+      "command": "get",
+      "description": "Fetch one Uber posting by its id and exit not-found when the site no longer lists it"
+    },
+    {
+      "name": "Filter values from the site",
+      "command": "facets",
+      "description": "List the countries, teams, subteams, contract types and work patterns the careers site currently offers"
+    },
+    {
+      "name": "Save a named search",
+      "command": "save",
+      "description": "Store a named set of filters so new can diff it on every later run"
+    },
+    {
+      "name": "List and delete saved searches",
+      "command": "searches",
+      "description": "Show every saved search with its filters, baseline size and last advance, or delete one by name"
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 35,
+    "total": 35,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 86,
+      "grade": "A",
+      "total": 86
+    }
+  }
+}

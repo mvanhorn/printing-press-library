@@ -1,0 +1,3829 @@
+
+REST API for Oracle Fusion Cloud HCM - Get all job requisitions
+Previous
+Next
+ JavaScript must be enabled to correctly display this content
+REST API for Oracle Fusion Cloud HCM
+Tasks
+Recruiting CE Job Requisitions
+Jump to 
+Request
+Response
+Get all job requisitions
+get
+/hcmRestApi/resources/11.13.18.05/recruitingCEJobRequisitions
+Request
+Query Parameters
+                            expand: string
+When this parameter is provided, the specified children are included in the resource payload (instead of just a link). The value of this query parameter is "all" or "". More than one child can be specified using comma as a separator. Example: ?expand=Employees,Localizations. Nested children can also be provided following the format "Child.NestedChild" (Example: ?expand=Employees.Managers). If a nested child is provided (Example: Employees.Managers), the missing children will be processed implicitly. For example, "?expand=Employees.Managers" is the same as "?expand=Employees,Employees.Managers" (which will expand Employees and Managers).
+                            fields: string
+This parameter filters the resource fields. Only the specified fields are returned, which means that if no fields are specified, no fields are returned (useful to get only the links). If an indirect child resource is provided (Example: Employees.Managers), the missing children will be processed implicitly. For example, "?fields=Employees.Managers:Empname" is the same as "?fields=;Employees:;Employees.Managers:Empname" (which will only return the "Empname" field for Managers). the value of this query parameter is a list of resource fields. The attribute can be a direct (Example: Employees) or indirect (Example: Employees.Managers) child. It cannot be combined with expand query parameter. If both are provided, only fields will be considered.
+Format: ?fields=Attribute1,Attribute2
+Format for fields in child resource: ?fields=Accessor1:Attribute1,Attribute2
+                            finder: string
+Used as a predefined finder to search the collection.
+Format ?finder=<finderName>;<variableName>=<variableValue>,<variableName2>=<variableValue2>
+The following are the available finder names and corresponding finder variables
+PrimaryKey Finds job requisitions using a unique ID 
+Finder Variables 
+SearchId; integer;  Finds job requisitions using a search ID and a primary key 
+findReqs Finds job requisitions using find requests 
+Finder Variables 
+correctedKeyword; string;  Corrected keyword; string;  used for searching, based on the spell check result. 
+executeSpellCheckFlag; string;  Indicates whether the keyword; string;  must be spell checked. The default value is true. 
+facetsList; string;  Finds job requisitions using find requests and facets list 
+hotJobFlag; string;  Indicates whether the job requisition is considered a hot job. 
+jobFamilyId; string;  Finds job requisitions using find requests and job family ID 
+keyword; string;  Finds job requisitions using find requests and keyword; string;  
+lastSelectedFacet; string;  Finds job requisitions using find requests and the last selected facet 
+latitude; number;  Finds recruiting job requisitions using find requests and latitude; number;  
+limit; integer;  Finds job requisitions using find requests and limit; integer;  
+location; string;  Finds job requisitions using find requests and location; string;  
+locationId; string;  Finds job requisitions using find requests and location; string;  ID 
+longitude; number;  Finds recruiting job requisitions using find requests and longitude; number;  
+offset; integer;  Finds job requisitions using find requests and offset; integer;  
+organizationId; string;  Organization ID to find job requisitions. 
+postingEndDate; string;  Finds job requisitions using find requests and the end date of the job posting 
+postingStartDate; string;  Finds job requisitions using find requests and the start date of the job posting 
+radius; integer;  Finds job requisitions using find requests and radius; integer;  
+radiusUnit; string;  Finds job requisitions using find requests and the unit of the radius; integer;  
+selectedCategoriesFacet; string;  Finds job requisitions using find requests and the selected category facet 
+selectedFlexFieldsFacets; string;  Finds job requisitions using selected flexfields facets 
+selectedLocationsFacet; string;  Finds job requisitions using find requests and location; string;  facet 
+selectedOrganizationsFacet; string;  Selected organization facets to find job requisitions. 
+selectedPostingDatesFacet; string;  Finds job requisitions using find requests and the selected facet of the date of job posting 
+selectedTitlesFacet; string;  Finds job requisitions using find requests and title facet 
+selectedWorkLocationsFacet; string;  Requisition location; string;  ID and unique ID used to find work locations in a job requisition details preview. 
+selectedWorkplaceTypesFacet; string;  Facet of the selected workplace type. 
+siteNumber; string;  Finds recruiting job requisitions using find requests and the site number 
+sortBy; string;  Finds job requisitions using find requests and sort by 
+useExactKeywordFlag; string;  Indicates whether the exact keyword; string;  is used for searching or if the keyword; string;  is automatically spell checked and corrected. The default value is false. 
+userTargetFacetInputTerm; string;  Term used to find facet values for the selected facet. 
+userTargetFacetName; string;  Name of the facet to find facet values. 
+workLocationCountryCode; string;  Finds job requisitions using country code of the work location; string;  
+workLocationZipCode; string;  Finds job requisitions using the ZIP code of the work location; string;  
+workplaceType; string;  Workplace type of the job requisition. 
+findReqsByQRShortCode Finds job requisitions by QR short code. 
+Finder Variables 
+limit; integer;  The maximum number of job requisitions displayed per page. 
+offset; integer;  The offset; integer;  value to get job requisitions from the result set. 
+qrShortCode; string;  The short code associated with the QR code. 
+siteNumber; string;  The site number associated with the short code URL. 
+findSimilarRequisitions Finds similar jobs 
+Finder Variables 
+candidateNumber; string;  Finds similar jobs using candidate ID 
+limit; integer;  Finds job requisitions using find requests and limit; integer;  
+offset; integer;  Finds job requisitions using find requests and offset; integer;  
+requisitionId; integer;  Finds similar jobs using job ID 
+siteNumber; string;  Finds similar jobs using site number 
+findSimilarRequisitionsByCandidate Finds jobs by candidate. 
+Finder Variables 
+candidateNumber; string;  Finds similar jobs using candidate ID 
+limit; integer;  Finds job requisitions using find requests and limit; integer;  
+offset; integer;  Finds job requisitions using find requests and offset; integer;  
+requisitionId; integer;  Finds similar jobs using job ID 
+siteNumber; string;  Finds similar jobs using site number 
+                            limit: integer
+This parameter restricts the number of resources returned inside the resource collection. If the limit exceeds the resource count then the framework will only return the available resources.
+                            links: string
+This parameter can be used to show only certain links while accessing a singular resource or a resource collection. The parameter value format is a comma-separated list of : <link_relation>
+Example:
+self,canonical
+                            offset: integer
+Used to define the starting position of the resource collection. If offset exceeds the resource count then no resources are returned. Default value is 0.
+                            onlyData: boolean
+The resource item payload will be filtered in order to contain only data (no links section, for example).
+                            orderBy: string
+This parameter orders a resource collection based on the specified fields.  The parameter value is a comma-separated string of attribute names, each optionally followed by a colon and "asc" or "desc".  Specify "asc" for ascending and "desc" for descending. The default value is "asc".  For example, ?orderBy=field1:asc,field2:desc
+                            q: string
+This query parameter defines the where clause. The resource collection will be queried using the provided expressions. The value of this query parameter is one or more expressions. Example: ?q=Deptno>=10 and <= 30;Loc!=NY 
+Format: ?q=expression1;expression2
+You can use these queryable attributes to filter this collection resource using the q query parameter:
+BotQRShortCode; string; The QR short code for the filtered job requisitions that are displayed.
+CandidateNumber; string; ID assigned to each candidate
+CorrectedKeyword; string; Corrected keyword used for searching, based on the spell check result.
+ExecuteSpellCheckFlag; boolean; Indicates whether a spell check was requested for the keyword.
+Facets; string; Facets of the job requisitions.
+HotJobFlag; boolean; Indicates whether the job requisition is considered a hot job in a job requisition details preview.
+JobFamilyId; string; ID assigned to the job family.
+Keyword; string; Keyword used to search for job requisitions.
+LastSelectedFacet; string; Last selected facet for retrieving job requisitions.
+Latitude; number; Latitude of the location of job requisition.
+Limit; integer; Limit of the job requisition.
+Location; string; Location of the job requisition
+LocationId; string; ID assigned to the location of the job requisition.
+Longitude; number; Longitude of the location of the job requisition
+Offset; integer; Offset of the job requisition
+OrganizationId; string; Organization ID for a job requisition.
+PostingEndDate; string; End date of the job posting.
+PostingStartDate; string; Start date of the job posting.
+Radius; integer; Radius of the job requisition.
+RadiusUnit; string; Unit of the radius of the job requisition.
+RequisitionId; integer; ID assigned to the similar job
+SearchId; integer; Location ID of the secondary locations in a job requisition details preview.
+SelectedCategoriesFacet; string; Facet of the selected categories of the job requisitions.
+SelectedFlexFieldsFacets; string; Facets of the selected job requisitions flexfields.
+SelectedLocationsFacet; string; Facet of the selected locations of the job requisitions.
+SelectedOrganizationsFacet; string; Facet of the selected organizations of the job requisitions.
+SelectedPostingDatesFacet; string; Facet of the selected dates of job posting.
+SelectedTitlesFacet; string; Facet of the selected title of job requisitions.
+SelectedWorkLocationsFacet; string; Facet of the selected work locations.
+SelectedWorkplaceTypesFacet; string; Facet of the selected workplace type.
+SiteNumber; string; Site number of the job requisition.
+SortBy; string; Sort by attribute for the job requisition.
+SuggestedKeyword; string; Suggested keyword based on spell check result.
+TotalJobsCount; integer; Total job count for the job requisition.
+UseExactKeywordFlag; boolean; Indicates whether the exact keyword is used for searching or if the keyword is automatically spell checked and corrected.
+UserTargetFacetInputTerm; string; Term used to filter facet values.
+UserTargetFacetName; string; Name of the facet for which the value list must be filtered by the input term.
+WorkLocationCountryCode; string; Country code of the work location.
+WorkLocationZipCode; string; ZIP code of the work location.
+WorkplaceType; string; Workplace type of the job requisition.
+                            totalResults: boolean
+The resource collection representation will include the "estimated row count" when "?totalResults=true", otherwise the count is not included.  The default value is "false".
+Header Parameters
+                            Metadata-Context: string 
+If the REST API supports runtime customizations, the shape of the service may change during runtime. The REST client may isolate itself from these changes or choose to interact with the latest version of the API by specifying this header. For example: Metadata-Context:sandbox="TrackEmployeeFeature".
+                            REST-Framework-Version: string 
+The protocol version between a REST client and service. If the client does not specify this header in the request the server will pick a default version for the API.
+There's no request body for this operation.
+Back to Top
+Response
+Supported Media Types
+application/json
+Default Response
+The following table describes the default response for this task.
+Headers
+                                        Metadata-Context: 
+If the REST API supports runtime customizations, the shape of the service may change during runtime. The REST client may isolate itself from these changes or choose to interact with the latest version of the API by specifying this header. For example: Metadata-Context:sandbox="TrackEmployeeFeature".
+                                        REST-Framework-Version: 
+The protocol version between a REST client and service. If the client does not specify this header in the request the server will pick a default version for the API.
+Body (
+)
+Root Schema : recruitingCEJobRequisitions
+Type: 
+object
+Show Source
+                    count(required): integer
+The number of resource instances returned in the current range.
+                    hasMore(required): boolean
+Indicates whether more resources are available on the server than the subset returned in the response. If the value is true, then there are more resources to retrieve from the server. The default value is false.
+                    items: array
+                    Items
+Title: 
+Items
+The items in the collection.
+                    limit(required): integer
+The actual paging size used by the server.
+                    links(required): array
+                    Links
+Title: 
+Links
+The link relations associated with the resource instance.
+                    offset(required): integer
+The offset value used in the current page.
+                    totalResults: integer
+The estimated row count when "?totalResults=true", otherwise the count is not included.
+{
+    "required":[
+        "count",
+        "hasMore",
+        "limit",
+        "links",
+        "offset"
+    ],
+    "type":"object",
+    "properties":{
+        "count":{
+            "type":"integer",
+            "description":"The number of resource instances returned in the current range."
+        },
+        "hasMore":{
+            "type":"boolean",
+            "description":"Indicates whether more resources are available on the server than the subset returned in the response. If the value is true, then there are more resources to retrieve from the server. The default value is false."
+        },
+        "items":{
+            "title":"Items",
+            "type":"array",
+            "description":"The items in the collection.",
+            "items":{
+                "$ref":"#/components/schemas/recruitingCEJobRequisitions-item-response"
+            }
+        },
+        "limit":{
+            "type":"integer",
+            "description":"The actual paging size used by the server."
+        },
+        "links":{
+            "title":"Links",
+            "type":"array",
+            "description":"The link relations associated with the resource instance.",
+            "items":{
+                "$ref":"#/components/schemas/link"
+            }
+        },
+        "offset":{
+            "type":"integer",
+            "description":"The offset value used in the current page."
+        },
+        "totalResults":{
+            "type":"integer",
+            "description":"The estimated row count when \"?totalResults=true\", otherwise the count is not included."
+        }
+    },
+    "x-hints":{
+        "usage":"BusinessObject"
+    }
+}
+Nested Schema : Items
+Type: 
+array
+Title: 
+Items
+The items in the collection.
+Show Source
+            Array of: 
+                object 
+recruitingCEJobRequisitions-item-response
+{
+    "title":"Items",
+    "type":"array",
+    "description":"The items in the collection.",
+    "items":{
+        "$ref":"#/components/schemas/recruitingCEJobRequisitions-item-response"
+    }
+}
+Nested Schema : Links
+Type: 
+array
+Title: 
+Links
+The link relations associated with the resource instance.
+Show Source
+            Array of: 
+                object 
+link
+{
+    "title":"Links",
+    "type":"array",
+    "description":"The link relations associated with the resource instance.",
+    "items":{
+        "$ref":"#/components/schemas/link"
+    }
+}
+Nested Schema : recruitingCEJobRequisitions-item-response
+Type: 
+object
+Show Source
+                    BotQRShortCode: string
+Read Only: 
+true
+Maximum Length: 
+255
+The QR short code for the filtered job requisitions that are displayed.
+                    CandidateNumber: string
+Maximum Length: 
+255
+ID assigned to each candidate
+                    categoriesFacet: array
+                    Categories Facet
+Title: 
+Categories Facet
+The categoriesFacet resource is a child of recruitingCEJobRequisitions. It includes the details of the categories facets. Note that the service endpoints in this resource category are only for Oracle internal use.
+                    CorrectedKeyword: string
+Read Only: 
+true
+Maximum Length: 
+255
+Corrected keyword used for searching, based on the spell check result.
+                    ExecuteSpellCheckFlag: boolean
+Read Only: 
+true
+Maximum Length: 
+255
+Indicates whether a spell check was requested for the keyword.
+                    Facets: string
+Facets of the job requisitions.
+                    flexFieldsFacet: array
+                    Flexfields Facet
+Title: 
+Flexfields Facet
+The flexFieldsFacet resource is a child of recruitingCEJobRequisitions. It includes the details of the flexfields facets which are based on the custom flexfields configured by the users. Note that the service endpoints in this resource category are only for Oracle internal use.
+                    HotJobFlag: boolean
+Read Only: 
+true
+Maximum Length: 
+255
+Indicates whether the job requisition is considered a hot job in a job requisition details preview.
+                    JobFamilyId: string
+ID assigned to the job family.
+                    Keyword: string
+Maximum Length: 
+255
+Keyword used to search for job requisitions.
+                    LastSelectedFacet: string
+Last selected facet for retrieving job requisitions.
+                    Latitude: number
+Latitude of the location of job requisition.
+                    Limit: integer
+Limit of the job requisition.
+                    links: array
+                    Links
+Title: 
+Links
+The link relations associated with the resource instance.
+                    Location: string
+Location of the job requisition
+                    LocationId: string
+ID assigned to the location of the job requisition.
+                    locationsFacet: array
+                    Locations Facet
+Title: 
+Locations Facet
+The locationsFacet resource is a child of recruitingCEJobRequisitions. It includes the details of the locationsFacet. Note that the service endpoints in this resource category are only for Oracle internal use.
+                    Longitude: number
+Longitude of the location of the job requisition
+                    Offset: integer
+Offset of the job requisition
+                    OrganizationId: string
+Maximum Length: 
+255
+Organization ID for a job requisition.
+                    organizationsFacet: array
+                    Organizations Facet
+Title: 
+Organizations Facet
+The organizationsFacet resource is a child of the recruitingCEJobRequisitions and provides details about of the organizations facets. Note that the service endpoints in this resource category are only for Oracle internal use.
+                    postingDatesFacet: array
+                    Posting Dates Facet
+Title: 
+Posting Dates Facet
+The postingDatesFacet resource is a child of recruitingCEJobRequisitions. It includes the details of the posting dates facet. Note that the service endpoints in this resource category are only for Oracle internal use.
+                    PostingEndDate: string
+End date of the job posting.
+                    PostingStartDate: string
+Start date of the job posting.
+                    Radius: integer
+Radius of the job requisition.
+                    RadiusUnit: string
+Unit of the radius of the job requisition.
+                    RequisitionId: integer
+ID assigned to the similar job
+                    requisitionList: array
+                    Requisition List
+Title: 
+Requisition List
+The requisitionList resource is a child of the recruitingCEJobRequisitions. It includes the details of the requisition lists. Note that the service endpoints in this resource category are only for Oracle internal use.
+                    requisitionLocationsCoordinates: array
+                    Requisition Locations Coordinates
+Title: 
+Requisition Locations Coordinates
+The requisitionLocationsCoordinates resource is a child of the recruitingCEJobRequisitions resource and provides details about the coordinates of the requisition's locations. Note that the service endpoints in this resource category are only for Oracle internal use.
+                    SearchId: integer
+Default Value: 
+1
+Location ID of the secondary locations in a job requisition details preview.
+                    SelectedCategoriesFacet: string
+Facet of the selected categories of the job requisitions.
+                    SelectedFlexFieldsFacets: string
+Facets of the selected job requisitions flexfields.
+                    SelectedLocationsFacet: string
+Facet of the selected locations of the job requisitions.
+                    SelectedOrganizationsFacet: string
+Maximum Length: 
+255
+Facet of the selected organizations of the job requisitions.
+                    SelectedPostingDatesFacet: string
+Facet of the selected dates of job posting.
+                    SelectedTitlesFacet: string
+Maximum Length: 
+255
+Facet of the selected title of job requisitions.
+                    SelectedWorkLocationsFacet: string
+Facet of the selected work locations.
+                    SelectedWorkplaceTypesFacet: string
+Maximum Length: 
+255
+Facet of the selected workplace type.
+                    SiteNumber: string
+Site number of the job requisition.
+                    SortBy: string
+Maximum Length: 
+255
+Sort by attribute for the job requisition.
+                    SuggestedKeyword: string
+Read Only: 
+true
+Maximum Length: 
+255
+Suggested keyword based on spell check result.
+                    titlesFacet: array
+                    Titles Facet
+Title: 
+Titles Facet
+The titlesFacet resource is a child of the recruitingCEJobRequisitions resource. It includes the details of the titles facet. Note that the service endpoints in this resource category are only for Oracle internal use.
+                    TotalJobsCount: integer
+Total job count for the job requisition.
+                    UseExactKeywordFlag: boolean
+Read Only: 
+true
+Maximum Length: 
+255
+Indicates whether the exact keyword is used for searching or if the keyword is automatically spell checked and corrected.
+                    UserTargetFacetInputTerm: string
+Read Only: 
+true
+Maximum Length: 
+255
+Term used to filter facet values.
+                    UserTargetFacetName: string
+Read Only: 
+true
+Maximum Length: 
+255
+Name of the facet for which the value list must be filtered by the input term.
+                    WorkLocationCountryCode: string
+Country code of the work location.
+                    workLocationsFacet: array
+                    Work Locations Facet
+Title: 
+Work Locations Facet
+The workLocationsFacet resource is a child of the recruitingCEJobRequisitions resource. It includes the details of the all the work locations facet. Note that the service endpoints in this resource category are only for Oracle internal use.
+                    WorkLocationZipCode: string
+ZIP code of the work location.
+                    WorkplaceType: string
+Maximum Length: 
+255
+Workplace type of the job requisition.
+                    workplaceTypesFacet: array
+                    Workplace Type Facet
+Title: 
+Workplace Type Facet
+The workplaceTypesFacet resource is a child of the recruitingCEJobRequisitions resource. It includes the details of the workplace type facet. Note that the service endpoints in this resource category are only for Oracle internal use.
+{
+    "type":"object",
+    "properties":{
+        "BotQRShortCode":{
+            "maxLength":255,
+            "type":"string",
+            "description":"The QR short code for the filtered job requisitions that are displayed.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "CandidateNumber":{
+            "maxLength":255,
+            "type":"string",
+            "description":"ID assigned to each candidate",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "CorrectedKeyword":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Corrected keyword used for searching, based on the spell check result.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "ExecuteSpellCheckFlag":{
+            "maxLength":255,
+            "type":"boolean",
+            "description":"Indicates whether a spell check was requested for the keyword.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "Facets":{
+            "type":"string",
+            "description":"Facets of the job requisitions.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "HotJobFlag":{
+            "maxLength":255,
+            "type":"boolean",
+            "description":"Indicates whether the job requisition is considered a hot job in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "JobFamilyId":{
+            "type":"string",
+            "description":"ID assigned to the job family.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "Keyword":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Keyword used to search for job requisitions.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "LastSelectedFacet":{
+            "type":"string",
+            "description":"Last selected facet for retrieving job requisitions.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "Latitude":{
+            "type":"number",
+            "description":"Latitude of the location of job requisition.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "Limit":{
+            "type":"integer",
+            "description":"Limit of the job requisition.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "Location":{
+            "type":"string",
+            "description":"Location of the job requisition",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "LocationId":{
+            "type":"string",
+            "description":"ID assigned to the location of the job requisition.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "Longitude":{
+            "type":"number",
+            "description":"Longitude of the location of the job requisition",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "Offset":{
+            "type":"integer",
+            "description":"Offset of the job requisition",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "OrganizationId":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Organization ID for a job requisition.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "PostingEndDate":{
+            "type":"string",
+            "description":"End date of the job posting.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "PostingStartDate":{
+            "type":"string",
+            "description":"Start date of the job posting.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "Radius":{
+            "type":"integer",
+            "description":"Radius of the job requisition.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "RadiusUnit":{
+            "type":"string",
+            "description":"Unit of the radius of the job requisition.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "RequisitionId":{
+            "type":"integer",
+            "description":"ID assigned to the similar job",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "SearchId":{
+            "type":"integer",
+            "description":"Location ID of the secondary locations in a job requisition details preview.",
+            "nullable":true,
+            "default":1,
+            "x-queryable":true
+        },
+        "SelectedCategoriesFacet":{
+            "type":"string",
+            "description":"Facet of the selected categories of the job requisitions.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "SelectedFlexFieldsFacets":{
+            "type":"string",
+            "description":"Facets of the selected job requisitions flexfields.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "SelectedLocationsFacet":{
+            "type":"string",
+            "description":"Facet of the selected locations of the job requisitions.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "SelectedOrganizationsFacet":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Facet of the selected organizations of the job requisitions.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "SelectedPostingDatesFacet":{
+            "type":"string",
+            "description":"Facet of the selected dates of job posting.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "SelectedTitlesFacet":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Facet of the selected title of job requisitions.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "SelectedWorkLocationsFacet":{
+            "type":"string",
+            "description":"Facet of the selected work locations.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "SelectedWorkplaceTypesFacet":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Facet of the selected workplace type.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "SiteNumber":{
+            "type":"string",
+            "description":"Site number of the job requisition.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "SortBy":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Sort by attribute for the job requisition.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "SuggestedKeyword":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Suggested keyword based on spell check result.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "TotalJobsCount":{
+            "type":"integer",
+            "description":"Total job count for the job requisition.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "UseExactKeywordFlag":{
+            "maxLength":255,
+            "type":"boolean",
+            "description":"Indicates whether the exact keyword is used for searching or if the keyword is automatically spell checked and corrected.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "UserTargetFacetInputTerm":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Term used to filter facet values.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "UserTargetFacetName":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Name of the facet for which the value list must be filtered by the input term.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "WorkLocationCountryCode":{
+            "type":"string",
+            "description":"Country code of the work location.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "WorkLocationZipCode":{
+            "type":"string",
+            "description":"ZIP code of the work location.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "WorkplaceType":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Workplace type of the job requisition.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "categoriesFacet":{
+            "title":"Categories Facet",
+            "type":"array",
+            "description":"The categoriesFacet resource is a child of recruitingCEJobRequisitions. It includes the details of the categories facets. Note that the service endpoints in this resource category are only for Oracle internal use.",
+            "items":{
+                "$ref":"#/components/schemas/recruitingCEJobRequisitions-categoriesFacet-item-response"
+            }
+        },
+        "flexFieldsFacet":{
+            "title":"Flexfields Facet",
+            "type":"array",
+            "description":"The flexFieldsFacet resource is a child of recruitingCEJobRequisitions. It includes the details of the flexfields facets which are based on the custom flexfields configured by the users. Note that the service endpoints in this resource category are only for Oracle internal use.",
+            "items":{
+                "$ref":"#/components/schemas/recruitingCEJobRequisitions-flexFieldsFacet-item-response"
+            }
+        },
+        "links":{
+            "title":"Links",
+            "type":"array",
+            "description":"The link relations associated with the resource instance.",
+            "items":{
+                "$ref":"#/components/schemas/link"
+            }
+        },
+        "locationsFacet":{
+            "title":"Locations Facet",
+            "type":"array",
+            "description":"The locationsFacet resource is a child of recruitingCEJobRequisitions. It includes the details of the locationsFacet. Note that the service endpoints in this resource category are only for Oracle internal use.",
+            "items":{
+                "$ref":"#/components/schemas/recruitingCEJobRequisitions-locationsFacet-item-response"
+            }
+        },
+        "organizationsFacet":{
+            "title":"Organizations Facet",
+            "type":"array",
+            "description":"The organizationsFacet resource is a child of the recruitingCEJobRequisitions and provides details about of the organizations facets. Note that the service endpoints in this resource category are only for Oracle internal use.",
+            "items":{
+                "$ref":"#/components/schemas/recruitingCEJobRequisitions-organizationsFacet-item-response"
+            }
+        },
+        "postingDatesFacet":{
+            "title":"Posting Dates Facet",
+            "type":"array",
+            "description":"The postingDatesFacet resource is a child of recruitingCEJobRequisitions. It includes the details of the posting dates facet. Note that the service endpoints in this resource category are only for Oracle internal use.",
+            "items":{
+                "$ref":"#/components/schemas/recruitingCEJobRequisitions-postingDatesFacet-item-response"
+            }
+        },
+        "requisitionList":{
+            "title":"Requisition List",
+            "type":"array",
+            "description":"The requisitionList resource is a child of the recruitingCEJobRequisitions. It includes the details of the requisition lists. Note that the service endpoints in this resource category are only for Oracle internal use.",
+            "items":{
+                "$ref":"#/components/schemas/recruitingCEJobRequisitions-requisitionList-item-response"
+            }
+        },
+        "requisitionLocationsCoordinates":{
+            "title":"Requisition Locations Coordinates",
+            "type":"array",
+            "description":"The requisitionLocationsCoordinates resource is a child of the recruitingCEJobRequisitions resource and provides details about the coordinates of the requisition's locations. Note that the service endpoints in this resource category are only for Oracle internal use.",
+            "items":{
+                "$ref":"#/components/schemas/recruitingCEJobRequisitions-requisitionLocationsCoordinates-item-response"
+            }
+        },
+        "titlesFacet":{
+            "title":"Titles Facet",
+            "type":"array",
+            "description":"The titlesFacet resource is a child of the recruitingCEJobRequisitions resource. It includes the details of the titles facet. Note that the service endpoints in this resource category are only for Oracle internal use.",
+            "items":{
+                "$ref":"#/components/schemas/recruitingCEJobRequisitions-titlesFacet-item-response"
+            }
+        },
+        "workLocationsFacet":{
+            "title":"Work Locations Facet",
+            "type":"array",
+            "description":"The workLocationsFacet resource is a child of the recruitingCEJobRequisitions resource. It includes the details of the all the work locations facet. Note that the service endpoints in this resource category are only for Oracle internal use.",
+            "items":{
+                "$ref":"#/components/schemas/recruitingCEJobRequisitions-workLocationsFacet-item-response"
+            }
+        },
+        "workplaceTypesFacet":{
+            "title":"Workplace Type Facet",
+            "type":"array",
+            "description":"The workplaceTypesFacet resource is a child of the recruitingCEJobRequisitions resource. It includes the details of the workplace type facet. Note that the service endpoints in this resource category are only for Oracle internal use.",
+            "items":{
+                "$ref":"#/components/schemas/recruitingCEJobRequisitions-workplaceTypesFacet-item-response"
+            }
+        }
+    }
+}
+Nested Schema : Categories Facet
+Type: 
+array
+Title: 
+Categories Facet
+The categoriesFacet resource is a child of recruitingCEJobRequisitions. It includes the details of the categories facets. Note that the service endpoints in this resource category are only for Oracle internal use.
+Show Source
+            Array of: 
+                object 
+recruitingCEJobRequisitions-categoriesFacet-item-response
+{
+    "title":"Categories Facet",
+    "type":"array",
+    "description":"The categoriesFacet resource is a child of recruitingCEJobRequisitions. It includes the details of the categories facets. Note that the service endpoints in this resource category are only for Oracle internal use.",
+    "items":{
+        "$ref":"#/components/schemas/recruitingCEJobRequisitions-categoriesFacet-item-response"
+    }
+}
+Nested Schema : Flexfields Facet
+Type: 
+array
+Title: 
+Flexfields Facet
+The flexFieldsFacet resource is a child of recruitingCEJobRequisitions. It includes the details of the flexfields facets which are based on the custom flexfields configured by the users. Note that the service endpoints in this resource category are only for Oracle internal use.
+Show Source
+            Array of: 
+                object 
+recruitingCEJobRequisitions-flexFieldsFacet-item-response
+{
+    "title":"Flexfields Facet",
+    "type":"array",
+    "description":"The flexFieldsFacet resource is a child of recruitingCEJobRequisitions. It includes the details of the flexfields facets which are based on the custom flexfields configured by the users. Note that the service endpoints in this resource category are only for Oracle internal use.",
+    "items":{
+        "$ref":"#/components/schemas/recruitingCEJobRequisitions-flexFieldsFacet-item-response"
+    }
+}
+Nested Schema : Links
+Type: 
+array
+Title: 
+Links
+The link relations associated with the resource instance.
+Show Source
+            Array of: 
+                object 
+link
+{
+    "title":"Links",
+    "type":"array",
+    "description":"The link relations associated with the resource instance.",
+    "items":{
+        "$ref":"#/components/schemas/link"
+    }
+}
+Nested Schema : Locations Facet
+Type: 
+array
+Title: 
+Locations Facet
+The locationsFacet resource is a child of recruitingCEJobRequisitions. It includes the details of the locationsFacet. Note that the service endpoints in this resource category are only for Oracle internal use.
+Show Source
+            Array of: 
+                object 
+recruitingCEJobRequisitions-locationsFacet-item-response
+{
+    "title":"Locations Facet",
+    "type":"array",
+    "description":"The locationsFacet resource is a child of recruitingCEJobRequisitions. It includes the details of the locationsFacet. Note that the service endpoints in this resource category are only for Oracle internal use.",
+    "items":{
+        "$ref":"#/components/schemas/recruitingCEJobRequisitions-locationsFacet-item-response"
+    }
+}
+Nested Schema : Organizations Facet
+Type: 
+array
+Title: 
+Organizations Facet
+The organizationsFacet resource is a child of the recruitingCEJobRequisitions and provides details about of the organizations facets. Note that the service endpoints in this resource category are only for Oracle internal use.
+Show Source
+            Array of: 
+                object 
+recruitingCEJobRequisitions-organizationsFacet-item-response
+{
+    "title":"Organizations Facet",
+    "type":"array",
+    "description":"The organizationsFacet resource is a child of the recruitingCEJobRequisitions and provides details about of the organizations facets. Note that the service endpoints in this resource category are only for Oracle internal use.",
+    "items":{
+        "$ref":"#/components/schemas/recruitingCEJobRequisitions-organizationsFacet-item-response"
+    }
+}
+Nested Schema : Posting Dates Facet
+Type: 
+array
+Title: 
+Posting Dates Facet
+The postingDatesFacet resource is a child of recruitingCEJobRequisitions. It includes the details of the posting dates facet. Note that the service endpoints in this resource category are only for Oracle internal use.
+Show Source
+            Array of: 
+                object 
+recruitingCEJobRequisitions-postingDatesFacet-item-response
+{
+    "title":"Posting Dates Facet",
+    "type":"array",
+    "description":"The postingDatesFacet resource is a child of recruitingCEJobRequisitions. It includes the details of the posting dates facet. Note that the service endpoints in this resource category are only for Oracle internal use.",
+    "items":{
+        "$ref":"#/components/schemas/recruitingCEJobRequisitions-postingDatesFacet-item-response"
+    }
+}
+Nested Schema : Requisition List
+Type: 
+array
+Title: 
+Requisition List
+The requisitionList resource is a child of the recruitingCEJobRequisitions. It includes the details of the requisition lists. Note that the service endpoints in this resource category are only for Oracle internal use.
+Show Source
+            Array of: 
+                object 
+recruitingCEJobRequisitions-requisitionList-item-response
+{
+    "title":"Requisition List",
+    "type":"array",
+    "description":"The requisitionList resource is a child of the recruitingCEJobRequisitions. It includes the details of the requisition lists. Note that the service endpoints in this resource category are only for Oracle internal use.",
+    "items":{
+        "$ref":"#/components/schemas/recruitingCEJobRequisitions-requisitionList-item-response"
+    }
+}
+Nested Schema : Requisition Locations Coordinates
+Type: 
+array
+Title: 
+Requisition Locations Coordinates
+The requisitionLocationsCoordinates resource is a child of the recruitingCEJobRequisitions resource and provides details about the coordinates of the requisition's locations. Note that the service endpoints in this resource category are only for Oracle internal use.
+Show Source
+            Array of: 
+                object 
+recruitingCEJobRequisitions-requisitionLocationsCoordinates-item-response
+{
+    "title":"Requisition Locations Coordinates",
+    "type":"array",
+    "description":"The requisitionLocationsCoordinates resource is a child of the recruitingCEJobRequisitions resource and provides details about the coordinates of the requisition's locations. Note that the service endpoints in this resource category are only for Oracle internal use.",
+    "items":{
+        "$ref":"#/components/schemas/recruitingCEJobRequisitions-requisitionLocationsCoordinates-item-response"
+    }
+}
+Nested Schema : Titles Facet
+Type: 
+array
+Title: 
+Titles Facet
+The titlesFacet resource is a child of the recruitingCEJobRequisitions resource. It includes the details of the titles facet. Note that the service endpoints in this resource category are only for Oracle internal use.
+Show Source
+            Array of: 
+                object 
+recruitingCEJobRequisitions-titlesFacet-item-response
+{
+    "title":"Titles Facet",
+    "type":"array",
+    "description":"The titlesFacet resource is a child of the recruitingCEJobRequisitions resource. It includes the details of the titles facet. Note that the service endpoints in this resource category are only for Oracle internal use.",
+    "items":{
+        "$ref":"#/components/schemas/recruitingCEJobRequisitions-titlesFacet-item-response"
+    }
+}
+Nested Schema : Work Locations Facet
+Type: 
+array
+Title: 
+Work Locations Facet
+The workLocationsFacet resource is a child of the recruitingCEJobRequisitions resource. It includes the details of the all the work locations facet. Note that the service endpoints in this resource category are only for Oracle internal use.
+Show Source
+            Array of: 
+                object 
+recruitingCEJobRequisitions-workLocationsFacet-item-response
+{
+    "title":"Work Locations Facet",
+    "type":"array",
+    "description":"The workLocationsFacet resource is a child of the recruitingCEJobRequisitions resource. It includes the details of the all the work locations facet. Note that the service endpoints in this resource category are only for Oracle internal use.",
+    "items":{
+        "$ref":"#/components/schemas/recruitingCEJobRequisitions-workLocationsFacet-item-response"
+    }
+}
+Nested Schema : Workplace Type Facet
+Type: 
+array
+Title: 
+Workplace Type Facet
+The workplaceTypesFacet resource is a child of the recruitingCEJobRequisitions resource. It includes the details of the workplace type facet. Note that the service endpoints in this resource category are only for Oracle internal use.
+Show Source
+            Array of: 
+                object 
+recruitingCEJobRequisitions-workplaceTypesFacet-item-response
+{
+    "title":"Workplace Type Facet",
+    "type":"array",
+    "description":"The workplaceTypesFacet resource is a child of the recruitingCEJobRequisitions resource. It includes the details of the workplace type facet. Note that the service endpoints in this resource category are only for Oracle internal use.",
+    "items":{
+        "$ref":"#/components/schemas/recruitingCEJobRequisitions-workplaceTypesFacet-item-response"
+    }
+}
+Nested Schema : recruitingCEJobRequisitions-categoriesFacet-item-response
+Type: 
+object
+Show Source
+                    Id: integer
+ID assigned to the categories facet.
+                    links: array
+                    Links
+Title: 
+Links
+The link relations associated with the resource instance.
+                    Name: string
+Maximum Length: 
+255
+Name assigned to the categories facet.
+                    TotalCount: integer
+Total count of the categories facet.
+{
+    "type":"object",
+    "properties":{
+        "Id":{
+            "type":"integer",
+            "description":"ID assigned to the categories facet.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "Name":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Name assigned to the categories facet.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "TotalCount":{
+            "type":"integer",
+            "description":"Total count of the categories facet.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "links":{
+            "title":"Links",
+            "type":"array",
+            "description":"The link relations associated with the resource instance.",
+            "items":{
+                "$ref":"#/components/schemas/link"
+            }
+        }
+    }
+}
+Nested Schema : Links
+Type: 
+array
+Title: 
+Links
+The link relations associated with the resource instance.
+Show Source
+            Array of: 
+                object 
+link
+{
+    "title":"Links",
+    "type":"array",
+    "description":"The link relations associated with the resource instance.",
+    "items":{
+        "$ref":"#/components/schemas/link"
+    }
+}
+Nested Schema : link
+Type: 
+object
+Show Source
+                    href: string
+Title: 
+hyperlink reference
+The URI to the related resource.
+                    kind: string
+Title: 
+kind
+Allowed Values: 
+[
+    "collection",
+    "item",
+    "describe",
+    "other"
+]
+The kind of the related resource.
+                    name: string
+Title: 
+name
+The name of the link to the related resource.
+                    properties: object
+                    properties
+                    rel: string
+Title: 
+relation
+Allowed Values: 
+[
+    "self",
+    "lov",
+    "parent",
+    "canonical",
+    "child",
+    "enclosure",
+    "action",
+    "custom"
+]
+The name of the relation to the resource instance.  Example: self.
+{
+    "type":"object",
+    "properties":{
+        "kind":{
+            "title":"kind",
+            "type":"string",
+            "description":"The kind of the related resource.",
+            "enum":[
+                "collection",
+                "item",
+                "describe",
+                "other"
+            ]
+        },
+        "rel":{
+            "title":"relation",
+            "type":"string",
+            "description":"The name of the relation to the resource instance.  Example: self.",
+            "enum":[
+                "self",
+                "lov",
+                "parent",
+                "canonical",
+                "child",
+                "enclosure",
+                "action",
+                "custom"
+            ]
+        },
+        "name":{
+            "title":"name",
+            "type":"string",
+            "description":"The name of the link to the related resource."
+        },
+        "href":{
+            "title":"hyperlink reference",
+            "type":"string",
+            "description":"The URI to the related resource."
+        },
+        "properties":{
+            "type":"object",
+            "properties":{
+                "changeIndicator":{
+                    "type":"string",
+                    "description":"Change indicator or the ETag value of the resource instance."
+                }
+            }
+        }
+    }
+}
+Nested Schema : properties
+Type: 
+object
+Show Source
+                    changeIndicator: string
+Change indicator or the ETag value of the resource instance.
+{
+    "type":"object",
+    "properties":{
+        "changeIndicator":{
+            "type":"string",
+            "description":"Change indicator or the ETag value of the resource instance."
+        }
+    }
+}
+Nested Schema : recruitingCEJobRequisitions-flexFieldsFacet-item-response
+Type: 
+object
+Show Source
+                    Label: string
+Maximum Length: 
+255
+Label assigned to the flexfields facet.
+                    links: array
+                    Links
+Title: 
+Links
+The link relations associated with the resource instance.
+                    Name: string
+Name assigned to the flexfields facet.
+                    values: array
+                    Flexfield Facet Values
+Title: 
+Flexfield Facet Values
+The values resource is a child of recruitingCEJobRequisitions. It includes the details of the flexfields facets values. Note that the service endpoints in this resource category are only for Oracle internal use.
+{
+    "type":"object",
+    "properties":{
+        "Label":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Label assigned to the flexfields facet.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "Name":{
+            "type":"string",
+            "description":"Name assigned to the flexfields facet.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "links":{
+            "title":"Links",
+            "type":"array",
+            "description":"The link relations associated with the resource instance.",
+            "items":{
+                "$ref":"#/components/schemas/link"
+            }
+        },
+        "values":{
+            "title":"Flexfield Facet Values",
+            "type":"array",
+            "description":"The values resource is a child of recruitingCEJobRequisitions. It includes the details of the flexfields facets values. Note that the service endpoints in this resource category are only for Oracle internal use.",
+            "items":{
+                "$ref":"#/components/schemas/recruitingCEJobRequisitions-flexFieldsFacet-values-item-response"
+            }
+        }
+    }
+}
+Nested Schema : Links
+Type: 
+array
+Title: 
+Links
+The link relations associated with the resource instance.
+Show Source
+            Array of: 
+                object 
+link
+{
+    "title":"Links",
+    "type":"array",
+    "description":"The link relations associated with the resource instance.",
+    "items":{
+        "$ref":"#/components/schemas/link"
+    }
+}
+Nested Schema : Flexfield Facet Values
+Type: 
+array
+Title: 
+Flexfield Facet Values
+The values resource is a child of recruitingCEJobRequisitions. It includes the details of the flexfields facets values. Note that the service endpoints in this resource category are only for Oracle internal use.
+Show Source
+            Array of: 
+                object 
+recruitingCEJobRequisitions-flexFieldsFacet-values-item-response
+{
+    "title":"Flexfield Facet Values",
+    "type":"array",
+    "description":"The values resource is a child of recruitingCEJobRequisitions. It includes the details of the flexfields facets values. Note that the service endpoints in this resource category are only for Oracle internal use.",
+    "items":{
+        "$ref":"#/components/schemas/recruitingCEJobRequisitions-flexFieldsFacet-values-item-response"
+    }
+}
+Nested Schema : recruitingCEJobRequisitions-flexFieldsFacet-values-item-response
+Type: 
+object
+Show Source
+                    Id: string
+Maximum Length: 
+255
+ID assigned to the flexfield facet value.
+                    links: array
+                    Links
+Title: 
+Links
+The link relations associated with the resource instance.
+                    Name: string
+Maximum Length: 
+255
+Name assigned to the flexfields facet value.
+                    TotalCount: integer
+Total count of the flexfields facet values.
+{
+    "type":"object",
+    "properties":{
+        "Id":{
+            "maxLength":255,
+            "type":"string",
+            "description":"ID assigned to the flexfield facet value.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "Name":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Name assigned to the flexfields facet value.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "TotalCount":{
+            "type":"integer",
+            "description":"Total count of the flexfields facet values.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "links":{
+            "title":"Links",
+            "type":"array",
+            "description":"The link relations associated with the resource instance.",
+            "items":{
+                "$ref":"#/components/schemas/link"
+            }
+        }
+    }
+}
+Nested Schema : Links
+Type: 
+array
+Title: 
+Links
+The link relations associated with the resource instance.
+Show Source
+            Array of: 
+                object 
+link
+{
+    "title":"Links",
+    "type":"array",
+    "description":"The link relations associated with the resource instance.",
+    "items":{
+        "$ref":"#/components/schemas/link"
+    }
+}
+Nested Schema : recruitingCEJobRequisitions-locationsFacet-item-response
+Type: 
+object
+Show Source
+                    Id: integer
+ID assigned to the locations facet.
+                    links: array
+                    Links
+Title: 
+Links
+The link relations associated with the resource instance.
+                    Name: string
+Maximum Length: 
+255
+Name assigned to the locations facet.
+                    TotalCount: integer
+Total count of the locations facet.
+{
+    "type":"object",
+    "properties":{
+        "Id":{
+            "type":"integer",
+            "description":"ID assigned to the locations facet.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "Name":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Name assigned to the locations facet.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "TotalCount":{
+            "type":"integer",
+            "description":"Total count of the locations facet.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "links":{
+            "title":"Links",
+            "type":"array",
+            "description":"The link relations associated with the resource instance.",
+            "items":{
+                "$ref":"#/components/schemas/link"
+            }
+        }
+    }
+}
+Nested Schema : Links
+Type: 
+array
+Title: 
+Links
+The link relations associated with the resource instance.
+Show Source
+            Array of: 
+                object 
+link
+{
+    "title":"Links",
+    "type":"array",
+    "description":"The link relations associated with the resource instance.",
+    "items":{
+        "$ref":"#/components/schemas/link"
+    }
+}
+Nested Schema : recruitingCEJobRequisitions-organizationsFacet-item-response
+Type: 
+object
+Show Source
+                    Id: integer
+ID assigned to the organizations facet.
+                    links: array
+                    Links
+Title: 
+Links
+The link relations associated with the resource instance.
+                    Name: string
+Maximum Length: 
+255
+Name assigned to the organizations facet.
+                    TotalCount: integer
+Total count of the organizations facet.
+{
+    "type":"object",
+    "properties":{
+        "Id":{
+            "type":"integer",
+            "description":"ID assigned to the organizations facet.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "Name":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Name assigned to the organizations facet.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "TotalCount":{
+            "type":"integer",
+            "description":"Total count of the organizations facet.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "links":{
+            "title":"Links",
+            "type":"array",
+            "description":"The link relations associated with the resource instance.",
+            "items":{
+                "$ref":"#/components/schemas/link"
+            }
+        }
+    }
+}
+Nested Schema : Links
+Type: 
+array
+Title: 
+Links
+The link relations associated with the resource instance.
+Show Source
+            Array of: 
+                object 
+link
+{
+    "title":"Links",
+    "type":"array",
+    "description":"The link relations associated with the resource instance.",
+    "items":{
+        "$ref":"#/components/schemas/link"
+    }
+}
+Nested Schema : recruitingCEJobRequisitions-postingDatesFacet-item-response
+Type: 
+object
+Show Source
+                    Id: integer
+ID assigned to the facet of the job posting.
+                    links: array
+                    Links
+Title: 
+Links
+The link relations associated with the resource instance.
+                    Name: string
+Maximum Length: 
+255
+Name assigned to the facet of the job posting.
+                    TotalCount: integer
+Total count of the facet of the job posting.
+{
+    "type":"object",
+    "properties":{
+        "Id":{
+            "type":"integer",
+            "description":"ID assigned to the facet of the job posting.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "Name":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Name assigned to the facet of the job posting.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "TotalCount":{
+            "type":"integer",
+            "description":"Total count of the facet of the job posting.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "links":{
+            "title":"Links",
+            "type":"array",
+            "description":"The link relations associated with the resource instance.",
+            "items":{
+                "$ref":"#/components/schemas/link"
+            }
+        }
+    }
+}
+Nested Schema : Links
+Type: 
+array
+Title: 
+Links
+The link relations associated with the resource instance.
+Show Source
+            Array of: 
+                object 
+link
+{
+    "title":"Links",
+    "type":"array",
+    "description":"The link relations associated with the resource instance.",
+    "items":{
+        "$ref":"#/components/schemas/link"
+    }
+}
+Nested Schema : recruitingCEJobRequisitions-requisitionList-item-response
+Type: 
+object
+Show Source
+                    BeFirstToApplyFlag: boolean
+Read Only: 
+true
+Indicates whether the job requisition has a low number of job applications and will invite candidates to be the first to apply.
+                    BusinessUnit: string
+Read Only: 
+true
+Maximum Length: 
+80
+Business unit name of the job requisition.
+                    BusinessUnitId: integer
+                     (int64) 
+Read Only: 
+true
+Business unit identifier of the job requisition.
+                    ContractType: string
+Read Only: 
+true
+Maximum Length: 
+80
+Contract type of the job requisition.
+                    Department: string
+Read Only: 
+true
+Maximum Length: 
+240
+Department name of the job requisition.
+                    Distance: number
+Read Only: 
+true
+Total distance from the center of a radius search.
+                    DomesticTravelRequired: string
+Read Only: 
+true
+Maximum Length: 
+80
+Indicates whether domestic travel is required for the job requisition.
+                    ExternalQualificationsStr: string
+Read Only: 
+true
+Maximum Length: 
+255
+Qualifications of the job requisition.
+                    ExternalResponsibilitiesStr: string
+Read Only: 
+true
+Maximum Length: 
+255
+Responsibilities of the job requisition.
+                    GeographyId: integer
+                     (int64) 
+Read Only: 
+true
+Geography ID of the job requisition list.
+                    HotJobFlag: boolean
+Read Only: 
+true
+Indicates whether the job requisition is considered a hot job.
+                    Id: string
+Read Only: 
+true
+Maximum Length: 
+240
+ID assigned to the job requisition list.
+                    InternationalTravelRequired: string
+Read Only: 
+true
+Maximum Length: 
+80
+Indicates whether international travel is required for the job requisition.
+                    JobFamily: string
+Read Only: 
+true
+Maximum Length: 
+240
+Job family of the job requisition.
+                    JobFunction: string
+Read Only: 
+true
+Maximum Length: 
+80
+Job function of the job requisition.
+                    JobSchedule: string
+Read Only: 
+true
+Maximum Length: 
+80
+Job schedule of the job requisition.
+                    JobShift: string
+Read Only: 
+true
+Maximum Length: 
+80
+Job shift of the job requisition.
+                    JobType: string
+Read Only: 
+true
+Maximum Length: 
+80
+Job type of the job requisition.
+                    Language: string
+Read Only: 
+true
+Maximum Length: 
+4
+Language of the job requisition.
+                    LegalEmployer: string
+Read Only: 
+true
+Maximum Length: 
+240
+Legal employer of the job requisition.
+                    LegalEmployerId: integer
+                     (int64) 
+Read Only: 
+true
+Legal employer identifier of the job requisition.
+                    links: array
+                    Links
+Title: 
+Links
+The link relations associated with the resource instance.
+                    ManagerLevel: string
+Read Only: 
+true
+Maximum Length: 
+80
+Management level of the job requisition.
+                    MediaThumbURL: string
+Read Only: 
+true
+Maximum Length: 
+255
+Media thumb URL for the job requisition list.
+                    Organization: string
+Read Only: 
+true
+Maximum Length: 
+80
+Organization name of the job requisition.
+                    OrganizationId: integer
+                     (int64) 
+Read Only: 
+true
+Organization identifier of the job requisition.
+                    otherWorkLocations: array
+                    Other Work Locations
+Title: 
+Other Work Locations
+The otherWorkLocations resource is a child of the recruitingCERequisitionTemplateDetailsPreviews resource and provides details about other work locations used in the job requisition. Note that the service endpoints in this resource category are only for Oracle internal use.
+                    PostedDate: string
+                     (date) 
+Read Only: 
+true
+Date of posting of the requisition list.
+                    PostingEndDate: string
+                     (date) 
+Read Only: 
+true
+Posting end date of the job requisition.
+                    PrimaryLocation: string
+Title: 
+Primary Location
+Read Only: 
+true
+Maximum Length: 
+255
+Primary location of the requisition list.
+                    primaryLocationCoordinates: array
+                    Primary Location Coordinates
+Title: 
+Primary Location Coordinates
+The primaryLocationCoordinates resource is a child of recruitingCEJobRequisitionDetails. It includes details of primary location coordinates. Note that the service endpoints in this resource category are only for Oracle internal use.
+                    PrimaryLocationCountry: string
+Read Only: 
+true
+Maximum Length: 
+2
+Country of the primary location of the requisition list.
+                    Relevancy: number
+Read Only: 
+true
+Relevancy score of the job requisition.
+                    requisitionFlexFields: array
+                    Descriptive Flexfields
+Title: 
+Descriptive Flexfields
+The requisitionFlexFields resource is a child of recruitingCERequisitionTemplateDetailsPreviews. It includes the details of the requisition flexfields. Note that the service endpoints in this resource category are only for Oracle internal use.
+                    secondaryLocations: array
+                    Secondary Locations
+Title: 
+Secondary Locations
+The secondaryLocations resource is a child of the recruitingCERequisitionTemplateDetailsPreviews resource and provides details about the secondary locations used in the job requisition. Note that the service endpoints in this resource category are only for Oracle internal use.
+                    ShortDescriptionStr: string
+Read Only: 
+true
+Short description string of the requisition list.
+                    StudyLevel: string
+Read Only: 
+true
+Maximum Length: 
+80
+Education level of the job requisition.
+                    Title: string
+Read Only: 
+true
+Maximum Length: 
+240
+Title of the requisition list.
+                    TrendingFlag: boolean
+Read Only: 
+true
+Indicates whether the job requisition has a high number of job applications and should be displayed as trending in a job requisition details preview..
+                    WorkDays: string
+Read Only: 
+true
+Maximum Length: 
+80
+Workdays of the job requisition.
+                    WorkDurationMonths: integer
+                     (int64) 
+Read Only: 
+true
+Work duration months of the job requisition.
+                    WorkDurationYears: integer
+                     (int64) 
+Read Only: 
+true
+Work duration years of the job requisition.
+                    WorkerType: string
+Read Only: 
+true
+Maximum Length: 
+80
+Worker type of the job requisition.
+                    WorkHours: string
+Read Only: 
+true
+Maximum Length: 
+80
+Work hours of the job requisition.
+                    workLocation: array
+                    Work Locations
+Title: 
+Work Locations
+The workLocation resource is a child of the recruitingCERequisitionTemplateDetailsPreviews resource and provides details about work locations used in the job requisition. Note that the service endpoints in this resource category are only for Oracle internal use.
+                    WorkplaceType: string
+Read Only: 
+true
+Maximum Length: 
+255
+Workplace in a job requisition details preview.
+                    WorkplaceTypeCode: string
+Read Only: 
+true
+Maximum Length: 
+30
+Workplace type code in a job requisition details preview.
+{
+    "type":"object",
+    "properties":{
+        "BeFirstToApplyFlag":{
+            "type":"boolean",
+            "description":"Indicates whether the job requisition has a low number of job applications and will invite candidates to be the first to apply.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "BusinessUnit":{
+            "maxLength":80,
+            "type":"string",
+            "description":"Business unit name of the job requisition.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "BusinessUnitId":{
+            "type":"integer",
+            "description":"Business unit identifier of the job requisition.",
+            "format":"int64",
+            "nullable":true,
+            "readOnly":true,
+            "x-hints":{
+                "precision":18
+            },
+            "x-queryable":true
+        },
+        "ContractType":{
+            "maxLength":80,
+            "type":"string",
+            "description":"Contract type of the job requisition.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "Department":{
+            "maxLength":240,
+            "type":"string",
+            "description":"Department name of the job requisition.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "Distance":{
+            "type":"number",
+            "description":"Total distance from the center of a radius search.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "DomesticTravelRequired":{
+            "maxLength":80,
+            "type":"string",
+            "description":"Indicates whether domestic travel is required for the job requisition.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "ExternalQualificationsStr":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Qualifications of the job requisition.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "ExternalResponsibilitiesStr":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Responsibilities of the job requisition.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "GeographyId":{
+            "type":"integer",
+            "description":"Geography ID of the job requisition list.",
+            "format":"int64",
+            "nullable":true,
+            "readOnly":true,
+            "x-hints":{
+                "precision":18
+            },
+            "x-queryable":true
+        },
+        "HotJobFlag":{
+            "type":"boolean",
+            "description":"Indicates whether the job requisition is considered a hot job.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "Id":{
+            "maxLength":240,
+            "type":"string",
+            "description":"ID assigned to the job requisition list.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "InternationalTravelRequired":{
+            "maxLength":80,
+            "type":"string",
+            "description":"Indicates whether international travel is required for the job requisition.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "JobFamily":{
+            "maxLength":240,
+            "type":"string",
+            "description":"Job family of the job requisition.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "JobFunction":{
+            "maxLength":80,
+            "type":"string",
+            "description":"Job function of the job requisition.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "JobSchedule":{
+            "maxLength":80,
+            "type":"string",
+            "description":"Job schedule of the job requisition.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "JobShift":{
+            "maxLength":80,
+            "type":"string",
+            "description":"Job shift of the job requisition.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "JobType":{
+            "maxLength":80,
+            "type":"string",
+            "description":"Job type of the job requisition.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "Language":{
+            "maxLength":4,
+            "type":"string",
+            "description":"Language of the job requisition.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "LegalEmployer":{
+            "maxLength":240,
+            "type":"string",
+            "description":"Legal employer of the job requisition.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "LegalEmployerId":{
+            "type":"integer",
+            "description":"Legal employer identifier of the job requisition.",
+            "format":"int64",
+            "nullable":true,
+            "readOnly":true,
+            "x-hints":{
+                "precision":18
+            },
+            "x-queryable":true
+        },
+        "ManagerLevel":{
+            "maxLength":80,
+            "type":"string",
+            "description":"Management level of the job requisition.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "MediaThumbURL":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Media thumb URL for the job requisition list.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "Organization":{
+            "maxLength":80,
+            "type":"string",
+            "description":"Organization name of the job requisition.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "OrganizationId":{
+            "type":"integer",
+            "description":"Organization identifier of the job requisition.",
+            "format":"int64",
+            "nullable":true,
+            "readOnly":true,
+            "x-hints":{
+                "precision":18
+            },
+            "x-queryable":true
+        },
+        "PostedDate":{
+            "type":"string",
+            "description":"Date of posting of the requisition list.",
+            "format":"date",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "PostingEndDate":{
+            "type":"string",
+            "description":"Posting end date of the job requisition.",
+            "format":"date",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "PrimaryLocation":{
+            "title":"Primary Location",
+            "maxLength":255,
+            "type":"string",
+            "description":"Primary location of the requisition list.",
+            "nullable":true,
+            "readOnly":true,
+            "x-hints":{
+                "dependencies":[
+                    "GeographyNodeId"
+                ]
+            },
+            "x-queryable":true
+        },
+        "PrimaryLocationCountry":{
+            "maxLength":2,
+            "type":"string",
+            "description":"Country of the primary location of the requisition list.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "Relevancy":{
+            "type":"number",
+            "description":"Relevancy score of the job requisition.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "ShortDescriptionStr":{
+            "type":"string",
+            "description":"Short description string of the requisition list.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "StudyLevel":{
+            "maxLength":80,
+            "type":"string",
+            "description":"Education level of the job requisition.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "Title":{
+            "maxLength":240,
+            "type":"string",
+            "description":"Title of the requisition list.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "TrendingFlag":{
+            "type":"boolean",
+            "description":"Indicates whether the job requisition has a high number of job applications and should be displayed as trending in a job requisition details preview..",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "WorkDays":{
+            "maxLength":80,
+            "type":"string",
+            "description":"Workdays of the job requisition.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "WorkDurationMonths":{
+            "type":"integer",
+            "description":"Work duration months of the job requisition.",
+            "format":"int64",
+            "nullable":true,
+            "readOnly":true,
+            "x-hints":{
+                "precision":18
+            },
+            "x-queryable":true
+        },
+        "WorkDurationYears":{
+            "type":"integer",
+            "description":"Work duration years of the job requisition.",
+            "format":"int64",
+            "nullable":true,
+            "readOnly":true,
+            "x-hints":{
+                "precision":18
+            },
+            "x-queryable":true
+        },
+        "WorkHours":{
+            "maxLength":80,
+            "type":"string",
+            "description":"Work hours of the job requisition.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "WorkerType":{
+            "maxLength":80,
+            "type":"string",
+            "description":"Worker type of the job requisition.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "WorkplaceType":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Workplace in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-hints":{
+                "dependencies":[
+                    "WorkplaceTypeCode"
+                ]
+            },
+            "x-queryable":true
+        },
+        "WorkplaceTypeCode":{
+            "maxLength":30,
+            "type":"string",
+            "description":"Workplace type code in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "links":{
+            "title":"Links",
+            "type":"array",
+            "description":"The link relations associated with the resource instance.",
+            "items":{
+                "$ref":"#/components/schemas/link"
+            }
+        },
+        "otherWorkLocations":{
+            "title":"Other Work Locations",
+            "type":"array",
+            "description":"The otherWorkLocations resource is a child of the recruitingCERequisitionTemplateDetailsPreviews resource and provides details about other work locations used in the job requisition. Note that the service endpoints in this resource category are only for Oracle internal use.",
+            "items":{
+                "$ref":"#/components/schemas/recruitingCEJobRequisitions-requisitionList-otherWorkLocations-item-response"
+            }
+        },
+        "primaryLocationCoordinates":{
+            "title":"Primary Location Coordinates",
+            "type":"array",
+            "description":"The primaryLocationCoordinates resource is a child of recruitingCEJobRequisitionDetails. It includes details of primary location coordinates. Note that the service endpoints in this resource category are only for Oracle internal use.",
+            "items":{
+                "$ref":"#/components/schemas/recruitingCEJobRequisitions-requisitionList-primaryLocationCoordinates-item-response"
+            },
+            "x-cardinality":"1"
+        },
+        "requisitionFlexFields":{
+            "title":"Descriptive Flexfields",
+            "type":"array",
+            "description":"The requisitionFlexFields resource is a child of recruitingCERequisitionTemplateDetailsPreviews. It includes the details of the requisition flexfields. Note that the service endpoints in this resource category are only for Oracle internal use.",
+            "items":{
+                "$ref":"#/components/schemas/recruitingCEJobRequisitions-requisitionList-requisitionFlexFields-item-response"
+            }
+        },
+        "secondaryLocations":{
+            "title":"Secondary Locations",
+            "type":"array",
+            "description":"The secondaryLocations resource is a child of the recruitingCERequisitionTemplateDetailsPreviews resource and provides details about the secondary locations used in the job requisition. Note that the service endpoints in this resource category are only for Oracle internal use.",
+            "items":{
+                "$ref":"#/components/schemas/recruitingCEJobRequisitions-requisitionList-secondaryLocations-item-response"
+            }
+        },
+        "workLocation":{
+            "title":"Work Locations",
+            "type":"array",
+            "description":"The workLocation resource is a child of the recruitingCERequisitionTemplateDetailsPreviews resource and provides details about work locations used in the job requisition. Note that the service endpoints in this resource category are only for Oracle internal use.",
+            "items":{
+                "$ref":"#/components/schemas/recruitingCEJobRequisitions-requisitionList-workLocation-item-response"
+            }
+        }
+    }
+}
+Nested Schema : Links
+Type: 
+array
+Title: 
+Links
+The link relations associated with the resource instance.
+Show Source
+            Array of: 
+                object 
+link
+{
+    "title":"Links",
+    "type":"array",
+    "description":"The link relations associated with the resource instance.",
+    "items":{
+        "$ref":"#/components/schemas/link"
+    }
+}
+Nested Schema : Other Work Locations
+Type: 
+array
+Title: 
+Other Work Locations
+The otherWorkLocations resource is a child of the recruitingCERequisitionTemplateDetailsPreviews resource and provides details about other work locations used in the job requisition. Note that the service endpoints in this resource category are only for Oracle internal use.
+Show Source
+            Array of: 
+                object 
+recruitingCEJobRequisitions-requisitionList-otherWorkLocations-item-response
+{
+    "title":"Other Work Locations",
+    "type":"array",
+    "description":"The otherWorkLocations resource is a child of the recruitingCERequisitionTemplateDetailsPreviews resource and provides details about other work locations used in the job requisition. Note that the service endpoints in this resource category are only for Oracle internal use.",
+    "items":{
+        "$ref":"#/components/schemas/recruitingCEJobRequisitions-requisitionList-otherWorkLocations-item-response"
+    }
+}
+Nested Schema : Primary Location Coordinates
+Type: 
+array
+Title: 
+Primary Location Coordinates
+The primaryLocationCoordinates resource is a child of recruitingCEJobRequisitionDetails. It includes details of primary location coordinates. Note that the service endpoints in this resource category are only for Oracle internal use.
+Show Source
+            Array of: 
+                object 
+recruitingCEJobRequisitions-requisitionList-primaryLocationCoordinates-item-response
+{
+    "title":"Primary Location Coordinates",
+    "type":"array",
+    "description":"The primaryLocationCoordinates resource is a child of recruitingCEJobRequisitionDetails. It includes details of primary location coordinates. Note that the service endpoints in this resource category are only for Oracle internal use.",
+    "items":{
+        "$ref":"#/components/schemas/recruitingCEJobRequisitions-requisitionList-primaryLocationCoordinates-item-response"
+    },
+    "x-cardinality":"1"
+}
+Nested Schema : Descriptive Flexfields
+Type: 
+array
+Title: 
+Descriptive Flexfields
+The requisitionFlexFields resource is a child of recruitingCERequisitionTemplateDetailsPreviews. It includes the details of the requisition flexfields. Note that the service endpoints in this resource category are only for Oracle internal use.
+Show Source
+            Array of: 
+                object 
+recruitingCEJobRequisitions-requisitionList-requisitionFlexFields-item-response
+{
+    "title":"Descriptive Flexfields",
+    "type":"array",
+    "description":"The requisitionFlexFields resource is a child of recruitingCERequisitionTemplateDetailsPreviews. It includes the details of the requisition flexfields. Note that the service endpoints in this resource category are only for Oracle internal use.",
+    "items":{
+        "$ref":"#/components/schemas/recruitingCEJobRequisitions-requisitionList-requisitionFlexFields-item-response"
+    }
+}
+Nested Schema : Secondary Locations
+Type: 
+array
+Title: 
+Secondary Locations
+The secondaryLocations resource is a child of the recruitingCERequisitionTemplateDetailsPreviews resource and provides details about the secondary locations used in the job requisition. Note that the service endpoints in this resource category are only for Oracle internal use.
+Show Source
+            Array of: 
+                object 
+recruitingCEJobRequisitions-requisitionList-secondaryLocations-item-response
+{
+    "title":"Secondary Locations",
+    "type":"array",
+    "description":"The secondaryLocations resource is a child of the recruitingCERequisitionTemplateDetailsPreviews resource and provides details about the secondary locations used in the job requisition. Note that the service endpoints in this resource category are only for Oracle internal use.",
+    "items":{
+        "$ref":"#/components/schemas/recruitingCEJobRequisitions-requisitionList-secondaryLocations-item-response"
+    }
+}
+Nested Schema : Work Locations
+Type: 
+array
+Title: 
+Work Locations
+The workLocation resource is a child of the recruitingCERequisitionTemplateDetailsPreviews resource and provides details about work locations used in the job requisition. Note that the service endpoints in this resource category are only for Oracle internal use.
+Show Source
+            Array of: 
+                object 
+recruitingCEJobRequisitions-requisitionList-workLocation-item-response
+{
+    "title":"Work Locations",
+    "type":"array",
+    "description":"The workLocation resource is a child of the recruitingCERequisitionTemplateDetailsPreviews resource and provides details about work locations used in the job requisition. Note that the service endpoints in this resource category are only for Oracle internal use.",
+    "items":{
+        "$ref":"#/components/schemas/recruitingCEJobRequisitions-requisitionList-workLocation-item-response"
+    }
+}
+Nested Schema : recruitingCEJobRequisitions-requisitionList-otherWorkLocations-item-response
+Type: 
+object
+Show Source
+                    AddressLine1: string
+Title: 
+Address Line 1
+Read Only: 
+true
+Maximum Length: 
+240
+Address line 1 for other work locations in a job requisition details preview.
+                    AddressLine2: string
+Title: 
+Address Line 2
+Read Only: 
+true
+Maximum Length: 
+240
+Address line 2 for other work locations in a job requisition details preview.
+                    AddressLine3: string
+Title: 
+Address Line 3
+Read Only: 
+true
+Maximum Length: 
+240
+Address line 3 for other work locations in a job requisition details preview.
+                    AddressLine4: string
+Title: 
+Address Line 4
+Read Only: 
+true
+Maximum Length: 
+240
+Address line 4 for other work locations in a job requisition details preview.
+                    Building: string
+Title: 
+Building
+Read Only: 
+true
+Maximum Length: 
+240
+Building of other work locations in a job requisition details preview.
+                    Country: string
+Title: 
+Country
+Read Only: 
+true
+Maximum Length: 
+60
+Country of other work locations in a job requisition details preview.
+                    Latitude: integer
+                     (int64) 
+Latitude of other work locations in a job requisition details preview.
+                    links: array
+                    Links
+Title: 
+Links
+The link relations associated with the resource instance.
+                    LocationId: integer
+                     (int64) 
+Title: 
+Other Work Locations
+Location ID of other work locations in a job requisition details preview.
+                    LocationName: string
+Title: 
+Display Name
+Read Only: 
+true
+Maximum Length: 
+240
+Location name of other work locations in a job requisition details preview.
+                    Longitude: integer
+                     (int64) 
+Longitude of other work locations in a job requisition details preview.
+                    PostalCode: string
+Title: 
+Postal Code
+Read Only: 
+true
+Maximum Length: 
+30
+Postal code of other work locations in a job requisition details preview.
+                    Region1: string
+Title: 
+Region 1
+Read Only: 
+true
+Maximum Length: 
+120
+Region 1 of other work locations in a job requisition details preview.
+                    Region2: string
+Title: 
+Region 2
+Read Only: 
+true
+Maximum Length: 
+120
+Region 2 of other work locations in a job requisition details preview.
+                    Region3: string
+Title: 
+Region 3
+Read Only: 
+true
+Maximum Length: 
+120
+Region 3 of other work locations in a job requisition details preview.
+                    RequisitionWorkLocationId: integer
+                     (int64) 
+Location ID of the secondary locations in a job requisition details preview.
+                    TownOrCity: string
+Title: 
+Town or City
+Read Only: 
+true
+Maximum Length: 
+60
+Town or city of other work locations in a job requisition details preview.
+{
+    "type":"object",
+    "properties":{
+        "AddressLine1":{
+            "title":"Address Line 1",
+            "maxLength":240,
+            "type":"string",
+            "description":"Address line 1 for other work locations in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "AddressLine2":{
+            "title":"Address Line 2",
+            "maxLength":240,
+            "type":"string",
+            "description":"Address line 2 for other work locations in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "AddressLine3":{
+            "title":"Address Line 3",
+            "maxLength":240,
+            "type":"string",
+            "description":"Address line 3 for other work locations in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "AddressLine4":{
+            "title":"Address Line 4",
+            "maxLength":240,
+            "type":"string",
+            "description":"Address line 4 for other work locations in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "Building":{
+            "title":"Building",
+            "maxLength":240,
+            "type":"string",
+            "description":"Building of other work locations in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "Country":{
+            "title":"Country",
+            "maxLength":60,
+            "type":"string",
+            "description":"Country of other work locations in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "Latitude":{
+            "type":"integer",
+            "description":"Latitude of other work locations in a job requisition details preview.",
+            "format":"int64",
+            "nullable":true,
+            "x-hints":{
+                "precision":255
+            },
+            "x-queryable":true
+        },
+        "LocationId":{
+            "title":"Other Work Locations",
+            "type":"integer",
+            "description":"Location ID of other work locations in a job requisition details preview.",
+            "format":"int64",
+            "nullable":false,
+            "x-hints":{
+                "precision":18,
+                "fnd:APPLCORE_SETID_DETERMINANT_ATTR":"RequisitionBusinessUnitId"
+            },
+            "x-queryable":true
+        },
+        "LocationName":{
+            "title":"Display Name",
+            "maxLength":240,
+            "type":"string",
+            "description":"Location name of other work locations in a job requisition details preview.",
+            "nullable":false,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "Longitude":{
+            "type":"integer",
+            "description":"Longitude of other work locations in a job requisition details preview.",
+            "format":"int64",
+            "nullable":true,
+            "x-hints":{
+                "precision":255
+            },
+            "x-queryable":true
+        },
+        "PostalCode":{
+            "title":"Postal Code",
+            "maxLength":30,
+            "type":"string",
+            "description":"Postal code of other work locations in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "Region1":{
+            "title":"Region 1",
+            "maxLength":120,
+            "type":"string",
+            "description":"Region 1 of other work locations in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "Region2":{
+            "title":"Region 2",
+            "maxLength":120,
+            "type":"string",
+            "description":"Region 2 of other work locations in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "Region3":{
+            "title":"Region 3",
+            "maxLength":120,
+            "type":"string",
+            "description":"Region 3 of other work locations in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "RequisitionWorkLocationId":{
+            "type":"integer",
+            "description":"Location ID of the secondary locations in a job requisition details preview.",
+            "format":"int64",
+            "nullable":false,
+            "x-hints":{
+                "precision":18
+            },
+            "x-queryable":true
+        },
+        "TownOrCity":{
+            "title":"Town or City",
+            "maxLength":60,
+            "type":"string",
+            "description":"Town or city of other work locations in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "links":{
+            "title":"Links",
+            "type":"array",
+            "description":"The link relations associated with the resource instance.",
+            "items":{
+                "$ref":"#/components/schemas/link"
+            }
+        }
+    }
+}
+Nested Schema : Links
+Type: 
+array
+Title: 
+Links
+The link relations associated with the resource instance.
+Show Source
+            Array of: 
+                object 
+link
+{
+    "title":"Links",
+    "type":"array",
+    "description":"The link relations associated with the resource instance.",
+    "items":{
+        "$ref":"#/components/schemas/link"
+    }
+}
+Nested Schema : recruitingCEJobRequisitions-requisitionList-primaryLocationCoordinates-item-response
+Type: 
+object
+Show Source
+                    CountryCode: string
+Read Only: 
+true
+Maximum Length: 
+2
+Country code of the primary location coordinates of the requisition details.
+                    GeographyId: integer
+                     (int64) 
+Read Only: 
+true
+Geography ID of primary location coordinates of the requisition details.
+                    GeographyNodeId: integer
+                     (int64) 
+Read Only: 
+true
+Geography ID of primary location coordinates of the requisition details.
+                    Latitude: integer
+                     (int64) 
+Read Only: 
+true
+Latitude of primary location coordinates of the requisition details.
+                    links: array
+                    Links
+Title: 
+Links
+The link relations associated with the resource instance.
+                    Longitude: integer
+                     (int64) 
+Read Only: 
+true
+Longitude of primary location coordinates of the requisition details.
+{
+    "type":"object",
+    "properties":{
+        "CountryCode":{
+            "maxLength":2,
+            "type":"string",
+            "description":"Country code of the primary location coordinates of the requisition details.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "GeographyId":{
+            "type":"integer",
+            "description":"Geography ID of primary location coordinates of the requisition details.",
+            "format":"int64",
+            "nullable":false,
+            "readOnly":true,
+            "x-hints":{
+                "precision":18
+            },
+            "x-queryable":true
+        },
+        "GeographyNodeId":{
+            "type":"integer",
+            "description":"Geography ID of primary location coordinates of the requisition details.",
+            "format":"int64",
+            "nullable":false,
+            "readOnly":true,
+            "x-hints":{
+                "precision":18
+            },
+            "x-queryable":true
+        },
+        "Latitude":{
+            "type":"integer",
+            "description":"Latitude of primary location coordinates of the requisition details.",
+            "format":"int64",
+            "nullable":true,
+            "readOnly":true,
+            "x-hints":{
+                "precision":255
+            },
+            "x-queryable":true
+        },
+        "Longitude":{
+            "type":"integer",
+            "description":"Longitude of primary location coordinates of the requisition details.",
+            "format":"int64",
+            "nullable":true,
+            "readOnly":true,
+            "x-hints":{
+                "precision":255
+            },
+            "x-queryable":true
+        },
+        "links":{
+            "title":"Links",
+            "type":"array",
+            "description":"The link relations associated with the resource instance.",
+            "items":{
+                "$ref":"#/components/schemas/link"
+            }
+        }
+    }
+}
+Nested Schema : Links
+Type: 
+array
+Title: 
+Links
+The link relations associated with the resource instance.
+Show Source
+            Array of: 
+                object 
+link
+{
+    "title":"Links",
+    "type":"array",
+    "description":"The link relations associated with the resource instance.",
+    "items":{
+        "$ref":"#/components/schemas/link"
+    }
+}
+Nested Schema : recruitingCEJobRequisitions-requisitionList-requisitionFlexFields-item-response
+Type: 
+object
+Show Source
+                    ContextCode: string
+Read Only: 
+true
+Maximum Length: 
+80
+Context code of the requisition flexfield of the requisition details.
+                    DATATYPE: string
+Read Only: 
+true
+Maximum Length: 
+255
+Data type of the requisition flexfield of the requisition details.
+                    links: array
+                    Links
+Title: 
+Links
+The link relations associated with the resource instance.
+                    Prompt: string
+Read Only: 
+true
+Maximum Length: 
+80
+Prompt of the requisition flexfield of the requisition details.
+                    SegmentCode: string
+Read Only: 
+true
+Maximum Length: 
+30
+Segment code of the requisition flexfield of the requisition details.
+                    Value: string
+Read Only: 
+true
+Maximum Length: 
+4000
+Value of the requisition flexfield of the requisition details.
+{
+    "type":"object",
+    "properties":{
+        "ContextCode":{
+            "maxLength":80,
+            "type":"string",
+            "description":"Context code of the requisition flexfield of the requisition details.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "DATATYPE":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Data type of the requisition flexfield of the requisition details.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "Prompt":{
+            "maxLength":80,
+            "type":"string",
+            "description":"Prompt of the requisition flexfield of the requisition details.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "SegmentCode":{
+            "maxLength":30,
+            "type":"string",
+            "description":"Segment code of the requisition flexfield of the requisition details.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "Value":{
+            "maxLength":4000,
+            "type":"string",
+            "description":"Value of the requisition flexfield of the requisition details.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "links":{
+            "title":"Links",
+            "type":"array",
+            "description":"The link relations associated with the resource instance.",
+            "items":{
+                "$ref":"#/components/schemas/link"
+            }
+        }
+    }
+}
+Nested Schema : Links
+Type: 
+array
+Title: 
+Links
+The link relations associated with the resource instance.
+Show Source
+            Array of: 
+                object 
+link
+{
+    "title":"Links",
+    "type":"array",
+    "description":"The link relations associated with the resource instance.",
+    "items":{
+        "$ref":"#/components/schemas/link"
+    }
+}
+Nested Schema : recruitingCEJobRequisitions-requisitionList-secondaryLocations-item-response
+Type: 
+object
+Show Source
+                    CountryCode: string
+Read Only: 
+true
+Maximum Length: 
+2
+Country code for the secondary locations in a job requisition details preview.
+                    GeographyId: integer
+                     (int64) 
+Read Only: 
+true
+Geography ID for the secondary locations in a job requisition details preview.
+                    GeographyNodeId: integer
+                     (int64) 
+Title: 
+Primary Location
+Read Only: 
+true
+Geography node ID for the secondary locations in a job requisition details preview.
+                    Latitude: integer
+                     (int64) 
+Read Only: 
+true
+Latitude of the secondary locations in a job requisition details preview.
+                    links: array
+                    Links
+Title: 
+Links
+The link relations associated with the resource instance.
+                    Longitude: integer
+                     (int64) 
+Read Only: 
+true
+Longitude of the secondary locations in a job requisition details preview.
+                    Name: string
+Maximum Length: 
+255
+Location ID of the secondary locations in a job requisition details preview.
+                    RequisitionLocationId: integer
+                     (int64) 
+Read Only: 
+true
+Location ID of the secondary locations in a job requisition details preview.
+{
+    "type":"object",
+    "properties":{
+        "CountryCode":{
+            "maxLength":2,
+            "type":"string",
+            "description":"Country code for the secondary locations in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "GeographyId":{
+            "type":"integer",
+            "description":"Geography ID for the secondary locations in a job requisition details preview.",
+            "format":"int64",
+            "nullable":false,
+            "readOnly":true,
+            "x-hints":{
+                "precision":18
+            },
+            "x-queryable":true
+        },
+        "GeographyNodeId":{
+            "title":"Primary Location",
+            "type":"integer",
+            "description":"Geography node ID for the secondary locations in a job requisition details preview.",
+            "format":"int64",
+            "nullable":false,
+            "readOnly":true,
+            "x-hints":{
+                "precision":18
+            },
+            "x-queryable":true
+        },
+        "Latitude":{
+            "type":"integer",
+            "description":"Latitude of the secondary locations in a job requisition details preview.",
+            "format":"int64",
+            "nullable":true,
+            "readOnly":true,
+            "x-hints":{
+                "precision":255
+            },
+            "x-queryable":true
+        },
+        "Longitude":{
+            "type":"integer",
+            "description":"Longitude of the secondary locations in a job requisition details preview.",
+            "format":"int64",
+            "nullable":true,
+            "readOnly":true,
+            "x-hints":{
+                "precision":255
+            },
+            "x-queryable":true
+        },
+        "Name":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Location ID of the secondary locations in a job requisition details preview.",
+            "nullable":true,
+            "x-hints":{
+                "dependencies":[
+                    "GeographyNodeId"
+                ]
+            },
+            "x-queryable":true
+        },
+        "RequisitionLocationId":{
+            "type":"integer",
+            "description":"Location ID of the secondary locations in a job requisition details preview.",
+            "format":"int64",
+            "nullable":false,
+            "readOnly":true,
+            "x-hints":{
+                "precision":18
+            },
+            "x-queryable":true
+        },
+        "links":{
+            "title":"Links",
+            "type":"array",
+            "description":"The link relations associated with the resource instance.",
+            "items":{
+                "$ref":"#/components/schemas/link"
+            }
+        }
+    }
+}
+Nested Schema : Links
+Type: 
+array
+Title: 
+Links
+The link relations associated with the resource instance.
+Show Source
+            Array of: 
+                object 
+link
+{
+    "title":"Links",
+    "type":"array",
+    "description":"The link relations associated with the resource instance.",
+    "items":{
+        "$ref":"#/components/schemas/link"
+    }
+}
+Nested Schema : recruitingCEJobRequisitions-requisitionList-workLocation-item-response
+Type: 
+object
+Show Source
+                    AddressLine1: string
+Title: 
+Address Line 1
+Read Only: 
+true
+Maximum Length: 
+240
+Address line 1 of work locations  in a job requisition details preview.
+                    AddressLine2: string
+Title: 
+Address Line 2
+Read Only: 
+true
+Maximum Length: 
+240
+Address line 2 of work locations  in a job requisition details preview.
+                    AddressLine3: string
+Title: 
+Address Line 3
+Read Only: 
+true
+Maximum Length: 
+240
+Address line 3 of work locations  in a job requisition details preview.
+                    AddressLine4: string
+Title: 
+Address Line 4
+Read Only: 
+true
+Maximum Length: 
+240
+Address line 4 of work locations  in a job requisition details preview.
+                    Building: string
+Title: 
+Building
+Read Only: 
+true
+Maximum Length: 
+240
+Building of work locations  in a job requisition details preview.
+                    Country: string
+Title: 
+Country
+Read Only: 
+true
+Maximum Length: 
+60
+Country of work locations  in a job requisition details preview.
+                    Latitude: integer
+                     (int64) 
+Latitude of work locations  in a job requisition details preview.
+                    links: array
+                    Links
+Title: 
+Links
+The link relations associated with the resource instance.
+                    LocationId: integer
+                     (int64) 
+Read Only: 
+true
+Location ID of work locations  in a job requisition details preview.
+                    LocationName: string
+Title: 
+Display Name
+Read Only: 
+true
+Maximum Length: 
+240
+Location name of work locations  in a job requisition details preview.
+                    Longitude: integer
+                     (int64) 
+Longitude of work locations  in a job requisition details preview.
+                    PostalCode: string
+Title: 
+Postal Code
+Read Only: 
+true
+Maximum Length: 
+30
+Postal code of work locations  in a job requisition details preview.
+                    Region1: string
+Title: 
+Region 1
+Read Only: 
+true
+Maximum Length: 
+120
+Region 1 of work locations in a job requisition details preview.
+                    Region2: string
+Title: 
+Region 2
+Read Only: 
+true
+Maximum Length: 
+120
+Region 2 of work locations in a job requisition details preview.
+                    Region3: string
+Title: 
+Region 3
+Read Only: 
+true
+Maximum Length: 
+120
+Region 3 of work locations in a job requisition details preview.
+                    TownOrCity: string
+Title: 
+Town or City
+Read Only: 
+true
+Maximum Length: 
+60
+Town or city of work locations in a job requisition details preview.
+{
+    "type":"object",
+    "properties":{
+        "AddressLine1":{
+            "title":"Address Line 1",
+            "maxLength":240,
+            "type":"string",
+            "description":"Address line 1 of work locations  in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "AddressLine2":{
+            "title":"Address Line 2",
+            "maxLength":240,
+            "type":"string",
+            "description":"Address line 2 of work locations  in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "AddressLine3":{
+            "title":"Address Line 3",
+            "maxLength":240,
+            "type":"string",
+            "description":"Address line 3 of work locations  in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "AddressLine4":{
+            "title":"Address Line 4",
+            "maxLength":240,
+            "type":"string",
+            "description":"Address line 4 of work locations  in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "Building":{
+            "title":"Building",
+            "maxLength":240,
+            "type":"string",
+            "description":"Building of work locations  in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "Country":{
+            "title":"Country",
+            "maxLength":60,
+            "type":"string",
+            "description":"Country of work locations  in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "Latitude":{
+            "type":"integer",
+            "description":"Latitude of work locations  in a job requisition details preview.",
+            "format":"int64",
+            "nullable":true,
+            "x-hints":{
+                "precision":255
+            },
+            "x-queryable":true
+        },
+        "LocationId":{
+            "type":"integer",
+            "description":"Location ID of work locations  in a job requisition details preview.",
+            "format":"int64",
+            "nullable":false,
+            "readOnly":true,
+            "x-hints":{
+                "precision":18
+            },
+            "x-queryable":true
+        },
+        "LocationName":{
+            "title":"Display Name",
+            "maxLength":240,
+            "type":"string",
+            "description":"Location name of work locations  in a job requisition details preview.",
+            "nullable":false,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "Longitude":{
+            "type":"integer",
+            "description":"Longitude of work locations  in a job requisition details preview.",
+            "format":"int64",
+            "nullable":true,
+            "x-hints":{
+                "precision":255
+            },
+            "x-queryable":true
+        },
+        "PostalCode":{
+            "title":"Postal Code",
+            "maxLength":30,
+            "type":"string",
+            "description":"Postal code of work locations  in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "Region1":{
+            "title":"Region 1",
+            "maxLength":120,
+            "type":"string",
+            "description":"Region 1 of work locations in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "Region2":{
+            "title":"Region 2",
+            "maxLength":120,
+            "type":"string",
+            "description":"Region 2 of work locations in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "Region3":{
+            "title":"Region 3",
+            "maxLength":120,
+            "type":"string",
+            "description":"Region 3 of work locations in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "TownOrCity":{
+            "title":"Town or City",
+            "maxLength":60,
+            "type":"string",
+            "description":"Town or city of work locations in a job requisition details preview.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "links":{
+            "title":"Links",
+            "type":"array",
+            "description":"The link relations associated with the resource instance.",
+            "items":{
+                "$ref":"#/components/schemas/link"
+            }
+        }
+    }
+}
+Nested Schema : Links
+Type: 
+array
+Title: 
+Links
+The link relations associated with the resource instance.
+Show Source
+            Array of: 
+                object 
+link
+{
+    "title":"Links",
+    "type":"array",
+    "description":"The link relations associated with the resource instance.",
+    "items":{
+        "$ref":"#/components/schemas/link"
+    }
+}
+Nested Schema : recruitingCEJobRequisitions-requisitionLocationsCoordinates-item-response
+Type: 
+object
+Show Source
+                    links: array
+                    Links
+Title: 
+Links
+The link relations associated with the resource instance.
+                    locationCoordinates: array
+                    Location Coordinates
+Title: 
+Location Coordinates
+The locationsCoordinates resource is a child of the recruitingCEJobRequisitions resource and provides details about locations coordinates. Note that the service endpoints in this resource category are only for Oracle internal use.
+                    RequisitionNumber: string
+Read Only: 
+true
+Maximum Length: 
+255
+Requisition number of the requisition locations coordinates.
+                    RequisitionTitle: string
+Read Only: 
+true
+Maximum Length: 
+255
+Requisition title of the requisition locations coordinates.
+{
+    "type":"object",
+    "properties":{
+        "RequisitionNumber":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Requisition number of the requisition locations coordinates.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":false
+        },
+        "RequisitionTitle":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Requisition title of the requisition locations coordinates.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":true
+        },
+        "links":{
+            "title":"Links",
+            "type":"array",
+            "description":"The link relations associated with the resource instance.",
+            "items":{
+                "$ref":"#/components/schemas/link"
+            }
+        },
+        "locationCoordinates":{
+            "title":"Location Coordinates",
+            "type":"array",
+            "description":"The locationsCoordinates resource is a child of the recruitingCEJobRequisitions resource and provides details about locations coordinates. Note that the service endpoints in this resource category are only for Oracle internal use.",
+            "items":{
+                "$ref":"#/components/schemas/recruitingCEJobRequisitions-requisitionLocationsCoordinates-locationCoordinates-item-response"
+            }
+        }
+    }
+}
+Nested Schema : Links
+Type: 
+array
+Title: 
+Links
+The link relations associated with the resource instance.
+Show Source
+            Array of: 
+                object 
+link
+{
+    "title":"Links",
+    "type":"array",
+    "description":"The link relations associated with the resource instance.",
+    "items":{
+        "$ref":"#/components/schemas/link"
+    }
+}
+Nested Schema : Location Coordinates
+Type: 
+array
+Title: 
+Location Coordinates
+The locationsCoordinates resource is a child of the recruitingCEJobRequisitions resource and provides details about locations coordinates. Note that the service endpoints in this resource category are only for Oracle internal use.
+Show Source
+            Array of: 
+                object 
+recruitingCEJobRequisitions-requisitionLocationsCoordinates-locationCoordinates-item-response
+{
+    "title":"Location Coordinates",
+    "type":"array",
+    "description":"The locationsCoordinates resource is a child of the recruitingCEJobRequisitions resource and provides details about locations coordinates. Note that the service endpoints in this resource category are only for Oracle internal use.",
+    "items":{
+        "$ref":"#/components/schemas/recruitingCEJobRequisitions-requisitionLocationsCoordinates-locationCoordinates-item-response"
+    }
+}
+Nested Schema : recruitingCEJobRequisitions-requisitionLocationsCoordinates-locationCoordinates-item-response
+Type: 
+object
+Show Source
+                    AddressLine1: string
+Read Only: 
+true
+Maximum Length: 
+255
+Address line 1 of the requisition locations coordinates.
+                    Building: string
+Read Only: 
+true
+Maximum Length: 
+255
+Building of the requisition locations coordinates.
+                    Country: string
+Read Only: 
+true
+Maximum Length: 
+255
+Country of the requisition locations coordinates.
+                    Latitude: string
+Read Only: 
+true
+Maximum Length: 
+255
+Latitude of the requisition locations coordinates.
+                    links: array
+                    Links
+Title: 
+Links
+The link relations associated with the resource instance.
+                    LocationId: integer
+Read Only: 
+true
+Location ID of the requisition locations coordinates.
+                    LocationType: string
+Read Only: 
+true
+Maximum Length: 
+255
+Location type of the requisition locations coordinates.
+                    Longitude: string
+Read Only: 
+true
+Maximum Length: 
+255
+Longitude of the requisition locations coordinates.
+                    Name: string
+Read Only: 
+true
+Maximum Length: 
+255
+Name of the requisition locations coordinates.
+                    PostalCode: string
+Read Only: 
+true
+Maximum Length: 
+255
+Postal code of the requisition locations coordinates.
+                    Region1: string
+Read Only: 
+true
+Maximum Length: 
+255
+Region 1 of the requisition locations coordinates.
+                    Region2: string
+Read Only: 
+true
+Maximum Length: 
+255
+Region 2 of the requisition locations coordinates.
+                    Region3: string
+Read Only: 
+true
+Maximum Length: 
+255
+Region 3 of the requisition locations coordinates.
+                    TownOrCity: string
+Read Only: 
+true
+Maximum Length: 
+255
+Town or city of the requisition locations coordinates.
+{
+    "type":"object",
+    "properties":{
+        "AddressLine1":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Address line 1 of the requisition locations coordinates.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":false
+        },
+        "Building":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Building of the requisition locations coordinates.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":false
+        },
+        "Country":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Country of the requisition locations coordinates.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":false
+        },
+        "Latitude":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Latitude of the requisition locations coordinates.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":false
+        },
+        "LocationId":{
+            "type":"integer",
+            "description":"Location ID of the requisition locations coordinates.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":false
+        },
+        "LocationType":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Location type of the requisition locations coordinates.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":false
+        },
+        "Longitude":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Longitude of the requisition locations coordinates.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":false
+        },
+        "Name":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Name of the requisition locations coordinates.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":false
+        },
+        "PostalCode":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Postal code of the requisition locations coordinates.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":false
+        },
+        "Region1":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Region 1 of the requisition locations coordinates.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":false
+        },
+        "Region2":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Region 2 of the requisition locations coordinates.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":false
+        },
+        "Region3":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Region 3 of the requisition locations coordinates.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":false
+        },
+        "TownOrCity":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Town or city of the requisition locations coordinates.",
+            "nullable":true,
+            "readOnly":true,
+            "x-queryable":false
+        },
+        "links":{
+            "title":"Links",
+            "type":"array",
+            "description":"The link relations associated with the resource instance.",
+            "items":{
+                "$ref":"#/components/schemas/link"
+            }
+        }
+    }
+}
+Nested Schema : Links
+Type: 
+array
+Title: 
+Links
+The link relations associated with the resource instance.
+Show Source
+            Array of: 
+                object 
+link
+{
+    "title":"Links",
+    "type":"array",
+    "description":"The link relations associated with the resource instance.",
+    "items":{
+        "$ref":"#/components/schemas/link"
+    }
+}
+Nested Schema : recruitingCEJobRequisitions-titlesFacet-item-response
+Type: 
+object
+Show Source
+                    Id: string
+Maximum Length: 
+255
+ID assigned to the facet of titles.
+                    links: array
+                    Links
+Title: 
+Links
+The link relations associated with the resource instance.
+                    Name: string
+Maximum Length: 
+255
+Name assigned to the facet of titles.
+                    TotalCount: integer
+Total count of the facet of titles.
+{
+    "type":"object",
+    "properties":{
+        "Id":{
+            "maxLength":255,
+            "type":"string",
+            "description":"ID assigned to the facet of titles.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "Name":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Name assigned to the facet of titles.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "TotalCount":{
+            "type":"integer",
+            "description":"Total count of the facet of titles.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "links":{
+            "title":"Links",
+            "type":"array",
+            "description":"The link relations associated with the resource instance.",
+            "items":{
+                "$ref":"#/components/schemas/link"
+            }
+        }
+    }
+}
+Nested Schema : Links
+Type: 
+array
+Title: 
+Links
+The link relations associated with the resource instance.
+Show Source
+            Array of: 
+                object 
+link
+{
+    "title":"Links",
+    "type":"array",
+    "description":"The link relations associated with the resource instance.",
+    "items":{
+        "$ref":"#/components/schemas/link"
+    }
+}
+Nested Schema : recruitingCEJobRequisitions-workLocationsFacet-item-response
+Type: 
+object
+Show Source
+                    Id: integer
+ID of the work location facet.
+                    links: array
+                    Links
+Title: 
+Links
+The link relations associated with the resource instance.
+                    Name: string
+Maximum Length: 
+255
+Name of the work location facet.
+                    TotalCount: integer
+Total count of the work location facet.
+{
+    "type":"object",
+    "properties":{
+        "Id":{
+            "type":"integer",
+            "description":"ID of the work location facet.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "Name":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Name of the work location facet.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "TotalCount":{
+            "type":"integer",
+            "description":"Total count of the work location facet.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "links":{
+            "title":"Links",
+            "type":"array",
+            "description":"The link relations associated with the resource instance.",
+            "items":{
+                "$ref":"#/components/schemas/link"
+            }
+        }
+    }
+}
+Nested Schema : Links
+Type: 
+array
+Title: 
+Links
+The link relations associated with the resource instance.
+Show Source
+            Array of: 
+                object 
+link
+{
+    "title":"Links",
+    "type":"array",
+    "description":"The link relations associated with the resource instance.",
+    "items":{
+        "$ref":"#/components/schemas/link"
+    }
+}
+Nested Schema : recruitingCEJobRequisitions-workplaceTypesFacet-item-response
+Type: 
+object
+Show Source
+                    Id: string
+Maximum Length: 
+255
+Unique identifier of the workplace type facet.
+                    links: array
+                    Links
+Title: 
+Links
+The link relations associated with the resource instance.
+                    Name: string
+Maximum Length: 
+255
+Name of the workplace type facet.
+                    TotalCount: integer
+Total count of the workplace type facet.
+{
+    "type":"object",
+    "properties":{
+        "Id":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Unique identifier of the workplace type facet.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "Name":{
+            "maxLength":255,
+            "type":"string",
+            "description":"Name of the workplace type facet.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "TotalCount":{
+            "type":"integer",
+            "description":"Total count of the workplace type facet.",
+            "nullable":true,
+            "x-queryable":true
+        },
+        "links":{
+            "title":"Links",
+            "type":"array",
+            "description":"The link relations associated with the resource instance.",
+            "items":{
+                "$ref":"#/components/schemas/link"
+            }
+        }
+    }
+}
+Nested Schema : Links
+Type: 
+array
+Title: 
+Links
+The link relations associated with the resource instance.
+Show Source
+            Array of: 
+                object 
+link
+{
+    "title":"Links",
+    "type":"array",
+    "description":"The link relations associated with the resource instance.",
+    "items":{
+        "$ref":"#/components/schemas/link"
+    }
+}
+Links
+getRequisitionDetailsForMap
+Operation: 
+/hcmRestApi/resources/11.13.18.05/recruitingCEJobRequisitions/action/getRequisitionDetailsForMap
+Provides requisition and location details for the given Requisition IDs based on the work location display setting configured for the candidate experience site.
+getRequisitionsLocationCoordinates
+Operation: 
+/hcmRestApi/resources/11.13.18.05/recruitingCEJobRequisitions/action/getRequisitionsLocationCoordinates
+Provides the location coordinates for the requisitions to plot on Oracle Maps.
+Back to Top

@@ -1,0 +1,8 @@
+Primary source: the Uber careers site, jobs.uber.com. Fallback: Uber's public Oracle Recruiting Cloud candidate-experience API (site UberCareers), used automatically only when jobs.uber.com refuses a request; both serve the same requisition ids, and meta.source names the source that answered. Public postings, read-only, no login. A job-tracker script already drives an equivalent CLI for another employer, so uber-jobs must match its contract:
+- a postings command taking --country <ISO3> --limit --offset --sort recent --base-query --json --data-source live;
+- output is always a top-level JSON object, never a bare array, with one envelope for every command and data source: {meta:{source}, hits, returned, scanned, scan_cap_hit, results:[...]};
+- per posting: id, title, posted_date in Month D, YYYY form (what the tracker parses), posted_on (ISO date), posted_raw (the site's own value), job_category, country_code (ISO alpha-3), location, normalized_location, locations[], basic_qualifications, preferred_qualifications, description (HTML stripped), is_intern, university_job, job_path, url (absolute), employer=uber. Null where the site has no such field, never invented;
+- doctor prints "API: reachable" only after a positive content check;
+- DNS or transport failure has its own documented exit code, outside 2, 3, 4, 5, 7 and 10;
+- --agent output keeps description.
+Candidate ideas, not requirements: saved searches with a new-since command; sync plus stats by category; posted-within; description contains and not-contains filters; get by id.

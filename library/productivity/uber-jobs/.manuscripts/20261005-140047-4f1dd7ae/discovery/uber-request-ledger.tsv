@@ -1,0 +1,142 @@
+utc_time	tool	method	url	status	bytes
+2026-10-05T04:04:59Z	curl(recon, prior session)	GET	https://jobs.uber.com/en/	403	5690
+2026-10-05T07:54:52Z	go-stdlib-oraclefetch	GET	https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/	200	74275
+2026-10-05T07:55:19Z	go-stdlib-oraclefetch	GET	https://iaziqy.fa.ocs.oraclecloud.com/hcmRestApi/resources/11.13.18.05/recruitingCEJobRequisitions?onlyData=true&expand=requisitionList&finder=findReqs;siteNumber=CX_1,limit=25	200	39541
+2026-10-05T07:55:58Z	go-stdlib-oraclefetch	GET	https://iaziqy.fa.ocs.oraclecloud.com/hcmRestApi/resources/11.13.18.05/recruitingCEJobRequisitionDetails?onlyData=true&expand=all&finder=ById;Id=%22302906%22,siteNumber=CX_1	200	27787
+2026-10-05T09:52:18Z	curl(phase1.9 check, diagnosis; logged late after a zsh var error)	GET	https://jobs.uber.com/api/jobs/search/	403	5409
+2026-10-05T09:56:42Z	cli-printing-press probe-reachability --probe-only stdlib (diagnosis)	GET	https://jobs.uber.com/api/jobs/search/	200	n/a(probe reports no size; content_type application/json; 2438 ms)
+2026-10-05T11:14:41Z	uberprobe(contract:size_probe)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1	200	5437
+2026-10-05T11:14:45Z	uberprobe(contract:full_single)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1000	200	4020739
+2026-10-05T11:14:49Z	uberprobe(contract:default_noparams)	GET	https://jobs.uber.com/api/jobs/search/	200	68780
+2026-10-05T11:14:52Z	uberprobe(contract:p2_default_size)	GET	https://jobs.uber.com/api/jobs/search/?page=2	200	86872
+2026-10-05T11:14:56Z	uberprobe(contract:walk100_p1)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=100	200	713618
+2026-10-05T11:14:59Z	uberprobe(contract:walk100_p2)	GET	https://jobs.uber.com/api/jobs/search/?page=2&pagesize=100	200	658601
+2026-10-05T11:15:03Z	uberprobe(contract:walk100_p3)	GET	https://jobs.uber.com/api/jobs/search/?page=3&pagesize=100	200	740890
+2026-10-05T11:15:06Z	uberprobe(contract:walk100_p4)	GET	https://jobs.uber.com/api/jobs/search/?page=4&pagesize=100	200	671634
+2026-10-05T11:15:10Z	uberprobe(contract:walk100_p5)	GET	https://jobs.uber.com/api/jobs/search/?page=5&pagesize=100	200	659166
+2026-10-05T11:15:13Z	uberprobe(contract:walk100_p6)	GET	https://jobs.uber.com/api/jobs/search/?page=6&pagesize=100	200	577167
+2026-10-05T11:15:17Z	uberprobe(contract:walk100_p7)	GET	https://jobs.uber.com/api/jobs/search/?page=7&pagesize=100	200	66
+2026-10-05T11:15:20Z	uberprobe(contract:deep_page)	GET	https://jobs.uber.com/api/jobs/search/?page=999&pagesize=10	200	68
+2026-10-05T11:15:24Z	uberprobe(contract:search_nonsense)	GET	https://jobs.uber.com/api/jobs/search/?search=zzqqxvnonsense&page=1&pagesize=100	200	64
+2026-10-05T11:15:27Z	uberprobe(contract:search_engineer)	GET	https://jobs.uber.com/api/jobs/search/?search=engineer&page=1&pagesize=100	200	732796
+2026-10-05T11:15:31Z	uberprobe(contract:search_operations)	GET	https://jobs.uber.com/api/jobs/search/?search=operations&page=1&pagesize=100	200	763834
+2026-10-05T11:15:34Z	uberprobe(contract:countries_nonsense)	GET	https://jobs.uber.com/api/jobs/search/?countries=Zzqqland&page=1&pagesize=100	200	64
+2026-10-05T11:15:38Z	uberprobe(contract:countries_germany)	GET	https://jobs.uber.com/api/jobs/search/?countries=Germany&page=1&pagesize=100	200	125473
+2026-10-05T11:15:41Z	uberprobe(contract:countries_us)	GET	https://jobs.uber.com/api/jobs/search/?countries=United+States&page=1&pagesize=100	200	807111
+2026-10-05T11:15:45Z	uberprobe(contract:countries_brackets)	GET	https://jobs.uber.com/api/jobs/search/?countries%5B%5D=Germany&page=1&pagesize=100	200	713615
+2026-10-05T11:15:48Z	uberprobe(contract:countries_multi)	GET	https://jobs.uber.com/api/jobs/search/?countries=Germany&countries=Canada&page=1&pagesize=100	200	216603
+2026-10-05T11:15:52Z	uberprobe(contract:team_nonsense)	GET	https://jobs.uber.com/api/jobs/search/?team=Zzqq&page=1&pagesize=100	200	64
+2026-10-05T11:15:55Z	uberprobe(contract:team_engineer)	GET	https://jobs.uber.com/api/jobs/search/?team=Engineer&page=1&pagesize=100	200	765222
+2026-10-05T11:15:59Z	uberprobe(contract:team_finance)	GET	https://jobs.uber.com/api/jobs/search/?team=Finance&page=1&pagesize=100	200	107382
+2026-10-05T11:16:02Z	uberprobe(contract:subteam_nonsense)	GET	https://jobs.uber.com/api/jobs/search/?subTeam=Zzqq&page=1&pagesize=100	200	64
+2026-10-05T11:16:06Z	uberprobe(contract:subteam_bizops)	GET	https://jobs.uber.com/api/jobs/search/?subTeam=Business+Operations&page=1&pagesize=100	200	145149
+2026-10-05T11:16:09Z	uberprobe(contract:subteam_custsupport)	GET	https://jobs.uber.com/api/jobs/search/?subTeam=Customer+Support&page=1&pagesize=100	200	139926
+2026-10-05T11:16:13Z	uberprobe(contract:contract_fulltime)	GET	https://jobs.uber.com/api/jobs/search/?contractTypes=Full+time&page=1&pagesize=100	200	711811
+2026-10-05T11:16:16Z	uberprobe(contract:contract_nonsense)	GET	https://jobs.uber.com/api/jobs/search/?contractTypes=Zzqq&page=1&pagesize=100	200	64
+2026-10-05T11:16:20Z	uberprobe(contract:location_berlin)	GET	https://jobs.uber.com/api/jobs/search/?location=Berlin&page=1&pagesize=100	200	70959
+2026-10-05T11:16:23Z	uberprobe(contract:location_nonsense)	GET	https://jobs.uber.com/api/jobs/search/?location=Zzqqville&page=1&pagesize=100	200	64
+2026-10-05T11:16:27Z	uberprobe(contract:latlng_berlin_50)	GET	https://jobs.uber.com/api/jobs/search/?lat=52.52&lng=13.4&radius=50&page=1&pagesize=100	200	70959
+2026-10-05T11:16:30Z	uberprobe(contract:experience_nonsense)	GET	https://jobs.uber.com/api/jobs/search/?experience=Zzqq&page=1&pagesize=100	200	64
+2026-10-05T11:16:34Z	uberprobe(contract:businessunits_nonsense)	GET	https://jobs.uber.com/api/jobs/search/?businessUnits=Zzqq&page=1&pagesize=100	500	72
+2026-10-05T11:16:37Z	uberprobe(contract:recently_viewed)	POST	https://jobs.uber.com/api/jobs/recently-viewed/	200	806
+2026-10-05T11:16:41Z	uberprobe(contract:recommendations)	POST	https://jobs.uber.com/api/jobs/recommendations/	200	11
+2026-10-05T11:16:44Z	uberprobe(contract:facets_html)	GET	https://jobs.uber.com/en/jobs/	200	207172
+2026-10-05T11:34:16Z	cli-printing-press generate --validate (validation doctor; status inferred 200 from the cached JSON body, time = cache-file mtime)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1	200	5437
+2026-10-05T15:16:29Z	uber-jobs-pp-cli (phase 4 ledger proof, real HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=1	200	5859
+2026-10-05T15:16:33Z	uber-jobs-pp-cli (phase 4 ledger proof, real HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=73	200	141191
+2026-10-05T15:16:36Z	uber-jobs-pp-cli (phase 4 ledger proof, real HOME)	GET	https://jobs.uber.com/en/jobs/	200	200762
+2026-10-05T15:37:50Z	uber-jobs-pp-cli (phase 4 scorecard --live-check, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=Netherlands&page=1&pagesize=1	200	6856
+2026-10-05T15:37:54Z	uber-jobs-pp-cli (phase 4 scorecard --live-check, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1	200	6736
+2026-10-05T15:37:57Z	uber-jobs-pp-cli (phase 4 scorecard --live-check, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1	200	6736
+2026-10-05T15:38:01Z	uber-jobs-pp-cli (phase 4 scorecard --live-check, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=1	200	5859
+2026-10-05T15:38:04Z	uber-jobs-pp-cli (phase 4 scorecard --live-check, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=Netherlands&page=1&pagesize=57	200	41028
+2026-10-05T15:38:08Z	uber-jobs-pp-cli (phase 4 scorecard --live-check, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=633	200	4018973
+2026-10-05T15:38:11Z	uber-jobs-pp-cli (phase 4 scorecard --live-check, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=633	200	4018973
+2026-10-05T15:38:15Z	uber-jobs-pp-cli (phase 4 scorecard --live-check, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=73	200	141191
+2026-10-05T15:38:18Z	uber-jobs-pp-cli (phase 4 scorecard --live-check, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=633	200	4018973
+2026-10-05T15:38:22Z	uber-jobs-pp-cli (phase 4 scorecard --live-check, press scoped HOME)	GET	https://jobs.uber.com/en/jobs/	200	200762
+2026-10-05T15:44:39Z	uber-jobs-pp-cli (phase 4 novel-command live sample, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1	200	6736
+2026-10-05T15:44:43Z	uber-jobs-pp-cli (phase 4 novel-command live sample, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=633	200	4018973
+2026-10-05T15:44:46Z	uber-jobs-pp-cli (phase 4 novel-command live sample, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=Netherlands&page=1&pagesize=1	200	6856
+2026-10-05T15:44:50Z	uber-jobs-pp-cli (phase 4 novel-command live sample, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=Netherlands&page=1&pagesize=57	200	41028
+2026-10-05T15:45:03Z	uber-jobs-pp-cli (phase 4 novel-command live sample, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=1&search=strategy	200	5837
+2026-10-05T15:45:06Z	uber-jobs-pp-cli (phase 4 novel-command live sample, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=67&search=strategy	200	107286
+2026-10-05T16:35:20Z	uber-jobs-pp-cli (phase 4.85 output-review live sample, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=1	200	5859
+2026-10-05T16:35:24Z	uber-jobs-pp-cli (phase 4.85 output-review live sample, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1	200	6736
+2026-10-05T16:35:31Z	uber-jobs-pp-cli (phase 4.85 output-review live sample, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=Netherlands&page=1&pagesize=1	200	6856
+2026-10-05T16:35:34Z	uber-jobs-pp-cli (phase 4.85 output-review live sample, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=73	200	141191
+2026-10-05T16:35:38Z	uber-jobs-pp-cli (phase 4.85 output-review live sample, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=633	200	4018973
+2026-10-05T16:35:45Z	uber-jobs-pp-cli (phase 4.85 output-review live sample, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=Netherlands&page=1&pagesize=57	200	41028
+2026-10-05T16:35:52Z	uber-jobs-pp-cli (phase 4.85 output-review live sample, press scoped HOME)	GET	https://jobs.uber.com/en/jobs/	200	201653
+2026-10-05T18:30:39Z	uber-jobs-pp-cli (phase 5 rule-12 pre-step, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1	200	6736
+2026-10-05T18:30:43Z	uber-jobs-pp-cli (phase 5 rule-12 pre-step, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1	200	6736
+2026-10-05T18:30:46Z	uber-jobs-pp-cli (phase 5 rule-12 pre-step, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=633	200	4018973
+2026-10-05T18:30:50Z	uber-jobs-pp-cli (phase 5 rule-12 pre-step, scratch HOME)	GET	https://jobs.uber.com/en/jobs/	200	208210
+2026-10-05T18:30:53Z	uber-jobs-pp-cli (phase 5 rule-12 pre-step, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1&search=strategy	200	6388
+2026-10-05T18:30:57Z	uber-jobs-pp-cli (phase 5 rule-12 pre-step, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=449&search=strategy	200	2830029
+2026-10-05T18:31:00Z	uber-jobs-pp-cli (phase 5 rule-12 pre-step, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=1	200	5859
+2026-10-05T18:31:04Z	uber-jobs-pp-cli (phase 5 rule-12 pre-step, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=73	200	141191
+2026-10-05T18:31:07Z	uber-jobs-pp-cli (phase 5 rule-12 pre-step, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=1&search=strategy	200	5838
+2026-10-05T18:31:11Z	uber-jobs-pp-cli (phase 5 rule-12 pre-step, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=67&search=strategy	200	107291
+2026-10-05T18:31:14Z	uber-jobs-pp-cli (phase 5 rule-12 pre-step, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=Netherlands&page=1&pagesize=1	200	6856
+2026-10-05T18:31:18Z	uber-jobs-pp-cli (phase 5 rule-12 pre-step, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=Netherlands&page=1&pagesize=57	200	41028
+2026-10-05T18:31:21Z	uber-jobs-pp-cli (phase 5 rule-12 pre-step, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=Germany&page=1&pagesize=100	200	132265
+2026-10-05T18:31:25Z	uber-jobs-pp-cli (phase 5 rule-12 pre-step, scratch HOME)	POST	https://jobs.uber.com/api/jobs/recently-viewed/	200	398
+2026-10-05T18:32:36Z	uber-jobs-pp-cli (phase 5 rule-12 pre-step, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1&team=Engineer	200	5674
+2026-10-05T18:32:39Z	uber-jobs-pp-cli (phase 5 rule-12 pre-step, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=158&team=Engineer	200	818080
+2026-10-05T18:32:43Z	uber-jobs-pp-cli (phase 5 rule-12 pre-step, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1&subTeam=Software+Engineering&team=Engineer	200	6417
+2026-10-05T18:32:46Z	uber-jobs-pp-cli (phase 5 rule-12 pre-step, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=117&subTeam=Software+Engineering&team=Engineer	200	479479
+2026-10-05T18:32:50Z	uber-jobs-pp-cli (phase 5 rule-12 pre-step, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?contractTypes=Full+time&page=1&pagesize=1	200	9246
+2026-10-05T18:32:53Z	uber-jobs-pp-cli (phase 5 rule-12 pre-step, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?contractTypes=Full+time&page=1&pagesize=627	200	3971218
+2026-10-05T18:32:57Z	uber-jobs-pp-cli (phase 5 rule-12 pre-step, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?contractTypes=Full+time&page=1&pagesize=1&subTeam=Software+Engineering&team=Engineer	200	6417
+2026-10-05T18:33:00Z	uber-jobs-pp-cli (phase 5 rule-12 pre-step, scratch HOME)	GET	https://jobs.uber.com/api/jobs/search/?contractTypes=Full+time&page=1&pagesize=117&subTeam=Software+Engineering&team=Engineer	200	479476
+2026-10-05T18:35:26Z	uber-jobs-pp-cli (phase 5 live dogfood matrix run 1, press scoped HOME)	POST	https://jobs.uber.com/api/jobs/recently-viewed/	200	398
+2026-10-05T18:35:29Z	uber-jobs-pp-cli (phase 5 live dogfood matrix run 1, press scoped HOME)	POST	https://jobs.uber.com/api/jobs/recently-viewed/	200	398
+2026-10-05T18:35:33Z	uber-jobs-pp-cli (phase 5 live dogfood matrix run 1, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=Germany&page=1&pagesize=100	200	132265
+2026-10-05T18:35:36Z	uber-jobs-pp-cli (phase 5 live dogfood matrix run 1, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1	200	6736
+2026-10-05T18:35:40Z	uber-jobs-pp-cli (phase 5 live dogfood matrix run 1, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=633	200	4018973
+2026-10-05T18:35:43Z	uber-jobs-pp-cli (phase 5 live dogfood matrix run 1, press scoped HOME)	GET	https://jobs.uber.com/en/jobs/	200	208210
+2026-10-05T18:35:47Z	uber-jobs-pp-cli (phase 5 live dogfood matrix run 1, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=1	200	5859
+2026-10-05T18:35:50Z	uber-jobs-pp-cli (phase 5 live dogfood matrix run 1, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=73	200	141191
+2026-10-05T18:35:54Z	uber-jobs-pp-cli (phase 5 live dogfood matrix run 1, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=Netherlands&page=1&pagesize=1	200	6856
+2026-10-05T18:35:57Z	uber-jobs-pp-cli (phase 5 live dogfood matrix run 1, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=Netherlands&page=1&pagesize=57	200	41028
+2026-10-05T18:43:31Z	uber-jobs-pp-cli (phase 5 live dogfood matrix run 2, --allow-destructive, press scoped HOME)	POST	https://jobs.uber.com/api/jobs/recently-viewed/	200	398
+2026-10-05T18:43:34Z	uber-jobs-pp-cli (phase 5 live dogfood matrix run 2, --allow-destructive, press scoped HOME)	POST	https://jobs.uber.com/api/jobs/recently-viewed/	200	398
+2026-10-05T18:43:38Z	uber-jobs-pp-cli (phase 5 live dogfood matrix run 2, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=Germany&page=1&pagesize=100	200	132265
+2026-10-05T18:43:41Z	uber-jobs-pp-cli (phase 5 live dogfood matrix run 2, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1	200	6736
+2026-10-05T18:43:45Z	uber-jobs-pp-cli (phase 5 live dogfood matrix run 2, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=633	200	4018973
+2026-10-05T18:43:48Z	uber-jobs-pp-cli (phase 5 live dogfood matrix run 2, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/en/jobs/	200	208210
+2026-10-05T18:43:52Z	uber-jobs-pp-cli (phase 5 live dogfood matrix run 2, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=1	200	5859
+2026-10-05T18:43:55Z	uber-jobs-pp-cli (phase 5 live dogfood matrix run 2, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=73	200	141191
+2026-10-05T18:43:59Z	uber-jobs-pp-cli (phase 5 live dogfood matrix run 2, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=Netherlands&page=1&pagesize=1	200	6856
+2026-10-05T18:44:02Z	uber-jobs-pp-cli (phase 5 live dogfood matrix run 2, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=Netherlands&page=1&pagesize=57	200	41028
+2026-10-05T19:14:22Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 3, --allow-destructive, press scoped HOME)	POST	https://jobs.uber.com/api/jobs/recently-viewed/	200	398
+2026-10-05T19:14:25Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 3, --allow-destructive, press scoped HOME)	POST	https://jobs.uber.com/api/jobs/recently-viewed/	200	398
+2026-10-05T19:14:29Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 3, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=Germany&page=1&pagesize=100	200	132265
+2026-10-05T19:14:32Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 3, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1	200	6736
+2026-10-05T19:14:36Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 3, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=633	200	4018973
+2026-10-05T19:14:39Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 3, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/en/jobs/	200	208210
+2026-10-05T19:14:43Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 3, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=1	200	5859
+2026-10-05T19:14:46Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 3, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=73	200	141191
+2026-10-05T19:14:50Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 3, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=Netherlands&page=1&pagesize=1	200	6856
+2026-10-05T19:14:53Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 3, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=Netherlands&page=1&pagesize=57	200	41028
+2026-10-05T19:23:51Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 4, --allow-destructive, press scoped HOME)	POST	https://jobs.uber.com/api/jobs/recently-viewed/	200	398
+2026-10-05T19:23:55Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 4, --allow-destructive, press scoped HOME)	POST	https://jobs.uber.com/api/jobs/recently-viewed/	200	398
+2026-10-05T19:23:58Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 4, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=Germany&page=1&pagesize=100	200	132265
+2026-10-05T19:24:02Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 4, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1	200	6736
+2026-10-05T19:24:05Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 4, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=633	200	4018973
+2026-10-05T19:24:09Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 4, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/en/jobs/	200	208210
+2026-10-05T19:24:12Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 4, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=1	200	5859
+2026-10-05T19:24:16Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 4, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=73	200	141191
+2026-10-05T19:24:20Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 4, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=Netherlands&page=1&pagesize=1	200	6856
+2026-10-05T19:24:23Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 4, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=Netherlands&page=1&pagesize=57	200	41028
+2026-10-05T19:29:08Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 5, --allow-destructive, press scoped HOME)	POST	https://jobs.uber.com/api/jobs/recently-viewed/	200	398
+2026-10-05T19:29:11Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 5, --allow-destructive, press scoped HOME)	POST	https://jobs.uber.com/api/jobs/recently-viewed/	200	398
+2026-10-05T19:29:15Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 5, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=Germany&page=1&pagesize=100	200	132265
+2026-10-05T19:29:19Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 5, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1	200	6736
+2026-10-05T19:29:22Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 5, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=633	200	4018973
+2026-10-05T19:29:26Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 5, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/en/jobs/	200	208210
+2026-10-05T19:29:29Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 5, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=1	200	5860
+2026-10-05T19:29:33Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 5, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=73	200	141190
+2026-10-05T19:29:36Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 5, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=Netherlands&page=1&pagesize=1	200	6856
+2026-10-05T19:29:40Z	uber-jobs-pp-cli (phase 20 marker refresh: live dogfood matrix run 5, --allow-destructive, press scoped HOME)	GET	https://jobs.uber.com/api/jobs/search/?countries=Netherlands&page=1&pagesize=57	200	41028

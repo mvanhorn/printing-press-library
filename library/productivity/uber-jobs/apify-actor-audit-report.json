@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/uber-jobs-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20261005-140047-4f1dd7ae",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

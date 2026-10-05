@@ -1,0 +1,22 @@
+2026-10-05T18:30:39Z	uber-jobs-pp-cli(generated client)	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1	200	6736
+2026-10-05T18:30:43Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1	200	6736
+2026-10-05T18:30:46Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=633	200	4018973
+2026-10-05T18:30:50Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/en/jobs/	200	208210
+2026-10-05T18:30:53Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1&search=strategy	200	6388
+2026-10-05T18:30:57Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=449&search=strategy	200	2830029
+2026-10-05T18:31:00Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=1	200	5859
+2026-10-05T18:31:04Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=73	200	141191
+2026-10-05T18:31:07Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=1&search=strategy	200	5838
+2026-10-05T18:31:11Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=67&search=strategy	200	107291
+2026-10-05T18:31:14Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?countries=Netherlands&page=1&pagesize=1	200	6856
+2026-10-05T18:31:18Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?countries=Netherlands&page=1&pagesize=57	200	41028
+2026-10-05T18:31:21Z	uber-jobs-pp-cli(generated client)	GET	https://jobs.uber.com/api/jobs/search/?countries=Germany&page=1&pagesize=100	200	132265
+2026-10-05T18:31:25Z	uber-jobs-pp-cli(generated client)	POST	https://jobs.uber.com/api/jobs/recently-viewed/	200	398
+2026-10-05T18:32:36Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1&team=Engineer	200	5674
+2026-10-05T18:32:39Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=158&team=Engineer	200	818080
+2026-10-05T18:32:43Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=1&subTeam=Software+Engineering&team=Engineer	200	6417
+2026-10-05T18:32:46Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?page=1&pagesize=117&subTeam=Software+Engineering&team=Engineer	200	479479
+2026-10-05T18:32:50Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?contractTypes=Full+time&page=1&pagesize=1	200	9246
+2026-10-05T18:32:53Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?contractTypes=Full+time&page=1&pagesize=627	200	3971218
+2026-10-05T18:32:57Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?contractTypes=Full+time&page=1&pagesize=1&subTeam=Software+Engineering&team=Engineer	200	6417
+2026-10-05T18:33:00Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?contractTypes=Full+time&page=1&pagesize=117&subTeam=Software+Engineering&team=Engineer	200	479476

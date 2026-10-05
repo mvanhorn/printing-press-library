@@ -1,0 +1,5 @@
+2026-10-05T09:34:17Z	CONNECT	jobs.uber.com:443	DENIED
+2026-10-05T09:34:17Z	CONNECT	api.github.com:443	allowed
+2026-10-05T09:34:45Z	CONNECT	api.github.com:443	allowed
+2026-10-05T09:34:45Z	CONNECT	registry.npmjs.org:443	allowed
+2026-10-05T09:34:47Z	CONNECT	api.npmjs.org:443	allowed

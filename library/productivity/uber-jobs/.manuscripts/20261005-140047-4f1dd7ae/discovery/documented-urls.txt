@@ -1,0 +1,19 @@
+# Hosts and paths uber-jobs-pp-cli sends requests to, each with its evidence.
+# Written 2026-10-05 (Phase 3). Read by the press's novel-host gate.
+#
+# Primary source: the Uber careers site. Evidence: the owner's HAR
+# (discovery/jobs.uber.com.har, 589 entries) and the site's own JS chunks;
+# contract measured in discovery/api-contract-notes.md (36 requests, 0 refusals).
+https://jobs.uber.com/api/jobs/search/
+https://jobs.uber.com/api/jobs/recently-viewed/
+https://jobs.uber.com/en/jobs/
+#
+# Fallback source (owner amendments A1-A3): Uber's public Oracle Recruiting Cloud
+# candidate-experience API, site UberCareers, siteNumber CX_1. Evidence: the
+# tenant host appears in the HAR's sign-in links and apply-host allowlist; paths
+# are from Oracle's REST reference (docs.oracle.com, REST API for Oracle Fusion
+# Cloud HCM: recruitingCEJobRequisitions and recruitingCEJobRequisitionDetails);
+# three owner-approved requests returned 200 on 2026-10-05 (discovery/oracle-check/).
+https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/
+https://iaziqy.fa.ocs.oraclecloud.com/hcmRestApi/resources/11.13.18.05/recruitingCEJobRequisitions
+https://iaziqy.fa.ocs.oraclecloud.com/hcmRestApi/resources/11.13.18.05/recruitingCEJobRequisitionDetails

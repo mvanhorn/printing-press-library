@@ -1,0 +1,3 @@
+2026-10-05T15:16:29Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=1	200	5859
+2026-10-05T15:16:33Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/api/jobs/search/?countries=United+Kingdom&page=1&pagesize=73	200	141191
+2026-10-05T15:16:36Z	uber-jobs-pp-cli	GET	https://jobs.uber.com/en/jobs/	200	200762

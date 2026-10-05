@@ -1,0 +1,4 @@
+MISSING [quickstart]: uber-jobs-pp-cli sync → sync
+FAILED [recipes]: uber-jobs-pp-cli new --all --json → full example failed: ~/printing-press/.runstate/personal-74f0f171/runs/20261005-140047-4f1dd7ae/working/uber-jobs-pp-cli/uber-jobs-pp-cli new --all --json --dry-run: exit status 2: Error: unknown flag: --all
+DONE: 8 ok, 1 missing, 0 empty-words, 1 failed-examples, 0 unsupported
+narrative validation failed

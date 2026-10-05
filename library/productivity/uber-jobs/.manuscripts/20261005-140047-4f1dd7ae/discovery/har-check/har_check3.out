@@ -1,0 +1,78 @@
+== detail payloads: own record vs JSON-LD ==
+  302964: DisplayDate=2026-10-02T19:49:58Z UpdateDate=2026-10-02T20:05:07.521Z | LD datePosted=2026-10-02 validThrough=None employmentType="FULL_TIME"
+      identifier={"@type":"PropertyValue","name":"Uber","value":"302964"}
+      own ApplicationUrl=https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/302964/apply/email?mode=location | all ApplicationUrl values=['https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/302964/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/302964/apply/email?mode=location', '', '', '']
+      API row DisplayDate=2026-10-02T19:49:58Z match=True
+      Teams/SubTeams=('"Operations"', '"Business Operations"') AdditionalText=Operations Business Operations
+  302906: DisplayDate=2026-10-02T21:46:44Z UpdateDate=2026-10-02T22:05:07.516Z | LD datePosted=2026-10-02 validThrough=None employmentType="FULL_TIME"
+      identifier={"@type":"PropertyValue","name":"Uber","value":"302906"}
+      own ApplicationUrl=https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/302906/apply/email?mode=location | all ApplicationUrl values=['https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/302906/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/302906/apply/email?mode=location', '', '', '']
+      API row DisplayDate=2026-10-02T21:46:44Z match=True
+      Teams/SubTeams=('"Finance"', '"Internal Audit"') AdditionalText=Finance Internal Audit
+  160425: DisplayDate=2026-10-02T20:50:31Z UpdateDate=2026-10-02T22:05:07.488Z | LD datePosted=2026-10-02 validThrough=None employmentType="FULL_TIME"
+      identifier={"@type":"PropertyValue","name":"Uber","value":"160425"}
+      own ApplicationUrl=https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/160425/apply/email?mode=location | all ApplicationUrl values=['https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/160425/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/160425/apply/email?mode=location', '', '', '']
+      API row DisplayDate=2026-10-02T20:50:31Z match=True
+      Teams/SubTeams=('"Operations"', '"Business Operations"') AdditionalText=Operations Business Operations
+  302734: DisplayDate=2026-10-02T17:18:49Z UpdateDate=2026-10-02T18:05:07.572Z | LD datePosted=2026-10-02 validThrough=None employmentType="FULL_TIME"
+      identifier={"@type":"PropertyValue","name":"Uber","value":"302734"}
+      own ApplicationUrl=https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/302734/apply/email?mode=location | all ApplicationUrl values=['https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/302734/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/302734/apply/email?mode=location', '', '', '']
+      API row DisplayDate=2026-10-02T17:18:49Z match=True
+      Teams/SubTeams=('"Engineer"', '"Infrastructure Engineering"') AdditionalText=Engineer Infrastructure Engineering
+  302779: DisplayDate=2026-10-02T17:13:04Z UpdateDate=2026-10-02T18:05:07.566Z | LD datePosted=2026-10-02 validThrough=None employmentType="FULL_TIME"
+      identifier={"@type":"PropertyValue","name":"Uber","value":"302779"}
+      own ApplicationUrl=https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/302779/apply/email?mode=location | all ApplicationUrl values=['https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/302779/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/302779/apply/email?mode=location', '', '', '']
+      API row DisplayDate=2026-10-02T17:13:04Z match=True
+      Teams/SubTeams=('"Sales"', '"Sales Operations"') AdditionalText=Sales Sales Operations
+  303168: DisplayDate=2026-10-02T18:29:49Z UpdateDate=2026-10-02T19:05:06.134Z | LD datePosted=2026-10-02 validThrough=None employmentType="FULL_TIME"
+      identifier={"@type":"PropertyValue","name":"Uber","value":"303168"}
+      own ApplicationUrl=https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/303168/apply/email?mode=location | all ApplicationUrl values=['https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/303168/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/303168/apply/email?mode=location', '', '', '']
+      API row DisplayDate=2026-10-02T18:29:49Z match=True
+      Teams/SubTeams=('"Customer Support"', '"Customer Support"') AdditionalText=Customer Support Customer Support
+  303050: DisplayDate=2026-10-01T05:50:58Z UpdateDate=2026-10-01T07:05:07.273Z | LD datePosted=2026-10-01 validThrough=None employmentType="FULL_TIME"
+      identifier={"@type":"PropertyValue","name":"Uber","value":"303050"}
+      own ApplicationUrl=https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/303050/apply/email?mode=location | all ApplicationUrl values=['https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/303050/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/303050/apply/email?mode=location', '', '', '']
+      Teams/SubTeams=('', '') AdditionalText= 
+  302055: DisplayDate=2026-09-03T14:31:51Z UpdateDate=2026-09-03T15:05:06.195Z | LD datePosted=2026-09-03 validThrough=None employmentType="FULL_TIME"
+      identifier={"@type":"PropertyValue","name":"Uber","value":"302055"}
+      own ApplicationUrl=https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/302055/apply/email?mode=location | all ApplicationUrl values=['https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/302055/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/302055/apply/email?mode=location', '', '', '']
+      Teams/SubTeams=('"Operations"', '"Business Operations"') AdditionalText=Operations Business Operations
+  300082: DisplayDate=2026-07-21T20:27:28Z UpdateDate=2026-09-16T21:05:07.67Z | LD datePosted=2026-07-21 validThrough=None employmentType="FULL_TIME"
+      identifier={"@type":"PropertyValue","name":"Uber","value":"300082"}
+      own ApplicationUrl=https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/300082/apply/email?mode=location | all ApplicationUrl values=['https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/300082/apply/email?mode=location', 'https://iaziqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/UberCareers/jobs/preview/300082/apply/email?mode=location', '', '', '']
+      Teams/SubTeams=('"Operations"', '"Business Operations"') AdditionalText=Operations Business Operations
+
+== JSON-LD context (first payload) ==
+ld+json","dangerouslySetInnerHTML":{"__html":"$2"}}],"$L3","$L4","$L5"],["$L6","$L7","$L8"],"$L9"]}],"loading":null,"isPartial":false}
+3:["$","$a",null,{"fallback":null,"children":["$","$Lb",null,{"bg":"white","blockType":"job-page"}]}]
+f:T1819,<p>The Risk team plays a crucial role in Uber mission to keep away users from malicious intent from our system while ensuring powerful, intuitive and frictionless delightful experiences for our millions of daily users (riders, eaters, drivers, couriers, restaurants). Our continued obsession for innovation is essential to enable Uber's phenomenal growth globally as we expand into new lines of business.</p> <p>The team is full-stack and cross-functional. There will be significant, challenging problems in the Backend, Frontend, Data and ML engineering spaces, and the team will have embedded collaborators from Product Management, and Data Science.</p> <p>As part of the team, you will have direct responsibility for vital systems and processes. You will take ownership of key features and initiatives in crafting and building high-quality, scalable systems. Your work will directly impact the lives of Uberâ€™s users and operations teams across the globe.</p> <p>What You will do </p><ul> <li> <p>Direct efforts to understand requirements and translate strategically important business or technical problems into executable and extensible designs.</p></li> <li> <p>Build reliable, high-quality solutions that scale with Uber's engineering processes.</p></li> <li> <p>Deliver and review technical design, code and documentation.</p></li> <li> <p>Drive ongoing efficiency and reliability improvements through design and automation: availability, performance, scaling, monitoring and capacity.</p></li> <li> <p>Manage upstream and downstream dependencies, collaborate with other engineering teams</p></li> <li> <p>Mentor and support your fellow teammates.</p></li> <li> <p>Define standards in Coding, testing, monitoring, and alerting systems and lead team to complete them.</p></li> </ul><p>What You Will Need&nbsp; </p><ul> <li> <p>Phenomenal communication skills. We build software for people. We build software with people. You know how to write an effective technical spec, provide feedback to others, translate technical concepts into lay terms, and incorporate feedback into your efforts. You value and practice openness, empathy, kindness, and collaboration.</p></li> <li> <p>Provide initiative and technical leadership to build reliable, high-qu
+
+== own job record keys/values (first payload), Description trimmed ==
+e considered approximate estimates.</p>","image":{"id":2366,"name":"Y3A1673 31","url":"https://uber-careers-v2-cdn.happydance.website/cdn-cgi/image/format=auto/media/srncz5w1/_y3a1673-31.jpg","mediaType":"Image","altText":"a person pointing at a computer screen","width":1920,"height":1281,"crops":[]},"mastImage":{"id":2366,"name":"Y3A1673 31","url":"https://uber-careers-v2-cdn.happydance.website/cdn-cgi/image/format=auto/media/srncz5w1/_y3a1673-31.jpg","mediaType":"Image","altText":"a person pointing at a computer screen","width":1920,"height":1281,"crops":[]},"mastStrapline":null,"mastVideoUrl":null,"bodyText":{"markup":"$f","blocks":[]},"summary":"","socialShareImage":{"id":2419,"name":"DSC06474","url":"https://uber-careers-v2-cdn.happydance.website/cdn-cgi/image/format=auto/media/jc4f4zhp/dsc06474.jpg","mediaType":"Image","altText":"a group of people sitting on steps outside a building","width":1920,"height":1281,"crops":[{"url":"https://uber-careers-v2-cdn.happydance.website/cdn-cgi/image/fit=cover,width=1200,height=630,format=auto/media/jc4f4zhp/dsc06474.jpg","cropAlias":"Share","device":"All"}]},"heading":"Sr Staff Software Engineer","doNotIndex":false,"hideFromSitemap":true,"isSqueezePage":false,"metaDescription":"The Risk team plays a crucial role in Uber mission to keep away users from malicious intent from our system while ensuring powerful, intuitive and frictionless delightful experiences for our millions of daily users (riders, eaters, drivers, couriers, restaurants). Our continued obsession for innovation is essential to enable Uber's phenomenal growth globally as we expand into new lines ofâ€¦","metaKeywords":null,"metaTitle":"Sr Staff Software Engineer, Telangana, India","hideFromNavigation":true,"urlAlias":null,"embeddedScripts":[]},"cultures":{"en-us":{"path":"/en/jobs/147313/"},"es":{"path":"/en/jobs/147313/"}},"jobData":{"@odata.context":"https://us-central-production-uber-careers-ai-search.search.windows.net/indexes('uber-careers-v2-production')/$metadata#docs(*)/$entity","Description":"$10","AdditionalText":"Operations Business Operations","ApplicationUrl":"https:/…","Hash":"8AE0D2A3DFDB409258CBD2C8D955DCC5A776FDB5","QuestionsRaw":null,"Summary":null,"AdditionalDescription1":null,"AdditionalDescription2":null,"AdditionalDescription3":null,"DisplayDate":"2026-10-02T19:49:58Z","UpdateDate":"2026-10-02T20:05:07.521Z","Reference":"302964","Teams":["Operations"],"SubTeams":["Business Operations"],"ContractType":"Full time","EmploymentType":null,"WorkPattern":"Regular","ExperienceLevel":null,"Department":null,"Company":null,"Remote":false,"PrimaryLocationPoint":null,"Id":"302964","OriginalId":"[OriginalId]","Title":"Strategic Operations Associate, Catering","Salary":{"MinValue":null,"MaxValue":null,"Currency":nul
+
+== HTML page-1 rows: ids + DisplayDate ==
+   301974 2026-10-05T06:22:55Z
+   153856 2026-10-05T01:57:13Z
+   302500 2026-10-03T15:00:00Z
+   302496 2026-10-03T15:00:00Z
+   302497 2026-10-03T15:00:00Z
+   160013 2026-10-03T00:51:48Z
+   302278 2026-10-02T23:24:21Z
+   303121 2026-10-02T22:40:31Z
+   303008 2026-10-02T22:32:27Z
+   302447 2026-10-02T22:25:00Z
+
+== every /api/ path literal in JS ==
+   /api/jobs/recently-viewed
+   /api/jobs/recommendations
+   /api/jobs/search/
+   /api/jobs/subscribe/
+   /api/jobs/subscribeConfirm/
+   /api/jobs/unsubscribe/
+
+== keys in search row Locations/Identifier and Salary non-null counts ==
+  non-empty counts over 10 rows: {'Summary': 0, 'AdditionalText': 10, 'AdditionalDescription1': 0, 'QuestionsRaw': 0, 'ExperienceLevel': 0, 'WorkPattern': 10, 'ContractType': 10, 'Remote': 10}
+  Remote values: [False, False, False, False, False, False, False, False, False, False]
+  WorkPattern: ['Regular']
+  Salary MinValue non-null: 0
+  Salary.Description non-empty: 5

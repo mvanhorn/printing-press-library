@@ -1,0 +1,52 @@
+FULL: totalJobs 584 rows 584 unique 584
+WALK100: per-page [100, 100, 100, 100, 100, 84, 0] sum 584 unique 584 dups 0 missing_vs_full 0 extra_vs_full 0
+  page sha: ['11494483', '7649bd16', 'e0059b55', '1ffd6f01', 'f9c33273', 'a906c85f', 'e3b0c442']
+DEFAULT (no params): pageSize 10 first10 == full[:10]: True
+WALK p1 first10 == full[:10]: True  p1 == full[:100]: True
+walk order == full order: False
+FULL order DisplayDate non-increasing pairs: 309 of 583
+  first inversions: [(150, '2026-06-19T07:30:00Z', '2026-07-10T23:05:34Z'), (151, '2026-07-10T23:05:34Z', '2026-07-14T06:24:03Z'), (153, '2026-06-19T07:30:00Z', '2026-07-27T18:42:07Z'), (156, '2026-06-19T07:30:00Z', '2026-07-10T23:19:33Z'), (157, '2026-07-10T23:19:33Z', '2026-08-06T01:32:06Z')]
+  @search.score present: 584  monotonic non-increasing: True
+DisplayDate shapes: {'9999-99-99T99:99:99Z': 584}
+DisplayDate range: 2026-06-19T07:30:00Z -> 2026-10-05T10:05:14Z
+P2 default: totalJobs 578 ids ['302498', '302499', '302906'] headers age/xv: [('Age', '14841'), ('X-Vercel-Cache', 'STALE')]
+DEEP page 999: {'jobs': [], 'totalPages': 59, 'totalJobs': 584, 'page': 999, 'pageSize': 10}
+search=engineer          hits=221  returned=100  rows_matching=100/100  full_corpus_matching=218
+search=operations        hits=427  returned=100  rows_matching=96/100  full_corpus_matching=456
+countries=Germany        hits=22   returned=22   rows_matching=22/22  full_corpus_matching=22
+countries=United States  hits=289  returned=100  rows_matching=100/100  full_corpus_matching=289
+countries[]=Germany      hits=584  returned=100  rows_matching=4/100  full_corpus_matching=22
+countries=Germany,Canada hits=36   returned=36   rows_matching=36/36  full_corpus_matching=36
+team=Engineer            hits=111  returned=100  rows_matching=100/100  full_corpus_matching=111
+team=Finance             hits=14   returned=14   rows_matching=14/14  full_corpus_matching=14
+subTeam=Business Ops     hits=19   returned=19   rows_matching=19/19  full_corpus_matching=19
+subTeam=Customer Support hits=22   returned=22   rows_matching=22/22  full_corpus_matching=42
+contractTypes=Full time  hits=577  returned=100  rows_matching=100/100  full_corpus_matching=577
+location=Berlin          hits=12   returned=12   rows_matching=12/12  full_corpus_matching=12
+lat/lng Berlin r50       hits=12   returned=12   rows_matching=12/12  full_corpus_matching=12
+Germany in full corpus: primary=21 any=22; filter hits=22
+US in full corpus: primary=289 any=289; filter hits=289
+team Finance in full corpus: 14
+subteam Customer Support by AdditionalText suffix: 22
+corpus countries: 38 not in HAR facet list: ['Saudi Arabia']
+corpus teams not in facet: []  empty-team rows: 17
+WorkPattern: {'Fixed Term': 7, 'Regular': 549, '': 17, 'Intern': 10, 'Direct NCG Hire': 1}
+ContractType: {'Full time': 577, '': 7}
+Remote true: 0
+multi-location rows: 160 of 584
+CountryCode types: {'NoneType': 842}
+Id == Reference: 584 of 584  Id types: {'str': 584}
+Salary.Description non-empty: 301  Salary.MinValue non-null: 0
+Salary US-sentence regex matches: 228
+Descriptions with 'Cleaned Document' wrapper: 64
+empty Description: 0
+recently-viewed: {"jobs": [{"id": "302906", "title": "Senior - FRM Advisory", "url": "/en/jobs/302906", "locations": [{"Identifier": "", "City": "New York City", "Region": "New York", "Country": "United States", "CountryCode": null, "Address": "New York, NY, USA", "PostalCode": null, "LocationPoint": {"type": "Point", "coordinates": [-74.0059728, 40.7127753], "crs": {"type": "name", "properties": {"name": "EPSG:43
+recommendations: {'jobs': []}
+facets_html countries: 38
+facets_html teams: 18
+facets_html subTeams: 53
+facets_html contractTypes: 1
+facets_html workPatterns: 4
+facets_html totalJobs: 584  json-ld: False
+businessUnits nonsense 500 body: {'jobs': [], 'totalPages': 1, 'totalJobs': 0, 'error': 'Failed to search jobs'}
+cache headers on full: [('Age', '0'), ('Cache-Control', 'public'), ('Cf-Cache-Status', 'DYNAMIC'), ('Server', 'cloudflare'), ('X-Vercel-Cache', 'MISS')]

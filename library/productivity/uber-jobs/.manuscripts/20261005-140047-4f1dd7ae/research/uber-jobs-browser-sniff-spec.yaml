@@ -1,0 +1,329 @@
+name: uber-jobs
+description: Discovered API spec for jobs-uber
+version: 0.1.0
+base_url: https://jobs.uber.com
+spec_source: sniffed
+http_transport: browser-chrome-h2
+auth:
+    type: api_key
+    header: x-goog-api-key
+    format: ""
+    env_vars:
+        - JOBS_UBER_API_KEY
+    env_var_specs:
+        - name: JOBS_UBER_API_KEY
+          kind: per_call
+          required: true
+          sensitive: true
+          inferred: true
+    in: header
+auth_warnings:
+    - 'rejected auth candidate "page" from query: search input'
+config:
+    format: toml
+    path: ~/.config/uber-jobs-pp-cli/config.toml
+resources:
+    $rpc:
+        description: Operations on AutocompletePlaces
+        endpoints:
+            create_AutocompletePlaces:
+                method: POST
+                path: /$rpc/google.maps.places.v1.Places/AutocompletePlaces
+                base_url: https://places.googleapis.com
+                description: POST /$rpc/google.maps.places.v1.Places/AutocompletePlaces
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: AutocompletePlaces
+                pagination: null
+                observed_auth:
+                    - x-goog-api-key
+            create_GetPlace:
+                method: POST
+                path: /$rpc/google.maps.places.v1.Places/GetPlace
+                base_url: https://places.googleapis.com
+                description: POST /$rpc/google.maps.places.v1.Places/GetPlace
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: GetPlace
+                pagination: null
+                observed_auth:
+                    - x-goog-api-key
+    en:
+        description: Operations on jobs
+        endpoints:
+            list_jobs:
+                method: GET
+                path: /en/jobs/
+                description: Fetch structured links from /en/jobs/
+                params:
+                    - name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: pagesize
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    jobs:
+        description: Operations on recently-viewed
+        endpoints:
+            create_recently_viewed:
+                method: POST
+                path: /api/jobs/recently-viewed
+                description: POST /api/jobs/recently-viewed
+                params: []
+                body:
+                    - name: jobIds
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: locale
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: recently_viewed
+                pagination: null
+            create_recently_viewed_2:
+                method: POST
+                path: /api/jobs/recently-viewed/
+                description: POST /api/jobs/recently-viewed/
+                params: []
+                body:
+                    - name: jobIds
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: locale
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: array
+                    item: RecentlyViewedJob
+                pagination: null
+                response_path: jobs
+            list_search:
+                method: GET
+                path: /api/jobs/search/
+                description: GET /api/jobs/search/
+                params:
+                    - name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: SearchJob
+                pagination: null
+                response_path: jobs
+    manifest.webmanifest:
+        description: Operations on manifest.webmanifest
+        endpoints:
+            list_manifest.webmanifest:
+                method: GET
+                path: /manifest.webmanifest
+                description: GET /manifest.webmanifest
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: ManifestWebmanifest
+                pagination: null
+    maps:
+        description: Operations on js
+        endpoints:
+            list_gen_204:
+                method: GET
+                path: /maps/api/mapsjs/gen_204
+                base_url: https://maps.googleapis.com
+                description: GET /maps/api/mapsjs/gen_204
+                params:
+                    - name: csp_test
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: gen_204
+                pagination: null
+            list_js:
+                method: GET
+                path: /maps/api/js
+                base_url: https://maps.googleapis.com
+                description: GET /maps/api/js
+                params:
+                    - name: callback
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: key
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: libraries
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: loading
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: v
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: js
+                pagination: null
+types:
+    Location:
+        fields:
+            - name: Address
+              type: string
+            - name: City
+              type: string
+            - name: Country
+              type: string
+            - name: Identifier
+              type: string
+            - name: LocationPoint
+              type: object
+            - name: Region
+              type: string
+    Location2:
+        fields:
+            - name: Address
+              type: string
+            - name: City
+              type: string
+            - name: Country
+              type: string
+            - name: Identifier
+              type: string
+            - name: LocationPoint
+              type: object
+            - name: Region
+              type: string
+    ManifestWebmanifest:
+        fields:
+            - name: name
+              type: string
+            - name: start_url
+              type: string
+            - name: theme_color
+              type: string
+    RecentlyViewedJob:
+        fields:
+            - name: id
+              type: string
+            - name: locations
+              type: '[]ref:Location'
+            - name: teams
+              type: array
+            - name: title
+              type: string
+            - name: url
+              type: string
+    Salary:
+        fields:
+            - name: Description
+              type: string
+    SearchJob:
+        fields:
+            - name: '@search.score'
+              type: number
+            - name: AdditionalText
+              type: string
+            - name: ContractType
+              type: string
+            - name: Description
+              type: string
+            - name: DisplayDate
+              type: string
+              format: date-time
+            - name: Id
+              type: string
+            - name: Locations
+              type: '[]ref:Location2'
+            - name: Reference
+              type: string
+            - name: Remote
+              type: bool
+            - name: Salary
+              type: ref:Salary
+            - name: Teams
+              type: array
+            - name: Title
+              type: string
+            - name: Urls
+              type: '[]ref:Url'
+            - name: WorkPattern
+              type: string
+    Url:
+        fields:
+            - name: Culture
+              type: string
+            - name: IsDefault
+              type: bool
+            - name: Url
+              type: string
