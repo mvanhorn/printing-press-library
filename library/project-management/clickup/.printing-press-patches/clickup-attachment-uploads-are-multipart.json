@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "clickup-attachment-uploads-are-multipart",
+  "applied_at": "2026-10-07",
+  "base_run_id": "20260510-202319",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Attachment uploads (`task attachment create-task`, `workspaces attachments post-entity` and their typed MCP tools) send the local file as multipart/form-data via client.PostMultipart, with a required `--file` / `file_path`.",
+  "reason": "ClickUp's attachment endpoints accept only multipart/form-data; the generated commands sent a JSON body and could never upload. Upload writes are not replayed on 5xx or transport errors (an ambiguous upload may already have landed); 429 is still retried.",
+  "files": [
+    "internal/client/multipart.go",
+    "internal/client/multipart_test.go",
+    "internal/cli/task_attachment_create-task.go",
+    "internal/cli/workspaces_attachments_post-entity.go",
+    "internal/mcp/clickup_attachments.go",
+    "internal/mcp/clickup_attachments_test.go",
+    "internal/mcp/tools.go",
+    "tools-manifest.json"
+  ],
+  "call_sites": [
+    "PostMultipart(",
+    "makeMultipartUploadHandler("
+  ],
+  "validated_outcome": "httptest asserts method, path, custom_task_ids/team_id query, multipart boundary, part name `attachment`, filename, part Content-Type, exact bytes and Authorization; 5xx not retried, 429 retried; --dry-run sends nothing. Live uploads through all three paths were checked on a scratch task."
+}

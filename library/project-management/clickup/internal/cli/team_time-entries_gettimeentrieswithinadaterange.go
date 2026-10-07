@@ -24,7 +24,7 @@ func newTeamTimeEntriesGettimeentrieswithinadaterangeCmd(flags *rootFlags) *cobr
 	var flagListId float64
 	var flagTaskId string
 	var flagCustomTaskIds bool
-	var flagTeamId float64
+	var flagTeamId string
 	var flagIsBillable bool
 
 	cmd := &cobra.Command{
@@ -80,8 +80,8 @@ func newTeamTimeEntriesGettimeentrieswithinadaterangeCmd(flags *rootFlags) *cobr
 			if flagCustomTaskIds != false {
 				params["custom_task_ids"] = fmt.Sprintf("%v", flagCustomTaskIds)
 			}
-			if flagTeamId != 0.0 {
-				params["team_id"] = fmt.Sprintf("%v", flagTeamId)
+			if flagTeamId != "" {
+				params["team_id"] = flagTeamId
 			}
 			if flagIsBillable != false {
 				params["is_billable"] = fmt.Sprintf("%v", flagIsBillable)
@@ -140,7 +140,7 @@ func newTeamTimeEntriesGettimeentrieswithinadaterangeCmd(flags *rootFlags) *cobr
 	cmd.Flags().Float64Var(&flagListId, "list-id", 0.0, "Only include time entries associated with tasks in a specific List.")
 	cmd.Flags().StringVar(&flagTaskId, "task-id", "", "Only include time entries associated with a specific task.")
 	cmd.Flags().BoolVar(&flagCustomTaskIds, "custom-task-ids", false, "If you want to reference a task by it's custom task id, this value must be `true`.")
-	cmd.Flags().Float64Var(&flagTeamId, "team-id", 0.0, "When the `custom_task_ids` parameter is set to `true`, the Workspace ID must be provided using the `team_id`...")
+	cmd.Flags().StringVar(&flagTeamId, "team-id", "", "When the `custom_task_ids` parameter is set to `true`, the Workspace ID must be provided using the `team_id`...")
 	cmd.Flags().BoolVar(&flagIsBillable, "is-billable", false, "Include only billable time entries by using a value of `true` or only non-billable time entries by using a value of...")
 
 	return cmd

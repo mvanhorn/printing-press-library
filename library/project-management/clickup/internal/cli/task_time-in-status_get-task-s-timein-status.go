@@ -13,7 +13,7 @@ import (
 
 func newTaskTimeInStatusGetTaskSTimeinStatusCmd(flags *rootFlags) *cobra.Command {
 	var flagCustomTaskIds bool
-	var flagTeamId float64
+	var flagTeamId string
 
 	cmd := &cobra.Command{
 		Use:         "get-task-s-timein-status <task_id>",
@@ -36,8 +36,8 @@ func newTaskTimeInStatusGetTaskSTimeinStatusCmd(flags *rootFlags) *cobra.Command
 			if flagCustomTaskIds != false {
 				params["custom_task_ids"] = fmt.Sprintf("%v", flagCustomTaskIds)
 			}
-			if flagTeamId != 0.0 {
-				params["team_id"] = fmt.Sprintf("%v", flagTeamId)
+			if flagTeamId != "" {
+				params["team_id"] = flagTeamId
 			}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "time-in-status", false, path, params, nil)
 			if err != nil {
@@ -82,7 +82,7 @@ func newTaskTimeInStatusGetTaskSTimeinStatusCmd(flags *rootFlags) *cobra.Command
 		},
 	}
 	cmd.Flags().BoolVar(&flagCustomTaskIds, "custom-task-ids", false, "If you want to reference a task by it's custom task id, this value must be `true`.")
-	cmd.Flags().Float64Var(&flagTeamId, "team-id", 0.0, "When the `custom_task_ids` parameter is set to `true`, the Workspace ID must be provided using the `team_id`...")
+	cmd.Flags().StringVar(&flagTeamId, "team-id", "", "When the `custom_task_ids` parameter is set to `true`, the Workspace ID must be provided using the `team_id`...")
 
 	return cmd
 }

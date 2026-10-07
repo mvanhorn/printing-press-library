@@ -28,7 +28,7 @@ func newWorkspacesAttachmentsGetParentEntityCmd(flags *rootFlags) *cobra.Command
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("entity-type") {
-				allowedEntityType := []string{"attachments", "custom_fields"}
+				allowedEntityType := []string{"tasks", "custom_fields"}
 				validEntityType := false
 				for _, v := range allowedEntityType {
 					if flagEntityType == v {
@@ -47,10 +47,13 @@ func newWorkspacesAttachmentsGetParentEntityCmd(flags *rootFlags) *cobra.Command
 
 			path := "/v3/workspaces/{workspace_id}/{entity_type}/{entity_id}/attachments"
 			path = replacePathParam(path, "workspace_id", args[0])
-			if len(args) < 3 {
-				return usageErr(fmt.Errorf("entity_id is required\nUsage: %s <%s>", cmd.CommandPath(), "entity_id"))
+			// PATCH(path-param-args-index): the generated code read entity_id
+			// from args[2] of a 2-arg Use, so a correct invocation always failed with
+			// "entity_id is required"; read args[1] as post-entity does.
+			if len(args) < 2 {
+				return usageErr(fmt.Errorf("entity_id is required\nUsage: %s", cmd.UseLine()))
 			}
-			path = replacePathParam(path, "entity_id", args[2])
+			path = replacePathParam(path, "entity_id", args[1])
 			path = replacePathParam(path, "entity_type", fmt.Sprintf("%v", flagEntityType))
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "attachments", path, map[string]string{
 				"cursor": fmt.Sprintf("%v", flagCursor),
@@ -97,7 +100,10 @@ func newWorkspacesAttachmentsGetParentEntityCmd(flags *rootFlags) *cobra.Command
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagEntityType, "entity-type", "attachments", "The entity type. Options include `attachments` for tasks and `custom_fields` for a File type Custom Field. (one of: attachments, custom_fields)")
+	// PATCH(attachments-entity-type-tasks): ClickUp's spec documents `attachments`
+	// for tasks, but the live v3 API 404s on it and reports parent_entity_type
+	// "tasks"; default to `tasks`.
+	cmd.Flags().StringVar(&flagEntityType, "entity-type", "tasks", "The entity type: `tasks` for a task or `custom_fields` for a File type Custom Field. (ClickUp's docs say `attachments`; the live API expects `tasks`.) (one of: tasks, custom_fields)")
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "The cursor to use to fetch the next page of results.")
 	cmd.Flags().IntVar(&flagLimit, "limit", 50, "The maximum number of results to fetch for this page.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")

@@ -13,7 +13,7 @@ import (
 
 func newTaskCommentGetTaskCmd(flags *rootFlags) *cobra.Command {
 	var flagCustomTaskIds bool
-	var flagTeamId float64
+	var flagTeamId string
 	var flagStart int
 	var flagStartId string
 
@@ -38,8 +38,8 @@ func newTaskCommentGetTaskCmd(flags *rootFlags) *cobra.Command {
 			if flagCustomTaskIds != false {
 				params["custom_task_ids"] = fmt.Sprintf("%v", flagCustomTaskIds)
 			}
-			if flagTeamId != 0.0 {
-				params["team_id"] = fmt.Sprintf("%v", flagTeamId)
+			if flagTeamId != "" {
+				params["team_id"] = flagTeamId
 			}
 			if flagStart != 0 {
 				params["start"] = fmt.Sprintf("%v", flagStart)
@@ -90,7 +90,7 @@ func newTaskCommentGetTaskCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().BoolVar(&flagCustomTaskIds, "custom-task-ids", false, "If you want to reference a task by it's custom task id, this value must be `true`.")
-	cmd.Flags().Float64Var(&flagTeamId, "team-id", 0.0, "When the `custom_task_ids` parameter is set to `true`, the Workspace ID must be provided using the `team_id`...")
+	cmd.Flags().StringVar(&flagTeamId, "team-id", "", "When the `custom_task_ids` parameter is set to `true`, the Workspace ID must be provided using the `team_id`...")
 	cmd.Flags().IntVar(&flagStart, "start", 0, "The Unix timestamp (in milliseconds) of the reference comment. Required for pagination. Must be used in combination...")
 	cmd.Flags().StringVar(&flagStartId, "start-id", "", "The unique ID of the reference comment. Required for pagination. Must be used in combination with `start`. Value...")
 

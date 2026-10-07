@@ -50,10 +50,13 @@ func newWorkspacesAclsPublicPatchCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v3/workspaces/{workspace_id}/{object_type}/{object_id}/acls"
 			path = replacePathParam(path, "workspace_id", args[0])
-			if len(args) < 3 {
-				return usageErr(fmt.Errorf("object_id is required\nUsage: %s <%s>", cmd.CommandPath(), "object_id"))
+			// PATCH(path-param-args-index): the generated code read object_id from
+			// args[2] of a 2-arg Use (object_type comes from --object-type), so a
+			// correct invocation always failed with "object_id is required".
+			if len(args) < 2 {
+				return usageErr(fmt.Errorf("object_id is required\nUsage: %s", cmd.UseLine()))
 			}
-			path = replacePathParam(path, "object_id", args[2])
+			path = replacePathParam(path, "object_id", args[1])
 			path = replacePathParam(path, "object_type", fmt.Sprintf("%v", flagObjectType))
 			var body map[string]any
 			if stdinBody {

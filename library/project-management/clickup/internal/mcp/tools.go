@@ -837,16 +837,18 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("PUT", "/v2/task/{task_id}", []mcpParamBinding{{PublicName: "task_id", WireName: "task_id", Location: "path"}, {PublicName: "custom_task_ids", WireName: "custom_task_ids", Location: "query"}, {PublicName: "team_id", WireName: "team_id", Location: "query"}, {PublicName: "archived", WireName: "archived", Location: "body"}, {PublicName: "assignees", WireName: "assignees", Location: "body"}, {PublicName: "custom_item_id", WireName: "custom_item_id", Location: "body"}, {PublicName: "description", WireName: "description", Location: "body"}, {PublicName: "due_date", WireName: "due_date", Location: "body"}, {PublicName: "due_date_time", WireName: "due_date_time", Location: "body"}, {PublicName: "group_assignees", WireName: "group_assignees", Location: "body"}, {PublicName: "markdown_content", WireName: "markdown_content", Location: "body"}, {PublicName: "name", WireName: "name", Location: "body"}, {PublicName: "parent", WireName: "parent", Location: "body"}, {PublicName: "points", WireName: "points", Location: "body"}, {PublicName: "priority", WireName: "priority", Location: "body"}, {PublicName: "start_date", WireName: "start_date", Location: "body"}, {PublicName: "start_date_time", WireName: "start_date_time", Location: "body"}, {PublicName: "status", WireName: "status", Location: "body"}, {PublicName: "time_estimate", WireName: "time_estimate", Location: "body"}, {PublicName: "watchers", WireName: "watchers", Location: "body"}}, []string{"task_id"}),
 	)
 	s.AddTool(
+		// PATCH(multipart-attachment-upload): takes a local file_path and uploads it
+		// as multipart/form-data; the generated tool sent a JSON body.
 		mcplib.NewTool("task_attachment_create-task",
-			mcplib.WithDescription("Upload a file to a task as an attachment. Files stored in the cloud cannot be used in this API request. ***Note:** This request uses multipart/form-data as the content type.* ***Tip:** Try our new [V3 Attachments API](ref:postentityattachment), which supports both tasks and File type Custom Fields!*. Required: task_id. Optional: custom_task_ids, team_id, attachment. Returns the new CreateTaskAttachmentresponse."),
-			mcplib.WithString("task_id", mcplib.Required(), mcplib.Description("Task id")),
+			mcplib.WithDescription("Upload a local file to a task as an attachment (multipart/form-data, part `attachment`). Required: task_id, file_path (absolute local path). Optional: custom_task_ids (\"true\" to use a custom task id like PROJ-123), team_id (required with custom_task_ids). Returns the created attachment (id, title, url, ...)."),
+			mcplib.WithString("task_id", mcplib.Required(), mcplib.Description("Task id (or custom task id with custom_task_ids=true)")),
+			mcplib.WithString("file_path", mcplib.Required(), mcplib.Description("Absolute path to the local file to upload")),
 			mcplib.WithString("custom_task_ids", mcplib.Description("If you want to reference a task by its custom task id, this value must be `true`.")),
 			mcplib.WithString("team_id", mcplib.Description("When the `custom_task_ids` parameter is set to `true`, the Workspace ID must be provided...")),
-			mcplib.WithString("attachment", mcplib.Description("Attachment")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/task/{task_id}/attachment", []mcpParamBinding{{PublicName: "task_id", WireName: "task_id", Location: "path"}, {PublicName: "custom_task_ids", WireName: "custom_task_ids", Location: "query"}, {PublicName: "team_id", WireName: "team_id", Location: "query"}, {PublicName: "attachment", WireName: "attachment", Location: "body"}}, []string{"task_id"}),
+		makeMultipartUploadHandler(multipartUploadSpec{PathTemplate: "/v2/task/{task_id}/attachment", PathParams: []string{"task_id"}, QueryParams: []string{"custom_task_ids", "team_id"}}),
 	)
 	s.AddTool(
 		mcplib.NewTool("task_checklist_create",
@@ -1736,9 +1738,9 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("workspaces_attachments_get-parent-entity",
-			mcplib.WithDescription("Return a list of attachments for the specified entity, including a task or File type Custom Field. Required: workspace_id, entity_type (default: attachments), entity_id. Optional: cursor, limit (default: 50). Returns the AttachmentsPublicApiAttachmentsControllerGetParentEntityAttachments200Response."),
+			mcplib.WithDescription("Return a list of attachments for the specified entity, including a task or File type Custom Field. Required: workspace_id, entity_type (`tasks` for a task), entity_id. Optional: cursor, limit (default: 50). Returns the AttachmentsPublicApiAttachmentsControllerGetParentEntityAttachments200Response."),
 			mcplib.WithString("workspace_id", mcplib.Required(), mcplib.Description("The ID of the Workspace.")),
-			mcplib.WithString("entity_type", mcplib.Description("The entity type. Options include `attachments` for tasks and `custom_fields` for a File type Custom Field.")),
+			mcplib.WithString("entity_type", mcplib.Description("The entity type: `tasks` for a task or `custom_fields` for a File type Custom Field (ClickUp's docs say `attachments`; the live API expects `tasks`).")),
 			mcplib.WithString("entity_id", mcplib.Required(), mcplib.Description("The ID of the task or Custom Field.")),
 			mcplib.WithString("cursor", mcplib.Description("The cursor to use to fetch the next page of results.")),
 			mcplib.WithString("limit", mcplib.Description("The maximum number of results to fetch for this page.")),
@@ -1749,16 +1751,19 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("GET", "/v3/workspaces/{workspace_id}/{entity_type}/{entity_id}/attachments", []mcpParamBinding{{PublicName: "workspace_id", WireName: "workspace_id", Location: "path"}, {PublicName: "entity_type", WireName: "entity_type", Location: "path"}, {PublicName: "entity_id", WireName: "entity_id", Location: "path"}, {PublicName: "cursor", WireName: "cursor", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{"workspace_id", "entity_type", "entity_id"}),
 	)
 	s.AddTool(
+		// PATCH(multipart-attachment-upload): takes a local file_path and uploads it
+		// as multipart/form-data; the generated tool sent a JSON body.
 		mcplib.NewTool("workspaces_attachments_post-entity",
-			mcplib.WithDescription("Upload an attachment to a task or to a file type Custom Field. Once a file has been uploaded to a `custom_fields` entity, use [Set Custom Field Value](ref:SetCustomFieldValue) to associate the uploaded file with a task. To retrieve the ID of a Custom Field, you can use [Get List Custom Fields](red:GetAccessibleCustomFields) or [Get task](ref:GetTask). Required: workspace_id, entity_type (default: attachments), entity_id. Optional: filename. Returns the new AttachmentsAttachment."),
+			mcplib.WithDescription("Upload a local file (multipart/form-data, part `attachment`) to a task or to a file type Custom Field via the v3 Attachments API. Once a file has been uploaded to a `custom_fields` entity, use Set Custom Field Value to associate it with a task. Required: workspace_id, entity_id, file_path (absolute local path). Optional: entity_type (default: tasks), filename. Returns the new AttachmentsAttachment."),
 			mcplib.WithString("workspace_id", mcplib.Required(), mcplib.Description("The ID of the Workspace.")),
-			mcplib.WithString("entity_type", mcplib.Description("The entity type. Options include `attachments` for tasks or `custom_fields` for a Files Custom Field.")),
+			mcplib.WithString("entity_type", mcplib.Description("The entity type: `tasks` (default) for a task or `custom_fields` for a Files Custom Field (ClickUp's docs say `attachments`; the live API expects `tasks`).")),
 			mcplib.WithString("entity_id", mcplib.Required(), mcplib.Description("The ID of the task or Custom Field.")),
+			mcplib.WithString("file_path", mcplib.Required(), mcplib.Description("Absolute path to the local file to upload")),
 			mcplib.WithString("filename", mcplib.Description("Override the filename of the attachment")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v3/workspaces/{workspace_id}/{entity_type}/{entity_id}/attachments", []mcpParamBinding{{PublicName: "workspace_id", WireName: "workspace_id", Location: "path"}, {PublicName: "entity_type", WireName: "entity_type", Location: "path"}, {PublicName: "entity_id", WireName: "entity_id", Location: "path"}, {PublicName: "filename", WireName: "filename", Location: "body"}}, []string{"workspace_id", "entity_type", "entity_id"}),
+		makeMultipartUploadHandler(multipartUploadSpec{PathTemplate: "/v3/workspaces/{workspace_id}/{entity_type}/{entity_id}/attachments", PathParams: []string{"workspace_id", "entity_type", "entity_id"}, PathDefaults: map[string]string{"entity_type": "tasks"}, FormFields: []string{"filename"}}),
 	)
 	s.AddTool(
 		mcplib.NewTool("workspaces_auditlogs_query-audit-log",
@@ -2633,9 +2638,11 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Hierarchical Sync with Parent-ID Traversal", "command": "sync", "description": "Walks the full ClickUp hierarchy in dependency order (teams → spaces → folders → lists → tasks; teams →...", "rationale": "ClickUp's API requires a parent ID for almost every list operation. The default printing-press sync layer assumes...", "via": "mcp-command-mirror"},
-			{"name": "Empty-Envelope Sync Fix", "command": "sync", "description": "Distinguishes 'recognized envelope with empty array' from 'unrecognized response shape' so tenants with zero records...", "rationale": "Generic to any hierarchical API where some tenants legitimately have zero of a resource type. Returns an...", "via": "mcp-command-mirror"},
-			{"name": "Ergonomic v3 Aliases (docs + chat)", "command": "docs", "description": "Top-level `docs` and `chat` commands with idiomatic verbs (search, get, pages, page, listing, create, edit, send,...", "rationale": "The generator names commands after API operationIds, which preserves a 1:1 mapping back to the spec but is rough on...", "via": "mcp-command-mirror"},
+			{"name": "Hierarchical Sync with Parent-ID Traversal", "command": "sync", "description": "Walks the full ClickUp hierarchy in dependency order (teams → spaces → folders → lists → tasks; teams → docs; teams → channels) and lands every record in the local SQLite store. Every parent-child relationship in the API is traversed automatically.", "rationale": "ClickUp's API requires a parent ID for almost every list operation. The default printing-press sync layer assumes global list endpoints (/users, /repos), which fail on hierarchical APIs. The parent-traversal handler reads parent IDs from the local store, templates child paths, supports unionTargets for resources living under multiple parents (lists under both folders and spaces), and forces sequential execution so children never sync before parents.", "via": "mcp-command-mirror"},
+			{"name": "Empty-Envelope Sync Fix", "command": "sync", "description": "Distinguishes \"recognized envelope with empty array\" from \"unrecognized response shape\" so tenants with zero records of a resource type sync cleanly instead of crashing. ClickUp returns {\"spaces\":[]} for workspaces with no spaces; the original framework treated this as a singular response and tried to upsert the wrapper as a single record, failing with \"missing id for space\".", "rationale": "Generic to any hierarchical API where some tenants legitimately have zero of a resource type. Returns an empty-but-non-nil items slice when the envelope is recognized but empty, distinct from a nil slice for genuine singular responses.", "via": "mcp-command-mirror"},
+			{"name": "Ergonomic v3 Aliases (docs + chat)", "command": "docs", "description": "Top-level `docs` and `chat` commands with idiomatic verbs (search, get, pages, page, listing, create, edit, send, react, reply, members, followers, messages) replacing the spec-derived workspaces/docs/<verb>-public and workspaces/chat/get-channels paths. ~22 aliases total. Original verbs kept as Cobra aliases for back-compat.", "rationale": "The generator names commands after API operationIds, which preserves a 1:1 mapping back to the spec but is rough on humans. ClickUp's v3 docs and chat surfaces are reachable via short, memorable verbs without losing the original paths.", "via": "mcp-command-mirror"},
+			{"name": "Multipart Task Attachment Upload", "command": "task attach", "description": "Upload one or more local files to a task as real multipart/form-data (one POST per file, part field `attachment`, per-file MIME type). Accepts custom task IDs via --custom-task-ids --team-id, validates every file before sending anything, and --dry-run previews the upload without sending.", "rationale": "The generated attachment commands sent a JSON body to an endpoint that only accepts multipart/form-data, so uploads never worked. A hand-authored multipart path reuses the client's auth, headers, rate limiter and cache invalidation, and skips 5xx retries to avoid duplicate attachments.", "via": "mcp-command-mirror"},
+			{"name": "Task Attachment Listing with Comment Counts", "command": "task attachments", "description": "List a task's attachments as rows (id, title, extension, size, url, total_comments, resolved_comments, open_comments) from GET /v2/task/{id}, with custom task ID support.", "rationale": "Attachment comment counts are buried in the full task payload; open = total - resolved is what reviewers actually need. The public API exposes counts only, not comment text.", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
 			{"topic": "Hierarchical Sync with Parent-ID Traversal", "insight": "ClickUp's API requires a parent ID for almost every list operation. The default printing-press sync layer assumes global list endpoints (/users, /repos), which fail on hierarchical APIs. The parent-traversal handler reads parent IDs from the local store, templates child paths, supports unionTargets for resources living under multiple parents (lists under both folders and spaces), and forces sequential execution so children never sync before parents."},

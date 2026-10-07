@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "clickup-id-query-flags-are-strings",
+  "applied_at": "2026-06-03",
+  "base_run_id": "20260510-202319",
+  "base_printing_press_version": "4.2.2",
+  "summary": "`--team-id` query flags are strings passed through verbatim, not float64.",
+  "reason": "The spec types team_id as `number`; the generator made it float64 and serialized it with %v, so any 7-digit workspace id went out in scientific notation (e.g. 1.234567e+06) and the API answered 400 SHARD_024 `Invalid workspace id`. Applies to every command taking --team-id with --custom-task-ids.",
+  "files": [
+    "internal/cli/task_get.go",
+    "internal/cli/task_comment_get-task.go",
+    "internal/cli/task_get-bulk-timein-status.go",
+    "internal/cli/task_time-in-status_get-task-s-timein-status.go",
+    "internal/cli/task_time_gettrackedtime.go",
+    "internal/cli/team_time-entries_gettimeentrieswithinadaterange.go",
+    "internal/cli/group_get-teams1.go"
+  ],
+  "call_sites": [
+    "StringVar(&flagTeamId, \"team-id\""
+  ],
+  "validated_outcome": "`task get <custom_id> --custom-task-ids --team-id <ws>` returned 400 before and the task after; --dry-run shows team_id unchanged."
+}

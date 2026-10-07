@@ -6,29 +6,37 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"os"
+
+	"github.com/mvanhorn/printing-press-library/library/project-management/clickup/internal/client"
 
 	"github.com/spf13/cobra"
 )
 
 func newTaskAttachmentCreateTaskCmd(flags *rootFlags) *cobra.Command {
 	var flagCustomTaskIds bool
-	var flagTeamId float64
-	var bodyAttachment string
-	var stdinBody bool
+	var flagTeamId string // PATCH(multipart-attachment-upload): was float64
+	var flagFile string
 
 	cmd := &cobra.Command{
 		Use:         "create-task <task_id>",
 		Aliases:     []string{"create"},
 		Short:       "Upload a file to a task as an attachment. Files stored in the cloud cannot be used in this API request. ***Note:**...",
-		Example:     "  clickup-pp-cli task attachment create-task 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  clickup-pp-cli task attachment create-task abc123xyz --file ./report.pdf",
 		Annotations: map[string]string{"pp:endpoint": "attachment.create-task", "pp:method": "POST", "pp:path": "/v2/task/{task_id}/attachment"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			if !stdinBody {
+			// PATCH(multipart-attachment-upload): the generated body sent the file as
+			// JSON and ignored --custom-task-ids/--team-id; upload --file as
+			// multipart/form-data (part "attachment") and send the query params.
+			if flagFile == "" {
+				return usageErr(errNoFile)
+			}
+			upload, err := client.StatUploadFile(flagFile)
+			if err != nil {
+				return usageErr(err)
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -37,28 +45,8 @@ func newTaskAttachmentCreateTaskCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v2/task/{task_id}/attachment"
 			path = replacePathParam(path, "task_id", args[0])
-			var body map[string]any
-			if stdinBody {
-				stdinData, err := io.ReadAll(os.Stdin)
-				if err != nil {
-					return fmt.Errorf("reading stdin: %w", err)
-				}
-				var jsonBody map[string]any
-				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
-					return fmt.Errorf("parsing stdin JSON: %w", err)
-				}
-				body = jsonBody
-			} else {
-				body = map[string]any{}
-				if bodyAttachment != "" {
-					var parsedAttachment any
-					if err := json.Unmarshal([]byte(bodyAttachment), &parsedAttachment); err != nil {
-						return fmt.Errorf("parsing --attachment JSON: %w", err)
-					}
-					body["attachment"] = parsedAttachment
-				}
-			}
-			data, statusCode, err := c.Post(path, body)
+			params := taskIDParams(flagCustomTaskIds, flagTeamId)
+			data, statusCode, err := c.PostMultipart(path, params, "attachment", upload, nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -126,9 +114,8 @@ func newTaskAttachmentCreateTaskCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().BoolVar(&flagCustomTaskIds, "custom-task-ids", false, "If you want to reference a task by its custom task id, this value must be `true`.")
-	cmd.Flags().Float64Var(&flagTeamId, "team-id", 0.0, "When the `custom_task_ids` parameter is set to `true`, the Workspace ID must be provided using the `team_id`...")
-	cmd.Flags().StringVar(&bodyAttachment, "attachment", "", "Attachment")
-	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+	cmd.Flags().StringVar(&flagTeamId, "team-id", "", "When the `custom_task_ids` parameter is set to `true`, the Workspace ID must be provided using the `team_id`...")
+	cmd.Flags().StringVar(&flagFile, "file", "", "Path to the local file to upload (required; sent as multipart part `attachment`)")
 
 	return cmd
 }

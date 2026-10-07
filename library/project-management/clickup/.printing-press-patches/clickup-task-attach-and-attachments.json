@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "clickup-task-attach-and-attachments",
+  "applied_at": "2026-10-07",
+  "base_run_id": "20260510-202319",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Hand-authored `task attach <task_id> <file>...` (validates every file first, one multipart upload per file, --dry-run preview, uploaded/failed result with non-zero exit on failure) and `task attachments <task_id>` (attachment rows with size and total/resolved/open comment counts), registered under the generated `task` command.",
+  "reason": "Agents need to put local files onto tasks and see which attachments still carry unresolved comments; the generated surface could do neither. Both take --custom-task-ids/--team-id like `task get`.",
+  "files": [
+    "internal/cli/clickup_attachments.go",
+    "internal/cli/clickup_attachments_test.go",
+    "internal/cli/task.go"
+  ],
+  "call_sites": [
+    "newTaskAttachCmd(flags)",
+    "newTaskAttachmentsCmd(flags)"
+  ],
+  "validated_outcome": "Live read of a task with a commented PDF returned one row per attachment with open_comments = total - resolved; `task attach --dry-run` previews URL, MIME type and size without sending."
+}

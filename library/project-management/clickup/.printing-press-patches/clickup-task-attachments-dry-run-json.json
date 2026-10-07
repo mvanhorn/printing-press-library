@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "clickup-task-attachments-dry-run-json",
+  "applied_at": "2026-10-07",
+  "base_run_id": "20260510-202319",
+  "base_printing_press_version": "4.2.2",
+  "summary": "`task attach` and `task attachments` emit a JSON dry-run preview on stdout carrying dry_run:true and a non-empty `action` (the command name) plus method/url; the request preview stays on stderr.",
+  "reason": "Under --dry-run --json, `task attachments` printed nothing (then only {\"dry_run\": true}), which agents and live dogfood's dry-run contract reject (`invalid JSON`, then `empty dry-run action`).",
+  "files": [
+    "internal/cli/clickup_attachments.go",
+    "internal/cli/clickup_attachments_test.go"
+  ],
+  "call_sites": [
+    "PATCH(clickup-task-attachments-dry-run-json)"
+  ],
+  "validated_outcome": "TestTaskAttachmentsDryRunJSON asserts dry_run, action, method and url; no request is sent."
+}

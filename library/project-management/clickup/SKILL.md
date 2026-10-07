@@ -25,13 +25,15 @@ This skill drives the `clickup-pp-cli` binary. **You must verify the CLI is inst
 2. Verify: `clickup-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/project-management/clickup/cmd/clickup-pp-cli@latest
 ```
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
+
+172 endpoints across the v2 reference (Tasks, Spaces, Folders, Lists, Goals, Time Tracking, Webhooks, Comments, Custom Fields, Members, Templates, Views) and the v3 public API (Chat, Docs, Audit Logs, ACLs). Hierarchical sync walks the full workspace tree into local SQLite for offline search and analytics. Top-level `docs` and `chat` commands give you idiomatic verbs without remembering the workspaces/<verb>-public spec path.
 
 ## When to Use This CLI
 
@@ -64,6 +66,20 @@ These capabilities aren't available in any other tool for this API.
 
   ```bash
   clickup-pp-cli docs search 9017321407 --json --profile default
+  ```
+- **`task attach`** — Upload one or more local files to a task as real multipart/form-data (one POST per file, part field `attachment`, per-file MIME type). Accepts custom task IDs via --custom-task-ids --team-id, validates every file before sending anything, and --dry-run previews the upload without sending.
+
+  _Reach for this when an agent needs to put a local file (report, screenshot, export) onto a ClickUp task._
+
+  ```bash
+  clickup-pp-cli task attach abc123xyz ./report.pdf --dry-run --json
+  ```
+- **`task attachments`** — List a task's attachments as rows (id, title, extension, size, url, total_comments, resolved_comments, open_comments) from GET /v2/task/{id}, with custom task ID support.
+
+  _Reach for this to see which attached documents still have unresolved review comments._
+
+  ```bash
+  clickup-pp-cli task attachments abc123xyz --json
   ```
 
 ## Command Reference
@@ -119,6 +135,8 @@ These capabilities aren't available in any other tool for this API.
 
 **task** — Manage task
 
+- `clickup-pp-cli task attach` — Upload one or more local files to a task as attachments (multipart/form-data)
+- `clickup-pp-cli task attachments` — List a task's attachments with size, URL and comment counts (total/resolved/open)
 - `clickup-pp-cli task delete` — Delete a task from your Workspace.
 - `clickup-pp-cli task get` — View information about a task. You can only view task information of tasks you can access. Tasks with attachments...
 - `clickup-pp-cli task get-bulk-timein-status` — View how long two or more tasks have been in each status. The Total time in Status ClickApp must first be enabled by...
@@ -159,7 +177,6 @@ clickup-pp-cli which "<capability in your own words>"
 
 ## Recipes
 
-
 ### Drill from workspace to tasks
 
 ```bash
@@ -192,11 +209,25 @@ clickup-pp-cli analytics --type task --json --profile default
 
 Aggregates against the local SQLite store. After sync, no API call is needed. Counts and basic group-by work; nested-path group-by (status.status) is a known framework limitation.
 
+### Attach a local file to a task by custom ID
+
+```bash
+clickup-pp-cli task attach PROJ-123 ./report.pdf --custom-task-ids --team-id 1234567 --agent
+```
+
+Uploads report.pdf as multipart/form-data. Add --dry-run first to preview the URL, MIME type and size without sending.
+
+### Find attachments with open review comments
+
+```bash
+clickup-pp-cli task attachments PROJ-123 --custom-task-ids --team-id 1234567 --json --select title,total_comments,resolved_comments,open_comments
+```
+
+open_comments = total - resolved. Comment text is not exposed by the public API, only counts.
+
 ## Auth Setup
 
 ClickUp accepts both personal API tokens (pk_...) and OAuth bearer tokens via the Authorization header. Set CLICKUP_AUTHORIZATION_TOKEN in your shell or in ~/.config/clickup-pp-cli/config.toml. Run `clickup-pp-cli doctor` to verify auth and API reachability.
-
-Run `clickup-pp-cli doctor` to verify setup.
 
 ## Agent Mode
 

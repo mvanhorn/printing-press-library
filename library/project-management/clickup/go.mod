@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/project-management/clickup
 
-go 1.26.5
+go 1.26.8
 
 require (
 	github.com/pelletier/go-toml/v2 v2.2.4

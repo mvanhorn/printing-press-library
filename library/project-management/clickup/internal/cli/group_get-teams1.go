@@ -12,7 +12,7 @@ import (
 )
 
 func newGroupGetTeams1Cmd(flags *rootFlags) *cobra.Command {
-	var flagTeamId float64
+	var flagTeamId string
 	var flagGroupIds string
 
 	cmd := &cobra.Command{
@@ -32,8 +32,8 @@ func newGroupGetTeams1Cmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v2/group"
 			params := map[string]string{}
-			if flagTeamId != 0.0 {
-				params["team_id"] = fmt.Sprintf("%v", flagTeamId)
+			if flagTeamId != "" {
+				params["team_id"] = flagTeamId
 			}
 			if flagGroupIds != "" {
 				params["group_ids"] = fmt.Sprintf("%v", flagGroupIds)
@@ -80,7 +80,7 @@ func newGroupGetTeams1Cmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().Float64Var(&flagTeamId, "team-id", 0.0, "Workspace ID. **Note**: For this endpoint, `team_id`` is a required query parameter.")
+	cmd.Flags().StringVar(&flagTeamId, "team-id", "", "Workspace ID. **Note**: For this endpoint, `team_id`` is a required query parameter.")
 	cmd.Flags().StringVar(&flagGroupIds, "group-ids", "", "Enter one or more User Group IDs to retrieve information about specific User Group(s). For example:...")
 
 	return cmd

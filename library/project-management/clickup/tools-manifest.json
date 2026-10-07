@@ -2351,7 +2351,7 @@
     },
     {
       "name": "task_attachment_create-task",
-      "description": "Upload a file to a task as an attachment. Files stored in the cloud cannot be used in this API request. ***Note:** This request uses multipart/form-data as the content type.* ***Tip:** Try our new [V3 Attachments API](ref:postentityattachment), which supports both tasks and File type Custom Fields!*. Required: task_id. Optional: custom_task_ids, team_id, attachment. Returns the new CreateTaskAttachmentresponse.",
+      "description": "Upload a local file to a task as an attachment (multipart/form-data, part `attachment`). Required: task_id, file_path (absolute local path). Optional: custom_task_ids, team_id. Returns the created attachment.",
       "method": "POST",
       "path": "/v2/task/{task_id}/attachment",
       "params": [
@@ -2370,15 +2370,16 @@
         },
         {
           "name": "team_id",
-          "type": "float",
+          "type": "string",
           "location": "query",
           "description": "When the `custom_task_ids` parameter is set to `true`, the Workspace ID must be provided..."
         },
         {
-          "name": "attachment",
-          "type": "array",
-          "location": "body",
-          "description": "Attachment"
+          "name": "file_path",
+          "type": "string",
+          "location": "multipart_file",
+          "description": "Absolute path to the local file to upload (sent as multipart part `attachment`)",
+          "required": true
         }
       ]
     },
@@ -4885,7 +4886,7 @@
     },
     {
       "name": "workspaces_attachments_get-parent-entity",
-      "description": "Return a list of attachments for the specified entity, including a task or File type Custom Field. Required: workspace_id, entity_type (default: attachments), entity_id. Optional: cursor, limit (default: 50). Returns the AttachmentsPublicApiAttachmentsControllerGetParentEntityAttachments200Response.",
+      "description": "Return a list of attachments for the specified entity, including a task or File type Custom Field. Required: workspace_id, entity_type (`tasks` for a task), entity_id. Optional: cursor, limit (default: 50). Returns the AttachmentsPublicApiAttachmentsControllerGetParentEntityAttachments200Response.",
       "method": "GET",
       "path": "/v3/workspaces/{workspace_id}/{entity_type}/{entity_id}/attachments",
       "params": [
@@ -4900,7 +4901,7 @@
           "name": "entity_type",
           "type": "string",
           "location": "path",
-          "description": "The entity type. Options include `attachments` for tasks and `custom_fields` for a File type Custom Field."
+          "description": "The entity type: `tasks` for a task or `custom_fields` for a File type Custom Field (ClickUp's docs say `attachments`; the live API expects `tasks`)."
         },
         {
           "name": "entity_id",
@@ -4925,7 +4926,7 @@
     },
     {
       "name": "workspaces_attachments_post-entity",
-      "description": "Upload an attachment to a task or to a file type Custom Field. Once a file has been uploaded to a `custom_fields` entity, use [Set Custom Field Value](ref:SetCustomFieldValue) to associate the uploaded file with a task. To retrieve the ID of a Custom Field, you can use [Get List Custom Fields](red:GetAccessibleCustomFields) or [Get task](ref:GetTask). Required: workspace_id, entity_type (default: attachments), entity_id. Optional: filename. Returns the new AttachmentsAttachment.",
+      "description": "Upload a local file (multipart/form-data, part `attachment`) to a task or to a file type Custom Field via the v3 Attachments API. Required: workspace_id, entity_id, file_path (absolute local path). Optional: entity_type (default: tasks), filename. Returns the new AttachmentsAttachment.",
       "method": "POST",
       "path": "/v3/workspaces/{workspace_id}/{entity_type}/{entity_id}/attachments",
       "params": [
@@ -4940,7 +4941,7 @@
           "name": "entity_type",
           "type": "string",
           "location": "path",
-          "description": "The entity type. Options include `attachments` for tasks or `custom_fields` for a Files Custom Field."
+          "description": "The entity type: `tasks` (default) for a task or `custom_fields` for a Files Custom Field (ClickUp's docs say `attachments`; the live API expects `tasks`)."
         },
         {
           "name": "entity_id",
@@ -4952,8 +4953,15 @@
         {
           "name": "filename",
           "type": "string",
-          "location": "body",
+          "location": "form",
           "description": "Override the filename of the attachment"
+        },
+        {
+          "name": "file_path",
+          "type": "string",
+          "location": "multipart_file",
+          "description": "Absolute path to the local file to upload (sent as multipart part `attachment`)",
+          "required": true
         }
       ]
     },

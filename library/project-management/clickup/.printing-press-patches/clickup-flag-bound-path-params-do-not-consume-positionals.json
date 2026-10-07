@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "clickup-flag-bound-path-params-do-not-consume-positionals",
+  "applied_at": "2026-10-07",
+  "base_run_id": "20260510-202319",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Commands whose middle path param comes from a flag (`--entity-type`, `--object-type`) read the next path id from args[1], not args[2].",
+  "reason": "`workspaces attachments get-parent-entity`, `post-entity` and `acls public-patch` declare two positionals but required three and read args[2], so every correct invocation failed with `<id> is required`.",
+  "files": [
+    "internal/cli/workspaces_attachments_get-parent-entity.go",
+    "internal/cli/workspaces_acls_public-patch.go",
+    "internal/cli/workspaces_attachments_post-entity.go"
+  ],
+  "call_sites": [
+    "replacePathParam(path, \"entity_id\", args[1])"
+  ],
+  "validated_outcome": "Live `workspaces attachments get-parent-entity <workspace_id> <task_id>` returns the task's attachments; `acls public-patch --dry-run` builds /v3/workspaces/<ws>/<object_type>/<id>/acls."
+}

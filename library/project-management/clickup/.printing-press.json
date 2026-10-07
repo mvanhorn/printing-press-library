@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "generated_at": "2026-05-11T01:34:46.302312Z",
   "printing_press_version": "4.2.2",
   "api_name": "clickup",
@@ -9,6 +9,12 @@
     "handle": "kjmagnan1s",
     "name": "Kevin Magnan"
   },
+  "contributors": [
+    {
+      "handle": "ddubyah",
+      "name": "Darren Wallace"
+    }
+  ],
   "owner": "kevin-magnan",
   "printer": "kjmagnan1s",
   "printer_name": "Kevin Magnan",
@@ -17,6 +23,7 @@
   "spec_format": "openapi3",
   "spec_checksum": "sha256:3354e591a442dc0e575396fcb4b6e2e72bdb9c51fcd3543125acee207e054677",
   "run_id": "20260510-202319",
+  "category": "project-management",
   "mcp_binary": "clickup-pp-mcp",
   "mcp_tool_count": 172,
   "mcp_ready": "full",
@@ -54,6 +61,24 @@
       "rationale": "The generator names commands after API operationIds, which preserves a 1:1 mapping back to the spec but is rough on humans. ClickUp's v3 docs and chat surfaces are reachable via short, memorable verbs without losing the original paths.",
       "example": "clickup-pp-cli docs search 9017321407 --json --profile default",
       "why_it_matters": "Reach for `docs search`, `chat list`, `chat send` directly instead of remembering the deeply-nested workspaces tree. Especially useful when scripting against v3 endpoints.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Multipart Task Attachment Upload",
+      "command": "task attach",
+      "description": "Upload one or more local files to a task as real multipart/form-data (one POST per file, part field `attachment`, per-file MIME type). Accepts custom task IDs via --custom-task-ids --team-id, validates every file before sending anything, and --dry-run previews the upload without sending.",
+      "rationale": "The generated attachment commands sent a JSON body to an endpoint that only accepts multipart/form-data, so uploads never worked. A hand-authored multipart path reuses the client's auth, headers, rate limiter and cache invalidation, and skips 5xx retries to avoid duplicate attachments.",
+      "example": "clickup-pp-cli task attach abc123xyz ./report.pdf --dry-run --json",
+      "why_it_matters": "Reach for this when an agent needs to put a local file (report, screenshot, export) onto a ClickUp task.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Task Attachment Listing with Comment Counts",
+      "command": "task attachments",
+      "description": "List a task's attachments as rows (id, title, extension, size, url, total_comments, resolved_comments, open_comments) from GET /v2/task/{id}, with custom task ID support.",
+      "rationale": "Attachment comment counts are buried in the full task payload; open = total - resolved is what reviewers actually need. The public API exposes counts only, not comment text.",
+      "example": "clickup-pp-cli task attachments abc123xyz --json",
+      "why_it_matters": "Reach for this to see which attached documents still have unresolved review comments.",
       "group": "Agent-native plumbing"
     }
   ]

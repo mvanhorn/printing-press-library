@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "clickup-which-index-tracks-novel-features",
+  "applied_at": "2026-10-07",
+  "base_run_id": "20260510-202319",
+  "base_printing_press_version": "4.2.2",
+  "summary": "`which` index rows exist for every manifest novel feature, including the hand-authored `task attach` and `task attachments`.",
+  "reason": "whichIndex is rendered from novel_features only at generation time, so novel commands added after the print were listed in --help and agent-context but `which attach` / `which upload` returned no match.",
+  "files": [
+    "internal/cli/which.go",
+    "internal/cli/which_novel_features_test.go"
+  ],
+  "call_sites": [
+    "{Command: \"task attach\"",
+    "{Command: \"task attachments\""
+  ],
+  "validated_outcome": "TestWhichIndexCoversManifestNovelFeatures and TestWhichResolvesAttachmentQueries fail without the rows and pass with them; `which attach`/`which upload` return task attach, `which attachments` returns task attachments."
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "clickup-alias-examples-use-alias-path",
+  "applied_at": "2026-10-07",
+  "base_run_id": "20260510-202319",
+  "base_printing_press_version": "4.2.2",
+  "summary": "The `docs` and `chat` alias commands rewrite their Examples to the alias path (`clickup-pp-cli chat list <id>`) instead of keeping the spec-derived `workspaces chat` prefix with the alias verb.",
+  "reason": "renameForAlias swapped only the verb, so every alias Example read like `clickup-pp-cli workspaces chat list <id>`, a path that does not exist. Help output showed users a command that fails, and live dogfood marked all 27 alias commands as having no runnable example.",
+  "files": [
+    "internal/cli/clickup_aliases.go",
+    "internal/cli/clickup_aliases_test.go"
+  ],
+  "call_sites": [
+    "PATCH(clickup-alias-examples-use-alias-path)",
+    "renameForAlias(c, \"chat\", p.newVerb, p.oldVerb)"
+  ],
+  "validated_outcome": "TestAliasExamplesUseAliasPath fails on all 27 alias commands without the rewrite and passes with it."
+}

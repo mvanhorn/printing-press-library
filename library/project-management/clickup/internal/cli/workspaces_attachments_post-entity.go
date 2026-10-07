@@ -6,8 +6,9 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"os"
+
+	"github.com/mvanhorn/printing-press-library/library/project-management/clickup/internal/client"
 
 	"github.com/spf13/cobra"
 )
@@ -15,20 +16,20 @@ import (
 func newWorkspacesAttachmentsPostEntityCmd(flags *rootFlags) *cobra.Command {
 	var flagEntityType string
 	var bodyFilename string
-	var stdinBody bool
+	var flagFile string
 
 	cmd := &cobra.Command{
 		Use:         "post-entity <workspace_id> <entity_id>",
 		Aliases:     []string{"create"},
 		Short:       "Upload an attachment to a task or to a file type Custom Field. Once a file has been uploaded to a `custom_fields`...",
-		Example:     "  clickup-pp-cli workspaces attachments post-entity 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  clickup-pp-cli workspaces attachments post-entity 1234567 abc123xyz --file ./report.pdf",
 		Annotations: map[string]string{"pp:endpoint": "attachments.post-entity", "pp:method": "POST", "pp:path": "/v3/workspaces/{workspace_id}/{entity_type}/{entity_id}/attachments"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("entity-type") {
-				allowedEntityType := []string{"attachments", "custom_fields"}
+				allowedEntityType := []string{"tasks", "custom_fields"}
 				validEntityType := false
 				for _, v := range allowedEntityType {
 					if flagEntityType == v {
@@ -40,7 +41,18 @@ func newWorkspacesAttachmentsPostEntityCmd(flags *rootFlags) *cobra.Command {
 					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "entity-type", flagEntityType, allowedEntityType)
 				}
 			}
-			if !stdinBody {
+			// PATCH(multipart-attachment-upload): the generated body sent JSON and read
+			// entity_id from args[2] of a 2-arg Use; upload --file as multipart/form-data
+			// (part "attachment", optional "filename" field) and read args[1].
+			if len(args) < 2 {
+				return usageErr(fmt.Errorf("entity_id is required\nUsage: %s", cmd.UseLine()))
+			}
+			if flagFile == "" {
+				return usageErr(errNoFile)
+			}
+			upload, err := client.StatUploadFile(flagFile)
+			if err != nil {
+				return usageErr(err)
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -49,29 +61,9 @@ func newWorkspacesAttachmentsPostEntityCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v3/workspaces/{workspace_id}/{entity_type}/{entity_id}/attachments"
 			path = replacePathParam(path, "workspace_id", args[0])
-			if len(args) < 3 {
-				return usageErr(fmt.Errorf("entity_id is required\nUsage: %s <%s>", cmd.CommandPath(), "entity_id"))
-			}
-			path = replacePathParam(path, "entity_id", args[2])
+			path = replacePathParam(path, "entity_id", args[1])
 			path = replacePathParam(path, "entity_type", fmt.Sprintf("%v", flagEntityType))
-			var body map[string]any
-			if stdinBody {
-				stdinData, err := io.ReadAll(os.Stdin)
-				if err != nil {
-					return fmt.Errorf("reading stdin: %w", err)
-				}
-				var jsonBody map[string]any
-				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
-					return fmt.Errorf("parsing stdin JSON: %w", err)
-				}
-				body = jsonBody
-			} else {
-				body = map[string]any{}
-				if bodyFilename != "" {
-					body["filename"] = bodyFilename
-				}
-			}
-			data, statusCode, err := c.Post(path, body)
+			data, statusCode, err := c.PostMultipart(path, nil, "attachment", upload, map[string]string{"filename": bodyFilename})
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -138,9 +130,12 @@ func newWorkspacesAttachmentsPostEntityCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagEntityType, "entity-type", "attachments", "The entity type. Options include `attachments` for tasks or `custom_fields` for a Files Custom Field. (one of: attachments, custom_fields)")
+	// PATCH(attachments-entity-type-tasks): ClickUp's spec documents `attachments`
+	// for tasks, but the live v3 API 404s on it and reports parent_entity_type
+	// "tasks"; default to `tasks`.
+	cmd.Flags().StringVar(&flagEntityType, "entity-type", "tasks", "The entity type: `tasks` for a task or `custom_fields` for a Files Custom Field. (ClickUp's docs say `attachments`; the live API expects `tasks`.) (one of: tasks, custom_fields)")
 	cmd.Flags().StringVar(&bodyFilename, "filename", "", "Override the filename of the attachment")
-	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+	cmd.Flags().StringVar(&flagFile, "file", "", "Path to the local file to upload (required; sent as multipart part `attachment`)")
 
 	return cmd
 }

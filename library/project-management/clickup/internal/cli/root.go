@@ -90,12 +90,17 @@ Highlights (not in the official API docs):
   • sync   Walks the full ClickUp hierarchy in dependency order (teams → spaces → folders → lists → tasks; teams → docs; teams → channels) and lands every record in the local SQLite store. Every parent-child re…
   • sync   Distinguishes "recognized envelope with empty array" from "unrecognized response shape" so tenants with zero records of a resource type sync cleanly instead of crashing. ClickUp returns {"spaces":[]}…
   • docs   Top-level 'docs' and 'chat' commands with idiomatic verbs (search, get, pages, page, listing, create, edit, send, react, reply, members, followers, messages) replacing the spec-derived workspaces/doc…
+  • task attach   Upload one or more local files to a task as real multipart/form-data (one POST per file, part field 'attachment', per-file MIME type). Accepts custom task IDs via --custom-task-ids --team-id, validat…
+  • task attachments   List a task's attachments as rows (id, title, extension, size, url, total_comments, resolved_comments, open_comments) from GET /v2/task/{id}, with custom task ID support.
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
 Health check: run 'clickup-pp-cli doctor' to verify auth and connectivity.
 See README.md or the bundled SKILL.md for recipes.`,
 		SilenceUsage: true,
-		Version:      version,
+		// PATCH(clickup-errors-print-once): main.go prints the returned error;
+		// letting Cobra print it too showed every error twice.
+		SilenceErrors: true,
+		Version:       version,
 	}
 	rootCmd.SetVersionTemplate("clickup-pp-cli {{ .Version }}\n")
 

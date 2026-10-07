@@ -29,5 +29,8 @@ func newTaskCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newTaskTagCmd(flags))
 	cmd.AddCommand(newTaskTimeCmd(flags))
 	cmd.AddCommand(newTaskTimeInStatusCmd(flags))
+	// PATCH(task-attach-and-attachments): hand-authored commands in clickup_attachments.go
+	cmd.AddCommand(newTaskAttachCmd(flags))
+	cmd.AddCommand(newTaskAttachmentsCmd(flags))
 	return cmd
 }

@@ -13,7 +13,7 @@ import (
 
 func newTaskGetCmd(flags *rootFlags) *cobra.Command {
 	var flagCustomTaskIds bool
-	var flagTeamId float64
+	var flagTeamId string
 	var flagIncludeSubtasks bool
 	var flagIncludeMarkdownDescription bool
 	var flagCustomFields string
@@ -38,8 +38,8 @@ func newTaskGetCmd(flags *rootFlags) *cobra.Command {
 			if flagCustomTaskIds != false {
 				params["custom_task_ids"] = fmt.Sprintf("%v", flagCustomTaskIds)
 			}
-			if flagTeamId != 0.0 {
-				params["team_id"] = fmt.Sprintf("%v", flagTeamId)
+			if flagTeamId != "" {
+				params["team_id"] = flagTeamId
 			}
 			if flagIncludeSubtasks != false {
 				params["include_subtasks"] = fmt.Sprintf("%v", flagIncludeSubtasks)
@@ -93,7 +93,7 @@ func newTaskGetCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().BoolVar(&flagCustomTaskIds, "custom-task-ids", false, "If you want to reference a task by its custom task id, this value must be `true`.")
-	cmd.Flags().Float64Var(&flagTeamId, "team-id", 0.0, "When the `custom_task_ids` parameter is set to `true`, the Workspace ID must be provided using the `team_id`...")
+	cmd.Flags().StringVar(&flagTeamId, "team-id", "", "When the `custom_task_ids` parameter is set to `true`, the Workspace ID must be provided using the `team_id`...")
 	cmd.Flags().BoolVar(&flagIncludeSubtasks, "include-subtasks", false, "Include subtasks, default false")
 	cmd.Flags().BoolVar(&flagIncludeMarkdownDescription, "include-markdown-description", false, "To return task descriptions in Markdown format, use `?include_markdown_description=true`.")
 	cmd.Flags().StringVar(&flagCustomFields, "custom-fields", "", "Include tasks with specific values in one or more Custom Fields. Custom Relationships are included. For example:...")

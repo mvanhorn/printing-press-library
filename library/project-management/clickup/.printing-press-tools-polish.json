@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-10-07T14:05:19.626216Z",
+  "cli_dir": "\u003ccli-dir\u003e/clickup",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 272,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard version command printing the binary name and version string; brief but precise for agents"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-10-07T13:57:28.286434Z"
+  }
+}

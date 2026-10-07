@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "clickup-errors-print-once",
+  "applied_at": "2026-10-07",
+  "base_run_id": "20260510-202319",
+  "base_printing_press_version": "4.2.2",
+  "summary": "The root command sets SilenceErrors so a returned error is printed once, by main.go.",
+  "reason": "Cobra printed `Error: <msg>` and main.go printed `<msg>` again, so every failing command (usage errors, API errors, unknown flags) showed its error twice. The same root template appears in most published CLIs.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/root_errors_test.go"
+  ],
+  "call_sites": [
+    "SilenceErrors: true"
+  ],
+  "validated_outcome": "TestRootCommandDoesNotPrintReturnedErrors fails without the flag (3 cases) and passes with it."
+}

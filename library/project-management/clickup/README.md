@@ -171,6 +171,70 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   clickup-pp-cli docs search 9017321407 --json --profile default
   ```
+- **`task attach`** — Upload one or more local files to a task as real multipart/form-data (one POST per file, part field `attachment`, per-file MIME type). Accepts custom task IDs via --custom-task-ids --team-id, validates every file before sending anything, and --dry-run previews the upload without sending.
+
+  _Reach for this when an agent needs to put a local file (report, screenshot, export) onto a ClickUp task._
+
+  ```bash
+  clickup-pp-cli task attach abc123xyz ./report.pdf --dry-run --json
+  ```
+- **`task attachments`** — List a task's attachments as rows (id, title, extension, size, url, total_comments, resolved_comments, open_comments) from GET /v2/task/{id}, with custom task ID support.
+
+  _Reach for this to see which attached documents still have unresolved review comments._
+
+  ```bash
+  clickup-pp-cli task attachments abc123xyz --json
+  ```
+
+## Recipes
+
+### Drill from workspace to tasks
+
+```bash
+clickup-pp-cli team space get <team_id> --json --profile default
+```
+
+Get every space ID under a workspace. Pipe into space folder get / space list get-folderless to descend further.
+
+### Compact JSON for agent context
+
+```bash
+clickup-pp-cli task get <task_id> --select id,name,status.status,assignees --profile default --agent
+```
+
+--agent enables JSON+compact+no-input+no-color+yes for one flag. --select narrows to high-gravity fields, keeping the response under 1KB even on rich tasks.
+
+### Send a chat message via the v3 alias
+
+```bash
+clickup-pp-cli workspaces chat create-message <team_id> <channel_id> --type message --content "shipped: rate-limit fix" --json --profile default
+```
+
+The unambiguous full path. The shorter `chat send` alias maps to this same endpoint. ClickUp returns the new message id under .data.id for use in chat react / chat reply.
+
+### Local analytics on synced tasks
+
+```bash
+clickup-pp-cli analytics --type task --json --profile default
+```
+
+Aggregates against the local SQLite store. After sync, no API call is needed. Counts and basic group-by work; nested-path group-by (status.status) is a known framework limitation.
+
+### Attach a local file to a task by custom ID
+
+```bash
+clickup-pp-cli task attach PROJ-123 ./report.pdf --custom-task-ids --team-id 1234567 --agent
+```
+
+Uploads report.pdf as multipart/form-data. Add --dry-run first to preview the URL, MIME type and size without sending.
+
+### Find attachments with open review comments
+
+```bash
+clickup-pp-cli task attachments PROJ-123 --custom-task-ids --team-id 1234567 --json --select title,total_comments,resolved_comments,open_comments
+```
+
+open_comments = total - resolved. Comment text is not exposed by the public API, only counts.
 
 ## Usage
 
@@ -278,6 +342,8 @@ Manage space
 
 Manage task
 
+- **`clickup-pp-cli task attach`** - Upload one or more local files to a task as attachments (multipart/form-data).
+- **`clickup-pp-cli task attachments`** - List a task's attachments with size, URL and comment counts (total/resolved/open).
 - **`clickup-pp-cli task delete`** - Delete a task from your Workspace.
 - **`clickup-pp-cli task get`** - View information about a task. You can only view task information of tasks you can access. \
  \
@@ -382,7 +448,6 @@ Environment variables:
 - Run the `list` command to see available items
 
 ### API-specific
-
 - **doctor reports API reachable (HTTP 404 at /)** — Expected. ClickUp returns 404 on the root path; doctor confirms reachability via the response, not the status code.
 - **sync errors with "with_message_since must be a number string" on v3 chat** — ClickUp's v3 chat expects a Unix epoch number, not the ISO timestamp the framework sends on incremental sync. Run `sync --full` to clear the cursor and avoid the since parameter.
 - **sync writes records under the wrong resource_type after a previous run with different naming** — The resources table primary key is `id` alone, not (id, resource_type). Delete stale rows: sqlite3 ~/.local/share/clickup-pp-cli/data.db "DELETE FROM resources WHERE resource_type='<old-name>';" then re-sync.

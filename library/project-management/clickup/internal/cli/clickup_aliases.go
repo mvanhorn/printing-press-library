@@ -6,6 +6,8 @@
 // That naming preserves a 1:1 mapping back to the spec but is rough on humans.
 // This file adds parallel top-level `docs` and `chat` commands with shorter,
 // more idiomatic verbs while leaving the originals intact for back-compat.
+//
+// pp:data-source auto
 
 package cli
 
@@ -17,9 +19,12 @@ import (
 
 // renameForAlias rewrites a command's Use/Example to the alias verb while
 // keeping the original verb as a Cobra alias so old muscle memory still works.
-func renameForAlias(cmd *cobra.Command, newVerb, oldVerb string) {
+// PATCH(clickup-alias-examples-use-alias-path): Examples also drop the
+// `workspaces <group>` prefix so they invoke the alias path that exists.
+func renameForAlias(cmd *cobra.Command, group, newVerb, oldVerb string) {
 	cmd.Use = strings.Replace(cmd.Use, oldVerb, newVerb, 1)
 	cmd.Example = strings.ReplaceAll(cmd.Example, " "+oldVerb+" ", " "+newVerb+" ")
+	cmd.Example = strings.ReplaceAll(cmd.Example, " workspaces "+group+" "+newVerb+" ", " "+group+" "+newVerb+" ")
 	cmd.Aliases = append(cmd.Aliases, oldVerb)
 }
 
@@ -41,35 +46,35 @@ func newDocsAliasCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	search := newWorkspacesDocsSearchPublicCmd(flags)
-	renameForAlias(search, "search", "search-public")
+	renameForAlias(search, "docs", "search", "search-public")
 	cmd.AddCommand(search)
 
 	get := newWorkspacesDocsGetPublicCmd(flags)
-	renameForAlias(get, "get", "get-public")
+	renameForAlias(get, "docs", "get", "get-public")
 	cmd.AddCommand(get)
 
 	pages := newWorkspacesDocsGetPagesPublicCmd(flags)
-	renameForAlias(pages, "pages", "get-pages-public")
+	renameForAlias(pages, "docs", "pages", "get-pages-public")
 	cmd.AddCommand(pages)
 
 	page := newWorkspacesDocsGetPagePublicCmd(flags)
-	renameForAlias(page, "page", "get-page-public")
+	renameForAlias(page, "docs", "page", "get-page-public")
 	cmd.AddCommand(page)
 
 	listing := newWorkspacesDocsGetPageListingPublicCmd(flags)
-	renameForAlias(listing, "listing", "get-page-listing-public")
+	renameForAlias(listing, "docs", "listing", "get-page-listing-public")
 	cmd.AddCommand(listing)
 
 	create := newWorkspacesDocsCreatePublicCmd(flags)
-	renameForAlias(create, "create", "create-public")
+	renameForAlias(create, "docs", "create", "create-public")
 	cmd.AddCommand(create)
 
 	newPage := newWorkspacesDocsCreatePagePublicCmd(flags)
-	renameForAlias(newPage, "new-page", "create-page-public")
+	renameForAlias(newPage, "docs", "new-page", "create-page-public")
 	cmd.AddCommand(newPage)
 
 	edit := newWorkspacesDocsEditPagePublicCmd(flags)
-	renameForAlias(edit, "edit", "edit-page-public")
+	renameForAlias(edit, "docs", "edit", "edit-page-public")
 	cmd.AddCommand(edit)
 
 	return cmd
@@ -131,7 +136,7 @@ func newChatAliasCmd(flags *rootFlags) *cobra.Command {
 
 	for _, p := range pairs {
 		c := p.build(flags)
-		renameForAlias(c, p.newVerb, p.oldVerb)
+		renameForAlias(c, "chat", p.newVerb, p.oldVerb)
 		cmd.AddCommand(c)
 	}
 
