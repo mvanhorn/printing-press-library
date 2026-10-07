@@ -143,3 +143,46 @@ func TestSecondRefreshKeepsAndUpdatesMarker(t *testing.T) {
 		t.Errorf("marker after a refresh without the field = %+v, want it kept", v)
 	}
 }
+
+// staleMarker backdates a work's marker to a year before the current one.
+func staleMarker(t *testing.T, db *sql.DB, workID string) {
+	t.Helper()
+	if _, err := db.Exec(`UPDATE lancet_works SET counts_synced_at = '2000-01-01T00:00:00Z' WHERE work_id = ?`, workID); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// f) a marker from before the current year is no-data, like an unsynced work.
+func TestVelocityStaleMarkerIsNullAndSortsLast(t *testing.T) {
+	y := time.Now().UTC().Year()
+	db := velDB(t,
+		velSeed{id: "1", title: "Rate stale high", pubYear: 2015, cited: 900, counts: map[int]int{y - 1: 500, y - 2: 500, y - 3: 500}},
+		velSeed{id: "2", title: "Rate fresh low", pubYear: 2015, cited: 5, counts: map[int]int{y - 1: 1}},
+	)
+	staleMarker(t, db, "W1")
+	rows := mustVelCurate(t, db, "velocity", 10)
+	if len(rows) != 2 {
+		t.Fatalf("rows = %d, want 2", len(rows))
+	}
+	by := byTitle(rows)
+	wantField(t, "stale", by["Rate stale high"], "velocity", nil)
+	wantField(t, "stale", by["Rate stale high"], "citations_last_year", nil)
+	wantField(t, "stale", by["Rate stale high"], "acceleration", nil)
+	if rows[0]["title"] != "Rate fresh low" || rows[1]["title"] != "Rate stale high" {
+		t.Fatalf("order = %v, %v; want the fresh work first", rows[0]["title"], rows[1]["title"])
+	}
+}
+
+// g) the coverage helper behind the notice counts a stale work as not current.
+func TestVelocityCoverageCountsStaleAsNotCurrent(t *testing.T) {
+	y := time.Now().UTC().Year()
+	db := velDB(t,
+		velSeed{id: "1", title: "Rate stale", pubYear: 2015, counts: map[int]int{y - 1: 5}},
+		velSeed{id: "2", title: "Rate fresh", pubYear: 2015, counts: map[int]int{y - 1: 1}},
+	)
+	staleMarker(t, db, "W1")
+	m, n, err := VelocityCoverage(context.Background(), db, "rate", "", false)
+	if err != nil || m != 2 || n != 1 {
+		t.Fatalf("coverage = (%d, %d, %v), want (2, 1, nil)", m, n, err)
+	}
+}

@@ -34,7 +34,7 @@ func newNovelCurateCmd(flags *rootFlags) *cobra.Command {
 			"exists yet, ranked last), exportable as a Markdown list, BibTeX, or JSON.\n" +
 			"per-year and velocity need the local store, and velocity needs a mirror\n" +
 			"refreshed with yearly counts. Works whose yearly counts were never fetched\n" +
-			"(counts_synced_at is NULL) have no velocity, rank last, and are reported in\n" +
+			"(counts_synced_at NULL or before this year) have no velocity, rank last, and are reported in\n" +
 			"one stderr line. Reads the local mirror;\n" +
 			"run 'thelancet-pp-cli refresh' first.",
 		Example:     "  thelancet-pp-cli curate --topic 'gene therapy' --sort citations --output bibtex\n  thelancet-pp-cli curate --topic immunotherapy --journal lancet-oncology --output markdown",
@@ -109,7 +109,7 @@ func newNovelCurateCmd(flags *rootFlags) *cobra.Command {
 			}
 			if sortBy == "velocity" && len(rows) > 0 && useLocal {
 				if m, n := curateCoverageFn(ctx, resolvedPath, topic, issn, openAccess); n > 0 {
-					fmt.Fprintf(cmd.ErrOrStderr(), "%d of %d matched works have no yearly citation counts yet; run thelancet-pp-cli refresh to include them\n", n, m)
+					fmt.Fprintf(cmd.ErrOrStderr(), "%d of %d matched works have no current yearly citation counts; run thelancet-pp-cli refresh to include them\n", n, m)
 				}
 			}
 			if rows == nil {
@@ -169,7 +169,7 @@ var curateLocalFn = func(ctx context.Context, path, topic, issn, sortBy string, 
 }
 
 // curateCoverageFn counts the matched works and how many have no yearly
-// citation counts yet (0, 0 when the store cannot be read). Package-level so
+// citation counts (0, 0 when the store cannot be read). Package-level so
 // tests can stub it.
 var curateCoverageFn = func(ctx context.Context, path, topic, issn string, openAccess bool) (matches, unsynced int) {
 	if _, statErr := os.Stat(path); statErr != nil {

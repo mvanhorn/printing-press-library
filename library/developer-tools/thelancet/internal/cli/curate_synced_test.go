@@ -1,4 +1,4 @@
-// Hand-authored coverage for the velocity "no yearly counts yet" notice. Not generated.
+// Hand-authored coverage for the velocity "no current yearly counts" notice. Not generated.
 
 package cli
 
@@ -64,7 +64,7 @@ func TestCurateVelocityMixedStorePrintsNotice(t *testing.T) {
 	if !strings.Contains(out, "Synced work") {
 		t.Fatalf("stdout = %q, want the rows", out)
 	}
-	want := "2 of 3 matched works have no yearly citation counts yet; run thelancet-pp-cli refresh to include them"
+	want := "2 of 3 matched works have no current yearly citation counts; run thelancet-pp-cli refresh to include them"
 	if strings.Count(errs, want) != 1 {
 		t.Fatalf("stderr = %q, want exactly one %q", errs, want)
 	}
@@ -73,7 +73,7 @@ func TestCurateVelocityMixedStorePrintsNotice(t *testing.T) {
 func TestCurateVelocityAllSyncedPrintsNoNotice(t *testing.T) {
 	dbPath := syncedStore(t, syncedWork("1", "Synced work", "[]"))
 	_, errs, err := runVelocity(t, dbPath)
-	if err != nil || strings.Contains(errs, "no yearly citation counts yet") {
+	if err != nil || strings.Contains(errs, "no current yearly citation counts") {
 		t.Fatalf("err = %v, stderr = %q; want exit 0 and no notice", err, errs)
 	}
 }
@@ -87,5 +87,45 @@ func TestCurateVelocityAllUnsyncedFailsWithRefreshHint(t *testing.T) {
 	}
 	if strings.Contains(out, "Unsynced") {
 		t.Fatalf("rows printed despite no synced work: %q", out)
+	}
+}
+
+// staleStore backdates the marker of the given work ids to a past year.
+func staleStore(t *testing.T, dbPath string, workIDs ...string) {
+	t.Helper()
+	st, err := store.OpenWithContext(context.Background(), dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer st.Close()
+	for _, id := range workIDs {
+		if _, err := st.DB().Exec(`UPDATE lancet_works SET counts_synced_at = '2000-01-01T00:00:00Z' WHERE work_id = ?`, id); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func TestCurateVelocityStaleWorkPrintsNotice(t *testing.T) {
+	dbPath := syncedStore(t, syncedWork("1", "Fresh work", "[]"), syncedWork("2", "Stale work", "[]"))
+	staleStore(t, dbPath, "W2")
+	out, errs, err := runVelocity(t, dbPath)
+	if err != nil || !strings.Contains(out, "Fresh work") {
+		t.Fatalf("err = %v, stdout = %q; want exit 0 with rows", err, out)
+	}
+	want := "1 of 2 matched works have no current yearly citation counts; run thelancet-pp-cli refresh to include them"
+	if strings.Count(errs, want) != 1 {
+		t.Fatalf("stderr = %q, want exactly one %q", errs, want)
+	}
+}
+
+func TestCurateVelocityAllStaleFailsWithRefreshHint(t *testing.T) {
+	dbPath := syncedStore(t, syncedWork("1", "Stale one", "[]"), syncedWork("2", "Stale two", "[]"))
+	staleStore(t, dbPath, "W1", "W2")
+	out, _, err := runVelocity(t, dbPath)
+	if err == nil || !strings.Contains(err.Error(), "refresh") {
+		t.Fatalf("err = %v, want a non-zero exit naming refresh", err)
+	}
+	if strings.Contains(out, "Stale") {
+		t.Fatalf("rows printed despite no current work: %q", out)
 	}
 }

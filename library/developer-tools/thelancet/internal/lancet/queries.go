@@ -397,10 +397,14 @@ const (
 	c1SQL      = `COALESCE(y1.cited_by_count, 0)`
 	c2SQL      = `COALESCE(y2.cited_by_count, 0)`
 	c3SQL      = `COALESCE(y3.cited_by_count, 0)`
+	// currentSyncSQL: the counts were fetched during the current UTC year, so
+	// every scored year (Y-1..Y-3) was already complete at sync time. A work
+	// synced earlier (or never) has no current counts.
+	currentSyncSQL = `(counts_synced_at IS NOT NULL AND counts_synced_at >= strftime('%Y', 'now') || '-01-01')`
 	// keepN is true when year Y-N is a complete year after the publication year.
-	keep1SQL = `(counts_synced_at IS NOT NULL AND pub_year > 0 AND pub_year < ` + curYearSQL + ` - 1)`
-	keep2SQL = `(counts_synced_at IS NOT NULL AND pub_year > 0 AND pub_year < ` + curYearSQL + ` - 2)`
-	keep3SQL = `(counts_synced_at IS NOT NULL AND pub_year > 0 AND pub_year < ` + curYearSQL + ` - 3)`
+	keep1SQL = `(` + currentSyncSQL + ` AND pub_year > 0 AND pub_year < ` + curYearSQL + ` - 1)`
+	keep2SQL = `(` + currentSyncSQL + ` AND pub_year > 0 AND pub_year < ` + curYearSQL + ` - 2)`
+	keep3SQL = `(` + currentSyncSQL + ` AND pub_year > 0 AND pub_year < ` + curYearSQL + ` - 3)`
 	// velocitySQL is the unrounded velocity, used for ordering; NULL when no
 	// complete year follows the publication year.
 	velocitySQL = `CASE WHEN ` + keep1SQL + ` THEN
@@ -436,13 +440,14 @@ func curateWhere(topic, issn string, openAccessOnly bool) (where string, args []
 }
 
 func countSynced(ctx context.Context, db *sql.DB, where string, args []any) (matches, synced int, err error) {
-	err = db.QueryRowContext(ctx, `SELECT COUNT(*), COALESCE(SUM(counts_synced_at IS NOT NULL), 0)
+	err = db.QueryRowContext(ctx, `SELECT COUNT(*), COALESCE(SUM(`+currentSyncSQL+`), 0)
 		FROM lancet_works WHERE 1=1`+where, args...).Scan(&matches, &synced)
 	return
 }
 
 // VelocityCoverage returns how many works match the curate filters and how many
-// of them have no yearly citation counts yet (their velocity is no-data).
+// of them have no current yearly citation counts (never synced, or synced before
+// this year); their velocity is no-data.
 func VelocityCoverage(ctx context.Context, db *sql.DB, topic, issn string, openAccessOnly bool) (matches, unsynced int, err error) {
 	if err := EnsureSchema(ctx, db); err != nil {
 		return 0, 0, err
