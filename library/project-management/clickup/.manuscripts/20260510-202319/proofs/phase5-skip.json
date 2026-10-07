@@ -4,7 +4,7 @@
   "run_id": "20260510-202319",
   "status": "skip",
   "level": "none",
-  "source_fingerprint": "4d9b31e8c976d6a1ae9d008cdbdd0cceb92d5cbabf4cfa4989e9426df07c4f67",
+  "source_fingerprint": "7a82209d0a11939789df546f3329b6282c6cbff26894342cc85cce2d024834ed",
   "skip_reason": "Full live gate needs --allow-destructive (real attachment uploads) against a production workspace, which is not permitted; read-only full live dogfood passed 401 tests, the 42 failures are pre-existing (unmodified main fails the same gate), and all three upload paths were verified manually on a scratch task.",
   "auth_context": {
     "type": "api_key",

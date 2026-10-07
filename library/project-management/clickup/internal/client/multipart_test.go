@@ -64,6 +64,21 @@ func TestStatUploadFile(t *testing.T) {
 	}
 }
 
+// A file with a known extension is still opened, so an unreadable file is
+// rejected during the checks rather than mid-way through a multi-file upload.
+func TestStatUploadFileRejectsUnreadable(t *testing.T) {
+	if os.Geteuid() == 0 {
+		t.Skip("root can read mode-000 files")
+	}
+	p := writeTemp(t, "locked.pdf", []byte("%PDF-1.4"))
+	if err := os.Chmod(p, 0); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := StatUploadFile(p); err == nil {
+		t.Fatal("expected error for unreadable file")
+	}
+}
+
 func TestPostMultipartRequestShape(t *testing.T) {
 	content := []byte("%PDF-1.4\nbinary\x00\x01\x02 bytes")
 	p := writeTemp(t, "report.pdf", content)
@@ -90,6 +105,14 @@ func TestPostMultipartRequestShape(t *testing.T) {
 		if got := r.Header.Get("Authorization"); got != "pk_test_token_1234" {
 			t.Errorf("Authorization = %q", got)
 		}
+		if len(r.TransferEncoding) > 0 {
+			t.Errorf("TransferEncoding = %v, want an exact Content-Length", r.TransferEncoding)
+		}
+		raw, _ := io.ReadAll(r.Body)
+		if r.ContentLength != int64(len(raw)) {
+			t.Errorf("ContentLength = %d, body = %d bytes", r.ContentLength, len(raw))
+		}
+		r.Body = io.NopCloser(bytes.NewReader(raw))
 		mediaType, mp, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
 		if err != nil || mediaType != "multipart/form-data" || mp["boundary"] == "" {
 			t.Errorf("Content-Type = %q (%v)", r.Header.Get("Content-Type"), err)
@@ -179,10 +202,18 @@ func TestPostMultipartNoRetryOn5xx(t *testing.T) {
 }
 
 func TestPostMultipartRetriesOn429(t *testing.T) {
-	p := writeTemp(t, "a.txt", []byte("a"))
+	p := writeTemp(t, "a.txt", []byte("retry-body"))
 	upload, _ := StatUploadFile(p)
 	var calls int32
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Every attempt must carry the whole file, not a drained stream.
+		_, mp, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
+		part, err := multipart.NewReader(r.Body, mp["boundary"]).NextPart()
+		if err != nil {
+			t.Errorf("attempt %d: reading part: %v", atomic.LoadInt32(&calls)+1, err)
+		} else if got, _ := io.ReadAll(part); string(got) != "retry-body" {
+			t.Errorf("attempt %d: file bytes = %q", atomic.LoadInt32(&calls)+1, got)
+		}
 		if atomic.AddInt32(&calls, 1) == 1 {
 			w.Header().Set("Retry-After", "1")
 			w.WriteHeader(http.StatusTooManyRequests)
