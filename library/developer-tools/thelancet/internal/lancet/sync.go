@@ -19,7 +19,7 @@ type Fetcher interface {
 }
 
 // worksSelect is the OpenAlex field projection the local store needs.
-const worksSelect = "id,doi,title,publication_year,publication_date,cited_by_count,open_access,primary_topic,authorships"
+const worksSelect = "id,doi,title,publication_year,publication_date,cited_by_count,open_access,primary_topic,authorships,counts_by_year,fwci,citation_normalized_percentile"
 
 type decodedAuthor struct {
 	ID           string
@@ -33,16 +33,31 @@ type decodedInstitution struct {
 	Country string
 }
 
+// yearCount is one counts_by_year entry: citations received in a calendar year.
+type yearCount struct {
+	Year  int
+	Cited int
+}
+
 type decodedWork struct {
-	ID      string
-	DOI     string
-	Title   string
-	Year    int
-	Date    string
-	Cited   int
-	IsOA    bool
-	Topic   string
-	Authors []decodedAuthor
+	ID    string
+	DOI   string
+	Title string
+	Year  int
+	Date  string
+	Cited int
+	IsOA  bool
+	Topic string
+	// YearCounts, FWCI and CitationPercentile come from counts_by_year, fwci and
+	// citation_normalized_percentile; the two scores are nil when OpenAlex has
+	// none for the work.
+	YearCounts []yearCount
+	// CountsSynced is true when the response contained counts_by_year, even as
+	// an empty array (a work with no citations in any year).
+	CountsSynced       bool
+	FWCI               *float64
+	CitationPercentile *float64
+	Authors            []decodedAuthor
 }
 
 // rawWork mirrors the subset of the OpenAlex work JSON we decode.
@@ -59,6 +74,15 @@ type rawWork struct {
 	PrimaryTopic *struct {
 		DisplayName string `json:"display_name"`
 	} `json:"primary_topic"`
+	// A pointer so an absent field (nil) differs from an empty array.
+	CountsByYear *[]struct {
+		Year         int `json:"year"`
+		CitedByCount int `json:"cited_by_count"`
+	} `json:"counts_by_year"`
+	FWCI                         *float64 `json:"fwci"`
+	CitationNormalizedPercentile *struct {
+		Value *float64 `json:"value"`
+	} `json:"citation_normalized_percentile"`
 	Authorships []struct {
 		Author struct {
 			ID          string `json:"id"`
@@ -89,6 +113,16 @@ func decodeWork(r rawWork) decodedWork {
 		Date:  r.PublicationDate,
 		Cited: r.CitedByCount,
 		IsOA:  r.OpenAccess.IsOA,
+		FWCI:  r.FWCI,
+	}
+	if r.CitationNormalizedPercentile != nil {
+		w.CitationPercentile = r.CitationNormalizedPercentile.Value
+	}
+	if r.CountsByYear != nil {
+		w.CountsSynced = true
+		for _, c := range *r.CountsByYear {
+			w.YearCounts = append(w.YearCounts, yearCount{Year: c.Year, Cited: c.CitedByCount})
+		}
 	}
 	if r.PrimaryTopic != nil {
 		w.Topic = cliutil.CleanText(r.PrimaryTopic.DisplayName)

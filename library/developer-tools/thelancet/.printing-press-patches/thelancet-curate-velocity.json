@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "thelancet-curate-velocity",
+  "applied_at": "2026-10-06",
+  "base_run_id": "20260617-072858-2f9fe13e",
+  "base_printing_press_version": "4.24.0",
+  "summary": "--sort velocity ranks by a recency-weighted mean of citations in the last up to 3 complete calendar years after publication (0.5/0.3/0.2, renormalised, missing year = 0), in the store before LIMIT. Local-only. A per-work counts_synced_at marker is set whenever the OpenAlex response carries counts_by_year (even []); velocity is null (no-data) while it is NULL, never zero. Errors with a refresh hint when no match is synced, else prints one stderr notice.",
+  "reason": "A lifetime average favours old classics; a recent window ranks what is still being cited. OpenAlex omits zero years, so only the marker tells no-data from a true zero. Regen must keep complete years only and acceleration display-only.",
+  "files": [
+    "internal/cli/curate.go",
+    "internal/lancet/curate_live.go",
+    "internal/lancet/queries.go",
+    "internal/lancet/store.go",
+    "internal/lancet/sync.go",
+    "internal/lancet/velocity_schema.go"
+  ],
+  "validated_outcome": "Live backtest (4-year-ahead): Spearman 0.794-0.818 per-year vs 0.813-0.822 here. Tests cover formula, marker, notice, real fixture."
+}

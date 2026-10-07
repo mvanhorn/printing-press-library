@@ -92,7 +92,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   thelancet-pp-cli drift --journal lancet-oncology --window1 2018:2020 --window2 2023:2024 --json
   ```
-- **`curate`** — Auto-generate ranked reading lists for a topic, sorted by citations, date or per-year (average citations per year since publication; age = years since pub_date, or July 1 of the year if unknown, at least 0.25; local store only), exportable as Markdown or BibTeX.
+- **`curate`** — Auto-generate ranked reading lists for a topic, sorted by citations, date, per-year (average citations per year since publication; age = years since pub_date, or July 1 of the year if unknown, at least 0.25) or velocity (recency-weighted mean of citations in the last up to 3 complete calendar years, weights 0.5/0.3/0.2; needs a refreshed store); per-year and velocity use the local store only, exportable as Markdown or BibTeX. Works whose yearly counts were never fetched (counts_synced_at is NULL) have no velocity and rank last; --sort velocity prints one stderr line with how many matched works lack counts and fails with a refresh hint when none have them.
 
   _Librarians and researchers use this to quickly assemble authoritative reading lists without manual screening._
 

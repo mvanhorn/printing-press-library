@@ -339,6 +339,16 @@ type WorkRow struct {
 	// PubDate is YYYY-MM-DD, empty when unknown.
 	PubDate          string  `json:"pub_date"`
 	CitationsPerYear float64 `json:"citations_per_year"`
+	// Velocity is the recency-weighted mean of citations in the last complete
+	// calendar years after publication (see velocitySQL); null while the work
+	// has no complete year yet. CitationsLastYear and Acceleration are display
+	// only, as are FWCI and CitationNormalizedPercentile (OpenAlex's values,
+	// null when it has none). None of them is a sort key except Velocity.
+	Velocity                     *float64 `json:"velocity"`
+	CitationsLastYear            *int     `json:"citations_last_year"`
+	Acceleration                 *float64 `json:"acceleration"`
+	FWCI                         *float64 `json:"fwci"`
+	CitationNormalizedPercentile *float64 `json:"citation_normalized_percentile"`
 }
 
 // minAgeYears floors a work's age so a paper published days ago does not get an
@@ -377,36 +387,103 @@ const (
 	cpySQL    = `CASE WHEN ` + effDateSQL + ` IS NULL THEN 0 ELSE ROUND(` + rawCpySQL + `, 1) END`
 )
 
-// Curate selects works matching a topic/keyword (whole words in title or topic),
-// scoped optionally to a journal, sorted by "citations", "date" or "per-year"
-// (average citations per year, ranked over all matching rows before LIMIT).
-func Curate(ctx context.Context, db *sql.DB, topic, issn, sort string, openAccessOnly bool, limit int) ([]WorkRow, error) {
-	if err := EnsureSchema(ctx, db); err != nil {
-		return nil, err
-	}
-	q := `SELECT title, doi, journal_name, pub_year, cited_count, COALESCE(topic,''),
-	             COALESCE(` + validDateSQL + `,''), ` + cpySQL + ` AS cpy
-	      FROM lancet_works WHERE 1=1`
-	var args []any
+// The velocity window: the last three complete calendar years (the current year
+// is partial and excluded), keeping only years after the publication year, with
+// weights 0.5, 0.3, 0.2 for Y-1, Y-2, Y-3 renormalised over the kept years. A
+// year missing from lancet_work_year_counts counts as 0. The year comes from
+// the store clock, like the age in cpySQL. c1..c3 are the LEFT JOINed counts.
+const (
+	curYearSQL = `CAST(strftime('%Y', 'now') AS INTEGER)`
+	c1SQL      = `COALESCE(y1.cited_by_count, 0)`
+	c2SQL      = `COALESCE(y2.cited_by_count, 0)`
+	c3SQL      = `COALESCE(y3.cited_by_count, 0)`
+	// keepN is true when year Y-N is a complete year after the publication year.
+	keep1SQL = `(counts_synced_at IS NOT NULL AND pub_year > 0 AND pub_year < ` + curYearSQL + ` - 1)`
+	keep2SQL = `(counts_synced_at IS NOT NULL AND pub_year > 0 AND pub_year < ` + curYearSQL + ` - 2)`
+	keep3SQL = `(counts_synced_at IS NOT NULL AND pub_year > 0 AND pub_year < ` + curYearSQL + ` - 3)`
+	// velocitySQL is the unrounded velocity, used for ordering; NULL when no
+	// complete year follows the publication year.
+	velocitySQL = `CASE WHEN ` + keep1SQL + ` THEN
+		(0.5 * ` + c1SQL + ` + CASE WHEN ` + keep2SQL + ` THEN 0.3 * ` + c2SQL + ` ELSE 0 END + CASE WHEN ` + keep3SQL + ` THEN 0.2 * ` + c3SQL + ` ELSE 0 END) /
+		(0.5 + CASE WHEN ` + keep2SQL + ` THEN 0.3 ELSE 0 END + CASE WHEN ` + keep3SQL + ` THEN 0.2 ELSE 0 END) END`
+	lastYearSQL = `CASE WHEN ` + keep1SQL + ` THEN ` + c1SQL + ` END`
+	// Acceleration needs all three years to be complete years after publication.
+	accelSQL = `CASE WHEN ` + keep3SQL + ` THEN ` + c1SQL + ` - (` + c2SQL + ` + ` + c3SQL + `) / 2.0 END`
+	// curateFromSQL joins the three yearly counts the velocity window reads.
+	curateFromSQL = `FROM lancet_works
+	      LEFT JOIN lancet_work_year_counts y1 ON y1.work_id = lancet_works.work_id AND y1.year = ` + curYearSQL + ` - 1
+	      LEFT JOIN lancet_work_year_counts y2 ON y2.work_id = lancet_works.work_id AND y2.year = ` + curYearSQL + ` - 2
+	      LEFT JOIN lancet_work_year_counts y3 ON y3.work_id = lancet_works.work_id AND y3.year = ` + curYearSQL + ` - 3`
+)
+
+// curateWhere builds the filter shared by Curate and VelocityCoverage.
+func curateWhere(topic, issn string, openAccessOnly bool) (where string, args []any) {
 	// Whole-word match (porter unicode61, AND across words). A topic with no
 	// searchable word (empty/whitespace/punctuation only) applies no text
 	// filter and returns every work, subject to the other filters.
 	if m := ftsMatchQuery(topic); m != "" {
-		q += ` AND rowid IN (SELECT rowid FROM lancet_works_fts WHERE lancet_works_fts MATCH ?)`
+		where += ` AND lancet_works.rowid IN (SELECT rowid FROM lancet_works_fts WHERE lancet_works_fts MATCH ?)`
 		args = append(args, m)
 	}
 	if issn != "" {
-		q += ` AND journal_issn = ?`
+		where += ` AND journal_issn = ?`
 		args = append(args, issn)
 	}
 	if openAccessOnly {
-		q += ` AND is_oa = 1`
+		where += ` AND is_oa = 1`
 	}
+	return where, args
+}
+
+func countSynced(ctx context.Context, db *sql.DB, where string, args []any) (matches, synced int, err error) {
+	err = db.QueryRowContext(ctx, `SELECT COUNT(*), COALESCE(SUM(counts_synced_at IS NOT NULL), 0)
+		FROM lancet_works WHERE 1=1`+where, args...).Scan(&matches, &synced)
+	return
+}
+
+// VelocityCoverage returns how many works match the curate filters and how many
+// of them have no yearly citation counts yet (their velocity is no-data).
+func VelocityCoverage(ctx context.Context, db *sql.DB, topic, issn string, openAccessOnly bool) (matches, unsynced int, err error) {
+	if err := EnsureSchema(ctx, db); err != nil {
+		return 0, 0, err
+	}
+	where, args := curateWhere(topic, issn, openAccessOnly)
+	matches, synced, err := countSynced(ctx, db, where, args)
+	return matches, matches - synced, err
+}
+
+// Curate selects works matching a topic/keyword (whole words in title or topic),
+// scoped optionally to a journal, sorted by "citations", "date", "per-year"
+// (average citations per year) or "velocity" (recent-window citations). Both
+// computed sorts rank over all matching rows before LIMIT.
+func Curate(ctx context.Context, db *sql.DB, topic, issn, sort string, openAccessOnly bool, limit int) ([]WorkRow, error) {
+	if err := EnsureSchema(ctx, db); err != nil {
+		return nil, err
+	}
+	where, args := curateWhere(topic, issn, openAccessOnly)
+	if sort == "velocity" {
+		// A mirror with no work whose yearly counts were ever fetched would rank
+		// an all-null column; fail with the refresh hint instead.
+		matches, synced, err := countSynced(ctx, db, where, args)
+		if err != nil {
+			return nil, err
+		}
+		if matches > 0 && synced == 0 {
+			return nil, fmt.Errorf("--sort velocity needs yearly citation counts, which this local store does not have yet; run 'thelancet-pp-cli refresh' to fetch them, or sort by citations, date or per-year")
+		}
+	}
+	q := `SELECT title, doi, journal_name, pub_year, cited_count, COALESCE(topic,''),
+	             COALESCE(` + validDateSQL + `,''), ` + cpySQL + ` AS cpy,
+	             ` + velocitySQL + `, ` + lastYearSQL + `, ` + accelSQL + `,
+	             fwci, citation_normalized_percentile
+	      ` + curateFromSQL + ` WHERE 1=1` + where
 	switch sort {
 	case "date":
 		q += ` ORDER BY pub_date DESC`
 	case "per-year":
 		q += ` AND ` + effDateSQL + ` IS NOT NULL ORDER BY ` + rawCpySQL + ` DESC, cited_count DESC, title`
+	case "velocity":
+		q += ` ORDER BY (` + velocitySQL + `) IS NULL, ` + velocitySQL + ` DESC, cited_count DESC, lancet_works.work_id`
 	default:
 		q += ` ORDER BY cited_count DESC`
 	}
@@ -422,11 +499,30 @@ func Curate(ctx context.Context, db *sql.DB, topic, issn, sort string, openAcces
 	for rows.Next() {
 		var w WorkRow
 		var title, doi, jn, tp, pd sql.NullString
-		if err := rows.Scan(&title, &doi, &jn, &w.Year, &w.Cited, &tp, &pd, &w.CitationsPerYear); err != nil {
+		var vel, accel, fw, pct sql.NullFloat64
+		var last sql.NullInt64
+		if err := rows.Scan(&title, &doi, &jn, &w.Year, &w.Cited, &tp, &pd, &w.CitationsPerYear, &vel, &last, &accel, &fw, &pct); err != nil {
 			continue
 		}
 		w.Title, w.DOI, w.Journal, w.Topic = title.String, doi.String, jn.String, tp.String
 		w.PubDate = pd.String
+		if vel.Valid {
+			v := math.Round(vel.Float64*100) / 100
+			w.Velocity = &v
+		}
+		if last.Valid {
+			n := int(last.Int64)
+			w.CitationsLastYear = &n
+		}
+		if accel.Valid {
+			w.Acceleration = &accel.Float64
+		}
+		if fw.Valid {
+			w.FWCI = &fw.Float64
+		}
+		if pct.Valid {
+			w.CitationNormalizedPercentile = &pct.Float64
+		}
 		out = append(out, w)
 	}
 	return out, rows.Err()

@@ -19,6 +19,9 @@ func CurateLive(ctx context.Context, c Fetcher, topic, issn, sort string, openAc
 	if sort == "per-year" {
 		return nil, fmt.Errorf("--sort per-year needs the local store (OpenAlex cannot rank by citations per year); run 'refresh' and use --data-source local, or sort by citations or date")
 	}
+	if sort == "velocity" {
+		return nil, fmt.Errorf("--sort velocity needs the local store (OpenAlex cannot rank by recent citations); run 'refresh' and use --data-source local, or sort by citations or date")
+	}
 	filter := FamilyISSNFilter()
 	if issn != "" {
 		filter = "primary_location.source.issn:" + issn

@@ -142,16 +142,3 @@ func TestCuratePerYearLivePathErrors(t *testing.T) {
 		})
 	}
 }
-
-// "velocity" is reserved for a future recent-window metric, so it is rejected for now.
-func TestCurateRejectsVelocitySort(t *testing.T) {
-	cmd := newNovelCurateCmd(&rootFlags{dataSource: "local", asJSON: true})
-	var out, errb bytes.Buffer
-	cmd.SetOut(&out)
-	cmd.SetErr(&errb)
-	cmd.SetArgs([]string{"--topic", "ai", "--sort", "velocity", "--db", "unused.db"})
-	err := cmd.Execute()
-	if err == nil || !strings.Contains(err.Error(), "'citations', 'date' or 'per-year'") {
-		t.Fatalf("err = %v, want rejection listing citations, date and per-year", err)
-	}
-}

@@ -145,7 +145,7 @@ Highlights (not in the official API docs):
   • mesh   Find researchers at your institution who co-author Lancet papers and quantify how their work connects.
   • affiliation-growth   Track institutions gaining publication velocity in Lancet journals; identify rising research centers.
   • drift   Compare how a journal's topic distribution shifts between two time windows; spot emerging and fading specialties.
-  • curate   Auto-generate ranked reading lists for a topic, sorted by citations, date or per-year (average citations per year since publication; age = years since pub_date, or July 1 of the year if unknown, at least 0.25; local store only), exportable as Markdown or BibTeX.
+  • curate   Auto-generate ranked reading lists for a topic, sorted by citations, date, per-year (average citations per year since publication; age = years since pub_date, or July 1 of the year if unknown, at least 0.25) or velocity (recency-weighted mean of citations in the last up to 3 complete calendar years, weights 0.5/0.3/0.2; needs a refreshed store); per-year and velocity use the local store only, exportable as Markdown or BibTeX.
   • visibility-gap   Find authors whose citation impact is out of step with the prestige of the Lancet journals they publish in.
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
