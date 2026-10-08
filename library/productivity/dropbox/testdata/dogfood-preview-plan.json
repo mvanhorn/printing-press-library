@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "created_at": "2026-01-01T00:00:00Z",
+  "source": "organize",
+  "ops": [
+    {"op": "mkdir", "path": "/printing-press-dogfood-preview", "reason": "preview fixture; apply without --yes writes nothing"}
+  ]
+}

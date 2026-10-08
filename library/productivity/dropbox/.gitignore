@@ -1,0 +1,9 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/dropbox-pp-cli
+/dropbox-pp-cli.exe
+/dropbox-pp-mcp
+/dropbox-pp-mcp.exe
+/bin/
+/build/
+/dist/
+/photos.json

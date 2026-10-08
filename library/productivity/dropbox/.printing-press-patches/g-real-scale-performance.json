@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "g-real-scale-performance",
+  "applied_at": "2026-10-06",
+  "base_run_id": "20261006-161517-620ff191",
+  "base_printing_press_version": "4.33.1",
+  "summary": "Index conflict candidates and covering read paths, and calculate overview summaries in one sequential pass.",
+  "reason": "The generated CLI's broad scans and repeated random row fetches exceeded the real-scale read targets on a 1.8-million-row local index.",
+  "files": [
+    "internal/store/dropbox_migrations.go",
+    "internal/store/dropbox_migrations_test.go",
+    "internal/cli/conflicts.go",
+    "internal/cli/dropbox_local.go",
+    "internal/cli/mess.go",
+    "internal/cli/overview.go",
+    "internal/cli/overview_fast.go"
+  ],
+  "validated_outcome": "Fresh-copy migration completed in 15.8s; real-scale command digests matched baseline and all measured read targets passed."
+}

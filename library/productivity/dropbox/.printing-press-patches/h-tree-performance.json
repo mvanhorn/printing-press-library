@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "h-tree-performance",
+  "applied_at": "2026-10-06",
+  "base_run_id": "20261006-161517-620ff191",
+  "base_printing_press_version": "4.33.1",
+  "summary": "Aggregate tree file counts and bytes in one indexed scan through the requested depth.",
+  "reason": "The generated tree command repeatedly grouped large descendant ranges for each displayed folder, taking over 45 seconds at depths two and three on the real-scale index.",
+  "files": [
+    "internal/cli/tree.go",
+    "internal/cli/tree_test.go"
+  ],
+  "validated_outcome": "Depths one, two, and three matched baseline JSON digests; depth two completed in 0.743s and depth three in 0.796s."
+}

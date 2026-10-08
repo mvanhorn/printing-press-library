@@ -1,0 +1,8 @@
+{
+  "descriptions": {
+    "file-requests_get": "Fetch one file request by id. Required: id (get ids from file-requests_list). Returns the request's title, upload URL, destination folder, open or closed state, deadline if set, and how many files were uploaded. Read-only.",
+    "files_tags-get": "Read the user tags on one or more files or folders. Required: paths, a JSON array of Dropbox paths such as ['/Documents/Taxes/2019.pdf']. Returns each path with its tags as lowercase text. Read-only; use files_tags-add or files_tags-remove to change tags.",
+    "sharing_revoke-shared-link": "Permanently revoke one shared link so its URL stops working. Required: url, the full shared link. Returns nothing on success. The linked file stays in Dropbox, but a revoked link cannot be restored. For reviewed bulk revokes, run the links audit command and apply its plan instead.",
+    "users_get-current-account": "Get the signed-in Dropbox account. Takes no parameters. Returns the account id, name, email, account type (basic, pro, or business), country, and root namespace. Use it to confirm which account a token belongs to; use users_get-space-usage for quota."
+  }
+}

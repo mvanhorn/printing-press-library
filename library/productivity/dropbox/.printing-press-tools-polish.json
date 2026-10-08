@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-10-08T16:33:57.516237Z",
+  "cli_dir": "\u003ccli-dir\u003e/dropbox-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-10-08T16:31:53.917937Z"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "l-targeted-fixes",
+  "applied_at": "2026-10-07",
+  "base_run_id": "20261006-161517-620ff191",
+  "base_printing_press_version": "4.33.1",
+  "summary": "Use indexed folder delete checks, contain skipped deletes, bound keeper checks, validate paired attestations, and require terminal rebind.",
+  "reason": "Slice L review found path scans during folder deletes, unsafe child deletion after a skipped parent, quadratic keeper validation, incomplete plan shape validation, and scriptable account rebind.",
+  "files": [
+    "internal/cli/apply_steps.go",
+    "internal/cli/index.go",
+    "internal/cli/dropbox_account.go",
+    "internal/cli/round3_test.go",
+    "internal/cli/plan_scale_test.go",
+    "internal/dropbox/check_rules.go",
+    "internal/dropbox/plan.go",
+    "internal/dropbox/check_test.go",
+    "internal/dropbox/plan_test.go"
+  ],
+  "validated_outcome": "EXPLAIN shows both folder queries search dbx_files_file_path_size; 5,000 keeper checks and 1,000 empty-folder prepares meet timing thresholds; full Go verification passes."
+}

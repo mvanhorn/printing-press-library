@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "d-scope-hint",
+  "applied_at": "2026-10-06",
+  "base_run_id": "20261006-161517-620ff191",
+  "base_printing_press_version": "4.33.1",
+  "summary": "Dropbox missing-scope errors identify the required permission and the app-console authorization steps before suggesting a new login.",
+  "reason": "Dropbox may return missing_scope with HTTP 400 or 401; treating every 401 as an expired token sends users through an ineffective re-login.",
+  "files": ["internal/cli/helpers.go"],
+  "validated_outcome": "A focused test covers HTTP 400 and 401 missing-scope responses."
+}

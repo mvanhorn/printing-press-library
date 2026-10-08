@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "p-dry-run-action",
+  "applied_at": "2026-10-07",
+  "base_run_id": "20261006-161517-620ff191",
+  "base_printing_press_version": "4.33.1",
+  "summary": "Give generated endpoint dry runs an action, bound dogfood indexing to three roots, and correct journal and index hints.",
+  "reason": "The live matrix requires a dry-run action and a bounded root crawl; a fixed journal batch id does not exist, and the stale hint conflates incomplete and old indexes.",
+  "files": [
+    "internal/client/client.go",
+    "internal/cli/helpers.go",
+    "internal/cli/dropbox_dry_run_contract_test.go",
+    "internal/cli/index.go",
+    "internal/cli/index_test.go",
+    "internal/cli/journal.go",
+    "internal/cli/journal_test.go",
+    "internal/cli/dropbox_local.go",
+    "internal/cli/dropbox_local_test.go"
+  ],
+  "validated_outcome": "Focused regression tests pass for both dry-run shapes, the endpoint action, the three-root dogfood cap, journal happy args, and distinct index hints."
+}

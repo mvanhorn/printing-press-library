@@ -1,0 +1,1168 @@
+{
+  "api_name": "dropbox",
+  "base_url": "https://api.dropboxapi.com/2",
+  "description": "Find duplicates, sync conflicts, and stale shared links across a whole Dropbox, then clean up with plans you preview first.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "oauth2",
+    "header": "Authorization",
+    "format": "Bearer {token}",
+    "key_url": "https://www.dropbox.com/developers/apps"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "file-requests_count",
+      "description": "Return the total number of open and closed file requests.",
+      "method": "POST",
+      "path": "/file_requests/count",
+      "params": []
+    },
+    {
+      "name": "file-requests_delete-all-closed",
+      "description": "Delete all closed file requests owned by the current user.",
+      "method": "POST",
+      "path": "/file_requests/delete_all_closed",
+      "params": []
+    },
+    {
+      "name": "file-requests_get",
+      "description": "Return a specified file request. Required: id.",
+      "method": "POST",
+      "path": "/file_requests/get",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the file request to retrieve.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "file-requests_list",
+      "description": "Return file requests owned by the current user. Optional: limit (default: 1000).",
+      "method": "POST",
+      "path": "/file_requests/list_v2",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum file requests per response."
+        }
+      ]
+    },
+    {
+      "name": "file-requests_list-continue",
+      "description": "Continue paginating file requests using a cursor. Required: cursor.",
+      "method": "POST",
+      "path": "/file_requests/list/continue",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "body",
+          "description": "The cursor returned by the previous call.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_copy",
+      "description": "Copy a file or folder to another location in the user's Dropbox. Required: from_path, to_path. Optional: allow_shared_folder (default: false), autorename (default: false), allow_ownership_transfer (default: false).",
+      "method": "POST",
+      "path": "/files/copy_v2",
+      "params": [
+        {
+          "name": "from_path",
+          "type": "string",
+          "location": "body",
+          "description": "Path in the user's Dropbox to be copied or moved.",
+          "required": true
+        },
+        {
+          "name": "to_path",
+          "type": "string",
+          "location": "body",
+          "description": "Path in the user's Dropbox that is the destination.",
+          "required": true
+        },
+        {
+          "name": "allow_shared_folder",
+          "type": "bool",
+          "location": "body",
+          "description": "Deprecated flag; this has no effect."
+        },
+        {
+          "name": "autorename",
+          "type": "bool",
+          "location": "body",
+          "description": "Let Dropbox rename the destination if a conflict occurs."
+        },
+        {
+          "name": "allow_ownership_transfer",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow moves by the owner that transfer ownership of the content."
+        }
+      ]
+    },
+    {
+      "name": "files_copy-batch",
+      "description": "Copy multiple files or folders to different locations in the user's Dropbox. Required: entries. Optional: autorename (default: false).",
+      "method": "POST",
+      "path": "/files/copy_batch_v2",
+      "params": [
+        {
+          "name": "entries",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of 1–1000 objects, each with from_path and to_path.",
+          "required": true
+        },
+        {
+          "name": "autorename",
+          "type": "bool",
+          "location": "body",
+          "description": "Let Dropbox rename conflicting destination files."
+        }
+      ]
+    },
+    {
+      "name": "files_copy-batch-check",
+      "description": "Return the status and per-entry results of an asynchronous copy batch. Required: async_job_id.",
+      "method": "POST",
+      "path": "/files/copy_batch/check_v2",
+      "params": [
+        {
+          "name": "async_job_id",
+          "type": "string",
+          "location": "body",
+          "description": "ID returned by the asynchronous batch launch.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_create-folder",
+      "description": "Create a folder at a given path. Required: path. Optional: autorename (default: false).",
+      "method": "POST",
+      "path": "/files/create_folder_v2",
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "body",
+          "description": "Path in the user's Dropbox to create.",
+          "required": true
+        },
+        {
+          "name": "autorename",
+          "type": "bool",
+          "location": "body",
+          "description": "Let Dropbox rename the folder if a conflict occurs."
+        }
+      ]
+    },
+    {
+      "name": "files_create-folder-batch",
+      "description": "Create multiple folders at once. Required: paths. Optional: autorename (default: false), force_async (default: false).",
+      "method": "POST",
+      "path": "/files/create_folder_batch",
+      "params": [
+        {
+          "name": "paths",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of up to 10000 folder paths to create.",
+          "required": true
+        },
+        {
+          "name": "autorename",
+          "type": "bool",
+          "location": "body",
+          "description": "Let Dropbox rename folders if conflicts occur."
+        },
+        {
+          "name": "force_async",
+          "type": "bool",
+          "location": "body",
+          "description": "Force the batch to run asynchronously."
+        }
+      ]
+    },
+    {
+      "name": "files_create-folder-batch-check",
+      "description": "Return the status of an asynchronous create-folder batch. Required: async_job_id.",
+      "method": "POST",
+      "path": "/files/create_folder_batch/check",
+      "params": [
+        {
+          "name": "async_job_id",
+          "type": "string",
+          "location": "body",
+          "description": "ID returned by the asynchronous batch launch.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_delete",
+      "description": "Delete a file or folder at a given path. Required: path. Optional: parent_rev.",
+      "method": "POST",
+      "path": "/files/delete_v2",
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "body",
+          "description": "Path in the user's Dropbox to delete.",
+          "required": true
+        },
+        {
+          "name": "parent_rev",
+          "type": "string",
+          "location": "body",
+          "description": "Delete only if this revision matches the current file revision; not supported for folders."
+        }
+      ]
+    },
+    {
+      "name": "files_delete-batch",
+      "description": "Delete multiple files or folders at once. Required: entries.",
+      "method": "POST",
+      "path": "/files/delete_batch",
+      "params": [
+        {
+          "name": "entries",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of up to 1000 delete objects, each with path and optional parent_rev.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_delete-batch-check",
+      "description": "Return the status and per-entry results of an asynchronous delete batch. Required: async_job_id.",
+      "method": "POST",
+      "path": "/files/delete_batch/check",
+      "params": [
+        {
+          "name": "async_job_id",
+          "type": "string",
+          "location": "body",
+          "description": "ID returned by the asynchronous batch launch.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_get-latest-cursor",
+      "description": "Get a cursor for the current folder state without returning entries. Required: path. Optional: recursive (default: false), include_media_info (default: false), include_deleted (default: false) (plus 7 more).",
+      "method": "POST",
+      "path": "/files/list_folder/get_latest_cursor",
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "body",
+          "description": "A folder path or ID; use an empty string for the Dropbox root.",
+          "required": true
+        },
+        {
+          "name": "recursive",
+          "type": "bool",
+          "location": "body",
+          "description": "Include the contents of all subfolders."
+        },
+        {
+          "name": "include_media_info",
+          "type": "bool",
+          "location": "body",
+          "description": "Deprecated: this field no longer affects media metadata."
+        },
+        {
+          "name": "include_deleted",
+          "type": "bool",
+          "location": "body",
+          "description": "Include entries for deleted files and folders."
+        },
+        {
+          "name": "include_has_explicit_shared_members",
+          "type": "bool",
+          "location": "body",
+          "description": "Include whether each file has explicit shared members."
+        },
+        {
+          "name": "include_mounted_folders",
+          "type": "bool",
+          "location": "body",
+          "description": "Include items under app, shared, and team folders."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Approximate maximum results per request, from 1 to 2000."
+        },
+        {
+          "name": "shared-link-url",
+          "wire_name": "shared_link.url",
+          "type": "string",
+          "location": "body",
+          "description": "Shared link URL.",
+          "required": true
+        },
+        {
+          "name": "shared-link-password",
+          "wire_name": "shared_link.password",
+          "type": "string",
+          "location": "body",
+          "description": "Password for a protected shared link."
+        },
+        {
+          "name": "include_property_groups",
+          "type": "object",
+          "location": "body",
+          "description": "JSON TemplateFilterBase tagged union selecting property template IDs."
+        },
+        {
+          "name": "include_non_downloadable_files",
+          "type": "bool",
+          "location": "body",
+          "description": "Include files such as Google Docs that cannot be downloaded."
+        },
+        {
+          "name": "include_restorable_info",
+          "type": "bool",
+          "location": "body",
+          "description": "Include whether each deleted entry can be restored."
+        }
+      ]
+    },
+    {
+      "name": "files_get-metadata",
+      "description": "Return metadata for a file or folder. Required: path. Optional: include_media_info (default: false), include_deleted (default: false), include_has_explicit_shared_members (default: false) (plus 1 more).",
+      "method": "POST",
+      "path": "/files/get_metadata",
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "body",
+          "description": "Path or ID of a file or folder; root folder metadata is unsupported.",
+          "required": true
+        },
+        {
+          "name": "include_media_info",
+          "type": "bool",
+          "location": "body",
+          "description": "Include photo and video media information."
+        },
+        {
+          "name": "include_deleted",
+          "type": "bool",
+          "location": "body",
+          "description": "Return metadata for a deleted file or folder."
+        },
+        {
+          "name": "include_has_explicit_shared_members",
+          "type": "bool",
+          "location": "body",
+          "description": "Include whether the file has explicit members."
+        },
+        {
+          "name": "include_property_groups",
+          "type": "object",
+          "location": "body",
+          "description": "JSON TemplateFilterBase tagged union selecting property template IDs."
+        }
+      ]
+    },
+    {
+      "name": "files_get-temporary-link",
+      "description": "Get a temporary file content link that expires in four hours. Required: path.",
+      "method": "POST",
+      "path": "/files/get_temporary_link",
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "body",
+          "description": "Path to the file to stream through a temporary link.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_get-thumbnail-batch",
+      "description": "Get thumbnails for up to 25 images. Required: entries.",
+      "method": "POST",
+      "path": "/files/get_thumbnail_batch",
+      "params": [
+        {
+          "name": "entries",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of up to 25 thumbnail request objects with path, format, size, mode, and optional exclude_media_info.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_list-folder",
+      "description": "Start returning the contents of a folder. Required: path. Optional: recursive (default: false), include_media_info (default: false), include_deleted (default: false) (plus 7 more).",
+      "method": "POST",
+      "path": "/files/list_folder",
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "body",
+          "description": "A folder path or ID; use an empty string for the Dropbox root.",
+          "required": true
+        },
+        {
+          "name": "recursive",
+          "type": "bool",
+          "location": "body",
+          "description": "Include the contents of all subfolders."
+        },
+        {
+          "name": "include_media_info",
+          "type": "bool",
+          "location": "body",
+          "description": "Deprecated: this field no longer affects media metadata."
+        },
+        {
+          "name": "include_deleted",
+          "type": "bool",
+          "location": "body",
+          "description": "Include entries for deleted files and folders."
+        },
+        {
+          "name": "include_has_explicit_shared_members",
+          "type": "bool",
+          "location": "body",
+          "description": "Include whether each file has explicit shared members."
+        },
+        {
+          "name": "include_mounted_folders",
+          "type": "bool",
+          "location": "body",
+          "description": "Include items under app, shared, and team folders."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Approximate maximum results per request, from 1 to 2000."
+        },
+        {
+          "name": "shared-link-url",
+          "wire_name": "shared_link.url",
+          "type": "string",
+          "location": "body",
+          "description": "Shared link URL.",
+          "required": true
+        },
+        {
+          "name": "shared-link-password",
+          "wire_name": "shared_link.password",
+          "type": "string",
+          "location": "body",
+          "description": "Password for a protected shared link."
+        },
+        {
+          "name": "include_property_groups",
+          "type": "object",
+          "location": "body",
+          "description": "JSON TemplateFilterBase tagged union selecting property template IDs."
+        },
+        {
+          "name": "include_non_downloadable_files",
+          "type": "bool",
+          "location": "body",
+          "description": "Include files such as Google Docs that cannot be downloaded."
+        },
+        {
+          "name": "include_restorable_info",
+          "type": "bool",
+          "location": "body",
+          "description": "Include whether each deleted entry can be restored."
+        }
+      ]
+    },
+    {
+      "name": "files_list-folder-continue",
+      "description": "Continue listing a folder or retrieve changes using its cursor. Required: cursor.",
+      "method": "POST",
+      "path": "/files/list_folder/continue",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "body",
+          "description": "Cursor returned by files/list_folder or files/list_folder/continue.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_list-revisions",
+      "description": "Return revisions for a file path or file ID. Required: path. Optional: mode (default: path), limit (default: 10), before_rev (plus 1 more).",
+      "method": "POST",
+      "path": "/files/list_revisions",
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "body",
+          "description": "Path or ID of the file whose revisions to list.",
+          "required": true
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "body",
+          "description": "List revisions by path or file ID."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of revision entries, from 1 to 100."
+        },
+        {
+          "name": "before_rev",
+          "type": "string",
+          "location": "body",
+          "description": "Only return revisions before this revision; supported in path mode."
+        },
+        {
+          "name": "include_restorable_info",
+          "type": "bool",
+          "location": "body",
+          "description": "Include whether each revision can be restored."
+        }
+      ]
+    },
+    {
+      "name": "files_move",
+      "description": "Move a file or folder to another location in the user's Dropbox. Required: from_path, to_path. Optional: allow_shared_folder (default: false), autorename (default: false), allow_ownership_transfer (default: false).",
+      "method": "POST",
+      "path": "/files/move_v2",
+      "params": [
+        {
+          "name": "from_path",
+          "type": "string",
+          "location": "body",
+          "description": "Path in the user's Dropbox to be copied or moved.",
+          "required": true
+        },
+        {
+          "name": "to_path",
+          "type": "string",
+          "location": "body",
+          "description": "Path in the user's Dropbox that is the destination.",
+          "required": true
+        },
+        {
+          "name": "allow_shared_folder",
+          "type": "bool",
+          "location": "body",
+          "description": "Deprecated flag; this has no effect."
+        },
+        {
+          "name": "autorename",
+          "type": "bool",
+          "location": "body",
+          "description": "Let Dropbox rename the destination if a conflict occurs."
+        },
+        {
+          "name": "allow_ownership_transfer",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow moves by the owner that transfer ownership of the content."
+        }
+      ]
+    },
+    {
+      "name": "files_move-batch",
+      "description": "Move multiple files or folders to different locations in the user's Dropbox. Required: entries. Optional: autorename (default: false), allow_ownership_transfer (default: false).",
+      "method": "POST",
+      "path": "/files/move_batch_v2",
+      "params": [
+        {
+          "name": "entries",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of 1–1000 objects, each with from_path and to_path.",
+          "required": true
+        },
+        {
+          "name": "autorename",
+          "type": "bool",
+          "location": "body",
+          "description": "Let Dropbox rename conflicting destination files."
+        },
+        {
+          "name": "allow_ownership_transfer",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow moves by the owner that transfer ownership of content."
+        }
+      ]
+    },
+    {
+      "name": "files_move-batch-check",
+      "description": "Return the status and per-entry results of an asynchronous move batch. Required: async_job_id.",
+      "method": "POST",
+      "path": "/files/move_batch/check_v2",
+      "params": [
+        {
+          "name": "async_job_id",
+          "type": "string",
+          "location": "body",
+          "description": "ID returned by the asynchronous batch launch.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_restore",
+      "description": "Restore a specific revision of a file to the given path. Required: path, rev.",
+      "method": "POST",
+      "path": "/files/restore",
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "body",
+          "description": "Path where the restored file should be saved.",
+          "required": true
+        },
+        {
+          "name": "rev",
+          "type": "string",
+          "location": "body",
+          "description": "Revision to restore.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_search",
+      "description": "Search for files and folders. Required: query. Optional: options, match_field_options, include_highlights.",
+      "method": "POST",
+      "path": "/files/search_v2",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "String to search for, up to 1000 characters.",
+          "required": true
+        },
+        {
+          "name": "options-path",
+          "wire_name": "options.path",
+          "type": "string",
+          "location": "body",
+          "description": "Search only under this Dropbox path; omit to search the whole Dropbox."
+        },
+        {
+          "name": "options-max-results",
+          "wire_name": "options.max_results",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of search results to return, from 1 to 1000."
+        },
+        {
+          "name": "options-order-by",
+          "wire_name": "options.order_by",
+          "type": "string",
+          "location": "body",
+          "description": "Sort by relevance or last modification time."
+        },
+        {
+          "name": "options-file-status",
+          "wire_name": "options.file_status",
+          "type": "string",
+          "location": "body",
+          "description": "Restrict results to active or deleted files."
+        },
+        {
+          "name": "options-filename-only",
+          "wire_name": "options.filename_only",
+          "type": "bool",
+          "location": "body",
+          "description": "Match only filenames."
+        },
+        {
+          "name": "options-file-extensions",
+          "wire_name": "options.file_extensions",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of file extensions; supported only for active-file search."
+        },
+        {
+          "name": "options-file-categories",
+          "wire_name": "options.file_categories",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of file categories: image, document, pdf, spreadsheet, presentation, audio, video, folder, paper, or others."
+        },
+        {
+          "name": "options-account-id",
+          "wire_name": "options.account_id",
+          "type": "string",
+          "location": "body",
+          "description": "Restrict results to the given Dropbox account ID."
+        },
+        {
+          "name": "match-field-options-include-highlights",
+          "wire_name": "match_field_options.include_highlights",
+          "type": "bool",
+          "location": "body",
+          "description": "Include highlight spans from file titles."
+        },
+        {
+          "name": "include_highlights",
+          "type": "bool",
+          "location": "body",
+          "description": "Deprecated; use match_field_options.include_highlights."
+        }
+      ]
+    },
+    {
+      "name": "files_search-continue",
+      "description": "Fetch the next page of search results. Required: cursor.",
+      "method": "POST",
+      "path": "/files/search/continue_v2",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "body",
+          "description": "Cursor returned by files/search_v2.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_tags-add",
+      "description": "Add a tag to an item. Required: path, tag_text.",
+      "method": "POST",
+      "path": "/files/tags/add",
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "body",
+          "description": "Path to the item to tag.",
+          "required": true
+        },
+        {
+          "name": "tag_text",
+          "type": "string",
+          "location": "body",
+          "description": "Tag to add; Dropbox converts it to lowercase.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_tags-get",
+      "description": "Get tags assigned to items. Required: paths.",
+      "method": "POST",
+      "path": "/files/tags/get",
+      "params": [
+        {
+          "name": "paths",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of paths to the items.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_tags-remove",
+      "description": "Remove a tag from an item. Required: path, tag_text.",
+      "method": "POST",
+      "path": "/files/tags/remove",
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "body",
+          "description": "Path to the item to tag.",
+          "required": true
+        },
+        {
+          "name": "tag_text",
+          "type": "string",
+          "location": "body",
+          "description": "Tag to remove; Dropbox converts it to lowercase.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sharing_create-shared-link",
+      "description": "Create a shared link with custom settings. Required: path. Optional: settings.",
+      "method": "POST",
+      "path": "/sharing/create_shared_link_with_settings",
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "body",
+          "description": "Path to share with the new link.",
+          "required": true
+        },
+        {
+          "name": "settings-require-password",
+          "wire_name": "settings.require_password",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable or disable password protection."
+        },
+        {
+          "name": "settings-link-password",
+          "wire_name": "settings.link_password",
+          "type": "string",
+          "location": "body",
+          "description": "Password for the link when require_password is true."
+        },
+        {
+          "name": "settings-expires",
+          "wire_name": "settings.expires",
+          "type": "string",
+          "location": "body",
+          "description": "Expiration time of the shared link; by default it does not expire."
+        },
+        {
+          "name": "settings-audience",
+          "wire_name": "settings.audience",
+          "type": "string",
+          "location": "body",
+          "description": "Requested link audience; choose public, team, no_one, password, members, or public_logged_in_only."
+        },
+        {
+          "name": "settings-access",
+          "wire_name": "settings.access",
+          "type": "string",
+          "location": "body",
+          "description": "Requested link access level; choose viewer, editor, max, or default."
+        },
+        {
+          "name": "settings-requested-visibility",
+          "wire_name": "settings.requested_visibility",
+          "type": "string",
+          "location": "body",
+          "description": "Deprecated; choose public, team_only, or password; use audience."
+        },
+        {
+          "name": "settings-allow-download",
+          "wire_name": "settings.allow_download",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow or disallow downloading through the shared link."
+        }
+      ]
+    },
+    {
+      "name": "sharing_get-shared-link-metadata",
+      "description": "Get metadata for a shared link. Required: url. Optional: path, link_password.",
+      "method": "POST",
+      "path": "/sharing/get_shared_link_metadata",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "URL of the shared link.",
+          "required": true
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "location": "body",
+          "description": "Relative path to a file or subfolder within a shared folder link."
+        },
+        {
+          "name": "link_password",
+          "type": "string",
+          "location": "body",
+          "description": "Password for a protected shared link."
+        }
+      ]
+    },
+    {
+      "name": "sharing_list-folder-members",
+      "description": "Return shared folder membership by folder ID. Required: shared_folder_id. Optional: actions, limit (default: 1000), path.",
+      "method": "POST",
+      "path": "/sharing/list_folder_members",
+      "params": [
+        {
+          "name": "actions",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of member action names to include in permissions."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum member, group, and invitee results per request, from 1 to 1000."
+        },
+        {
+          "name": "shared_folder_id",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the shared folder; when path is supplied, the folder ID is extracted from that path.",
+          "required": true
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "location": "body",
+          "description": "Optional path to retrieve inherited members."
+        }
+      ]
+    },
+    {
+      "name": "sharing_list-folders",
+      "description": "Return shared folders accessible to the current user. Optional: limit (default: 1000), actions.",
+      "method": "POST",
+      "path": "/sharing/list_folders",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum results per request, from 1 to 1000."
+        },
+        {
+          "name": "actions",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of folder action names to include in permissions."
+        }
+      ]
+    },
+    {
+      "name": "sharing_list-folders-continue",
+      "description": "Continue paginating shared folders using a cursor. Required: cursor.",
+      "method": "POST",
+      "path": "/sharing/list_folders/continue",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "body",
+          "description": "The cursor returned by the previous call.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sharing_list-received-files",
+      "description": "Return files shared with the current user. Optional: limit (default: 100), actions.",
+      "method": "POST",
+      "path": "/sharing/list_received_files",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of files per query, from 1 to 300."
+        },
+        {
+          "name": "actions",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of file action names to include in permissions."
+        }
+      ]
+    },
+    {
+      "name": "sharing_list-shared-links",
+      "description": "List shared links owned by the current user. Optional: path, cursor, direct_only.",
+      "method": "POST",
+      "path": "/sharing/list_shared_links",
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "body",
+          "description": "Return links giving access to this path; omit to list all links."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "body",
+          "description": "Cursor returned by the previous list_shared_links call."
+        },
+        {
+          "name": "direct_only",
+          "type": "bool",
+          "location": "body",
+          "description": "Suppress links to parent folders and return only direct links."
+        }
+      ]
+    },
+    {
+      "name": "sharing_modify-shared-link-settings",
+      "description": "Modify the settings of an existing shared link. Required: url, settings. Optional: remove_expiration (default: false).",
+      "method": "POST",
+      "path": "/sharing/modify_shared_link_settings",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "URL of the shared link to change.",
+          "required": true
+        },
+        {
+          "name": "settings-require-password",
+          "wire_name": "settings.require_password",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable or disable password protection."
+        },
+        {
+          "name": "settings-link-password",
+          "wire_name": "settings.link_password",
+          "type": "string",
+          "location": "body",
+          "description": "Password for the link when require_password is true."
+        },
+        {
+          "name": "settings-expires",
+          "wire_name": "settings.expires",
+          "type": "string",
+          "location": "body",
+          "description": "Expiration time of the shared link; by default it does not expire."
+        },
+        {
+          "name": "settings-audience",
+          "wire_name": "settings.audience",
+          "type": "string",
+          "location": "body",
+          "description": "Requested link audience; choose public, team, no_one, password, members, or public_logged_in_only."
+        },
+        {
+          "name": "settings-access",
+          "wire_name": "settings.access",
+          "type": "string",
+          "location": "body",
+          "description": "Requested link access level; choose viewer, editor, max, or default."
+        },
+        {
+          "name": "settings-requested-visibility",
+          "wire_name": "settings.requested_visibility",
+          "type": "string",
+          "location": "body",
+          "description": "Deprecated; choose public, team_only, or password; use audience."
+        },
+        {
+          "name": "settings-allow-download",
+          "wire_name": "settings.allow_download",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow or disallow downloading through the shared link."
+        },
+        {
+          "name": "remove_expiration",
+          "type": "bool",
+          "location": "body",
+          "description": "Remove the shared link expiration."
+        }
+      ]
+    },
+    {
+      "name": "sharing_revoke-shared-link",
+      "description": "Revoke a shared link. Required: url.",
+      "method": "POST",
+      "path": "/sharing/revoke_shared_link",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "URL of the shared link to revoke.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_get-current-account",
+      "description": "Get information about the current user's account.",
+      "method": "POST",
+      "path": "/users/get_current_account",
+      "params": []
+    },
+    {
+      "name": "users_get-space-usage",
+      "description": "Get space usage for the current user's account.",
+      "method": "POST",
+      "path": "/users/get_space_usage",
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Conflicted-copy cleanup",
+      "command": "conflicts",
+      "description": "Find Dropbox conflicted copies and Selective Sync Conflict folders, compare each one to its original file by file, and plan removal only for copies that add nothing."
+    },
+    {
+      "name": "Shared-link audit and bulk revoke",
+      "command": "links audit",
+      "description": "List every shared link you own with its visibility and expiry, flag links to files that no longer exist, and plan bulk revokes."
+    },
+    {
+      "name": "Rule-based organizer",
+      "command": "organize",
+      "description": "Turn a glob and a destination template like /Photos/{year}/{month} into a move plan, with missing folders and name collisions worked out before anything moves."
+    },
+    {
+      "name": "Account overview",
+      "command": "overview",
+      "description": "See quota, space by top-level folder, file type, and year, real duplicate totals, conflict copies, and how much space code folders like node_modules take."
+    },
+    {
+      "name": "Batched, journaled apply",
+      "command": "apply",
+      "description": "Preview a plan, then run it with --yes in Dropbox batch jobs of up to 1000 items that retry on lock contention and record every change in a local journal."
+    },
+    {
+      "name": "Structure lint",
+      "command": "mess",
+      "description": "List empty folders, single-file folders, loose files at the root, 'Copy of' and '(1)' names, very deep paths, and near-duplicate folder names like Taxes and Taxes 2."
+    },
+    {
+      "name": "Plan validator",
+      "command": "plan check",
+      "description": "Check a plan against the index before it runs: files that changed since planning, name collisions, case-only renames, code folders, and moves that would change who can see a file."
+    },
+    {
+      "name": "Undo a batch",
+      "command": "undo",
+      "description": "Reverse an applied batch: move files back and restore soft-deleted files from the revision recorded when they were deleted."
+    },
+    {
+      "name": "Change journal",
+      "command": "journal",
+      "description": "List applied batches with their results and how many days remain to restore deleted files."
+    }
+  ]
+}

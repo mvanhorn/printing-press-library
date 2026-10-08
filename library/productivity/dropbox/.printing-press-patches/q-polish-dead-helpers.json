@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "q-polish-dead-helpers",
+  "applied_at": "2026-10-08",
+  "base_run_id": "20261006-161517-620ff191",
+  "base_printing_press_version": "4.33.1",
+  "summary": "Remove ten generated helpers in internal/cli/helpers.go that no Dropbox command calls (endpoint positional-arg usage helpers, stdin secret reader, response-path pagination wrapper, query-param retention, binary-response delivery).",
+  "reason": "Dogfood flagged them as dead and the scorecard dead_code dimension scored 0/5. Every Dropbox endpoint is an RPC POST, so the GET pagination and positional-arg plumbing has no caller.",
+  "files": ["internal/cli/helpers.go"],
+  "validated_outcome": "dogfood reports Dead Functions 0 and scorecard dead_code 5/5; go build, go vet, and go test ./... pass. If a reprint re-emits these helpers with no caller, drop them again."
+}

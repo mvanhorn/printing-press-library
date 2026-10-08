@@ -1,0 +1,55 @@
+version: 2
+project_name: dropbox-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: dropbox-pp-cli
+    main: ./cmd/dropbox-pp-cli
+    binary: dropbox-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/dropbox/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: dropbox-pp-mcp
+    main: ./cmd/dropbox-pp-mcp
+    binary: dropbox-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: dropbox-pp-cli
+    repository:
+      owner: cathrynlavery
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Find duplicates, sync conflicts, and stale shared links across a whole Dropbox, then clean up with plans you preview first."
+    install: |
+      bin.install "dropbox-pp-cli"
+      bin.install "dropbox-pp-mcp"

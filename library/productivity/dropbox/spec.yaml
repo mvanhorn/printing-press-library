@@ -1,0 +1,934 @@
+# Dropbox Stone RPC routes. Body arrays use JSON-valued flags.
+# Stone regex, length, and list cardinality constraints are recorded in descriptions;
+# the internal YAML format cannot enforce all of them. Dropbox union values must be
+# sent as bare strings for void members; payload-bearing unions use JSON objects.
+# No entity_lookup_seeds: Dropbox files and folders are open-ended user data.
+# No verify_path: doctor's credential probe is GET-only and every Dropbox route is POST.
+name: dropbox
+description: Dropbox HTTP API v2 for files, sharing, account details, and file requests.
+cli_description: 'Find duplicates, sync conflicts, and stale shared links across a whole Dropbox, then clean up with plans you preview first.'
+category: productivity
+base_url: https://api.dropboxapi.com/2
+auth:
+  type: oauth2
+  oauth2_grant: authorization_code
+  authorization_url: https://www.dropbox.com/oauth2/authorize
+  token_url: https://api.dropboxapi.com/oauth2/token
+  refresh_token_mechanism: query:token_access_type=offline
+  scopes:
+  - account_info.read
+  - files.metadata.read
+  - files.metadata.write
+  - files.content.read
+  - files.content.write
+  - sharing.read
+  - sharing.write
+  - file_requests.read
+  - file_requests.write
+  header: Authorization
+  format: Bearer {token}
+  key_url: https://www.dropbox.com/developers/apps
+  title: Dropbox app key
+  instructions: 'Create app, choose Scoped access and Full Dropbox, add redirect http://127.0.0.1:8085/callback, enable scopes on the Permissions tab and click Submit, then use the App key as --client-id'
+learn:
+  enabled: true
+  ticker_patterns:
+  - ^id:[A-Za-z0-9_-]{6,}$
+  synonyms:
+    duplicate files: duplicates
+    conflicted copies: conflicts
+extra_commands:
+- name: index
+  description: Build or refresh the local Dropbox metadata index.
+- name: overview
+  description: Show where Dropbox space is used by folder, type, and year.
+- name: tree
+  args: <path>
+  description: Show an indexed folder tree and its sizes.
+- name: dupes
+  description: Find byte-identical files by Dropbox content hash and optionally write a cleanup plan.
+- name: conflicts
+  description: Find conflicted copies and optionally write a cleanup plan.
+- name: mess
+  description: Find loose and disorganized files and optionally write a cleanup plan.
+- name: organize
+  description: Build a rule-based move plan for indexed files.
+- name: plan check
+  args: <file>
+  description: Validate a change plan against current Dropbox revisions.
+- name: apply
+  args: <file>
+  description: Preview a plan or apply it with explicit confirmation and journal the changes.
+- name: undo
+  args: <batch-id>
+  description: Reverse a previously applied journal batch where recovery is possible.
+- name: journal
+  description: List applied change batches and their outcomes.
+- name: links audit
+  description: Audit shared links for public access, missing expiry, and dangling targets.
+- name: files download
+  args: <path>
+  description: Download file content using the Dropbox content API.
+- name: files upload
+  args: <local-file> <dropbox-path>
+  description: Upload a local file using the Dropbox content API.
+resources:
+  files:
+    description: Inspect and manage Dropbox files and folders.
+    endpoints:
+      list-folder:
+        method: POST
+        path: /files/list_folder
+        description: Start returning the contents of a folder.
+        mutation: false
+        example: "  dropbox-pp-cli files list-folder --path=''"
+        happy_args: --path=
+        body:
+        - name: path
+          type: string
+          required: true
+          description: A folder path or ID; use an empty string for the Dropbox root.
+        - name: recursive
+          type: bool
+          required: false
+          description: Include the contents of all subfolders.
+          default: false
+        - name: include_media_info
+          type: bool
+          required: false
+          description: 'Deprecated: this field no longer affects media metadata.'
+          default: false
+        - name: include_deleted
+          type: bool
+          required: false
+          description: Include entries for deleted files and folders.
+          default: false
+        - name: include_has_explicit_shared_members
+          type: bool
+          required: false
+          description: Include whether each file has explicit shared members.
+          default: false
+        - name: include_mounted_folders
+          type: bool
+          required: false
+          description: Include items under app, shared, and team folders.
+          default: true
+        - name: limit
+          type: int
+          required: false
+          description: Approximate maximum results per request, from 1 to 2000.
+          maximum: 2000
+        - name: shared_link
+          type: object
+          required: false
+          description: Shared link whose contents to list, with url and optional password.
+          fields:
+          - name: url
+            type: string
+            required: true
+            description: Shared link URL.
+          - name: password
+            type: string
+            required: false
+            description: Password for a protected shared link.
+        - name: include_property_groups
+          type: object
+          required: false
+          description: JSON TemplateFilterBase tagged union selecting property template IDs.
+        - name: include_non_downloadable_files
+          type: bool
+          required: false
+          description: Include files such as Google Docs that cannot be downloaded.
+          default: true
+        - name: include_restorable_info
+          type: bool
+          required: false
+          description: Include whether each deleted entry can be restored.
+          default: false
+      list-folder-continue:
+        method: POST
+        path: /files/list_folder/continue
+        description: Continue listing a folder or retrieve changes using its cursor.
+        example: "  dropbox-pp-cli files list-folder-continue --cursor 'AAH4f99T0taONIb...'"
+        happy_args: --cursor=example-value
+        mutation: false
+        body:
+        - name: cursor
+          type: string
+          required: true
+          description: Cursor returned by files/list_folder or files/list_folder/continue.
+      get-latest-cursor:
+        method: POST
+        path: /files/list_folder/get_latest_cursor
+        description: Get a cursor for the current folder state without returning entries.
+        example: "  dropbox-pp-cli files get-latest-cursor --path ''"
+        happy_args: --path=
+        mutation: false
+        body:
+        - name: path
+          type: string
+          required: true
+          description: A folder path or ID; use an empty string for the Dropbox root.
+        - name: recursive
+          type: bool
+          required: false
+          description: Include the contents of all subfolders.
+          default: false
+        - name: include_media_info
+          type: bool
+          required: false
+          description: 'Deprecated: this field no longer affects media metadata.'
+          default: false
+        - name: include_deleted
+          type: bool
+          required: false
+          description: Include entries for deleted files and folders.
+          default: false
+        - name: include_has_explicit_shared_members
+          type: bool
+          required: false
+          description: Include whether each file has explicit shared members.
+          default: false
+        - name: include_mounted_folders
+          type: bool
+          required: false
+          description: Include items under app, shared, and team folders.
+          default: true
+        - name: limit
+          type: int
+          required: false
+          description: Approximate maximum results per request, from 1 to 2000.
+          maximum: 2000
+        - name: shared_link
+          type: object
+          required: false
+          description: Shared link whose contents to list, with url and optional password.
+          fields:
+          - name: url
+            type: string
+            required: true
+            description: Shared link URL.
+          - name: password
+            type: string
+            required: false
+            description: Password for a protected shared link.
+        - name: include_property_groups
+          type: object
+          required: false
+          description: JSON TemplateFilterBase tagged union selecting property template IDs.
+        - name: include_non_downloadable_files
+          type: bool
+          required: false
+          description: Include files such as Google Docs that cannot be downloaded.
+          default: true
+        - name: include_restorable_info
+          type: bool
+          required: false
+          description: Include whether each deleted entry can be restored.
+          default: false
+      get-metadata:
+        method: POST
+        path: /files/get_metadata
+        description: Return metadata for a file or folder.
+        mutation: false
+        example: "  dropbox-pp-cli files get-metadata --path '/Camera Uploads'"
+        happy_args: --path=/Camera Uploads
+        body:
+        - name: path
+          type: string
+          required: true
+          description: Path or ID of a file or folder; root folder metadata is unsupported.
+        - name: include_media_info
+          type: bool
+          required: false
+          description: Include photo and video media information.
+          default: false
+        - name: include_deleted
+          type: bool
+          required: false
+          description: Return metadata for a deleted file or folder.
+          default: false
+        - name: include_has_explicit_shared_members
+          type: bool
+          required: false
+          description: Include whether the file has explicit members.
+          default: false
+        - name: include_property_groups
+          type: object
+          required: false
+          description: JSON TemplateFilterBase tagged union selecting property template IDs.
+      search:
+        method: POST
+        path: /files/search_v2
+        description: Search for files and folders.
+        mutation: false
+        example: "  dropbox-pp-cli files search --query a"
+        happy_args: --query=a
+        body:
+        - name: query
+          type: string
+          required: true
+          description: String to search for, up to 1000 characters.
+        - name: options
+          type: object
+          required: false
+          description: Options for targeted search results.
+          fields:
+          - name: path
+            type: string
+            required: false
+            description: Search only under this Dropbox path; omit to search the whole Dropbox.
+          - name: max_results
+            type: int
+            required: false
+            description: Maximum number of search results to return, from 1 to 1000.
+            default: 100
+            maximum: 1000
+          - name: order_by
+            type: string
+            required: false
+            description: Sort by relevance or last modification time.
+            enum:
+            - relevance
+            - last_modified_time
+          - name: file_status
+            type: string
+            required: false
+            description: Restrict results to active or deleted files.
+            default: active
+            enum:
+            - active
+            - deleted
+          - name: filename_only
+            type: bool
+            required: false
+            description: Match only filenames.
+            default: false
+          - name: file_extensions
+            type: array
+            required: false
+            description: JSON array of file extensions; supported only for active-file search.
+            item_type: string
+          - name: file_categories
+            type: array
+            required: false
+            description: 'JSON array of file categories: image, document, pdf, spreadsheet, presentation, audio, video, folder, paper, or others.'
+            enum:
+            - image
+            - document
+            - pdf
+            - spreadsheet
+            - presentation
+            - audio
+            - video
+            - folder
+            - paper
+            - others
+            item_type: string
+          - name: account_id
+            type: string
+            required: false
+            description: Restrict results to the given Dropbox account ID.
+        - name: match_field_options
+          type: object
+          required: false
+          description: Options controlling matched fields in search results.
+          fields:
+          - name: include_highlights
+            type: bool
+            required: false
+            description: Include highlight spans from file titles.
+            default: false
+        - name: include_highlights
+          type: bool
+          required: false
+          description: Deprecated; use match_field_options.include_highlights.
+      search-continue:
+        method: POST
+        path: /files/search/continue_v2
+        description: Fetch the next page of search results.
+        example: "  dropbox-pp-cli files search-continue --cursor 'AAH4f99T0taONIb...'"
+        happy_args: --cursor=example-value
+        mutation: false
+        body:
+        - name: cursor
+          type: string
+          required: true
+          description: Cursor returned by files/search_v2.
+      list-revisions:
+        method: POST
+        path: /files/list_revisions
+        description: Return revisions for a file path or file ID.
+        example: "  dropbox-pp-cli files list-revisions --path '/Documents/Taxes/2019.pdf' --mode path"
+        happy_args: --path=example-value
+        mutation: false
+        body:
+        - name: path
+          type: string
+          required: true
+          description: Path or ID of the file whose revisions to list.
+        - name: mode
+          type: string
+          required: false
+          description: List revisions by path or file ID.
+          default: path
+          enum:
+          - path
+          - id
+        - name: limit
+          type: int
+          required: false
+          description: Maximum number of revision entries, from 1 to 100.
+          default: 10
+          maximum: 100
+        - name: before_rev
+          type: string
+          required: false
+          description: Only return revisions before this revision; supported in path mode.
+        - name: include_restorable_info
+          type: bool
+          required: false
+          description: Include whether each revision can be restored.
+          default: false
+      get-temporary-link:
+        method: POST
+        path: /files/get_temporary_link
+        description: Get a temporary file content link that expires in four hours.
+        example: "  dropbox-pp-cli files get-temporary-link --path '/Documents/Taxes/2019.pdf'"
+        happy_args: --path=example-value
+        mutation: false
+        body:
+        - name: path
+          type: string
+          required: true
+          description: Path to the file to stream through a temporary link.
+      get-thumbnail-batch:
+        method: POST
+        path: /files/get_thumbnail_batch
+        description: Get thumbnails for up to 25 images.
+        example: "  dropbox-pp-cli files get-thumbnail-batch --entries '[{\"path\":\"/Camera Uploads/photo.jpg\",\"format\":\"jpeg\",\"size\":\"w256h256\"}]'"
+        base_url: https://content.dropboxapi.com/2
+        mutation: false
+        body:
+        - name: entries
+          type: array
+          required: true
+          description: JSON array of up to 25 thumbnail request objects with path, format, size, mode, and optional exclude_media_info.
+          item_type: object
+      tags-get:
+        method: POST
+        path: /files/tags/get
+        description: Get tags assigned to items.
+        example: "  dropbox-pp-cli files tags-get --paths '[\"/Documents/Taxes/2019.pdf\"]'"
+        happy_args: --paths=example-value
+        mutation: false
+        body:
+        - name: paths
+          type: array
+          required: true
+          description: JSON array of paths to the items.
+          item_type: string
+      tags-add:
+        method: POST
+        path: /files/tags/add
+        description: Add a tag to an item.
+        example: "  dropbox-pp-cli files tags-add --path '/Documents/Taxes/2019.pdf' --tag-text taxes"
+        replay_safe: false
+        body:
+        - name: path
+          type: string
+          required: true
+          description: Path to the item to tag.
+        - name: tag_text
+          type: string
+          required: true
+          description: Tag to add; Dropbox converts it to lowercase.
+      tags-remove:
+        method: POST
+        path: /files/tags/remove
+        description: Remove a tag from an item.
+        example: "  dropbox-pp-cli files tags-remove --path '/Documents/Taxes/2019.pdf' --tag-text taxes"
+        replay_safe: false
+        body:
+        - name: path
+          type: string
+          required: true
+          description: Path to the item to tag.
+        - name: tag_text
+          type: string
+          required: true
+          description: Tag to remove; Dropbox converts it to lowercase.
+      create-folder:
+        method: POST
+        path: /files/create_folder_v2
+        description: Create a folder at a given path.
+        example: "  dropbox-pp-cli files create-folder --path '/Documents/Taxes/2026'"
+        replay_safe: false
+        body:
+        - name: path
+          type: string
+          required: true
+          description: Path in the user's Dropbox to create.
+        - name: autorename
+          type: bool
+          required: false
+          description: Let Dropbox rename the folder if a conflict occurs.
+          default: false
+      create-folder-batch:
+        method: POST
+        path: /files/create_folder_batch
+        description: Create multiple folders at once.
+        example: "  dropbox-pp-cli files create-folder-batch --paths '[\"/Documents/Taxes/2026\",\"/Documents/Receipts/2026\"]'"
+        replay_safe: false
+        body:
+        - name: paths
+          type: array
+          required: true
+          description: JSON array of up to 10000 folder paths to create.
+          item_type: string
+        - name: autorename
+          type: bool
+          required: false
+          description: Let Dropbox rename folders if conflicts occur.
+          default: false
+        - name: force_async
+          type: bool
+          required: false
+          description: Force the batch to run asynchronously.
+          default: false
+      create-folder-batch-check:
+        method: POST
+        path: /files/create_folder_batch/check
+        description: Return the status of an asynchronous create-folder batch.
+        example: "  dropbox-pp-cli files create-folder-batch-check --async-job-id 'dbjid:AAAX...'"
+        happy_args: --async-job-id=example-value
+        mutation: false
+        body:
+        - name: async_job_id
+          type: string
+          required: true
+          description: ID returned by the asynchronous batch launch.
+      move:
+        method: POST
+        path: /files/move_v2
+        description: Move a file or folder to another location in the user's Dropbox.
+        example: "  dropbox-pp-cli files move --from-path '/Documents/Taxes/2019.pdf' --to-path '/Archive/Taxes/2019.pdf'"
+        replay_safe: false
+        body: &id001
+        - name: from_path
+          type: string
+          required: true
+          description: Path in the user's Dropbox to be copied or moved.
+        - name: to_path
+          type: string
+          required: true
+          description: Path in the user's Dropbox that is the destination.
+        - name: allow_shared_folder
+          type: bool
+          required: false
+          description: Deprecated flag; this has no effect.
+          default: false
+        - name: autorename
+          type: bool
+          required: false
+          description: Let Dropbox rename the destination if a conflict occurs.
+          default: false
+        - name: allow_ownership_transfer
+          type: bool
+          required: false
+          description: Allow moves by the owner that transfer ownership of the content.
+          default: false
+      move-batch:
+        method: POST
+        path: /files/move_batch_v2
+        description: Move multiple files or folders to different locations in the user's Dropbox.
+        example: "  dropbox-pp-cli files move-batch --entries '[{\"from_path\":\"/Documents/Taxes/2019.pdf\",\"to_path\":\"/Archive/Taxes/2019.pdf\"}]'"
+        replay_safe: false
+        body:
+        - &id002
+          name: entries
+          type: array
+          required: true
+          description: JSON array of 1–1000 objects, each with from_path and to_path.
+          item_type: object
+        - &id003
+          name: autorename
+          type: bool
+          required: false
+          description: Let Dropbox rename conflicting destination files.
+          default: false
+        - name: allow_ownership_transfer
+          type: bool
+          required: false
+          description: Allow moves by the owner that transfer ownership of content.
+          default: false
+      move-batch-check:
+        method: POST
+        path: /files/move_batch/check_v2
+        description: Return the status and per-entry results of an asynchronous move batch.
+        example: "  dropbox-pp-cli files move-batch-check --async-job-id 'dbjid:AAAX...'"
+        happy_args: --async-job-id=example-value
+        mutation: false
+        body:
+        - name: async_job_id
+          type: string
+          required: true
+          description: ID returned by the asynchronous batch launch.
+      copy:
+        method: POST
+        path: /files/copy_v2
+        description: Copy a file or folder to another location in the user's Dropbox.
+        example: "  dropbox-pp-cli files copy --from-path '/Documents/Taxes/2019.pdf' --to-path '/Archive/Taxes/2019.pdf'"
+        replay_safe: false
+        body: *id001
+      copy-batch:
+        method: POST
+        path: /files/copy_batch_v2
+        description: Copy multiple files or folders to different locations in the user's Dropbox.
+        example: "  dropbox-pp-cli files copy-batch --entries '[{\"from_path\":\"/Documents/Taxes/2019.pdf\",\"to_path\":\"/Archive/Taxes/2019.pdf\"}]'"
+        replay_safe: false
+        body:
+        - *id002
+        - *id003
+      copy-batch-check:
+        method: POST
+        path: /files/copy_batch/check_v2
+        description: Return the status and per-entry results of an asynchronous copy batch.
+        example: "  dropbox-pp-cli files copy-batch-check --async-job-id 'dbjid:AAAX...'"
+        happy_args: --async-job-id=example-value
+        mutation: false
+        body:
+        - name: async_job_id
+          type: string
+          required: true
+          description: ID returned by the asynchronous batch launch.
+      delete:
+        method: POST
+        path: /files/delete_v2
+        description: Delete a file or folder at a given path.
+        example: "  dropbox-pp-cli files delete --path '/Documents/Taxes/2019.pdf'"
+        replay_safe: false
+        body:
+        - name: path
+          type: string
+          required: true
+          description: Path in the user's Dropbox to delete.
+        - name: parent_rev
+          type: string
+          required: false
+          description: Delete only if this revision matches the current file revision; not supported for folders.
+      delete-batch:
+        method: POST
+        path: /files/delete_batch
+        description: Delete multiple files or folders at once.
+        example: "  dropbox-pp-cli files delete-batch --entries '[{\"path\":\"/Documents/Taxes/2019.pdf\"}]'"
+        replay_safe: false
+        body:
+        - name: entries
+          type: array
+          required: true
+          description: JSON array of up to 1000 delete objects, each with path and optional parent_rev.
+          item_type: object
+      delete-batch-check:
+        method: POST
+        path: /files/delete_batch/check
+        description: Return the status and per-entry results of an asynchronous delete batch.
+        example: "  dropbox-pp-cli files delete-batch-check --async-job-id 'dbjid:AAAX...'"
+        happy_args: --async-job-id=example-value
+        mutation: false
+        body:
+        - name: async_job_id
+          type: string
+          required: true
+          description: ID returned by the asynchronous batch launch.
+      restore:
+        method: POST
+        path: /files/restore
+        description: Restore a specific revision of a file to the given path.
+        example: "  dropbox-pp-cli files restore --path '/Documents/Taxes/2019.pdf' --rev 015f4ac74f..."
+        replay_safe: false
+        body:
+        - name: path
+          type: string
+          required: true
+          description: Path where the restored file should be saved.
+        - name: rev
+          type: string
+          required: true
+          description: Revision to restore.
+  sharing:
+    description: Inspect and manage shared links and shared folders.
+    endpoints:
+      create-shared-link:
+        method: POST
+        path: /sharing/create_shared_link_with_settings
+        description: Create a shared link with custom settings.
+        example: "  dropbox-pp-cli sharing create-shared-link --path '/Documents/Taxes/2019.pdf'"
+        replay_safe: false
+        body:
+        - name: path
+          type: string
+          required: true
+          description: Path to share with the new link.
+        - name: settings
+          type: object
+          required: false
+          description: Requested settings for the new shared link.
+          fields: &id004
+          - name: require_password
+            type: bool
+            required: false
+            description: Enable or disable password protection.
+          - name: link_password
+            type: string
+            required: false
+            description: Password for the link when require_password is true.
+          - name: expires
+            type: string
+            required: false
+            description: Expiration time of the shared link; by default it does not expire.
+            format: date-time
+          - name: audience
+            type: string
+            required: false
+            description: Requested link audience; choose public, team, no_one, password, members, or public_logged_in_only.
+            enum:
+            - public
+            - team
+            - no_one
+            - password
+            - members
+            - public_logged_in_only
+          - name: access
+            type: string
+            required: false
+            description: Requested link access level; choose viewer, editor, max, or default.
+            enum:
+            - viewer
+            - editor
+            - max
+            - default
+          - name: requested_visibility
+            type: string
+            required: false
+            description: Deprecated; choose public, team_only, or password; use audience.
+            enum:
+            - public
+            - team_only
+            - password
+          - name: allow_download
+            type: bool
+            required: false
+            description: Allow or disallow downloading through the shared link.
+      list-shared-links:
+        method: POST
+        path: /sharing/list_shared_links
+        description: List shared links owned by the current user.
+        mutation: false
+        example: "  dropbox-pp-cli sharing list-shared-links"
+        body:
+        - name: path
+          type: string
+          required: false
+          description: Return links giving access to this path; omit to list all links.
+        - name: cursor
+          type: string
+          required: false
+          description: Cursor returned by the previous list_shared_links call.
+        - name: direct_only
+          type: bool
+          required: false
+          description: Suppress links to parent folders and return only direct links.
+      get-shared-link-metadata:
+        method: POST
+        path: /sharing/get_shared_link_metadata
+        description: Get metadata for a shared link.
+        example: "  dropbox-pp-cli sharing get-shared-link-metadata --url 'https://www.dropbox.com/s/abc123/report.pdf?dl=0'"
+        happy_args: --url=example-value
+        mutation: false
+        body:
+        - name: url
+          type: string
+          required: true
+          description: URL of the shared link.
+        - name: path
+          type: string
+          required: false
+          description: Relative path to a file or subfolder within a shared folder link.
+        - name: link_password
+          type: string
+          required: false
+          description: Password for a protected shared link.
+      modify-shared-link-settings:
+        method: POST
+        path: /sharing/modify_shared_link_settings
+        description: Modify the settings of an existing shared link.
+        example: "  dropbox-pp-cli sharing modify-shared-link-settings --url 'https://www.dropbox.com/s/abc123/report.pdf?dl=0' --settings-audience public"
+        replay_safe: false
+        body:
+        - name: url
+          type: string
+          required: true
+          description: URL of the shared link to change.
+        - name: settings
+          type: object
+          required: true
+          description: New settings for the shared link.
+          fields: *id004
+        - name: remove_expiration
+          type: bool
+          required: false
+          description: Remove the shared link expiration.
+          default: false
+      revoke-shared-link:
+        method: POST
+        path: /sharing/revoke_shared_link
+        description: Revoke a shared link.
+        example: "  dropbox-pp-cli sharing revoke-shared-link --url 'https://www.dropbox.com/s/abc123/report.pdf?dl=0'"
+        replay_safe: false
+        body:
+        - name: url
+          type: string
+          required: true
+          description: URL of the shared link to revoke.
+      list-folders:
+        method: POST
+        path: /sharing/list_folders
+        description: Return shared folders accessible to the current user.
+        example: "  dropbox-pp-cli sharing list-folders"
+        mutation: false
+        body:
+        - name: limit
+          type: int
+          required: false
+          description: Maximum results per request, from 1 to 1000.
+          default: 1000
+          maximum: 1000
+        - name: actions
+          type: array
+          required: false
+          description: JSON array of folder action names to include in permissions.
+          item_type: string
+      list-folders-continue:
+        method: POST
+        path: /sharing/list_folders/continue
+        description: Continue paginating shared folders using a cursor.
+        example: "  dropbox-pp-cli sharing list-folders-continue --cursor 'AAH4f99T0taONIb...'"
+        happy_args: --cursor=example-value
+        mutation: false
+        body:
+        - name: cursor
+          type: string
+          required: true
+          description: The cursor returned by the previous call.
+      list-folder-members:
+        method: POST
+        path: /sharing/list_folder_members
+        description: Return shared folder membership by folder ID.
+        example: "  dropbox-pp-cli sharing list-folder-members --shared-folder-id 84528192421"
+        happy_args: --shared-folder-id=example-value
+        mutation: false
+        body:
+        - name: actions
+          type: array
+          required: false
+          description: JSON array of member action names to include in permissions.
+          item_type: string
+        - name: limit
+          type: int
+          required: false
+          description: Maximum member, group, and invitee results per request, from 1 to 1000.
+          default: 1000
+          maximum: 1000
+        - name: shared_folder_id
+          type: string
+          required: true
+          description: ID of the shared folder; when path is supplied, the folder ID is extracted from that path.
+        - name: path
+          type: string
+          required: false
+          description: Optional path to retrieve inherited members.
+      list-received-files:
+        method: POST
+        path: /sharing/list_received_files
+        description: Return files shared with the current user.
+        example: "  dropbox-pp-cli sharing list-received-files"
+        mutation: false
+        body:
+        - name: limit
+          type: int
+          required: false
+          description: Maximum number of files per query, from 1 to 300.
+          default: 100
+          maximum: 300
+        - name: actions
+          type: array
+          required: false
+          description: JSON array of file action names to include in permissions.
+          item_type: string
+  users:
+    description: Read account and space information.
+    endpoints:
+      get-current-account:
+        method: POST
+        path: /users/get_current_account
+        description: Get information about the current user's account.
+        mutation: false
+        example: '  dropbox-pp-cli users get-current-account'
+      get-space-usage:
+        method: POST
+        path: /users/get_space_usage
+        description: Get space usage for the current user's account.
+        mutation: false
+        example: '  dropbox-pp-cli users get-space-usage'
+  file-requests:
+    description: Inspect and manage file requests.
+    endpoints:
+      list:
+        method: POST
+        path: /file_requests/list_v2
+        description: Return file requests owned by the current user.
+        example: "  dropbox-pp-cli file-requests list"
+        mutation: false
+        body:
+        - name: limit
+          type: int
+          required: false
+          description: Maximum file requests per response.
+          default: 1000
+      list-continue:
+        method: POST
+        path: /file_requests/list/continue
+        description: Continue paginating file requests using a cursor.
+        example: "  dropbox-pp-cli file-requests list-continue --cursor 'AAH4f99T0taONIb...'"
+        happy_args: --cursor=example-value
+        mutation: false
+        body:
+        - name: cursor
+          type: string
+          required: true
+          description: The cursor returned by the previous call.
+      get:
+        method: POST
+        path: /file_requests/get
+        description: Return a specified file request.
+        example: "  dropbox-pp-cli file-requests get --id oaCAVmEyrqYnkZX9955Y"
+        happy_args: --id=example-value
+        mutation: false
+        body:
+        - name: id
+          type: string
+          required: true
+          description: ID of the file request to retrieve.
+      count:
+        method: POST
+        path: /file_requests/count
+        description: Return the total number of open and closed file requests.
+        example: "  dropbox-pp-cli file-requests count"
+        mutation: false
+      delete-all-closed:
+        method: POST
+        path: /file_requests/delete_all_closed
+        description: Delete all closed file requests owned by the current user.
+        example: "  dropbox-pp-cli file-requests delete-all-closed"
+        replay_safe: false

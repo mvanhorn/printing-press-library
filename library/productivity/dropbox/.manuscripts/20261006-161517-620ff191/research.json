@@ -1,0 +1,337 @@
+{
+  "api_name": "dropbox",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "dbxcli",
+      "url": "https://github.com/dropbox/dbxcli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 1157,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "rclone",
+      "url": "https://github.com/rclone/rclone",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Dropbox-Uploader",
+      "url": "https://github.com/andreafabrizi/Dropbox-Uploader",
+      "language": "Shell",
+      "install_method": "",
+      "stars": 6598,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ngs/dropbox-mcp-server",
+      "url": "https://github.com/ngs/dropbox-mcp-server",
+      "language": "Go",
+      "install_method": "",
+      "stars": 7,
+      "last_updated": "",
+      "command_count": 16,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "dbx-mcp-server",
+      "url": "https://github.com/amgadabdelhafez/dbx-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 30,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-06T21:36:58Z",
+  "novel_features": [
+    {
+      "name": "Conflicted-copy cleanup",
+      "command": "conflicts",
+      "description": "Find Dropbox conflicted copies and Selective Sync Conflict folders, compare each one to its original file by file, and plan removal only for copies that add nothing.",
+      "rationale": "Pairing copies with originals and comparing whole folder trees needs the full file list in a local index.",
+      "example": "dropbox-pp-cli conflicts --plan conflicts.json --agent",
+      "why_it_matters": "Use after device syncs leave conflicted copies or Selective Sync Conflict folders. Only identical copies and copies whose files all exist in the original go into the plan.",
+      "group": "Find the mess"
+    },
+    {
+      "name": "Shared-link audit and bulk revoke",
+      "command": "links audit",
+      "description": "List every shared link you own with its visibility and expiry, flag links to files that no longer exist, and plan bulk revokes.",
+      "rationale": "Dropbox has no bulk revoke, and spotting dead links means joining the link list against the full file index.",
+      "example": "dropbox-pp-cli links audit --agent",
+      "why_it_matters": "Use for a privacy pass over old shared links. Nothing changes until apply runs with --yes, and revoked links cannot be restored.",
+      "group": "Find the mess"
+    },
+    {
+      "name": "Rule-based organizer",
+      "command": "organize",
+      "description": "Turn a glob and a destination template like /Photos/{year}/{month} into a move plan, with missing folders and name collisions worked out before anything moves.",
+      "rationale": "It expands dates from each file's client_modified time across tens of thousands of indexed files and checks every destination.",
+      "example": "dropbox-pp-cli organize --match '*.jpg' --under '/Camera Uploads' --to '/Photos/{year}/{month}' --plan photos.json",
+      "why_it_matters": "Use when someone describes a filing rule. It writes a plan for plan check and apply instead of moving files directly. Dates use local time unless you pass --tz.",
+      "group": "Change safely"
+    },
+    {
+      "name": "Account overview",
+      "command": "overview",
+      "description": "See quota, space by top-level folder, file type, and year, real duplicate totals, conflict copies, and how much space code folders like node_modules take.",
+      "rationale": "It aggregates the whole local index and adds one live space-usage call, which no single Dropbox API call can answer.",
+      "example": "dropbox-pp-cli overview --agent",
+      "why_it_matters": "Run it first in any cleanup session, after index, to decide where to look. Duplicate and conflict totals skip code folders; pass --include-dev-dirs to the finder commands to include them.",
+      "group": "Find the mess"
+    },
+    {
+      "name": "Batched, journaled apply",
+      "command": "apply",
+      "description": "Preview a plan, then run it with --yes in Dropbox batch jobs of up to 1000 items that retry on lock contention and record every change in a local journal.",
+      "rationale": "Batched, serialized writes avoid Dropbox's too_many_write_operations errors, and the journal is what makes undo possible.",
+      "example": "dropbox-pp-cli apply photos.json",
+      "why_it_matters": "Run every cleanup plan through apply. Without --yes it only previews and lists any extra flags the plan needs (--allow-dev-dirs, --allow-cross-share, --allow-nonempty-delete, --allow-unshare). It refuses plans whose files changed since planning.",
+      "group": "Change safely"
+    },
+    {
+      "name": "Structure lint",
+      "command": "mess",
+      "description": "List empty folders, single-file folders, loose files at the root, 'Copy of' and '(1)' names, very deep paths, and near-duplicate folder names like Taxes and Taxes 2.",
+      "rationale": "Each check is a parent and sibling query across the whole local tree.",
+      "example": "dropbox-pp-cli mess --agent",
+      "why_it_matters": "Use it to turn a vague 'clean this up' into a concrete list. Its plan only removes empty folders.",
+      "group": "Find the mess"
+    },
+    {
+      "name": "Plan validator",
+      "command": "plan check",
+      "description": "Check a plan against the index before it runs: files that changed since planning, name collisions, case-only renames, code folders, and moves that would change who can see a file.",
+      "rationale": "Every op is checked against indexed revisions and shared-folder membership before any write.",
+      "example": "dropbox-pp-cli plan check photos.json --agent",
+      "why_it_matters": "Run it on every plan, especially plans an agent wrote by hand. Exit code 2 means the plan has errors.",
+      "group": "Change safely"
+    },
+    {
+      "name": "Undo a batch",
+      "command": "undo",
+      "description": "Reverse an applied batch: move files back and restore soft-deleted files from the revision recorded when they were deleted.",
+      "rationale": "It replays the local journal in reverse. Dropbox itself has no batch undo.",
+      "example": "dropbox-pp-cli undo 20261006-153012-abcd --yes",
+      "why_it_matters": "Use when an applied plan looks wrong. Restores work within Dropbox's restore window, at least 30 days on personal plans. Folders created by apply stay in place, and revoked links cannot be restored.",
+      "group": "Change safely"
+    },
+    {
+      "name": "Change journal",
+      "command": "journal",
+      "description": "List applied batches with their results and how many days remain to restore deleted files.",
+      "rationale": "It reads the journal that apply and undo write.",
+      "example": "dropbox-pp-cli journal --agent",
+      "why_it_matters": "Check it after apply to confirm results and to get the batch ID for undo.",
+      "group": "Change safely"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Conflicted-copy cleanup",
+      "command": "conflicts",
+      "description": "Find Dropbox conflicted copies and Selective Sync Conflict folders, compare each one to its original file by file, and plan removal only for copies that add nothing.",
+      "rationale": "Pairing copies with originals and comparing whole folder trees needs the full file list in a local index.",
+      "example": "dropbox-pp-cli conflicts --plan conflicts.json --agent",
+      "why_it_matters": "Use after device syncs leave conflicted copies or Selective Sync Conflict folders. Only identical copies and copies whose files all exist in the original go into the plan.",
+      "group": "Find the mess"
+    },
+    {
+      "name": "Shared-link audit and bulk revoke",
+      "command": "links audit",
+      "description": "List every shared link you own with its visibility and expiry, flag links to files that no longer exist, and plan bulk revokes.",
+      "rationale": "Dropbox has no bulk revoke, and spotting dead links means joining the link list against the full file index.",
+      "example": "dropbox-pp-cli links audit --agent",
+      "why_it_matters": "Use for a privacy pass over old shared links. Nothing changes until apply runs with --yes, and revoked links cannot be restored.",
+      "group": "Find the mess"
+    },
+    {
+      "name": "Rule-based organizer",
+      "command": "organize",
+      "description": "Turn a glob and a destination template like /Photos/{year}/{month} into a move plan, with missing folders and name collisions worked out before anything moves.",
+      "rationale": "It expands dates from each file's client_modified time across tens of thousands of indexed files and checks every destination.",
+      "example": "dropbox-pp-cli organize --match '*.jpg' --under '/Camera Uploads' --to '/Photos/{year}/{month}' --plan photos.json",
+      "why_it_matters": "Use when someone describes a filing rule. It writes a plan for plan check and apply instead of moving files directly. Dates use local time unless you pass --tz.",
+      "group": "Change safely"
+    },
+    {
+      "name": "Account overview",
+      "command": "overview",
+      "description": "See quota, space by top-level folder, file type, and year, real duplicate totals, conflict copies, and how much space code folders like node_modules take.",
+      "rationale": "It aggregates the whole local index and adds one live space-usage call, which no single Dropbox API call can answer.",
+      "example": "dropbox-pp-cli overview --agent",
+      "why_it_matters": "Run it first in any cleanup session, after index, to decide where to look. Duplicate and conflict totals skip code folders; pass --include-dev-dirs to the finder commands to include them.",
+      "group": "Find the mess"
+    },
+    {
+      "name": "Batched, journaled apply",
+      "command": "apply",
+      "description": "Preview a plan, then run it with --yes in Dropbox batch jobs of up to 1000 items that retry on lock contention and record every change in a local journal.",
+      "rationale": "Batched, serialized writes avoid Dropbox's too_many_write_operations errors, and the journal is what makes undo possible.",
+      "example": "dropbox-pp-cli apply photos.json",
+      "why_it_matters": "Run every cleanup plan through apply. Without --yes it only previews and lists any extra flags the plan needs (--allow-dev-dirs, --allow-cross-share, --allow-nonempty-delete, --allow-unshare). It refuses plans whose files changed since planning.",
+      "group": "Change safely"
+    },
+    {
+      "name": "Structure lint",
+      "command": "mess",
+      "description": "List empty folders, single-file folders, loose files at the root, 'Copy of' and '(1)' names, very deep paths, and near-duplicate folder names like Taxes and Taxes 2.",
+      "rationale": "Each check is a parent and sibling query across the whole local tree.",
+      "example": "dropbox-pp-cli mess --agent",
+      "why_it_matters": "Use it to turn a vague 'clean this up' into a concrete list. Its plan only removes empty folders.",
+      "group": "Find the mess"
+    },
+    {
+      "name": "Plan validator",
+      "command": "plan check",
+      "description": "Check a plan against the index before it runs: files that changed since planning, name collisions, case-only renames, code folders, and moves that would change who can see a file.",
+      "rationale": "Every op is checked against indexed revisions and shared-folder membership before any write.",
+      "example": "dropbox-pp-cli plan check photos.json --agent",
+      "why_it_matters": "Run it on every plan, especially plans an agent wrote by hand. Exit code 2 means the plan has errors.",
+      "group": "Change safely"
+    },
+    {
+      "name": "Undo a batch",
+      "command": "undo",
+      "description": "Reverse an applied batch: move files back and restore soft-deleted files from the revision recorded when they were deleted.",
+      "rationale": "It replays the local journal in reverse. Dropbox itself has no batch undo.",
+      "example": "dropbox-pp-cli undo 20261006-153012-abcd --yes",
+      "why_it_matters": "Use when an applied plan looks wrong. Restores work within Dropbox's restore window, at least 30 days on personal plans. Folders created by apply stay in place, and revoked links cannot be restored.",
+      "group": "Change safely"
+    },
+    {
+      "name": "Change journal",
+      "command": "journal",
+      "description": "List applied batches with their results and how many days remain to restore deleted files.",
+      "rationale": "It reads the journal that apply and undo write.",
+      "example": "dropbox-pp-cli journal --agent",
+      "why_it_matters": "Check it after apply to confirm results and to get the batch ID for undo.",
+      "group": "Change safely"
+    }
+  ],
+  "narrative": {
+    "display_name": "Dropbox",
+    "headline": "Find duplicates, sync conflicts, and stale shared links across a whole Dropbox, then clean up with plans you preview first.",
+    "value_prop": "dropbox-pp-cli copies the metadata of every file in your Dropbox into a local SQLite index, so finding where the space went or which files are byte-identical takes seconds and downloads nothing. The cleanup commands write plan files that you check and preview before anything changes; apply runs them in Dropbox batch jobs and records each change in a journal that undo can reverse. File deletes are Dropbox soft deletes that undo can restore, revoking a shared link is permanent, and code folders like node_modules and .git are skipped unless you opt in.",
+    "auth_narrative": "Dropbox uses OAuth with PKCE, so you only need an app key, not a secret. Create a free app at dropbox.com/developers/apps with Scoped access and Full Dropbox, add http://127.0.0.1:8085/callback as a redirect URI, and on the Permissions tab enable account_info.read, files.metadata.read and write, files.content.read and write, sharing.read and write, and file_requests.read and write, then click Submit. Then run `dropbox-pp-cli auth login --client-id \u003cyour app key\u003e` (or set DROPBOX_CLIENT_ID) and approve in the browser. Do not pass --client-secret. Access tokens last four hours and refresh on their own. If you change permissions later, run auth login again, because existing tokens keep their old scopes.",
+    "quickstart": [
+      {
+        "command": "dropbox-pp-cli doctor --dry-run",
+        "comment": "Confirms the CLI is installed and configured; makes no network calls."
+      },
+      {
+        "command": "dropbox-pp-cli auth login --client-id YOUR_APP_KEY",
+        "comment": "One-time browser sign-in with the app key from your Dropbox app."
+      },
+      {
+        "command": "dropbox-pp-cli index",
+        "comment": "Copies file metadata into the local index. The first run on an account with a few million entries can take close to an hour and resumes if interrupted; later runs only fetch changes."
+      },
+      {
+        "command": "dropbox-pp-cli overview --agent",
+        "comment": "Shows where the space goes before you decide what to clean."
+      },
+      {
+        "command": "dropbox-pp-cli conflicts --plan conflicts.json",
+        "comment": "Plans removal of sync-conflict copies that add nothing over their originals."
+      },
+      {
+        "command": "dropbox-pp-cli plan check conflicts.json",
+        "comment": "Validates the plan against the current index."
+      },
+      {
+        "command": "dropbox-pp-cli apply conflicts.json",
+        "comment": "Previews the batches. Add --yes to run them; journal and undo cover the result."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "auth login says an OAuth2 client ID is required",
+        "fix": "Pass your Dropbox app key: dropbox-pp-cli auth login --client-id YOUR_APP_KEY, or set DROPBOX_CLIENT_ID."
+      },
+      {
+        "symptom": "Error says the app or token lacks a scope such as files.metadata.read",
+        "fix": "Enable the scope on the App Console Permissions tab, click Submit, then run dropbox-pp-cli auth login again."
+      },
+      {
+        "symptom": "auth login fails with redirect_uri mismatch",
+        "fix": "Add http://127.0.0.1:8085/callback to the app's Redirect URIs, or pass --port to match one you registered."
+      },
+      {
+        "symptom": "First index takes a long time",
+        "fix": "It is a one-time crawl (close to an hour for a few million entries in testing) that resumes if interrupted. Later runs of dropbox-pp-cli index only fetch changes."
+      },
+      {
+        "symptom": "apply refuses an op with rev_mismatch or delete_nonempty_folder",
+        "fix": "Files changed after the plan was written. Run dropbox-pp-cli index, then rebuild the plan."
+      },
+      {
+        "symptom": "apply stops and says to check the journal",
+        "fix": "Do not re-apply. Run dropbox-pp-cli index, then dropbox-pp-cli journal \u003cbatch-id\u003e --ops to see which operations finished."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs to understand or reorganize a large Dropbox: where the space goes, duplicate and conflict cleanup, rule-based filing, and shared-link review. It fits bulk changes that should be checked, previewed, and reversible.",
+    "anti_triggers": [
+      "Editing file contents or collaborating on documents",
+      "Syncing a local folder continuously (use the Dropbox desktop app)",
+      "Permanently deleting files or pruning revisions",
+      "Dropbox Business team administration (members, groups, audit logs)",
+      "Dropbox Sign e-signatures (use the dropbox-sign CLI)"
+    ],
+    "recipes": [
+      {
+        "title": "Find where the space goes",
+        "command": "dropbox-pp-cli overview --agent --select top_folders,by_type,dev_dirs",
+        "explanation": "Folder, file type, and code-folder breakdowns from the local index."
+      },
+      {
+        "title": "Clean up sync conflict copies",
+        "command": "dropbox-pp-cli conflicts --plan conflicts.json",
+        "explanation": "Plans removal only for copies identical to their original or fully contained in it; everything else is listed for review."
+      },
+      {
+        "title": "File Camera Uploads by month",
+        "command": "dropbox-pp-cli organize --match '*.jpg' --under '/Camera Uploads' --to '/Photos/{year}/{month}' --plan photos.json",
+        "explanation": "Builds a move plan from each file's client_modified date for plan check and apply."
+      },
+      {
+        "title": "Review shared links",
+        "command": "dropbox-pp-cli links audit --plan revoke.json --agent",
+        "explanation": "Lists every shared link with visibility and expiry and plans revokes for links whose files are gone."
+      },
+      {
+        "title": "Undo the last change",
+        "command": "dropbox-pp-cli journal --agent --select batches.id,batches.created_at",
+        "explanation": "Find the batch ID, then pass it to undo."
+      }
+    ],
+    "trigger_phrases": [
+      "clean up my dropbox",
+      "find duplicate files in dropbox",
+      "what's taking up space in dropbox",
+      "organize my camera uploads",
+      "revoke dead or public dropbox shared links",
+      "use dropbox",
+      "run dropbox-pp-cli"
+    ]
+  }
+}

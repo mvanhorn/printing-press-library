@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "o-store-scope-oauth",
+  "applied_at": "2026-10-07",
+  "base_run_id": "20261006-161517-620ff191",
+  "base_printing_press_version": "4.33.1",
+  "summary": "Keep OAuth local-index scope stable across access-token refreshes and mark missing-index read results.",
+  "reason": "Access-token-derived database filenames orphan the local index after OAuth refresh, while empty missing-index output can be mistaken for a clean account.",
+  "files": [
+    "internal/config/config.go",
+    "internal/config/dropbox_store_scope_test.go",
+    "internal/cli/dropbox_local.go",
+    "internal/cli/overview.go",
+    "internal/cli/mess.go",
+    "internal/cli/dupes.go",
+    "internal/cli/tree.go",
+    "internal/cli/search.go",
+    "internal/cli/conflicts.go",
+    "internal/cli/output_review_test.go"
+  ],
+  "validated_outcome": "Regression tests confirm OAuth path stability, non-OAuth bearer behavior, live quota without an index, and missing-index markers in JSON and agent output."
+}

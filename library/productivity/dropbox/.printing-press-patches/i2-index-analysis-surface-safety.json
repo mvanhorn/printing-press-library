@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "id": "i2-index-analysis-surface-safety",
+  "applied_at": "2026-10-06",
+  "base_run_id": "20261006-161517-620ff191",
+  "base_printing_press_version": "4.33.1",
+  "summary": "Cleanup plans depend on complete, account-bound index roots and carry guarded operations or an explicit empty plan; content commands require deliberate local file access.",
+  "reason": "Incomplete metadata, stale plan files, account switches, and implicit or credential-bearing transfers can turn a reviewable cleanup into an unintended Dropbox change.",
+  "files": [
+    "internal/dropbox/path.go",
+    "internal/dropbox/plan.go",
+    "internal/dropbox/check.go",
+    "internal/store/dropbox_migrations.go",
+    "internal/cli/dropbox_local.go",
+    "internal/cli/dropbox_plan_output.go",
+    "internal/cli/dropbox_account.go",
+    "internal/cli/conflicts.go",
+    "internal/cli/mess.go",
+    "internal/cli/dupes.go",
+    "internal/cli/organize.go",
+    "internal/cli/links_audit.go",
+    "internal/cli/files_download.go",
+    "internal/cli/files_upload.go",
+    "internal/cli/index.go",
+    "internal/cli/apply.go",
+    "internal/cli/undo.go",
+    "internal/cli/search.go"
+  ],
+  "validated_outcome": "Unicode moves, incomplete-root refusal, guarded and empty plans, stale-link labels, account binding, time zones, and content-file boundaries are covered by Go tests."
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "m-mcp-destructive-hints",
+  "applied_at": "2026-10-07",
+  "base_run_id": "20261006-161517-620ff191",
+  "base_printing_press_version": "4.33.1",
+  "summary": "Mark Dropbox delete, move, restore, tag-remove, link-revoke, and delete-all-closed MCP tools as destructive.",
+  "reason": "The generator emits destructiveHint=false for every non-read POST; Dropbox sends all calls as POST, so destructive tools were advertised as safe to auto-approve.",
+  "files": ["internal/mcp/tools.go", "internal/mcp/dropbox_destructive_hints_test.go"],
+  "validated_outcome": "TestDropboxMutatingToolsAreDestructive asserts the hint on all eight tools and fails if a regeneration drops the patch."
+}

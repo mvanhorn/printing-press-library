@@ -1,0 +1,136 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-08T17:53:24.552448Z",
+  "printing_press_version": "4.33.2",
+  "api_name": "dropbox",
+  "display_name": "Dropbox",
+  "cli_name": "dropbox-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "owner": "cathrynlavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:8f006958fcb30a2449a43663d439009922013b800352abb14eec7912d936ca66",
+  "run_id": "20261006-161517-620ff191",
+  "category": "productivity",
+  "description": "Find duplicates, sync conflicts, and stale shared links across a whole Dropbox, then clean up with plans you preview first.",
+  "mcp_binary": "dropbox-pp-mcp",
+  "mcp_tool_count": 41,
+  "mcp_ready": "full",
+  "auth_type": "oauth2",
+  "auth_key_url": "https://www.dropbox.com/developers/apps",
+  "auth_title": "Dropbox app key",
+  "novel_features": [
+    {
+      "name": "Conflicted-copy cleanup",
+      "command": "conflicts",
+      "description": "Find Dropbox conflicted copies and Selective Sync Conflict folders, compare each one to its original file by file, and plan removal only for copies that add nothing."
+    },
+    {
+      "name": "Shared-link audit and bulk revoke",
+      "command": "links audit",
+      "description": "List every shared link you own with its visibility and expiry, flag links to files that no longer exist, and plan bulk revokes."
+    },
+    {
+      "name": "Rule-based organizer",
+      "command": "organize",
+      "description": "Turn a glob and a destination template like /Photos/{year}/{month} into a move plan, with missing folders and name collisions worked out before anything moves."
+    },
+    {
+      "name": "Account overview",
+      "command": "overview",
+      "description": "See quota, space by top-level folder, file type, and year, real duplicate totals, conflict copies, and how much space code folders like node_modules take."
+    },
+    {
+      "name": "Batched, journaled apply",
+      "command": "apply",
+      "description": "Preview a plan, then run it with --yes in Dropbox batch jobs of up to 1000 items that retry on lock contention and record every change in a local journal."
+    },
+    {
+      "name": "Structure lint",
+      "command": "mess",
+      "description": "List empty folders, single-file folders, loose files at the root, 'Copy of' and '(1)' names, very deep paths, and near-duplicate folder names like Taxes and Taxes 2."
+    },
+    {
+      "name": "Plan validator",
+      "command": "plan check",
+      "description": "Check a plan against the index before it runs: files that changed since planning, name collisions, case-only renames, code folders, and moves that would change who can see a file."
+    },
+    {
+      "name": "Undo a batch",
+      "command": "undo",
+      "description": "Reverse an applied batch: move files back and restore soft-deleted files from the revision recorded when they were deleted."
+    },
+    {
+      "name": "Change journal",
+      "command": "journal",
+      "description": "List applied batches with their results and how many days remain to restore deleted files."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Conflicted-copy cleanup",
+      "command": "conflicts",
+      "description": "Find Dropbox conflicted copies and Selective Sync Conflict folders, compare each one to its original file by file, and plan removal only for copies that add nothing."
+    },
+    {
+      "name": "Shared-link audit and bulk revoke",
+      "command": "links audit",
+      "description": "List every shared link you own with its visibility and expiry, flag links to files that no longer exist, and plan bulk revokes."
+    },
+    {
+      "name": "Rule-based organizer",
+      "command": "organize",
+      "description": "Turn a glob and a destination template like /Photos/{year}/{month} into a move plan, with missing folders and name collisions worked out before anything moves."
+    },
+    {
+      "name": "Account overview",
+      "command": "overview",
+      "description": "See quota, space by top-level folder, file type, and year, real duplicate totals, conflict copies, and how much space code folders like node_modules take."
+    },
+    {
+      "name": "Batched, journaled apply",
+      "command": "apply",
+      "description": "Preview a plan, then run it with --yes in Dropbox batch jobs of up to 1000 items that retry on lock contention and record every change in a local journal."
+    },
+    {
+      "name": "Structure lint",
+      "command": "mess",
+      "description": "List empty folders, single-file folders, loose files at the root, 'Copy of' and '(1)' names, very deep paths, and near-duplicate folder names like Taxes and Taxes 2."
+    },
+    {
+      "name": "Plan validator",
+      "command": "plan check",
+      "description": "Check a plan against the index before it runs: files that changed since planning, name collisions, case-only renames, code folders, and moves that would change who can see a file."
+    },
+    {
+      "name": "Undo a batch",
+      "command": "undo",
+      "description": "Reverse an applied batch: move files back and restore soft-deleted files from the revision recorded when they were deleted."
+    },
+    {
+      "name": "Change journal",
+      "command": "journal",
+      "description": "List applied batches with their results and how many days remain to restore deleted files."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 44,
+    "total": 44,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 85,
+      "grade": "A",
+      "total": 85
+    }
+  }
+}
