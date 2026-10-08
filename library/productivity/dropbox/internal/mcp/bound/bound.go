@@ -35,6 +35,7 @@ const (
 	endpointPreviewNote = "Typed MCP endpoint response exceeded the tool result budget and was not a recognized list envelope. Narrow the request with filters, search/sql, or a command-mirror tool with --agent/--compact/--select."
 	jsonResultNote      = "MCP JSON result exceeded the tool result budget. Narrow the request with limit, filters, search/sql, or --select/--compact where available."
 	textResultNote      = "MCP command output exceeded the tool result budget. Rerun with narrower flags, --agent, --compact, --select, or --limit where available."
+	cursorListNote      = "This page held more entries than fit in the MCP result budget. cursor_after_page resumes after the whole page, so following it skips the omitted entries. To read every entry, rerun the first list call with its page-size input (limit or max_results) set to retry_page_size and follow the cursor from that smaller page."
 )
 
 // PageOptions describes resumable list context for typed MCP endpoint results.
@@ -105,8 +106,90 @@ func endpointResponse(method string, data json.RawMessage, opts PageOptions) str
 		if out, ok := boundedSingleArrayObject(data); ok {
 			return string(out)
 		}
+	} else if out, ok := boundedCursorListObject(data); ok {
+		return string(out)
 	}
 	return previewEnvelope(data, endpointPreviewNote)
+}
+
+// boundedCursorListObject bounds RPC-style list pages that arrive over POST
+// with a continuation cursor or more flag. The upstream cursor resumes after
+// the whole page, so a cut page renames it and reports the page size that
+// fits, instead of handing agents a cursor that silently skips entries.
+func boundedCursorListObject(data json.RawMessage) ([]byte, bool) {
+	var obj map[string]json.RawMessage
+	if json.Unmarshal(data, &obj) != nil {
+		return nil, false
+	}
+	moreKey := ""
+	for _, key := range []string{"has_more", "more"} {
+		var flag bool
+		if raw, ok := obj[key]; ok && json.Unmarshal(raw, &flag) == nil {
+			moreKey = key
+			break
+		}
+	}
+	var cursor string
+	hasCursor := json.Unmarshal(obj["cursor"], &cursor) == nil && cursor != ""
+	if !hasCursor && moreKey == "" {
+		return nil, false
+	}
+	if moreKey == "" {
+		moreKey = "has_more"
+	}
+	arrayField := ""
+	var items []json.RawMessage
+	for key, raw := range obj {
+		trimmed := strings.TrimSpace(string(raw))
+		if len(trimmed) == 0 || trimmed[0] != '[' {
+			continue
+		}
+		var candidate []json.RawMessage
+		if json.Unmarshal(raw, &candidate) != nil {
+			continue
+		}
+		if arrayField != "" {
+			return nil, false
+		}
+		arrayField, items = key, candidate
+	}
+	if arrayField == "" {
+		return nil, false
+	}
+	build := func(subset []json.RawMessage) any {
+		out := make(map[string]any, len(obj)+10)
+		for key, raw := range obj {
+			out[key] = raw
+		}
+		out[arrayField] = subset
+		if len(subset) < len(items) {
+			delete(out, "cursor")
+			if hasCursor {
+				out["cursor_after_page"] = cursor
+			}
+			pageSize := len(subset)
+			if pageSize < 1 {
+				pageSize = 1
+			}
+			out[moreKey] = true
+			out["truncated"] = true
+			out["_pp_truncated"] = true
+			out["resumable"] = true
+			out["count"] = len(items)
+			out["returned_count"] = len(subset)
+			out["omitted_count"] = len(items) - len(subset)
+			out["retry_page_size"] = pageSize
+			out["original_bytes"] = len(data)
+			out["max_bytes"] = MaxBytes
+			out["note"] = cursorListNote
+		}
+		return out
+	}
+	out := fitJSONItems(items, build)
+	if len(out) > MaxBytes {
+		return nil, false
+	}
+	return out, true
 }
 
 // JSON renders an arbitrary JSON value within the MCP result budget. Small

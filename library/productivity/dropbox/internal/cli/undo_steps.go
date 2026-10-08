@@ -47,6 +47,24 @@ func undoChildren(ops []store.DropboxJournalOp) map[string][]store.DropboxJourna
 	}
 	return children
 }
+
+// childRestoreOrder recreates descendant folders parent-first, then restores
+// files in journal order.
+func childRestoreOrder(children []store.DropboxJournalOp) []store.DropboxJournalOp {
+	ordered := make([]store.DropboxJournalOp, 0, len(children))
+	for _, child := range children {
+		if child.Tag == "folder" {
+			ordered = append(ordered, child)
+		}
+	}
+	sort.SliceStable(ordered, func(i, j int) bool { return strings.ToLower(ordered[i].Path) < strings.ToLower(ordered[j].Path) })
+	for _, child := range children {
+		if child.Tag != "folder" {
+			ordered = append(ordered, child)
+		}
+	}
+	return ordered
+}
 func undoPriority(op string) int {
 	switch op {
 	case "revoke_link":
@@ -74,12 +92,28 @@ func orderedUndoOps(ops []store.DropboxJournalOp) []store.DropboxJournalOp {
 }
 func (u *undoExecution) record(op store.DropboxJournalOp, status string, detail error) error {
 	u.seq++
+	return u.settle(op, u.seq, status, detail, true)
+}
+
+// begin journals a pending reverse operation before its request is sent, so a
+// crash or poll failure after Dropbox accepts it still leaves a record.
+func (u *undoExecution) begin(op store.DropboxJournalOp) (int, error) {
+	u.seq++
+	if err := u.db.AddDropboxJournalOp(u.ctx, store.DropboxJournalOp{BatchID: u.result.BatchID, Seq: u.seq, Op: op.Op, Path: op.Path,
+		FromPath: op.ToPath, ToPath: op.FromPath, Rev: op.Rev, URL: op.URL, Tag: op.Tag, EntryID: op.EntryID, Result: "pending"}); err != nil {
+		return 0, err
+	}
+	return u.seq, u.db.SetDropboxJournalUndoResult(u.ctx, op.BatchID, op.Seq, "pending", "")
+}
+
+func (u *undoExecution) settle(op store.DropboxJournalOp, seq int, status string, detail error, insert bool) error {
 	message := ""
 	if detail != nil {
 		message = detail.Error()
 	}
 	benign := status == "skipped" && (detail == nil || strings.Contains(message, "unknown move did not occur") ||
-		strings.Contains(message, "unknown delete did not occur") || strings.Contains(message, "already restored by parent"))
+		strings.Contains(message, "unknown delete did not occur") || strings.Contains(message, "already restored by parent") ||
+		strings.Contains(message, "undo already completed"))
 	if benign {
 		if message != "" {
 			u.result.Warnings = append(u.result.Warnings, message)
@@ -88,8 +122,12 @@ func (u *undoExecution) record(op store.DropboxJournalOp, status string, detail 
 		u.result.Failures = append(u.result.Failures, applyFailure{Seq: op.Seq, Op: op.Op, Error: message})
 	}
 	u.result.Counts[status]++
-	if err := u.db.AddDropboxJournalOp(u.ctx, store.DropboxJournalOp{BatchID: u.result.BatchID, Seq: u.seq, Op: op.Op, Path: op.Path,
-		FromPath: op.ToPath, ToPath: op.FromPath, Rev: op.Rev, URL: op.URL, Tag: op.Tag, EntryID: op.EntryID, Result: status, Error: message}); err != nil {
+	if insert {
+		if err := u.db.AddDropboxJournalOp(u.ctx, store.DropboxJournalOp{BatchID: u.result.BatchID, Seq: seq, Op: op.Op, Path: op.Path,
+			FromPath: op.ToPath, ToPath: op.FromPath, Rev: op.Rev, URL: op.URL, Tag: op.Tag, EntryID: op.EntryID, Result: status, Error: message}); err != nil {
+			return err
+		}
+	} else if err := u.db.SetDropboxJournalOpResult(u.ctx, u.result.BatchID, seq, status, message); err != nil {
 		return err
 	}
 	undoState := status
@@ -97,6 +135,29 @@ func (u *undoExecution) record(op store.DropboxJournalOp, status string, detail 
 		undoState = "ok"
 	}
 	return u.db.SetDropboxJournalUndoResult(u.ctx, op.BatchID, op.Seq, undoState, message)
+}
+
+// priorUndoAttempted reports that an earlier undo sent this reversal but never
+// recorded its outcome.
+func priorUndoAttempted(op store.DropboxJournalOp) bool {
+	return op.UndoResult == "pending" || op.UndoResult == "unknown"
+}
+
+// resolvePriorUndoMove polls the job an interrupted undo saved. done is true
+// when that job already moved the entry back.
+func (u *undoExecution) resolvePriorUndoMove(op store.DropboxJournalOp) (done bool, err error) {
+	if !priorUndoAttempted(op) || op.UndoJobID == "" {
+		return false, nil
+	}
+	raw, pollErr := pollExistingJob(u.ctx, u.poster, "/files/move_batch/check_v2", op.UndoJobID)
+	if pollErr != nil {
+		var failed *dropbox.BatchFailedError
+		if errors.As(pollErr, &failed) || asyncJobGone(pollErr) {
+			return false, nil
+		}
+		return false, fmt.Errorf("earlier undo job %s is unresolved: %w", op.UndoJobID, pollErr)
+	}
+	return batchEntries(raw, 1)[0] == nil, nil
 }
 func (u *undoExecution) classify(err error) (string, error) {
 	if err == nil {
@@ -126,11 +187,33 @@ func (u *undoExecution) pendingChild(op store.DropboxJournalOp) bool {
 	return false
 }
 func (u *undoExecution) move(op store.DropboxJournalOp) error {
+	if done, err := u.resolvePriorUndoMove(op); err != nil {
+		return u.record(op, "unknown", err)
+	} else if done {
+		if _, atTo, lookupErr := indexEntryForUndo(u.ctx, u.db, op.ToPath); lookupErr != nil {
+			return lookupErr
+		} else if atTo {
+			if indexErr := u.db.MoveDropboxPathPrefix(u.ctx, op.ToPath, op.FromPath); indexErr != nil {
+				status, detail := u.classify(&undoIndexError{indexErr})
+				return u.record(op, status, detail)
+			}
+		}
+		return u.record(op, "skipped", fmt.Errorf("undo already completed by an earlier attempt"))
+	}
 	entry, found, err := indexEntryForUndo(u.ctx, u.db, op.ToPath)
 	if err != nil {
 		return err
 	}
 	if !found || op.EntryID == "" || entry.EntryID != op.EntryID {
+		if priorUndoAttempted(op) && op.EntryID != "" {
+			original, backAtFrom, lookupErr := indexEntryForUndo(u.ctx, u.db, op.FromPath)
+			if lookupErr != nil {
+				return lookupErr
+			}
+			if backAtFrom && original.EntryID == op.EntryID {
+				return u.record(op, "skipped", fmt.Errorf("undo already completed by an earlier attempt"))
+			}
+		}
 		if op.Result == "unknown" && op.EntryID != "" {
 			original, stillAtFrom, lookupErr := indexEntryForUndo(u.ctx, u.db, op.FromPath)
 			if lookupErr != nil {
@@ -148,12 +231,26 @@ func (u *undoExecution) move(op store.DropboxJournalOp) error {
 	} else if occupied && !caseOnly {
 		return u.record(op, "skipped", fmt.Errorf("path occupied"))
 	}
+	seq, err := u.begin(op)
+	if err != nil {
+		return err
+	}
+	ambiguous := false
 	if caseOnly {
 		_, err = u.poster.Write(u.ctx, "/files/move_v2", map[string]any{"from_path": op.ToPath, "to_path": op.FromPath, "autorename": false})
 	} else {
 		body := map[string]any{"entries": []map[string]string{{"from_path": op.ToPath, "to_path": op.FromPath}}, "autorename": false}
 		var raw json.RawMessage
-		raw, err = dropbox.RunBatchJob(u.ctx, u.poster, "/files/move_batch_v2", "/files/move_batch/check_v2", body, time.Second)
+		jobSaved := false
+		raw, err = dropbox.RunBatchJobObserved(u.ctx, u.poster, "/files/move_batch_v2", "/files/move_batch/check_v2", body, time.Second, func(id string) error {
+			if err := u.db.SetDropboxJournalAsyncJobID(u.ctx, u.result.BatchID, seq, id, 0); err != nil {
+				return err
+			}
+			jobSaved = true
+			return u.db.SetDropboxJournalUndoJobID(u.ctx, op.BatchID, op.Seq, id)
+		})
+		var failed *dropbox.BatchFailedError
+		ambiguous = err != nil && jobSaved && !errors.As(err, &failed)
 		if err == nil {
 			err = batchEntries(raw, 1)[0]
 		}
@@ -164,11 +261,23 @@ func (u *undoExecution) move(op store.DropboxJournalOp) error {
 		}
 	}
 	status, detail := u.classify(err)
-	return u.record(op, status, detail)
+	if ambiguous {
+		status = "unknown"
+	}
+	return u.settle(op, seq, status, detail, false)
 }
 func (u *undoExecution) restoreChild(child store.DropboxJournalOp) error {
 	if child.UndoResult == "ok" {
 		return nil
+	}
+	if child.Tag == "folder" {
+		if current, exists, err := indexEntryForUndo(u.ctx, u.db, child.Path); err != nil {
+			return err
+		} else if exists && current.Tag == "folder" {
+			return u.record(child, "skipped", fmt.Errorf("child folder already restored by parent"))
+		}
+		status, detail := u.classify(undoMkdir(u.ctx, u.db, u.poster, child.Path))
+		return u.record(child, status, detail)
 	}
 	if current, exists, err := indexEntryForUndo(u.ctx, u.db, child.Path); err != nil {
 		return err
@@ -196,7 +305,7 @@ func (u *undoExecution) delete(op store.DropboxJournalOp) error {
 				return err
 			}
 		}
-		for _, child := range u.children[op.Path] {
+		for _, child := range childRestoreOrder(u.children[op.Path]) {
 			if err := u.restoreChild(child); err != nil {
 				return err
 			}

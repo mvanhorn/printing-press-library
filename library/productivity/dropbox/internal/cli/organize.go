@@ -19,6 +19,8 @@ type organizeCollision struct {
 }
 type organizeResult struct {
 	planOutput
+	IndexMissing        bool                `json:"index_missing,omitempty"`
+	Note                string              `json:"note,omitempty"`
 	Matched             int                 `json:"matched"`
 	PlannedMoves        int                 `json:"planned_moves"`
 	Mkdirs              []string            `json:"mkdirs"`
@@ -70,6 +72,8 @@ func newNovelOrganizeCmd(flags *rootFlags) *cobra.Command {
 			return err
 		}
 		if !found {
+			result.IndexMissing = true
+			result.Note = missingIndexNote
 			if planPath != "" {
 				return usageErr(fmt.Errorf("no local index; run: dropbox-pp-cli index"))
 			}
@@ -80,46 +84,33 @@ func newNovelOrganizeCmd(flags *rootFlags) *cobra.Command {
 			return printJSONFilteredKeep(cmd.OutOrStdout(), result, flags, planOpKeepFields...)
 		}
 		defer db.Close()
-		rows, err := db.DB().QueryContext(cmd.Context(), `SELECT `+dropboxRowColumns+` FROM dbx_files WHERE tag='file' ORDER BY path_lower`)
+		// --under bounds the scan in SQL. --match stays in Go because SQLite
+		// lower() folds only ASCII, and path.Match on Go-lowered names is the
+		// documented contract.
+		query := `SELECT ` + dropboxRowColumns + ` FROM dbx_files WHERE tag='file'`
+		var queryArgs []any
+		if underKey := strings.ToLower(strings.TrimRight(under, "/")); underKey != "" {
+			lower, upper := descendantRange(underKey)
+			query += ` AND (path_lower=? OR (path_lower>=? AND path_lower<?))`
+			queryArgs = append(queryArgs, underKey, lower, upper)
+		}
+		rows, err := db.DB().QueryContext(cmd.Context(), query+` ORDER BY path_lower`, queryArgs...)
 		if err != nil {
 			return err
 		}
-		all, err := scanDropboxRows(rows)
-		if err != nil {
-			return err
-		}
-		existing := map[string]bool{}
-		folders := map[string]bool{}
-		for _, r := range all {
-			existing[r.PathLower] = true
-		}
-		folderRows, err := db.DB().QueryContext(cmd.Context(), `SELECT path_lower FROM dbx_files WHERE tag='folder'`)
-		if err != nil {
-			return err
-		}
-		for folderRows.Next() {
-			var p string
-			if err := folderRows.Scan(&p); err != nil {
-				_ = folderRows.Close()
-				return err
-			}
-			existing[p] = true
-			folders[p] = true
-		}
-		err = folderRows.Err()
-		_ = folderRows.Close()
-		if err != nil {
-			return err
-		}
+		pattern := strings.ToLower(match)
 		type candidate struct{ from, to, rev string }
 		candidates := make([]candidate, 0)
 		destCounts := map[string]int{}
-		for _, r := range all {
-			if !dropbox.PathWithin(r.PathLower, under) {
-				continue
-			}
-			ok, err := path.Match(strings.ToLower(match), strings.ToLower(r.Name))
+		for rows.Next() {
+			r, err := scanDropboxRow(rows)
 			if err != nil {
+				_ = rows.Close()
+				return err
+			}
+			ok, err := path.Match(pattern, strings.ToLower(r.Name))
+			if err != nil {
+				_ = rows.Close()
 				return err
 			}
 			if !ok {
@@ -139,6 +130,7 @@ func newNovelOrganizeCmd(flags *rootFlags) *cobra.Command {
 			modified = modified.In(location)
 			folder, err := dropbox.ExpandFolderTemplate(to, r.Name, modified)
 			if err != nil {
+				_ = rows.Close()
 				return usageErr(err)
 			}
 			dest := folder + "/" + r.Name
@@ -149,11 +141,37 @@ func newNovelOrganizeCmd(flags *rootFlags) *cobra.Command {
 			candidates = append(candidates, candidate{r.PathDisplay, dest, r.Rev})
 			destCounts[strings.ToLower(dest)]++
 		}
+		err = rows.Err()
+		_ = rows.Close()
+		if err != nil {
+			return err
+		}
+		lookup, err := db.DB().PrepareContext(cmd.Context(), `SELECT EXISTS(SELECT 1 FROM dbx_files WHERE path_lower=?)`)
+		if err != nil {
+			return err
+		}
+		defer lookup.Close()
+		known := map[string]bool{}
+		indexed := func(key string) (bool, error) {
+			if found, ok := known[key]; ok {
+				return found, nil
+			}
+			var found bool
+			if err := lookup.QueryRowContext(cmd.Context(), key).Scan(&found); err != nil {
+				return false, err
+			}
+			known[key] = found
+			return found, nil
+		}
 		moves := make([]dropbox.Op, 0)
 		needed := map[string]string{}
 		for _, c := range candidates {
 			key := strings.ToLower(c.to)
-			if existing[key] || destCounts[key] > 1 {
+			destExists, err := indexed(key)
+			if err != nil {
+				return err
+			}
+			if destExists || destCounts[key] > 1 {
 				reason := "destination exists"
 				if destCounts[key] > 1 {
 					reason = "multiple sources share destination"
@@ -165,7 +183,11 @@ func newNovelOrganizeCmd(flags *rootFlags) *cobra.Command {
 			folder, _ := dropbox.ParentBase(c.to)
 			for folder != "" {
 				lower := strings.ToLower(folder)
-				if existing[lower] {
+				folderExists, err := indexed(lower)
+				if err != nil {
+					return err
+				}
+				if folderExists {
 					break
 				}
 				needed[lower] = folder

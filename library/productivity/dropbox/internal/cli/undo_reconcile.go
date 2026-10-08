@@ -14,6 +14,9 @@ import (
 )
 
 // reconcilePendingApply resolves durable job IDs before undo inspects local paths.
+// Operations left unknown after a failed poll keep their job ID and are polled
+// again here: a job that is still running can finish after undo reads the
+// index, so an unresolved job stops the undo instead of letting it proceed.
 func reconcilePendingApply(ctx context.Context, db *store.Store, poster dropboxBatchPoster, batchID, accountID string, force bool) ([]store.DropboxJournalOp, error) {
 	batch, found, err := db.GetDropboxJournalBatch(ctx, batchID)
 	if err != nil {
@@ -40,7 +43,7 @@ func reconcilePendingApply(ctx context.Context, db *store.Store, poster dropboxB
 		}
 		if op.AsyncJobID != "" {
 			jobs[op.AsyncJobID] = append(jobs[op.AsyncJobID], op)
-			if op.Result == "pending" {
+			if op.Result == "pending" || op.Result == "unknown" {
 				pendingJobs[op.AsyncJobID] = true
 			}
 		}
@@ -50,6 +53,7 @@ func reconcilePendingApply(ctx context.Context, db *store.Store, poster dropboxB
 		ids = append(ids, id)
 	}
 	sort.Strings(ids)
+	unresolved := make([]string, 0)
 	for _, id := range ids {
 		if !pendingJobs[id] {
 			continue
@@ -79,6 +83,8 @@ func reconcilePendingApply(ctx context.Context, db *store.Store, poster dropboxB
 			var failed *dropbox.BatchFailedError
 			if errors.As(pollErr, &failed) {
 				state = "failed"
+			} else if !asyncJobGone(pollErr) {
+				unresolved = append(unresolved, pollErr.Error())
 			}
 			for _, op := range parents {
 				states[op.Seq] = state
@@ -104,7 +110,7 @@ func reconcilePendingApply(ctx context.Context, db *store.Store, poster dropboxB
 			}
 		}
 		for _, op := range group {
-			if op.Result != "pending" {
+			if op.Result != "pending" && op.Result != "unknown" {
 				continue
 			}
 			state, detail := states[op.Seq], details[op.Seq]
@@ -116,6 +122,15 @@ func reconcilePendingApply(ctx context.Context, db *store.Store, poster dropboxB
 						break
 					}
 				}
+			}
+			if op.Result == "unknown" {
+				if state == "unknown" {
+					continue
+				}
+				if err := db.SetDropboxJournalOpResult(ctx, batchID, op.Seq, state, detail); err != nil {
+					return nil, err
+				}
+				continue
 			}
 			if err := db.SetDropboxPendingJournalOpResult(ctx, batchID, op.Seq, state, detail); err != nil {
 				return nil, err
@@ -142,7 +157,16 @@ func reconcilePendingApply(ctx context.Context, db *store.Store, poster dropboxB
 			return nil, err
 		}
 	}
+	if len(unresolved) > 0 {
+		return nil, fmt.Errorf("%d Dropbox jobs from batch %s are still unresolved (%s); undo would race them, so retry undo once they finish", len(unresolved), batchID, unresolved[0])
+	}
 	return ops, nil
+}
+
+// asyncJobGone reports that Dropbox no longer tracks a job ID, so the job is
+// not running and the refreshed index shows its final effect.
+func asyncJobGone(err error) bool {
+	return dropbox.HasSummaryPrefix(err, "invalid_async_job_id") || dropbox.HasSummaryPrefix(err, "async_job_id/not_found")
 }
 
 func applyJobCheckRoute(kind string) string {

@@ -202,10 +202,10 @@ func newNovelConflictsCmd(flags *rootFlags) *cobra.Command {
 								reason = "case conflict copy identical to " + pair.Original
 							}
 							files, bytes := pair.FileCount, pair.Bytes
-							ops = append(ops, dropbox.Op{Op: "delete", Path: pair.Copy, Reason: reason, ExpectFiles: &files, ExpectBytes: &bytes, Keeper: pair.Original, ExpectTreeHash: conflictTreeHash(originalFiles)})
+							ops = append(ops, dropbox.Op{Op: "delete", Path: pair.Copy, Reason: reason, ExpectFiles: &files, ExpectBytes: &bytes, Keeper: pair.Original, ExpectTreeHash: conflictTreeHash(originalFiles), ExpectPathTreeHash: conflictTreeHash(copyFiles)})
 						} else if pair.Class == "subset_tree" {
 							files, bytes := pair.FileCount, pair.Bytes
-							ops = append(ops, dropbox.Op{Op: "delete", Path: pair.Copy, Reason: "contains only files already in " + pair.Original, ExpectFiles: &files, ExpectBytes: &bytes, Keeper: pair.Original, ExpectTreeHash: conflictTreeHash(originalFiles)})
+							ops = append(ops, dropbox.Op{Op: "delete", Path: pair.Copy, Reason: "contains only files already in " + pair.Original, ExpectFiles: &files, ExpectBytes: &bytes, Keeper: pair.Original, ExpectTreeHash: conflictTreeHash(originalFiles), ExpectPathTreeHash: conflictTreeHash(copyFiles)})
 						}
 					case copyRow.Tag == "folder" || original.tag == "folder":
 						pair.Class = "folder"

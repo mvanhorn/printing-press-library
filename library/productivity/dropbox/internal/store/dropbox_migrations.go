@@ -54,7 +54,7 @@ func (s *Store) EnsureDropboxSchema(ctx context.Context) error {
 		`CREATE TABLE IF NOT EXISTS dbx_meta(key TEXT PRIMARY KEY, value TEXT)`,
 		`CREATE TABLE IF NOT EXISTS dbx_shared_links(url TEXT PRIMARY KEY, path_lower TEXT, name TEXT, visibility TEXT, expires TEXT, link_type TEXT, id TEXT, seen_at TEXT)`,
 		`CREATE TABLE IF NOT EXISTS dbx_journal_batches(id TEXT PRIMARY KEY, created_at TEXT, source TEXT, plan_path TEXT, status TEXT, account_type TEXT, restore_days INTEGER, undo_of TEXT, account_id TEXT)`,
-		`CREATE TABLE IF NOT EXISTS dbx_journal_ops(batch_id TEXT, seq INTEGER, op TEXT, path TEXT, from_path TEXT, to_path TEXT, rev TEXT, url TEXT, result TEXT, error TEXT, async_job_id TEXT, tag TEXT, entry_id TEXT, undo_result TEXT, undo_error TEXT, job_index INTEGER, PRIMARY KEY(batch_id,seq))`,
+		`CREATE TABLE IF NOT EXISTS dbx_journal_ops(batch_id TEXT, seq INTEGER, op TEXT, path TEXT, from_path TEXT, to_path TEXT, rev TEXT, url TEXT, result TEXT, error TEXT, async_job_id TEXT, tag TEXT, entry_id TEXT, undo_result TEXT, undo_error TEXT, job_index INTEGER, undo_job_id TEXT, PRIMARY KEY(batch_id,seq))`,
 	}
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
@@ -135,7 +135,7 @@ func (s *Store) EnsureDropboxSchema(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	for _, name := range []string{"tag", "entry_id", "undo_result", "undo_error", "job_index"} {
+	for _, name := range []string{"tag", "entry_id", "undo_result", "undo_error", "job_index", "undo_job_id"} {
 		if !present[name] {
 			columnType := "TEXT"
 			if name == "job_index" {
@@ -621,6 +621,7 @@ type DropboxJournalOp struct {
 	EntryID    string `json:"entry_id,omitempty"`
 	UndoResult string `json:"undo_result,omitempty"`
 	UndoError  string `json:"undo_error,omitempty"`
+	UndoJobID  string `json:"undo_job_id,omitempty"`
 }
 
 func (s *Store) CreateDropboxJournalBatch(ctx context.Context, b DropboxJournalBatch) error {
@@ -700,6 +701,16 @@ func (s *Store) SetDropboxJournalUndoResult(ctx context.Context, batchID string,
 	_, err := s.db.ExecContext(ctx, `UPDATE dbx_journal_ops SET undo_result=?,undo_error=? WHERE batch_id=? AND seq=?`, result, detail, batchID, seq)
 	return err
 }
+
+// SetDropboxJournalUndoJobID records the async job that reverses an
+// operation, so an interrupted undo can resolve it on retry.
+func (s *Store) SetDropboxJournalUndoJobID(ctx context.Context, batchID string, seq int, jobID string) error {
+	ctx = context.WithoutCancel(ctx)
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	_, err := s.db.ExecContext(ctx, `UPDATE dbx_journal_ops SET undo_job_id=? WHERE batch_id=? AND seq=?`, jobID, batchID, seq)
+	return err
+}
 func (s *Store) ListDropboxJournalBatches(ctx context.Context, limit int) ([]DropboxJournalBatch, error) {
 	rows, err := s.db.QueryContext(ctx, `SELECT id,COALESCE(created_at,''),COALESCE(source,''),COALESCE(plan_path,''),COALESCE(status,''),COALESCE(account_type,''),COALESCE(restore_days,0),COALESCE(undo_of,''),account_id FROM dbx_journal_batches ORDER BY created_at DESC,id DESC LIMIT ?`, limit)
 	if err != nil {
@@ -729,7 +740,7 @@ func (s *Store) GetDropboxJournalBatch(ctx context.Context, id string) (DropboxJ
 	return b, err == nil, err
 }
 func (s *Store) ListDropboxJournalOps(ctx context.Context, id string) ([]DropboxJournalOp, error) {
-	rows, err := s.db.QueryContext(ctx, `SELECT batch_id,seq,COALESCE(op,''),COALESCE(path,''),COALESCE(from_path,''),COALESCE(to_path,''),COALESCE(rev,''),COALESCE(url,''),COALESCE(result,''),COALESCE(error,''),COALESCE(async_job_id,''),COALESCE(tag,''),COALESCE(entry_id,''),COALESCE(undo_result,''),COALESCE(undo_error,''),job_index FROM dbx_journal_ops WHERE batch_id=? ORDER BY seq`, id)
+	rows, err := s.db.QueryContext(ctx, `SELECT batch_id,seq,COALESCE(op,''),COALESCE(path,''),COALESCE(from_path,''),COALESCE(to_path,''),COALESCE(rev,''),COALESCE(url,''),COALESCE(result,''),COALESCE(error,''),COALESCE(async_job_id,''),COALESCE(tag,''),COALESCE(entry_id,''),COALESCE(undo_result,''),COALESCE(undo_error,''),job_index,COALESCE(undo_job_id,'') FROM dbx_journal_ops WHERE batch_id=? ORDER BY seq`, id)
 	if err != nil {
 		return nil, err
 	}
@@ -738,7 +749,7 @@ func (s *Store) ListDropboxJournalOps(ctx context.Context, id string) ([]Dropbox
 	for rows.Next() {
 		var o DropboxJournalOp
 		var jobIndex sql.NullInt64
-		if err := rows.Scan(&o.BatchID, &o.Seq, &o.Op, &o.Path, &o.FromPath, &o.ToPath, &o.Rev, &o.URL, &o.Result, &o.Error, &o.AsyncJobID, &o.Tag, &o.EntryID, &o.UndoResult, &o.UndoError, &jobIndex); err != nil {
+		if err := rows.Scan(&o.BatchID, &o.Seq, &o.Op, &o.Path, &o.FromPath, &o.ToPath, &o.Rev, &o.URL, &o.Result, &o.Error, &o.AsyncJobID, &o.Tag, &o.EntryID, &o.UndoResult, &o.UndoError, &jobIndex, &o.UndoJobID); err != nil {
 			return nil, err
 		}
 		if jobIndex.Valid {

@@ -226,7 +226,7 @@ func undoMkdir(ctx context.Context, db *store.Store, p dropboxBatchPoster, folde
 	if i := strings.LastIndex(folder, "/"); i > 0 {
 		parent = strings.ToLower(folder[:i])
 	}
-	if err := db.UpsertDropboxEntries(ctx, "", []store.DropboxRow{{PathLower: strings.ToLower(folder), PathDisplay: folder, ParentLower: parent, Name: folder[strings.LastIndex(folder, "/")+1:], Tag: "folder"}}); err != nil {
+	if err := db.UpsertDropboxEntries(ctx, dropbox.IndexRoot(folder), []store.DropboxRow{{PathLower: strings.ToLower(folder), PathDisplay: folder, ParentLower: parent, Name: folder[strings.LastIndex(folder, "/")+1:], Tag: "folder"}}); err != nil {
 		return &undoIndexError{err}
 	}
 	return nil
@@ -264,16 +264,49 @@ func undoRestore(ctx context.Context, db *store.Store, p dropboxBatchPoster, op 
 	} else if found && !overwrite {
 		return errPathOccupied
 	}
-	_, err := p.Write(ctx, "/files/restore", map[string]string{"path": op.Path, "rev": op.Rev})
+	raw, err := p.Write(ctx, "/files/restore", map[string]string{"path": op.Path, "rev": op.Rev})
 	if err != nil {
 		return err
+	}
+	row, complete := restoredFileRow(raw, op)
+	if err := db.UpsertDropboxEntries(ctx, dropbox.IndexRoot(row.PathLower), []store.DropboxRow{row}); err != nil {
+		return &undoIndexError{err}
+	}
+	if !complete {
+		// The row lacks size and hash, so local reports would undercount it
+		// until the next index run repairs it.
+		if err := db.SetDropboxMeta(context.WithoutCancel(ctx), "index_stale", "1"); err != nil {
+			return &undoIndexError{err}
+		}
+	}
+	return nil
+}
+
+// restoredFileRow builds the index row from the restore response. complete is
+// false when the response did not carry usable file metadata.
+func restoredFileRow(raw json.RawMessage, op store.DropboxJournalOp) (store.DropboxRow, bool) {
+	var restored struct {
+		dropbox.Entry
+		SharingInfo struct {
+			ParentSharedFolderID string `json:"parent_shared_folder_id"`
+		} `json:"sharing_info"`
+	}
+	if err := json.Unmarshal(raw, &restored); err == nil && restored.PathLower != "" && restored.ID != "" && strings.EqualFold(restored.PathLower, op.Path) {
+		e := restored.Entry
+		e.Tag = "file"
+		e.PathLower = strings.ToLower(e.PathLower)
+		if e.PathDisplay == "" {
+			e.PathDisplay = op.Path
+		}
+		if i := strings.LastIndex(e.PathLower, "/"); i > 0 {
+			e.ParentLower = e.PathLower[:i]
+		}
+		e.ParentSharedFolderID = restored.SharingInfo.ParentSharedFolderID
+		return dropboxEntryRow(e), true
 	}
 	parent := ""
 	if i := strings.LastIndex(op.Path, "/"); i > 0 {
 		parent = strings.ToLower(op.Path[:i])
 	}
-	if err := db.UpsertDropboxEntries(ctx, "", []store.DropboxRow{{PathLower: strings.ToLower(op.Path), PathDisplay: op.Path, ParentLower: parent, Name: op.Path[strings.LastIndex(op.Path, "/")+1:], Tag: "file", Rev: op.Rev}}); err != nil {
-		return &undoIndexError{err}
-	}
-	return nil
+	return store.DropboxRow{PathLower: strings.ToLower(op.Path), PathDisplay: op.Path, ParentLower: parent, Name: op.Path[strings.LastIndex(op.Path, "/")+1:], Tag: "file", Rev: op.Rev}, false
 }

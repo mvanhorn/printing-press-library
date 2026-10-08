@@ -88,19 +88,28 @@ const dropboxRowColumns = `path_lower, COALESCE(id,''), tag, name, COALESCE(path
 func scanDropboxRows(rows *sql.Rows) ([]store.DropboxRow, error) {
 	out := make([]store.DropboxRow, 0)
 	for rows.Next() {
-		var row store.DropboxRow
-		if err := rows.Scan(&row.PathLower, &row.ID, &row.Tag, &row.Name, &row.PathDisplay, &row.ParentLower, &row.Rev, &row.Size, &row.ContentHash, &row.ClientModified, &row.ServerModified, &row.SharedFolderID, &row.ParentSharedFolderID, &row.IsDownloadable, &row.DevKind); err != nil {
+		row, err := scanDropboxRow(rows)
+		if err != nil {
 			_ = rows.Close()
 			return nil, err
-		}
-		if row.PathDisplay == "" {
-			row.PathDisplay = row.PathLower
 		}
 		out = append(out, row)
 	}
 	err := rows.Err()
 	_ = rows.Close()
 	return out, err
+}
+
+// scanDropboxRow reads one row selected with dropboxRowColumns.
+func scanDropboxRow(rows *sql.Rows) (store.DropboxRow, error) {
+	var row store.DropboxRow
+	if err := rows.Scan(&row.PathLower, &row.ID, &row.Tag, &row.Name, &row.PathDisplay, &row.ParentLower, &row.Rev, &row.Size, &row.ContentHash, &row.ClientModified, &row.ServerModified, &row.SharedFolderID, &row.ParentSharedFolderID, &row.IsDownloadable, &row.DevKind); err != nil {
+		return row, err
+	}
+	if row.PathDisplay == "" {
+		row.PathDisplay = row.PathLower
+	}
+	return row, nil
 }
 
 // descendantRange is a half-open range over path_lower. The slash prevents

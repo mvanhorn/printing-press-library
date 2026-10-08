@@ -15,6 +15,10 @@ import (
 const deleteFolderCountsQuery = `SELECT count(*),COALESCE(sum(size),0) FROM dbx_files INDEXED BY dbx_files_file_path_size WHERE tag='file' AND path_lower>=? AND path_lower<?`
 const deleteFolderChildrenQuery = `SELECT path_display,COALESCE(rev,''),COALESCE(id,'') FROM dbx_files INDEXED BY dbx_files_file_path_size WHERE tag='file' AND path_lower>=? AND path_lower<? ORDER BY path_lower`
 
+// Descendant folders are journaled too: restoring files recreates only the
+// folders that hold them, so empty subfolders would otherwise stay deleted.
+const deleteFolderSubfoldersQuery = `SELECT COALESCE(NULLIF(path_display,''),path_lower),COALESCE(id,'') FROM dbx_files WHERE tag='folder' AND path_lower>=? AND path_lower<? ORDER BY path_lower`
+
 type applyRun struct {
 	ctx                 context.Context
 	db                  *store.Store
@@ -185,6 +189,18 @@ func (a *applyRun) prepareChunk(kind string, chunk []numberedOp) ([]numberedOp, 
 				}
 				continue
 			}
+			if item.op.ExpectPathTreeHash != "" {
+				treeFiles, err := conflictTreeFiles(a.ctx, a.db.DB(), dropbox.PathKey(item.op.Path))
+				if err != nil {
+					return nil, nil, err
+				}
+				if conflictTreeHash(treeFiles) != item.op.ExpectPathTreeHash {
+					if err := a.skip(item, kind, "folder delete contents changed since the plan was written"); err != nil {
+						return nil, nil, err
+					}
+					continue
+				}
+			}
 		}
 		if kind == "delete" {
 			a.priorDeletes[dropbox.PathKey(item.op.Path)] = true
@@ -203,11 +219,29 @@ func (a *applyRun) prepareChunk(kind string, chunk []numberedOp) ([]numberedOp, 
 }
 func (a *applyRun) journalDeleteChildren(item numberedOp, children map[int][]int) error {
 	lower, upper := descendantRange(dropbox.PathKey(item.op.Path))
+	pending := make([]store.DropboxJournalOp, 0)
+	folders, err := a.db.DB().QueryContext(a.ctx, deleteFolderSubfoldersQuery, lower, upper)
+	if err != nil {
+		return err
+	}
+	for folders.Next() {
+		child := store.DropboxJournalOp{BatchID: a.result.BatchID, Op: "delete_child", Tag: "folder", Result: "pending", Seq: a.nextSeq}
+		if err := folders.Scan(&child.Path, &child.EntryID); err != nil {
+			_ = folders.Close()
+			return err
+		}
+		a.nextSeq++
+		pending = append(pending, child)
+	}
+	err = folders.Err()
+	_ = folders.Close()
+	if err != nil {
+		return err
+	}
 	rows, err := a.db.DB().QueryContext(a.ctx, deleteFolderChildrenQuery, lower, upper)
 	if err != nil {
 		return err
 	}
-	pending := make([]store.DropboxJournalOp, 0)
 	for rows.Next() {
 		var child store.DropboxJournalOp
 		if err := rows.Scan(&child.Path, &child.Rev, &child.EntryID); err != nil {

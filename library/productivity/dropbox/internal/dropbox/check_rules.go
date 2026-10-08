@@ -218,6 +218,9 @@ func (c *planCheckRun) delete(seq int, op Op, startErrors int) {
 	if !exists {
 		return
 	}
+	if op.ExpectPathTreeHash != "" && c.state.treeHash(key) != op.ExpectPathTreeHash {
+		c.add(seq, "delete", "error", "delete_tree_mismatch", "files under the delete target changed since the plan was written: "+op.Path)
+	}
 	shared, files, descendants := false, 0, 0
 	var bytes int64
 	c.state.eachWithin(key, func(p string, e SnapshotEntry) {

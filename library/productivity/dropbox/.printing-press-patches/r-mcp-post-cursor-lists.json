@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "r-mcp-post-cursor-lists",
+  "applied_at": "2026-10-08",
+  "base_run_id": "20261006-161517-620ff191",
+  "base_printing_press_version": "4.33.1",
+  "summary": "Bound oversized POST list pages that carry a continuation cursor or more flag as a page of entries instead of a 4,000-byte string preview, and rename the upstream cursor to cursor_after_page with retry_page_size when entries are cut.",
+  "reason": "Every Dropbox list endpoint is an RPC POST with an empty MCP page config, so endpointResponse only had a list path for GET. Pages above 60,000 bytes became non-resumable previews, and keeping the upstream cursor on a cut page would skip the omitted entries.",
+  "files": ["internal/mcp/bound/bound.go", "internal/mcp/bound/cursor_list_test.go"],
+  "call_sites": ["boundedCursorListObject(data)"],
+  "validated_outcome": "TestEndpointResponseBoundsPOSTCursorListAsEntries and TestEndpointResponseBoundsPOSTContinuationWithMoreFlag fail on the generated bound.go and pass with the patch. If a reprint emits POST-aware list bounding in the generator, drop this patch."
+}

@@ -28,7 +28,11 @@ type Op struct {
 	Keeper         string `json:"keeper,omitempty"`
 	ContentHash    string `json:"content_hash,omitempty"`
 	ExpectTreeHash string `json:"expect_tree_hash,omitempty"`
-	ExpectDangling bool   `json:"expect_dangling,omitempty"`
+	// ExpectPathTreeHash pins the relative paths, content hashes, and sizes
+	// of every file under a deleted folder. Counts and byte totals alone let
+	// a same-size edit through.
+	ExpectPathTreeHash string `json:"expect_path_tree_hash,omitempty"`
+	ExpectDangling     bool   `json:"expect_dangling,omitempty"`
 }
 
 func (p Plan) ValidateShape() error {

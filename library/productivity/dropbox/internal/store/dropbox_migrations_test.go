@@ -299,7 +299,7 @@ func TestDropboxJournalMigrationAndCancelledContextWrites(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	for table, wanted := range map[string][]string{"dbx_journal_batches": {"account_id"}, "dbx_journal_ops": {"job_index"}} {
+	for table, wanted := range map[string][]string{"dbx_journal_batches": {"account_id"}, "dbx_journal_ops": {"job_index", "undo_job_id"}} {
 		rows, err := s.DB().QueryContext(ctx, `PRAGMA table_info(`+table+`)`)
 		if err != nil {
 			t.Fatal(err)

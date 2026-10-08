@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "s-round-4-review",
+  "applied_at": "2026-10-08",
+  "base_run_id": "20261006-161517-620ff191",
+  "base_printing_press_version": "4.33.1",
+  "summary": "Pin conflict-copy folder contents before deletes, resolve unknown apply jobs and interrupted undo moves, index restored file metadata, recreate empty subfolders on undo, and scope organize to --under with an index_missing flag.",
+  "reason": "Round-4 review found conflict copies protected only by counts and bytes, undo racing unresolved Dropbox jobs, unjournaled reverse moves, metadata-less restored rows, lost empty subfolders, and whole-account organize scans.",
+  "files": [
+    "internal/dropbox/plan.go",
+    "internal/dropbox/check_rules.go",
+    "internal/cli/conflicts.go",
+    "internal/cli/apply_steps.go",
+    "internal/cli/undo.go",
+    "internal/cli/undo_steps.go",
+    "internal/cli/undo_reconcile.go",
+    "internal/cli/organize.go",
+    "internal/cli/dropbox_local.go",
+    "internal/cli/round4_test.go",
+    "internal/store/dropbox_migrations.go",
+    "internal/store/dropbox_migrations_test.go"
+  ],
+  "call_sites": ["ExpectPathTreeHash", "asyncJobGone(pollErr)", "resolvePriorUndoMove(op)", "restoredFileRow(raw, op)", "childRestoreOrder(", "deleteFolderSubfoldersQuery", "underKey"],
+  "validated_outcome": "Round-4 regression tests in internal/cli/round4_test.go fail on the prior code and pass; full Go verification passes."
+}
