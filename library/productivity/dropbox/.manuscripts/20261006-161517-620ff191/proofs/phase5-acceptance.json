@@ -17,7 +17,7 @@
   "auth_context": {
     "type": "oauth2"
   },
-  "source_fingerprint": "f5c6653a1cb82a175bf42d37feb185b2ded051686c54b126d706845050ebe66c",
+  "source_fingerprint": "77e2ce38a80adb5183e37ea89fd7cdd97b430bbd1052c74bfcede4a2205c5da1",
   "source_files": {
     "cmd/dropbox-pp-cli/main.go": "74b4577e8635b2d1d4d4a28a26d91c66388b96d8b317c512835ae5cbd2c52a7b",
     "cmd/dropbox-pp-mcp/main.go": "97b8c6a7673407890970c1eb4e0594a57d7e8ec65bbb8c9fa6e9d65c49bf51f5",
@@ -270,8 +270,8 @@
     "internal/mcp/cobratree/typemap.go": "19072b5d0c83c8dee881522f0993c4a111e2d1fdc75f19cb2fcdabdfeb35b6a5",
     "internal/mcp/cobratree/walker.go": "d91131a8e53c9491616d8280fae5a16306805be1d02e273139fc70a8b7ab7018",
     "internal/mcp/dropbox_destructive_hints_test.go": "471c12ee596d2643d3f402336e2f750c585911d575914939c4372774e8b98e82",
-    "internal/mcp/dropbox_page_defaults.go": "a4a775a4c1d051abb58d05616bf9adcb7700b4d13e9f41faa609d0a70afcd3fc",
-    "internal/mcp/dropbox_page_defaults_test.go": "bc2cfe19df57eb01349b7bc6ecfddff9fa36697bb6e949c0c4a5e6aede32e699",
+    "internal/mcp/dropbox_page_defaults.go": "10975eae25137c2bfa99ff8c4620fdcfb1ce7049b34952410933b9eb2aacacc9",
+    "internal/mcp/dropbox_page_defaults_test.go": "dad92498cd2e7a8b9da6f9ab18fbb4dbd40b92b1413d16fb6cc9fb2de85ce1d3",
     "internal/mcp/mirror_property_names_test.go": "976f5d8780d4e44e2592222def6b03375677c6a0cf5e6b9cc9a380cec311f700",
     "internal/mcp/platform_gate.go": "9d494e3ce29c81a1051ddf2724de5f1ef068675e00d709b3f899c7051ad40770",
     "internal/mcp/platform_gate_test.go": "6fdb49a94947fb267dbc9eb6d89c3ff6b7a2414771039e0fd01c9956432ce51c",

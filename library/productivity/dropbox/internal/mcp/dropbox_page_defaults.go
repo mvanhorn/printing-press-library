@@ -6,6 +6,8 @@ package mcp
 // every later page under the MCP result budget and the upstream cursor
 // resumes with nothing omitted. Sizes assume worst-typical entry JSON
 // (long paths, sharing info) and leave room below bound.MaxBytes.
+// Only endpoints with an exposed continuation tool belong here; a smaller
+// page on an endpoint agents cannot continue would hide the remaining rows.
 var mcpDefaultPageSizes = map[string]struct {
 	arg  string
 	size int
@@ -14,8 +16,6 @@ var mcpDefaultPageSizes = map[string]struct {
 	"/files/list_folder/get_latest_cursor": {"limit", 50},
 	"/files/search_v2":                     {"options-max-results", 25},
 	"/sharing/list_folders":                {"limit", 25},
-	"/sharing/list_received_files":         {"limit", 25},
-	"/sharing/list_folder_members":         {"limit", 20},
 	"/file_requests/list_v2":               {"limit", 50},
 }
 

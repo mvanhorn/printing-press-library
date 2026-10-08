@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 
@@ -120,5 +121,36 @@ func TestMCPLargeListFolderResumesWithNothingSkipped(t *testing.T) {
 	}
 	if seen != total {
 		t.Fatalf("read %d of %d entries", seen, total)
+	}
+}
+
+// A default page size is only safe when agents can follow the cursor, so
+// every defaulted endpoint must have its continuation tool registered.
+func TestMCPDefaultPageSizesOnlyForContinuableLists(t *testing.T) {
+	continuation := map[string]string{
+		"/files/list_folder":                   "/files/list_folder/continue",
+		"/files/list_folder/get_latest_cursor": "/files/list_folder/continue",
+		"/files/search_v2":                     "/files/search/continue_v2",
+		"/sharing/list_folders":                "/sharing/list_folders/continue",
+		"/file_requests/list_v2":               "/file_requests/list/continue",
+	}
+	tools, err := os.ReadFile("tools.go")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for path := range mcpDefaultPageSizes {
+		next, ok := continuation[path]
+		if !ok {
+			t.Fatalf("%s has a default page size but no known continuation endpoint", path)
+		}
+		if !strings.Contains(string(tools), fmt.Sprintf("%q", next)) {
+			t.Fatalf("%s has a default page size but %s is not an MCP tool", path, next)
+		}
+	}
+	for _, path := range []string{"/sharing/list_folder_members", "/sharing/list_received_files"} {
+		args := withMCPDefaultPageSize(path, map[string]any{})
+		if len(args) != 0 {
+			t.Fatalf("%s got a default page size without a continuation tool: %v", path, args)
+		}
 	}
 }
