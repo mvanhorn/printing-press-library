@@ -190,12 +190,19 @@ func (u *undoExecution) move(op store.DropboxJournalOp) error {
 	if done, err := u.resolvePriorUndoMove(op); err != nil {
 		return u.record(op, "unknown", err)
 	} else if done {
-		if _, atTo, lookupErr := indexEntryForUndo(u.ctx, u.db, op.ToPath); lookupErr != nil {
+		// Only rewrite the row that the earlier undo moved. A path reused by
+		// another file keeps its row; an unconfirmable identity marks the
+		// index stale so the next refresh settles it.
+		if current, atTo, lookupErr := indexEntryForUndo(u.ctx, u.db, op.ToPath); lookupErr != nil {
 			return lookupErr
-		} else if atTo {
+		} else if atTo && op.EntryID != "" && current.EntryID == op.EntryID {
 			if indexErr := u.db.MoveDropboxPathPrefix(u.ctx, op.ToPath, op.FromPath); indexErr != nil {
 				status, detail := u.classify(&undoIndexError{indexErr})
 				return u.record(op, status, detail)
+			}
+		} else if atTo && (op.EntryID == "" || current.EntryID == "") {
+			if err := u.db.SetDropboxMeta(context.WithoutCancel(u.ctx), "index_stale", "1"); err != nil {
+				return err
 			}
 		}
 		return u.record(op, "skipped", fmt.Errorf("undo already completed by an earlier attempt"))

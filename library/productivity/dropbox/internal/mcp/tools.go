@@ -610,7 +610,7 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 		// mcp-go v0.47+ made CallToolParams.Arguments an `any` to support
 		// non-map payloads; GetArguments() returns the map[string]any shape
 		// we rely on here (or an empty map when the payload is something else).
-		args := req.GetArguments()
+		args := withMCPDefaultPageSize(pathTemplate, req.GetArguments())
 		if err := cli.AdoptMCPOutputSemantics(platformSession, args); err != nil {
 			return mcpToolError(err.Error()), nil
 		}

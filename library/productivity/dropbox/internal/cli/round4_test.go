@@ -408,3 +408,61 @@ func TestOrganizeReportsMissingIndexInJSON(t *testing.T) {
 		t.Fatalf("missing index looked like an empty result: %s", data)
 	}
 }
+
+func TestUndoRetryLeavesReplacementAtOldDestinationAlone(t *testing.T) {
+	testenv.Isolate(t)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if r.URL.Path != "/files/move_batch/check_v2" {
+			t.Errorf("unexpected %s", r.URL.Path)
+			w.WriteHeader(404)
+			return
+		}
+		io.WriteString(w, `{".tag":"complete","entries":[{".tag":"success"}]}`)
+	}))
+	defer server.Close()
+	t.Setenv("DROPBOX_BASE_URL", server.URL)
+	// The earlier undo finished, the user moved the restored file away, and a
+	// different file now sits at the old destination.
+	replacement := fixtureRow("/B/f.txt", "file", "H-new", "", 9)
+	replacement.ID = "id-replacement"
+	dbPath := seedIndex(t, fixtureRow("/A", "folder", "", "", 0), fixtureRow("/B", "folder", "", "", 0), replacement)
+	ops := []store.DropboxJournalOp{{Seq: 1, Op: "move", FromPath: "/A/f.txt", ToPath: "/B/f.txt", Tag: "file", EntryID: "id-f", Result: "ok", UndoResult: "unknown", UndoJobID: "undo-job"}}
+	db, poster, result := undoFixture(t, dbPath, ops, "undo-reused-dest")
+	defer db.Close()
+	if err := executeUndo(context.Background(), db, poster, opsWithBatch(ops), result, false); err != nil || len(result.Failures) != 0 {
+		t.Fatalf("err=%v result=%+v", err, result)
+	}
+	var id string
+	if err := db.DB().QueryRow(`SELECT COALESCE(id,'') FROM dbx_files WHERE path_lower='/b/f.txt'`).Scan(&id); err != nil || id != "id-replacement" {
+		t.Fatalf("replacement row was rewritten: id=%q err=%v", id, err)
+	}
+	var moved int
+	if err := db.DB().QueryRow(`SELECT count(*) FROM dbx_files WHERE path_lower='/a/f.txt'`).Scan(&moved); err != nil || moved != 0 {
+		t.Fatalf("unrelated row was moved to the original path: count=%d err=%v", moved, err)
+	}
+}
+
+func TestUndoRetryMarksIndexStaleWhenIdentityUnknown(t *testing.T) {
+	testenv.Isolate(t)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		io.WriteString(w, `{".tag":"complete","entries":[{".tag":"success"}]}`)
+	}))
+	defer server.Close()
+	t.Setenv("DROPBOX_BASE_URL", server.URL)
+	dbPath := seedIndex(t, fixtureRow("/A", "folder", "", "", 0), fixtureRow("/B", "folder", "", "", 0), fixtureRow("/B/f.txt", "file", "H", "", 1))
+	ops := []store.DropboxJournalOp{{Seq: 1, Op: "move", FromPath: "/A/f.txt", ToPath: "/B/f.txt", Tag: "file", Result: "ok", UndoResult: "unknown", UndoJobID: "undo-job"}}
+	db, poster, result := undoFixture(t, dbPath, ops, "undo-unknown-identity")
+	defer db.Close()
+	if err := executeUndo(context.Background(), db, poster, opsWithBatch(ops), result, false); err != nil {
+		t.Fatal(err)
+	}
+	var count int
+	if err := db.DB().QueryRow(`SELECT count(*) FROM dbx_files WHERE path_lower='/b/f.txt'`).Scan(&count); err != nil || count != 1 {
+		t.Fatalf("row without identity was moved: count=%d err=%v", count, err)
+	}
+	if stale, _, err := db.GetDropboxMeta(context.Background(), "index_stale"); err != nil || stale != "1" {
+		t.Fatalf("index not marked stale: %q %v", stale, err)
+	}
+}

@@ -20,6 +20,15 @@
     "internal/store/dropbox_migrations.go",
     "internal/store/dropbox_migrations_test.go"
   ],
-  "call_sites": ["ExpectPathTreeHash", "asyncJobGone(pollErr)", "resolvePriorUndoMove(op)", "restoredFileRow(raw, op)", "childRestoreOrder(", "deleteFolderSubfoldersQuery", "underKey"],
+  "call_sites": [
+    "ExpectPathTreeHash",
+    "asyncJobGone(pollErr)",
+    "resolvePriorUndoMove(op)",
+    "restoredFileRow(raw, op)",
+    "childRestoreOrder(",
+    "deleteFolderSubfoldersQuery",
+    "underKey",
+    "atTo && op.EntryID != \"\" && current.EntryID == op.EntryID"
+  ],
   "validated_outcome": "Round-4 regression tests in internal/cli/round4_test.go fail on the prior code and pass; full Go verification passes."
 }

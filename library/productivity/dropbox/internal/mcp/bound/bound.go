@@ -31,11 +31,12 @@ const (
 const SQLResultBoundNote = "SQL result was bounded during row scanning to stay within the MCP tool result budget. Narrow the query with WHERE, GROUP BY, or an aggregate."
 
 const (
-	endpointListNote    = "Typed MCP endpoint response was bounded for MCP output. Narrow the request with limit, offset, filters, search/sql, or a command-mirror tool with --agent/--compact/--select."
-	endpointPreviewNote = "Typed MCP endpoint response exceeded the tool result budget and was not a recognized list envelope. Narrow the request with filters, search/sql, or a command-mirror tool with --agent/--compact/--select."
-	jsonResultNote      = "MCP JSON result exceeded the tool result budget. Narrow the request with limit, filters, search/sql, or --select/--compact where available."
-	textResultNote      = "MCP command output exceeded the tool result budget. Rerun with narrower flags, --agent, --compact, --select, or --limit where available."
-	cursorListNote      = "This page held more entries than fit in the MCP result budget. cursor_after_page resumes after the whole page, so following it skips the omitted entries. To read every entry, rerun the first list call with its page-size input (limit or max_results) set to retry_page_size and follow the cursor from that smaller page."
+	endpointListNote      = "Typed MCP endpoint response was bounded for MCP output. Narrow the request with limit, offset, filters, search/sql, or a command-mirror tool with --agent/--compact/--select."
+	endpointPreviewNote   = "Typed MCP endpoint response exceeded the tool result budget and was not a recognized list envelope. Narrow the request with filters, search/sql, or a command-mirror tool with --agent/--compact/--select."
+	jsonResultNote        = "MCP JSON result exceeded the tool result budget. Narrow the request with limit, filters, search/sql, or --select/--compact where available."
+	textResultNote        = "MCP command output exceeded the tool result budget. Rerun with narrower flags, --agent, --compact, --select, or --limit where available."
+	cursorListSummaryNote = "This page held more entries than fit in the MCP result budget. Entries past returned_count are listed in omitted_entries by their identity fields; fetch full metadata for any of them with a get-metadata call by path or id. cursor resumes after every entry on this page, so following it skips nothing."
+	cursorListRetryNote   = "This page held more entries than fit in the MCP result budget and the omitted entries could not be summarized. cursor_after_page resumes after the whole page, so following it skips them. To fetch them, send the same request again with the same arguments and, for a continuation call, the same starting cursor; if the request has a page-size input (limit or max_results), set it to retry_page_size. A continuation cursor keeps the page size of the call that issued it, so a continuation page that stays oversized needs the listing restarted from its first call with that page size."
 )
 
 // PageOptions describes resumable list context for typed MCP endpoint results.
@@ -114,8 +115,10 @@ func endpointResponse(method string, data json.RawMessage, opts PageOptions) str
 
 // boundedCursorListObject bounds RPC-style list pages that arrive over POST
 // with a continuation cursor or more flag. The upstream cursor resumes after
-// the whole page, so a cut page renames it and reports the page size that
-// fits, instead of handing agents a cursor that silently skips entries.
+// the whole page, so a cut page lists every omitted entry by its identity
+// fields; the cursor then skips nothing. When even those summaries cannot
+// fit, the cursor is renamed so it cannot silently skip entries, and the
+// note says exactly how to re-request the page in smaller pieces.
 func boundedCursorListObject(data json.RawMessage) ([]byte, bool) {
 	var obj map[string]json.RawMessage
 	if json.Unmarshal(data, &obj) != nil {
@@ -156,13 +159,27 @@ func boundedCursorListObject(data json.RawMessage) ([]byte, bool) {
 	if arrayField == "" {
 		return nil, false
 	}
-	build := func(subset []json.RawMessage) any {
+	summaries, complete := listEntrySummaries(items)
+	envelope := func(subset []json.RawMessage, summarize bool) any {
 		out := make(map[string]any, len(obj)+10)
 		for key, raw := range obj {
 			out[key] = raw
 		}
 		out[arrayField] = subset
 		if len(subset) < len(items) {
+			out["truncated"] = true
+			out["_pp_truncated"] = true
+			out["resumable"] = true
+			out["count"] = len(items)
+			out["returned_count"] = len(subset)
+			out["omitted_count"] = len(items) - len(subset)
+			out["original_bytes"] = len(data)
+			out["max_bytes"] = MaxBytes
+			if summarize {
+				out["omitted_entries"] = summaries[len(subset):]
+				out["note"] = cursorListSummaryNote
+				return out
+			}
 			delete(out, "cursor")
 			if hasCursor {
 				out["cursor_after_page"] = cursor
@@ -172,24 +189,54 @@ func boundedCursorListObject(data json.RawMessage) ([]byte, bool) {
 				pageSize = 1
 			}
 			out[moreKey] = true
-			out["truncated"] = true
-			out["_pp_truncated"] = true
-			out["resumable"] = true
-			out["count"] = len(items)
-			out["returned_count"] = len(subset)
-			out["omitted_count"] = len(items) - len(subset)
 			out["retry_page_size"] = pageSize
-			out["original_bytes"] = len(data)
-			out["max_bytes"] = MaxBytes
-			out["note"] = cursorListNote
+			out["note"] = cursorListRetryNote
 		}
 		return out
 	}
-	out := fitJSONItems(items, build)
+	if complete {
+		out := fitJSONItems(items, func(subset []json.RawMessage) any { return envelope(subset, true) })
+		if len(out) <= MaxBytes {
+			return out, true
+		}
+	}
+	out := fitJSONItems(items, func(subset []json.RawMessage) any { return envelope(subset, false) })
 	if len(out) > MaxBytes {
 		return nil, false
 	}
 	return out, true
+}
+
+// listEntryIdentityKeys are the fields that identify a list entry well
+// enough to fetch its full metadata with a point lookup.
+var listEntryIdentityKeys = []string{".tag", "id", "name", "path_display", "path_lower", "rev", "size", "content_hash", "server_modified", "shared_folder_id", "url", "title"}
+
+// listEntrySummaries projects each entry onto its identity fields, looking
+// through nested "metadata" wrappers such as search matches. complete is
+// false when some entry has no identity field at all.
+func listEntrySummaries(items []json.RawMessage) ([]map[string]json.RawMessage, bool) {
+	summaries := make([]map[string]json.RawMessage, len(items))
+	complete := true
+	for i, raw := range items {
+		summary := map[string]json.RawMessage{}
+		for depth := 0; depth < 3 && raw != nil; depth++ {
+			var entry map[string]json.RawMessage
+			if json.Unmarshal(raw, &entry) != nil {
+				break
+			}
+			for _, key := range listEntryIdentityKeys {
+				if v, ok := entry[key]; ok {
+					summary[key] = v
+				}
+			}
+			raw = entry["metadata"]
+		}
+		if len(summary) == 0 || (summary["id"] == nil && summary["path_display"] == nil && summary["path_lower"] == nil && summary["url"] == nil && summary["shared_folder_id"] == nil) {
+			complete = false
+		}
+		summaries[i] = summary
+	}
+	return summaries, complete
 }
 
 // JSON renders an arbitrary JSON value within the MCP result budget. Small
