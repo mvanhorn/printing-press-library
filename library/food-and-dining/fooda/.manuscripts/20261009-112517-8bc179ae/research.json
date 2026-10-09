@@ -1,0 +1,191 @@
+{
+  "api_name": "fooda",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-09T20:14:15Z",
+  "novel_features": [
+    {
+      "name": "Served history",
+      "command": "served-history",
+      "description": "See every lunch you were actually served, with date, vendor, items and price.",
+      "rationale": "Built from synced order history; the app only shows a flat recent list.",
+      "example": "fooda-pp-cli served-history --since 90d --agent",
+      "why_it_matters": "Use when an agent needs a longitudinal record of what a person ate rather than today's menu.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Venue rotation",
+      "command": "venue-rotation",
+      "description": "Rank vendors by how often and how recently you ordered from them.",
+      "rationale": "Requires aggregating the full synced order history.",
+      "example": "fooda-pp-cli venue-rotation --since 120d --agent",
+      "why_it_matters": "Use to spot vendor fatigue or under-used favorites before choosing lunch.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Spend trends",
+      "command": "spend-trends",
+      "description": "Spend per month or week, split into subsidy-covered and out-of-pocket.",
+      "rationale": "Requires time-bucketing synced orders and their subsidy lines.",
+      "example": "fooda-pp-cli spend-trends --since 6mo --group-by month --agent",
+      "why_it_matters": "Use for budget or subsidy-utilization reporting.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Week-ahead digest",
+      "command": "week-ahead",
+      "description": "One-line-per-day digest of upcoming events and restaurants at your building.",
+      "rationale": "Aggregates several days of event searches into one view.",
+      "example": "fooda-pp-cli week-ahead --agent",
+      "why_it_matters": "Use for a quick morning check of what is being served this week.",
+      "group": "Lunch planning"
+    },
+    {
+      "name": "Subsidy status",
+      "command": "subsidy-status",
+      "description": "Remaining dollars of today's subsidy and when it is valid.",
+      "rationale": "Parses the remaining balance out of the subsidy QR payload the app never shows as a number.",
+      "example": "fooda-pp-cli subsidy-status --agent",
+      "why_it_matters": "Use before ordering to know how much of the meal is covered.",
+      "group": "Lunch planning"
+    },
+    {
+      "name": "Menu search",
+      "command": "menu-search",
+      "description": "Search menu items across all of today's events.",
+      "rationale": "Fans out over every event's menu page and filters locally.",
+      "example": "fooda-pp-cli menu-search vegan --agent",
+      "why_it_matters": "Use for dietary or craving lookups without opening each vendor page.",
+      "group": "Lunch planning"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Served history",
+      "command": "served-history",
+      "description": "See every lunch you were actually served, with date, vendor, items and price.",
+      "rationale": "Built from synced order history; the app only shows a flat recent list.",
+      "example": "fooda-pp-cli served-history --since 90d --agent",
+      "why_it_matters": "Use when an agent needs a longitudinal record of what a person ate rather than today's menu.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Venue rotation",
+      "command": "venue-rotation",
+      "description": "Rank vendors by how often and how recently you ordered from them.",
+      "rationale": "Requires aggregating the full synced order history.",
+      "example": "fooda-pp-cli venue-rotation --since 120d --agent",
+      "why_it_matters": "Use to spot vendor fatigue or under-used favorites before choosing lunch.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Spend trends",
+      "command": "spend-trends",
+      "description": "Spend per month or week, split into subsidy-covered and out-of-pocket.",
+      "rationale": "Requires time-bucketing synced orders and their subsidy lines.",
+      "example": "fooda-pp-cli spend-trends --since 6mo --group-by month --agent",
+      "why_it_matters": "Use for budget or subsidy-utilization reporting.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Week-ahead digest",
+      "command": "week-ahead",
+      "description": "One-line-per-day digest of upcoming events and restaurants at your building.",
+      "rationale": "Aggregates several days of event searches into one view.",
+      "example": "fooda-pp-cli week-ahead --agent",
+      "why_it_matters": "Use for a quick morning check of what is being served this week.",
+      "group": "Lunch planning"
+    },
+    {
+      "name": "Subsidy status",
+      "command": "subsidy-status",
+      "description": "Remaining dollars of today's subsidy and when it is valid.",
+      "rationale": "Parses the remaining balance out of the subsidy QR payload the app never shows as a number.",
+      "example": "fooda-pp-cli subsidy-status --agent",
+      "why_it_matters": "Use before ordering to know how much of the meal is covered.",
+      "group": "Lunch planning"
+    },
+    {
+      "name": "Menu search",
+      "command": "menu-search",
+      "description": "Search menu items across all of today's events.",
+      "rationale": "Fans out over every event's menu page and filters locally.",
+      "example": "fooda-pp-cli menu-search vegan --agent",
+      "why_it_matters": "Use for dietary or craving lookups without opening each vendor page.",
+      "group": "Lunch planning"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Fooda",
+    "headline": "Your Fooda office lunch history, subsidy and this week's popups in a terminal, with vendor and spend analytics the app does not offer.",
+    "value_prop": "Fooda has no public API. This CLI reads the logged-in web app with your Chrome session, syncs your order history locally, and answers questions like what you ate, where you keep ordering, and how much subsidy you have left today.",
+    "auth_narrative": "Fooda sits behind Cloudflare and has no API key. Log in to app.fooda.com in Chrome, then run `auth login --chrome` to import your session cookies, or use `auth login --cookies-file \u003cfile\u003e` to import cookies from a JSON file. The CLI never logs in itself.",
+    "quickstart": [
+      {
+        "command": "fooda-pp-cli doctor --dry-run",
+        "comment": "Check the install without needing a session"
+      },
+      {
+        "command": "fooda-pp-cli subsidy-status",
+        "comment": "See how much of today's subsidy is left"
+      },
+      {
+        "command": "fooda-pp-cli week-ahead",
+        "comment": "See what is being served this week"
+      },
+      {
+        "command": "fooda-pp-cli sync",
+        "comment": "Pull your order history into the local store"
+      },
+      {
+        "command": "fooda-pp-cli venue-rotation --since 120d",
+        "comment": "See which vendors you order from most"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Please log in to app.fooda.com in Chrome",
+        "fix": "Log in at https://app.fooda.com in Chrome, then run fooda-pp-cli auth login --chrome"
+      },
+      {
+        "symptom": "whoami shows limited identity",
+        "fix": "Cloudflare challenges the profile page for non-browser clients; account and building ids still come from the home page"
+      }
+    ],
+    "when_to_use": "Use for questions about a person's Fooda office lunches: what is being served, what they ordered, vendor repeat patterns, and subsidy balance.",
+    "anti_triggers": [
+      "Placing or canceling orders (order place, order cancel) are dry-run-only stubs",
+      "whoami is limited by Cloudflare challenges (account and building IDs are extracted from the home page)",
+      "Do not use it for Fooda Catering orders or billing"
+    ],
+    "recipes": [
+      {
+        "title": "Vendor fatigue check",
+        "command": "fooda-pp-cli venue-rotation --since 120d --agent --select vendor,order_count,last_ordered",
+        "explanation": "Shows only the fields needed to see repeat vendors."
+      },
+      {
+        "title": "Monthly subsidy report",
+        "command": "fooda-pp-cli spend-trends --since 6mo --group-by month",
+        "explanation": "Splits covered and out-of-pocket spend per month."
+      },
+      {
+        "title": "Vegan options today",
+        "command": "fooda-pp-cli menu-search vegan",
+        "explanation": "Searches every event menu for the term."
+      }
+    ],
+    "trigger_phrases": [
+      "what is for lunch at fooda",
+      "how much subsidy do I have left",
+      "which fooda vendors do I order from most",
+      "fooda spend this month",
+      "use fooda",
+      "run fooda"
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "fooda-hand-built-commands",
+  "applied_at": "2026-10-09",
+  "base_run_id": "20261009-112517-8bc179ae",
+  "base_printing_press_version": "4.33.2",
+  "summary": "Hand-built Fooda commands, token handshake, HTML parsers, and session-cookie handling layered on the generated GraphQL scaffold.",
+  "reason": "Fooda has no public API: GraphQL needs per-session tokens from page meta tags and order data comes from server-rendered HTML; auth login keeps the full cookie jar because Cloudflare challenges requests without companion cookies; the generated session helper command was removed.",
+  "files": [
+    "internal/cli/fooda_commands.go",
+    "internal/client/fooda_handshake.go",
+    "internal/client/html_parsers.go"
+  ]
+}

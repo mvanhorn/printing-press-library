@@ -1,0 +1,124 @@
+name: fooda
+description: "CLI for Fooda workplace lunch (app.fooda.com): events, menus, orders, subsidies, and spend history, reverse-engineered from the logged-in web app. Reads are live; order mutations are dry-run only."
+version: "0.1.0"
+base_url: "https://app.fooda.com"
+category: food-and-dining
+
+# GraphQL needs per-session x-clienttoken / x-sessiontoken headers that the
+# server embeds as <meta> tags on logged-in HTML pages. The client fetches /my
+# with the session cookie, parses them, and sends them. Only /login is
+# Cloudflare-challenged; authenticated pages and /graphql replay over plain HTTP.
+http_transport: standard
+
+required_headers:
+  - name: Accept
+    value: "application/json"
+  - name: Origin
+    value: "https://app.fooda.com"
+  - name: Referer
+    value: "https://app.fooda.com/my"
+
+auth:
+  type: cookie
+  cookie_domain: fooda.com
+  cookies:
+    - _fooda_session
+  login_url: "https://app.fooda.com/my"
+  login_complete_selector: "a[href*=provider_logout]"
+  verify_path: "/my"
+
+resources:
+  events:
+    endpoints:
+      search:
+        method: POST
+        path: /graphql
+        response_format: json
+        description: "Search public events (popup, cafe, delivery, catering) for an account/building and date range. Pass --variables with input{statuses,productTypes,accountId,buildingId,endTimeAfter,endTimeBefore}."
+        body:
+          properties:
+            query:
+              type: string
+              required: true
+              description: "GraphQL document."
+              default: "query searchPublicEvents($input: SearchPublicEvents!) {\n  searchPublicEvents(input: $input) {\n    events(first: 100) {\n      nodes {\n        __typename\n        id\n        endTime\n        startTime\n        url\n        status\n        ... on CafeEventPublic {\n          cafeName\n          healthscoreLink\n          restaurants {\n            id\n            vendorId\n            cuisines\n            name\n            serviceStartTime\n            serviceEndTime\n            stationType\n            essenceImageUrl\n            defaultCuisine\n            mealPeriod\n            mobileOrdering {\n              enabled\n              orderingWindowStartTime\n              orderingWindowEndTime\n              mobileOrderingAvailable\n              mobileOrderingUnavailableReason\n              orderingCloseTime\n              __typename\n            }\n            __typename\n          }\n          __typename\n        }\n        ... on PopupEventPublic {\n          healthscoreLink\n          restaurants {\n            id\n            vendorId\n            name\n            mealPeriod\n            essenceImageUrl\n            defaultCuisine\n            cuisines\n            serviceStartTime\n            serviceEndTime\n            location {\n              name\n              __typename\n            }\n            mobileOrdering {\n              enabled\n              orderingWindowStartTime\n              orderingWindowEndTime\n              mobileOrderingAvailable\n              mobileOrderingUnavailableReason\n              orderingCloseTime\n              __typename\n            }\n            __typename\n          }\n          __typename\n        }\n        ... on DeliveryEventPublic {\n          healthscoreLink\n          mealPeriod\n          defaultTileImageUrl\n          restaurants {\n            id\n            vendorId\n            name\n            defaultCuisine\n            essenceImageUrl\n            cuisines\n            soldOutState\n            __typename\n          }\n          deliveryWindow {\n            startTime\n            endTime\n            __typename\n          }\n          __typename\n        }\n        ... on CateringEventPublic {\n          healthscoreLink\n          mealPeriod\n          menuImages\n          __typename\n        }\n      }\n      __typename\n    }\n    error {\n      message\n      code\n      __typename\n    }\n    __typename\n  }\n}"
+            variables:
+              type: object
+              description: "GraphQL variables JSON."
+
+  subsidies:
+    endpoints:
+      list:
+        method: POST
+        path: /graphql
+        response_format: json
+        description: "List your subsidies with coverage, validity, state, and remaining balance (qrInfo)."
+        body:
+          properties:
+            query:
+              type: string
+              required: true
+              description: "GraphQL document."
+              default: "query getUserSubsidies {\n  getUserSubsidies(input: {product: ALL_PRODUCTS, states: [ACTIVE, INACTIVE]}) {\n    subsidies {\n      accountName\n      qrInfo\n      code\n      coverage\n      isQuickAdd\n      name\n      product\n      expiresAt\n      startOn\n      state\n      validAt\n      redemptionsPerDay\n      redemptionMessage\n      membershipActive\n      foodaCardMembership {\n        id\n        status\n        needsSetup\n        stripeCardholderPastDueRequirements\n        stripeCardholderDisabledReason\n        stripeCardholderPhoneNumber\n        stripeCard {\n          id\n          stripeCardId\n          last4\n          status\n          __typename\n        }\n        stripeBillingAddress {\n          address1\n          address2\n          city\n          state\n          zipCode\n          country\n          __typename\n        }\n        backupCard {\n          id\n          last4\n          cardType\n          imageUrl\n          __typename\n        }\n        subsidyRule {\n          id\n          name\n          timeZone\n          timeZoneLabel\n          foodaCardProgram {\n            allowedHourRanges\n            allowedMerchantNames\n            blockedMerchantNames\n            allowedZipCodes\n            stripeAccount {\n              stripeAccountId\n              __typename\n            }\n            __typename\n          }\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}"
+            variables:
+              type: object
+              description: "GraphQL variables JSON."
+
+  cards:
+    endpoints:
+      balances:
+        method: POST
+        path: /graphql
+        response_format: json
+        description: "Outstanding Fooda Card balances."
+        body:
+          properties:
+            query:
+              type: string
+              required: true
+              description: "GraphQL document."
+              default: "query getFoodaCardOutstandingBalances {\n  getFoodaCardOutstandingBalances {\n    balances {\n      foodaCardMembershipId\n      amountCents\n      lastFailedAt\n      __typename\n    }\n    error {\n      message\n      code\n      __typename\n    }\n    __typename\n  }\n}"
+            variables:
+              type: object
+              description: "GraphQL variables JSON."
+      list:
+        method: POST
+        path: /graphql
+        response_format: json
+        description: "Saved payment cards for a user id (variables: {userId})."
+        body:
+          properties:
+            query:
+              type: string
+              required: true
+              description: "GraphQL document."
+              default: "query getUserCards($userId: ID!) {\n  data: getUser(id: $userId) {\n    user {\n      cards {\n        id\n        last4\n        cardholderName\n        cardType\n        nickname\n        expirationMonth\n        expirationYear\n        isDefault\n        isDefaultDelivery\n        imageUrl\n        processor\n        __typename\n      }\n      __typename\n    }\n    error {\n      message\n      code\n      details {\n        message\n        codeAsString\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}"
+            variables:
+              type: object
+              description: "GraphQL variables JSON."
+
+  recommendations:
+    endpoints:
+      get:
+        method: POST
+        path: /graphql
+        response_format: json
+        description: "Personalized recommendations for a select event (variables.input.targetId)."
+        body:
+          properties:
+            query:
+              type: string
+              required: true
+              description: "GraphQL document."
+              default: "query GetRecommendationsWithItem($input: GetRecommendationsInput!) {\n  getRecommendations(input: $input) {\n    recommendations {\n      sessionUuid\n      status\n      recommendationsGroup {\n        uuid\n        recommendations {\n          uuid\n          data\n          justification\n          menuItem {\n            __typename\n            id\n            name\n            description\n            priceCents\n            images\n            tags\n            hasOptions\n            ... on DeliveryEventRecommendationMenuItem {\n              deliveryEventMenuItemId\n              __typename\n            }\n            ... on PopupEventRecommendationMenuItem {\n              eventVendorId\n              originalPriceCents\n              hidePrices\n              __typename\n            }\n          }\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    error {\n      code\n      message\n      __typename\n    }\n    __typename\n  }\n}"
+            variables:
+              type: object
+              description: "GraphQL variables JSON."
+
+  session:
+    endpoints:
+      page:
+        method: GET
+        path: /my
+        response_format: html
+        description: "Fetch the logged-in home page. Used as the token handshake and as the auth/health probe."

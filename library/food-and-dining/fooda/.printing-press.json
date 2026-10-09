@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-09T22:22:16.244597Z",
+  "printing_press_version": "4.33.2",
+  "api_name": "fooda",
+  "display_name": "Fooda",
+  "cli_name": "fooda-pp-cli",
+  "creator": {
+    "handle": "enlewof",
+    "name": "Allen Lew"
+  },
+  "owner": "enlewof",
+  "printer": "enlewof",
+  "printer_name": "Allen Lew",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:0f1a6587a7ac7ca9f51ee84fa22c264c0c7129cc71d8e2876ce43ef7358fb1f7",
+  "run_id": "20261009-112517-8bc179ae",
+  "category": "food-and-dining",
+  "description": "Your Fooda office lunch history, subsidy and this week's popups in a terminal, with vendor and spend analytics the app does not offer.",
+  "mcp_binary": "fooda-pp-mcp",
+  "mcp_tool_count": 6,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Served history",
+      "command": "served-history",
+      "description": "See every lunch you were actually served, with date, vendor, items and price."
+    },
+    {
+      "name": "Venue rotation",
+      "command": "venue-rotation",
+      "description": "Rank vendors by how often and how recently you ordered from them."
+    },
+    {
+      "name": "Spend trends",
+      "command": "spend-trends",
+      "description": "Spend per month or week, split into subsidy-covered and out-of-pocket."
+    },
+    {
+      "name": "Week-ahead digest",
+      "command": "week-ahead",
+      "description": "One-line-per-day digest of upcoming events and restaurants at your building."
+    },
+    {
+      "name": "Subsidy status",
+      "command": "subsidy-status",
+      "description": "Remaining dollars of today's subsidy and when it is valid."
+    },
+    {
+      "name": "Menu search",
+      "command": "menu-search",
+      "description": "Search menu items across all of today's events."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Served history",
+      "command": "served-history",
+      "description": "See every lunch you were actually served, with date, vendor, items and price."
+    },
+    {
+      "name": "Venue rotation",
+      "command": "venue-rotation",
+      "description": "Rank vendors by how often and how recently you ordered from them."
+    },
+    {
+      "name": "Spend trends",
+      "command": "spend-trends",
+      "description": "Spend per month or week, split into subsidy-covered and out-of-pocket."
+    },
+    {
+      "name": "Week-ahead digest",
+      "command": "week-ahead",
+      "description": "One-line-per-day digest of upcoming events and restaurants at your building."
+    },
+    {
+      "name": "Subsidy status",
+      "command": "subsidy-status",
+      "description": "Remaining dollars of today's subsidy and when it is valid."
+    },
+    {
+      "name": "Menu search",
+      "command": "menu-search",
+      "description": "Search menu items across all of today's events."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 95.65217391304348,
+    "passed": 44,
+    "total": 46,
+    "failed": 2,
+    "data_pipeline": true,
+    "verdict": "WARN"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 77,
+      "grade": "B",
+      "total": 77
+    }
+  }
+}

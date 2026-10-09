@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/fooda-pp-cli
+/fooda-pp-cli.exe
+/fooda-pp-mcp
+/fooda-pp-mcp.exe
+/bin/
+/build/
+/dist/

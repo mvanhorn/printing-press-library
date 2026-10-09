@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "fooda-pp-mcp",
+  "display_name": "Fooda",
+  "version": "0.1.0",
+  "description": "CLI for Fooda workplace lunch (app.fooda.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/fooda-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/fooda-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

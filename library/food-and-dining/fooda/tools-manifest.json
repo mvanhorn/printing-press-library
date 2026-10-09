@@ -1,0 +1,61 @@
+{
+  "api_name": "fooda",
+  "base_url": "https://app.fooda.com",
+  "description": "Your Fooda office lunch history, subsidy and this week's popups in a terminal, with vendor and spend analytics the app does not offer.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "cookie_domain": "fooda.com",
+    "cookies": [
+      "_fooda_session"
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "Accept",
+      "value": "application/json"
+    },
+    {
+      "name": "Origin",
+      "value": "https://app.fooda.com"
+    },
+    {
+      "name": "Referer",
+      "value": "https://app.fooda.com/my"
+    }
+  ],
+  "tools": [],
+  "novel_features": [
+    {
+      "name": "Served history",
+      "command": "served-history",
+      "description": "See every lunch you were actually served, with date, vendor, items and price."
+    },
+    {
+      "name": "Venue rotation",
+      "command": "venue-rotation",
+      "description": "Rank vendors by how often and how recently you ordered from them."
+    },
+    {
+      "name": "Spend trends",
+      "command": "spend-trends",
+      "description": "Spend per month or week, split into subsidy-covered and out-of-pocket."
+    },
+    {
+      "name": "Week-ahead digest",
+      "command": "week-ahead",
+      "description": "One-line-per-day digest of upcoming events and restaurants at your building."
+    },
+    {
+      "name": "Subsidy status",
+      "command": "subsidy-status",
+      "description": "Remaining dollars of today's subsidy and when it is valid."
+    },
+    {
+      "name": "Menu search",
+      "command": "menu-search",
+      "description": "Search menu items across all of today's events."
+    }
+  ]
+}
