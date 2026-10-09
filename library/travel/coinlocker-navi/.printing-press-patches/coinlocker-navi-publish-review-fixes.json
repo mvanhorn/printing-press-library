@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "coinlocker-navi-publish-review-fixes",
+  "applied_at": "2026-10-10",
+  "base_run_id": "20261009-095811-aff6d8f7",
+  "base_printing_press_version": "4.33.2",
+  "summary": "Send an HTML Accept header from the MCP HTML tools and doctor, reject --data-source local on live-only commands, keep --select meta paths in agent output, make --quiet print a single record's id, and raise the go directive to the library floor.",
+  "reason": "Publish review (PR #2289): coinlocker-navi.com answers Accept: application/json with HTTP 500; near/locker/vacancy ignored --data-source local; --agent --select meta.fetched_at nested meta under results; locker --quiet printed neighbour ids; the library supply-chain scan requires go >= 1.26.9.",
+  "files": ["internal/mcp/tools.go", "internal/cli/doctor.go", "internal/cli/near.go", "internal/cli/locker_cmd.go", "internal/cli/vacancy.go", "internal/cli/helpers.go", "internal/cli/envelope_output_test.go", "internal/locker/ekicube.go", "go.mod"],
+  "call_sites": ["htmlAccept", "validateDataSourceStrategy(flags, \"live\")", "func wrapSelectedEnvelope", "go 1.26.9"],
+  "validated_outcome": "go vet, go test ./... pass; locker 2685 --quiet prints 2685; --agent --select meta.fetched_at keeps meta.fetched_at; near --data-source local exits 2 before any request."
+}

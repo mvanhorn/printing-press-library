@@ -283,7 +283,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					if !strings.HasPrefix(healthPath, "/") {
 						healthPath = "/" + healthPath
 					}
-					reachBody, reachErr := c.GetWithHeaders(cmd.Context(), healthPath, nil, map[string]string{client.HTMLResponseHeader: "true"})
+					reachBody, reachErr := c.GetWithHeaders(cmd.Context(), healthPath, nil, map[string]string{client.HTMLResponseHeader: "true", "Accept": "text/html,application/xhtml+xml"})
 					var reachAPIErr *client.APIError
 					switch {
 					case reachErr == nil:

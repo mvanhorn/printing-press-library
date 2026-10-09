@@ -69,7 +69,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/cl/{id}", true, false, map[string]string{client.HTMLResponseHeader: "true"}, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("GET", "/cl/{id}", true, false, map[string]string{client.HTMLResponseHeader: "true", "Accept": htmlAccept}, mcpPageConfig{}, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("source_search",
@@ -79,7 +79,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/search", true, false, map[string]string{client.HTMLResponseHeader: "true"}, mcpPageConfig{}, []mcpParamBinding{{PublicName: "q", WireName: "q", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/search", true, false, map[string]string{client.HTMLResponseHeader: "true", "Accept": htmlAccept}, mcpPageConfig{}, []mcpParamBinding{{PublicName: "q", WireName: "q", Location: "query"}}, []string{}),
 	)
 	// No sql tool: this CLI keeps no local store. coinlocker-navi.com's terms
 	// forbid copying beyond private use, so every call reads the sources live.
@@ -99,6 +99,10 @@ func RegisterTools(s *server.MCPServer) {
 	// not already covered by a typed endpoint or framework MCP tool.
 	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
 }
+
+// htmlAccept is the Accept value for coinlocker-navi.com HTML pages. The site
+// answers the client default (Accept: application/json) with HTTP 500.
+const htmlAccept = "text/html,application/xhtml+xml"
 
 type mcpParamBinding struct {
 	PublicName string

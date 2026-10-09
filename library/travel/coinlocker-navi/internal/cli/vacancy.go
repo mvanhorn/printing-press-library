@@ -100,6 +100,11 @@ source's as-of time.`, "\n"),
 			if cliutil.IsDogfoodEnv() && maxPages > 1 {
 				maxPages = 1
 			}
+			// Live-only: there is no local store, so reject --data-source local
+			// before any network call.
+			if err := validateDataSourceStrategy(flags, "live"); err != nil {
+				return usageErr(err)
+			}
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
 			c := newLockerClient(flags)

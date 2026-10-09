@@ -105,6 +105,11 @@ touches the usual no-train hours (about 01:00-04:30) train_hours records go last
 			if cliutil.IsDogfoodEnv() && maxPages > 2 {
 				maxPages = 2
 			}
+			// Live-only: there is no local store, so reject --data-source local
+			// before any network call.
+			if err := validateDataSourceStrategy(flags, "live"); err != nil {
+				return usageErr(err)
+			}
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
 			c := newLockerClient(flags)

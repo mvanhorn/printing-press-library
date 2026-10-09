@@ -280,7 +280,10 @@ func (c *Client) ekicubePage(ctx context.Context, q EkicubeQuery, lang string, p
 	if q.Gate == "inside" || q.Gate == "outside" {
 		v.Set("ticket_gate", q.Gate)
 	}
-	// service_type must be a raw comma list (the API rejects an encoded comma).
+	// service_type is sent as a literal comma list, as the site does. The API
+	// also accepts the encoded form (1%2C3) with identical results (checked
+	// live 2026-10-10), so the raw source command and MCP tool, which encode
+	// the comma, are equivalent.
 	u := c.EkicubeBase + "/v1/location/ph2?" + v.Encode() + "&service_type=1,3"
 	body, err := c.fetch(ctx, u, map[string]string{"Accept": "application/json", "Origin": "https://multiecube.com", "Referer": "https://multiecube.com/"})
 	if err != nil {

@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/travel/coinlocker-navi
 
-go 1.26.6
+go 1.26.9
 
 toolchain go1.27.2
 

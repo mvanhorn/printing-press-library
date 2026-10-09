@@ -1692,6 +1692,38 @@ func wrapAgentOutput(data json.RawMessage, meta map[string]any) (json.RawMessage
 	return json.Marshal(envelope)
 }
 
+// wrapSelectedEnvelope wraps --select output taken from a {meta, results}
+// command envelope. Selection can drop either half (for example
+// --select meta.fetched_at keeps only meta), so wrapAgentOutput would no
+// longer recognise the envelope and would nest it under results. Keep the
+// selected meta and results at their documented paths instead.
+func wrapSelectedEnvelope(data json.RawMessage, agentMeta map[string]any) (json.RawMessage, error) {
+	var obj map[string]json.RawMessage
+	if err := json.Unmarshal(data, &obj); err != nil || len(obj) == 0 {
+		return wrapAgentOutput(data, agentMeta)
+	}
+	for key := range obj {
+		if key != "meta" && key != "results" {
+			return wrapAgentOutput(data, agentMeta)
+		}
+	}
+	commandMeta := map[string]any{}
+	if rawMeta, ok := obj["meta"]; ok {
+		if err := json.Unmarshal(rawMeta, &commandMeta); err != nil || commandMeta == nil {
+			return wrapAgentOutput(data, agentMeta)
+		}
+	}
+	merged := mergeCommandMeta(commandMeta, agentMeta)
+	if _, ok := metaSourceString(merged["source"]); !ok {
+		merged["source"] = "local"
+	}
+	envelope := map[string]any{"meta": merged}
+	if rawResults, ok := obj["results"]; ok {
+		envelope["results"] = rawResults
+	}
+	return json.Marshal(envelope)
+}
+
 func splitResultsMetaEnvelope(data json.RawMessage) (json.RawMessage, map[string]any, bool) {
 	var obj map[string]json.RawMessage
 	if err := json.Unmarshal(data, &obj); err != nil {
@@ -2123,15 +2155,23 @@ func printOutputWithFlagsMetaAndKeep(w io.Writer, data json.RawMessage, flags *r
 	// only --compact is set (e.g., --agent without --select), the allow-list
 	// still runs.
 	var selectErr error
+	selectedEnvelope := false
 	if flags.selectFields != "" {
 		selectPayload := data
+		_, _, selectedEnvelope = splitResultsMetaEnvelope(selectPayload)
 		data, selectErr = filterFieldsChecked(selectPayload, flags.selectFields)
 		selectErr = selectErrorForDryRun(selectErr, flags, selectPayload)
 	} else if flags.compact {
 		data = compactFieldsKeep(data, keep, documentedFields...)
 	}
 	if flags.agent && flags.asJSON && !flags.csv && !flags.plain && !flags.quiet {
-		wrapped, err := wrapAgentOutput(data, agentMeta)
+		var wrapped json.RawMessage
+		var err error
+		if selectedEnvelope {
+			wrapped, err = wrapSelectedEnvelope(data, agentMeta)
+		} else {
+			wrapped, err = wrapAgentOutput(data, agentMeta)
+		}
 		if err != nil {
 			return err
 		}
@@ -2591,6 +2631,20 @@ func printPlain(w io.Writer, data json.RawMessage, documentedFields ...map[strin
 }
 
 func printQuiet(w io.Writer, data json.RawMessage) error {
+	// Domain commands emit a {meta, results} envelope; --quiet prints the
+	// identity of the results, never of the envelope itself.
+	if results, _, ok := splitResultsMetaEnvelope(data); ok {
+		data = results
+		// A single-record result (for example `locker <id>`) prints its own
+		// identity, not the ids of nested arrays such as neighbours.
+		var record map[string]any
+		if err := json.Unmarshal(data, &record); err == nil && record != nil {
+			if v := quietRowValue(record); v != "" {
+				fmt.Fprintln(w, v)
+			}
+			return nil
+		}
+	}
 	items, ok := tabularObjectRows(data)
 	if ok {
 		for _, item := range items {

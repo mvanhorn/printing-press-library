@@ -61,6 +61,11 @@ are null. The source shows no record date; fetched_at is the observation time.`,
 			if !lockerIDRe.MatchString(id) {
 				return usageErr(fmt.Errorf("locker id %q: want digits, e.g. 2685", id))
 			}
+			// Live-only: there is no local store, so reject --data-source local
+			// before any network call.
+			if err := validateDataSourceStrategy(flags, "live"); err != nil {
+				return usageErr(err)
+			}
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
 			c := newLockerClient(flags)
