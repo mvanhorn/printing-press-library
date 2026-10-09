@@ -45,7 +45,7 @@
       "description": "Supports dry-run previews and explicit destructive MCP annotations for paid and DNS-changing operations."
     }
   ],
-  "printer": "cathryn-lavery",
+  "printer": "cathrynlavery",
   "printer_name": "Cathryn Lavery",
   "catalog_description": "Manage Namecheap domains, DNS, contacts, pricing, account balances, TLDs, and SSL metadata through a JSON-friendly XML API wrapper."
 }
