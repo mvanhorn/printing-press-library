@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/japan-timed-tickets-pp-cli
+/japan-timed-tickets-pp-cli.exe
+/japan-timed-tickets-pp-mcp
+/japan-timed-tickets-pp-mcp.exe
+/bin/
+/build/
+/dist/

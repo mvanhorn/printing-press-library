@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "not-found-hint",
+  "applied_at": "2026-10-09",
+  "base_run_id": "20261009-095850-f6dfc042",
+  "base_printing_press_version": "4.33.2",
+  "summary": "Point not-found errors at doctor, which checks every official source page.",
+  "reason": "The generated 404 hint did not tell the user how to check the official source pages.",
+  "files": [
+    "internal/cli/helpers.go"
+  ],
+  "markers": [
+    "to check every official source page"
+  ]
+}

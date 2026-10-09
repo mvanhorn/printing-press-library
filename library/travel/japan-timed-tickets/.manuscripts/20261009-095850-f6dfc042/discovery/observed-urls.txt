@@ -1,0 +1,31 @@
+# URLs fetched with plain HTTP during research (2026-10-09) and build smoke runs.
+# All public pages; no login, no cart, no waiting room joined.
+https://www.ghibli-museum.jp/en/tickets/
+https://www.ghibli-museum.jp/ticket/
+https://l-tike.com/ghibli/
+https://l-tike.com/search/?keyword=%E4%B8%89%E9%B7%B9%E3%81%AE%E6%A3%AE%E3%82%B8%E3%83%96%E3%83%AA%E7%BE%8E%E8%A1%93%E9%A4%A8
+https://l-tike.com/st1/ghibli-en/Tt/Ttg010agreement/index
+https://www.shibuya-scramble-square.com/sky/ticket/
+https://www.shibuya-scramble-square.com/sky/faq/
+https://www.shibuya-scramble-square.com/sky/_next/static/chunks/pages/ticket-ac203fd71ef8a1eb.js
+https://www.shibuya-scramble-square.com/sky/_next/static/chunks/pages/faq-0789ea8d16df729c.js
+https://webket.jp/pc/ticket/index?fc=00396&ac=8001
+https://teamlabplanets.dmm.com/ticket
+https://teamlabplanets.dmm.com/en/ticket
+https://teamlabplanets.dmm.com/ticket/admission_time_list
+https://www.teamlab.art/e/planets/
+https://www.teamlab.art/jp/e/planets/
+https://www.teamlab.art/e/tokyo/
+https://www.teamlab.art/e/kyoto/
+https://www.teamlab.art/e/botanicalgarden/
+https://www.teamlab.art/e/futurepark-okinawa/
+https://borderless-azabudai.ticket.teamlab.art/api/v1/configurations
+https://borderless-azabudai.ticket.teamlab.art/api/v1/texts?lang=ja
+https://borderless-azabudai.ticket.teamlab.art/api/v1/products/stocks-statuses
+https://borderless-azabudai.ticket.teamlab.art/api/v1/products/search2
+https://borderless-azabudai.ticket.teamlab.art/api/v1/products/stocks
+https://kyoto.tickets.teamlab.art/api/v1/configurations
+https://botanicalgarden.ticket.teamlab.art/api/v1/configurations
+https://dfs-okinawa.ticket.teamlab.art/api/v1/configurations
+https://dfs-okinawa.ticket.teamlab.art/api/v1/products/stocks-statuses
+# webket.jp: only the redirect Location was observed (to a Queue-it waiting room); it was never followed.

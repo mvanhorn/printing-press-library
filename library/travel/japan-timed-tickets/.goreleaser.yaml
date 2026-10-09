@@ -1,0 +1,55 @@
+version: 2
+project_name: japan-timed-tickets-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: japan-timed-tickets-pp-cli
+    main: ./cmd/japan-timed-tickets-pp-cli
+    binary: japan-timed-tickets-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/japan-timed-tickets/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: japan-timed-tickets-pp-mcp
+    main: ./cmd/japan-timed-tickets-pp-mcp
+    binary: japan-timed-tickets-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: japan-timed-tickets-pp-cli
+    repository:
+      owner: zjsng
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "When Ghibli Museum, SHIBUYA SKY and teamLab tickets go on sale, and which dates and slots are still open."
+    install: |
+      bin.install "japan-timed-tickets-pp-cli"
+      bin.install "japan-timed-tickets-pp-mcp"

@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "japan-timed-tickets-pp-mcp",
+  "display_name": "Japan Timed Tickets",
+  "version": "0.1.0",
+  "description": "When Ghibli Museum, SHIBUYA SKY and teamLab tickets go on sale, and which dates and slots are still open.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/japan-timed-tickets-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/japan-timed-tickets-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

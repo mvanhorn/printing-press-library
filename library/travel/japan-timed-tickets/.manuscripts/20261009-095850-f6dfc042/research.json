@@ -1,0 +1,148 @@
+{
+  "api_name": "japan-timed-tickets",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-09T02:16:04Z",
+  "novel_features": [
+    {
+      "name": "Act-now trip state",
+      "command": "onsale",
+      "description": "For each sight and visit date in a trip, see whether to book now, wait for an exact JST sale moment, or drop the date. Ghibli Museum and SHIBUYA SKY show 'unknown' once their sale opens (stock needs a login or sits behind a waiting room).",
+      "rationale": "Joins three different official sale rules with live day status from several ticket sites into one action state per date.",
+      "example": "japan-timed-tickets-pp-cli onsale --from 2026-11-20 --to 2026-11-27 --tz Australia/Melbourne --agent",
+      "why_it_matters": "Use it first when a traveler asks how and when to get tickets for a trip; it answers book-now / opens-at / closed / unknown with sources.",
+      "group": "Sale timing"
+    },
+    {
+      "name": "SHIBUYA SKY sunset targeting",
+      "command": "onsale",
+      "description": "See the computed sunset time, the 20-minute SHIBUYA SKY slots to target (on an assumed :00/:20/:40 grid), their web price tier and the moment that date goes on sale. Slot stock is not read.",
+      "rationale": "Combines a sunset calculation for Shibuya with the 20-minute entry rule, the 15:00 price split and the two-weeks-ahead sale rule.",
+      "example": "japan-timed-tickets-pp-cli onsale --sights shibuya-sky --date 2026-11-24 --tz America/Los_Angeles --agent",
+      "why_it_matters": "Sunset slots are the scarce SHIBUYA SKY tickets; this gives the slot to target and when to be online.",
+      "group": "Sale timing"
+    },
+    {
+      "name": "Party-size fit",
+      "command": "availability",
+      "description": "For teamLab venues, keep only time slots with enough stock for the whole party; for every sight, flag channel rules for children (for example SHIBUYA SKY child tickets at the counter only).",
+      "rationale": "Compares per-slot stock counts with the party and applies child-ticket channel rules that the calendars do not show.",
+      "example": "japan-timed-tickets-pp-cli availability teamlab-planets --date 2026-11-24 --slots --party adults=2,children=2 --agent",
+      "why_it_matters": "A 'few left' label does not tell an agent whether four people fit in one slot.",
+      "group": "Open dates and slots"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Act-now trip state",
+      "command": "onsale",
+      "description": "For each sight and visit date in a trip, see whether to book now, wait for an exact JST sale moment, or drop the date. Ghibli Museum and SHIBUYA SKY show 'unknown' once their sale opens (stock needs a login or sits behind a waiting room).",
+      "rationale": "Joins three different official sale rules with live day status from several ticket sites into one action state per date.",
+      "example": "japan-timed-tickets-pp-cli onsale --from 2026-11-20 --to 2026-11-27 --tz Australia/Melbourne --agent",
+      "why_it_matters": "Use it first when a traveler asks how and when to get tickets for a trip; it answers book-now / opens-at / closed / unknown with sources.",
+      "group": "Sale timing"
+    },
+    {
+      "name": "SHIBUYA SKY sunset targeting",
+      "command": "onsale",
+      "description": "See the computed sunset time, the 20-minute SHIBUYA SKY slots to target (on an assumed :00/:20/:40 grid), their web price tier and the moment that date goes on sale. Slot stock is not read.",
+      "rationale": "Combines a sunset calculation for Shibuya with the 20-minute entry rule, the 15:00 price split and the two-weeks-ahead sale rule.",
+      "example": "japan-timed-tickets-pp-cli onsale --sights shibuya-sky --date 2026-11-24 --tz America/Los_Angeles --agent",
+      "why_it_matters": "Sunset slots are the scarce SHIBUYA SKY tickets; this gives the slot to target and when to be online.",
+      "group": "Sale timing"
+    },
+    {
+      "name": "Party-size fit",
+      "command": "availability",
+      "description": "For teamLab venues, keep only time slots with enough stock for the whole party; for every sight, flag channel rules for children (for example SHIBUYA SKY child tickets at the counter only).",
+      "rationale": "Compares per-slot stock counts with the party and applies child-ticket channel rules that the calendars do not show.",
+      "example": "japan-timed-tickets-pp-cli availability teamlab-planets --date 2026-11-24 --slots --party adults=2,children=2 --agent",
+      "why_it_matters": "A 'few left' label does not tell an agent whether four people fit in one slot.",
+      "group": "Open dates and slots"
+    }
+  ],
+  "narrative": {
+    "display_name": "Japan Timed Tickets",
+    "headline": "When Ghibli Museum, SHIBUYA SKY and teamLab tickets go on sale, and which dates and slots are still open.",
+    "value_prop": "Read-only, source-backed sale windows in JST and your time zone, with live teamLab day and slot stock. Sold-out, closed and unknown are explicit; queue-protected and login-gated inventory is reported as unknown with the official handoff link.",
+    "auth_narrative": "No account, API key or login is used. The CLI reads public pages and public ticket-site JSON only. It never buys, adds to cart, joins a waiting room or logs in.",
+    "quickstart": [
+      {
+        "command": "japan-timed-tickets-pp-cli doctor",
+        "comment": "Probe each official source; the SHIBUYA SKY waiting room and the Lawson Ticket login show as expected boundaries."
+      },
+      {
+        "command": "japan-timed-tickets-pp-cli sights --agent",
+        "comment": "List supported sights, channels and sale rules."
+      },
+      {
+        "command": "japan-timed-tickets-pp-cli onsale --from 2026-11-20 --to 2026-11-27 --tz Europe/London --agent",
+        "comment": "See every sale moment for a trip in JST and local time."
+      },
+      {
+        "command": "japan-timed-tickets-pp-cli availability teamlab-borderless --from 2026-11-20 --to 2026-11-27 --agent",
+        "comment": "See which trip dates are still open."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "SHIBUYA SKY availability is unknown",
+        "fix": "Expected: the Webket store is behind a waiting room the CLI never joins; use the sale time from 'onsale' and the handoff URL."
+      },
+      {
+        "symptom": "Ghibli Museum availability is unknown",
+        "fix": "Expected: per-date stock needs a Lawson Ticket login; use 'onsale' for the sale moment and 'sights ghibli-museum' for the channel."
+      },
+      {
+        "symptom": "teamLab date beyond calendar range",
+        "fix": "The venue has not released that month yet; run 'onsale --sights teamlab-kyoto --date 2027-01-10' (with your venue and date) for the announced release."
+      },
+      {
+        "symptom": "A sight shows confidence estimated and a fetch_failures entry",
+        "fix": "One official page did not answer in this run; the row uses the stored rule. Run the command again, or run doctor to see which source failed."
+      }
+    ],
+    "when_to_use": "Use this CLI when a traveler asks when tickets for Ghibli Museum (Mitaka), SHIBUYA SKY or the five supported teamLab venues (Planets TOKYO, Borderless Azabudai, Biovortex Kyoto, Botanical Garden Osaka, Future Park Okinawa) go on sale for a date, which dates or teamLab time slots are still open, or which channel and JST time to use. Ghibli Museum per-date stock and SHIBUYA SKY slot stock are always reported as unknown with the official handoff link; live slot stock is teamLab only.",
+    "anti_triggers": [
+      "Buying or reserving tickets",
+      "Concerts, theatre or sports tickets (use eplus-pp-cli)",
+      "Ghibli Park in Aichi",
+      "Live seat or slot stock for Ghibli Museum or SHIBUYA SKY (reported as unknown)",
+      "Other teamLab venues (for example teamLab Forest Fukuoka) or teamLab outside Japan",
+      "Attractions other than Ghibli Museum, SHIBUYA SKY and the five supported teamLab venues"
+    ],
+    "recipes": [
+      {
+        "title": "Sale moments for a trip in local time",
+        "command": "japan-timed-tickets-pp-cli onsale --from 2026-11-20 --to 2026-11-27 --tz Australia/Melbourne --agent --select sight,visit_date,on_sale_jst,on_sale_local,state",
+        "explanation": "One row per sight and visit date with the exact moment to be online."
+      },
+      {
+        "title": "Open teamLab slots for a family",
+        "command": "japan-timed-tickets-pp-cli availability teamlab-planets --date 2026-11-24 --slots --party adults=2,children=2 --agent",
+        "explanation": "Only slots with stock for four people remain."
+      },
+      {
+        "title": "SHIBUYA SKY at sunset",
+        "command": "japan-timed-tickets-pp-cli onsale --sights shibuya-sky --date 2026-11-24 --agent",
+        "explanation": "Sunset time, target slots, price tier and sale moment on one row."
+      },
+      {
+        "title": "Calendar file of sale moments",
+        "command": "japan-timed-tickets-pp-cli onsale --sights ghibli-museum,shibuya-sky,teamlab --from 2027-01-05 --to 2027-01-12 --ics \u003e sales.ics",
+        "explanation": "One event per future sale moment, with the source basis and the official handoff URL. Estimated release windows become all-day events."
+      }
+    ],
+    "trigger_phrases": [
+      "when do Ghibli Museum tickets go on sale",
+      "SHIBUYA SKY sunset tickets",
+      "teamLab availability for my dates",
+      "when can I book teamLab Borderless",
+      "use japan-timed-tickets",
+      "run japan-timed-tickets"
+    ]
+  }
+}

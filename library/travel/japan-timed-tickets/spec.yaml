@@ -1,0 +1,39 @@
+name: japan-timed-tickets
+version: 0.1.0
+category: travel
+description: When Ghibli Museum, SHIBUYA SKY and teamLab tickets go on sale, and which dates and slots are still open.
+cli_description: When Ghibli Museum, SHIBUYA SKY and teamLab tickets go on sale, and which dates and slots are still open.
+base_url: https://www.ghibli-museum.jp
+http_transport: standard
+health_check_path: /en/tickets/
+required_headers:
+  - name: User-Agent
+    value: "japan-timed-tickets-pp-cli/0.1.0"
+auth:
+  type: none
+learn:
+  disabled: true
+mcp:
+  endpoint_tools: hidden
+# endpoint tools hidden: the raw source endpoint bypasses the paced tickets fetcher; agents use the typed sights/onsale/availability tools.
+# learn disabled: closed set of sights; commands take fixed sight IDs, no free-text query vocabulary to learn.
+extra_commands:
+  - name: sights
+    description: List supported sights with bilingual names, sale channels, sale rules and official handoff URLs
+  - name: onsale
+    description: Sale moment per sight and visit date in JST and local time, with the act-now state and SHIBUYA SKY sunset slots
+  - name: availability
+    description: Per-date status and teamLab 30-minute slot stock for a sight, with an optional party-size fit filter
+resources:
+  source:
+    description: Raw official source pages (diagnostic)
+    endpoints:
+      ghibli-calendar:
+        method: GET
+        path: /en/tickets/
+        description: Ghibli Museum official ticket page with the museum calendar
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: object

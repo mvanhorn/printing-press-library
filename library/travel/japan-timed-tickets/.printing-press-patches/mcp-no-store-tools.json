@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "mcp-no-store-tools",
+  "applied_at": "2026-10-09",
+  "base_run_id": "20261009-095850-f6dfc042",
+  "base_printing_press_version": "4.33.2",
+  "summary": "Remove the MCP sql, search and sync tools and hide store-only commands, because this CLI keeps no local store.",
+  "reason": "This CLI keeps no local store, so generated store tools would have nothing to read.",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/cli/channel_workflow.go"
+  ],
+  "markers": [
+    "No sql tool: this CLI keeps no local store",
+    "There is no local store and no sql, search or sync tool",
+    "\"mcp:hidden\": \"true\""
+  ]
+}

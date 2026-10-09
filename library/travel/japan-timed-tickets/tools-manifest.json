@@ -1,0 +1,46 @@
+{
+  "api_name": "japan-timed-tickets",
+  "base_url": "https://www.ghibli-museum.jp",
+  "description": "When Ghibli Museum, SHIBUYA SKY and teamLab tickets go on sale, and which dates and slots are still open.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "japan-timed-tickets-pp-cli/0.1.0"
+    }
+  ],
+  "tools": [
+    {
+      "name": "source_ghibli-calendar",
+      "description": "Ghibli Museum official ticket page with the museum calendar.",
+      "method": "GET",
+      "path": "/en/tickets/",
+      "no_auth": true,
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Act-now trip state",
+      "command": "onsale",
+      "description": "For each sight and visit date in a trip, see whether to book now, wait for an exact JST sale moment, or drop the date. Ghibli Museum and SHIBUYA SKY show 'unknown' once their sale opens (stock needs a login or sits behind a waiting room)."
+    },
+    {
+      "name": "SHIBUYA SKY sunset targeting",
+      "command": "onsale",
+      "description": "See the computed sunset time, the 20-minute SHIBUYA SKY slots to target (on an assumed :00/:20/:40 grid), their web price tier and the moment that date goes on sale. Slot stock is not read."
+    },
+    {
+      "name": "Party-size fit",
+      "command": "availability",
+      "description": "For teamLab venues, keep only time slots with enough stock for the whole party; for every sight, flag channel rules for children (for example SHIBUYA SKY child tickets at the counter only)."
+    }
+  ]
+}
