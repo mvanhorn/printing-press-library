@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"net/url"
+	"net/http/httptest"
 	"strings"
 	"testing"
 	"time"
@@ -336,76 +336,102 @@ func TestGetEventServiceDate(t *testing.T) {
 	}
 }
 
-func TestGetAccountAndBuildingCache(t *testing.T) {
-	tempHome := t.TempDir()
-	t.Setenv("FOODA_HOME", tempHome)
+func TestGetAccountAndBuildingMemoization(t *testing.T) {
+	resetMemoizedAccountAndBuilding()
+	defer resetMemoizedAccountAndBuilding()
+
+	var myPageResponse string
+	var myPageStatus int = http.StatusOK
+	var callCount int
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/my" {
+			callCount++
+			w.WriteHeader(myPageStatus)
+			_, _ = w.Write([]byte(myPageResponse))
+			return
+		}
+		w.WriteHeader(http.StatusNotFound)
+	}))
+	defer server.Close()
 
 	flags := &rootFlags{}
-	cfgObj, err := config.Load(flags.configPath)
+	cfgObj, err := config.Load("")
 	if err != nil {
 		t.Fatalf("failed to load config: %v", err)
 	}
+	cfgObj.BaseURL = server.URL
 	c := client.New(cfgObj, 0, 0)
 
-	// Test 1: Expiry Miss (older than 24h)
+	// Test 1: Discovery Success
 	{
-		cfg := FoodaConfig{
-			AccountID:  "8358",
-			BuildingID: "4551",
-			FetchedAt:  time.Now().Add(-25 * time.Hour), // expired
-		}
-		saveFoodaConfig(cfg)
-
-		_, _, err := getAccountAndBuilding(context.Background(), c, flags)
-		if err == nil {
-			t.Errorf("expected expiry miss to trigger discovery and fail, but it succeeded")
-		}
-	}
-
-	// Test 2: Building-change Miss
-	{
-		cfg := FoodaConfig{
-			AccountID:  "8358",
-			BuildingID: "4551",
-			FetchedAt:  time.Now().Add(-5 * time.Hour), // valid age
-		}
-		saveFoodaConfig(cfg)
-
-		u, _ := url.Parse("https://app.fooda.com")
-		cookie := &http.Cookie{
-			Name:  "myfooda_building_id",
-			Value: "9999", // different building!
-		}
-		c.HTTPClient.Jar.SetCookies(u, []*http.Cookie{cookie})
-
-		_, _, err := getAccountAndBuilding(context.Background(), c, flags)
-		if err == nil {
-			t.Errorf("expected building-change miss to trigger discovery and fail, but it succeeded")
-		}
-	}
-
-	// Test 3: Cache Hit (cookie matches cached building ID)
-	{
-		cfg := FoodaConfig{
-			AccountID:  "8358",
-			BuildingID: "4551",
-			FetchedAt:  time.Now().Add(-5 * time.Hour), // valid age
-		}
-		saveFoodaConfig(cfg)
-
-		u, _ := url.Parse("https://app.fooda.com")
-		cookie := &http.Cookie{
-			Name:  "myfooda_building_id",
-			Value: "4551", // matching building ID!
-		}
-		c.HTTPClient.Jar.SetCookies(u, []*http.Cookie{cookie})
+		resetMemoizedAccountAndBuilding()
+		myPageStatus = http.StatusOK
+		myPageResponse = `<html><body><div props='{"filters":{"account_id":["9999"],"locations":{"building_id":["8888"]}},"userId":777}' id='my-event-list'></div></body></html>`
+		callCount = 0
 
 		acct, bldg, err := getAccountAndBuilding(context.Background(), c, flags)
 		if err != nil {
-			t.Fatalf("expected cache hit to succeed, got error: %v", err)
+			t.Fatalf("unexpected discovery error: %v", err)
 		}
-		if acct != "8358" || bldg != "4551" {
-			t.Errorf("expected cached values 8358, 4551; got %s, %s", acct, bldg)
+		if acct != "9999" || bldg != "8888" {
+			t.Errorf("expected 9999, 8888; got %s, %s", acct, bldg)
+		}
+		if callCount != 1 {
+			t.Errorf("expected 1 call to /my, got %d", callCount)
+		}
+
+		// Test 1b: Memoization (second call should NOT hit the server)
+		acct2, bldg2, err := getAccountAndBuilding(context.Background(), c, flags)
+		if err != nil {
+			t.Fatalf("unexpected memoized error: %v", err)
+		}
+		if acct2 != "9999" || bldg2 != "8888" {
+			t.Errorf("expected memoized values 9999, 8888; got %s, %s", acct2, bldg2)
+		}
+		if callCount != 1 {
+			t.Errorf("expected memoized call to bypass network, but it hit the server (callCount=%d)", callCount)
+		}
+	}
+
+	// Test 2: Flags Override Discovery
+	{
+		resetMemoizedAccountAndBuilding()
+		callCount = 0
+		overrideFlags := &rootFlags{
+			accountID:  "over-acct",
+			buildingID: "over-bldg",
+		}
+
+		acct, bldg, err := getAccountAndBuilding(context.Background(), c, overrideFlags)
+		if err != nil {
+			t.Fatalf("unexpected error with overrides: %v", err)
+		}
+		if acct != "over-acct" || bldg != "over-bldg" {
+			t.Errorf("expected over-acct, over-bldg; got %s, %s", acct, bldg)
+		}
+		if callCount != 0 {
+			t.Errorf("expected flags override to bypass discovery network, but got %d calls", callCount)
+		}
+	}
+
+	// Test 3: Discovery Failure with Login Hint
+	{
+		resetMemoizedAccountAndBuilding()
+		myPageStatus = http.StatusForbidden // e.g. auth required
+		myPageResponse = "Forbidden"
+
+		_, _, err := getAccountAndBuilding(context.Background(), c, flags)
+		if err == nil {
+			t.Errorf("expected discovery failure, but got success")
+		} else {
+			errStr := err.Error()
+			if !strings.Contains(errStr, "failed to discover Fooda account and building") {
+				t.Errorf("missing expected error context, got: %s", errStr)
+			}
+			if !strings.Contains(errStr, "log in to app.fooda.com in Chrome and re-run 'auth login --chrome'") {
+				t.Errorf("missing Chrome login hint in error: %s", errStr)
+			}
 		}
 	}
 }

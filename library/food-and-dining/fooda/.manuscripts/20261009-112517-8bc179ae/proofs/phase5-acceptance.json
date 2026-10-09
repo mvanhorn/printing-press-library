@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "cookie"
   },
-  "source_fingerprint": "f66c9edb7a8714c4a0f4daf3f192f01318ae76dc7f199cfc6c6a84bb5cddb6f1",
+  "source_fingerprint": "1d323028795b65a71f7f26a9aa7b8a4205766248e6d43a3a63867737dfe9df34",
   "source_files": {
     "cmd/fooda-pp-cli/main.go": "e6f96d2e80688e77d5c50e7051e6f109199a19d3a908377ea96c46d46d1a4040",
     "cmd/fooda-pp-mcp/http_auth_test.go": "46cf4aac0bb79c00b73963265b07c517a55556043c9e828ae6c44b6fea9adc60",
@@ -31,8 +31,8 @@
     "internal/cli/deliver_download_test.go": "7495bb76ecfb5e85bb29d4405aeef1dc27b9ac8cb2cde27588a7f2005f3de7d3",
     "internal/cli/doctor.go": "1c11be8ca0b499171eafe8176b78f910f13a1d7c2551159530cc03a6a707d03b",
     "internal/cli/feedback.go": "70b51749a4d35a073dc1f502fc745fea79be9cb8a62352f24db2f6b45cd35b92",
-    "internal/cli/fooda_commands.go": "42f7b10e84b84d57138814f09568828f526a39e78673c4aa868c2b036d79e578",
-    "internal/cli/fooda_commands_test.go": "a6b80d41b45f4cabf14c4cbf6e8044e8335f80982b02c13c1c10a85a13291bce",
+    "internal/cli/fooda_commands.go": "79f1071cc626ec2af5716119d13b877107b37ad8d8e39aad68f76b7a57a38a14",
+    "internal/cli/fooda_commands_test.go": "8c7dcba371e956c6a3af907662cb382cef72a36c0518d860302b7afcc828f95c",
     "internal/cli/helpers.go": "93b5a53ca2f8f2e8f819ebcce1878c0f6193c981f4c2d1c7cff4821498629985",
     "internal/cli/html_extract.go": "7a9f9cd7cc70fa2066061549643b6d71095931b0d9366e72051d5b27e522beaf",
     "internal/cli/import.go": "3afeeb5c988a91349de079750d093e5fb1e1b0aac0298ba17457a88bf259d0f0",

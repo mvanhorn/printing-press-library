@@ -7,8 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
-	"os"
-	"path/filepath"
 	"regexp"
 	"sort"
 	"strconv"
@@ -16,7 +14,6 @@ import (
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/fooda/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/food-and-dining/fooda/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/fooda/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -1945,20 +1942,14 @@ func parseEventsFromRaw(raw json.RawMessage) ([]parsedEvent, error) {
 	return envelope.SearchPublicEvents.Events.Nodes, nil
 }
 
-func getMyFoodaBuildingIDCookie(c *client.Client) string {
-	if c == nil || c.HTTPClient == nil || c.HTTPClient.Jar == nil {
-		return ""
-	}
-	u, err := url.Parse("https://app.fooda.com")
-	if err != nil {
-		return ""
-	}
-	for _, cookie := range c.HTTPClient.Jar.Cookies(u) {
-		if cookie.Name == "myfooda_building_id" {
-			return cookie.Value
-		}
-	}
-	return ""
+var (
+	memoizedAccountID  string
+	memoizedBuildingID string
+)
+
+func resetMemoizedAccountAndBuilding() {
+	memoizedAccountID = ""
+	memoizedBuildingID = ""
 }
 
 func getAccountAndBuilding(ctx context.Context, c *client.Client, flags *rootFlags) (string, string, error) {
@@ -1968,30 +1959,17 @@ func getAccountAndBuilding(ctx context.Context, c *client.Client, flags *rootFla
 		bldgOverride = flags.buildingID
 	}
 
-	currentBuildingCookie := getMyFoodaBuildingIDCookie(c)
-	foodaCfg := loadFoodaConfig()
-
-	cacheValid := false
-	if foodaCfg.AccountID != "" && foodaCfg.BuildingID != "" && !foodaCfg.FetchedAt.IsZero() {
-		age := time.Since(foodaCfg.FetchedAt)
-		if age < 24*time.Hour {
-			if currentBuildingCookie == "" || currentBuildingCookie == foodaCfg.BuildingID {
-				cacheValid = true
-			}
-		}
-	}
-
 	var finalAcct, finalBldg string
 	if acctOverride != "" {
 		finalAcct = acctOverride
-	} else if cacheValid {
-		finalAcct = foodaCfg.AccountID
+	} else if memoizedAccountID != "" {
+		finalAcct = memoizedAccountID
 	}
 
 	if bldgOverride != "" {
 		finalBldg = bldgOverride
-	} else if cacheValid {
-		finalBldg = foodaCfg.BuildingID
+	} else if memoizedBuildingID != "" {
+		finalBldg = memoizedBuildingID
 	}
 
 	if finalAcct != "" && finalBldg != "" {
@@ -2001,10 +1979,8 @@ func getAccountAndBuilding(ctx context.Context, c *client.Client, flags *rootFla
 	// Try discovery
 	acct, bldg, err := c.DiscoverAccountAndBuilding(ctx)
 	if err == nil && acct != "" && bldg != "" {
-		foodaCfg.AccountID = acct
-		foodaCfg.BuildingID = bldg
-		foodaCfg.FetchedAt = time.Now()
-		saveFoodaConfig(foodaCfg)
+		memoizedAccountID = acct
+		memoizedBuildingID = bldg
 
 		if finalAcct == "" {
 			finalAcct = acct
@@ -2020,36 +1996,6 @@ func getAccountAndBuilding(ctx context.Context, c *client.Client, flags *rootFla
 	}
 
 	return "", "", fmt.Errorf("failed to discover Fooda account and building: %w; log in to app.fooda.com in Chrome and re-run 'auth login --chrome', or pass --account and --building flags directly", err)
-}
-
-type FoodaConfig struct {
-	AccountID  string    `json:"account_id"`
-	BuildingID string    `json:"building_id"`
-	FetchedAt  time.Time `json:"fetched_at"`
-}
-
-func loadFoodaConfig() FoodaConfig {
-	var cfg FoodaConfig
-	dir, err := cliutil.DataDir()
-	if err != nil {
-		return cfg
-	}
-	path := filepath.Join(dir, "fooda_config.json")
-	data, err := os.ReadFile(path) // #nosec G304 -- path is inside the CLI's own config dir
-	if err == nil {
-		_ = json.Unmarshal(data, &cfg)
-	}
-	return cfg
-}
-
-func saveFoodaConfig(cfg FoodaConfig) {
-	dir, err := cliutil.DataDir()
-	if err != nil {
-		return
-	}
-	path := filepath.Join(dir, "fooda_config.json")
-	data, _ := json.MarshalIndent(cfg, "", "  ")
-	_ = os.WriteFile(path, data, 0o600)
 }
 
 func parseSince(since string) (time.Time, error) {
