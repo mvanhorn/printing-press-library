@@ -33,7 +33,7 @@ npx -y @mvanhorn/printing-press-library install japan-theme-parks --agent claude
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.9 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/travel/japan-theme-parks/cmd/japan-theme-parks-pp-cli@latest
