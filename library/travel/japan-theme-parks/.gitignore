@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/japan-theme-parks-pp-cli
+/japan-theme-parks-pp-cli.exe
+/japan-theme-parks-pp-mcp
+/japan-theme-parks-pp-mcp.exe
+/bin/
+/build/
+/dist/

@@ -1,0 +1,58 @@
+name: japan-theme-parks
+description: Compare park dates and ride waits for Tokyo Disney Resort, Universal Studios Japan and Fuji-Q from source-backed data.
+version: "0.1.0"
+category: travel
+base_url: https://queue-times.com
+http_transport: standard
+health_check_path: /parks.json
+auth:
+  type: none
+cache:
+  enabled: false
+learn:
+  entity_lookup_seeds:
+    park:
+      - canonical: Tokyo Disneyland
+        aliases: [tdl, 東京ディズニーランド, disneyland tokyo, "274"]
+      - canonical: Tokyo DisneySea
+        aliases: [tds, 東京ディズニーシー, disneysea, disney sea, "275"]
+      - canonical: Universal Studios Japan
+        aliases: [usj, ユニバーサル・スタジオ・ジャパン, universal japan, "284"]
+      - canonical: Fuji-Q Highland
+        aliases: [fujiq, fuji-q, 富士急ハイランド, "337"]
+      - canonical: Legoland Japan
+        aliases: [legoland, レゴランド・ジャパン, "285"]
+mcp:
+  transport: [stdio]
+resources:
+  source:
+    description: Raw Queue-Times JSON (Powered by Queue-Times.com, https://queue-times.com/). Prefer parks, waits, dates, snapshot and typical for normalized output.
+    endpoints:
+      parks:
+        method: GET
+        path: /parks.json
+        description: List every Queue-Times park group and park (raw; prefer the parks command for Japan parks).
+        example: "  japan-theme-parks-pp-cli source parks --dry-run"
+      queue-times:
+        method: GET
+        path: /parks/{park_id}/queue_times.json
+        description: Raw live queue times for one Queue-Times park id (prefer the waits command).
+        params:
+          - name: park_id
+            flag_name: park
+            type: int
+            positional: true
+            required: true
+            description: "Queue-Times park id: 274 Tokyo Disneyland, 275 DisneySea, 284 USJ, 337 Fuji-Q, 285 Legoland."
+        happy_args: "park_id=275"
+        example: "  japan-theme-parks-pp-cli source queue-times 275"
+        response:
+          type: object
+          item: QueueTimes
+types:
+  QueueTimes:
+    fields:
+      - name: lands
+        type: array
+      - name: rides
+        type: array

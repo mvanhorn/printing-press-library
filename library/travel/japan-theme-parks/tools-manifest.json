@@ -1,0 +1,60 @@
+{
+  "api_name": "japan-theme-parks",
+  "base_url": "https://queue-times.com",
+  "description": "Compare park dates and ride waits for Tokyo Disney Resort, Universal Studios Japan and Fuji-Q from source-backed data.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "source_parks",
+      "description": "List every Queue-Times park group and park (raw; prefer the parks command for Japan parks).",
+      "method": "GET",
+      "path": "/parks.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "source_queue-times",
+      "description": "Raw live queue times for one Queue-Times park id (prefer the waits command). Required: park. Returns the QueueTimes.",
+      "method": "GET",
+      "path": "/parks/{park_id}/queue_times.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "park",
+          "wire_name": "park_id",
+          "type": "int",
+          "location": "path",
+          "description": "Queue-Times park id: 274 Tokyo Disneyland, 275 DisneySea, 284 USJ, 337 Fuji-Q, 285 Legoland.",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-park date planner",
+      "command": "dates",
+      "description": "See, for each date, whether Tokyo Disneyland and DisneySea tickets are on sale, few left, sold out or not yet on sale, what each ticket costs, and the hours: official for TDL/TDS (published months only), third-party ThemeParks.wiki for USJ and Fuji-Q (about one month ahead)."
+    },
+    {
+      "name": "Typical waits from local history",
+      "command": "typical",
+      "description": "See median and p75 waits per ride by weekday and hour from your own recorded snapshots, with sample counts and date span."
+    },
+    {
+      "name": "Wait snapshot recorder",
+      "command": "snapshot",
+      "description": "Record the current waits for the Japan parks into a local history that later commands read."
+    },
+    {
+      "name": "Live waits against your typical",
+      "command": "waits",
+      "description": "On the park day, see live waits next to the usual wait for this weekday and hour from your own snapshots, with sample counts."
+    }
+  ]
+}

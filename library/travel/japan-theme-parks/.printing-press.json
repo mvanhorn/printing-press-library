@@ -1,0 +1,86 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-09T11:28:53.266211Z",
+  "printing_press_version": "4.33.2",
+  "api_name": "japan-theme-parks",
+  "display_name": "Japan Theme Parks",
+  "cli_name": "japan-theme-parks-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:9717200ed046ff3026cd1e626500012b1ff001fa6619f95c203ec48912050b92",
+  "run_id": "20261009-095842-91c8dae6",
+  "category": "travel",
+  "description": "Compare park dates and ride waits for Tokyo Disney Resort, Universal Studios Japan and Fuji-Q from source-backed data.",
+  "mcp_binary": "japan-theme-parks-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Cross-park date planner",
+      "command": "dates",
+      "description": "See, for each date, whether Tokyo Disneyland and DisneySea tickets are on sale, few left, sold out or not yet on sale, what each ticket costs, and the hours: official for TDL/TDS (published months only), third-party ThemeParks.wiki for USJ and Fuji-Q (about one month ahead)."
+    },
+    {
+      "name": "Typical waits from local history",
+      "command": "typical",
+      "description": "See median and p75 waits per ride by weekday and hour from your own recorded snapshots, with sample counts and date span."
+    },
+    {
+      "name": "Wait snapshot recorder",
+      "command": "snapshot",
+      "description": "Record the current waits for the Japan parks into a local history that later commands read."
+    },
+    {
+      "name": "Live waits against your typical",
+      "command": "waits",
+      "description": "On the park day, see live waits next to the usual wait for this weekday and hour from your own snapshots, with sample counts."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-park date planner",
+      "command": "dates",
+      "description": "See, for each date, whether Tokyo Disneyland and DisneySea tickets are on sale, few left, sold out or not yet on sale, what each ticket costs, and the hours: official for TDL/TDS (published months only), third-party ThemeParks.wiki for USJ and Fuji-Q (about one month ahead)."
+    },
+    {
+      "name": "Typical waits from local history",
+      "command": "typical",
+      "description": "See median and p75 waits per ride by weekday and hour from your own recorded snapshots, with sample counts and date span."
+    },
+    {
+      "name": "Wait snapshot recorder",
+      "command": "snapshot",
+      "description": "Record the current waits for the Japan parks into a local history that later commands read."
+    },
+    {
+      "name": "Live waits against your typical",
+      "command": "waits",
+      "description": "On the park day, see live waits next to the usual wait for this weekday and hour from your own snapshots, with sample counts."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 28,
+    "total": 28,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 88,
+      "grade": "A",
+      "total": 88
+    }
+  }
+}

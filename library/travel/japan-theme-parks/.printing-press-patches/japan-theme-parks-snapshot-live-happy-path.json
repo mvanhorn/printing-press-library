@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "japan-theme-parks-snapshot-live-happy-path",
+  "applied_at": "2026-10-10",
+  "base_run_id": "20261009-095842-91c8dae6",
+  "base_printing_press_version": "4.33.2",
+  "summary": "Annotate snapshot with pp:live-happy-path so live dogfood runs it for real under --allow-destructive.",
+  "reason": "snapshot writes only the local SQLite history, so dogfood ran it as dry-run and the publish gate reported hollow coverage for the snapshot novel feature.",
+  "files": ["internal/cli/snapshot.go"],
+  "call_sites": ["\"pp:live-happy-path\": \"true\""],
+  "validated_outcome": "Publish live gate with --allow-destructive reports no hollow features; snapshot happy_path passes live."
+}

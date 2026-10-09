@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "japan-theme-parks-pp-mcp",
+  "display_name": "Japan Theme Parks",
+  "version": "0.1.0",
+  "description": "Compare park dates and ride waits for Tokyo Disney Resort, Universal Studios Japan and Fuji-Q from source-backed data.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/japan-theme-parks-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/japan-theme-parks-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

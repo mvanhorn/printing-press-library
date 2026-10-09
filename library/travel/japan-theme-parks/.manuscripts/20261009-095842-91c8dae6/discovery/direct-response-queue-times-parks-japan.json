@@ -1,0 +1,71 @@
+[
+  {
+    "id": 6,
+    "name": "Merlin Entertainments",
+    "parks": [
+      {
+        "id": 285,
+        "name": "Legoland Japan",
+        "country": "Japan",
+        "continent": "Asia",
+        "latitude": "35.050556",
+        "longitude": "136.843333",
+        "timezone": "Asia/Tokyo"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "name": "Other",
+    "parks": [
+      {
+        "id": 337,
+        "name": "Fuji-Q Highland",
+        "country": "Japan",
+        "continent": "Asia",
+        "latitude": "35.487",
+        "longitude": "138.78",
+        "timezone": "Asia/Tokyo"
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "name": "Universal Parks & Resorts",
+    "parks": [
+      {
+        "id": 284,
+        "name": "Universal Studios Japan",
+        "country": "Japan",
+        "continent": "Asia",
+        "latitude": "34.665482",
+        "longitude": "135.43236",
+        "timezone": "Asia/Tokyo"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Walt Disney Attractions",
+    "parks": [
+      {
+        "id": 274,
+        "name": "Tokyo Disneyland",
+        "country": "Japan",
+        "continent": "Asia",
+        "latitude": "35.634848",
+        "longitude": "139.879295",
+        "timezone": "Asia/Tokyo"
+      },
+      {
+        "id": 275,
+        "name": "Tokyo DisneySea",
+        "country": "Japan",
+        "continent": "Asia",
+        "latitude": "35.627055",
+        "longitude": "139.889097",
+        "timezone": "Asia/Tokyo"
+      }
+    ]
+  }
+]

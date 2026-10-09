@@ -1,0 +1,180 @@
+{
+  "api_name": "japan-theme-parks",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "tpapi-mcp-server",
+      "url": "https://github.com/habuma/tpapi-mcp-server",
+      "language": "Kotlin",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "parksapi-mcp",
+      "url": "https://github.com/romualdoag/parksapi-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "USJ dated Studio Pass price and Express Pass availability",
+    "Fuji-Q Highland and Legoland Japan hours and tickets"
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-09T02:30:00Z",
+  "novel_features": [
+    {
+      "name": "Cross-park date planner",
+      "command": "dates",
+      "description": "See, for each date, whether Tokyo Disneyland and DisneySea tickets are on sale, few left, sold out or not yet on sale, what each ticket costs, and the hours: official for TDL/TDS (published months only), third-party ThemeParks.wiki for USJ and Fuji-Q (about one month ahead).",
+      "rationale": "Joins per-ticket TDR calendar data in Japanese and English with third-party USJ and Fuji-Q hours and keeps unknowns explicit (USJ price and Express Pass are null with a reason).",
+      "example": "japan-theme-parks-pp-cli dates --from 2026-11-13 --to 2026-11-15 --agent",
+      "why_it_matters": "Use it before recommending a park date; it gives sale status, price and hours with source fetch times instead of guesses. Beyond the sources' horizons it returns null with a reason.",
+      "group": "Pick the date"
+    },
+    {
+      "name": "Typical waits from local history",
+      "command": "typical",
+      "description": "See median and p75 waits per ride by weekday and hour from your own recorded snapshots, with sample counts and date span.",
+      "rationale": "queue-times has no historical API; only a local snapshot history can answer typical-wait questions honestly.",
+      "example": "japan-theme-parks-pp-cli typical --park 275 --weekday sat --hour 10",
+      "why_it_matters": "Use it to compare weekdays or hours for specific rides without inventing a crowd forecast. It is empty until snapshot has run on a schedule; thin cells show insufficient.",
+      "group": "Pick the rides"
+    },
+    {
+      "name": "Wait snapshot recorder",
+      "command": "snapshot",
+      "description": "Record the current waits for the Japan parks into a local history that later commands read.",
+      "rationale": "Append-only history with dedupe on source update time does not exist in any source.",
+      "example": "japan-theme-parks-pp-cli snapshot --park 274,275,284",
+      "why_it_matters": "Run it from your own scheduler (see the cron example in the README) so typical and waits have history.",
+      "group": "Pick the rides"
+    },
+    {
+      "name": "Live waits against your typical",
+      "command": "waits",
+      "description": "On the park day, see live waits next to the usual wait for this weekday and hour from your own snapshots, with sample counts.",
+      "rationale": "Joins live Queue-Times data with your local history; Queue-Times has no history API.",
+      "example": "japan-theme-parks-pp-cli waits 275 --open-only --agent",
+      "why_it_matters": "Use it on the park day to see which rides are below their usual wait; the usual-wait columns appear only after snapshot has recorded history for this weekday and hour.",
+      "group": "Pick the rides"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-park date planner",
+      "command": "dates",
+      "description": "See, for each date, whether Tokyo Disneyland and DisneySea tickets are on sale, few left, sold out or not yet on sale, what each ticket costs, and the hours: official for TDL/TDS (published months only), third-party ThemeParks.wiki for USJ and Fuji-Q (about one month ahead).",
+      "rationale": "Joins per-ticket TDR calendar data in Japanese and English with third-party USJ and Fuji-Q hours and keeps unknowns explicit (USJ price and Express Pass are null with a reason).",
+      "example": "japan-theme-parks-pp-cli dates --from 2026-11-13 --to 2026-11-15 --agent",
+      "why_it_matters": "Use it before recommending a park date; it gives sale status, price and hours with source fetch times instead of guesses. Beyond the sources' horizons it returns null with a reason.",
+      "group": "Pick the date"
+    },
+    {
+      "name": "Typical waits from local history",
+      "command": "typical",
+      "description": "See median and p75 waits per ride by weekday and hour from your own recorded snapshots, with sample counts and date span.",
+      "rationale": "queue-times has no historical API; only a local snapshot history can answer typical-wait questions honestly.",
+      "example": "japan-theme-parks-pp-cli typical --park 275 --weekday sat --hour 10",
+      "why_it_matters": "Use it to compare weekdays or hours for specific rides without inventing a crowd forecast. It is empty until snapshot has run on a schedule; thin cells show insufficient.",
+      "group": "Pick the rides"
+    },
+    {
+      "name": "Wait snapshot recorder",
+      "command": "snapshot",
+      "description": "Record the current waits for the Japan parks into a local history that later commands read.",
+      "rationale": "Append-only history with dedupe on source update time does not exist in any source.",
+      "example": "japan-theme-parks-pp-cli snapshot --park 274,275,284",
+      "why_it_matters": "Run it from your own scheduler (see the cron example in the README) so typical and waits have history.",
+      "group": "Pick the rides"
+    },
+    {
+      "name": "Live waits against your typical",
+      "command": "waits",
+      "description": "On the park day, see live waits next to the usual wait for this weekday and hour from your own snapshots, with sample counts.",
+      "rationale": "Joins live Queue-Times data with your local history; Queue-Times has no history API.",
+      "example": "japan-theme-parks-pp-cli waits 275 --open-only --agent",
+      "why_it_matters": "Use it on the park day to see which rides are below their usual wait; the usual-wait columns appear only after snapshot has recorded history for this weekday and hour.",
+      "group": "Pick the rides"
+    }
+  ],
+  "narrative": {
+    "display_name": "Japan Theme Parks",
+    "headline": "Compare park dates and ride waits for Tokyo Disney Resort, Universal Studios Japan and Fuji-Q from source-backed data.",
+    "value_prop": "`dates` shows Tokyo Disney Resort ticket sale status and price per ticket type with official TDR hours and third-party (ThemeParks.wiki) USJ and Fuji-Q hours for each date. `waits`, `snapshot` and `typical` turn Queue-Times live waits into a local history with honest sample sizes. Read-only: it never buys tickets.",
+    "quickstart": [
+      {
+        "command": "japan-theme-parks-pp-cli doctor --dry-run",
+        "comment": "Check the install without network."
+      },
+      {
+        "command": "japan-theme-parks-pp-cli parks",
+        "comment": "See the park ids and which sources cover each park."
+      },
+      {
+        "command": "japan-theme-parks-pp-cli dates --from 2026-11-13 --to 2026-11-15",
+        "comment": "Compare sale status, price and hours for candidate dates."
+      },
+      {
+        "command": "japan-theme-parks-pp-cli waits 275",
+        "comment": "Live DisneySea waits (Powered by Queue-Times.com)."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "dates shows not_yet_on_sale for a date",
+        "fix": "TDR sells each date two months ahead from 14:00 JST; check the sale_opens_at field and run dates again after that time."
+      },
+      {
+        "symptom": "typical says insufficient",
+        "fix": "Run japan-theme-parks-pp-cli snapshot on a schedule (for example every 15 minutes from cron) to collect more samples."
+      },
+      {
+        "symptom": "dates shows USJ or Fuji-Q hours as null",
+        "fix": "The third-party ThemeParks.wiki schedule reaches only about one month ahead (not the two-month TDR sale window); ask again closer to the date or check the official park site."
+      }
+    ],
+    "when_to_use": "Use this CLI to choose a Tokyo Disneyland or Tokyo DisneySea date from official per-ticket sale status, price and hours; to see Universal Studios Japan and Fuji-Q hours for about the next month (third-party ThemeParks.wiki data); and to compare live Queue-Times waits with waits you recorded yourself.",
+    "anti_triggers": [
+      "Buying, holding or adding tickets to a cart",
+      "USJ dated Studio Pass price or Express Pass availability (not public outside the queued web store)",
+      "Crowd forecasts for future dates"
+    ],
+    "recipes": [
+      {
+        "title": "Which DisneySea dates are still on sale",
+        "command": "japan-theme-parks-pp-cli dates --park tds --from 2026-11-01 --to 2026-11-30 --status on-sale,few-left --agent --select results.date,results.tickets",
+        "explanation": "Keep only DisneySea dates with a ticket on sale or few left; months TDR has not published yet return no rows."
+      },
+      {
+        "title": "Record waits from cron",
+        "command": "japan-theme-parks-pp-cli snapshot --park 274,275,284,337,285",
+        "explanation": "Append one snapshot per park to the local history."
+      },
+      {
+        "title": "Usual Saturday morning waits",
+        "command": "japan-theme-parks-pp-cli typical --park 275 --weekday sat --hour 10",
+        "explanation": "Median and p75 per ride with sample count and date span. Needs earlier snapshot runs; cells under --min-samples (default 6) show insufficient."
+      }
+    ],
+    "trigger_phrases": [
+      "is Tokyo DisneySea sold out on",
+      "Tokyo Disney ticket price for",
+      "USJ opening hours this month",
+      "DisneySea wait times now",
+      "USJ wait times now",
+      "use japan-theme-parks",
+      "run japan-theme-parks"
+    ]
+  }
+}
