@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "cookie"
   },
-  "source_fingerprint": "920a011be82d93f7263cadbf745c52ba6d611530170f036f082e82ec4c742b30",
+  "source_fingerprint": "e3701828bd0863813a5fda5e3699a6b21fb88a1aab9fc7892c9bc8ed4d9a9df7",
   "source_files": {
     "cmd/fooda-pp-cli/main.go": "e6f96d2e80688e77d5c50e7051e6f109199a19d3a908377ea96c46d46d1a4040",
     "cmd/fooda-pp-mcp/http_auth_test.go": "46cf4aac0bb79c00b73963265b07c517a55556043c9e828ae6c44b6fea9adc60",
@@ -21,7 +21,7 @@
     "internal/cache/cache.go": "ddaa47953645614fcc739637532a5e519977d5fd55a44af5f21956942d7d008d",
     "internal/cli/agent_context.go": "98887fc76a65efdf791b8e6714652a48ad8fbf76bec77a73f8deb2e6862e7ef6",
     "internal/cli/api_discovery.go": "cfac5d1b2811ebb370900d7d1d2abcdb1af377c7efe395a367769179e07ce5df",
-    "internal/cli/auth.go": "7cc2070357f91858269f97d9224276d6926623afe59ac159e0a00bd8e1712b73",
+    "internal/cli/auth.go": "30ecc7bfc4f3123d8856df5a546f77c126d82ef227a448457cbb4190fb110534",
     "internal/cli/cards.go": "299d2b8a9acc32482accace852112118d53553556f0d0d85cd257c5d78a87c5f",
     "internal/cli/cards_balances.go": "18b95f5b422ab84a1f35d66cd96db336fc4e6da6211e22f7778a5d3762164c82",
     "internal/cli/cards_list.go": "115c23246ef043c1e34d4c99185a874b13426fa21a1e5110f1fe81c10741d438",
@@ -31,8 +31,8 @@
     "internal/cli/deliver_download_test.go": "7495bb76ecfb5e85bb29d4405aeef1dc27b9ac8cb2cde27588a7f2005f3de7d3",
     "internal/cli/doctor.go": "1c11be8ca0b499171eafe8176b78f910f13a1d7c2551159530cc03a6a707d03b",
     "internal/cli/feedback.go": "70b51749a4d35a073dc1f502fc745fea79be9cb8a62352f24db2f6b45cd35b92",
-    "internal/cli/fooda_commands.go": "cb73494c90ddd91e6fd482f68ffe22c1cbf120f3661de91e0f46f6f52104f48c",
-    "internal/cli/fooda_commands_test.go": "5d054c07b87be4b6369eeb5262e6757a12c363b315816c1d0dde5e0fd8edefc2",
+    "internal/cli/fooda_commands.go": "1d1856fd312e06ed67c9f863bebd55a2d24a90213e35f8e9d6a727c7c4444c7f",
+    "internal/cli/fooda_commands_test.go": "74b2ea25d25716bb7a04065d1178a77c3d2be1481005ddc97053c4ab820b9b9c",
     "internal/cli/helpers.go": "93b5a53ca2f8f2e8f819ebcce1878c0f6193c981f4c2d1c7cff4821498629985",
     "internal/cli/html_extract.go": "7a9f9cd7cc70fa2066061549643b6d71095931b0d9366e72051d5b27e522beaf",
     "internal/cli/import.go": "3afeeb5c988a91349de079750d093e5fb1e1b0aac0298ba17457a88bf259d0f0",
@@ -64,7 +64,7 @@
     "internal/cli/teach_playbook_test.go": "b04a6e0f06ed4b350df2f46825d26d2d5446cdc2031cdb265e5b9b64fab2ced4",
     "internal/cli/teach_test.go": "c7a944c2eb73a7e1691855efb311227e65c72573f1d4b48f7d333057d2241364",
     "internal/cli/version.go": "1bafb3124f4de0588ac056e2ef687d168600a310d455c0e1de8dc7a339cf6171",
-    "internal/cli/which.go": "34c22cffa872873162197a1d8ee35ef3f1ee575c64d8df86ddce780a81ee5bbf",
+    "internal/cli/which.go": "fff4d9f727ac3b2237fb73ba8ca0a1ab115b6a121442a66d682006d6903778b4",
     "internal/cli/which_test.go": "56ae09168b0adad189960388966b5dcf042516ac726976301c4ad3a1cf6be845",
     "internal/client/client.go": "7d824f81167cce4d6dca8a3bfaa259e9e758f3cf051feb4be8e1772c6c7f8e58",
     "internal/client/client_test.go": "2d29406898ae649adc6fd24f9460ecf944174eb9827026afdb6e263eb1a541af",

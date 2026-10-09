@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -45,7 +44,10 @@ func TestFoodaCommandsHelpWiring(t *testing.T) {
 }
 
 func TestStoreBackedAnalytics(t *testing.T) {
-	dbPath := filepath.Join(t.TempDir(), "test_store.db")
+	tempHome := t.TempDir()
+	t.Setenv("FOODA_HOME", tempHome)
+
+	dbPath := defaultDBPath("fooda-pp-cli")
 	db, err := store.OpenWithContext(context.Background(), dbPath)
 	if err != nil {
 		t.Fatalf("failed to open database: %v", err)
@@ -103,10 +105,39 @@ func TestStoreBackedAnalytics(t *testing.T) {
 		{Order: o2},
 	}
 
-	ordersJSON, _ := json.Marshal(mockOrdersList)
-	if err := db.Upsert("order", "orders_list", ordersJSON); err != nil {
-		t.Fatalf("failed to upsert orders list: %v", err)
-	}
+	// Seed individual orders for new sync format (Item 3)
+	var o1Prop, o2Prop client.PastOrdersProps
+	o1Prop.Presenter = []struct {
+		Order struct {
+			ID                     int      `json:"id"`
+			EventType              string   `json:"event_type"`
+			ItemNames              []string `json:"item_names"`
+			OrderFulfilledTimeUnix int64    `json:"order_fulfilled_time_unix"`
+			VendorNames            []string `json:"vendor_names"`
+			Status                 string   `json:"status"`
+			Delivery               string   `json:"delivery"`
+			RequestID              string   `json:"request_id"`
+			PaymentCents           int      `json:"payment_cents"`
+		} `json:"order"`
+	}{{Order: o1}}
+	o2Prop.Presenter = []struct {
+		Order struct {
+			ID                     int      `json:"id"`
+			EventType              string   `json:"event_type"`
+			ItemNames              []string `json:"item_names"`
+			OrderFulfilledTimeUnix int64    `json:"order_fulfilled_time_unix"`
+			VendorNames            []string `json:"vendor_names"`
+			Status                 string   `json:"status"`
+			Delivery               string   `json:"delivery"`
+			RequestID              string   `json:"request_id"`
+			PaymentCents           int      `json:"payment_cents"`
+		} `json:"order"`
+	}{{Order: o2}}
+
+	o1JSON, _ := json.Marshal(o1Prop)
+	o2JSON, _ := json.Marshal(o2Prop)
+	_ = db.Upsert("order", "uuid-1111", o1JSON)
+	_ = db.Upsert("order", "uuid-2222", o2JSON)
 
 	// Seed order details to test subsidy-vs-paid parsing in spend-trends
 	var det1, det2 client.OrderDetailProps
@@ -124,13 +155,99 @@ func TestStoreBackedAnalytics(t *testing.T) {
 	_ = db.Upsert("order_detail", "uuid-1111", det1JSON)
 	_ = db.Upsert("order_detail", "uuid-2222", det2JSON)
 
+	// We also test fallback to legacy orders_list key (Item 3)
+	ordersJSON, _ := json.Marshal(mockOrdersList)
+	if err := db.Upsert("order", "orders_list", ordersJSON); err != nil {
+		t.Fatalf("failed to upsert orders list: %v", err)
+	}
+
 	// Validate DB content is accessible
 	list, err := db.List("order", 10)
 	if err != nil {
 		t.Fatalf("failed to list orders from DB: %v", err)
 	}
-	if len(list) != 1 {
-		t.Errorf("expected 1 list row, got %d", len(list))
+	if len(list) != 3 { // orders_list + uuid-1111 + uuid-2222 (deduplicated during read)
+		t.Errorf("expected 3 list rows, got %d", len(list))
+	}
+
+	// Close seeded DB so commands can open it read-only
+	db.Close()
+
+	// Run served-history command (Item 7)
+	{
+		cmd := RootCmd()
+		cmd.SetArgs([]string{"served-history", "--data-source", "local", "--since", "30d"})
+		var stdout, stderr bytes.Buffer
+		cmd.SetOut(&stdout)
+		cmd.SetErr(&stderr)
+
+		if err := cmd.Execute(); err != nil {
+			t.Fatalf("served-history failed: %v, stderr: %s", err, stderr.String())
+		}
+		out := stdout.String()
+		if !strings.Contains(out, "Scrubbed Burrito Shop") || !strings.Contains(out, "Scrubbed Taco Shop") {
+			t.Errorf("served-history missing expected vendors, output:\n%s", out)
+		}
+		if !strings.Contains(out, "$15.00") || !strings.Contains(out, "$0.00") {
+			t.Errorf("served-history missing expected prices, output:\n%s", out)
+		}
+	}
+
+	// Run venue-rotation command (Item 7)
+	{
+		cmd := RootCmd()
+		cmd.SetArgs([]string{"venue-rotation", "--data-source", "local", "--since", "30d"})
+		var stdout, stderr bytes.Buffer
+		cmd.SetOut(&stdout)
+		cmd.SetErr(&stderr)
+
+		if err := cmd.Execute(); err != nil {
+			t.Fatalf("venue-rotation failed: %v, stderr: %s", err, stderr.String())
+		}
+		out := stdout.String()
+		if !strings.Contains(out, "Scrubbed Burrito Shop") || !strings.Contains(out, "Scrubbed Taco Shop") {
+			t.Errorf("venue-rotation missing expected vendors, output:\n%s", out)
+		}
+	}
+
+	// Run spend-trends command (Item 7)
+	{
+		cmd := RootCmd()
+		cmd.SetArgs([]string{"spend-trends", "--data-source", "local", "--since", "30d", "--group-by", "month"})
+		var stdout, stderr bytes.Buffer
+		cmd.SetOut(&stdout)
+		cmd.SetErr(&stderr)
+
+		if err := cmd.Execute(); err != nil {
+			t.Fatalf("spend-trends failed: %v, stderr: %s", err, stderr.String())
+		}
+		out := stdout.String()
+		if !strings.Contains(out, "$12.50") || !strings.Contains(out, "$15.00") || !strings.Contains(out, "$27.50") {
+			t.Errorf("spend-trends missing expected totals, output:\n%s", out)
+		}
+	}
+
+	// Test local-only / live-only data-source rejections (Item 4)
+	{
+		cmd := RootCmd()
+		cmd.SetArgs([]string{"served-history", "--data-source", "live"})
+		var stdout, stderr bytes.Buffer
+		cmd.SetOut(&stdout)
+		cmd.SetErr(&stderr)
+		err := cmd.Execute()
+		if err == nil || !strings.Contains(err.Error(), "local-only") {
+			t.Errorf("expected served-history to reject --data-source live, got err: %v, stderr: %s", err, stderr.String())
+		}
+
+		cmd = RootCmd()
+		cmd.SetArgs([]string{"events", "--data-source", "local"})
+		var stdout2, stderr2 bytes.Buffer
+		cmd.SetOut(&stdout2)
+		cmd.SetErr(&stderr2)
+		err = cmd.Execute()
+		if err == nil || !strings.Contains(err.Error(), "live-only") {
+			t.Errorf("expected events to reject --data-source local, got err: %v, stderr: %s", err, stderr2.String())
+		}
 	}
 }
 

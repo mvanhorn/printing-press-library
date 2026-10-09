@@ -4,6 +4,8 @@ package cli
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -50,6 +52,10 @@ func init() {
 `, "\n"),
 			Annotations: map[string]string{"pp:data-source": "live", "mcp:read-only": "true"},
 			RunE: func(cmd *cobra.Command, args []string) error {
+				if flags.dataSource == "local" {
+					return fmt.Errorf("events is live-only; --data-source local is not supported")
+				}
+
 				if dryRunOK(flags) {
 					return writeDryRun(cmd.OutOrStdout(), flags, "events")
 				}
@@ -181,37 +187,79 @@ func init() {
 				if localOnly || flags.dataSource == "local" {
 					db, err := store.OpenReadOnlyContext(ctx, defaultDBPath("fooda-pp-cli"))
 					if err != nil || db == nil {
-						return fmt.Errorf("local database not found. Run 'sync' first")
+						return notFoundErr(fmt.Errorf("local database not found. Run 'sync' first"))
 					}
 					defer db.Close()
 
 					rawEvents, err := db.List("event", 1000)
-					if err == nil {
-						for _, re := range rawEvents {
-							var ev parsedEvent
-							if json.Unmarshal(re, &ev) == nil {
-								events = append(events, ev)
-							}
+					if err != nil {
+						return err
+					}
+					for _, re := range rawEvents {
+						var ev parsedEvent
+						if err := json.Unmarshal(re, &ev); err != nil {
+							return fmt.Errorf("failed to parse stored event: %w", err)
 						}
+						events = append(events, ev)
 					}
 				} else {
 					acct, bldg, err := getAccountAndBuilding(ctx, c, flags)
 					if err != nil {
-						return err
-					}
-					variables := map[string]any{
-						"input": map[string]any{
-							"statuses":      []string{"ACTIVE", "PROPOSED"},
-							"productTypes":  []string{"POPUP", "CAFE", "DELIVERY", "CATERING"},
-							"accountId":     acct,
-							"buildingId":    bldg,
-							"endTimeAfter":  time.Now().Format("2006-01-02"),
-							"endTimeBefore": time.Now().AddDate(0, 0, 7).Format("2006-01-02"),
-						},
-					}
-					raw, err := c.Query(ctx, client.SearchPublicEventsQuery, variables)
-					if err == nil {
-						events, _ = parseEventsFromRaw(raw)
+						if flags.dataSource != "live" {
+							fmt.Fprintf(cmd.ErrOrStderr(), "warning: live discovery failed (%v); falling back to local database\n", err)
+							db, dbErr := store.OpenReadOnlyContext(ctx, defaultDBPath("fooda-pp-cli"))
+							if dbErr == nil && db != nil {
+								defer db.Close()
+								rawEvents, _ := db.List("event", 1000)
+								for _, re := range rawEvents {
+									var ev parsedEvent
+									if json.Unmarshal(re, &ev) == nil {
+										events = append(events, ev)
+									}
+								}
+							} else {
+								return fmt.Errorf("live discovery failed: %w (no local database fallback available)", err)
+							}
+						} else {
+							return err
+						}
+					} else {
+						variables := map[string]any{
+							"input": map[string]any{
+								"statuses":      []string{"ACTIVE", "PROPOSED"},
+								"productTypes":  []string{"POPUP", "CAFE", "DELIVERY", "CATERING"},
+								"accountId":     acct,
+								"buildingId":    bldg,
+								"endTimeAfter":  time.Now().Format("2006-01-02"),
+								"endTimeBefore": time.Now().AddDate(0, 0, 7).Format("2006-01-02"),
+							},
+						}
+						raw, err := c.Query(ctx, client.SearchPublicEventsQuery, variables)
+						if err != nil {
+							if flags.dataSource != "live" {
+								fmt.Fprintf(cmd.ErrOrStderr(), "warning: live query failed (%v); falling back to local database\n", err)
+								db, dbErr := store.OpenReadOnlyContext(ctx, defaultDBPath("fooda-pp-cli"))
+								if dbErr == nil && db != nil {
+									defer db.Close()
+									rawEvents, _ := db.List("event", 1000)
+									for _, re := range rawEvents {
+										var ev parsedEvent
+										if json.Unmarshal(re, &ev) == nil {
+											events = append(events, ev)
+										}
+									}
+								} else {
+									return fmt.Errorf("live query failed: %w (no local database fallback available)", err)
+								}
+							} else {
+								return err
+							}
+						} else {
+							events, err = parseEventsFromRaw(raw)
+							if err != nil {
+								return err
+							}
+						}
 					}
 				}
 
@@ -299,6 +347,10 @@ func init() {
 			Args:        cobra.ExactArgs(1),
 			Annotations: map[string]string{"pp:data-source": "live", "mcp:read-only": "true"},
 			RunE: func(cmd *cobra.Command, args []string) error {
+				if flags.dataSource == "local" {
+					return fmt.Errorf("menu is live-only; --data-source local is not supported")
+				}
+
 				if dryRunOK(flags) {
 					return writeDryRun(cmd.OutOrStdout(), flags, "menu")
 				}
@@ -423,19 +475,20 @@ func init() {
 				limitFlag, _ := cmd.Flags().GetInt("limit")
 
 				var orders []client.PastOrdersProps
-				db, _ := store.OpenReadOnlyContext(ctx, defaultDBPath("fooda-pp-cli"))
 				isLocal := flags.dataSource == "local"
 
-				if isLocal && db != nil {
+				if isLocal {
+					db, err := store.OpenReadOnlyContext(ctx, defaultDBPath("fooda-pp-cli"))
+					if err != nil || db == nil {
+						return notFoundErr(fmt.Errorf("local database not found; run 'sync' first to populate local orders"))
+					}
 					defer db.Close()
-					rawOrders, err := db.List("order", 1000)
-					if err == nil {
-						for _, ro := range rawOrders {
-							var prop client.PastOrdersProps
-							if json.Unmarshal(ro, &prop) == nil {
-								orders = append(orders, prop)
-							}
-						}
+					orders, err = loadAndDeduplicateOrders(db)
+					if err != nil {
+						return err
+					}
+					if len(orders) == 0 {
+						return notFoundErr(fmt.Errorf("no synced orders found; run 'sync' first to populate local orders"))
 					}
 				} else {
 					raw, err := c.GetHTML(ctx, "/settings/orders")
@@ -542,22 +595,24 @@ func init() {
 
 				uuid := args[0]
 				var details *client.OrderDetailProps
-
-				db, _ := store.OpenReadOnlyContext(ctx, defaultDBPath("fooda-pp-cli"))
 				isLocal := flags.dataSource == "local"
 
-				if isLocal && db != nil {
+				if isLocal {
+					db, err := store.OpenReadOnlyContext(ctx, defaultDBPath("fooda-pp-cli"))
+					if err != nil || db == nil {
+						return notFoundErr(fmt.Errorf("local database not found; run 'sync' first to populate local orders"))
+					}
 					defer db.Close()
 					raw, err := db.Get("order_detail", uuid)
-					if err == nil && len(raw) > 0 {
-						var parsed client.OrderDetailProps
-						if json.Unmarshal(raw, &parsed) == nil {
-							details = &parsed
-						}
+					if err != nil || len(raw) == 0 {
+						return notFoundErr(fmt.Errorf("order detail %s not found in local database; run 'sync' first", uuid))
 					}
-				}
-
-				if details == nil {
+					var parsed client.OrderDetailProps
+					if err := json.Unmarshal(raw, &parsed); err != nil {
+						return fmt.Errorf("failed to parse stored order detail: %w", err)
+					}
+					details = &parsed
+				} else {
 					raw, err := c.GetHTML(ctx, "/settings/select_order/"+uuid)
 					if err != nil {
 						return err
@@ -609,6 +664,10 @@ func init() {
 `, "\n"),
 			Annotations: map[string]string{"pp:data-source": "live", "mcp:read-only": "true"},
 			RunE: func(cmd *cobra.Command, args []string) error {
+				if flags.dataSource == "local" {
+					return fmt.Errorf("subsidy is live-only; --data-source local is not supported")
+				}
+
 				if dryRunOK(flags) {
 					return writeDryRun(cmd.OutOrStdout(), flags, "subsidy")
 				}
@@ -703,6 +762,10 @@ func init() {
 `, "\n"),
 			Annotations: map[string]string{"pp:data-source": "live", "mcp:read-only": "true"},
 			RunE: func(cmd *cobra.Command, args []string) error {
+				if flags.dataSource == "local" {
+					return fmt.Errorf("card is live-only; --data-source local is not supported")
+				}
+
 				if dryRunOK(flags) {
 					return writeDryRun(cmd.OutOrStdout(), flags, "card")
 				}
@@ -757,6 +820,10 @@ func init() {
 `, "\n"),
 			Annotations: map[string]string{"pp:data-source": "live", "mcp:read-only": "true"},
 			RunE: func(cmd *cobra.Command, args []string) error {
+				if flags.dataSource == "local" {
+					return fmt.Errorf("whoami is live-only; --data-source local is not supported")
+				}
+
 				if dryRunOK(flags) {
 					return writeDryRun(cmd.OutOrStdout(), flags, "whoami")
 				}
@@ -862,6 +929,10 @@ func init() {
 			Args:        cobra.ExactArgs(1),
 			Annotations: map[string]string{"pp:data-source": "live", "mcp:read-only": "true"},
 			RunE: func(cmd *cobra.Command, args []string) error {
+				if flags.dataSource == "local" {
+					return fmt.Errorf("recommend is live-only; --data-source local is not supported")
+				}
+
 				if dryRunOK(flags) {
 					return writeDryRun(cmd.OutOrStdout(), flags, "recommend")
 				}
@@ -973,15 +1044,6 @@ func init() {
 					return fmt.Errorf("failed to parse orders: %w", err)
 				}
 
-				ordersJSON, err := json.Marshal(ordersProps)
-				if err != nil {
-					return fmt.Errorf("failed to marshal orders list: %w", err)
-				}
-				err = db.Upsert("order", "orders_list", ordersJSON)
-				if err != nil {
-					return fmt.Errorf("failed to upsert orders list: %w", err)
-				}
-
 				orderCount := 0
 				failedDetails := 0
 				attemptedDetails := 0
@@ -990,6 +1052,31 @@ func init() {
 					uuid := o.RequestID
 					if uuid == "" {
 						continue
+					}
+
+					// Store each order individually by its own ID
+					var singleProp client.PastOrdersProps
+					singleProp.Presenter = []struct {
+						Order struct {
+							ID                     int      `json:"id"`
+							EventType              string   `json:"event_type"`
+							ItemNames              []string `json:"item_names"`
+							OrderFulfilledTimeUnix int64    `json:"order_fulfilled_time_unix"`
+							VendorNames            []string `json:"vendor_names"`
+							Status                 string   `json:"status"`
+							Delivery               string   `json:"delivery"`
+							RequestID              string   `json:"request_id"`
+							PaymentCents           int      `json:"payment_cents"`
+						} `json:"order"`
+					}{pres}
+
+					singleJSON, err := json.Marshal(singleProp)
+					if err != nil {
+						return fmt.Errorf("failed to marshal order %s: %w", uuid, err)
+					}
+					err = db.Upsert("order", uuid, singleJSON)
+					if err != nil {
+						return fmt.Errorf("failed to upsert order %s: %w", uuid, err)
 					}
 
 					existing, getErr := db.Get("order_detail", uuid)
@@ -1084,6 +1171,10 @@ func init() {
 `, "\n"),
 			Annotations: map[string]string{"pp:data-source": "local", "mcp:read-only": "true"},
 			RunE: func(cmd *cobra.Command, args []string) error {
+				if flags.dataSource == "live" {
+					return fmt.Errorf("served-history is local-only; --data-source live is not supported")
+				}
+
 				if dryRunOK(flags) {
 					return writeDryRun(cmd.OutOrStdout(), flags, "served-history")
 				}
@@ -1100,7 +1191,7 @@ func init() {
 					return err
 				}
 
-				rawOrders, err := db.List("order", 1000)
+				orders, err := loadAndDeduplicateOrders(db)
 				if err != nil {
 					return err
 				}
@@ -1114,23 +1205,20 @@ func init() {
 				}
 
 				var rows []historyRow
-				for _, ro := range rawOrders {
-					var props client.PastOrdersProps
-					if json.Unmarshal(ro, &props) == nil {
-						for _, pres := range props.Presenter {
-							o := pres.Order
-							orderTime := time.Unix(o.OrderFulfilledTimeUnix, 0)
-							if orderTime.Before(cutoff) {
-								continue
-							}
-							rows = append(rows, historyRow{
-								Date:     orderTime.Format("2006-01-02"),
-								Vendor:   strings.Join(o.VendorNames, ", "),
-								Items:    strings.Join(o.ItemNames, "; "),
-								Price:    float64(o.PaymentCents) / 100.0,
-								TimeUnix: o.OrderFulfilledTimeUnix,
-							})
+				for _, props := range orders {
+					for _, pres := range props.Presenter {
+						o := pres.Order
+						orderTime := time.Unix(o.OrderFulfilledTimeUnix, 0)
+						if orderTime.Before(cutoff) {
+							continue
 						}
+						rows = append(rows, historyRow{
+							Date:     orderTime.Format("2006-01-02"),
+							Vendor:   strings.Join(o.VendorNames, ", "),
+							Items:    strings.Join(o.ItemNames, "; "),
+							Price:    float64(o.PaymentCents) / 100.0,
+							TimeUnix: o.OrderFulfilledTimeUnix,
+						})
 					}
 				}
 
@@ -1168,6 +1256,10 @@ func init() {
 `, "\n"),
 			Annotations: map[string]string{"pp:data-source": "local", "mcp:read-only": "true"},
 			RunE: func(cmd *cobra.Command, args []string) error {
+				if flags.dataSource == "live" {
+					return fmt.Errorf("venue-rotation is local-only; --data-source live is not supported")
+				}
+
 				if dryRunOK(flags) {
 					return writeDryRun(cmd.OutOrStdout(), flags, "venue-rotation")
 				}
@@ -1184,7 +1276,7 @@ func init() {
 					return err
 				}
 
-				rawOrders, err := db.List("order", 1000)
+				orders, err := loadAndDeduplicateOrders(db)
 				if err != nil {
 					return err
 				}
@@ -1196,25 +1288,22 @@ func init() {
 				}
 
 				rotMap := map[string]*rotInfo{}
-				for _, ro := range rawOrders {
-					var props client.PastOrdersProps
-					if json.Unmarshal(ro, &props) == nil {
-						for _, pres := range props.Presenter {
-							o := pres.Order
-							orderTime := time.Unix(o.OrderFulfilledTimeUnix, 0)
-							if orderTime.Before(cutoff) {
-								continue
+				for _, props := range orders {
+					for _, pres := range props.Presenter {
+						o := pres.Order
+						orderTime := time.Unix(o.OrderFulfilledTimeUnix, 0)
+						if orderTime.Before(cutoff) {
+							continue
+						}
+						for _, name := range o.VendorNames {
+							ri := rotMap[name]
+							if ri == nil {
+								ri = &rotInfo{Vendor: name}
+								rotMap[name] = ri
 							}
-							for _, name := range o.VendorNames {
-								ri := rotMap[name]
-								if ri == nil {
-									ri = &rotInfo{Vendor: name}
-									rotMap[name] = ri
-								}
-								ri.Count++
-								if orderTime.After(ri.Last) {
-									ri.Last = orderTime
-								}
+							ri.Count++
+							if orderTime.After(ri.Last) {
+								ri.Last = orderTime
 							}
 						}
 					}
@@ -1270,6 +1359,10 @@ func init() {
 `, "\n"),
 			Annotations: map[string]string{"pp:data-source": "local", "mcp:read-only": "true"},
 			RunE: func(cmd *cobra.Command, args []string) error {
+				if flags.dataSource == "live" {
+					return fmt.Errorf("spend-trends is local-only; --data-source live is not supported")
+				}
+
 				if dryRunOK(flags) {
 					return writeDryRun(cmd.OutOrStdout(), flags, "spend-trends")
 				}
@@ -1287,7 +1380,7 @@ func init() {
 					return err
 				}
 
-				rawOrders, err := db.List("order", 1000)
+				orders, err := loadAndDeduplicateOrders(db)
 				if err != nil {
 					return err
 				}
@@ -1301,46 +1394,43 @@ func init() {
 
 				buckets := map[string]*trendBucket{}
 
-				for _, ro := range rawOrders {
-					var props client.PastOrdersProps
-					if json.Unmarshal(ro, &props) == nil {
-						for _, pres := range props.Presenter {
-							o := pres.Order
-							orderTime := time.Unix(o.OrderFulfilledTimeUnix, 0)
-							if orderTime.Before(cutoff) {
-								continue
-							}
+				for _, props := range orders {
+					for _, pres := range props.Presenter {
+						o := pres.Order
+						orderTime := time.Unix(o.OrderFulfilledTimeUnix, 0)
+						if orderTime.Before(cutoff) {
+							continue
+						}
 
-							period := orderTime.Format("2006-01")
-							if groupBy == "week" {
-								y, w := orderTime.ISOWeek()
-								period = fmt.Sprintf("%d-W%02d", y, w)
-							}
+						period := orderTime.Format("2006-01")
+						if groupBy == "week" {
+							y, w := orderTime.ISOWeek()
+							period = fmt.Sprintf("%d-W%02d", y, w)
+						}
 
-							tb := buckets[period]
-							if tb == nil {
-								tb = &trendBucket{Period: period}
-								buckets[period] = tb
-							}
+						tb := buckets[period]
+						if tb == nil {
+							tb = &trendBucket{Period: period}
+							buckets[period] = tb
+						}
 
-							paid := float64(o.PaymentCents) / 100.0
-							subsidized := 0.0
+						paid := float64(o.PaymentCents) / 100.0
+						subsidized := 0.0
 
-							if rawDet, getErr := db.Get("order_detail", o.RequestID); getErr == nil && len(rawDet) > 0 {
-								var parsedDet client.OrderDetailProps
-								if json.Unmarshal(rawDet, &parsedDet) == nil {
-									subsidized = parseAmount(parsedDet.OrderData.FormattedSubsidyAmount)
-									parsedPaid := parseAmount(parsedDet.OrderData.FormattedTotalAmount)
-									if parsedPaid > 0 {
-										paid = parsedPaid
-									}
+						if rawDet, getErr := db.Get("order_detail", o.RequestID); getErr == nil && len(rawDet) > 0 {
+							var parsedDet client.OrderDetailProps
+							if json.Unmarshal(rawDet, &parsedDet) == nil {
+								subsidized = parseAmount(parsedDet.OrderData.FormattedSubsidyAmount)
+								parsedPaid := parseAmount(parsedDet.OrderData.FormattedTotalAmount)
+								if parsedPaid > 0 {
+									paid = parsedPaid
 								}
 							}
-
-							tb.Paid += paid
-							tb.Subsidized += subsidized
-							tb.Total += (paid + subsidized)
 						}
+
+						tb.Paid += paid
+						tb.Subsidized += subsidized
+						tb.Total += (paid + subsidized)
 					}
 				}
 
@@ -1381,6 +1471,10 @@ func init() {
 `, "\n"),
 			Annotations: map[string]string{"pp:data-source": "live", "mcp:read-only": "true"},
 			RunE: func(cmd *cobra.Command, args []string) error {
+				if flags.dataSource == "local" {
+					return fmt.Errorf("week-ahead is live-only; --data-source local is not supported")
+				}
+
 				if dryRunOK(flags) {
 					return writeDryRun(cmd.OutOrStdout(), flags, "week-ahead")
 				}
@@ -1526,6 +1620,10 @@ func init() {
 `, "\n"),
 			Annotations: map[string]string{"pp:data-source": "live", "mcp:read-only": "true"},
 			RunE: func(cmd *cobra.Command, args []string) error {
+				if flags.dataSource == "local" {
+					return fmt.Errorf("subsidy-status is live-only; --data-source local is not supported")
+				}
+
 				if dryRunOK(flags) {
 					return writeDryRun(cmd.OutOrStdout(), flags, "subsidy-status")
 				}
@@ -1621,6 +1719,10 @@ func init() {
 			Args:        cobra.ExactArgs(1),
 			Annotations: map[string]string{"pp:data-source": "live", "mcp:read-only": "true", "pp:happy-args": "keyword=chicken"},
 			RunE: func(cmd *cobra.Command, args []string) error {
+				if flags.dataSource == "local" {
+					return fmt.Errorf("menu-search is live-only; --data-source local is not supported")
+				}
+
 				if dryRunOK(flags) {
 					return writeDryRun(cmd.OutOrStdout(), flags, "menu-search")
 				}
@@ -1845,14 +1947,24 @@ func parseEventsFromRaw(raw json.RawMessage) ([]parsedEvent, error) {
 	return envelope.SearchPublicEvents.Events.Nodes, nil
 }
 
-func getAccountAndBuilding(ctx context.Context, c *client.Client, flags *rootFlags) (string, string, error) {
-	if flags != nil && flags.platformSession != nil {
-		return "8358", "4551", nil
+func getSessionHash() string {
+	dir, err := cliutil.DataDir()
+	if err != nil {
+		return ""
 	}
+	path := filepath.Join(dir, "cookies.json")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return ""
+	}
+	h := sha256.Sum256(data)
+	return hex.EncodeToString(h[:])
+}
 
-	// First check local persisted fooda_config.json
+func getAccountAndBuilding(ctx context.Context, c *client.Client, flags *rootFlags) (string, string, error) {
+	currentHash := getSessionHash()
 	foodaCfg := loadFoodaConfig()
-	if foodaCfg.AccountID != "" && foodaCfg.BuildingID != "" {
+	if foodaCfg.AccountID != "" && foodaCfg.BuildingID != "" && foodaCfg.SessionHash == currentHash && currentHash != "" {
 		return foodaCfg.AccountID, foodaCfg.BuildingID, nil
 	}
 
@@ -1861,17 +1973,22 @@ func getAccountAndBuilding(ctx context.Context, c *client.Client, flags *rootFla
 	if err == nil && acct != "" && bldg != "" {
 		foodaCfg.AccountID = acct
 		foodaCfg.BuildingID = bldg
+		foodaCfg.SessionHash = currentHash
 		saveFoodaConfig(foodaCfg)
 		return acct, bldg, nil
 	}
 
-	// If discovery failed, fallback to defaults in spec or error
-	return "8358", "4551", nil // Default hardcoded values from sniff report if all else fails
+	if err == nil {
+		err = fmt.Errorf("account_id or building_id not found in response")
+	}
+
+	return "", "", fmt.Errorf("failed to discover Fooda account and building: %w; try passing --account and --building flags directly", err)
 }
 
 type FoodaConfig struct {
-	AccountID  string `json:"account_id"`
-	BuildingID string `json:"building_id"`
+	AccountID   string `json:"account_id"`
+	BuildingID  string `json:"building_id"`
+	SessionHash string `json:"session_hash"`
 }
 
 func loadFoodaConfig() FoodaConfig {
@@ -1983,4 +2100,48 @@ func getEventServiceDate(ev parsedEvent) (time.Time, string, error) {
 		return time.Time{}, "", err
 	}
 	return t, t.Format("2006-01-02"), nil
+}
+
+func loadAndDeduplicateOrders(db *store.Store) ([]client.PastOrdersProps, error) {
+	rawOrders, err := db.List("order", 1000)
+	if err != nil {
+		return nil, err
+	}
+
+	seen := map[string]bool{}
+	var deduplicated []client.PastOrdersProps
+
+	for _, ro := range rawOrders {
+		var prop client.PastOrdersProps
+		if json.Unmarshal(ro, &prop) == nil {
+			var filteredPres []struct {
+				Order struct {
+					ID                     int      `json:"id"`
+					EventType              string   `json:"event_type"`
+					ItemNames              []string `json:"item_names"`
+					OrderFulfilledTimeUnix int64    `json:"order_fulfilled_time_unix"`
+					VendorNames            []string `json:"vendor_names"`
+					Status                 string   `json:"status"`
+					Delivery               string   `json:"delivery"`
+					RequestID              string   `json:"request_id"`
+					PaymentCents           int      `json:"payment_cents"`
+				} `json:"order"`
+			}
+			for _, pres := range prop.Presenter {
+				uuid := pres.Order.RequestID
+				if uuid != "" {
+					if seen[uuid] {
+						continue
+					}
+					seen[uuid] = true
+				}
+				filteredPres = append(filteredPres, pres)
+			}
+			if len(filteredPres) > 0 {
+				prop.Presenter = filteredPres
+				deduplicated = append(deduplicated, prop)
+			}
+		}
+	}
+	return deduplicated, nil
 }

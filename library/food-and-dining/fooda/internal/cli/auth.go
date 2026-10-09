@@ -274,6 +274,12 @@ profile by name when the installed backend supports it.`,
 			count := len(strings.Split(cookies, ";"))
 			fmt.Fprintf(w, "%s Found %d cookies for %s\n", green("OK"), count, domain)
 			fmt.Fprintf(w, "Session saved to %s\n", credentialSavePath(cfg))
+
+			// Invalidate fooda_config.json on successful login
+			if dir, err := cliutil.DataDir(); err == nil {
+				path := filepath.Join(dir, "fooda_config.json")
+				_ = os.Remove(path)
+			}
 			return nil
 		},
 	}
@@ -442,6 +448,12 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 				return configErr(fmt.Errorf("clearing cookie jar: %w", err))
 			}
 			fmt.Fprintln(cmd.OutOrStdout(), "Logged out. Credentials cleared.")
+
+			// Invalidate fooda_config.json on logout
+			if dir, err := cliutil.DataDir(); err == nil {
+				path := filepath.Join(dir, "fooda_config.json")
+				_ = os.Remove(path)
+			}
 			return nil
 		},
 	}

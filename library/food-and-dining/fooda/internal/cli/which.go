@@ -34,8 +34,8 @@ var whichIndex = []whichEntry{
 	{Command: "subsidy-status", Description: "Remaining dollars of today's subsidy and when it is valid.", Group: "Lunch planning", WhyItMatters: "Use before ordering to know how much of the meal is covered."},
 	{Command: "menu-search", Description: "Search menu items across all of today's events.", Group: "Lunch planning", WhyItMatters: "Use for dietary or craving lookups without opening each vendor page."},
 	{Command: "events", Description: "Search public events (popup, cafe, delivery, catering) for an account/building and date range.", Group: "events", WhyItMatters: "Search public events (popup, cafe, delivery, catering) for an account/building and date range."}, // pp:which-promoted
-	{Command: "recommendations", Description: "Personalized recommendations for a select event (variables.input.targetId).", Group: "recommendations", WhyItMatters: "Personalized recommendations for a select event (variables."},                                     // pp:which-promoted
-	{Command: "subsidies", Description: "List your subsidies with coverage, validity, state, and remaining balance (qrInfo).", Group: "subsidies", WhyItMatters: "List your subsidies with coverage, validity, state, and remaining balance (qrInfo)."},                 // pp:which-promoted
+	{Command: "recommendations", Description: "Personalized recommendations for a select event (variables.input.targetId).", Group: "recommendations", WhyItMatters: "Personalized recommendations for a select event (variables."}, // pp:which-promoted
+	{Command: "subsidies", Description: "List your subsidies with coverage, validity, state, and remaining balance (qrInfo).", Group: "subsidies", WhyItMatters: "List your subsidies with coverage, validity, state, and remaining balance (qrInfo)."}, // pp:which-promoted
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.

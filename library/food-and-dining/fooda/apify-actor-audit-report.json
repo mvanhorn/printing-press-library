@@ -1,6 +1,6 @@
 {
-  "dir": "\u003ccli-dir\u003e/fooda-pp-cli",
-  "research_dir": "\u003ccli-dir\u003e/20261009-112517-8bc179ae",
+  "dir": "\u003ccli-dir\u003e/fooda",
+  "research_dir": "\u003ccli-dir\u003e",
   "verdict": "pass",
   "actors": null,
   "issues": [
