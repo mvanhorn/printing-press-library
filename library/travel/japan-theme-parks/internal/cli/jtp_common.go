@@ -207,7 +207,9 @@ func samplesOf(rows []store.WaitRow) []parks.Sample {
 }
 
 // boundCtxN gives a command that makes n sequential source fetches a deadline
-// of n times --timeout, so paced multi-fetch commands are not cut short.
+// of n times --timeout, so paced multi-fetch commands are not cut short. A
+// positive --rate-limit adds the time spent waiting between requests, which
+// --timeout (a per-request budget) does not cover.
 func boundCtxN(parent context.Context, flags *rootFlags, n int) (context.Context, context.CancelFunc) {
 	if flags == nil || flags.timeout <= 0 {
 		return parent, func() {}
@@ -215,5 +217,15 @@ func boundCtxN(parent context.Context, flags *rootFlags, n int) (context.Context
 	if n < 1 {
 		n = 1
 	}
-	return context.WithTimeout(parent, flags.timeout*time.Duration(n))
+	return context.WithTimeout(parent, flags.timeout*time.Duration(n)+pacingBudget(flags.rateLimit, n))
+}
+
+// pacingBudget is the time n requests can spend waiting for a limiter at
+// rate requests per second. Zero or auto rates use the per-source defaults
+// (1-2 per second), which the per-request timeout already absorbs.
+func pacingBudget(rate float64, n int) time.Duration {
+	if rate <= 0 || n < 1 {
+		return 0
+	}
+	return time.Duration(float64(n) / rate * float64(time.Second))
 }

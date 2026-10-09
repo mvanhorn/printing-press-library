@@ -129,11 +129,14 @@ Do NOT use this command to read current waits; use 'waits' instead.`, "\n"),
 				return err
 			}
 
-			db, err := store.OpenWithContext(ctx, dbPath)
+			// The fetch deadline must not discard rows already collected:
+			// write with the command context, not the fetch-bounded one.
+			dbCtx := cmd.Context()
+			db, err := store.OpenWithContext(dbCtx, dbPath)
 			if err != nil {
 				return fmt.Errorf("opening history database: %w", err)
 			}
-			counts, err := db.InsertWaitRows(ctx, rows)
+			counts, err := db.InsertWaitRows(dbCtx, rows)
 			_ = db.Close()
 			if err != nil {
 				return err

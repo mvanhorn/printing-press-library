@@ -4,9 +4,23 @@
   "applied_at": "2026-10-10",
   "base_run_id": "20261009-095842-91c8dae6",
   "base_printing_press_version": "4.33.2",
-  "summary": "Show the tickets selected by --ticket/--status in human dates output, and let a lower --rate-limit cap the per-source request rates.",
-  "reason": "Publish review (PR #2291): the human dates table showed only the T1 summary, and dates/snapshot/waits built the source client with hardcoded rates that ignored --rate-limit.",
-  "files": ["internal/cli/dates.go", "internal/cli/dates_tickets_test.go", "internal/sources/sources.go", "internal/sources/sources_test.go", "internal/sources/ratelimit_test.go", "internal/cli/waits.go", "internal/cli/snapshot.go"],
-  "call_sites": ["func printSelectedTickets", "func New(timeout time.Duration, maxRate float64)", "sources.New(flags.timeout, flags.rateLimit)"],
+  "summary": "Show the tickets selected by --ticket/--status in human dates output, let a lower --rate-limit cap the per-source request rates, and add that pacing to the multi-fetch deadline so snapshot rows still save.",
+  "reason": "Publish review (PR #2291): the human dates table showed only the T1 summary; dates/snapshot/waits ignored --rate-limit; a slow --rate-limit then outlasted the fetch deadline and snapshot wrote with the expired context.",
+  "files": [
+    "internal/cli/dates.go",
+    "internal/cli/dates_tickets_test.go",
+    "internal/sources/sources.go",
+    "internal/sources/sources_test.go",
+    "internal/sources/ratelimit_test.go",
+    "internal/cli/waits.go",
+    "internal/cli/snapshot.go",
+    "internal/cli/jtp_common.go"
+  ],
+  "call_sites": [
+    "func printSelectedTickets",
+    "func New(timeout time.Duration, maxRate float64)",
+    "sources.New(flags.timeout, flags.rateLimit)",
+    "func pacingBudget"
+  ],
   "validated_outcome": "go vet and go test ./... pass; dates --ticket T1,T7 prints a Selected tickets table."
 }

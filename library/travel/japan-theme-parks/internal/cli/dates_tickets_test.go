@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/travel/japan-theme-parks/internal/parks"
 )
@@ -36,5 +37,17 @@ func TestPrintSelectedTicketsNone(t *testing.T) {
 	}
 	if !strings.Contains(buf.String(), "none") {
 		t.Fatalf("expected a none line, got %q", buf.String())
+	}
+}
+
+func TestPacingBudget(t *testing.T) {
+	if got := pacingBudget(0, 3); got != 0 {
+		t.Errorf("auto rate budget = %v, want 0", got)
+	}
+	if got := pacingBudget(-1, 3); got != 0 {
+		t.Errorf("negative rate budget = %v, want 0", got)
+	}
+	if got := pacingBudget(0.1, 2); got != 20*time.Second {
+		t.Errorf("0.1 rps x2 budget = %v, want 20s", got)
 	}
 }
