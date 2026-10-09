@@ -1,0 +1,143 @@
+{
+  "api_name": "coinlocker-navi",
+  "base_url": "https://www.coinlocker-navi.com",
+  "description": "Walk-up coin lockers in Japan: size, price, IC card, hours, gate side, and live empties where published.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "source_ekicube",
+      "description": "Raw Multi Ekicube location search with reservable empties (JSON). Required: lang, service_type, includes_premium, includes_no_empty, from_at, end_at. Optional: q, latitude, longitude (plus 3 more). Returns the EkicubeSearch.",
+      "method": "GET",
+      "path": "/v1/location/ph2",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "ja or en",
+          "required": true
+        },
+        {
+          "name": "service_type",
+          "type": "string",
+          "location": "query",
+          "description": "Comma list of service types (1 general, 3 one-day open/close)",
+          "required": true
+        },
+        {
+          "name": "includes_premium",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "includes_no_empty",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "from_at",
+          "type": "string",
+          "location": "query",
+          "description": "YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "end_at",
+          "type": "string",
+          "location": "query",
+          "description": "YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword"
+        },
+        {
+          "name": "latitude",
+          "type": "float",
+          "location": "query"
+        },
+        {
+          "name": "longitude",
+          "type": "float",
+          "location": "query"
+        },
+        {
+          "name": "distance_max",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "ticket_gate",
+          "type": "string",
+          "location": "query",
+          "description": "inside or outside"
+        },
+        {
+          "name": "page_no",
+          "type": "int",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "source_locker",
+      "description": "Raw coinlocker-navi locker detail page (HTML). Required: id. Returns the Page.",
+      "method": "GET",
+      "path": "/cl/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "coinlocker-navi locker id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "source_search",
+      "description": "Raw coinlocker-navi keyword search page (HTML). Required: q. Returns the Page.",
+      "method": "GET",
+      "path": "/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Station or area keyword",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Live join on nearest lockers",
+      "command": "near",
+      "description": "See walk-up lockers near a station with live per-size empties attached where Multi Ekicube (nearest bank within 30 m, reservable counts) or the Maihama map publishes them; other lockers have no live field."
+    },
+    {
+      "name": "Hours-window filter",
+      "command": "near",
+      "description": "Keep only lockers open across your drop and pick-up times; unknown hours stay visible and flagged."
+    },
+    {
+      "name": "Gate side across both sources",
+      "command": "near",
+      "description": "Filter lockers by inside or outside the ticket gates using Multi Ekicube data (exactly one bank within 15 m); unknown gate side never matches, so areas without Multi Ekicube banks return no matches."
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "api_name": "coinlocker-navi",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "alltheplaces multi_ecube_jp spider",
+      "url": "https://github.com/alltheplaces/alltheplaces",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-09T02:11:20Z",
+  "novel_features": [
+    {
+      "name": "Live join on nearest lockers",
+      "command": "near",
+      "description": "See walk-up lockers near a station with live per-size empties attached where Multi Ekicube (nearest bank within 30 m, reservable counts) or the Maihama map publishes them; other lockers have no live field.",
+      "rationale": "Joins coinlocker-navi static facts with Multi Ekicube and Maihama live counts by coordinates and locker id; no site does this.",
+      "example": "coinlocker-navi-pp-cli near 東京駅 --live --agent",
+      "why_it_matters": "Use it when an agent must decide where to drop a bag without a booking and wants live space evidence in one call.",
+      "group": "Walk-up decision"
+    },
+    {
+      "name": "Hours-window filter",
+      "command": "near",
+      "description": "Keep only lockers open across your drop and pick-up times; unknown hours stay visible and flagged.",
+      "rationale": "Parses free-form 利用時間 and Ekicube weekday hours into a window test the sites do not offer.",
+      "example": "coinlocker-navi-pp-cli near 新宿 --open-during 10:00-21:30 --agent",
+      "why_it_matters": "Use it to avoid a locker that closes before the user's last train.",
+      "group": "Walk-up decision"
+    },
+    {
+      "name": "Gate side across both sources",
+      "command": "near",
+      "description": "Filter lockers by inside or outside the ticket gates using Multi Ekicube data (exactly one bank within 15 m); unknown gate side never matches, so areas without Multi Ekicube banks return no matches.",
+      "rationale": "coinlocker-navi has no gate field; gate side comes only from the Multi Ekicube structured join.",
+      "example": "coinlocker-navi-pp-cli near --lat 35.6896 --lon 139.7006 --gate outside --limit 3 --agent",
+      "why_it_matters": "Use it when the user will not enter the station paid area.",
+      "group": "Walk-up decision"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Live join on nearest lockers",
+      "command": "near",
+      "description": "See walk-up lockers near a station with live per-size empties attached where Multi Ekicube (nearest bank within 30 m, reservable counts) or the Maihama map publishes them; other lockers have no live field.",
+      "rationale": "Joins coinlocker-navi static facts with Multi Ekicube and Maihama live counts by coordinates and locker id; no site does this.",
+      "example": "coinlocker-navi-pp-cli near 東京駅 --live --agent",
+      "why_it_matters": "Use it when an agent must decide where to drop a bag without a booking and wants live space evidence in one call.",
+      "group": "Walk-up decision"
+    },
+    {
+      "name": "Hours-window filter",
+      "command": "near",
+      "description": "Keep only lockers open across your drop and pick-up times; unknown hours stay visible and flagged.",
+      "rationale": "Parses free-form 利用時間 and Ekicube weekday hours into a window test the sites do not offer.",
+      "example": "coinlocker-navi-pp-cli near 新宿 --open-during 10:00-21:30 --agent",
+      "why_it_matters": "Use it to avoid a locker that closes before the user's last train.",
+      "group": "Walk-up decision"
+    },
+    {
+      "name": "Gate side across both sources",
+      "command": "near",
+      "description": "Filter lockers by inside or outside the ticket gates using Multi Ekicube data (exactly one bank within 15 m); unknown gate side never matches, so areas without Multi Ekicube banks return no matches.",
+      "rationale": "coinlocker-navi has no gate field; gate side comes only from the Multi Ekicube structured join.",
+      "example": "coinlocker-navi-pp-cli near --lat 35.6896 --lon 139.7006 --gate outside --limit 3 --agent",
+      "why_it_matters": "Use it when the user will not enter the station paid area.",
+      "group": "Walk-up decision"
+    }
+  ],
+  "narrative": {
+    "display_name": "Coin Locker Navi",
+    "headline": "Walk-up coin lockers in Japan: size, price, IC card, hours, gate side, and live empties where published.",
+    "value_prop": "Search コインロッカーなび by station name or coordinates and get normalized, source-dated JSON with explicit unknowns. near --live attaches live per-size empties from Multi Ekicube and the Maihama map; vacancy gives the full live board for one station. Live empties and gate side exist only where Multi Ekicube (JR East) banks or the Maihama Station map publish them; elsewhere those fields are null.",
+    "quickstart": [
+      {
+        "command": "coinlocker-navi-pp-cli doctor --dry-run",
+        "comment": "Check setup without a request"
+      },
+      {
+        "command": "coinlocker-navi-pp-cli near 東京駅 --size L --ic --agent",
+        "comment": "Large walk-up lockers that take IC cards"
+      },
+      {
+        "command": "coinlocker-navi-pp-cli vacancy 東京駅 --gate outside --agent",
+        "comment": "Live reservable empties outside the gates"
+      },
+      {
+        "command": "coinlocker-navi-pp-cli locker 2685 --agent",
+        "comment": "One locker with neighbours"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Most fields are null",
+        "fix": "The source shows 情報なし for that locker; check locker \u003cid\u003e source_url on site"
+      },
+      {
+        "symptom": "vacancy shows 0 empty but lockers look free",
+        "fix": "Multi Ekicube counts reservable boxes only; walk-up boxes can still be free on site"
+      },
+      {
+        "symptom": "near --gate returns few or no rows",
+        "fix": "Gate side is known only where exactly one Multi Ekicube bank is within 15 m; other rows are dropped and counted in meta.excluded.gate_unknown"
+      },
+      {
+        "symptom": "Exit code 7 (rate limited or blocked)",
+        "fix": "The source throttled the request; wait a minute and retry with a smaller --limit or --max-pages"
+      }
+    ],
+    "when_to_use": "Use for walk-up coin lockers in Japan: where to leave a suitcase or day bag without a booking, which sizes and prices, IC card support, hours, and, at Multi Ekicube banks and Maihama Station, gate side and live space.",
+    "anti_triggers": [
+      "Booking luggage storage (use ecbo-cloak-pp-cli)",
+      "Forwarding luggage to a hotel or airport (use yamato-pp-cli)",
+      "Reserving a Multi Ekicube locker (use the operator site)"
+    ],
+    "recipes": [
+      {
+        "title": "Large lockers with live space",
+        "command": "coinlocker-navi-pp-cli near 新宿 --size L --live --agent --select meta.fetched_at,meta.notes,results.id,results.name,results.sizes,results.live",
+        "explanation": "Keep the decision fields plus the observation time and caveat notes."
+      },
+      {
+        "title": "Open across a time window",
+        "command": "coinlocker-navi-pp-cli near 新大阪 --open-during 10:00-21:30 --agent",
+        "explanation": "Keeps lockers whose published hours cover the window; train_hours and unknown hours stay flagged unless --strict."
+      },
+      {
+        "title": "Disney day",
+        "command": "coinlocker-navi-pp-cli vacancy --station maihama --agent",
+        "explanation": "Installed and empty boxes per size for each Maihama Station block, with the source as-of time."
+      }
+    ],
+    "trigger_phrases": [
+      "coin locker near Tokyo Station",
+      "where can I leave my suitcase",
+      "which lockers have space at Shinjuku",
+      "use coinlocker-navi",
+      "run coinlocker-navi"
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "coinlocker-navi-govulncheck-toolchain",
+  "applied_at": "2026-10-09",
+  "base_run_id": "20261009-095811-aff6d8f7",
+  "base_printing_press_version": "4.33.2",
+  "summary": "Raise golang.org/x/net to v0.60.0 and set toolchain go1.27.2 so govulncheck is clean.",
+  "reason": "The generated go.mod failed govulncheck: Go 1.27.1 standard library advisories GO-2026-6603..6617 (fixed in go1.27.2) and x/net v0.56.0 (fixed in v0.60.0). The generator should emit the fixed versions.",
+  "files": ["go.mod", "go.sum"],
+  "call_sites": ["golang.org/x/net v0.60.0", "toolchain go1.27.2"],
+  "validated_outcome": "go vet, go test ./... and govulncheck@v1.3.0 ./... pass."
+}

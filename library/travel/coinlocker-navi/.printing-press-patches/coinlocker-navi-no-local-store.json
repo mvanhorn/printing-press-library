@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "coinlocker-navi-no-local-store",
+  "applied_at": "2026-10-09",
+  "base_run_id": "20261009-095811-aff6d8f7",
+  "base_printing_press_version": "4.33.2",
+  "summary": "No local mirror: drop the source-command write-through into SQLite, remove the MCP sql tool, hide workflow status from MCP, rewrite the MCP context text, and sandbox the client tests.",
+  "reason": "coinlocker-navi.com's terms forbid copying beyond private use, so the CLI must stay on-demand. The generated resolveRead auto/live path called writeThroughCache, which upserted every live source search/locker/ekicube result into ~/.local/share/coinlocker-navi-pp-cli/data.db, and the MCP sql tool ('Requires sync first') and workflow_status ('Add a site-specific sync command') pointed agents at that store. writeThroughCache, its envelope helpers and the unused writeMutationResponseToStore family are removed; sql is no longer registered (handleSQL and its tests stay as generated library code); workflow status carries mcp:hidden; the context tool names only context, near, locker, vacancy and the raw source_* tools and states the honesty rules. internal/client had no TestMain, so client tests resolved the real cache dir and removed <cache>/http/resources; main_test.go now runs them under testenv.RunSandboxed.",
+  "files": [
+    "internal/cli/data_source.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/tools_test.go",
+    "internal/cli/channel_workflow.go",
+    "internal/cli/no_local_mirror_test.go",
+    "internal/client/main_test.go"
+  ],
+  "call_sites": [
+    "No sql tool: this CLI keeps no local store",
+    "There is no local store and no sql, search or sync tool",
+    "\"mcp:hidden\": \"true\"",
+    "os.Exit(testenv.RunSandboxed(m))"
+  ],
+  "validated_outcome": "TestSourceReadDoesNotWriteLocalStore, TestMCPRegisterToolsPreservesTypedSpecialTools and TestMCPContextNamesOnlyRealTools pass; tools/list over stdio lists context, locker, near, source_ekicube, source_locker, source_search, vacancy; a probe under ~/.cache/coinlocker-navi-pp-cli/http/resources/ survives go test -count=1 ./...."
+}

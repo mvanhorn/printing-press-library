@@ -1,0 +1,55 @@
+version: 2
+project_name: coinlocker-navi-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: coinlocker-navi-pp-cli
+    main: ./cmd/coinlocker-navi-pp-cli
+    binary: coinlocker-navi-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/coinlocker-navi/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: coinlocker-navi-pp-mcp
+    main: ./cmd/coinlocker-navi-pp-mcp
+    binary: coinlocker-navi-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: coinlocker-navi-pp-cli
+    repository:
+      owner: zjsng
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Walk-up coin lockers in Japan: size, price, IC card, hours, gate side, and live empties where published."
+    install: |
+      bin.install "coinlocker-navi-pp-cli"
+      bin.install "coinlocker-navi-pp-mcp"

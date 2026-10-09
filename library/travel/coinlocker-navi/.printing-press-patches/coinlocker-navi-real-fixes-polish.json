@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "coinlocker-navi-real-fixes-polish",
+  "applied_at": "2026-10-09",
+  "base_run_id": "20261009-095811-aff6d8f7",
+  "base_printing_press_version": "4.33.2",
+  "summary": "Date-relative source ekicube defaults, control-character stripping for --plain/--csv/--quiet, and actionable hints on source errors.",
+  "reason": "(1) The source ekicube Example and pp:happy-args pinned --from-at/--end-at 2026-10-09, so examples and live dogfood would query a past day as time passes; the CLI now defaults from_at to today in JST and end_at to from_at (the API still requires both, so the MCP tool keeps them required). (2) --plain, --csv and --quiet printed decoded remote strings without the control-character stripping the human tables use; the shared output path now wraps the writer with safeTextWriter. (3) Domain-command source failures (timeout, network, 5xx, 403/429, 404) printed only the raw error; classifyLockerErr now adds a hint line. The generator should emit (2) in printOutputWithFlagsMetaAndKeep and should avoid fixed dates in happy_args.",
+  "files": [
+    "internal/cli/source_ekicube.go",
+    "internal/cli/locker_common.go",
+    "internal/cli/helpers.go",
+    "spec.yaml",
+    "internal/cli/ekicube_dates_test.go",
+    "internal/cli/locker_errors_test.go",
+    "internal/cli/safe_text_test.go"
+  ],
+  "call_sites": [
+    "defaultEkicubeDates(flagFromAt, flagEndAt, nowJST())",
+    "if flags.quiet || flags.csv || flags.plain {\n\t\tw = newSafeTextWriter(w)",
+    "hint: the source did not answer within --timeout"
+  ],
+  "validated_outcome": "go vet, go test ./... (TestDefaultEkicubeDates, TestSourceEkicubeFixturesHaveNoFixedDate, TestMachineTextModesStripControl, TestClassifyLockerErrHints) and govulncheck pass; shipcheck 7/7 PASS; full live dogfood 46/46 PASS."
+}

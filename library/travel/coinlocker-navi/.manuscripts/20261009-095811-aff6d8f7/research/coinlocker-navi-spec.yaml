@@ -1,0 +1,107 @@
+name: coinlocker-navi
+description: Walk-up coin lockers in Japan with size, price, IC card, hours, gate side, and live empties where published.
+version: 0.1.0
+category: travel
+base_url: https://www.coinlocker-navi.com
+health_check_path: /cl/2685
+auth:
+  type: none
+# learn disabled: on-demand live lookups; station names pass through to the source search verbatim.
+learn:
+  disabled: true
+resources:
+  source:
+    description: Read-only raw source primitives; prefer the focused near, locker and vacancy commands.
+    endpoints:
+      search:
+        method: GET
+        path: /search
+        description: Raw coinlocker-navi keyword search page (HTML).
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/cl"]
+        happy_args: '--q=新宿'
+        params:
+          - name: q
+            type: string
+            required: true
+            description: Station or area keyword
+        response:
+          type: object
+          item: Page
+      locker:
+        method: GET
+        path: /cl/{id}
+        description: Raw coinlocker-navi locker detail page (HTML).
+        response_format: html
+        html_extract:
+          mode: page
+        happy_args: '--id=2685'
+        params:
+          - name: id
+            type: string
+            required: true
+            description: coinlocker-navi locker id
+        response:
+          type: object
+          item: Page
+      ekicube:
+        method: GET
+        base_url: https://api.multiecube.com
+        path: /v1/location/ph2
+        description: Raw Multi Ekicube location search with reservable empties (JSON).
+        happy_args: '--lang=en;--service-type=1,3;--includes-premium=true;--includes-no-empty=true;--q=tokyo'
+        params:
+          - name: lang
+            type: string
+            required: true
+            description: ja or en
+          - name: service_type
+            type: string
+            required: true
+            description: Comma list of service types (1 general, 3 one-day open/close)
+          - name: includes_premium
+            type: string
+            required: true
+          - name: includes_no_empty
+            type: string
+            required: true
+          - name: from_at
+            type: string
+            required: true
+            description: YYYY-MM-DD
+          - name: end_at
+            type: string
+            required: true
+            description: YYYY-MM-DD
+          - name: q
+            type: string
+            description: Keyword
+          - name: latitude
+            type: float
+          - name: longitude
+            type: float
+          - name: distance_max
+            type: int
+          - name: ticket_gate
+            type: string
+            description: inside or outside
+          - name: page_no
+            type: int
+        response:
+          type: object
+          item: EkicubeSearch
+types:
+  Page:
+    fields:
+      - name: title
+        type: string
+  EkicubeSearch:
+    fields:
+      - name: total
+        type: int
+      - name: page_no
+        type: int
+      - name: page_total
+        type: int

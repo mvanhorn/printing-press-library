@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/coinlocker-navi",
+  "research_dir": "\u003ccli-dir\u003e/20261009-095811-aff6d8f7",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

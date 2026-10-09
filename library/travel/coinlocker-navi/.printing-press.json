@@ -1,0 +1,76 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-09T03:49:30.145899Z",
+  "printing_press_version": "4.33.2",
+  "api_name": "coinlocker-navi",
+  "display_name": "Coin Locker Navi",
+  "cli_name": "coinlocker-navi-pp-cli",
+  "creator": {
+    "handle": "zjsng",
+    "name": "zjsng"
+  },
+  "owner": "zjsng",
+  "printer": "zjsng",
+  "printer_name": "zjsng",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:71f91d1e0418074d76a2f4f6e5177491bac3b48bd1894cdd5baf68feb9824e1a",
+  "run_id": "20261009-095811-aff6d8f7",
+  "category": "travel",
+  "description": "Walk-up coin lockers in Japan: size, price, IC card, hours, gate side, and live empties where published.",
+  "mcp_binary": "coinlocker-navi-pp-mcp",
+  "mcp_tool_count": 3,
+  "mcp_public_tool_count": 3,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Live join on nearest lockers",
+      "command": "near",
+      "description": "See walk-up lockers near a station with live per-size empties attached where Multi Ekicube (nearest bank within 30 m, reservable counts) or the Maihama map publishes them; other lockers have no live field."
+    },
+    {
+      "name": "Hours-window filter",
+      "command": "near",
+      "description": "Keep only lockers open across your drop and pick-up times; unknown hours stay visible and flagged."
+    },
+    {
+      "name": "Gate side across both sources",
+      "command": "near",
+      "description": "Filter lockers by inside or outside the ticket gates using Multi Ekicube data (exactly one bank within 15 m); unknown gate side never matches, so areas without Multi Ekicube banks return no matches."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Live join on nearest lockers",
+      "command": "near",
+      "description": "See walk-up lockers near a station with live per-size empties attached where Multi Ekicube (nearest bank within 30 m, reservable counts) or the Maihama map publishes them; other lockers have no live field."
+    },
+    {
+      "name": "Hours-window filter",
+      "command": "near",
+      "description": "Keep only lockers open across your drop and pick-up times; unknown hours stay visible and flagged."
+    },
+    {
+      "name": "Gate side across both sources",
+      "command": "near",
+      "description": "Filter lockers by inside or outside the ticket gates using Multi Ekicube data (exactly one bank within 15 m); unknown gate side never matches, so areas without Multi Ekicube banks return no matches."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 15,
+    "total": 15,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 80,
+      "grade": "A",
+      "total": 80
+    }
+  }
+}

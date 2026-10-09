@@ -1,0 +1,39 @@
+{
+  "schema_version": 2,
+  "id": "coinlocker-navi-locker-domain-adapter",
+  "applied_at": "2026-10-09",
+  "base_run_id": "20261009-095811-aff6d8f7",
+  "base_printing_press_version": "4.33.2",
+  "summary": "Hand-built near/locker/vacancy commands over coinlocker-navi HTML, the Maihama live map and the Multi Ekicube ph2 JSON, with source-dated output and explicit unknowns.",
+  "reason": "The internal-yaml spec only mirrors raw HTML/JSON pages (source search|locker|ekicube). The domain adapter parses them, joins live data by coordinates or locker id, derives gate side only from Multi Ekicube structured fields, and paces requests at about 1 per second per host. near.go replaces the generated novel scaffold; README and SKILL template text that assumed a SQLite store was rewritten. root.go Short/Long and the MCP server name used the title-cased slug (Coinlocker Navi) instead of the research display_name (Coin Locker Navi). The generated HTML source commands defaulted to Accept: application/json, which this site answers with HTTP 500; they now send an HTML Accept header and carry Examples and kebab-case happy-args.",
+  "files": [
+    "internal/locker/client.go",
+    "internal/locker/model.go",
+    "internal/locker/hours.go",
+    "internal/locker/navi.go",
+    "internal/locker/ekicube.go",
+    "internal/locker/maihama.go",
+    "internal/locker/join.go",
+    "internal/cli/near.go",
+    "internal/cli/locker_cmd.go",
+    "internal/cli/vacancy.go",
+    "internal/cli/locker_common.go",
+    "README.md",
+    "SKILL.md",
+    "internal/cli/root.go",
+    "cmd/coinlocker-navi-pp-mcp/main.go",
+    "internal/cli/source_search.go",
+    "internal/cli/source_locker.go",
+    "internal/cli/source_ekicube.go",
+    "spec.yaml"
+  ],
+  "call_sites": [
+    "newNovelNearCmd",
+    "registerNovelCommand",
+    "addNovelCommandIfAbsent",
+    "printJSONFilteredKeep(cmd.OutOrStdout(), view, flags, \"live\"",
+    "Coin Locker Navi CLI —",
+    "\"Accept\": \"text/html,application/xhtml+xml\""
+  ],
+  "validated_outcome": "go test ./... passes (fixtures + httptest); shipcheck 7/7 PASS; live probes for near --live, --open-during and --gate pass."
+}

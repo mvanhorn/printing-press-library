@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/coinlocker-navi-pp-cli
+/coinlocker-navi-pp-cli.exe
+/coinlocker-navi-pp-mcp
+/coinlocker-navi-pp-mcp.exe
+/bin/
+/build/
+/dist/

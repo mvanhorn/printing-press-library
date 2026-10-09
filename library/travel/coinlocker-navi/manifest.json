@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "coinlocker-navi-pp-mcp",
+  "display_name": "Coin Locker Navi",
+  "version": "0.1.0",
+  "description": "Walk-up coin lockers in Japan: size, price, IC card, hours, gate side, and live empties where published.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/coinlocker-navi-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/coinlocker-navi-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
