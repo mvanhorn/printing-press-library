@@ -163,7 +163,7 @@ More bundles will be added over time. To suggest one, open an issue at the [prin
 ## Requirements
 
 - Node.js 20+
-- Go 1.26.6 or newer (for `go install`; use a pre-built release when that toolchain is unavailable)
+- Go 1.26.9 or newer (for `go install`; use a pre-built release when that toolchain is unavailable)
 - Pre-built CLI/MCP archives are published for macOS, Linux, and Windows on `amd64` and `arm64`. Claude Desktop MCPB support varies by individual CLI; check the CLI's README and release assets.
 - The installer writes CLI binaries to a per-user binary directory by default: `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows. That directory must be on the runtime `PATH` for installed CLIs to be runnable by name. If it is missing, `install` still installs the focused skill, then prints the exact, copy-pasteable line to add for your platform and shell (zsh/bash/fish, PowerShell, cmd, or Git Bash).
 
