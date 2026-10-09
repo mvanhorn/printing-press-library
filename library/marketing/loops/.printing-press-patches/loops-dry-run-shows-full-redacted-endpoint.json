@@ -4,8 +4,8 @@
   "applied_at": "2026-10-09",
   "base_run_id": "20261002-173515",
   "base_printing_press_version": "4.33.0",
-  "summary": "Dry-run previews show the full endpoint path with every non-route segment redacted to :id, so subresources like /metrics or /publish stay visible.",
-  "reason": "The shared endpoint classifier keeps only two path segments for rate-limit budgets, so dry runs of subresource calls looked like plain collection calls (GET /v1/campaigns for campaign metrics). The literal-segment allowlist fails closed so IDs, emails, and event names never print.",
+  "summary": "Dry-run previews show the full endpoint path, redacting every route-template parameter position to :id regardless of its value, so subresources like /metrics or /publish stay visible.",
+  "reason": "The shared endpoint classifier keeps only two path segments for rate-limit budgets, so dry runs of subresource calls looked like plain collection calls (GET /v1/campaigns for campaign metrics). Redaction must be positional, not value-based, because a private value can equal a route word (an event named publish); unmatched paths fail closed.",
   "files": [
     "internal/client/client.go",
     "internal/client/loops_dry_run_endpoint.go",
