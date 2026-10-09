@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "costco-sameday-cookie-import",
+  "applied_at": "2026-10-09",
+  "base_run_id": "20261007-135457",
+  "base_printing_press_version": "4.31.7",
+  "summary": "auth login --cookies-file requires only the HttpOnly __Host-instacart_sid session cookie (other Same-Day cookies kept when present, malformed optional ones dropped by name), accepts '-' for stdin plus DevTools 'Copy request headers' / 'Copy as cURL' (bash, cmd, PowerShell) pastes, and adds --diagnose, which reports byte count, format, parse stage and cookie names only, never values, and saves nothing.",
+  "reason": "Post-merge smoke of 75f7fcbe: signed-in users could not log in because login demanded cookies Same-Day no longer sets (_instacart_session_id) and the HttpOnly session cookie cannot be copied from document.cookie.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/auth_import.go",
+    "internal/cli/auth_import_test.go",
+    "internal/cli/auth_cookies_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "markers": [
+    "sessionCookieName",
+    "optionalSessionCookies",
+    "selectSessionCookies",
+    "extractCookieHeader",
+    "diagnoseCookieInput",
+    "readCookieInput"
+  ],
+  "validated_outcome": "go test ./internal/cli/... green (stdin import, missing-session-cookie failure, session-cookie-only login); live read-only smoke at cd7b39e9 by the author: auth login --diagnose, auth status, session context, cart activecartid/carttotals, slots availableservices, live search all PASS with no cart or order actions."
+}
