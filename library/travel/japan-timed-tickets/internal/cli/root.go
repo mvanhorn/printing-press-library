@@ -305,17 +305,6 @@ See README.md or the bundled SKILL.md for recipes.`,
 		if _, err := cliutil.SetHomeOverride(flags.homePath); err != nil {
 			return err
 		}
-		if flags.deliverSpec != "" {
-			sink, err := ParseDeliverSink(flags.deliverSpec)
-			if err != nil {
-				return err
-			}
-			flags.deliverSink = sink
-			if sink.Scheme != "stdout" && sink.Scheme != "" {
-				flags.deliverBuf = &bytes.Buffer{}
-				cmd.SetOut(io.MultiWriter(os.Stdout, flags.deliverBuf))
-			}
-		}
 		if flags.runProfileName != "" {
 			profile, err := GetProfile(flags.runProfileName)
 			if err != nil {
@@ -332,6 +321,20 @@ See README.md or the bundled SKILL.md for recipes.`,
 				return err
 			}
 			appliedProfile = profile
+		}
+		// Set up delivery after the run profile is applied, so a --deliver
+		// value saved in the profile takes effect. An explicit --deliver flag
+		// still wins because ApplyProfileToFlags skips changed flags.
+		if flags.deliverSpec != "" {
+			sink, err := ParseDeliverSink(flags.deliverSpec)
+			if err != nil {
+				return err
+			}
+			flags.deliverSink = sink
+			if sink.Scheme != "stdout" && sink.Scheme != "" {
+				flags.deliverBuf = &bytes.Buffer{}
+				cmd.SetOut(io.MultiWriter(os.Stdout, flags.deliverBuf))
+			}
 		}
 		if platformCommandNeedsGate(cmd) {
 			if err := preparePlatformSession(flags); err != nil {

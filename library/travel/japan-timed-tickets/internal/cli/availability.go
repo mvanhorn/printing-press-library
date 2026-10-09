@@ -285,15 +285,25 @@ func renderAvailabilityHuman(cmd *cobra.Command, rows []availabilityRow, warning
 		}
 		slotInfo := "-"
 		if r.SlotsRead || r.SlotsFitParty != nil {
+			// Only available and few slots count as open. A slot whose stock
+			// could not be read is reported separately, never as open.
 			open := make([]string, 0, len(r.Slots))
+			unknown := 0
 			for _, sl := range r.Slots {
-				if sl.Status != tickets.SlotSoldOut {
+				switch sl.Status {
+				case tickets.SlotAvailable, tickets.SlotFew:
 					open = append(open, sl.Start)
+				case tickets.SlotSoldOut:
+				default:
+					unknown++
 				}
 			}
 			slotInfo = fmt.Sprintf("%d open", len(open))
 			if first, last, ok := slotStartRange(open); ok {
 				slotInfo += " (" + first + "..." + last + ")"
+			}
+			if unknown > 0 {
+				slotInfo += fmt.Sprintf(", %d unknown", unknown)
 			}
 		}
 		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\n", r.Sight, r.Date, r.Status, price, oneLine(slotInfo), oneLine(r.Reason))

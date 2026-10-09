@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "1c6f4ac5bfb217e260299cc5779c4179ca3abc631a100ca6aa8ab933c5439600",
+  "source_fingerprint": "fe4e0cf1785e114975dde0eead28871c0debd4866a5cd3a5d76daaf2f1782009",
   "source_files": {
     "cmd/japan-timed-tickets-pp-cli/main.go": "00b0d5bb612889e9dd0390a911de6264fba7f5bc4989948adc7ee97488bc00ce",
     "cmd/japan-timed-tickets-pp-mcp/http_auth_test.go": "47fb05c0e641b5b7bfa4c40ae95b0ff8d571156ed1015caf47fe65fa1803e22c",
@@ -20,7 +20,8 @@
     "go.sum": "fc5d98e9bf1f5449bed4a6bf243e245086457abc31f728f238f2eb9b9663474d",
     "internal/cache/cache.go": "145c2aa6635feb2c52c768f837d49a24806dcb05a2d380a798495d8926133bb2",
     "internal/cli/agent_context.go": "eeeb96dad64432a6a8b0d3fa3e220bb3e422ea9b1326d5a7d6adcea9854760c7",
-    "internal/cli/availability.go": "f93662cbd9226c51b9dc2e85dd7fd7092ad0836ce288cdec48ca73c7d931630e",
+    "internal/cli/availability.go": "f6697aaec2729c2d362accefe91d2f7ba25078352bf1867188e683388be7f4ac",
+    "internal/cli/availability_render_test.go": "ed5e13789c7740b1c344e03cd24162d29f70fe6a3779f83348094a04b49f7d03",
     "internal/cli/availability_test.go": "5cf11e8b5bcab44998d089f7bae5d889a0abead1f5deabc4c92e0c6fcef5df04",
     "internal/cli/channel_workflow.go": "a950457eb8e362bae19ddc9f23a610fcb35d5518ef3df0f3c3176c0c4ca81ea7",
     "internal/cli/data_source.go": "1b889ccd7ccc6fbf9f3dd79f660b58c32970504b1443fed48fe3a8519a722137",
@@ -40,7 +41,7 @@
     "internal/cli/platform_window_test.go": "33f9b002d944be9e7d2d366a0e264a5ff503b0219a5bd13733efc06ae33569f1",
     "internal/cli/profile.go": "744f4d40ca840d5a2815913e4312f13938331d33b67f0b2ad59ccc801851302f",
     "internal/cli/promoted_source.go": "5660ed0202c3212af4d71b4c4f72b88e2ba5516924047324940ecfd8591eb3d2",
-    "internal/cli/root.go": "7e4b1d8c3bd07c184cff70419dafd5ba88951d274b52d6459714724449ee7f77",
+    "internal/cli/root.go": "cc001e8650420ec0d888d05fe73f64620d5dab591d3e8bdab792cfe87c89dbc8",
     "internal/cli/root_test.go": "8f51ec5e47b4202dfc7310442240bcd3ba6cd58d3417d4972f6595043a1714e9",
     "internal/cli/sights.go": "848172ad7f79fd61654fd3db5d7d6dc24a6aa3107c4c7ff38f4cfb66ae8c16fe",
     "internal/cli/tickets_cli_test.go": "e4f07c2bfcea4b22d46a3538fdfce21584ed94765eb6c8693019d93dd6dce8b5",
@@ -109,7 +110,8 @@
     "internal/tickets/collect_test.go": "aac9aca81bd42aac4e0e59ff05df57e273adfc1005718625bd9b6a9c38a709a8",
     "internal/tickets/dmm.go": "25d78d64c1d8f046bdf9453a92c89cc5175dc36204e55fb000bf49fdf4aaedb3",
     "internal/tickets/engine.go": "ce68da86868dcbc584bdaaf72521dab9897ac084bf3e76e9a7ae8d9935899792",
-    "internal/tickets/fetch.go": "0370a6e907a6d6af9d3be6a500c69fb9a302c807f08699edcfabef40e114aed5",
+    "internal/tickets/fetch.go": "ceb6753dc79d23d270e61ca5cb3e965fb0786b9bd8313998435538a0f76bb299",
+    "internal/tickets/fetch_redirect_test.go": "e31c60fc61539d372d9108d1485674e044101ce7baf219e313e5166ba5d25744",
     "internal/tickets/fetch_test.go": "7580350f281af7dbfec90d08b14ab3cc23985215141e4e3e3388eff0ef836f94",
     "internal/tickets/ghibli.go": "080ca53f36757f78348cce00661d9f565c89e44780bb7a18def98cf354b6e9ce",
     "internal/tickets/ics.go": "a9d97f7932bb468b2953a8148beb070908c460ebeccef31ea0757d9435006358",

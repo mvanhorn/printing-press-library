@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "japan-timed-tickets-publish-review-fixes",
+  "applied_at": "2026-10-10",
+  "base_run_id": "20261009-095850-f6dfc042",
+  "base_printing_press_version": "4.33.2",
+  "summary": "Apply the run profile before delivery setup, count only available and few slots as open, pace and count redirect hops, and state the Go 1.26.9 minimum in the README.",
+  "reason": "Publish review (PR #2292): a --deliver saved in a profile never ran; unknown slots showed as open; followed redirects skipped the rate limiter and request budget; the docs stated Go 1.26.6 while go.mod needs 1.26.9.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/availability.go",
+    "internal/cli/availability_render_test.go",
+    "internal/tickets/fetch.go",
+    "internal/tickets/fetch_redirect_test.go",
+    "README.md"
+  ],
+  "call_sites": [
+    "Set up delivery after the run profile is applied",
+    "case tickets.SlotAvailable, tickets.SlotFew:",
+    "Each followed hop is a real request",
+    "Go 1.26.9 or newer"
+  ],
+  "validated_outcome": "go vet and go test ./... pass, including new redirect-budget and slot-summary tests; a profile-saved --deliver file:... now creates the file."
+}

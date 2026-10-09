@@ -105,24 +105,30 @@ func NewFetcher(timeout time.Duration, ratePerSec float64, maxRequests int) *Fet
 	client := &http.Client{
 		Timeout: timeout,
 		Jar:     jar,
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			if len(via) >= maxRedirects {
-				return fmt.Errorf("%w: stopped after %d redirects", errRedirectRefused, maxRedirects)
-			}
-			if isWaitingRoomHost(req.URL.Host) {
-				return ErrWaitingRoom
-			}
-			// Follow redirects only within the same host and never to plain HTTP.
-			if !strings.EqualFold(req.URL.Host, via[0].URL.Host) {
-				return fmt.Errorf("%w: cross-host redirect from %q to %q", errRedirectRefused, via[0].URL.Host, req.URL.Host)
-			}
-			if via[0].URL.Scheme == "https" && req.URL.Scheme != "https" {
-				return fmt.Errorf("%w: https to %q", errRedirectRefused, req.URL.Scheme)
-			}
-			return nil
-		},
 	}
-	return &Fetcher{HTTP: client, rate: ratePerSec, limiters: map[string]*cliutil.AdaptiveLimiter{}, maxReqs: maxRequests, backoff: cliutil.Backoff, maxRetryWait: 10 * time.Second}
+	f := &Fetcher{HTTP: client, rate: ratePerSec, limiters: map[string]*cliutil.AdaptiveLimiter{}, maxReqs: maxRequests, backoff: cliutil.Backoff, maxRetryWait: 10 * time.Second}
+	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		if len(via) >= maxRedirects {
+			return fmt.Errorf("%w: stopped after %d redirects", errRedirectRefused, maxRedirects)
+		}
+		if isWaitingRoomHost(req.URL.Host) {
+			return ErrWaitingRoom
+		}
+		// Follow redirects only within the same host and never to plain HTTP.
+		if !strings.EqualFold(req.URL.Host, via[0].URL.Host) {
+			return fmt.Errorf("%w: cross-host redirect from %q to %q", errRedirectRefused, via[0].URL.Host, req.URL.Host)
+		}
+		if via[0].URL.Scheme == "https" && req.URL.Scheme != "https" {
+			return fmt.Errorf("%w: https to %q", errRedirectRefused, req.URL.Scheme)
+		}
+		// Each followed hop is a real request: count it against the
+		// command budget and pace it with the same per-host limiter.
+		if err := f.reserve(); err != nil {
+			return fmt.Errorf("%w: %v", errRedirectRefused, err)
+		}
+		return f.limiter(req.URL.Host).Wait(req.Context())
+	}
+	return f
 }
 
 func isWaitingRoomHost(host string) bool {
