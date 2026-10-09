@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "loops-which-indexes-api-commands",
+  "applied_at": "2026-10-09",
+  "base_run_id": "20261002-173515",
+  "base_printing_press_version": "4.33.0",
+  "summary": "which ranks the curated feature index plus every visible command carrying a pp:endpoint annotation, with curated entries kept first.",
+  "reason": "The generated index lists only novel and promoted commands, so endpoint commands such as campaigns metrics get-campaign were unreachable and a metrics query returned campaigns preflight.",
+  "files": [
+    "internal/cli/which.go",
+    "internal/cli/loops_which_endpoints.go",
+    "internal/cli/loops_which_endpoints_test.go"
+  ],
+  "validated_outcome": "which \"campaign metrics\" returns campaigns metrics get-campaign; curated queries such as \"campaign preflight\" and \"verify team\" still rank their curated command first."
+}

@@ -1586,7 +1586,7 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 		sort.Strings(bodyFields)
 	}
 	preview, err := json.Marshal(map[string]any{
-		"dry_run": true, "method": method, "endpoint": safeEndpointClass(method, path),
+		"dry_run": true, "method": method, "endpoint": safeDryRunEndpoint(method, path),
 		"queryFields": queryFields, "bodyFields": bodyFields, "privateValues": "redacted",
 	})
 	if err != nil {

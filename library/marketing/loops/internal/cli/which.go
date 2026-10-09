@@ -392,15 +392,17 @@ Exit codes:
   loops-pp-cli which --limit 1 "send message"
   loops-pp-cli which                                # list the full capability index`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(whichIndex) == 0 {
+			// PATCH(loops-which-indexes-api-commands): include endpoint commands.
+			index := loopsWhichIndex(cmd.Root())
+			if len(index) == 0 {
 				return usageErr(fmt.Errorf("this CLI has no curated capability index; run '--help' to see every command"))
 			}
 			query := strings.Join(args, " ")
-			matches := rankWhich(whichIndex, query, limit)
+			matches := rankWhich(index, query, limit)
 
 			// Empty query returns the whole index at score 0 (listing mode).
 			if strings.TrimSpace(query) == "" {
-				return renderWhich(cmd, flags, rankWhichAll(whichIndex))
+				return renderWhich(cmd, flags, rankWhichAll(index))
 			}
 
 			if len(matches) == 0 {

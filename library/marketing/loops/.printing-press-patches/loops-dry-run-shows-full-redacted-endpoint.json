@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "loops-dry-run-shows-full-redacted-endpoint",
+  "applied_at": "2026-10-09",
+  "base_run_id": "20261002-173515",
+  "base_printing_press_version": "4.33.0",
+  "summary": "Dry-run previews show the full endpoint path with every non-route segment redacted to :id, so subresources like /metrics or /publish stay visible.",
+  "reason": "The shared endpoint classifier keeps only two path segments for rate-limit budgets, so dry runs of subresource calls looked like plain collection calls (GET /v1/campaigns for campaign metrics). The literal-segment allowlist fails closed so IDs, emails, and event names never print.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/loops_dry_run_endpoint.go",
+    "internal/client/loops_dry_run_endpoint_test.go"
+  ],
+  "validated_outcome": "campaigns metrics get <id> --dry-run reports GET /v1/campaigns/:id/metrics; a test fails if any pp:path route word is missing from the allowlist."
+}
