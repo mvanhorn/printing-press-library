@@ -4,11 +4,16 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
+	"net"
+	"net/http"
+	"net/url"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/fooda/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/fooda/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/fooda/internal/store"
 )
 
@@ -68,10 +73,12 @@ func TestStoreBackedAnalytics(t *testing.T) {
 		PaymentCents           int      `json:"payment_cents"`
 	}
 
+	fixedTime := time.Now().Truncate(24 * time.Hour).Add(-12 * time.Hour) // yesterday noon
+
 	o1.ID = 1001
 	o1.EventType = "delivery"
 	o1.ItemNames = []string{"Scrubbed Burrito"}
-	o1.OrderFulfilledTimeUnix = time.Now().Add(-2 * 24 * time.Hour).Unix()
+	o1.OrderFulfilledTimeUnix = fixedTime.Unix()
 	o1.VendorNames = []string{"Scrubbed Burrito Shop"}
 	o1.Status = "checkout_complete"
 	o1.Delivery = "Delivered today"
@@ -81,7 +88,7 @@ func TestStoreBackedAnalytics(t *testing.T) {
 	o2.ID = 1002
 	o2.EventType = "delivery"
 	o2.ItemNames = []string{"Scrubbed Taco"}
-	o2.OrderFulfilledTimeUnix = time.Now().Add(-5 * 24 * time.Hour).Unix()
+	o2.OrderFulfilledTimeUnix = fixedTime.Unix()
 	o2.VendorNames = []string{"Scrubbed Taco Shop"}
 	o2.Status = "checkout_complete"
 	o2.Delivery = "Delivered last week"
@@ -326,5 +333,101 @@ func TestGetEventServiceDate(t *testing.T) {
 	}
 	if dateDelivery != "2026-10-16" {
 		t.Errorf("expected 2026-10-16, got %s", dateDelivery)
+	}
+}
+
+func TestGetAccountAndBuildingCache(t *testing.T) {
+	tempHome := t.TempDir()
+	t.Setenv("FOODA_HOME", tempHome)
+
+	flags := &rootFlags{}
+	cfgObj, err := config.Load(flags.configPath)
+	if err != nil {
+		t.Fatalf("failed to load config: %v", err)
+	}
+	c := client.New(cfgObj, 0, 0)
+
+	// Test 1: Expiry Miss (older than 24h)
+	{
+		cfg := FoodaConfig{
+			AccountID:  "8358",
+			BuildingID: "4551",
+			FetchedAt:  time.Now().Add(-25 * time.Hour), // expired
+		}
+		saveFoodaConfig(cfg)
+
+		_, _, err := getAccountAndBuilding(context.Background(), c, flags)
+		if err == nil {
+			t.Errorf("expected expiry miss to trigger discovery and fail, but it succeeded")
+		}
+	}
+
+	// Test 2: Building-change Miss
+	{
+		cfg := FoodaConfig{
+			AccountID:  "8358",
+			BuildingID: "4551",
+			FetchedAt:  time.Now().Add(-5 * time.Hour), // valid age
+		}
+		saveFoodaConfig(cfg)
+
+		u, _ := url.Parse("https://app.fooda.com")
+		cookie := &http.Cookie{
+			Name:  "myfooda_building_id",
+			Value: "9999", // different building!
+		}
+		c.HTTPClient.Jar.SetCookies(u, []*http.Cookie{cookie})
+
+		_, _, err := getAccountAndBuilding(context.Background(), c, flags)
+		if err == nil {
+			t.Errorf("expected building-change miss to trigger discovery and fail, but it succeeded")
+		}
+	}
+
+	// Test 3: Cache Hit (cookie matches cached building ID)
+	{
+		cfg := FoodaConfig{
+			AccountID:  "8358",
+			BuildingID: "4551",
+			FetchedAt:  time.Now().Add(-5 * time.Hour), // valid age
+		}
+		saveFoodaConfig(cfg)
+
+		u, _ := url.Parse("https://app.fooda.com")
+		cookie := &http.Cookie{
+			Name:  "myfooda_building_id",
+			Value: "4551", // matching building ID!
+		}
+		c.HTTPClient.Jar.SetCookies(u, []*http.Cookie{cookie})
+
+		acct, bldg, err := getAccountAndBuilding(context.Background(), c, flags)
+		if err != nil {
+			t.Fatalf("expected cache hit to succeed, got error: %v", err)
+		}
+		if acct != "8358" || bldg != "4551" {
+			t.Errorf("expected cached values 8358, 4551; got %s, %s", acct, bldg)
+		}
+	}
+}
+
+func TestIsNetworkError(t *testing.T) {
+	tests := []struct {
+		err  error
+		want bool
+	}{
+		{nil, false},
+		{fmt.Errorf("some random error"), false},
+		{fmt.Errorf("dial tcp 127.0.0.1:80: connect: connection refused"), true},
+		{fmt.Errorf("read tcp 127.0.0.1:80: i/o timeout"), true},
+		{fmt.Errorf("no such host: app.fooda.com"), true},
+		{&net.OpError{Op: "dial", Net: "tcp"}, true},
+	}
+
+	for _, tt := range tests {
+		t.Run(fmt.Sprintf("%v", tt.err), func(t *testing.T) {
+			if got := isNetworkError(tt.err); got != tt.want {
+				t.Errorf("isNetworkError(%v) = %v, want %v", tt.err, got, tt.want)
+			}
+		})
 	}
 }

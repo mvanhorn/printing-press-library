@@ -4,8 +4,6 @@ package cli
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -205,7 +203,7 @@ func init() {
 				} else {
 					acct, bldg, err := getAccountAndBuilding(ctx, c, flags)
 					if err != nil {
-						if flags.dataSource != "live" {
+						if flags.dataSource != "live" && isNetworkError(err) {
 							fmt.Fprintf(cmd.ErrOrStderr(), "warning: live discovery failed (%v); falling back to local database\n", err)
 							db, dbErr := store.OpenReadOnlyContext(ctx, defaultDBPath("fooda-pp-cli"))
 							if dbErr == nil && db != nil {
@@ -236,7 +234,7 @@ func init() {
 						}
 						raw, err := c.Query(ctx, client.SearchPublicEventsQuery, variables)
 						if err != nil {
-							if flags.dataSource != "live" {
+							if flags.dataSource != "live" && isNetworkError(err) {
 								fmt.Fprintf(cmd.ErrOrStderr(), "warning: live query failed (%v); falling back to local database\n", err)
 								db, dbErr := store.OpenReadOnlyContext(ctx, defaultDBPath("fooda-pp-cli"))
 								if dbErr == nil && db != nil {
@@ -1947,25 +1945,57 @@ func parseEventsFromRaw(raw json.RawMessage) ([]parsedEvent, error) {
 	return envelope.SearchPublicEvents.Events.Nodes, nil
 }
 
-func getSessionHash() string {
-	dir, err := cliutil.DataDir()
+func getMyFoodaBuildingIDCookie(c *client.Client) string {
+	if c == nil || c.HTTPClient == nil || c.HTTPClient.Jar == nil {
+		return ""
+	}
+	u, err := url.Parse("https://app.fooda.com")
 	if err != nil {
 		return ""
 	}
-	path := filepath.Join(dir, "cookies.json")
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return ""
+	for _, cookie := range c.HTTPClient.Jar.Cookies(u) {
+		if cookie.Name == "myfooda_building_id" {
+			return cookie.Value
+		}
 	}
-	h := sha256.Sum256(data)
-	return hex.EncodeToString(h[:])
+	return ""
 }
 
 func getAccountAndBuilding(ctx context.Context, c *client.Client, flags *rootFlags) (string, string, error) {
-	currentHash := getSessionHash()
+	var acctOverride, bldgOverride string
+	if flags != nil {
+		acctOverride = flags.accountID
+		bldgOverride = flags.buildingID
+	}
+
+	currentBuildingCookie := getMyFoodaBuildingIDCookie(c)
 	foodaCfg := loadFoodaConfig()
-	if foodaCfg.AccountID != "" && foodaCfg.BuildingID != "" && foodaCfg.SessionHash == currentHash && currentHash != "" {
-		return foodaCfg.AccountID, foodaCfg.BuildingID, nil
+
+	cacheValid := false
+	if foodaCfg.AccountID != "" && foodaCfg.BuildingID != "" && !foodaCfg.FetchedAt.IsZero() {
+		age := time.Since(foodaCfg.FetchedAt)
+		if age < 24*time.Hour {
+			if currentBuildingCookie == "" || currentBuildingCookie == foodaCfg.BuildingID {
+				cacheValid = true
+			}
+		}
+	}
+
+	var finalAcct, finalBldg string
+	if acctOverride != "" {
+		finalAcct = acctOverride
+	} else if cacheValid {
+		finalAcct = foodaCfg.AccountID
+	}
+
+	if bldgOverride != "" {
+		finalBldg = bldgOverride
+	} else if cacheValid {
+		finalBldg = foodaCfg.BuildingID
+	}
+
+	if finalAcct != "" && finalBldg != "" {
+		return finalAcct, finalBldg, nil
 	}
 
 	// Try discovery
@@ -1973,22 +2003,29 @@ func getAccountAndBuilding(ctx context.Context, c *client.Client, flags *rootFla
 	if err == nil && acct != "" && bldg != "" {
 		foodaCfg.AccountID = acct
 		foodaCfg.BuildingID = bldg
-		foodaCfg.SessionHash = currentHash
+		foodaCfg.FetchedAt = time.Now()
 		saveFoodaConfig(foodaCfg)
-		return acct, bldg, nil
+
+		if finalAcct == "" {
+			finalAcct = acct
+		}
+		if finalBldg == "" {
+			finalBldg = bldg
+		}
+		return finalAcct, finalBldg, nil
 	}
 
 	if err == nil {
 		err = fmt.Errorf("account_id or building_id not found in response")
 	}
 
-	return "", "", fmt.Errorf("failed to discover Fooda account and building: %w; try passing --account and --building flags directly", err)
+	return "", "", fmt.Errorf("failed to discover Fooda account and building: %w; log in to app.fooda.com in Chrome and re-run 'auth login --chrome', or pass --account and --building flags directly", err)
 }
 
 type FoodaConfig struct {
-	AccountID   string `json:"account_id"`
-	BuildingID  string `json:"building_id"`
-	SessionHash string `json:"session_hash"`
+	AccountID  string    `json:"account_id"`
+	BuildingID string    `json:"building_id"`
+	FetchedAt  time.Time `json:"fetched_at"`
 }
 
 func loadFoodaConfig() FoodaConfig {
@@ -2103,7 +2140,7 @@ func getEventServiceDate(ev parsedEvent) (time.Time, string, error) {
 }
 
 func loadAndDeduplicateOrders(db *store.Store) ([]client.PastOrdersProps, error) {
-	rawOrders, err := db.List("order", 1000)
+	rawOrders, err := db.List("order", 0)
 	if err != nil {
 		return nil, err
 	}

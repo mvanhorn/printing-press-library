@@ -69,6 +69,8 @@ type rootFlags struct {
 	dataSource              string
 	agentSource             string
 	freshnessMeta           any
+	accountID               string
+	buildingID              string
 
 	// deliverBuf captures command output when --deliver is set to a
 	// non-stdout sink. Flushed to the sink after Execute returns.
@@ -344,6 +346,8 @@ Run 'fooda-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.PersistentFlags().BoolVar(&flags.noLearn, "no-learn", false, "Disable the teach/recall learning loop for this invocation")
 	rootCmd.PersistentFlags().BoolVar(&flags.allowPartialFailure, "allow-partial-failure", false, "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
+	rootCmd.PersistentFlags().StringVar(&flags.accountID, "account", "", "Override Fooda Account ID")
+	rootCmd.PersistentFlags().StringVar(&flags.buildingID, "building", "", "Override Fooda Building ID")
 	rootCmd.PersistentFlags().DurationVar(&flags.maxAge, "max-age", 30*time.Minute, "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables")
 	rootCmd.PersistentFlags().StringVar(&flags.runProfileName, "profile", "", "Apply values from a saved run profile; this does not select a client (see 'fooda-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.clientProfileName, "client-profile", "", "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)")
