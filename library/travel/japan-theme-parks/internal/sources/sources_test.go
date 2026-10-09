@@ -45,7 +45,7 @@ func TestGetStatuses(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	c := New(5 * time.Second)
+	c := New(5*time.Second, 0)
 	ctx := context.Background()
 	cases := []struct {
 		path      string
@@ -115,7 +115,7 @@ func TestChromeClientRejectsSelfSignedTLS(t *testing.T) {
 		_, _ = w.Write([]byte("ok"))
 	}))
 	defer srv.Close()
-	c := New(5 * time.Second)
+	c := New(5*time.Second, 0)
 	hc, err := c.chromeClient()
 	if err != nil {
 		t.Fatal(err)
@@ -145,7 +145,7 @@ func TestRedirectsStayOnHost(t *testing.T) {
 		}
 	}))
 	defer self.Close()
-	c := New(5 * time.Second)
+	c := New(5*time.Second, 0)
 	if _, err := c.get(context.Background(), "queue-times", c.std, self.URL+"/local", true); err != nil {
 		t.Fatalf("same-host redirect failed: %v", err)
 	}

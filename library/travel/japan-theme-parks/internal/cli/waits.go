@@ -103,7 +103,7 @@ Do NOT use this command for weekday or hour patterns; use 'typical' instead.`, "
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
 
-			client := sources.New(flags.timeout)
+			client := sources.New(flags.timeout, flags.rateLimit)
 			f, err := client.QueueTimes(ctx, park.QueueTimesID)
 			if err != nil {
 				return sourceFailure(fmt.Errorf("fetching Queue-Times waits for %s: %w", park.NameEN, err), err)

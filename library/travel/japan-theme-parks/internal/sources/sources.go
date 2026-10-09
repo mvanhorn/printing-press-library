@@ -49,18 +49,27 @@ type Client struct {
 	timeout    time.Duration
 }
 
-// New returns a client with a per-request timeout.
-func New(timeout time.Duration) *Client {
+// New returns a client with a per-request timeout. Each source keeps its own
+// polite default rate; a positive maxRate (the --rate-limit flag) lowers it
+// further, but never raises it. Zero or a negative value (auto) keeps the
+// defaults: these are third-party sites, so pacing is not switched off.
+func New(timeout time.Duration, maxRate float64) *Client {
 	if timeout <= 0 {
 		timeout = 30 * time.Second
+	}
+	rate := func(def float64) float64 {
+		if maxRate > 0 && maxRate < def {
+			return maxRate
+		}
+		return def
 	}
 	return &Client{
 		std:     &http.Client{Timeout: timeout, CheckRedirect: sameHostRedirects},
 		timeout: timeout,
 		limiters: map[string]*cliutil.AdaptiveLimiter{
-			"queue-times": cliutil.NewAdaptiveLimiter(2.0),
-			"tdr":         cliutil.NewAdaptiveLimiter(1.0),
-			"themeparks":  cliutil.NewAdaptiveLimiter(1.0),
+			"queue-times": cliutil.NewAdaptiveLimiter(rate(2.0)),
+			"tdr":         cliutil.NewAdaptiveLimiter(rate(1.0)),
+			"themeparks":  cliutil.NewAdaptiveLimiter(rate(1.0)),
 		},
 	}
 }

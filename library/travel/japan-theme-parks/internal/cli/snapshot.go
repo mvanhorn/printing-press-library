@@ -88,7 +88,7 @@ Do NOT use this command to read current waits; use 'waits' instead.`, "\n"),
 			ctx, cancel := boundCtxN(cmd.Context(), flags, len(list))
 			defer cancel()
 
-			client := sources.New(flags.timeout)
+			client := sources.New(flags.timeout, flags.rateLimit)
 			meta := newMeta()
 			res := snapshotResult{DBPath: dbPath, Parks: make([]snapshotParkResult, 0, len(list)), DedupOn: "ride_id + source last_updated"}
 			rows := make([]store.WaitRow, 0)

@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -158,7 +159,7 @@ Do NOT use this command for ride waits; use 'waits' or 'typical' instead.`, "\n"
 			}
 			ctx, cancel := boundCtxN(cmd.Context(), flags, 2*len(monthList)+scheduleCount)
 			defer cancel()
-			client := sources.New(flags.timeout)
+			client := sources.New(flags.timeout, flags.rateLimit)
 			meta := newMeta()
 			errOut := cmd.ErrOrStderr()
 			tally := fetchTally{meta: &meta}
@@ -260,7 +261,7 @@ Do NOT use this command for ride waits; use 'waits' or 'typical' instead.`, "\n"
 			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
 				return printJSONFilteredKeep(cmd.OutOrStdout(), out, flags, "hours", "tickets", "tickets_source", "tickets_fetched_at", "tickets_unknown_reason", "sale_opens_at", "calendar_url", "one_day_passport_status", "one_day_passport_adult_yen", "park_name_en", "park_name_ja", "weekday")
 			}
-			return printDatesHuman(cmd, rows, meta)
+			return printDatesHuman(cmd, rows, meta, len(ticketFilter) > 0 || len(statusFilter) > 0)
 		},
 	}
 	cmd.Flags().StringVar(&fromArg, "from", "", "First date (YYYY-MM-DD, today, tomorrow or +Nd)")
@@ -482,7 +483,10 @@ func datesNote(r dateRow) string {
 	}
 }
 
-func printDatesHuman(cmd *cobra.Command, rows []dateRow, meta respMeta) error {
+// printDatesHuman prints one summary row per date and park. The 1-DAY
+// PASSPORT and ADULT columns always describe T1. When --ticket or --status
+// selects tickets, a second table lists the selected tickets themselves.
+func printDatesHuman(cmd *cobra.Command, rows []dateRow, meta respMeta, showTickets bool) error {
 	w := cmd.OutOrStdout()
 	if len(rows) == 0 {
 		fmt.Fprintln(w, "No matching dates.")
@@ -512,8 +516,52 @@ func printDatesHuman(cmd *cobra.Command, rows []dateRow, meta respMeta) error {
 	if err := tw.Flush(); err != nil {
 		return err
 	}
+	if showTickets {
+		if err := printSelectedTickets(w, rows); err != nil {
+			return err
+		}
+	}
 	printAttribution(w, meta)
 	return nil
+}
+
+// printSelectedTickets lists every ticket kept by --ticket or --status with
+// its name, state, adult price and sale-opening time.
+func printSelectedTickets(w io.Writer, rows []dateRow) error {
+	hasTickets := false
+	for _, r := range rows {
+		if len(r.Tickets) > 0 {
+			hasTickets = true
+			break
+		}
+	}
+	fmt.Fprintln(w)
+	if !hasTickets {
+		fmt.Fprintln(w, "Selected tickets: none in these rows (USJ and Fuji-Q have no dated ticket status in these sources).")
+		return nil
+	}
+	fmt.Fprintln(w, "Selected tickets:")
+	tw := newTabWriter(w)
+	fmt.Fprintln(tw, "DATE\tPARK\tTICKET\tNAME\tSTATUS\tADULT ¥\tSALE OPENS")
+	for _, r := range rows {
+		for _, t := range r.Tickets {
+			name := t.NameEN
+			if name == "" {
+				name = t.NameJA
+			}
+			adult := "-"
+			if a, ok := t.PricesYen["adult"]; ok {
+				adult = strconv.Itoa(a)
+			}
+			opens := "-"
+			if t.SaleOpensAt != nil && t.SaleOpensAt.At != "" {
+				opens = t.SaleOpensAt.At
+			}
+			fmt.Fprintf(tw, "%s\t%s\t%s\t%s\t%s\t%s\t%s\n", r.Date, r.Park, t.ID,
+				truncate(cliutil.ScrubTerminal(name), 40), t.Status, adult, opens)
+		}
+	}
+	return tw.Flush()
 }
 
 // monthShouldBeOnSale reports whether the published TDR rule has already
