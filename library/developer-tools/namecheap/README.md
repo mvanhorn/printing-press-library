@@ -6,7 +6,7 @@ query-string authentication parameters (`ApiUser`, `ApiKey`, `UserName`, `Client
 Generation uses command-shaped pseudo paths that are normalized back to `/xml.response`
 by the Namecheap printed CLI patch layer.
 
-Created by [@cathryn-lavery](https://github.com/cathryn-lavery) (Cathryn Lavery).
+Created by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 
