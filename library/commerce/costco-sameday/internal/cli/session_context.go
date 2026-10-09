@@ -59,9 +59,13 @@ Shows the context that cart, slots, retailer and product commands fill in
 automatically when --shop-id / --cart-id / --zone-id / --postal-code /
 --user-location are omitted. Explicit flags always win.
 
-ZIP precedence: --zip, then $COSTCO_SAMEDAY_ZIP, then the last explicit --zip
-(remembered in the state dir), then the account/IP geolocation. The shop is
-looked up from the ZIP; the cart needs a signed-in session.`),
+ZIP precedence: a postalCode or userLocation.postalCode on this command, then
+--zip, then $COSTCO_SAMEDAY_ZIP, then the last explicit --zip (remembered in
+the state dir), then the account/IP geolocation. The shop is looked up from
+the ZIP. The account/IP zone is used only when its ZIP matches; a different
+ZIP uses RetailersZone. A postal code on the command is not remembered as the
+default. The cart needs a signed-in session; an explicit shop id resolves it
+without a ZIP.`),
 		Example: `  costco-sameday-pp-cli session context --zip 98027
   costco-sameday-pp-cli session context --json
   costco-sameday-pp-cli session context --refresh`,

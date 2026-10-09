@@ -1736,6 +1736,10 @@
     "hash": "0b57a9c697233dfaaba267e935eb3f5f8f8a88e326ad7eae94b52a6ab955a7e6"
   },
   {
+    "operation_name": "RetailersZone",
+    "hash": "7be7181e965556ce63b14a1794587fd36a64a33ff65de6f866628c1d46fc5233"
+  },
+  {
     "operation_name": "Search",
     "hash": "966d75e3dd85cbdf4f11b6eb8f3d167eab4cdcc67d2852048ed2e065f8f1d495"
   },

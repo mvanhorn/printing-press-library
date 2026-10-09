@@ -4,11 +4,13 @@
   "applied_at": "2026-10-08",
   "base_run_id": "20261007-135457",
   "base_printing_press_version": "4.31.7",
-  "summary": "Auto-resolve shopId/cartId/zoneId/postalCode/userLocation from the session (global --zip, session context), live search via persisted SearchResultsPlacements POST + Items hydration, and GraphQL errors-with-no-data exit non-zero with the missing variable named.",
-  "reason": "Post-merge smoke of 75f7fcbe: cart activecartid/carttotals, slots availableservices and retailer currentretailer sent null $shopId/$cartId/$userLocation and exited 0; search sent ad-hoc query text and got PersistedQueryNotSupported.",
+  "summary": "Read commands fill empty shopId/cartId/zoneId/postalCode/userLocation; the zone comes from Geolocation only when that ZIP matches, otherwise RetailersZone(postalCode); an explicit postalCode or userLocation.postalCode selects shop, zone and cart for that call and is not the remembered default; an explicit shopId resolves the cart without a ZIP; cache writes hold an advisory file lock across read-modify-rename; live search is a persisted SearchResultsPlacements POST plus Items; GraphQL errors with no data exit non-zero.",
+  "reason": "Post-merge smoke of 75f7fcbe: cart, slots and retailer reads sent null shop/cart/location and exited 0, and search sent ad-hoc query text. A selected ZIP must not keep the account/IP zone, a postal on the command must not be mixed with a saved ZIP, and a cart for an explicit shop must not wait on geolocation.",
   "files": [
     "internal/client/session_context.go",
     "internal/client/session_context_test.go",
+    "internal/client/session_cache_lock_unix.go",
+    "internal/client/session_cache_lock_other.go",
     "internal/client/client.go",
     "internal/client/persisted_queries_seed.json",
     "internal/cli/session_context.go",
@@ -21,9 +23,11 @@
     "graphQLResponseError",
     "userPersistedQueryHashes",
     "ShopCollectionScoped",
+    "RetailersZone",
+    "lockSessionCache",
     "liveProductSearch",
     "sessionZipFlag",
     "Session context and ZIP"
   ],
-  "validated_outcome": "go test ./... (synthetic httptest fixtures) green; live read-only: ZIP 98027 resolves shopId/zoneId anonymously, search sends persisted POST (no PersistedQueryNotSupported), GraphQL variable errors exit 5."
+  "validated_outcome": "go test ./... (synthetic httptest fixtures) green: a ZIP that differs from Geolocation uses RetailersZone, a request postalCode/userLocation selects that ZIP without replacing the saved default, and an explicit shopId resolves the cart with Geolocation unavailable."
 }

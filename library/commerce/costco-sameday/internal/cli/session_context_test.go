@@ -83,6 +83,7 @@ func runRoot(t *testing.T, args ...string) (string, error) {
 
 var sessionReplies = map[string]string{
 	"Geolocation":          `{"data":{"geolocationWithUserLocation":{"geolocation":{"postalCode":"00000","zoneId":"zone-1","coordinates":{"latitude":1,"longitude":2}}}}}`,
+	"RetailersZone":        `{"data":{"zoneV2":{"id":"zone-zip"}}}`,
 	"ShopCollectionScoped": `{"data":{"shopCollection":{"shops":[{"id":"shop-1","serviceType":"delivery","retailerLocationId":"loc-1"}]}}}`,
 	"ActiveCartId":         `{"data":{"shopBasket":{"cartId":"cart-1"}}}`,
 }
@@ -169,7 +170,7 @@ func TestLiveSearchUsesPersistedPOSTAndHydratesItems(t *testing.T) {
 		t.Fatalf("search query leaked into URL: %s", rec.query["SearchResultsPlacements"])
 	}
 	v := rec.vars["SearchResultsPlacements"]
-	if v["query"] != "kirkland" || v["shopId"] != "shop-1" || v["zoneId"] != "zone-1" || v["postalCode"] != "98027" {
+	if v["query"] != "kirkland" || v["shopId"] != "shop-1" || v["zoneId"] != "zone-zip" || v["postalCode"] != "98027" {
 		t.Fatalf("search variables = %v", v)
 	}
 	ids, _ := rec.vars["Items"]["ids"].([]any)
@@ -194,5 +195,49 @@ func TestLiveSearchGraphQLErrorsExitNonZero(t *testing.T) {
 	_, err := runRoot(t, "search", "kirkland", "--data-source", "live", "--zip", "98027")
 	if err == nil || ExitCode(err) == 0 || !strings.Contains(err.Error(), "missing zoneId") {
 		t.Fatalf("err = %v", err)
+	}
+}
+
+func TestUserLocationPostalSelectsShopNotSavedZip(t *testing.T) {
+	rec := routedSameDay(t, withReplies(map[string]string{
+		"AvailableServices": `{"data":{"checkoutAvailableServices":{"services":[{"cartId":"cart-1"}]}}}`,
+	}))
+	if out, err := runRoot(t, "slots", "availableservices", "--zip", "98027", "--json"); err != nil {
+		t.Fatalf("seed zip: %v\n%s", err, out)
+	}
+	if out, err := runRoot(t, "slots", "availableservices", "--user-location", `{"postalCode":"10001"}`, "--json"); err != nil {
+		t.Fatalf("user-location: %v\n%s", err, out)
+	}
+	if got := rec.vars["ShopCollectionScoped"]["postalCode"]; got != "10001" {
+		t.Fatalf("shop lookup ZIP = %v, want 10001 from --user-location", got)
+	}
+	if out, err := runRoot(t, "slots", "availableservices", "--json"); err != nil {
+		t.Fatalf("saved zip: %v\n%s", err, out)
+	}
+	if got := rec.vars["ShopCollectionScoped"]["postalCode"]; got != "98027" {
+		t.Fatalf("remembered ZIP = %v, want 98027 (request postal must not replace it)", got)
+	}
+}
+
+func TestExplicitShopResolvesCartWithoutZip(t *testing.T) {
+	rec := routedSameDay(t, withReplies(map[string]string{
+		"Geolocation": `{"data":null}`,
+		"CartTotals":  `{"data":{"cartTotals":{"total":"1.00"}}}`,
+	}))
+	out, err := runRoot(t, "cart", "carttotals", "--shop-id", "shop-explicit", "--json")
+	if err != nil {
+		t.Fatalf("carttotals: %v\n%s", err, out)
+	}
+	if got := rec.vars["ActiveCartId"]["shopId"]; got != "shop-explicit" {
+		t.Fatalf("ActiveCartId shopId = %v", got)
+	}
+	if _, ok := rec.vars["Geolocation"]; ok {
+		t.Fatal("Geolocation ran for an explicit shop")
+	}
+	if _, ok := rec.vars["ShopCollectionScoped"]; ok {
+		t.Fatal("shop lookup ran for an explicit shop")
+	}
+	if v := rec.vars["CartTotals"]; v["shopId"] != "shop-explicit" || v["cartId"] != "cart-1" {
+		t.Fatalf("CartTotals variables = %v", v)
 	}
 }

@@ -225,8 +225,13 @@ Cart, slots, retailer, product and search commands fill `shopId`, `cartId`,
 matching flag. Explicit flags (`--shop-id`, `--cart-id`, ...) always win.
 
 - The Costco shop and zone are looked up from your delivery ZIP. ZIP
-  precedence: `--zip`, then `COSTCO_SAMEDAY_ZIP`, then the last explicit
-  `--zip` (remembered in the state dir), then the account/IP geolocation.
+  precedence: a `postalCode` or `userLocation.postalCode` on this command,
+  then `--zip`, then `COSTCO_SAMEDAY_ZIP`, then the last explicit `--zip`
+  (remembered in the state dir), then the account/IP geolocation. The
+  account/IP zone is used only when its ZIP matches; a different ZIP uses
+  RetailersZone. A postal code on the command selects the shop, zone and cart
+  for that call and is not remembered as the default. An explicit `--shop-id`
+  resolves the cart without a ZIP.
 - The active cart comes from your signed-in session (`ActiveCartId`, falling
   back to `PersonalActiveCarts`) and is cached for 10 minutes; shop and zone
   are cached for 24 hours. Use `session context --refresh` to re-resolve.

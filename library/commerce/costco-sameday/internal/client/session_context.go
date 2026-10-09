@@ -27,6 +27,7 @@ import (
 // Session-context operations (persisted queries captured from the web app).
 const (
 	geolocationOperation          = "Geolocation"
+	retailersZoneOperation        = "RetailersZone"
 	shopCollectionScopedOperation = "ShopCollectionScoped"
 	activeCartIDOperation         = "ActiveCartId"
 	personalActiveCartsOperation  = "PersonalActiveCarts"
@@ -127,6 +128,10 @@ type SessionNeeds struct {
 	// ShopID, when set (explicit --shop-id), is used as-is: no ZIP lookup,
 	// and the cart is resolved for this shop.
 	ShopID string
+	// PostalCode, when set, is the ZIP on this request (a postalCode variable
+	// or userLocation.postalCode). It selects shop, zone and cart for this
+	// call and is not remembered as the default ZIP.
+	PostalCode string
 }
 
 func needsForVars(vars []string) SessionNeeds {
@@ -167,6 +172,11 @@ type cachedCart struct {
 	ResolvedAt time.Time `json:"resolved_at"`
 }
 
+type cachedZone struct {
+	ZoneID     string    `json:"zone_id"`
+	ResolvedAt time.Time `json:"resolved_at"`
+}
+
 // sessionContextCache is persisted (0600) in the state dir. Geolocation and
 // carts are keyed by a hash of the active credential so a different login
 // never inherits another account's cart.
@@ -174,8 +184,14 @@ type sessionContextCache struct {
 	LastPostalCode string                       `json:"last_postal_code,omitempty"`
 	Geolocation    map[string]cachedGeolocation `json:"geolocation,omitempty"`
 	Shops          map[string]cachedShop        `json:"shops,omitempty"`
+	Zones          map[string]cachedZone        `json:"zones,omitempty"`
 	Carts          map[string]cachedCart        `json:"carts,omitempty"`
 }
+
+// sessionCacheWriteMu serializes cache writers in this process. flock does
+// not: on Unix it is owned by the process, so two goroutines in one process
+// would both succeed. The file lock covers other CLI processes.
+var sessionCacheWriteMu sync.Mutex
 
 type sessionState struct {
 	mu  sync.Mutex
@@ -245,20 +261,28 @@ func (c *Client) loadSessionCache() sessionContextCache {
 // updateSessionCache re-reads the cache file, applies mutate to the latest
 // on-disk copy, and writes it back through a unique temp file + rename, so
 // concurrent CLI processes merge per key (last writer wins per entry) instead
-// of replacing each other's whole file or sharing one temp path.
+// of replacing each other's whole file or sharing one temp path. The mutex
+// plus lockSessionCache cover that read-modify-rename; the file is a cache,
+// so a lock that cannot be taken still writes.
 func (c *Client) updateSessionCache(mutate func(*sessionContextCache)) {
 	path := c.sessionCachePath()
 	if path == "" {
 		return
 	}
+	sessionCacheWriteMu.Lock()
+	defer sessionCacheWriteMu.Unlock()
+
+	dir := filepath.Dir(path)
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		return
+	}
+	unlock := lockSessionCache(path + ".lock")
+	defer unlock()
+
 	cache := c.loadSessionCache()
 	mutate(&cache)
 	data, err := json.MarshalIndent(cache, "", "  ")
 	if err != nil {
-		return
-	}
-	dir := filepath.Dir(path)
-	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return
 	}
 	tmp, err := os.CreateTemp(dir, sessionContextFile+".*.tmp")
@@ -286,10 +310,14 @@ func (c *Client) credentialScopeKey() string {
 }
 
 // ResolveSessionContext derives the delivery ZIP, zone, Costco shop and the
-// active cart for the signed-in session. ZIP precedence: --zip, then
-// COSTCO_SAMEDAY_ZIP, then the last explicit ZIP (state cache), then the
-// account/IP geolocation. Errors name the part that could not be resolved;
-// any parts resolved before the failure are still returned.
+// active cart for the signed-in session. ZIP precedence: the request's
+// postalCode or userLocation.postalCode, then --zip, then COSTCO_SAMEDAY_ZIP,
+// then the last explicit ZIP (state cache), then the account/IP geolocation.
+// Geolocation's zone and coordinates are used only when that ZIP matches;
+// a different ZIP looks the zone up with RetailersZone. An explicit shopId
+// resolves the cart without a ZIP. A request ZIP is not remembered as the
+// default. Errors name the part that could not be resolved; any parts
+// resolved before the failure are still returned.
 func (c *Client) ResolveSessionContext(ctx context.Context, needs SessionNeeds) (SessionContext, error) {
 	var out SessionContext
 	if c == nil {
@@ -307,6 +335,9 @@ func (c *Client) ResolveSessionContext(ctx context.Context, needs SessionNeeds) 
 
 	explicit := strings.TrimSpace(c.session.zip)
 	switch {
+	case strings.TrimSpace(needs.PostalCode) != "":
+		// This call only. Do not write LastPostalCode.
+		out.PostalCode, out.PostalCodeSource = strings.TrimSpace(needs.PostalCode), "request"
 	case explicit != "":
 		out.PostalCode, out.PostalCodeSource = explicit, "flag"
 		if cache.LastPostalCode != explicit {
@@ -331,41 +362,64 @@ func (c *Client) ResolveSessionContext(ctx context.Context, needs SessionNeeds) 
 		}
 	}()
 
-	// Geolocation supplies zoneId and coordinates (and the ZIP fallback).
+	explicitShop := strings.TrimSpace(needs.ShopID) != ""
+	needsShopLookup := (needs.Shop || needs.Cart) && !explicitShop
+	// A cart for an explicit shop does not need a ZIP or geolocation.
+	needsPlace := needs.Location || needs.Zone || needsShopLookup
+
 	var geo *cachedGeolocation
-	if g, ok := cache.Geolocation[scope]; ok && useCache && now.Sub(g.ResolvedAt) < sessionLocationMaxAge && g.ZoneID != "" {
-		geo = &g
-	}
-	if geo == nil && (needs.Zone || needs.Shop || needs.Cart || needs.Location || out.PostalCode == "") {
-		g, err := c.fetchGeolocation(ctx)
-		if err == nil {
+	if needsPlace {
+		if g, ok := cache.Geolocation[scope]; ok && useCache && now.Sub(g.ResolvedAt) < sessionLocationMaxAge && (g.ZoneID != "" || g.PostalCode != "") {
 			geo = &g
-			updates = append(updates, func(cc *sessionContextCache) {
-				if cc.Geolocation == nil {
-					cc.Geolocation = map[string]cachedGeolocation{}
-				}
-				cc.Geolocation[scope] = g
-			})
-		} else if needs.Zone || out.PostalCode == "" {
-			return out, fmt.Errorf("could not resolve delivery location (Geolocation): %w", err)
+		}
+		if geo == nil {
+			g, err := c.fetchGeolocation(ctx)
+			if err == nil {
+				geo = &g
+				updates = append(updates, func(cc *sessionContextCache) {
+					if cc.Geolocation == nil {
+						cc.Geolocation = map[string]cachedGeolocation{}
+					}
+					cc.Geolocation[scope] = g
+				})
+			} else if out.PostalCode == "" {
+				return out, fmt.Errorf("could not resolve delivery location (Geolocation): %w", err)
+			}
 		}
 	}
 	if geo != nil {
-		out.ZoneID = geo.ZoneID
-		out.Latitude, out.Longitude = geo.Latitude, geo.Longitude
 		if out.PostalCode == "" && geo.PostalCode != "" {
 			out.PostalCode, out.PostalCodeSource = geo.PostalCode, "geolocation"
 		}
-		if geo.PostalCode != "" && geo.PostalCode != out.PostalCode {
-			// Coordinates belong to a different ZIP; do not send them.
-			out.Latitude, out.Longitude = nil, nil
+		// Keep the account/IP zone only when it belongs to the selected ZIP.
+		if geo.ZoneID != "" && (geo.PostalCode == "" || geo.PostalCode == out.PostalCode) {
+			out.ZoneID = geo.ZoneID
+			out.Latitude, out.Longitude = geo.Latitude, geo.Longitude
 		}
 	}
-	if out.PostalCode == "" {
+	if needsPlace && out.PostalCode == "" {
 		return out, errors.New("could not determine a delivery ZIP; pass --zip <ZIP> or set " + SessionZipEnv)
 	}
+	if needs.Zone && out.ZoneID == "" && out.PostalCode != "" {
+		zip := out.PostalCode
+		if z, ok := cache.Zones[zip]; ok && useCache && now.Sub(z.ResolvedAt) < sessionLocationMaxAge && z.ZoneID != "" {
+			out.ZoneID = z.ZoneID
+		} else {
+			zoneID, err := c.fetchZoneForPostalCode(ctx, zip)
+			if err != nil {
+				return out, fmt.Errorf("could not resolve zoneId for ZIP %s: %w", zip, err)
+			}
+			out.ZoneID = zoneID
+			updates = append(updates, func(cc *sessionContextCache) {
+				if cc.Zones == nil {
+					cc.Zones = map[string]cachedZone{}
+				}
+				cc.Zones[zip] = cachedZone{ZoneID: zoneID, ResolvedAt: now}
+			})
+		}
+	}
 
-	if strings.TrimSpace(needs.ShopID) != "" {
+	if explicitShop {
 		out.ShopID = strings.TrimSpace(needs.ShopID)
 	} else if needs.Shop || needs.Cart {
 		if s, ok := cache.Shops[out.PostalCode]; ok && useCache && now.Sub(s.ResolvedAt) < sessionLocationMaxAge && s.ShopID != "" {
@@ -479,6 +533,20 @@ func (c *Client) fetchGeolocation(ctx context.Context) (cachedGeolocation, error
 	return g, nil
 }
 
+// fetchZoneForPostalCode looks up zoneId for a ZIP. Geolocation's zone is the
+// account/IP zone, and ShopCollectionScoped does not return one.
+func (c *Client) fetchZoneForPostalCode(ctx context.Context, zip string) (string, error) {
+	payload, err := c.graphQLGet(ctx, retailersZoneOperation, map[string]any{"postalCode": zip}, true)
+	if err != nil {
+		return "", err
+	}
+	id := jsonString(digJSON(payload, "data", "zoneV2", "id"))
+	if id == "" {
+		return "", errors.New("RetailersZone returned no zone id")
+	}
+	return id, nil
+}
+
 // fetchCostcoShop maps a ZIP to the Costco delivery shop via
 // ShopCollectionScoped. The server keys on postalCode; coordinates are a
 // required input, so zero coordinates are sent when none match the ZIP.
@@ -574,6 +642,42 @@ func graphQLVariableString(params map[string]string, name string) string {
 	return ""
 }
 
+// requestPostalCode is the ZIP on this call: a postalCode variable, or
+// postalCode inside userLocation. It is not the remembered default ZIP.
+func requestPostalCode(params map[string]string) string {
+	if zip := strings.TrimSpace(graphQLVariableString(params, ctxVarPostalCode)); zip != "" {
+		return zip
+	}
+	if zip := postalFromUserLocation(params[ctxVarUserLocation]); zip != "" {
+		return zip
+	}
+	var vars map[string]any
+	if json.Unmarshal([]byte(params["variables"]), &vars) == nil {
+		return postalFromLocationValue(vars[ctxVarUserLocation])
+	}
+	return ""
+}
+
+func postalFromUserLocation(raw string) string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" || !strings.HasPrefix(raw, "{") {
+		return ""
+	}
+	var v any
+	if json.Unmarshal([]byte(raw), &v) != nil {
+		return ""
+	}
+	return postalFromLocationValue(v)
+}
+
+func postalFromLocationValue(v any) string {
+	m, ok := v.(map[string]any)
+	if !ok {
+		return ""
+	}
+	return strings.TrimSpace(jsonString(m["postalCode"]))
+}
+
 // fillSessionContextParams fills session-derived variables a known read
 // operation declares but the caller left empty. It never overrides explicit
 // values, never runs in verify/dry-run mode, and never fails the request: a
@@ -603,6 +707,9 @@ func (c *Client) fillSessionContextParams(ctx context.Context, method, path stri
 	if graphQLVariablePresent(params, ctxVarShopID) {
 		// Resolve the cart for the caller's shop, never the default ZIP's.
 		needs.ShopID = graphQLVariableString(params, ctxVarShopID)
+	}
+	if zip := requestPostalCode(params); zip != "" {
+		needs.PostalCode = zip
 	}
 	sc, resolveErr := c.ResolveSessionContext(ctx, needs)
 	updated := make(map[string]string, len(params)+len(missing))

@@ -7,11 +7,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"testing"
@@ -39,6 +41,7 @@ func newFakeSameDay(t *testing.T) (*fakeSameDay, *Client) {
 		bodies: map[string]map[string]any{}, status: map[string]int{},
 		replies: map[string]string{
 			"Geolocation":          `{"data":{"geolocationWithUserLocation":{"geolocation":{"postalCode":"99999","zoneId":"zone-geo","coordinates":{"latitude":1.5,"longitude":-2.5}}}}}`,
+			"RetailersZone":        `{"data":{"zoneV2":{"id":"zone-zip"}}}`,
 			"ShopCollectionScoped": `{"data":{"shopCollection":{"shops":[{"id":"shop-pickup","serviceType":"pickup","retailerLocationId":"loc-p"},{"id":"shop-delivery","serviceType":"delivery","retailerLocationId":"loc-d"}]}}}`,
 			"ActiveCartId":         `{"data":{"shopBasket":{"cartId":"cart-1"}}}`,
 			"PersonalActiveCarts":  `{"data":{"userCarts":{"carts":[{"id":"cart-other","retailer":{"slug":"other"}},{"id":"cart-costco","retailer":{"slug":"costco"}}]}}}`,
@@ -162,11 +165,14 @@ func TestSessionContextCachesShopAndRemembersZip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if sc.PostalCode != "98027" || sc.PostalCodeSource != "saved" || sc.ShopID != "shop-delivery" || sc.ZoneID != "zone-geo" {
+	if sc.PostalCode != "98027" || sc.PostalCodeSource != "saved" || sc.ShopID != "shop-delivery" || sc.ZoneID != "zone-zip" {
 		t.Fatalf("resolved = %+v", sc)
 	}
 	if n := f.count("ShopCollectionScoped"); n != 1 {
 		t.Fatalf("ShopCollectionScoped called %d times, want 1 (cached)", n)
+	}
+	if n := f.count("RetailersZone"); n != 1 {
+		t.Fatalf("RetailersZone called %d times, want 1 (cached)", n)
 	}
 	// --refresh bypasses the cache.
 	if _, err := c2.ResolveSessionContext(ctx, SessionNeeds{Shop: true, Refresh: true}); err != nil {
@@ -186,12 +192,15 @@ func TestSessionContextCachesShopAndRemembersZip(t *testing.T) {
 
 func TestSessionContextZipFallbacks(t *testing.T) {
 	f, c := newFakeSameDay(t)
-	sc, err := c.ResolveSessionContext(context.Background(), SessionNeeds{Shop: true})
+	sc, err := c.ResolveSessionContext(context.Background(), SessionNeeds{Shop: true, Zone: true})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if sc.PostalCode != "99999" || sc.PostalCodeSource != "geolocation" {
+	if sc.PostalCode != "99999" || sc.PostalCodeSource != "geolocation" || sc.ZoneID != "zone-geo" {
 		t.Fatalf("geolocation fallback = %+v", sc)
+	}
+	if n := f.count("RetailersZone"); n != 0 {
+		t.Fatalf("RetailersZone called %d times for a matching geolocation ZIP", n)
 	}
 	coords, _ := f.varsOf("ShopCollectionScoped")["coordinates"].(map[string]any)
 	if coords["latitude"] != 1.5 {
@@ -307,7 +316,7 @@ func TestPersistedQueryHashesMergeSeedWithRegistry(t *testing.T) {
 	if h["CartTotals"] != "override" {
 		t.Fatalf("registry override lost: %q", h["CartTotals"])
 	}
-	for _, op := range []string{geolocationOperation, shopCollectionScopedOperation, activeCartIDOperation, "SearchResultsPlacements", "Items", finalizeCheckoutOperation} {
+	for _, op := range []string{geolocationOperation, retailersZoneOperation, shopCollectionScopedOperation, activeCartIDOperation, "SearchResultsPlacements", "Items", finalizeCheckoutOperation} {
 		if h[op] == "" {
 			t.Fatalf("seed op %s hidden by user registry", op)
 		}
@@ -382,5 +391,143 @@ func TestSessionCacheUpdatesMergeAcrossClients(t *testing.T) {
 	matches, _ := filepath.Glob(filepath.Join(filepath.Dir(c.sessionCachePath()), "*.tmp"))
 	if len(matches) != 0 {
 		t.Fatalf("temp files left behind: %v", matches)
+	}
+}
+
+func TestZoneFollowsSelectedZipNotAccountZone(t *testing.T) {
+	f, c := newFakeSameDay(t)
+	c.SetSessionPostalCode("98027")
+	f.replies["Items"] = `{"data":{"items":[]}}`
+	if _, err := c.Get(context.Background(), "/graphql", map[string]string{"operationName": "Items"}); err != nil {
+		t.Fatal(err)
+	}
+	got := f.varsOf("Items")
+	if got["postalCode"] != "98027" || got["zoneId"] != "zone-zip" || got["shopId"] != "shop-delivery" {
+		t.Fatalf("Items variables = %v", got)
+	}
+	if zip := f.varsOf("RetailersZone")["postalCode"]; zip != "98027" {
+		t.Fatalf("RetailersZone postalCode = %v", zip)
+	}
+	if n := f.count("RetailersZone"); n != 1 {
+		t.Fatalf("RetailersZone called %d times", n)
+	}
+	coords, _ := f.varsOf("ShopCollectionScoped")["coordinates"].(map[string]any)
+	if coords["latitude"] != float64(0) || coords["longitude"] != float64(0) {
+		t.Fatalf("coordinates for a different ZIP leaked: %v", coords)
+	}
+}
+
+func TestSessionContextRequestPostalOverridesSavedZip(t *testing.T) {
+	f, c := newFakeSameDay(t)
+	c.NoCache = false
+	ctx := context.Background()
+	c.SetSessionPostalCode("98027")
+	if _, err := c.ResolveSessionContext(ctx, SessionNeeds{Shop: true}); err != nil {
+		t.Fatal(err)
+	}
+	c.SetSessionPostalCode("")
+	c.NoCache = true
+
+	cases := []map[string]string{
+		{"operationName": "AvailableServices", "userLocation": `{"postalCode":"10001"}`},
+		{"operationName": "Items", "variables": `{"postalCode":"10001"}`},
+		{"operationName": "Items", "postalCode": "10001"},
+	}
+	f.replies["Items"] = `{"data":{"items":[]}}`
+	for _, params := range cases {
+		before := f.count("ShopCollectionScoped")
+		if _, err := c.Get(ctx, "/graphql", params); err != nil {
+			t.Fatalf("%v: %v", params, err)
+		}
+		if zip := f.varsOf("ShopCollectionScoped")["postalCode"]; zip != "10001" {
+			t.Fatalf("%v shop lookup postalCode = %v", params, zip)
+		}
+		if f.count("ShopCollectionScoped") != before+1 {
+			t.Fatalf("%v did not look up the request ZIP", params)
+		}
+	}
+
+	c2 := New(&config.Config{BaseURL: c.BaseURL}, 5*time.Second, 0)
+	sc, err := c2.ResolveSessionContext(ctx, SessionNeeds{Shop: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if sc.PostalCode != "98027" || sc.PostalCodeSource != "saved" {
+		t.Fatalf("request ZIP was remembered: %+v", sc)
+	}
+}
+
+func TestSessionContextInvalidRequestPostalDoesNotUseSavedZip(t *testing.T) {
+	f, c := newFakeSameDay(t)
+	c.SetSessionPostalCode("98027")
+	_, _ = c.Get(context.Background(), "/graphql", map[string]string{
+		"operationName": "AvailableServices",
+		"userLocation":  `{"postalCode":"abc"}`,
+	})
+	if n := f.count("ShopCollectionScoped"); n != 0 {
+		t.Fatalf("invalid request ZIP fell through to a shop lookup (%d)", n)
+	}
+}
+
+func TestExplicitShopCartDoesNotNeedLocation(t *testing.T) {
+	f, c := newFakeSameDay(t)
+	f.replies["Geolocation"] = `{"data":null,"errors":[{"message":"no location"}]}`
+	sc, err := c.ResolveSessionContext(context.Background(), SessionNeeds{Shop: true, Cart: true, ShopID: "shop-explicit"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if sc.ShopID != "shop-explicit" || sc.CartID != "cart-1" {
+		t.Fatalf("resolved = %+v", sc)
+	}
+	if n := f.count("Geolocation"); n != 0 {
+		t.Fatalf("Geolocation called %d times", n)
+	}
+	if n := f.count("ShopCollectionScoped"); n != 0 {
+		t.Fatalf("ShopCollectionScoped called %d times", n)
+	}
+	if got := f.varsOf("ActiveCartId")["shopId"]; got != "shop-explicit" {
+		t.Fatalf("ActiveCartId shopId = %v", got)
+	}
+
+	if _, err := c.Get(context.Background(), "/graphql", map[string]string{
+		"operationName": "CartTotals", "shopId": "shop-explicit",
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if got := f.varsOf("CartTotals"); got["shopId"] != "shop-explicit" || got["cartId"] != "cart-1" {
+		t.Fatalf("CartTotals variables = %v", got)
+	}
+	if n := f.count("Geolocation"); n != 0 {
+		t.Fatalf("Geolocation ran while filling cart for an explicit shop (%d)", n)
+	}
+}
+
+func TestSessionCacheParallelWritesKeepEveryKey(t *testing.T) {
+	_, c := newFakeSameDay(t)
+	const n = 16
+	var wg sync.WaitGroup
+	wg.Add(n)
+	for i := 0; i < n; i++ {
+		i := i
+		go func() {
+			defer wg.Done()
+			c.updateSessionCache(func(cc *sessionContextCache) {
+				if cc.Shops == nil {
+					cc.Shops = map[string]cachedShop{}
+				}
+				time.Sleep(5 * time.Millisecond)
+				cc.Shops[fmt.Sprintf("%05d", i)] = cachedShop{ShopID: fmt.Sprintf("shop-%d", i), ResolvedAt: time.Now()}
+			})
+		}()
+	}
+	wg.Wait()
+	got := c.loadSessionCache().Shops
+	if len(got) != n {
+		t.Fatalf("cached shops = %d, want %d (%v)", len(got), n, got)
+	}
+	if runtime.GOOS != "windows" {
+		if _, err := os.Stat(c.sessionCachePath() + ".lock"); err != nil {
+			t.Fatal(err)
+		}
 	}
 }
