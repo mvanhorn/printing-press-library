@@ -130,9 +130,9 @@ linq-pp-cli webhooks doctor --subscription-id sub_123 --agent
 
 **capability** — Check whether an address can use iMessage, RCS, or SMS
 
-- `linq-pp-cli capability check <address>...` — Resolve addresses to `imessage`, `rcs`, or `sms`; masks the full address in output and reports typing/effects/read receipt support.
-- `linq-pp-cli capability check-imessage` — Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md.
-- `linq-pp-cli capability check-rcscapability` — Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md.
+- `linq-pp-cli capability check <address>... [--from NUMBER]` — Resolve addresses to `imessage`, `rcs`, or `sms`; masks the full address in output and reports typing/effects/read receipt support.
+- `linq-pp-cli capability check-imessage --address ADDRESS [--from NUMBER]` — Check iMessage reachability using the documented flat request body; `--stdin` accepts JSON instead.
+- `linq-pp-cli capability check-rcscapability --address E164 [--from NUMBER]` — Check RCS reachability using the documented flat request body; `--stdin` accepts JSON instead.
 
 **chats** — Manage chats
 
