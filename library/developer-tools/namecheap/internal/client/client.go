@@ -625,10 +625,36 @@ type NamecheapAPIError struct {
 	Method string
 	Path   string
 	Status string
+	// Errors holds the <Errors><Error Number="..."> entries from the envelope.
+	Errors []NamecheapErrorDetail
 	Body   string
 }
 
+// NamecheapErrorDetail is one <Error Number="...">text</Error> entry.
+type NamecheapErrorDetail struct {
+	Number  string
+	Message string
+}
+
 func (e *NamecheapAPIError) Error() string {
+	// PATCH(namecheap-error-details-first): lead with the envelope's Error
+	// number/text. Error envelopes often carry an empty CommandResponse
+	// skeleton, and the sorted JSON body puts CommandResponse before Errors,
+	// so a truncated body alone hides the actual failure reason.
+	if len(e.Errors) > 0 {
+		parts := make([]string, 0, len(e.Errors))
+		for _, d := range e.Errors {
+			switch {
+			case d.Number != "" && d.Message != "":
+				parts = append(parts, fmt.Sprintf("error %s: %s", d.Number, d.Message))
+			case d.Message != "":
+				parts = append(parts, d.Message)
+			default:
+				parts = append(parts, "error "+d.Number)
+			}
+		}
+		return fmt.Sprintf("%s %s returned Namecheap API status %s: %s", e.Method, e.Path, e.Status, strings.Join(parts, "; "))
+	}
 	return fmt.Sprintf("%s %s returned Namecheap API status %s: %s", e.Method, e.Path, e.Status, e.Body)
 }
 
@@ -646,7 +672,39 @@ func detectNamecheapAPIError(method, path string, body []byte) error {
 		return nil
 	}
 	// PATCH(namecheap-api-error-status): Namecheap reports auth/API failures in the XML envelope, not HTTP status.
-	return &NamecheapAPIError{Method: method, Path: path, Status: status, Body: truncateBody(body)}
+	return &NamecheapAPIError{Method: method, Path: path, Status: status, Errors: namecheapErrorDetails(api), Body: truncateBody(body)}
+}
+
+// namecheapErrorDetails extracts ApiResponse.Errors.Error, which the XML
+// converter yields as a single object or an array when repeated.
+func namecheapErrorDetails(api map[string]any) []NamecheapErrorDetail {
+	errs, ok := api["Errors"].(map[string]any)
+	if !ok {
+		return nil
+	}
+	var entries []any
+	switch typed := errs["Error"].(type) {
+	case map[string]any:
+		entries = []any{typed}
+	case []any:
+		entries = typed
+	default:
+		return nil
+	}
+	out := make([]NamecheapErrorDetail, 0, len(entries))
+	for _, entry := range entries {
+		m, ok := entry.(map[string]any)
+		if !ok {
+			continue
+		}
+		number, _ := m["Number"].(string)
+		message, _ := m["text"].(string)
+		if number == "" && message == "" {
+			continue
+		}
+		out = append(out, NamecheapErrorDetail{Number: number, Message: message})
+	}
+	return out
 }
 
 func convertNamecheapXMLToJSON(body []byte) ([]byte, bool) {

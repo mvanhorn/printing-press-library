@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "namecheap-error-details-first",
+  "applied_at": "2026-10-10",
+  "base_run_id": "20260514-namecheap",
+  "base_printing_press_version": "4.6.0",
+  "summary": "Status=ERROR envelopes must report the <Errors><Error Number> number and text in the error message, not a truncated JSON dump of the body.",
+  "reason": "Namecheap error envelopes often include an empty CommandResponse skeleton (e.g. DomainGetInfoResult with blank fields), and the sorted JSON body puts CommandResponse before Errors, so a 200-char truncated body hides the failure reason and reads like a successful payload.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/namecheap_envelope_test.go"
+  ],
+  "validated_outcome": "Live: get-info without DomainName now reports 'error 2010166: Parameter DomainName is Missing'; Status=OK getInfo envelopes still return success."
+}
