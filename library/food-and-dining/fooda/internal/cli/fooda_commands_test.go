@@ -658,15 +658,29 @@ func TestMalformedPriceAbortsPlace(t *testing.T) {
 	t.Setenv("FOODA_HOME", tempHome)
 
 	var ordersPostCount int
+	var cartPriceCount int
+	var pricingJSON string
+
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/my" {
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(`<html><head><meta name="api-client-token" content="dummy-client-token"><meta name="api-session-token" content="dummy-session-token"></head></html>`))
+			return
+		}
 		if r.URL.Path == "/api/v1/orders" {
 			ordersPostCount++
 			w.WriteHeader(http.StatusOK)
 			return
 		}
 		if r.URL.Path == "/api/v1/cart/price" {
+			cartPriceCount++
 			w.WriteHeader(http.StatusOK)
-			_, _ = w.Write([]byte(`{"data":{"pricing": malformed-json}}`)) // malformed!
+			_, _ = w.Write([]byte(pricingJSON))
+			return
+		}
+		if r.URL.Path == "/api/v1/cart/items" {
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(`{"data":{"items":[{"name":"Taco","price":"10.00","quantity":1}]}}`))
 			return
 		}
 		if r.URL.Path == "/api/v2/select_events/by" {
@@ -682,24 +696,51 @@ func TestMalformedPriceAbortsPlace(t *testing.T) {
 	cfg.BaseURL = server.URL
 	_ = client.New(cfg, 0, 0)
 
-	cmd := RootCmd()
-	cmd.SetArgs([]string{"order", "place", "--event", "S608348", "--confirm", "--account", "over-acct", "--building", "over-bldg"})
 	cfgPath := filepath.Join(tempHome, "config", "fooda_config.json")
 	_ = os.MkdirAll(filepath.Join(tempHome, "config"), 0o700)
 	cfgJSON, _ := json.Marshal(map[string]any{"base_url": server.URL})
 	_ = os.WriteFile(cfgPath, cfgJSON, 0o600)
-	cmd.PersistentFlags().Set("config", cfgPath)
 
-	var stdout, stderr bytes.Buffer
-	cmd.SetOut(&stdout)
-	cmd.SetErr(&stderr)
-
-	err := cmd.Execute()
-	if err == nil {
-		t.Fatalf("expected order place to fail due to malformed pricing, but it succeeded")
+	tests := []struct {
+		name          string
+		pricingBody   string
+		expectedError string
+	}{
+		{"Malformed JSON", `{"data":{"pricing": malformed-json}}`, "malformed pricing JSON response"},
+		{"Null Total", `{"data":{"pricing":{"total_cents": null, "subtotal_cents": 1000}}}`, "pricing total_cents is missing, null, or negative"},
+		{"Missing Pricing", `{"data":{}}`, "pricing total_cents is missing, null, or negative"},
+		{"String Value", `{"data":{"pricing":{"total_cents": "not-a-number", "subtotal_cents": 1000}}}`, "malformed pricing JSON response"},
+		{"Negative Total", `{"data":{"pricing":{"total_cents": -500, "subtotal_cents": 1000}}}`, "pricing total_cents is missing, null, or negative"},
 	}
-	if ordersPostCount != 0 {
-		t.Errorf("expected 0 calls to /api/v1/orders, but got %d", ordersPostCount)
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ordersPostCount = 0
+			cartPriceCount = 0
+			pricingJSON = tt.pricingBody
+
+			cmd := RootCmd()
+			cmd.SetArgs([]string{"order", "place", "--event", "S608348", "--confirm", "--account", "over-acct", "--building", "over-bldg"})
+			cmd.PersistentFlags().Set("config", cfgPath)
+
+			var stdout, stderr bytes.Buffer
+			cmd.SetOut(&stdout)
+			cmd.SetErr(&stderr)
+
+			err := cmd.Execute()
+			if err == nil {
+				t.Fatalf("expected order place to fail, but succeeded")
+			}
+			if ordersPostCount != 0 {
+				t.Errorf("expected 0 calls to /api/v1/orders, but got %d", ordersPostCount)
+			}
+			if cartPriceCount != 1 {
+				t.Errorf("expected 1 call to /api/v1/cart/price, but got %d", cartPriceCount)
+			}
+			if !strings.Contains(err.Error(), tt.expectedError) {
+				t.Errorf("expected error containing %q, got: %v", tt.expectedError, err)
+			}
+		})
 	}
 }
 

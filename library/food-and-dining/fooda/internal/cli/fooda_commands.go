@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -1191,7 +1192,7 @@ func init() {
 						ID:         targetItem.ID,
 						Name:       targetItem.Name,
 						Vendor:     targetItem.VendorName,
-						PriceCents: int(totalItemPrice * 100),
+						PriceCents: int(math.Round(totalItemPrice * 100)),
 						Options:    selectedOptionLabels,
 					}
 
@@ -1434,15 +1435,15 @@ func init() {
 				var priceEnvelope struct {
 					Data struct {
 						Pricing struct {
-							TotalCents int `json:"total_cents"`
+							TotalCents *int `json:"total_cents"`
 						} `json:"pricing"`
 					} `json:"data"`
 				}
 				if err := json.Unmarshal(rawPrice, &priceEnvelope); err != nil {
 					return apiErr(fmt.Errorf("malformed pricing JSON response: %w", err))
 				}
-				if priceEnvelope.Data.Pricing.TotalCents == 0 && !strings.Contains(string(rawPrice), "total_cents") {
-					return apiErr(fmt.Errorf("pricing data missing or invalid in response"))
+				if priceEnvelope.Data.Pricing.TotalCents == nil || *priceEnvelope.Data.Pricing.TotalCents < 0 {
+					return apiErr(fmt.Errorf("pricing total_cents is missing, null, or negative in response"))
 				}
 
 				rawItems, statusCode, err := makeAPIRequest(ctx, c, "GET", "/api/v1/cart/items", nil, "")
@@ -1465,7 +1466,7 @@ func init() {
 					return usageErr(fmt.Errorf("your cart is empty; please add items using 'order add' before placing an order"))
 				}
 
-				totalCents := priceEnvelope.Data.Pricing.TotalCents
+				totalCents := *priceEnvelope.Data.Pricing.TotalCents
 				if totalCents > 0 && !orderPlaceAllowCharge {
 					return usageErr(fmt.Errorf("order requires an out-of-pocket payment of $%.2f; please specify --allow-charge to authorize this charge", float64(totalCents)/100.0))
 				}
@@ -1693,8 +1694,8 @@ func init() {
 
 					out := planOutput{
 						Anchor:         anchorItem,
-						SubtotalCents:  int(subtotal * 100),
-						RemainingCents: int(remaining * 100),
+						SubtotalCents:  int(math.Round(subtotal * 100)),
+						RemainingCents: int(math.Round(remaining * 100)),
 						Note:           "Subtotal does not include tax/fees.",
 					}
 					out.Commands = append(out.Commands, fmt.Sprintf("fooda-pp-cli order add %q --event %s", anchorItem.ID, orderPlanEvent))
@@ -3130,15 +3131,15 @@ func showCartAndPricing(ctx context.Context, c *client.Client, w io.Writer, flag
 	var priceEnvelope struct {
 		Data struct {
 			Pricing struct {
-				SubtotalCents        int    `json:"subtotal_cents"`
-				TaxCents             int    `json:"tax_cents"`
-				DeliveryFeeCents     int    `json:"delivery_fee_cents"`
-				SubsidyCents         int    `json:"subsidy_cents"`
+				SubtotalCents        *int   `json:"subtotal_cents"`
+				TaxCents             *int   `json:"tax_cents"`
+				DeliveryFeeCents     *int   `json:"delivery_fee_cents"`
+				SubsidyCents         *int   `json:"subsidy_cents"`
 				SubsidyCode          string `json:"subsidy_code"`
-				PromotionCents       int    `json:"promotion_cents"`
-				GratuityCents        int    `json:"gratuity_cents"`
-				TotalCents           int    `json:"total_cents"`
-				TotalCommissionCents int    `json:"total_commission_cents"`
+				PromotionCents       *int   `json:"promotion_cents"`
+				GratuityCents        *int   `json:"gratuity_cents"`
+				TotalCents           *int   `json:"total_cents"`
+				TotalCommissionCents *int   `json:"total_commission_cents"`
 			} `json:"pricing"`
 		} `json:"data"`
 	}
@@ -3146,10 +3147,15 @@ func showCartAndPricing(ctx context.Context, c *client.Client, w io.Writer, flag
 		return apiErr(fmt.Errorf("malformed pricing JSON response: %w", err))
 	}
 
+	p := priceEnvelope.Data.Pricing
+	if p.TotalCents == nil || *p.TotalCents < 0 || p.SubtotalCents == nil || *p.SubtotalCents < 0 {
+		return apiErr(fmt.Errorf("pricing total_cents or subtotal_cents is missing, null, or negative in response"))
+	}
+
 	if flags.asJSON {
 		out := map[string]any{
 			"items":   cartEnvelope.Data.Items,
-			"pricing": priceEnvelope.Data.Pricing,
+			"pricing": p,
 		}
 		return printJSONFiltered(w, out, flags)
 	}
@@ -3172,13 +3178,18 @@ func showCartAndPricing(ctx context.Context, c *client.Client, w io.Writer, flag
 		fmt.Fprintln(w, "  (Cart is empty)")
 	}
 
-	p := priceEnvelope.Data.Pricing
 	fmt.Fprintln(w, "\nPricing Summary:")
-	fmt.Fprintf(w, "  Subtotal:     $%.2f\n", float64(p.SubtotalCents)/100.0)
-	fmt.Fprintf(w, "  Tax:          $%.2f\n", float64(p.TaxCents)/100.0)
-	fmt.Fprintf(w, "  Delivery Fee: $%.2f\n", float64(p.DeliveryFeeCents)/100.0)
-	fmt.Fprintf(w, "  Subsidy:      -$%.2f (Code: %s)\n", float64(p.SubsidyCents)/100.0, p.SubsidyCode)
-	fmt.Fprintf(w, "  Total Paid:   $%.2f\n", float64(p.TotalCents)/100.0)
+	fmt.Fprintf(w, "  Subtotal:     $%.2f\n", float64(*p.SubtotalCents)/100.0)
+	if p.TaxCents != nil {
+		fmt.Fprintf(w, "  Tax:          $%.2f\n", float64(*p.TaxCents)/100.0)
+	}
+	if p.DeliveryFeeCents != nil {
+		fmt.Fprintf(w, "  Delivery Fee: $%.2f\n", float64(*p.DeliveryFeeCents)/100.0)
+	}
+	if p.SubsidyCents != nil {
+		fmt.Fprintf(w, "  Subsidy:      -$%.2f (Code: %s)\n", float64(*p.SubsidyCents)/100.0, p.SubsidyCode)
+	}
+	fmt.Fprintf(w, "  Total Paid:   $%.2f\n", float64(*p.TotalCents)/100.0)
 
 	return nil
 }
