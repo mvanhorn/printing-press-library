@@ -652,3 +652,160 @@ func TestOrderPlanJSON(t *testing.T) {
 		t.Errorf("expected anchor and addon fields in JSON, got: %s", out)
 	}
 }
+
+func TestMalformedPriceAbortsPlace(t *testing.T) {
+	tempHome := t.TempDir()
+	t.Setenv("FOODA_HOME", tempHome)
+
+	var ordersPostCount int
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/api/v1/orders" {
+			ordersPostCount++
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		if r.URL.Path == "/api/v1/cart/price" {
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(`{"data":{"pricing": malformed-json}}`)) // malformed!
+			return
+		}
+		if r.URL.Path == "/api/v2/select_events/by" {
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(`{"select_event":{"id":608348,"locations":[{"id":123}]}}`))
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	cfg, _ := config.Load("")
+	cfg.BaseURL = server.URL
+	_ = client.New(cfg, 0, 0)
+
+	cmd := RootCmd()
+	cmd.SetArgs([]string{"order", "place", "--event", "S608348", "--confirm", "--account", "over-acct", "--building", "over-bldg"})
+	cfgPath := filepath.Join(tempHome, "config", "fooda_config.json")
+	_ = os.MkdirAll(filepath.Join(tempHome, "config"), 0o700)
+	cfgJSON, _ := json.Marshal(map[string]any{"base_url": server.URL})
+	_ = os.WriteFile(cfgPath, cfgJSON, 0o600)
+	cmd.PersistentFlags().Set("config", cfgPath)
+
+	var stdout, stderr bytes.Buffer
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&stderr)
+
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatalf("expected order place to fail due to malformed pricing, but it succeeded")
+	}
+	if ordersPostCount != 0 {
+		t.Errorf("expected 0 calls to /api/v1/orders, but got %d", ordersPostCount)
+	}
+}
+
+func TestOrderAddVendorFilter(t *testing.T) {
+	tempHome := t.TempDir()
+	t.Setenv("FOODA_HOME", tempHome)
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`
+<html>
+<body>
+<div class="item" data-vendor_name="Taco Shop">
+  <a href="/items/1" class="item__link js-item-show-link">
+    <div class="item__name">Taco</div>
+  </a>
+</div>
+<div class="item" data-vendor_name="Burrito Shop">
+  <a href="/items/2" class="item__link js-item-show-link">
+    <div class="item__name">Burrito</div>
+  </a>
+</div>
+</body>
+</html>
+		`))
+	}))
+	defer server.Close()
+
+	cfg, _ := config.Load("")
+	cfg.BaseURL = server.URL
+	_ = client.New(cfg, 0, 0)
+
+	cmd := RootCmd()
+	cmd.SetArgs([]string{"order", "add", "Burrito", "--event", "S608348", "--vendor", "Taco Shop", "--account", "over-acct", "--building", "over-bldg"})
+	cfgPath := filepath.Join(tempHome, "config", "fooda_config.json")
+	_ = os.MkdirAll(filepath.Join(tempHome, "config"), 0o700)
+	cfgJSON, _ := json.Marshal(map[string]any{"base_url": server.URL})
+	_ = os.WriteFile(cfgPath, cfgJSON, 0o600)
+	cmd.PersistentFlags().Set("config", cfgPath)
+
+	var stdout, stderr bytes.Buffer
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&stderr)
+
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatalf("expected order add to fail since Burrito is not sold by Taco Shop")
+	}
+}
+
+func TestOrderAddOptionAmbiguity(t *testing.T) {
+	tempHome := t.TempDir()
+	t.Setenv("FOODA_HOME", tempHome)
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		if strings.Contains(r.URL.Path, "/items/") {
+			// Item details page with ambiguous options
+			_, _ = w.Write([]byte(`
+<html>
+<body>
+<form>
+  <label><input name="info[options][]" value="101">Extra Sauce (+$1.00)</label>
+  <label><input name="info[options][]" value="102">Extra Cheese (+$2.00)</label>
+</form>
+</body>
+</html>
+			`))
+			return
+		}
+		_, _ = w.Write([]byte(`
+<html>
+<body>
+<div class="item" data-vendor_name="Yum Yubu">
+  <a href="/items/1" class="item__link js-item-show-link">
+    <div class="item__name">Beef Bowl</div>
+  </a>
+</div>
+</body>
+</html>
+		`))
+	}))
+	defer server.Close()
+
+	cfg, _ := config.Load("")
+	cfg.BaseURL = server.URL
+	_ = client.New(cfg, 0, 0)
+
+	cmd := RootCmd()
+	// Option "Extra" is ambiguous as it matches both "Extra Sauce" and "Extra Cheese"
+	cmd.SetArgs([]string{"order", "add", "Beef Bowl", "--event", "S608348", "--option", "Extra", "--account", "over-acct", "--building", "over-bldg"})
+	cfgPath := filepath.Join(tempHome, "config", "fooda_config.json")
+	_ = os.MkdirAll(filepath.Join(tempHome, "config"), 0o700)
+	cfgJSON, _ := json.Marshal(map[string]any{"base_url": server.URL})
+	_ = os.WriteFile(cfgPath, cfgJSON, 0o600)
+	cmd.PersistentFlags().Set("config", cfgPath)
+
+	var stdout, stderr bytes.Buffer
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&stderr)
+
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatalf("expected order add to fail due to ambiguous option 'Extra'")
+	}
+	if !strings.Contains(err.Error(), "ambiguous option") {
+		t.Errorf("unexpected error message: %v", err)
+	}
+}

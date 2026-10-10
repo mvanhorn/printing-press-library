@@ -1037,6 +1037,19 @@ func init() {
 					return err
 				}
 
+				if orderAddVendor != "" {
+					var filtered []client.MenuItem
+					for _, it := range menuItems {
+						if strings.Contains(strings.ToLower(it.VendorName), strings.ToLower(orderAddVendor)) {
+							filtered = append(filtered, it)
+						}
+					}
+					if len(filtered) == 0 {
+						return notFoundErr(fmt.Errorf("no vendors matching %q found on the menu", orderAddVendor))
+					}
+					menuItems = filtered
+				}
+
 				itemQuery := args[0]
 				var matched []client.MenuItem
 				if isNumeric(itemQuery) {
@@ -1093,40 +1106,55 @@ func init() {
 				var optionsPriceDelta float64
 
 				for _, optArg := range orderAddOptions {
-					optFound := false
+					var matches []parsedItemOption
+					// 1. exact ID match
 					for _, o := range form.Options {
-						if o.ID == optArg || strings.Contains(strings.ToLower(o.Label), strings.ToLower(optArg)) {
-							selectedOptionIDs = append(selectedOptionIDs, o.ID)
-							selectedOptionLabels = append(selectedOptionLabels, o.Label)
-							optionsPriceDelta += o.PriceDelta
-							optFound = true
+						if o.ID == optArg {
+							matches = []parsedItemOption{o}
 							break
 						}
 					}
-					if !optFound {
+					// 2. exact label match (case-insensitive)
+					if len(matches) == 0 {
+						for _, o := range form.Options {
+							cleanLabel := strings.TrimSpace(o.Label)
+							if idx := strings.Index(cleanLabel, " ("); idx != -1 {
+								cleanLabel = strings.TrimSpace(cleanLabel[:idx])
+							}
+							if strings.EqualFold(cleanLabel, optArg) || strings.EqualFold(strings.TrimSpace(o.Label), optArg) {
+								matches = append(matches, o)
+							}
+						}
+					}
+					// 3. unique substring match
+					if len(matches) == 0 {
+						for _, o := range form.Options {
+							if strings.Contains(strings.ToLower(o.Label), strings.ToLower(optArg)) {
+								matches = append(matches, o)
+							}
+						}
+					}
+
+					if len(matches) == 0 {
 						return usageErr(fmt.Errorf("option %q not found on menu item; available options:\n%s", optArg, formatOptions(form.Options)))
 					}
+					if len(matches) > 1 {
+						var candidates []string
+						for _, m := range matches {
+							candidates = append(candidates, fmt.Sprintf("- ID: %s, Label: %s (+$%.2f)", m.ID, m.Label, m.PriceDelta))
+						}
+						return usageErr(fmt.Errorf("ambiguous option %q; matches multiple options:\n%s", optArg, strings.Join(candidates, "\n")))
+					}
+
+					selectedOpt := matches[0]
+					selectedOptionIDs = append(selectedOptionIDs, selectedOpt.ID)
+					selectedOptionLabels = append(selectedOptionLabels, selectedOpt.Label)
+					optionsPriceDelta += selectedOpt.PriceDelta
 				}
 
 				totalItemPrice := targetItem.Price + optionsPriceDelta
 
-				if !orderAddConfirm {
-					// Dry-run mode
-					fmt.Fprintf(cmd.OutOrStdout(), "Resolved Item:  %s\n", targetItem.Name)
-					fmt.Fprintf(cmd.OutOrStdout(), "Vendor:         %s\n", targetItem.VendorName)
-					fmt.Fprintf(cmd.OutOrStdout(), "Base Price:     $%.2f\n", targetItem.Price)
-					if len(selectedOptionLabels) > 0 {
-						fmt.Fprintln(cmd.OutOrStdout(), "Selected Options:")
-						for _, label := range selectedOptionLabels {
-							fmt.Fprintf(cmd.OutOrStdout(), "  - %s\n", label)
-						}
-					}
-					fmt.Fprintf(cmd.OutOrStdout(), "Total Price:    $%.2f (qty: %d)\n", totalItemPrice*float64(orderAddQty), orderAddQty)
-					fmt.Fprintln(cmd.OutOrStdout(), "\nThis is a DRY-RUN. Run with --confirm to add this item to your cart.")
-					return nil
-				}
-
-				// Build url-encoded body
+				// Build url-encoded body preview
 				formVals := url.Values{}
 				formVals.Set("authenticity_token", form.CSRFToken)
 				formVals.Set("info[parent_id]", form.ParentID)
@@ -1148,6 +1176,86 @@ func init() {
 						sID := strings.Split(parts[1], "/")[0]
 						postURL = fmt.Sprintf("/accounts/%s/select_events/%s/items", acct, sID)
 					}
+				}
+
+				if flags.asJSON {
+					type jsonItem struct {
+						ID         string   `json:"id"`
+						Name       string   `json:"name"`
+						Vendor     string   `json:"vendor"`
+						PriceCents int      `json:"price_cents"`
+						Options    []string `json:"options"`
+					}
+
+					ji := jsonItem{
+						ID:         targetItem.ID,
+						Name:       targetItem.Name,
+						Vendor:     targetItem.VendorName,
+						PriceCents: int(totalItemPrice * 100),
+						Options:    selectedOptionLabels,
+					}
+
+					if !orderAddConfirm {
+						type dryRunAddResult struct {
+							DryRun  bool     `json:"dry_run"`
+							Action  string   `json:"action"`
+							Item    jsonItem `json:"item"`
+							Request string   `json:"request"`
+						}
+						out := dryRunAddResult{
+							DryRun:  true,
+							Action:  "order add",
+							Item:    ji,
+							Request: fmt.Sprintf("POST %s with %s", postURL, formVals.Encode()),
+						}
+						return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+					}
+
+					_, statusCode, err := makeAPIRequest(ctx, c, "POST", postURL, []byte(formVals.Encode()), "application/x-www-form-urlencoded")
+					if err != nil {
+						return err
+					}
+					if statusCode >= 400 {
+						return fmt.Errorf("failed to add item to cart (HTTP %d)", statusCode)
+					}
+
+					items, pricing, err := getCartAndPricing(ctx, c)
+					if err != nil {
+						return err
+					}
+
+					type confirmedAddResult struct {
+						Added bool     `json:"added"`
+						Item  jsonItem `json:"item"`
+						Cart  struct {
+							Items   []map[string]any `json:"items"`
+							Pricing any              `json:"pricing"`
+						} `json:"cart"`
+					}
+					out := confirmedAddResult{
+						Added: true,
+						Item:  ji,
+					}
+					out.Cart.Items = items
+					out.Cart.Pricing = pricing
+
+					return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+				}
+
+				if !orderAddConfirm {
+					// Dry-run mode plain text
+					fmt.Fprintf(cmd.OutOrStdout(), "Resolved Item:  %s\n", targetItem.Name)
+					fmt.Fprintf(cmd.OutOrStdout(), "Vendor:         %s\n", targetItem.VendorName)
+					fmt.Fprintf(cmd.OutOrStdout(), "Base Price:     $%.2f\n", targetItem.Price)
+					if len(selectedOptionLabels) > 0 {
+						fmt.Fprintln(cmd.OutOrStdout(), "Selected Options:")
+						for _, label := range selectedOptionLabels {
+							fmt.Fprintf(cmd.OutOrStdout(), "  - %s\n", label)
+						}
+					}
+					fmt.Fprintf(cmd.OutOrStdout(), "Total Price:    $%.2f (qty: %d)\n", totalItemPrice*float64(orderAddQty), orderAddQty)
+					fmt.Fprintln(cmd.OutOrStdout(), "\nThis is a DRY-RUN. Run with --confirm to add this item to your cart.")
+					return nil
 				}
 
 				_, statusCode, err := makeAPIRequest(ctx, c, "POST", postURL, []byte(formVals.Encode()), "application/x-www-form-urlencoded")
@@ -1318,7 +1426,10 @@ func init() {
 
 				rawPrice, statusCode, err := makeAPIRequest(ctx, c, "GET", "/api/v1/cart/price", nil, "")
 				if err != nil {
-					return err
+					return apiErr(err)
+				}
+				if statusCode >= 400 {
+					return apiErr(fmt.Errorf("failed to fetch cart pricing: HTTP status %d", statusCode))
 				}
 				var priceEnvelope struct {
 					Data struct {
@@ -1327,15 +1438,28 @@ func init() {
 						} `json:"pricing"`
 					} `json:"data"`
 				}
-				_ = json.Unmarshal(rawPrice, &priceEnvelope)
+				if err := json.Unmarshal(rawPrice, &priceEnvelope); err != nil {
+					return apiErr(fmt.Errorf("malformed pricing JSON response: %w", err))
+				}
+				if priceEnvelope.Data.Pricing.TotalCents == 0 && !strings.Contains(string(rawPrice), "total_cents") {
+					return apiErr(fmt.Errorf("pricing data missing or invalid in response"))
+				}
 
-				rawItems, _, _ := makeAPIRequest(ctx, c, "GET", "/api/v1/cart/items", nil, "")
+				rawItems, statusCode, err := makeAPIRequest(ctx, c, "GET", "/api/v1/cart/items", nil, "")
+				if err != nil {
+					return apiErr(err)
+				}
+				if statusCode >= 400 {
+					return apiErr(fmt.Errorf("failed to fetch cart items: HTTP status %d", statusCode))
+				}
 				var cartEnvelope struct {
 					Data struct {
 						Items []map[string]any `json:"items"`
 					} `json:"data"`
 				}
-				_ = json.Unmarshal(rawItems, &cartEnvelope)
+				if err := json.Unmarshal(rawItems, &cartEnvelope); err != nil {
+					return apiErr(fmt.Errorf("malformed cart items JSON response: %w", err))
+				}
 
 				if len(cartEnvelope.Data.Items) == 0 {
 					return usageErr(fmt.Errorf("your cart is empty; please add items using 'order add' before placing an order"))
@@ -1366,6 +1490,74 @@ func init() {
 				})
 
 				rawPayload, _ := json.Marshal(payload)
+
+				if flags.asJSON {
+					if !orderPlaceConfirm {
+						type placePreviewResult struct {
+							DryRun  bool `json:"dry_run"`
+							Cart    any  `json:"cart"`
+							Pricing any  `json:"pricing"`
+							Event   struct {
+								DeliveryTime string `json:"delivery_time"`
+								WindowEnd    string `json:"window_end"`
+							} `json:"event"`
+							Request string `json:"request"`
+						}
+
+						out := placePreviewResult{
+							DryRun: true,
+						}
+						var cartData struct {
+							Data struct {
+								Items []map[string]any `json:"items"`
+							} `json:"data"`
+						}
+						_ = json.Unmarshal(rawItems, &cartData)
+						var pricingData struct {
+							Data struct {
+								Pricing any `json:"pricing"`
+							} `json:"data"`
+						}
+						_ = json.Unmarshal(rawPrice, &pricingData)
+
+						out.Cart = cartData.Data.Items
+						out.Pricing = pricingData.Data.Pricing
+						out.Event.DeliveryTime = ev.DeliveryTime
+						out.Event.WindowEnd = ev.OrderingWindowEndTime
+						out.Request = fmt.Sprintf("POST /api/v1/orders with %s", string(rawPayload))
+
+						return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+					}
+
+					rawResponse, statusCode, err := makeAPIRequest(ctx, c, "POST", "/api/v1/orders", rawPayload, "application/json")
+					if err != nil {
+						return err
+					}
+					if statusCode >= 400 {
+						return fmt.Errorf("failed to place order: POST /api/v1/orders returned HTTP %d", statusCode)
+					}
+
+					type confirmedPlaceResult struct {
+						Placed      bool            `json:"placed"`
+						Response    json.RawMessage `json:"response"`
+						LatestOrder any             `json:"latest_order,omitempty"`
+					}
+
+					out := confirmedPlaceResult{
+						Placed:   true,
+						Response: json.RawMessage(rawResponse),
+					}
+
+					rawOrders, err := c.GetHTML(ctx, "/settings/orders")
+					if err == nil {
+						props, err := client.ParsePastOrders(string(rawOrders))
+						if err == nil && len(props.Presenter) > 0 {
+							out.LatestOrder = props.Presenter[0].Order
+						}
+					}
+
+					return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+				}
 
 				if !orderPlaceConfirm {
 					fmt.Fprintln(cmd.OutOrStdout(), "=== Order Placement Preview ===")
@@ -2912,18 +3104,10 @@ func formatOptions(opts []parsedItemOption) string {
 func showCartAndPricing(ctx context.Context, c *client.Client, w io.Writer, flags *rootFlags) error {
 	rawItems, statusCode, err := makeAPIRequest(ctx, c, "GET", "/api/v1/cart/items", nil, "")
 	if err != nil {
-		return err
+		return apiErr(err)
 	}
 	if statusCode >= 400 {
-		return fmt.Errorf("failed to fetch cart items (HTTP %d)", statusCode)
-	}
-
-	rawPrice, statusCode, err := makeAPIRequest(ctx, c, "GET", "/api/v1/cart/price", nil, "")
-	if err != nil {
-		return err
-	}
-	if statusCode >= 400 {
-		return fmt.Errorf("failed to fetch cart pricing (HTTP %d)", statusCode)
+		return apiErr(fmt.Errorf("failed to fetch cart items: HTTP status %d", statusCode))
 	}
 
 	var cartEnvelope struct {
@@ -2931,7 +3115,17 @@ func showCartAndPricing(ctx context.Context, c *client.Client, w io.Writer, flag
 			Items []map[string]any `json:"items"`
 		} `json:"data"`
 	}
-	_ = json.Unmarshal(rawItems, &cartEnvelope)
+	if err := json.Unmarshal(rawItems, &cartEnvelope); err != nil {
+		return apiErr(fmt.Errorf("malformed cart items JSON response: %w", err))
+	}
+
+	rawPrice, statusCode, err := makeAPIRequest(ctx, c, "GET", "/api/v1/cart/price", nil, "")
+	if err != nil {
+		return apiErr(err)
+	}
+	if statusCode >= 400 {
+		return apiErr(fmt.Errorf("failed to fetch cart pricing: HTTP status %d", statusCode))
+	}
 
 	var priceEnvelope struct {
 		Data struct {
@@ -2948,7 +3142,9 @@ func showCartAndPricing(ctx context.Context, c *client.Client, w io.Writer, flag
 			} `json:"pricing"`
 		} `json:"data"`
 	}
-	_ = json.Unmarshal(rawPrice, &priceEnvelope)
+	if err := json.Unmarshal(rawPrice, &priceEnvelope); err != nil {
+		return apiErr(fmt.Errorf("malformed pricing JSON response: %w", err))
+	}
 
 	if flags.asJSON {
 		out := map[string]any{
@@ -3026,4 +3222,42 @@ func planOrder(budget float64, anchorName string, items []client.MenuItem) (clie
 	}
 
 	return bestAddOn, hasAddOn
+}
+
+func getCartAndPricing(ctx context.Context, c *client.Client) ([]map[string]any, any, error) {
+	rawItems, statusCode, err := makeAPIRequest(ctx, c, "GET", "/api/v1/cart/items", nil, "")
+	if err != nil {
+		return nil, nil, apiErr(err)
+	}
+	if statusCode >= 400 {
+		return nil, nil, apiErr(fmt.Errorf("failed to fetch cart items: HTTP status %d", statusCode))
+	}
+
+	rawPrice, statusCode, err := makeAPIRequest(ctx, c, "GET", "/api/v1/cart/price", nil, "")
+	if err != nil {
+		return nil, nil, apiErr(err)
+	}
+	if statusCode >= 400 {
+		return nil, nil, apiErr(fmt.Errorf("failed to fetch cart pricing: HTTP status %d", statusCode))
+	}
+
+	var cartEnvelope struct {
+		Data struct {
+			Items []map[string]any `json:"items"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(rawItems, &cartEnvelope); err != nil {
+		return nil, nil, apiErr(fmt.Errorf("malformed cart items JSON response: %w", err))
+	}
+
+	var priceEnvelope struct {
+		Data struct {
+			Pricing map[string]any `json:"pricing"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(rawPrice, &priceEnvelope); err != nil {
+		return nil, nil, apiErr(fmt.Errorf("malformed pricing JSON response: %w", err))
+	}
+
+	return cartEnvelope.Data.Items, priceEnvelope.Data.Pricing, nil
 }
