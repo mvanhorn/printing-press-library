@@ -1,7 +1,7 @@
 ---
 name: pp-texas-roadhouse
 description: "Printing Press CLI for Texas Roadhouse. Waitlist: find a nearby store, read the quote, join and leave the list. Trigger phrases: `join the waitlist`, `Texas Roadhouse wait`, `roadhouse nearby`."
-author: "Thomas McCormick"
+author: "DashLabsDev"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"

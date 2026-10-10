@@ -1,4 +1,4 @@
-// Copyright 2026 and contributors. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 DashLabsDev and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-authored waitlist mutation gate. Live join/check-in/cancel must not
 // POST unless --yes is set. --dry-run previews the request and does not POST.
 // Default (neither flag) refuses. Matches the printed-CLI --yes/--dry-run

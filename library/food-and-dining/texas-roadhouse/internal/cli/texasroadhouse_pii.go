@@ -1,4 +1,4 @@
-// Copyright 2026 Thomas McCormick and contributors. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 DashLabsDev and contributors. Licensed under Apache-2.0. See LICENSE.
 // PATCH(waitlist-pii-off-argv): guest name/email/phone stay off argv by default.
 
 package cli

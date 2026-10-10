@@ -10,6 +10,8 @@ Waitlist CLI for Texas Roadhouse. Find a nearby store, read the quote, join and 
 
 Learn more at [Texas Roadhouse](https://www.texasroadhouse.com).
 
+Created by [@DashLabsDev](https://github.com/DashLabsDev) (Thomas McCormick).
+
 ## Install
 
 The recommended path installs both the `texas-roadhouse-pp-cli` binary and the `pp-texas-roadhouse` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
