@@ -4,7 +4,7 @@ Costco Same-Day (sameday.costco.com) GraphQL CLI. Cookie auth after Costco Azure
 
 Learn more at [Costco Sameday](https://sameday.costco.com).
 
-Created by [@DashLabsDev](https://github.com/DashLabsDev) (Dash Labs).
+Created by [@DashLabsDev](https://github.com/DashLabsDev) (Thomas McCormick).
 
 ## Install
 

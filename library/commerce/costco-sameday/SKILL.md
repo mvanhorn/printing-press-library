@@ -1,7 +1,7 @@
 ---
 name: pp-costco-sameday
 description: "Printing Press CLI for Costco Sameday. Costco Same-Day (sameday.costco.com) GraphQL CLI. Cookie auth after Costco Azure B2C SSO."
-author: "Dash Labs"
+author: "DashLabsDev"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"

@@ -1,4 +1,4 @@
-// Copyright 2026 dashlabsdev and contributors. Licensed under Apache-2.0.
+// Copyright 2026 DashLabsDev and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-authored: MCP raw endpoint tools cannot reach FinalizeCheckout.
 
 package mcp

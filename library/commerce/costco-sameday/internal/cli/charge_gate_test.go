@@ -1,4 +1,4 @@
-// Copyright 2026 dashlabsdev and contributors. Licensed under Apache-2.0.
+// Copyright 2026 DashLabsDev and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-authored charge-gate and outcome tests (mock transport, no network).
 
 package cli

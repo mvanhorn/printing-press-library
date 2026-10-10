@@ -1,4 +1,4 @@
-// Copyright 2026 dashlabsdev and contributors. Licensed under Apache-2.0.
+// Copyright 2026 DashLabsDev and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-authored narrative order commands (preserved across force regen via registerNovelCommand).
 // Place-order mutation FinalizeCheckout is intentionally NOT exposed as a raw generated endpoint.
 // Order cancel is REST PUT /api/v2/orders/{orderId}/cancel (not GraphQL).
