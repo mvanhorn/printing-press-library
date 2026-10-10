@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "namecheap",
   "cli_name": "namecheap-pp-cli",
-  "version": "2026.10.2",
-  "released_at": "2026-10-09T20:30:33Z",
-  "source_commit": "f13addeb35c48ae23cf3a93304900c026f1ad04a",
+  "version": "2026.10.3",
+  "released_at": "2026-10-10T19:35:36Z",
+  "source_commit": "0f6bfc3acc69b981f6a386ddbf2127ffeb28f620",
   "printing_press_version": "4.6.0",
   "run_id": "20260514-namecheap",
   "changes": [
     {
-      "title": "fix(namecheap): credit creator as cathrynlavery",
-      "pr": 2290,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2290",
-      "commit": "f13addeb35c48ae23cf3a93304900c026f1ad04a"
+      "title": "fix(namecheap): show Namecheap error number and text on Status=\"ERROR\"",
+      "pr": 2299,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2299",
+      "commit": "0f6bfc3acc69b981f6a386ddbf2127ffeb28f620"
     }
   ]
 }
