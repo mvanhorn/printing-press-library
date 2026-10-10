@@ -8,20 +8,27 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
 
 func newCapabilityCheckRcscapabilityCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
+	var address string
+	var from string
 
 	cmd := &cobra.Command{
 		Use:         "check-rcscapability",
 		Short:       "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md.",
-		Example:     "  linq-pp-cli capability check-rcscapability",
+		Example:     "  linq-pp-cli capability check-rcscapability --address +15551234567",
 		Annotations: map[string]string{"pp:endpoint": "capability.check-rcscapability", "pp:method": "POST", "pp:path": "/v3/capability/check_rcs", "mcp:hidden": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !stdinBody {
+			if stdinBody && (strings.TrimSpace(address) != "" || strings.TrimSpace(from) != "") {
+				return usageErr(fmt.Errorf("--stdin cannot be combined with --address or --from"))
+			}
+			if !stdinBody && strings.TrimSpace(address) == "" {
+				return usageErr(fmt.Errorf("--address is required unless --stdin is used"))
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -42,7 +49,10 @@ func newCapabilityCheckRcscapabilityCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				body = map[string]any{"address": strings.TrimSpace(address)}
+				if normalizedFrom := strings.TrimSpace(from); normalizedFrom != "" {
+					body["from"] = normalizedFrom
+				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 			if err != nil {
@@ -180,6 +190,8 @@ func newCapabilityCheckRcscapabilityCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
+	cmd.Flags().StringVar(&address, "address", "", "Recipient phone number in E.164 format")
+	cmd.Flags().StringVar(&from, "from", "", "Optional provisioned sender phone number to run the check from")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd
