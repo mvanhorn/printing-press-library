@@ -33,6 +33,8 @@ fooda-pp-cli order place --dry-run --agent
 
 When a command requires confirmation, pass `--yes` explicitly only after the target, arguments, and side effects are clear. `--agent` does not imply `--yes`.
 
+**CRITICAL**: Automated agents must never execute mutating ordering commands (like `order add` or `order place`) with the `--confirm` flag unless explicitly requested by the user.
+
 ## Novel Command Data Sources
 
 Every hand-written novel command must declare its strategy in a Go line comment:

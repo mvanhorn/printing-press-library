@@ -108,6 +108,10 @@ func (c *Client) ensureHandshakeTokens(ctx context.Context) (string, string, err
 	return hc.clientToken, hc.sessionToken, nil
 }
 
+func (c *Client) EnsureHandshakeTokens(ctx context.Context) (string, string, error) {
+	return c.ensureHandshakeTokens(ctx)
+}
+
 func (c *Client) DiscoverAccountAndBuilding(ctx context.Context) (string, string, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.BaseURL+"/my", nil)
 	if err != nil {

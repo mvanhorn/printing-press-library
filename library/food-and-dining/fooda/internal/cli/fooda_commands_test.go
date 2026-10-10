@@ -8,6 +8,8 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -455,5 +457,198 @@ func TestIsNetworkError(t *testing.T) {
 				t.Errorf("isNetworkError(%v) = %v, want %v", tt.err, got, tt.want)
 			}
 		})
+	}
+}
+
+func TestParsePriceDelta(t *testing.T) {
+	tests := []struct {
+		input string
+		want  float64
+	}{
+		{"Extra Sauce (+$1.00)", 1.0},
+		{"Dressing on the side", 0.0},
+		{"Large (+$5.99)", 5.99},
+		{"Discount (-$2.50)", -2.50},
+		{"Add-on (+1.50)", 1.50},
+		{"No brackets", 0.0},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			if got := parsePriceDelta(tt.input); got != tt.want {
+				t.Errorf("parsePriceDelta(%q) = %f, want %f", tt.input, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestPlanOrder(t *testing.T) {
+	items := []client.MenuItem{
+		{ID: "1", Name: "Beef Bulgogi Bowl", Price: 15.99},
+		{ID: "2", Name: "Pork Mandoo (Korean Dumplings)", Price: 3.99},
+		{ID: "3", Name: "Kimchi", Price: 1.99},
+		{ID: "4", Name: "Soda", Price: 2.50},
+	}
+
+	tests := []struct {
+		budget    float64
+		anchor    string
+		wantAddOn string
+		wantFound bool
+	}{
+		{20.0, "Beef Bulgogi Bowl", "Pork Mandoo (Korean Dumplings)", true},
+		{18.0, "Beef Bulgogi Bowl", "Kimchi", true},
+		{15.0, "Beef Bulgogi Bowl", "", false},                              // no budget left
+		{25.0, "Beef Bulgogi Bowl", "Pork Mandoo (Korean Dumplings)", true}, // Dumpling is best <= 9.01 leftover
+		{20.0, "Missing Item", "", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(fmt.Sprintf("budget-%f-anchor-%s", tt.budget, tt.anchor), func(t *testing.T) {
+			got, found := planOrder(tt.budget, tt.anchor, items)
+			if found != tt.wantFound {
+				t.Errorf("planOrder() found = %t, want %t", found, tt.wantFound)
+			}
+			if found && got.Name != tt.wantAddOn {
+				t.Errorf("planOrder() got add-on = %q, want %q", got.Name, tt.wantAddOn)
+			}
+		})
+	}
+}
+
+func TestParseItemPageHTML(t *testing.T) {
+	// Parse Beef Bulgogi Bowl item.html
+	{
+		data, err := os.ReadFile(filepath.Join("..", "client", "testdata", "item.html"))
+		if err != nil {
+			t.Fatalf("failed to read item.html: %v", err)
+		}
+		form, err := parseItemPageHTML(string(data))
+		if err != nil {
+			t.Fatalf("failed to parse item.html: %v", err)
+		}
+		if form.ParentID != "608348" {
+			t.Errorf("expected ParentID 608348, got %s", form.ParentID)
+		}
+		if form.ItemID != "589968" {
+			t.Errorf("expected ItemID 589968, got %s", form.ItemID)
+		}
+		if form.ParentType != "SelectEvent" || form.ItemType != "InventoryItem" {
+			t.Errorf("unexpected types: %s, %s", form.ParentType, form.ItemType)
+		}
+		if form.CSRFToken != "dummy-csrf-token" {
+			t.Errorf("expected dummy-csrf-token, got %s", form.CSRFToken)
+		}
+		if len(form.Options) < 2 {
+			t.Errorf("expected at least 2 options, got %d", len(form.Options))
+		}
+	}
+
+	// Parse Pork Mandoo item_options.html
+	{
+		data, err := os.ReadFile(filepath.Join("..", "client", "testdata", "item_options.html"))
+		if err != nil {
+			t.Fatalf("failed to read item_options.html: %v", err)
+		}
+		form, err := parseItemPageHTML(string(data))
+		if err != nil {
+			t.Fatalf("failed to parse item_options.html: %v", err)
+		}
+		if form.ParentID != "608348" {
+			t.Errorf("expected ParentID 608348, got %s", form.ParentID)
+		}
+		if form.ItemID != "732845" {
+			t.Errorf("expected ItemID 732845, got %s", form.ItemID)
+		}
+	}
+}
+
+func TestOrderCommandsDryRun(t *testing.T) {
+	tempHome := t.TempDir()
+	t.Setenv("FOODA_HOME", tempHome)
+
+	var requestCount int
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestCount++
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	// Initialize commands with a dry-run flag
+	cmd := RootCmd()
+	cmd.SetArgs([]string{"order", "add", "Beef Bulgogi Bowl", "--event", "S609348", "--dry-run"})
+	var stdout, stderr bytes.Buffer
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&stderr)
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("order add dry-run failed: %v, stderr: %s", err, stderr.String())
+	}
+	if requestCount != 0 {
+		t.Errorf("expected dry-run to send 0 network requests, but got %d", requestCount)
+	}
+}
+
+func TestOrderPlanJSON(t *testing.T) {
+	tempHome := t.TempDir()
+	t.Setenv("FOODA_HOME", tempHome)
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		// Mock list of menu items from the select event items list page HTML
+		_, _ = w.Write([]byte(`
+<html>
+<body>
+<div class="item" data-vendor_name="Yum Yubu" data-category="SSams">
+  <a href="/accounts/8358/select_events/S609348/items/1" class="item__link js-item-show-link">
+    <div class="item__name">Beef Bulgogi Bowl</div>
+    <div class="item__price">$15.99</div>
+  </a>
+</div>
+<div class="item" data-vendor_name="Yum Yubu" data-category="SSams">
+  <a href="/accounts/8358/select_events/S609348/items/2" class="item__link js-item-show-link">
+    <div class="item__name">Pork Mandoo</div>
+    <div class="item__price">$3.99</div>
+  </a>
+</div>
+</body>
+</html>
+		`))
+	}))
+	defer server.Close()
+
+	cfg, _ := config.Load("")
+	cfg.BaseURL = server.URL
+	_ = client.New(cfg, 0, 0)
+
+	cmd := RootCmd()
+	cmd.SetArgs([]string{"order", "plan", "--event", "S609348", "--budget", "20.0", "--anchor", "Beef Bulgogi Bowl", "--account", "over-acct", "--building", "over-bldg", "--json"})
+	// set config BaseURL on flags so command uses test server
+	// wait, flags are read from command run, so we can set config to server URL or override via FOODA_HOME and writing config.json
+	t.Setenv("FOODA_HOME", tempHome)
+	// We can write fooda_config.json or pass --config or just override base url on config
+	cfgPath := filepath.Join(tempHome, "config", "fooda_config.json")
+	_ = os.MkdirAll(filepath.Join(tempHome, "config"), 0o700)
+	cfgJSON, _ := json.Marshal(map[string]any{"base_url": server.URL})
+	_ = os.WriteFile(cfgPath, cfgJSON, 0o600)
+
+	cmd.PersistentFlags().Set("config", cfgPath)
+
+	var stdout, stderr bytes.Buffer
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&stderr)
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("order plan --json failed: %v, stderr: %s", err, stderr.String())
+	}
+
+	out := stdout.String()
+	var parsed map[string]any
+	if err := json.Unmarshal([]byte(out), &parsed); err != nil {
+		t.Fatalf("order plan output is not valid JSON: %q, error: %v", out, err)
+	}
+
+	if parsed["anchor"] == nil || parsed["addon"] == nil {
+		t.Errorf("expected anchor and addon fields in JSON, got: %s", out)
 	}
 }

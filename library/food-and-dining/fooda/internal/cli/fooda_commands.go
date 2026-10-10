@@ -3,9 +3,12 @@ package cli
 // pp:data-source auto
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"net/url"
 	"regexp"
 	"sort"
@@ -13,7 +16,10 @@ import (
 	"strings"
 	"time"
 
+	nethtml "golang.org/x/net/html"
+
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/fooda/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/fooda/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/fooda/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -956,42 +962,585 @@ func init() {
 		}
 		replaceCommand(recommendCmd)
 
-		// 6. order (stub)
-		orderStubCmd := &cobra.Command{
+		// 6. order
+		orderCmd := &cobra.Command{
 			Use:   "order",
-			Short: "Place or cancel food orders (STUB - mutation shape not captured)",
+			Short: "View cart, plan budget, and place or cancel food orders",
 		}
-		placeCmd := &cobra.Command{
-			Use:   "place",
-			Short: "Place a food order (stub)",
+
+		// order add
+		var orderAddQty int
+		var orderAddOptions []string
+		var orderAddNote string
+		var orderAddVendor string
+		var orderAddConfirm bool
+		var orderAddEvent string
+
+		orderAddCmd := &cobra.Command{
+			Use:   "add <item-id-or-name>",
+			Short: "Add a menu item to your cart (dry-run by default)",
 			Example: strings.Trim(`
-  # Place a food order (stub / dry-run only)
-  fooda-pp-cli order place
+  # Dry-run: resolve and inspect adding item
+  fooda-pp-cli order add "Beef Bulgogi Bowl" --event S609348
+  # Confirm adding item to cart
+  fooda-pp-cli order add "Beef Bulgogi Bowl" --event S609348 --confirm
 `, "\n"),
+			Args:        cobra.ExactArgs(1),
+			Annotations: map[string]string{"pp:data-source": "live"},
 			RunE: func(cmd *cobra.Command, args []string) error {
+				if flags.dataSource == "local" {
+					return fmt.Errorf("order add is live-only; --data-source local is not supported")
+				}
+				if dryRunOK(flags) {
+					return writeDryRun(cmd.OutOrStdout(), flags, "order add")
+				}
+				if orderAddConfirm && cliutil.IsAnyHarness() {
+					return writeHarnessRefusal(cmd.OutOrStdout(), flags, "order add")
+				}
+
+				ctx, cancel := boundCtx(cmd.Context(), flags)
+				defer cancel()
+
+				c, err := flags.newClient()
+				if err != nil {
+					return err
+				}
+
+				acct, _, err := getAccountAndBuilding(ctx, c, flags)
+				if err != nil {
+					return err
+				}
+
+				eventID := orderAddEvent
+				if eventID == "" {
+					eventID, err = getUpcomingEvent(ctx, c, flags)
+					if err != nil {
+						return err
+					}
+				}
+
+				// Resolve URL path for event
+				var eventPath string
+				if strings.HasPrefix(eventID, "S") || strings.HasPrefix(eventID, "s") {
+					eventPath = fmt.Sprintf("/accounts/%s/select_events/%s/items", acct, eventID)
+				} else {
+					eventPath = urlToPath(eventID)
+				}
+
+				// Fetch menu to find the item
+				rawMenu, err := c.GetHTML(ctx, eventPath)
+				if err != nil {
+					return err
+				}
+				menuItems, err := client.ParseMenuItems(string(rawMenu))
+				if err != nil {
+					return err
+				}
+
+				itemQuery := args[0]
+				var matched []client.MenuItem
+				if isNumeric(itemQuery) {
+					for _, it := range menuItems {
+						if it.ID == itemQuery {
+							matched = append(matched, it)
+							break
+						}
+					}
+				} else {
+					for _, it := range menuItems {
+						if strings.Contains(strings.ToLower(it.Name), strings.ToLower(itemQuery)) {
+							matched = append(matched, it)
+						}
+					}
+				}
+
+				if len(matched) == 0 {
+					return notFoundErr(fmt.Errorf("no menu items matching %q for event %s", itemQuery, eventID))
+				}
+				if len(matched) > 1 {
+					var candidates []string
+					for _, m := range matched {
+						candidates = append(candidates, fmt.Sprintf("- %s (ID: %s, Vendor: %s, Price: $%.2f)", m.Name, m.ID, m.VendorName, m.Price))
+					}
+					return usageErr(fmt.Errorf("ambiguous item name %q; matches:\n%s", itemQuery, strings.Join(candidates, "\n")))
+				}
+
+				targetItem := matched[0]
+
+				// Fetch individual menu item page to get form and parent_id, csrf token, options
+				itemPageURL := fmt.Sprintf("/accounts/%s/select_events/%s/items/%s", acct, strings.TrimPrefix(eventID, "S"), targetItem.ID)
+				if strings.Contains(eventPath, "/select_events/") {
+					parts := strings.Split(eventPath, "/select_events/")
+					if len(parts) > 1 {
+						sID := strings.Split(parts[1], "/")[0]
+						itemPageURL = fmt.Sprintf("/accounts/%s/select_events/%s/items/%s", acct, sID, targetItem.ID)
+					}
+				}
+
+				rawPage, err := c.GetHTML(ctx, itemPageURL)
+				if err != nil {
+					return err
+				}
+
+				form, err := parseItemPageHTML(string(rawPage))
+				if err != nil {
+					return err
+				}
+
+				// Resolve selected options
+				var selectedOptionIDs []string
+				var selectedOptionLabels []string
+				var optionsPriceDelta float64
+
+				for _, optArg := range orderAddOptions {
+					optFound := false
+					for _, o := range form.Options {
+						if o.ID == optArg || strings.Contains(strings.ToLower(o.Label), strings.ToLower(optArg)) {
+							selectedOptionIDs = append(selectedOptionIDs, o.ID)
+							selectedOptionLabels = append(selectedOptionLabels, o.Label)
+							optionsPriceDelta += o.PriceDelta
+							optFound = true
+							break
+						}
+					}
+					if !optFound {
+						return usageErr(fmt.Errorf("option %q not found on menu item; available options:\n%s", optArg, formatOptions(form.Options)))
+					}
+				}
+
+				totalItemPrice := targetItem.Price + optionsPriceDelta
+
+				if !orderAddConfirm {
+					// Dry-run mode
+					fmt.Fprintf(cmd.OutOrStdout(), "Resolved Item:  %s\n", targetItem.Name)
+					fmt.Fprintf(cmd.OutOrStdout(), "Vendor:         %s\n", targetItem.VendorName)
+					fmt.Fprintf(cmd.OutOrStdout(), "Base Price:     $%.2f\n", targetItem.Price)
+					if len(selectedOptionLabels) > 0 {
+						fmt.Fprintln(cmd.OutOrStdout(), "Selected Options:")
+						for _, label := range selectedOptionLabels {
+							fmt.Fprintf(cmd.OutOrStdout(), "  - %s\n", label)
+						}
+					}
+					fmt.Fprintf(cmd.OutOrStdout(), "Total Price:    $%.2f (qty: %d)\n", totalItemPrice*float64(orderAddQty), orderAddQty)
+					fmt.Fprintln(cmd.OutOrStdout(), "\nThis is a DRY-RUN. Run with --confirm to add this item to your cart.")
+					return nil
+				}
+
+				// Build url-encoded body
+				formVals := url.Values{}
+				formVals.Set("authenticity_token", form.CSRFToken)
+				formVals.Set("info[parent_id]", form.ParentID)
+				formVals.Set("info[parent_type]", form.ParentType)
+				formVals.Set("info[item_id]", form.ItemID)
+				formVals.Set("info[item_type]", form.ItemType)
+				formVals.Set("quantity", strconv.Itoa(orderAddQty))
+				for _, id := range selectedOptionIDs {
+					formVals.Add("info[options][]", id)
+				}
+				if orderAddNote != "" {
+					formVals.Set("info[instructions]", orderAddNote)
+				}
+
+				postURL := fmt.Sprintf("/accounts/%s/select_events/%s/items", acct, strings.TrimPrefix(eventID, "S"))
+				if strings.Contains(eventPath, "/select_events/") {
+					parts := strings.Split(eventPath, "/select_events/")
+					if len(parts) > 1 {
+						sID := strings.Split(parts[1], "/")[0]
+						postURL = fmt.Sprintf("/accounts/%s/select_events/%s/items", acct, sID)
+					}
+				}
+
+				_, statusCode, err := makeAPIRequest(ctx, c, "POST", postURL, []byte(formVals.Encode()), "application/x-www-form-urlencoded")
+				if err != nil {
+					return err
+				}
+				if statusCode >= 400 {
+					return fmt.Errorf("failed to add item to cart (HTTP %d)", statusCode)
+				}
+
+				fmt.Fprintln(cmd.OutOrStdout(), "Successfully added item to cart!")
+				return showCartAndPricing(ctx, c, cmd.OutOrStdout(), flags)
+			},
+		}
+		orderAddCmd.Flags().StringVar(&orderAddEvent, "event", "", "Event S-ID or URL")
+		orderAddCmd.Flags().IntVar(&orderAddQty, "qty", 1, "Quantity to add")
+		orderAddCmd.Flags().StringSliceVar(&orderAddOptions, "option", []string{}, "Item option ID or label substring (can be repeated)")
+		orderAddCmd.Flags().StringVar(&orderAddNote, "note", "", "Special instructions")
+		orderAddCmd.Flags().StringVar(&orderAddVendor, "vendor", "", "Filter matches by vendor name")
+		orderAddCmd.Flags().BoolVar(&orderAddConfirm, "confirm", false, "Confirm and execute the add to cart")
+
+		// order cart
+		var orderCartEvent string
+		orderCartCmd := &cobra.Command{
+			Use:   "cart",
+			Short: "View current cart items and pricing",
+			Example: strings.Trim(`
+  fooda-pp-cli order cart
+`, "\n"),
+			Annotations: map[string]string{"pp:data-source": "live", "mcp:read-only": "true"},
+			RunE: func(cmd *cobra.Command, args []string) error {
+				if flags.dataSource == "local" {
+					return fmt.Errorf("order cart is live-only; --data-source local is not supported")
+				}
+				if dryRunOK(flags) {
+					return writeDryRun(cmd.OutOrStdout(), flags, "order cart")
+				}
+
+				ctx, cancel := boundCtx(cmd.Context(), flags)
+				defer cancel()
+
+				c, err := flags.newClient()
+				if err != nil {
+					return err
+				}
+
+				return showCartAndPricing(ctx, c, cmd.OutOrStdout(), flags)
+			},
+		}
+		orderCartCmd.Flags().StringVar(&orderCartEvent, "event", "", "Event S-ID")
+
+		// order place
+		var orderPlaceEvent string
+		var orderPlaceLocation string
+		var orderPlaceAllowCharge bool
+		var orderPlaceConfirm bool
+
+		orderPlaceCmd := &cobra.Command{
+			Use:   "place",
+			Short: "Place your food order (dry-run by default)",
+			Example: strings.Trim(`
+  # Dry-run: preview order details, pricing and request body
+  fooda-pp-cli order place --event S609348
+  # Confirm and place the order
+  fooda-pp-cli order place --event S609348 --confirm
+`, "\n"),
+			Annotations: map[string]string{"pp:data-source": "live"},
+			RunE: func(cmd *cobra.Command, args []string) error {
+				if flags.dataSource == "local" {
+					return fmt.Errorf("order place is live-only; --data-source local is not supported")
+				}
 				if dryRunOK(flags) {
 					return writeDryRun(cmd.OutOrStdout(), flags, "order place")
 				}
-				fmt.Fprintln(cmd.OutOrStdout(), "Order placement mutation shape has not been captured. Dry-run only.")
-				return nil
-			},
-		}
-		cancelCmd := &cobra.Command{
-			Use:   "cancel",
-			Short: "Cancel a food order (stub)",
-			Example: strings.Trim(`
-  fooda-pp-cli order cancel
-`, "\n"),
-			RunE: func(cmd *cobra.Command, args []string) error {
-				if dryRunOK(flags) {
-					return writeDryRun(cmd.OutOrStdout(), flags, "order cancel")
+				if orderPlaceConfirm && cliutil.IsAnyHarness() {
+					return writeHarnessRefusal(cmd.OutOrStdout(), flags, "order place")
 				}
-				fmt.Fprintln(cmd.OutOrStdout(), "Order cancellation mutation shape has not been captured. Dry-run only.")
+
+				ctx, cancel := boundCtx(cmd.Context(), flags)
+				defer cancel()
+
+				c, err := flags.newClient()
+				if err != nil {
+					return err
+				}
+
+				_, _, err = getAccountAndBuilding(ctx, c, flags)
+				if err != nil {
+					return err
+				}
+
+				eventID := orderPlaceEvent
+				if eventID == "" {
+					eventID, err = getUpcomingEvent(ctx, c, flags)
+					if err != nil {
+						return err
+					}
+				}
+
+				numericID := strings.TrimPrefix(eventID, "S")
+				numericID = strings.TrimPrefix(numericID, "s")
+				if !isNumeric(numericID) {
+					u, err := url.Parse(eventID)
+					if err == nil && u.Path != "" {
+						parts := strings.Split(u.Path, "/select_events/")
+						if len(parts) > 1 {
+							numericID = strings.TrimPrefix(strings.Split(parts[1], "/")[0], "S")
+						}
+					}
+				}
+
+				rawEventInfo, statusCode, err := makeAPIRequest(ctx, c, "GET", "/api/v2/select_events/by?id="+numericID, nil, "")
+				if err != nil {
+					return err
+				}
+				if statusCode >= 400 {
+					return fmt.Errorf("failed to fetch event info (HTTP %d)", statusCode)
+				}
+
+				var eventEnvelope struct {
+					SelectEvent struct {
+						ID        int `json:"id"`
+						Locations []struct {
+							ID                   int    `json:"id"`
+							DeliveryBuildingName string `json:"delivery_building_name"`
+							DeliveryLocationName string `json:"delivery_location_name"`
+						} `json:"locations"`
+						DeliveryTime          string `json:"delivery_time"`
+						OrderingWindowEndTime string `json:"ordering_window_end_time"`
+						Status                string `json:"status"`
+					} `json:"select_event"`
+				}
+				if err := json.Unmarshal(rawEventInfo, &eventEnvelope); err != nil {
+					return err
+				}
+
+				ev := eventEnvelope.SelectEvent
+				if ev.ID == 0 {
+					return notFoundErr(fmt.Errorf("select event %s not found on server", eventID))
+				}
+
+				if ev.OrderingWindowEndTime != "" {
+					windowEnd, err := time.Parse(time.RFC3339, ev.OrderingWindowEndTime)
+					if err == nil && time.Now().After(windowEnd) {
+						return usageErr(fmt.Errorf("ordering window closed at %s; cannot place order", ev.OrderingWindowEndTime))
+					}
+				}
+
+				var locationID int
+				if len(ev.Locations) == 0 {
+					return fmt.Errorf("no delivery locations found for this select event")
+				} else if len(ev.Locations) == 1 {
+					locationID = ev.Locations[0].ID
+				} else {
+					if orderPlaceLocation == "" {
+						var locs []string
+						for _, loc := range ev.Locations {
+							locs = append(locs, fmt.Sprintf("  - ID: %d (%s at %s)", loc.ID, loc.DeliveryLocationName, loc.DeliveryBuildingName))
+						}
+						return usageErr(fmt.Errorf("multiple delivery locations available; please specify --location ID from:\n%s", strings.Join(locs, "\n")))
+					}
+					parsedLoc, err := strconv.Atoi(orderPlaceLocation)
+					if err != nil {
+						return usageErr(fmt.Errorf("invalid --location ID: %s", orderPlaceLocation))
+					}
+					locationID = parsedLoc
+				}
+
+				rawPrice, statusCode, err := makeAPIRequest(ctx, c, "GET", "/api/v1/cart/price", nil, "")
+				if err != nil {
+					return err
+				}
+				var priceEnvelope struct {
+					Data struct {
+						Pricing struct {
+							TotalCents int `json:"total_cents"`
+						} `json:"pricing"`
+					} `json:"data"`
+				}
+				_ = json.Unmarshal(rawPrice, &priceEnvelope)
+
+				rawItems, _, _ := makeAPIRequest(ctx, c, "GET", "/api/v1/cart/items", nil, "")
+				var cartEnvelope struct {
+					Data struct {
+						Items []map[string]any `json:"items"`
+					} `json:"data"`
+				}
+				_ = json.Unmarshal(rawItems, &cartEnvelope)
+
+				if len(cartEnvelope.Data.Items) == 0 {
+					return usageErr(fmt.Errorf("your cart is empty; please add items using 'order add' before placing an order"))
+				}
+
+				totalCents := priceEnvelope.Data.Pricing.TotalCents
+				if totalCents > 0 && !orderPlaceAllowCharge {
+					return usageErr(fmt.Errorf("order requires an out-of-pocket payment of $%.2f; please specify --allow-charge to authorize this charge", float64(totalCents)/100.0))
+				}
+
+				type orderLocation struct {
+					LocationID    int `json:"location_id"`
+					SelectEventID int `json:"select_event_id"`
+				}
+				type orderPayload struct {
+					Locations            []orderLocation `json:"locations"`
+					CardID               any             `json:"card_id"`
+					TotalCentsAuthorized int             `json:"total_cents_authorized"`
+				}
+
+				payload := orderPayload{
+					CardID:               nil,
+					TotalCentsAuthorized: totalCents,
+				}
+				payload.Locations = append(payload.Locations, orderLocation{
+					LocationID:    locationID,
+					SelectEventID: ev.ID,
+				})
+
+				rawPayload, _ := json.Marshal(payload)
+
+				if !orderPlaceConfirm {
+					fmt.Fprintln(cmd.OutOrStdout(), "=== Order Placement Preview ===")
+					_ = showCartAndPricing(ctx, c, cmd.OutOrStdout(), flags)
+					fmt.Fprintf(cmd.OutOrStdout(), "\nDelivery Time:         %s\n", ev.DeliveryTime)
+					fmt.Fprintf(cmd.OutOrStdout(), "Ordering Window Ends:  %s\n", ev.OrderingWindowEndTime)
+					fmt.Fprintf(cmd.OutOrStdout(), "Location ID:           %d\n", locationID)
+					fmt.Fprintf(cmd.OutOrStdout(), "Request Body:          %s\n", string(rawPayload))
+					fmt.Fprintln(cmd.OutOrStdout(), "\nThis is a DRY-RUN. Run with --confirm to place this order.")
+					return nil
+				}
+
+				rawResponse, statusCode, err := makeAPIRequest(ctx, c, "POST", "/api/v1/orders", rawPayload, "application/json")
+				if err != nil {
+					return err
+				}
+				if statusCode >= 400 {
+					return fmt.Errorf("failed to place order: POST /api/v1/orders returned HTTP %d", statusCode)
+				}
+
+				fmt.Fprintln(cmd.OutOrStdout(), "Order successfully placed!")
+				fmt.Fprintf(cmd.OutOrStdout(), "Response: %s\n", string(rawResponse))
+
+				rawOrders, err := c.GetHTML(ctx, "/settings/orders")
+				if err == nil {
+					props, err := client.ParsePastOrders(string(rawOrders))
+					if err == nil && len(props.Presenter) > 0 {
+						newest := props.Presenter[0].Order
+						fmt.Fprintf(cmd.OutOrStdout(), "\nNewest Order Details (from Server):\n")
+						fmt.Fprintf(cmd.OutOrStdout(), "  UUID:     %s\n", newest.RequestID)
+						fmt.Fprintf(cmd.OutOrStdout(), "  Vendor:   %s\n", strings.Join(newest.VendorNames, ", "))
+						fmt.Fprintf(cmd.OutOrStdout(), "  Delivery: %s\n", newest.Delivery)
+					}
+				}
+
 				return nil
 			},
 		}
-		orderStubCmd.AddCommand(placeCmd, cancelCmd)
-		replaceCommand(orderStubCmd)
+		orderPlaceCmd.Flags().StringVar(&orderPlaceEvent, "event", "", "Event S-ID")
+		orderPlaceCmd.Flags().StringVar(&orderPlaceLocation, "location", "", "Specific delivery location ID")
+		orderPlaceCmd.Flags().BoolVar(&orderPlaceAllowCharge, "allow-charge", false, "Authorize paying an out-of-pocket total price > $0.00")
+		orderPlaceCmd.Flags().BoolVar(&orderPlaceConfirm, "confirm", false, "Confirm and execute the order placement")
+
+		// order plan
+		var orderPlanEvent string
+		var orderPlanBudget float64
+		var orderPlanAnchor string
+
+		orderPlanCmd := &cobra.Command{
+			Use:   "plan",
+			Short: "Suggest a budget-optimized add-on item for an event",
+			Example: strings.Trim(`
+  # Plan order with $20 budget and 'Beef Bulgogi Bowl' as anchor
+  fooda-pp-cli order plan --event S609348 --budget 20 --anchor "Beef Bulgogi Bowl"
+`, "\n"),
+			Annotations: map[string]string{"pp:data-source": "live", "mcp:read-only": "true", "pp:happy-args": "event=S609348,anchor=Beef Bulgogi Bowl"},
+			RunE: func(cmd *cobra.Command, args []string) error {
+				if flags.dataSource == "local" {
+					return fmt.Errorf("order plan is live-only; --data-source local is not supported")
+				}
+				if dryRunOK(flags) {
+					return writeDryRun(cmd.OutOrStdout(), flags, "order plan")
+				}
+
+				if orderPlanEvent == "" {
+					return usageErr(fmt.Errorf("missing required flag --event"))
+				}
+				if orderPlanAnchor == "" {
+					return usageErr(fmt.Errorf("missing required flag --anchor"))
+				}
+
+				ctx, cancel := boundCtx(cmd.Context(), flags)
+				defer cancel()
+
+				c, err := flags.newClient()
+				if err != nil {
+					return err
+				}
+
+				acct, _, err := getAccountAndBuilding(ctx, c, flags)
+				if err != nil {
+					return err
+				}
+
+				var eventPath string
+				if strings.HasPrefix(orderPlanEvent, "S") || strings.HasPrefix(orderPlanEvent, "s") {
+					eventPath = fmt.Sprintf("/accounts/%s/select_events/%s/items", acct, orderPlanEvent)
+				} else {
+					eventPath = urlToPath(orderPlanEvent)
+				}
+
+				rawMenu, err := c.GetHTML(ctx, eventPath)
+				if err != nil {
+					return err
+				}
+				menuItems, err := client.ParseMenuItems(string(rawMenu))
+				if err != nil {
+					return err
+				}
+
+				var anchorItem client.MenuItem
+				foundAnchor := false
+				for _, it := range menuItems {
+					if strings.Contains(strings.ToLower(it.Name), strings.ToLower(orderPlanAnchor)) {
+						anchorItem = it
+						foundAnchor = true
+						break
+					}
+				}
+
+				if !foundAnchor {
+					return notFoundErr(fmt.Errorf("anchor item %q not found in menu", orderPlanAnchor))
+				}
+
+				addOn, foundAddOn := planOrder(orderPlanBudget, anchorItem.Name, menuItems)
+
+				subtotal := anchorItem.Price
+				remaining := orderPlanBudget - anchorItem.Price
+				if foundAddOn {
+					subtotal = anchorItem.Price + addOn.Price
+					remaining = orderPlanBudget - subtotal
+				}
+
+				if flags.asJSON {
+					type planOutput struct {
+						Anchor         client.MenuItem  `json:"anchor"`
+						Addon          *client.MenuItem `json:"addon,omitempty"`
+						SubtotalCents  int              `json:"subtotal_cents"`
+						RemainingCents int              `json:"remaining_cents"`
+						Commands       []string         `json:"commands"`
+						Note           string           `json:"note"`
+					}
+
+					out := planOutput{
+						Anchor:         anchorItem,
+						SubtotalCents:  int(subtotal * 100),
+						RemainingCents: int(remaining * 100),
+						Note:           "Subtotal does not include tax/fees.",
+					}
+					out.Commands = append(out.Commands, fmt.Sprintf("fooda-pp-cli order add %q --event %s", anchorItem.ID, orderPlanEvent))
+					if foundAddOn {
+						out.Addon = &addOn
+						out.Commands = append(out.Commands, fmt.Sprintf("fooda-pp-cli order add %q --event %s", addOn.ID, orderPlanEvent))
+					}
+
+					return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+				}
+
+				fmt.Fprintln(cmd.OutOrStdout(), "=== Budget Plan Suggestion ===")
+				fmt.Fprintf(cmd.OutOrStdout(), "  Budget:       $%.2f\n", orderPlanBudget)
+				fmt.Fprintf(cmd.OutOrStdout(), "  Anchor Item:  %s (Vendor: %s, Price: $%.2f)\n", anchorItem.Name, anchorItem.VendorName, anchorItem.Price)
+
+				if !foundAddOn {
+					fmt.Fprintln(cmd.OutOrStdout(), "  No suitable add-on item found within budget.")
+					fmt.Fprintf(cmd.OutOrStdout(), "\nTo order the anchor item, run:\n")
+					fmt.Fprintf(cmd.OutOrStdout(), "  fooda-pp-cli order add %q --event %s\n", anchorItem.ID, orderPlanEvent)
+					return nil
+				}
+
+				fmt.Fprintf(cmd.OutOrStdout(), "  Add-on Item:  %s (Vendor: %s, Price: $%.2f)\n", addOn.Name, addOn.VendorName, addOn.Price)
+				fmt.Fprintf(cmd.OutOrStdout(), "  Subtotal:     $%.2f (Remaining: $%.2f)\n", subtotal, remaining)
+				fmt.Fprintln(cmd.OutOrStdout(), "  Note: Subtotal does not include tax/fees.")
+
+				fmt.Fprintln(cmd.OutOrStdout(), "\nTo add these to your cart, run:")
+				fmt.Fprintf(cmd.OutOrStdout(), "  fooda-pp-cli order add %q --event %s\n", anchorItem.ID, orderPlanEvent)
+				fmt.Fprintf(cmd.OutOrStdout(), "  fooda-pp-cli order add %q --event %s\n", addOn.ID, orderPlanEvent)
+				return nil
+			},
+		}
+		orderPlanCmd.Flags().StringVar(&orderPlanEvent, "event", "", "Event S-ID")
+		orderPlanCmd.Flags().Float64Var(&orderPlanBudget, "budget", 20.0, "Budget limit")
+		orderPlanCmd.Flags().StringVar(&orderPlanAnchor, "anchor", "", "Anchor item name")
+
+		orderCmd.AddCommand(orderAddCmd, orderCartCmd, orderPlaceCmd, orderPlanCmd)
+		replaceCommand(orderCmd)
 
 		// 7. sync
 		syncCmd := &cobra.Command{
@@ -2127,4 +2676,354 @@ func loadAndDeduplicateOrders(db *store.Store) ([]client.PastOrdersProps, error)
 		}
 	}
 	return deduplicated, nil
+}
+
+func makeAPIRequest(ctx context.Context, c *client.Client, method, path string, body []byte, contentType string) ([]byte, int, error) {
+	req, err := http.NewRequestWithContext(ctx, method, c.BaseURL+path, bytes.NewReader(body))
+	if err != nil {
+		return nil, 0, err
+	}
+
+	clientToken, sessionToken, err := c.EnsureHandshakeTokens(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36")
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Origin", "https://app.fooda.com")
+	req.Header.Set("Referer", "https://app.fooda.com/my")
+	req.Header.Set("x-clienttoken", clientToken)
+	req.Header.Set("x-sessiontoken", sessionToken)
+
+	if contentType != "" {
+		req.Header.Set("Content-Type", contentType)
+	} else if len(body) > 0 {
+		req.Header.Set("Content-Type", "application/json")
+	}
+
+	resp, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, resp.StatusCode, err
+	}
+
+	return respBody, resp.StatusCode, nil
+}
+
+type parsedItemForm struct {
+	ParentID   string
+	ParentType string
+	ItemID     string
+	ItemType   string
+	CSRFToken  string
+	Options    []parsedItemOption
+}
+
+type parsedItemOption struct {
+	ID         string
+	Label      string
+	PriceDelta float64
+}
+
+func parseItemPageHTML(htmlStr string) (parsedItemForm, error) {
+	doc, err := nethtml.Parse(strings.NewReader(htmlStr))
+	if err != nil {
+		return parsedItemForm{}, err
+	}
+
+	var form parsedItemForm
+	form.Options = []parsedItemOption{}
+
+	var f func(*nethtml.Node)
+	f = func(n *nethtml.Node) {
+		if n.Type == nethtml.ElementNode && n.Data == "meta" {
+			var name, content string
+			for _, a := range n.Attr {
+				if a.Key == "name" {
+					name = a.Val
+				} else if a.Key == "content" {
+					content = a.Val
+				}
+			}
+			if name == "csrf-token" {
+				form.CSRFToken = content
+			}
+		}
+
+		if n.Type == nethtml.ElementNode && n.Data == "input" {
+			var name, val string
+			for _, a := range n.Attr {
+				if a.Key == "name" {
+					name = a.Val
+				} else if a.Key == "value" {
+					val = a.Val
+				}
+			}
+			switch name {
+			case "info[parent_id]":
+				form.ParentID = val
+			case "info[parent_type]":
+				form.ParentType = val
+			case "info[item_id]":
+				form.ItemID = val
+			case "info[item_type]":
+				form.ItemType = val
+			case "authenticity_token":
+				if form.CSRFToken == "" {
+					form.CSRFToken = val
+				}
+			}
+
+			if name == "info[options][]" {
+				opt := parsedItemOption{ID: val}
+				if n.Parent != nil {
+					text := getNodeText(n.Parent)
+					opt.Label = text
+					opt.PriceDelta = parsePriceDelta(text)
+				}
+				form.Options = append(form.Options, opt)
+			}
+		}
+
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			f(c)
+		}
+	}
+	f(doc)
+
+	return form, nil
+}
+
+func parsePriceDelta(text string) float64 {
+	text = strings.ToLower(text)
+	if !strings.Contains(text, "(+") && !strings.Contains(text, "(-") {
+		return 0.0
+	}
+	idx := strings.LastIndex(text, "(")
+	if idx == -1 {
+		return 0.0
+	}
+	sub := text[idx:]
+	end := strings.Index(sub, ")")
+	if end == -1 {
+		return 0.0
+	}
+	bracketed := sub[1:end]
+	bracketed = strings.ReplaceAll(bracketed, "$", "")
+	bracketed = strings.TrimSpace(bracketed)
+	multiplier := 1.0
+	if strings.HasPrefix(bracketed, "-") {
+		multiplier = -1.0
+		bracketed = bracketed[1:]
+	} else if strings.HasPrefix(bracketed, "+") {
+		bracketed = bracketed[1:]
+	}
+	val, _ := strconv.ParseFloat(bracketed, 64)
+	return val * multiplier
+}
+
+func getNodeText(n *nethtml.Node) string {
+	var b strings.Builder
+	var f func(*nethtml.Node)
+	f = func(node *nethtml.Node) {
+		if node.Type == nethtml.TextNode {
+			b.WriteString(node.Data)
+		}
+		for c := node.FirstChild; c != nil; c = c.NextSibling {
+			f(c)
+		}
+	}
+	f(n)
+	return strings.TrimSpace(b.String())
+}
+
+func getUpcomingEvent(ctx context.Context, c *client.Client, flags *rootFlags) (string, error) {
+	acct, bldg, err := getAccountAndBuilding(ctx, c, flags)
+	if err != nil {
+		return "", err
+	}
+	variables := map[string]any{
+		"input": map[string]any{
+			"statuses":      []string{"ACTIVE"},
+			"productTypes":  []string{"POPUP", "CAFE", "DELIVERY"},
+			"accountId":     acct,
+			"buildingId":    bldg,
+			"endTimeAfter":  time.Now().Format("2006-01-02"),
+			"endTimeBefore": time.Now().AddDate(0, 0, 7).Format("2006-01-02"),
+		},
+	}
+	raw, err := c.Query(ctx, client.SearchPublicEventsQuery, variables)
+	if err != nil {
+		return "", err
+	}
+	events, err := parseEventsFromRaw(raw)
+	if err != nil || len(events) == 0 {
+		return "", fmt.Errorf("no upcoming events found")
+	}
+
+	var deliveryEvents []parsedEvent
+	for _, ev := range events {
+		cleanType := strings.TrimSuffix(ev.Typename, "EventPublic")
+		if cleanType == "Delivery" {
+			deliveryEvents = append(deliveryEvents, ev)
+		}
+	}
+	if len(deliveryEvents) == 0 {
+		return "", fmt.Errorf("no upcoming delivery events found; please specify --event explicitly")
+	}
+	sort.Slice(deliveryEvents, func(i, j int) bool {
+		tI, _, _ := getEventServiceDate(deliveryEvents[i])
+		tJ, _, _ := getEventServiceDate(deliveryEvents[j])
+		return tI.Before(tJ)
+	})
+
+	firstTime, _, _ := getEventServiceDate(deliveryEvents[0])
+	var earliestEvents []parsedEvent
+	for _, ev := range deliveryEvents {
+		t, _, _ := getEventServiceDate(ev)
+		if t.Equal(firstTime) {
+			earliestEvents = append(earliestEvents, ev)
+		}
+	}
+	if len(earliestEvents) > 1 {
+		var ids []string
+		for _, ev := range earliestEvents {
+			ids = append(ids, "S"+ev.ID)
+		}
+		return "", fmt.Errorf("ambiguous upcoming events on %s: %s; please specify --event explicitly", firstTime.Format("2006-01-02"), strings.Join(ids, ", "))
+	}
+	return "S" + earliestEvents[0].ID, nil
+}
+
+func formatOptions(opts []parsedItemOption) string {
+	var lines []string
+	for _, o := range opts {
+		lines = append(lines, fmt.Sprintf("  - ID: %s, %s", o.ID, o.Label))
+	}
+	return strings.Join(lines, "\n")
+}
+
+func showCartAndPricing(ctx context.Context, c *client.Client, w io.Writer, flags *rootFlags) error {
+	rawItems, statusCode, err := makeAPIRequest(ctx, c, "GET", "/api/v1/cart/items", nil, "")
+	if err != nil {
+		return err
+	}
+	if statusCode >= 400 {
+		return fmt.Errorf("failed to fetch cart items (HTTP %d)", statusCode)
+	}
+
+	rawPrice, statusCode, err := makeAPIRequest(ctx, c, "GET", "/api/v1/cart/price", nil, "")
+	if err != nil {
+		return err
+	}
+	if statusCode >= 400 {
+		return fmt.Errorf("failed to fetch cart pricing (HTTP %d)", statusCode)
+	}
+
+	var cartEnvelope struct {
+		Data struct {
+			Items []map[string]any `json:"items"`
+		} `json:"data"`
+	}
+	_ = json.Unmarshal(rawItems, &cartEnvelope)
+
+	var priceEnvelope struct {
+		Data struct {
+			Pricing struct {
+				SubtotalCents        int    `json:"subtotal_cents"`
+				TaxCents             int    `json:"tax_cents"`
+				DeliveryFeeCents     int    `json:"delivery_fee_cents"`
+				SubsidyCents         int    `json:"subsidy_cents"`
+				SubsidyCode          string `json:"subsidy_code"`
+				PromotionCents       int    `json:"promotion_cents"`
+				GratuityCents        int    `json:"gratuity_cents"`
+				TotalCents           int    `json:"total_cents"`
+				TotalCommissionCents int    `json:"total_commission_cents"`
+			} `json:"pricing"`
+		} `json:"data"`
+	}
+	_ = json.Unmarshal(rawPrice, &priceEnvelope)
+
+	if flags.asJSON {
+		out := map[string]any{
+			"items":   cartEnvelope.Data.Items,
+			"pricing": priceEnvelope.Data.Pricing,
+		}
+		return printJSONFiltered(w, out, flags)
+	}
+
+	fmt.Fprintln(w, "Cart Items:")
+	for _, it := range cartEnvelope.Data.Items {
+		name := it["name"]
+		vendor := it["vendor"]
+		if vendor == nil {
+			vendor = it["vendor_name"]
+		}
+		price := it["price"]
+		qty := it["quantity"]
+		if qty == nil {
+			qty = "1"
+		}
+		fmt.Fprintf(w, "  - %sx %v (Vendor: %v, Price: %v)\n", qty, name, vendor, price)
+	}
+	if len(cartEnvelope.Data.Items) == 0 {
+		fmt.Fprintln(w, "  (Cart is empty)")
+	}
+
+	p := priceEnvelope.Data.Pricing
+	fmt.Fprintln(w, "\nPricing Summary:")
+	fmt.Fprintf(w, "  Subtotal:     $%.2f\n", float64(p.SubtotalCents)/100.0)
+	fmt.Fprintf(w, "  Tax:          $%.2f\n", float64(p.TaxCents)/100.0)
+	fmt.Fprintf(w, "  Delivery Fee: $%.2f\n", float64(p.DeliveryFeeCents)/100.0)
+	fmt.Fprintf(w, "  Subsidy:      -$%.2f (Code: %s)\n", float64(p.SubsidyCents)/100.0, p.SubsidyCode)
+	fmt.Fprintf(w, "  Total Paid:   $%.2f\n", float64(p.TotalCents)/100.0)
+
+	return nil
+}
+
+func planOrder(budget float64, anchorName string, items []client.MenuItem) (client.MenuItem, bool) {
+	var anchor client.MenuItem
+	foundAnchor := false
+	for _, it := range items {
+		if strings.Contains(strings.ToLower(it.Name), strings.ToLower(anchorName)) {
+			anchor = it
+			foundAnchor = true
+			break
+		}
+	}
+	if !foundAnchor {
+		return client.MenuItem{}, false
+	}
+
+	leftoverBudget := budget - anchor.Price
+	if leftoverBudget < 0 {
+		return client.MenuItem{}, false
+	}
+
+	var bestAddOn client.MenuItem
+	hasAddOn := false
+
+	for _, it := range items {
+		if strings.ToLower(it.Name) == strings.ToLower(anchor.Name) {
+			continue
+		}
+		if it.Price <= leftoverBudget {
+			if !hasAddOn {
+				bestAddOn = it
+				hasAddOn = true
+			} else {
+				if it.Price > bestAddOn.Price {
+					bestAddOn = it
+				}
+			}
+		}
+	}
+
+	return bestAddOn, hasAddOn
 }

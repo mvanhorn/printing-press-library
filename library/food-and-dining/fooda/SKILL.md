@@ -91,17 +91,33 @@ These capabilities aren't available in any other tool for this API.
 
 ## Anti-Triggers & Limitations
 
-- **Order Mutations (Dry-run only)**: Placing or canceling orders (`order place`, `order cancel`) are dry-run only stubs since the mutation shape has not been captured. Do not try to place actual food orders using this CLI.
+- **Ordering Support**: Ordering is supported via `order add` and `order place` when using `--confirm`. Automated agents must never pass `--confirm` without explicit user intent.
+- **Cancellation Limitation**: The `order cancel` command is not supported (please cancel manually in the Fooda app).
 - **`whoami` Cloudflare Constraints**: The `whoami` command is heavily limited by Cloudflare challenges. It fallbacks to greeting pages; account and building IDs are extracted from the home page.
 - **Catering / Billing**: Do not use this CLI for Fooda Catering orders or billing.
 
 ## Cookbook / Recipes
 
+- **Budget-Optimized Lunch Planning**: Plan an add-on item, add both to cart, and place order:
+  ```bash
+  fooda-pp-cli order plan --event S609348 --budget 20 --anchor "Beef Bulgogi Bowl"
+  fooda-pp-cli order add 589968 --event S609348 --confirm
+  fooda-pp-cli order add 589973 --event S609348 --confirm
+  fooda-pp-cli order place --event S609348 --confirm
+  ```
 - **Vendor Fatigue Check**: `fooda-pp-cli venue-rotation --since 120d --agent --select vendor,order_count,last_ordered`
 - **Monthly Subsidy Report**: `fooda-pp-cli spend-trends --since 6mo --group-by month`
 - **Vegan Options Today**: `fooda-pp-cli menu-search vegan`
 
 ## Recipes
+
+### Budget-optimized lunch planning
+
+```bash
+fooda-pp-cli order plan --event S609348 --budget 20 --anchor "Beef Bulgogi Bowl"
+```
+
+Suggests a budget-optimized add-on item from the event menu.
 
 ### Vendor fatigue check
 

@@ -111,6 +111,7 @@ type MyEventListProps struct {
 }
 
 type MenuItem struct {
+	ID                  string   `json:"id"`
 	VendorName          string   `json:"vendor_name"`
 	Category            string   `json:"category"`
 	Name                string   `json:"name"`
@@ -207,6 +208,7 @@ func ParseMenuItems(htmlStr string) ([]MenuItem, error) {
 					}
 				}
 
+				item.ID = findItemID(n)
 				item.Name = findTextByClass(n, "item__name")
 				priceStr := findTextByClass(n, "item__price")
 				if priceStr != "" {
@@ -232,6 +234,36 @@ func ParseMenuItems(htmlStr string) ([]MenuItem, error) {
 	}
 	f(doc)
 	return items, nil
+}
+
+func findItemID(n *nethtml.Node) string {
+	var val string
+	var f func(*nethtml.Node)
+	f = func(node *nethtml.Node) {
+		if node.Type == nethtml.ElementNode {
+			for _, a := range node.Attr {
+				if a.Key == "href" && strings.Contains(a.Val, "/items/") {
+					parts := strings.Split(a.Val, "/items/")
+					if len(parts) > 1 {
+						itemPart := parts[1]
+						if idx := strings.Index(itemPart, "?"); idx != -1 {
+							itemPart = itemPart[:idx]
+						}
+						val = strings.TrimSpace(itemPart)
+						return
+					}
+				}
+			}
+		}
+		for c := node.FirstChild; c != nil; c = c.NextSibling {
+			f(c)
+			if val != "" {
+				return
+			}
+		}
+	}
+	f(n)
+	return val
 }
 
 func findTextByClass(n *nethtml.Node, className string) string {

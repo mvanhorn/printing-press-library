@@ -89,9 +89,9 @@
   ],
   "verify": {
     "mode": "mock",
-    "pass_rate": 95.65217391304348,
-    "passed": 44,
-    "total": 46,
+    "pass_rate": 95.74468085106383,
+    "passed": 45,
+    "total": 47,
     "failed": 2,
     "data_pipeline": true,
     "verdict": "WARN"
