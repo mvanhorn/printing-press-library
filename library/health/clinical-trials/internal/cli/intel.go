@@ -20,7 +20,7 @@ import (
 // normalizedFields is the CT.gov field list every intelligence command requests.
 // Keeping it narrow bounds response size (the full protocolSection is tens of KB
 // per study) while covering every field the unified Trial model needs.
-const normalizedFields = "NCTId,BriefTitle,OverallStatus,Phase,LeadSponsorName,LeadSponsorClass,LocationCountry,Condition,InterventionName,InterventionType,EnrollmentCount,StartDate,PrimaryCompletionDate,CompletionDate,LastUpdatePostDate,WhyStopped,HasResults,SecondaryId"
+const normalizedFields = "NCTId,BriefTitle,OverallStatus,Phase,LeadSponsorName,LeadSponsorClass,LocationCountry,Condition,InterventionName,InterventionType,EnrollmentCount,StartDate,PrimaryCompletionDate,CompletionDate,LastUpdatePostDate,StudyFirstPostDate,WhyStopped,HasResults,SecondaryId"
 
 // Trial is the single normalized model every source maps into. It is the
 // "Layer 2" unified structure: one shape regardless of which registry the row
@@ -42,6 +42,7 @@ type Trial struct {
 	PrimaryCompletionDate string        `json:"primary_completion_date,omitempty"`
 	CompletionDate        string        `json:"completion_date,omitempty"`
 	LastUpdate            string        `json:"last_update,omitempty"`
+	FirstPosted           string        `json:"first_posted,omitempty"`
 	Enrollment            int           `json:"enrollment"`
 	WhyStopped            string        `json:"why_stopped,omitempty"`
 	HasResults            bool          `json:"has_results"`
@@ -99,6 +100,9 @@ type rawStudy struct {
 			LastUpdatePostDateStruct struct {
 				Date string `json:"date"`
 			} `json:"lastUpdatePostDateStruct"`
+			StudyFirstPostDateStruct struct {
+				Date string `json:"date"`
+			} `json:"studyFirstPostDateStruct"`
 		} `json:"statusModule"`
 		SponsorCollaboratorsModule struct {
 			LeadSponsor struct {
@@ -155,11 +159,12 @@ func normalizeStudy(raw json.RawMessage) (Trial, bool) {
 		PrimaryCompletionDate: s.ProtocolSection.StatusModule.PrimaryCompletionDateStruct.Date,
 		CompletionDate:        s.ProtocolSection.StatusModule.CompletionDateStruct.Date,
 
-		LastUpdate: s.ProtocolSection.StatusModule.LastUpdatePostDateStruct.Date,
-		Enrollment: s.ProtocolSection.DesignModule.EnrollmentInfo.Count,
-		WhyStopped: cliutil.CleanText(s.ProtocolSection.StatusModule.WhyStopped),
-		HasResults: s.HasResults,
-		Source:     "clinicaltrials.gov",
+		LastUpdate:  s.ProtocolSection.StatusModule.LastUpdatePostDateStruct.Date,
+		FirstPosted: s.ProtocolSection.StatusModule.StudyFirstPostDateStruct.Date,
+		Enrollment:  s.ProtocolSection.DesignModule.EnrollmentInfo.Count,
+		WhyStopped:  cliutil.CleanText(s.ProtocolSection.StatusModule.WhyStopped),
+		HasResults:  s.HasResults,
+		Source:      "clinicaltrials.gov",
 	}
 	for _, iv := range s.ProtocolSection.ArmsInterventionsModule.Interventions {
 		if iv.Name != "" {

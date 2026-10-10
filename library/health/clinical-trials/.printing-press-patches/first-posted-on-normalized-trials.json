@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "first-posted-on-normalized-trials",
+  "applied_at": "2026-10-10",
+  "base_run_id": "20260623-164233-df565e8d",
+  "base_printing_press_version": "4.25.0",
+  "summary": "Normalized trial rows must expose the registry's first-posted (registration) date as first_posted, which requires StudyFirstPostDate in the shared CT.gov field request.",
+  "reason": "CT.gov only returns fields named in the `fields` parameter, and downstream citations (Vancouver/NLM, WHO) identify a register record by its registration date; start_date is a wrong substitute and yields future years for not-yet-started trials. first_posted is omitempty so an absent date stays absent.",
+  "files": [
+    "internal/cli/intel.go",
+    "internal/cli/intel_completion_date_test.go"
+  ],
+  "validated_outcome": "Live NCT01698112 returns protocolSection.statusModule.studyFirstPostDateStruct.date = 2012-10-02 when StudyFirstPostDate is requested."
+}
