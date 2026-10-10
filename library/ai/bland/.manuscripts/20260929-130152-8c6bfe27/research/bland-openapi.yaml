@@ -1,0 +1,161 @@
+openapi: 3.0.3
+info:
+  title: Bland API v1 (task calls and monitoring)
+  version: 1.0.0
+  description: Documented task-call endpoints used by Bland Task Caller.
+servers:
+  - url: https://api.bland.ai
+security:
+  - Authorization: []
+components:
+  securitySchemes:
+    Authorization:
+      type: apiKey
+      in: header
+      name: Authorization
+      x-auth-env-vars:
+        - BLAND_API_KEY
+  schemas:
+    CallCreate:
+      type: object
+      required: [phone_number, task]
+      properties:
+        phone_number: {type: string, example: "+12065550123"}
+        task: {type: string, example: "Ask whether a table is available tonight"}
+        pathway_id: {type: string}
+        voice: {type: string}
+        first_sentence: {type: string}
+        from: {type: string}
+        language: {type: string}
+        model: {type: string}
+        max_duration: {type: integer}
+        record: {type: boolean}
+        wait_for_greeting: {type: boolean}
+        webhook: {type: string}
+        request_data: {type: object, additionalProperties: true}
+        metadata: {type: object, additionalProperties: true}
+    CallCreated:
+      type: object
+      properties:
+        status: {type: string}
+        message: {type: string}
+        call_id: {type: string, format: uuid}
+        batch_id: {type: string, nullable: true}
+        max_duration_notice: {type: object, additionalProperties: true}
+    Call:
+      type: object
+      properties:
+        call_id: {type: string, format: uuid}
+        status: {type: string, example: completed}
+        queue_status: {type: string}
+        summary: {type: string}
+        transcripts:
+          type: array
+          items:
+            type: object
+            properties:
+              user: {type: string}
+              text: {type: string}
+              created_at: {type: string, format: date-time}
+        variables: {type: object, additionalProperties: true}
+        error_message: {type: string}
+        to: {type: string}
+        from: {type: string}
+        call_length: {type: number}
+paths:
+  /v1/calls:
+    get:
+      operationId: listCalls
+      summary: List call history
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema: {type: integer, default: 100, maximum: 1000}
+        - name: from
+          in: query
+          required: false
+          schema: {type: string, format: date-time}
+        - name: to
+          in: query
+          required: false
+          schema: {type: string, format: date-time}
+        - name: completed
+          in: query
+          required: false
+          schema: {type: boolean}
+      responses:
+        '200':
+          description: Call history
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+    post:
+      operationId: createCall
+      summary: Create an outbound call from a task
+      description: Places a real outbound call. May incur charges.
+      x-pp-mutation: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CallCreate'}
+      responses:
+        '200':
+          description: Call queued
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CallCreated'}
+  /v1/calls/{call_id}:
+    get:
+      operationId: getCall
+      summary: Get call status and outcome
+      parameters:
+        - name: call_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        '200':
+          description: Call details
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Call'}
+  /v1/calls/{call_id}/stop:
+    post:
+      operationId: stopCall
+      summary: Stop an active call
+      x-pp-mutation: true
+      parameters:
+        - name: call_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        '200':
+          description: Call stopped
+          content:
+            application/json:
+              schema: {type: object, additionalProperties: true}
+
+  /v1/event_stream/{call_id}:
+    get:
+      operationId: getCallEventStream
+      summary: Get a call event stream
+      parameters:
+        - name: call_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        '200':
+          description: Call events
+          content:
+            text/event-stream:
+              schema: {type: string}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true

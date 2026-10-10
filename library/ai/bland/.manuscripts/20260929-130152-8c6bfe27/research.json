@@ -1,0 +1,121 @@
+{
+  "api_name": "Bland",
+  "novelty_score": 5,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-09-29T20:44:57Z",
+  "novel_features": [
+    {
+      "name": "Task-to-outcome runner",
+      "command": "calls task run",
+      "description": "Start one task call, wait for its final status, and return the transcript and outcome together.",
+      "rationale": "Turns call creation and status polling into one workflow and caches the real API response for local recall.",
+      "example": "bland-pp-cli calls task run --phone-number +12065550123 --task \"Ask whether a table is available tonight\" --agent",
+      "why_it_matters": "Use this after the user authorizes a call when you need to complete a phone task and report what happened.",
+      "group": "Task to outcome"
+    },
+    {
+      "name": "Local task recall",
+      "command": "calls search-task",
+      "description": "Find prior calls made through this CLI by task wording and inspect their returned outcomes.",
+      "rationale": "Searches the CLI's local call history without syncing or querying unrelated account calls.",
+      "example": "bland-pp-cli calls search-task reservation --agent",
+      "why_it_matters": "Use this to find a previous CLI-originated call by what it was asked to do.",
+      "group": "Task to outcome"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Task-to-outcome runner",
+      "command": "calls task run",
+      "description": "Start one task call, wait for its final status, and return the transcript and outcome together.",
+      "rationale": "Turns call creation and status polling into one workflow and caches the real API response for local recall.",
+      "example": "bland-pp-cli calls task run --phone-number +12065550123 --task \"Ask whether a table is available tonight\" --agent",
+      "why_it_matters": "Use this after the user authorizes a call when you need to complete a phone task and report what happened.",
+      "group": "Task to outcome"
+    },
+    {
+      "name": "Local task recall",
+      "command": "calls search-task",
+      "description": "Find prior calls made through this CLI by task wording and inspect their returned outcomes.",
+      "rationale": "Searches the CLI's local call history without syncing or querying unrelated account calls.",
+      "example": "bland-pp-cli calls search-task reservation --agent",
+      "why_it_matters": "Use this to find a previous CLI-originated call by what it was asked to do.",
+      "group": "Task to outcome"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "BLAND_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Bland",
+    "headline": "Send a task-driven call and follow it through to the result.",
+    "value_prop": "Create one outbound call from a natural-language task, wait for its status, and inspect the transcript and outcome. The CLI keeps locally searchable records for calls it makes.",
+    "quickstart": [
+      {
+        "command": "bland-pp-cli doctor --dry-run",
+        "comment": "Check the CLI setup without contacting Bland."
+      },
+      {
+        "command": "bland-pp-cli calls task run --phone-number +12065550123 --task \"Ask whether a table is available tonight\" --dry-run",
+        "comment": "Preview the task workflow without contacting anyone."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "The API returns 401 Unauthorized.",
+        "fix": "Set BLAND_API_KEY in the environment and run bland-pp-cli doctor."
+      },
+      {
+        "symptom": "A call is still queued or in progress.",
+        "fix": "Run bland-pp-cli calls get \u003ccall-id\u003e again or inspect bland-pp-cli event-stream \u003ccall-id\u003e."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs to make one explicitly requested task-driven phone call and report the returned status, transcript, or summary. It is focused on calls initiated through this CLI and their local follow-up.",
+    "anti_triggers": [
+      "Do not use this CLI to author pathways, run batches, or administer the Bland account.",
+      "Do not place a call without explicit user authorization; calls contact real people and may incur charges."
+    ],
+    "recipes": [
+      {
+        "title": "Preview a reservation call",
+        "command": "bland-pp-cli calls task run --phone-number +12065550123 --task \"Ask whether a table for two is available tonight\" --dry-run",
+        "explanation": "Check the exact request without placing a call."
+      },
+      {
+        "title": "Send and follow one task",
+        "command": "bland-pp-cli calls task run --phone-number +12065550123 --task \"Ask whether a table for two is available tonight\" --agent",
+        "explanation": "Places a real call; invoke only after the user approves the destination and task."
+      },
+      {
+        "title": "Review recent calls",
+        "command": "bland-pp-cli calls list --limit 5 --agent",
+        "explanation": "List recent account calls as structured data."
+      },
+      {
+        "title": "Inspect a call",
+        "command": "bland-pp-cli calls get d1f7e65b-ec29-48a2-8c38-0e93d9438ae1 --agent --select status,transcripts,summary",
+        "explanation": "Narrow a call record to status and the human-readable result."
+      },
+      {
+        "title": "Inspect call events",
+        "command": "bland-pp-cli event-stream d1f7e65b-ec29-48a2-8c38-0e93d9438ae1 --agent",
+        "explanation": "Read the event stream for an individual call."
+      },
+      {
+        "title": "Search local task history",
+        "command": "bland-pp-cli calls search-task reservation --agent --select call_id,status,task,summary",
+        "explanation": "Find a prior locally cached call by its task wording."
+      }
+    ],
+    "trigger_phrases": [
+      "make a Bland task call",
+      "call this restaurant and ask for a reservation",
+      "check the outcome of a Bland call made with this CLI",
+      "use Bland",
+      "run Bland"
+    ]
+  }
+}

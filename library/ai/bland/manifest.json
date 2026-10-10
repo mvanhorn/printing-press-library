@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "bland-pp-mcp",
+  "display_name": "Bland",
+  "version": "1.0.0",
+  "description": "Send a task-driven call and follow it through to the result.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/bland-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/bland-pp-mcp",
+      "args": [],
+      "env": {
+        "BLAND_API_KEY": "${user_config.bland_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "bland_api_key": {
+      "type": "string",
+      "title": "BLAND_API_KEY",
+      "description": "Sets BLAND_API_KEY for the Bland MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
