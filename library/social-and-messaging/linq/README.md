@@ -243,9 +243,9 @@ Plan, upload, audit, send, and clean up attachments
 
 Check whether an address can use iMessage, RCS, or SMS
 
-- **`linq-pp-cli capability check <address>...`** - Resolve each address to `imessage`, `rcs`, or `sms` by checking iMessage then RCS; masks the full address in output.
-- **`linq-pp-cli capability check-imessage`** - Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md.
-- **`linq-pp-cli capability check-rcscapability`** - Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md.
+- **`linq-pp-cli capability check <address>... [--from NUMBER]`** - Resolve each address to `imessage`, `rcs`, or `sms` by checking iMessage then RCS; masks the full address in output.
+- **`linq-pp-cli capability check-imessage --address ADDRESS [--from NUMBER]`** - Check iMessage reachability with the documented flat request body. Use `--stdin` for a JSON body instead.
+- **`linq-pp-cli capability check-rcscapability --address E164 [--from NUMBER]`** - Check RCS reachability with the documented flat request body. Use `--stdin` for a JSON body instead.
 
 ### chats
 

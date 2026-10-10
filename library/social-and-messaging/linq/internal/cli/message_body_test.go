@@ -47,6 +47,24 @@ func TestBuildLinqMessageBodyNestedShape(t *testing.T) {
 	}
 }
 
+func TestBuildLinqMessageBodyOmitsUnspecifiedReplyPartIndex(t *testing.T) {
+	result := buildLinqMessageBody(linqMessageBuildOptions{
+		Texts:            []string{"Replying"},
+		ReplyToMessageID: "msg_123",
+	})
+	if !result.Sendable {
+		t.Fatalf("expected sendable body, got errors: %v", result.Errors)
+	}
+	message := result.Body["message"].(map[string]any)
+	replyTo := message["reply_to"].(map[string]any)
+	if replyTo["message_id"] != "msg_123" {
+		t.Fatalf("unexpected reply_to message_id: %#v", replyTo)
+	}
+	if _, exists := replyTo["part_index"]; exists {
+		t.Fatalf("part_index should only be emitted when explicitly set: %#v", replyTo)
+	}
+}
+
 func TestBuildLinqMessageBodyRejectsLinkMixedWithText(t *testing.T) {
 	result := buildLinqMessageBody(linqMessageBuildOptions{
 		Texts: []string{"Look"},
@@ -109,6 +127,22 @@ func TestBuildLinqMessageBodyRejectsOverlappingAnimation(t *testing.T) {
 	}
 	if !containsValidationError(result.Errors, "animation decoration ranges") {
 		t.Fatalf("missing overlap error: %v", result.Errors)
+	}
+}
+
+func TestBuildLinqMessageBodyDeduplicatesErrors(t *testing.T) {
+	longText := strings.Repeat("x", maxTextValueChars+1)
+	result := buildLinqMessageBody(linqMessageBuildOptions{
+		Texts: []string{longText, longText},
+	})
+	count := 0
+	for _, err := range result.Errors {
+		if err == "text value exceeds 10,000 characters" {
+			count++
+		}
+	}
+	if count != 1 {
+		t.Fatalf("expected one deduped text length error, got %d in %v", count, result.Errors)
 	}
 }
 

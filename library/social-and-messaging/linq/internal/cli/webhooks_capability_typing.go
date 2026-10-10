@@ -92,7 +92,7 @@ func newWebhooksShowCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:         "show <subscription-id>",
 		Short:       "Show one webhook subscription and its subscribed events",
-		Example:     "  linq-pp-cli webhooks show sub_123 --agent",
+		Example:     "  linq-pp-cli webhooks show 6e517570-356a-4d9d-9a0e-88ff0fb3374a --agent",
 		Args:        cobra.ExactArgs(1),
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -110,7 +110,7 @@ func newWebhooksAddEventCmd(flags *rootFlags) *cobra.Command {
 		Use:     "add-event <subscription-id> <event>...",
 		Short:   "Add events to a webhook subscription with read-modify-write safety",
 		Long:    "Add events to a webhook subscription with read-modify-write safety.\n\n" + webhookUpdateEventSemantics + ".",
-		Example: "  linq-pp-cli webhooks add-event sub_123 chat.typing_indicator.started chat.typing_indicator.stopped --agent --dry-run",
+		Example: "  linq-pp-cli webhooks add-event 6e517570-356a-4d9d-9a0e-88ff0fb3374a chat.typing_indicator.started chat.typing_indicator.stopped --agent --dry-run",
 		Args:    cobra.MinimumNArgs(2),
 		RunE:    runWebhooksChangeEvents(flags, "add-event"),
 	}
@@ -121,7 +121,7 @@ func newWebhooksRemoveEventCmd(flags *rootFlags) *cobra.Command {
 		Use:     "remove-event <subscription-id> <event>...",
 		Short:   "Remove events from a webhook subscription with read-modify-write safety",
 		Long:    "Remove events from a webhook subscription with read-modify-write safety.\n\n" + webhookUpdateEventSemantics + ".",
-		Example: "  linq-pp-cli webhooks remove-event sub_123 chat.typing_indicator.started --agent --dry-run",
+		Example: "  linq-pp-cli webhooks remove-event 6e517570-356a-4d9d-9a0e-88ff0fb3374a chat.typing_indicator.started --agent --dry-run",
 		Args:    cobra.MinimumNArgs(2),
 		RunE:    runWebhooksChangeEvents(flags, "remove-event"),
 	}
@@ -132,7 +132,7 @@ func newWebhooksSetEventsCmd(flags *rootFlags) *cobra.Command {
 		Use:     "set-events <subscription-id> <event>...",
 		Short:   "Replace a webhook subscription's event set explicitly",
 		Long:    "Replace a webhook subscription's event set explicitly.\n\n" + webhookUpdateEventSemantics + ".",
-		Example: "  linq-pp-cli webhooks set-events sub_123 message.received chat.typing_indicator.started chat.typing_indicator.stopped --agent --dry-run",
+		Example: "  linq-pp-cli webhooks set-events 6e517570-356a-4d9d-9a0e-88ff0fb3374a message.received chat.typing_indicator.started chat.typing_indicator.stopped --agent --dry-run",
 		Args:    cobra.MinimumNArgs(2),
 		RunE:    runWebhooksChangeEvents(flags, "set-events"),
 	}
@@ -150,9 +150,6 @@ func runWebhooksChangeEvents(flags *rootFlags, op string) func(*cobra.Command, [
 			return err
 		}
 		c.NoCache = true
-		// Dry-run still needs live reads so add/remove/set can validate the
-		// event catalog and compute an accurate before/after event set. Only
-		// the final PUT remains suppressed by flags.dryRun below.
 		c.DryRun = false
 		catalog, err := fetchWebhookEventCatalog(cmd.Context(), c)
 		if err != nil {
@@ -296,6 +293,7 @@ func newWebhooksDoctorCmd(flags *rootFlags) *cobra.Command {
 
 func newCapabilityCheckCmd(flags *rootFlags) *cobra.Command {
 	var file string
+	var from string
 	cmd := &cobra.Command{
 		Use:     "check <address>...",
 		Aliases: []string{"route"},
@@ -316,11 +314,15 @@ is available. Output is structural and masks the address by default.`,
 				return usageErr(fmt.Errorf("at least one address or --file entry is required"))
 			}
 			if flags.dryRun {
+				requestShape := map[string]any{"address": "<address>"}
+				if strings.TrimSpace(from) != "" {
+					requestShape["from"] = "<from>"
+				}
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 					"dry_run":       true,
 					"would_check":   len(addresses),
 					"address_refs":  maskedAddresses(addresses),
-					"request_shape": map[string]any{"handle_check": map[string]any{"address": "<address>"}},
+					"request_shape": requestShape,
 				}, flags)
 			}
 			c, err := flags.newClient()
@@ -329,7 +331,7 @@ is available. Output is structural and masks the address by default.`,
 			}
 			results := make([]map[string]any, 0, len(addresses))
 			for i, address := range addresses {
-				result, err := resolveCapabilityRoute(cmd.Context(), c, address)
+				result, err := resolveCapabilityRoute(cmd.Context(), c, address, from)
 				if err != nil {
 					return classifyAPIError(err, flags)
 				}
@@ -343,6 +345,7 @@ is available. Output is structural and masks the address by default.`,
 		},
 	}
 	cmd.Flags().StringVar(&file, "file", "", "Read one address per line for batch checks")
+	cmd.Flags().StringVar(&from, "from", "", "Optional provisioned sender phone number to run the check from")
 	return cmd
 }
 
@@ -648,8 +651,8 @@ func capabilityAddresses(args []string, file string) ([]string, error) {
 	return normalizeStringSet(addresses), nil
 }
 
-func resolveCapabilityRoute(ctx context.Context, c *client.Client, address string) (map[string]any, error) {
-	imessage, err := runHandleCapabilityCheck(ctx, c, "/v3/capability/check_imessage", address)
+func resolveCapabilityRoute(ctx context.Context, c *client.Client, address, from string) (map[string]any, error) {
+	imessage, err := runHandleCapabilityCheck(ctx, c, "/v3/capability/check_imessage", address, from)
 	if err != nil {
 		return nil, err
 	}
@@ -660,7 +663,7 @@ func resolveCapabilityRoute(ctx context.Context, c *client.Client, address strin
 		channel = "imessage"
 	} else {
 		rcsChecked = true
-		available, err := runHandleCapabilityCheck(ctx, c, "/v3/capability/check_rcs", address)
+		available, err := runHandleCapabilityCheck(ctx, c, "/v3/capability/check_rcs", address, from)
 		if err != nil {
 			return nil, err
 		}
@@ -681,8 +684,11 @@ func resolveCapabilityRoute(ctx context.Context, c *client.Client, address strin
 	}, nil
 }
 
-func runHandleCapabilityCheck(ctx context.Context, c *client.Client, path, address string) (bool, error) {
-	body := map[string]any{"handle_check": map[string]any{"address": address}}
+func runHandleCapabilityCheck(ctx context.Context, c *client.Client, path, address, from string) (bool, error) {
+	body := map[string]any{"address": address}
+	if normalizedFrom := strings.TrimSpace(from); normalizedFrom != "" {
+		body["from"] = normalizedFrom
+	}
 	data, _, err := c.PostQueryWithParams(ctx, path, map[string]string{}, body)
 	if err != nil {
 		return false, err

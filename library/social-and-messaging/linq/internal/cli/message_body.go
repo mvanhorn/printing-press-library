@@ -167,14 +167,14 @@ func buildLinqMessageBody(opts linqMessageBuildOptions) linqMessageBuildResult {
 	}
 
 	if replyID := strings.TrimSpace(opts.ReplyToMessageID); replyID != "" {
-		partIndex := 0
+		replyTo := map[string]any{"message_id": replyID}
 		if opts.HasReplyToPartIndex {
-			partIndex = opts.ReplyToPartIndex
+			if opts.ReplyToPartIndex < 0 {
+				errorsOut = append(errorsOut, "reply-to part index must be 0 or greater")
+			}
+			replyTo["part_index"] = opts.ReplyToPartIndex
 		}
-		if partIndex < 0 {
-			errorsOut = append(errorsOut, "reply-to part index must be 0 or greater")
-		}
-		message["reply_to"] = map[string]any{"message_id": replyID, "part_index": partIndex}
+		message["reply_to"] = replyTo
 	}
 	if key := strings.TrimSpace(opts.IdempotencyKey); key != "" {
 		if len([]rune(key)) > maxIdempotencyChars {
@@ -185,7 +185,7 @@ func buildLinqMessageBody(opts linqMessageBuildOptions) linqMessageBuildResult {
 
 	message["parts"] = parts
 	body := map[string]any{"message": message}
-	sort.Strings(errorsOut)
+	errorsOut = dedupeStrings(errorsOut)
 	warnings = dedupeStrings(warnings)
 	return linqMessageBuildResult{
 		Body:             body,

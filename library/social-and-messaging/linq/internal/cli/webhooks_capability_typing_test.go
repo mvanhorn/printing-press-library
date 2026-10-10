@@ -58,9 +58,11 @@ func TestCapabilityCheckRoutesWithoutEchoingAddress(t *testing.T) {
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			t.Fatalf("decode capability body: %v", err)
 		}
-		handleCheck, ok := body["handle_check"].(map[string]any)
-		if !ok || handleCheck["address"] != "+15551234567" {
+		if body["address"] != "+15551234567" {
 			t.Fatalf("unexpected capability body %#v", body)
+		}
+		if _, stale := body["handle_check"]; stale {
+			t.Fatalf("capability body used stale nested shape %#v", body)
 		}
 		switch r.URL.Path {
 		case "/v3/capability/check_imessage":
@@ -75,7 +77,7 @@ func TestCapabilityCheckRoutesWithoutEchoingAddress(t *testing.T) {
 	t.Setenv("LINQ_BASE_URL", server.URL)
 	t.Setenv("LINQ_API_KEY", "test-token")
 
-	out, err := runCommandWithIO(nil, "capability", "check", "+15551234567", "--json")
+	out, err := runCommandWithIO(nil, "capability", "check", "+15551234567", "--agent")
 	if err != nil {
 		t.Fatalf("capability check failed: %v\n%s", err, out)
 	}
@@ -84,6 +86,61 @@ func TestCapabilityCheckRoutesWithoutEchoingAddress(t *testing.T) {
 	}
 	if !strings.Contains(string(out), `"channel": "rcs"`) {
 		t.Fatalf("expected rcs route, got %s", out)
+	}
+}
+
+func TestCapabilityCheckIncludesOptionalSender(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		var body map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			t.Fatalf("decode capability body: %v", err)
+		}
+		if body["address"] != "+15551234567" || body["from"] != "+15557654321" {
+			t.Fatalf("unexpected capability body %#v", body)
+		}
+		_, _ = io.WriteString(w, `{"address":"+15551234567","available":true}`)
+	}))
+	defer server.Close()
+	t.Setenv("LINQ_BASE_URL", server.URL)
+	t.Setenv("LINQ_API_KEY", "test-token")
+
+	if out, err := runCommandWithIO(nil, "capability", "check", "  +15551234567  ", "--from", "  +15557654321  ", "--agent"); err != nil {
+		t.Fatalf("capability check with sender failed: %v\n%s", err, out)
+	}
+}
+
+func TestRawCapabilityCommandsExposeDocumentedFields(t *testing.T) {
+	for _, tc := range []struct {
+		command string
+		path    string
+	}{
+		{command: "check-imessage", path: "/v3/capability/check_imessage"},
+		{command: "check-rcscapability", path: "/v3/capability/check_rcs"},
+	} {
+		t.Run(tc.command, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				if r.URL.Path != tc.path {
+					t.Fatalf("path = %s, want %s", r.URL.Path, tc.path)
+				}
+				var body map[string]any
+				if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+					t.Fatalf("decode capability body: %v", err)
+				}
+				if body["address"] != "+15551234567" || body["from"] != "+15557654321" {
+					t.Fatalf("unexpected capability body %#v", body)
+				}
+				_, _ = io.WriteString(w, `{"address":"+15551234567","available":true}`)
+			}))
+			defer server.Close()
+			t.Setenv("LINQ_BASE_URL", server.URL)
+			t.Setenv("LINQ_API_KEY", "test-token")
+
+			if out, err := runCommandWithIO(nil, "capability", tc.command, "--address", "  +15551234567  ", "--from", "  +15557654321  ", "--agent"); err != nil {
+				t.Fatalf("raw capability command failed: %v\n%s", err, out)
+			}
+		})
 	}
 }
 
@@ -114,6 +171,25 @@ func TestCapabilityCheckMarksRCSNotCheckedForIMessage(t *testing.T) {
 	}
 	if !strings.Contains(string(out), `"rcs_checked": false`) || !strings.Contains(string(out), `"rcs_available": null`) {
 		t.Fatalf("expected RCS to be marked not checked, got %s", out)
+	}
+}
+
+func TestCapabilityCheckDryRunShowsDocumentedRequestShape(t *testing.T) {
+	out, err := runCommandWithIO(nil, "capability", "check", "+15551234567", "--from", "+15557654321", "--dry-run", "--json")
+	if err != nil {
+		t.Fatalf("capability check dry-run failed: %v\n%s", err, out)
+	}
+	if strings.Contains(string(out), "handle_check") {
+		t.Fatalf("dry-run advertised stale nested request shape: %s", out)
+	}
+	var rendered struct {
+		RequestShape map[string]any `json:"request_shape"`
+	}
+	if err := json.Unmarshal(out, &rendered); err != nil {
+		t.Fatalf("parse dry-run output: %v\n%s", err, out)
+	}
+	if rendered.RequestShape["address"] != "<address>" || rendered.RequestShape["from"] != "<from>" {
+		t.Fatalf("dry-run did not advertise documented request fields: %s", out)
 	}
 }
 
