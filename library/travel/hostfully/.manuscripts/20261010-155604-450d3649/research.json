@@ -1,0 +1,288 @@
+{
+  "api_name": "hostfully",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-10T22:57:33Z",
+  "novel_features": [
+    {
+      "name": "Caller-ID Guest Lookup",
+      "command": "whois",
+      "description": "Look up a guest by phone number or name and get every stay, payment status and reservation access PIN.",
+      "rationale": "Joins complete per-property reservation history with live payment and access details that no single API call returns.",
+      "example": "hostfully-pp-cli whois \"+1 555 010 0199\" --agent",
+      "why_it_matters": "Reach for this first when a guest calls or texts and you need to know who they are and which stay they mean.",
+      "group": "Live guest operations"
+    },
+    {
+      "name": "Guest Messaging Inbox",
+      "command": "inbox",
+      "description": "Read recent guest messages and threads, and reply through the reservation thread with a dry-run guard.",
+      "rationale": "Wraps Hostfully's v3.3 messaging with a confirm-before-send reply path built for agents.",
+      "example": "hostfully-pp-cli inbox messages --since 24h --agent",
+      "why_it_matters": "Use to triage new guest messages and draft or send replies without opening the web app.",
+      "group": "Live guest operations"
+    },
+    {
+      "name": "Live Complete Quote",
+      "command": "quote",
+      "description": "Price a stay for a property and dates with rent, taxes and fees itemized.",
+      "rationale": "Uses Hostfully's own quote calculation so totals match what the guest will be charged.",
+      "example": "hostfully-pp-cli quote --unit 1 --check-in 2026-11-06 --check-out 2026-11-08 --guests 2 --agent",
+      "why_it_matters": "Use when a prospective guest asks what a stay costs.",
+      "group": "Live guest operations"
+    },
+    {
+      "name": "Service Jobs",
+      "command": "jobs",
+      "description": "List cleaning and maintenance jobs with service and provider identity, including cancelled jobs.",
+      "rationale": "Keeps cancelled jobs and provider names that invoice review needs.",
+      "example": "hostfully-pp-cli jobs --from 2026-10-01 --to 2026-10-31 --agent",
+      "why_it_matters": "Use to reconcile a cleaning or service vendor's invoice against scheduled jobs.",
+      "group": "Live guest operations"
+    },
+    {
+      "name": "Multi-Unit Vacancy Finder",
+      "command": "vacancy",
+      "description": "Find consecutive vacant days across several units at once.",
+      "rationale": "Requires cross-unit date intersection over the local archive.",
+      "example": "hostfully-pp-cli vacancy --units 1,2 --consecutive 2 --agent",
+      "why_it_matters": "Use to plan work or owner stays that need several units free together.",
+      "group": "Planning and analytics"
+    },
+    {
+      "name": "Maintenance Windows",
+      "command": "maintenance",
+      "description": "Find maintenance slots across units around upcoming bookings.",
+      "rationale": "Combines every unit's booking calendar into ranked free windows.",
+      "example": "hostfully-pp-cli maintenance --units all --min-days 1 --agent",
+      "why_it_matters": "Use when scheduling repairs that must not disturb guests.",
+      "group": "Planning and analytics"
+    },
+    {
+      "name": "Turnover Gap Detection",
+      "command": "turnover",
+      "description": "See cleaning windows between each checkout and the next check-in.",
+      "rationale": "Requires ordered stays per unit from the archive.",
+      "example": "hostfully-pp-cli turnover --days 7 --agent",
+      "why_it_matters": "Use to build the week's cleaning schedule.",
+      "group": "Planning and analytics"
+    },
+    {
+      "name": "Occupancy Rate Analysis",
+      "command": "occupancy",
+      "description": "Per-unit and overall occupancy for any period.",
+      "rationale": "Computed from historical reservations in the local archive.",
+      "example": "hostfully-pp-cli occupancy --month 2026-09 --agent",
+      "why_it_matters": "Use for monthly performance reviews.",
+      "group": "Planning and analytics"
+    },
+    {
+      "name": "Channel Mix Analytics",
+      "command": "channels",
+      "description": "Break down where bookings come from over a period.",
+      "rationale": "Aggregates booking sources across history.",
+      "example": "hostfully-pp-cli channels --period 90d --agent",
+      "why_it_matters": "Use to see which channels drive bookings.",
+      "group": "Planning and analytics"
+    },
+    {
+      "name": "Revenue Estimation",
+      "command": "revenue",
+      "description": "Estimate revenue per unit and month from booked nights.",
+      "rationale": "Derived from the reservation archive.",
+      "example": "hostfully-pp-cli revenue --month 2026-09 --agent",
+      "why_it_matters": "Use for quick revenue snapshots.",
+      "group": "Planning and analytics"
+    },
+    {
+      "name": "Booking Pattern Analysis",
+      "command": "patterns",
+      "description": "Spot weekday/weekend and seasonal booking trends.",
+      "rationale": "Needs weeks of history from the archive.",
+      "example": "hostfully-pp-cli patterns --weeks 12 --agent",
+      "why_it_matters": "Use for pricing and staffing decisions.",
+      "group": "Planning and analytics"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Caller-ID Guest Lookup",
+      "command": "whois",
+      "description": "Look up a guest by phone number or name and get every stay, payment status and reservation access PIN.",
+      "rationale": "Joins complete per-property reservation history with live payment and access details that no single API call returns.",
+      "example": "hostfully-pp-cli whois \"+1 555 010 0199\" --agent",
+      "why_it_matters": "Reach for this first when a guest calls or texts and you need to know who they are and which stay they mean.",
+      "group": "Live guest operations"
+    },
+    {
+      "name": "Guest Messaging Inbox",
+      "command": "inbox",
+      "description": "Read recent guest messages and threads, and reply through the reservation thread with a dry-run guard.",
+      "rationale": "Wraps Hostfully's v3.3 messaging with a confirm-before-send reply path built for agents.",
+      "example": "hostfully-pp-cli inbox messages --since 24h --agent",
+      "why_it_matters": "Use to triage new guest messages and draft or send replies without opening the web app.",
+      "group": "Live guest operations"
+    },
+    {
+      "name": "Live Complete Quote",
+      "command": "quote",
+      "description": "Price a stay for a property and dates with rent, taxes and fees itemized.",
+      "rationale": "Uses Hostfully's own quote calculation so totals match what the guest will be charged.",
+      "example": "hostfully-pp-cli quote --unit 1 --check-in 2026-11-06 --check-out 2026-11-08 --guests 2 --agent",
+      "why_it_matters": "Use when a prospective guest asks what a stay costs.",
+      "group": "Live guest operations"
+    },
+    {
+      "name": "Service Jobs",
+      "command": "jobs",
+      "description": "List cleaning and maintenance jobs with service and provider identity, including cancelled jobs.",
+      "rationale": "Keeps cancelled jobs and provider names that invoice review needs.",
+      "example": "hostfully-pp-cli jobs --from 2026-10-01 --to 2026-10-31 --agent",
+      "why_it_matters": "Use to reconcile a cleaning or service vendor's invoice against scheduled jobs.",
+      "group": "Live guest operations"
+    },
+    {
+      "name": "Multi-Unit Vacancy Finder",
+      "command": "vacancy",
+      "description": "Find consecutive vacant days across several units at once.",
+      "rationale": "Requires cross-unit date intersection over the local archive.",
+      "example": "hostfully-pp-cli vacancy --units 1,2 --consecutive 2 --agent",
+      "why_it_matters": "Use to plan work or owner stays that need several units free together.",
+      "group": "Planning and analytics"
+    },
+    {
+      "name": "Maintenance Windows",
+      "command": "maintenance",
+      "description": "Find maintenance slots across units around upcoming bookings.",
+      "rationale": "Combines every unit's booking calendar into ranked free windows.",
+      "example": "hostfully-pp-cli maintenance --units all --min-days 1 --agent",
+      "why_it_matters": "Use when scheduling repairs that must not disturb guests.",
+      "group": "Planning and analytics"
+    },
+    {
+      "name": "Turnover Gap Detection",
+      "command": "turnover",
+      "description": "See cleaning windows between each checkout and the next check-in.",
+      "rationale": "Requires ordered stays per unit from the archive.",
+      "example": "hostfully-pp-cli turnover --days 7 --agent",
+      "why_it_matters": "Use to build the week's cleaning schedule.",
+      "group": "Planning and analytics"
+    },
+    {
+      "name": "Occupancy Rate Analysis",
+      "command": "occupancy",
+      "description": "Per-unit and overall occupancy for any period.",
+      "rationale": "Computed from historical reservations in the local archive.",
+      "example": "hostfully-pp-cli occupancy --month 2026-09 --agent",
+      "why_it_matters": "Use for monthly performance reviews.",
+      "group": "Planning and analytics"
+    },
+    {
+      "name": "Channel Mix Analytics",
+      "command": "channels",
+      "description": "Break down where bookings come from over a period.",
+      "rationale": "Aggregates booking sources across history.",
+      "example": "hostfully-pp-cli channels --period 90d --agent",
+      "why_it_matters": "Use to see which channels drive bookings.",
+      "group": "Planning and analytics"
+    },
+    {
+      "name": "Revenue Estimation",
+      "command": "revenue",
+      "description": "Estimate revenue per unit and month from booked nights.",
+      "rationale": "Derived from the reservation archive.",
+      "example": "hostfully-pp-cli revenue --month 2026-09 --agent",
+      "why_it_matters": "Use for quick revenue snapshots.",
+      "group": "Planning and analytics"
+    },
+    {
+      "name": "Booking Pattern Analysis",
+      "command": "patterns",
+      "description": "Spot weekday/weekend and seasonal booking trends.",
+      "rationale": "Needs weeks of history from the archive.",
+      "example": "hostfully-pp-cli patterns --weeks 12 --agent",
+      "why_it_matters": "Use for pricing and staffing decisions.",
+      "group": "Planning and analytics"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "HOSTFULLY_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Hostfully",
+    "headline": "Hostfully reservations and guest messaging — plus caller-ID lookup, quotes, and multi-unit vacancy analysis.",
+    "value_prop": "Reads current operational data (today's guests, availability, caller identity, quotes) live from Hostfully, and keeps a local SQLite archive for historical analysis such as occupancy, turnover and vacancy windows. Unit numbers are discovered from your agency's properties, or pinned with HOSTFULLY_UNITS.",
+    "auth_narrative": "Set HOSTFULLY_API_KEY to an agency API key and HOSTFULLY_AGENCY_ID to the agency UID; every Hostfully request is agency-scoped. Unit numbers used by today, availability, whois, quote, vacancy and the other per-unit commands come from HOSTFULLY_UNITS (\"1=\u003cproperty-uid\u003e,2=\u003cproperty-uid\u003e\"), a units.json file, synced properties, or live discovery of the agency's properties; run `hostfully-pp-cli units` to see the mapping. The property time zone comes from HOSTFULLY_TIMEZONE or the properties themselves. `inbox reply` is the one command that sends a guest message: it requires --yes and supports --dry-run.",
+    "quickstart": [
+      {
+        "command": "hostfully-pp-cli doctor --dry-run",
+        "comment": "Check configuration without touching the network"
+      },
+      {
+        "command": "hostfully-pp-cli units",
+        "comment": "See how unit numbers map to your Hostfully properties"
+      },
+      {
+        "command": "hostfully-pp-cli today",
+        "comment": "Check-ins, check-outs, in-house guests and vacant units"
+      },
+      {
+        "command": "hostfully-pp-cli whois \"+1 555 010 0199\"",
+        "comment": "Identify a caller from their phone number"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "403 or authentication error",
+        "fix": "Set HOSTFULLY_API_KEY and HOSTFULLY_AGENCY_ID, then run hostfully-pp-cli doctor"
+      },
+      {
+        "symptom": "Unit numbers don't match your property names",
+        "fix": "Pin them with HOSTFULLY_UNITS=\"1=\u003cproperty-uid\u003e,2=\u003cproperty-uid\u003e\" or a units map in the config file"
+      },
+      {
+        "symptom": "HTTP 500 while fetching leads",
+        "fix": "Use hostfully-pp-cli fetch, which fetches per property and recovers failed pages through GraphQL"
+      }
+    ],
+    "when_to_use": "Use this CLI for day-to-day Hostfully operations: identifying callers, checking today's arrivals and departures, live availability, quoting stays, reading and answering guest messages, and planning around vacancy. Use the archive-backed analytics for occupancy, turnover and channel questions. Channel analytics break bookings down by source such as Airbnb, Booking.com, VRBO and direct. Reads are the default; `inbox reply` is the single command that sends a guest message, and it requires --yes (preview with --dry-run). Unit numbers map to properties via `hostfully-pp-cli units`.",
+    "anti_triggers": [
+      "Changing rates, rules or listing content (use the Hostfully web app)",
+      "Creating or cancelling reservations",
+      "Payment refunds or payouts"
+    ],
+    "recipes": [
+      {
+        "title": "Who is calling",
+        "command": "hostfully-pp-cli whois \"+1 555 010 0199\" --agent",
+        "explanation": "Resolve a phone number to the guest's stays, payment status and access PIN."
+      },
+      {
+        "title": "Today's operations",
+        "command": "hostfully-pp-cli today --agent",
+        "explanation": "Daily summary of check-ins, check-outs, in-house guests and vacant units."
+      },
+      {
+        "title": "Narrow the unit map",
+        "command": "hostfully-pp-cli units --agent --select units.unit,units.propertyUid",
+        "explanation": "Pull only unit numbers and property UIDs when wiring another tool to this CLI."
+      },
+      {
+        "title": "Maintenance window",
+        "command": "hostfully-pp-cli vacancy --units 1,2 --consecutive 2 --agent",
+        "explanation": "Find two consecutive days where units 1 and 2 are both empty."
+      }
+    ],
+    "trigger_phrases": [
+      "who's checking in today",
+      "who is this caller",
+      "quote a stay",
+      "check guest messages",
+      "find a vacancy window",
+      "use hostfully"
+    ]
+  }
+}

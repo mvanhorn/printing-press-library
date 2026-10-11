@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/hostfully-pp-cli
+/hostfully-pp-cli.exe
+/hostfully-pp-mcp
+/hostfully-pp-mcp.exe
+/bin/
+/build/
+/dist/

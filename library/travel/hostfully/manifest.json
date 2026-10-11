@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "hostfully-pp-mcp",
+  "display_name": "Hostfully",
+  "version": "4.33.4",
+  "description": "Hostfully reservations and guest messaging — plus caller-ID lookup, quotes, and multi-unit vacancy analysis.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/hostfully-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/hostfully-pp-mcp",
+      "args": [],
+      "env": {
+        "HOSTFULLY_AGENCY_ID": "${user_config.hostfully_agency_id}",
+        "HOSTFULLY_API_KEY": "${user_config.hostfully_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "hostfully_agency_id": {
+      "type": "string",
+      "title": "HOSTFULLY_AGENCY_ID",
+      "description": "Sets HOSTFULLY_AGENCY_ID for the Hostfully MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    },
+    "hostfully_api_key": {
+      "type": "string",
+      "title": "HOSTFULLY_API_KEY",
+      "description": "Sets HOSTFULLY_API_KEY for the Hostfully MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+https://dev.hostfully.com/
+https://platform.hostfully.com/api/v3
+https://airbnb.com/
+https://booking.com/
+https://vrbo.com/

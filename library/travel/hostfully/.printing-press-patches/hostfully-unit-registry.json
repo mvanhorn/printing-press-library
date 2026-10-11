@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "hostfully-unit-registry",
+  "applied_at": "2026-10-10",
+  "base_run_id": "20261010-155604-450d3649",
+  "base_printing_press_version": "4.33.4",
+  "summary": "Resolve unit numbers and the property time zone from HOSTFULLY_UNITS, units.json, the local store, or live /properties discovery; add a units command; scope sync to HOSTFULLY_AGENCY_ID. Per-property live fan-outs disable the default auto pacer unless --rate-limit is set.",
+  "reason": "Per-property fetches need property UIDs; they must come from the operator's agency, not from code.",
+  "files": [
+    "internal/cli/availability.go",
+    "internal/cli/hostfully_ops_register.go",
+    "internal/cli/hostfully_sync.go",
+    "internal/cli/today.go",
+    "internal/cli/units.go",
+    "internal/cli/units_test.go",
+    "internal/cli/whois.go"
+  ]
+}

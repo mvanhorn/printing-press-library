@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "hostfully-pp-cli"
+display_name = "Hostfully"
+description = "Hostfully reservations and guest messaging — plus caller-ID lookup, quotes, and multi-unit vacancy analysis."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/hostfully-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+HOSTFULLY_API_KEY = true

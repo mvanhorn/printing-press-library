@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "hostfully-live-operations",
+  "applied_at": "2026-10-10",
+  "base_run_id": "20261010-155604-450d3649",
+  "base_printing_press_version": "4.33.4",
+  "summary": "today, guests, and availability read Hostfully live per property, with no silent local fallback for availability.",
+  "reason": "Front-desk decisions must reflect current bookings, not a stale archive.",
+  "files": [
+    "internal/cli/today.go",
+    "internal/cli/today_test.go",
+    "internal/cli/availability.go",
+    "internal/cli/availability_test.go",
+    "internal/cli/guests.go",
+    "internal/cli/hostfully_ops_register.go"
+  ]
+}

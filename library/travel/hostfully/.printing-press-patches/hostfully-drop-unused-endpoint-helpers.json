@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "hostfully-drop-unused-endpoint-helpers",
+  "applied_at": "2026-10-10",
+  "base_run_id": "20261010-155604-450d3649",
+  "base_printing_press_version": "4.33.4",
+  "summary": "Remove seven endpoint positional-argument helpers that no generated command calls.",
+  "reason": "This spec has no positional-argument endpoints, so the helpers are dead code and fail dogfood.",
+  "files": [
+    "internal/cli/helpers.go"
+  ]
+}

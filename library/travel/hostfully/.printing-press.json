@@ -1,0 +1,86 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-10T23:48:51.39899Z",
+  "printing_press_version": "4.33.4",
+  "api_name": "hostfully",
+  "display_name": "Hostfully",
+  "cli_name": "hostfully-pp-cli",
+  "creator": {
+    "handle": "gregmushen",
+    "name": "Greg Mushen"
+  },
+  "owner": "gregmushen",
+  "printer": "gregmushen",
+  "printer_name": "Greg Mushen",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:2565639bb93dd1dbc084a529fd0c9c8102ec5befbaa8b48e0552709de29c84f2",
+  "run_id": "20261010-155604-450d3649",
+  "category": "travel",
+  "description": "Hostfully reservations and guest messaging — plus caller-ID lookup, quotes, and multi-unit vacancy analysis.",
+  "mcp_binary": "hostfully-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "v3",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "HOSTFULLY_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Caller-ID Guest Lookup",
+      "command": "whois",
+      "description": "Look up a guest by phone number or name and get every stay, payment status and reservation access PIN."
+    },
+    {
+      "name": "Guest Messaging Inbox",
+      "command": "inbox",
+      "description": "Read recent guest messages and threads, and reply through the reservation thread with a dry-run guard."
+    },
+    {
+      "name": "Live Complete Quote",
+      "command": "quote",
+      "description": "Price a stay for a property and dates with rent, taxes and fees itemized."
+    },
+    {
+      "name": "Service Jobs",
+      "command": "jobs",
+      "description": "List cleaning and maintenance jobs with service and provider identity, including cancelled jobs."
+    },
+    {
+      "name": "Multi-Unit Vacancy Finder",
+      "command": "vacancy",
+      "description": "Find consecutive vacant days across several units at once."
+    },
+    {
+      "name": "Maintenance Windows",
+      "command": "maintenance",
+      "description": "Find maintenance slots across units around upcoming bookings."
+    },
+    {
+      "name": "Turnover Gap Detection",
+      "command": "turnover",
+      "description": "See cleaning windows between each checkout and the next check-in."
+    },
+    {
+      "name": "Occupancy Rate Analysis",
+      "command": "occupancy",
+      "description": "Per-unit and overall occupancy for any period."
+    },
+    {
+      "name": "Channel Mix Analytics",
+      "command": "channels",
+      "description": "Break down where bookings come from over a period."
+    },
+    {
+      "name": "Revenue Estimation",
+      "command": "revenue",
+      "description": "Estimate revenue per unit and month from booked nights."
+    },
+    {
+      "name": "Booking Pattern Analysis",
+      "command": "patterns",
+      "description": "Spot weekday/weekend and seasonal booking trends."
+    }
+  ]
+}

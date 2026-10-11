@@ -1,0 +1,156 @@
+{
+  "api_name": "hostfully",
+  "base_url": "https://platform.hostfully.com/api/v3",
+  "description": "Hostfully reservations and guest messaging — plus caller-ID lookup, quotes, and multi-unit vacancy analysis.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "X-HOSTFULLY-APIKEY",
+    "in": "header",
+    "env_vars": [
+      "HOSTFULLY_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "HOSTFULLY_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "leads_list",
+      "description": "List leads (reservations) with date and property filters. Required: agencyUid. Optional: propertyUid, checkinFrom, checkinTo (plus 4 more).",
+      "method": "GET",
+      "path": "/leads",
+      "params": [
+        {
+          "name": "agencyUid",
+          "type": "string",
+          "location": "query",
+          "description": "Agency UID",
+          "required": true
+        },
+        {
+          "name": "propertyUid",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to a specific property"
+        },
+        {
+          "name": "checkinFrom",
+          "type": "string",
+          "location": "query",
+          "description": "Check-in date start filter (YYYY-MM-DD)"
+        },
+        {
+          "name": "checkinTo",
+          "type": "string",
+          "location": "query",
+          "description": "Check-in date end filter (YYYY-MM-DD)"
+        },
+        {
+          "name": "checkoutFrom",
+          "type": "string",
+          "location": "query",
+          "description": "Check-out date start filter (YYYY-MM-DD)"
+        },
+        {
+          "name": "checkoutTo",
+          "type": "string",
+          "location": "query",
+          "description": "Check-out date end filter (YYYY-MM-DD)"
+        },
+        {
+          "name": "_limit",
+          "type": "string",
+          "location": "query",
+          "description": "Results per page (default 20, max 200)"
+        },
+        {
+          "name": "_cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for next page"
+        }
+      ]
+    },
+    {
+      "name": "properties_list",
+      "description": "List all properties for the agency. Required: agencyUid.",
+      "method": "GET",
+      "path": "/properties",
+      "params": [
+        {
+          "name": "agencyUid",
+          "type": "string",
+          "location": "query",
+          "description": "Agency UID",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Caller-ID Guest Lookup",
+      "command": "whois",
+      "description": "Look up a guest by phone number or name and get every stay, payment status and reservation access PIN."
+    },
+    {
+      "name": "Guest Messaging Inbox",
+      "command": "inbox",
+      "description": "Read recent guest messages and threads, and reply through the reservation thread with a dry-run guard."
+    },
+    {
+      "name": "Live Complete Quote",
+      "command": "quote",
+      "description": "Price a stay for a property and dates with rent, taxes and fees itemized."
+    },
+    {
+      "name": "Service Jobs",
+      "command": "jobs",
+      "description": "List cleaning and maintenance jobs with service and provider identity, including cancelled jobs."
+    },
+    {
+      "name": "Multi-Unit Vacancy Finder",
+      "command": "vacancy",
+      "description": "Find consecutive vacant days across several units at once."
+    },
+    {
+      "name": "Maintenance Windows",
+      "command": "maintenance",
+      "description": "Find maintenance slots across units around upcoming bookings."
+    },
+    {
+      "name": "Turnover Gap Detection",
+      "command": "turnover",
+      "description": "See cleaning windows between each checkout and the next check-in."
+    },
+    {
+      "name": "Occupancy Rate Analysis",
+      "command": "occupancy",
+      "description": "Per-unit and overall occupancy for any period."
+    },
+    {
+      "name": "Channel Mix Analytics",
+      "command": "channels",
+      "description": "Break down where bookings come from over a period."
+    },
+    {
+      "name": "Revenue Estimation",
+      "command": "revenue",
+      "description": "Estimate revenue per unit and month from booked nights."
+    },
+    {
+      "name": "Booking Pattern Analysis",
+      "command": "patterns",
+      "description": "Spot weekday/weekend and seasonal booking trends."
+    }
+  ]
+}

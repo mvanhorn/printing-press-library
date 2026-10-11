@@ -1,0 +1,132 @@
+name: hostfully
+category: travel
+version: v3
+base_url: https://platform.hostfully.com/api/v3
+description: Property management and vacation rental booking platform API
+
+auth:
+  type: api_key
+  header: X-HOSTFULLY-APIKEY
+  in: header
+  env_vars:
+    - HOSTFULLY_API_KEY
+
+global_params:
+  - name: agencyUid
+    in: query
+    required: true
+    description: Agency UID for multi-tenant filtering
+    env_var: HOSTFULLY_AGENCY_ID
+
+pagination:
+  type: cursor
+  cursor_param: _cursor
+  limit_param: _limit
+  default_limit: 200
+  response_path: _paging._nextCursor
+
+resources:
+  leads:
+    description: Reservations and bookings across all properties
+    endpoints:
+      list:
+        method: GET
+        path: /leads
+        description: List leads (reservations) with date and property filters
+        example: "hostfully-pp-cli leads --agency-uid 550e8400-e29b-41d4-a716-446655440000 --checkin-from 2026-11-01 --checkin-to 2026-11-30 --agent"
+        params:
+          - name: agencyUid
+            in: query
+            required: true
+            description: Agency UID
+          - name: propertyUid
+            in: query
+            required: false
+            description: Filter to a specific property
+          - name: checkinFrom
+            in: query
+            required: false
+            description: Check-in date start filter (YYYY-MM-DD)
+          - name: checkinTo
+            in: query
+            required: false
+            description: Check-in date end filter (YYYY-MM-DD)
+          - name: checkoutFrom
+            in: query
+            required: false
+            description: Check-out date start filter (YYYY-MM-DD)
+          - name: checkoutTo
+            in: query
+            required: false
+            description: Check-out date end filter (YYYY-MM-DD)
+          - name: _limit
+            in: query
+            required: false
+            description: Results per page (default 20, max 200)
+          - name: _cursor
+            in: query
+            required: false
+            description: Pagination cursor for next page
+        response:
+          wrapper: leads
+          fields:
+            - name: uid
+              type: string
+              description: Reservation ID
+            - name: propertyUid
+              type: string
+              description: Property UUID (map to unit number)
+            - name: status
+              type: string
+              description: "BOOKED, STAY, NEW, CANCELLED, CLOSED"
+            - name: checkInLocalDateTime
+              type: string
+              description: "ISO 8601 local time, e.g. 2026-03-19T15:00:00"
+            - name: checkOutLocalDateTime
+              type: string
+              description: "ISO 8601 local time, e.g. 2026-03-20T11:00:00"
+            - name: channel
+              type: string
+              description: "AIRBNB, BOOKING_COM, DIRECT, etc."
+            - name: source
+              type: string
+              description: "DIRECT_AIRBNB, DIRECT_BOOKINGDOTCOM, etc."
+            - name: externalBookingId
+              type: string
+              description: Channel booking reference
+            - name: guestInformation
+              type: object
+              fields:
+                - name: firstName
+                  type: string
+                - name: lastName
+                  type: string
+                - name: phoneNumber
+                  type: string
+                - name: cellPhoneNumber
+                  type: string
+                - name: email
+                  type: string
+                  description: Often null for OTA bookings (masked by Airbnb)
+                - name: adultCount
+                  type: integer
+                - name: childrenCount
+                  type: integer
+                - name: petCount
+                  type: integer
+
+  properties:
+    description: Rental properties/units managed by the agency
+    endpoints:
+      list:
+        method: GET
+        path: /properties
+        description: List all properties for the agency
+        example: "hostfully-pp-cli properties --agency-uid 550e8400-e29b-41d4-a716-446655440000 --agent"
+        syncable: true
+        params:
+          - name: agencyUid
+            in: query
+            required: true
+            description: Agency UID
+

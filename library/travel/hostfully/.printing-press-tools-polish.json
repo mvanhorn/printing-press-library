@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-10-10T23:36:25.059826Z",
+  "cli_dir": "\u003ccli-dir\u003e/hostfully-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-10-10T23:35:17.785598Z"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "hostfully-jobs",
+  "applied_at": "2026-10-10",
+  "base_run_id": "20261010-155604-450d3649",
+  "base_printing_press_version": "4.33.4",
+  "summary": "Add jobs list with service and provider identity, retaining cancelled jobs.",
+  "reason": "Service-invoice review needs provider names and cancelled jobs, which the raw list omits.",
+  "files": [
+    "internal/cli/jobs.go","internal/cli/jobs_list.go",
+    "internal/cli/jobs_list_test.go"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/hostfully-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20261010-155604-450d3649",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

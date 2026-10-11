@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "hostfully-live-whois",
+  "applied_at": "2026-10-10",
+  "base_run_id": "20261010-155604-450d3649",
+  "base_printing_press_version": "4.33.4",
+  "summary": "whois resolves a phone number or name to complete stay history with live payment status and reservation access PIN.",
+  "reason": "Caller identification needs every property's history joined with payment state, which no single endpoint returns.",
+  "files": [
+    "internal/cli/whois.go",
+    "internal/cli/whois_test.go",
+    "internal/cli/today.go"
+  ]
+}

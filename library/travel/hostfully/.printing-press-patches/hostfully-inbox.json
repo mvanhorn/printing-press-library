@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "hostfully-inbox",
+  "applied_at": "2026-10-10",
+  "base_run_id": "20261010-155604-450d3649",
+  "base_printing_press_version": "4.33.4",
+  "summary": "Add inbox threads/messages/show/message and a confirm-gated reply through the reservation's messaging channel.",
+  "reason": "Agents need to triage and answer guest messages; replies require --yes and support --dry-run.",
+  "files": [
+    "internal/cli/inbox.go",
+    "internal/cli/inbox_test.go"
+  ]
+}

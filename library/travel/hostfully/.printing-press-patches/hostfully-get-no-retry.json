@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "hostfully-get-no-retry",
+  "applied_at": "2026-10-10",
+  "base_run_id": "20261010-155604-450d3649",
+  "base_printing_press_version": "4.33.4",
+  "summary": "Add a single-attempt GET (client.GetNoRetry / WithNoRetry) honored by the generated retry loop.",
+  "reason": "Hostfully's leads endpoint returns a repeatable HTTP 500 for leads it cannot serialize; the fetch bisects those pages, so retries only waste time.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/hostfully_noretry.go"
+  ]
+}

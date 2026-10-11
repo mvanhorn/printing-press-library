@@ -1,0 +1,55 @@
+version: 2
+project_name: hostfully-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: hostfully-pp-cli
+    main: ./cmd/hostfully-pp-cli
+    binary: hostfully-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/hostfully/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: hostfully-pp-mcp
+    main: ./cmd/hostfully-pp-mcp
+    binary: hostfully-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: hostfully-pp-cli
+    repository:
+      owner: gregmushen
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Hostfully reservations and guest messaging — plus caller-ID lookup, quotes, and multi-unit vacancy analysis."
+    install: |
+      bin.install "hostfully-pp-cli"
+      bin.install "hostfully-pp-mcp"
