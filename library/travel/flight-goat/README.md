@@ -46,7 +46,7 @@ Our AeroAPI push notification [testing interface](/commercial/aeroapi/send.rvt)
 provides a quick and easy way to test the delivery of customized alerts via AeroAPI push.
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
-Contributors: [@lloydarmbrust](https://github.com/lloydarmbrust) (Lloyd Armbrust), [@tmchow](https://github.com/tmchow) (Trevin Chow), [@omarshahine](https://github.com/omarshahine) (Omar Shahine), [@giuseppebisemi](https://github.com/giuseppebisemi) (Giuseppe Bisemi), [@patricksrail](https://github.com/patricksrail) (Patrick Srail), [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+Contributors: [@lloydarmbrust](https://github.com/lloydarmbrust) (Lloyd Armbrust), [@tmchow](https://github.com/tmchow) (Trevin Chow), [@omarshahine](https://github.com/omarshahine) (Omar Shahine), [@giuseppebisemi](https://github.com/giuseppebisemi) (Giuseppe Bisemi), [@patricksrail](https://github.com/patricksrail) (Patrick Srail), [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery), [@Alexguitar-zz](https://github.com/Alexguitar-zz) (Lex).
 
 ## Install
 
@@ -77,7 +77,7 @@ npx -y @mvanhorn/printing-press-library install flight-goat --agent claude-code 
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.9 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/travel/flight-goat/cmd/flight-goat-pp-cli@latest

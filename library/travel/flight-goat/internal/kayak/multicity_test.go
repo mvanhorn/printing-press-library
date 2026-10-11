@@ -328,3 +328,17 @@ func TestKayakCabinClass_Mapping(t *testing.T) {
 		}
 	}
 }
+
+func TestBuildShellURL_PremiumEconomy(t *testing.T) {
+	segs := []Segment{
+		{Origin: "BOS", Destination: "LHR", DepartureDate: "2026-10-05"},
+		{Origin: "LHR", Destination: "BOS", DepartureDate: "2026-10-19"},
+	}
+	const want = "https://www.kayak.com/flights/BOS-LHR/2026-10-05/LHR-BOS/2026-10-19/premium?sort=bestflight_a"
+	for _, cabin := range []string{"premium_economy", "premium"} {
+		got := buildShellURL(MultiCityOptions{Segments: segs, Passengers: 1, Cabin: cabin})
+		if got != want {
+			t.Errorf("cabin %q URL = %q\nwant          %q", cabin, got, want)
+		}
+	}
+}
