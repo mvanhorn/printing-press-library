@@ -57,7 +57,7 @@ type Segment struct {
 type MultiCityOptions struct {
 	Segments   []Segment
 	Passengers int    // default 1
-	Cabin      string // "" (economy), "premium", "business", "first"
+	Cabin      string // "" (economy), "premium"/"premium_economy", "business", "first"
 	Nonstop    bool
 	Currency   string // "" (USD)
 }
@@ -236,10 +236,10 @@ func buildShellURL(opts MultiCityOptions) string {
 		parts = append(parts, fmt.Sprintf("%s-%s/%s",
 			strings.ToUpper(s.Origin), strings.ToUpper(s.Destination), s.DepartureDate))
 	}
-	switch strings.ToLower(opts.Cabin) {
+	switch kayakCabinClass(opts.Cabin) {
 	case "business":
 		parts = append(parts, "business")
-	case "premium":
+	case "premium-economy":
 		parts = append(parts, "premium")
 	case "first":
 		parts = append(parts, "first")
@@ -314,12 +314,33 @@ func (c *MultiCityClient) post(ctx context.Context, urlStr, csrf, referer string
 	return out, nil
 }
 
+// kayakCabinClass maps the CLI --class vocabulary (economy, premium_economy,
+// business, first — plus the "premium" alias the shell URL uses) onto the
+// IrisRequestCabinClass enum Kayak's poll endpoint validates per leg.
+// Unknown values return "" so callers omit the field instead of tripping the
+// endpoint's strict field validator ("Unrecognized field ...").
+func kayakCabinClass(cabin string) string {
+	switch strings.ToLower(strings.TrimSpace(cabin)) {
+	case "premium", "premium_economy", "premium-economy", "premiumeconomy":
+		return "premium-economy"
+	case "business", "business_class":
+		return "business"
+	case "first", "first_class":
+		return "first"
+	case "economy", "eco":
+		return "economy"
+	default:
+		return ""
+	}
+}
+
 // buildPollBody produces the JSON body Kayak expects on the poll endpoint.
 // searchID is empty on the first call and present on subsequent polls.
 func buildPollBody(opts MultiCityOptions, searchID string) []byte {
+	cabinClass := kayakCabinClass(opts.Cabin)
 	legs := make([]map[string]any, 0, len(opts.Segments))
 	for _, s := range opts.Segments {
-		legs = append(legs, map[string]any{
+		leg := map[string]any{
 			"origin": map[string]any{
 				"airports":     []string{strings.ToUpper(s.Origin)},
 				"locationType": "airports",
@@ -330,7 +351,15 @@ func buildPollBody(opts MultiCityOptions, searchID string) []byte {
 			},
 			"date": s.DepartureDate,
 			"flex": "exact",
-		})
+		}
+		// PATCH(library): Kayak's Iris search reads the cabin from each leg's
+		// cabinClass field (enum: economy|premium-economy|business|first).
+		// Without it the poll silently returns economy fares regardless of
+		// --class — verified against live VALIDATION_ERROR probing 2026-10-11.
+		if cabinClass != "" {
+			leg["cabinClass"] = cabinClass
+		}
+		legs = append(legs, leg)
 	}
 	pax := make([]string, opts.Passengers)
 	paxDetails := make([]map[string]any, opts.Passengers)

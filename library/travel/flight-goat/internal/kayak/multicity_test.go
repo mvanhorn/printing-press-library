@@ -270,3 +270,61 @@ func TestParseItineraries_SkipsResultsWithMissingLegs(t *testing.T) {
 		t.Errorf("expected 0 results when leg lookup misses, got %d", len(got))
 	}
 }
+
+func TestBuildPollBody_CabinClassOnLegs(t *testing.T) {
+	raw := buildPollBody(MultiCityOptions{
+		Segments: []Segment{
+			{Origin: "TPE", Destination: "FCO", DepartureDate: "2027-05-08"},
+			{Origin: "FCO", Destination: "TPE", DepartureDate: "2027-05-30"},
+		},
+		Passengers: 1,
+		Cabin:      "business",
+	}, "")
+	var got map[string]any
+	if err := json.Unmarshal(raw, &got); err != nil {
+		t.Fatalf("invalid JSON: %v", err)
+	}
+	legs, _ := got["userSearchParams"].(map[string]any)["legs"].([]any)
+	if len(legs) != 2 {
+		t.Fatalf("legs len = %d, want 2", len(legs))
+	}
+	for i, l := range legs {
+		leg, _ := l.(map[string]any)
+		if leg["cabinClass"] != "business" {
+			t.Errorf("leg[%d].cabinClass = %v, want business", i, leg["cabinClass"])
+		}
+	}
+}
+
+func TestBuildPollBody_CabinClassOmittedByDefault(t *testing.T) {
+	raw := buildPollBody(MultiCityOptions{
+		Segments:   []Segment{{Origin: "A", Destination: "B", DepartureDate: "2026-01-01"}, {Origin: "B", Destination: "A", DepartureDate: "2026-01-08"}},
+		Passengers: 1,
+	}, "")
+	var got map[string]any
+	_ = json.Unmarshal(raw, &got)
+	legs, _ := got["userSearchParams"].(map[string]any)["legs"].([]any)
+	for i, l := range legs {
+		if _, ok := l.(map[string]any)["cabinClass"]; ok {
+			t.Errorf("leg[%d] has cabinClass without --class; want omitted", i)
+		}
+	}
+}
+
+func TestKayakCabinClass_Mapping(t *testing.T) {
+	for in, want := range map[string]string{
+		"business":        "business",
+		"premium_economy": "premium-economy",
+		"premium-economy": "premium-economy",
+		"premium":         "premium-economy",
+		"first":           "first",
+		"economy":         "economy",
+		"":                "",
+		"Business":        "business",
+		"not-a-cabin":     "",
+	} {
+		if got := kayakCabinClass(in); got != want {
+			t.Errorf("kayakCabinClass(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
