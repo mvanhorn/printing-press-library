@@ -31,11 +31,11 @@ type Trial struct {
 	Status        string   `json:"status"`
 	Phase         string   `json:"phase"`
 	Phases        []string `json:"phases"`
-	Conditions    []string `json:"conditions,omitempty"`
-	Interventions []string `json:"interventions,omitempty"`
+	Conditions    []string `json:"conditions"`
+	Interventions []string `json:"interventions"`
 	Sponsor       string   `json:"sponsor,omitempty"`
 	SponsorClass  string   `json:"sponsor_class,omitempty"`
-	Countries     []string `json:"countries,omitempty"`
+	Countries     []string `json:"countries"`
 	StartDate     string   `json:"start_date,omitempty"`
 	// PrimaryCompletionDate and CompletionDate stay omitempty so a trial with no
 	// date posted yields an absent field, distinguishable from "not requested".
@@ -47,7 +47,7 @@ type Trial struct {
 	WhyStopped            string        `json:"why_stopped,omitempty"`
 	HasResults            bool          `json:"has_results"`
 	Source                string        `json:"source"`
-	SecondaryIDs          []SecondaryID `json:"secondary_ids,omitempty"`
+	SecondaryIDs          []SecondaryID `json:"secondary_ids"`
 }
 
 // SecondaryID carries a cross-registry identifier (EU CTR, WHO, etc.) that
@@ -143,15 +143,16 @@ func normalizeStudy(raw json.RawMessage) (Trial, bool) {
 	if id == "" {
 		return Trial{}, false
 	}
-	// Phases is built with append so it is never nil: the "phases" tag has no
-	// omitempty and must always marshal as [] rather than null.
+	// Every list field (phases, conditions, interventions, countries,
+	// secondary_ids) is built non-nil: its tag has no omitempty and must always
+	// marshal as [] rather than null or absent.
 	t := Trial{
 		NCTID:        id,
 		Title:        cliutil.CleanText(s.ProtocolSection.IdentificationModule.BriefTitle),
 		Status:       s.ProtocolSection.StatusModule.OverallStatus,
 		Phases:       append([]string{}, s.ProtocolSection.DesignModule.Phases...),
 		Phase:        strings.Join(s.ProtocolSection.DesignModule.Phases, "/"),
-		Conditions:   s.ProtocolSection.ConditionsModule.Conditions,
+		Conditions:   append([]string{}, s.ProtocolSection.ConditionsModule.Conditions...),
 		Sponsor:      cliutil.CleanText(s.ProtocolSection.SponsorCollaboratorsModule.LeadSponsor.Name),
 		SponsorClass: s.ProtocolSection.SponsorCollaboratorsModule.LeadSponsor.Class,
 		StartDate:    s.ProtocolSection.StatusModule.StartDateStruct.Date,
@@ -165,6 +166,10 @@ func normalizeStudy(raw json.RawMessage) (Trial, bool) {
 		WhyStopped:  cliutil.CleanText(s.ProtocolSection.StatusModule.WhyStopped),
 		HasResults:  s.HasResults,
 		Source:      "clinicaltrials.gov",
+
+		Interventions: []string{},
+		Countries:     []string{},
+		SecondaryIDs:  []SecondaryID{},
 	}
 	for _, iv := range s.ProtocolSection.ArmsInterventionsModule.Interventions {
 		if iv.Name != "" {
