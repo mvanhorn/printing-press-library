@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "digest-watch-list-keys-always-present",
+  "applied_at": "2026-10-13",
+  "base_run_id": "20260623-164233-df565e8d",
+  "base_printing_press_version": "4.25.0",
+  "summary": "digest and watch always carry their trial lists (newest, recently_terminated; new, changed, terminated) as arrays, [] when empty; a regen must not restore omitempty on those tags.",
+  "reason": "Live, digest on 4 of 6 rare terms (alkaptonuria, progeria, aceruloplasminemia, kearns-sayre) lacked recently_terminated, and a no-change watch rerun lacked new, changed and terminated, so consumers needed a per-key guard. Same contract as Trial list keys and similarMatch.Conditions: the key is present and marshals as [] (never null, never absent). newest is fixed for consistency although its empty state is not reachable live (a zero-result digest errors first). Deliberately untouched: the distribution tallies, FHIR arrays, errors and sources. Guarded by TestDigestListKeysAlwaysPresent, TestWatchListKeysAlwaysPresent and TestDigestWatchKeepValues.",
+  "files": [
+    "internal/cli/digest.go",
+    "internal/cli/watch.go",
+    "internal/cli/digest_watch_list_keys_test.go"
+  ],
+  "validated_outcome": "RED on unchanged code: TestDigestListKeysAlwaysPresent and TestWatchListKeysAlwaysPresent FAIL (4 failing subtests), TestDigestWatchKeepValues PASS; GREEN: all PASS. Mutations each fail: re-adding omitempty to recently_terminated (digest test), re-adding omitempty to changed (watch test), watch new back to nil (new = null), digest list builder back to a nil slice (null), terminated trial sent to changed (keep-values test); the phase-key and trial-list-keys tests stay PASS under the omitempty mutation."
+}

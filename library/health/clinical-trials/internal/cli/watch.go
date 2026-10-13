@@ -45,9 +45,9 @@ type watchView struct {
 	Term       string        `json:"term"`
 	FirstRun   bool          `json:"first_run"`
 	Tracked    int           `json:"tracked"`
-	New        []watchChange `json:"new,omitempty"`
-	Changed    []watchChange `json:"changed,omitempty"`
-	Terminated []watchChange `json:"terminated,omitempty"`
+	New        []watchChange `json:"new"`
+	Changed    []watchChange `json:"changed"`
+	Terminated []watchChange `json:"terminated"`
 	Note       string        `json:"note,omitempty"`
 }
 
@@ -131,7 +131,14 @@ func newNovelWatchCmd(flags *rootFlags) *cobra.Command {
 
 // diffWatch computes the change feed between the previous and current snapshots.
 func diffWatch(term string, prev watchSnapshot, hadPrev bool, current watchSnapshot) watchView {
-	v := watchView{Term: term, Tracked: len(current.Trials)}
+	// The three lists start non-nil so they marshal as [] (never null) on every path.
+	v := watchView{
+		Term:       term,
+		Tracked:    len(current.Trials),
+		New:        []watchChange{},
+		Changed:    []watchChange{},
+		Terminated: []watchChange{},
+	}
 	if !hadPrev {
 		v.FirstRun = true
 		v.Note = fmt.Sprintf("baseline established for %d trials; re-run to see changes", len(current.Trials))

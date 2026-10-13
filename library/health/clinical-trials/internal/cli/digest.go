@@ -36,8 +36,8 @@ type digestView struct {
 	Term        string        `json:"term"`
 	Total       int           `json:"total"`
 	Recruiting  int           `json:"recruiting"`
-	Newest      []digestTrial `json:"newest,omitempty"`
-	RecentlyTerminated []digestTrial `json:"recently_terminated,omitempty"`
+	Newest      []digestTrial `json:"newest"`
+	RecentlyTerminated []digestTrial `json:"recently_terminated"`
 	Note        string        `json:"note,omitempty"`
 }
 
