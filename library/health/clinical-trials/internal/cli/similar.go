@@ -19,8 +19,22 @@ type similarMatch struct {
 	Title      string   `json:"title,omitempty"`
 	Status     string   `json:"status,omitempty"`
 	Phase      string   `json:"phase"`
-	Conditions []string `json:"conditions,omitempty"`
+	Conditions []string `json:"conditions"`
 	MatchScore int      `json:"match_score"`
+}
+
+// newSimilarMatch builds one similar-output row from a candidate Trial.
+// Conditions is copied into a non-nil slice so the row always marshals
+// "conditions" as [] and never as null.
+func newSimilarMatch(t Trial, score int) similarMatch {
+	return similarMatch{
+		NCTID:      t.NCTID,
+		Title:      t.Title,
+		Status:     t.Status,
+		Phase:      t.Phase,
+		Conditions: append([]string{}, t.Conditions...),
+		MatchScore: score,
+	}
 }
 
 // similarView is the JSON shape `similar` emits.
@@ -170,14 +184,7 @@ func newNovelSimilarCmd(flags *rootFlags) *cobra.Command {
 
 			matches := make([]similarMatch, 0, len(ranked))
 			for _, r := range ranked {
-				matches = append(matches, similarMatch{
-					NCTID:      r.trial.NCTID,
-					Title:      r.trial.Title,
-					Status:     r.trial.Status,
-					Phase:      r.trial.Phase,
-					Conditions: r.trial.Conditions,
-					MatchScore: r.score,
-				})
+				matches = append(matches, newSimilarMatch(r.trial, r.score))
 			}
 
 			view := similarView{
