@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "scengine-pico-split-skips-subordinate-and-empty-side",
+  "applied_at": "2026-10-15",
+  "base_run_id": "20260620-165352-e55cec69",
+  "base_printing_press_version": "4.24.0",
+  "summary": "PICOTokens splits a claim at the first polarity-verb match that survives two skips: a match right after that/which/who/whom (its clause modifies the intervention) and a match that leaves either side without content tokens. The gate stays direction-blind; the rules decide only where the claim splits.",
+  "reason": "Splitting at the first match silently disabled the gate for claims opening with a participle ('reduced sodium intake lowers blood pressure') and moved a relative clause's object onto the outcome side ('a diet that lowers cholesterol prevents heart disease').",
+  "files": [
+    "internal/scengine/pico.go"
+  ],
+  "validated_outcome": "pico_split_test.go: 3 verb-first and 4 subordinate claims split as annotated; all 14 corpora keep identical token pairs and drop counts. Removing either skip fails its test; returning nil always fails 6 new and 3 cli tests; adding 'of' as a subordinator fails none."
+}

@@ -69,6 +69,17 @@ var picoStopwords = map[string]struct{}{
 // harm and benefit verbs). See the previous comment block in the git history for
 // the full rationale on why claimSides was replaced.
 //
+// The split is the first match that survives two skip rules (picoSplitIndex):
+//   - a match right after a relative pronoun (picoSubordinators) is skipped,
+//     because its clause modifies the intervention: "a diet that lowers
+//     cholesterol prevents heart disease" splits at "prevents", not "lowers";
+//   - a match that leaves either side without content tokens is skipped, so a
+//     claim opening with a participle ("reduced sodium intake lowers blood
+//     pressure") splits at its main verb instead of yielding nothing.
+//
+// The gate stays direction-blind: the rules decide only WHERE the claim
+// splits, never which way it points.
+//
 // Token extraction uses picoSideTokens instead of ClaimContentTokens+stemTokens.
 // The difference: a 1–3-character alphabetic token is glued to the preceding
 // content token rather than dropped by the 4-char length floor. This keeps the
@@ -86,7 +97,7 @@ var picoStopwords = map[string]struct{}{
 // as "bypass the gate".
 func PICOTokens(claim string) (ivTokens, outTokens []string) {
 	lc := strings.ToLower(claim)
-	loc := polarityVerbCues.FindStringIndex(lc)
+	loc := picoSplitIndex(lc)
 	if loc == nil {
 		return nil, nil
 	}
@@ -96,6 +107,33 @@ func PICOTokens(claim string) (ivTokens, outTokens []string) {
 		return nil, nil
 	}
 	return dropPICOStopwords(intervention), dropPICOStopwords(outcome)
+}
+
+// picoSubordinators are the relative pronouns that open a clause modifying the
+// noun before them. A polarity verb right after one is not the claim's main verb.
+var picoSubordinators = map[string]struct{}{
+	"that": {}, "which": {}, "who": {}, "whom": {},
+}
+
+// picoSplitIndex returns the location of the polarityVerbCues match PICOTokens
+// splits at: the first match that does not follow a subordinator and leaves
+// content tokens on both sides. nil when no match qualifies. lc is lowercase.
+func picoSplitIndex(lc string) []int {
+	for _, loc := range polarityVerbCues.FindAllStringIndex(lc, -1) {
+		words := claimTokenSplit.Split(lc[:loc[0]], -1)
+		prev := ""
+		for i := len(words) - 1; i >= 0 && prev == ""; i-- {
+			prev = words[i]
+		}
+		if _, sub := picoSubordinators[prev]; sub {
+			continue
+		}
+		if len(picoSideTokens(lc[:loc[0]])) == 0 || len(picoSideTokens(lc[loc[1]:])) == 0 {
+			continue
+		}
+		return loc
+	}
+	return nil
 }
 
 // picoSideTokens extracts content tokens from one side of a claim for use in
