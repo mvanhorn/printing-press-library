@@ -25,7 +25,12 @@ func RankAuthors(ctx context.Context, db *sql.DB, issn, institution string, limi
 		return nil, err
 	}
 	q := `
-		SELECT a.author_id, a.author_name,
+		SELECT a.author_id,
+		       (SELECT x.author_name FROM lancet_authorships x
+		          WHERE x.author_id = a.author_id
+		          GROUP BY x.author_name
+		          ORDER BY COUNT(*) DESC, LENGTH(x.author_name) DESC, x.author_name
+		          LIMIT 1) AS author_name,
 		       COUNT(DISTINCT w.work_id) AS works,
 		       COALESCE(SUM(w.cited_count), 0) AS total_cites,
 		       COALESCE(AVG(w.cited_count), 0) AS avg_cites
@@ -46,7 +51,7 @@ func RankAuthors(ctx context.Context, db *sql.DB, issn, institution string, limi
 		args = append(args, "%"+institution+"%")
 	}
 	q += whereClause(where) + `
-		GROUP BY a.author_id, a.author_name
+		GROUP BY a.author_id
 		ORDER BY total_cites DESC
 		LIMIT ?`
 	args = append(args, limit)
