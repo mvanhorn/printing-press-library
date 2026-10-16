@@ -1,0 +1,4 @@
+- validate-narrative --framework-only flags hand-added framework subcommands (doctor modules --sites) as unsupported framework flags (false positive).
+- Freshness Contract in README/SKILL lists non-existent command paths (ai_visibility get, gsc-dashboard get/list/search) for a hyphenated resource and an internal cache key; template-shape, not patched.
+- lock promote requires source_fingerprint on hand-authored phase5-skip.json, but no CLI command writes one; computed with a copy of pipeline.CaptureSourceFingerprint.
+- publish skill Step 4.5 shell fingerprint (shasum over files) does not match pipeline.CaptureSourceFingerprint (module-path normalization); used the Go algorithm.

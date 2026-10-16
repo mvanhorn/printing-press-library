@@ -1,0 +1,54 @@
+{
+  "manifest_version": "0.3",
+  "name": "rankmath-pp-mcp",
+  "display_name": "Rank Math",
+  "version": "1.0.0",
+  "description": "Rank Math SEO from the terminal: bulk meta edits, site-wide SEO audits, Search Console analytics, and IndexNow — with no bridge plugin.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/rankmath-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/rankmath-pp-mcp",
+      "args": [],
+      "env": {
+        "RANKMATH_APP_PASSWORD": "${user_config.rankmath_app_password}",
+        "RANKMATH_SITE": "${user_config.rankmath_site}",
+        "RANKMATH_USERNAME": "${user_config.rankmath_username}"
+      }
+    }
+  },
+  "user_config": {
+    "rankmath_app_password": {
+      "type": "string",
+      "title": "RANKMATH_APP_PASSWORD",
+      "description": "Sets RANKMATH_APP_PASSWORD for the Rank Math MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "rankmath_site": {
+      "type": "string",
+      "title": "RANKMATH_SITE",
+      "description": "Sets RANKMATH_SITE for the endpoint template variable {site}.",
+      "default": "example.com"
+    },
+    "rankmath_username": {
+      "type": "string",
+      "title": "RANKMATH_USERNAME",
+      "description": "Sets RANKMATH_USERNAME for the Rank Math MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "rankmath-pp-cli"
+display_name = "Rank Math"
+description = "Rank Math SEO from the terminal: bulk meta edits, site-wide SEO audits, Search Console analytics, and IndexNow — with no bridge plugin."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/rankmath-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+RANKMATH_APP_PASSWORD = true
+RANKMATH_USERNAME = false

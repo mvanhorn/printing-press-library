@@ -1,0 +1,207 @@
+
+=== verify ===
+Runtime Verification: ~/printing-press/.runstate/<scope>/runs/20261016-120833-4fa88c9a/working/rankmath-pp-cli/rankmath-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+resource-path:tail             static       PASS   PASS     PASS     3/3
+resource-path:export           static       PASS   PASS     PASS     3/3
+resource-path:import           static       PASS   PASS     PASS     3/3
+agent-context                  write        PASS   PASS     PASS     3/3
+ai-visibility                  read         PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+audit                          read         PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+backup                         read         PASS   PASS     PASS     3/3
+coverage                       write        PASS   PASS     FAIL     2/3
+dashboard                      read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+feedback                       write        PASS   PASS     PASS     3/3
+gsc                            read         PASS   PASS     PASS     3/3
+head                           read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+indexing                       read         PASS   PASS     PASS     3/3
+learnings                      read         PASS   PASS     PASS     3/3
+link-genius                    read         PASS   PASS     PASS     3/3
+meta                           read         PASS   PASS     PASS     3/3
+opportunities                  write        PASS   PASS     PASS     3/3
+pages                          write        PASS   PASS     PASS     3/3
+playbook                       write        PASS   PASS     PASS     3/3
+portfolio                      write        PASS   PASS     PASS     3/3
+posts                          write        PASS   PASS     PASS     3/3
+profile                        write        PASS   PASS     PASS     3/3
+recall                         read         PASS   PASS     PASS     3/3
+redirections                   write        PASS   PASS     FAIL     2/3
+reindex                        write        PASS   PASS     PASS     3/3
+schema                         read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+settings                       read         PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+tail                           data-layer   PASS   PASS     PASS     3/3
+teach                          write        PASS   PASS     PASS     3/3
+teach-lookup                   write        PASS   PASS     PASS     3/3
+teach-pattern                  write        PASS   PASS     PASS     3/3
+teach-playbook                 write        PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     PASS     3/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS ai-visibility brands-generate-queries
+  PASS ai-visibility get-brands
+  PASS ai-visibility get-brands-insights
+  PASS ai-visibility get-brands-queries
+  PASS ai-visibility update-brands
+  PASS ai-visibility update-brands-queries
+  PASS auth set-credentials
+  PASS gsc get-post
+  PASS head get
+  PASS learnings confirm
+  PASS learnings forget
+  PASS learnings reject
+  PASS link-genius delete-bulk-update-history
+  PASS link-genius delete-keyword-maps
+  PASS link-genius delete-keyword-maps-variations
+  PASS link-genius get-bulk-update-changes
+  PASS link-genius get-keyword-maps
+  PASS link-genius get-keyword-maps-variations
+  PASS link-genius get-links-details
+  PASS link-genius keyword-maps-accept-variations
+  PASS link-genius keyword-maps-execute
+  PASS link-genius keyword-maps-generate-variations
+  PASS link-genius keyword-maps-preview
+  PASS link-genius keyword-maps-variations
+  PASS link-genius update-keyword-maps
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+
+Data Pipeline: PASS: sync completed (sql unavailable, table validation skipped)
+Pass Rate: 100% (71/71 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+OK: 9 narrative commands resolved and full examples passed
+
+=== dogfood ===
+dogfood: using spec ~/printing-press/.runstate/<scope>/runs/20261016-120833-4fa88c9a/working/rankmath-pp-cli/spec.json (bundled)
+dogfood: caller --spec=~/printing-press/.runstate/<scope>/runs/20261016-120833-4fa88c9a/research/rankmath-openapi.json overridden by bundled ~/printing-press/.runstate/<scope>/runs/20261016-120833-4fa88c9a/working/rankmath-pp-cli/spec.json
+dogfood: synced README.md (Unique Features) from novel_features_built
+dogfood: synced SKILL.md (Unique Capabilities) from novel_features_built
+dogfood: synced internal/cli/which.go (whichIndex) from novel_features_built
+dogfood: synced README.md (Quick Start) from research.json narrative
+dogfood: synced SKILL.md (Auth Setup) from research.json narrative
+dogfood: synced README.md (Troubleshooting) from research.json narrative
+dogfood: synced README.md (Recipes) from research.json narrative
+dogfood: synced SKILL.md (Recipes) from research.json narrative
+Dogfood Report: rankmath-pp-cli
+================================
+
+Path Validity:     8/8 valid (PASS)
+
+Auth Protocol:     MATCH
+  Spec: basic auth format (expects "Basic " prefix)
+  Generated: Uses "Basic" prefix
+  Detail: spec and generated client both use "Basic"
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     PARTIAL
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: uses generic Search only or direct SQL
+  Domain tables: 4
+
+Examples:          6/10 commands have examples (PASS)
+  - ai-visibility brands-generate-queries: missing example
+  - link-genius bulk-update-rollback: missing example
+  - link-genius keyword-maps-accept-variations: missing example
+  - link-genius undo-delete: missing example
+
+Novel Features:    5/5 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: PASS
+
+=== workflow-verify ===
+Workflow Verification: rankmath-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== apify-audit ===
+Apify Actor Audit
+=================
+
+No Apify actor references found.
+
+Verdict: pass
+  - no Apify actor references found, skipping
+
+=== verify-skill ===
+=== rankmath-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command)
+  ✓ canonical-sections passed
+
+=== scorecard ===
+Quality Scorecard: rankmath
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          10/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          8/10
+  MCP Desc Quality     N/A
+  MCP Token Efficiency N/A
+  MCP Remote Transport 10/10
+  MCP Tool Design      10/10
+  MCP Surface Strategy 10/10
+  Local Cache          10/10
+  Cache Freshness      10/10
+  Breadth              10/10
+  Vision               10/10
+  Workflows            10/10
+  Insight              7/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           10/10
+  Auth Protocol           10/10
+  Data Pipeline Integrity 7/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           5/5
+  Dead Code               5/5
+
+  Total: 95/100 - Grade A
+  Note: omitted from denominator: mcp_description_quality, mcp_token_efficiency, live_api_verification
+
+Sample Output Probe (live command sample)
+  Binary refresh: rebuilt (staged binary was older than Go sources)
+  Passed: 3/4  (75% pass rate, 1 skipped)
+  Failures:
+    - Portfolio rollup: exit 2: Error: --sites or RANKMATH_SITES/RANKMATH_SITE is required
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         19.208s
+  validate-narrative  PASS    0         210ms
+  dogfood           PASS    0         4.14s
+  workflow-verify   PASS    0         15ms
+  apify-audit       PASS    0         74ms
+  verify-skill      PASS    0         4.914s
+  scorecard         PASS    0         2.014s
+
+Verdict: PASS (7/7 legs passed)

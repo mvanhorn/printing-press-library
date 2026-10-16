@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "rankmath-site-required",
+  "applied_at": "2026-10-16",
+  "base_run_id": "20261016-120833-4fa88c9a",
+  "base_printing_press_version": "4.33.5",
+  "summary": "Leave the {site} template var empty outside PRINTING_PRESS_VERIFY.",
+  "reason": "Generated default example.com would silently send requests to a third-party host; requests must fail with export RANKMATH_SITE instead.",
+  "files": [
+    "internal/config/config.go"
+  ],
+  "markers": [
+    "cfg.TemplateVars[\"site\"] = \"\""
+  ]
+}

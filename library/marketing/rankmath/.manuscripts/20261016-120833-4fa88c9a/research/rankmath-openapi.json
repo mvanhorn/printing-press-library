@@ -1,0 +1,4722 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Rank Math SEO",
+    "version": "1.0.0",
+    "description": "Rank Math SEO REST routes (rankmath/v1) on a WordPress site, authenticated with a WordPress Application Password over HTTP Basic.",
+    "x-api-name": "rankmath",
+    "x-display-name": "Rank Math",
+    "x-website": "https://rankmath.com",
+    "x-path-template-env-vars": {
+      "site": {
+        "env": "RANKMATH_SITE"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://{site}/wp-json",
+      "variables": {
+        "site": {
+          "default": "example.com",
+          "description": "WordPress site host, e.g. example.com"
+        }
+      }
+    }
+  ],
+  "security": [
+    {
+      "basicAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic",
+        "description": "WordPress username and Application Password (wp-admin > Users > Profile > Application Passwords).",
+        "x-auth-env-vars": [
+          "RANKMATH_USERNAME",
+          "RANKMATH_APP_PASSWORD"
+        ]
+      }
+    }
+  },
+  "x-learn": {
+    "entity_lookup_seeds": {
+      "module": [
+        {
+          "canonical": "analytics",
+          "aliases": [
+            "search console",
+            "gsc",
+            "an"
+          ]
+        },
+        {
+          "canonical": "instant-indexing",
+          "aliases": [
+            "indexnow",
+            "indexing"
+          ]
+        },
+        {
+          "canonical": "link-genius",
+          "aliases": [
+            "internal links",
+            "link builder"
+          ]
+        },
+        {
+          "canonical": "redirections",
+          "aliases": [
+            "redirects",
+            "301"
+          ]
+        },
+        {
+          "canonical": "rich-snippet",
+          "aliases": [
+            "schema",
+            "structured data",
+            "json-ld"
+          ]
+        }
+      ]
+    }
+  },
+  "paths": {
+    "/rankmath/v1/ai-visibility/brands": {
+      "post": {
+        "operationId": "create-brands",
+        "x-pp-resource": "ai-visibility",
+        "summary": "Rank Math ai-visibility: create brands",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Brand name."
+                  },
+                  "url": {
+                    "type": "string",
+                    "description": "Brand website URL or domain."
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Short description of the brand or product."
+                  },
+                  "locale": {
+                    "type": "string",
+                    "description": "ISO 3166-1 alpha-2 country code (e.g. &quot;US&quot;, &quot;HU&quot;)."
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "US English",
+                      "UK English",
+                      "Arabic",
+                      "Bulgarian",
+                      "Chinese",
+                      "Czech",
+                      "Danish",
+                      "Dutch",
+                      "Estonian",
+                      "Finnish",
+                      "French",
+                      "German",
+                      "Greek",
+                      "Hebrew",
+                      "Hungarian",
+                      "Indonesian",
+                      "Italian",
+                      "Japanese",
+                      "Korean",
+                      "Latvian",
+                      "Lithuanian",
+                      "Norwegian",
+                      "Polish",
+                      "Portuguese",
+                      "Romanian",
+                      "Russian",
+                      "Slovak",
+                      "Slovenian",
+                      "Spanish",
+                      "Swedish",
+                      "Turkish"
+                    ],
+                    "description": "Output language to use when analyzing/generating content for this brand. Independent of `locale` (target country). Required; immutable after creation."
+                  },
+                  "interval": {
+                    "type": "string",
+                    "enum": [
+                      "daily",
+                      "weekly",
+                      "monthly"
+                    ],
+                    "description": "Analysis refresh cadence. Omitted → backend applies the account plan&#039;s default."
+                  },
+                  "platforms": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "AI platforms to track for this brand. Supported values: \"chatgpt\", \"gemini\". Tracking more than one platform per brand requires the Expert plan."
+                  }
+                },
+                "required": [
+                  "name",
+                  "url",
+                  "description",
+                  "language",
+                  "platforms"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/ai-visibility/brands/{id}": {
+      "get": {
+        "operationId": "get-brands",
+        "x-pp-resource": "ai-visibility",
+        "summary": "Rank Math ai-visibility: get brands",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "post": {
+        "operationId": "update-brands",
+        "x-pp-resource": "ai-visibility",
+        "summary": "Rank Math ai-visibility: update brands",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "locale": {
+                    "type": "string"
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "",
+                      "US English",
+                      "UK English",
+                      "Arabic",
+                      "Bulgarian",
+                      "Chinese",
+                      "Czech",
+                      "Danish",
+                      "Dutch",
+                      "Estonian",
+                      "Finnish",
+                      "French",
+                      "German",
+                      "Greek",
+                      "Hebrew",
+                      "Hungarian",
+                      "Indonesian",
+                      "Italian",
+                      "Japanese",
+                      "Korean",
+                      "Latvian",
+                      "Lithuanian",
+                      "Norwegian",
+                      "Polish",
+                      "Portuguese",
+                      "Romanian",
+                      "Russian",
+                      "Slovak",
+                      "Slovenian",
+                      "Spanish",
+                      "Swedish",
+                      "Turkish"
+                    ]
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "active",
+                      "inactive"
+                    ]
+                  },
+                  "interval": {
+                    "type": "string",
+                    "enum": [
+                      "daily",
+                      "weekly",
+                      "monthly"
+                    ]
+                  },
+                  "platforms": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "AI platforms to track for this brand. Supported values: \"chatgpt\", \"gemini\". Tracking more than one platform per brand requires the Expert plan."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/ai-visibility/brands/{id}/generate-queries": {
+      "post": {
+        "operationId": "brands-generate-queries",
+        "x-pp-resource": "ai-visibility",
+        "summary": "Rank Math ai-visibility: brands generate queries",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/ai-visibility/brands/{id}/insights": {
+      "get": {
+        "operationId": "get-brands-insights",
+        "x-pp-resource": "ai-visibility",
+        "summary": "Rank Math ai-visibility: get brands insights",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/rankmath/v1/ai-visibility/brands/{id}/queries": {
+      "get": {
+        "operationId": "get-brands-queries",
+        "x-pp-resource": "ai-visibility",
+        "summary": "Rank Math ai-visibility: get brands queries",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/rankmath/v1/ai-visibility/brands/{id}/queries/{qid}": {
+      "post": {
+        "operationId": "update-brands-queries",
+        "x-pp-resource": "ai-visibility",
+        "summary": "Rank Math ai-visibility: update brands queries",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "qid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "description": "Whether the query is enabled for analysis."
+                  }
+                },
+                "required": [
+                  "enabled"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/ai-visibility/overview": {
+      "get": {
+        "operationId": "overview",
+        "x-pp-resource": "ai-visibility",
+        "summary": "Rank Math ai-visibility: overview",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "refresh",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "Force a refresh from the AI Visibility API."
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            },
+            "description": "Filter brands by name or URL."
+          }
+        ],
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/an/addTrackKeyword": {
+      "post": {
+        "operationId": "add-track-keyword",
+        "x-pp-resource": "gsc",
+        "summary": "Rank Math gsc: add track keyword",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "context": {
+                    "type": "string",
+                    "description": "Scope under which the request is made; determines fields present in response."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Current page of the collection."
+                  },
+                  "per_page": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Maximum number of items to be returned in result set."
+                  },
+                  "search": {
+                    "type": "string",
+                    "description": "Limit results to those matching a string."
+                  },
+                  "keyword": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Keyword to add."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/an/analyticsSummary": {
+      "get": {
+        "operationId": "analytics-summary",
+        "x-pp-resource": "gsc",
+        "summary": "Rank Math gsc: analytics summary",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "postType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Post Type."
+          }
+        ],
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/an/autoAddFocusKeywords": {
+      "post": {
+        "operationId": "auto-add-focus-keywords",
+        "x-pp-resource": "gsc",
+        "summary": "Rank Math gsc: auto add focus keywords",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "context": {
+                    "type": "string",
+                    "description": "Scope under which the request is made; determines fields present in response."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Current page of the collection."
+                  },
+                  "per_page": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Maximum number of items to be returned in result set."
+                  },
+                  "search": {
+                    "type": "string",
+                    "description": "Limit results to those matching a string."
+                  },
+                  "data": {
+                    "type": "object",
+                    "default": "",
+                    "description": "Data to add."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/an/dashboard": {
+      "get": {
+        "operationId": "dashboard",
+        "x-pp-resource": "gsc",
+        "summary": "Rank Math gsc: dashboard",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/an/deleteTrackedKeywords": {
+      "post": {
+        "operationId": "delete-tracked-keywords",
+        "x-pp-resource": "gsc",
+        "summary": "Rank Math gsc: delete tracked keywords",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/an/getDesktopPagespeed": {
+      "post": {
+        "operationId": "get-desktop-pagespeed",
+        "x-pp-resource": "gsc",
+        "summary": "Rank Math gsc: get desktop pagespeed",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "context": {
+                    "type": "string",
+                    "description": "Scope under which the request is made; determines fields present in response."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Current page of the collection."
+                  },
+                  "per_page": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Maximum number of items to be returned in result set."
+                  },
+                  "search": {
+                    "type": "string",
+                    "description": "Limit results to those matching a string."
+                  },
+                  "id": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Record id."
+                  },
+                  "objectID": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Post id."
+                  },
+                  "force": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Force update pagespeed."
+                  },
+                  "isAdminBar": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Is admin bar."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/an/getKeywordPages": {
+      "get": {
+        "operationId": "get-keyword-pages",
+        "x-pp-resource": "gsc",
+        "summary": "Rank Math gsc: get keyword pages",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "context",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Scope under which the request is made; determines fields present in response."
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Current page of the collection."
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
+            "description": "Maximum number of items to be returned in result set."
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Limit results to those matching a string."
+          },
+          {
+            "name": "query",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            },
+            "description": "Query to search."
+          }
+        ],
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/an/getMobilePagespeed": {
+      "post": {
+        "operationId": "get-mobile-pagespeed",
+        "x-pp-resource": "gsc",
+        "summary": "Rank Math gsc: get mobile pagespeed",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "context": {
+                    "type": "string",
+                    "description": "Scope under which the request is made; determines fields present in response."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Current page of the collection."
+                  },
+                  "per_page": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Maximum number of items to be returned in result set."
+                  },
+                  "search": {
+                    "type": "string",
+                    "description": "Limit results to those matching a string."
+                  },
+                  "id": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Record id."
+                  },
+                  "objectID": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Post id."
+                  },
+                  "force": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Force update pagespeed."
+                  },
+                  "isAdminBar": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Is admin bar."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/an/getPageSEOScore": {
+      "post": {
+        "operationId": "get-page-seoscore",
+        "x-pp-resource": "gsc",
+        "summary": "Rank Math gsc: get page seoscore",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "context": {
+                    "type": "string",
+                    "description": "Scope under which the request is made; determines fields present in response."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Current page of the collection."
+                  },
+                  "per_page": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Maximum number of items to be returned in result set."
+                  },
+                  "search": {
+                    "type": "string",
+                    "description": "Limit results to those matching a string."
+                  },
+                  "id": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Record id."
+                  },
+                  "objectID": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Post id."
+                  },
+                  "force": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Force update pagespeed."
+                  },
+                  "isAdminBar": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Is admin bar."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/an/getTrackedKeywordSummary": {
+      "get": {
+        "operationId": "get-tracked-keyword-summary",
+        "x-pp-resource": "gsc",
+        "summary": "Rank Math gsc: get tracked keyword summary",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/an/getTrackedKeywords": {
+      "get": {
+        "operationId": "get-tracked-keywords",
+        "x-pp-resource": "gsc",
+        "summary": "Rank Math gsc: get tracked keywords",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/an/getTrackedKeywordsRows": {
+      "get": {
+        "operationId": "get-tracked-keywords-rows",
+        "x-pp-resource": "gsc",
+        "summary": "Rank Math gsc: get tracked keywords rows",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "context",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Scope under which the request is made; determines fields present in response."
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Current page of the collection."
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
+            "description": "Maximum number of items to be returned in result set."
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            },
+            "description": "Keyword to search."
+          },
+          {
+            "name": "orderby",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "default",
+                "keyword"
+              ],
+              "default": "default"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            "description": "Sort direction"
+          }
+        ],
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/an/inspectionResults": {
+      "get": {
+        "operationId": "inspection-results",
+        "x-pp-resource": "gsc",
+        "summary": "Rank Math gsc: inspection results",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page number."
+          },
+          {
+            "name": "perPage",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Results per page."
+          },
+          {
+            "name": "orderBy",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Order by."
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Order."
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search."
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter."
+          },
+          {
+            "name": "filterType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter type."
+          }
+        ],
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/an/inspectionStats": {
+      "get": {
+        "operationId": "inspection-stats",
+        "x-pp-resource": "gsc",
+        "summary": "Rank Math gsc: inspection stats",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/an/keywordsOverview": {
+      "get": {
+        "operationId": "keywords-overview",
+        "x-pp-resource": "gsc",
+        "summary": "Rank Math gsc: keywords overview",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/an/keywordsRows": {
+      "get": {
+        "operationId": "keywords-rows",
+        "x-pp-resource": "gsc",
+        "summary": "Rank Math gsc: keywords rows",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page number."
+          },
+          {
+            "name": "perPage",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Results per page."
+          },
+          {
+            "name": "orderBy",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Order by."
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Order."
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search."
+          }
+        ],
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/an/keywordsSummary": {
+      "get": {
+        "operationId": "keywords-summary",
+        "x-pp-resource": "gsc",
+        "summary": "Rank Math gsc: keywords summary",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/an/post/{id}": {
+      "get": {
+        "operationId": "get-post",
+        "x-pp-resource": "gsc",
+        "summary": "Rank Math gsc: get post",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/rankmath/v1/an/postsOverview": {
+      "get": {
+        "operationId": "posts-overview",
+        "x-pp-resource": "gsc",
+        "summary": "Rank Math gsc: posts overview",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/an/postsRows": {
+      "get": {
+        "operationId": "posts-rows",
+        "x-pp-resource": "gsc",
+        "summary": "Rank Math gsc: posts rows",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Result page (25 rows per page)"
+          },
+          {
+            "name": "orderby",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "impressions",
+                "clicks",
+                "position",
+                "ctr",
+                "query",
+                "title"
+              ]
+            },
+            "description": "Sort column"
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            "description": "Sort direction"
+          }
+        ],
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/an/postsRowsByObjects": {
+      "get": {
+        "operationId": "posts-rows-by-objects",
+        "x-pp-resource": "gsc",
+        "summary": "Rank Math gsc: posts rows by objects",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page number."
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Results per page."
+          },
+          {
+            "name": "orderby",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "impressions",
+                "clicks",
+                "position",
+                "ctr",
+                "query",
+                "title"
+              ]
+            },
+            "description": "Sort column"
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            "description": "Sort direction"
+          }
+        ],
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/an/postsSummary": {
+      "get": {
+        "operationId": "posts-summary",
+        "x-pp-resource": "gsc",
+        "summary": "Rank Math gsc: posts summary",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/an/removeTrackKeyword": {
+      "post": {
+        "operationId": "remove-track-keyword",
+        "x-pp-resource": "gsc",
+        "summary": "Rank Math gsc: remove track keyword",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "context": {
+                    "type": "string",
+                    "description": "Scope under which the request is made; determines fields present in response."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Current page of the collection."
+                  },
+                  "per_page": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Maximum number of items to be returned in result set."
+                  },
+                  "search": {
+                    "type": "string",
+                    "description": "Limit results to those matching a string."
+                  },
+                  "order": {
+                    "type": "string",
+                    "enum": [
+                      "asc",
+                      "desc",
+                      "ASC",
+                      "DESC"
+                    ],
+                    "default": "desc",
+                    "description": "Order sort attribute ascending or descending."
+                  },
+                  "orderby": {
+                    "type": "string",
+                    "enum": [
+                      "author",
+                      "date",
+                      "id",
+                      "include",
+                      "modified",
+                      "parent",
+                      "relevance",
+                      "slug",
+                      "include_slugs",
+                      "title"
+                    ],
+                    "default": "date",
+                    "description": "Sort collection by post attribute."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/an/trackedKeywordsOverview": {
+      "get": {
+        "operationId": "tracked-keywords-overview",
+        "x-pp-resource": "gsc",
+        "summary": "Rank Math gsc: tracked keywords overview",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/dashboardWidget": {
+      "get": {
+        "operationId": "dashboard-widget",
+        "x-pp-resource": "dashboard",
+        "summary": "Rank Math dashboard: dashboard widget",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/in/clearLog": {
+      "post": {
+        "operationId": "clear-log",
+        "x-pp-resource": "indexing",
+        "summary": "Rank Math indexing: clear log",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "filter": {
+                    "type": "string",
+                    "enum": [
+                      "all",
+                      "manual",
+                      "auto"
+                    ],
+                    "default": "all",
+                    "description": "Clear log by type."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/in/getLog": {
+      "post": {
+        "operationId": "get-log",
+        "x-pp-resource": "indexing",
+        "summary": "Rank Math indexing: get log",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "filter": {
+                    "type": "string",
+                    "enum": [
+                      "all",
+                      "manual",
+                      "auto"
+                    ],
+                    "default": "all",
+                    "description": "Filter log by type."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/in/submitUrls": {
+      "post": {
+        "operationId": "submit-urls",
+        "x-pp-resource": "indexing",
+        "summary": "Rank Math indexing: submit urls",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "urls": {
+                    "type": "string",
+                    "description": "The list of urls to submit to the Instant Indexing API."
+                  }
+                },
+                "required": [
+                  "urls"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/audit/mark-safe": {
+      "post": {
+        "operationId": "audit-mark-safe",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: audit mark safe",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "link_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Link IDs to mark as safe."
+                  },
+                  "reason": {
+                    "type": "string",
+                    "description": "Reason for marking as safe."
+                  },
+                  "filters": {
+                    "type": "object",
+                    "description": "Filter criteria for selecting links to mark as safe."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/audit/recheck": {
+      "post": {
+        "operationId": "audit-recheck",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: audit recheck",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "link_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Array of link IDs to recheck."
+                  },
+                  "filters": {
+                    "type": "object",
+                    "description": "Filter criteria for selecting links to recheck."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/audit/start": {
+      "post": {
+        "operationId": "audit-start",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: audit start",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "filters": {
+                    "type": "object",
+                    "description": "Filters to apply (is_internal, unchecked_only, etc.)."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/audit/stats": {
+      "get": {
+        "operationId": "audit-stats",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: audit stats",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/link-genius/bulk-actions/restore": {
+      "post": {
+        "operationId": "bulk-actions-restore",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: bulk actions restore",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "batch_id": {
+                    "type": "string",
+                    "description": "Batch ID to restore from snapshots."
+                  }
+                },
+                "required": [
+                  "batch_id"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/bulk-update/apply": {
+      "post": {
+        "operationId": "bulk-update-apply",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: bulk update apply",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "filters": {
+                    "type": "object",
+                    "description": "Search filters for finding links."
+                  },
+                  "update_config": {
+                    "type": "object",
+                    "description": "Update configuration."
+                  },
+                  "selected_link_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "description": "Optional array of specific link IDs to update."
+                  },
+                  "is_rollback": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether this is a rollback operation (prevents history creation)."
+                  },
+                  "rollback_batch_id": {
+                    "type": "string",
+                    "description": "Batch ID being rolled back (for status update)."
+                  }
+                },
+                "required": [
+                  "filters",
+                  "update_config"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/bulk-update/changes/{batch_id}": {
+      "get": {
+        "operationId": "get-bulk-update-changes",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: get bulk update changes",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "batch_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/rankmath/v1/link-genius/bulk-update/history": {
+      "get": {
+        "operationId": "list-bulk-update-history",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: list bulk update history",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number."
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Number of items per page."
+          }
+        ],
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/link-genius/bulk-update/history/{batch_id}": {
+      "delete": {
+        "operationId": "delete-bulk-update-history",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: delete bulk update history",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "batch_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/rankmath/v1/link-genius/bulk-update/preview": {
+      "post": {
+        "operationId": "bulk-update-preview",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: bulk update preview",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "filters": {
+                    "type": "object",
+                    "description": "Search filters for finding links."
+                  },
+                  "update_config": {
+                    "type": "object",
+                    "description": "Update configuration."
+                  }
+                },
+                "required": [
+                  "filters",
+                  "update_config"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/bulk-update/preview/results": {
+      "get": {
+        "operationId": "bulk-update-preview-results",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: bulk update preview results",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number."
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Number of items per page."
+          }
+        ],
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/link-genius/bulk-update/rollback": {
+      "post": {
+        "operationId": "bulk-update-rollback",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: bulk update rollback",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "batch_id": {
+                    "type": "string",
+                    "description": "Batch ID to rollback."
+                  },
+                  "selected_post_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "description": "Optional array of specific post IDs to rollback."
+                  }
+                },
+                "required": [
+                  "batch_id"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/delete": {
+      "post": {
+        "operationId": "delete",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: delete",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "link_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Link IDs to delete."
+                  },
+                  "filters": {
+                    "type": "object",
+                    "description": "Filter criteria for selecting links to delete."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/export": {
+      "post": {
+        "operationId": "export",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: export",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "description": "Export type (links or posts)."
+                  },
+                  "format": {
+                    "type": "string",
+                    "description": "Export format (csv, json, excel)."
+                  },
+                  "filters": {
+                    "type": "object",
+                    "description": "Filters to apply to the export."
+                  },
+                  "columns": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Column definitions."
+                  },
+                  "total": {
+                    "type": "integer",
+                    "description": "Total number of records to export."
+                  }
+                },
+                "required": [
+                  "type",
+                  "format",
+                  "columns",
+                  "total"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/keyword-maps": {
+      "get": {
+        "operationId": "list-keyword-maps",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: list keyword maps",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number."
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Number of items per page."
+          },
+          {
+            "name": "orderby",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "id",
+                "name",
+                "created_at",
+                "updated_at",
+                "last_executed_at",
+                "execution_count"
+              ],
+              "default": "created_at"
+            },
+            "description": "Column to order by."
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ASC",
+                "DESC"
+              ],
+              "default": "DESC"
+            },
+            "description": "Order direction."
+          },
+          {
+            "name": "enabled",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Filter by enabled status."
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search term."
+          }
+        ],
+        "x-pp-pagination": "none"
+      },
+      "post": {
+        "operationId": "create-keyword-maps",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: create keyword maps",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Keyword map name."
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Keyword map description."
+                  },
+                  "target_url": {
+                    "type": "string",
+                    "description": "Target URL."
+                  },
+                  "is_enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether the keyword map is enabled."
+                  },
+                  "max_links_per_post": {
+                    "type": "integer",
+                    "default": 3,
+                    "description": "Maximum links per post."
+                  },
+                  "auto_link_on_publish": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable auto-linking on publish."
+                  },
+                  "case_sensitive": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable case-sensitive keyword matching."
+                  }
+                },
+                "required": [
+                  "name",
+                  "target_url"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/keyword-maps/{id}": {
+      "get": {
+        "operationId": "get-keyword-maps",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: get keyword maps",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "post": {
+        "operationId": "update-keyword-maps",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: update keyword maps",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Keyword map name."
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Keyword map description."
+                  },
+                  "target_url": {
+                    "type": "string",
+                    "description": "Target URL."
+                  },
+                  "is_enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether the keyword map is enabled."
+                  },
+                  "max_links_per_post": {
+                    "type": "integer",
+                    "default": 3,
+                    "description": "Maximum links per post."
+                  },
+                  "auto_link_on_publish": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable auto-linking on publish."
+                  },
+                  "case_sensitive": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable case-sensitive keyword matching."
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete-keyword-maps",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: delete keyword maps",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/rankmath/v1/link-genius/keyword-maps/{id}/accept-variations": {
+      "post": {
+        "operationId": "keyword-maps-accept-variations",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: keyword maps accept variations",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "variations": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Array of variations to accept."
+                  }
+                },
+                "required": [
+                  "variations"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/keyword-maps/{id}/execute": {
+      "post": {
+        "operationId": "keyword-maps-execute",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: keyword maps execute",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/keyword-maps/{id}/generate-variations": {
+      "post": {
+        "operationId": "keyword-maps-generate-variations",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: keyword maps generate variations",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/keyword-maps/{id}/preview": {
+      "post": {
+        "operationId": "keyword-maps-preview",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: keyword maps preview",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/keyword-maps/{id}/variations": {
+      "get": {
+        "operationId": "get-keyword-maps-variations",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: get keyword maps variations",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "post": {
+        "operationId": "keyword-maps-variations",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: keyword maps variations",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "variation": {
+                    "type": "string",
+                    "description": "Variation text."
+                  },
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "manual",
+                      "ai"
+                    ],
+                    "default": "manual",
+                    "description": "Variation source."
+                  }
+                },
+                "required": [
+                  "variation"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/keyword-maps/bulk-delete": {
+      "post": {
+        "operationId": "keyword-maps-bulk-delete",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: keyword maps bulk delete",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "description": "Array of keyword map IDs."
+                  }
+                },
+                "required": [
+                  "ids"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/keyword-maps/bulk-toggle": {
+      "post": {
+        "operationId": "keyword-maps-bulk-toggle",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: keyword maps bulk toggle",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "description": "Array of keyword map IDs."
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "description": "New enabled status."
+                  }
+                },
+                "required": [
+                  "ids",
+                  "enabled"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/keyword-maps/generate-variations": {
+      "post": {
+        "operationId": "item-keyword-maps-generate-variations",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: item keyword maps generate variations",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keyword": {
+                    "type": "string",
+                    "description": "Keyword to generate variations for."
+                  },
+                  "context": {
+                    "type": "string",
+                    "description": "Optional context to help generate better variations."
+                  }
+                },
+                "required": [
+                  "keyword"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/keyword-maps/history": {
+      "get": {
+        "operationId": "keyword-maps-history",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: keyword maps history",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number."
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Number of items per page."
+          }
+        ],
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/link-genius/keyword-maps/preview/results": {
+      "get": {
+        "operationId": "keyword-maps-preview-results",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: keyword maps preview results",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number."
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Number of items per page."
+          },
+          {
+            "name": "keyword_map_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Keyword map ID."
+          }
+        ]
+      }
+    },
+    "/rankmath/v1/link-genius/keyword-maps/variations/{id}": {
+      "delete": {
+        "operationId": "delete-keyword-maps-variations",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: delete keyword maps variations",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/rankmath/v1/link-genius/link-opportunities": {
+      "post": {
+        "operationId": "link-opportunities",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: link opportunities",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "post_id": {
+                    "type": "integer",
+                    "description": "Post ID."
+                  },
+                  "current": {
+                    "type": "object",
+                    "description": "Current editor state summary."
+                  }
+                },
+                "required": [
+                  "post_id"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/link-suggestions": {
+      "post": {
+        "operationId": "link-suggestions",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: link suggestions",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "post_id": {
+                    "type": "integer",
+                    "description": "Post ID."
+                  },
+                  "text": {
+                    "type": "string",
+                    "description": "Selected text used for suggestions."
+                  },
+                  "current": {
+                    "type": "object",
+                    "description": "Current editor state summary."
+                  }
+                },
+                "required": [
+                  "post_id"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/links": {
+      "get": {
+        "operationId": "list-links",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: list links",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number."
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 50
+            },
+            "description": "Items per page."
+          },
+          {
+            "name": "source_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0
+            },
+            "description": "Filter by source post ID."
+          },
+          {
+            "name": "target_post_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0
+            },
+            "description": "Filter by target post ID."
+          },
+          {
+            "name": "is_internal",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            },
+            "description": "Filter by link type."
+          },
+          {
+            "name": "is_nofollow",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            },
+            "description": "Filter by nofollow status."
+          },
+          {
+            "name": "anchor_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            },
+            "description": "Filter by anchor type (HPLNK, CNCL, HLANG, IMAGE)."
+          },
+          {
+            "name": "target_blank",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            },
+            "description": "Filter by target blank status."
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            },
+            "description": "Search in anchor text or URL."
+          },
+          {
+            "name": "orderby",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "created_at"
+            },
+            "description": "Order by field."
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "DESC"
+            },
+            "description": "Order direction."
+          },
+          {
+            "name": "status_code",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Filter by HTTP status code (e.g., 404). Supports multiple values."
+          },
+          {
+            "name": "status_category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            },
+            "description": "Filter by status category (2xx, 3xx, 4xx, 5xx, timeout, error)."
+          },
+          {
+            "name": "is_broken",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "Filter broken links (4xx, 5xx, timeout, error)."
+          },
+          {
+            "name": "is_success",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "Filter successful links (2xx)."
+          },
+          {
+            "name": "is_redirect",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            },
+            "description": "Filter redirect links (3xx)."
+          },
+          {
+            "name": "robots_blocked",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            },
+            "description": "Filter links blocked by robots.txt."
+          },
+          {
+            "name": "unchecked",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            },
+            "description": "Filter unchecked links (no status data)."
+          },
+          {
+            "name": "is_marked_safe",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            },
+            "description": "Filter links marked as safe."
+          }
+        ],
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/link-genius/links/{id}/details": {
+      "get": {
+        "operationId": "get-links-details",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: get links details",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/rankmath/v1/link-genius/operations/cancel": {
+      "post": {
+        "operationId": "operations-cancel",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: operations cancel",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "operation": {
+                    "type": "string",
+                    "enum": [
+                      "regenerate",
+                      "audit",
+                      "bulk_delete",
+                      "bulk_mark_safe",
+                      "bulk_restore",
+                      "bulk_update_preview",
+                      "bulk_update_apply",
+                      "keyword_map_preview",
+                      "keyword_map_apply",
+                      "export"
+                    ],
+                    "description": "Operation type to cancel."
+                  },
+                  "id": {
+                    "type": "integer",
+                    "description": "Optional operation ID (for keyword maps)."
+                  }
+                },
+                "required": [
+                  "operation"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/operations/clear": {
+      "post": {
+        "operationId": "operations-clear",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: operations clear",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "operation": {
+                    "type": "string",
+                    "enum": [
+                      "regenerate",
+                      "audit",
+                      "bulk_delete",
+                      "bulk_mark_safe",
+                      "bulk_restore",
+                      "bulk_update_preview",
+                      "bulk_update_apply",
+                      "keyword_map_preview",
+                      "keyword_map_apply",
+                      "export"
+                    ],
+                    "description": "Operation type to clear."
+                  },
+                  "id": {
+                    "type": "integer",
+                    "description": "Optional operation ID (for keyword maps)."
+                  }
+                },
+                "required": [
+                  "operation"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/operations/progress": {
+      "get": {
+        "operationId": "operations-progress",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: operations progress",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "operation",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "regenerate",
+                "audit",
+                "bulk_delete",
+                "bulk_mark_safe",
+                "bulk_restore",
+                "bulk_update_preview",
+                "bulk_update_apply",
+                "keyword_map_preview",
+                "keyword_map_apply",
+                "export"
+              ]
+            },
+            "description": "Operation type."
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Optional operation ID (for keyword maps)."
+          }
+        ]
+      }
+    },
+    "/rankmath/v1/link-genius/posts": {
+      "get": {
+        "operationId": "posts",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: posts",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number."
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 50
+            },
+            "description": "Items per page."
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            },
+            "description": "Search in post title."
+          },
+          {
+            "name": "post_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Filter by post type. Supports multiple values."
+          },
+          {
+            "name": "is_orphan",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            },
+            "description": "Filter by orphan status."
+          },
+          {
+            "name": "seo_score_range",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            },
+            "description": "Filter by SEO score range."
+          },
+          {
+            "name": "orderby",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "post_title"
+            },
+            "description": "Order by field."
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "ASC"
+            },
+            "description": "Order direction."
+          },
+          {
+            "name": "min_incoming_links",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0
+            },
+            "description": "Minimum incoming links count filter."
+          }
+        ],
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/link-genius/posts-stats": {
+      "get": {
+        "operationId": "posts-stats",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: posts stats",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/link-genius/regenerate": {
+      "post": {
+        "operationId": "regenerate",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: regenerate",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/related-posts": {
+      "post": {
+        "operationId": "related-posts",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: related posts",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "post_id": {
+                    "type": "integer",
+                    "description": "Post ID."
+                  },
+                  "current": {
+                    "type": "object",
+                    "description": "Current editor state summary."
+                  }
+                },
+                "required": [
+                  "post_id"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/remove-nofollow": {
+      "post": {
+        "operationId": "remove-nofollow",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: remove nofollow",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "link_id": {
+                    "type": "integer",
+                    "description": "Link ID to remove nofollow from."
+                  }
+                },
+                "required": [
+                  "link_id"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/stats": {
+      "get": {
+        "operationId": "stats",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: stats",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "x-pp-pagination": "none"
+      }
+    },
+    "/rankmath/v1/link-genius/undo-delete": {
+      "post": {
+        "operationId": "undo-delete",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: undo delete",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "post_id": {
+                    "type": "integer",
+                    "description": "Post ID to restore."
+                  },
+                  "original_content": {
+                    "type": "string",
+                    "description": "Original post content to restore."
+                  }
+                },
+                "required": [
+                  "post_id",
+                  "original_content"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/link-genius/update": {
+      "post": {
+        "operationId": "update",
+        "x-pp-resource": "link-genius",
+        "summary": "Rank Math link-genius: update",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "link_id": {
+                    "type": "integer",
+                    "description": "Link ID to update."
+                  },
+                  "new_url": {
+                    "type": "string",
+                    "description": "New URL for the link."
+                  },
+                  "new_anchor": {
+                    "type": "string",
+                    "description": "New anchor text for the link."
+                  },
+                  "is_nofollow": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Whether the link should have nofollow attribute."
+                  },
+                  "target_blank": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Whether the link should open in a new tab."
+                  }
+                },
+                "required": [
+                  "link_id",
+                  "new_url",
+                  "new_anchor"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/saveModule": {
+      "post": {
+        "operationId": "save-module",
+        "x-pp-resource": "settings",
+        "summary": "Rank Math settings: save module",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "module": {
+                    "type": "string",
+                    "description": "Module slug"
+                  },
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "on",
+                      "off"
+                    ],
+                    "description": "Module state either on or off"
+                  }
+                },
+                "required": [
+                  "module",
+                  "state"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/saveTemplate": {
+      "post": {
+        "operationId": "save-template",
+        "x-pp-resource": "schema",
+        "summary": "Rank Math schema: save template",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "postId": {
+                    "type": "integer",
+                    "description": "Post ID."
+                  },
+                  "schema": {
+                    "type": "object",
+                    "description": "Schema data."
+                  }
+                },
+                "required": [
+                  "schema"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/searchIntent": {
+      "post": {
+        "operationId": "search-intent",
+        "x-pp-resource": "dashboard",
+        "summary": "Rank Math dashboard: search intent",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keyword": {
+                    "type": "string",
+                    "description": "The keyword used to determine the intent."
+                  }
+                },
+                "required": [
+                  "keyword"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/status/exportSettings": {
+      "post": {
+        "operationId": "export-settings",
+        "x-pp-resource": "backup",
+        "summary": "Rank Math backup: export settings",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/status/getViewData": {
+      "post": {
+        "operationId": "get-view-data",
+        "x-pp-resource": "backup",
+        "summary": "Rank Math backup: get view data",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/status/runBackup": {
+      "post": {
+        "operationId": "run-backup",
+        "x-pp-resource": "backup",
+        "summary": "Rank Math backup: run backup",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/updateMeta": {
+      "post": {
+        "operationId": "update-meta",
+        "x-pp-resource": "meta",
+        "summary": "Rank Math meta: update meta",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "objectType": {
+                    "type": "string",
+                    "description": "Object Type i.e. post, term, user"
+                  },
+                  "objectID": {
+                    "type": "integer",
+                    "description": "Object unique id"
+                  },
+                  "meta": {
+                    "type": "string",
+                    "description": "Meta to add or update data."
+                  }
+                },
+                "required": [
+                  "objectType",
+                  "objectID",
+                  "meta"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/updateMetaBulk": {
+      "post": {
+        "operationId": "update-meta-bulk",
+        "x-pp-resource": "meta",
+        "summary": "Rank Math meta: update meta bulk",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rows": {
+                    "type": "string",
+                    "description": "Selected posts to update the data for."
+                  }
+                },
+                "required": [
+                  "rows"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/updateRedirection": {
+      "post": {
+        "operationId": "update-redirection",
+        "x-pp-resource": "redirections",
+        "summary": "Rank Math redirections: update redirection",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "objectID": {
+                    "type": "integer",
+                    "description": "Object unique id"
+                  },
+                  "objectType": {
+                    "type": "string",
+                    "default": "post",
+                    "description": "Object Type i.e. post, term, user"
+                  },
+                  "hasRedirect": {
+                    "type": "boolean",
+                    "description": "Whether the object has a redirect or not"
+                  },
+                  "redirectionID": {
+                    "type": "string",
+                    "description": "Redirection ID"
+                  },
+                  "redirectionUrl": {
+                    "type": "string",
+                    "description": "Redirection URL"
+                  },
+                  "redirectionType": {
+                    "type": "string",
+                    "enum": [
+                      "301",
+                      "302",
+                      "307",
+                      "410",
+                      "451"
+                    ],
+                    "default": "301",
+                    "description": "Redirection Type"
+                  }
+                },
+                "required": [
+                  "objectID",
+                  "objectType",
+                  "hasRedirect",
+                  "redirectionType"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/updateSchemas": {
+      "post": {
+        "operationId": "update-schemas",
+        "x-pp-resource": "schema",
+        "summary": "Rank Math schema: update schemas",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "objectType": {
+                    "type": "string",
+                    "description": "Object Type i.e. post, term, user"
+                  },
+                  "objectID": {
+                    "type": "integer",
+                    "description": "Object unique id"
+                  },
+                  "schemas": {
+                    "type": "string",
+                    "description": "schemas to add or update data."
+                  }
+                },
+                "required": [
+                  "objectType",
+                  "objectID",
+                  "schemas"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/updateSeoScore": {
+      "post": {
+        "operationId": "update-seo-score",
+        "x-pp-resource": "meta",
+        "summary": "Rank Math meta: update seo score",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "postScores": {
+                    "type": "object",
+                    "description": "Post scores"
+                  }
+                },
+                "required": [
+                  "postScores"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/updateSettings": {
+      "post": {
+        "operationId": "update-settings",
+        "x-pp-resource": "settings",
+        "summary": "Rank Math settings: update settings",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rankmath/v1/getHead": {
+      "get": {
+        "operationId": "get-head",
+        "x-pp-resource": "head",
+        "security": [],
+        "summary": "Rendered Rank Math head tags for a URL (needs headless support enabled)",
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "Absolute URL of a page on this site"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "head": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/wp/v2/posts": {
+      "get": {
+        "operationId": "list-posts",
+        "x-pp-resource": "posts",
+        "security": [],
+        "x-pp-syncable": true,
+        "summary": "List published WordPress posts (id, link, modified)",
+        "parameters": [
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "maximum": 100
+            },
+            "description": "Items per page (max 100)"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number"
+          },
+          {
+            "name": "modified_after",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Only items modified after this ISO 8601 time"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Text search"
+          },
+          {
+            "name": "_fields",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "id,date,modified,slug,status,type,link,title"
+            },
+            "description": "Fields to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "date": {
+                        "type": "string"
+                      },
+                      "modified": {
+                        "type": "string"
+                      },
+                      "slug": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "link": {
+                        "type": "string"
+                      },
+                      "title": {
+                        "type": "object",
+                        "properties": {
+                          "rendered": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/wp/v2/pages": {
+      "get": {
+        "operationId": "list-pages",
+        "x-pp-resource": "pages",
+        "security": [],
+        "x-pp-syncable": true,
+        "summary": "List published WordPress pages (id, link, modified)",
+        "parameters": [
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "maximum": 100
+            },
+            "description": "Items per page (max 100)"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number"
+          },
+          {
+            "name": "modified_after",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Only items modified after this ISO 8601 time"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Text search"
+          },
+          {
+            "name": "_fields",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "id,date,modified,slug,status,type,link,title"
+            },
+            "description": "Fields to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "date": {
+                        "type": "string"
+                      },
+                      "modified": {
+                        "type": "string"
+                      },
+                      "slug": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "link": {
+                        "type": "string"
+                      },
+                      "title": {
+                        "type": "object",
+                        "properties": {
+                          "rendered": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "x-cache": {
+    "enabled": true,
+    "stale_after": "24h"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "rankmath-drop-dead-dry-run-helper",
+  "applied_at": "2026-10-16",
+  "base_run_id": "20261016-120833-4fa88c9a",
+  "base_printing_press_version": "4.33.5",
+  "summary": "Removed unused generated printStampedDryRunOutput.",
+  "reason": "Dogfood dead-function check failed the shipcheck leg on an uncalled generated helper.",
+  "files": [
+    "internal/cli/helpers.go"
+  ]
+}

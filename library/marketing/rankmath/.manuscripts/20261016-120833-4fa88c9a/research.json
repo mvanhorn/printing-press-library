@@ -1,0 +1,210 @@
+{
+  "api_name": "rankmath",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "rank-math-api-manager",
+      "url": "https://github.com/Devora-AS/rank-math-api-manager",
+      "language": "PHP",
+      "install_method": "",
+      "stars": 47,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "seo-by-rank-math",
+      "url": "https://github.com/rankmath/seo-by-rank-math",
+      "language": "PHP",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-16T19:16:22Z",
+  "novel_features": [
+    {
+      "name": "SEO head audit",
+      "command": "audit",
+      "description": "One list of every synced post with a missing or duplicate SEO title or description, long title, canonical problem, accidental noindex, or no schema. Works on public pages without credentials; run sync first.",
+      "rationale": "Rank Math meta is not exposed in the WordPress REST API, so it needs rendered-head snapshots of every synced post compared in a local store.",
+      "example": "rankmath-pp-cli audit --agent --select issues.url,issues.issue",
+      "why_it_matters": "Reach for this before any bulk meta edit to get a structured fix list instead of scraping pages one by one.",
+      "group": "Site-wide SEO health"
+    },
+    {
+      "name": "Index coverage gaps",
+      "command": "coverage",
+      "description": "Find published posts Google has not indexed or never inspected, excluding intentionally noindexed pages. Needs credentials and Rank Math Analytics connected to Search Console.",
+      "rationale": "Joins the post inventory, Rank Math URL inspection results, and snapshot robots tags that only exist together in the local store.",
+      "example": "rankmath-pp-cli coverage --agent --select gaps.url,gaps.verdict",
+      "why_it_matters": "Use it to answer which real content is missing from Google rather than reading raw inspection rows.",
+      "group": "Site-wide SEO health"
+    },
+    {
+      "name": "Reindex changed posts",
+      "command": "reindex",
+      "description": "Preview the posts edited since a given window that are not yet in the IndexNow log; --confirm plus credentials submits them.",
+      "rationale": "Combines WordPress modified_after with the Rank Math IndexNow log so nothing is submitted twice.",
+      "example": "rankmath-pp-cli reindex --since 7d",
+      "why_it_matters": "Run after a batch of edits to get fresh pages crawled without resubmitting the whole site.",
+      "group": "Edit, verify, index"
+    },
+    {
+      "name": "Striking-distance opportunities",
+      "command": "opportunities",
+      "description": "Queries ranking in positions 4-20 whose post title or description does not mention the query. Needs credentials and Rank Math Analytics connected to Search Console.",
+      "rationale": "Joins Search Console keyword rows from Rank Math Analytics with rendered-head snapshots in the local store.",
+      "example": "rankmath-pp-cli opportunities --min-impressions 100 --agent",
+      "why_it_matters": "Use it to pick which titles to rewrite next with evidence from real search demand.",
+      "group": "Edit, verify, index"
+    },
+    {
+      "name": "Portfolio rollup",
+      "command": "portfolio",
+      "description": "Clicks, impressions, and average position for each site in --sites (or RANKMATH_SITES) in one table. Needs credentials per site.",
+      "rationale": "Fans out the Rank Math analytics summary across every site profile and skips sites without the module.",
+      "example": "rankmath-pp-cli portfolio --agent",
+      "why_it_matters": "Use it for a multi-site weekly check instead of logging into each wp-admin.",
+      "group": "Multi-site"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "SEO head audit",
+      "command": "audit",
+      "description": "One list of every synced post with a missing or duplicate SEO title or description, long title, canonical problem, accidental noindex, or no schema. Works on public pages without credentials; run sync first.",
+      "rationale": "Rank Math meta is not exposed in the WordPress REST API, so it needs rendered-head snapshots of every synced post compared in a local store.",
+      "example": "rankmath-pp-cli audit --agent --select issues.url,issues.issue",
+      "why_it_matters": "Reach for this before any bulk meta edit to get a structured fix list instead of scraping pages one by one.",
+      "group": "Site-wide SEO health"
+    },
+    {
+      "name": "Index coverage gaps",
+      "command": "coverage",
+      "description": "Find published posts Google has not indexed or never inspected, excluding intentionally noindexed pages. Needs credentials and Rank Math Analytics connected to Search Console.",
+      "rationale": "Joins the post inventory, Rank Math URL inspection results, and snapshot robots tags that only exist together in the local store.",
+      "example": "rankmath-pp-cli coverage --agent --select gaps.url,gaps.verdict",
+      "why_it_matters": "Use it to answer which real content is missing from Google rather than reading raw inspection rows.",
+      "group": "Site-wide SEO health"
+    },
+    {
+      "name": "Reindex changed posts",
+      "command": "reindex",
+      "description": "Preview the posts edited since a given window that are not yet in the IndexNow log; --confirm plus credentials submits them.",
+      "rationale": "Combines WordPress modified_after with the Rank Math IndexNow log so nothing is submitted twice.",
+      "example": "rankmath-pp-cli reindex --since 7d",
+      "why_it_matters": "Run after a batch of edits to get fresh pages crawled without resubmitting the whole site.",
+      "group": "Edit, verify, index"
+    },
+    {
+      "name": "Striking-distance opportunities",
+      "command": "opportunities",
+      "description": "Queries ranking in positions 4-20 whose post title or description does not mention the query. Needs credentials and Rank Math Analytics connected to Search Console.",
+      "rationale": "Joins Search Console keyword rows from Rank Math Analytics with rendered-head snapshots in the local store.",
+      "example": "rankmath-pp-cli opportunities --min-impressions 100 --agent",
+      "why_it_matters": "Use it to pick which titles to rewrite next with evidence from real search demand.",
+      "group": "Edit, verify, index"
+    },
+    {
+      "name": "Portfolio rollup",
+      "command": "portfolio",
+      "description": "Clicks, impressions, and average position for each site in --sites (or RANKMATH_SITES) in one table. Needs credentials per site.",
+      "rationale": "Fans out the Rank Math analytics summary across every site profile and skips sites without the module.",
+      "example": "rankmath-pp-cli portfolio --agent",
+      "why_it_matters": "Use it for a multi-site weekly check instead of logging into each wp-admin.",
+      "group": "Multi-site"
+    }
+  ],
+  "narrative": {
+    "display_name": "Rank Math",
+    "headline": "Rank Math SEO from the terminal: bulk meta edits, site-wide SEO audits, Search Console analytics, and IndexNow — with no bridge plugin.",
+    "value_prop": "Talks to Rank Math's own REST routes on your WordPress site using a WordPress application password. Adds a local store so audit, coverage, and reindex can answer site-wide questions that the Rank Math admin answers one post at a time.",
+    "auth_narrative": "Rank Math has no hosted API: each WordPress site exposes its own routes under /wp-json/rankmath/v1. Set RANKMATH_SITE to the site host (for example example.com). For commands that need an account, create an Application Password in wp-admin (Users → Profile → Application Passwords) and export RANKMATH_USERNAME and RANKMATH_APP_PASSWORD, or save them with the auth set-credentials subcommand (username, then application password) and check them with auth status. Without credentials, only posts, pages, sync, audit, head get, and doctor modules work. gsc, indexing, coverage, opportunities, portfolio, link-genius, and every meta/schema/redirection/settings write need an account with Rank Math capabilities. The doctor modules subcommand (pass the site hosts) shows which Rank Math modules (Analytics, Instant Indexing, Link Genius, headless getHead) a site exposes.",
+    "quickstart": [
+      {
+        "command": "rankmath-pp-cli doctor --dry-run",
+        "comment": "Check config and credentials without network access"
+      },
+      {
+        "command": "rankmath-pp-cli sync --resources posts,pages --since 7d",
+        "comment": "Pull the post inventory into the local store"
+      },
+      {
+        "command": "rankmath-pp-cli audit --agent --select issues.url,issues.issue",
+        "comment": "List SEO tag problems across the synced posts"
+      },
+      {
+        "command": "rankmath-pp-cli reindex --since 7d",
+        "comment": "Preview which edited posts would be sent to IndexNow"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 rest_forbidden on rankmath routes",
+        "fix": "Set the WordPress username and application password; the account needs Rank Math capabilities for that module."
+      },
+      {
+        "symptom": "404 rest_no_route for a Pro route (link-genius, rank tracking)",
+        "fix": "Run rankmath-pp-cli doctor to see which modules this site exposes; the module is off or Rank Math Pro is not installed."
+      },
+      {
+        "symptom": "head --url returns 404 rest_no_route",
+        "fix": "Headless support is off (Rank Math → General Settings → Others). Use rankmath-pp-cli head get \u003curl\u003e, which falls back to parsing the rendered page."
+      },
+      {
+        "symptom": "RANKMATH_SITE not set",
+        "fix": "export RANKMATH_SITE=example.com (host only, no https://)."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or operator needs to read or change Rank Math SEO data on a WordPress site: auditing titles and descriptions site-wide, bulk-updating SEO meta, reading Search Console analytics that Rank Math has collected, or submitting changed URLs to IndexNow.",
+    "anti_triggers": [
+      "Editing post content, blocks, or Elementor layouts — use the WordPress REST API or Elementor tooling",
+      "Generating SEO copy with an LLM — this CLI writes the values you give it",
+      "Managing Yoast, AIOSEO, or SEOPress sites",
+      "Raw Google Search Console queries beyond what Rank Math stores — use a Search Console client"
+    ],
+    "recipes": [
+      {
+        "title": "Fix list for an agent",
+        "command": "rankmath-pp-cli audit --agent --select issues.url,issues.issue",
+        "explanation": "After sync, a structured list of posts with SEO tag problems, narrowed to the two fields an agent needs."
+      },
+      {
+        "title": "Post-edit indexing",
+        "command": "rankmath-pp-cli reindex --since 24h",
+        "explanation": "Preview which posts edited in the last day would go to IndexNow; add --confirm to send."
+      },
+      {
+        "title": "What Google is missing",
+        "command": "rankmath-pp-cli coverage --agent --select gaps.url,gaps.verdict",
+        "explanation": "Published posts that are not indexed, excluding intentional noindex (needs credentials and Search Console connected)."
+      },
+      {
+        "title": "Search the local post inventory",
+        "command": "rankmath-pp-cli search \"retreat\" --type posts --limit 10",
+        "explanation": "Offline full-text search across posts pulled in by sync."
+      },
+      {
+        "title": "Bulk-edit SEO titles from a CSV",
+        "command": "rankmath-pp-cli meta import --file titles.csv --json",
+        "explanation": "Preview the rows a CSV of id,title,description,focus_keyword would send to Rank Math's bulk meta route; add --apply (with credentials) to write."
+      }
+    ],
+    "trigger_phrases": [
+      "audit SEO titles on my WordPress site",
+      "update Rank Math meta description",
+      "submit changed posts to IndexNow",
+      "which posts are not indexed",
+      "use rankmath",
+      "run rankmath-pp-cli"
+    ]
+  }
+}

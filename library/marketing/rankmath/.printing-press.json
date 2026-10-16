@@ -1,0 +1,111 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-16T21:22:01.704047Z",
+  "printing_press_version": "4.33.5",
+  "api_name": "rankmath",
+  "display_name": "Rank Math",
+  "cli_name": "rankmath-pp-cli",
+  "creator": {
+    "handle": "ElizabethcStone",
+    "name": "ElizabethcStone"
+  },
+  "owner": "elizabethcstone",
+  "printer": "ElizabethcStone",
+  "printer_name": "ElizabethcStone",
+  "spec_path": "spec.json",
+  "spec_format": "openapi3",
+  "spec_source": "official",
+  "spec_checksum": "sha256:be90ae4570081a88b9febbc72da10a33cd8aa6be4e6694d29c6f58022bb0949e",
+  "run_id": "20261016-120833-4fa88c9a",
+  "category": "marketing",
+  "description": "Rank Math SEO from the terminal: bulk meta edits, site-wide SEO audits, Search Console analytics, and IndexNow — with no bridge plugin.",
+  "mcp_binary": "rankmath-pp-mcp",
+  "mcp_tool_count": 97,
+  "mcp_public_tool_count": 3,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "api_key",
+  "auth_preference": "basicAuth",
+  "auth_env_vars": [
+    "RANKMATH_USERNAME",
+    "RANKMATH_APP_PASSWORD"
+  ],
+  "endpoint_template_vars": [
+    "site"
+  ],
+  "endpoint_template_env_overrides": {
+    "site": "RANKMATH_SITE"
+  },
+  "endpoint_template_var_defaults": {
+    "site": "example.com"
+  },
+  "novel_features": [
+    {
+      "name": "SEO head audit",
+      "command": "audit",
+      "description": "One list of every synced post with a missing or duplicate SEO title or description, long title, canonical problem, accidental noindex, or no schema. Works on public pages without credentials; run sync first."
+    },
+    {
+      "name": "Index coverage gaps",
+      "command": "coverage",
+      "description": "Find published posts Google has not indexed or never inspected, excluding intentionally noindexed pages. Needs credentials and Rank Math Analytics connected to Search Console."
+    },
+    {
+      "name": "Reindex changed posts",
+      "command": "reindex",
+      "description": "Preview the posts edited since a given window that are not yet in the IndexNow log; --confirm plus credentials submits them."
+    },
+    {
+      "name": "Striking-distance opportunities",
+      "command": "opportunities",
+      "description": "Queries ranking in positions 4-20 whose post title or description does not mention the query. Needs credentials and Rank Math Analytics connected to Search Console."
+    },
+    {
+      "name": "Portfolio rollup",
+      "command": "portfolio",
+      "description": "Clicks, impressions, and average position for each site in --sites (or RANKMATH_SITES) in one table. Needs credentials per site."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "SEO head audit",
+      "command": "audit",
+      "description": "One list of every synced post with a missing or duplicate SEO title or description, long title, canonical problem, accidental noindex, or no schema. Works on public pages without credentials; run sync first."
+    },
+    {
+      "name": "Index coverage gaps",
+      "command": "coverage",
+      "description": "Find published posts Google has not indexed or never inspected, excluding intentionally noindexed pages. Needs credentials and Rank Math Analytics connected to Search Console."
+    },
+    {
+      "name": "Reindex changed posts",
+      "command": "reindex",
+      "description": "Preview the posts edited since a given window that are not yet in the IndexNow log; --confirm plus credentials submits them."
+    },
+    {
+      "name": "Striking-distance opportunities",
+      "command": "opportunities",
+      "description": "Queries ranking in positions 4-20 whose post title or description does not mention the query. Needs credentials and Rank Math Analytics connected to Search Console."
+    },
+    {
+      "name": "Portfolio rollup",
+      "command": "portfolio",
+      "description": "Clicks, impressions, and average position for each site in --sites (or RANKMATH_SITES) in one table. Needs credentials per site."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 71,
+    "total": 71,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 95,
+      "grade": "A",
+      "total": 95
+    }
+  }
+}

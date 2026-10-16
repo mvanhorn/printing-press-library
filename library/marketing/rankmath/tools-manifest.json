@@ -1,0 +1,2414 @@
+{
+  "api_name": "rankmath",
+  "base_url": "https://{site}/wp-json",
+  "description": "Rank Math SEO from the terminal: bulk meta edits, site-wide SEO audits, Search Console analytics, and IndexNow — with no bridge plugin.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "Basic {RANKMATH_USERNAME}:{RANKMATH_APP_PASSWORD}",
+    "env_vars": [
+      "RANKMATH_USERNAME",
+      "RANKMATH_APP_PASSWORD"
+    ],
+    "env_var_specs": [
+      {
+        "name": "RANKMATH_USERNAME",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": false,
+        "inferred": true
+      },
+      {
+        "name": "RANKMATH_APP_PASSWORD",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "ai_visibility_brands-generate-queries",
+      "description": "Rank Math ai-visibility: brands generate queries. Required: id. Returns the new AiVisibilityBrandsGenerateQueriesResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/ai-visibility/brands/{id}/generate-queries",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ai_visibility_create-brands",
+      "description": "Rank Math ai-visibility: create brands. Required: description, language, name, platforms, url. Optional: interval, locale. Returns the new AiVisibilityCreateBrandsResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/ai-visibility/brands",
+      "params": [
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Short description of the brand or product.",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "body",
+          "description": "Analysis refresh cadence. Omitted → backend applies the account plan\u0026#039;s default."
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "Output language to use when analyzing/generating content for this brand. Independent of `locale` (target country). Required; immutable after creation.",
+          "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 3166-1 alpha-2 country code (e.g. \u0026quot;US\u0026quot;, \u0026quot;HU\u0026quot;)."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Brand name.",
+          "required": true
+        },
+        {
+          "name": "platforms",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "AI platforms to track for this brand. Supported values: 'chatgpt', 'gemini'. Tracking more than one platform per brand requires the Expert plan.",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Brand website URL or domain.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ai_visibility_get-brands",
+      "description": "Rank Math ai-visibility: get brands. Required: id. Returns the AiVisibilityGetBrandsResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/ai-visibility/brands/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ai_visibility_get-brands-insights",
+      "description": "Rank Math ai-visibility: get brands insights. Required: id. Returns the AiVisibilityGetBrandsInsightsResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/ai-visibility/brands/{id}/insights",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ai_visibility_get-brands-queries",
+      "description": "Rank Math ai-visibility: get brands queries. Required: id. Returns the AiVisibilityGetBrandsQueriesResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/ai-visibility/brands/{id}/queries",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ai_visibility_overview",
+      "description": "Rank Math ai-visibility: overview. Optional: refresh (default: false), search. Returns the AiVisibilityOverviewResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/ai-visibility/overview",
+      "params": [
+        {
+          "name": "refresh",
+          "type": "bool",
+          "location": "query",
+          "description": "Force a refresh from the AI Visibility API."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Filter brands by name or URL."
+        }
+      ]
+    },
+    {
+      "name": "ai_visibility_update-brands",
+      "description": "Rank Math ai-visibility: update brands. Required: id. Optional: description, interval, language (plus 5 more). Returns the new AiVisibilityUpdateBrandsResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/ai-visibility/brands/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "body",
+          "description": "Interval"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "Language"
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "body",
+          "description": "Locale"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "platforms",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "AI platforms to track for this brand. Supported values: 'chatgpt', 'gemini'. Tracking more than one platform per brand requires the Expert plan."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Url"
+        }
+      ]
+    },
+    {
+      "name": "ai_visibility_update-brands-queries",
+      "description": "Rank Math ai-visibility: update brands queries. Required: id, qid, enabled. Returns the new AiVisibilityUpdateBrandsQueriesResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/ai-visibility/brands/{id}/queries/{qid}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "qid",
+          "type": "string",
+          "location": "path",
+          "description": "Qid",
+          "required": true
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the query is enabled for analysis.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "backup_export-settings",
+      "description": "Rank Math backup: export settings. Returns the new BackupExportSettingsResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/status/exportSettings",
+      "params": []
+    },
+    {
+      "name": "backup_get-view-data",
+      "description": "Rank Math backup: get view data. Returns the new BackupGetViewDataResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/status/getViewData",
+      "params": []
+    },
+    {
+      "name": "backup_run",
+      "description": "Rank Math backup: run backup. Returns the new BackupRunResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/status/runBackup",
+      "params": []
+    },
+    {
+      "name": "dashboard_search-intent",
+      "description": "Rank Math dashboard: search intent. Required: keyword. Returns the new DashboardSearchIntentResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/searchIntent",
+      "params": [
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "body",
+          "description": "The keyword used to determine the intent.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dashboard_widget",
+      "description": "Rank Math dashboard: dashboard widget. Returns the DashboardWidgetResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/dashboardWidget",
+      "params": []
+    },
+    {
+      "name": "gsc_add-track-keyword",
+      "description": "Rank Math gsc: add track keyword. Optional: context, keyword, page (default: 1) (plus 2 more). Returns the new GscAddTrackKeywordResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/an/addTrackKeyword",
+      "params": [
+        {
+          "name": "context",
+          "type": "string",
+          "location": "body",
+          "description": "Scope under which the request is made; determines fields present in response."
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "body",
+          "description": "Keyword to add."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "body",
+          "description": "Current page of the collection."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of items to be returned in result set."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "body",
+          "description": "Limit results to those matching a string."
+        }
+      ]
+    },
+    {
+      "name": "gsc_analytics-summary",
+      "description": "Rank Math gsc: analytics summary. Optional: postType. Returns the GscAnalyticsSummaryResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/an/analyticsSummary",
+      "params": [
+        {
+          "name": "postType",
+          "type": "string",
+          "location": "query",
+          "description": "Post Type."
+        }
+      ]
+    },
+    {
+      "name": "gsc_auto-add-focus-keywords",
+      "description": "Rank Math gsc: auto add focus keywords. Optional: context, data, page (default: 1) (plus 2 more). Returns the new GscAutoAddFocusKeywordsResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/an/autoAddFocusKeywords",
+      "params": [
+        {
+          "name": "context",
+          "type": "string",
+          "location": "body",
+          "description": "Scope under which the request is made; determines fields present in response."
+        },
+        {
+          "name": "data",
+          "type": "object",
+          "location": "body",
+          "description": "Data to add."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "body",
+          "description": "Current page of the collection."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of items to be returned in result set."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "body",
+          "description": "Limit results to those matching a string."
+        }
+      ]
+    },
+    {
+      "name": "gsc_dashboard",
+      "description": "Rank Math gsc: dashboard. Returns the GscDashboardResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/an/dashboard",
+      "params": []
+    },
+    {
+      "name": "gsc_delete-tracked-keywords",
+      "description": "Rank Math gsc: delete tracked keywords. Returns the new GscDeleteTrackedKeywordsResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/an/deleteTrackedKeywords",
+      "params": []
+    },
+    {
+      "name": "gsc_get-desktop-pagespeed",
+      "description": "Rank Math gsc: get desktop pagespeed. Optional: context, force (default: false), id (default: 0) (plus 5 more). Returns the new GscGetDesktopPagespeedResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/an/getDesktopPagespeed",
+      "params": [
+        {
+          "name": "context",
+          "type": "string",
+          "location": "body",
+          "description": "Scope under which the request is made; determines fields present in response."
+        },
+        {
+          "name": "force",
+          "type": "bool",
+          "location": "body",
+          "description": "Force update pagespeed."
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Record id."
+        },
+        {
+          "name": "isAdminBar",
+          "type": "bool",
+          "location": "body",
+          "description": "Is admin bar."
+        },
+        {
+          "name": "objectID",
+          "type": "int",
+          "location": "body",
+          "description": "Post id."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "body",
+          "description": "Current page of the collection."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of items to be returned in result set."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "body",
+          "description": "Limit results to those matching a string."
+        }
+      ]
+    },
+    {
+      "name": "gsc_get-keyword-pages",
+      "description": "Rank Math gsc: get keyword pages. Optional: context, page (default: 1), per_page (default: 10) (plus 2 more). Returns the GscGetKeywordPagesResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/an/getKeywordPages",
+      "params": [
+        {
+          "name": "context",
+          "type": "string",
+          "location": "query",
+          "description": "Scope under which the request is made; determines fields present in response."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Current page of the collection."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of items to be returned in result set."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Limit results to those matching a string."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query to search."
+        }
+      ]
+    },
+    {
+      "name": "gsc_get-mobile-pagespeed",
+      "description": "Rank Math gsc: get mobile pagespeed. Optional: context, force (default: false), id (default: 0) (plus 5 more). Returns the new GscGetMobilePagespeedResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/an/getMobilePagespeed",
+      "params": [
+        {
+          "name": "context",
+          "type": "string",
+          "location": "body",
+          "description": "Scope under which the request is made; determines fields present in response."
+        },
+        {
+          "name": "force",
+          "type": "bool",
+          "location": "body",
+          "description": "Force update pagespeed."
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Record id."
+        },
+        {
+          "name": "isAdminBar",
+          "type": "bool",
+          "location": "body",
+          "description": "Is admin bar."
+        },
+        {
+          "name": "objectID",
+          "type": "int",
+          "location": "body",
+          "description": "Post id."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "body",
+          "description": "Current page of the collection."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of items to be returned in result set."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "body",
+          "description": "Limit results to those matching a string."
+        }
+      ]
+    },
+    {
+      "name": "gsc_get-page-seoscore",
+      "description": "Rank Math gsc: get page seoscore. Optional: context, force (default: false), id (default: 0) (plus 5 more). Returns the new GscGetPageSeoscoreResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/an/getPageSEOScore",
+      "params": [
+        {
+          "name": "context",
+          "type": "string",
+          "location": "body",
+          "description": "Scope under which the request is made; determines fields present in response."
+        },
+        {
+          "name": "force",
+          "type": "bool",
+          "location": "body",
+          "description": "Force update pagespeed."
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Record id."
+        },
+        {
+          "name": "isAdminBar",
+          "type": "bool",
+          "location": "body",
+          "description": "Is admin bar."
+        },
+        {
+          "name": "objectID",
+          "type": "int",
+          "location": "body",
+          "description": "Post id."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "body",
+          "description": "Current page of the collection."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of items to be returned in result set."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "body",
+          "description": "Limit results to those matching a string."
+        }
+      ]
+    },
+    {
+      "name": "gsc_get-post",
+      "description": "Rank Math gsc: get post. Required: id. Returns the GscGetPostResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/an/post/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "gsc_get-tracked-keyword-summary",
+      "description": "Rank Math gsc: get tracked keyword summary. Returns the GscGetTrackedKeywordSummaryResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/an/getTrackedKeywordSummary",
+      "params": []
+    },
+    {
+      "name": "gsc_get-tracked-keywords",
+      "description": "Rank Math gsc: get tracked keywords. Returns the GscGetTrackedKeywordsResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/an/getTrackedKeywords",
+      "params": []
+    },
+    {
+      "name": "gsc_get-tracked-keywords-rows",
+      "description": "Rank Math gsc: get tracked keywords rows. Optional: context, page (default: 1), per_page (default: 10) (plus 3 more). Returns the GscGetTrackedKeywordsRowsResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/an/getTrackedKeywordsRows",
+      "params": [
+        {
+          "name": "context",
+          "type": "string",
+          "location": "query",
+          "description": "Scope under which the request is made; determines fields present in response."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Current page of the collection."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of items to be returned in result set."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword to search."
+        },
+        {
+          "name": "orderby",
+          "type": "string",
+          "location": "query",
+          "description": "Orderby"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction"
+        }
+      ]
+    },
+    {
+      "name": "gsc_inspection-results",
+      "description": "Rank Math gsc: inspection results. Optional: page, perPage, orderBy (plus 4 more). Returns the GscInspectionResultsResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/an/inspectionResults",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number."
+        },
+        {
+          "name": "perPage",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page."
+        },
+        {
+          "name": "orderBy",
+          "type": "string",
+          "location": "query",
+          "description": "Order by."
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search."
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter."
+        },
+        {
+          "name": "filterType",
+          "type": "string",
+          "location": "query",
+          "description": "Filter type."
+        }
+      ]
+    },
+    {
+      "name": "gsc_inspection-stats",
+      "description": "Rank Math gsc: inspection stats. Returns the GscInspectionStatsResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/an/inspectionStats",
+      "params": []
+    },
+    {
+      "name": "gsc_keywords-overview",
+      "description": "Rank Math gsc: keywords overview. Returns the GscKeywordsOverviewResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/an/keywordsOverview",
+      "params": []
+    },
+    {
+      "name": "gsc_keywords-rows",
+      "description": "Rank Math gsc: keywords rows. Optional: page, perPage, orderBy (plus 2 more). Returns the GscKeywordsRowsResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/an/keywordsRows",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number."
+        },
+        {
+          "name": "perPage",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page."
+        },
+        {
+          "name": "orderBy",
+          "type": "string",
+          "location": "query",
+          "description": "Order by."
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search."
+        }
+      ]
+    },
+    {
+      "name": "gsc_keywords-summary",
+      "description": "Rank Math gsc: keywords summary. Returns the GscKeywordsSummaryResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/an/keywordsSummary",
+      "params": []
+    },
+    {
+      "name": "gsc_posts-overview",
+      "description": "Rank Math gsc: posts overview. Returns the GscPostsOverviewResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/an/postsOverview",
+      "params": []
+    },
+    {
+      "name": "gsc_posts-rows",
+      "description": "Rank Math gsc: posts rows. Optional: page (default: 1), orderby, order. Returns the GscPostsRowsResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/an/postsRows",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Result page (25 rows per page)"
+        },
+        {
+          "name": "orderby",
+          "type": "string",
+          "location": "query",
+          "description": "Sort column"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction"
+        }
+      ]
+    },
+    {
+      "name": "gsc_posts-rows-by-objects",
+      "description": "Rank Math gsc: posts rows by objects. Optional: page, per_page, orderby (plus 1 more). Returns the GscPostsRowsByObjectsResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/an/postsRowsByObjects",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page."
+        },
+        {
+          "name": "orderby",
+          "type": "string",
+          "location": "query",
+          "description": "Sort column"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction"
+        }
+      ]
+    },
+    {
+      "name": "gsc_posts-summary",
+      "description": "Rank Math gsc: posts summary. Returns the GscPostsSummaryResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/an/postsSummary",
+      "params": []
+    },
+    {
+      "name": "gsc_remove-track-keyword",
+      "description": "Rank Math gsc: remove track keyword. Optional: context, order (default: desc), orderby (default: date) (plus 3 more). Returns the new GscRemoveTrackKeywordResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/an/removeTrackKeyword",
+      "params": [
+        {
+          "name": "context",
+          "type": "string",
+          "location": "body",
+          "description": "Scope under which the request is made; determines fields present in response."
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "body",
+          "description": "Order sort attribute ascending or descending."
+        },
+        {
+          "name": "orderby",
+          "type": "string",
+          "location": "body",
+          "description": "Sort collection by post attribute."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "body",
+          "description": "Current page of the collection."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of items to be returned in result set."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "body",
+          "description": "Limit results to those matching a string."
+        }
+      ]
+    },
+    {
+      "name": "gsc_tracked-keywords-overview",
+      "description": "Rank Math gsc: tracked keywords overview. Returns the GscTrackedKeywordsOverviewResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/an/trackedKeywordsOverview",
+      "params": []
+    },
+    {
+      "name": "head_get",
+      "description": "Rendered Rank Math head tags for a URL (needs headless support enabled). Required: url. Returns the HeadGetResponse. (public)",
+      "method": "GET",
+      "path": "/rankmath/v1/getHead",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Absolute URL of a page on this site",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "indexing_clear-log",
+      "description": "Rank Math indexing: clear log. Optional: filter (default: all). Returns the new IndexingClearLogResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/in/clearLog",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "body",
+          "description": "Clear log by type."
+        }
+      ]
+    },
+    {
+      "name": "indexing_get-log",
+      "description": "Rank Math indexing: get log. Optional: filter (default: all). Returns the new IndexingGetLogResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/in/getLog",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "body",
+          "description": "Filter log by type."
+        }
+      ]
+    },
+    {
+      "name": "indexing_submit-urls",
+      "description": "Rank Math indexing: submit urls. Required: urls. Returns the new IndexingSubmitUrlsResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/in/submitUrls",
+      "params": [
+        {
+          "name": "urls",
+          "type": "string",
+          "location": "body",
+          "description": "The list of urls to submit to the Instant Indexing API.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_audit-mark-safe",
+      "description": "Rank Math link-genius: audit mark safe. Optional: filters, link_ids, reason. Returns the new LinkGeniusAuditMarkSafeResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/audit/mark-safe",
+      "params": [
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Filter criteria for selecting links to mark as safe."
+        },
+        {
+          "name": "link_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Link IDs to mark as safe."
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "body",
+          "description": "Reason for marking as safe."
+        }
+      ]
+    },
+    {
+      "name": "link_genius_audit-recheck",
+      "description": "Rank Math link-genius: audit recheck. Optional: filters, link_ids. Returns the new LinkGeniusAuditRecheckResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/audit/recheck",
+      "params": [
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Filter criteria for selecting links to recheck."
+        },
+        {
+          "name": "link_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Array of link IDs to recheck."
+        }
+      ]
+    },
+    {
+      "name": "link_genius_audit-start",
+      "description": "Rank Math link-genius: audit start. Optional: filters. Returns the new LinkGeniusAuditStartResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/audit/start",
+      "params": [
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Filters to apply (is_internal, unchecked_only, etc.)."
+        }
+      ]
+    },
+    {
+      "name": "link_genius_audit-stats",
+      "description": "Rank Math link-genius: audit stats. Returns the LinkGeniusAuditStatsResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/link-genius/audit/stats",
+      "params": []
+    },
+    {
+      "name": "link_genius_bulk-actions-restore",
+      "description": "Rank Math link-genius: bulk actions restore. Required: batch_id. Returns the new LinkGeniusBulkActionsRestoreResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/bulk-actions/restore",
+      "params": [
+        {
+          "name": "batch_id",
+          "type": "string",
+          "location": "body",
+          "description": "Batch ID to restore from snapshots.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_bulk-update-apply",
+      "description": "Rank Math link-genius: bulk update apply. Required: filters, update_config. Optional: is_rollback (default: false), rollback_batch_id, selected_link_ids. Returns the new LinkGeniusBulkUpdateApplyResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/bulk-update/apply",
+      "params": [
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Search filters for finding links.",
+          "required": true
+        },
+        {
+          "name": "is_rollback",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this is a rollback operation (prevents history creation)."
+        },
+        {
+          "name": "rollback_batch_id",
+          "type": "string",
+          "location": "body",
+          "description": "Batch ID being rolled back (for status update)."
+        },
+        {
+          "name": "selected_link_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Optional array of specific link IDs to update."
+        },
+        {
+          "name": "update_config",
+          "type": "object",
+          "location": "body",
+          "description": "Update configuration.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_bulk-update-preview",
+      "description": "Rank Math link-genius: bulk update preview. Required: filters, update_config. Returns the new LinkGeniusBulkUpdatePreviewResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/bulk-update/preview",
+      "params": [
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Search filters for finding links.",
+          "required": true
+        },
+        {
+          "name": "update_config",
+          "type": "object",
+          "location": "body",
+          "description": "Update configuration.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_bulk-update-preview-results",
+      "description": "Rank Math link-genius: bulk update preview results. Optional: page (default: 1), per_page (default: 20). Returns the LinkGeniusBulkUpdatePreviewResultsResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/link-genius/bulk-update/preview/results",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page."
+        }
+      ]
+    },
+    {
+      "name": "link_genius_bulk-update-rollback",
+      "description": "Rank Math link-genius: bulk update rollback. Required: batch_id. Optional: selected_post_ids. Returns the new LinkGeniusBulkUpdateRollbackResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/bulk-update/rollback",
+      "params": [
+        {
+          "name": "batch_id",
+          "type": "string",
+          "location": "body",
+          "description": "Batch ID to rollback.",
+          "required": true
+        },
+        {
+          "name": "selected_post_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Optional array of specific post IDs to rollback."
+        }
+      ]
+    },
+    {
+      "name": "link_genius_create-keyword-maps",
+      "description": "Rank Math link-genius: create keyword maps. Required: name, target_url. Optional: auto_link_on_publish (default: false), case_sensitive (default: false), description (plus 2 more). Returns the new LinkGeniusCreateKeywordMapsResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/keyword-maps",
+      "params": [
+        {
+          "name": "auto_link_on_publish",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable auto-linking on publish."
+        },
+        {
+          "name": "case_sensitive",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable case-sensitive keyword matching."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Keyword map description."
+        },
+        {
+          "name": "is_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the keyword map is enabled."
+        },
+        {
+          "name": "max_links_per_post",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum links per post."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Keyword map name.",
+          "required": true
+        },
+        {
+          "name": "target_url",
+          "type": "string",
+          "location": "body",
+          "description": "Target URL.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_delete",
+      "description": "Rank Math link-genius: delete. Optional: filters, link_ids. Returns the new LinkGeniusDeleteResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/delete",
+      "params": [
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Filter criteria for selecting links to delete."
+        },
+        {
+          "name": "link_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Link IDs to delete."
+        }
+      ]
+    },
+    {
+      "name": "link_genius_delete-bulk-update-history",
+      "description": "Rank Math link-genius: delete bulk update history. Required: batch_id. Returns the LinkGeniusDeleteBulkUpdateHistoryResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/rankmath/v1/link-genius/bulk-update/history/{batch_id}",
+      "params": [
+        {
+          "name": "batch_id",
+          "type": "string",
+          "location": "path",
+          "description": "Batch id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_delete-keyword-maps",
+      "description": "Rank Math link-genius: delete keyword maps. Required: id. Returns the LinkGeniusDeleteKeywordMapsResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/rankmath/v1/link-genius/keyword-maps/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_delete-keyword-maps-variations",
+      "description": "Rank Math link-genius: delete keyword maps variations. Required: id. Returns the LinkGeniusDeleteKeywordMapsVariationsResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/rankmath/v1/link-genius/keyword-maps/variations/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_export",
+      "description": "Rank Math link-genius: export. Required: columns, format, total, type. Optional: filters. Returns the new LinkGeniusExportResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/export",
+      "params": [
+        {
+          "name": "columns",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Column definitions.",
+          "required": true
+        },
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Filters to apply to the export."
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "body",
+          "description": "Export format (csv, json, excel).",
+          "required": true
+        },
+        {
+          "name": "total",
+          "type": "int",
+          "location": "body",
+          "description": "Total number of records to export.",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Export type (links or posts).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_get-bulk-update-changes",
+      "description": "Rank Math link-genius: get bulk update changes. Required: batch_id. Returns the LinkGeniusGetBulkUpdateChangesResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/link-genius/bulk-update/changes/{batch_id}",
+      "params": [
+        {
+          "name": "batch_id",
+          "type": "string",
+          "location": "path",
+          "description": "Batch id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_get-keyword-maps",
+      "description": "Rank Math link-genius: get keyword maps. Required: id. Returns the LinkGeniusGetKeywordMapsResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/link-genius/keyword-maps/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_get-keyword-maps-variations",
+      "description": "Rank Math link-genius: get keyword maps variations. Required: id. Returns the LinkGeniusGetKeywordMapsVariationsResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/link-genius/keyword-maps/{id}/variations",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_get-links-details",
+      "description": "Rank Math link-genius: get links details. Required: id. Returns the LinkGeniusGetLinksDetailsResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/link-genius/links/{id}/details",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_item-keyword-maps-generate-variations",
+      "description": "Rank Math link-genius: item keyword maps generate variations. Required: keyword. Optional: context. Returns the new LinkGeniusItemKeywordMapsGenerateVariationsResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/keyword-maps/generate-variations",
+      "params": [
+        {
+          "name": "context",
+          "type": "string",
+          "location": "body",
+          "description": "Optional context to help generate better variations."
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "body",
+          "description": "Keyword to generate variations for.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_keyword-maps-accept-variations",
+      "description": "Rank Math link-genius: keyword maps accept variations. Required: id, variations. Returns the new LinkGeniusKeywordMapsAcceptVariationsResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/keyword-maps/{id}/accept-variations",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "variations",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Array of variations to accept.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_keyword-maps-bulk-delete",
+      "description": "Rank Math link-genius: keyword maps bulk delete. Required: ids. Returns the new LinkGeniusKeywordMapsBulkDeleteResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/keyword-maps/bulk-delete",
+      "params": [
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "body",
+          "description": "Array of keyword map IDs.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_keyword-maps-bulk-toggle",
+      "description": "Rank Math link-genius: keyword maps bulk toggle. Required: enabled, ids. Returns the new LinkGeniusKeywordMapsBulkToggleResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/keyword-maps/bulk-toggle",
+      "params": [
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "New enabled status.",
+          "required": true
+        },
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "body",
+          "description": "Array of keyword map IDs.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_keyword-maps-execute",
+      "description": "Rank Math link-genius: keyword maps execute. Required: id. Returns the new LinkGeniusKeywordMapsExecuteResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/keyword-maps/{id}/execute",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_keyword-maps-generate-variations",
+      "description": "Rank Math link-genius: keyword maps generate variations. Required: id. Returns the new LinkGeniusKeywordMapsGenerateVariationsResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/keyword-maps/{id}/generate-variations",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_keyword-maps-history",
+      "description": "Rank Math link-genius: keyword maps history. Optional: page (default: 1), per_page (default: 20). Returns the LinkGeniusKeywordMapsHistoryResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/link-genius/keyword-maps/history",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page."
+        }
+      ]
+    },
+    {
+      "name": "link_genius_keyword-maps-preview",
+      "description": "Rank Math link-genius: keyword maps preview. Required: id. Returns the new LinkGeniusKeywordMapsPreviewResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/keyword-maps/{id}/preview",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_keyword-maps-preview-results",
+      "description": "Rank Math link-genius: keyword maps preview results. Required: keyword_map_id. Optional: page (default: 1), per_page (default: 20). Returns the LinkGeniusKeywordMapsPreviewResultsResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/link-genius/keyword-maps/preview/results",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page."
+        },
+        {
+          "name": "keyword_map_id",
+          "type": "int",
+          "location": "query",
+          "description": "Keyword map ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_keyword-maps-variations",
+      "description": "Rank Math link-genius: keyword maps variations. Required: id, variation. Optional: source (default: manual). Returns the new LinkGeniusKeywordMapsVariationsResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/keyword-maps/{id}/variations",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "body",
+          "description": "Variation source."
+        },
+        {
+          "name": "variation",
+          "type": "string",
+          "location": "body",
+          "description": "Variation text.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_link-opportunities",
+      "description": "Rank Math link-genius: link opportunities. Required: post_id. Optional: current. Returns the new LinkGeniusLinkOpportunitiesResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/link-opportunities",
+      "params": [
+        {
+          "name": "current",
+          "type": "object",
+          "location": "body",
+          "description": "Current editor state summary."
+        },
+        {
+          "name": "post_id",
+          "type": "int",
+          "location": "body",
+          "description": "Post ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_link-suggestions",
+      "description": "Rank Math link-genius: link suggestions. Required: post_id. Optional: current, text. Returns the new LinkGeniusLinkSuggestionsResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/link-suggestions",
+      "params": [
+        {
+          "name": "current",
+          "type": "object",
+          "location": "body",
+          "description": "Current editor state summary."
+        },
+        {
+          "name": "post_id",
+          "type": "int",
+          "location": "body",
+          "description": "Post ID.",
+          "required": true
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Selected text used for suggestions."
+        }
+      ]
+    },
+    {
+      "name": "link_genius_list-bulk-update-history",
+      "description": "Rank Math link-genius: list bulk update history. Optional: page (default: 1), per_page (default: 20). Returns the LinkGeniusListBulkUpdateHistoryResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/link-genius/bulk-update/history",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page."
+        }
+      ]
+    },
+    {
+      "name": "link_genius_list-keyword-maps",
+      "description": "Rank Math link-genius: list keyword maps. Optional: page (default: 1), per_page (default: 20), orderby (default: created_at) (plus 3 more). Returns the LinkGeniusListKeywordMapsResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/link-genius/keyword-maps",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page."
+        },
+        {
+          "name": "orderby",
+          "type": "string",
+          "location": "query",
+          "description": "Column to order by."
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order direction."
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by enabled status."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search term."
+        }
+      ]
+    },
+    {
+      "name": "link_genius_list-links",
+      "description": "Rank Math link-genius: list links. Optional: page (default: 1), per_page (default: 50), source_id (default: 0) (plus 16 more). Returns the LinkGeniusListLinksResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/link-genius/links",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Items per page."
+        },
+        {
+          "name": "source_id",
+          "type": "int",
+          "location": "query",
+          "description": "Filter by source post ID."
+        },
+        {
+          "name": "target_post_id",
+          "type": "int",
+          "location": "query",
+          "description": "Filter by target post ID."
+        },
+        {
+          "name": "is_internal",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by link type."
+        },
+        {
+          "name": "is_nofollow",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by nofollow status."
+        },
+        {
+          "name": "anchor_type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by anchor type (HPLNK, CNCL, HLANG, IMAGE)."
+        },
+        {
+          "name": "target_blank",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by target blank status."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search in anchor text or URL."
+        },
+        {
+          "name": "orderby",
+          "type": "string",
+          "location": "query",
+          "description": "Order by field."
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order direction."
+        },
+        {
+          "name": "status_code",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by HTTP status code (e.g., 404). Supports multiple values."
+        },
+        {
+          "name": "status_category",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by status category (2xx, 3xx, 4xx, 5xx, timeout, error)."
+        },
+        {
+          "name": "is_broken",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter broken links (4xx, 5xx, timeout, error)."
+        },
+        {
+          "name": "is_success",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter successful links (2xx)."
+        },
+        {
+          "name": "is_redirect",
+          "type": "string",
+          "location": "query",
+          "description": "Filter redirect links (3xx)."
+        },
+        {
+          "name": "robots_blocked",
+          "type": "string",
+          "location": "query",
+          "description": "Filter links blocked by robots.txt."
+        },
+        {
+          "name": "unchecked",
+          "type": "string",
+          "location": "query",
+          "description": "Filter unchecked links (no status data)."
+        },
+        {
+          "name": "is_marked_safe",
+          "type": "string",
+          "location": "query",
+          "description": "Filter links marked as safe."
+        }
+      ]
+    },
+    {
+      "name": "link_genius_operations-cancel",
+      "description": "Rank Math link-genius: operations cancel. Required: operation. Optional: id. Returns the new LinkGeniusOperationsCancelResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/operations/cancel",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Optional operation ID (for keyword maps)."
+        },
+        {
+          "name": "operation",
+          "type": "string",
+          "location": "body",
+          "description": "Operation type to cancel.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_operations-clear",
+      "description": "Rank Math link-genius: operations clear. Required: operation. Optional: id. Returns the new LinkGeniusOperationsClearResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/operations/clear",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Optional operation ID (for keyword maps)."
+        },
+        {
+          "name": "operation",
+          "type": "string",
+          "location": "body",
+          "description": "Operation type to clear.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_operations-progress",
+      "description": "Rank Math link-genius: operations progress. Required: operation. Optional: id. Returns the LinkGeniusOperationsProgressResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/link-genius/operations/progress",
+      "params": [
+        {
+          "name": "operation",
+          "type": "string",
+          "location": "query",
+          "description": "Operation type.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "Optional operation ID (for keyword maps)."
+        }
+      ]
+    },
+    {
+      "name": "link_genius_posts",
+      "description": "Rank Math link-genius: posts. Optional: page (default: 1), per_page (default: 50), search (plus 6 more). Returns the LinkGeniusPostsResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/link-genius/posts",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Items per page."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search in post title."
+        },
+        {
+          "name": "post_type",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by post type. Supports multiple values."
+        },
+        {
+          "name": "is_orphan",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by orphan status."
+        },
+        {
+          "name": "seo_score_range",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by SEO score range."
+        },
+        {
+          "name": "orderby",
+          "type": "string",
+          "location": "query",
+          "description": "Order by field."
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order direction."
+        },
+        {
+          "name": "min_incoming_links",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum incoming links count filter."
+        }
+      ]
+    },
+    {
+      "name": "link_genius_posts-stats",
+      "description": "Rank Math link-genius: posts stats. Returns the LinkGeniusPostsStatsResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/link-genius/posts-stats",
+      "params": []
+    },
+    {
+      "name": "link_genius_regenerate",
+      "description": "Rank Math link-genius: regenerate. Returns the new LinkGeniusRegenerateResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/regenerate",
+      "params": []
+    },
+    {
+      "name": "link_genius_related-posts",
+      "description": "Rank Math link-genius: related posts. Required: post_id. Optional: current. Returns the new LinkGeniusRelatedPostsResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/related-posts",
+      "params": [
+        {
+          "name": "current",
+          "type": "object",
+          "location": "body",
+          "description": "Current editor state summary."
+        },
+        {
+          "name": "post_id",
+          "type": "int",
+          "location": "body",
+          "description": "Post ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_remove-nofollow",
+      "description": "Rank Math link-genius: remove nofollow. Required: link_id. Returns the new LinkGeniusRemoveNofollowResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/remove-nofollow",
+      "params": [
+        {
+          "name": "link_id",
+          "type": "int",
+          "location": "body",
+          "description": "Link ID to remove nofollow from.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_stats",
+      "description": "Rank Math link-genius: stats. Returns the LinkGeniusStatsResponse.",
+      "method": "GET",
+      "path": "/rankmath/v1/link-genius/stats",
+      "params": []
+    },
+    {
+      "name": "link_genius_undo-delete",
+      "description": "Rank Math link-genius: undo delete. Required: original_content, post_id. Returns the new LinkGeniusUndoDeleteResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/undo-delete",
+      "params": [
+        {
+          "name": "original_content",
+          "type": "string",
+          "location": "body",
+          "description": "Original post content to restore.",
+          "required": true
+        },
+        {
+          "name": "post_id",
+          "type": "int",
+          "location": "body",
+          "description": "Post ID to restore.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "link_genius_update",
+      "description": "Rank Math link-genius: update. Required: link_id, new_anchor, new_url. Optional: is_nofollow (default: 0), target_blank (default: 0). Returns the new LinkGeniusUpdateResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/update",
+      "params": [
+        {
+          "name": "is_nofollow",
+          "type": "int",
+          "location": "body",
+          "description": "Whether the link should have nofollow attribute."
+        },
+        {
+          "name": "link_id",
+          "type": "int",
+          "location": "body",
+          "description": "Link ID to update.",
+          "required": true
+        },
+        {
+          "name": "new_anchor",
+          "type": "string",
+          "location": "body",
+          "description": "New anchor text for the link.",
+          "required": true
+        },
+        {
+          "name": "new_url",
+          "type": "string",
+          "location": "body",
+          "description": "New URL for the link.",
+          "required": true
+        },
+        {
+          "name": "target_blank",
+          "type": "int",
+          "location": "body",
+          "description": "Whether the link should open in a new tab."
+        }
+      ]
+    },
+    {
+      "name": "link_genius_update-keyword-maps",
+      "description": "Rank Math link-genius: update keyword maps. Required: id. Optional: auto_link_on_publish (default: false), case_sensitive (default: false), description (plus 4 more). Returns the new LinkGeniusUpdateKeywordMapsResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/link-genius/keyword-maps/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "auto_link_on_publish",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable auto-linking on publish."
+        },
+        {
+          "name": "case_sensitive",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable case-sensitive keyword matching."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Keyword map description."
+        },
+        {
+          "name": "is_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the keyword map is enabled."
+        },
+        {
+          "name": "max_links_per_post",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum links per post."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Keyword map name."
+        },
+        {
+          "name": "target_url",
+          "type": "string",
+          "location": "body",
+          "description": "Target URL."
+        }
+      ]
+    },
+    {
+      "name": "meta_update",
+      "description": "Rank Math meta: update meta. Required: meta, objectID, objectType. Returns the new MetaUpdateResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/updateMeta",
+      "params": [
+        {
+          "name": "meta",
+          "type": "string",
+          "location": "body",
+          "description": "Meta to add or update data.",
+          "required": true
+        },
+        {
+          "name": "objectID",
+          "type": "int",
+          "location": "body",
+          "description": "Object unique id",
+          "required": true
+        },
+        {
+          "name": "objectType",
+          "type": "string",
+          "location": "body",
+          "description": "Object Type i.e. post, term, user",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "meta_update-bulk",
+      "description": "Rank Math meta: update meta bulk. Required: rows. Returns the new MetaUpdateBulkResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/updateMetaBulk",
+      "params": [
+        {
+          "name": "rows",
+          "type": "string",
+          "location": "body",
+          "description": "Selected posts to update the data for.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "meta_update-seo-score",
+      "description": "Rank Math meta: update seo score. Required: postScores. Returns the new MetaUpdateSeoScoreResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/updateSeoScore",
+      "params": [
+        {
+          "name": "postScores",
+          "type": "object",
+          "location": "body",
+          "description": "Post scores",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pages_list",
+      "description": "List published WordPress pages (id, link, modified). Optional: per_page (default: 100), page (default: 1), modified_after (plus 2 more). Returns array of PagesListItem. (public)",
+      "method": "GET",
+      "path": "/wp/v2/pages",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Items per page (max 100)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "modified_after",
+          "type": "string",
+          "location": "query",
+          "description": "Only items modified after this ISO 8601 time"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Text search"
+        },
+        {
+          "name": "_fields",
+          "type": "string",
+          "location": "query",
+          "description": "Fields to return"
+        }
+      ]
+    },
+    {
+      "name": "posts_list",
+      "description": "List published WordPress posts (id, link, modified). Optional: per_page (default: 100), page (default: 1), modified_after (plus 2 more). Returns array of PostsListItem. (public)",
+      "method": "GET",
+      "path": "/wp/v2/posts",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Items per page (max 100)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "modified_after",
+          "type": "string",
+          "location": "query",
+          "description": "Only items modified after this ISO 8601 time"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Text search"
+        },
+        {
+          "name": "_fields",
+          "type": "string",
+          "location": "query",
+          "description": "Fields to return"
+        }
+      ]
+    },
+    {
+      "name": "redirections_update",
+      "description": "Rank Math redirections: update redirection. Required: hasRedirect, objectID, objectType (default: post), redirectionType (default: 301). Optional: redirectionID, redirectionUrl. Returns the new RedirectionsUpdateResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/updateRedirection",
+      "params": [
+        {
+          "name": "hasRedirect",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the object has a redirect or not",
+          "required": true
+        },
+        {
+          "name": "objectID",
+          "type": "int",
+          "location": "body",
+          "description": "Object unique id",
+          "required": true
+        },
+        {
+          "name": "objectType",
+          "type": "string",
+          "location": "body",
+          "description": "Object Type i.e. post, term, user",
+          "required": true
+        },
+        {
+          "name": "redirectionID",
+          "type": "string",
+          "location": "body",
+          "description": "Redirection ID"
+        },
+        {
+          "name": "redirectionType",
+          "type": "string",
+          "location": "body",
+          "description": "Redirection Type",
+          "required": true
+        },
+        {
+          "name": "redirectionUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Redirection URL"
+        }
+      ]
+    },
+    {
+      "name": "schema_save-template",
+      "description": "Rank Math schema: save template. Required: schema. Optional: postId. Returns the new SchemaSaveTemplateResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/saveTemplate",
+      "params": [
+        {
+          "name": "postId",
+          "type": "int",
+          "location": "body",
+          "description": "Post ID."
+        },
+        {
+          "name": "schema",
+          "type": "object",
+          "location": "body",
+          "description": "Schema data.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "schema_update",
+      "description": "Rank Math schema: update schemas. Required: objectID, objectType, schemas. Returns the new SchemaUpdateResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/updateSchemas",
+      "params": [
+        {
+          "name": "objectID",
+          "type": "int",
+          "location": "body",
+          "description": "Object unique id",
+          "required": true
+        },
+        {
+          "name": "objectType",
+          "type": "string",
+          "location": "body",
+          "description": "Object Type i.e. post, term, user",
+          "required": true
+        },
+        {
+          "name": "schemas",
+          "type": "string",
+          "location": "body",
+          "description": "schemas to add or update data.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "settings_save-module",
+      "description": "Rank Math settings: save module. Required: module, state. Returns the new SettingsSaveModuleResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/saveModule",
+      "params": [
+        {
+          "name": "module",
+          "type": "string",
+          "location": "body",
+          "description": "Module slug",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "Module state either on or off",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "settings_update",
+      "description": "Rank Math settings: update settings. Returns the new SettingsUpdateResponse.",
+      "method": "POST",
+      "path": "/rankmath/v1/updateSettings",
+      "params": []
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "SEO head audit",
+      "command": "audit",
+      "description": "One list of every synced post with a missing or duplicate SEO title or description, long title, canonical problem, accidental noindex, or no schema. Works on public pages without credentials; run sync first."
+    },
+    {
+      "name": "Index coverage gaps",
+      "command": "coverage",
+      "description": "Find published posts Google has not indexed or never inspected, excluding intentionally noindexed pages. Needs credentials and Rank Math Analytics connected to Search Console."
+    },
+    {
+      "name": "Reindex changed posts",
+      "command": "reindex",
+      "description": "Preview the posts edited since a given window that are not yet in the IndexNow log; --confirm plus credentials submits them."
+    },
+    {
+      "name": "Striking-distance opportunities",
+      "command": "opportunities",
+      "description": "Queries ranking in positions 4-20 whose post title or description does not mention the query. Needs credentials and Rank Math Analytics connected to Search Console."
+    },
+    {
+      "name": "Portfolio rollup",
+      "command": "portfolio",
+      "description": "Clicks, impressions, and average position for each site in --sites (or RANKMATH_SITES) in one table. Needs credentials per site."
+    }
+  ]
+}

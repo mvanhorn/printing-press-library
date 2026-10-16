@@ -1,0 +1,55 @@
+version: 2
+project_name: rankmath-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: rankmath-pp-cli
+    main: ./cmd/rankmath-pp-cli
+    binary: rankmath-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/marketing/rankmath/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: rankmath-pp-mcp
+    main: ./cmd/rankmath-pp-mcp
+    binary: rankmath-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: rankmath-pp-cli
+    repository:
+      owner: elizabethcstone
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Rank Math SEO from the terminal: bulk meta edits, site-wide SEO audits, Search Console analytics, and IndexNow — with no bridge plugin."
+    install: |
+      bin.install "rankmath-pp-cli"
+      bin.install "rankmath-pp-mcp"
