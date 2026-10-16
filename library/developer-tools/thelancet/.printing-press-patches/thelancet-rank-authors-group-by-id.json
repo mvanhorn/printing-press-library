@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "thelancet-rank-authors-group-by-id",
+  "applied_at": "2026-10-16",
+  "base_run_id": "20260617-072858-2f9fe13e",
+  "base_printing_press_version": "4.24.0",
+  "summary": "RankAuthors groups by author_id only. The displayed name is the spelling that author ID carries most often; ties go to the longest spelling, then the alphabetically first.",
+  "reason": "Grouping by id and name split one OpenAlex author into several rows whenever the name was printed differently, so works and citations were divided. A reprint must keep the id-only grouping and the deterministic name choice.",
+  "files": [
+    "internal/lancet/queries.go"
+  ],
+  "validated_outcome": "go test ./internal/lancet/ asserts one row for an id printed under two names (3 works, 115 citations, most frequent name), separate rows for two ids sharing a name, the longest name on a frequency tie, and the alphabetical name on a length tie. Dropping the LENGTH rule fails only TestRankAuthorsTieLongestNameWins; reversing the name order fails only TestRankAuthorsTieAlphabeticalName. Tests: TestRankAuthorsSameIDOneRow, TestRankAuthorsDifferentIDsStaySeparate, TestRankAuthorsTieLongestNameWins, TestRankAuthorsTieAlphabeticalName."
+}

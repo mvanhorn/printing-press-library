@@ -70,3 +70,54 @@ func TestRankAuthorsDifferentIDsStaySeparate(t *testing.T) {
 		t.Errorf("Frank B. Hu rows = %v, want both B1 and B2", seen)
 	}
 }
+
+// rankedNameFor stores works and returns the single display name RankAuthors gives authorID.
+func rankedNameFor(t *testing.T, works []decodedWork, authorID string) string {
+	t.Helper()
+	db := newTestDB(t)
+	defer db.Close()
+	ctx := context.Background()
+	if _, err := StoreWorks(ctx, db, works, "0140-6736", "The Lancet"); err != nil {
+		t.Fatalf("store: %v", err)
+	}
+	rows, err := RankAuthors(ctx, db, "", "", 100)
+	if err != nil {
+		t.Fatalf("RankAuthors: %v", err)
+	}
+	var names []string
+	for _, r := range rows {
+		if r.AuthorID == authorID {
+			names = append(names, r.AuthorName)
+		}
+	}
+	if len(names) != 1 {
+		t.Fatalf("author %s has %d rows, want 1: %v", authorID, len(names), names)
+	}
+	return names[0]
+}
+
+// Equal frequency: the longer spelling wins, even when it sorts later alphabetically.
+func TestRankAuthorsTieLongestNameWins(t *testing.T) {
+	works := []decodedWork{
+		{ID: "W96", DOI: "10.9/z1", Title: "V1", Year: 2020, Date: "2020-01-01", Cited: 30, Topic: "Topic",
+			Authors: []decodedAuthor{{ID: "C1", Name: "Ann Lee"}}},
+		{ID: "W97", DOI: "10.9/z2", Title: "V2", Year: 2021, Date: "2021-01-01", Cited: 20, Topic: "Topic",
+			Authors: []decodedAuthor{{ID: "C1", Name: "Ann M. Lee"}}},
+	}
+	if got := rankedNameFor(t, works, "C1"); got != "Ann M. Lee" {
+		t.Errorf("C1 name = %q, want the longer form \"Ann M. Lee\" on a frequency tie", got)
+	}
+}
+
+// Equal frequency and equal length: the alphabetically first spelling wins.
+func TestRankAuthorsTieAlphabeticalName(t *testing.T) {
+	works := []decodedWork{
+		{ID: "W98", DOI: "10.9/z3", Title: "V3", Year: 2020, Date: "2020-01-01", Cited: 30, Topic: "Topic",
+			Authors: []decodedAuthor{{ID: "D1", Name: "Bob Fox"}}},
+		{ID: "W99", DOI: "10.9/z4", Title: "V4", Year: 2021, Date: "2021-01-01", Cited: 20, Topic: "Topic",
+			Authors: []decodedAuthor{{ID: "D1", Name: "Abe Fox"}}},
+	}
+	if got := rankedNameFor(t, works, "D1"); got != "Abe Fox" {
+		t.Errorf("D1 name = %q, want the alphabetically first \"Abe Fox\" on a frequency and length tie", got)
+	}
+}
