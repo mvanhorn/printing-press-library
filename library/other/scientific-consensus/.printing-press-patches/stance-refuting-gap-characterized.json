@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "stance-refuting-gap-characterized",
+  "applied_at": "2026-10-16",
+  "base_run_id": "20260620-165352-e55cec69",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Decision: pin, do not fix yet. The heuristic ClassifyStance scores refuting abstracts as supporting when they repeat the claim's benefit words and negate them as 'did not lower', 'did not prevent', 'did not result in a lower' or 'increased rather than reduced'; a test guards the refuting cases and freezes the known misreads.",
+  "reason": "Null cues only cover 'did not improve/increase/reduce/affect/differ/change', so other negations count as support. A regen must keep this test, and a cue fix must move each fixture from the known-gap table to the guard on purpose.",
+  "files": [
+    "internal/scengine/stance_refuting_gap_test.go"
+  ],
+  "validated_outcome": "8 hand-written gold-refuting fixtures: 2 refuting, 4 supporting at conf >= 0.85, 1 mixed, 1 inconclusive. Mutations: the old suite missed 3 of 5 (no-benefit null cue, supporting conf -0.1, partial cue fix) and the new test caught all 5."
+}
