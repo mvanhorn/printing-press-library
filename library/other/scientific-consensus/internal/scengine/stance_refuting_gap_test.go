@@ -6,10 +6,11 @@ package scengine
 // found no benefit or found harm for the intervention the claim promotes.
 // Measured on the current code, only F3 and F8 classify refuting. The others
 // fail because the claim's own benefit words appear in the abstract and the
-// negation is phrased in ways the null cues do not cover: "did not reduce",
-// "did not lower", "increased rather than reduced", "did not prevent", and
-// "did not result in a lower". Those phrases count as support, so F2, F4, F5
-// and F7 come out supporting with confidence >= 0.85.
+// negation is phrased in ways the null cues do not cover: "did not lower",
+// "did not prevent", "did not result in a lower", and "increased rather than
+// reduced". Those phrases count as support, so F2, F4, F5 and F7 come out
+// supporting with confidence >= 0.85. The "did not reduce" form is already
+// handled by the redu branch of nullCues.
 //
 // An external benchmark (SciFact, CC BY-NC 2.0) showed the same pattern. None
 // of its text or identifiers are included here.
