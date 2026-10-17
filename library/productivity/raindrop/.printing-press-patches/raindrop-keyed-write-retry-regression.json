@@ -9,5 +9,5 @@
   "files": [
     "internal/client/ambiguous_write_retry_test.go"
   ],
-  "validated_outcome": "Synthetic TLS responses verify one request and an error after keyed HTTP 502, versus two requests and success after HTTP 429 followed by HTTP 200."
+  "validated_outcome": "Synthetic TLS responses verify one request and an error after keyed HTTP 502, versus two requests and success after HTTP 429 followed by HTTP 200. Persistent HTTP 429 returns an error after exactly two attempts."
 }

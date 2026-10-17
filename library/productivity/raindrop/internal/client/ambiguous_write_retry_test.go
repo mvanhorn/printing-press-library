@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"sync/atomic"
 	"testing"
+	"time"
 )
 
 // A key supplied by a caller does not prove the upstream server deduplicates
@@ -36,5 +37,22 @@ func TestKeyedWriteRetriesOnlyExplicitRateLimitRejection(t *testing.T) {
 				t.Fatalf("rejected write err=%v calls=%d; want bounded retry and success", err, calls.Load())
 			}
 		})
+	}
+}
+
+func TestKeyedWriteStopsAtRateLimitAttemptBound(t *testing.T) {
+	var calls atomic.Int32
+	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		calls.Add(1)
+		w.Header().Set("Retry-After", "0")
+		w.WriteHeader(http.StatusTooManyRequests)
+	}))
+	defer server.Close()
+	client, _ := platformRateLimitTestClient(t, server)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	_, _, err := client.PostWithHeaders(ctx, "/mutation", map[string]any{"synthetic": true}, map[string]string{"Idempotency-Key": "synthetic-key"})
+	if err == nil || calls.Load() != 2 {
+		t.Fatalf("persistent rejection err=%v calls=%d; want error after exactly two attempts", err, calls.Load())
 	}
 }
