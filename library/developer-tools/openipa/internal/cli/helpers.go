@@ -220,7 +220,7 @@ func filterFields(data json.RawMessage, fields string) json.RawMessage {
 	if len(paths) == 0 {
 		return data
 	}
-	return filterFieldsRec(data, paths)
+	return withIPAPayload(data, func(d json.RawMessage) json.RawMessage { return filterFieldsRec(d, paths) })
 }
 
 // filterFieldsRec applies path filters to a JSON value. Each path is a list of
@@ -318,7 +318,11 @@ func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) e
 	}
 	// --csv: render as CSV
 	if flags.csv {
-		return printCSV(w, data)
+		return printCSV(w, ipaPayload(data))
+	}
+	// --plain: render as tab-separated text
+	if flags.plain {
+		return printPlain(w, ipaPayload(data))
 	}
 	return printOutput(w, data, flags.asJSON)
 }
@@ -459,48 +463,6 @@ func compactObjectFields(obj map[string]any) json.RawMessage {
 	}
 	result, _ := json.Marshal(compact)
 	return result
-}
-
-// printCSV renders JSON arrays as CSV with header row.
-func printCSV(w io.Writer, data json.RawMessage) error {
-	var items []map[string]any
-	if err := json.Unmarshal(data, &items); err != nil || len(items) == 0 {
-		// Single object or empty - just print as JSON
-		fmt.Fprintln(w, string(data))
-		return nil
-	}
-	// Collect all keys for header
-	keySet := map[string]bool{}
-	for _, item := range items {
-		for k := range item {
-			keySet[k] = true
-		}
-	}
-	var keys []string
-	for k := range keySet {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	// Header
-	fmt.Fprintln(w, strings.Join(keys, ","))
-	// Rows
-	for _, item := range items {
-		var vals []string
-		for _, k := range keys {
-			v := item[k]
-			if v == nil {
-				vals = append(vals, "")
-			} else {
-				s := fmt.Sprintf("%v", v)
-				if strings.ContainsAny(s, ",\"\n") {
-					s = `"` + strings.ReplaceAll(s, `"`, `""`) + `"`
-				}
-				vals = append(vals, s)
-			}
-		}
-		fmt.Fprintln(w, strings.Join(vals, ","))
-	}
-	return nil
 }
 
 // printOutput auto-detects arrays and renders as tables, or prints raw JSON for objects.

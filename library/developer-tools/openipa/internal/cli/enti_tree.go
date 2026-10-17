@@ -3,7 +3,6 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 	"sync"
@@ -183,10 +182,8 @@ la struttura organizzativa completa di un ente IPA in un unico output.`,
 				return fmt.Errorf("errori nel recupero dati: %s", strings.Join(errList, "; "))
 			}
 
-			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
-				enc := json.NewEncoder(cmd.OutOrStdout())
-				enc.SetIndent("", "  ")
-				return enc.Encode(tree)
+			if handled, err := printStructured(cmd.OutOrStdout(), flags, tree); handled {
+				return err
 			}
 
 			// Human-readable tree

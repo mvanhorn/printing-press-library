@@ -3,7 +3,6 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -87,10 +86,8 @@ Utile prima di inviare comunicazioni ufficiali per verificare che la PEC sia val
 				}
 			}
 
-			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
-				enc := json.NewEncoder(cmd.OutOrStdout())
-				enc.SetIndent("", "  ")
-				return enc.Encode(result)
+			if handled, err := printStructured(cmd.OutOrStdout(), flags, result); handled {
+				return err
 			}
 
 			// Human output

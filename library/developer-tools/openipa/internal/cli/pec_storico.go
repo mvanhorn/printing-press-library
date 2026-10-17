@@ -49,13 +49,12 @@ func newPecStoricoCmd(flags *rootFlags) *cobra.Command {
 				items = []map[string]any{}
 			}
 
-			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
-				enc := json.NewEncoder(cmd.OutOrStdout())
-				enc.SetIndent("", "  ")
-				if len(items) == 1 {
-					return enc.Encode(items[0])
-				}
-				return enc.Encode(items)
+			var out any = items
+			if len(items) == 1 {
+				out = items[0]
+			}
+			if handled, err := printStructured(cmd.OutOrStdout(), flags, out); handled {
+				return err
 			}
 
 			if len(items) == 0 {

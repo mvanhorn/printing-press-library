@@ -210,11 +210,23 @@ func newRtdEmailCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
+			data, err := json.Marshal(results)
+			if err != nil {
+				return err
+			}
+			if wantsFlatOutput(flags) {
+				return printOutputWithFlags(w, data, flags)
+			}
+			if flags.selectFields != "" {
+				data = filterFields(data, flags.selectFields)
+			} else if flags.compact {
+				data = compactFields(data)
+			}
 			envelope := map[string]any{
 				"action":   "compound",
 				"resource": "rtd/email",
 				"success":  true,
-				"data":     results,
+				"data":     json.RawMessage(data),
 			}
 			envelopeJSON, _ := json.Marshal(envelope)
 			return printOutput(w, json.RawMessage(envelopeJSON), true)

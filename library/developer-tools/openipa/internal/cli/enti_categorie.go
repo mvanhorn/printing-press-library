@@ -95,6 +95,10 @@ Il codice categoria può essere usato con: openipa-pp-cli sede enti --categoria 
 				return err
 			}
 
+			if wantsFlatOutput(flags) && (!flags.dryRun || flags.quiet) {
+				return printOutputWithFlags(cmd.OutOrStdout(), items, flags)
+			}
+
 			filtered := items
 			if flags.selectFields != "" {
 				filtered = filterFields(filtered, flags.selectFields)

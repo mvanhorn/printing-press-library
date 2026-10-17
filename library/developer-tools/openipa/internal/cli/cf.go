@@ -3,7 +3,6 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 	"sync"
@@ -127,10 +126,8 @@ la compliance PA prima di emettere fatture o ordini.`,
 
 			wg.Wait()
 
-			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
-				enc := json.NewEncoder(cmd.OutOrStdout())
-				enc.SetIndent("", "  ")
-				return enc.Encode(result)
+			if handled, err := printStructured(cmd.OutOrStdout(), flags, result); handled {
+				return err
 			}
 
 			// Human-readable checklist

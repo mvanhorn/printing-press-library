@@ -74,12 +74,18 @@ spesso l'Albo Pretorio online.`,
 				items = json.RawMessage(`[]`)
 			}
 
+			w := cmd.OutOrStdout()
+			if wantsFlatOutput(flags) && (!flags.dryRun || flags.quiet) {
+				return printOutputWithFlags(w, items, flags)
+			}
+
 			filtered := items
 			if flags.selectFields != "" {
 				filtered = filterFields(filtered, flags.selectFields)
+			} else if flags.compact {
+				filtered = compactFields(filtered)
 			}
 
-			w := cmd.OutOrStdout()
 			if wantsHumanTable(w, flags) && flags.selectFields == "" {
 				var list []map[string]any
 				if err := json.Unmarshal(items, &list); err == nil && len(list) > 0 {
