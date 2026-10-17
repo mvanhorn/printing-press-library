@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "raindrop-keyed-write-retry-regression",
+  "applied_at": "2026-10-18",
+  "base_run_id": "20260814-120132",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Preserve fail-closed retries for ambiguous writes even when callers supply an idempotency key, while permitting bounded retries after explicit rate-limit rejection.",
+  "reason": "A caller-supplied key does not establish server-side deduplication; retrying an ambiguous write can duplicate a mutation.",
+  "files": [
+    "internal/client/ambiguous_write_retry_test.go"
+  ],
+  "validated_outcome": "Synthetic TLS responses verify one request and an error after keyed HTTP 502, versus two requests and success after HTTP 429 followed by HTTP 200. Persistent HTTP 429 returns an error after exactly two attempts."
+}
