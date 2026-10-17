@@ -1,0 +1,123 @@
+{
+  "dir": "<runstate>/documents-1c0119ae/runs/20261017-231640-7863a774/working/investorpaisa-pp-cli",
+  "spec_path": "<runstate>/documents-1c0119ae/runs/20261017-231640-7863a774/working/investorpaisa-pp-cli/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "FAIL",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 27,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 152,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 4,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
+    "detail": "sync uses domain-specific Upsert methods; search uses generic Search only; 4 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 9,
+    "valid_examples": 9,
+    "missing": [
+      "watchlists delete"
+    ],
+    "detail": "9/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 79,
+      "registered": 79
+    },
+    "config_consistency": {
+      "write_fields": [
+        ", token, "
+      ],
+      "read_fields": [
+        " || c.CookieCredential() != "
+      ],
+      "mismatched": [
+        " || c.CookieCredential() != ",
+        ", token, "
+      ],
+      "consistent": false
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 8,
+    "found": 8
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 8,
+    "exempted_via_store": 4,
+    "suspicious": [
+      {
+        "command": "movers",
+        "file": "movers.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      }
+    ]
+  },
+  "description_drift_check": {
+    "expected": "The Nifty 200 momentum screener, movers and market breadth in your terminal, with a local history the site never keeps."
+  },
+  "source_client_check": {
+    "checked": 9
+  },
+  "print_json_filtered_check": {
+    "checked": 60
+  },
+  "test_presence": {
+    "checked": 2
+  },
+  "naming_check": {
+    "checked": 60
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "config inconsistency: write fields [, token, ] vs read fields [ || c.CookieCredential() != ]",
+    "1/8 novel features look reimplemented: movers (movers.go) — hand-rolled response: no API client call, no store access"
+  ]
+}

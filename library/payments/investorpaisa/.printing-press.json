@@ -1,0 +1,130 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-17T18:36:24.055676Z",
+  "printing_press_version": "4.33.5",
+  "api_name": "investorpaisa",
+  "display_name": "InvestorPaisa",
+  "cli_name": "investorpaisa-pp-cli",
+  "creator": {
+    "handle": "SomSamantray",
+    "name": "Som Samantray"
+  },
+  "owner": "somsamantray",
+  "printer": "SomSamantray",
+  "printer_name": "Som Samantray",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:86e2f9577962f12f4cbb4657fcbe7c48567477a5f4298010b38bda010cf3bbc3",
+  "run_id": "20261017-231640-7863a774",
+  "category": "payments",
+  "description": "The Nifty 200 momentum screener, movers and market breadth in your terminal, with a local history the site never keeps.",
+  "mcp_binary": "investorpaisa-pp-mcp",
+  "mcp_tool_count": 16,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "auth_env_vars": [
+    "INVESTORPAISA_SESSION_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Local expression screener",
+      "command": "screen",
+      "description": "Run the site's screener expression language (close \u003e sma50 and rs \u003e= 70) from the terminal over the Nifty 200 metrics (live, falling back to your last stored snapshot)."
+    },
+    {
+      "name": "One-stock deep dive",
+      "command": "quote",
+      "description": "Price, range, RSI/SMA/EMA, returns, sector percentile, signals, headlines and watchlist membership for one or more stocks in a single call."
+    },
+    {
+      "name": "Movers with confluence",
+      "command": "movers",
+      "description": "Ranked gainers, losers, unusual volume, gappers and 52-week highs/lows, filtered by RS and sector."
+    },
+    {
+      "name": "Sector rotation heat",
+      "command": "sectors",
+      "description": "Equal-weight sector returns over 1d-1y, average RS and % above 50/200 DMA, with rank change versus an earlier stored snapshot (--trend needs two stored days)."
+    },
+    {
+      "name": "Snapshot diff",
+      "command": "changes",
+      "description": "Which stocks entered or left conditions (new 52-week high, RS crossing 70, 50/200 DMA crossings, 2x volume) since an earlier stored snapshot; needs two stored trading days."
+    },
+    {
+      "name": "Morning brief",
+      "command": "brief",
+      "description": "Index levels, breadth, your watchlist rows with change, RS and signals, and fresh headlines in one JSON document."
+    },
+    {
+      "name": "Breadth history",
+      "command": "breadth",
+      "description": "Trend of advance/decline, % above 50/200 DMA, new 52-week highs and stocks at 52-week lows across your stored daily snapshots."
+    },
+    {
+      "name": "Adjusted 5y history",
+      "command": "history",
+      "description": "Five years of daily OHLCV, split/bonus adjustment factors and corporate events for a stock, read from its chart page and cached locally (--raw, --years, --tail)."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Local expression screener",
+      "command": "screen",
+      "description": "Run the site's screener expression language (close \u003e sma50 and rs \u003e= 70) from the terminal over the Nifty 200 metrics (live, falling back to your last stored snapshot)."
+    },
+    {
+      "name": "One-stock deep dive",
+      "command": "quote",
+      "description": "Price, range, RSI/SMA/EMA, returns, sector percentile, signals, headlines and watchlist membership for one or more stocks in a single call."
+    },
+    {
+      "name": "Movers with confluence",
+      "command": "movers",
+      "description": "Ranked gainers, losers, unusual volume, gappers and 52-week highs/lows, filtered by RS and sector."
+    },
+    {
+      "name": "Sector rotation heat",
+      "command": "sectors",
+      "description": "Equal-weight sector returns over 1d-1y, average RS and % above 50/200 DMA, with rank change versus an earlier stored snapshot (--trend needs two stored days)."
+    },
+    {
+      "name": "Snapshot diff",
+      "command": "changes",
+      "description": "Which stocks entered or left conditions (new 52-week high, RS crossing 70, 50/200 DMA crossings, 2x volume) since an earlier stored snapshot; needs two stored trading days."
+    },
+    {
+      "name": "Morning brief",
+      "command": "brief",
+      "description": "Index levels, breadth, your watchlist rows with change, RS and signals, and fresh headlines in one JSON document."
+    },
+    {
+      "name": "Breadth history",
+      "command": "breadth",
+      "description": "Trend of advance/decline, % above 50/200 DMA, new 52-week highs and stocks at 52-week lows across your stored daily snapshots."
+    },
+    {
+      "name": "Adjusted 5y history",
+      "command": "history",
+      "description": "Five years of daily OHLCV, split/bonus adjustment factors and corporate events for a stock, read from its chart page and cached locally (--raw, --years, --tail)."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 49,
+    "total": 49,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 87,
+      "grade": "A",
+      "total": 87
+    }
+  }
+}

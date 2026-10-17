@@ -1,0 +1,9 @@
+dogfood: using spec <runstate>/documents-1c0119ae/runs/20261017-231640-7863a774/working/investorpaisa-pp-cli/spec.yaml (bundled)
+dogfood: synced README.md (Unique Features) from novel_features_built
+dogfood: synced SKILL.md (Unique Capabilities) from novel_features_built
+dogfood: synced internal/cli/which.go (whichIndex) from novel_features_built
+dogfood: synced README.md (Quick Start) from research.json narrative
+dogfood: synced README.md (Troubleshooting) from research.json narrative
+dogfood: synced README.md (Recipes) from research.json narrative
+dogfood: synced SKILL.md (Recipes) from research.json narrative
+Error: dogfood failed

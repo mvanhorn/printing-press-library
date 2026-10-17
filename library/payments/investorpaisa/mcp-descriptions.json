@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "health_get": "Check that investorpaisa.com is reachable. Takes no parameters and needs no sign-in. Returns the service's health status object. Use it as a liveness probe before calling the other tools, which all require a signed-in browser session."
+  }
+}

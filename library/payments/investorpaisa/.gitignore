@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/investorpaisa-pp-cli
+/investorpaisa-pp-cli.exe
+/investorpaisa-pp-mcp
+/investorpaisa-pp-mcp.exe
+/bin/
+/build/
+/dist/

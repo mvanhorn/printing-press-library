@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "investorpaisa-pp-mcp",
+  "display_name": "InvestorPaisa",
+  "version": "0.1.0",
+  "description": "The Nifty 200 momentum screener, movers and market breadth in your terminal, with a local history the site never keeps.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/investorpaisa-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/investorpaisa-pp-mcp",
+      "args": [],
+      "env": {
+        "INVESTORPAISA_SESSION_TOKEN": "${user_config.investorpaisa_session_token}"
+      }
+    }
+  },
+  "user_config": {
+    "investorpaisa_session_token": {
+      "type": "string",
+      "title": "INVESTORPAISA_SESSION_TOKEN",
+      "description": "Optional. Sets INVESTORPAISA_SESSION_TOKEN for the InvestorPaisa MCP server.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

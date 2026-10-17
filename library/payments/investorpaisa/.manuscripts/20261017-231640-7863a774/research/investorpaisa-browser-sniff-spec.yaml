@@ -1,0 +1,458 @@
+name: investorpaisa
+description: "InvestorPaisa — Nifty 200 live movers, 48-metric screener, sector/breadth signals, news and watchlists from the terminal"
+version: "0.1.0"
+base_url: "https://investorpaisa.com"
+http_transport: standard
+health_check_path: "/api/health"
+
+category: payments
+cli_description: "Nifty 200 live movers, screener expressions, sector and breadth signals, news and watchlists from InvestorPaisa in your terminal"
+
+learn:
+  entity_lookup_seeds:
+    stock:
+      - canonical: RELIANCE
+        aliases: [reliance industries, ril, reliance ind]
+      - canonical: TCS
+        aliases: [tata consultancy services, tata consultancy]
+      - canonical: INFY
+        aliases: [infosys]
+      - canonical: HDFCBANK
+        aliases: [hdfc bank]
+      - canonical: ICICIBANK
+        aliases: [icici bank]
+      - canonical: SBIN
+        aliases: [state bank of india, sbi]
+      - canonical: BHARTIARTL
+        aliases: [bharti airtel, airtel]
+      - canonical: ITC
+        aliases: [itc ltd]
+      - canonical: LT
+        aliases: [larsen and toubro, larsen & toubro, l&t]
+      - canonical: M&M
+        aliases: [mahindra and mahindra, mahindra & mahindra]
+
+auth:
+  type: cookie
+  header: "Cookie"
+  cookie_domain: "investorpaisa.com"
+  cookies:
+    - __Secure-authjs.session-token
+  env_vars:
+    - INVESTORPAISA_SESSION_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/investorpaisa-pp-cli/config.toml"
+
+resources:
+  health:
+    description: "Service health (public, no auth)"
+    endpoints:
+      get:
+        method: GET
+        path: "/api/health"
+        no_auth: true
+        description: "Check that investorpaisa.com is up"
+        response:
+          type: object
+          item: Health
+
+  live:
+    description: "Live Nifty 200 snapshot: index levels, breadth, per-stock LTP rows, signals, intraday curve"
+    endpoints:
+      get:
+        method: GET
+        path: "/api/live"
+        description: "Current intraday snapshot (server cache 15s). Includes NIFTY50/100/200 levels, advance/decline, sector rollups, 200 stock rows and signals"
+        response:
+          type: object
+          item: LiveSnapshot
+
+  universe:
+    description: "The Nifty 200 stock universe (symbol, name, sector, last close, day change)"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/market/universe"
+        description: "List the 200 stocks tracked by InvestorPaisa with last close and 1-day change"
+        response:
+          type: array
+          item: UniverseStock
+
+  screener:
+    description: "Daily screener metrics for every Nifty 200 stock (48 fields: RS, RSI, SMAs, returns, beta, drawdown, volume pace)"
+    endpoints:
+      rows:
+        method: GET
+        path: "/api/screener/rows"
+        description: "Fetch the full 200-row metrics table (the site filters client-side; the sector query param is ignored server-side)"
+        response:
+          type: array
+          item: ScreenerRow
+
+  market:
+    description: "Market overview: breadth, 52-week signals, equal-weight index"
+    endpoints:
+      overview:
+        method: GET
+        path: "/api/market/overview"
+        description: "End-of-day market overview with the ranked signal list (52-week highs/lows, gaps, volume spikes)"
+        response:
+          type: object
+          item: MarketOverview
+
+  news:
+    description: "Headlines (Google News RSS aggregation) tagged to Nifty 200 symbols"
+    endpoints:
+      by-symbol:
+        method: GET
+        path: "/api/news"
+        description: "Latest news for one stock symbol, newest first"
+        params:
+          - name: symbol
+            type: string
+            required: true
+            description: "NSE symbol, e.g. RELIANCE"
+        response:
+          type: object
+          item: NewsPage
+        response_path: items
+      feed:
+        method: GET
+        path: "/api/news/feed"
+        description: "Market-wide news and video card feed with cursor pagination"
+        params:
+          - name: cursor
+            type: string
+            description: "Opaque cursor from the previous page's next field"
+        response:
+          type: object
+          item: NewsFeedPage
+        pagination:
+          type: cursor
+          cursor_field: next
+
+  videos:
+    description: "Finance videos and shorts (CNBC-TV18, NDTV Profit, Zee Business) from YouTube"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/videos"
+        description: "List recent finance videos or shorts"
+        params:
+          - name: kind
+            type: string
+            required: true
+            enum: ["video", "short"]
+            description: "video or short"
+        response:
+          type: object
+          item: VideoPage
+        response_path: items
+
+  me:
+    description: "Your profile and saved chart/screener layout"
+    endpoints:
+      get:
+        method: GET
+        path: "/api/me"
+        description: "Show the signed-in profile (name, image)"
+        response:
+          type: object
+          item: Profile
+      layout:
+        method: GET
+        path: "/api/me/layout"
+        description: "Show your saved chart layout (symbol, range, indicators, screener expression, theme)"
+        response:
+          type: object
+          item: Layout
+
+  screens:
+    description: "Your saved screens"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/screens"
+        description: "List saved screener screens"
+        response:
+          type: array
+          item: SavedScreen
+
+  watchlists:
+    description: "Your watchlists (up to 20, up to 200 symbols each)"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/watchlists"
+        description: "List watchlists with their symbols"
+        response:
+          type: array
+          item: Watchlist
+      create:
+        method: POST
+        path: "/api/watchlists"
+        description: "Create a watchlist"
+        example: "  investorpaisa-pp-cli watchlists create --name 'Momentum picks' --dry-run"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Watchlist name"
+        response:
+          type: object
+          item: Watchlist
+      delete:
+        method: DELETE
+        path: "/api/watchlists/{id}"
+        description: "Delete a watchlist"
+        example: "  investorpaisa-pp-cli watchlists delete 3f6c1c2e-0000-4000-8000-000000000000 --dry-run"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Watchlist ID"
+      set-items:
+        method: PUT
+        path: "/api/watchlists/{id}/items"
+        description: "Replace the symbols in a watchlist"
+        example: "  investorpaisa-pp-cli watchlists set-items 3f6c1c2e-0000-4000-8000-000000000000 --stdin --dry-run"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Watchlist ID"
+        body:
+          - name: symbols
+            type: array
+            required: true
+            description: "Full list of NSE symbols for the watchlist (max 200)"
+        response:
+          type: object
+          item: Watchlist
+
+  bookmarks:
+    description: "Bookmarked news and video cards"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/bookmarks"
+        description: "List bookmarked cards"
+        response:
+          type: array
+          item: Bookmark
+
+types:
+  Health:
+    fields:
+      - name: ok
+        type: bool
+  UniverseStock:
+    fields:
+      - name: s
+        type: string
+      - name: n
+        type: string
+      - name: i
+        type: string
+      - name: close
+        type: float
+      - name: chg1d
+        type: float
+      - name: asOf
+        type: string
+  ScreenerRow:
+    fields:
+      - name: symbol
+        type: string
+      - name: name
+        type: string
+      - name: sector
+        type: string
+      - name: date
+        type: string
+      - name: close
+        type: float
+      - name: open
+        type: float
+      - name: high
+        type: float
+      - name: low
+        type: float
+      - name: volume
+        type: float
+      - name: chg1d
+        type: float
+      - name: rs
+        type: float
+      - name: rsi14
+        type: float
+      - name: sma20
+        type: float
+      - name: sma50
+        type: float
+      - name: sma100
+        type: float
+      - name: sma200
+        type: float
+      - name: ema20
+        type: float
+      - name: ema50
+        type: float
+      - name: ret1w
+        type: float
+      - name: ret1m
+        type: float
+      - name: ret3m
+        type: float
+      - name: ret6m
+        type: float
+      - name: ret1y
+        type: float
+      - name: cagr3y
+        type: float
+      - name: beta1y
+        type: float
+      - name: vol1y
+        type: float
+      - name: atrpct
+        type: float
+      - name: maxdd1y
+        type: float
+      - name: hi52
+        type: float
+      - name: lo52
+        type: float
+      - name: pos52
+        type: float
+      - name: fromhi52
+        type: float
+      - name: fromlo52
+        type: float
+      - name: volratio
+        type: float
+      - name: turnover20
+        type: float
+      - name: avgvol20
+        type: float
+      - name: avgvol50
+        type: float
+      - name: spikes20
+        type: int
+      - name: newhi
+        type: int
+      - name: above
+        type: int
+      - name: gc20
+        type: int
+      - name: dc20
+        type: int
+      - name: days
+        type: int
+      - name: from
+        type: string
+  LiveSnapshot:
+    fields:
+      - name: enabled
+        type: bool
+      - name: fetchedAt
+        type: string
+      - name: payload
+        type: object
+  MarketOverview:
+    fields:
+      - name: asOf
+        type: string
+      - name: signals
+        type: array
+      - name: breadth
+        type: object
+  NewsPage:
+    fields:
+      - name: items
+        type: array
+  NewsItem:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: link
+        type: string
+      - name: source
+        type: string
+      - name: domain
+        type: string
+      - name: publishedAt
+        type: string
+      - name: symbols
+        type: array
+      - name: summary
+        type: string
+  NewsFeedPage:
+    fields:
+      - name: items
+        type: array
+      - name: next
+        type: string
+      - name: stale
+        type: bool
+  VideoPage:
+    fields:
+      - name: items
+        type: array
+  Profile:
+    fields:
+      - name: name
+        type: string
+      - name: image
+        type: string
+  Layout:
+    fields:
+      - name: v
+        type: int
+      - name: symbol
+        type: string
+      - name: range
+        type: string
+      - name: interval
+        type: string
+      - name: chartType
+        type: string
+      - name: adjusted
+        type: bool
+      - name: log
+        type: bool
+      - name: theme
+        type: string
+      - name: indicators
+        type: array
+      - name: screener
+        type: object
+  SavedScreen:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+  Watchlist:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: symbols
+        type: array
+      - name: updatedAt
+        type: string
+  Bookmark:
+    fields:
+      - name: kind
+        type: string
+      - name: id
+        type: string
+      - name: savedAt
+        type: string

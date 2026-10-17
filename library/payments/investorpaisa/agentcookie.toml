@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "investorpaisa-pp-cli"
+display_name = "InvestorPaisa"
+description = "The Nifty 200 momentum screener, movers and market breadth in your terminal, with a local history that builds from your first sync."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/investorpaisa-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+INVESTORPAISA_SESSION_TOKEN = true
