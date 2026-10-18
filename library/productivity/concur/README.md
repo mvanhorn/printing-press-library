@@ -139,14 +139,20 @@ Open Expense once in the capture window so `_csrf` exists before the window clos
 
 `hotels search` drives its own `agent-browser`-controlled Chrome instance (see HTTP Transport below), which does not share cookies with `auth login --chrome`'s source browser or credential store. Confirmed live that bridging them by copying cookies does not work -- Concur's bot-mitigation appears to bind the session to the browser/device that created it, not just the cookie value, so a copied JWT gets cleared by the server on the next navigation even when every cookie (including the Akamai bot-sensor ones) is copied alongside it. The first time (or whenever that session expires), `hotels search` opens its own Chrome window and asks you to log in there directly -- that login persists across later invocations until it expires again, so this is an occasional cost, not a per-search one.
 
-**Optional one-time setup to avoid that second login entirely**: run a dedicated Chrome profile with remote debugging enabled and log into Concur there once. Use a real named profile (Chrome menu -> "Add Person", or chrome://settings -> Add profile) rather than a throwaway `--user-data-dir`, so `auth login --chrome --profile "<name>"` can read its cookies too:
+**Optional one-time setup to avoid that second login entirely** (it applies to every browser-fallback command, not just `hotels search`): attach to a Chrome you have already logged into Concur with. Two ways to get one:
+
+1. A dedicated debug Chrome. Chrome 136 and later ignore `--remote-debugging-port` unless a **non-default** `--user-data-dir` is also given, so use a dedicated directory and log into Concur there once:
 
 ```bash
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
-  --remote-debugging-port=9222 --profile-directory="<profile dir name>"
+  --remote-debugging-port=9222 --user-data-dir="$HOME/.local/share/concur-pp-cli/chrome-debug"
 ```
 
-`hotels search` auto-detects that session (tries CDP ports 9222, 9333, 9229 in order, or set `CONCUR_CDP_PORT` for a custom port) and *attaches* to it -- rather than copying its credentials -- before falling back to its own isolated login. Attaching, not copying, is what makes this work: it is the same live browser connection, so there is no separate device fingerprint for Concur's bot-mitigation to reject. Keep that Chrome window running whenever you plan to use `hotels search`; if you see "the dedicated Concur browser ... is no longer logged in", log in there again.
+2. Your normal Chrome, through `chrome://inspect/#remote-debugging` ("Allow remote debugging for this browser instance"). In that mode Chrome serves no HTTP discovery endpoints, so the CLI reads the WebSocket endpoint from Chrome's `DevToolsActivePort` file (in the user-data directory or in a profile directory under it; set `CONCUR_CHROME_USER_DATA_DIR` if yours is not in the default location).
+
+Either way, keep a Concur page as that browser's active tab.
+
+`hotels search` auto-detects that session (reads Chrome's `DevToolsActivePort` file, then tries CDP ports 9222, 9333, 9229 in order; set `CONCUR_CDP_PORT` to a port or a `ws://127.0.0.1:...` URL for a custom target) and *attaches* to it -- rather than copying its credentials -- before falling back to its own isolated login. Attaching, not copying, is what makes this work: it is the same live browser connection, so there is no separate device fingerprint for Concur's bot-mitigation to reject. Keep that Chrome window running whenever you plan to use `hotels search`; if you see "the dedicated Concur browser ... is no longer logged in", log in there again.
 
 ### Browser-automation fallback for report creation
 
@@ -200,6 +206,25 @@ These capabilities aren't available in any other tool for this API.
 - **`expenses update`** — Same 404 defect as expense creation, on the sibling PATCH path. Fills `--purpose`/`--amount` and verifies the re-fetched expense's fields actually changed before reporting success.
 - **`reports submit`** — A different-shaped (405, not 404) but same-root-cause defect: no HTTP verb reaches the submit action server-side. Clicks through Concur's confirmation dialog (disambiguating two identically-named "Submit Report" buttons) and confirms `isSubmitted` before reporting success.
 
+### Itemization lines: inspect and fix
+- **`expenses itemizations`** — Lists an expense's itemization lines (its child expenses, each carrying `parentExpenseId`), which `expenses list` and `expenses get` do not include.
+
+  _Use this to see how an itemization-required expense, such as a hotel folio, is split and which lines still have the placeholder `Undefined` type._
+
+  ```bash
+  concur-pp-cli expenses itemizations <expense_id> --report-id <report_id> --user-id <uid> --agent
+  ```
+- **`reports exceptions`** — Lists a report's validation exceptions and which of them block submission. The per-expense `hasExceptions` flags can read false while blocking exceptions exist, so this is the authoritative check before `reports submit`.
+
+  ```bash
+  concur-pp-cli reports exceptions <report_id> --user-id <uid> --agent
+  ```
+- **`expenses update --type`** — Changes an itemization line's expense type through the browser, because the API rejects expense writes for browser-session auth (a no-op PATCH returns the same 404 on both host families). Opens the line's form, picks the named type from the policy-filtered picker, saves, then re-fetches the line and verifies the type took and the amount did not move. If the requested type is not offered it stops without saving and lists the types that are. Itemization lines only.
+
+  ```bash
+  concur-pp-cli expenses update <itemization_expense_id> --report-id <report_id> --user-id <uid> --type "Hotel" --agent
+  ```
+
 ### Local state that compounds
 - **`expenses scan-duplicates`** — Find potential double-entered charges across all of your synced expenses.
 
@@ -246,6 +271,24 @@ live way to see the report's actual line items: each expense's ID, type, vendor,
 purpose, amount, and `receiptImageId` (the field to check, non-null, to confirm a receipt
 attachment actually persisted server-side rather than trusting a mutating call's own reported
 success).
+
+### Find what blocks a report from submitting, and fix itemization types
+
+```bash
+concur-pp-cli reports exceptions <report_id> --user-id <uid> --agent
+concur-pp-cli expenses itemizations <expense_id> --report-id <report_id> --user-id <uid> --agent
+concur-pp-cli expenses update <itemization_expense_id> --report-id <report_id> --user-id <uid> --type "Hotel" --agent
+```
+
+`reports exceptions` is the authoritative list of what blocks submission (`isBlocking: true`); the
+per-expense `hasExceptions` flags in expense payloads can read false while exceptions exist. An
+`UNDEFEXP` exception means an itemization line still has the placeholder `Undefined` type.
+`expenses itemizations` shows the lines (and their `expenseId`s) of an expense that requires
+itemization, such as a hotel folio. `expenses update --type` takes the type's name as shown in
+Concur's picker and works on itemization lines only. The picker is policy-filtered: a type can
+appear in `expense-types list` yet not be selectable, in which case the command stops without
+saving and lists the types that are offered. It drives the browser (see the setup note below).
+Over MCP these are the `reports_exceptions`, `expenses_itemizations` and `expenses_update_type` tools.
 
 ### Compare real flight and hotel options before requesting travel
 
@@ -371,6 +414,7 @@ Expense line items within a report
 - **`concur-pp-cli expenses create`** - Create an expense inside a report (core v3-equivalent fields: type, date, amount, currency, payment type)
 - **`concur-pp-cli expenses get`** - Get a single expense with its filled/empty field manifest
 - **`concur-pp-cli expenses list`** - List every expense line item on a report (the only live way to enumerate an existing report's expenses -- `reports get` returns only the header)
+- **`concur-pp-cli expenses itemizations`** - List the itemization lines of an expense (child expenses; `expenses list` and `get` do not include them)
 - **`concur-pp-cli expenses update`** - Fill or change writable fields on an expense (core + custom/list fields)
 
 ### flights
@@ -416,6 +460,7 @@ Receipt image/PDF attachment
 Expense report headers and lifecycle
 
 - **`concur-pp-cli reports create`** - Create a new expense report header
+- **`concur-pp-cli reports exceptions`** - List a report's validation exceptions (what blocks submit)
 - **`concur-pp-cli reports get`** - Get a report's header
 - **`concur-pp-cli reports list`** - List the current user's expense reports
 - **`concur-pp-cli reports submit`** - Submit a report for approval

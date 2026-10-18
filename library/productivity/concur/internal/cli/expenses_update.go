@@ -16,6 +16,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// PATCH(amend-2026-10-17: add expense update type browser fallback support)
+
 func newExpensesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var flagUserId string
 	var flagContextType string
@@ -25,6 +27,7 @@ func newExpensesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyCustomData string
 	var bodyTransactionAmount float64
 	var stdinBody bool
+	var flagType string
 
 	cmd := &cobra.Command{
 		Use:   "update <expense_id>",
@@ -39,20 +42,16 @@ with no saved session, so the fallback fails with "not logged in" on every
 single invocation.
 
 OPTIONAL, to avoid that repeated login entirely: run a dedicated Chrome
-profile with remote debugging enabled and log into Concur there once. Use
-a real named profile (Chrome menu -> "Add Person", or chrome://settings ->
-Add profile) rather than a throwaway --user-data-dir, so 'auth login
---chrome --profile "<name>"' can also read its cookies:
-
-  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
-    --remote-debugging-port=9222 --profile-directory="<profile dir name>"
+profile with remote debugging enabled and log into Concur there once:
+(a) Chrome >= 136 ignores --remote-debugging-port unless a NON-default --user-data-dir is also given, e.g. "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --remote-debugging-port=9222 --user-data-dir="$HOME/.local/share/concur-pp-cli/chrome-debug" and log into Concur there once; OR
+(b) turn on chrome://inspect/#remote-debugging in your normal Chrome and the CLI reads Chrome's DevToolsActivePort file (set CONCUR_CHROME_USER_DATA_DIR for a non-default profile location).
 
 This command (and every other browser-fallback command in this CLI) then
 auto-detects that session (tries ports 9222, 9333, 9229, or set
 CONCUR_CDP_PORT) and attaches to it instead of launching its own isolated,
 unauthenticated Chrome. See 'hotels search --help' for the two approaches
 that were tried and disproven before landing on this one.`,
-		Example:     "  concur-pp-cli expenses update 550e8400-e29b-41d4-a716-446655440000 --user-id 550e8400-e29b-41d4-a716-446655440000 --context-type TRAVELER --report-id 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  concur-pp-cli expenses update 550e8400-e29b-41d4-a716-446655440000 --user-id 550e8400-e29b-41d4-a716-446655440000 --context-type TRAVELER --report-id 550e8400-e29b-41d4-a716-446655440000\n  concur-pp-cli expenses update 550e8400-e29b-41d4-a716-446655440000 --user-id 550e8400-e29b-41d4-a716-446655440000 --context-type TRAVELER --report-id 550e8400-e29b-41d4-a716-446655440000 --type \"Hotel\"",
 		Annotations: map[string]string{"pp:endpoint": "expenses.update", "pp:method": "PATCH", "pp:path": "/expensereports/v4/users/{user_id}/context/{context_type}/reports/{report_id}/expenses/{expense_id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with required input prints help
@@ -107,6 +106,12 @@ that were tried and disproven before landing on this one.`,
 					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagContextType, "context-type", allowedContextType)
 				}
 			}
+			// PATCH(amend-2026-10-17: validate that --type is not combined with other fields)
+			if cmd.Flags().Changed("type") {
+				if stdinBody || cmd.Flags().Changed("purpose") || cmd.Flags().Changed("amount") || cmd.Flags().Changed("comment") || cmd.Flags().Changed("custom-fields") {
+					return usageErr(fmt.Errorf("cannot combine --type with other update fields; use separate invocations"))
+				}
+			}
 			if !stdinBody {
 			}
 			path := "/expensereports/v4/users/{user_id}/context/{context_type}/reports/{report_id}/expenses/{expense_id}"
@@ -122,77 +127,99 @@ that were tried and disproven before landing on this one.`,
 			path = replacePathParam(path, "context_type", formatCLIParamValue(flagContextType))
 			path = replacePathParam(path, "report_id", formatCLIParamValue(flagReportId))
 			params := map[string]string{}
-			var body any
-			if stdinBody {
-				stdinData, err := io.ReadAll(os.Stdin)
-				if err != nil {
-					return fmt.Errorf("reading stdin: %w", err)
+
+			var data []byte
+			var statusCode int
+
+			// PATCH(amend-2026-10-17: --type always takes the browser path) -- the
+			// API rejects expense writes for browser-session auth (verified on both
+			// host families), so there is no HTTP attempt to make first. All the
+			// logic lives in expenses_update_type.go.
+			if cmd.Flags().Changed("type") {
+				if flags.dryRun {
+					return printExpensesUpdateTypeDryRun(cmd, c, flags, flagReportId, args[0], flagType)
 				}
-				var jsonBody map[string]any
-				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
-					return fmt.Errorf("parsing stdin JSON: %w", err)
+				var typeErr error
+				data, statusCode, typeErr = runExpensesUpdateType(cmd, c, flagUserId, flagContextType, flagReportId, args[0], path, flagType)
+				if typeErr != nil {
+					return classifyAPIError(typeErr, flags)
 				}
-				body = jsonBody
 			} else {
-				bodyMap := map[string]any{}
-				body = bodyMap
-				if cmd.Flags().Changed("purpose") || bodyBusinessPurpose != "" {
-					bodyMap["businessPurpose"] = bodyBusinessPurpose
-				}
-				if cmd.Flags().Changed("comment") || bodyComment != "" {
-					bodyMap["comment"] = bodyComment
-				}
-				if cmd.Flags().Changed("custom-fields") || bodyCustomData != "" {
-					var parsedCustomData any
-					if err := json.Unmarshal([]byte(bodyCustomData), &parsedCustomData); err != nil {
-						return fmt.Errorf("parsing --custom-fields JSON: %w", err)
+				var body any
+				if stdinBody {
+					stdinData, err := io.ReadAll(os.Stdin)
+					if err != nil {
+						return fmt.Errorf("reading stdin: %w", err)
 					}
-					bodyMap["customData"] = parsedCustomData
-				}
-				// PATCH(amend-2026-09-24: add --amount) -- transactionAmount
-				// was not a field this command could touch at all before
-				// today; added alongside the browser-fallback fix below
-				// since editing an expense's amount after the fact (e.g.
-				// correcting an ExpenseIt-imported receipt total down to a
-				// policy cap) is exactly the scenario that fallback exists
-				// for. Flat top-level field per the same shape confirmed
-				// live for expenses create's transactionAmount.
-				if cmd.Flags().Changed("amount") {
-					bodyMap["transactionAmount"] = bodyTransactionAmount
-				}
-			}
-			// PATCH(amend-2026-09-24: fallback to browser automation on the
-			// confirmed-live expenses-update backend defect) -- reuses
-			// isExpensesCreate404DefectError (expenses_create.go): its
-			// signature check (HTTP 404, "No static resource", path
-			// containing "/expenses") matches this endpoint's identical
-			// live failure body byte-for-byte, just with an expense_id
-			// suffix on the path instead of ending at "/expenses" -- both
-			// contain the "/expenses" substring the check tests for. This
-			// is the same underlying backend defect on the sibling mutation
-			// path (POST .../expenses vs PATCH .../expenses/{id}), not a
-			// coincidentally-similar different bug, so sharing the detector
-			// rather than duplicating it is deliberate.
-			data, statusCode, err := c.PatchWithParams(cmd.Context(), path, params, body)
-			if err != nil {
-				if isExpensesCreate404DefectError(err) && !flags.dryRun {
-					purpose, hasPurpose, comment, hasCustomData, amount, hasAmount := extractExpenseUpdateFallbackParams(body)
-					if comment != "" || hasCustomData {
-						return fmt.Errorf("cannot honor --comment/--custom-fields via the browser fallback for expense %s: only --purpose and --amount have been verified live on Concur's expense-edit form. Wait for the underlying API defect to be fixed, or set these fields manually in Concur", args[0])
+					var jsonBody map[string]any
+					if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
+						return fmt.Errorf("parsing stdin JSON: %w", err)
 					}
-					// PATCH(Greptile review, "Empty purpose is ignored") --
-					// Business Purpose is a REQUIRED field on Concur's real
-					// expense-edit form (confirmed live: every snapshot this
-					// session captured showed it `required`), so a request
-					// to clear it to "" would only fail Concur's own
-					// client-side validation on Save -- not a bug in this
-					// fallback to route around, but a real constraint worth
-					// rejecting clearly up front rather than opening a
-					// browser session to discover it via a timeout.
-					if hasPurpose && purpose == "" {
-						return fmt.Errorf("cannot honor --purpose \"\" via the browser fallback for expense %s: Business Purpose is a required field on Concur's expense-edit form and cannot be cleared. Set a non-empty --purpose, or clear it manually in Concur if your policy genuinely allows an empty value", args[0])
+					body = jsonBody
+				} else {
+					bodyMap := map[string]any{}
+					body = bodyMap
+					if cmd.Flags().Changed("purpose") || bodyBusinessPurpose != "" {
+						bodyMap["businessPurpose"] = bodyBusinessPurpose
 					}
-					data, statusCode, err = updateExpenseViaBrowserFallback(cmd, c, flags, flagUserId, flagContextType, flagReportId, args[0], purpose, hasPurpose, amount, hasAmount)
+					if cmd.Flags().Changed("comment") || bodyComment != "" {
+						bodyMap["comment"] = bodyComment
+					}
+					if cmd.Flags().Changed("custom-fields") || bodyCustomData != "" {
+						var parsedCustomData any
+						if err := json.Unmarshal([]byte(bodyCustomData), &parsedCustomData); err != nil {
+							return fmt.Errorf("parsing --custom-fields JSON: %w", err)
+						}
+						bodyMap["customData"] = parsedCustomData
+					}
+					// PATCH(amend-2026-09-24: add --amount) -- transactionAmount
+					// was not a field this command could touch at all before
+					// today; added alongside the browser-fallback fix below
+					// since editing an expense's amount after the fact (e.g.
+					// correcting an ExpenseIt-imported receipt total down to a
+					// policy cap) is exactly the scenario that fallback exists
+					// for. Flat top-level field per the same shape confirmed
+					// live for expenses create's transactionAmount.
+					if cmd.Flags().Changed("amount") {
+						bodyMap["transactionAmount"] = bodyTransactionAmount
+					}
+				}
+				// PATCH(amend-2026-09-24: fallback to browser automation on the
+				// confirmed-live expenses-update backend defect) -- reuses
+				// isExpensesCreate404DefectError (expenses_create.go): its
+				// signature check (HTTP 404, "No static resource", path
+				// containing "/expenses") matches this endpoint's identical
+				// live failure body byte-for-byte, just with an expense_id
+				// suffix on the path instead of ending at "/expenses" -- both
+				// contain the "/expenses" substring the check tests for. This
+				// is the same underlying backend defect on the sibling mutation
+				// path (POST .../expenses vs PATCH .../expenses/{id}), not a
+				// coincidentally-similar different bug, so sharing the detector
+				// rather than duplicating it is deliberate.
+				var patchErr error
+				data, statusCode, patchErr = c.PatchWithParams(cmd.Context(), path, params, body)
+				if patchErr != nil {
+					if isExpensesCreate404DefectError(patchErr) && !flags.dryRun {
+						purpose, hasPurpose, comment, hasCustomData, amount, hasAmount := extractExpenseUpdateFallbackParams(body)
+						if comment != "" || hasCustomData {
+							return fmt.Errorf("cannot honor --comment/--custom-fields via the browser fallback for expense %s: only --purpose and --amount have been verified live on Concur's expense-edit form. Wait for the underlying API defect to be fixed, or set these fields manually in Concur", args[0])
+						}
+						// PATCH(Greptile review, "Empty purpose is ignored") --
+						// Business Purpose is a REQUIRED field on Concur's real
+						// expense-edit form (confirmed live: every snapshot this
+						// session captured showed it `required`), so a request
+						// to clear it to "" would only fail Concur's own
+						// client-side validation on Save -- not a bug in this
+						// fallback to route around, but a real constraint worth
+						// rejecting clearly up front rather than opening a
+						// browser session to discover it via a timeout.
+						if hasPurpose && purpose == "" {
+							return fmt.Errorf("cannot honor --purpose \"\" via the browser fallback for expense %s: Business Purpose is a required field on Concur's expense-edit form and cannot be cleared. Set a non-empty --purpose, or clear it manually in Concur if your policy genuinely allows an empty value", args[0])
+						}
+						data, statusCode, err = updateExpenseViaBrowserFallback(cmd, c, flags, flagUserId, flagContextType, flagReportId, args[0], purpose, hasPurpose, amount, hasAmount)
+					} else {
+						err = patchErr
+					}
 				}
 				if err != nil {
 					return classifyAPIError(err, flags)
@@ -353,6 +380,8 @@ that were tried and disproven before landing on this one.`,
 	cmd.Flags().StringVar(&bodyCustomData, "custom-fields", "", "JSON-encoded custom/list field values (id/value pairs)")
 	cmd.Flags().Float64Var(&bodyTransactionAmount, "amount", 0.0, "Transaction amount -- edits the claimed amount (e.g. to correct an imported receipt total down to a reimbursement cap); verified live via the browser fallback only (see known-issue note), same as --purpose")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+	// PATCH(amend-2026-10-17: register type flag)
+	cmd.Flags().StringVar(&flagType, "type", "", "Expense type, by the name shown in Concur's picker (e.g. \"Hotel\"). Supported for itemization lines only. Always uses the browser path: the API rejects expense writes for browser-session auth (verified).")
 
 	return cmd
 }
@@ -427,8 +456,9 @@ func updateExpenseViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags
 
 	fmt.Fprintf(cmd.ErrOrStderr(), "HTTP API returned the confirmed expenses-update backend defect (see 'concur-pp-cli expenses update --help' known-issue note). Falling back to browser automation...\n")
 
+	// PATCH(amend-2026-10-17: use describeCDPTarget to describe cdp port)
 	if port := refreshActiveCDPPort(); port != "" {
-		fmt.Fprintf(cmd.ErrOrStderr(), "Using dedicated Concur browser on CDP port %s (no separate login needed)\n", port)
+		fmt.Fprintf(cmd.ErrOrStderr(), "Using dedicated Concur browser on %s (no separate login needed)\n", describeCDPTarget(port))
 	}
 
 	if _, err := runAgentBrowser("open", editURL); err != nil {
@@ -441,8 +471,9 @@ func updateExpenseViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags
 		return nil, 0, err
 	}
 	if _, ok := findRef(refs, "sign in", ""); ok {
+		// PATCH(amend-2026-10-17: use describeCDPTarget to describe cdp port)
 		if activeCDPPort != "" {
-			return nil, 0, fmt.Errorf("the dedicated Concur browser on CDP port %s is no longer logged in -- log in to concursolutions.com in that window again, then re-run this command", activeCDPPort)
+			return nil, 0, fmt.Errorf("the dedicated Concur browser on %s is no longer logged in -- log in to concursolutions.com in that window again, then re-run this command", describeCDPTarget(activeCDPPort))
 		}
 		return nil, 0, fmt.Errorf("not logged in to Concur in the automated browser -- log in manually in the opened Chrome window, then re-run this command (or set up a dedicated debug-enabled Chrome profile to skip this every time; see --help)")
 	}

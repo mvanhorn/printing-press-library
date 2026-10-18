@@ -24,6 +24,9 @@ func newExpensesCmd(flags *rootFlags) *cobra.Command {
 	// `generate --force`. Re-add this line manually after any future
 	// regeneration of this DO-NOT-EDIT file, same as apply-rules below.
 	cmd.AddCommand(newExpensesListCmd(flags))
+	// Hand-wired: absorbed amend-2026-10-17 (no way to view expense itemizations).
+	// Re-add this line manually after any future regeneration.
+	cmd.AddCommand(newExpensesItemizationsCmd(flags))
 	cmd.AddCommand(newExpensesUpdateCmd(flags))
 	addNovelCommandIfAbsent(cmd, newNovelExpensesScanDuplicatesCmd(flags))
 	// Hand-wired: absorbed feature #25 (not a novel/transcendence feature, so

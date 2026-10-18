@@ -97,6 +97,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -122,13 +123,15 @@ const hotelHomeURL = "https://us2.concursolutions.com/home"
 var concurCDPPortCandidates = []string{"9222", "9333", "9229"}
 
 // activeCDPPort, when non-empty, routes every agent-browser invocation in
-// this file through that CDP debug port (an attach to an already-running,
-// already-authenticated Chrome instance) instead of agent-browser's default
-// isolated-profile launch. Package-level rather than threaded through every
-// call site because attaching (not copying credentials) is what makes
-// session reuse actually work here. MCP and in-process retries can run
-// more than one command, so refreshActiveCDPPort must re-detect (and
-// clear) this value on every invocation rather than keep a dead port.
+// this file through that CDP debug port or WebSocket URL (an attach to an
+// already-running, already-authenticated Chrome instance) instead of
+// agent-browser's default isolated-profile launch. Package-level rather
+// than threaded through every call site because attaching (not copying
+// credentials) is what makes session reuse actually work here. MCP and
+// in-process retries can run more than one command, so refreshActiveCDPPort
+// must re-detect (and clear) this value on every invocation rather than
+// keep a dead port/URL.
+// PATCH(amend-2026-10-17: support ws:// URLs in activeCDPPort)
 var activeCDPPort string
 
 // detectCDPPort is the live probe behind refreshActiveCDPPort; tests swap
@@ -136,8 +139,8 @@ var activeCDPPort string
 var detectCDPPort = detectDedicatedConcurBrowser
 
 // refreshActiveCDPPort re-detects the dedicated Concur Chrome debug port
-// for this invocation. Always assigns, including "", so a previous
-// in-process command cannot leave a dead CDP port selected.
+// or WebSocket URL for this invocation. Always assigns, including "", so a
+// previous in-process command cannot leave a dead CDP target selected.
 func refreshActiveCDPPort() string {
 	activeCDPPort = detectCDPPort()
 	return activeCDPPort
@@ -146,40 +149,63 @@ func refreshActiveCDPPort() string {
 // detectDedicatedConcurBrowser looks for a Chrome instance already running
 // with remote debugging enabled and an authenticated Concur session, so
 // this command can attach to it instead of launching an isolated automation
-// profile that needs its own login. Returns the port to use, or "" if none
-// of the candidates has one. Failure to reach any given port is expected
-// (most users have not set one up) and is not reported as an error --
+// profile that needs its own login. Returns the port or WebSocket URL to use,
+// or "" if none of the candidates has one. Failure to reach any given target
+// is expected (most users have not set one up) and is not reported as an error --
 // callers fall back to the pre-existing behavior silently.
+// PATCH(amend-2026-10-17: Rework detectDedicatedConcurBrowser's candidate list and connection safety)
 func detectDedicatedConcurBrowser() string {
-	candidates := concurCDPPortCandidates
+	var candidates []string
 	if p := strings.TrimSpace(os.Getenv("CONCUR_CDP_PORT")); p != "" {
-		candidates = []string{p}
+		if _, ok := parseCandidate(p); ok {
+			candidates = []string{p}
+		}
+	} else {
+		candidates = append(devToolsActivePortTargets(), concurCDPPortCandidates...)
 	}
-	for _, port := range candidates {
-		// #nosec G204 G702 -- exec.Command passes args as a literal argv
-		// array with no shell involved, so shell-metacharacter injection is
-		// not possible here. port comes from a hardcoded candidate list or
-		// CONCUR_CDP_PORT (an env var the local operator controls on their
-		// own machine); there is no remote/untrusted input and no privilege
-		// boundary crossed by passing it to a locally-installed helper.
-		out, err := exec.Command("agent-browser", "--cdp", port, "get", "url", "--json").Output()
-		if err != nil {
+
+	for _, cand := range candidates {
+		if port, ok := parseCandidate(cand); !ok || !loopbackPortOpen(port) {
 			continue
 		}
-		var env struct {
-			Success bool `json:"success"`
-			Data    struct {
-				URL string `json:"url"`
-			} `json:"data"`
-		}
-		if err := json.Unmarshal(out, &env); err != nil || !env.Success {
-			continue
-		}
-		if strings.Contains(env.Data.URL, "concursolutions.com") && !strings.Contains(env.Data.URL, "/nui/signin") {
-			return port
+		if probeConcurCDPTarget(cand) {
+			return cand
 		}
 	}
 	return ""
+}
+
+// probeConcurCDPTarget reports whether agent-browser can attach to target (a
+// port or a loopback ws:// URL) and the browser's active tab is a signed-in
+// Concur page. Bounded by a timeout because a Chrome that is listening but
+// serves no usable DevTools endpoint makes agent-browser hang.
+func probeConcurCDPTarget(target string) bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 12*time.Second)
+	defer cancel()
+	// #nosec G204 G702 -- exec.CommandContext passes args as a literal argv
+	// array with no shell involved, so shell-metacharacter injection is
+	// not possible here; target is a validated loopback port or ws:// URL.
+	// PATCH(amend-2026-10-17: probe under the CLI's pinned session) -- a probe
+	// without --session spawned an unnamed "default" daemon that stayed attached
+	// to whichever browser it probed; sharing the session the fallbacks use
+	// leaves a single daemon and avoids the default-session discovery flake
+	// documented at agentBrowserSessionName.
+	cmd := exec.CommandContext(ctx, "agent-browser", "--cdp", target, "--session", agentBrowserSessionName, "get", "url", "--json")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	if err := cmd.Run(); err != nil {
+		return false
+	}
+	var env struct {
+		Success bool `json:"success"`
+		Data    struct {
+			URL string `json:"url"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(out.Bytes(), &env); err != nil || !env.Success {
+		return false
+	}
+	return strings.Contains(env.Data.URL, "concursolutions.com") && !strings.Contains(env.Data.URL, "/nui/signin")
 }
 
 var hotelShopURLRE = regexp.MustCompile(`/travel/hotel/shop/([0-9a-fA-F-]{36})`)
@@ -251,7 +277,11 @@ func runAgentBrowser(args ...string) ([]byte, error) {
 	cmd.Stdout = &out
 	cmd.Stderr = &stderr
 	if err := cmd.Run(); err != nil {
-		return nil, fmt.Errorf("agent-browser %s failed: %w (%s)", strings.Join(args, " "), err, strings.TrimSpace(stderr.String()))
+		// PATCH(Greptile review, "Browser errors expose session URLs") -- a
+		// ws:// activeCDPPort is a browser-control capability, and it reaches
+		// both the argv and the helper's stderr; these errors get logged and
+		// pasted into bug reports.
+		return nil, fmt.Errorf("agent-browser %s failed: %w (%s)", redactCDPTarget(strings.Join(args, " "), activeCDPPort), err, redactCDPTarget(strings.TrimSpace(stderr.String()), activeCDPPort))
 	}
 	return out.Bytes(), nil
 }
@@ -414,20 +444,10 @@ agent-browser, then reading results directly. Requires agent-browser
 installed and a live, already-logged-in Chrome session -- if the browser
 redirects to sign-in, log in manually in the opened window and re-run.
 
-OPTIONAL, to avoid that separate login entirely: run a dedicated Chrome
-profile with remote debugging enabled and log into Concur there once. Use a
-real named profile (Chrome menu -> "Add Person", or chrome://settings ->
-Add profile) rather than a throwaway --user-data-dir, so 'auth login
---chrome --profile "<name>"' can also read its cookies:
+OPTIONAL, to avoid that repeated login entirely:
+(a) Chrome >= 136 ignores --remote-debugging-port unless a NON-default --user-data-dir is also given, e.g. "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --remote-debugging-port=9222 --user-data-dir="$HOME/.local/share/concur-pp-cli/chrome-debug" and log into Concur there once; OR (b) turn on chrome://inspect/#remote-debugging in your normal Chrome, and the CLI reads Chrome's DevToolsActivePort file (set CONCUR_CHROME_USER_DATA_DIR for a non-default profile location).
 
-  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
-    --remote-debugging-port=9222 --profile-directory="<profile dir name>"
-
-This command auto-detects that session (tries ports 9222, 9333, 9229, or
-set CONCUR_CDP_PORT) and attaches to it before falling back to its own
-isolated login. Attaching, not copying cookies, is what makes this work --
-see this file's header comment for the two approaches that were tried and
-failed.
+This command (and every other browser-fallback command in this CLI) then auto-detects that session and attaches to it instead of launching its own isolated, unauthenticated Chrome.
 
 This is markedly slower than 'flights search' (real page navigation, not
 a single HTTP call) and more fragile (depends on the Hotel Search form's
@@ -476,7 +496,8 @@ command in this CLI.`,
 			// See detectDedicatedConcurBrowser and this file's header
 			// comment.
 			if port := refreshActiveCDPPort(); port != "" {
-				fmt.Fprintf(cmd.ErrOrStderr(), "Using dedicated Concur browser on CDP port %s (no separate login needed)\n", port)
+				// PATCH(amend-2026-10-17: never leak ws URL, describe cdp target safely)
+				fmt.Fprintf(cmd.ErrOrStderr(), "Using dedicated Concur browser on %s (no separate login needed)\n", describeCDPTarget(port))
 			}
 
 			// Step 1: open the home page and clear any blocking overlay
@@ -492,7 +513,8 @@ command in this CLI.`,
 			}
 			if _, ok := findRef(refs, "sign in", ""); ok {
 				if activeCDPPort != "" {
-					return fmt.Errorf("the dedicated Concur browser on CDP port %s is no longer logged in -- log in to concursolutions.com in that window again, then re-run this command", activeCDPPort)
+					// PATCH(amend-2026-10-17: never leak ws URL, describe cdp target safely)
+					return fmt.Errorf("the dedicated Concur browser on %s is no longer logged in -- log in to concursolutions.com in that window again, then re-run this command", describeCDPTarget(activeCDPPort))
 				}
 				return fmt.Errorf("not logged in to Concur in the automated browser -- log in manually in the opened Chrome window, then re-run this command (or set up a dedicated debug-enabled Chrome profile to skip this every time; see --help)")
 			}

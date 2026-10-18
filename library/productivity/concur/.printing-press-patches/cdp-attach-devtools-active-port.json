@@ -1,0 +1,38 @@
+{
+  "schema_version": 2,
+  "id": "cdp-attach-devtools-active-port",
+  "applied_at": "2026-10-17",
+  "base_run_id": "20260812-144651-60addfc5",
+  "base_printing_press_version": "4.30.3",
+  "summary": "fix(concur): attach browser fallbacks to a Chrome whose remote debugging was enabled at chrome://inspect (DevToolsActivePort ws:// endpoint); correct the Chrome >= 136 setup docs",
+  "reason": "Every browser fallback (expenses create/update, reports create/submit, hotels search) first tries to attach to an already-logged-in Chrome via `agent-browser --cdp <port>`. When Chrome's remote debugging was switched on at chrome://inspect, Chrome serves no DevTools HTTP discovery endpoints (/json/version answers 404), so that probe timed out, detection returned \"\", and the fallback silently launched an isolated, unauthenticated browser that failed with \"not logged in\" -- even with a logged-in Chrome listening on the conventional port. Chrome records its WebSocket endpoint in a DevToolsActivePort file (user-data directory root for the --remote-debugging-port flag, profile directory for the chrome://inspect toggle), and `agent-browser --cdp` accepts that ws:// URL directly (confirmed live). Separately, the documented setup (--remote-debugging-port with --profile-directory) is ignored by Chrome >= 136, which requires a non-default --user-data-dir for remote debugging; the help text and README told users to do something that no longer works. The detection probe also ran without --session, leaving an unnamed daemon attached to whichever browser it probed.",
+  "files": [
+    "internal/cli/cdp_discovery.go",
+    "internal/cli/cdp_discovery_test.go",
+    "internal/cli/hotels_search.go",
+    "internal/cli/expenses_create.go",
+    "internal/cli/expenses_update.go",
+    "internal/cli/reports_create.go",
+    "internal/cli/reports_submit.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "call_sites": [
+    "devToolsActivePortTargets(",
+    "probeConcurCDPTarget(",
+    "describeCDPTarget(",
+    "redactCDPTarget(",
+    "loopbackPortOpen("
+  ],
+  "deferred_to_upstream": [
+    {
+      "feature": "Discovering a Concur tab among several open tabs",
+      "reason": "Detection keeps the existing contract that the attached browser's active tab is a signed-in Concur page. Scanning every tab would expose the titles and URLs of unrelated tabs in a user's everyday Chrome, so it was left out rather than guessed at."
+    }
+  ],
+  "upstream_issue": null,
+  "validated_outcome": "go build, go vet and go test ./... pass. Unit tests cover DevToolsActivePort parsing (CRLF, bad port, bad path, path traversal, whitespace), discovery in both the user-data-dir root and a profile subdirectory, loopback-only ws:// validation, that the session id never appears in messages or in agent-browser failure errors (argv and echoed stderr), probe ordering, skipping closed ports without spawning agent-browser, and that the probe passes `--cdp ws://127.0.0.1:<port>/devtools/browser/<id>`. Live: auto-detection of a dedicated debug Chrome on port 9333 was verified end to end (the amended `expenses update --type` attached without any separate login). Attaching with the ws:// endpoint of a chrome://inspect-enabled Chrome was verified by hand with agent-browser; the CLI's own pickup of that file is covered by unit tests only, because Chrome stopped publishing the file during testing.",
+  "findings_addressed": [
+    "F1"
+  ]
+}

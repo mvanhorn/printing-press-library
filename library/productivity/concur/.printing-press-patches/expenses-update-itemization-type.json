@@ -1,0 +1,35 @@
+{
+  "schema_version": 2,
+  "id": "expenses-update-itemization-type",
+  "applied_at": "2026-10-17",
+  "base_run_id": "20260812-144651-60addfc5",
+  "base_printing_press_version": "4.30.3",
+  "summary": "feat(concur): `expenses update --type` changes an itemization line's expense type through the browser",
+  "reason": "Receipt capture (or manual itemizing) can leave itemization lines on the placeholder type \"Undefined\", which blocks report submission, and the CLI had no way to fix them: `expenses update` has no type field and its browser fallback only drives Business Purpose and Amount. The API rejects expense writes for browser-session auth on both host families (a no-op PATCH returns 404 \"No static resource\" on www-us2.api and us2.api alike), so the change goes through the web form, whose flow was verified live: deep link to the line, open the Expense Type picker, click the option, Save Itemization, then re-fetch and verify. The picker is policy-filtered -- a type present in `expense-types list` can be absent from it -- so when the requested type is not offered the command stops without saving and lists the types that are. The Save Itemization click helper can fail after the click already landed, so its error is never taken as proof that nothing was saved: the line is read back, and a landed save is reported as success, an unchanged line as an ordinary retryable failure, and an unreadable line as a possible partial success.",
+  "files": [
+    "internal/cli/expenses_update.go",
+    "internal/cli/expenses_update_type.go",
+    "internal/cli/expenses_update_type_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "call_sites": [
+    "runExpensesUpdateType(",
+    "printExpensesUpdateTypeDryRun("
+  ],
+  "deferred_to_upstream": [
+    {
+      "feature": "expenses update --type for top-level expenses",
+      "reason": "Only itemization lines were verified live. Changing a top-level expense's type swaps its form and may reset fields, so the command refuses it with a pointer to the web UI rather than guessing."
+    },
+    {
+      "feature": "HTTP-first attempt for --type",
+      "reason": "The API write path is blocked for browser-session auth today (a Concur-side condition), so --type goes straight to the browser. If Concur starts accepting the PATCH, an {\"expenseType\":{\"id\":...}} attempt can be added in front of the browser path."
+    }
+  ],
+  "upstream_issue": null,
+  "validated_outcome": "go build, go vet and go test ./... pass. Mocked-browser tests cover the success path, a type that is not offered (asserts Save is never clicked and the offered types are listed), a top-level expense (no browser launched), a same-type no-op (no browser launched), --type combined with other fields, a signed-out browser, a post-save verification mismatch, a Save click that errors after landing (reported as success), after not landing (ordinary failure) and with an unreadable line (possible partial success), and --dry-run. Live: with a type the policy does not offer, the command auto-attached to a dedicated debug Chrome, rendered the line's deep link, opened the picker, discovered the options, closed the picker without saving and listed the offered types. The Save Itemization click and post-save API verification are covered by the mocked tests; the same click sequence was performed by hand in a real browser beforehand.",
+  "findings_addressed": [
+    "F4"
+  ]
+}

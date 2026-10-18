@@ -20,5 +20,8 @@ func newReportsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newReportsListCmd(flags))
 	cmd.AddCommand(newReportsSubmitCmd(flags))
 	cmd.AddCommand(newReportsUpdateCmd(flags))
+	// Hand-wired: absorbed amend-2026-10-17 (no way to view report validation exceptions).
+	// Re-add this line manually after any future regeneration.
+	cmd.AddCommand(newReportsExceptionsCmd(flags))
 	return cmd
 }

@@ -391,6 +391,9 @@ func RegisterTools(s *server.MCPServer) {
 		handleContext,
 	)
 
+	// PATCH(Greptile review, "MCP misses the new commands") -- see
+	// cli_routed_tools.go.
+	registerCLIRoutedTools(s)
 	// Runtime Cobra-tree mirror — exposes every user-facing command that is
 	// not already covered by a typed endpoint or framework MCP tool.
 	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)

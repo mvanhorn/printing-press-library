@@ -35,20 +35,10 @@ By default that's an isolated, freshly-launched Chrome with no saved
 session, so the fallback fails with "not logged in" on every single
 invocation.
 
-OPTIONAL, to avoid that repeated login entirely: run a dedicated Chrome
-profile with remote debugging enabled and log into Concur there once. Use
-a real named profile (Chrome menu -> "Add Person", or chrome://settings ->
-Add profile) rather than a throwaway --user-data-dir, so 'auth login
---chrome --profile "<name>"' can also read its cookies:
+OPTIONAL, to avoid that repeated login entirely:
+(a) Chrome >= 136 ignores --remote-debugging-port unless a NON-default --user-data-dir is also given, e.g. "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --remote-debugging-port=9222 --user-data-dir="$HOME/.local/share/concur-pp-cli/chrome-debug" and log into Concur there once; OR (b) turn on chrome://inspect/#remote-debugging in your normal Chrome, and the CLI reads Chrome's DevToolsActivePort file (set CONCUR_CHROME_USER_DATA_DIR for a non-default profile location).
 
-  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
-    --remote-debugging-port=9222 --profile-directory="<profile dir name>"
-
-This command (and every other browser-fallback command in this CLI) then
-auto-detects that session (tries ports 9222, 9333, 9229, or set
-CONCUR_CDP_PORT) and attaches to it instead of launching its own isolated,
-unauthenticated Chrome. See 'hotels search --help' for the two approaches
-that were tried and disproven before landing on this one.
+This command (and every other browser-fallback command in this CLI) then auto-detects that session and attaches to it instead of launching its own isolated, unauthenticated Chrome.
 
 After submitting, don't trust this command's own success message alone --
 confirm with 'reports get <id> --select approvalStatus,isSubmitted,submitDate'
@@ -352,7 +342,8 @@ func submitReportViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags 
 	fmt.Fprintf(cmd.ErrOrStderr(), "HTTP API returned the confirmed reports-submit backend defect (see 'concur-pp-cli reports submit --help' known-issue note). Falling back to browser automation...\n")
 
 	if port := refreshActiveCDPPort(); port != "" {
-		fmt.Fprintf(cmd.ErrOrStderr(), "Using dedicated Concur browser on CDP port %s (no separate login needed)\n", port)
+		// PATCH(amend-2026-10-17: never leak ws URL, describe cdp target safely)
+		fmt.Fprintf(cmd.ErrOrStderr(), "Using dedicated Concur browser on %s (no separate login needed)\n", describeCDPTarget(port))
 	}
 
 	if _, err := runAgentBrowser("open", reportURL); err != nil {
@@ -366,7 +357,8 @@ func submitReportViaBrowserFallback(cmd *cobra.Command, c *client.Client, flags 
 	}
 	if _, ok := findRef(refs, "sign in", ""); ok {
 		if activeCDPPort != "" {
-			return nil, 0, fmt.Errorf("the dedicated Concur browser on CDP port %s is no longer logged in -- log in to concursolutions.com in that window again, then re-run this command", activeCDPPort)
+			// PATCH(amend-2026-10-17: never leak ws URL, describe cdp target safely)
+			return nil, 0, fmt.Errorf("the dedicated Concur browser on %s is no longer logged in -- log in to concursolutions.com in that window again, then re-run this command", describeCDPTarget(activeCDPPort))
 		}
 		return nil, 0, fmt.Errorf("not logged in to Concur in the automated browser -- log in manually in the opened Chrome window, then re-run this command (or set up a dedicated debug-enabled Chrome profile to skip this every time; see --help)")
 	}

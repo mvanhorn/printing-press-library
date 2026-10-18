@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "id": "hand-added-endpoint-commands-need-child-cli-mcp-tools",
+  "applied_at": "2026-10-17",
+  "base_run_id": "20260812-144651-60addfc5",
+  "base_printing_press_version": "4.30.3",
+  "summary": "`expenses itemizations`, `reports exceptions` and `expenses update --type` are MCP tools that run the companion CLI, and a regen must keep them reachable from MCP.",
+  "reason": "The Cobra-tree mirror skips pp:endpoint commands on the assumption that a typed tool covers them, and an in-process typed tool needs a registered platform source for its fresh-tenant gate, which this CLI has none of, so a hand-added endpoint command was unreachable from MCP. The tools run the CLI and own the gate as child-CLI tools; the type edit has to go through the CLI because the API rejects expense writes for browser-session auth.",
+  "files": [
+    "internal/mcp/cli_routed_tools.go",
+    "internal/mcp/cli_routed_tools_test.go",
+    "internal/mcp/tools.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "call_sites": [
+    "registerCLIRoutedTools("
+  ],
+  "deferred_to_upstream": [
+    {
+      "feature": "In-process typed MCP tools for a CLI with no registered platform source",
+      "reason": "requireFreshTenantGate fails closed when VerifyMCPInvocation yields no session, so every in-process typed tool of this CLI (expenses_get, reports_list, ...) answers \"MCP tenant gate is not configured\". That is generator policy for CLIs without a platform source and belongs upstream; once it is fixed, typed tools for these endpoints can replace the CLI-routed ones."
+    }
+  ],
+  "upstream_issue": null,
+  "validated_outcome": "go build, go vet and go test ./... pass. Unit tests cover registration (child-CLI gate owner, read-only hints, schemas), the exact CLI argv including flag-like values, input validation without running the CLI, a failing CLI and a missing CLI. Verified end to end over MCP stdio with the real concur-pp-mcp and concur-pp-cli binaries against a fake Concur server and a fake agent-browser: both reads hit the expected paths, a type the picker does not offer stops unsaved and returns the offered list, and an offered type completes. Not exercised against a real tenant through MCP.",
+  "findings_addressed": [
+    "F2",
+    "F4"
+  ]
+}

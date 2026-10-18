@@ -332,6 +332,30 @@ resources:
         response:
           type: object
           item: Report
+      exceptions:
+        method: GET
+        path: "/expensereports/v4/users/{user_id}/context/{context_type}/reports/{report_id}/exceptions"
+        description: "List a report's validation exceptions (what blocks submit)"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            description: "Concur user ID (from 'account whoami')"
+          - name: context_type
+            flag_name: context-type
+            type: string
+            default: TRAVELER
+            enum: [TRAVELER, MANAGER, PROCESSOR, PROXY]
+            description: "Access level context for the request"
+          - name: report_id
+            flag_name: report-id
+            type: string
+            required: true
+            positional: true
+            description: "Report ID"
+        response:
+          type: array
+          item: Exception
 
   expenses:
     description: "Expense line items within a report"
@@ -387,6 +411,35 @@ resources:
             description: "Expense ID"
         response:
           type: object
+          item: Expense
+      itemizations:
+        method: GET
+        path: "/expensereports/v4/users/{user_id}/context/{context_type}/reports/{report_id}/expenses/{expense_id}/itemizations"
+        description: "List the itemization lines of an expense"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            description: "Concur user ID (from 'account whoami')"
+          - name: context_type
+            flag_name: context-type
+            type: string
+            default: TRAVELER
+            enum: [TRAVELER, MANAGER, PROCESSOR, PROXY]
+            description: "Access level context for the request"
+          - name: report_id
+            flag_name: report-id
+            type: string
+            required: true
+            description: "Parent report ID"
+          - name: expense_id
+            flag_name: expense-id
+            type: string
+            required: true
+            positional: true
+            description: "Expense ID"
+        response:
+          type: array
           item: Expense
       create:
         method: POST
@@ -921,4 +974,22 @@ types:
       - name: startDate
         type: string
       - name: endDate
+        type: string
+  Exception:
+    fields:
+      - name: exceptionCode
+        type: string
+      - name: exceptionVisibility
+        type: string
+      - name: isBlocking
+        type: bool
+      - name: message
+        type: string
+      - name: parameters
+        type: object
+      - name: allocationId
+        type: string
+      - name: expenseId
+        type: string
+      - name: parentExpenseId
         type: string
