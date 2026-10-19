@@ -2,6 +2,7 @@ package parser
 
 import (
 	"encoding/json"
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -68,13 +69,17 @@ func parseTransactionsNextData(htmlBytes []byte) (*TransactionsPage, bool) {
 func ParseTransactionsXHR(body []byte) (*TransactionsPage, error) {
 	var r struct {
 		ResponseCode    string `json:"responseCode"`
-		DisplayResponse struct {
+		DisplayResponse *struct {
 			TransactionsList []rawTransaction `json:"transactionsList"`
 			LastEvaluatedKey string           `json:"lastEvaluatedKey"`
 		} `json:"displayResponse"`
 	}
 	if err := json.Unmarshal(body, &r); err != nil {
 		return nil, err
+	}
+	// A JSON error can arrive with HTTP 200; don't mistake it for the end of history.
+	if r.ResponseCode != "success" || r.DisplayResponse == nil {
+		return nil, fmt.Errorf("get-transactions returned responseCode %q without transactions", r.ResponseCode)
 	}
 	return &TransactionsPage{
 		Transactions: convertRawTransactions(r.DisplayResponse.TransactionsList),

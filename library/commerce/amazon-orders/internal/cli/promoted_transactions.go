@@ -109,7 +109,12 @@ func newTransactionsPromotedCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			if flagSince != "" && !cmd.Flags().Changed("max-pages") {
+			if flags.dataSource == "local" {
+				// Paging needs a live token; with local data, --since only filters the synced rows.
+				if flagMaxPages > 1 {
+					return fmt.Errorf("--max-pages needs live data; it cannot be combined with --data-source local")
+				}
+			} else if flagSince != "" && !cmd.Flags().Changed("max-pages") {
 				flagMaxPages = 50
 			}
 			paging := flagMaxPages > 1

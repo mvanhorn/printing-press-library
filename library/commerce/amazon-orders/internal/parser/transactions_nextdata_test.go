@@ -66,6 +66,17 @@ func TestParseTransactionsXHR(t *testing.T) {
 	}
 }
 
+func TestParseTransactionsXHRErrorResponse(t *testing.T) {
+	for _, body := range []string{
+		`{"type":"GetTransactions","responseCode":"failure","errorMessage":"throttled"}`,
+		`{"type":"GetTransactions","responseCode":"success"}`,
+	} {
+		if page, err := ParseTransactionsXHR([]byte(body)); err == nil {
+			t.Errorf("ParseTransactionsXHR(%s) = %+v, want error", body, page)
+		}
+	}
+}
+
 func TestParseTransactionsLegacyFallback(t *testing.T) {
 	// No __NEXT_DATA__: falls back to the legacy DOM scrape without error.
 	page, err := ParseTransactions([]byte(`<html><body><div>nothing here</div></body></html>`))
