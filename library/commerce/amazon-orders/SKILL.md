@@ -133,7 +133,7 @@ This CLI was generated with browser-observed traffic context.
 
 **transactions** — Charges and refunds across all orders, recurring services, and Prime.
 
-- `amazon-orders-pp-cli transactions` — First page of your transactions list, grouped by date. Each row has payment method, last-4, signed amount, and (when...
+- `amazon-orders-pp-cli transactions` — First page of your transactions list: payment method, last-4, signed amount, order IDs, merchant, status. Add `--since YYYY-MM-DD` / `--since 90d` or `--max-pages N` for older rows.
 
 
 **Hand-written commands**

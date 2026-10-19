@@ -269,7 +269,7 @@ Per-package tracking details.
 
 Charges and refunds across all orders, recurring services, and Prime.
 
-- **`amazon-orders-pp-cli transactions list`** - First page of your transactions list, grouped by date. Each row has payment method, last-4, signed amount, and (when applicable) the linked order ID.
+- **`amazon-orders-pp-cli transactions list`** - First page of your transactions list, grouped by date. Each row has payment method, last-4, signed amount, and (when applicable) the linked order ID. Add `--since YYYY-MM-DD` (or `--since 90d`) or `--max-pages N` to page back through older rows; each row also lists all `orderIds`, the statement `merchant`, and `status` (Pending, Charged, Refunded).
 
 ## Output Formats
 
