@@ -7,16 +7,95 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/parser"
 	"github.com/spf13/cobra"
 )
 
+// transactionsXHRPath is the endpoint the transactions page's infinite scroll
+// calls for older rows. It needs the page's x-amzn-upx-token plus the session
+// cookies, and takes the previous page's lastEvaluatedKey as exclusiveStartKey.
+const transactionsXHRPath = "/payments-portal/data/iris/live/v1/data/manage/get-transactions"
+
+// parseSinceFlag accepts YYYY-MM-DD or a relative "<N>d".
+func parseSinceFlag(v string) (time.Time, error) {
+	if v == "" {
+		return time.Time{}, nil
+	}
+	if strings.HasSuffix(v, "d") {
+		if n, err := strconv.Atoi(strings.TrimSuffix(v, "d")); err == nil && n >= 0 {
+			y, m, d := time.Now().AddDate(0, 0, -n).Date()
+			return time.Date(y, m, d, 0, 0, 0, 0, time.UTC), nil
+		}
+	}
+	t, err := time.Parse("2006-01-02", v)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("--since must be YYYY-MM-DD or <N>d, got %q", v)
+	}
+	return t, nil
+}
+
+// fetchOlderTransactions follows the page cursor until rows are older than
+// since or maxPages pages (including the first) have been read.
+func fetchOlderTransactions(c interface {
+	PostWithHeaders(string, any, map[string]string) (json.RawMessage, int, error)
+}, first *parser.TransactionsPage, since time.Time, maxPages int) ([]parser.Transaction, error) {
+	all := append([]parser.Transaction(nil), first.Transactions...)
+	key, pages := first.NextPageKey, 1
+	headers := map[string]string{
+		"x-amzn-upx-token": first.Token,
+		"Accept":           "application/json",
+		"Origin":           "https://www.amazon.com",
+		"Referer":          "https://www.amazon.com/cpe/yourpayments/transactions",
+	}
+	olderThanSince := func() bool {
+		if since.IsZero() || len(all) == 0 {
+			return false
+		}
+		d, err := time.Parse("2006-01-02", all[len(all)-1].Date)
+		return err == nil && d.Before(since)
+	}
+	for key != "" && first.Token != "" && pages < maxPages && !olderThanSince() {
+		body := map[string]any{
+			"type":                    "GetTransactions",
+			"locale":                  "en_US",
+			"transactionsViewRequest": map[string]any{"filtersControls": map[string]any{"includeFilters": true}},
+			"exclusiveStartKey":       key,
+		}
+		raw, _, err := c.PostWithHeaders(transactionsXHRPath, body, headers)
+		if err != nil {
+			return all, fmt.Errorf("fetching transactions page %d: %w", pages+1, err)
+		}
+		page, err := parser.ParseTransactionsXHR(raw)
+		if err != nil {
+			return all, fmt.Errorf("parsing transactions page %d: %w", pages+1, err)
+		}
+		all = append(all, page.Transactions...)
+		key = page.NextPageKey
+		pages++
+	}
+	if !since.IsZero() {
+		kept := all[:0]
+		for _, t := range all {
+			if d, err := time.Parse("2006-01-02", t.Date); err != nil || !d.Before(since) {
+				kept = append(kept, t)
+			}
+		}
+		all = kept
+	}
+	return all, nil
+}
+
 func newTransactionsPromotedCmd(flags *rootFlags) *cobra.Command {
+	var flagSince string
+	var flagMaxPages int
 
 	cmd := &cobra.Command{
 		Use:         "transactions",
-		Short:       "First page of your transactions list, grouped by date. Each row has payment method, last-4, signed amount, and (when...",
+		Short:       "Your transactions list (first page, or --since/--max-pages for older), grouped by date. Each row has payment method, last-4, signed amount, and (when...",
 		Long:        "Shortcut for 'transactions list'. First page of your transactions list, grouped by date. Each row has payment method, last-4, signed amount, and (when...",
 		Example:     "  amazon-orders-pp-cli transactions",
 		Annotations: map[string]string{"pp:endpoint": "transactions.list", "pp:method": "GET", "pp:path": "/cpe/yourpayments/transactions", "mcp:read-only": "true"},
@@ -26,12 +105,35 @@ func newTransactionsPromotedCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
+			since, err := parseSinceFlag(flagSince)
+			if err != nil {
+				return err
+			}
+			if flagSince != "" && !cmd.Flags().Changed("max-pages") {
+				flagMaxPages = 50
+			}
+			paging := flagMaxPages > 1
+
 			path := "/cpe/yourpayments/transactions"
 			htmlRequestParams := map[string]string{}
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "transactions", true, path, params, nil, "")
-			if err != nil {
-				return classifyAPIError(err, flags)
+			var data json.RawMessage
+			var prov DataProvenance
+			if paging && !flags.dryRun {
+				// Paging needs this session's token from a fresh page, never a cached/synced copy.
+				data, _, err = c.GetWithStatus(path, params)
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
+				if err := parser.AuthInterstitialError(data); err != nil {
+					return classifyAPIError(err, flags)
+				}
+				prov = attachFreshness(DataProvenance{Source: "live"}, flags)
+			} else {
+				data, prov, err = resolveRead(cmd.Context(), c, flags, "transactions", true, path, params, nil, "")
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
 			}
 			if !flags.dryRun {
 				_ = htmlRequestParams
@@ -39,7 +141,16 @@ func newTransactionsPromotedCmd(flags *rootFlags) *cobra.Command {
 				if perr != nil {
 					return fmt.Errorf("parsing Amazon transactions HTML: %w", perr)
 				}
-				if data, err = json.Marshal(txns.Transactions); err != nil {
+				rows := txns.Transactions
+				if paging || !since.IsZero() {
+					if rows, err = fetchOlderTransactions(c, txns, since, flagMaxPages); err != nil {
+						return classifyAPIError(err, flags)
+					}
+				}
+				if rows == nil {
+					rows = []parser.Transaction{}
+				}
+				if data, err = json.Marshal(rows); err != nil {
 					return fmt.Errorf("marshalling parsed transactions: %w", err)
 				}
 			}
@@ -91,6 +202,9 @@ func newTransactionsPromotedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
+
+	cmd.Flags().StringVar(&flagSince, "since", "", "Page back until rows are older than this date (YYYY-MM-DD or <N>d); implies --max-pages 50")
+	cmd.Flags().IntVar(&flagMaxPages, "max-pages", 1, "Pages of ~20 rows to read, following the page's infinite-scroll cursor")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

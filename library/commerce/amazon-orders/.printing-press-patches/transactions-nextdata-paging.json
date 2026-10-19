@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "transactions-nextdata-paging",
+  "applied_at": "2026-10-19",
+  "base_run_id": "20260510-105710",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Parse /cpe/yourpayments/transactions from its __NEXT_DATA__ JSON (rows, paging cursor, upx token), falling back to the legacy DOM scrape, and page older rows with --since/--max-pages via the page's get-transactions XHR.",
+  "reason": "The transactions page is now a Next.js app with no apx-transactions-* DOM, so ParseTransactions returned no rows (`transactions` printed null). Older rows load only through POST /payments-portal/data/iris/live/v1/data/manage/get-transactions with x-amzn-upx-token from pageProps.token and exclusiveStartKey set to the previous lastEvaluatedKey; session cookies alone are rejected.",
+  "files": [
+    "internal/parser/transactions.go",
+    "internal/parser/transactions_nextdata.go",
+    "internal/cli/promoted_transactions.go",
+    "internal/parser/transactions_nextdata_test.go"
+  ],
+  "validated_outcome": "Against a live US account, `transactions --since <~3 months>` paged 7 XHR pages and returned the same 130 charges/refunds as the browser's infinite scroll; plain `transactions` returns the first 20 rows (previously null)."
+}

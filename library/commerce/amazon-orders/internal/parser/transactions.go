@@ -15,17 +15,28 @@ type Transaction struct {
 	Amount        float64 `json:"amount"` // signed: negative for charges, positive for refunds
 	OrderID       string  `json:"orderId,omitempty"`
 	Description   string  `json:"description,omitempty"`
+	// Set when parsed from the page's embedded JSON (see transactions_nextdata.go).
+	OrderIDs []string `json:"orderIds,omitempty"` // a charge can cover several orders
+	Merchant string   `json:"merchant,omitempty"` // statement descriptor, e.g. "AMZN Mktp US"
+	Status   string   `json:"status,omitempty"`   // Pending / Charged / Refunded ...
 }
 
 // TransactionsPage is the parsed /cpe/yourpayments/transactions page.
 type TransactionsPage struct {
 	Transactions []Transaction `json:"transactions"`
+	// NextPageKey and Token drive the get-transactions XHR for older pages;
+	// empty when the page was parsed from legacy HTML or has no more rows.
+	NextPageKey string `json:"-"`
+	Token       string `json:"-"`
 }
 
 // ParseTransactions parses the transactions list. The Amazon transactions
 // page is grouped by date with each row containing payment method + last4 +
 // amount + (optional) Order # + description.
 func ParseTransactions(htmlBytes []byte) (*TransactionsPage, error) {
+	if page, ok := parseTransactionsNextData(htmlBytes); ok {
+		return page, nil
+	}
 	doc, err := Parse(htmlBytes)
 	if err != nil {
 		return nil, err
