@@ -707,7 +707,16 @@ class LibraryGoFloorSignalTest(unittest.TestCase):
             "\ngo 1.26.11\n"
         )
         findings = signals.signal_library_go_floor(
-            _fc("library/payments/kalshi/go.mod", base=base, head=head)
+            signals.FileChange(
+                path="library/payments/kalshi/go.mod",
+                base_content=base,
+                head_content=head,
+                added_lines=[],
+                # Both directives stay at or above this floor. Do not use
+                # DEFAULT_GO_FLOOR: Renovate bumps that constant, and a later
+                # patch would turn this lowered directive into a block.
+                go_floor="1.26.11",
+            )
         )
         self.assertEqual(findings, [])
 
