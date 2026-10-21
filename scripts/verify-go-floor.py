@@ -16,6 +16,8 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+import yaml
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PRESS_GO_VERSION_URL = (
@@ -27,14 +29,11 @@ GO_OR_NEWER = re.compile(r"\bGo (?P<version>\d+\.\d+(?:\.\d+)?) or newer\b")
 TOOLCHAIN = re.compile(r"(?m)^[ \t]*toolchain\s+go(?P<version>\S+)\s*$")
 DEFAULT_FLOOR = re.compile(r'(?m)^DEFAULT_GO_FLOOR\s*=\s*"(?P<version>[^"]+)"')
 PRESS_DIRECTIVE = re.compile(r'librarySafeGoDirective\s*=\s*"(?P<version>[^"]+)"')
-GO_VERSION_FILE = re.compile(r"go-version-file:\s*(?P<path>\S+)")
 
 # This job sparse-checkouts one CLI, so the repo .go-version file is absent.
 GO_VERSION_FILE_EXCEPTIONS = {
     ".github/workflows/verify-ordertogo-windows.yml": "library/food-and-dining/ordertogo/go.mod",
 }
-
-README_SURFACES = ("README.md", "npm/README.md")
 
 
 def normalize_go_version(value: str) -> str:
@@ -132,19 +131,50 @@ def _check_sweep(root: Path, floor: str, failures: list[str]) -> None:
         )
 
 
+def _go_or_newer_versions(text: str) -> list[str]:
+    return [match.group("version") for match in GO_OR_NEWER.finditer(text)]
+
+
 def _check_readme(root: Path, floor: str, failures: list[str]) -> None:
-    for rel in README_SURFACES:
-        path = root / rel
-        if not path.is_file():
-            failures.append("%s is missing" % rel)
-            continue
-        versions = [match.group("version") for match in GO_OR_NEWER.finditer(path.read_text())]
-        if not versions:
-            failures.append("%s has no 'Go X or newer' floor" % rel)
-            continue
-        stale = [version for version in versions if version != floor]
-        if stale:
-            failures.append("%s says Go %s or newer; .go-version is %s" % (rel, ", ".join(stale), floor))
+    _check_root_readme(root, floor, failures)
+    _check_npm_readme(root, floor, failures)
+
+
+def _check_root_readme(root: Path, floor: str, failures: list[str]) -> None:
+    rel = "README.md"
+    path = root / rel
+    if not path.is_file():
+        failures.append("%s is missing" % rel)
+        return
+    versions = _go_or_newer_versions(path.read_text())
+    if not versions:
+        failures.append("%s has no 'Go X or newer' floor" % rel)
+        return
+    stale = [version for version in versions if version != floor]
+    if stale:
+        failures.append("%s says Go %s or newer; .go-version is %s" % (rel, ", ".join(stale), floor))
+
+
+def _check_npm_readme(root: Path, floor: str, failures: list[str]) -> None:
+    """npm/README.md names .go-version so a patch bump does not publish npm.
+
+    A hardcoded ``Go X or newer`` line is still checked. A stale literal fails
+    even when the file also names .go-version.
+    """
+    rel = "npm/README.md"
+    path = root / rel
+    if not path.is_file():
+        failures.append("%s is missing" % rel)
+        return
+    text = path.read_text()
+    versions = _go_or_newer_versions(text)
+    stale = [version for version in versions if version != floor]
+    if stale:
+        failures.append("%s says Go %s or newer; .go-version is %s" % (rel, ", ".join(stale), floor))
+        return
+    if versions or ".go-version" in text:
+        return
+    failures.append("%s must mention .go-version or say 'Go %s or newer'" % (rel, floor))
 
 
 def _check_toolchains(root: Path, floor: str, failures: list[str]) -> None:
@@ -164,26 +194,91 @@ def _check_toolchains(root: Path, floor: str, failures: list[str]) -> None:
                 failures.append("%s toolchain go%s is below .go-version %s" % (rel, declared, floor))
 
 
+def _step_uses_setup_go(step: object) -> bool:
+    if not isinstance(step, dict):
+        return False
+    uses = step.get("uses")
+    return isinstance(uses, str) and uses.startswith("actions/setup-go@")
+
+
+def _step_pins_local_toolchain(step: object) -> bool:
+    if not isinstance(step, dict):
+        return False
+    run = step.get("run")
+    if isinstance(run, str):
+        return "GOTOOLCHAIN=local" in run
+    if isinstance(run, list):
+        return any(isinstance(item, str) and "GOTOOLCHAIN=local" in item for item in run)
+    return False
+
+
+def _step_go_version_file(step: object) -> str | None:
+    if not isinstance(step, dict):
+        return None
+    with_block = step.get("with")
+    if not isinstance(with_block, dict):
+        return None
+    value = with_block.get("go-version-file")
+    if not isinstance(value, str):
+        return None
+    return value.strip()
+
+
+def _check_job_setup_go(rel: str, job_name: str, steps: list[object], failures: list[str]) -> None:
+    for index, step in enumerate(steps):
+        if not _step_uses_setup_go(step):
+            continue
+        later = steps[index + 1 :]
+        if not any(_step_pins_local_toolchain(item) for item in later):
+            failures.append(
+                "%s job %s uses setup-go without a later GOTOOLCHAIN=local step" % (rel, job_name)
+            )
+        expected = GO_VERSION_FILE_EXCEPTIONS.get(rel)
+        declared = _step_go_version_file(step)
+        if expected is not None:
+            if declared != expected:
+                failures.append("%s job %s must keep go-version-file: %s" % (rel, job_name, expected))
+            continue
+        if declared != ".go-version":
+            failures.append(
+                "%s job %s setup-go must use go-version-file: .go-version" % (rel, job_name)
+            )
+
+
 def _check_workflows(root: Path, failures: list[str]) -> None:
     workflow_dir = root / ".github" / "workflows"
     if not workflow_dir.is_dir():
         return
-    for path in sorted(workflow_dir.glob("*.yml")) + sorted(workflow_dir.glob("*.yaml")):
+    paths = sorted(workflow_dir.glob("*.yml")) + sorted(workflow_dir.glob("*.yaml"))
+    for path in paths:
         text = path.read_text()
         if "actions/setup-go" not in text:
             continue
         rel = path.relative_to(root).as_posix()
-        after_setup = text.split("actions/setup-go", 1)[1]
-        if "GOTOOLCHAIN=local" not in after_setup:
-            failures.append("%s uses setup-go without GOTOOLCHAIN=local" % rel)
-        expected = GO_VERSION_FILE_EXCEPTIONS.get(rel)
-        declared = [match.group("path") for match in GO_VERSION_FILE.finditer(text)]
-        if expected is not None:
-            if expected not in declared:
-                failures.append("%s must keep go-version-file: %s" % (rel, expected))
+        try:
+            document = yaml.safe_load(text)
+        except yaml.YAMLError as exc:
+            failures.append("%s is not valid workflow YAML (%s)" % (rel, exc))
             continue
-        if not declared or any(item != ".go-version" for item in declared):
-            failures.append("%s setup-go must use go-version-file: .go-version" % rel)
+        if not isinstance(document, dict):
+            failures.append("%s workflow YAML did not parse to a mapping" % rel)
+            continue
+        jobs = document.get("jobs")
+        if not isinstance(jobs, dict):
+            failures.append("%s uses setup-go but has no jobs mapping" % rel)
+            continue
+        saw_setup_go = False
+        for job_name, job in jobs.items():
+            if not isinstance(job, dict):
+                continue
+            steps = job.get("steps")
+            if not isinstance(steps, list):
+                continue
+            if any(_step_uses_setup_go(step) for step in steps):
+                saw_setup_go = True
+            _check_job_setup_go(rel, str(job_name), steps, failures)
+        if not saw_setup_go:
+            failures.append("%s mentions setup-go but no job has an actions/setup-go step" % rel)
 
 
 def _check_press(floor: str, press_source: str | None, press_fetch_error: str | None) -> tuple[list[str], list[str]]:

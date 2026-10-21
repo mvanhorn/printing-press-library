@@ -32,8 +32,8 @@ import yaml
 
 
 # Fallback for unit tests and bootstrap scans before .go-version exists.
-# Keep this equal to the repo .go-version; at-floor fixtures in scan_test.py
-# use the same value.
+# Renovate patch-bumps this string together with .go-version and the root
+# README. scan_test at-floor fixtures read this constant.
 DEFAULT_GO_FLOOR = "1.26.10"
 
 

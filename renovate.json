@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "Patch-bump .go-version only. enabledManagers is custom.regex so the catalog go.mod files and their dependencies are not updated.",
+  "description": "Patch-bump the CI Go floor. enabledManagers is custom.regex so catalog go.mod files and their dependencies are not updated. The three managers share dep name go so one grouped PR updates .go-version, DEFAULT_GO_FLOOR, and the root README together. Patterns are anchored at the repo root; per-CLI README.md files are not included. npm/README.md names .go-version instead of a patch number so a floor bump does not publish a new npm package.",
   "enabledManagers": ["custom.regex"],
   "customManagers": [
     {
@@ -10,12 +10,35 @@
       "datasourceTemplate": "golang-version",
       "depNameTemplate": "go",
       "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.github/scripts/verify-supply-chain/signals\\.py$/"],
+      "matchStrings": ["DEFAULT_GO_FLOOR\\s*=\\s*\"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""],
+      "datasourceTemplate": "golang-version",
+      "depNameTemplate": "go",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^README\\.md$/"],
+      "matchStrings": ["Go (?<currentValue>\\d+\\.\\d+\\.\\d+) or newer"],
+      "datasourceTemplate": "golang-version",
+      "depNameTemplate": "go",
+      "versioningTemplate": "semver"
     }
   ],
   "packageRules": [
     {
+      "description": "Ship the floor surfaces in one pull request.",
+      "matchDatasources": ["golang-version"],
+      "matchDepNames": ["go"],
+      "groupName": "go-floor"
+    },
+    {
       "description": "Automerge Go patch releases of the CI floor.",
       "matchDatasources": ["golang-version"],
+      "matchDepNames": ["go"],
       "matchUpdateTypes": ["patch"],
       "automerge": true,
       "labels": ["go-floor"]
@@ -23,6 +46,7 @@
     {
       "description": "Minor and major Go releases are a floor decision, not an automerge.",
       "matchDatasources": ["golang-version"],
+      "matchDepNames": ["go"],
       "matchUpdateTypes": ["minor", "major"],
       "enabled": false
     }

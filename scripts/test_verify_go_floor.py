@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import importlib.util
 import io
+import json
 import sys
 import tempfile
 import unittest
@@ -45,7 +46,9 @@ def write_repo(root: Path, floor: str = "1.26.10", toolchain: str | None = None)
     (root / "README.md").write_text("Install with Go %s or newer.\n" % floor)
     npm = root / "npm"
     npm.mkdir(exist_ok=True)
-    (npm / "README.md").write_text("- Go %s or newer\n" % floor)
+    (npm / "README.md").write_text(
+        "- The Go release recorded in `.go-version`, or newer\n"
+    )
     workflows = root / ".github/workflows"
     workflows.mkdir(parents=True, exist_ok=True)
     (workflows / "ci.yml").write_text(
@@ -141,6 +144,101 @@ class VerifyGoFloorTest(unittest.TestCase):
         )
         failures, _warnings = verify_go_floor.evaluate(self.root, PRESS_SOURCE % "1.26.10", None)
         self.assertTrue(any("sweep-canonical" in failure for failure in failures))
+
+    def test_npm_readme_without_floor_reference_fails(self) -> None:
+        write_repo(self.root)
+        (self.root / "npm/README.md").write_text("- Node.js 20+\n")
+        failures, _warnings = verify_go_floor.evaluate(self.root, PRESS_SOURCE % "1.26.10", None)
+        self.assertTrue(any(failure.startswith("npm/README.md") for failure in failures))
+
+    def test_stale_npm_literal_fails_when_go_version_is_also_named(self) -> None:
+        write_repo(self.root)
+        (self.root / "npm/README.md").write_text(
+            "- Go 1.26.6 or newer (see `.go-version`)\n"
+        )
+        failures, _warnings = verify_go_floor.evaluate(self.root, PRESS_SOURCE % "1.26.10", None)
+        self.assertTrue(any("npm/README.md says Go 1.26.6" in failure for failure in failures))
+
+    def test_setup_go_pin_is_per_job(self) -> None:
+        write_repo(self.root)
+        (self.root / ".github/workflows/ci.yml").write_text(
+            "jobs:\n"
+            "  pinned:\n"
+            "    steps:\n"
+            "      - uses: actions/setup-go@v6\n"
+            "        with:\n"
+            "          go-version-file: .go-version\n"
+            "      - name: Pin CI Go to .go-version\n"
+            '        run: echo "GOTOOLCHAIN=local" >> "$GITHUB_ENV"\n'
+            "  unpinned:\n"
+            "    steps:\n"
+            "      - uses: actions/setup-go@v6\n"
+            "        with:\n"
+            "          go-version-file: .go-version\n"
+        )
+        failures, _warnings = verify_go_floor.evaluate(self.root, PRESS_SOURCE % "1.26.10", None)
+        self.assertTrue(any("job unpinned" in failure for failure in failures))
+        self.assertFalse(any("job pinned" in failure for failure in failures))
+
+    def test_pin_before_setup_go_does_not_count(self) -> None:
+        write_repo(self.root)
+        (self.root / ".github/workflows/ci.yml").write_text(
+            "jobs:\n"
+            "  test:\n"
+            "    steps:\n"
+            "      - name: Pin CI Go to .go-version\n"
+            '        run: echo "GOTOOLCHAIN=local" >> "$GITHUB_ENV"\n'
+            "      - uses: actions/setup-go@v6\n"
+            "        with:\n"
+            "          go-version-file: .go-version\n"
+        )
+        failures, _warnings = verify_go_floor.evaluate(self.root, PRESS_SOURCE % "1.26.10", None)
+        self.assertTrue(any("job test" in failure and "GOTOOLCHAIN=local" in failure for failure in failures))
+
+    def test_both_setup_go_jobs_pass_when_each_is_pinned(self) -> None:
+        write_repo(self.root)
+        (self.root / ".github/workflows/ci.yml").write_text(
+            "jobs:\n"
+            "  bundle:\n"
+            "    steps:\n"
+            "      - uses: actions/setup-go@v6\n"
+            "        with:\n"
+            "          go-version-file: .go-version\n"
+            "      - name: Pin CI Go to .go-version\n"
+            '        run: echo "GOTOOLCHAIN=local" >> "$GITHUB_ENV"\n'
+            "  cli:\n"
+            "    steps:\n"
+            "      - uses: actions/setup-go@v6\n"
+            "        with:\n"
+            "          go-version-file: .go-version\n"
+            "      - name: Pin CI Go to .go-version\n"
+            '        run: echo "GOTOOLCHAIN=local" >> "$GITHUB_ENV"\n'
+        )
+        failures, _warnings = verify_go_floor.evaluate(self.root, PRESS_SOURCE % "1.26.10", None)
+        self.assertEqual(failures, [])
+
+    def test_renovate_groups_the_floor_surfaces(self) -> None:
+        config_path = Path(__file__).resolve().parents[1] / "renovate.json"
+        config = json.loads(config_path.read_text())
+        patterns = [
+            pattern
+            for manager in config["customManagers"]
+            for pattern in manager["managerFilePatterns"]
+        ]
+        joined = "\n".join(patterns)
+        self.assertIn(r"\.go-version", joined)
+        self.assertIn(r"signals\.py", joined)
+        self.assertIn(r"README\.md", joined)
+        self.assertNotIn("npm", joined)
+        self.assertEqual(config["enabledManagers"], ["custom.regex"])
+        self.assertIn("go-floor", [rule.get("groupName") for rule in config["packageRules"]])
+        patch_rules = [
+            rule for rule in config["packageRules"] if rule.get("matchUpdateTypes") == ["patch"]
+        ]
+        self.assertEqual(len(patch_rules), 1)
+        self.assertTrue(patch_rules[0].get("automerge"))
+        disabled = [rule for rule in config["packageRules"] if rule.get("enabled") is False]
+        self.assertTrue(any(rule.get("matchUpdateTypes") == ["minor", "major"] for rule in disabled))
 
     def test_setup_go_without_local_toolchain_fails(self) -> None:
         write_repo(self.root)
