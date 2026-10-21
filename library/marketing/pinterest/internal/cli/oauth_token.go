@@ -75,7 +75,11 @@ func newOauthTokenCmd(flags *rootFlags) *cobra.Command {
 				fields.Set("scope", bodyScope)
 			}
 
-			data, statusCode, err := c.PostFormWithParams(cmd.Context(), path, params, fields)
+			clientAuth, err := pinterestClientAuthHeaders(flags)
+			if err != nil && !flags.dryRun {
+				return err
+			}
+			data, statusCode, err := c.PostFormWithParamsAndHeaders(cmd.Context(), path, params, fields, clientAuth)
 			if err != nil {
 				return classifyAPIError(cmd.OutOrStdout(), err, flags)
 			}

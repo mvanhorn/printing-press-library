@@ -9,13 +9,18 @@
     "internal/cli/auth.go",
     "internal/client/client.go",
     "internal/cliutil/oauth_token.go",
-    "internal/cli/auth_pinterest_test.go"
+    "internal/cli/auth_pinterest_test.go",
+    "internal/cli/oauth_token.go",
+    "internal/cli/oauth_token-revoke.go",
+    "internal/cli/pinterest_oauth.go",
+    "internal/cli/pinterest_oauth_test.go"
   ],
   "validated_outcome": "httptest assertions: Basic auth present and no client_secret in body for exchange and refresh; continuous_refresh=true; redirect helper returns http://localhost:8875/callback. Full go test green.",
   "call_sites": [
     "continuous_refresh",
     "pinterestOAuthRedirectURI",
-    "SetBasicAuth"
+    "SetBasicAuth",
+    "pinterestClientAuthHeaders(flags)"
   ],
   "base_run_id": "20261021-092559-b7e82418"
 }

@@ -102,7 +102,7 @@ func resourceDetailPath(resource, escapedID string) (string, error) {
 }
 
 func resourceReadConfigFor(resource string) resourceReadConfig {
-	return resourceReadConfigs[resource]
+	return pinterestResourceReadConfig(resourceReadConfigs[resource])
 }
 
 func extractResourcePage(data json.RawMessage, config resourceReadConfig) ([]json.RawMessage, string, bool) {
