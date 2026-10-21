@@ -31,8 +31,10 @@ from typing import Any
 import yaml
 
 
-# Fallback for unit tests and bootstrap scans before .go-version exists on base.
-DEFAULT_GO_FLOOR = "1.26.9"
+# Fallback for unit tests and bootstrap scans before .go-version exists.
+# Keep this equal to the repo .go-version; at-floor fixtures in scan_test.py
+# use the same value.
+DEFAULT_GO_FLOOR = "1.26.10"
 
 
 # ---------------------------------------------------------------------------

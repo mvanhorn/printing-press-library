@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
   "id": "coinlocker-navi-govulncheck-toolchain",
-  "applied_at": "2026-10-09",
+  "applied_at": "2026-10-21",
   "base_run_id": "20261009-095811-aff6d8f7",
   "base_printing_press_version": "4.33.2",
-  "summary": "Raise golang.org/x/net to v0.60.0 and set toolchain go1.27.2 so govulncheck is clean.",
-  "reason": "The generated go.mod failed govulncheck: Go 1.27.1 standard library advisories GO-2026-6603..6617 (fixed in go1.27.2) and x/net v0.56.0 (fixed in v0.60.0). The generator should emit the fixed versions.",
+  "summary": "Keep golang.org/x/net at a govulncheck-clean release, and keep the go directive at the repo .go-version floor without a toolchain line that selects a newer Go.",
+  "reason": "The generated module failed govulncheck on golang.org/x/net (fixed in v0.60.0). A later toolchain go1.27.2 pin is still affected by GO-2026-6809 and makes Go 1.26.10 CI download that toolchain. A toolchain line equal to the go directive is redundant: go mod tidy deletes it and go build refuses to run until it is gone.",
   "files": ["go.mod", "go.sum"],
-  "call_sites": ["golang.org/x/net v0.60.0", "toolchain go1.27.2"],
-  "validated_outcome": "go vet, go test ./... and govulncheck@v1.3.0 ./... pass."
+  "call_sites": ["golang.org/x/net v0.60.0", "go 1.26.10"],
+  "validated_outcome": "go build ./... and go mod tidy -diff succeed on Go 1.26.10."
 }

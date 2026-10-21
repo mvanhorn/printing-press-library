@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.23
+
+- Document the direct `go install` floor as Go 1.26.10, matching the repo `.go-version` floor after GO-2026-6809.
+
 ## 0.1.22
 
 - Run package tests via node --test dist/tests so Node walks compiled tests without a quoted glob that some shells do not expand.

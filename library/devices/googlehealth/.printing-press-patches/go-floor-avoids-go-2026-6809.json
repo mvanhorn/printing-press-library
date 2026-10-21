@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "go-floor-avoids-go-2026-6809",
+  "applied_at": "2026-10-21",
+  "base_run_id": "20260619-180224",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Keep the go directive at the repo .go-version floor and do not pin an older or affected toolchain.",
+  "reason": "The published module declared go 1.26.5 with toolchain go1.26.4. Both are below the repo floor and still affected by GO-2026-6809 (fixed in go1.26.10 and go1.27.3). A go directive below .go-version is blocked when go.mod is edited. A toolchain line equal to the go directive is redundant: go mod tidy deletes it and go build refuses to run until it is gone.",
+  "files": ["go.mod"],
+  "markers": ["go 1.26.10"],
+  "validated_outcome": "go build ./... and go mod tidy -diff succeed on Go 1.26.10."
+}

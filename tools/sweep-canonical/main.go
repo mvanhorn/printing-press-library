@@ -65,6 +65,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"sort"
 	"strings"
 )
@@ -353,7 +354,62 @@ type sweepStatus string
 
 const statusUnchanged sweepStatus = "unchanged"
 
-const minimumGoVersion = "Go 1.26.6 or newer"
+// minimumGoVersion is the direct-install floor written into README and SKILL
+// fallback lines. It is loaded from the repo .go-version so a floor bump
+// cannot leave a stale literal behind.
+var minimumGoVersion = mustMinimumGoVersion()
+
+func mustMinimumGoVersion() string {
+	version, err := readRepoGoVersion()
+	if err != nil {
+		panic("sweep-canonical: " + err.Error())
+	}
+	return "Go " + version + " or newer"
+}
+
+func readRepoGoVersion() (string, error) {
+	var starts []string
+	if _, file, _, ok := runtime.Caller(0); ok {
+		starts = append(starts, filepath.Dir(file))
+	}
+	if cwd, err := os.Getwd(); err == nil {
+		starts = append(starts, cwd)
+	}
+	seen := map[string]bool{}
+	var tried []string
+	for _, start := range starts {
+		dir := start
+		for {
+			if seen[dir] {
+				break
+			}
+			seen[dir] = true
+			candidate := filepath.Join(dir, ".go-version")
+			tried = append(tried, candidate)
+			if version, ok := readGoVersionFile(candidate); ok {
+				return version, nil
+			}
+			parent := filepath.Dir(dir)
+			if parent == dir {
+				break
+			}
+			dir = parent
+		}
+	}
+	return "", fmt.Errorf("repo .go-version not found (looked for %s)", strings.Join(tried, ", "))
+}
+
+func readGoVersionFile(path string) (string, bool) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return "", false
+	}
+	version := strings.TrimSpace(string(data))
+	if version == "" {
+		return "", false
+	}
+	return version, true
+}
 
 var goFallbackVersionRe = regexp.MustCompile(`Go 1\.26\.[0-9]+ or newer`)
 

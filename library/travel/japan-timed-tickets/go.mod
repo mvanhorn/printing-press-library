@@ -1,8 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/travel/japan-timed-tickets
 
-go 1.26.9
-
-toolchain go1.27.2
+go 1.26.10
 
 require (
 	github.com/mark3labs/mcp-go v0.57.0

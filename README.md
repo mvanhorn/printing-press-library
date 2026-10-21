@@ -744,7 +744,7 @@ Tools grouped by category, sourced from [`registry.json`](registry.json). Each r
 
 ## Binary-only install
 
-If you only want the binary and not the companion skill, install directly with [Go 1.26.5 or newer](https://go.dev/dl/):
+If you only want the binary and not the companion skill, install directly with [Go 1.26.10 or newer](https://go.dev/dl/):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/<path>/cmd/<binary>@latest
