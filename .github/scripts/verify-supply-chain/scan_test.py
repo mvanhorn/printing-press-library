@@ -650,6 +650,66 @@ class LibraryGoFloorSignalTest(unittest.TestCase):
             )
         )
         self.assertEqual(len(findings), 1)
+        self.assertTrue(findings[0].is_block())
+
+    def test_lowered_directive_below_floor_blocks(self) -> None:
+        base = (
+            "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n"
+            "\ngo 1.26.8\n"
+        )
+        head = (
+            "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n"
+            "\ngo 1.26.4\n"
+        )
+        findings = signals.signal_library_go_floor(
+            _fc("library/payments/kalshi/go.mod", base=base, head=head)
+        )
+        self.assertEqual(len(findings), 1)
+        self.assertTrue(findings[0].is_block())
+        self.assertEqual(findings[0].signal_id, "library_go_directive_below_floor")
+
+    def test_unchanged_directive_below_floor_advises(self) -> None:
+        base = (
+            "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n"
+            "\ngo 1.26.5\n"
+        )
+        head = base + "\nrequire example.com/foo v1.2.3\n"
+        findings = signals.signal_library_go_floor(
+            _fc("library/payments/kalshi/go.mod", base=base, head=head)
+        )
+        self.assertEqual(len(findings), 1)
+        self.assertEqual(findings[0].severity, "advise")
+        self.assertFalse(findings[0].is_block())
+        self.assertEqual(findings[0].signal_id, "library_go_directive_below_floor")
+
+    def test_raised_directive_still_below_floor_advises(self) -> None:
+        base = (
+            "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n"
+            "\ngo 1.26.4\n"
+        )
+        head = (
+            "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n"
+            "\ngo 1.26.5\n"
+        )
+        findings = signals.signal_library_go_floor(
+            _fc("library/payments/kalshi/go.mod", base=base, head=head)
+        )
+        self.assertEqual(len(findings), 1)
+        self.assertEqual(findings[0].severity, "advise")
+
+    def test_lowered_directive_at_or_above_floor_is_silent(self) -> None:
+        base = (
+            "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n"
+            "\ngo 1.26.12\n"
+        )
+        head = (
+            "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n"
+            "\ngo 1.26.11\n"
+        )
+        findings = signals.signal_library_go_floor(
+            _fc("library/payments/kalshi/go.mod", base=base, head=head)
+        )
+        self.assertEqual(findings, [])
 
 
 class NpmLifecycleSignalTest(unittest.TestCase):
@@ -942,7 +1002,7 @@ class ScanIntegrationTest(unittest.TestCase):
         rc = self._run_scan(base="main")
         self.assertEqual(rc, 0)
 
-    def test_library_go_directive_below_head_floor_fails(self) -> None:
+    def test_unchanged_library_go_directive_below_head_floor_advises(self) -> None:
         base = "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n\ngo 1.26.5\n"
         self._write(".go-version", "1.26.5\n")
         self._write("library/payments/kalshi/go.mod", base)
@@ -954,6 +1014,22 @@ class ScanIntegrationTest(unittest.TestCase):
             base + "\nrequire example.com/foo v1.2.3\n",
         )
         self._commit("touch stale go mod after floor bump")
+        rc = self._run_scan(base="main")
+        self.assertEqual(rc, 0)
+
+    def test_lowered_library_go_directive_below_floor_fails(self) -> None:
+        self._write(".go-version", "1.26.10\n")
+        self._write(
+            "library/payments/kalshi/go.mod",
+            "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n\ngo 1.26.8\n",
+        )
+        self._commit("baseline")
+        self._git("checkout", "-q", "-b", "feat/x")
+        self._write(
+            "library/payments/kalshi/go.mod",
+            "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n\ngo 1.26.4\n",
+        )
+        self._commit("lower the go directive")
         rc = self._run_scan(base="main")
         self.assertEqual(rc, 1)
 

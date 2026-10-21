@@ -743,8 +743,15 @@ def _extract_go_directive(content: str | None) -> str | None:
 
 
 def signal_library_go_floor(change: FileChange) -> list[Finding]:
-    """R7. Published library modules must not move below the repo-wide Go
-    floor. This catches stale go.mod edits after an emergency floor bump.
+    """R7. A published library module must not move below the repo-wide Go floor.
+
+    Block only when the go.mod is new, or the head `go` directive is lower
+    than base, and that directive is below the floor. An unchanged
+    below-floor directive is advisory: most published CLIs still declare an
+    older `go` line, and an unrelated go.mod edit must not fail the scan.
+    Raising a directive that remains below the floor is advisory too. A
+    directive that stays at or above the floor is not an R7 finding,
+    including one that moves down without crossing the floor.
     """
     if not is_library_gomod(change.path) or change.head_content is None:
         return []
@@ -770,20 +777,48 @@ def signal_library_go_floor(change: FileChange) -> list[Finding]:
     if not below_floor:
         return []
 
+    lowered = False
+    if change.base_content is not None:
+        base_declared = _extract_go_directive(change.base_content)
+        if base_declared is not None:
+            try:
+                lowered = _compare_go_versions(declared, base_declared) < 0
+            except ValueError:
+                lowered = False
+
+    new_module = change.base_content is None
+    if new_module or lowered:
+        return [
+            Finding(
+                path=change.path,
+                line=_find_line(change.head_content, declared),
+                severity="block",
+                signal_id="library_go_directive_below_floor",
+                message=(
+                    "library go.mod declares go %s, below the repo-wide floor %s. "
+                    "The module is new or its go directive moved downward."
+                    % (declared, change.go_floor)
+                ),
+                remediation=(
+                    "Set this module's go directive to %s or newer." % change.go_floor
+                ),
+            )
+        ]
+
     return [
         Finding(
             path=change.path,
             line=_find_line(change.head_content, declared),
-            severity="block",
+            severity="advise",
             signal_id="library_go_directive_below_floor",
             message=(
-                "library go.mod declares go %s, below the repo-wide floor %s. "
-                "Published CLI installs would build with an older standard library."
+                "library go.mod still declares go %s, below the repo-wide floor %s. "
+                "The directive did not move downward, so this is advisory."
                 % (declared, change.go_floor)
             ),
             remediation=(
-                "Bump this module's go directive to %s or newer when touching "
-                "library go.mod files." % change.go_floor
+                "Leave the directive unless this change is already editing the go line. "
+                "Do not bulk-bump published CLIs up to %s." % change.go_floor
             ),
         )
     ]

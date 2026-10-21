@@ -1,0 +1,104 @@
+name: Go floor watch
+
+# Daily check that .go-version is at least the latest cli-printing-press
+# librarySafeGoDirective and is not inside a stdlib range from the live vuln
+# DB. One issue is kept open; a later target replaces its title.
+#
+# govulncheck -scan=module rejects package patterns and also refuses a module
+# root that contains no Go files. grants is stdlib-only, and its command
+# package is the smallest directory that satisfies both constraints.
+
+on:
+  schedule:
+    - cron: '41 15 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: go-floor-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    name: Compare Go floor
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CANARY: library/health/grants/cmd/grants-pp-cli
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: .go-version
+          cache: false
+      - name: Pin CI Go to .go-version
+        run: echo "GOTOOLCHAIN=local" >> "$GITHUB_ENV"
+      - name: Install govulncheck
+        run: go install golang.org/x/vuln/cmd/govulncheck@v1.3.0
+      - name: Compare the floor with the press release and the vuln DB
+        run: |
+          set -euo pipefail
+          press_file="${RUNNER_TEMP}/press-go-version.go"
+          govuln_file="${RUNNER_TEMP}/govuln.json"
+          decision="${RUNNER_TEMP}/go-floor-decision.json"
+
+          tag="$(gh api repos/mvanhorn/cli-printing-press/releases/latest --jq .tag_name)"
+          if [ -z "$tag" ]; then
+            echo "::error::latest cli-printing-press release tag was empty"
+            exit 1
+          fi
+          curl -fsSL --retry 3 --retry-delay 2 \
+            "https://raw.githubusercontent.com/mvanhorn/cli-printing-press/${tag}/internal/generator/go_version.go" \
+            -o "$press_file"
+
+          set +e
+          govulncheck -C "$CANARY" -scan=module -format=json > "$govuln_file"
+          govuln_rc=$?
+          set -e
+          if [ "$govuln_rc" -ne 0 ] && [ "$govuln_rc" -ne 3 ]; then
+            echo "::error::govulncheck exited ${govuln_rc}"
+            exit "$govuln_rc"
+          fi
+
+          set +e
+          python3 scripts/go_floor_watch.py \
+            --floor-file .go-version \
+            --press-file "$press_file" \
+            --press-tag "$tag" \
+            --govuln-json "$govuln_file" \
+            --canary "$CANARY" \
+            > "$decision"
+          watch_rc=$?
+          set -e
+          cat "$decision"
+          if [ "$watch_rc" -eq 0 ]; then
+            echo "Go floor matches the press release and the vuln DB."
+            exit 0
+          fi
+          if [ "$watch_rc" -eq 3 ]; then
+            echo "::error::stdlib vulnerability has no fixed Go version; not opening a bump issue"
+            exit 1
+          fi
+          if [ "$watch_rc" -ne 1 ]; then
+            echo "::error::go-floor watch failed (${watch_rc})"
+            exit "$watch_rc"
+          fi
+
+          target="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["target"])' "$decision")"
+          issue_title="Go floor: bump .go-version to ${target}"
+          body="${RUNNER_TEMP}/go-floor-issue.md"
+          python3 -c 'import json,sys; open(sys.argv[2],"w").write(json.load(open(sys.argv[1]))["issue_body"])' "$decision" "$body"
+
+          existing="$(gh issue list --state open --limit 50 --search "Go floor: bump .go-version to in:title" --json number,title --jq '[.[] | select(.title | startswith("Go floor: bump .go-version to"))] | sort_by(.number) | .[0].number // empty')"
+          if [ -z "$existing" ]; then
+            gh issue create --title "$issue_title" --body-file "$body"
+          else
+            gh issue edit "$existing" --title "$issue_title" --body-file "$body"
+            echo "Updated open issue #${existing}"
+          fi
+          echo "::error::${issue_title}"
+          exit 1

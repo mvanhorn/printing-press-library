@@ -1,0 +1,32 @@
+name: Go floor
+
+on:
+  pull_request:
+    paths:
+      - '.go-version'
+      - 'README.md'
+      - 'npm/README.md'
+      - '.github/scripts/verify-supply-chain/signals.py'
+      - '.github/workflows/**'
+      - 'tools/sweep-canonical/**'
+      - 'library/**/go.mod'
+      - 'scripts/verify-go-floor.py'
+      - 'scripts/test_verify_go_floor.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: go-floor-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  go-floor:
+    name: go-floor
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check Go floor surfaces
+        run: python3 scripts/verify-go-floor.py

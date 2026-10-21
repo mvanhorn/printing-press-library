@@ -1,0 +1,102 @@
+name: Tooling tests
+
+on:
+  pull_request:
+    paths:
+      - '.github/scripts/**'
+      - '.github/workflows/tooling-tests.yml'
+      - 'tools/**'
+      - 'scripts/**'
+      - '.go-version'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tooling-tests-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    name: Python tooling
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - name: Unit-test Python tooling
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          found=0
+          for dir in .github/scripts/* scripts; do
+            if [ ! -d "$dir" ]; then
+              continue
+            fi
+            matches=("$dir"/*_test.py "$dir"/test_*.py)
+            if [ "${#matches[@]}" -eq 0 ]; then
+              continue
+            fi
+            found=1
+            echo "::group::${dir}"
+            (
+              cd "$dir"
+              # The two discover patterns do not overlap. Running a pattern
+              # with no matches makes unittest exit 5, so only run the ones
+              # this directory actually uses.
+              if compgen -G '*_test.py' > /dev/null; then
+                python3 -m unittest discover -s . -p '*_test.py'
+              fi
+              if compgen -G 'test_*.py' > /dev/null; then
+                python3 -m unittest discover -s . -p 'test_*.py'
+              fi
+            )
+            echo "::endgroup::"
+          done
+          if [ "$found" -eq 0 ]; then
+            echo "::error::No Python tooling tests found."
+            exit 1
+          fi
+
+  go:
+    name: Go tooling
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: .go-version
+          cache: false
+      - name: Pin CI Go to .go-version
+        run: echo "GOTOOLCHAIN=local" >> "$GITHUB_ENV"
+      - name: Test Go tooling modules
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          found=0
+          for dir in tools/*; do
+            if [ ! -d "$dir" ]; then
+              continue
+            fi
+            if [ -f "$dir/go.mod" ]; then
+              found=1
+              echo "::group::${dir}"
+              (cd "$dir" && go test ./...)
+              echo "::endgroup::"
+              continue
+            fi
+            tests=("$dir"/*_test.go)
+            if [ "${#tests[@]}" -eq 0 ]; then
+              continue
+            fi
+            found=1
+            echo "::group::${dir}"
+            # sweep-canonical and the other repo tools are GOPATH packages.
+            (cd "$dir" && GO111MODULE=off go test .)
+            echo "::endgroup::"
+          done
+          if [ "$found" -eq 0 ]; then
+            echo "::error::No Go tooling modules found."
+            exit 1
+          fi

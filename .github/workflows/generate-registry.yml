@@ -64,6 +64,8 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version-file: .go-version
+      - name: Pin CI Go to .go-version
+        run: echo "GOTOOLCHAIN=local" >> "$GITHUB_ENV"
       - name: Run generator
         run: go run ./tools/generate-registry/main.go
       - name: Commit if changed

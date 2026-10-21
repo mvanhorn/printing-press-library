@@ -36,6 +36,8 @@ jobs:
           # differs). Disable caching to silence the "Dependencies file is not
           # found" warning.
           cache: false
+      - name: Pin CI Go to .go-version
+        run: echo "GOTOOLCHAIN=local" >> "$GITHUB_ENV"
       - name: Configure git for private modules
         env:
           TOKEN: ${{ secrets.GENERATOR_READ_TOKEN }}

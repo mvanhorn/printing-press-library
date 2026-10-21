@@ -161,6 +161,8 @@ jobs:
           # Point setup-go at this matrix entry's go.sum so its module cache is keyed
           # correctly. Without this, setup-go warns "Dependencies file is not found".
           cache-dependency-path: library/${{ matrix.target }}/go.sum
+      - name: Pin CI Go to .go-version
+        run: echo "GOTOOLCHAIN=local" >> "$GITHUB_ENV"
       - name: Configure git for private modules
         env:
           TOKEN: ${{ secrets.GENERATOR_READ_TOKEN }}
@@ -237,6 +239,8 @@ jobs:
         with:
           go-version-file: .go-version
           cache-dependency-path: library/${{ matrix.target }}/go.sum
+      - name: Pin CI Go to .go-version
+        run: echo "GOTOOLCHAIN=local" >> "$GITHUB_ENV"
       - name: Build CLI binary
         env:
           CLI_TARGET: ${{ matrix.target }}

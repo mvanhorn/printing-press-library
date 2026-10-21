@@ -51,6 +51,8 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version-file: .go-version
+      - name: Pin CI Go to .go-version
+        run: echo "GOTOOLCHAIN=local" >> "$GITHUB_ENV"
       - name: Resolve release metadata
         id: meta
         env:

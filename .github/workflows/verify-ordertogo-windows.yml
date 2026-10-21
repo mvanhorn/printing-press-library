@@ -21,6 +21,9 @@ jobs:
         with:
           go-version-file: library/food-and-dining/ordertogo/go.mod
           cache-dependency-path: library/food-and-dining/ordertogo/go.sum
+      - name: Pin CI Go to .go-version
+        shell: bash
+        run: echo "GOTOOLCHAIN=local" >> "$GITHUB_ENV"
       - name: Exercise registry reservations without provider calls
         working-directory: library/food-and-dining/ordertogo
         run: go test ./internal/cli -run '^TestWindowsCheckout' -count=1

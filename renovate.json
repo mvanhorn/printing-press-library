@@ -1,0 +1,30 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Patch-bump .go-version only. enabledManagers is custom.regex so the catalog go.mod files and their dependencies are not updated.",
+  "enabledManagers": ["custom.regex"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.go-version$/"],
+      "matchStrings": ["^(?<currentValue>\\d+\\.\\d+\\.\\d+)\\s*$"],
+      "datasourceTemplate": "golang-version",
+      "depNameTemplate": "go",
+      "versioningTemplate": "semver"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Automerge Go patch releases of the CI floor.",
+      "matchDatasources": ["golang-version"],
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "labels": ["go-floor"]
+    },
+    {
+      "description": "Minor and major Go releases are a floor decision, not an automerge.",
+      "matchDatasources": ["golang-version"],
+      "matchUpdateTypes": ["minor", "major"],
+      "enabled": false
+    }
+  ]
+}

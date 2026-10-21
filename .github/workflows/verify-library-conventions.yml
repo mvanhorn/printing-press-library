@@ -265,6 +265,8 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version-file: .go-version
+      - name: Pin CI Go to .go-version
+        run: echo "GOTOOLCHAIN=local" >> "$GITHUB_ENV"
 
       - name: Validate registry source descriptions
         # Reject PRs whose .printing-press.json + .goreleaser.yaml sources would

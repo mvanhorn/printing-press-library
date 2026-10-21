@@ -108,6 +108,9 @@ jobs:
           # This workflow may scan several unrelated standalone modules. There
           # is no single dependency file that produces a useful setup-go cache.
           cache: false
+      - name: Pin CI Go to .go-version
+        if: steps.modules.outputs.count != '0'
+        run: echo "GOTOOLCHAIN=local" >> "$GITHUB_ENV"
 
       - name: Install govulncheck
         if: steps.modules.outputs.count != '0'
