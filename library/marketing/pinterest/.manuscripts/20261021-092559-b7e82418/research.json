@@ -1,0 +1,225 @@
+{
+  "api_name": "pinterest",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "pinterest-mcp",
+      "url": "https://github.com/clugtu/pinterest-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 7,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sapyx-mcp",
+      "url": "https://github.com/sapyx/sapyx-mcp",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-21T16:32:15Z",
+  "novel_features": [
+    {
+      "name": "Period-over-period performance",
+      "command": "perf compare",
+      "description": "See whether impressions, saves, and outbound clicks grew versus the previous equal-length period, with absolute and percent deltas.",
+      "rationale": "Pairs two analytics windows and computes deltas that no single Pinterest endpoint returns.",
+      "example": "pinterest-pp-cli perf compare --days 28 --agent",
+      "why_it_matters": "Reach for this for a weekly or monthly 'did we grow?' answer instead of calling account analytics twice and doing date math.",
+      "group": "Analytics that answer the question"
+    },
+    {
+      "name": "Pin hygiene audit",
+      "command": "pins audit",
+      "description": "Find published Pins missing alt text, a destination link, a title, or UTM tracking, grouped by board. Reads the local store; run sync first.",
+      "rationale": "Joins synced Pins and boards in the local store; the API has no inventory-wide quality view.",
+      "example": "pinterest-pp-cli pins audit --group-by board --agent",
+      "why_it_matters": "Use before an SEO cleanup pass to get the exact Pin IDs that need fixing.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Pin preflight",
+      "command": "pins preflight",
+      "description": "Validate a proposed Pin (field limits, board and section by name, UTM link) and get a ready-to-send create body without writing anything. Board names resolve from the local store; run sync first.",
+      "rationale": "Combines spec field limits with board/section name resolution from the local store, entirely offline.",
+      "example": "pinterest-pp-cli pins preflight --board \"Recipes\" --link https://example.com/blog/meal-prep?utm_source=pinterest --image-url https://example.com/img/meal-prep.jpg --title \"Weeknight dinner ideas\" --alt-text \"Bowl of pasta on a table\" --agent",
+      "why_it_matters": "Use before pins create so an agent never publishes an incomplete or misrouted Pin.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Save to outbound-click funnel",
+      "command": "pins funnel",
+      "description": "Rank your top Pins by impressions (or --sort-by metric), compute save and outbound-click rates, and flag Pins that get saved but don't send traffic.",
+      "rationale": "Computes per-Pin rates and quartile flags from top-Pin analytics that Pinterest returns as raw counts.",
+      "example": "pinterest-pp-cli pins funnel --days 30 --limit 25 --agent",
+      "why_it_matters": "Use to decide which Pins to refresh or repurpose to drive site traffic.",
+      "group": "Analytics that answer the question"
+    },
+    {
+      "name": "Trend content gaps",
+      "command": "trends gaps",
+      "description": "List trending keywords for a region with how many of your synced Pins cover each, zero-coverage first. Coverage counts need a synced local store.",
+      "rationale": "Joins live trending keywords with full-text search over your synced Pins.",
+      "example": "pinterest-pp-cli trends gaps --region US --agent",
+      "why_it_matters": "Use when planning the next content batch to find trends you have nothing on.",
+      "group": "Analytics that answer the question"
+    },
+    {
+      "name": "One-shot ads report",
+      "command": "ads report",
+      "description": "Create, wait for, and download an ads performance report in one command. Requires the ads:read scope and --ad-account-id (or PINTEREST_AD_ACCOUNT_ID).",
+      "rationale": "Collapses Pinterest's async report create, poll, and download steps.",
+      "example": "pinterest-pp-cli ads report --level campaign --days 7 --agent",
+      "why_it_matters": "Use for campaign or ad performance instead of manually polling the async report endpoint.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Period-over-period performance",
+      "command": "perf compare",
+      "description": "See whether impressions, saves, and outbound clicks grew versus the previous equal-length period, with absolute and percent deltas.",
+      "rationale": "Pairs two analytics windows and computes deltas that no single Pinterest endpoint returns.",
+      "example": "pinterest-pp-cli perf compare --days 28 --agent",
+      "why_it_matters": "Reach for this for a weekly or monthly 'did we grow?' answer instead of calling account analytics twice and doing date math.",
+      "group": "Analytics that answer the question"
+    },
+    {
+      "name": "Pin hygiene audit",
+      "command": "pins audit",
+      "description": "Find published Pins missing alt text, a destination link, a title, or UTM tracking, grouped by board. Reads the local store; run sync first.",
+      "rationale": "Joins synced Pins and boards in the local store; the API has no inventory-wide quality view.",
+      "example": "pinterest-pp-cli pins audit --group-by board --agent",
+      "why_it_matters": "Use before an SEO cleanup pass to get the exact Pin IDs that need fixing.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Pin preflight",
+      "command": "pins preflight",
+      "description": "Validate a proposed Pin (field limits, board and section by name, UTM link) and get a ready-to-send create body without writing anything. Board names resolve from the local store; run sync first.",
+      "rationale": "Combines spec field limits with board/section name resolution from the local store, entirely offline.",
+      "example": "pinterest-pp-cli pins preflight --board \"Recipes\" --link https://example.com/blog/meal-prep?utm_source=pinterest --image-url https://example.com/img/meal-prep.jpg --title \"Weeknight dinner ideas\" --alt-text \"Bowl of pasta on a table\" --agent",
+      "why_it_matters": "Use before pins create so an agent never publishes an incomplete or misrouted Pin.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Save to outbound-click funnel",
+      "command": "pins funnel",
+      "description": "Rank your top Pins by impressions (or --sort-by metric), compute save and outbound-click rates, and flag Pins that get saved but don't send traffic.",
+      "rationale": "Computes per-Pin rates and quartile flags from top-Pin analytics that Pinterest returns as raw counts.",
+      "example": "pinterest-pp-cli pins funnel --days 30 --limit 25 --agent",
+      "why_it_matters": "Use to decide which Pins to refresh or repurpose to drive site traffic.",
+      "group": "Analytics that answer the question"
+    },
+    {
+      "name": "Trend content gaps",
+      "command": "trends gaps",
+      "description": "List trending keywords for a region with how many of your synced Pins cover each, zero-coverage first. Coverage counts need a synced local store.",
+      "rationale": "Joins live trending keywords with full-text search over your synced Pins.",
+      "example": "pinterest-pp-cli trends gaps --region US --agent",
+      "why_it_matters": "Use when planning the next content batch to find trends you have nothing on.",
+      "group": "Analytics that answer the question"
+    },
+    {
+      "name": "One-shot ads report",
+      "command": "ads report",
+      "description": "Create, wait for, and download an ads performance report in one command. Requires the ads:read scope and --ad-account-id (or PINTEREST_AD_ACCOUNT_ID).",
+      "rationale": "Collapses Pinterest's async report create, poll, and download steps.",
+      "example": "pinterest-pp-cli ads report --level campaign --days 7 --agent",
+      "why_it_matters": "Use for campaign or ad performance instead of manually polling the async report endpoint.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "PINTEREST_ACCESS_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Pinterest",
+    "headline": "Every Pinterest v5 endpoint plus period-over-period analytics, Pin hygiene audits, and offline Pin search.",
+    "value_prop": "Covers boards, Pins, analytics, trends, ads, catalogs, and audiences from one binary with --dry-run on writes, no interactive prompts, and explicit --yes confirmation. A bounded local sync powers offline search, the 'pins audit' hygiene report, and 'trends gaps'; 'perf compare' and 'pins funnel' turn raw analytics into answers.",
+    "auth_narrative": "Pinterest uses OAuth 2.0 authorization code. Run 'pinterest-pp-cli auth login' with PINTEREST_CLIENT_ID and PINTEREST_CLIENT_SECRET set; the redirect URI must exactly match the one registered on your Pinterest app (for example http://localhost:8875/callback). Token exchange and refresh authenticate the app with HTTP Basic, and continuous refresh keeps access alive. For one-off runs, export a current access token as PINTEREST_ACCESS_TOKEN (PINTEREST_OAUTH2 is also accepted).",
+    "quickstart": [
+      {
+        "command": "pinterest-pp-cli doctor --dry-run",
+        "comment": "Confirm the binary and command tree are installed (no network); run plain 'doctor' to check auth and the API"
+      },
+      {
+        "command": "pinterest-pp-cli user-account get --agent --select username,account_type",
+        "comment": "Confirm which Pinterest account the token belongs to"
+      },
+      {
+        "command": "pinterest-pp-cli sync",
+        "comment": "Pull your boards, sections, and Pins into the local store (bounded by default)"
+      },
+      {
+        "command": "pinterest-pp-cli pins audit --agent",
+        "comment": "Find Pins missing alt text, links, titles, or UTM tags"
+      },
+      {
+        "command": "pinterest-pp-cli perf compare --days 28 --agent",
+        "comment": "See this month versus last month"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized after a few weeks",
+        "fix": "Run pinterest-pp-cli auth status; if the refresh token expired, re-run pinterest-pp-cli auth login"
+      },
+      {
+        "symptom": "redirect_uri mismatch during login",
+        "fix": "Pass the exact registered callback, e.g. pinterest-pp-cli auth login --port 8875"
+      },
+      {
+        "symptom": "429 Too Many Requests on trial access",
+        "fix": "Trial apps are capped at 1000 requests/day; use the local store (search, pins audit) and sync with --max-pages"
+      }
+    ],
+    "when_to_use": "Use this CLI to inspect or operate a Pinterest business account: boards, Pins, organic analytics, trends, and ads. It is the right tool for weekly performance reviews, Pin SEO cleanup, safe pre-publish validation, and ads reporting.",
+    "anti_triggers": [
+      "Scraping other people's public Pinterest profiles or boards without OAuth",
+      "Designing Pin images or generating Pin copy (use a design or writing tool)",
+      "Bulk mutation of live Pins without explicit human approval"
+    ],
+    "recipes": [
+      {
+        "title": "Monthly growth check",
+        "command": "pinterest-pp-cli perf compare --days 28 --agent",
+        "explanation": "Current vs prior 28 days for impressions, saves, outbound clicks, and engagement."
+      },
+      {
+        "title": "Narrow a large Pin listing",
+        "command": "pinterest-pp-cli pins list --agent --select items.id,items.title,items.link,items.board_id",
+        "explanation": "Pin payloads are large; select only the fields an agent needs."
+      },
+      {
+        "title": "SEO cleanup list",
+        "command": "pinterest-pp-cli pins audit --group-by board --agent",
+        "explanation": "Pins missing alt text, links, titles, or UTM tags, grouped by board."
+      },
+      {
+        "title": "Content gaps from trends",
+        "command": "pinterest-pp-cli trends gaps --region US --agent",
+        "explanation": "Trending keywords your synced Pins don't cover yet."
+      }
+    ],
+    "trigger_phrases": [
+      "how did my Pinterest do this month",
+      "audit my Pins for missing alt text",
+      "what's trending on Pinterest that we haven't pinned",
+      "pull a Pinterest ads report",
+      "use pinterest-pp-cli",
+      "run pinterest"
+    ]
+  }
+}

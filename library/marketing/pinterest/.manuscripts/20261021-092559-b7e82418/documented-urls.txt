@@ -1,0 +1,3 @@
+# Pin destination sites for the two brands this CLI operates (Pin link targets).
+https://example.com/
+https://example.org/

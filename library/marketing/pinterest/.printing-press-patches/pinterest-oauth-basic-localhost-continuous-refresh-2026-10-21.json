@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "pinterest-oauth-basic-localhost-continuous-refresh-2026-10-21",
+  "applied_at": "2026-10-21",
+  "base_printing_press_version": "4.33.8",
+  "summary": "Pinterest OAuth: HTTP Basic client auth on token exchange and refresh, exact http://localhost:<port>/callback redirect (default port 8875, IPv4+IPv6 loopback listeners), continuous_refresh=true.",
+  "reason": "Pinterest's confidential OAuth token endpoint requires client_id:client_secret as HTTP Basic, the app registers an exact localhost callback, and continuous refresh tokens avoid the 365-day hard cap. The generator emits body-param secrets, 127.0.0.1:8085, and no continuous_refresh.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/client/client.go",
+    "internal/cliutil/oauth_token.go",
+    "internal/cli/auth_pinterest_test.go"
+  ],
+  "validated_outcome": "httptest assertions: Basic auth present and no client_secret in body for exchange and refresh; continuous_refresh=true; redirect helper returns http://localhost:8875/callback. Full go test green.",
+  "call_sites": [
+    "continuous_refresh",
+    "pinterestOAuthRedirectURI",
+    "SetBasicAuth"
+  ],
+  "base_run_id": "20261021-092559-b7e82418"
+}

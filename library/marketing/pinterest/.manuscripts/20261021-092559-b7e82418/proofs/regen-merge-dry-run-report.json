@@ -1,0 +1,3831 @@
+{
+  "cli_dir": "<cli-dir>/printing-press/library/pinterest",
+  "fresh_dir": "<runstate>/headaideveloper-ca938232/runs/20261021-092559-b7e82418/working/pinterest-pp-cli",
+  "applied": false,
+  "files": [
+    {
+      "path": "cmd/pinterest-pp-cli/main.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "cmd/pinterest-pp-mcp/http_auth_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "cmd/pinterest-pp-mcp/main.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "go.mod",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "go.sum",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cache/cache.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_ad-groups.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_ad-groups_analytics.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAdGroupsAnalyticsCmd": {
+            "published": "func newAdAccountsAdGroupsAnalyticsCmd(flags *rootFlags) *cobra.Command {\n\tvar flagStartDate string\n\tvar flagEndDate str...",
+            "fresh": "func newAdAccountsAdGroupsAnalyticsCmd(flags *rootFlags) *cobra.Command {\n\tvar flagStartDate string\n\tvar flagEndDate str..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ad-groups_audience-sizing.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAdGroupsAudienceSizingCmd": {
+            "published": "func newAdAccountsAdGroupsAudienceSizingCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAutoTargetingEnabled bool\n\tvar b...",
+            "fresh": "func newAdAccountsAdGroupsAudienceSizingCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAutoTargetingEnabled bool\n\tvar b..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ad-groups_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAdGroupsCreateCmd": {
+            "published": "func newAdAccountsAdGroupsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcmd...",
+            "fresh": "func newAdAccountsAdGroupsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcmd..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ad-groups_dynamic-titles-download-csv.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAdGroupsDynamicTitlesDownloadCsvCmd": {
+            "published": "func newAdAccountsAdGroupsDynamicTitlesDownloadCsvCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse: ...",
+            "fresh": "func newAdAccountsAdGroupsDynamicTitlesDownloadCsvCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse: ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ad-groups_dynamic-titles-get-status.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAdGroupsDynamicTitlesGetStatusCmd": {
+            "published": "func newAdAccountsAdGroupsDynamicTitlesGetStatusCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   ...",
+            "fresh": "func newAdAccountsAdGroupsDynamicTitlesGetStatusCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ad-groups_dynamic-titles-get-upload-url.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAdGroupsDynamicTitlesGetUploadUrlCmd": {
+            "published": "func newAdAccountsAdGroupsDynamicTitlesGetUploadUrlCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:...",
+            "fresh": "func newAdAccountsAdGroupsDynamicTitlesGetUploadUrlCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ad-groups_dynamic-titles-process-csv.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAdGroupsDynamicTitlesProcessCsvCmd": {
+            "published": "func newAdAccountsAdGroupsDynamicTitlesProcessCsvCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyRequestId string\n\tvar s...",
+            "fresh": "func newAdAccountsAdGroupsDynamicTitlesProcessCsvCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyRequestId string\n\tvar s..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ad-groups_get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAdGroupsGetCmd": {
+            "published": "func newAdAccountsAdGroupsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"get \u003cad_account_...",
+            "fresh": "func newAdAccountsAdGroupsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"get \u003cad_account_..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ad-groups_list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAdGroupsListCmd": {
+            "published": "func newAdAccountsAdGroupsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize int\n\tvar...",
+            "fresh": "func newAdAccountsAdGroupsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize int\n\tvar..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ad-groups_targeting-analytics-get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAdGroupsTargetingAnalyticsGetCmd": {
+            "published": "func newAdAccountsAdGroupsTargetingAnalyticsGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagAdGroupIds string\n\tvar fl...",
+            "fresh": "func newAdAccountsAdGroupsTargetingAnalyticsGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagAdGroupIds string\n\tvar fl..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ad-groups_update.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAdGroupsUpdateCmd": {
+            "published": "func newAdAccountsAdGroupsUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcmd...",
+            "fresh": "func newAdAccountsAdGroupsUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcmd..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ad-previews.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_ad-previews_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAdPreviewsCreateCmd": {
+            "published": "func newAdAccountsAdPreviewsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tc...",
+            "fresh": "func newAdAccountsAdPreviewsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tc..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ads-credit.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_ads-credit_discounts-get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAdsCreditDiscountsGetCmd": {
+            "published": "func newAdAccountsAdsCreditDiscountsGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize...",
+            "fresh": "func newAdAccountsAdsCreditDiscountsGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ads-credit_redeem.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAdsCreditRedeemCmd": {
+            "published": "func newAdAccountsAdsCreditRedeemCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyOfferCodeHash string\n\tvar bodyValidateO...",
+            "fresh": "func newAdAccountsAdsCreditRedeemCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyOfferCodeHash string\n\tvar bodyValidateO..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ads.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_ads_analytics.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAdsAnalyticsCmd": {
+            "published": "func newAdAccountsAdsAnalyticsCmd(flags *rootFlags) *cobra.Command {\n\tvar flagPinIds string\n\tvar flagStartDate string\n\tv...",
+            "fresh": "func newAdAccountsAdsAnalyticsCmd(flags *rootFlags) *cobra.Command {\n\tvar flagPinIds string\n\tvar flagStartDate string\n\tv..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ads_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAdsCreateCmd": {
+            "published": "func newAdAccountsAdsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcmd := \u0026...",
+            "fresh": "func newAdAccountsAdsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcmd := \u0026..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ads_get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAdsGetCmd": {
+            "published": "func newAdAccountsAdsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"get \u003cad_account_id\u003e \u003c...",
+            "fresh": "func newAdAccountsAdsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"get \u003cad_account_id\u003e \u003c..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ads_list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAdsListCmd": {
+            "published": "func newAdAccountsAdsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize int\n\tvar flag...",
+            "fresh": "func newAdAccountsAdsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize int\n\tvar flag..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ads_targeting-analytics-get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAdsTargetingAnalyticsGetCmd": {
+            "published": "func newAdAccountsAdsTargetingAnalyticsGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagAdIds string\n\tvar flagStartDat...",
+            "fresh": "func newAdAccountsAdsTargetingAnalyticsGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagAdIds string\n\tvar flagStartDat..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ads_update.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAdsUpdateCmd": {
+            "published": "func newAdAccountsAdsUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcmd := \u0026...",
+            "fresh": "func newAdAccountsAdsUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcmd := \u0026..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_advertiser-defined-events.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_advertiser-defined-events_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAdvertiserDefinedEventsCreateCmd": {
+            "published": "func newAdAccountsAdvertiserDefinedEventsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyItems string\n\tvar stdinBo...",
+            "fresh": "func newAdAccountsAdvertiserDefinedEventsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyItems string\n\tvar stdinBo..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_advertiser-defined-events_delete.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAdvertiserDefinedEventsDeleteCmd": {
+            "published": "func newAdAccountsAdvertiserDefinedEventsDeleteCmd(flags *rootFlags) *cobra.Command {\n\tvar flagEventNames string\n\tcmd :=...",
+            "fresh": "func newAdAccountsAdvertiserDefinedEventsDeleteCmd(flags *rootFlags) *cobra.Command {\n\tvar flagEventNames string\n\tcmd :=..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_advertiser-defined-events_get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAdvertiserDefinedEventsGetCmd": {
+            "published": "func newAdAccountsAdvertiserDefinedEventsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"g...",
+            "fresh": "func newAdAccountsAdvertiserDefinedEventsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"g..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_advertiser-defined-events_update.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAdvertiserDefinedEventsUpdateCmd": {
+            "published": "func newAdAccountsAdvertiserDefinedEventsUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyItems string\n\tvar stdinBo...",
+            "fresh": "func newAdAccountsAdvertiserDefinedEventsUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyItems string\n\tvar stdinBo..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_analytics.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_analytics_ad-account.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAnalyticsAdAccountCmd": {
+            "published": "func newAdAccountsAnalyticsAdAccountCmd(flags *rootFlags) *cobra.Command {\n\tvar flagStartDate string\n\tvar flagEndDate st...",
+            "fresh": "func newAdAccountsAnalyticsAdAccountCmd(flags *rootFlags) *cobra.Command {\n\tvar flagStartDate string\n\tvar flagEndDate st..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_audience-insights.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_audience-insights_get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAudienceInsightsGetCmd": {
+            "published": "func newAdAccountsAudienceInsightsGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagAudienceInsightType string\n\tcmd := ...",
+            "fresh": "func newAdAccountsAudienceInsightsGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagAudienceInsightType string\n\tcmd := ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_audiences.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_audiences_ad-accounts-shared-accounts-list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAudiencesAdAccountsSharedAccountsListCmd": {
+            "published": "func newAdAccountsAudiencesAdAccountsSharedAccountsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagAudienceId string...",
+            "fresh": "func newAdAccountsAudiencesAdAccountsSharedAccountsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagAudienceId string..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_audiences_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAudiencesCreateCmd": {
+            "published": "func newAdAccountsAudiencesCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdAccountId2 string\n\tvar bodyAudienceTy...",
+            "fresh": "func newAdAccountsAudiencesCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdAccountId2 string\n\tvar bodyAudienceTy..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_audiences_get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAudiencesGetCmd": {
+            "published": "func newAdAccountsAudiencesGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"get \u003cad_account...",
+            "fresh": "func newAdAccountsAudiencesGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"get \u003cad_account..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_audiences_list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAudiencesListCmd": {
+            "published": "func newAdAccountsAudiencesListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize int\n\tva...",
+            "fresh": "func newAdAccountsAudiencesListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize int\n\tva..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_audiences_update-ad-account-to-ad-account-shared.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAudiencesUpdateAdAccountToAdAccountSharedCmd": {
+            "published": "func newAdAccountsAudiencesUpdateAdAccountToAdAccountSharedCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAudienceId st...",
+            "fresh": "func newAdAccountsAudiencesUpdateAdAccountToAdAccountSharedCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAudienceId st..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_audiences_update-ad-account-to-business-shared.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAudiencesUpdateAdAccountToBusinessSharedCmd": {
+            "published": "func newAdAccountsAudiencesUpdateAdAccountToBusinessSharedCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAudienceId str...",
+            "fresh": "func newAdAccountsAudiencesUpdateAdAccountToBusinessSharedCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAudienceId str..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_audiences_update.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsAudiencesUpdateCmd": {
+            "published": "func newAdAccountsAudiencesUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdAccountId2 string\n\tvar bodyAudienceTy...",
+            "fresh": "func newAdAccountsAudiencesUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdAccountId2 string\n\tvar bodyAudienceTy..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_bid-floor.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_bid-floor_ad-groups-get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsBidFloorAdGroupsGetCmd": {
+            "published": "func newAdAccountsBidFloorAdGroupsGetCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyBidFloorSpecs string\n\tvar bodyTarge...",
+            "fresh": "func newAdAccountsBidFloorAdGroupsGetCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyBidFloorSpecs string\n\tvar bodyTarge..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_billing-invoice.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_billing-invoice_download-get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsBillingInvoiceDownloadGetCmd": {
+            "published": "func newAdAccountsBillingInvoiceDownloadGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"do...",
+            "fresh": "func newAdAccountsBillingInvoiceDownloadGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"do..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_billing-invoices.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_billing-invoices_get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsBillingInvoicesGetCmd": {
+            "published": "func newAdAccountsBillingInvoicesGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize in...",
+            "fresh": "func newAdAccountsBillingInvoicesGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize in..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_billing-profiles.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_billing-profiles_get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsBillingProfilesGetCmd": {
+            "published": "func newAdAccountsBillingProfilesGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagIsActive string\n\tvar flagBookmark st...",
+            "fresh": "func newAdAccountsBillingProfilesGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagIsActive string\n\tvar flagBookmark st..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_bulk.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_bulk_download-create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsBulkDownloadCreateCmd": {
+            "published": "func newAdAccountsBulkDownloadCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyCampaignFilterCampaignStatus string\n...",
+            "fresh": "func newAdAccountsBulkDownloadCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyCampaignFilterCampaignStatus string\n..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_bulk_request-get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsBulkRequestGetCmd": {
+            "published": "func newAdAccountsBulkRequestGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagIncludeDetails bool\n\tcmd := \u0026cobra.Comma...",
+            "fresh": "func newAdAccountsBulkRequestGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagIncludeDetails bool\n\tcmd := \u0026cobra.Comma..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_bulk_upsert-create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsBulkUpsertCreateCmd": {
+            "published": "func newAdAccountsBulkUpsertCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyCreateAdGroups string\n\tvar bodyCreateA...",
+            "fresh": "func newAdAccountsBulkUpsertCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyCreateAdGroups string\n\tvar bodyCreateA..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_campaign-ad-preview.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_campaign-ad-preview_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsCampaignAdPreviewCreateCmd": {
+            "published": "func newAdAccountsCampaignAdPreviewCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody ...",
+            "fresh": "func newAdAccountsCampaignAdPreviewCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_campaign-ad-preview_delete.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsCampaignAdPreviewDeleteCmd": {
+            "published": "func newAdAccountsCampaignAdPreviewDeleteCmd(flags *rootFlags) *cobra.Command {\n\tvar flagAdGroupIds string\n\tcmd := \u0026cobr...",
+            "fresh": "func newAdAccountsCampaignAdPreviewDeleteCmd(flags *rootFlags) *cobra.Command {\n\tvar flagAdGroupIds string\n\tcmd := \u0026cobr..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_campaign-ad-preview_read.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsCampaignAdPreviewReadCmd": {
+            "published": "func newAdAccountsCampaignAdPreviewReadCmd(flags *rootFlags) *cobra.Command {\n\tvar flagAdGroupIds string\n\tcmd := \u0026cobra....",
+            "fresh": "func newAdAccountsCampaignAdPreviewReadCmd(flags *rootFlags) *cobra.Command {\n\tvar flagAdGroupIds string\n\tcmd := \u0026cobra...."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_campaigns.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_campaigns_analytics.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsCampaignsAnalyticsCmd": {
+            "published": "func newAdAccountsCampaignsAnalyticsCmd(flags *rootFlags) *cobra.Command {\n\tvar flagStartDate string\n\tvar flagEndDate st...",
+            "fresh": "func newAdAccountsCampaignsAnalyticsCmd(flags *rootFlags) *cobra.Command {\n\tvar flagStartDate string\n\tvar flagEndDate st..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_campaigns_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsCampaignsCreateCmd": {
+            "published": "func newAdAccountsCampaignsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcm...",
+            "fresh": "func newAdAccountsCampaignsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcm..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_campaigns_get-delivery-estimates.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsCampaignsGetDeliveryEstimatesCmd": {
+            "published": "func newAdAccountsCampaignsGetDeliveryEstimatesCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdi...",
+            "fresh": "func newAdAccountsCampaignsGetDeliveryEstimatesCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdi..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_campaigns_get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsCampaignsGetCmd": {
+            "published": "func newAdAccountsCampaignsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"get \u003cad_account...",
+            "fresh": "func newAdAccountsCampaignsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"get \u003cad_account..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_campaigns_list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsCampaignsListCmd": {
+            "published": "func newAdAccountsCampaignsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize int\n\tva...",
+            "fresh": "func newAdAccountsCampaignsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize int\n\tva..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_campaigns_targeting-analytics-get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsCampaignsTargetingAnalyticsGetCmd": {
+            "published": "func newAdAccountsCampaignsTargetingAnalyticsGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagCampaignIds string\n\tvar ...",
+            "fresh": "func newAdAccountsCampaignsTargetingAnalyticsGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagCampaignIds string\n\tvar ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_campaigns_update.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsCampaignsUpdateCmd": {
+            "published": "func newAdAccountsCampaignsUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcm...",
+            "fresh": "func newAdAccountsCampaignsUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcm..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_conversion-deletion-requests.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_conversion-deletion-requests_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsConversionDeletionRequestsCreateCmd": {
+            "published": "func newAdAccountsConversionDeletionRequestsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyDeletionTargets string...",
+            "fresh": "func newAdAccountsConversionDeletionRequestsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyDeletionTargets string..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_conversion-deletion-requests_delete.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsConversionDeletionRequestsDeleteCmd": {
+            "published": "func newAdAccountsConversionDeletionRequestsDeleteCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse: ...",
+            "fresh": "func newAdAccountsConversionDeletionRequestsDeleteCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse: ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_conversion-deletion-requests_get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsConversionDeletionRequestsGetCmd": {
+            "published": "func newAdAccountsConversionDeletionRequestsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:    ...",
+            "fresh": "func newAdAccountsConversionDeletionRequestsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:    ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_conversion-deletion-requests_list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsConversionDeletionRequestsListCmd": {
+            "published": "func newAdAccountsConversionDeletionRequestsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar fla...",
+            "fresh": "func newAdAccountsConversionDeletionRequestsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar fla..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_conversion-eqs.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_conversion-eqs_list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsConversionEqsListCmd": {
+            "published": "func newAdAccountsConversionEqsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagLookbackPeriod string\n\tvar flagSource...",
+            "fresh": "func newAdAccountsConversionEqsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagLookbackPeriod string\n\tvar flagSource..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_conversion-tags.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_conversion-tags_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsConversionTagsCreateCmd": {
+            "published": "func newAdAccountsConversionTagsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAemDbEnabled bool\n\tvar bodyAemEnab...",
+            "fresh": "func newAdAccountsConversionTagsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAemDbEnabled bool\n\tvar bodyAemEnab..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_conversion-tags_get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsConversionTagsGetCmd": {
+            "published": "func newAdAccountsConversionTagsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"get \u003cad_ac...",
+            "fresh": "func newAdAccountsConversionTagsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"get \u003cad_ac..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_conversion-tags_list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsConversionTagsListCmd": {
+            "published": "func newAdAccountsConversionTagsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagFilterDeleted bool\n\tcmd := \u0026cobra.Co...",
+            "fresh": "func newAdAccountsConversionTagsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagFilterDeleted bool\n\tcmd := \u0026cobra.Co..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_conversion-tags_ocpm-eligible-get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsConversionTagsOcpmEligibleGetCmd": {
+            "published": "func newAdAccountsConversionTagsOcpmEligibleGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:    ...",
+            "fresh": "func newAdAccountsConversionTagsOcpmEligibleGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:    ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_conversion-tags_page-visit-get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsConversionTagsPageVisitGetCmd": {
+            "published": "func newAdAccountsConversionTagsPageVisitGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPag...",
+            "fresh": "func newAdAccountsConversionTagsPageVisitGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPag..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_create.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_customer-lists.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_customer-lists_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsCustomerListsCreateCmd": {
+            "published": "func newAdAccountsCustomerListsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyIsNca bool\n\tvar bodyListType string...",
+            "fresh": "func newAdAccountsCustomerListsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyIsNca bool\n\tvar bodyListType string..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_customer-lists_get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsCustomerListsGetCmd": {
+            "published": "func newAdAccountsCustomerListsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"get \u003cad_acc...",
+            "fresh": "func newAdAccountsCustomerListsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"get \u003cad_acc..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_customer-lists_list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsCustomerListsListCmd": {
+            "published": "func newAdAccountsCustomerListsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize int...",
+            "fresh": "func newAdAccountsCustomerListsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize int..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_customer-lists_update.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsCustomerListsUpdateCmd": {
+            "published": "func newAdAccountsCustomerListsUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyOperationType string\n\tvar bodyRecor...",
+            "fresh": "func newAdAccountsCustomerListsUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyOperationType string\n\tvar bodyRecor..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_customer-lists_uploads-create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsCustomerListsUploadsCreateCmd": {
+            "published": "func newAdAccountsCustomerListsUploadsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyOperation string\n\tvar bodyTo...",
+            "fresh": "func newAdAccountsCustomerListsUploadsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyOperation string\n\tvar bodyTo..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_customer-lists_uploads-get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsCustomerListsUploadsGetCmd": {
+            "published": "func newAdAccountsCustomerListsUploadsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"uplo...",
+            "fresh": "func newAdAccountsCustomerListsUploadsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"uplo..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_customer-lists_uploads-run.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsCustomerListsUploadsRunCmd": {
+            "published": "func newAdAccountsCustomerListsUploadsRunCmd(flags *rootFlags) *cobra.Command {\n\tvar stdinBody bool\n\tcmd := \u0026cobra.Comma...",
+            "fresh": "func newAdAccountsCustomerListsUploadsRunCmd(flags *rootFlags) *cobra.Command {\n\tvar stdinBody bool\n\tcmd := \u0026cobra.Comma..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_customer-segments.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_customer-segments_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsCustomerSegmentsCreateCmd": {
+            "published": "func newAdAccountsCustomerSegmentsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAudienceIds string\n\tvar bodyName...",
+            "fresh": "func newAdAccountsCustomerSegmentsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAudienceIds string\n\tvar bodyName..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_customer-segments_list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsCustomerSegmentsListCmd": {
+            "published": "func newAdAccountsCustomerSegmentsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize ...",
+            "fresh": "func newAdAccountsCustomerSegmentsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_customer-segments_update.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsCustomerSegmentsUpdateCmd": {
+            "published": "func newAdAccountsCustomerSegmentsUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAudienceIds string\n\tvar bodyId s...",
+            "fresh": "func newAdAccountsCustomerSegmentsUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAudienceIds string\n\tvar bodyId s..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_events.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_events_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsEventsCreateCmd": {
+            "published": "func newAdAccountsEventsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagTest bool\n\tvar bodyData string\n\tvar stdinB...",
+            "fresh": "func newAdAccountsEventsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagTest bool\n\tvar bodyData string\n\tvar stdinB..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsGetCmd": {
+            "published": "func newAdAccountsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"get \u003cad_account_id\u003e\",\n\t\t...",
+            "fresh": "func newAdAccountsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"get \u003cad_account_id\u003e\",\n\t\t..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_insights.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_insights_audience-scope-and-type-get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsInsightsAudienceScopeAndTypeGetCmd": {
+            "published": "func newAdAccountsInsightsAudienceScopeAndTypeGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:  ...",
+            "fresh": "func newAdAccountsInsightsAudienceScopeAndTypeGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:  ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_keywords.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_keywords_country-metrics-get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsKeywordsCountryMetricsGetCmd": {
+            "published": "func newAdAccountsKeywordsCountryMetricsGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagCountryCode string\n\tvar flagK...",
+            "fresh": "func newAdAccountsKeywordsCountryMetricsGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagCountryCode string\n\tvar flagK..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_keywords_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsKeywordsCreateCmd": {
+            "published": "func newAdAccountsKeywordsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyKeywords string\n\tvar bodyParentId string...",
+            "fresh": "func newAdAccountsKeywordsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyKeywords string\n\tvar bodyParentId string..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_keywords_get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsKeywordsGetCmd": {
+            "published": "func newAdAccountsKeywordsGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagCampaignId string\n\tvar flagAdGroupId string...",
+            "fresh": "func newAdAccountsKeywordsGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagCampaignId string\n\tvar flagAdGroupId string..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_keywords_update.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsKeywordsUpdateCmd": {
+            "published": "func newAdAccountsKeywordsUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyKeywords string\n\tvar stdinBody bool\n\tcmd...",
+            "fresh": "func newAdAccountsKeywordsUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyKeywords string\n\tvar stdinBody bool\n\tcmd..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_labels.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_labels_apply.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsLabelsApplyCmd": {
+            "published": "func newAdAccountsLabelsApplyCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyEntityIds string\n\tvar stdinBody bool\n\tcmd :...",
+            "fresh": "func newAdAccountsLabelsApplyCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyEntityIds string\n\tvar stdinBody bool\n\tcmd :..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_labels_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsLabelsCreateCmd": {
+            "published": "func newAdAccountsLabelsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyLabels string\n\tvar stdinBody bool\n\tcmd := ...",
+            "fresh": "func newAdAccountsLabelsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyLabels string\n\tvar stdinBody bool\n\tcmd := ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_labels_list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsLabelsListCmd": {
+            "published": "func newAdAccountsLabelsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagCampaignIds string\n\tvar flagLabelIds string\n...",
+            "fresh": "func newAdAccountsLabelsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagCampaignIds string\n\tvar flagLabelIds string\n..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_labels_remove.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsLabelsRemoveCmd": {
+            "published": "func newAdAccountsLabelsRemoveCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyEntityIds string\n\tvar stdinBody bool\n\tcmd ...",
+            "fresh": "func newAdAccountsLabelsRemoveCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyEntityIds string\n\tvar stdinBody bool\n\tcmd ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_labels_update.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsLabelsUpdateCmd": {
+            "published": "func newAdAccountsLabelsUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyLabels string\n\tvar stdinBody bool\n\tcmd := ...",
+            "fresh": "func newAdAccountsLabelsUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyLabels string\n\tvar stdinBody bool\n\tcmd := ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_lead-forms.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_lead-forms_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsLeadFormsCreateCmd": {
+            "published": "func newAdAccountsLeadFormsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcm...",
+            "fresh": "func newAdAccountsLeadFormsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcm..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_lead-forms_get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsLeadFormsGetCmd": {
+            "published": "func newAdAccountsLeadFormsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"get \u003cad_account...",
+            "fresh": "func newAdAccountsLeadFormsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"get \u003cad_account..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_lead-forms_list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsLeadFormsListCmd": {
+            "published": "func newAdAccountsLeadFormsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize int\n\tva...",
+            "fresh": "func newAdAccountsLeadFormsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize int\n\tva..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_lead-forms_test-create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsLeadFormsTestCreateCmd": {
+            "published": "func newAdAccountsLeadFormsTestCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAnswers string\n\tvar stdinBody bool\n...",
+            "fresh": "func newAdAccountsLeadFormsTestCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAnswers string\n\tvar stdinBody bool\n..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_lead-forms_update.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsLeadFormsUpdateCmd": {
+            "published": "func newAdAccountsLeadFormsUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcm...",
+            "fresh": "func newAdAccountsLeadFormsUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcm..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_leads-export.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_leads-export_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsLeadsExportCreateCmd": {
+            "published": "func newAdAccountsLeadsExportCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdId string\n\tvar bodyEndDate string\n\t...",
+            "fresh": "func newAdAccountsLeadsExportCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdId string\n\tvar bodyEndDate string\n\t..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_leads-export_get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsLeadsExportGetCmd": {
+            "published": "func newAdAccountsLeadsExportGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"get \u003cad_accou...",
+            "fresh": "func newAdAccountsLeadsExportGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"get \u003cad_accou..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_leads.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_leads_ad-accounts-subscriptions-del-by-id.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsLeadsAdAccountsSubscriptionsDelByIdCmd": {
+            "published": "func newAdAccountsLeadsAdAccountsSubscriptionsDelByIdCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUs...",
+            "fresh": "func newAdAccountsLeadsAdAccountsSubscriptionsDelByIdCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUs..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_leads_ad-accounts-subscriptions-get-by-id.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsLeadsAdAccountsSubscriptionsGetByIdCmd": {
+            "published": "func newAdAccountsLeadsAdAccountsSubscriptionsGetByIdCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUs...",
+            "fresh": "func newAdAccountsLeadsAdAccountsSubscriptionsGetByIdCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUs..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_leads_ad-accounts-subscriptions-get-list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsLeadsAdAccountsSubscriptionsGetListCmd": {
+            "published": "func newAdAccountsLeadsAdAccountsSubscriptionsGetListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tva...",
+            "fresh": "func newAdAccountsLeadsAdAccountsSubscriptionsGetListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tva..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_leads_ad-accounts-subscriptions-post.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsLeadsAdAccountsSubscriptionsPostCmd": {
+            "published": "func newAdAccountsLeadsAdAccountsSubscriptionsPostCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyLeadFormId string\n\tvar...",
+            "fresh": "func newAdAccountsLeadsAdAccountsSubscriptionsPostCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyLeadFormId string\n\tvar..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_mmm-reports.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_mmm-reports_analytics-create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsMmmReportsAnalyticsCreateCmd": {
+            "published": "func newAdAccountsMmmReportsAnalyticsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdvertiserIds string\n\tvar bod...",
+            "fresh": "func newAdAccountsMmmReportsAnalyticsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdvertiserIds string\n\tvar bod..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_mmm-reports_analytics-get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsMmmReportsAnalyticsGetCmd": {
+            "published": "func newAdAccountsMmmReportsAnalyticsGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagToken string\n\tcmd := \u0026cobra.Comm...",
+            "fresh": "func newAdAccountsMmmReportsAnalyticsGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagToken string\n\tcmd := \u0026cobra.Comm..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_msot.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_msot_events-create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsMsotEventsCreateCmd": {
+            "published": "func newAdAccountsMsotEventsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyActionTimestamps string\n\tvar bodyAdGro...",
+            "fresh": "func newAdAccountsMsotEventsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyActionTimestamps string\n\tvar bodyAdGro..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_order-lines.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_order-lines_get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsOrderLinesGetCmd": {
+            "published": "func newAdAccountsOrderLinesGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"get \u003cad_accoun...",
+            "fresh": "func newAdAccountsOrderLinesGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"get \u003cad_accoun..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_order-lines_list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsOrderLinesListCmd": {
+            "published": "func newAdAccountsOrderLinesListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize int\n\tv...",
+            "fresh": "func newAdAccountsOrderLinesListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize int\n\tv..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_pins.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_pins_ad-analytics.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsPinsAdAnalyticsCmd": {
+            "published": "func newAdAccountsPinsAdAnalyticsCmd(flags *rootFlags) *cobra.Command {\n\tvar flagCampaignId string\n\tvar flagPinIds strin...",
+            "fresh": "func newAdAccountsPinsAdAnalyticsCmd(flags *rootFlags) *cobra.Command {\n\tvar flagCampaignId string\n\tvar flagPinIds strin..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_product-group-promotions.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_product-group-promotions_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsProductGroupPromotionsCreateCmd": {
+            "published": "func newAdAccountsProductGroupPromotionsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdGroupId string\n\tvar body...",
+            "fresh": "func newAdAccountsProductGroupPromotionsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdGroupId string\n\tvar body..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_product-group-promotions_get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsProductGroupPromotionsGetCmd": {
+            "published": "func newAdAccountsProductGroupPromotionsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"ge...",
+            "fresh": "func newAdAccountsProductGroupPromotionsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"ge..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_product-group-promotions_list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsProductGroupPromotionsListCmd": {
+            "published": "func newAdAccountsProductGroupPromotionsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPag...",
+            "fresh": "func newAdAccountsProductGroupPromotionsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPag..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_product-group-promotions_update.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsProductGroupPromotionsUpdateCmd": {
+            "published": "func newAdAccountsProductGroupPromotionsUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdGroupId string\n\tvar body...",
+            "fresh": "func newAdAccountsProductGroupPromotionsUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdGroupId string\n\tvar body..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_product-groups.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_product-groups_analytics.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsProductGroupsAnalyticsCmd": {
+            "published": "func newAdAccountsProductGroupsAnalyticsCmd(flags *rootFlags) *cobra.Command {\n\tvar flagStartDate string\n\tvar flagEndDat...",
+            "fresh": "func newAdAccountsProductGroupsAnalyticsCmd(flags *rootFlags) *cobra.Command {\n\tvar flagStartDate string\n\tvar flagEndDat..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_promotion-applied-entities.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_promotion-applied-entities_get-ad-groups-by-promotion-ids-list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsPromotionAppliedEntitiesGetAdGroupsByPromotionIdsListCmd": {
+            "published": "func newAdAccountsPromotionAppliedEntitiesGetAdGroupsByPromotionIdsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagB...",
+            "fresh": "func newAdAccountsPromotionAppliedEntitiesGetAdGroupsByPromotionIdsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagB..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_promotions.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_promotions_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsPromotionsCreateCmd": {
+            "published": "func newAdAccountsPromotionsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tc...",
+            "fresh": "func newAdAccountsPromotionsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tc..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_promotions_delete.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsPromotionsDeleteCmd": {
+            "published": "func newAdAccountsPromotionsDeleteCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"delete \u003cad_...",
+            "fresh": "func newAdAccountsPromotionsDeleteCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"delete \u003cad_..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_promotions_get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsPromotionsGetCmd": {
+            "published": "func newAdAccountsPromotionsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"get \u003cad_accoun...",
+            "fresh": "func newAdAccountsPromotionsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"get \u003cad_accoun..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_promotions_list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsPromotionsListCmd": {
+            "published": "func newAdAccountsPromotionsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize int\n\tv...",
+            "fresh": "func newAdAccountsPromotionsListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize int\n\tv..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_promotions_update.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsPromotionsUpdateCmd": {
+            "published": "func newAdAccountsPromotionsUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tc...",
+            "fresh": "func newAdAccountsPromotionsUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tc..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_reports.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_reports_analytics-create-conversion-product.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsReportsAnalyticsCreateConversionProductCmd": {
+            "published": "func newAdAccountsReportsAnalyticsCreateConversionProductCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdGroupIds stri...",
+            "fresh": "func newAdAccountsReportsAnalyticsCreateConversionProductCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdGroupIds stri..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_reports_analytics-create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsReportsAnalyticsCreateCmd": {
+            "published": "func newAdAccountsReportsAnalyticsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdGroupIds string\n\tvar bodyAdGro...",
+            "fresh": "func newAdAccountsReportsAnalyticsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdGroupIds string\n\tvar bodyAdGro..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_reports_analytics-get-conversion-product.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsReportsAnalyticsGetConversionProductCmd": {
+            "published": "func newAdAccountsReportsAnalyticsGetConversionProductCmd(flags *rootFlags) *cobra.Command {\n\tvar flagToken string\n\tcmd ...",
+            "fresh": "func newAdAccountsReportsAnalyticsGetConversionProductCmd(flags *rootFlags) *cobra.Command {\n\tvar flagToken string\n\tcmd ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_reports_analytics-get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsReportsAnalyticsGetCmd": {
+            "published": "func newAdAccountsReportsAnalyticsGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagToken string\n\tcmd := \u0026cobra.Command...",
+            "fresh": "func newAdAccountsReportsAnalyticsGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagToken string\n\tcmd := \u0026cobra.Command..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_sandbox.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_sandbox_delete.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsSandboxDeleteCmd": {
+            "published": "func newAdAccountsSandboxDeleteCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"delete \u003cad_acc...",
+            "fresh": "func newAdAccountsSandboxDeleteCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"delete \u003cad_acc..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_schedules.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_schedules_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsSchedulesCreateCmd": {
+            "published": "func newAdAccountsSchedulesCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcm...",
+            "fresh": "func newAdAccountsSchedulesCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcm..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_schedules_list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsSchedulesListCmd": {
+            "published": "func newAdAccountsSchedulesListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize int\n\tva...",
+            "fresh": "func newAdAccountsSchedulesListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize int\n\tva..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_schedules_update.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsSchedulesUpdateCmd": {
+            "published": "func newAdAccountsSchedulesUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcm...",
+            "fresh": "func newAdAccountsSchedulesUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcm..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ssio.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_ssio_accounts-get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsSsioAccountsGetCmd": {
+            "published": "func newAdAccountsSsioAccountsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"accounts-get...",
+            "fresh": "func newAdAccountsSsioAccountsGetCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"accounts-get..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ssio_insertion-order-create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsSsioInsertionOrderCreateCmd": {
+            "published": "func newAdAccountsSsioInsertionOrderCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAcceptedTermsId string\n\tvar bo...",
+            "fresh": "func newAdAccountsSsioInsertionOrderCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAcceptedTermsId string\n\tvar bo..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ssio_insertion-order-edit.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsSsioInsertionOrderEditCmd": {
+            "published": "func newAdAccountsSsioInsertionOrderEditCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdsManagerOrderLineId string\n\tva...",
+            "fresh": "func newAdAccountsSsioInsertionOrderEditCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdsManagerOrderLineId string\n\tva..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ssio_insertion-orders-status-get-by-ad-account.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsSsioInsertionOrdersStatusGetByAdAccountCmd": {
+            "published": "func newAdAccountsSsioInsertionOrdersStatusGetByAdAccountCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string...",
+            "fresh": "func newAdAccountsSsioInsertionOrdersStatusGetByAdAccountCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ssio_insertion-orders-status-get-by-pin-order-id.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsSsioInsertionOrdersStatusGetByPinOrderIdCmd": {
+            "published": "func newAdAccountsSsioInsertionOrdersStatusGetByPinOrderIdCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{...",
+            "fresh": "func newAdAccountsSsioInsertionOrdersStatusGetByPinOrderIdCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_ssio_order-lines-get-by-ad-account.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsSsioOrderLinesGetByAdAccountCmd": {
+            "published": "func newAdAccountsSsioOrderLinesGetByAdAccountCmd(flags *rootFlags) *cobra.Command {\n\tvar flagPinOrderId string\n\tvar fla...",
+            "fresh": "func newAdAccountsSsioOrderLinesGetByAdAccountCmd(flags *rootFlags) *cobra.Command {\n\tvar flagPinOrderId string\n\tvar fla..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_targeting-analytics.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_targeting-analytics_ad-account-get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsTargetingAnalyticsAdAccountGetCmd": {
+            "published": "func newAdAccountsTargetingAnalyticsAdAccountGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagStartDate string\n\tvar fl...",
+            "fresh": "func newAdAccountsTargetingAnalyticsAdAccountGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagStartDate string\n\tvar fl..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_targeting-templates.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_targeting-templates_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsTargetingTemplatesCreateCmd": {
+            "published": "func newAdAccountsTargetingTemplatesCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAutoTargetingEnabled bool\n\tvar...",
+            "fresh": "func newAdAccountsTargetingTemplatesCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAutoTargetingEnabled bool\n\tvar..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_targeting-templates_list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsTargetingTemplatesListCmd": {
+            "published": "func newAdAccountsTargetingTemplatesListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSiz...",
+            "fresh": "func newAdAccountsTargetingTemplatesListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSiz..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_targeting-templates_update.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsTargetingTemplatesUpdateCmd": {
+            "published": "func newAdAccountsTargetingTemplatesUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyId string\n\tvar bodyOperationTy...",
+            "fresh": "func newAdAccountsTargetingTemplatesUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyId string\n\tvar bodyOperationTy..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_templates.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_templates_analytics-create-report.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsTemplatesAnalyticsCreateReportCmd": {
+            "published": "func newAdAccountsTemplatesAnalyticsCreateReportCmd(flags *rootFlags) *cobra.Command {\n\tvar flagStartDate string\n\tvar fl...",
+            "fresh": "func newAdAccountsTemplatesAnalyticsCreateReportCmd(flags *rootFlags) *cobra.Command {\n\tvar flagStartDate string\n\tvar fl..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_templates_list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsTemplatesListCmd": {
+            "published": "func newAdAccountsTemplatesListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize int\n\tva...",
+            "fresh": "func newAdAccountsTemplatesListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSize int\n\tva..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ad-accounts_terms-of-service.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ad-accounts_terms-of-service_get.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdAccountsTermsOfServiceGetCmd": {
+            "published": "func newAdAccountsTermsOfServiceGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagIncludeHtml bool\n\tvar flagTosType str...",
+            "fresh": "func newAdAccountsTermsOfServiceGetCmd(flags *rootFlags) *cobra.Command {\n\tvar flagIncludeHtml bool\n\tvar flagTosType str..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ads.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ads_report.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newNovelAdsReportCmd": {
+            "published": "func newNovelAdsReportCmd(flags *rootFlags) *cobra.Command {\n\tvar account, level, granularity, columnsRaw, pollRaw, maxR...",
+            "fresh": "func newNovelAdsReportCmd(flags *rootFlags) *cobra.Command {\n\tvar account, level, granularity, columnsRaw, pollRaw, maxR..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ads_report_test.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "TestAdsReportPollsAndDownloadsWithoutAuth": {
+            "published": "func TestAdsReportPollsAndDownloadsWithoutAuth(t *testing.T) {\n\ttestenv.Isolate(t)\n\tt.Setenv(\"PINTEREST_ACCESS_TOKEN\", \"...",
+            "fresh": "func TestAdsReportPollsAndDownloadsWithoutAuth(t *testing.T) {\n\ttestenv.Isolate(t)\n\tt.Setenv(\"PINTEREST_ACCESS_TOKEN\", \"..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/advanced-auction.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/advanced-auction_items-get-post.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/advanced-auction_items-submit-post.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/agent_context.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/analytics.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/api_discovery.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/auth.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/auth_pinterest_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/auto_refresh.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/auto_refresh_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/boards.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/boards_create.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/boards_delete.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/boards_get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/boards_list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/boards_pins.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/boards_pins_boards-list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/boards_sections.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/boards_sections_board-create.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/boards_sections_board-delete.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/boards_sections_board-list-pins.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/boards_sections_board-list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/boards_sections_board-update.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/boards_update.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/business-access.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/business-access_brand-accounts-create.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/business-access_brand-accounts-update.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_asset-groups.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_asset-groups_create.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_asset-groups_delete.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_asset-groups_update.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_assets.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_assets_business-get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_assets_business-members-get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_assets_business-partners-get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_audiences.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_audiences_business-account-shared-accounts-list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_audiences_shared-for-business-list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_audiences_update-business-to-ad-account-shared.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_audiences_update-business-to-business-shared.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_get-business-employers.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_invites.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_invites_cancel-or-requests.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_invites_create-asset.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_invites_create-membership-or-partnership.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_invites_get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_members.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_members_business-asset-access-delete.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_members_business-asset-access-update.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_members_business-assets-get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_members_delete-business-membership.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_members_get-business.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_members_update-business-memberships.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_partners.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_partners_business-asset-access-get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_partners_delete-asset-access-handler-impl.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_partners_delete-business.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_partners_get-business.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_partners_update-asset-access-handler-impl.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_requests.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_requests_asset-access-create.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_respond-business-access-invites.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_system-users.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/businesses_system-users_update.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_available-filter-values.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_create.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_feed-processing-results-list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_feeds-create.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_feeds-delete.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_feeds-get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_feeds-ingest.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_feeds-list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_feeds-update.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_items-batch-get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_items-batch-post.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_items-issues-list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_items-post.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_local-inventory-items.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_local-inventory-items_catalogs-batch-operate.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_local-inventory-items_catalogs-post.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_local-stores.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_local-stores_catalogs-create.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_local-stores_catalogs-delete.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_local-stores_catalogs-list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_local-stores_catalogs-update.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_product-group-pins-list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_product-groups-create-many.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_product-groups-create.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_product-groups-delete-many.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_product-groups-delete.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_product-groups-get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_product-groups-list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_product-groups-product-counts-get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_product-groups-update.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_products-by-product-group-filter-list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_reports-create.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_reports-get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_reports-stats.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_supplemental-items.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/catalogs_supplemental-items_catalogs-batch-get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/channel_workflow.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/data_source.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/deliver.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/deliver_download_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/doctor.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/export.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/export_perms_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/feedback.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/helpers.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/import.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/integrations.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/integrations_commerce-del.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/integrations_commerce-get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/integrations_commerce-patch.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/integrations_commerce-post.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/integrations_get-by-id.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/integrations_get-list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/integrations_logs-post.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/learn_init.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/learn_init_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/learnings_candidates.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/learnings_candidates_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/learnings_stats.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/learnings_stats_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/media.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/media_create.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/media_get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/media_list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/oauth.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/oauth_conversion-token.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/oauth_token-revoke.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/oauth_token.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/perf.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/perf_compare.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/perf_compare_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pins.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pins_analytics.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pins_analytics_pins.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pins_audit.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pins_audit_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pins_create.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pins_delete.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pins_funnel.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pins_funnel_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pins_get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pins_list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pins_multi-analytics.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pins_preflight.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pins_preflight_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pins_product-tags.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pins_product-tags_bulk-add.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pins_product-tags_bulk-delete.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pins_product-tags_list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pins_save.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pins_save_pins.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pins_update.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pinterest-search.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pinterest-search_partner-pins.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pinterest-search_user-boards-get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pinterest-search_user-pins-list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pinterest_local.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pinterest_pagination.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pinterest_pagination_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/platform_cli_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/platform_client.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/platform_window.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/platform_window_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/playbook_init.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/playbook_init_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/playbooks/embed.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/profile.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/promoted_notifications.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/resource_paths.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/resources.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/resources_ad-account-countries-get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/resources_delivery-metrics-get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/resources_interest-targeting-options-get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/resources_lead-form-questions-get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/resources_metrics-ready-state-get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/resources_targeting-options-get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/root.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/root_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/search.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/store_adopt_darwin.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/store_adopt_linux.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/store_adopt_other.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/store_adopt_windows.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/sync.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/sync_defaults_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/sync_hint.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/sync_hint_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/sync_numeric_id_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/tail.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/teach.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/teach_playbook.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/teach_playbook_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/teach_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/terms.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/terms_related-list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/terms_suggested-list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/trends.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/trends_editorial-articles-list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/trends_featured-topics-list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/trends_gaps.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/trends_gaps_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/trends_product-categories-details-list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/trends_product-categories-trending-list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/trends_trending-keywords-list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/user-account.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/user-account_analytics-top-pins.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/user-account_analytics-top-video-pins.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/user-account_analytics.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/user-account_boards-user-follows-list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/user-account_follow-user-update.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newUserAccountFollowUserUpdateCmd": {
+            "published": "func newUserAccountFollowUserUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAutoFollow bool\n\tvar stdinBody bool\n\t...",
+            "fresh": "func newUserAccountFollowUserUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAutoFollow bool\n\tvar stdinBody bool\n\t..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/user-account_followers-list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/user-account_get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/user-account_linked-business-accounts-get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/user-account_unverify-website-delete.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/user-account_user-following-get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/user-account_user-websites-get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/user-account_verify-website-update.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/user-account_website-verification-get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/users.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/users_interests.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/users_interests_user-account-followed.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newUsersInterestsUserAccountFollowedCmd": {
+            "published": "func newUsersInterestsUserAccountFollowedCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSi...",
+            "fresh": "func newUsersInterestsUserAccountFollowedCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBookmark string\n\tvar flagPageSi..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/version.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/which.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/which_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/client/client.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/client/client_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/client/client_verify_short_circuit_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/client/platform_budget_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/client/platform_rate_limit_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/client/token_race_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/cliutil_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/credentials.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/credentials_perms_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/credentials_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/creds_perms_eval.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/creds_perms_eval_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/creds_perms_unix.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/creds_perms_windows.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/creds_perms_windows_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/csv.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/darwin_acl.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/darwin_acl_darwin.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/darwin_acl_live_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/darwin_acl_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/duration.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/duration_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/extractnumber.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/extractnumber_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/fanout.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/filelock.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/filelock_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/filelock_unix.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/filelock_windows.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/freshness.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/freshness_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/jwtshape.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/jwtshape_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/oauth_token.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/oauth_token_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/odata_date.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/odata_date_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/paths.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/paths_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/probe.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/query.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/query_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/ratelimit.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/testenv/sandbox_unix.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/testenv/sandbox_windows.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/testenv/testenv.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/text.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/verifyenv.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/windows_account.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/config/config.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/config/config_perms_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/derive.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/derive_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/doc.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/entities/config.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/entities/config_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/entities/extract.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/entities/extract_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/journal.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/journal_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/lookups/seeds.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/lookups/seeds_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/lookups/store.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/lookups/store_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/match.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/match_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/normalize.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/normalize_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/apply.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/apply_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/doc.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/extract.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/extract_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/store.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/store_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/playbooks.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/playbooks_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/preseed.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/preseed_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/promote.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/promote_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/protocol.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/recall.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/recall_canonical_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/recall_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/synthesize.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/synthesize_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/teach.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/teach_log.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/teach_log_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/teach_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/bound/bound.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/bound/bound_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/cobratree/classify.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/cobratree/cli_path.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/cobratree/names.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/cobratree/shellout.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/cobratree/shellout_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/cobratree/typemap.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/cobratree/walker.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/code_orch.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/code_orch_writebody_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/mirror_property_names_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/platform_gate.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/platform_gate_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/tools.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/tools_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/conformance_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/doctor.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/gate.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/metadata.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/migration.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/perms_unix.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/perms_windows.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/profile.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/ratelimit.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/receipt.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/store/candidates.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/store/candidates_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/store/events.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/store/events_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/store/extras.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/store/learnings.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/store/learnings_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/store/playbooks.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/store/playbooks_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/store/schema_version_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/store/store.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/store/upsert_batch_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/types/types.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "spec.yaml",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    }
+  ],
+  "go_mod": {
+    "merged": false,
+    "preserved_module_path": "pinterest-pp-cli"
+  }
+}

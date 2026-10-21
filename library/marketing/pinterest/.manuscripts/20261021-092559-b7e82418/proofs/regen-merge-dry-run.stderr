@@ -1,0 +1,4 @@
+Synthesizing force-regen base with cli-printing-press v4.31.2 (this may take a moment)...
+warning: force-regen base synthesis with cli-printing-press v4.31.2 failed: exit status 1
+# github.com/enetx/http2
+../go/pkg/mod/github.com/enetx/http2@v1.0.26/client_priority_go127.go:12:11: s.DisableClientPriority undefined (type *http.Server has no field or method DisableClientPriority)

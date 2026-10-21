@@ -1,0 +1,45 @@
+{
+  "manifest_version": "0.3",
+  "name": "pinterest-pp-mcp",
+  "display_name": "Pinterest",
+  "version": "5.28.0",
+  "description": "Every Pinterest v5 endpoint plus period-over-period analytics, Pin hygiene audits, and offline Pin search.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/pinterest-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/pinterest-pp-mcp",
+      "args": [],
+      "env": {
+        "PINTEREST_ACCESS_TOKEN": "${user_config.pinterest_access_token}",
+        "PINTEREST_OAUTH2": "${user_config.pinterest_oauth2}"
+      }
+    }
+  },
+  "user_config": {
+    "pinterest_access_token": {
+      "type": "string",
+      "title": "PINTEREST_ACCESS_TOKEN",
+      "description": "Optional. Sets PINTEREST_ACCESS_TOKEN for the Pinterest MCP server.",
+      "sensitive": true
+    },
+    "pinterest_oauth2": {
+      "type": "string",
+      "title": "PINTEREST_OAUTH2",
+      "description": "Optional. Sets PINTEREST_OAUTH2 for the Pinterest MCP server.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/pinterest-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20261021-092559-b7e82418",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

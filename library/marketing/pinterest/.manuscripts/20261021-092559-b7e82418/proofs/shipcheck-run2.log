@@ -1,0 +1,590 @@
+
+=== verify ===
+warning: request body for POST "/notifications" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/feeds" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/product_groups" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/reports" contains oneOf/anyOf; emitting --body-json fallback
+warning: GET "/resources/ad_account_countries": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: GET "/resources/delivery_metrics": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: resource "search" from path "/search/boards" would shadow framework cobra command "search"; renamed to "pinterest-search"
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/ad_groups" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/ad_groups" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/ad_previews" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/ads" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/ads" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: DELETE "/ad_accounts/{ad_account_id}/advertiser_defined_events": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: GET "/ad_accounts/{ad_account_id}/advertiser_defined_events": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: PATCH "/ad_accounts/{ad_account_id}/advertiser_defined_events": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: POST "/ad_accounts/{ad_account_id}/advertiser_defined_events": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: request body for POST "/ad_accounts/{ad_account_id}/campaign_ad_preview" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/campaigns" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/campaigns" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/lead_forms" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/lead_forms" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/promotions" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/promotions" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/schedules" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/schedules" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/businesses/{business_id}/members" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/catalogs/feeds/{feed_id}" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/items/batch" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/product_groups/multiple" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/catalogs/product_groups/{product_group_id}" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/products/get_by_product_group_filters" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for PATCH "/catalogs/{catalog_id}/local_stores" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/catalogs/{catalog_id}/local_stores" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/campaigns/delivery_estimates" is a bare top-level array; emitting --body-json fallback + array-body marker
+Runtime Verification: <runstate>/headaideveloper-ca938232/runs/20261021-092559-b7e82418/working/pinterest-pp-cli/pinterest-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+resource-path:tail             static       PASS   PASS     PASS     3/3
+resource-path:export           static       PASS   PASS     PASS     3/3
+resource-path:import           static       PASS   PASS     PASS     3/3
+ad-accounts                    read         PASS   PASS     PASS     3/3
+ads                            read         PASS   PASS     PASS     3/3
+advanced-auction               read         PASS   PASS     PASS     3/3
+agent-context                  write        PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+boards                         read         PASS   PASS     PASS     3/3
+business-access                read         PASS   PASS     PASS     3/3
+businesses                     read         PASS   PASS     PASS     3/3
+catalogs                       read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+feedback                       write        PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+integrations                   read         PASS   PASS     PASS     3/3
+learnings                      read         PASS   PASS     PASS     3/3
+login                          write        PASS   PASS     PASS     3/3
+media                          read         PASS   PASS     PASS     3/3
+notifications                  write        PASS   PASS     FAIL     2/3
+oauth                          read         PASS   PASS     PASS     3/3
+perf                           read         PASS   PASS     PASS     3/3
+pins                           read         PASS   PASS     PASS     3/3
+pinterest-search               read         PASS   PASS     PASS     3/3
+playbook                       write        PASS   PASS     PASS     3/3
+profile                        write        PASS   PASS     PASS     3/3
+recall                         read         PASS   PASS     PASS     3/3
+resources                      read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+tail                           data-layer   PASS   PASS     PASS     3/3
+teach                          write        PASS   PASS     PASS     3/3
+teach-lookup                   write        PASS   PASS     PASS     3/3
+teach-pattern                  write        PASS   PASS     PASS     3/3
+teach-playbook                 write        PASS   PASS     PASS     3/3
+terms                          read         PASS   PASS     PASS     3/3
+trends                         data-layer   PASS   PASS     PASS     3/3
+user-account                   read         PASS   PASS     PASS     3/3
+users                          read         PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     PASS     3/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS ad-accounts ad-groups analytics
+  PASS ad-accounts ad-groups audience-sizing
+  PASS ad-accounts ad-groups create
+  PASS ad-accounts ad-groups dynamic-titles-download-csv
+  PASS ad-accounts ad-groups dynamic-titles-get-status
+  PASS ad-accounts ad-groups dynamic-titles-get-upload-url
+  PASS ad-accounts ad-groups dynamic-titles-process-csv
+  PASS ad-accounts ad-groups get
+  PASS ad-accounts ad-groups list
+  PASS ad-accounts ad-groups targeting-analytics-get
+  PASS ad-accounts ad-groups update
+  PASS ad-accounts ad-previews create
+  PASS ad-accounts ads analytics
+  PASS ad-accounts ads create
+  PASS ad-accounts ads get
+  PASS ad-accounts ads list
+  PASS ad-accounts ads targeting-analytics-get
+  PASS ad-accounts ads update
+  PASS ad-accounts ads-credit discounts-get
+  PASS ad-accounts ads-credit redeem
+  PASS ad-accounts advertiser-defined-events create
+  PASS ad-accounts advertiser-defined-events delete
+  PASS ad-accounts advertiser-defined-events get
+  PASS ad-accounts advertiser-defined-events update
+  PASS ad-accounts analytics ad-account
+  PASS ad-accounts audience-insights get
+  PASS ad-accounts audiences ad-accounts-shared-accounts-list
+  PASS ad-accounts audiences create
+  PASS ad-accounts audiences get
+  PASS ad-accounts audiences list
+  PASS ad-accounts audiences update
+  PASS ad-accounts audiences update-ad-account-to-ad-account-shared
+  PASS ad-accounts audiences update-ad-account-to-business-shared
+  PASS ad-accounts bid-floor ad-groups-get
+  PASS ad-accounts billing-invoice download-get
+  PASS ad-accounts billing-invoices get
+  PASS ad-accounts billing-profiles get
+  PASS ad-accounts bulk download-create
+  PASS ad-accounts bulk request-get
+  PASS ad-accounts bulk upsert-create
+  PASS ad-accounts campaign-ad-preview create
+  PASS ad-accounts campaign-ad-preview delete
+  PASS ad-accounts campaign-ad-preview read
+  PASS ad-accounts campaigns analytics
+  PASS ad-accounts campaigns create
+  PASS ad-accounts campaigns get
+  PASS ad-accounts campaigns get-delivery-estimates
+  PASS ad-accounts campaigns list
+  PASS ad-accounts campaigns targeting-analytics-get
+  PASS ad-accounts campaigns update
+  PASS ad-accounts conversion-deletion-requests create
+  PASS ad-accounts conversion-deletion-requests delete
+  PASS ad-accounts conversion-deletion-requests get
+  PASS ad-accounts conversion-deletion-requests list
+  PASS ad-accounts conversion-eqs list
+  PASS ad-accounts conversion-tags create
+  PASS ad-accounts conversion-tags get
+  PASS ad-accounts conversion-tags list
+  PASS ad-accounts conversion-tags ocpm-eligible-get
+  PASS ad-accounts conversion-tags page-visit-get
+  PASS ad-accounts customer-lists create
+  PASS ad-accounts customer-lists get
+  PASS ad-accounts customer-lists list
+  PASS ad-accounts customer-lists update
+  PASS ad-accounts customer-lists uploads-create
+  PASS ad-accounts customer-lists uploads-get
+  PASS ad-accounts customer-lists uploads-run
+  PASS ad-accounts customer-segments create
+  PASS ad-accounts customer-segments list
+  PASS ad-accounts customer-segments update
+  PASS ad-accounts events create
+  PASS ad-accounts get
+  PASS ad-accounts insights audience-scope-and-type-get
+  PASS ad-accounts keywords country-metrics-get
+  PASS ad-accounts keywords create
+  PASS ad-accounts keywords get
+  PASS ad-accounts keywords update
+  PASS ad-accounts labels apply
+  PASS ad-accounts labels create
+  PASS ad-accounts labels list
+  PASS ad-accounts labels remove
+  PASS ad-accounts labels update
+  PASS ad-accounts lead-forms create
+  PASS ad-accounts lead-forms get
+  PASS ad-accounts lead-forms list
+  PASS ad-accounts lead-forms test-create
+  PASS ad-accounts lead-forms update
+  PASS ad-accounts leads ad-accounts-subscriptions-del-by-id
+  PASS ad-accounts leads ad-accounts-subscriptions-get-by-id
+  PASS ad-accounts leads ad-accounts-subscriptions-get-list
+  PASS ad-accounts leads ad-accounts-subscriptions-post
+  PASS ad-accounts leads-export create
+  PASS ad-accounts leads-export get
+  PASS ad-accounts mmm-reports analytics-create
+  PASS ad-accounts mmm-reports analytics-get
+  PASS ad-accounts msot events-create
+  PASS ad-accounts order-lines get
+  PASS ad-accounts order-lines list
+  PASS ad-accounts pins ad-analytics
+  PASS ad-accounts product-group-promotions create
+  PASS ad-accounts product-group-promotions get
+  PASS ad-accounts product-group-promotions list
+  PASS ad-accounts product-group-promotions update
+  PASS ad-accounts product-groups analytics
+  PASS ad-accounts promotion-applied-entities get-ad-groups-by-promotion-ids-list
+  PASS ad-accounts promotions create
+  PASS ad-accounts promotions delete
+  PASS ad-accounts promotions get
+  PASS ad-accounts promotions list
+  PASS ad-accounts promotions update
+  PASS ad-accounts reports analytics-create
+  PASS ad-accounts reports analytics-create-conversion-product
+  PASS ad-accounts reports analytics-get
+  PASS ad-accounts reports analytics-get-conversion-product
+  PASS ad-accounts sandbox delete
+  PASS ad-accounts schedules create
+  PASS ad-accounts schedules list
+  PASS ad-accounts schedules update
+  PASS ad-accounts ssio accounts-get
+  PASS ad-accounts ssio insertion-order-create
+  PASS ad-accounts ssio insertion-order-edit
+  PASS ad-accounts ssio insertion-orders-status-get-by-ad-account
+  PASS ad-accounts ssio insertion-orders-status-get-by-pin-order-id
+  PASS ad-accounts ssio order-lines-get-by-ad-account
+  PASS ad-accounts targeting-analytics ad-account-get
+  PASS ad-accounts targeting-templates create
+  PASS ad-accounts targeting-templates list
+  PASS ad-accounts targeting-templates update
+  PASS ad-accounts templates analytics-create-report
+  PASS ad-accounts templates list
+  PASS ad-accounts terms-of-service get
+  PASS boards delete
+  PASS boards get
+  PASS boards pins boards-list
+  PASS boards sections board-create
+  PASS boards sections board-delete
+  PASS boards sections board-list
+  PASS boards sections board-list-pins
+  PASS boards sections board-update
+  PASS boards update
+  PASS business-access brand-accounts-create
+  PASS business-access brand-accounts-update
+  PASS businesses asset-groups create
+  PASS businesses asset-groups delete
+  PASS businesses asset-groups update
+  PASS businesses assets business-get
+  PASS businesses assets business-members-get
+  PASS businesses assets business-partners-get
+  PASS businesses audiences business-account-shared-accounts-list
+  PASS businesses audiences shared-for-business-list
+  PASS businesses audiences update-business-to-ad-account-shared
+  PASS businesses audiences update-business-to-business-shared
+  PASS businesses invites cancel-or-requests
+  PASS businesses invites create-asset
+  PASS businesses invites create-membership-or-partnership
+  PASS businesses invites get
+  PASS businesses members business-asset-access-delete
+  PASS businesses members business-asset-access-update
+  PASS businesses members business-assets-get
+  PASS businesses members delete-business-membership
+  PASS businesses members get-business
+  PASS businesses members update-business-memberships
+  PASS businesses partners business-asset-access-get
+  PASS businesses partners delete-asset-access-handler-impl
+  PASS businesses partners delete-business
+  PASS businesses partners get-business
+  PASS businesses partners update-asset-access-handler-impl
+  PASS businesses requests asset-access-create
+  PASS businesses system-users update
+  PASS catalogs feed-processing-results-list
+  PASS catalogs feeds-delete
+  PASS catalogs feeds-get
+  PASS catalogs feeds-ingest
+  PASS catalogs feeds-update
+  PASS catalogs items-batch-get
+  PASS catalogs items-issues-list
+  PASS catalogs local-inventory-items catalogs-batch-operate
+  PASS catalogs local-inventory-items catalogs-post
+  PASS catalogs local-stores catalogs-create
+  PASS catalogs local-stores catalogs-delete
+  PASS catalogs local-stores catalogs-list
+  PASS catalogs local-stores catalogs-update
+  PASS catalogs product-group-pins-list
+  PASS catalogs product-groups-delete
+  PASS catalogs product-groups-get
+  PASS catalogs product-groups-product-counts-get
+  PASS catalogs product-groups-update
+  PASS catalogs supplemental-items catalogs-batch-get
+  PASS integrations commerce-del
+  PASS integrations commerce-get
+  PASS integrations commerce-patch
+  PASS integrations get-by-id
+  PASS learnings confirm
+  PASS learnings forget
+  PASS learnings reject
+  PASS media get
+  PASS pins analytics pins
+  PASS pins delete
+  PASS pins get
+  PASS pins product-tags bulk-add
+  PASS pins product-tags bulk-delete
+  PASS pins product-tags list
+  PASS pins save pins
+  PASS pins update
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+  PASS resources interest-targeting-options-get
+  PASS user-account follow-user-update
+  PASS users interests user-account-followed
+
+Data Pipeline: PASS: sync completed (sql unavailable, table validation skipped)
+Pass Rate: 100% (255/255 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+OK: 9 narrative commands resolved and full examples passed
+
+=== dogfood ===
+dogfood: using spec <runstate>/headaideveloper-ca938232/runs/20261021-092559-b7e82418/working/pinterest-pp-cli/spec.yaml (bundled)
+dogfood: caller --spec=<runstate>/headaideveloper-ca938232/runs/20261021-092559-b7e82418/research/pinterest-overlay.yaml overridden by bundled <runstate>/headaideveloper-ca938232/runs/20261021-092559-b7e82418/working/pinterest-pp-cli/spec.yaml
+warning: request body for POST "/notifications" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/feeds" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/product_groups" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/reports" contains oneOf/anyOf; emitting --body-json fallback
+warning: GET "/resources/ad_account_countries": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: GET "/resources/delivery_metrics": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: resource "search" from path "/search/boards" would shadow framework cobra command "search"; renamed to "pinterest-search"
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/ad_groups" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/ad_groups" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/ad_previews" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/ads" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/ads" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: DELETE "/ad_accounts/{ad_account_id}/advertiser_defined_events": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: GET "/ad_accounts/{ad_account_id}/advertiser_defined_events": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: PATCH "/ad_accounts/{ad_account_id}/advertiser_defined_events": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: POST "/ad_accounts/{ad_account_id}/advertiser_defined_events": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: request body for POST "/ad_accounts/{ad_account_id}/campaign_ad_preview" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/campaigns" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/campaigns" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/lead_forms" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/lead_forms" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/promotions" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/promotions" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/schedules" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/schedules" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/businesses/{business_id}/members" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/catalogs/feeds/{feed_id}" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/items/batch" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/product_groups/multiple" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/catalogs/product_groups/{product_group_id}" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/products/get_by_product_group_filters" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for PATCH "/catalogs/{catalog_id}/local_stores" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/catalogs/{catalog_id}/local_stores" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/campaigns/delivery_estimates" is a bare top-level array; emitting --body-json fallback + array-body marker
+dogfood: synced README.md (Unique Features) from novel_features_built
+dogfood: synced SKILL.md (Unique Capabilities) from novel_features_built
+dogfood: synced README.md (Quick Start) from research.json narrative
+dogfood: synced SKILL.md (Auth Setup) from research.json narrative
+dogfood: synced README.md (Troubleshooting) from research.json narrative
+dogfood: synced README.md (Recipes) from research.json narrative
+dogfood: synced SKILL.md (Recipes) from research.json narrative
+warning: request body for POST "/notifications" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/feeds" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/product_groups" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/reports" contains oneOf/anyOf; emitting --body-json fallback
+warning: GET "/resources/ad_account_countries": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: GET "/resources/delivery_metrics": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: resource "search" from path "/search/boards" would shadow framework cobra command "search"; renamed to "pinterest-search"
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/ad_groups" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/ad_groups" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/ad_previews" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/ads" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/ads" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: DELETE "/ad_accounts/{ad_account_id}/advertiser_defined_events": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: GET "/ad_accounts/{ad_account_id}/advertiser_defined_events": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: PATCH "/ad_accounts/{ad_account_id}/advertiser_defined_events": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: POST "/ad_accounts/{ad_account_id}/advertiser_defined_events": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: request body for POST "/ad_accounts/{ad_account_id}/campaign_ad_preview" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/campaigns" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/campaigns" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/lead_forms" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/lead_forms" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/promotions" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/promotions" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/schedules" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/schedules" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/businesses/{business_id}/members" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/catalogs/feeds/{feed_id}" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/items/batch" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/product_groups/multiple" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/catalogs/product_groups/{product_group_id}" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/products/get_by_product_group_filters" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for PATCH "/catalogs/{catalog_id}/local_stores" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/catalogs/{catalog_id}/local_stores" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/campaigns/delivery_estimates" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/notifications" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/feeds" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/product_groups" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/reports" contains oneOf/anyOf; emitting --body-json fallback
+warning: GET "/resources/ad_account_countries": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: GET "/resources/delivery_metrics": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: resource "search" from path "/search/boards" would shadow framework cobra command "search"; renamed to "pinterest-search"
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/ad_groups" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/ad_groups" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/ad_previews" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/ads" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/ads" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: DELETE "/ad_accounts/{ad_account_id}/advertiser_defined_events": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: GET "/ad_accounts/{ad_account_id}/advertiser_defined_events": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: PATCH "/ad_accounts/{ad_account_id}/advertiser_defined_events": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: POST "/ad_accounts/{ad_account_id}/advertiser_defined_events": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: request body for POST "/ad_accounts/{ad_account_id}/campaign_ad_preview" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/campaigns" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/campaigns" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/lead_forms" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/lead_forms" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/promotions" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/promotions" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/schedules" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/schedules" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/businesses/{business_id}/members" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/catalogs/feeds/{feed_id}" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/items/batch" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/product_groups/multiple" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/catalogs/product_groups/{product_group_id}" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/products/get_by_product_group_filters" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for PATCH "/catalogs/{catalog_id}/local_stores" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/catalogs/{catalog_id}/local_stores" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/campaigns/delivery_estimates" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/notifications" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/feeds" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/product_groups" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/reports" contains oneOf/anyOf; emitting --body-json fallback
+warning: GET "/resources/ad_account_countries": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: GET "/resources/delivery_metrics": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: resource "search" from path "/search/boards" would shadow framework cobra command "search"; renamed to "pinterest-search"
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/ad_groups" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/ad_groups" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/ad_previews" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/ads" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/ads" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: DELETE "/ad_accounts/{ad_account_id}/advertiser_defined_events": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: GET "/ad_accounts/{ad_account_id}/advertiser_defined_events": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: PATCH "/ad_accounts/{ad_account_id}/advertiser_defined_events": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: POST "/ad_accounts/{ad_account_id}/advertiser_defined_events": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: request body for POST "/ad_accounts/{ad_account_id}/campaign_ad_preview" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/campaigns" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/campaigns" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/lead_forms" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/lead_forms" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/promotions" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/promotions" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/schedules" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/schedules" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/businesses/{business_id}/members" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/catalogs/feeds/{feed_id}" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/items/batch" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/product_groups/multiple" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/catalogs/product_groups/{product_group_id}" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/products/get_by_product_group_filters" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for PATCH "/catalogs/{catalog_id}/local_stores" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/catalogs/{catalog_id}/local_stores" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/campaigns/delivery_estimates" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/notifications" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/feeds" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/product_groups" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/reports" contains oneOf/anyOf; emitting --body-json fallback
+warning: GET "/resources/ad_account_countries": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: GET "/resources/delivery_metrics": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: resource "search" from path "/search/boards" would shadow framework cobra command "search"; renamed to "pinterest-search"
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/ad_groups" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/ad_groups" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/ad_previews" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/ads" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/ads" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: DELETE "/ad_accounts/{ad_account_id}/advertiser_defined_events": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: GET "/ad_accounts/{ad_account_id}/advertiser_defined_events": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: PATCH "/ad_accounts/{ad_account_id}/advertiser_defined_events": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: POST "/ad_accounts/{ad_account_id}/advertiser_defined_events": response-schema ID fallback chose display field "name"; add x-resource-id if the API exposes a stable identifier
+warning: request body for POST "/ad_accounts/{ad_account_id}/campaign_ad_preview" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/campaigns" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/campaigns" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/lead_forms" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/lead_forms" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/promotions" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/promotions" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/ad_accounts/{ad_account_id}/schedules" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/schedules" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/businesses/{business_id}/members" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/catalogs/feeds/{feed_id}" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/items/batch" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/product_groups/multiple" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for PATCH "/catalogs/product_groups/{product_group_id}" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/catalogs/products/get_by_product_group_filters" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for PATCH "/catalogs/{catalog_id}/local_stores" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/catalogs/{catalog_id}/local_stores" is a bare top-level array; emitting --body-json fallback + array-body marker
+warning: request body for POST "/ad_accounts/{ad_account_id}/campaigns/delivery_estimates" is a bare top-level array; emitting --body-json fallback + array-body marker
+Dogfood Report: pinterest-pp-cli
+================================
+
+Path Validity:     8/8 valid (PASS)
+
+Auth Protocol:     MATCH
+  Spec: bearer token format (expects "Bearer " prefix)
+  Generated: Uses "Bearer" prefix
+  Detail: spec and generated client both use "Bearer"
+
+OAuth Scope Cover: 264/264 endpoints covered (PASS)
+  Detail: all OAuth-scoped endpoints covered by generated auth scopes
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     GOOD
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: calls domain-specific Search methods (GOOD)
+  Domain tables: 4
+
+Examples:          9/10 commands have examples (PASS)
+  - ad-accounts audiences update-ad-account-to-ad-account-shared: missing example
+
+Novel Features:    6/6 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: FAIL
+  - 2 novel feature host(s) are not in research artifacts: pins preflight (pins_preflight.go:138) — unverified host "www.brand.example" is not in research artifacts; pins preflight (pins_preflight.go:144) — unverified host "www.brand.example" is not in research artifacts
+Error: dogfood failed
+
+=== workflow-verify ===
+Workflow Verification: pinterest-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== apify-audit ===
+Apify Actor Audit
+=================
+
+No Apify actor references found.
+
+Verdict: pass
+  - no Apify actor references found, skipping
+
+=== verify-skill ===
+=== pinterest-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command)
+  ✓ canonical-sections passed
+
+=== scorecard ===
+Quality Scorecard: pinterest
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          10/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          8/10
+  MCP Desc Quality     N/A
+  MCP Token Efficiency N/A
+  MCP Remote Transport 10/10
+  MCP Tool Design      10/10
+  MCP Surface Strategy 10/10
+  Local Cache          10/10
+  Cache Freshness      10/10
+  Breadth              10/10
+  Vision               10/10
+  Workflows            10/10
+  Insight              10/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           10/10
+  Auth Protocol           9/10
+  Data Pipeline Integrity 10/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           5/5
+  Dead Code               5/5
+
+  Total: 98/100 - Grade A
+  Note: omitted from denominator: mcp_description_quality, mcp_token_efficiency, live_api_verification
+
+Gaps:
+  - MCP: 266 tools (0 public, 266 auth-required) — readiness: full
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         18.938s
+  validate-narrative  PASS    0         194ms
+  dogfood           FAIL    3         8.776s
+  workflow-verify   PASS    0         13ms
+  apify-audit       PASS    0         51ms
+  verify-skill      PASS    0         10.329s
+  scorecard         PASS    0         1.906s
+
+Verdict: FAIL (1/7 legs failed)

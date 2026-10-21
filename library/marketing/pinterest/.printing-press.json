@@ -1,0 +1,125 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-21T19:28:39.07438Z",
+  "printing_press_version": "4.33.8",
+  "api_name": "pinterest",
+  "display_name": "Pinterest",
+  "cli_name": "pinterest-pp-cli",
+  "creator": {
+    "handle": "ElizabethcStone",
+    "name": "Elizabeth Stone"
+  },
+  "owner": "elizabethcstone",
+  "printer": "ElizabethcStone",
+  "printer_name": "Elizabeth Stone",
+  "spec_path": "spec.yaml",
+  "spec_format": "openapi3",
+  "spec_source": "official",
+  "spec_checksum": "sha256:7159564daec652bec5a03377ed335b7f6940b491b6c37b6e2be59ab61092f70c",
+  "run_id": "20261021-092559-b7e82418",
+  "category": "marketing",
+  "description": "Every Pinterest v5 endpoint plus period-over-period analytics, Pin hygiene audits, and offline Pin search.",
+  "mcp_binary": "pinterest-pp-mcp",
+  "mcp_tool_count": 266,
+  "mcp_ready": "full",
+  "api_version": "5.28.0",
+  "auth_type": "bearer_token",
+  "auth_preference": "pinterest_oauth2",
+  "auth_env_vars": [
+    "PINTEREST_ACCESS_TOKEN",
+    "PINTEREST_OAUTH2"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PINTEREST_ACCESS_TOKEN",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    },
+    {
+      "name": "PINTEREST_OAUTH2",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Period-over-period performance",
+      "command": "perf compare",
+      "description": "See whether impressions, saves, and outbound clicks grew versus the previous equal-length period, with absolute and percent deltas."
+    },
+    {
+      "name": "Pin hygiene audit",
+      "command": "pins audit",
+      "description": "Find published Pins missing alt text, a destination link, a title, or UTM tracking, grouped by board. Reads the local store; run sync first."
+    },
+    {
+      "name": "Pin preflight",
+      "command": "pins preflight",
+      "description": "Validate a proposed Pin (field limits, board and section by name, UTM link) and get a ready-to-send create body without writing anything. Board names resolve from the local store; run sync first."
+    },
+    {
+      "name": "Save to outbound-click funnel",
+      "command": "pins funnel",
+      "description": "Rank your top Pins by impressions (or --sort-by metric), compute save and outbound-click rates, and flag Pins that get saved but don't send traffic."
+    },
+    {
+      "name": "Trend content gaps",
+      "command": "trends gaps",
+      "description": "List trending keywords for a region with how many of your synced Pins cover each, zero-coverage first. Coverage counts need a synced local store."
+    },
+    {
+      "name": "One-shot ads report",
+      "command": "ads report",
+      "description": "Create, wait for, and download an ads performance report in one command. Requires the ads:read scope and --ad-account-id (or PINTEREST_AD_ACCOUNT_ID)."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Period-over-period performance",
+      "command": "perf compare",
+      "description": "See whether impressions, saves, and outbound clicks grew versus the previous equal-length period, with absolute and percent deltas."
+    },
+    {
+      "name": "Pin hygiene audit",
+      "command": "pins audit",
+      "description": "Find published Pins missing alt text, a destination link, a title, or UTM tracking, grouped by board. Reads the local store; run sync first."
+    },
+    {
+      "name": "Pin preflight",
+      "command": "pins preflight",
+      "description": "Validate a proposed Pin (field limits, board and section by name, UTM link) and get a ready-to-send create body without writing anything. Board names resolve from the local store; run sync first."
+    },
+    {
+      "name": "Save to outbound-click funnel",
+      "command": "pins funnel",
+      "description": "Rank your top Pins by impressions (or --sort-by metric), compute save and outbound-click rates, and flag Pins that get saved but don't send traffic."
+    },
+    {
+      "name": "Trend content gaps",
+      "command": "trends gaps",
+      "description": "List trending keywords for a region with how many of your synced Pins cover each, zero-coverage first. Coverage counts need a synced local store."
+    },
+    {
+      "name": "One-shot ads report",
+      "command": "ads report",
+      "description": "Create, wait for, and download an ads performance report in one command. Requires the ads:read scope and --ad-account-id (or PINTEREST_AD_ACCOUNT_ID)."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 255,
+    "total": 255,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 98,
+      "grade": "A",
+      "total": 98
+    }
+  }
+}

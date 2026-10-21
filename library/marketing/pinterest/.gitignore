@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/pinterest-pp-cli
+/pinterest-pp-cli.exe
+/pinterest-pp-mcp
+/pinterest-pp-mcp.exe
+/bin/
+/build/
+/dist/

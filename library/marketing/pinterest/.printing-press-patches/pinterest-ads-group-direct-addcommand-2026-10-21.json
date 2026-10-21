@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "pinterest-ads-group-direct-addcommand-2026-10-21",
+  "applied_at": "2026-10-21",
+  "base_printing_press_version": "4.33.8",
+  "summary": "Register the novel top-level ads group with rootCmd.AddCommand instead of addNovelCommandIfAbsent, and drop the dead printStampedDryRunOutput helper.",
+  "reason": "dogfood's static command collector ignores addNovelCommandIfAbsent and mis-matched `ads report` to `ad-accounts ads` (false depth mismatch); the generated helper was flagged dead by dogfood.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/ads.go",
+    "internal/cli/helpers.go"
+  ],
+  "validated_outcome": "dogfood novel_features_check 6/6 with no depth mismatches; shipcheck 7/7 PASS.",
+  "call_sites": [
+    "rootCmd.AddCommand(newNovelAdsCmd(flags))",
+    "cmd.AddCommand(newNovelAdsReportCmd(flags))"
+  ],
+  "base_run_id": "20261021-092559-b7e82418"
+}

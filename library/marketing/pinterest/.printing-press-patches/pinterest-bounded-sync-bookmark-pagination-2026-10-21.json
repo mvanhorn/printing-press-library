@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "pinterest-bounded-sync-bookmark-pagination-2026-10-21",
+  "applied_at": "2026-10-21",
+  "base_printing_press_version": "4.33.8",
+  "summary": "Bare sync is bounded to boards and pins (dependents follow only those parents), and every v5 list endpoint paginates with the bookmark cursor for sync and --all.",
+  "reason": "The generator's default sync fanned out across 36 resources, and it does not recognize Pinterest's bookmark cursor, so sync and --all silently stopped after one page (boards 250 of 271, pins 241 of ~22.7k).",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/helpers.go",
+    "internal/cli/pinterest_pagination.go",
+    "internal/cli/pinterest_pagination_test.go",
+    "internal/cli/sync_defaults_test.go"
+  ],
+  "validated_outcome": "Live read-only sync: 4 resources, 271 boards, 22,694 pins, 24,333 board pins, 0 pagination warnings; boards list --all returned 271. Unit tests cover cursor detection and termination.",
+  "call_sites": [
+    "parentFilter = append(parentFilter, resources...)",
+    "pinterestBookmarkCursor(cursorParam",
+    "determineGeneratedPaginationDefaults(resource)"
+  ],
+  "base_run_id": "20261021-092559-b7e82418"
+}

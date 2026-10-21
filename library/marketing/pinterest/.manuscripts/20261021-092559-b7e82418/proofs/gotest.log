@@ -1,0 +1,19 @@
+?   	pinterest-pp-cli/cmd/pinterest-pp-cli	[no test files]
+ok  	pinterest-pp-cli/cmd/pinterest-pp-mcp	0.737s
+?   	pinterest-pp-cli/internal/cache	[no test files]
+ok  	pinterest-pp-cli/internal/cli	4.291s
+?   	pinterest-pp-cli/internal/cli/playbooks	[no test files]
+ok  	pinterest-pp-cli/internal/client	1.262s
+ok  	pinterest-pp-cli/internal/cliutil	12.032s
+?   	pinterest-pp-cli/internal/cliutil/testenv	[no test files]
+ok  	pinterest-pp-cli/internal/config	0.068s
+ok  	pinterest-pp-cli/internal/learn	1.234s
+ok  	pinterest-pp-cli/internal/learn/entities	0.007s
+ok  	pinterest-pp-cli/internal/learn/lookups	0.328s
+ok  	pinterest-pp-cli/internal/learn/patterns	0.079s
+ok  	pinterest-pp-cli/internal/mcp	0.472s
+ok  	pinterest-pp-cli/internal/mcp/bound	0.060s
+ok  	pinterest-pp-cli/internal/mcp/cobratree	2.212s
+ok  	pinterest-pp-cli/internal/platform	0.147s
+ok  	pinterest-pp-cli/internal/store	6.857s
+?   	pinterest-pp-cli/internal/types	[no test files]

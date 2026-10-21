@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "pinterest-pp-cli"
+display_name = "Pinterest"
+description = "Every Pinterest v5 endpoint plus period-over-period analytics, Pin hygiene audits, and offline Pin search."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/pinterest-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+PINTEREST_ACCESS_TOKEN = true
+PINTEREST_OAUTH2 = true
