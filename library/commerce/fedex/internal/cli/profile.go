@@ -101,7 +101,7 @@ func ApplyProfileToFlags(cmd *cobra.Command, profile *Profile) error {
 	// resolution itself or are dangerous to overlay.
 	reserved := map[string]bool{
 		"profile": true, "config": true, "help": true,
-		"yes": true, "operation-id": true, "confirmation-digest": true,
+		"yes": true, "allow-duplicate": true,
 	}
 	for name, value := range profile.Values {
 		if reserved[name] {

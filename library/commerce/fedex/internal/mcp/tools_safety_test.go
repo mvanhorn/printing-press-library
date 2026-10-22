@@ -9,70 +9,125 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"path/filepath"
 	"sort"
 	"strings"
 	"testing"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/client"
 )
 
-var expectedNarrowTools = []string{
-	"cancel_pickup",
-	"cancel_shipment",
-	"create_label",
-	"get_rates",
-	"pickup_availability",
-	"schedule_pickup",
-	"validate_address",
-	"validate_shipment",
+// expectedReadTools and expectedWriteTools pin the exact MCP surface. A new
+// tool must be added here deliberately, with the right side of the split.
+var expectedReadTools = []string{
+	"address_list", "address_validate", "addresses_validate", "archive",
+	"availability_services", "availability_special_services", "availability_transit_times",
+	"consolidations_confirm_results", "consolidations_results", "consolidations_retrieve",
+	"context", "freight_pickups_availability", "globaltrade_regulatory", "locations_find",
+	"manifest", "openship_results", "openship_retrieve", "openship_retrieve_package",
+	"pickups_availability", "postal_validate", "rate_shop", "rates_quote", "rates_quote_freight",
+	"shipments_results", "shipments_validate", "spend_report",
+	"track_associated", "track_diff", "track_documents", "track_number", "track_reference", "track_tcn",
 }
 
-func TestRegisterToolsExposesExactNarrowSurface(t *testing.T) {
+var expectedWriteTools = []string{
+	"consolidations_add_shipment", "consolidations_confirm", "consolidations_create",
+	"consolidations_delete", "consolidations_delete_shipment", "consolidations_modify",
+	"endofday_close", "endofday_modify",
+	"freight_pickups_cancel", "freight_pickups_create", "freight_shipments_create",
+	"openship_add_package", "openship_create", "openship_delete", "openship_delete_package",
+	"openship_modify", "openship_modify_package",
+	"pickups_cancel", "pickups_create",
+	"ship_bulk", "shipments_cancel", "shipments_create", "shipments_tag", "shipments_tag_cancel",
+	"track_notifications",
+}
+
+// Local address-book writes never touch FedEx, so they are neither read-only
+// nor FedEx writes.
+var expectedLocalWriteTools = []string{"address_delete", "address_save"}
+
+func expectedTools() []string {
+	all := append(append(append([]string{}, expectedReadTools...), expectedWriteTools...), expectedLocalWriteTools...)
+	sort.Strings(all)
+	return all
+}
+
+func registeredTools(t *testing.T) map[string]*server.ServerTool {
+	t.Helper()
 	s := server.NewMCPServer("fedex-test", "test")
 	RegisterTools(s)
-	registered := s.ListTools()
+	return s.ListTools()
+}
 
+func TestRegisterToolsExposesExactSurface(t *testing.T) {
+	registered := registeredTools(t)
 	got := make([]string, 0, len(registered))
 	for name := range registered {
 		got = append(got, name)
 	}
 	sort.Strings(got)
-	if len(got) != len(expectedNarrowTools) {
-		t.Fatalf("registered tools=%v, want exactly %v", got, expectedNarrowTools)
+	if strings.Join(got, ",") != strings.Join(expectedTools(), ",") {
+		t.Fatalf("registered tools=%v\nwant exactly %v", got, expectedTools())
 	}
-	for i := range got {
-		if got[i] != expectedNarrowTools[i] {
-			t.Fatalf("registered tools=%v, want exactly %v", got, expectedNarrowTools)
+	if len(got) != toolCount() {
+		t.Fatalf("toolCount()=%d, registered %d", toolCount(), len(got))
+	}
+	for _, removed := range []string{"fedex_execute", "fedex_search", "sql", "export", "import", "tail", "track_watch", "ship_etd", "return_create"} {
+		if _, ok := registered[removed]; ok {
+			t.Errorf("open-ended or removed tool %q is registered", removed)
 		}
 	}
+}
 
-	readOnly := map[string]bool{
-		"get_rates":           true,
-		"pickup_availability": true,
-		"validate_address":    true,
-		"validate_shipment":   true,
+func TestToolAnnotationsMatchWriteSafety(t *testing.T) {
+	registered := registeredTools(t)
+	isRead := map[string]bool{}
+	for _, name := range expectedReadTools {
+		isRead[name] = true
 	}
-	destructive := map[string]bool{"cancel_shipment": true, "cancel_pickup": true}
-	idempotent := map[string]bool{"get_rates": true, "validate_shipment": true, "pickup_availability": true}
-	for name, registeredTool := range registered {
-		annotations := registeredTool.Tool.Annotations
-		if annotations.ReadOnlyHint == nil || annotations.DestructiveHint == nil || annotations.IdempotentHint == nil || annotations.OpenWorldHint == nil {
-			t.Fatalf("tool %q must declare all safety annotations: %#v", name, annotations)
+	isWrite := map[string]bool{}
+	for _, name := range expectedWriteTools {
+		isWrite[name] = true
+	}
+	for name, tool := range registered {
+		a := tool.Tool.Annotations
+		if a.ReadOnlyHint == nil || a.DestructiveHint == nil || a.IdempotentHint == nil || a.OpenWorldHint == nil {
+			t.Fatalf("tool %q must declare all safety annotations: %#v", name, a)
 		}
-		wantReadOnly := readOnly[name]
-		if *annotations.ReadOnlyHint != wantReadOnly {
-			t.Errorf("tool %q readOnlyHint=%v, want %v", name, *annotations.ReadOnlyHint, wantReadOnly)
+		_, hasAllowDuplicate := tool.Tool.InputSchema.Properties["allow_duplicate"]
+		switch {
+		case isRead[name]:
+			if !*a.ReadOnlyHint || *a.DestructiveHint {
+				t.Errorf("read tool %q annotations readOnly=%v destructive=%v", name, *a.ReadOnlyHint, *a.DestructiveHint)
+			}
+			if hasAllowDuplicate {
+				t.Errorf("read tool %q exposes allow_duplicate", name)
+			}
+		case isWrite[name]:
+			if *a.ReadOnlyHint || !*a.DestructiveHint || *a.IdempotentHint || !*a.OpenWorldHint {
+				t.Errorf("write tool %q annotations readOnly=%v destructive=%v idempotent=%v openWorld=%v", name, *a.ReadOnlyHint, *a.DestructiveHint, *a.IdempotentHint, *a.OpenWorldHint)
+			}
+			if !hasAllowDuplicate {
+				t.Errorf("write tool %q has no allow_duplicate override", name)
+			}
+		default:
+			if *a.ReadOnlyHint || *a.OpenWorldHint {
+				t.Errorf("local tool %q annotations readOnly=%v openWorld=%v", name, *a.ReadOnlyHint, *a.OpenWorldHint)
+			}
 		}
-		if *annotations.DestructiveHint != destructive[name] {
-			t.Errorf("tool %q destructiveHint=%v, want %v", name, *annotations.DestructiveHint, destructive[name])
+		for _, banned := range []string{"args", "config", "deliver", "yes", "data-source", "output", "input", "webhook", "close", "endpoint_id"} {
+			if _, ok := tool.Tool.InputSchema.Properties[banned]; ok {
+				t.Errorf("tool %q exposes open-ended parameter %q", name, banned)
+			}
 		}
-		if *annotations.IdempotentHint != idempotent[name] {
-			t.Errorf("tool %q idempotentHint=%v, want %v", name, *annotations.IdempotentHint, idempotent[name])
-		}
-		if !*annotations.OpenWorldHint {
-			t.Errorf("tool %q openWorldHint=false, want true", name)
+	}
+	// Endpoint annotations must agree with the allowlist the client enforces.
+	for _, ep := range endpointTools {
+		name := toolNameForEndpoint(ep.ID)
+		if client.IsReadOnlyOperation(ep.Method, ep.Path) != isRead[name] {
+			t.Errorf("endpoint tool %q read-only annotation disagrees with client allowlist", name)
 		}
 	}
 }
@@ -84,19 +139,32 @@ func TestMCPMetadataMatchesRuntimeToolSurface(t *testing.T) {
 	}
 	var manifest struct {
 		Tools []struct {
-			Name string `json:"name"`
+			Name        string `json:"name"`
+			Annotations struct {
+				ReadOnlyHint    bool `json:"readOnlyHint"`
+				DestructiveHint bool `json:"destructiveHint"`
+			} `json:"annotations"`
 		} `json:"tools"`
 	}
 	if err := json.Unmarshal(manifestData, &manifest); err != nil {
 		t.Fatal(err)
 	}
+	registered := registeredTools(t)
 	names := make([]string, 0, len(manifest.Tools))
 	for _, tool := range manifest.Tools {
 		names = append(names, tool.Name)
+		runtime, ok := registered[tool.Name]
+		if !ok {
+			continue
+		}
+		a := runtime.Tool.Annotations
+		if tool.Annotations.ReadOnlyHint != *a.ReadOnlyHint || tool.Annotations.DestructiveHint != *a.DestructiveHint {
+			t.Errorf("tools-manifest annotations for %q differ from runtime", tool.Name)
+		}
 	}
 	sort.Strings(names)
-	if strings.Join(names, ",") != strings.Join(expectedNarrowTools, ",") {
-		t.Fatalf("tools-manifest names=%v, want %v", names, expectedNarrowTools)
+	if strings.Join(names, ",") != strings.Join(expectedTools(), ",") {
+		t.Fatalf("tools-manifest names=%v\nwant %v", names, expectedTools())
 	}
 
 	metadataData, err := os.ReadFile("../../.printing-press.json")
@@ -109,227 +177,219 @@ func TestMCPMetadataMatchesRuntimeToolSurface(t *testing.T) {
 	if err := json.Unmarshal(metadataData, &metadata); err != nil {
 		t.Fatal(err)
 	}
-	if metadata.MCPToolCount != len(expectedNarrowTools) {
-		t.Fatalf("mcp_tool_count=%d, want %d", metadata.MCPToolCount, len(expectedNarrowTools))
+	if metadata.MCPToolCount != len(expectedTools()) {
+		t.Fatalf("mcp_tool_count=%d, want %d", metadata.MCPToolCount, len(expectedTools()))
 	}
 }
 
-func TestCreateLabelRequiresPreviewAndBoundConfirmation(t *testing.T) {
-	calls := 0
-	var gotBody []byte
+type fakeAPI struct {
+	calls  int
+	bodies [][]byte
+	status int
+}
+
+func newFakeAPI(t *testing.T, status int, response string) *fakeAPI {
+	t.Helper()
+	fake := &fakeAPI{status: status}
 	api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		calls++
-		var err error
-		gotBody, err = io.ReadAll(r.Body)
-		if err != nil {
-			t.Fatalf("read request body: %v", err)
-		}
+		fake.calls++
+		body, _ := io.ReadAll(r.Body)
+		fake.bodies = append(fake.bodies, body)
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"output":{"transactionShipments":[{"masterTrackingNumber":"synthetic"}]}}`))
+		w.WriteHeader(fake.status)
+		_, _ = w.Write([]byte(response))
 	}))
 	t.Cleanup(api.Close)
-
-	dataDir := filepath.Join(t.TempDir(), "fedex")
 	t.Setenv("HOME", t.TempDir())
-	t.Setenv("FEDEX_DATA_DIR", dataDir)
+	t.Setenv("FEDEX_DATA_DIR", t.TempDir())
 	t.Setenv("FEDEX_BASE_URL", api.URL)
 	t.Setenv("FEDEX_API_KEY", "synthetic-test-token")
+	return fake
+}
 
-	s := server.NewMCPServer("fedex-test", "test")
-	RegisterTools(s)
-	tool, ok := s.ListTools()["create_label"]
+func callTool(t *testing.T, tools map[string]*server.ServerTool, name string, arguments map[string]any) (*mcplib.CallToolResult, map[string]any) {
+	t.Helper()
+	tool, ok := tools[name]
 	if !ok {
-		t.Fatal("create_label tool is not registered")
+		t.Fatalf("tool %q is not registered", name)
 	}
+	result, err := tool.Handler(context.Background(), toolRequest(arguments))
+	if err != nil {
+		t.Fatalf("%s handler error: %v", name, err)
+	}
+	var envelope map[string]any
+	if err := json.Unmarshal([]byte(toolResultText(t, result)), &envelope); err != nil {
+		t.Fatalf("decode %s result: %v", name, err)
+	}
+	return result, envelope
+}
+
+func TestWriteToolRunsInOneCallAndRefusesDuplicate(t *testing.T) {
+	label := strings.Repeat("QkFTRTY0LUxBQkVM", 400)
+	fake := newFakeAPI(t, http.StatusOK, `{"output":{"transactionShipments":[{"masterTrackingNumber":"794600000000","pieceResponses":[{"packageDocuments":[{"encodedLabel":"`+label+`"}]}]}]}}`)
+	tools := registeredTools(t)
 	request := map[string]any{
-		"accountNumber": map[string]any{"value": "123456789"},
-		"requestedShipment": map[string]any{
-			"serviceType": "FEDEX_GROUND",
-		},
+		"accountNumber":     map[string]any{"value": "123456789"},
+		"requestedShipment": map[string]any{"serviceType": "FEDEX_GROUND"},
 	}
 
-	preview, err := tool.Handler(context.Background(), toolRequest(map[string]any{"request": request}))
-	if err != nil {
-		t.Fatalf("preview handler error: %v", err)
+	result, envelope := callTool(t, tools, "shipments_create", map[string]any{"request": request})
+	if result.IsError || envelope["status"] != "succeeded" {
+		t.Fatalf("shipments_create result=%v, want success", envelope)
 	}
-	if preview == nil || preview.IsError {
-		t.Fatalf("preview result=%#v, want success", preview)
+	if fake.calls != 1 || len(fake.bodies[0]) == 0 || fake.bodies[0][0] != '{' {
+		t.Fatalf("shipments_create calls=%d body=%q, want one JSON object", fake.calls, fake.bodies)
 	}
-	if calls != 0 {
-		t.Fatalf("preview emitted %d FedEx requests, want 0", calls)
-	}
-	var previewEnvelope struct {
-		Status             string `json:"status"`
-		OperationID        string `json:"operation_id"`
-		ConfirmationDigest string `json:"confirmation_digest"`
-	}
-	if err := json.Unmarshal([]byte(toolResultText(t, preview)), &previewEnvelope); err != nil {
-		t.Fatalf("decode preview: %v", err)
-	}
-	if previewEnvelope.Status != "pending_confirmation" || previewEnvelope.OperationID == "" || previewEnvelope.ConfirmationDigest == "" {
-		t.Fatalf("invalid preview envelope: %#v", previewEnvelope)
+	text := toolResultText(t, result)
+	if strings.Contains(text, label) || !strings.Contains(text, "794600000000") {
+		t.Fatalf("write result must keep the tracking number and drop the encoded label: %s", text)
 	}
 
-	confirmed, err := tool.Handler(context.Background(), toolRequest(map[string]any{
-		"request":             request,
-		"confirm":             true,
-		"operation_id":        previewEnvelope.OperationID,
-		"confirmation_digest": previewEnvelope.ConfirmationDigest,
-	}))
-	if err != nil {
-		t.Fatalf("confirmed handler error: %v", err)
+	result, envelope = callTool(t, tools, "shipments_create", map[string]any{"request": request})
+	if !result.IsError || envelope["error_class"] != "duplicate_refused" {
+		t.Fatalf("identical second call=%v, want duplicate_refused", envelope)
 	}
-	if confirmed == nil || confirmed.IsError {
-		t.Fatalf("confirmed result=%#v, want success", confirmed)
-	}
-	if calls != 1 {
-		t.Fatalf("confirmed mutation emitted %d requests, want 1", calls)
-	}
-	if len(gotBody) == 0 || gotBody[0] != '{' {
-		t.Fatalf("confirmed mutation body=%q, want JSON object", gotBody)
+	if fake.calls != 1 {
+		t.Fatalf("duplicate reached FedEx: calls=%d", fake.calls)
 	}
 
-	replayed, err := tool.Handler(context.Background(), toolRequest(map[string]any{
-		"request":             request,
-		"confirm":             true,
-		"operation_id":        previewEnvelope.OperationID,
-		"confirmation_digest": previewEnvelope.ConfirmationDigest,
-	}))
-	if err != nil {
-		t.Fatalf("replay handler error: %v", err)
+	result, envelope = callTool(t, tools, "shipments_create", map[string]any{"request": request, "allow_duplicate": true})
+	if result.IsError {
+		t.Fatalf("allow_duplicate call=%v, want success", envelope)
 	}
-	if replayed == nil || !replayed.IsError {
-		t.Fatalf("replay result=%#v, want error", replayed)
-	}
-	if calls != 1 {
-		t.Fatalf("replay emitted %d total requests, want 1", calls)
+	if fake.calls != 2 {
+		t.Fatalf("allow_duplicate calls=%d, want 2", fake.calls)
 	}
 }
 
-func TestReadOnlyRateToolCallsFedExWithoutMutationConfirmation(t *testing.T) {
-	calls := 0
-	api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		calls++
-		if r.URL.Path != "/rate/v1/rates/quotes" {
-			t.Errorf("path=%q, want rate endpoint", r.URL.Path)
+func TestWrite500IsOutcomeUnknownNotRetriedAndBlocksResend(t *testing.T) {
+	fake := newFakeAPI(t, http.StatusInternalServerError, `{"errors":[{"code":"SYSTEM.UNAVAILABLE"}]}`)
+	tools := registeredTools(t)
+	request := map[string]any{"associatedAccountNumber": map[string]any{"value": "123456789"}, "carrierCode": "FDXG", "packageCount": 1}
+
+	result, envelope := callTool(t, tools, "pickups_create", map[string]any{"request": request})
+	if !result.IsError || envelope["error_class"] != "outcome_unknown" {
+		t.Fatalf("pickups_create 500=%v, want outcome_unknown", envelope)
+	}
+	if fake.calls != 1 {
+		t.Fatalf("write was retried: calls=%d", fake.calls)
+	}
+	result, envelope = callTool(t, tools, "pickups_create", map[string]any{"request": request})
+	if !result.IsError || envelope["error_class"] != "duplicate_refused" {
+		t.Fatalf("resend after unknown outcome=%v, want duplicate_refused", envelope)
+	}
+	if fake.calls != 1 {
+		t.Fatalf("resend reached FedEx: calls=%d", fake.calls)
+	}
+}
+
+func TestUnwiredWriteToolWorks(t *testing.T) {
+	fake := newFakeAPI(t, http.StatusOK, `{"output":{"status":"CLOSED"}}`)
+	tools := registeredTools(t)
+	result, envelope := callTool(t, tools, "endofday_close", map[string]any{"request": map[string]any{"accountNumber": map[string]any{"value": "123456789"}}})
+	if result.IsError || fake.calls != 1 {
+		t.Fatalf("endofday_close=%v calls=%d, want one successful call", envelope, fake.calls)
+	}
+}
+
+func TestReadOnlyToolCallsFedExAndAllowsRepeats(t *testing.T) {
+	fake := newFakeAPI(t, http.StatusOK, `{"output":{"rateReplyDetails":[]}}`)
+	tools := registeredTools(t)
+	args := map[string]any{"request": map[string]any{"accountNumber": map[string]any{"value": "123456789"}}}
+	for i := 0; i < 2; i++ {
+		result, envelope := callTool(t, tools, "rates_quote", args)
+		if result.IsError {
+			t.Fatalf("rates_quote=%v", envelope)
 		}
-		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"output":{"rateReplyDetails":[]}}`))
-	}))
-	t.Cleanup(api.Close)
-
-	t.Setenv("HOME", t.TempDir())
-	t.Setenv("FEDEX_BASE_URL", api.URL)
-	t.Setenv("FEDEX_API_KEY", "synthetic-test-token")
-
-	s := server.NewMCPServer("fedex-test", "test")
-	RegisterTools(s)
-	tool := s.ListTools()["get_rates"]
-	result, err := tool.Handler(context.Background(), toolRequest(map[string]any{
-		"request": map[string]any{"accountNumber": map[string]any{"value": "123456789"}},
-	}))
-	if err != nil {
-		t.Fatalf("get_rates handler error: %v", err)
 	}
-	if result == nil || result.IsError {
-		t.Fatalf("get_rates result=%#v, want success", result)
-	}
-	if calls != 1 {
-		t.Fatalf("get_rates emitted %d requests, want 1", calls)
+	if fake.calls != 2 {
+		t.Fatalf("rates_quote calls=%d, want 2", fake.calls)
 	}
 }
 
-func TestConfirmedMutation500IsOutcomeUnknownAndNotRetried(t *testing.T) {
-	calls := 0
-	api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		calls++
-		http.Error(w, "synthetic server failure", http.StatusInternalServerError)
-	}))
-	t.Cleanup(api.Close)
-
-	dataDir := filepath.Join(t.TempDir(), "fedex")
-	t.Setenv("HOME", t.TempDir())
-	t.Setenv("FEDEX_DATA_DIR", dataDir)
-	t.Setenv("FEDEX_BASE_URL", api.URL)
-	t.Setenv("FEDEX_API_KEY", "synthetic-test-token")
-
-	s := server.NewMCPServer("fedex-test", "test")
-	RegisterTools(s)
-	tool := s.ListTools()["schedule_pickup"]
-	request := map[string]any{
-		"associatedAccountNumber": map[string]any{"value": "123456789"},
-		"carrierCode":             "FDXG",
-		"packageCount":            1,
+func TestShipBulkStopsAtUnknownOutcome(t *testing.T) {
+	fake := newFakeAPI(t, http.StatusInternalServerError, `{}`)
+	tools := registeredTools(t)
+	result, envelope := callTool(t, tools, "ship_bulk", map[string]any{"shipments": []any{
+		map[string]any{"requestedShipment": map[string]any{"serviceType": "FEDEX_GROUND", "ref": "A"}},
+		map[string]any{"requestedShipment": map[string]any{"serviceType": "FEDEX_GROUND", "ref": "B"}},
+	}})
+	if !result.IsError || envelope["status"] != "stopped" {
+		t.Fatalf("ship_bulk=%v, want stopped", envelope)
 	}
-	preview, err := tool.Handler(context.Background(), toolRequest(map[string]any{"request": request}))
-	if err != nil || preview == nil || preview.IsError {
-		t.Fatalf("preview result=%#v err=%v", preview, err)
+	if fake.calls != 1 {
+		t.Fatalf("ship_bulk kept sending after unknown outcome: calls=%d", fake.calls)
 	}
-	var pending struct {
-		OperationID        string `json:"operation_id"`
-		ConfirmationDigest string `json:"confirmation_digest"`
-	}
-	if err := json.Unmarshal([]byte(toolResultText(t, preview)), &pending); err != nil {
-		t.Fatalf("decode preview: %v", err)
-	}
-
-	result, err := tool.Handler(context.Background(), toolRequest(map[string]any{
-		"request":             request,
-		"confirm":             true,
-		"operation_id":        pending.OperationID,
-		"confirmation_digest": pending.ConfirmationDigest,
-	}))
-	if err != nil {
-		t.Fatalf("confirmed handler error: %v", err)
-	}
-	if result == nil || !result.IsError {
-		t.Fatalf("confirmed result=%#v, want outcome-unknown error", result)
-	}
-	var failure struct {
-		ErrorClass      string `json:"error_class"`
-		OperationID     string `json:"operation_id"`
-		OperationStatus string `json:"operation_status"`
-	}
-	if err := json.Unmarshal([]byte(toolResultText(t, result)), &failure); err != nil {
-		t.Fatalf("decode outcome-unknown result: %v", err)
-	}
-	if failure.ErrorClass != "outcome_unknown" {
-		t.Fatalf("error_class=%q, want outcome_unknown", failure.ErrorClass)
-	}
-	if failure.OperationID != pending.OperationID || failure.OperationStatus != "outcome_unknown" {
-		t.Fatalf("outcome-unknown identity/status not retained: %#v", failure)
-	}
-	if calls != 1 {
-		t.Fatalf("confirmed mutation emitted %d requests, want 1", calls)
-	}
-
-	recordData, err := os.ReadFile(filepath.Join(dataDir, "pending", pending.OperationID+".json"))
-	if err != nil {
-		t.Fatalf("read pending record: %v", err)
-	}
-	var record struct {
-		Status string `json:"status"`
-	}
-	if err := json.Unmarshal(recordData, &record); err != nil {
-		t.Fatalf("decode pending record: %v", err)
-	}
-	if record.Status != "outcome_unknown" {
-		t.Fatalf("pending record status=%q, want outcome_unknown", record.Status)
+	counts, _ := envelope["counts"].(map[string]any)
+	if counts["outcome_unknown"] != float64(1) || counts["not_attempted"] != float64(1) {
+		t.Fatalf("ship_bulk counts=%v", counts)
 	}
 }
 
-func TestMutationResultOmitsEncodedLabelsAndPII(t *testing.T) {
-	encoded := strings.Repeat("synthetic-label-bytes", 50)
-	shortEncoded := "short-label-payload"
+func TestShipBulkSendsEachShipmentOnce(t *testing.T) {
+	fake := newFakeAPI(t, http.StatusOK, `{"output":{"transactionShipments":[{"masterTrackingNumber":"1"}]}}`)
+	tools := registeredTools(t)
+	result, envelope := callTool(t, tools, "ship_bulk", map[string]any{"shipments": []any{
+		map[string]any{"requestedShipment": map[string]any{"ref": "A"}},
+		map[string]any{"requestedShipment": map[string]any{"ref": "B"}},
+		map[string]any{"requestedShipment": map[string]any{"ref": "A"}},
+	}})
+	if result.IsError || envelope["status"] != "completed" {
+		t.Fatalf("ship_bulk=%v", envelope)
+	}
+	if fake.calls != 2 {
+		t.Fatalf("ship_bulk calls=%d, want 2 (third row duplicates the first)", fake.calls)
+	}
+}
+
+func TestLocalCommandArgsAreFixed(t *testing.T) {
+	root := cli.RootCmd()
+	var archive localCommand
+	for _, lc := range localCommands {
+		if lc.name == "archive" {
+			archive = lc
+		}
+	}
+	cmd, _, err := root.Find(archive.path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	argv, err := localCommandArgs(archive, cmd, map[string]any{"query": "--yes", "limit": float64(5), "service": "FEDEX_GROUND --config=/etc/passwd"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := "--agent archive --limit=5 --service=FEDEX_GROUND --config=/etc/passwd -- --yes"
+	if strings.Join(argv, " ") != want {
+		t.Fatalf("argv=%q, want %q", strings.Join(argv, " "), want)
+	}
+	for _, bad := range []map[string]any{{"args": "--yes"}, {"yes": true}, {"config": "/tmp/x"}, {"deliver": "file:/tmp/x"}, {"limit": "5"}} {
+		if _, err := localCommandArgs(archive, cmd, bad); err == nil {
+			t.Errorf("localCommandArgs accepted %v", bad)
+		}
+	}
+	for _, lc := range localCommands {
+		cmd, _, err := root.Find(lc.path)
+		if err != nil || cmd.Name() != lc.path[len(lc.path)-1] {
+			t.Fatalf("local tool %q points at missing command %v", lc.name, lc.path)
+		}
+		for _, name := range lc.flags {
+			if cmd.LocalNonPersistentFlags().Lookup(name) == nil {
+				t.Errorf("local tool %q allowlists missing flag --%s", lc.name, name)
+			}
+		}
+	}
+}
+
+func TestWriteSummaryOmitsEncodedLabelsAndPII(t *testing.T) {
+	encoded := strings.Repeat("synthetic-label-bytes", 200)
 	street := "SENTINEL RECIPIENT STREET"
-	redacted := summarizeMutationResponse("create_label", map[string]any{
+	redacted := summarizeWriteResponse("shipments_create", map[string]any{
 		"output": map[string]any{
 			"encodedLabel":   encoded,
-			"label":          shortEncoded,
 			"streetLines":    street,
 			"trackingNumber": "synthetic-tracking",
 			"packageDocuments": []any{map[string]any{
-				"url":         "https://labels.invalid/sentinel-label-url",
+				"url":         "https://labels.invalid/label-url",
 				"companyName": "SENTINEL COMPANY",
 				"city":        "SENTINEL CITY",
 				"postalCode":  "00000",
@@ -338,16 +398,23 @@ func TestMutationResultOmitsEncodedLabelsAndPII(t *testing.T) {
 	})
 	serialized, err := json.Marshal(redacted)
 	if err != nil {
-		t.Fatalf("marshal redacted result: %v", err)
+		t.Fatal(err)
 	}
-	for _, secret := range []string{encoded, shortEncoded, street, "sentinel-label-url", "SENTINEL COMPANY", "SENTINEL CITY", "00000"} {
+	for _, secret := range []string{encoded, street, "SENTINEL COMPANY", "SENTINEL CITY", "00000"} {
 		if strings.Contains(string(serialized), secret) {
 			t.Fatalf("sensitive value %q escaped redaction", secret)
 		}
 	}
+	for _, kept := range []string{"synthetic-tracking", "label-url"} {
+		if !strings.Contains(string(serialized), kept) {
+			t.Fatalf("%q was lost: %s", kept, serialized)
+		}
+	}
 
-	if !strings.Contains(string(serialized), "synthetic-tracking") {
-		t.Fatalf("non-label metadata was lost: %s", serialized)
+	generic := omitLargeStrings(map[string]any{"docs": []any{map[string]any{"content": encoded}}, "status": "OK"})
+	serialized, _ = json.Marshal(generic)
+	if strings.Contains(string(serialized), encoded) || !strings.Contains(string(serialized), "OK") {
+		t.Fatalf("generic write summary=%s", serialized)
 	}
 }
 

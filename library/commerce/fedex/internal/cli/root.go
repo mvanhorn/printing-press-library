@@ -21,26 +21,25 @@ import (
 var version = "2026.9.1"
 
 type rootFlags struct {
-	asJSON             bool
-	compact            bool
-	csv                bool
-	plain              bool
-	quiet              bool
-	dryRun             bool
-	noCache            bool
-	noInput            bool
-	yes                bool
-	agent              bool
-	operationID        string
-	confirmationDigest string
-	selectFields       string
-	configPath         string
-	profileName        string
-	deliverSpec        string
-	timeout            time.Duration
-	rateLimit          float64
-	dataSource         string
-	freshnessMeta      any
+	asJSON         bool
+	compact        bool
+	csv            bool
+	plain          bool
+	quiet          bool
+	dryRun         bool
+	noCache        bool
+	noInput        bool
+	yes            bool
+	agent          bool
+	allowDuplicate bool
+	selectFields   string
+	configPath     string
+	profileName    string
+	deliverSpec    string
+	timeout        time.Duration
+	rateLimit      float64
+	dataSource     string
+	freshnessMeta  any
 
 	// deliverBuf captures command output when --deliver is set to a
 	// non-stdout sink. Flushed to the sink after Execute returns.
@@ -122,9 +121,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().BoolVar(&flags.noCache, "no-cache", false, "Bypass response cache")
 	rootCmd.PersistentFlags().BoolVar(&flags.noInput, "no-input", false, "Disable all interactive prompts (for CI/agents)")
 	rootCmd.PersistentFlags().StringVar(&flags.selectFields, "select", "", "Comma-separated fields to include in output (e.g. --select id,name,status)")
-	rootCmd.PersistentFlags().BoolVar(&flags.yes, "yes", false, "Execute a mutation after supplying its preview operation ID and digest")
-	rootCmd.PersistentFlags().StringVar(&flags.operationID, "operation-id", "", "Pending operation ID returned by a mutation preview")
-	rootCmd.PersistentFlags().StringVar(&flags.confirmationDigest, "confirmation-digest", "", "Digest returned by the matching mutation preview")
+	rootCmd.PersistentFlags().BoolVar(&flags.yes, "yes", false, "Approve commands that change FedEx state (create, cancel, close, schedule); never implied by --agent")
+	rootCmd.PersistentFlags().BoolVar(&flags.allowDuplicate, "allow-duplicate", false, "Send a FedEx write even if an identical request succeeded, is in flight, or has an unknown outcome from the last 24h")
 	rootCmd.PersistentFlags().BoolVar(&noColor, "no-color", false, "Disable colored output")
 	rootCmd.PersistentFlags().BoolVar(&humanFriendly, "human-friendly", false, "Enable colored output and rich formatting")
 	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set agent-friendly output defaults (--json --compact --no-input --no-color); does not authorize mutations")
@@ -241,6 +239,8 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	c := client.New(cfg, f.timeout, f.rateLimit)
 	c.DryRun = f.dryRun
 	c.NoCache = f.noCache
+	c.WriteApproved = f.yes
+	c.AllowDuplicate = f.allowDuplicate
 	return c, nil
 }
 

@@ -7,9 +7,9 @@
   "summary": "Pass structured MCP write parameters to the FedEx HTTP client so request bodies are JSON-encoded exactly once.",
   "reason": "The FedEx MCP pre-marshaled write parameters before calling a client that marshals request bodies, causing shipment and other write bodies to arrive as base64 JSON strings instead of JSON objects.",
   "files": [
-    "internal/mcp/code_orch.go",
-    "internal/mcp/code_orch_writebody_test.go",
-    "internal/mcp/tools.go"
+    "internal/mcp/endpoint_handlers.go",
+    "internal/mcp/tools_safety_test.go",
+    "internal/client/client_test.go"
   ],
-  "validated_outcome": "Unit and client mock-server tests confirm structured POST, PUT, and PATCH bodies receive one JSON encoding pass; orchestration and generic mutation handlers are separately blocked before network access without confirmation."
+  "validated_outcome": "Client mock-server tests confirm structured POST, PUT, and PATCH bodies receive one JSON encoding pass, and MCP write-tool tests confirm the FedEx request body arrives as a JSON object."
 }

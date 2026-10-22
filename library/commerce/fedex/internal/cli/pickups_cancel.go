@@ -83,12 +83,9 @@ func newPickupsCancelCmd(flags *rootFlags) *cobra.Command {
 					body["location"] = bodyLocation
 				}
 			}
-			data, statusCode, executed, err := executeProtectedMutation(cmd, flags, c, "cancel_pickup", "PUT", path, body)
+			data, statusCode, err := c.Put(path, body)
 			if err != nil {
 				return classifyAPIError(err)
-			}
-			if !executed {
-				return nil
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")

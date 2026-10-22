@@ -58,14 +58,14 @@ These capabilities aren't available in any other tool for this API.
   _The 'I ship 30 packages a day' workflow. Replaces clicking through FedEx Ship Manager one label at a time._
 
   ```bash
-  fedex ship bulk --csv orders.csv --service GROUND --output labels/ --resume
+  fedex ship bulk --csv orders.csv --service GROUND --output labels/ --resume --yes
   ```
 - **`return create`** — Generate a Ground Call Tag (return label) against an existing tracking number with one command, optionally emailing it to the recipient.
 
   _E-commerce customer-service workflow. Issuing a return label is the most common post-sale interaction._
 
   ```bash
-  fedex return create --tracking 794633071234 --reason damaged --email customer@example.com
+  fedex return create --tracking 794633071234 --reason damaged --email customer@example.com --yes
   ```
 - **`address validate`** — SHA-256-keyed local cache prevents re-billing the FedEx Address Validation API for repeat lookups.
 
@@ -287,7 +287,7 @@ Returns every applicable service type with cost and transit time so the agent (o
 ### Bulk ship with resume
 
 ```bash
-fedex ship bulk --csv orders.csv --service GROUND --output labels/ --resume --concurrency 2
+fedex ship bulk --csv orders.csv --service GROUND --output labels/ --resume --concurrency 2 --yes
 ```
 
 Creates labels for every row in orders.csv, respects the FedEx 1 req/s burst limit via cliutil.AdaptiveLimiter, and resumes from the last successful row if interrupted.
@@ -303,7 +303,7 @@ Address book lookup avoids retyping recipient details across every shipment.
 ### Issue a return label
 
 ```bash
-fedex return create --tracking 794633071234 --reason damaged --json
+fedex return create --tracking 794633071234 --reason damaged --json --yes
 ```
 
 Generates a Ground Call Tag against the original tracking; PDF/ZPL label is emitted for the customer.
@@ -322,9 +322,15 @@ FedEx uses OAuth2 client_credentials. Inject the project Client ID and Client Se
 
 Run `fedex-pp-cli doctor` to verify setup.
 
+## Writes, approval, and duplicate protection
+
+Commands that change FedEx state (`shipments create/cancel/tag/tag_cancel`, `ship bulk`, `ship etd`, `return create`, `pickups create/cancel`, `freight_pickups create/cancel`, `freight_shipments create`, `endofday close/modify`, `manifest --close`, `openship *` writes, `consolidations *` writes, `track notifications`) only send when you pass `--yes`. `--agent` never implies `--yes`, and a saved profile cannot set it. Use `--dry-run` to preview the request shape first; a dry run needs no approval and sends nothing.
+
+Writes are never retried automatically. If an identical write (same FedEx origin, method, path, and request body) succeeded, is still in flight, or ended with an unknown outcome in the last 24 hours, the CLI refuses it instead of buying a second label or booking a second pickup. Check FedEx (`track number`, `shipments results`) after an unknown outcome; pass `--allow-duplicate` only when a second identical operation is really what you want. The local write ledger stores request digests, never request bodies.
+
 ## Agent Mode
 
-Add `--agent` to any command. Expands to: `--json --compact --no-input --no-color --yes`.
+Add `--agent` to any command. Expands to: `--json --compact --no-input --no-color`. It does not approve writes; pass `--yes` explicitly for commands that change FedEx state.
 
 - **Pipeable** — JSON on stdout, errors on stderr
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
@@ -405,6 +411,20 @@ Parse `$ARGUMENTS`:
    claude mcp add fedex-pp-mcp -- fedex-pp-mcp
    ```
 3. Verify: `claude mcp list`
+
+### MCP Tools
+
+`fedex-pp-mcp` serves stdio by default (`--transport http --allow-http` binds loopback only) and exposes 59 tools:
+
+- **One typed tool per FedEx operation** (48), named after the CLI command: `track_number`, `track_reference`, `rates_quote`, `addresses_validate`, `shipments_create`, `shipments_cancel`, `shipments_tag` (return label / Ground Call Tag), `pickups_create`, `endofday_close`, `openship_*`, `consolidations_*`, `freight_pickups_*`, and so on. Each takes the FedEx JSON request body as `request`; the method and path are fixed per tool.
+- **`ship_bulk`** creates up to 50 shipments in one call from inline create-shipment requests, one at a time, stopping at the first rate limit or unknown outcome.
+- **Local data tools**: `rate_shop`, `address_validate` (cached), `track_diff`, `archive`, `spend_report`, `manifest`, `address_list`, `address_save`, `address_delete`.
+- **`context`** for domain orientation.
+
+Read tools are annotated `readOnlyHint: true`. Tools that change FedEx state are annotated `destructiveHint: true` and run in a single call once your MCP client approves it; set your client to ask before destructive tools. Every write tool shares the CLI's duplicate protection (`error_class: duplicate_refused`, override with `allow_duplicate: true`) and never retries. Write results keep tracking numbers, charges, confirmation codes, and label URLs (request `labelResponseOptions: URL_ONLY`) but drop encoded label blobs and recipient details.
+
+There is no generic endpoint executor, SQL tool, raw CLI passthrough, or tool that reads or writes a caller-chosen file path; `export`, `import`, `tail`, `track watch`, and `ship etd` stay CLI-only.
+
 
 ## Direct Use
 

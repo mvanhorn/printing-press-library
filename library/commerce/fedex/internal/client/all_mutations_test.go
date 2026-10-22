@@ -11,7 +11,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/config"
 )
 
-func TestEveryMutationRequiresBoundPermit(t *testing.T) {
+func TestEveryMutationRequiresExplicitWriteApproval(t *testing.T) {
 	calls := 0
 	c := New(&config.Config{
 		BaseURL:     "https://apis-sandbox.fedex.com",
@@ -25,10 +25,10 @@ func TestEveryMutationRequiresBoundPermit(t *testing.T) {
 	})}
 
 	_, _, err := c.Post("/ship/v1/consolidations", map[string]any{"consolidation": "synthetic"})
-	if !errors.Is(err, ErrBoundConfirmationRequired) {
-		t.Fatalf("expected bound confirmation error, got %v", err)
+	if !errors.Is(err, ErrWriteNotApproved) {
+		t.Fatalf("expected write-approval error, got %v", err)
 	}
 	if calls != 0 {
-		t.Fatalf("unpermitted mutation reached network %d times", calls)
+		t.Fatalf("unapproved mutation reached network %d times", calls)
 	}
 }

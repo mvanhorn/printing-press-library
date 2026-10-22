@@ -10,9 +10,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/approval"
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/mutationguard"
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/secureio"
 	"io"
 	"math"
@@ -27,19 +27,37 @@ import (
 )
 
 type Client struct {
-	BaseURL        string
-	Config         *config.Config
-	HTTPClient     *http.Client
-	DryRun         bool
-	DryRunWriter   io.Writer
-	NoCache        bool
-	MutationPermit *approval.Permit
-	cacheDir       string
-	limiter        *cliutil.AdaptiveLimiter
-	retrySleep     func(time.Duration)
+	BaseURL      string
+	Config       *config.Config
+	HTTPClient   *http.Client
+	DryRun       bool
+	DryRunWriter io.Writer
+	NoCache      bool
+	// WriteApproved must be set before any request that changes FedEx state
+	// is sent. The CLI sets it only from an explicit --yes (never from
+	// --agent); the MCP server sets it for write tools, whose per-call
+	// approval comes from the MCP client.
+	WriteApproved bool
+	// AllowDuplicate skips the duplicate-write refusal for one deliberate
+	// repeat of an identical request. The attempt is still recorded.
+	AllowDuplicate bool
+	// MutationLedgerDir overrides the duplicate-write ledger location.
+	MutationLedgerDir string
+	cacheDir          string
+	limiter           *cliutil.AdaptiveLimiter
+	retrySleep        func(time.Duration)
 }
 
-var ErrBoundConfirmationRequired = errors.New("protected FedEx mutation requires a matching consumed operation permit")
+// ErrWriteNotApproved is returned before any network activity when a request
+// that changes FedEx state was not explicitly approved.
+var ErrWriteNotApproved = errors.New("this request changes FedEx state and was not approved; re-run with --yes to send it, or --dry-run to preview it")
+
+// ErrCompanionWriteRefused is returned when the CLI was launched by the MCP
+// server's local command tools, which are limited to reads and local data.
+var ErrCompanionWriteRefused = errors.New("FedEx writes are disabled for CLI processes launched by the MCP server; use the MCP write tools instead")
+
+// MCPChildEnv marks CLI processes launched by the MCP server.
+const MCPChildEnv = "FEDEX_PP_MCP_CHILD"
 
 // APIError carries HTTP status information for structured exit codes.
 type APIError struct {
@@ -219,11 +237,64 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		return c.dryRun(method, targetURL, path, params, bodyBytes, headerOverrides, "")
 	}
 
-	canRetry := canRetryAmbiguousFailure(method, path)
-	if !isKnownReadOnlyOperation(method, path) && (c.MutationPermit == nil || !c.MutationPermit.Allows(method, path, body)) {
-		return nil, 0, ErrBoundConfirmationRequired
+	if IsReadOnlyOperation(method, path) {
+		return c.send(method, targetURL, path, params, bodyBytes, headerOverrides)
+	}
+	if os.Getenv(MCPChildEnv) == "1" {
+		return nil, 0, ErrCompanionWriteRefused
+	}
+	if !c.WriteApproved {
+		return nil, 0, ErrWriteNotApproved
 	}
 
+	ledger, err := c.mutationLedger()
+	if err != nil {
+		return nil, 0, err
+	}
+	digest, err := ledger.Begin(c.BaseURL, method, path, bodyBytes, c.AllowDuplicate)
+	if err != nil {
+		return nil, 0, err
+	}
+	data, status, sendErr := c.send(method, targetURL, path, params, bodyBytes, headerOverrides)
+	if completeErr := ledger.Complete(digest, mutationOutcome(status, sendErr)); completeErr != nil {
+		if sendErr != nil {
+			return nil, status, errors.Join(sendErr, fmt.Errorf("recording FedEx write outcome: %w", completeErr))
+		}
+		return data, status, fmt.Errorf("FedEx accepted the write but its local duplicate-protection record could not be updated (do not retry blindly): %w", completeErr)
+	}
+	return data, status, sendErr
+}
+
+func (c *Client) mutationLedger() (*mutationguard.Ledger, error) {
+	dir := strings.TrimSpace(c.MutationLedgerDir)
+	if dir == "" {
+		var err error
+		dir, err = mutationguard.DefaultDir()
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &mutationguard.Ledger{Dir: dir}, nil
+}
+
+// mutationOutcome maps a single-attempt write result to a ledger status. Only
+// a definite FedEx rejection (4xx, or a failure before anything was sent)
+// releases the request for another attempt.
+func mutationOutcome(status int, err error) string {
+	if err == nil {
+		return mutationguard.StatusSucceeded
+	}
+	var unknown *OutcomeUnknownError
+	if errors.As(err, &unknown) || status >= 500 {
+		return mutationguard.StatusOutcomeUnknown
+	}
+	return mutationguard.StatusRejected
+}
+
+// send performs the HTTP exchange. Only operations on the read-only allowlist
+// are retried; writes get exactly one attempt.
+func (c *Client) send(method, targetURL, path string, params map[string]string, bodyBytes []byte, headerOverrides map[string]string) (json.RawMessage, int, error) {
+	canRetry := canRetryAmbiguousFailure(method, path)
 	authHeader, err := c.authHeaderForPath(path)
 	if err != nil {
 		return nil, 0, err
@@ -416,7 +487,9 @@ var knownReadOnlyPosts = func() map[string]struct{} {
 	return result
 }()
 
-func isKnownReadOnlyOperation(method, path string) bool {
+// IsReadOnlyOperation reports whether method+path is on the read-only
+// allowlist. Everything else is treated as a FedEx write.
+func IsReadOnlyOperation(method, path string) bool {
 	switch method {
 	case http.MethodGet, http.MethodHead, http.MethodOptions:
 		return true

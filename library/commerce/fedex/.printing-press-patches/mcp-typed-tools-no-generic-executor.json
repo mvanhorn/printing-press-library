@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "mcp-typed-tools-no-generic-executor",
+  "applied_at": "2026-10-21",
+  "base_run_id": "20260502-152509",
+  "base_printing_press_version": "3.6.0",
+  "summary": "Expose one fixed-endpoint MCP tool per FedEx operation plus a fixed set of local-data tools, and drop the generic endpoint executor and the raw CLI mirror.",
+  "reason": "A shipping agent for a small business needs tracking, rates, labels, returns (call tags), pickups, end-of-day, open ship, and consolidations, but a generic endpoint selector and a CLI mirror that forwards raw arguments and global flags (--config, --deliver, --yes, file paths) cannot be constrained or reviewed per call.",
+  "files": [
+    "internal/mcp/tools.go",
+    "internal/mcp/endpoint_tools.go",
+    "internal/mcp/endpoint_handlers.go",
+    "internal/mcp/write_summary.go",
+    "internal/mcp/ship_bulk.go",
+    "internal/mcp/local_tools.go",
+    "internal/mcp/tools_safety_test.go",
+    "internal/client/client.go",
+    ".printing-press.json",
+    "tools-manifest.json"
+  ],
+  "validated_outcome": "Tests pin the exact tool list; every endpoint tool's read-only annotation matches the client's read-only allowlist; write tools carry destructiveHint=true, idempotentHint=false, and an allow_duplicate override; no tool exposes args, config, deliver, yes, data-source, output, input, webhook, or endpoint_id; local tools accept only allowlisted command flags passed as --name=value with positionals after --; the companion CLI launched by MCP refuses every FedEx write; write results drop encoded labels and recipient fields; tools-manifest.json and mcp_tool_count match runtime registration."
+}

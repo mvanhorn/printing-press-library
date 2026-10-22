@@ -77,12 +77,9 @@ func newShipmentsCreateCmd(flags *rootFlags) *cobra.Command {
 					body["oneLabelAtATime"] = bodyOneLabelAtATime
 				}
 			}
-			data, statusCode, executed, err := executeProtectedMutation(cmd, flags, c, "create_label", "POST", path, body)
+			data, statusCode, err := c.Post(path, body)
 			if err != nil {
 				return classifyAPIError(err)
-			}
-			if !executed {
-				return nil
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")

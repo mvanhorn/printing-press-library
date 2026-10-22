@@ -1,115 +1,1565 @@
 {
   "tools": [
     {
-      "name": "get_rates",
-      "description": "Get FedEx rate quotes for a shipment request. This calls FedEx but does not create a shipment.",
+      "name": "address_delete",
+      "description": "Delete an address book entry by name Changes the local address book only; never calls FedEx.",
       "parameters": {
-        "type": "object",
         "properties": {
-          "request": {
-            "type": "object",
-            "description": "Exact FedEx REST request object for this operation."
+          "name": {
+            "description": "Saved recipient name to delete.",
+            "type": "string"
           }
         },
-        "required": ["request"]
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
       }
     },
     {
-      "name": "validate_address",
-      "description": "Validate and standardize an address with FedEx. This may be billable, is never retried automatically, and does not create a shipment.",
+      "name": "address_list",
+      "description": "List saved address book entries Reads the local shipment ledger only.",
       "parameters": {
-        "type": "object",
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "address_save",
+      "description": "Save a recipient to the local address book Changes the local address book only; never calls FedEx.",
+      "parameters": {
         "properties": {
-          "request": {
-            "type": "object",
-            "description": "Exact FedEx REST request object for this operation."
+          "city": {
+            "description": "City",
+            "type": "string"
+          },
+          "company": {
+            "description": "Recipient company",
+            "type": "string"
+          },
+          "contact-name": {
+            "description": "Recipient contact name",
+            "type": "string"
+          },
+          "country": {
+            "description": "ISO country code (default: US)",
+            "type": "string"
+          },
+          "email": {
+            "description": "Recipient email",
+            "type": "string"
+          },
+          "name": {
+            "description": "Name to save the recipient under.",
+            "type": "string"
+          },
+          "notes": {
+            "description": "Free-form notes",
+            "type": "string"
+          },
+          "phone": {
+            "description": "Recipient phone",
+            "type": "string"
+          },
+          "residential": {
+            "description": "Mark as residential address (default: false)",
+            "type": "boolean"
+          },
+          "state": {
+            "description": "State or province code",
+            "type": "string"
+          },
+          "street": {
+            "description": "Street line 1",
+            "type": "string"
+          },
+          "street2": {
+            "description": "Street line 2",
+            "type": "string"
+          },
+          "zip": {
+            "description": "Postal code",
+            "type": "string"
           }
         },
-        "required": ["request"]
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
       }
     },
     {
-      "name": "validate_shipment",
-      "description": "Validate a single-package shipment request without creating a shipment or label.",
+      "name": "address_validate",
+      "description": "Validate an address with a SHA-256 keyed local cache (skips API on repeat lookups) Read-only FedEx lookup.",
       "parameters": {
-        "type": "object",
         "properties": {
-          "request": {
-            "type": "object",
-            "description": "Exact FedEx REST request object for this operation."
+          "cache": {
+            "description": "Consult local cache before calling the API (default: true)",
+            "type": "boolean"
+          },
+          "city": {
+            "description": "City",
+            "type": "string"
+          },
+          "country": {
+            "description": "ISO country code (default: US)",
+            "type": "string"
+          },
+          "state": {
+            "description": "State or province code",
+            "type": "string"
+          },
+          "street": {
+            "description": "Street line",
+            "type": "string"
+          },
+          "zip": {
+            "description": "Postal code",
+            "type": "string"
           }
         },
-        "required": ["request"]
+        "required": [],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
       }
     },
     {
-      "name": "pickup_availability",
-      "description": "Check FedEx Express or Ground pickup availability without scheduling a pickup.",
+      "name": "addresses_validate",
+      "description": "Validate one or more addresses (resolved/standardized form, classification, optional resolved coordinates). Calls FedEx POST /address/v1/addresses/resolve with `request` as the JSON body. Read-only.",
       "parameters": {
-        "type": "object",
         "properties": {
           "request": {
-            "type": "object",
-            "description": "Exact FedEx REST request object for this operation."
+            "description": "FedEx REST request body for POST /address/v1/addresses/resolve.",
+            "properties": {},
+            "type": "object"
           }
         },
-        "required": ["request"]
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
       }
     },
     {
-      "name": "create_label",
-      "description": "Preview or, after bound confirmation, create one FedEx shipment and label.",
+      "name": "archive",
+      "description": "Search the local shipment archive (FTS5 over recipient, reference, tracking) Reads the local shipment ledger only.",
       "parameters": {
-        "type": "object",
         "properties": {
-          "request": {"type": "object"},
-          "confirm": {"type": "boolean", "default": false},
-          "operation_id": {"type": "string"},
-          "confirmation_digest": {"type": "string"}
+          "account": {
+            "description": "Filter by account",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Max rows to return (default: 50)",
+            "type": "number"
+          },
+          "query": {
+            "description": "Full-text search over recipient, reference, tracking number, and address.",
+            "type": "string"
+          },
+          "service": {
+            "description": "Filter by service_type",
+            "type": "string"
+          },
+          "since": {
+            "description": "Only shipments created within this duration (e.g. 24h, 720h)",
+            "type": "string"
+          }
         },
-        "required": ["request"]
+        "required": [],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
       }
     },
     {
-      "name": "cancel_shipment",
-      "description": "Preview or, after bound confirmation, cancel one FedEx shipment.",
+      "name": "availability_services",
+      "description": "Get available services for an origin/destination pair. Calls FedEx POST /availability/v1/packageandserviceoptions with `request` as the JSON body. Read-only.",
       "parameters": {
-        "type": "object",
         "properties": {
-          "request": {"type": "object"},
-          "confirm": {"type": "boolean", "default": false},
-          "operation_id": {"type": "string"},
-          "confirmation_digest": {"type": "string"}
+          "request": {
+            "description": "FedEx REST request body for POST /availability/v1/packageandserviceoptions.",
+            "properties": {},
+            "type": "object"
+          }
         },
-        "required": ["request"]
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
       }
     },
     {
-      "name": "schedule_pickup",
-      "description": "Preview or, after bound confirmation, schedule one FedEx pickup.",
+      "name": "availability_special_services",
+      "description": "Get available special-service options (alcohol, dangerous goods, signature requirements, etc.). Calls FedEx POST /availability/v1/specialserviceoptions with `request` as the JSON body. Read-only.",
       "parameters": {
-        "type": "object",
         "properties": {
-          "request": {"type": "object"},
-          "confirm": {"type": "boolean", "default": false},
-          "operation_id": {"type": "string"},
-          "confirmation_digest": {"type": "string"}
+          "request": {
+            "description": "FedEx REST request body for POST /availability/v1/specialserviceoptions.",
+            "properties": {},
+            "type": "object"
+          }
         },
-        "required": ["request"]
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
       }
     },
     {
-      "name": "cancel_pickup",
-      "description": "Preview or, after bound confirmation, cancel one FedEx pickup.",
+      "name": "availability_transit_times",
+      "description": "Get transit times for an origin/destination pair across services. Calls FedEx POST /availability/v1/transittimes with `request` as the JSON body. Read-only.",
       "parameters": {
-        "type": "object",
         "properties": {
-          "request": {"type": "object"},
-          "confirm": {"type": "boolean", "default": false},
-          "operation_id": {"type": "string"},
-          "confirmation_digest": {"type": "string"}
+          "request": {
+            "description": "FedEx REST request body for POST /availability/v1/transittimes.",
+            "properties": {},
+            "type": "object"
+          }
         },
-        "required": ["request"]
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "consolidations_add_shipment",
+      "description": "Add shipments to a consolidation. Calls FedEx POST /ship/v1/consolidations/shipments with `request` as the JSON body. Changes FedEx state: runs once per approved call, is never retried automatically, and refuses an identical recent request unless allow_duplicate is true.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "request": {
+            "description": "FedEx REST request body for POST /ship/v1/consolidations/shipments.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "consolidations_confirm",
+      "description": "Confirm a consolidation (locks rates and triggers shipping). Calls FedEx POST /ship/v1/consolidations/confirmations with `request` as the JSON body. Changes FedEx state: runs once per approved call, is never retried automatically, and refuses an identical recent request unless allow_duplicate is true.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "request": {
+            "description": "FedEx REST request body for POST /ship/v1/consolidations/confirmations.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "consolidations_confirm_results",
+      "description": "Get results of a consolidation confirmation. Calls FedEx POST /ship/v1/consolidations/confirmationresults with `request` as the JSON body. Read-only.",
+      "parameters": {
+        "properties": {
+          "request": {
+            "description": "FedEx REST request body for POST /ship/v1/consolidations/confirmationresults.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "consolidations_create",
+      "description": "Create a consolidation. Calls FedEx POST /ship/v1/consolidations with `request` as the JSON body. Changes FedEx state: runs once per approved call, is never retried automatically, and refuses an identical recent request unless allow_duplicate is true.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "request": {
+            "description": "FedEx REST request body for POST /ship/v1/consolidations.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "consolidations_delete",
+      "description": "Delete a consolidation. Calls FedEx PUT /ship/v1/consolidations/delete with `request` as the JSON body. Changes FedEx state: runs once per approved call, is never retried automatically, and refuses an identical recent request unless allow_duplicate is true.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "request": {
+            "description": "FedEx REST request body for PUT /ship/v1/consolidations/delete.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "consolidations_delete_shipment",
+      "description": "Remove a shipment from a consolidation. Calls FedEx PUT /ship/v1/consolidations/shipments/delete with `request` as the JSON body. Changes FedEx state: runs once per approved call, is never retried automatically, and refuses an identical recent request unless allow_duplicate is true.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "request": {
+            "description": "FedEx REST request body for PUT /ship/v1/consolidations/shipments/delete.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "consolidations_modify",
+      "description": "Modify a consolidation. Calls FedEx PUT /ship/v1/consolidations with `request` as the JSON body. Changes FedEx state: runs once per approved call, is never retried automatically, and refuses an identical recent request unless allow_duplicate is true.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "request": {
+            "description": "FedEx REST request body for PUT /ship/v1/consolidations.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "consolidations_results",
+      "description": "Get consolidation results. Calls FedEx POST /ship/v1/consolidations/results with `request` as the JSON body. Read-only.",
+      "parameters": {
+        "properties": {
+          "request": {
+            "description": "FedEx REST request body for POST /ship/v1/consolidations/results.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "consolidations_retrieve",
+      "description": "Retrieve a consolidation. Calls FedEx POST /ship/v1/consolidations/retrieve with `request` as the JSON body. Read-only.",
+      "parameters": {
+        "properties": {
+          "request": {
+            "description": "FedEx REST request body for POST /ship/v1/consolidations/retrieve.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "context",
+      "description": "Get API domain context: resource taxonomy, auth requirements, write-safety rules, and which tool covers which workflow. Call this first.",
+      "parameters": {
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "endofday_close",
+      "description": "Submit Ground end-of-day close (manifest packages shipped today). Calls FedEx POST /ship/v1/endofday/ with `request` as the JSON body. Changes FedEx state: runs once per approved call, is never retried automatically, and refuses an identical recent request unless allow_duplicate is true.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "request": {
+            "description": "FedEx REST request body for POST /ship/v1/endofday/.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "endofday_modify",
+      "description": "Re-submit or modify a previous end-of-day close. Calls FedEx PUT /ship/v1/endofday/ with `request` as the JSON body. Changes FedEx state: runs once per approved call, is never retried automatically, and refuses an identical recent request unless allow_duplicate is true.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "request": {
+            "description": "FedEx REST request body for PUT /ship/v1/endofday/.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "freight_pickups_availability",
+      "description": "Check freight pickup availability. Calls FedEx POST /pickup/v1/freight/pickups/availabilities with `request` as the JSON body. Read-only.",
+      "parameters": {
+        "properties": {
+          "request": {
+            "description": "FedEx REST request body for POST /pickup/v1/freight/pickups/availabilities.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "freight_pickups_cancel",
+      "description": "Cancel a freight pickup. Calls FedEx PUT /pickup/v1/freight/pickups/cancel with `request` as the JSON body. Changes FedEx state: runs once per approved call, is never retried automatically, and refuses an identical recent request unless allow_duplicate is true.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "request": {
+            "description": "FedEx REST request body for PUT /pickup/v1/freight/pickups/cancel.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "freight_pickups_create",
+      "description": "Schedule a freight (LTL) pickup. Calls FedEx POST /pickup/v1/freight/pickups with `request` as the JSON body. Changes FedEx state: runs once per approved call, is never retried automatically, and refuses an identical recent request unless allow_duplicate is true.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "request": {
+            "description": "FedEx REST request body for POST /pickup/v1/freight/pickups.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "freight_shipments_create",
+      "description": "Create a freight (LTL) shipment. Calls FedEx POST /ship/v1/freight/shipments with `request` as the JSON body. Changes FedEx state: runs once per approved call, is never retried automatically, and refuses an identical recent request unless allow_duplicate is true.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "request": {
+            "description": "FedEx REST request body for POST /ship/v1/freight/shipments.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "globaltrade_regulatory",
+      "description": "Get regulatory details (HS codes, harmonized system, country restrictions). Calls FedEx POST /globaltrade/v1/shipments/regulatorydetails/retrieve with `request` as the JSON body. Read-only.",
+      "parameters": {
+        "properties": {
+          "request": {
+            "description": "FedEx REST request body for POST /globaltrade/v1/shipments/regulatorydetails/retrieve.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "locations_find",
+      "description": "Find FedEx locations near an address or postal code. Calls FedEx POST /location/v1/locations with `request` as the JSON body. Read-only.",
+      "parameters": {
+        "properties": {
+          "request": {
+            "description": "FedEx REST request body for POST /location/v1/locations.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "manifest",
+      "description": "Generate a daily shipment manifest report from the local archive (text/markdown; PDF deferred) Reads the local shipment ledger only.",
+      "parameters": {
+        "properties": {
+          "account": {
+            "description": "Restrict to one account",
+            "type": "string"
+          },
+          "date": {
+            "description": "Day to summarize (YYYY-MM-DD or today) (default: today)",
+            "type": "string"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "openship_add_package",
+      "description": "Add a package to an open shipment. Calls FedEx POST /ship/v1/openshipments/packages with `request` as the JSON body. Changes FedEx state: runs once per approved call, is never retried automatically, and refuses an identical recent request unless allow_duplicate is true.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "request": {
+            "description": "FedEx REST request body for POST /ship/v1/openshipments/packages.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "openship_create",
+      "description": "Create an open (uncommitted) multi-piece shipment. Calls FedEx POST /ship/v1/openshipments with `request` as the JSON body. Changes FedEx state: runs once per approved call, is never retried automatically, and refuses an identical recent request unless allow_duplicate is true.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "request": {
+            "description": "FedEx REST request body for POST /ship/v1/openshipments.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "openship_delete",
+      "description": "Delete an open shipment. Calls FedEx PUT /ship/v1/openshipments/delete with `request` as the JSON body. Changes FedEx state: runs once per approved call, is never retried automatically, and refuses an identical recent request unless allow_duplicate is true.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "request": {
+            "description": "FedEx REST request body for PUT /ship/v1/openshipments/delete.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "openship_delete_package",
+      "description": "Delete a package from an open shipment. Calls FedEx PUT /ship/v1/openshipments/packages/delete with `request` as the JSON body. Changes FedEx state: runs once per approved call, is never retried automatically, and refuses an identical recent request unless allow_duplicate is true.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "request": {
+            "description": "FedEx REST request body for PUT /ship/v1/openshipments/packages/delete.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "openship_modify",
+      "description": "Modify an open shipment. Calls FedEx PUT /ship/v1/openshipments with `request` as the JSON body. Changes FedEx state: runs once per approved call, is never retried automatically, and refuses an identical recent request unless allow_duplicate is true.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "request": {
+            "description": "FedEx REST request body for PUT /ship/v1/openshipments.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "openship_modify_package",
+      "description": "Modify a package in an open shipment. Calls FedEx PUT /ship/v1/openshipments/packages with `request` as the JSON body. Changes FedEx state: runs once per approved call, is never retried automatically, and refuses an identical recent request unless allow_duplicate is true.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "request": {
+            "description": "FedEx REST request body for PUT /ship/v1/openshipments/packages.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "openship_results",
+      "description": "Get results of a confirmed open shipment. Calls FedEx POST /ship/v1/openshipments/results with `request` as the JSON body. Read-only.",
+      "parameters": {
+        "properties": {
+          "request": {
+            "description": "FedEx REST request body for POST /ship/v1/openshipments/results.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "openship_retrieve",
+      "description": "Retrieve an open shipment by index. Calls FedEx POST /ship/v1/openshipments/retrieve with `request` as the JSON body. Read-only.",
+      "parameters": {
+        "properties": {
+          "request": {
+            "description": "FedEx REST request body for POST /ship/v1/openshipments/retrieve.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "openship_retrieve_package",
+      "description": "Retrieve a specific package from an open shipment. Calls FedEx POST /ship/v1/openshipments/packages/retrieve with `request` as the JSON body. Read-only.",
+      "parameters": {
+        "properties": {
+          "request": {
+            "description": "FedEx REST request body for POST /ship/v1/openshipments/packages/retrieve.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "pickups_availability",
+      "description": "Check whether pickup is available for a postal code on a date. Calls FedEx POST /pickup/v1/pickups/availabilities with `request` as the JSON body. Read-only.",
+      "parameters": {
+        "properties": {
+          "request": {
+            "description": "FedEx REST request body for POST /pickup/v1/pickups/availabilities.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "pickups_cancel",
+      "description": "Cancel a previously-scheduled Express/Ground pickup. Calls FedEx PUT /pickup/v1/pickups/cancel with `request` as the JSON body. Changes FedEx state: runs once per approved call, is never retried automatically, and refuses an identical recent request unless allow_duplicate is true.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "request": {
+            "description": "FedEx REST request body for PUT /pickup/v1/pickups/cancel.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "pickups_create",
+      "description": "Schedule an Express or Ground pickup at a specified address. Calls FedEx POST /pickup/v1/pickups with `request` as the JSON body. Changes FedEx state: runs once per approved call, is never retried automatically, and refuses an identical recent request unless allow_duplicate is true.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "request": {
+            "description": "FedEx REST request body for POST /pickup/v1/pickups.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "postal_validate",
+      "description": "Validate that FedEx services a postal code in a country. Calls FedEx POST /country/v1/postal/validate with `request` as the JSON body. Read-only.",
+      "parameters": {
+        "properties": {
+          "request": {
+            "description": "FedEx REST request body for POST /country/v1/postal/validate.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "rate_shop",
+      "description": "Quote rates across every applicable service type and rank by cost or transit Read-only FedEx lookup.",
+      "parameters": {
+        "properties": {
+          "account": {
+            "description": "FedEx account number (defaults to env FEDEX_ACCOUNT_NUMBER)",
+            "type": "string"
+          },
+          "from": {
+            "description": "Origin postal code",
+            "type": "string"
+          },
+          "from-country": {
+            "description": "Origin country code (default: US)",
+            "type": "string"
+          },
+          "rank-by": {
+            "description": "Ranking field: cost or transit (default: cost)",
+            "type": "string"
+          },
+          "services": {
+            "description": "Comma-separated service types to consider when ranking (default: FEDEX_GROUND,FEDEX_2_DAY,STANDARD_OVERNIGHT,PRIORITY_OVERNIGHT,FEDEX_EXPRESS_SAVER,GROUND_HOME_DELIVERY)",
+            "type": "string"
+          },
+          "to": {
+            "description": "Destination postal code",
+            "type": "string"
+          },
+          "to-country": {
+            "description": "Destination country code (default: US)",
+            "type": "string"
+          },
+          "units": {
+            "description": "Weight units (LB or KG) (default: LB)",
+            "type": "string"
+          },
+          "weight": {
+            "description": "Package weight (e.g. 5, 5lb, 2.5kg). When the value carries a unit suffix it overrides --units.",
+            "type": "string"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "rates_quote",
+      "description": "Quote rates for a shipment (Express/Ground/Home/Ground Economy). Calls FedEx POST /rate/v1/rates/quotes with `request` as the JSON body. Read-only.",
+      "parameters": {
+        "properties": {
+          "request": {
+            "description": "FedEx REST request body for POST /rate/v1/rates/quotes.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "rates_quote_freight",
+      "description": "Quote rates for freight (LTL) shipments. Calls FedEx POST /rate/v1/freight/rates/quotes with `request` as the JSON body. Read-only.",
+      "parameters": {
+        "properties": {
+          "request": {
+            "description": "FedEx REST request body for POST /rate/v1/freight/rates/quotes.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ship_bulk",
+      "description": "Create up to 50 FedEx shipments and labels in one approved call. Each item in `shipments` is a full FedEx create-shipment request body (the same shape shipments_create takes). Shipments are sent one at a time, never retried, and each one is checked against the 24h duplicate ledger. The batch stops at the first rate limit or unknown outcome and reports the rest as not_attempted. Changes FedEx state.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "shipments": {
+            "description": "FedEx create-shipment request bodies, one per shipment.",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "shipments"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "shipments_cancel",
+      "description": "Cancel a shipment by tracking number. Calls FedEx PUT /ship/v1/shipments/cancel with `request` as the JSON body. Changes FedEx state: runs once per approved call, is never retried automatically, and refuses an identical recent request unless allow_duplicate is true.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "request": {
+            "description": "FedEx REST request body for PUT /ship/v1/shipments/cancel.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "shipments_create",
+      "description": "Create a shipment and generate label(s). Calls FedEx POST /ship/v1/shipments with `request` as the JSON body. Changes FedEx state: runs once per approved call, is never retried automatically, and refuses an identical recent request unless allow_duplicate is true.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "request": {
+            "description": "FedEx REST request body for POST /ship/v1/shipments.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "shipments_results",
+      "description": "Retrieve results of an asynchronous shipment job. Calls FedEx POST /ship/v1/shipments/results with `request` as the JSON body. Read-only.",
+      "parameters": {
+        "properties": {
+          "request": {
+            "description": "FedEx REST request body for POST /ship/v1/shipments/results.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "shipments_tag",
+      "description": "Create a Ground Call Tag (return label) for an existing shipment. Calls FedEx POST /ship/v1/shipments/tag with `request` as the JSON body. Changes FedEx state: runs once per approved call, is never retried automatically, and refuses an identical recent request unless allow_duplicate is true.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "request": {
+            "description": "FedEx REST request body for POST /ship/v1/shipments/tag.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "shipments_tag_cancel",
+      "description": "Cancel a Ground Call Tag. Calls FedEx PUT /ship/v1/shipments/tag/cancel with `request` as the JSON body. Changes FedEx state: runs once per approved call, is never retried automatically, and refuses an identical recent request unless allow_duplicate is true.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "request": {
+            "description": "FedEx REST request body for PUT /ship/v1/shipments/tag/cancel.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "shipments_validate",
+      "description": "Validate a shipment package without creating a label (catches rejections before billing). Calls FedEx POST /ship/v1/shipments/packages/validate with `request` as the JSON body. Read-only.",
+      "parameters": {
+        "properties": {
+          "request": {
+            "description": "FedEx REST request body for POST /ship/v1/shipments/packages/validate.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "spend_report",
+      "description": "Aggregate net charges from the local archive Reads the local shipment ledger only.",
+      "parameters": {
+        "properties": {
+          "account": {
+            "description": "Restrict to one account",
+            "type": "string"
+          },
+          "by": {
+            "description": "Group by: service, account, lane, day (default: service)",
+            "type": "string"
+          },
+          "since": {
+            "description": "Window to aggregate over (default 30d) (default: 720h)",
+            "type": "string"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "track_associated",
+      "description": "Track shipments associated with a master tracking number (multi-piece). Calls FedEx POST /track/v1/associatedshipments with `request` as the JSON body. Read-only.",
+      "parameters": {
+        "properties": {
+          "request": {
+            "description": "FedEx REST request body for POST /track/v1/associatedshipments.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "track_diff",
+      "description": "Poll tracking numbers and emit only events newly seen since the last poll Read-only FedEx lookup.",
+      "parameters": {
+        "properties": {
+          "limit": {
+            "description": "Max shipments to poll when no positional given (default: 100)",
+            "type": "number"
+          },
+          "since": {
+            "description": "When no positional given, poll shipments created within this duration (default 7d) (default: 168h)",
+            "type": "string"
+          },
+          "tracking_numbers": {
+            "description": "Tracking numbers to check. Omit to poll recent shipments from the local archive.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "track_documents",
+      "description": "Retrieve tracking documents (signature proof of delivery, etc.). Calls FedEx POST /track/v1/trackingdocuments with `request` as the JSON body. Read-only.",
+      "parameters": {
+        "properties": {
+          "request": {
+            "description": "FedEx REST request body for POST /track/v1/trackingdocuments.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "track_notifications",
+      "description": "Configure tracking notifications (email/SMS) for a shipment. Calls FedEx POST /track/v1/notifications with `request` as the JSON body. Changes FedEx state: runs once per approved call, is never retried automatically, and refuses an identical recent request unless allow_duplicate is true.",
+      "parameters": {
+        "properties": {
+          "allow_duplicate": {
+            "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
+            "type": "boolean"
+          },
+          "request": {
+            "description": "FedEx REST request body for POST /track/v1/notifications.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "track_number",
+      "description": "Track up to 30 tracking numbers in one call (returns full event timeline per shipment). Calls FedEx POST /track/v1/trackingnumbers with `request` as the JSON body. Read-only.",
+      "parameters": {
+        "properties": {
+          "request": {
+            "description": "FedEx REST request body for POST /track/v1/trackingnumbers.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "track_reference",
+      "description": "Track by reference number (PO/customer ref/RMA). Calls FedEx POST /track/v1/referencenumbers with `request` as the JSON body. Read-only.",
+      "parameters": {
+        "properties": {
+          "request": {
+            "description": "FedEx REST request body for POST /track/v1/referencenumbers.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "track_tcn",
+      "description": "Track by Transportation Control Number (military/government use). Calls FedEx POST /track/v1/tcn with `request` as the JSON body. Read-only.",
+      "parameters": {
+        "properties": {
+          "request": {
+            "description": "FedEx REST request body for POST /track/v1/tcn.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "request"
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
       }
     }
   ]
