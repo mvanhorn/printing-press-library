@@ -497,7 +497,7 @@ func clusterPostsURLBaseFromOverride() string {
 	if clusterPostsURLOverride != "" {
 		return clusterPostsURLOverride
 	}
-	return "https://di.gg/ai"
+	return "https://digg.com/ai"
 }
 
 // promotePostsToRows converts diggparse.ClusterPost values into the
@@ -1953,14 +1953,14 @@ func rosterOrderBy(by string) (string, error) {
 
 // searchUsersURLOverride lets tests redirect the live user-search
 // URL to a local httptest server. Empty string falls through to the
-// default "https://di.gg/api/search/users". Production code never
+// default "https://digg.com/api/search/users". Production code never
 // sets this.
 var searchUsersURLOverride string
 
 // roster1000URLOverride lets tests redirect the live /ai/1000 fetch
 // used on the off-1000 cache-cold fallback path to a local httptest
 // server. Empty string falls through to the default
-// "https://di.gg/ai/1000". Production code never sets this.
+// "https://digg.com/tech/x/rankings". Production code never sets this.
 var roster1000URLOverride string
 
 // authorGetResult is the per-author payload returned by
@@ -2608,7 +2608,7 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 			it := 0
 			for {
 				it++
-				html, err := fetchURL(ctx, "https://di.gg/ai")
+				html, err := fetchURL(ctx, "https://digg.com/ai")
 				if err != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "watch: fetch error: %v\n", err)
 				} else {
@@ -2817,7 +2817,7 @@ func newOpenCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			if perm == "" {
-				perm = "https://di.gg/ai/" + urlID
+				perm = "https://digg.com/ai/" + urlID
 			}
 			// Verify-environment short-circuit (printing-press side-effect convention).
 			if isVerifyEnv() {

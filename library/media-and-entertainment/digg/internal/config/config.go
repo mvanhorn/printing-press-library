@@ -21,7 +21,7 @@ type Config struct {
 
 func Load(configPath string) (*Config, error) {
 	cfg := &Config{
-		BaseURL: "https://di.gg",
+		BaseURL: "https://digg.com",
 	}
 
 	// Resolve config path

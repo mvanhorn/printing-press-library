@@ -24,10 +24,11 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/diggparse"
 )
 
-// roster1000URL is the canonical /ai/1000 page URL. Lives on di.gg, not
-// the API host the generated client points at. Defined as a const so
-// tests can substitute via FetchRoster1000From.
-const roster1000URL = "https://di.gg/ai/1000"
+// roster1000URL is the page that carries the 1000-account roster. It was
+// /ai/1000 until Digg moved it under /tech in October 2026 (the old path
+// now 308-redirects here). Defined as a const so tests can substitute via
+// FetchRoster1000From.
+const roster1000URL = "https://digg.com/tech/x/rankings"
 
 // searchStoriesURL is the upstream cluster-search endpoint backing the
 // di.gg/ai Cmd+K modal. No published contract; verified by curl probe
@@ -178,7 +179,7 @@ func truncate(s string, n int) string {
 // `authors get <handle>` lookups. Same host shape as
 // /api/search/stories; verified by curl probe 2026-05-09. The base
 // URL is overridable in tests via SearchUsersFrom.
-const searchUsersURL = "https://di.gg/api/search/users"
+const searchUsersURL = "https://digg.com/api/search/users"
 
 // UsersSearchResult is one entry in a /api/search/users response.
 //
@@ -218,7 +219,7 @@ type UsersSearchResponse struct {
 // fetches. Joined with the caller-supplied clusterUrlId by
 // FetchClusterPosts. Defined as a const so tests can substitute via
 // FetchClusterPostsFrom.
-const clusterPostsURLBase = "https://di.gg/ai"
+const clusterPostsURLBase = "https://digg.com/ai"
 
 // FetchClusterPosts GETs the /ai/<clusterUrlId> page, hands the HTML
 // to the parser, and returns the structured posts (RSC array enriched
@@ -341,7 +342,7 @@ func (c *Client) SearchUsersFrom(ctx context.Context, baseURL, query string, lim
 // need the meta description (a few hundred bytes), so a regex over
 // the HTML is dramatically cheaper than parsing the full DOM. The
 // base URL is overridable in tests via FetchUserPeerFollowCountFrom.
-const userPeerFollowURLBase = "https://di.gg/u/x"
+const userPeerFollowURLBase = "https://digg.com/u/x"
 
 // userPeerFollowMetaRegex extracts the "followed by N tracked AI
 // influencers" count from the /u/x/<handle> meta description.
