@@ -94,3 +94,46 @@ func TestStaleLockIsReclaimed(t *testing.T) {
 		t.Fatalf("stale lock err=%v, want nil", err)
 	}
 }
+
+func TestRejectedForcedResendKeepsEarlierSuccessBlocking(t *testing.T) {
+	ledger := &Ledger{Dir: t.TempDir()}
+	body := []byte(`{"a":1}`)
+	begin := func(force bool) (string, error) {
+		return ledger.Begin("https://apis.fedex.com", "POST", "/ship/v1/shipments", body, force)
+	}
+	digest, err := begin(false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := ledger.Complete(digest, StatusSucceeded); err != nil {
+		t.Fatal(err)
+	}
+	// A forced resend that FedEx rejects (429, 4xx) must not unblock the
+	// original shipment's duplicate protection.
+	digest, err = begin(true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := ledger.Complete(digest, StatusRejected); err != nil {
+		t.Fatal(err)
+	}
+	var duplicate *DuplicateError
+	if _, err := begin(false); !errors.As(err, &duplicate) || duplicate.Status != StatusSucceeded {
+		t.Fatalf("ordinary resend after rejected forced attempt err=%v, want succeeded DuplicateError", err)
+	}
+}
+
+func TestRejectedWriteDoesNotBlock(t *testing.T) {
+	ledger := &Ledger{Dir: t.TempDir()}
+	body := []byte(`{"a":1}`)
+	digest, err := ledger.Begin("https://apis.fedex.com", "PUT", "/x", body, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := ledger.Complete(digest, StatusRejected); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := ledger.Begin("https://apis.fedex.com", "PUT", "/x", body, false); err != nil {
+		t.Fatalf("resend after rejection err=%v, want nil", err)
+	}
+}

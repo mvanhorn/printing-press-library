@@ -47,17 +47,13 @@ func RegisterTools(s *server.MCPServer) {
 }
 
 func newMCPClient() (*client.Client, error) {
-	return newMCPClientWithRate(0)
-}
-
-func newMCPClientWithRate(rateLimit float64) (*client.Client, error) {
 	home, _ := os.UserHomeDir()
 	cfgPath := filepath.Join(home, ".config", "fedex-pp-cli", "config.toml")
 	cfg, err := config.Load(cfgPath)
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}
-	return client.New(cfg, 30*time.Second, rateLimit), nil
+	return client.New(cfg, 30*time.Second, 0), nil
 }
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {

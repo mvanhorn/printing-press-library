@@ -127,7 +127,7 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 `fedex-pp-mcp` serves stdio by default (`--transport http --allow-http` binds loopback only) and exposes 59 tools:
 
 - **One typed tool per FedEx operation** (48), named after the CLI command: `track_number`, `track_reference`, `rates_quote`, `addresses_validate`, `shipments_create`, `shipments_cancel`, `shipments_tag` (return label / Ground Call Tag), `pickups_create`, `endofday_close`, `openship_*`, `consolidations_*`, `freight_pickups_*`, and so on. Each takes the FedEx JSON request body as `request`; the method and path are fixed per tool.
-- **`ship_bulk`** creates up to 50 shipments in one call from inline create-shipment requests, one at a time, stopping at the first rate limit or unknown outcome.
+- **`ship_bulk`** creates up to 50 shipments in one call from inline create-shipment requests, one at a time and paced below FedEx's per-IP limit, stopping at the first rate limit, unknown outcome, or cancellation. Shipments created by `ship_bulk` and `shipments_create` are saved to the local archive, so `archive`, `spend_report`, `manifest`, and `track_diff` see them.
 - **Local data tools**: `rate_shop`, `address_validate` (cached), `track_diff`, `archive`, `spend_report`, `manifest`, `address_list`, `address_save`, `address_delete`.
 - **`context`** for domain orientation.
 

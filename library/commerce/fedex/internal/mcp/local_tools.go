@@ -144,7 +144,9 @@ func localCommandArgs(lc localCommand, cmd *cobra.Command, arguments map[string]
 	}
 	sort.Strings(keys)
 
-	argv := append([]string{"--agent"}, lc.path...)
+	// Explicit JSON + non-interactive flags rather than --agent, which also
+	// turns on --compact and would strip fields from some command output.
+	argv := append([]string{"--json", "--no-input", "--no-color"}, lc.path...)
 	var positionals []string
 	for _, key := range keys {
 		value := arguments[key]

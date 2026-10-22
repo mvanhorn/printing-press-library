@@ -65,6 +65,21 @@ type record struct {
 	Status      string     `json:"status"`
 	StartedAt   time.Time  `json:"started_at"`
 	CompletedAt *time.Time `json:"completed_at,omitempty"`
+	// Blocking* remembers the most recent attempt that still blocks a resend
+	// (succeeded, executing, or outcome_unknown) so a later forced attempt
+	// that FedEx rejects cannot erase it.
+	BlockingStatus string     `json:"blocking_status,omitempty"`
+	BlockingSince  *time.Time `json:"blocking_since,omitempty"`
+}
+
+func (r *record) blocking(now time.Time, window time.Duration) (string, time.Time, bool) {
+	if r.Status != StatusRejected && now.Sub(r.StartedAt) < window {
+		return r.Status, r.StartedAt, true
+	}
+	if r.BlockingStatus != "" && r.BlockingSince != nil && now.Sub(*r.BlockingSince) < window {
+		return r.BlockingStatus, *r.BlockingSince, true
+	}
+	return "", time.Time{}, false
 }
 
 // Ledger is a directory of one small JSON record per request digest.
@@ -140,10 +155,16 @@ func (l *Ledger) Begin(origin, method, path string, body []byte, force bool) (st
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return "", err
 	}
-	if existing != nil && !force && existing.Status != StatusRejected && now.Sub(existing.StartedAt) < l.window() {
-		return "", &DuplicateError{Status: existing.Status, StartedAt: existing.StartedAt}
-	}
 	rec := &record{Digest: digest, Method: strings.ToUpper(method), Path: path, Origin: origin, Status: StatusExecuting, StartedAt: now}
+	if existing != nil {
+		if status, since, ok := existing.blocking(now, l.window()); ok {
+			if !force {
+				return "", &DuplicateError{Status: status, StartedAt: since}
+			}
+			rec.BlockingStatus = status
+			rec.BlockingSince = &since
+		}
+	}
 	if err := l.write(rec); err != nil {
 		return "", err
 	}
@@ -172,6 +193,11 @@ func (l *Ledger) Complete(digest, status string) error {
 	now := l.now()
 	rec.Status = status
 	rec.CompletedAt = &now
+	if status != StatusRejected {
+		// This attempt now blocks resends on its own.
+		rec.BlockingStatus = ""
+		rec.BlockingSince = nil
+	}
 	return l.write(rec)
 }
 

@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestWriteFileAtomicTightensModesAndRejectsSymlink(t *testing.T) {
+func TestWriteFileAtomicTightensFileButLeavesCallerDirectory(t *testing.T) {
 	dir := filepath.Join(t.TempDir(), "private")
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		t.Fatal(err)
@@ -20,8 +20,10 @@ func TestWriteFileAtomicTightensModesAndRejectsSymlink(t *testing.T) {
 	if err := WriteFileAtomic(path, []byte("new")); err != nil {
 		t.Fatalf("WriteFileAtomic: %v", err)
 	}
-	if got := mode(t, dir); got != PrivateDirMode {
-		t.Fatalf("dir mode=%#o, want %#o", got, PrivateDirMode)
+	// The parent may be a caller-chosen output directory; only the file is
+	// tightened. CLI-owned directories go through EnsurePrivateDir.
+	if got := mode(t, dir); got != 0o755 {
+		t.Fatalf("caller directory mode changed to %#o, want 0755", got)
 	}
 	if got := mode(t, path); got != PrivateFileMode {
 		t.Fatalf("file mode=%#o, want %#o", got, PrivateFileMode)
@@ -44,6 +46,29 @@ func TestWriteFileAtomicTightensModesAndRejectsSymlink(t *testing.T) {
 	}
 	if string(data) != "target" {
 		t.Fatalf("symlink target was modified: %q", data)
+	}
+}
+
+func TestEnsurePrivateDirTightensExistingDirectory(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "state")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := EnsurePrivateDir(dir); err != nil {
+		t.Fatal(err)
+	}
+	if got := mode(t, dir); got != PrivateDirMode {
+		t.Fatalf("dir mode=%#o, want %#o", got, PrivateDirMode)
+	}
+}
+
+func TestWriteFileAtomicCreatesMissingDirectoriesPrivate(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "new", "labels")
+	if err := WriteFileAtomic(filepath.Join(dir, "a.pdf"), []byte("x")); err != nil {
+		t.Fatal(err)
+	}
+	if got := mode(t, dir); got != PrivateDirMode {
+		t.Fatalf("new dir mode=%#o, want %#o", got, PrivateDirMode)
 	}
 }
 

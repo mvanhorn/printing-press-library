@@ -14,9 +14,12 @@
     "internal/mcp/ship_bulk.go",
     "internal/mcp/local_tools.go",
     "internal/mcp/tools_safety_test.go",
+    "internal/mcp/archive.go",
+    "internal/mcp/write_pacer.go",
+    "internal/mcp/review_fixes_test.go",
     "internal/client/client.go",
     ".printing-press.json",
     "tools-manifest.json"
   ],
-  "validated_outcome": "Tests pin the exact tool list; every endpoint tool's read-only annotation matches the client's read-only allowlist; write tools carry destructiveHint=true, idempotentHint=false, and an allow_duplicate override; no tool exposes args, config, deliver, yes, data-source, output, input, webhook, or endpoint_id; local tools accept only allowlisted command flags passed as --name=value with positionals after --; the companion CLI launched by MCP refuses every FedEx write; write results drop encoded labels and recipient fields; tools-manifest.json and mcp_tool_count match runtime registration."
+  "validated_outcome": "Tests pin the exact tool list; every endpoint tool's read-only annotation matches the client's read-only allowlist; write tools carry destructiveHint=true, idempotentHint=false, and an allow_duplicate override; no tool exposes args, config, deliver, yes, data-source, output, input, webhook, or endpoint_id; local tools accept only allowlisted command flags passed as --name=value with positionals after --; the companion CLI launched by MCP refuses every FedEx write; write results drop encoded labels and recipient fields but keep tracking numbers and net charges; shipments_create and ship_bulk save created shipments to the local archive without the raw response; MCP writes share a fixed pacer below FedEx's per-IP limit and ship_bulk stops sending when the call is canceled; local tools run the companion CLI with --json --no-input --no-color (not --agent, whose --compact would strip output); tools-manifest.json and mcp_tool_count match runtime registration."
 }

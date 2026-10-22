@@ -5,6 +5,7 @@ package client
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -43,9 +44,12 @@ type Client struct {
 	AllowDuplicate bool
 	// MutationLedgerDir overrides the duplicate-write ledger location.
 	MutationLedgerDir string
-	cacheDir          string
-	limiter           *cliutil.AdaptiveLimiter
-	retrySleep        func(time.Duration)
+	// Context, when set, bounds every HTTP request. Canceling it mid-write
+	// yields an OutcomeUnknownError, never a silent retry.
+	Context    context.Context
+	cacheDir   string
+	limiter    *cliutil.AdaptiveLimiter
+	retrySleep func(time.Duration)
 }
 
 // ErrWriteNotApproved is returned before any network activity when a request
@@ -311,7 +315,11 @@ func (c *Client) send(method, targetURL, path string, params map[string]string, 
 			bodyReader = strings.NewReader(string(bodyBytes))
 		}
 
-		req, err := http.NewRequest(method, targetURL, bodyReader)
+		ctx := c.Context
+		if ctx == nil {
+			ctx = context.Background()
+		}
+		req, err := http.NewRequestWithContext(ctx, method, targetURL, bodyReader)
 		if err != nil {
 			return nil, 0, fmt.Errorf("creating request: %w", err)
 		}

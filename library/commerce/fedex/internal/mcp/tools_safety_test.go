@@ -12,6 +12,7 @@ import (
 	"sort"
 	"strings"
 	"testing"
+	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
@@ -204,7 +205,24 @@ func newFakeAPI(t *testing.T, status int, response string) *fakeAPI {
 	t.Setenv("FEDEX_DATA_DIR", t.TempDir())
 	t.Setenv("FEDEX_BASE_URL", api.URL)
 	t.Setenv("FEDEX_API_KEY", "synthetic-test-token")
+	fastWritePacer(t)
 	return fake
+}
+
+// fastWritePacer shrinks the shared write spacing so tests don't sleep.
+func fastWritePacer(t *testing.T) {
+	t.Helper()
+	writePacer.mu.Lock()
+	previous := writePacer.interval
+	writePacer.interval = time.Millisecond
+	writePacer.next = time.Time{}
+	writePacer.mu.Unlock()
+	t.Cleanup(func() {
+		writePacer.mu.Lock()
+		writePacer.interval = previous
+		writePacer.next = time.Time{}
+		writePacer.mu.Unlock()
+	})
 }
 
 func callTool(t *testing.T, tools map[string]*server.ServerTool, name string, arguments map[string]any) (*mcplib.CallToolResult, map[string]any) {
@@ -358,7 +376,7 @@ func TestLocalCommandArgsAreFixed(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := "--agent archive --limit=5 --service=FEDEX_GROUND --config=/etc/passwd -- --yes"
+	want := "--json --no-input --no-color archive --limit=5 --service=FEDEX_GROUND --config=/etc/passwd -- --yes"
 	if strings.Join(argv, " ") != want {
 		t.Fatalf("argv=%q, want %q", strings.Join(argv, " "), want)
 	}

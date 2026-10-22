@@ -15,15 +15,12 @@ import (
 const (
 	shipBulkMaxShipments = 50
 	shipBulkPath         = "/ship/v1/shipments"
-	// shipBulkRate stays under FedEx's documented per-IP throttle (sustained
-	// 1 req/s for two minutes triggers a temporary 403 ban).
-	shipBulkRate = 0.8
 )
 
 func registerShipBulkTool(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("ship_bulk",
-			mcplib.WithDescription(fmt.Sprintf("Create up to %d FedEx shipments and labels in one approved call. Each item in `shipments` is a full FedEx create-shipment request body (the same shape shipments_create takes). Shipments are sent one at a time, never retried, and each one is checked against the 24h duplicate ledger. The batch stops at the first rate limit or unknown outcome and reports the rest as not_attempted. Changes FedEx state.", shipBulkMaxShipments)),
+			mcplib.WithDescription(fmt.Sprintf("Create up to %d FedEx shipments and labels in one approved call. Each item in `shipments` is a full FedEx create-shipment request body (the same shape shipments_create takes). Shipments are sent one at a time (paced below FedEx's per-IP limit), never retried, saved to the local archive, and each one is checked against the 24h duplicate ledger. The batch stops at the first rate limit or unknown outcome and reports the rest as not_attempted. Changes FedEx state.", shipBulkMaxShipments)),
 			mcplib.WithArray("shipments", mcplib.Required(), mcplib.Description("FedEx create-shipment request bodies, one per shipment."), mcplib.Items(map[string]any{"type": "object"})),
 			mcplib.WithBoolean("allow_duplicate", mcplib.Description(allowDuplicateDescription)),
 			mcplib.WithReadOnlyHintAnnotation(false),
@@ -35,7 +32,7 @@ func registerShipBulkTool(s *server.MCPServer) {
 	)
 }
 
-func handleShipBulk(_ context.Context, request mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+func handleShipBulk(ctx context.Context, request mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	arguments := request.GetArguments()
 	raw, ok := arguments["shipments"].([]any)
 	if !ok || len(raw) == 0 {
@@ -53,12 +50,13 @@ func handleShipBulk(_ context.Context, request mcplib.CallToolRequest) (*mcplib.
 		shipments[i] = body
 	}
 
-	fedexClient, err := newMCPClientWithRate(shipBulkRate)
+	fedexClient, err := newMCPClient()
 	if err != nil {
 		return toolJSONError("client_setup_error", err.Error()), nil
 	}
 	fedexClient.WriteApproved = true
 	fedexClient.AllowDuplicate, _ = arguments["allow_duplicate"].(bool)
+	fedexClient.Context = ctx
 
 	results := make([]map[string]any, 0, len(shipments))
 	counts := map[string]int{}
@@ -69,9 +67,20 @@ func handleShipBulk(_ context.Context, request mcplib.CallToolRequest) (*mcplib.
 			counts["not_attempted"]++
 			continue
 		}
+		// Pacing is shared with every other MCP write and never ramps up.
+		if err := writePacer.wait(ctx); err != nil {
+			stopped = "canceled by the caller; the remaining shipments were not sent"
+			results = append(results, map[string]any{"index": i, "status": "not_attempted"})
+			counts["not_attempted"]++
+			continue
+		}
 		data, status, err := fedexClient.Post(shipBulkPath, body)
 		if err == nil {
-			results = append(results, map[string]any{"index": i, "status": "succeeded", "http_status": status, "data": summarizeWriteResponse("ship_bulk", decodeJSON(data))})
+			entry := map[string]any{"index": i, "status": "succeeded", "http_status": status, "data": summarizeWriteResponse("ship_bulk", decodeJSON(data))}
+			if archiveErr := archiveShipment(context.WithoutCancel(ctx), body, data); archiveErr != nil {
+				entry["archive_warning"] = "shipment created but not saved to the local archive: " + archiveErr.Error()
+			}
+			results = append(results, entry)
 			counts["succeeded"]++
 			continue
 		}
@@ -83,7 +92,9 @@ func handleShipBulk(_ context.Context, request mcplib.CallToolRequest) (*mcplib.
 		results = append(results, entry)
 		counts[class]++
 		var apiErr *client.APIError
-		if class == "outcome_unknown" {
+		if ctx.Err() != nil {
+			stopped = "canceled by the caller; the remaining shipments were not sent"
+		} else if class == "outcome_unknown" {
 			stopped = "unknown outcome; check FedEx before re-sending the remaining shipments"
 		} else if errors.As(err, &apiErr) && (apiErr.StatusCode == 429 || apiErr.StatusCode == 403) {
 			stopped = fmt.Sprintf("FedEx returned HTTP %d; wait before re-sending the remaining shipments", apiErr.StatusCode)

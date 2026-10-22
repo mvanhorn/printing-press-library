@@ -18,5 +18,5 @@
     "internal/cli/profile_safety_test.go",
     "internal/cli/root_safety_test.go"
   ],
-  "validated_outcome": "Tests prove an unapproved write sends nothing, --agent does not imply --yes, generated write commands such as endofday close run with --yes, dry runs need no approval, identical writes (after canonicalizing key order and number spelling) are refused after success or an unknown outcome until --allow-duplicate / allow_duplicate, FedEx-rejected writes can be resent, read-only POSTs are never gated, the ledger stores no request body and uses 0600 files, and stale locks are reclaimed."
+  "validated_outcome": "Tests prove an unapproved write sends nothing, --agent does not imply --yes, generated write commands such as endofday close run with --yes, dry runs need no approval, identical writes (after canonicalizing key order and number spelling) are refused after success or an unknown outcome until --allow-duplicate / allow_duplicate, FedEx-rejected writes can be resent, a rejected forced resend keeps the earlier success or unknown outcome blocking, read-only POSTs are never gated, the ledger stores no request body and uses 0600 files, and stale locks are reclaimed."
 }

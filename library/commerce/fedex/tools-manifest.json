@@ -1180,7 +1180,7 @@
     },
     {
       "name": "ship_bulk",
-      "description": "Create up to 50 FedEx shipments and labels in one approved call. Each item in `shipments` is a full FedEx create-shipment request body (the same shape shipments_create takes). Shipments are sent one at a time, never retried, and each one is checked against the 24h duplicate ledger. The batch stops at the first rate limit or unknown outcome and reports the rest as not_attempted. Changes FedEx state.",
+      "description": "Create up to 50 FedEx shipments and labels in one approved call. Each item in `shipments` is a full FedEx create-shipment request body (the same shape shipments_create takes). Shipments are sent one at a time (paced below FedEx's per-IP limit), never retried, saved to the local archive, and each one is checked against the 24h duplicate ledger. The batch stops at the first rate limit or unknown outcome and reports the rest as not_attempted. Changes FedEx state.",
       "parameters": {
         "properties": {
           "allow_duplicate": {

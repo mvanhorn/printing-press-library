@@ -58,7 +58,8 @@ func registerEndpointTools(s *server.MCPServer) {
 
 func makeEndpointHandler(ep endpointTool) server.ToolHandlerFunc {
 	readOnly := ep.readOnly()
-	return func(_ context.Context, request mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	toolName := toolNameForEndpoint(ep.ID)
+	return func(ctx context.Context, request mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 		body, err := requestObject(request.GetArguments(), "request")
 		if err != nil {
 			return toolJSONError("invalid_request", err.Error()), nil
@@ -72,7 +73,11 @@ func makeEndpointHandler(ep endpointTool) server.ToolHandlerFunc {
 			// tool; the duplicate ledger still guards against replays.
 			fedexClient.WriteApproved = true
 			fedexClient.AllowDuplicate, _ = request.GetArguments()["allow_duplicate"].(bool)
+			if err := writePacer.wait(ctx); err != nil {
+				return toolJSONError("canceled", "canceled before the FedEx write was sent"), nil
+			}
 		}
+		fedexClient.Context = ctx
 		data, status, err := executeEndpoint(fedexClient, ep.Method, ep.Path, body)
 		if err != nil {
 			return writeErrorResult(err, status, readOnly), nil
@@ -80,8 +85,13 @@ func makeEndpointHandler(ep endpointTool) server.ToolHandlerFunc {
 		result := map[string]any{"status": "succeeded", "http_status": status}
 		if readOnly {
 			result["data"] = decodeJSON(data)
-		} else {
-			result["data"] = summarizeWriteResponse(toolNameForEndpoint(ep.ID), decodeJSON(data))
+			return toolJSON(result), nil
+		}
+		result["data"] = summarizeWriteResponse(toolName, decodeJSON(data))
+		if toolName == "shipments_create" {
+			if err := archiveShipment(context.WithoutCancel(ctx), body, data); err != nil {
+				result["archive_warning"] = "shipment created but not saved to the local archive: " + err.Error()
+			}
 		}
 		return toolJSON(result), nil
 	}

@@ -24,7 +24,7 @@ const (
 // EnsurePrivateDir creates path without accepting symlink components and
 // tightens every opened directory component to owner-only access.
 func EnsurePrivateDir(path string) error {
-	root, err := openPrivateDir(path, true)
+	root, err := openPrivateDir(path, true, true)
 	if err != nil {
 		return err
 	}
@@ -167,11 +167,15 @@ func openParent(path string, create bool) (*os.Root, string, error) {
 	if base == "." || base == string(filepath.Separator) {
 		return nil, "", fmt.Errorf("invalid private file path %q", path)
 	}
-	root, err := openPrivateDir(filepath.Dir(path), create)
+	// The parent of a file may be a caller-chosen output directory (export
+	// --output, --deliver file:, label dirs). New components are created 0700,
+	// but existing directories keep their permissions; CLI-owned state dirs
+	// are tightened explicitly through EnsurePrivateDir.
+	root, err := openPrivateDir(filepath.Dir(path), create, false)
 	return root, base, err
 }
 
-func openPrivateDir(path string, create bool) (*os.Root, error) {
+func openPrivateDir(path string, create, tighten bool) (*os.Root, error) {
 	path = filepath.Clean(path)
 	start := "."
 	rel := path
@@ -211,7 +215,7 @@ func openPrivateDir(path string, create bool) (*os.Root, error) {
 			root.Close()
 			return nil, fmt.Errorf("unsafe private directory component %s", component)
 		}
-		if index == len(components)-1 {
+		if tighten && index == len(components)-1 {
 			dirFile, err := openDirectoryNoFollow(filepath.Join(root.Name(), component))
 			if err != nil {
 				root.Close()

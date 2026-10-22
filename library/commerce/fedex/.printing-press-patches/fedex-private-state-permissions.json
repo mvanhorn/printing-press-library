@@ -4,7 +4,7 @@
   "applied_at": "2026-09-02",
   "base_run_id": "20260502-152509",
   "base_printing_press_version": "3.6.0",
-  "summary": "Create and tighten FedEx state, cache, database, ledger, export, and label files with owner-only permissions and reject unsafe symlink targets.",
+  "summary": "Create CLI-owned FedEx state directories and sensitive files with owner-only permissions, leave caller-chosen output directories' modes alone, and reject unsafe symlink targets (with an openat fallback where openat2 is unavailable).",
   "reason": "FedEx state can contain recipient PII, tracking data, negotiated charges, labels, and raw API responses; permissive files or symlink-following writes can disclose or overwrite sensitive data.",
   "files": [
     "go.mod",
@@ -13,7 +13,7 @@
     "internal/secureio/ancestor_test.go",
     "internal/secureio/open_nofollow_linux.go",
     "internal/secureio/open_nofollow_other.go",
-    "internal/approval/approval.go",
+    "internal/secureio/open_nofollow_linux_test.go",
     "internal/cache/cache.go",
     "internal/client/client.go",
     "internal/client/data_dir_test.go",
@@ -35,5 +35,5 @@
     "internal/cli/track_watch.go",
     "internal/cli/track_diff.go"
   ],
-  "validated_outcome": "Tests create permissive legacy paths, verify directories are tightened to 0700 and sensitive files to 0600, reject symlink and non-regular targets through descriptor-relative operations, verify SQLite sidecars while open, keep label paths within the selected directory, replace exports atomically, and prevent raw FedEx response persistence."
+  "validated_outcome": "Tests create permissive legacy paths, verify CLI-owned directories are tightened to 0700, caller-chosen parents keep their mode, new directories are 0700, and sensitive files are 0600; reject symlink and non-regular targets through descriptor-relative operations, including the openat component-walk fallback; verify SQLite sidecars while open, keep label paths within the selected directory, replace exports atomically, and prevent raw FedEx response persistence."
 }

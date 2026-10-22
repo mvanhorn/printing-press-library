@@ -22,7 +22,7 @@ func summarizeWriteResponse(tool string, value any) any {
 	var keys []string
 	switch tool {
 	case "shipments_create", "ship_bulk":
-		keys = []string{"mastertrackingnumber", "trackingnumber", "shipmentid", "servicetype", "totalnetcharge", "currency", "url", "jobid"}
+		keys = []string{"mastertrackingnumber", "trackingnumber", "shipmentid", "servicetype", "netcharge", "totalnetcharge", "totalnetfedexcharge", "currency", "url", "jobid"}
 	case "pickups_create":
 		keys = []string{"pickupconfirmationcode", "confirmationnumber", "scheduleddate", "location"}
 	case "shipments_cancel", "pickups_cancel":
