@@ -22,27 +22,30 @@ type pacer struct {
 
 var writePacer = &pacer{interval: writeInterval}
 
-// wait blocks until the next write slot or until ctx is done.
+// wait blocks until a write slot is free or ctx is done. A slot is claimed
+// only when the caller is about to send, so canceled waiters never push back
+// later writes.
 func (p *pacer) wait(ctx context.Context) error {
-	p.mu.Lock()
-	now := time.Now()
-	slot := p.next
-	if slot.Before(now) {
-		slot = now
-	}
-	p.next = slot.Add(p.interval)
-	p.mu.Unlock()
+	for {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		p.mu.Lock()
+		now := time.Now()
+		if !p.next.After(now) {
+			p.next = now.Add(p.interval)
+			p.mu.Unlock()
+			return nil
+		}
+		delay := p.next.Sub(now)
+		p.mu.Unlock()
 
-	delay := time.Until(slot)
-	if delay <= 0 {
-		return ctx.Err()
-	}
-	timer := time.NewTimer(delay)
-	defer timer.Stop()
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	case <-timer.C:
-		return nil
+		timer := time.NewTimer(delay)
+		select {
+		case <-ctx.Done():
+			timer.Stop()
+			return ctx.Err()
+		case <-timer.C:
+		}
 	}
 }

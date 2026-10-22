@@ -148,6 +148,23 @@ func TestWritePacerSpacesCallsAndNeverRampsUp(t *testing.T) {
 	if err := p.wait(ctx); err == nil {
 		t.Fatal("pacer ignored a canceled context")
 	}
+	// Canceled waiters must not reserve slots for later writes.
+	p2 := &pacer{interval: 50 * time.Millisecond}
+	if err := p2.wait(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	for i := 0; i < 20; i++ {
+		if err := p2.wait(ctx); err == nil {
+			t.Fatal("canceled wait returned nil")
+		}
+	}
+	start = time.Now()
+	if err := p2.wait(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	if elapsed := time.Since(start); elapsed > 200*time.Millisecond {
+		t.Fatalf("next write waited %v after canceled callers, want about one interval", elapsed)
+	}
 	if writeInterval < 1001*time.Millisecond {
 		t.Fatalf("writeInterval=%v must stay below 1 req/s", writeInterval)
 	}
