@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "abstract-truncation-is-marked",
+  "applied_at": "2026-10-22",
+  "base_run_id": "20260620-165352-e55cec69",
+  "base_printing_press_version": "4.24.0",
+  "summary": "A study abstract clipped for JSON output must be visibly marked: it is cut at a word boundary where one is near the cap, ends with an ellipsis that counts toward the cap, and the brief carries abstract_truncated (omitempty, so untruncated studies keep their exact JSON). The cap itself does not move.",
+  "reason": "A bare mid-word cut is indistinguishable from a complete abstract, so readers and the downstream LLM treat a clipped text as the whole study and miss that its conclusion was cut off. Downstream consumers size their prompts on the existing cap, so marking must happen inside it rather than by raising it.",
+  "files": [
+    "internal/cli/consensus.go",
+    "internal/cli/abstract_clip_test.go"
+  ],
+  "validated_outcome": "Cap 1500 runes including the marker; word-boundary search covers the last 200 runes. A live export had 8 of 18 abstracts cut at exactly 1500 runes mid-word. Seven tests call production clipAbstract, workBrief and the three brief builders; mutations dropping the marker, forcing a rune cut, removing omitempty and loosening the rune cap check each fail them."
+}

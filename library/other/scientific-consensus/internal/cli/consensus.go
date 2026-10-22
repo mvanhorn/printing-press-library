@@ -6,6 +6,7 @@ import (
 	"io"
 	"sort"
 	"strings"
+	"unicode"
 
 	"github.com/mvanhorn/printing-press-library/library/other/scientific-consensus/internal/scengine"
 	"github.com/spf13/cobra"
@@ -31,6 +32,8 @@ type workBrief struct {
 	// maxAbstractChars so downstream LLM prompts built from this JSON stay
 	// bounded. Empty string when the source has no abstract.
 	Abstract string `json:"abstract"`
+	// AbstractTruncated is true when Abstract was clipped and ends with "…".
+	AbstractTruncated bool `json:"abstract_truncated,omitempty"`
 	// Retraction and RetractionNote are set only for works a retraction
 	// signal kept out of the score. They are omitempty so the JSON of an
 	// ordinary study is byte-identical to what it was before retraction
@@ -69,20 +72,33 @@ type consensusOutput struct {
 	Note       string      `json:"note,omitempty"`
 }
 
-// maxAbstractChars bounds per-study abstract length in JSON output.
+// maxAbstractChars bounds per-study abstract length in JSON output, in runes,
+// including the "…" marker a truncated abstract ends with.
 const maxAbstractChars = 1500
 
-// clipAbstract caps an abstract at maxAbstractChars characters, cutting on a
-// rune boundary so multi-byte text is never split mid-character.
-func clipAbstract(s string) string {
+// abstractCutWindow is how far back from the cap clipAbstract looks for a
+// word boundary before falling back to a plain rune cut.
+const abstractCutWindow = 200
+
+// clipAbstract caps an abstract at maxAbstractChars runes. A truncated
+// abstract is cut at the last whitespace in the final abstractCutWindow runes
+// (or on a rune boundary when there is none) and ends with "…", so readers can
+// tell it from a complete one; the bool reports whether it was truncated.
+func clipAbstract(s string) (string, bool) {
 	if len(s) <= maxAbstractChars {
-		return s
+		return s, false
 	}
 	r := []rune(s)
 	if len(r) <= maxAbstractChars {
-		return s
+		return s, false
 	}
-	return string(r[:maxAbstractChars])
+	limit := maxAbstractChars - 1 // leave room for the marker
+	for i := limit; i >= limit-abstractCutWindow; i-- {
+		if unicode.IsSpace(r[i]) {
+			return strings.TrimRightFunc(string(r[:i]), unicode.IsSpace) + "…", true
+		}
+	}
+	return string(r[:limit]) + "…", true
 }
 
 func newNovelConsensusCmd(flags *rootFlags) *cobra.Command {
@@ -258,11 +274,12 @@ func topByStance(stances []workStance, stance scengine.Stance, n int) []workBrie
 	}
 	out := make([]workBrief, 0, len(matches))
 	for _, m := range matches {
+		abstract, truncated := clipAbstract(m.Work.Abstract)
 		out = append(out, workBrief{
 			Title: m.Work.Title, Authors: m.Work.Authors, Journal: m.Work.Venue,
 			Year: m.Work.Year, DOI: m.Work.DOI, CitedBy: m.Work.CitedBy,
 			Design: m.Design, Stance: m.Stance, StanceConf: m.Confidence,
-			Abstract: clipAbstract(m.Work.Abstract),
+			Abstract: abstract, AbstractTruncated: truncated,
 		})
 	}
 	return out
@@ -274,11 +291,12 @@ func topByStance(stances []workStance, stance scengine.Stance, n int) []workBrie
 func allStudyBriefs(stances []workStance) []workBrief {
 	out := make([]workBrief, 0, len(stances))
 	for _, s := range stances {
+		abstract, truncated := clipAbstract(s.Work.Abstract)
 		out = append(out, workBrief{
 			Title: s.Work.Title, Authors: s.Work.Authors, Journal: s.Work.Venue,
 			Year: s.Work.Year, DOI: s.Work.DOI, CitedBy: s.Work.CitedBy,
 			Design: s.Design, Stance: s.Stance, StanceConf: s.Confidence,
-			Abstract: clipAbstract(s.Work.Abstract),
+			Abstract: abstract, AbstractTruncated: truncated,
 		})
 	}
 	return out
@@ -291,9 +309,10 @@ func allStudyBriefs(stances []workStance) []workBrief {
 func retractedBriefs(works []scWork) []workBrief {
 	out := make([]workBrief, 0, len(works))
 	for _, w := range works {
+		abstract, truncated := clipAbstract(w.Abstract)
 		out = append(out, workBrief{
 			Title: w.Title, Year: w.Year, DOI: w.DOI, CitedBy: w.CitedBy,
-			Abstract:   clipAbstract(w.Abstract),
+			Abstract: abstract, AbstractTruncated: truncated,
 			Retraction: w.Retraction, RetractionNote: w.Retraction.Label(),
 		})
 	}
