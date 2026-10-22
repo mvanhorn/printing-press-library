@@ -228,6 +228,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			req.Header.Set(k, v)
 		}
 		req.Header.Set("User-Agent", "firecrawl-pp-cli/1.0.0")
+		req.Header.Set("X-Integration", "_printing_press")
 
 		resp, err := c.HTTPClient.Do(req)
 		if err != nil {

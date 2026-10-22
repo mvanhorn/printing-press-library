@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "firecrawl-integration-header",
+  "applied_at": "2026-10-22",
+  "base_printing_press_version": "3.6.0",
+  "summary": "Every Firecrawl API request carries X-Integration: _printing_press so Firecrawl can tell requests from this CLI apart from other clients.",
+  "reason": "Firecrawl reads the integration from the request body or the X-Integration header; values outside its built-in list must start with an underscore. The CLI's User-Agent starts with firecrawl, which Firecrawl does not use for attribution, so without the header its requests are indistinguishable from direct API use.",
+  "files": [
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "go build, go vet and go test pass from the CLI root; the header is set next to the User-Agent on every request the shared client sends."
+}
