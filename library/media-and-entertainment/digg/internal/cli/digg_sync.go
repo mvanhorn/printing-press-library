@@ -2,13 +2,18 @@ package cli
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"slices"
 	"strings"
+	"sync"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/diggparse"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/diggstore"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/store"
@@ -18,39 +23,112 @@ import (
 
 // newDiggSyncCmd replaces the generated sync command. The generator
 // emits a sync that walks the spec's REST resources, but Digg's data
-// only flows through HTML scrape (/ai) and one JSON endpoint
-// (/api/trending/status). This implementation does what the data shape
-// actually requires: fetch the HTML, decode the embedded RSC stream,
-// extract clusters and authors, persist them, and pull the trending
-// status events on the side.
-var validTopics = map[string]bool{
-	"ai": true, "technology": true, "science": true, "world": true,
-	"politics": true, "business": true, "sports": true, "entertainment": true, "news": true,
+// flows through two surfaces: each section's HTML page, whose embedded
+// RSC stream carries the ranked list (rank, delta, scores, sentiment,
+// cross-references), and the paginated /api/feed/continuous JSON feed,
+// which reaches back far enough to back search.
+//
+// PATCH(digg-feed-continuous-replaces-removed-search-and-trending): Digg
+// renamed its sections and removed /api/trending/status in October 2026.
+// Sync now walks the feed per section, tolerates per-section failures,
+// and no longer fetches pipeline events.
+
+// syncTopics lists Digg's current sections in display order. The value is
+// the HTML page path for the ranked-list scrape; "all" is a cross-section
+// mix whose page lives on the home route.
+var syncTopics = []struct{ slug, page string }{
+	{"ai", "/ai"}, {"tech", "/tech"}, {"world-business", "/world-business"}, {"sports", "/sports"},
+	{"science", "/science"}, {"gaming", "/gaming"}, {"entertainment", "/entertainment"}, {"all", "/?feed=all"},
+}
+
+// feedRanges are the range values /api/feed/continuous accepts.
+var feedRanges = []string{"24h", "7d", "30d", "all"}
+
+// diggSiteURL is the origin for section pages; tests point it at a mock.
+var diggSiteURL = "https://digg.com"
+
+// feedURLOverride, when set, replaces the feed endpoint. Tests only.
+var feedURLOverride string
+
+func validTopicSlugs() []string {
+	out := make([]string, len(syncTopics))
+	for i, t := range syncTopics {
+		out[i] = t.slug
+	}
+	return out
+}
+
+// validateTopics rejects any slug that is not a current Digg section.
+func validateTopics(topics []string) error {
+	valid := validTopicSlugs()
+	for _, t := range topics {
+		if !slices.Contains(valid, t) {
+			return usageErr(fmt.Errorf("unknown topic %q; valid topics: %s", t, strings.Join(valid, ", ")))
+		}
+	}
+	return nil
+}
+
+func topicPage(slug string) string {
+	for _, t := range syncTopics {
+		if t.slug == slug {
+			return t.page
+		}
+	}
+	return "/" + slug
+}
+
+// walkFeed walks one topic's feed, calling fn per page.
+func walkFeed(ctx context.Context, c *client.Client, p client.FeedParams, maxPages int, fn func(*client.FeedPage) error) (client.FeedWalkResult, error) {
+	if feedURLOverride != "" {
+		return c.WalkFeedFrom(ctx, feedURLOverride, p, maxPages, fn)
+	}
+	return c.WalkFeed(ctx, p, maxPages, fn)
+}
+
+// topicSyncResult is one topic's outcome. scraped reports whether the
+// ranked-list scrape succeeded, which gates replacement detection.
+type topicSyncResult struct {
+	Topic    string `json:"topic"`
+	Clusters int    `json:"clusters_scraped"`
+	Pages    int    `json:"feed_pages"`
+	Stories  int    `json:"feed_stories"`
+	Capped   bool   `json:"capped_by_max_pages"`
+	scraped  bool
+	observed []string
 }
 
 func newDiggSyncCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	var withDetails bool
-	var skipEvents bool
-	// PATCH(digg-enhancements): multi-topic sync. Loops fetch+parse+persist
-	// once per topic; defaults to ["ai"] to preserve previous behavior.
+	// PATCH(digg-enhancements): multi-topic sync. Defaults to ["ai"] to
+	// preserve previous behavior.
 	var topics []string
+	var feedRange string
+	var maxPages int
 
 	cmd := &cobra.Command{
 		Use:   "sync",
-		Short: "Sync the /ai feed and /api/trending/status events into the local store",
-		Long: `Pull the current Digg AI feed and the trending pipeline event stream into a local
-SQLite database. The /ai page is fetched once; the embedded RSC stream is decoded
-and every cluster, author, and snapshot is persisted. The /api/trending/status
-endpoint is then read for pipeline events. Replacement archaeology runs at the
-end to record clusters that were present in the previous sync but are absent now.
+		Short: "Sync Digg sections' ranked lists and story feeds into the local store",
+		Long: `Pull Digg sections into a local SQLite database. For each topic, sync reads the
+section page's ranked list (rank, delta, scores, sentiment, cross-references) and
+then walks the section's story feed newest-ranked first, page by page, so search
+can reach back across the whole --range window. Stories are saved as each page
+arrives, so an interrupted sync keeps its progress.
+
+A topic that fails prints a warning and the others continue; sync exits non-zero
+only when every topic failed. Replacement archaeology runs at the end for topics
+whose ranked list was read.
 
 Sync is read-only against Digg. It never mutates anything upstream.`,
-		Example: `  # Sync the current /ai feed and trending events
+		Example: `  # Sync the AI section (ranked list plus 30 days of stories)
   digg-pp-cli sync
 
-  # Skip events (only feed)
-  digg-pp-cli sync --no-events
+  # Sync several sections
+  digg-pp-cli sync --topics ai,tech,science
+
+  # Quick, shallow refresh of every section
+  digg-pp-cli sync --topics ai,tech,world-business,sports,science,gaming,entertainment,all --max-pages 1
 
   # Also fetch each cluster's detail page (slower; populates fuller fields)
   digg-pp-cli sync --with-details`,
@@ -59,13 +137,14 @@ Sync is read-only against Digg. It never mutates anything upstream.`,
 			if dbPath == "" {
 				dbPath = defaultDBPath("digg-pp-cli")
 			}
-
-			// Validate topics
-			for _, t := range topics {
-				if !validTopics[t] {
-					valid := []string{"ai", "technology", "science", "world", "politics", "business", "sports", "entertainment", "news"}
-					return fmt.Errorf("unknown topic %q; valid topics: %s", t, strings.Join(valid, ", "))
-				}
+			if err := validateTopics(topics); err != nil {
+				return err
+			}
+			if !slices.Contains(feedRanges, feedRange) {
+				return usageErr(fmt.Errorf("invalid --range %q; valid ranges: %s", feedRange, strings.Join(feedRanges, ", ")))
+			}
+			if maxPages < 1 {
+				return usageErr(fmt.Errorf("--max-pages must be at least 1"))
 			}
 
 			if dryRunOK(flags) {
@@ -73,6 +152,10 @@ Sync is read-only against Digg. It never mutates anything upstream.`,
 				return nil
 			}
 
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
 			s, err := store.OpenWithContext(ctx, dbPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w", err)
@@ -86,129 +169,180 @@ Sync is read-only against Digg. It never mutates anything upstream.`,
 
 			out := cmd.OutOrStdout()
 			now := time.Now().UTC()
+			// Topics run concurrently; SQLite writes are serialized here.
+			var writeMu sync.Mutex
+			var outMu sync.Mutex
+			logf := func(format string, a ...any) {
+				outMu.Lock()
+				defer outMu.Unlock()
+				fmt.Fprintf(out, format, a...)
+			}
 
-			totalClusters := 0
-			totalEmbeddedEvents := 0
-			observed := make(map[string]bool)
+			results, errs := cliutil.FanoutRun(ctx, topics,
+				func(t string) string { return t },
+				func(ctx context.Context, topic string) (topicSyncResult, error) {
+					r := topicSyncResult{Topic: topic}
 
-			for _, topic := range topics {
-				topicURL := "https://di.gg/" + topic
-
-				// 1. Fetch topic HTML
-				fmt.Fprintf(out, "fetching /%s ...\n", topic)
-				html, err := fetchURL(ctx, topicURL)
-				if err != nil {
-					return fmt.Errorf("fetching /%s: %w", topic, err)
-				}
-				clusters, embeddedEvents, _, err := diggparse.ParseHomeFeed(html)
-				if err != nil {
-					return fmt.Errorf("parsing /%s: %w", topic, err)
-				}
-				fmt.Fprintf(out, "parsed %d clusters from /%s (%d KB)\n", len(clusters), topic, len(html)/1024)
-
-				// 2. Persist
-				for _, c := range clusters {
-					observed[c.ClusterID] = true
-					if err := diggstore.UpsertCluster(db, c, now); err != nil {
-						return err
-					}
-				}
-
-				// Persist embedded events too (cluster_detected, fast_climb seen in stream)
-				for _, e := range embeddedEvents {
-					if err := diggstore.UpsertEvent(db, e, now); err != nil {
-						return err
-					}
-				}
-
-				totalClusters += len(clusters)
-				totalEmbeddedEvents += len(embeddedEvents)
-
-				// 5. Optionally fetch detail pages for clusters
-				if withDetails {
-					fetched := 0
-					for _, c := range clusters {
-						if c.ClusterURLID == "" {
-							continue
+					// 1. Ranked list from the section page.
+					html, err := fetchURL(ctx, diggSiteURL+topicPage(topic))
+					if err == nil {
+						var clusters []diggparse.Cluster
+						var events []diggparse.Event
+						clusters, events, _, err = diggparse.ParseHomeFeed(html)
+						if err == nil {
+							writeMu.Lock()
+							err = persistScrape(db, clusters, events, now)
+							writeMu.Unlock()
 						}
-						detailURL := "https://di.gg/" + topic + "/" + c.ClusterURLID
-						body, err := fetchURL(ctx, detailURL)
-						if err != nil {
-							fmt.Fprintf(out, "  detail %s: %v\n", c.ClusterURLID, err)
-							continue
-						}
-						more, _, _, err := diggparse.ParseHomeFeed(body)
-						if err != nil || len(more) == 0 {
-							continue
-						}
-						for _, mc := range more {
-							if mc.ClusterID == c.ClusterID {
-								_ = diggstore.UpsertCluster(db, mc, now)
-								break
+						if err == nil {
+							r.scraped = true
+							r.Clusters = len(clusters)
+							for _, cl := range clusters {
+								r.observed = append(r.observed, cl.ClusterID)
+							}
+							logf("parsed %d ranked clusters from %s\n", len(clusters), topicPage(topic))
+							if withDetails {
+								fetchDetails(ctx, db, &writeMu, topic, clusters, now, logf)
 							}
 						}
-						fetched++
-						time.Sleep(500 * time.Millisecond)
 					}
-					fmt.Fprintf(out, "fetched %d detail pages for /%s\n", fetched, topic)
-				}
-			}
+					if err != nil {
+						outMu.Lock()
+						fmt.Fprintf(cmd.ErrOrStderr(), "warn: %s: ranked list unavailable: %v\n", topic, err)
+						outMu.Unlock()
+					}
 
-			// 3. Replacements (scoped to the synced topics only).
+					// 2. Story feed, saved page by page.
+					p := client.FeedParams{Topic: topic, View: "top", Range: feedRange}
+					res, werr := walkFeed(ctx, c, p, maxPages, func(page *client.FeedPage) error {
+						writeMu.Lock()
+						defer writeMu.Unlock()
+						return diggstore.UpsertFeedPage(db, page.Posts, topic, feedRange, now)
+					})
+					r.Pages, r.Stories, r.Capped = res.Pages, res.Stories, res.Capped
+					if werr != nil {
+						return r, fmt.Errorf("feed walk stopped after %d pages (%d stories kept): %w", res.Pages, res.Stories, werr)
+					}
+					writeMu.Lock()
+					err = diggstore.MarkFeedSynced(db, topic, feedRange, res.Stories, now)
+					writeMu.Unlock()
+					if err != nil {
+						return r, err
+					}
+					note := ""
+					if res.Capped {
+						note = fmt.Sprintf(" (stopped at --max-pages %d; older stories not fetched)", maxPages)
+					}
+					logf("stored %d stories from %d feed pages for %s%s\n", res.Stories, res.Pages, topic, note)
+					return r, nil
+				})
+			cliutil.FanoutReportErrors(cmd.ErrOrStderr(), errs)
+
+			// Replacements, scoped to topics whose ranked list was read this
+			// run: a topic whose scrape failed would otherwise look emptied.
 			// PATCH(digg-enhancements): the non-scoped RecordReplacements
-			// scans every cluster in the 2-hour window, which means a topic-
-			// subset sync would falsely mark other topics' clusters as fell-
-			// out-of-feed. The ForTopics variant scopes the query to topics
-			// we actually fetched this run.
-			if err := diggstore.RecordReplacementsForTopics(db, observed, now, topics); err != nil {
-				return err
-			}
-
-			// 4. Trending status events
-			if !skipEvents {
-				fmt.Fprintln(out, "fetching /api/trending/status ...")
-				body, err := fetchURL(ctx, "https://di.gg/api/trending/status")
-				if err != nil {
-					return fmt.Errorf("fetching trending status: %w", err)
+			// would mark other topics' clusters as fell-out-of-feed.
+			observed := map[string]bool{}
+			var scrapedTopics []string
+			var perTopic []topicSyncResult
+			totalClusters, totalStories := 0, 0
+			for _, res := range results {
+				perTopic = append(perTopic, res.Value)
+				totalClusters += res.Value.Clusters
+				totalStories += res.Value.Stories
+				if res.Value.scraped {
+					scrapedTopics = append(scrapedTopics, res.Value.Topic)
+					for _, id := range res.Value.observed {
+						observed[id] = true
+					}
 				}
-				ts, err := diggparse.ParseTrendingStatus(body)
-				if err != nil {
+			}
+			if len(scrapedTopics) > 0 {
+				if err := diggstore.RecordReplacementsForTopics(db, observed, now, scrapedTopics); err != nil {
 					return err
 				}
-				for _, e := range ts.Events {
-					if err := diggstore.UpsertEvent(db, e, now); err != nil {
-						return err
-					}
-				}
-				fmt.Fprintf(out, "stored %d events; storiesToday=%d clustersToday=%d\n",
-					len(ts.Events), ts.StoriesToday, ts.ClustersToday)
 			}
 
+			if len(results) == 0 {
+				return fmt.Errorf("sync failed for every topic (%s)", strings.Join(topics, ", "))
+			}
+
+			failed := make([]string, 0, len(errs))
+			for _, e := range errs {
+				failed = append(failed, e.Source)
+			}
 			summary := map[string]any{
 				"event":           "sync_summary",
-				"topics":          topics,
+				"topics":          perTopic,
+				"failed_topics":   failed,
 				"clusters_synced": totalClusters,
-				"events_synced":   totalEmbeddedEvents,
+				"stories_synced":  totalStories,
+				"range":           feedRange,
 				"with_details":    withDetails,
-				"skip_events":     skipEvents,
 				"db_path":         dbPath,
 				"computed_at":     now.Format(time.RFC3339Nano),
 			}
 			if flags.asJSON {
 				return printJSONFiltered(out, summary, flags)
 			}
-			fmt.Fprintf(out, "synced %d clusters into %s\n", totalClusters, dbPath)
+			fmt.Fprintf(out, "synced %d ranked clusters and %d feed stories into %s\n", totalClusters, totalStories, dbPath)
 			return nil
 		},
 	}
 
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/digg-pp-cli/data.db)")
 	cmd.Flags().BoolVar(&withDetails, "with-details", false, "Also fetch each cluster's detail page (slower; richer fields)")
-	cmd.Flags().BoolVar(&skipEvents, "no-events", false, "Skip /api/trending/status events fetch")
-	cmd.Flags().StringSliceVar(&topics, "topics", []string{"ai"}, "Comma-separated topic slugs to sync (valid: ai, technology, science, world, politics, business, sports, entertainment, news)")
+	cmd.Flags().StringSliceVar(&topics, "topics", []string{"ai"}, "Comma-separated topic slugs to sync (valid: "+strings.Join(validTopicSlugs(), ", ")+")")
+	cmd.Flags().StringVar(&feedRange, "range", "30d", "How far back the story feed reaches: 24h, 7d, 30d, or all")
+	cmd.Flags().IntVar(&maxPages, "max-pages", 120, "Maximum feed pages (20 stories each) to fetch per topic")
 
 	cmd.Annotations = map[string]string{}
 	return cmd
+}
+
+// persistScrape saves one section page's ranked clusters and embedded events.
+func persistScrape(db *sql.DB, clusters []diggparse.Cluster, events []diggparse.Event, now time.Time) error {
+	for _, c := range clusters {
+		if err := diggstore.UpsertCluster(db, c, now); err != nil {
+			return err
+		}
+	}
+	for _, e := range events {
+		if err := diggstore.UpsertEvent(db, e, now); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// fetchDetails re-reads each cluster's detail page for fuller fields.
+func fetchDetails(ctx context.Context, db *sql.DB, writeMu *sync.Mutex, topic string, clusters []diggparse.Cluster, now time.Time, logf func(string, ...any)) {
+	fetched := 0
+	for _, c := range clusters {
+		if c.ClusterURLID == "" {
+			continue
+		}
+		body, err := fetchURL(ctx, diggSiteURL+"/"+topic+"/"+c.ClusterURLID)
+		if err != nil {
+			logf("  detail %s: %v\n", c.ClusterURLID, err)
+			continue
+		}
+		more, _, _, err := diggparse.ParseHomeFeed(body)
+		if err != nil || len(more) == 0 {
+			continue
+		}
+		for _, mc := range more {
+			if mc.ClusterID == c.ClusterID {
+				writeMu.Lock()
+				_ = diggstore.UpsertCluster(db, mc, now)
+				writeMu.Unlock()
+				break
+			}
+		}
+		fetched++
+		time.Sleep(500 * time.Millisecond)
+	}
+	logf("fetched %d detail pages for /%s\n", fetched, topic)
 }
 
 // fetchURL is a tiny stdlib HTTP client used by the digg sync and live

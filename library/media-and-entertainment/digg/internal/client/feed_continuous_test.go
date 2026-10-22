@@ -71,7 +71,7 @@ func (f *feedServer) handler(w http.ResponseWriter, r *http.Request) {
 
 func TestWalkFeedFollowsCursorUntilNull(t *testing.T) {
 	fs := &feedServer{pages: map[string]string{
-		"":     feedPageJSON(0, 20, "cur-2"),
+		"":      feedPageJSON(0, 20, "cur-2"),
 		"cur-2": feedPageJSON(20, 20, ""),
 	}}
 	srv := httptest.NewServer(http.HandlerFunc(fs.handler))
@@ -105,7 +105,7 @@ func TestWalkFeedFollowsCursorUntilNull(t *testing.T) {
 
 func TestWalkFeedStopsAtMaxPages(t *testing.T) {
 	fs := &feedServer{pages: map[string]string{
-		"":  feedPageJSON(0, 20, "c2"),
+		"":   feedPageJSON(0, 20, "c2"),
 		"c2": feedPageJSON(20, 20, "c3"),
 		"c3": feedPageJSON(40, 20, "c4"),
 	}}
@@ -164,7 +164,7 @@ func TestWalkFeedMissingPostsKeyIsError(t *testing.T) {
 
 func TestWalkFeedEmptyLaterPageEndsWalk(t *testing.T) {
 	fs := &feedServer{pages: map[string]string{
-		"":  feedPageJSON(0, 20, "c2"),
+		"":   feedPageJSON(0, 20, "c2"),
 		"c2": feedPageJSON(0, 0, "c3"),
 	}}
 	srv := httptest.NewServer(http.HandlerFunc(fs.handler))
