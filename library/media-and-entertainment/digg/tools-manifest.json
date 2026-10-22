@@ -1,6 +1,6 @@
 {
   "api_name": "digg",
-  "base_url": "https://di.gg",
+  "base_url": "https://digg.com",
   "description": "Digg: tail the AI story leaderboard, GitHub feeds (stars/new/activity/recent), ranking-change history, and live ingestion pipeline events from the terminal. Read-only.",
   "mcp_ready": "full",
   "http_transport": "standard",
@@ -32,14 +32,6 @@
           "required": true
         }
       ]
-    },
-    {
-      "name": "trending_status",
-      "description": "Read the current pipeline status: storiesToday, clustersToday, isFetching, nextFetchAt, and the recent event stream (cluster_detected, fast_climb, post_understanding, batch_started, batch_breakdown, posts_stored, embedding_progress). Returns the TrendingStatus.",
-      "method": "GET",
-      "path": "/api/trending/status",
-      "no_auth": true,
-      "params": []
     },
     {
       "name": "github_stars",

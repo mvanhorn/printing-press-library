@@ -42,15 +42,6 @@ func RegisterTools(s *server.MCPServer) {
 		),
 		makeAPIHandler("GET", "/ai/{cluster_url_id}", []mcpParamBinding{{PublicName: "cluster_url_id", WireName: "cluster_url_id", Location: "path"}}, []string{"cluster_url_id"}),
 	)
-	s.AddTool(
-		mcplib.NewTool("trending_status",
-			mcplib.WithDescription("Read the current pipeline status: storiesToday, clustersToday, isFetching, nextFetchAt, and the recent event stream (cluster_detected, fast_climb, post_understanding, batch_started, batch_breakdown, posts_stored, embedding_progress). Returns the TrendingStatus."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/api/trending/status", []mcpParamBinding{}, []string{}),
-	)
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
@@ -352,11 +343,6 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"endpoints":   []string{"stars", "new", "activity", "recent"},
 				"searchable":  true,
 			},
-			{
-				"name":        "trending",
-				"description": "Public ingestion-pipeline status and event stream",
-				"endpoints":   []string{"status"},
-			},
 		},
 		"query_tips": []string{
 			"Pagination uses cursor-based paging. Pass after parameter for subsequent pages.",
@@ -368,7 +354,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Live pipeline event tail", "command": "events", "description": "Tail Digg's ingestion pipeline in real time — see clusters as they're detected, stories fast-climbing the...", "rationale": "Requires reading the public /api/trending/status JSON endpoint that the web UI consumes silently. The web UI shows...", "via": "mcp-command-mirror"},
+			{"name": "Stored pipeline events", "command": "events", "description": "List pipeline events (cluster_detected, fast_climb) that sync captured from section pages, filtered by type and time.", "rationale": "Section pages embed recent pipeline events in their RSC stream; sync stores them so they survive the next page refresh.", "via": "mcp-command-mirror"},
 			{"name": "Replacement archaeology", "command": "replaced", "description": "Show stories that were knocked out of the rankings since the last sync, with Digg's own published replacement rationale.", "rationale": "Digg explicitly publishes a replacementRationale field per cluster. The web UI shows current rankings only — once...", "via": "mcp-command-mirror"},
 			{"name": "Score component breakdown", "command": "evidence", "description": "Print the full ranking transparency record for one cluster — scoreComponents, evidence array, numeratorLabel,...", "rationale": "Digg ships gravity-score components and evidence in the page payload. The web UI shows only the final gravity score.", "via": "mcp-command-mirror"},
 			{"name": "Time-windowed sentiment", "command": "sentiment", "description": "Read per-time-window positivity ratios (pos6h, pos12h, pos24h, posLast) for a cluster.", "rationale": "Each cluster carries pos6h/12h/24h fields. No web UI surfaces them.", "via": "mcp-command-mirror"},
@@ -381,10 +367,9 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{"name": "Rank history per cluster", "command": "history", "description": "Full trajectory of one cluster's currentRank, peakRank, and delta over local snapshot history.", "rationale": "Local snapshots persist what the web UI overwrites every fetch.", "via": "mcp-command-mirror"},
 			{"name": "Author surfacing record", "command": "author", "description": "Every cluster a given X account contributed to, with post type (original, retweet, quote, reply).", "rationale": "Cluster payloads list all contributing X posts with username, xId, displayName, and postType. Local store joins them...", "via": "mcp-command-mirror"},
 			{"name": "Rank-movement watcher", "command": "watch", "description": "Poll /ai, diff against last snapshot, alert when any cluster moves N+ ranks.", "rationale": "Read-only polling combined with the local snapshot store and AdaptiveLimiter.", "via": "mcp-command-mirror"},
-			{"name": "Pipeline status dashboard", "command": "pipeline status", "description": "One-screen view of /api/trending/status: isFetching, nextFetchAt, storiesToday, clustersToday, last 5 events.", "rationale": "Operational telemetry endpoint exposed publicly; CLI presents it as a dashboard.", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "Live pipeline event tail", "insight": "Requires reading the public /api/trending/status JSON endpoint that the web UI consumes silently. The web UI shows nothing about pipeline state; this surfaces it."},
+			{"topic": "Stored pipeline events", "insight": "Section pages embed recent pipeline events in their RSC stream; sync stores them so they survive the next page refresh. Digg removed its separate pipeline-status endpoint in October 2026."},
 			{"topic": "Replacement archaeology", "insight": "Digg explicitly publishes a replacementRationale field per cluster. The web UI shows current rankings only — once a story drops, the rationale is gone. The local snapshot store keeps it."},
 			{"topic": "Score component breakdown", "insight": "Digg ships gravity-score components and evidence in the page payload. The web UI shows only the final gravity score."},
 			{"topic": "Time-windowed sentiment", "insight": "Each cluster carries pos6h/12h/24h fields. No web UI surfaces them."},
@@ -394,7 +379,6 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{"topic": "Rank history per cluster", "insight": "Local snapshots persist what the web UI overwrites every fetch."},
 			{"topic": "Author surfacing record", "insight": "Cluster payloads list all contributing X posts with username, xId, displayName, and postType. Local store joins them per author."},
 			{"topic": "Rank-movement watcher", "insight": "Read-only polling combined with the local snapshot store and AdaptiveLimiter."},
-			{"topic": "Pipeline status dashboard", "insight": "Operational telemetry endpoint exposed publicly; CLI presents it as a dashboard."},
 		},
 	}
 	data, _ := json.MarshalIndent(ctx, "", "  ")

@@ -41,7 +41,6 @@ func registerDiggCommands(root *cobra.Command, flags *rootFlags) {
 	root.AddCommand(newAuthorsCmd(flags))
 	root.AddCommand(newAuthorCmd(flags))
 	root.AddCommand(newWatchCmd(flags))
-	root.AddCommand(newPipelineCmd(flags))
 	root.AddCommand(newOpenCmd(flags))
 	root.AddCommand(newStatsCmd(flags))
 }
@@ -1018,8 +1017,8 @@ func newEventsCmd(flags *rootFlags) *cobra.Command {
 	var typeFilter string
 	cmd := &cobra.Command{
 		Use:         "events",
-		Short:       "Tail Digg's ingestion-pipeline event stream from the local store",
-		Long:        `Read events that were captured during sync from /api/trending/status: cluster_detected, fast_climb (with delta + previousRank → currentRank), post_understanding (X posts being processed), batch_started/batch_breakdown/posts_stored, and embedding_progress.`,
+		Short:       "List Digg pipeline events stored by sync",
+		Long:        `List pipeline events stored in the local database. Sync captures the events each section page embeds in its RSC stream (cluster_detected, fast_climb with delta + previousRank → currentRank). This reads stored events only; Digg removed its live pipeline-status endpoint in October 2026, so run ` + "`sync`" + ` to capture new ones.`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Example: `  digg-pp-cli events --since 1h --type fast_climb
   digg-pp-cli events --type cluster_detected --limit 10 --json
@@ -2695,78 +2694,6 @@ func computeWatchAlerts(db *sql.DB, current []diggparse.Cluster, minDelta int) [
 	}
 	sort.Slice(out, func(i, j int) bool { return abs(out[i].Delta) > abs(out[j].Delta) })
 	return out
-}
-
-// ============== pipeline ==============
-
-func newPipelineCmd(flags *rootFlags) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:         "pipeline",
-		Short:       "Inspect Digg's ingestion pipeline (status + events)",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-	}
-	cmd.AddCommand(newPipelineStatusCmd(flags))
-	return cmd
-}
-
-func newPipelineStatusCmd(flags *rootFlags) *cobra.Command {
-	var watchMode bool
-	var interval time.Duration
-	cmd := &cobra.Command{
-		Use:         "status",
-		Short:       "One-screen view of /api/trending/status: isFetching, nextFetchAt, storiesToday, clustersToday",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-		Example: `  digg-pp-cli pipeline status
-  digg-pp-cli pipeline status --watch --interval 60s`,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if dryRunOK(flags) {
-				return nil
-			}
-			fetchOnce := func() error {
-				body, err := fetchURL(cmd.Context(), "https://di.gg/api/trending/status")
-				if err != nil {
-					return err
-				}
-				ts, err := diggparse.ParseTrendingStatus(body)
-				if err != nil {
-					return err
-				}
-				if flags.asJSON {
-					return printJSONFiltered(cmd.OutOrStdout(), ts, flags)
-				}
-				fmt.Fprintf(cmd.OutOrStdout(), "Pipeline status (computed at %s)\n", ts.ComputedAt)
-				fmt.Fprintf(cmd.OutOrStdout(), "  isFetching:           %v\n", ts.IsFetching)
-				fmt.Fprintf(cmd.OutOrStdout(), "  storiesToday:         %d\n", ts.StoriesToday)
-				fmt.Fprintf(cmd.OutOrStdout(), "  clustersToday:        %d\n", ts.ClustersToday)
-				fmt.Fprintf(cmd.OutOrStdout(), "  nextFetchAt:          %s\n", ts.NextFetchAt)
-				fmt.Fprintf(cmd.OutOrStdout(), "  lastFetchCompletedAt: %s\n", ts.LastFetchCompletedAt)
-				fmt.Fprintf(cmd.OutOrStdout(), "  recent events: %d\n", len(ts.Events))
-				for i, e := range ts.Events {
-					if i >= 5 {
-						break
-					}
-					fmt.Fprintf(cmd.OutOrStdout(), "    %s  %s\n", e.At, e.Type)
-				}
-				return nil
-			}
-			if !watchMode {
-				return fetchOnce()
-			}
-			for {
-				if err := fetchOnce(); err != nil {
-					fmt.Fprintf(cmd.ErrOrStderr(), "status: %v\n", err)
-				}
-				select {
-				case <-cmd.Context().Done():
-					return nil
-				case <-time.After(interval):
-				}
-			}
-		},
-	}
-	cmd.Flags().BoolVar(&watchMode, "watch", false, "Re-poll the endpoint on an interval")
-	cmd.Flags().DurationVar(&interval, "interval", 60*time.Second, "Poll interval")
-	return cmd
 }
 
 // ============== open ==============

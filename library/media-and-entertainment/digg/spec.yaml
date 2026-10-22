@@ -2,7 +2,7 @@ name: digg
 display_name: Digg
 description: "Digg: tail the AI story leaderboard, GitHub feeds, ranking-change history, and live ingestion pipeline events from the terminal. Read-only."
 version: "0.2.0"
-base_url: "https://di.gg"
+base_url: "https://digg.com"
 cli_description: "Read-only CLI for Digg — the AI story leaderboard, GitHub feeds, and ingestion pipeline events on digg.com."
 
 auth:
@@ -13,18 +13,6 @@ config:
   path: "~/.config/digg-pp-cli/config.toml"
 
 resources:
-  trending:
-    description: "Public ingestion-pipeline status and event stream"
-    endpoints:
-      status:
-        method: GET
-        path: "/api/trending/status"
-        description: "Read the current pipeline status: storiesToday, clustersToday, isFetching, nextFetchAt, and the recent event stream (cluster_detected, fast_climb, post_understanding, batch_started, batch_breakdown, posts_stored, embedding_progress)."
-        params: []
-        response:
-          type: object
-          item: TrendingStatus
-
   feed:
     description: "Top-level story feed (HTML page; CLI parses the embedded RSC stream)"
     endpoints:
@@ -149,21 +137,6 @@ resources:
           item: RawHTML
 
 types:
-  TrendingStatus:
-    fields:
-      - name: computedAt
-        type: string
-      - name: nextFetchAt
-        type: string
-      - name: lastFetchCompletedAt
-        type: string
-      - name: isFetching
-        type: bool
-      - name: storiesToday
-        type: int
-      - name: clustersToday
-        type: int
-
   RawHTML:
     fields:
       - name: body

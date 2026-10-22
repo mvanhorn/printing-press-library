@@ -13,7 +13,6 @@
 package diggparse
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"regexp"
@@ -115,17 +114,6 @@ type Event struct {
 	CreatedAt     string          `json:"createdAt,omitempty"`
 	DedupeKey     string          `json:"dedupeKey,omitempty"`
 	RawJSON       json.RawMessage `json:"-"`
-}
-
-// TrendingStatus mirrors GET /api/trending/status.
-type TrendingStatus struct {
-	ComputedAt           string  `json:"computedAt,omitempty"`
-	NextFetchAt          string  `json:"nextFetchAt,omitempty"`
-	LastFetchCompletedAt string  `json:"lastFetchCompletedAt,omitempty"`
-	IsFetching           bool    `json:"isFetching"`
-	StoriesToday         int     `json:"storiesToday,omitempty"`
-	ClustersToday        int     `json:"clustersToday,omitempty"`
-	Events               []Event `json:"events,omitempty"`
 }
 
 // pushPattern matches: self.__next_f.push([1, "<js-string-literal>"])
@@ -501,16 +489,6 @@ func ParseHomeFeed(html []byte) (clusters []Cluster, events []Event, decoded str
 	}
 	events, _ = ExtractEvents(decoded)
 	return clusters, events, decoded, nil
-}
-
-// ParseTrendingStatus parses the /api/trending/status JSON response.
-func ParseTrendingStatus(body []byte) (*TrendingStatus, error) {
-	body = bytes.TrimSpace(body)
-	var t TrendingStatus
-	if err := json.Unmarshal(body, &t); err != nil {
-		return nil, fmt.Errorf("parsing trending/status: %w", err)
-	}
-	return &t, nil
 }
 
 // ParseTime is a forgiving timestamp parser. Digg ships a mix of

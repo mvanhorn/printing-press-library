@@ -107,14 +107,3 @@ func TestExtractEvents(t *testing.T) {
 		t.Errorf("unexpected events: %+v", events)
 	}
 }
-
-func TestParseTrendingStatus(t *testing.T) {
-	body := []byte(`{"isFetching":false,"storiesToday":42,"clustersToday":3,"events":[{"id":"a","type":"batch_started","at":"2026-05-09T00:00:00Z","dedupeKey":"k"}]}`)
-	ts, err := ParseTrendingStatus(body)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if ts.StoriesToday != 42 || ts.ClustersToday != 3 || len(ts.Events) != 1 {
-		t.Errorf("unexpected trending: %+v", ts)
-	}
-}
