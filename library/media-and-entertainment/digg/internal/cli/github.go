@@ -1,11 +1,11 @@
 // Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // PATCH(digg-rename-and-github-feeds): library-side new file. The four
-// /ai/github/* feeds were sniffed and parsed post-publish; the generator
+// /ai/github/* (now /tech/github/*) feeds were sniffed and parsed post-publish; the generator
 // has no spec for them yet. Wired into root.go's AddCommand block.
 //
 // `digg-pp-cli github stars|new|activity|recent` commands.
-// Fetches the four /ai/github/* feeds, parses the embedded RSC stream
+// Fetches the four /tech/github/* feeds, parses the embedded RSC stream
 // via diggparse, and emits structured records.
 
 package cli
@@ -51,11 +51,18 @@ Four flavors, each parsed from the page's embedded RSC stream:
 	return cmd
 }
 
-// fetchGithubFeed pulls https://di.gg/ai/github/<kind> and returns the
-// raw HTML bytes. Uses fetchURL (same as digg_sync) so we get text/html
-// without going through the JSON-sanitizing API client.
+// githubBaseURL is the site origin for the GitHub feed pages. A package
+// var (not const) so tests can point it at an httptest server; the
+// /tech/github/<kind> path is fixed in fetchGithubFeed.
+var githubBaseURL = "https://digg.com"
+
+// fetchGithubFeed pulls https://digg.com/tech/github/<kind> and returns
+// the raw HTML bytes. The older /ai/github/<kind> URLs 308-redirect
+// here, so the CLI reads the current page directly. Uses fetchURL (same
+// as digg_sync) so we get text/html without going through the
+// JSON-sanitizing API client.
 func fetchGithubFeed(cmd *cobra.Command, _ *rootFlags, kind string) ([]byte, error) {
-	url := "https://di.gg/ai/github/" + kind
+	url := githubBaseURL + "/tech/github/" + kind
 	return fetchURL(cmd.Context(), url)
 }
 
@@ -113,7 +120,7 @@ func newGithubStarsCmd(flags *rootFlags) *cobra.Command {
 		Use:         "stars",
 		Short:       "Top AI repos ranked by starring activity from Digg-tracked accounts",
 		Example:     "  digg-pp-cli github stars --min-starrers 2 --limit 10 --json",
-		Annotations: map[string]string{"pp:endpoint": "github.stars", "pp:method": "GET", "pp:path": "/ai/github/stars", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "github.stars", "pp:method": "GET", "pp:path": "/tech/github/stars", "mcp:read-only": "true"},
 		Long: `Top AI repos ranked by starring activity from Digg-tracked accounts.
 
 Returns each repo's full_name, stargazers_count, recent starrer list,
@@ -146,7 +153,7 @@ first 10 raw rows then filtered).`,
 			}
 			repos, err := diggparse.ParseGithubStars(html)
 			if err != nil {
-				return fmt.Errorf("parsing /ai/github/stars: %w", err)
+				return fmt.Errorf("parsing /tech/github/stars: %w", err)
 			}
 			// PATCH(digg-rankings-and-min-starrers): apply convergence filter
 			// before emit so --limit caps the post-filter result.
@@ -205,7 +212,7 @@ func newGithubNewCmd(flags *rootFlags) *cobra.Command {
 		Use:         "new",
 		Short:       "Recently first-seen GitHub repos grouped by the creator/starrer who put them on Digg's radar",
 		Example:     "  digg-pp-cli github new --json",
-		Annotations: map[string]string{"pp:endpoint": "github.new", "pp:method": "GET", "pp:path": "/ai/github/new", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "github.new", "pp:method": "GET", "pp:path": "/tech/github/new", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil
@@ -216,7 +223,7 @@ func newGithubNewCmd(flags *rootFlags) *cobra.Command {
 			}
 			events, err := diggparse.ParseGithubNew(html)
 			if err != nil {
-				return fmt.Errorf("parsing /ai/github/new: %w", err)
+				return fmt.Errorf("parsing /tech/github/new: %w", err)
 			}
 			return emitGithub(cmd, flags, events, limit)
 		},
@@ -231,7 +238,7 @@ func newGithubActivityCmd(flags *rootFlags) *cobra.Command {
 		Use:         "activity",
 		Short:       "Top GitHub contributor leaderboard: rank, contributions, distinct repos",
 		Example:     "  digg-pp-cli github activity --limit 25 --json",
-		Annotations: map[string]string{"pp:endpoint": "github.activity", "pp:method": "GET", "pp:path": "/ai/github/activity", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "github.activity", "pp:method": "GET", "pp:path": "/tech/github/activity", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil
@@ -242,7 +249,7 @@ func newGithubActivityCmd(flags *rootFlags) *cobra.Command {
 			}
 			rows, err := diggparse.ParseGithubActivity(html)
 			if err != nil {
-				return fmt.Errorf("parsing /ai/github/activity: %w", err)
+				return fmt.Errorf("parsing /tech/github/activity: %w", err)
 			}
 			return emitGithub(cmd, flags, rows, limit)
 		},
@@ -257,7 +264,7 @@ func newGithubRecentCmd(flags *rootFlags) *cobra.Command {
 		Use:         "recent",
 		Short:       "Live GitHub activity feed: per-event entries with the github URL and the user who acted",
 		Example:     "  digg-pp-cli github recent --limit 20 --json",
-		Annotations: map[string]string{"pp:endpoint": "github.recent", "pp:method": "GET", "pp:path": "/ai/github/recent", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "github.recent", "pp:method": "GET", "pp:path": "/tech/github/recent", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil
@@ -268,7 +275,7 @@ func newGithubRecentCmd(flags *rootFlags) *cobra.Command {
 			}
 			rows, err := diggparse.ParseGithubRecent(html)
 			if err != nil {
-				return fmt.Errorf("parsing /ai/github/recent: %w", err)
+				return fmt.Errorf("parsing /tech/github/recent: %w", err)
 			}
 			return emitGithub(cmd, flags, rows, limit)
 		},

@@ -3,8 +3,11 @@
 // PATCH(digg-rankings-and-min-starrers): tests for `digg-pp-cli rankings`.
 //
 // Strategy:
-//   1. Spin up an httptest server that serves the trimmed
-//      rankings-companies fixture for /ai/x/rankings/companies.
+//   1. Spin up an httptest server that serves a trimmed fixture:
+//      rankings-companies-fixture.html (legacy three-section page,
+//      keeps the parser and drift gates covered) or
+//      rankings-tech-fixture.html (current /tech/x/rankings page,
+//      full ranking only; Emerging and Movers removed).
 //   2. Point rankingsCompaniesURL at the test server.
 //   3. Execute each subcommand via the public RootCmd entry and
 //      capture stdout/stderr; assert JSON shape and stderr drift
@@ -16,6 +19,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -23,6 +27,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/diggparse"
 )
 
 // loadRankingsFixtureForCLI reads the canonical pristine fixture.
@@ -392,5 +398,83 @@ func TestRankings_RegisteredInRoot(t *testing.T) {
 	}
 	if !found {
 		t.Fatal("'rankings' command not registered on root")
+	}
+}
+
+// currentRankingsTestServer serves testdata/rankings-tech-fixture.html,
+// a trimmed capture of the live https://digg.com/tech/x/rankings page
+// (2026-10-21). That page carries the full ranking but no Emerging or
+// Movers section. The legacy rankings-companies fixtures above keep the
+// older three-section shape so the parser and drift gates stay covered.
+func currentRankingsTestServer(t *testing.T) {
+	t.Helper()
+	fixture := loadRankingsFixtureForCLI_named(t, "rankings-tech-fixture.html")
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_, _ = w.Write(fixture)
+	}))
+	t.Cleanup(srv.Close)
+	prev := rankingsCompaniesURL
+	rankingsCompaniesURL = srv.URL
+	t.Cleanup(func() { rankingsCompaniesURL = prev })
+}
+
+func TestRankingsURL_PointsAtTechRankingsPage(t *testing.T) {
+	if rankingsCompaniesURL != "https://digg.com/tech/x/rankings" {
+		t.Errorf("rankingsCompaniesURL = %q, want https://digg.com/tech/x/rankings", rankingsCompaniesURL)
+	}
+}
+
+func TestRankingsList_CurrentPage(t *testing.T) {
+	currentRankingsTestServer(t)
+	stdout, stderr, err := runCLI(t,
+		"rankings", "list", "--limit", "3", "--json", "--no-color", "--yes", "--no-input",
+	)
+	if err != nil {
+		t.Fatalf("rankings list: %v\nstderr: %s", err, stderr.String())
+	}
+	var rows []map[string]any
+	if err := json.Unmarshal(stdout.Bytes(), &rows); err != nil {
+		t.Fatalf("decode output: %v; output: %s", err, stdout.String())
+	}
+	if len(rows) != 3 {
+		t.Fatalf("got %d rows, want 3", len(rows))
+	}
+	if u, _ := rows[0]["username"].(string); u != "karpathy" {
+		t.Errorf("rows[0].username = %q, want karpathy", u)
+	}
+}
+
+// Emerging and Movers no longer exist on Digg's rankings page. The
+// commands must fail closed with a message naming the removed view,
+// never exit 0 with an empty list.
+func TestRankings_RemovedViewsFailClosed(t *testing.T) {
+	cases := []struct {
+		args []string
+		view string
+	}{
+		{[]string{"rankings", "emerging"}, "Emerging"},
+		{[]string{"rankings", "movers"}, "Movers"},
+		{[]string{"rankings", "movers", "--direction", "up"}, "Movers"},
+	}
+	for _, tc := range cases {
+		t.Run(strings.Join(tc.args, " "), func(t *testing.T) {
+			currentRankingsTestServer(t)
+			args := append(append([]string{}, tc.args...), "--json", "--no-color", "--yes", "--no-input")
+			stdout, _, err := runCLI(t, args...)
+			if err == nil {
+				t.Fatalf("expected removed-view error, got success with output %q", stdout.String())
+			}
+			if !errors.Is(err, diggparse.ErrSectionNotFound) {
+				t.Errorf("err = %v, want errors.Is ErrSectionNotFound", err)
+			}
+			msg := err.Error()
+			if !strings.Contains(msg, tc.view) || !strings.Contains(msg, "removed from Digg's rankings page") {
+				t.Errorf("error = %q; want it to name the %s view as removed from Digg's rankings page", msg, tc.view)
+			}
+			if strings.TrimSpace(stdout.String()) != "" {
+				t.Errorf("expected no stdout on removed view, got %q", stdout.String())
+			}
+		})
 	}
 }

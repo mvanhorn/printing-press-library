@@ -387,3 +387,39 @@ func contains(haystack, needle string) bool {
 	}
 	return false
 }
+
+// The two tests below run against testdata/rankings-tech-fixture.html,
+// a trimmed capture of https://digg.com/tech/x/rankings (2026-10-21).
+// /ai/x/rankings/companies now redirects there. The current page ships
+// only the full people-and-companies ranking; the Emerging and Movers
+// sections the older fixtures carry are gone.
+
+func TestCurrentTechRankingsPage_MainRankingParses(t *testing.T) {
+	decoded := DecodeRSC(loadRankingsFixture(t, "rankings-tech-fixture.html"))
+	if decoded == "" {
+		t.Fatal("DecodeRSC returned empty for the current-page fixture")
+	}
+	entries, stats, err := ExtractMainRanking(decoded)
+	if err != nil {
+		t.Fatalf("ExtractMainRanking: %v", err)
+	}
+	if len(entries) == 0 {
+		t.Fatal("expected at least one ranking entry from the current page")
+	}
+	if entries[0].Rank != 1 || entries[0].Username != "karpathy" {
+		t.Errorf("entries[0] = rank %d @%s, want rank 1 @karpathy", entries[0].Rank, entries[0].Username)
+	}
+	if stats.Skipped != 0 {
+		t.Errorf("stats = %+v, want no skipped entries", stats)
+	}
+}
+
+func TestCurrentTechRankingsPage_EmergingAndMoversAbsent(t *testing.T) {
+	decoded := DecodeRSC(loadRankingsFixture(t, "rankings-tech-fixture.html"))
+	if _, _, err := ExtractEmerging(decoded); !errors.Is(err, ErrSectionNotFound) {
+		t.Errorf("ExtractEmerging err = %v, want ErrSectionNotFound", err)
+	}
+	if _, _, _, err := ExtractMovers(decoded); !errors.Is(err, ErrSectionNotFound) {
+		t.Errorf("ExtractMovers err = %v, want ErrSectionNotFound", err)
+	}
+}

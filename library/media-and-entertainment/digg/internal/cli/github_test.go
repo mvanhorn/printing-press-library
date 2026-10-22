@@ -8,6 +8,9 @@
 package cli
 
 import (
+	"io"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 
@@ -135,6 +138,30 @@ func TestGithubStarsCmd_NegativeMinStarrersRejected(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "--min-starrers must be >= 0") {
 		t.Errorf("error = %q; expected '--min-starrers must be >= 0' phrase", err.Error())
+	}
+}
+
+// TestGithubStarsCmd_RequestsTechGithubPath locks the current page
+// location. /ai/github/* 308-redirects to /tech/github/*, so the CLI
+// reads the /tech page directly instead of riding the redirect.
+func TestGithubStarsCmd_RequestsTechGithubPath(t *testing.T) {
+	var gotPath string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotPath = r.URL.Path
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_, _ = io.WriteString(w, `<html><body></body></html>`)
+	}))
+	t.Cleanup(srv.Close)
+	prev := githubBaseURL
+	githubBaseURL = srv.URL
+	t.Cleanup(func() { githubBaseURL = prev })
+
+	_, _, _ = runCLI(t, "github", "stars", "--json", "--no-color", "--yes", "--no-input")
+	if gotPath != "/tech/github/stars" {
+		t.Errorf("request path = %q, want /tech/github/stars", gotPath)
+	}
+	if prev != "https://digg.com" {
+		t.Errorf("default githubBaseURL = %q, want https://digg.com", prev)
 	}
 }
 

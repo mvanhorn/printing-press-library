@@ -1,16 +1,16 @@
 // Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 //
 // PATCH(digg-rankings-and-min-starrers): library-side new file. The
-// /ai/x/rankings/companies page surfaces three sub-views (Emerging
-// Startups, Movers up/down, the full company ranking) inside one
+// rankings page (formerly /ai/x/rankings/companies, now
+// https://digg.com/tech/x/rankings) used to surface three sub-views
+// (Emerging Startups, Movers up/down, the full ranking) inside one
 // HTML page's RSC stream. The CLI exposes each as a sibling subcommand
 // so consumers get a stable typed schema per command rather than a
-// polymorphic --section flag.
+// polymorphic --section flag. As of 2026-10-21 only the full ranking
+// remains; emerging and movers fail closed with a removed-view error.
 //
 // All three commands hit the same URL and parse different sections of
-// the response. A per-process cache (sync.Once around the fetch)
-// avoids redundant HTTP work if a caller runs more than one in a
-// single invocation.
+// the response.
 
 package cli
 
@@ -24,10 +24,20 @@ import (
 )
 
 // rankingsCompaniesURL is the live endpoint. Exposed as a package var
-// (not const) so tests can swap it for an httptest server URL. The
-// short host (di.gg) matches the existing convention in feed.go and
-// github.go; both di.gg and digg.com resolve to the same RSC payload.
-var rankingsCompaniesURL = "https://di.gg/ai/x/rankings/companies"
+// (not const) so tests can swap it for an httptest server URL. The old
+// /ai/x/rankings/companies URL 308-redirects here, so the CLI reads the
+// current page directly. As of 2026-10-21 this page carries only the
+// full ranking; the Emerging and Movers sections are gone.
+var rankingsCompaniesURL = "https://digg.com/tech/x/rankings"
+
+// errRemovedView wraps diggparse.ErrSectionNotFound for a rankings view
+// that Digg no longer publishes, so the command fails closed with a
+// message naming the view instead of exiting 0 with no rows.
+func errRemovedView(view string, err error) error {
+	return fmt.Errorf(
+		"rankings: the %s view was removed from Digg's rankings page (%s); 'rankings list' still works: %w",
+		view, rankingsCompaniesURL, err)
+}
 
 // defaultMaxSkipRatio is the schema-drift tolerance for rankings
 // commands. 10% feels tight enough to catch a rename of any key
@@ -49,21 +59,19 @@ func newRankingsCmd(flags *rootFlags) *cobra.Command {
 		Short: "Rankings views Digg publishes alongside the AI 1000 leaderboard",
 		Long: `Rankings views Digg publishes alongside the AI 1000 leaderboard.
 
-Today the CLI exposes three sub-views of the /ai/x/rankings/companies
-page, each a stable typed schema:
+Reads https://digg.com/tech/x/rankings, each sub-view a stable typed
+schema:
 
-  emerging   Curated list of small AI companies (the "EMERGING STARTUPS
-             — CURATED THIS SNAPSHOT" block). 10 rows. Mixes
-             AI-judge-flagged emerging startups (IsEmergingStartup=true)
-             with adjacent new entrants.
+  list       The full ranking of people and companies (the
+             initial-HTML slice; pass --limit to cap).
 
-  movers     Companies whose follower count shifted most since the last
-             snapshot. Two halves: --direction up returns the gainers,
-             --direction down the losers. Default returns both,
-             tagged on each row.
+  emerging   Removed. Digg's rankings page no longer publishes the
+             Emerging Startups section; the command exits non-zero
+             with a removed-view error.
 
-  list       The full company ranking (paginated server-side; this
-             returns the initial-HTML slice — pass --limit to cap).`,
+  movers     Removed. Digg's rankings page no longer publishes the
+             Movers section; the command exits non-zero with a
+             removed-view error.`,
 	}
 	cmd.AddCommand(newRankingsEmergingCmd(flags, fetcher))
 	cmd.AddCommand(newRankingsMoversCmd(flags, fetcher))
@@ -167,12 +175,14 @@ func newRankingsEmergingCmd(flags *rootFlags, fetcher *rankingsFetcher) *cobra.C
 	maxSkip := defaultMaxSkipRatio
 	cmd := &cobra.Command{
 		Use:   "emerging",
-		Short: "Curated list of small AI companies from the rankings/companies snapshot",
+		Short: "Removed: Digg's rankings page no longer publishes Emerging Startups",
 		Long: `Emerging startups: the "EMERGING STARTUPS — CURATED THIS SNAPSHOT"
-section on /ai/x/rankings/companies. ~10 rows per snapshot, refreshed
-daily. Mixes AI-judge-flagged emerging startups (IsEmergingStartup=true)
-with adjacent new entrants the curator surfaced; consumers wanting
-only the flagged subset can filter on .isEmergingStartup.`,
+section of Digg's rankings page.
+
+Digg removed this section; https://digg.com/tech/x/rankings no longer
+carries it, so the command exits non-zero with a removed-view error
+rather than returning an empty list. If the section reappears in the
+page's RSC stream, the command parses it again.`,
 		Example: "  digg-pp-cli rankings emerging --json",
 		// NOTE: deliberately no pp:endpoint annotation. The MCP cobratree
 		// walker treats pp:endpoint-tagged commands as "covered by a
@@ -194,6 +204,9 @@ only the flagged subset can filter on .isEmergingStartup.`,
 				return err
 			}
 			entries, stats, err := diggparse.ExtractEmerging(decoded)
+			if errors.Is(err, diggparse.ErrSectionNotFound) {
+				return errRemovedView("Emerging", err)
+			}
 			if err != nil {
 				return fmt.Errorf("emerging: %w", err)
 			}
@@ -217,8 +230,13 @@ func newRankingsMoversCmd(flags *rootFlags, fetcher *rankingsFetcher) *cobra.Com
 	maxSkip := defaultMaxSkipRatio
 	cmd := &cobra.Command{
 		Use:   "movers",
-		Short: "Companies that climbed or fell most since the last rankings/companies snapshot",
+		Short: "Removed: Digg's rankings page no longer publishes Movers",
 		Long: `Movers since the last rankings snapshot.
+
+Digg removed this section; https://digg.com/tech/x/rankings no longer
+carries it, so the command exits non-zero with a removed-view error
+rather than returning an empty list. If the section reappears in the
+page's RSC stream, the command parses it again.
 
   --direction up    return only the gainers (positive followCountChange)
   --direction down  return only the losers
@@ -253,6 +271,9 @@ as a "what changed today" view, not an exhaustive delta feed.`,
 				return err
 			}
 			up, down, stats, err := diggparse.ExtractMovers(decoded)
+			if errors.Is(err, diggparse.ErrSectionNotFound) {
+				return errRemovedView("Movers", err)
+			}
 			if err != nil {
 				return fmt.Errorf("movers: %w", err)
 			}
@@ -284,14 +305,10 @@ func newRankingsListCmd(flags *rootFlags, fetcher *rankingsFetcher) *cobra.Comma
 	maxSkip := defaultMaxSkipRatio
 	cmd := &cobra.Command{
 		Use:   "list",
-		Short: "Full company ranking (initial-HTML slice; paginated server-side)",
-		Long: `Returns the initial-HTML slice of the main "Companies followed by
-the AI 2K" ranking. The full ranking is paginated server-side; what
-ships in the first response is the top N (varies by deploy — typically
-~50–200 entries). Use --limit to cap further.
-
-For surface coverage of an account, prefer 'rankings emerging' or
-'rankings movers' which return Digg's curated sub-slices.`,
+		Short: "Full people-and-companies ranking from Digg's rankings page",
+		Long: `Returns the ranking embedded in https://digg.com/tech/x/rankings,
+which ranks both people and companies (the page shipped the top 1000
+on 2026-10-21; the count varies by deploy). Use --limit to cap.`,
 		Example: "  digg-pp-cli rankings list --limit 20 --json",
 		Annotations: map[string]string{
 			// See newRankingsEmergingCmd note on omitting pp:endpoint.

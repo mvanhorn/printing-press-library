@@ -15,6 +15,15 @@
 // and "is curated" flags). For Movers entries the extractor stamps a
 // Direction field so callers can distinguish up/down without re-parsing.
 //
+// Current page (2026-10-21): /ai/x/rankings/companies 308-redirects to
+// https://digg.com/tech/x/rankings, which ranks people and companies
+// together and ships only the Main shape (two copies of the same
+// direction-less {"entries":[...]} wrapper, ~1000 rows). There is no
+// Emerging or Movers wrapper, so ExtractEmerging and ExtractMovers
+// return ErrSectionNotFound on it; the CLI reports those views as
+// removed. The isEmergingStartup/emergingReasoning fields still appear
+// on every row but are false/null, so they are not a substitute source.
+//
 // Wrapper selection is by *prop semantics*, never by the Next.js
 // component ID ($L39 / $L3c / $L3d in today's snapshot) — those IDs are
 // regenerated on every deploy and would silently break the parser.
@@ -237,7 +246,7 @@ func ParseRankingsCompanies(html []byte) (*RankingsCompanies, error) {
 	decoded := DecodeRSC(html)
 	if decoded == "" {
 		return nil, fmt.Errorf(
-			"no RSC pushes found in /ai/x/rankings/companies HTML (%d bytes); page shape may have changed",
+			"no RSC pushes found in rankings page HTML (%d bytes); page shape may have changed",
 			len(html))
 	}
 	out := &RankingsCompanies{}
