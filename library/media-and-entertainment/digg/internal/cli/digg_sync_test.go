@@ -191,7 +191,21 @@ func TestSyncMaxPagesCapsWalk(t *testing.T) {
 	if !strings.Contains(out, "max-pages") {
 		t.Fatalf("output %q should say --max-pages cut the walk short", out)
 	}
+	if syncKeyExists(t, openSyncedDB(t), "feed:ai:30d") {
+		t.Fatal("a capped walk that only reached 2 days back must not mark the 30d range fresh")
+	}
+}
+
+func TestSyncCappedWalkReachingRangeStartCountsAsSynced(t *testing.T) {
+	withTempHome(t)
+	// The mock's page N stories are N days old, so 28 pages reach 28 days
+	// into the 30d range.
+	m := &mockFeed{pages: map[string]int{"ai": 40}}
+	srv := m.serve(t)
+	if _, _, err := runSyncCmd(t, srv.URL, "--topics", "ai", "--max-pages", "28"); err != nil {
+		t.Fatal(err)
+	}
 	if !syncKeyExists(t, openSyncedDB(t), "feed:ai:30d") {
-		t.Fatal("a walk ended by the page cap counts as completed")
+		t.Fatal("a capped walk that reached the start of the range should count as synced")
 	}
 }

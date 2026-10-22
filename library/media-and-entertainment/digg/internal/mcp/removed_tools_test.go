@@ -18,3 +18,18 @@ func TestRegisterToolsOmitsTrendingStatus(t *testing.T) {
 		t.Fatal("trending_status is still registered")
 	}
 }
+
+// Digg dropped the Emerging and Movers views from its rankings page; the
+// CLI keeps the commands as fail-closed stubs, but MCP must not list them.
+func TestRegisterToolsOmitsRemovedRankingsViews(t *testing.T) {
+	s := server.NewMCPServer("digg-test", "0")
+	RegisterTools(s)
+	if s.GetTool("rankings_list") == nil {
+		t.Fatal("rankings_list should still be registered")
+	}
+	for _, name := range []string{"rankings_emerging", "rankings_movers"} {
+		if s.GetTool(name) != nil {
+			t.Fatalf("%s is still registered", name)
+		}
+	}
+}

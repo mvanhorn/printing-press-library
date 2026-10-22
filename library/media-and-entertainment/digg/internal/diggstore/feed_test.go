@@ -192,3 +192,45 @@ func TestFeedFreshness(t *testing.T) {
 		t.Fatal("a 30d sync must not mark the 7d key fresh")
 	}
 }
+
+func TestSearchFeedStoriesRankIsPerTopic(t *testing.T) {
+	db := openTempDB(t)
+	now := time.Date(2026, 10, 21, 12, 0, 0, 0, time.UTC)
+	s := feedStory(t, "c-1", "u1", "Claude ships a thing", "", now.Add(-time.Hour))
+	s.Rank = 2
+	if err := UpsertFeedPage(db, []client.FeedStory{s}, "ai", "30d", now); err != nil {
+		t.Fatal(err)
+	}
+	s.Rank = 40
+	if err := UpsertFeedPage(db, []client.FeedStory{s}, "all", "30d", now); err != nil {
+		t.Fatal(err)
+	}
+	for topic, want := range map[string]int{"ai": 2, "all": 40} {
+		got, err := SearchFeedStories(db, "claude", []string{topic}, now.Add(-24*time.Hour), 10)
+		if err != nil || len(got) != 1 || got[0].Rank != want {
+			t.Fatalf("topic %s: got %+v err=%v, want rank %d", topic, got, err, want)
+		}
+	}
+}
+
+func TestUpsertFeedPageReindexesChangedTitle(t *testing.T) {
+	db := openTempDB(t)
+	now := time.Date(2026, 10, 21, 12, 0, 0, 0, time.UTC)
+	for _, title := range []string{"Old headline", "Old headline", "Fresh headline"} {
+		s := feedStory(t, "c-1", "u1", title, "", now.Add(-time.Hour))
+		if err := UpsertFeedPage(db, []client.FeedStory{s}, "ai", "30d", now); err != nil {
+			t.Fatal(err)
+		}
+	}
+	var n int
+	db.QueryRow(`SELECT COUNT(*) FROM digg_clusters_fts WHERE cluster_id = 'c-1'`).Scan(&n)
+	if n != 1 {
+		t.Fatalf("fts rows for c-1 = %d, want exactly 1", n)
+	}
+	if got, _ := SearchFeedStories(db, "old", []string{"ai"}, now.Add(-24*time.Hour), 10); len(got) != 0 {
+		t.Fatalf("stale title still matches: %+v", got)
+	}
+	if got, _ := SearchFeedStories(db, "fresh", []string{"ai"}, now.Add(-24*time.Hour), 10); len(got) != 1 {
+		t.Fatalf("new title not indexed: %+v", got)
+	}
+}

@@ -73,42 +73,6 @@
       "params": []
     },
     {
-      "name": "rankings_emerging",
-      "description": "Removed by Digg in October 2026: the rankings page (/tech/x/rankings) no longer carries the Emerging Startups section, so the CLI command exits non-zero with a removed-view error.",
-      "method": "GET",
-      "path": "/tech/x/rankings",
-      "no_auth": true,
-      "params": [
-        {
-          "name": "max-skip-ratio",
-          "type": "float",
-          "required": false,
-          "description": "Schema-drift tolerance: fraction of entries that may fail to decode before the command exits non-zero. Default 0.10. Range [0, 1]."
-        }
-      ]
-    },
-    {
-      "name": "rankings_movers",
-      "description": "Removed by Digg in October 2026: the rankings page (/tech/x/rankings) no longer carries the Movers section, so the CLI command exits non-zero with a removed-view error.",
-      "method": "GET",
-      "path": "/tech/x/rankings",
-      "no_auth": true,
-      "params": [
-        {
-          "name": "direction",
-          "type": "string",
-          "required": false,
-          "description": "Movers direction: up | down | both (default both)."
-        },
-        {
-          "name": "max-skip-ratio",
-          "type": "float",
-          "required": false,
-          "description": "Schema-drift tolerance (see rankings_emerging)."
-        }
-      ]
-    },
-    {
       "name": "rankings_list",
       "description": "Full ranking of people and companies from /tech/x/rankings. Server-paginated; returns the initial-HTML slice. Pass --limit to cap.",
       "method": "GET",

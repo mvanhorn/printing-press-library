@@ -130,7 +130,7 @@ Sync is read-only against Digg. It never mutates anything upstream.`,
   # Sync several sections
   digg-pp-cli sync --topics ai,tech,science
 
-  # Quick, shallow refresh of every section
+  # Quick, shallow refresh of every section (search still tops these up live)
   digg-pp-cli sync --topics ai,tech,world-business,sports,science,gaming,entertainment,all --max-pages 1
 
   # Also fetch each cluster's detail page (slower; populates fuller fields)
@@ -206,7 +206,13 @@ Sync is read-only against Digg. It never mutates anything upstream.`,
 
 					// 2. Story feed, saved page by page.
 					p := client.FeedParams{Topic: topic, View: "top", Range: feedRange}
+					var oldest time.Time
 					res, werr := walkFeed(ctx, c, p, maxPages, func(page *client.FeedPage) error {
+						for _, s := range page.Posts {
+							if t, err := time.Parse(time.RFC3339Nano, s.CreatedAt); err == nil && (oldest.IsZero() || t.Before(oldest)) {
+								oldest = t
+							}
+						}
 						writeMu.Lock()
 						defer writeMu.Unlock()
 						return diggstore.UpsertFeedPage(db, page.Posts, topic, feedRange, now)
@@ -215,15 +221,21 @@ Sync is read-only against Digg. It never mutates anything upstream.`,
 					if werr != nil {
 						return r, fmt.Errorf("feed walk stopped after %d pages (%d stories kept): %w", res.Pages, res.Stories, werr)
 					}
-					writeMu.Lock()
-					err = diggstore.MarkFeedSynced(db, topic, feedRange, res.Stories, now)
-					writeMu.Unlock()
-					if err != nil {
-						return r, err
+					covered := res.Complete || cappedWalkCovers(feedRange, oldest, now)
+					if covered {
+						writeMu.Lock()
+						err = diggstore.MarkFeedSynced(db, topic, feedRange, res.Stories, now)
+						writeMu.Unlock()
+						if err != nil {
+							return r, err
+						}
 					}
 					note := ""
-					if res.Capped {
-						note = fmt.Sprintf(" (stopped at --max-pages %d; older stories not fetched)", maxPages)
+					switch {
+					case res.Capped && covered:
+						note = fmt.Sprintf(" (stopped at --max-pages %d; reached far enough back to count as synced)", maxPages)
+					case res.Capped:
+						note = fmt.Sprintf(" (stopped at --max-pages %d before reaching the start of the %s range; search will still treat %s as stale)", maxPages, feedRange, topic)
 					}
 					logf("stored %d stories from %d feed pages for %s%s\n", res.Stories, res.Pages, topic, note)
 					return r, nil
@@ -290,6 +302,22 @@ Sync is read-only against Digg. It never mutates anything upstream.`,
 
 	cmd.Annotations = map[string]string{}
 	return cmd
+}
+
+// cappedCoverage is how much of a range a walk cut short by --max-pages
+// must reach back through to count as a sync of that range.
+const cappedCoverage = 0.9
+
+// cappedWalkCovers reports whether a walk that stopped at the page cap,
+// whose oldest story was created at oldest, reached far enough back to
+// stand in for a complete walk of feedRange. The unbounded "all" range
+// never does.
+func cappedWalkCovers(feedRange string, oldest, now time.Time) bool {
+	window, ok := map[string]time.Duration{"24h": 24 * time.Hour, "7d": 7 * 24 * time.Hour, "30d": 30 * 24 * time.Hour}[feedRange]
+	if !ok || oldest.IsZero() {
+		return false
+	}
+	return !oldest.After(now.Add(-time.Duration(float64(window) * cappedCoverage)))
 }
 
 // scrapeTopic fetches and parses one section page and saves its ranked

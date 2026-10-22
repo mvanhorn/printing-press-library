@@ -184,13 +184,10 @@ carries it, so the command exits non-zero with a removed-view error
 rather than returning an empty list. If the section reappears in the
 page's RSC stream, the command parses it again.`,
 		Example: "  digg-pp-cli rankings emerging --json",
-		// NOTE: deliberately no pp:endpoint annotation. The MCP cobratree
-		// walker treats pp:endpoint-tagged commands as "covered by a
-		// typed MCP tool" and skips registering a shell-out tool for
-		// them. Until the upstream MCP layer ships typed rankings tools,
-		// we want the rankings commands exposed as shell-out tools.
+		// Hidden from MCP: Digg removed this view, and a tool that can
+		// only fail should not appear in an agent's tool list.
 		Annotations: map[string]string{
-			"mcp:read-only": "true",
+			"mcp:hidden": "true",
 		},
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			return validateMaxSkipRatio(maxSkip)
@@ -246,8 +243,8 @@ Each side is curated by Digg to ~10 entries; the section is intended
 as a "what changed today" view, not an exhaustive delta feed.`,
 		Example: "  digg-pp-cli rankings movers --direction up --json",
 		Annotations: map[string]string{
-			// See newRankingsEmergingCmd note on omitting pp:endpoint.
-			"mcp:read-only": "true",
+			// See newRankingsEmergingCmd note on mcp:hidden.
+			"mcp:hidden": "true",
 		},
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			if err := validateMaxSkipRatio(maxSkip); err != nil {
@@ -311,7 +308,8 @@ which ranks both people and companies (the page shipped the top 1000
 on 2026-10-21; the count varies by deploy). Use --limit to cap.`,
 		Example: "  digg-pp-cli rankings list --limit 20 --json",
 		Annotations: map[string]string{
-			// See newRankingsEmergingCmd note on omitting pp:endpoint.
+			// No pp:endpoint annotation: the MCP walker skips pp:endpoint-tagged
+			// commands as covered by a typed tool, and none exists for rankings.
 			"mcp:read-only": "true",
 		},
 		PreRunE: func(cmd *cobra.Command, args []string) error {

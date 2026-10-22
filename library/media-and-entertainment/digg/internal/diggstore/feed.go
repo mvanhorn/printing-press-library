@@ -102,6 +102,10 @@ func UpsertFeedPage(db *sql.DB, stories []client.FeedStory, topic, feedRange str
 		if s.ClusterID == "" {
 			continue
 		}
+		before, existed, err := ftsSource(tx, s.ClusterID)
+		if err != nil {
+			return err
+		}
 		authorsJSON, _ := json.Marshal(s.Authors)
 		if _, err := tx.Exec(`
 			INSERT INTO digg_clusters (
@@ -145,8 +149,20 @@ func UpsertFeedPage(db *sql.DB, stories []client.FeedStory, topic, feedRange str
 		`, s.ClusterID, topic, feedRange, s.Rank, now); err != nil {
 			return fmt.Errorf("record topic %s for %s: %w", topic, s.ClusterID, err)
 		}
-		if _, err := tx.Exec(`DELETE FROM digg_clusters_fts WHERE cluster_id = ?`, s.ClusterID); err != nil {
-			return fmt.Errorf("fts delete: %w", err)
+		// Reindex only when the searchable text changed. cluster_id is an
+		// UNINDEXED FTS column, so the delete scans the whole index; doing
+		// it for every story made deep syncs slow down as the store grew.
+		after, _, err := ftsSource(tx, s.ClusterID)
+		if err != nil {
+			return err
+		}
+		if existed && after == before {
+			continue
+		}
+		if existed {
+			if _, err := tx.Exec(`DELETE FROM digg_clusters_fts WHERE cluster_id = ?`, s.ClusterID); err != nil {
+				return fmt.Errorf("fts delete: %w", err)
+			}
 		}
 		if _, err := tx.Exec(`
 			INSERT INTO digg_clusters_fts (cluster_id, cluster_url_id, label, title, tldr, source_title)
@@ -156,6 +172,22 @@ func UpsertFeedPage(db *sql.DB, stories []client.FeedStory, topic, feedRange str
 		}
 	}
 	return tx.Commit()
+}
+
+// ftsSource returns the digg_clusters text the FTS index is built from,
+// and whether the cluster row exists.
+func ftsSource(tx *sql.Tx, clusterID string) (string, bool, error) {
+	var src string
+	err := tx.QueryRow(`SELECT COALESCE(cluster_url_id,'') || char(31) || COALESCE(label,'') || char(31) ||
+		COALESCE(title,'') || char(31) || COALESCE(tldr,'') || char(31) || COALESCE(source_title,'')
+		FROM digg_clusters WHERE cluster_id = ?`, clusterID).Scan(&src)
+	if err == sql.ErrNoRows {
+		return "", false, nil
+	}
+	if err != nil {
+		return "", false, fmt.Errorf("read cluster %s: %w", clusterID, err)
+	}
+	return src, true, nil
 }
 
 // normalizeFeedTime rewrites the feed's offset timestamps as UTC RFC3339 so
@@ -176,7 +208,8 @@ func feedSyncKey(topic, feedRange string) string {
 }
 
 // MarkFeedSynced records a completed feed walk for one topic and range.
-// Callers must not call it for a walk that failed or was cut short.
+// Callers must not call it for a walk that failed or that stopped before
+// reaching back through the range.
 func MarkFeedSynced(db *sql.DB, topic, feedRange string, stories int, at time.Time) error {
 	_, err := db.Exec(`
 		INSERT INTO sync_state (resource_type, last_cursor, last_synced_at, total_count)
@@ -226,11 +259,14 @@ func SearchFeedStories(db *sql.DB, query string, topics []string, since time.Tim
 		limit = -1
 	}
 	placeholders, topicArgs := inClause(topics)
-	args := append([]any{match, since.UTC().Format(time.RFC3339)}, topicArgs...)
-	args = append(args, limit)
+	// Rank comes from the requested sections' own feeds: one story has a
+	// different rank under each section it appears in.
+	args := append(append([]any{}, topicArgs...), match, since.UTC().Format(time.RFC3339))
+	args = append(append(args, topicArgs...), limit)
 	rows, err := db.Query(`
 		SELECT c.cluster_id, COALESCE(c.cluster_url_id,''), COALESCE(c.title, c.label, ''), COALESCE(c.tldr,''),
-			COALESCE(c.feed_rank,0), COALESCE(c.post_count,0), COALESCE(c.unique_authors,0), c.created_at
+			COALESCE((SELECT MIN(t.rank) FROM digg_cluster_topics t WHERE t.cluster_id = c.cluster_id AND t.topic IN (`+placeholders+`)), 0),
+			COALESCE(c.post_count,0), COALESCE(c.unique_authors,0), c.created_at
 		FROM digg_clusters_fts f JOIN digg_clusters c ON c.cluster_id = f.cluster_id
 		WHERE digg_clusters_fts MATCH ?
 			AND c.created_at IS NOT NULL AND c.created_at >= ?
