@@ -53,6 +53,7 @@ Do not use this CLI for:
 ## Unique Capabilities
 
 ### Analytics that answer the question
+
 - **`perf compare`** — See whether impressions, saves, and outbound clicks grew versus the previous equal-length period, with absolute and percent deltas.
 
   _Reach for this for a weekly or monthly 'did we grow?' answer instead of calling account analytics twice and doing date math._
@@ -76,6 +77,7 @@ Do not use this CLI for:
   ```
 
 ### Local state that compounds
+
 - **`pins audit`** — Find published Pins missing alt text, a destination link, a title, or UTM tracking, grouped by board. Reads the local store; run sync first.
 
   _Use before an SEO cleanup pass to get the exact Pin IDs that need fixing._
@@ -92,6 +94,7 @@ Do not use this CLI for:
   ```
 
 ### Agent-native plumbing
+
 - **`ads report`** — Create, wait for, and download an ads performance report in one command. Requires the ads:read scope and --ad-account-id (or PINTEREST_AD_ACCOUNT_ID).
 
   _Use for campaign or ad performance instead of manually polling the async report endpoint._
@@ -99,6 +102,8 @@ Do not use this CLI for:
   ```bash
   pinterest-pp-cli ads report --level campaign --days 7 --agent
   ```
+
+`--ca-cert`, `PINTEREST_CA_CERT`, or `ca_cert` adds a PEM CA bundle to the system trust roots. `--tls-server-name`, `PINTEREST_TLS_SERVER_NAME`, or `tls_server_name` is the name checked against the certificate. Precedence is flag, then environment, then the config file. A config file other users can change does not supply these settings. `doctor` reports the trust in use and names the setting that fixes a chain or hostname failure.
 
 ## Command Reference
 
@@ -324,6 +329,7 @@ pinterest-pp-cli which "<capability in your own words>"
 
 ## Recipes
 
+
 ### Monthly growth check
 
 ```bash
@@ -358,7 +364,13 @@ Trending keywords your synced Pins don't cover yet.
 
 ## Auth Setup
 
-Pinterest uses OAuth 2.0 authorization code. Run 'pinterest-pp-cli auth login' with PINTEREST_CLIENT_ID and PINTEREST_CLIENT_SECRET set; the redirect URI must exactly match the one registered on your Pinterest app (for example http://localhost:8875/callback). Token exchange and refresh authenticate the app with HTTP Basic, and continuous refresh keeps access alive. For one-off runs, export a current access token as PINTEREST_ACCESS_TOKEN (PINTEREST_OAUTH2 is also accepted).
+Run `pinterest-pp-cli auth setup` for the URL and steps to obtain a token (add `--launch` to open the URL). Then store it:
+
+```bash
+echo "$TOKEN" | pinterest-pp-cli auth set-token
+```
+
+Or set `PINTEREST_ACCESS_TOKEN` as an environment variable.
 
 Run `pinterest-pp-cli doctor` to verify setup.
 

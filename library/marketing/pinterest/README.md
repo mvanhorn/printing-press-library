@@ -132,14 +132,18 @@ Pinterest uses OAuth 2.0 authorization code. Run 'pinterest-pp-cli auth login' w
 # Confirm the binary and command tree are installed (no network); run plain 'doctor' to check auth and the API
 pinterest-pp-cli doctor --dry-run
 
+
 # Confirm which Pinterest account the token belongs to
 pinterest-pp-cli user-account get --agent --select username,account_type
+
 
 # Pull your boards, sections, and Pins into the local store (bounded by default)
 pinterest-pp-cli sync
 
+
 # Find Pins missing alt text, links, titles, or UTM tags
 pinterest-pp-cli pins audit --agent
+
 
 # See this month versus last month
 pinterest-pp-cli perf compare --days 28 --agent
@@ -149,6 +153,7 @@ pinterest-pp-cli perf compare --days 28 --agent
 ## Unique Features
 
 ### Analytics that answer the question
+
 - **`perf compare`** — See whether impressions, saves, and outbound clicks grew versus the previous equal-length period, with absolute and percent deltas.
 
   _Reach for this for a weekly or monthly 'did we grow?' answer instead of calling account analytics twice and doing date math._
@@ -172,6 +177,7 @@ pinterest-pp-cli perf compare --days 28 --agent
   ```
 
 ### Local state that compounds
+
 - **`pins audit`** — Find published Pins missing alt text, a destination link, a title, or UTM tracking, grouped by board. Reads the local store; run sync first.
 
   _Use before an SEO cleanup pass to get the exact Pin IDs that need fixing._
@@ -188,6 +194,7 @@ pinterest-pp-cli perf compare --days 28 --agent
   ```
 
 ### Agent-native plumbing
+
 - **`ads report`** — Create, wait for, and download an ads performance report in one command. Requires the ads:read scope and --ad-account-id (or PINTEREST_AD_ACCOUNT_ID).
 
   _Use for campaign or ad performance instead of manually polling the async report endpoint._
@@ -197,6 +204,7 @@ pinterest-pp-cli perf compare --days 28 --agent
   ```
 
 ## Recipes
+
 
 ### Monthly growth check
 
@@ -936,9 +944,12 @@ If you use agentcookie to sync secrets across machines, this CLI auto-adopts age
 - Run the `list` command to see available items
 
 ### API-specific
+
 - **401 Unauthorized after a few weeks** — Run pinterest-pp-cli auth status; if the refresh token expired, re-run pinterest-pp-cli auth login
 - **redirect_uri mismatch during login** — Pass the exact registered callback, e.g. pinterest-pp-cli auth login --port 8875
 - **429 Too Many Requests on trial access** — Trial apps are capped at 1000 requests/day; use the local store (search, pins audit) and sync with --max-pages
+
+---
 
 ## Sources & Inspiration
 

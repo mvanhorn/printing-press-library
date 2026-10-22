@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-10-21T19:28:39.07438Z",
-  "printing_press_version": "4.33.8",
+  "generated_at": "2026-10-22T00:06:11.651178Z",
+  "printing_press_version": "4.33.9",
   "api_name": "pinterest",
   "display_name": "Pinterest",
   "cli_name": "pinterest-pp-cli",
