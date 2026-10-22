@@ -196,7 +196,7 @@ func EnsureSchema(db *sql.DB) error {
 	if err := ensureAuthorsRosterColumns(db); err != nil {
 		return err
 	}
-	return nil
+	return ensureFeedSchema(db)
 }
 
 // ensureAuthorsRosterColumns adds the AI-1000-roster columns to

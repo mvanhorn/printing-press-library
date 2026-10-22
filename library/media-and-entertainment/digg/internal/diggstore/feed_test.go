@@ -1,0 +1,194 @@
+package diggstore
+
+import (
+	"encoding/json"
+	"testing"
+	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/diggparse"
+)
+
+func feedStory(t *testing.T, id, urlID, title, desc string, created time.Time) client.FeedStory {
+	t.Helper()
+	b, _ := json.Marshal(map[string]any{
+		"clusterId": id, "clusterUrlId": urlID, "rank": 4, "diggScore": 55.5,
+		"createdAt": created.UTC().Format(time.RFC3339), "postCount": 12, "uniqueAuthors": 7,
+		"likes": 30, "views": 900,
+		"summary": map[string]string{"title": title, "description": desc},
+		"authors": []map[string]string{{"username": "alice"}},
+	})
+	var s client.FeedStory
+	if err := json.Unmarshal(b, &s); err != nil {
+		t.Fatal(err)
+	}
+	return s
+}
+
+func TestEnsureSchemaUpgradesExistingClusterStore(t *testing.T) {
+	// Rebuild the shape a store from the release before the feed fix has:
+	// the full cluster table without the feed columns, and no topics table.
+	db := openTempDB(t)
+	for _, q := range []string{
+		`DROP INDEX idx_digg_clusters_created`,
+		`DROP TABLE digg_cluster_topics`,
+		`ALTER TABLE digg_clusters DROP COLUMN created_at`,
+		`ALTER TABLE digg_clusters DROP COLUMN last_source_post_at`,
+		`ALTER TABLE digg_clusters DROP COLUMN post_count`,
+		`ALTER TABLE digg_clusters DROP COLUMN unique_authors`,
+		`ALTER TABLE digg_clusters DROP COLUMN digg_score`,
+		`ALTER TABLE digg_clusters DROP COLUMN feed_rank`,
+		`INSERT INTO digg_clusters (cluster_id, label, current_rank, fetched_at, last_seen_at)
+			VALUES ('legacy', 'Legacy story', 2, '2026-06-01T00:00:00Z', '2026-06-01T00:00:00Z')`,
+	} {
+		if _, err := db.Exec(q); err != nil {
+			t.Fatalf("%s: %v", q, err)
+		}
+	}
+	if err := EnsureSchema(db); err != nil {
+		t.Fatalf("EnsureSchema on old store: %v", err)
+	}
+	var label string
+	if err := db.QueryRow(`SELECT label FROM digg_clusters WHERE cluster_id='legacy'`).Scan(&label); err != nil || label != "Legacy story" {
+		t.Fatalf("legacy row lost: label=%q err=%v", label, err)
+	}
+	if _, err := db.Exec(`SELECT created_at, post_count, unique_authors, feed_rank FROM digg_clusters`); err != nil {
+		t.Fatalf("feed columns missing after upgrade: %v", err)
+	}
+	if _, err := db.Exec(`SELECT cluster_id, topic FROM digg_cluster_topics`); err != nil {
+		t.Fatalf("digg_cluster_topics missing after upgrade: %v", err)
+	}
+}
+
+func TestUpsertFeedPageRecordsEachTopicOnce(t *testing.T) {
+	db := openTempDB(t)
+	now := time.Date(2026, 10, 21, 12, 0, 0, 0, time.UTC)
+	s := feedStory(t, "c-1", "u1", "Claude ships a thing", "desc", now.Add(-48*time.Hour))
+	if err := UpsertFeedPage(db, []client.FeedStory{s}, "ai", "30d", now); err != nil {
+		t.Fatal(err)
+	}
+	if err := UpsertFeedPage(db, []client.FeedStory{s}, "all", "30d", now); err != nil {
+		t.Fatal(err)
+	}
+	if err := UpsertFeedPage(db, []client.FeedStory{s}, "ai", "7d", now.Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	var clusters, topics int
+	db.QueryRow(`SELECT COUNT(*) FROM digg_clusters`).Scan(&clusters)
+	db.QueryRow(`SELECT COUNT(*) FROM digg_cluster_topics WHERE cluster_id='c-1'`).Scan(&topics)
+	if clusters != 1 || topics != 2 {
+		t.Fatalf("clusters=%d topics=%d, want 1 and 2", clusters, topics)
+	}
+	var title string
+	var posts, authors, rank int
+	db.QueryRow(`SELECT title, post_count, unique_authors, feed_rank FROM digg_clusters WHERE cluster_id='c-1'`).Scan(&title, &posts, &authors, &rank)
+	if title != "Claude ships a thing" || posts != 12 || authors != 7 || rank != 4 {
+		t.Fatalf("feed fields: title=%q posts=%d authors=%d rank=%d", title, posts, authors, rank)
+	}
+}
+
+func TestUpsertFeedPageKeepsScrapeOwnedColumns(t *testing.T) {
+	db := openTempDB(t)
+	now := time.Date(2026, 10, 21, 12, 0, 0, 0, time.UTC)
+	c := diggparse.Cluster{ClusterID: "c-1", ClusterURLID: "u1", Label: "scraped", CurrentRank: 3, Delta: 5, GravityScore: 9.5, Pos6h: 0.7}
+	if err := UpsertCluster(db, c, now); err != nil {
+		t.Fatal(err)
+	}
+	s := feedStory(t, "c-1", "u1", "Feed title", "Feed desc", now.Add(-time.Hour))
+	if err := UpsertFeedPage(db, []client.FeedStory{s}, "ai", "30d", now.Add(time.Minute)); err != nil {
+		t.Fatal(err)
+	}
+	var rank, delta int
+	var gravity, pos6h float64
+	var lastSeen string
+	db.QueryRow(`SELECT current_rank, delta, gravity_score, pos6h, last_seen_at FROM digg_clusters WHERE cluster_id='c-1'`).
+		Scan(&rank, &delta, &gravity, &pos6h, &lastSeen)
+	if rank != 3 || delta != 5 || gravity != 9.5 || pos6h != 0.7 {
+		t.Fatalf("scrape columns clobbered: rank=%d delta=%d gravity=%v pos6h=%v", rank, delta, gravity, pos6h)
+	}
+	if lastSeen != now.Format(time.RFC3339Nano) {
+		t.Fatalf("last_seen_at = %q, want the scrape's %q (top/rising key off it)", lastSeen, now.Format(time.RFC3339Nano))
+	}
+}
+
+func TestFeedOnlyRowsStayOutOfLatestScrape(t *testing.T) {
+	db := openTempDB(t)
+	now := time.Date(2026, 10, 21, 12, 0, 0, 0, time.UTC)
+	if err := UpsertCluster(db, diggparse.Cluster{ClusterID: "scraped", CurrentRank: 1}, now); err != nil {
+		t.Fatal(err)
+	}
+	if err := UpsertFeedPage(db, []client.FeedStory{feedStory(t, "feed-only", "f1", "t", "d", now)}, "ai", "30d", now.Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	var n int
+	db.QueryRow(`SELECT COUNT(*) FROM digg_clusters WHERE last_seen_at = (SELECT MAX(last_seen_at) FROM digg_clusters)`).Scan(&n)
+	if n != 1 {
+		t.Fatalf("latest-scrape set has %d rows, want only the scraped cluster", n)
+	}
+}
+
+func TestSearchFeedStoriesFiltersByTopicAndWindow(t *testing.T) {
+	db := openTempDB(t)
+	now := time.Date(2026, 10, 21, 12, 0, 0, 0, time.UTC)
+	stories := map[string]struct {
+		topic   string
+		title   string
+		created time.Time
+	}{
+		"ai-new":     {"ai", "Claude Code gets plugins", now.Add(-3 * 24 * time.Hour)},
+		"sports-new": {"sports", "Claude the goalkeeper saves a penalty", now.Add(-2 * 24 * time.Hour)},
+		"ai-old":     {"ai", "Claude launch retrospective", now.Add(-40 * 24 * time.Hour)},
+		"ai-other":   {"ai", "Gemini update", now.Add(-time.Hour)},
+	}
+	for id, s := range stories {
+		if err := UpsertFeedPage(db, []client.FeedStory{feedStory(t, id, id+"-u", s.title, "", s.created)}, s.topic, "30d", now); err != nil {
+			t.Fatal(err)
+		}
+	}
+	got, err := SearchFeedStories(db, "claude", []string{"ai"}, now.Add(-30*24*time.Hour), 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 1 || got[0].ClusterID != "ai-new" {
+		t.Fatalf("got %+v, want only ai-new", got)
+	}
+	if got[0].Title != "Claude Code gets plugins" || got[0].PostCount != 12 || got[0].UniqueAuthors != 7 || got[0].Rank != 4 {
+		t.Fatalf("match fields wrong: %+v", got[0])
+	}
+	if !got[0].CreatedAt.Equal(now.Add(-3 * 24 * time.Hour)) {
+		t.Fatalf("CreatedAt = %v", got[0].CreatedAt)
+	}
+}
+
+func TestSearchFeedStoriesMatchesDescriptionAndPunctuation(t *testing.T) {
+	db := openTempDB(t)
+	now := time.Date(2026, 10, 21, 12, 0, 0, 0, time.UTC)
+	if err := UpsertFeedPage(db, []client.FeedStory{feedStory(t, "c", "u", "New model", "OpenAI ships gpt-5 to everyone", now)}, "ai", "30d", now); err != nil {
+		t.Fatal(err)
+	}
+	got, err := SearchFeedStories(db, `gpt-5 "openai`, []string{"ai"}, now.Add(-time.Hour), 10)
+	if err != nil {
+		t.Fatalf("punctuated query errored: %v", err)
+	}
+	if len(got) != 1 {
+		t.Fatalf("got %d matches, want 1 from the description", len(got))
+	}
+}
+
+func TestFeedFreshness(t *testing.T) {
+	db := openTempDB(t)
+	if _, ok, err := FeedSyncedAt(db, "ai", "30d"); err != nil || ok {
+		t.Fatalf("never-synced topic: ok=%v err=%v, want stale", ok, err)
+	}
+	at := time.Date(2026, 10, 21, 12, 0, 0, 0, time.UTC)
+	if err := MarkFeedSynced(db, "ai", "30d", 400, at); err != nil {
+		t.Fatal(err)
+	}
+	got, ok, err := FeedSyncedAt(db, "ai", "30d")
+	if err != nil || !ok || !got.Equal(at) {
+		t.Fatalf("FeedSyncedAt = %v ok=%v err=%v, want %v", got, ok, err, at)
+	}
+	if _, ok, _ := FeedSyncedAt(db, "ai", "7d"); ok {
+		t.Fatal("a 30d sync must not mark the 7d key fresh")
+	}
+}
