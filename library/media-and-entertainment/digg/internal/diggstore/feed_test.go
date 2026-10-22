@@ -234,3 +234,42 @@ func TestUpsertFeedPageReindexesChangedTitle(t *testing.T) {
 		t.Fatalf("new title not indexed: %+v", got)
 	}
 }
+
+func TestScrapeWithBlankTextKeepsFeedStoryIndexed(t *testing.T) {
+	db := openTempDB(t)
+	now := time.Date(2026, 10, 21, 12, 0, 0, 0, time.UTC)
+	s := feedStory(t, "c-1", "u1", "Claude ships", "A summary", now.Add(-time.Hour))
+	if err := UpsertFeedPage(db, []client.FeedStory{s}, "ai", "30d", now); err != nil {
+		t.Fatal(err)
+	}
+	// A scrape that carries no headline or summary keeps the saved text.
+	if err := UpsertCluster(db, diggparse.Cluster{ClusterID: "c-1", ClusterURLID: "u1"}, now); err != nil {
+		t.Fatal(err)
+	}
+	if err := UpsertFeedPage(db, []client.FeedStory{s}, "ai", "30d", now); err != nil {
+		t.Fatal(err)
+	}
+	if got, _ := SearchFeedStories(db, "claude", []string{"ai"}, now.Add(-24*time.Hour), 10); len(got) != 1 {
+		t.Fatalf("saved headline stopped matching after a blank scrape: %+v", got)
+	}
+}
+
+func TestSearchFeedStoriesIgnoresSourceTitleAndLabel(t *testing.T) {
+	db := openTempDB(t)
+	now := time.Date(2026, 10, 21, 12, 0, 0, 0, time.UTC)
+	s := feedStory(t, "c-1", "u1", "Claude ships", "A summary", now.Add(-time.Hour))
+	if err := UpsertFeedPage(db, []client.FeedStory{s}, "ai", "30d", now); err != nil {
+		t.Fatal(err)
+	}
+	if err := UpsertCluster(db, diggparse.Cluster{ClusterID: "c-1", ClusterURLID: "u1", Label: "Zebra label", SourceTitle: "Walrus source"}, now); err != nil {
+		t.Fatal(err)
+	}
+	for _, q := range []string{"walrus", "zebra"} {
+		if got, _ := SearchFeedStories(db, q, []string{"ai"}, now.Add(-24*time.Hour), 10); len(got) != 0 {
+			t.Fatalf("%q only appears in label/source_title but matched: %+v", q, got)
+		}
+	}
+	if got, _ := SearchFeedStories(db, "summary", []string{"ai"}, now.Add(-24*time.Hour), 10); len(got) != 1 {
+		t.Fatalf("summary word should still match: %+v", got)
+	}
+}

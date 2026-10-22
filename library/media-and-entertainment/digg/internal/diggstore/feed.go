@@ -247,9 +247,10 @@ type FeedMatch struct {
 	CreatedAt     time.Time
 }
 
-// SearchFeedStories full-text matches query against stored stories the feed
-// listed under any of topics and created at or after since. Each query word
-// must appear; words are quoted so punctuation never reaches FTS5 syntax.
+// SearchFeedStories full-text matches query against the headline and summary
+// of stored stories the feed listed under any of topics and created at or
+// after since. Each query word must appear in one of those two columns;
+// words are quoted so punctuation never reaches FTS5 syntax.
 func SearchFeedStories(db *sql.DB, query string, topics []string, since time.Time, limit int) ([]FeedMatch, error) {
 	match := ftsQuery(query)
 	if match == "" || len(topics) == 0 {
@@ -291,11 +292,16 @@ func SearchFeedStories(db *sql.DB, query string, topics []string, since time.Tim
 }
 
 // CountTopicStories returns how many stored stories the feed listed under
-// any of topics.
-func CountTopicStories(db *sql.DB, topics []string) (int, error) {
-	placeholders, args := inClause(topics)
+// any of topics and created at or after since, the same rows
+// SearchFeedStories can return.
+func CountTopicStories(db *sql.DB, topics []string, since time.Time) (int, error) {
+	placeholders, topicArgs := inClause(topics)
+	args := append([]any{since.UTC().Format(time.RFC3339)}, topicArgs...)
 	var n int
-	err := db.QueryRow(`SELECT COUNT(*) FROM digg_cluster_topics WHERE topic IN (`+placeholders+`)`, args...).Scan(&n)
+	err := db.QueryRow(`SELECT COUNT(*) FROM digg_clusters c
+		WHERE c.created_at IS NOT NULL AND c.created_at >= ?
+			AND EXISTS (SELECT 1 FROM digg_cluster_topics t WHERE t.cluster_id = c.cluster_id AND t.topic IN (`+placeholders+`))`,
+		args...).Scan(&n)
 	return n, err
 }
 
@@ -308,12 +314,15 @@ func inClause(vals []string) (string, []any) {
 	return strings.TrimSuffix(strings.Repeat("?,", len(vals)), ","), args
 }
 
+// ftsQuery turns q into an FTS5 query that requires every word in the
+// title or tldr column. The shared index also holds label and source_title,
+// which search must not match on.
 func ftsQuery(q string) string {
 	var parts []string
 	for _, w := range strings.Fields(q) {
 		w = strings.ReplaceAll(w, `"`, "")
 		if w != "" {
-			parts = append(parts, `"`+w+`"`)
+			parts = append(parts, `{title tldr}:"`+w+`"`)
 		}
 	}
 	return strings.Join(parts, " ")

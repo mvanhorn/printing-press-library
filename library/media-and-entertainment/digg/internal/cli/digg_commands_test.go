@@ -350,3 +350,20 @@ func TestSearchSelectFiltersResultsEnvelope(t *testing.T) {
 		t.Fatalf("unrequested clusterId should be omitted, got %q", first.ClusterID)
 	}
 }
+
+func TestSearchDataSourceLocalEmptyStoreErrors(t *testing.T) {
+	withTempHome(t)
+	_, _, err := runSearchCmd(t, (&feedStub{}).serve(t), "claude", "--data-source", "local", "--json")
+	if err == nil || !strings.Contains(err.Error(), "sync") {
+		t.Fatalf("err = %v, want a failure telling the user to run sync", err)
+	}
+}
+
+func TestSearchStaleStoreOutsideWindowWithFailingFeedErrors(t *testing.T) {
+	withTempHome(t)
+	seedTopic(t, "ai", false, testStory{"old", "Claude old", "", 10 * 24 * time.Hour})
+	_, _, err := runSearchCmd(t, (&feedStub{fail: true}).serve(t), "claude", "--since", "2d", "--json")
+	if err == nil || !strings.Contains(err.Error(), "sync") {
+		t.Fatalf("err = %v, want a failure telling the user to run sync", err)
+	}
+}

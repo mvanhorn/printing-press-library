@@ -881,39 +881,51 @@ months of about 30 days). firstPostAge is measured from now.`,
 			}
 			topUp := ds == "live" || (ds == "auto" && !fresh)
 
+			var window time.Time
+			if since > 0 {
+				window = time.Now().Add(-since)
+			}
+			storedBefore, err := diggstore.CountTopicStories(db, topics, window)
+			if err != nil {
+				return err
+			}
+
 			source := "local"
+			pages := 0
+			var topUpErr error
 			if topUp {
-				storedBefore, err := diggstore.CountTopicStories(db, topics)
-				if err != nil {
-					return err
-				}
-				pages, err := searchTopUp(ctx, flags, db, topics, feedRange)
+				pages, topUpErr = searchTopUp(ctx, flags, db, topics, feedRange)
 				switch {
 				case pages > 0 && storedBefore == 0:
 					source = "live"
 				case pages > 0:
 					source = "local+live"
 				}
-				if err != nil {
-					if ds == "live" && pages == 0 {
-						return fmt.Errorf("live feed fetch failed: %w", err)
-					}
-					if storedBefore == 0 && pages == 0 {
-						return fmt.Errorf("no stored stories for %s and the live feed is unreachable (%v); run `digg-pp-cli sync --topics %s` once Digg is reachable",
-							strings.Join(topics, ","), err, strings.Join(topics, ","))
-					}
-					fmt.Fprintf(cmd.ErrOrStderr(), "warn: live feed top-up failed: %v\n", err)
+				if topUpErr != nil && ds == "live" && pages == 0 {
+					return fmt.Errorf("live feed fetch failed: %w", topUpErr)
 				}
+			}
+			// A stale or never-synced section with nothing stored in the
+			// window and no live pages is missing data, not an empty result.
+			// A fresh sync with nothing in the window really has no matches.
+			if !fresh && storedBefore == 0 && pages == 0 {
+				reason := "no completed sync"
+				if topUpErr != nil {
+					reason = fmt.Sprintf("the live feed is unreachable (%v)", topUpErr)
+				} else if ds == "local" {
+					reason = "--data-source local skips the live feed"
+				}
+				return fmt.Errorf("no stored stories for %s in the requested window and %s; run `digg-pp-cli sync --topics %s`",
+					strings.Join(topics, ","), reason, strings.Join(topics, ","))
+			}
+			if topUpErr != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warn: live feed top-up failed: %v\n", topUpErr)
 			}
 			if !fresh {
 				fmt.Fprintf(cmd.ErrOrStderr(), "warn: local copy of %s has no completed sync in the last %d hours; results may miss stories. Run `digg-pp-cli sync --topics %s`.\n",
 					strings.Join(staleTopics, ","), int(searchFreshFor.Hours()), strings.Join(staleTopics, ","))
 			}
 
-			var window time.Time
-			if since > 0 {
-				window = time.Now().Add(-since)
-			}
 			matches, err := diggstore.SearchFeedStories(db, query, topics, window, limit)
 			if err != nil {
 				return err

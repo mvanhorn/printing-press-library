@@ -380,14 +380,16 @@ func UpsertCluster(db *sql.DB, c diggparse.Cluster, fetchedAt time.Time) error {
 		}
 	}
 
-	// FTS row.
+	// FTS row, built from the stored row: the upsert keeps saved text when
+	// a scrape leaves a field blank, and the index must match that text.
+	// UpsertFeedPage skips reindexing when the stored text is unchanged.
 	if _, err := db.Exec(`DELETE FROM digg_clusters_fts WHERE cluster_id = ?`, c.ClusterID); err != nil {
 		return fmt.Errorf("fts delete: %w", err)
 	}
 	if _, err := db.Exec(`
 		INSERT INTO digg_clusters_fts (cluster_id, cluster_url_id, label, title, tldr, source_title)
-		VALUES (?,?,?,?,?,?)
-	`, c.ClusterID, c.ClusterURLID, c.Label, c.Title, c.TLDR, c.SourceTitle); err != nil {
+		SELECT cluster_id, cluster_url_id, label, title, tldr, source_title FROM digg_clusters WHERE cluster_id = ?
+	`, c.ClusterID); err != nil {
 		return fmt.Errorf("fts insert: %w", err)
 	}
 
