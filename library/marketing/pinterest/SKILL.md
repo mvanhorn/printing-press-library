@@ -364,13 +364,15 @@ Trending keywords your synced Pins don't cover yet.
 
 ## Auth Setup
 
-Run `pinterest-pp-cli auth setup` for the URL and steps to obtain a token (add `--launch` to open the URL). Then store it:
+Pinterest uses OAuth 2.0 authorization code. Register an app at developers.pinterest.com with the redirect URI `http://localhost:8875/callback`, then log in:
 
 ```bash
-echo "$TOKEN" | pinterest-pp-cli auth set-token
+PINTEREST_CLIENT_ID=<app-id> PINTEREST_CLIENT_SECRET=<app-secret> pinterest-pp-cli auth login --port 8875
 ```
 
-Or set `PINTEREST_ACCESS_TOKEN` as an environment variable.
+The redirect URI must exactly match the one registered on the app. Token exchange and refresh authenticate the app with HTTP Basic, and continuous refresh keeps access alive.
+
+Alternatives when you already have an access token: export it as `PINTEREST_ACCESS_TOKEN` (`PINTEREST_OAUTH2` is also accepted) for one-off runs, or store it with `echo "$TOKEN" | pinterest-pp-cli auth set-token`.
 
 Run `pinterest-pp-cli doctor` to verify setup.
 
