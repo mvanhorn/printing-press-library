@@ -87,18 +87,18 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 		Long: `Read-only CLI for Digg — the AI story leaderboard, GitHub feeds, and ingestion pipeline events on digg.com.
 
 Highlights (not in the official API docs):
-  • events   Tail Digg's ingestion pipeline in real time — see clusters as they're detected, stories fast-climbing the leaderboard with explicit rank deltas, X posts being processed, batch breakdowns.
+  • search   Topic search over synced section feeds (ai, tech, world-business, sports, science, gaming, entertainment, all), with a live top-up when a section is stale.
+  • events   Pipeline events sync captured from section pages: clusters as they were detected and stories fast-climbing the leaderboard with explicit rank deltas.
   • replaced   Show stories that were knocked out of the rankings since the last sync, with Digg's own published replacement rationale.
   • evidence   Print the full ranking transparency record for one cluster — scoreComponents, evidence array, numeratorLabel, percentAboveAverage.
   • sentiment   Read per-time-window positivity ratios (pos6h, pos12h, pos24h, posLast) for a cluster.
   • crossref   Show this cluster's Hacker News and Techmeme mirrors when Digg has detected the story is being discussed there.
   • github stars|new|activity|recent   Four GitHub feeds: top starred AI repos, freshly first-seen repos, contributor leaderboard, live activity stream. github stars supports --min-starrers N (smart-money convergence filter).
-  • rankings emerging|movers|list   Three sub-views of /ai/x/rankings/companies: curated emerging startups, follower-velocity movers, full ranking. (PATCH: digg-rankings-and-min-starrers)
+  • rankings list   Full ranking of people and companies from /tech/x/rankings. (Digg removed the emerging and movers views in October 2026.)
   • authors top   Top accounts Digg tracks, ranked by Digg's influence score, story count, or reach.
   • history   Full trajectory of one cluster's currentRank, peakRank, and delta over local snapshot history.
   • author   Every cluster a given X account contributed to, with post type (original, retweet, quote, reply).
   • watch   Poll /ai, diff against last snapshot, alert when any cluster moves N+ ranks.
-  • pipeline status   One-screen view of /api/trending/status: isFetching, nextFetchAt, storiesToday, clustersToday, last 5 events.
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
 Health check: run 'digg-pp-cli doctor' to verify auth and connectivity.
@@ -183,9 +183,9 @@ See README.md or the bundled SKILL.md for recipes.`,
 		return nil
 	}
 	rootCmd.AddCommand(newFeedCmd(flags))
-	// PATCH(digg-rename-and-github-feeds): wire up the four /ai/github/* feed commands.
+	// PATCH(digg-rename-and-github-feeds): wire up the four GitHub feed commands (now under /tech/github/*).
 	rootCmd.AddCommand(newGithubCmd(flags))
-	// PATCH(digg-rankings-and-min-starrers): expose the /ai/x/rankings/companies sub-views.
+	// PATCH(digg-rankings-and-min-starrers): expose the rankings page views (now /tech/x/rankings).
 	rootCmd.AddCommand(newRankingsCmd(flags))
 	rootCmd.AddCommand(newDoctorCmd(flags))
 	rootCmd.AddCommand(newAgentContextCmd(rootCmd))

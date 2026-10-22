@@ -24,9 +24,9 @@
   "auth_type": "none",
   "novel_features": [
     {
-      "name": "Live pipeline event tail",
+      "name": "Stored pipeline events",
       "command": "events",
-      "description": "Tail Digg's ingestion pipeline in real time — see clusters as they're detected, stories fast-climbing the leaderboard with explicit rank deltas, X posts being processed, batch breakdowns."
+      "description": "List the pipeline events sync captured from section pages: clusters as they were detected and stories fast-climbing the leaderboard with explicit rank deltas."
     },
     {
       "name": "Replacement archaeology",
@@ -87,11 +87,6 @@
       "name": "Rank-movement watcher",
       "command": "watch",
       "description": "Poll /ai, diff against last snapshot, alert when any cluster moves N+ ranks."
-    },
-    {
-      "name": "Pipeline status dashboard",
-      "command": "pipeline status",
-      "description": "One-screen view of /api/trending/status: isFetching, nextFetchAt, storiesToday, clustersToday, last 5 events."
     }
   ]
 }

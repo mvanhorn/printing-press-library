@@ -102,7 +102,8 @@ func EnsureSchema(db *sql.DB) error {
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_digg_cluster_authors_user ON digg_cluster_authors(username)`,
 
-		// /api/trending/status events.
+		// Pipeline events embedded in section pages (formerly also
+		// /api/trending/status, which Digg removed in October 2026).
 		`CREATE TABLE IF NOT EXISTS digg_events (
 			id TEXT PRIMARY KEY,
 			type TEXT NOT NULL,
@@ -424,7 +425,7 @@ func upsertAuthor(db *sql.DB, a diggparse.ClusterAuthor, now string) error {
 	return err
 }
 
-// UpsertEvent writes one event row from /api/trending/status.events[].
+// UpsertEvent writes one pipeline event row captured from a section page.
 func UpsertEvent(db *sql.DB, e diggparse.Event, fetchedAt time.Time) error {
 	if e.ID == "" {
 		return nil
@@ -507,7 +508,7 @@ func RecordReplacements(db *sql.DB, observedClusterIDs map[string]bool, observed
 // PATCH(digg-enhancements): topic-scoped variant of RecordReplacements.
 // The multi-topic sync flag means a single run may cover only a subset of
 // topics. The non-scoped version scans all digg_clusters in the 2-hour
-// window, so a `sync --topics technology` run would falsely mark every
+// window, so a `sync --topics tech` run would falsely mark every
 // recently-seen `ai` cluster as fell-out-of-feed. Scoping by topic IN (...)
 // fixes the cross-topic pollution. Passing an empty slice falls back to the
 // non-scoped behavior so callers that genuinely sync everything still work.

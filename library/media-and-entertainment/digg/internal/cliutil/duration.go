@@ -15,8 +15,7 @@ import (
 )
 
 // ParseDiggAge converts a Digg-style age string into a time.Duration. It
-// accepts the formats Digg's /api/search/stories `firstPostAge` field
-// returns (`Nh`, `Nd`, `Nw`) plus `Nm` for months (treated as 30 days)
+// accepts the `firstPostAge` formats search emits (`Nh`, `Nd`, `Nw`) plus `Nm` for months (treated as 30 days)
 // so the same parser can back the user-facing `--since` flag without a
 // second helper.
 //

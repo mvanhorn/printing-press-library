@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "id": "digg-feed-continuous-replaces-removed-search-and-trending",
+  "applied_at": "2026-10-21",
+  "base_run_id": "20260508-234057",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Digg's story search and pipeline status are not live endpoints: search and sync run on the paginated /api/feed/continuous story feed (cursor-walked per section, stored locally with per-section freshness), the section list and page paths are whatever digg.com currently serves, and any view Digg drops fails closed instead of returning empty data.",
+  "reason": "In October 2026 Digg removed /api/search/stories (404) and /api/trending/status (404), renamed its sections (ai, tech, world-business, sports, science, gaming, entertainment, all), and moved the rankings and GitHub pages under /tech, dropping the Emerging and Movers ranking views. The old CLI silently served stale local rows as current search results and failed every sync, which zeroed out downstream research tools. A regen must re-discover the live feed shape (no query or page-size parameter, 20 stories per page, strict 400 on unknown params) rather than assume a search API exists.",
+  "files": [
+    "internal/client/feed_continuous.go",
+    "internal/client/digg_html.go",
+    "internal/config/config.go",
+    "internal/diggstore/feed.go",
+    "internal/diggstore/store.go",
+    "internal/cli/digg_sync.go",
+    "internal/cli/digg_commands.go",
+    "internal/cli/github.go",
+    "internal/cli/rankings.go",
+    "internal/cli/root.go",
+    "internal/cli/which.go",
+    "internal/cli/promoted_trending.go",
+    "internal/diggparse/parser.go",
+    "internal/diggparse/rankings_companies.go",
+    "internal/mcp/tools.go",
+    "spec.yaml",
+    "tools-manifest.json",
+    "workflow_verify.yaml",
+    ".printing-press.json"
+  ],
+  "validated_outcome": "Live 2026-10-21: sync of all eight sections at one page each finished in 6s with titled stories per section; a full ai 30d walk stored 2,400 stories reaching 30 days back in about 2 minutes; search on a fresh store answered in 0.7s and a stale two-section search with live top-up in 8s."
+}
