@@ -204,23 +204,8 @@ func EnsureSchema(db *sql.DB) error {
 // digg_authors if they don't already exist. SQLite has no `ADD COLUMN IF
 // NOT EXISTS`; we read PRAGMA table_info and only run the ALTERs we need.
 func ensureAuthorsRosterColumns(db *sql.DB) error {
-	rows, err := db.Query(`PRAGMA table_info(digg_authors)`)
+	have, err := tableColumns(db, "digg_authors")
 	if err != nil {
-		return fmt.Errorf("reading digg_authors columns: %w", err)
-	}
-	defer rows.Close()
-	have := map[string]bool{}
-	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
-			return fmt.Errorf("scanning digg_authors columns: %w", err)
-		}
-		have[name] = true
-	}
-	if err := rows.Err(); err != nil {
 		return err
 	}
 	wantCols := []struct{ name, ddl string }{

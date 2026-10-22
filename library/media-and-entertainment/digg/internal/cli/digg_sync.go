@@ -44,6 +44,9 @@ var syncTopics = []struct{ slug, page string }{
 // feedRanges are the range values /api/feed/continuous accepts.
 var feedRanges = []string{"24h", "7d", "30d", "all"}
 
+// defaultFeedRange is the range sync walks and search assumes without --since.
+const defaultFeedRange = "30d"
+
 // diggSiteURL is the origin for section pages; tests point it at a mock.
 var diggSiteURL = "https://digg.com"
 
@@ -184,32 +187,21 @@ Sync is read-only against Digg. It never mutates anything upstream.`,
 					r := topicSyncResult{Topic: topic}
 
 					// 1. Ranked list from the section page.
-					html, err := fetchURL(ctx, diggSiteURL+topicPage(topic))
-					if err == nil {
-						var clusters []diggparse.Cluster
-						var events []diggparse.Event
-						clusters, events, _, err = diggparse.ParseHomeFeed(html)
-						if err == nil {
-							writeMu.Lock()
-							err = persistScrape(db, clusters, events, now)
-							writeMu.Unlock()
-						}
-						if err == nil {
-							r.scraped = true
-							r.Clusters = len(clusters)
-							for _, cl := range clusters {
-								r.observed = append(r.observed, cl.ClusterID)
-							}
-							logf("parsed %d ranked clusters from %s\n", len(clusters), topicPage(topic))
-							if withDetails {
-								fetchDetails(ctx, db, &writeMu, topic, clusters, now, logf)
-							}
-						}
-					}
+					clusters, err := scrapeTopic(ctx, db, &writeMu, topic, now)
 					if err != nil {
 						outMu.Lock()
 						fmt.Fprintf(cmd.ErrOrStderr(), "warn: %s: ranked list unavailable: %v\n", topic, err)
 						outMu.Unlock()
+					} else {
+						r.scraped = true
+						r.Clusters = len(clusters)
+						for _, cl := range clusters {
+							r.observed = append(r.observed, cl.ClusterID)
+						}
+						logf("parsed %d ranked clusters from %s\n", len(clusters), topicPage(topic))
+						if withDetails {
+							fetchDetails(ctx, db, &writeMu, topic, clusters, now, logf)
+						}
 					}
 
 					// 2. Story feed, saved page by page.
@@ -293,11 +285,30 @@ Sync is read-only against Digg. It never mutates anything upstream.`,
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/digg-pp-cli/data.db)")
 	cmd.Flags().BoolVar(&withDetails, "with-details", false, "Also fetch each cluster's detail page (slower; richer fields)")
 	cmd.Flags().StringSliceVar(&topics, "topics", []string{"ai"}, "Comma-separated topic slugs to sync (valid: "+strings.Join(validTopicSlugs(), ", ")+")")
-	cmd.Flags().StringVar(&feedRange, "range", "30d", "How far back the story feed reaches: 24h, 7d, 30d, or all")
+	cmd.Flags().StringVar(&feedRange, "range", defaultFeedRange, "How far back the story feed reaches: 24h, 7d, 30d, or all")
 	cmd.Flags().IntVar(&maxPages, "max-pages", 120, "Maximum feed pages (20 stories each) to fetch per topic")
 
 	cmd.Annotations = map[string]string{}
 	return cmd
+}
+
+// scrapeTopic fetches and parses one section page and saves its ranked
+// clusters and embedded events.
+func scrapeTopic(ctx context.Context, db *sql.DB, writeMu *sync.Mutex, topic string, now time.Time) ([]diggparse.Cluster, error) {
+	html, err := fetchURL(ctx, diggSiteURL+topicPage(topic))
+	if err != nil {
+		return nil, err
+	}
+	clusters, events, _, err := diggparse.ParseHomeFeed(html)
+	if err != nil {
+		return nil, err
+	}
+	writeMu.Lock()
+	defer writeMu.Unlock()
+	if err := persistScrape(db, clusters, events, now); err != nil {
+		return nil, err
+	}
+	return clusters, nil
 }
 
 // persistScrape saves one section page's ranked clusters and embedded events.

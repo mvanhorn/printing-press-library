@@ -746,11 +746,11 @@ const (
 )
 
 // feedRangeFor maps a --since window to the smallest feed range that
-// covers it. No window uses the 30d range sync defaults to.
+// covers it. No window uses the range sync defaults to.
 func feedRangeFor(since time.Duration) string {
 	switch {
 	case since <= 0:
-		return "30d"
+		return defaultFeedRange
 	case since <= 24*time.Hour:
 		return "24h"
 	case since <= 7*24*time.Hour:
@@ -881,14 +881,12 @@ months of about 30 days). firstPostAge is measured from now.`,
 			}
 			topUp := ds == "live" || (ds == "auto" && !fresh)
 
-			var storedBefore int
-			if err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM digg_cluster_topics WHERE topic IN (`+
-				strings.TrimSuffix(strings.Repeat("?,", len(topics)), ",")+`)`, anySlice(topics)...).Scan(&storedBefore); err != nil {
-				return err
-			}
-
 			source := "local"
 			if topUp {
+				storedBefore, err := diggstore.CountTopicStories(db, topics)
+				if err != nil {
+					return err
+				}
 				pages, err := searchTopUp(ctx, flags, db, topics, feedRange)
 				switch {
 				case pages > 0 && storedBefore == 0:
@@ -999,14 +997,6 @@ func searchTopUp(ctx context.Context, flags *rootFlags, db *sql.DB, topics []str
 		}
 	}
 	return pages, firstErr
-}
-
-func anySlice(xs []string) []any {
-	out := make([]any, len(xs))
-	for i, x := range xs {
-		out[i] = x
-	}
-	return out
 }
 
 // ============== events ==============

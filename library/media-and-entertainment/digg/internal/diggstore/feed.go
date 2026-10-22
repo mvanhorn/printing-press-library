@@ -225,11 +225,8 @@ func SearchFeedStories(db *sql.DB, query string, topics []string, since time.Tim
 	if limit <= 0 {
 		limit = -1
 	}
-	placeholders := strings.TrimSuffix(strings.Repeat("?,", len(topics)), ",")
-	args := []any{match, since.UTC().Format(time.RFC3339)}
-	for _, t := range topics {
-		args = append(args, t)
-	}
+	placeholders, topicArgs := inClause(topics)
+	args := append([]any{match, since.UTC().Format(time.RFC3339)}, topicArgs...)
 	args = append(args, limit)
 	rows, err := db.Query(`
 		SELECT c.cluster_id, COALESCE(c.cluster_url_id,''), COALESCE(c.title, c.label, ''), COALESCE(c.tldr,''),
@@ -255,6 +252,24 @@ func SearchFeedStories(db *sql.DB, query string, topics []string, since time.Tim
 		out = append(out, m)
 	}
 	return out, rows.Err()
+}
+
+// CountTopicStories returns how many stored stories the feed listed under
+// any of topics.
+func CountTopicStories(db *sql.DB, topics []string) (int, error) {
+	placeholders, args := inClause(topics)
+	var n int
+	err := db.QueryRow(`SELECT COUNT(*) FROM digg_cluster_topics WHERE topic IN (`+placeholders+`)`, args...).Scan(&n)
+	return n, err
+}
+
+// inClause returns "?,?,..." for vals and the matching query arguments.
+func inClause(vals []string) (string, []any) {
+	args := make([]any, len(vals))
+	for i, v := range vals {
+		args[i] = v
+	}
+	return strings.TrimSuffix(strings.Repeat("?,", len(vals)), ","), args
 }
 
 func ftsQuery(q string) string {
