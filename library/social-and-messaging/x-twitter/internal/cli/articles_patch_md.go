@@ -586,7 +586,7 @@ func replaceInBlocks(blocks []draftBlock, op articlePatchOp) error {
 		case offset <= start && rEnd >= end:
 			return offset, length + delta, nil
 		}
-		return 0, 0, fmt.Errorf("line %d: replace target %q cuts across a link or style boundary; widen it to cover the whole styled span", op.Line, op.Anchor)
+		return 0, 0, fmt.Errorf("line %d: replace target %q cuts across a link or style boundary; narrow it so it stays entirely inside or outside each link or styled span", op.Line, op.Anchor)
 	}
 	for i := range b.InlineStyleRanges {
 		o, l, err := shift(b.InlineStyleRanges[i].Offset, b.InlineStyleRanges[i].Length)
