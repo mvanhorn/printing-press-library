@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "x-article-patch-md-embeds",
+  "applied_at": "2026-10-21",
+  "base_run_id": "20260603-230951",
+  "base_printing_press_version": "4.20.1",
+  "summary": "articles patch-md applies anchored inserts (markdown, embedded posts) and exact text replacements to an existing X Article while carrying every existing block and entity over unchanged; inline code no longer emits the CODE style X rejects; X_TWITTER_USER_ID fills in a cookie file without twid.",
+  "reason": "update-md rebuilds the whole body from markdown, so editing a published, composer-made article meant re-authoring every image and embed. Live facts a regen must keep: (1) the ArticleEntitiesSlice read shape is camelCase (entityRanges, inlineStyleRanges, mediaItems/localMediaId string, tweetId) and must be converted to the snake_case write shape (entity_ranges, inline_style_ranges, media_items/local_media_id int, tweet_id); (2) entityKey must be dropped on write (422 otherwise); (3) block data mentions/urls are derived by the server from the text, and writing them back duplicates mentions, so blocks are written with empty data; (4) ArticleEntityUpdateContent accepts only Bold, Italic and Strikethrough inline styles, and the converter's CODE style 422s at inline_style_ranges[].style, so backtick spans are plain text (matching composer-made articles); (5) the plan needs a live read even under --dry-run, so patch-md clears client DryRun for the read and returns before any write.",
+  "files": [
+    "internal/cli/articles_patch_md.go",
+    "internal/cli/articles_patch_md_test.go",
+    "internal/cli/articles.go",
+    "internal/cli/articles_publish_md.go",
+    "internal/cli/articles_publish_md_test.go",
+    "internal/cli/articles_update_md.go",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Live 2026-10-21 against the real X API (cookie lane). Round-trip: the published article's body converted to the write shape and written to a scratch draft read back identical to the original on every block's type, text, inline styles, entity ranges and entity data, including server-derived mentions/urls, except the one intended text replace. patch-md on the scratch draft added 57 blocks and 14 entities (5 TWEET, 7 MARKDOWN, 2 LINK) with all 207 untouched original blocks byte-equal on read-back. Then patch-md --republish on published article 2064535252471590912: 208 -> 265 blocks, 5 TWEET embeds persisted as {tweetId}, existing MEDIA kept its mediaId, and the carrying post 2064752541078901201 kept its likes, bookmarks and views. Scratch draft deleted. Unit tests cover read->write conversion, insert ordering and entity renumbering, range shifting on replace, refusal on missing/ambiguous anchors, repeated or boundary-cutting replace targets, unknown entity types, and the republish call sequence."
+}

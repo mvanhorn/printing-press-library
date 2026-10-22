@@ -428,18 +428,16 @@ func TestMarkdownBodyToDraftJSBoldInBlockquote(t *testing.T) {
 }
 
 func TestMarkdownBodyToDraftJSInlineCode(t *testing.T) {
-	contentState := MarkdownBodyToDraftJS("Run `x-twitter-pp-cli` now")
+	// X Articles rejects any "CODE" inline style (HTTP 422), so backtick
+	// spans become plain text and markers inside them stay literal.
+	contentState := MarkdownBodyToDraftJS("Run `x-twitter-pp-cli **now**` please")
 
 	blk := contentState.Blocks[0]
-	if blk.Text != "Run x-twitter-pp-cli now" {
+	if blk.Text != "Run x-twitter-pp-cli **now** please" {
 		t.Fatalf("unexpected text: %q", blk.Text)
 	}
-	if len(blk.InlineStyleRanges) != 1 {
-		t.Fatalf("expected one inline code style, got %d", len(blk.InlineStyleRanges))
-	}
-	style := blk.InlineStyleRanges[0]
-	if style.Offset != 4 || style.Length != 16 || style.Style != "CODE" {
-		t.Fatalf("unexpected CODE style range: %#v", style)
+	if len(blk.InlineStyleRanges) != 0 {
+		t.Fatalf("inline code must not emit a style range, got %#v", blk.InlineStyleRanges)
 	}
 }
 
@@ -450,12 +448,8 @@ func TestMarkdownBodyToDraftJSEmptyInlineCode(t *testing.T) {
 	if blk.Text != "Run  now" {
 		t.Fatalf("unexpected text: %q", blk.Text)
 	}
-	if len(blk.InlineStyleRanges) != 1 {
-		t.Fatalf("expected one empty inline code style, got %d", len(blk.InlineStyleRanges))
-	}
-	style := blk.InlineStyleRanges[0]
-	if style.Offset != 4 || style.Length != 0 || style.Style != "CODE" {
-		t.Fatalf("unexpected CODE style range: %#v", style)
+	if len(blk.InlineStyleRanges) != 0 {
+		t.Fatalf("empty inline code must not emit a style range, got %#v", blk.InlineStyleRanges)
 	}
 }
 

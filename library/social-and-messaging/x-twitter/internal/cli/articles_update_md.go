@@ -53,6 +53,12 @@ type articleUpdateOptions struct {
 	contentState           draftContentState
 	republish              bool
 	replaceUnknownEntities bool
+	// PATCH(patch-md): allowedEntityTypes overrides the converter emit set
+	// in the preflight (patch-md can carry over types it cannot create), and
+	// baseFingerprint, when set, makes the write refuse if the article body
+	// changed since the caller read it.
+	allowedEntityTypes map[string]bool
+	baseFingerprint    string
 }
 
 type articleUpdateResult struct {
@@ -170,9 +176,12 @@ func updateMarkdownArticle(ctx context.Context, deps articleUpdateDeps, opts art
 		return nil, usageErr(fmt.Errorf("--article-id is required (find it via `articles list --agent`)"))
 	}
 
-	scan, err := preflightArticleEntities(ctx, deps, opts.articleID)
+	scan, err := preflightArticleEntities(ctx, deps, opts.articleID, opts.allowedEntityTypes)
 	if err != nil {
 		return nil, err
+	}
+	if opts.baseFingerprint != "" && scan.fingerprint != opts.baseFingerprint {
+		return nil, fmt.Errorf("article %s changed since it was read (an edit in the composer or another run); nothing was written. Re-run the command to patch the latest version", opts.articleID)
 	}
 	if len(scan.unknownTypes) > 0 && !opts.replaceUnknownEntities {
 		return nil, fmt.Errorf("article %s contains entity types the markdown converter cannot reproduce (%s); update-md replaces the whole body and would destroy them. Pass --replace-unknown-entities to overwrite anyway, or edit in the composer",
@@ -262,18 +271,19 @@ func updateMarkdownArticle(ctx context.Context, deps articleUpdateDeps, opts art
 type articleEntityScan struct {
 	lifecycle    string
 	unknownTypes []string
+	fingerprint  string
 }
 
 // preflightArticleEntities locates the target article in the user's Draft
 // then Published slices and reports any entity types outside the converter's
 // emit set.
-func preflightArticleEntities(ctx context.Context, deps articleUpdateDeps, articleID string) (*articleEntityScan, error) {
+func preflightArticleEntities(ctx context.Context, deps articleUpdateDeps, articleID string, allowed map[string]bool) (*articleEntityScan, error) {
 	for _, lifecycle := range []string{"Draft", "Published"} {
 		raw, err := deps.fetchSlice(ctx, lifecycle)
 		if err != nil {
 			return nil, fmt.Errorf("preflight %s articles: %w", lifecycle, err)
 		}
-		if scan, found := scanArticleSliceForEntity(raw, articleID); found {
+		if scan, found := scanArticleSliceForEntity(raw, articleID, allowed); found {
 			scan.lifecycle = lifecycle
 			return scan, nil
 		}
@@ -284,7 +294,7 @@ func preflightArticleEntities(ctx context.Context, deps articleUpdateDeps, artic
 // scanArticleSliceForEntity parses an ArticleEntitiesSlice response (read
 // shape: camelCase entityMap of {key, value{type,...}}) looking for the
 // target rest_id, and collects entity types outside the converter emit set.
-func scanArticleSliceForEntity(raw json.RawMessage, articleID string) (*articleEntityScan, bool) {
+func scanArticleSliceForEntity(raw json.RawMessage, articleID string, allowed map[string]bool) (*articleEntityScan, bool) {
 	var response struct {
 		Data struct {
 			User struct {
@@ -314,6 +324,9 @@ func scanArticleSliceForEntity(raw json.RawMessage, articleID string) (*articleE
 		return nil, false
 	}
 	emitSet := converterEntityEmitSet()
+	if allowed != nil {
+		emitSet = allowed
+	}
 	for _, item := range response.Data.User.Result.Slice.Items {
 		article := item.Results.Result
 		if article.RestID != articleID {
@@ -326,6 +339,9 @@ func scanArticleSliceForEntity(raw json.RawMessage, articleID string) (*articleE
 			}
 		}
 		scan := &articleEntityScan{}
+		if rcs, found, err := findArticleContentState(raw, articleID); err == nil && found {
+			scan.fingerprint = contentStateFingerprint(rcs)
+		}
 		for entityType := range unknown {
 			scan.unknownTypes = append(scan.unknownTypes, entityType)
 		}
@@ -344,11 +360,30 @@ func fetchArticleSlice(ctx context.Context, c *client.Client, lifecycle string) 
 	}
 	userID := cookies.ArticleUserID()
 	if userID == "" {
-		return nil, fmt.Errorf("articles update-md requires the signed-in X user id; re-run `x-twitter-pp-cli auth login --chrome` to refresh cookies with the twid user id")
+		// PATCH: cookies captured by hand often lack twid. Accept the
+		// numeric account id from the environment instead of failing.
+		userID = userIDFromEnv()
+	}
+	if userID == "" {
+		return nil, fmt.Errorf("articles update-md and patch-md need the signed-in X user id; re-run `x-twitter-pp-cli auth login --chrome` to refresh cookies with the twid user id, or set X_TWITTER_USER_ID=<numeric id>")
 	}
 	variables, err := json.Marshal(map[string]string{"userId": userID, "lifecycle": lifecycle})
 	if err != nil {
 		return nil, err
 	}
 	return c.GetNoCache(ctx, client.ArticleOpURL("ArticleEntitiesSlice"), map[string]string{"variables": string(variables)})
+}
+
+// userIDFromEnv returns X_TWITTER_USER_ID when it is all digits.
+func userIDFromEnv() string {
+	id := strings.TrimSpace(os.Getenv("X_TWITTER_USER_ID"))
+	if id == "" {
+		return ""
+	}
+	for _, r := range id {
+		if r < '0' || r > '9' {
+			return ""
+		}
+	}
+	return id
 }

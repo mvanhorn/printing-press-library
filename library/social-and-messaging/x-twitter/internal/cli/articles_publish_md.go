@@ -941,10 +941,14 @@ func consumeInlineCode(s string, i int, out *strings.Builder, ranges *[]inlineSt
 	if end < 0 {
 		return i, false
 	}
-	inner := s[i+1 : i+1+end]
-	offset := utf16Len(out.String())
-	out.WriteString(inner)
-	*ranges = append(*ranges, inlineStyle{Offset: offset, Length: utf16Len(inner), Style: "CODE"})
+	// PATCH: X Articles has no inline code style. ArticleEntityUpdateContent
+	// accepts only Bold, Italic and Strikethrough; "CODE" 422s with
+	// GRAPHQL_VALIDATION_FAILED at inline_style_ranges[].style (live probe
+	// 2026-10-21). Composer-made articles store backtick spans as plain text,
+	// so emit the inner text with no style. The span is still consumed here so
+	// asterisks inside it are not read as bold or italic.
+	_ = ranges
+	out.WriteString(s[i+1 : i+1+end])
 	return i + 1 + end + 1, true
 }
 

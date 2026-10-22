@@ -150,7 +150,7 @@ These capabilities aren't available in any other tool for this API.
 
   _The only programmatic way to author a long-form X Article from a document; preview, --draft, and --update keep it private until you explicitly --post._
 
-  The converter supports paragraphs, `#`/`##` headers (`###` and deeper are downgraded to `##`), lists, blockquotes, fenced code blocks, tables, dividers, image lines (`![alt](path)`), standalone tweet URLs (native embeds), bold/italic/code inline styles (including inside blockquotes), and `[text](url)` inline links, which become real LINK entities (working hyperlinks) in the article. Lines that are HTML comments (`<!-- ... -->`) are stripped and never ship as article text.
+  The converter supports paragraphs, `#`/`##` headers (`###` and deeper are downgraded to `##`), lists, blockquotes, fenced code blocks, tables, dividers, image lines (`![alt](path)`), standalone tweet URLs (native embedded posts: put `https://x.com/<user>/status/<id>` alone on its own line), bold/italic inline styles (including inside blockquotes; backtick `code` spans become plain text because X Articles has no inline code style), and `[text](url)` inline links, which become real LINK entities (working hyperlinks) in the article. Lines that are HTML comments (`<!-- ... -->`) are stripped and never ship as article text.
 
   ```bash
   x-twitter-pp-cli articles-publish-md ./post.md
@@ -167,6 +167,29 @@ These capabilities aren't available in any other tool for this API.
   **WARNING — body replacement:** `articles update-md` replaces the ENTIRE body of the target draft. Anything added by hand in the X composer that the markdown converter cannot reproduce is destroyed by the update. The command preflights the draft's content_state and refuses when it finds entity types outside the converter's emit set (LINK, MARKDOWN, MEDIA, TWEET, DIVIDER); pass `--replace-unknown-entities` only when you genuinely want to overwrite those artifacts. Markdown-authored content round-trips cleanly; if a draft holds composer-only embeds or other manual artifacts, edit it in the composer instead.
 
   Draft-only by default: a published article is refused unless you pass `--republish`, which runs Unpublish -> UpdateContent -> Publish (the article is briefly unpublished). Use `--dry-run` to preview the converted payload with no API call.
+- **`articles patch-md`** — Add sections, embedded posts or text fixes to an existing (even published) X Article without rewriting the rest. It reads the current body and keeps every block, image and embed as it is, then applies anchored edits from a small patch file.
+
+  _Use this instead of `update-md` for an article that already has images or composer edits: nothing outside the patch changes, and no image is re-uploaded._
+
+  ```markdown
+  <!-- after: The other machines should appear in the list. -->
+  Here is the post where I said so:
+
+  https://x.com/cathrynlavery/status/2103588600076214414
+
+  <!-- before: The checklist -->
+  ## A new section
+  Text, lists, links and fenced code work as in articles-publish-md.
+
+  <!-- replace: I installed five apps: => I installed four apps: -->
+  ```
+
+  ```bash
+  x-twitter-pp-cli articles patch-md ./edits.md --article-id 1750000000000000000 --dry-run --agent   # plan + full body, no write
+  x-twitter-pp-cli articles patch-md ./edits.md --article-id 1750000000000000000 --republish --agent # published article
+  ```
+
+  An anchor is the start of an existing paragraph or heading and must match exactly one block; a replace target must appear exactly once and may not cut across a link or bold span. Any miss stops the command before it writes. `--dry-run` still reads the article (it needs the real body) but never writes. Published articles need `--republish` (the same Unpublish -> UpdateContent -> Publish sequence the composer uses; the post, its URL and its likes stay). If your cookies were captured without `twid`, set `X_TWITTER_USER_ID=<your numeric id>`.
 
 ## Command Reference
 
