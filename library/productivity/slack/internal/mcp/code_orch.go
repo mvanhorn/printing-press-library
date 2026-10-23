@@ -15,7 +15,9 @@
 package mcp
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -457,7 +459,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		ID:             "files.upload",
 		Method:         "POST",
 		Path:           "/files.completeUploadExternal",
-		Summary:        "Upload a file to Slack. Params: one of file (a path on the host running this server) or content (inline text, with filename); optional channel, title, initial_comment, thread_ts.",
+		Summary:        "Upload a file to Slack. Params: one of content (inline text, with filename), content_base64 (base64-encoded file content, with filename), or file (a filesystem path, accepted only when SLACK_MCP_UPLOAD_ROOT is set and confined to that directory); optional channel, title, initial_comment, thread_ts.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
@@ -1142,8 +1144,9 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	// The generic dispatcher below cannot express the replacement: it issues one
 	// request with a JSON body, while the external flow reserves a URL, posts raw
 	// bytes to a different host without the workspace credential, then registers
-	// the file. Intercept here and run the shared client.UploadExternal so the MCP
-	// surface uploads by the same code path as `slack-pp-cli files upload`.
+	// the file. Intercept here, resolve the MCP source, and run the shared
+	// client.UploadExternal. The CLI `files upload --file` flag still opens the
+	// operator's path itself.
 	if ep.ID == "files.upload" {
 		return codeOrchUploadExternal(ctx, c, params)
 	}
@@ -1296,11 +1299,13 @@ func codeOrchWireQueryName(queryParams []codeOrchParamBinding, name string) stri
 // runs Slack's three-step external upload on behalf of the retired files.upload
 // endpoint id.
 //
-// Params mirror the CLI's flags: one of `file` (a path readable by the server) or
-// `content` (inline text, which then requires `filename`), plus the optional
-// `channel`, `title`, `initial_comment` and `thread_ts`. Validation happens here
-// rather than being left to Slack, because the generic dispatcher would otherwise
-// surface a bare invalid_arguments for a request the agent can still fix.
+// MCP sources are one of `content` (inline text, with filename), `content_base64`
+// (base64-encoded file bytes, with a sanitized filename), or `file` (a path,
+// accepted only when SLACK_MCP_UPLOAD_ROOT is set and confined to that directory).
+// The CLI --file flag is a separate path and is unchanged. Optional params:
+// channel, title, initial_comment, thread_ts. Validation happens here rather than
+// being left to Slack, because the generic dispatcher would otherwise surface a
+// bare invalid_arguments for a request the agent can still fix.
 func codeOrchUploadExternal(ctx context.Context, c *client.Client, params map[string]any) (*mcplib.CallToolResult, error) {
 	str := func(k string) string {
 		v, ok := params[k]
@@ -1309,41 +1314,82 @@ func codeOrchUploadExternal(ctx context.Context, c *client.Client, params map[st
 		}
 		return formatMCPParamValue(v)
 	}
-	filePath, content, filename := str("file"), str("content"), str("filename")
+	filePath, fileSet, fileErr := slackMCPStringParam(params, "file")
+	contentB64, b64Set, b64Err := slackMCPStringParam(params, "content_base64")
+	content := str("content")
+	filename := strings.TrimSpace(str("filename"))
+	filePath = strings.TrimSpace(filePath)
+	contentB64 = strings.TrimSpace(contentB64)
+
+	sources := 0
+	if fileSet && (filePath != "" || fileErr != nil) {
+		sources++
+	}
+	if content != "" {
+		sources++
+	}
+	if b64Set && (contentB64 != "" || b64Err != nil) {
+		sources++
+	}
+	if sources > 1 {
+		return mcplib.NewToolResultError("file, content, and content_base64 are mutually exclusive"), nil
+	}
 
 	var (
-		size int64
-		src  io.ReadCloser
+		size       int64
+		src        io.ReadCloser
+		uploadName string
 	)
 	switch {
-	case filePath != "" && content != "":
-		return mcplib.NewToolResultError("file and content are mutually exclusive"), nil
-	case filePath != "":
-		f, err := os.Open(filePath)
+	case fileSet && (filePath != "" || fileErr != nil):
+		if fileErr != nil {
+			return mcplib.NewToolResultError(fileErr.Error()), nil
+		}
+		root := slackMCPUploadRoot()
+		if root == "" {
+			return mcplib.NewToolResultError("params.file is a filesystem path and is not accepted over MCP unless " + slackMCPUploadRootEnvVar + " is set to a directory; pass content for inline text or content_base64 for base64-encoded file bytes"), nil
+		}
+		f, rel, sz, err := slackMCPOpenUpload(root, filePath)
 		if err != nil {
-			return mcplib.NewToolResultError(fmt.Sprintf("reading file: %v", err)), nil
+			return mcplib.NewToolResultError(err.Error()), nil
 		}
-		info, err := f.Stat()
-		if err != nil {
+		nameSrc := filename
+		if nameSrc == "" {
+			nameSrc = filepath.Base(filepath.FromSlash(rel))
+		}
+		name, ok := slackMCPSanitizeUploadName(nameSrc)
+		if !ok {
 			_ = f.Close()
-			return mcplib.NewToolResultError(fmt.Sprintf("reading file: %v", err)), nil
+			return mcplib.NewToolResultError(fmt.Sprintf("filename %q is not a usable upload name", nameSrc)), nil
 		}
-		if info.IsDir() {
-			_ = f.Close()
-			return mcplib.NewToolResultError(fmt.Sprintf("file %q is a directory", filePath)), nil
+		size, src, uploadName = sz, f, name
+	case b64Set && (contentB64 != "" || b64Err != nil):
+		if b64Err != nil {
+			return mcplib.NewToolResultError(b64Err.Error()), nil
 		}
-		size, src = info.Size(), f
 		if filename == "" {
-			filename = filepath.Base(filePath)
+			return mcplib.NewToolResultError("filename is required when uploading content_base64"), nil
 		}
+		name, ok := slackMCPSanitizeUploadName(filename)
+		if !ok {
+			return mcplib.NewToolResultError(fmt.Sprintf("filename %q is not a usable upload name", filename)), nil
+		}
+		data, err := slackMCPDecodeBase64(contentB64)
+		if err != nil {
+			return mcplib.NewToolResultError(err.Error()), nil
+		}
+		size = int64(len(data))
+		src = io.NopCloser(bytes.NewReader(data))
+		uploadName = name
 	case content != "":
 		if filename == "" {
 			return mcplib.NewToolResultError("filename is required when uploading inline content"), nil
 		}
 		size = int64(len(content))
 		src = io.NopCloser(strings.NewReader(content))
+		uploadName = filename
 	default:
-		return mcplib.NewToolResultError("one of file or content is required"), nil
+		return mcplib.NewToolResultError("one of content, content_base64, or file is required"), nil
 	}
 	defer func() { _ = src.Close() }()
 
@@ -1352,7 +1398,7 @@ func codeOrchUploadExternal(ctx context.Context, c *client.Client, params map[st
 	}
 
 	res, err := c.UploadExternal(ctx, client.ExternalUpload{
-		Filename:       filename,
+		Filename:       uploadName,
 		Size:           size,
 		Reader:         src,
 		ChannelID:      str("channel"),
@@ -1364,4 +1410,145 @@ func codeOrchUploadExternal(ctx context.Context, c *client.Client, params map[st
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
 	return mcplib.NewToolResultText(bound.EndpointResponse("POST", res.Response)), nil
+}
+
+// slackMCPUploadRootEnvVar, when set to a directory, lets an operator opt into
+// path-based MCP uploads confined to that directory. When it is unset, params.file
+// is rejected and the caller passes content or content_base64 instead.
+const slackMCPUploadRootEnvVar = "SLACK_MCP_UPLOAD_ROOT"
+
+// slackMCPMaxUploadBytes caps one MCP upload. The base64 path checks the encoded
+// length against this ceiling before decoding. The path mode uses the size from
+// the same open handle it streams.
+const slackMCPMaxUploadBytes = 100 << 20 // 100 MiB
+
+// slackMCPMaxUploadFilenameLen bounds a caller-supplied upload filename.
+const slackMCPMaxUploadFilenameLen = 255
+
+// slackMCPStringParam reads a string param. A present non-string value is an error
+// so a caller cannot slip a composite into the file or content_base64 slot.
+func slackMCPStringParam(params map[string]any, key string) (string, bool, error) {
+	v, ok := params[key]
+	if !ok || v == nil {
+		return "", false, nil
+	}
+	s, ok := v.(string)
+	if !ok {
+		return "", true, fmt.Errorf("%s must be a string", key)
+	}
+	return s, true, nil
+}
+
+// slackMCPUploadRoot reads the opt-in upload root, ignoring an unresolved
+// MCPB ${...} placeholder the same way the other refreshed CLIs do.
+func slackMCPUploadRoot() string {
+	v := os.Getenv(slackMCPUploadRootEnvVar)
+	if len(v) >= 3 && strings.HasPrefix(v, "${") && strings.HasSuffix(v, "}") && !strings.Contains(v[2:len(v)-1], "}") {
+		return ""
+	}
+	return strings.TrimSpace(v)
+}
+
+// slackMCPDecodeBase64 decodes content_base64. The encoded length is rejected
+// before decode so an over-cap payload is not allocated just to be discarded.
+func slackMCPDecodeBase64(raw string) ([]byte, error) {
+	trimmed := strings.TrimSpace(raw)
+	if len(trimmed) > base64.StdEncoding.EncodedLen(slackMCPMaxUploadBytes)+4096 {
+		return nil, fmt.Errorf("content_base64 payload is too large (exceeds the %d-byte decoded MCP upload limit)", slackMCPMaxUploadBytes)
+	}
+	data, err := base64.StdEncoding.DecodeString(trimmed)
+	if err != nil {
+		return nil, fmt.Errorf("content_base64 must be base64-encoded file content: %w", err)
+	}
+	if len(data) > slackMCPMaxUploadBytes {
+		return nil, fmt.Errorf("content_base64 is %d bytes, which exceeds the %d-byte MCP upload limit", len(data), slackMCPMaxUploadBytes)
+	}
+	return data, nil
+}
+
+// slackMCPOpenUpload opens a path-mode upload inside the opt-in root. The root is
+// made absolute so a relative SLACK_MCP_UPLOAD_ROOT still accepts an absolute
+// path that lives inside it. os.OpenRoot refuses a name that escapes the root,
+// including an escaping symlink. The file is opened once and sized with Stat on
+// that same handle; a non-regular file is refused. The returned file stays
+// readable after the root is closed.
+func slackMCPOpenUpload(root, raw string) (*os.File, string, int64, error) {
+	absRoot, err := filepath.Abs(root)
+	if err != nil {
+		return nil, "", 0, fmt.Errorf("upload root: %w", err)
+	}
+	r, err := os.OpenRoot(absRoot)
+	if err != nil {
+		return nil, "", 0, fmt.Errorf("opening upload root: %w", err)
+	}
+	defer r.Close()
+
+	rel := raw
+	if filepath.IsAbs(raw) {
+		rr, rerr := filepath.Rel(absRoot, raw)
+		if rerr != nil {
+			return nil, "", 0, fmt.Errorf("file %q is not inside the upload root: %w", raw, rerr)
+		}
+		rel = rr
+	}
+	rel = filepath.ToSlash(rel)
+	if !filepath.IsLocal(rel) {
+		return nil, "", 0, fmt.Errorf("file %q is not inside the upload root", raw)
+	}
+	f, err := r.Open(rel)
+	if err != nil {
+		return nil, "", 0, fmt.Errorf("opening file %q under the upload root: %w", raw, err)
+	}
+	info, err := f.Stat()
+	if err != nil {
+		_ = f.Close()
+		return nil, "", 0, fmt.Errorf("reading file: %v", err)
+	}
+	if !info.Mode().IsRegular() {
+		_ = f.Close()
+		return nil, "", 0, fmt.Errorf("file %q is not a regular file", raw)
+	}
+	if info.Size() > slackMCPMaxUploadBytes {
+		_ = f.Close()
+		return nil, "", 0, fmt.Errorf("file %q is %d bytes, which exceeds the %d-byte MCP upload limit", raw, info.Size(), slackMCPMaxUploadBytes)
+	}
+	return f, rel, info.Size(), nil
+}
+
+// slackMCPSanitizeUploadName reduces a candidate to a safe base filename. It
+// reports false for an empty or over-long name, ".", "..", a name containing a
+// path separator, drive/stream separator ':', control characters, Unicode
+// line/paragraph separators or bidi controls, or a name filepath.IsLocal rejects.
+func slackMCPSanitizeUploadName(candidate string) (string, bool) {
+	candidate = strings.TrimSpace(candidate)
+	if candidate == "" || len(candidate) > slackMCPMaxUploadFilenameLen {
+		return "", false
+	}
+	for _, r := range candidate {
+		switch {
+		case r < 0x20 || r == 0x7f:
+			return "", false
+		case r >= 0x80 && r <= 0x9f:
+			return "", false
+		case r == '\u2028' || r == '\u2029':
+			return "", false
+		case r == '\u200e' || r == '\u200f':
+			return "", false
+		case r >= '\u202a' && r <= '\u202e':
+			return "", false
+		case r >= '\u2066' && r <= '\u2069':
+			return "", false
+		}
+	}
+	if strings.ContainsRune(candidate, '/') || strings.ContainsRune(candidate, '\\') || strings.ContainsRune(candidate, ':') {
+		return "", false
+	}
+	base := filepath.Base(filepath.FromSlash(candidate))
+	if base == "" || base == "." || base == ".." || base == string(filepath.Separator) {
+		return "", false
+	}
+	if !filepath.IsLocal(base) {
+		return "", false
+	}
+	return base, true
 }
