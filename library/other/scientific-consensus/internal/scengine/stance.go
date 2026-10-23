@@ -75,6 +75,70 @@ var (
 	// downwardClaimSupports as a reported finding.
 	purposeTail = regexp.MustCompile(`(?i)\bto\s*$`)
 
+	// claimNegationCues mark a negated claim ("gum does not reduce ileus").
+	// ClaimContentTokens drops "does" and "not", so such a claim splits into
+	// the same intervention and outcome as the positive one, and a reported
+	// reduction would read as support for its opposite. downwardClaimSupports
+	// declines these claims, so they keep the baseline.
+	claimNegationCues = regexp.MustCompile(`(?i)(\b(no|not|never|cannot|without|unable|fail\w*|neither|nor|lack\w*)\b|n't)`)
+
+	// controlRightAfterCue matches the text right after a downward cue when it
+	// puts the lower value in the comparison arm ("lower in controls",
+	// "reduced only in the control arm"). That is a finding against a
+	// "X reduces Y" claim, not for it.
+	controlRightAfterCue = regexp.MustCompile(`(?i)^\s*(only\s+|solely\s+|just\s+)?(in|among)\s+(the\s+)?(control|controls|placebo|comparison|usual[- ]care|standard[- ]care)\b`)
+
+	// comparatorBeforeCue matches a comparator between the sentence start and
+	// a downward cue. When the claim's intervention follows it, the
+	// intervention is the arm the cue's subject is compared with ("compared
+	// with gum, sham feeding reduced ileus", "coffee, unlike gum, reduced
+	// ileus"). A comparator after the cue ("gum reduced ileus compared with
+	// controls") is not checked here.
+	comparatorBeforeCue = regexp.MustCompile(`(?i)\b(compared\s+(with|to)|versus|vs\.?|unlike|instead\s+of|rather\s+than|than)\b`)
+
+	// clauseBreak must not sit between a downward cue and the claimed outcome:
+	// in "reduced costs, and ileus resolved" the cue ends its clause before
+	// the outcome is named.
+	clauseBreak = regexp.MustCompile(`[,;]`)
+
+	// thanIntervention matches a comparator clause after a downward cue
+	// ("than in the", "than with"). When the claim's intervention follows it
+	// within thanInterventionReach, the intervention is the arm the lower
+	// value is compared against, so the comparison favours the other arm
+	// ("shorter with usual care than with chewing gum"). "lower in the gum
+	// group than in controls" still counts: its comparator names controls.
+	thanIntervention = regexp.MustCompile(`(?i)\bthan\s+(in|with|among|by)\s+(the\s+)?`)
+
+	// passiveLinkCues tie an outcome named before a downward cue to that cue
+	// in the passive form ("ileus was reduced", "ileus rates were lower").
+	passiveLinkCues = regexp.MustCompile(`(?i)\b(was|were)\b`)
+
+	// contrastCues must not sit between a downward cue and the claimed
+	// outcome: "reduced pain but ileus was unchanged" and "reduced pain but
+	// not ileus" report a reduction of another outcome.
+	contrastCues = regexp.MustCompile(`(?i)\b(but|however|whereas|while|although|though|yet|unchanged|not|no|neither|nor)\b`)
+
+	// neitherNorCues mark a sentence that denies two findings at once
+	// ("neither reduced ileus nor shortened recovery"). negationCues has no
+	// "neither", and the word may sit outside the cue's backWindow.
+	neitherNorCues = regexp.MustCompile(`(?i)\b(neither|nor)\b`)
+
+	// speculativeModal matches a backWindow that ends in a modal verb ("gum
+	// may reduce ileus"): a possibility or a hope, not a reported finding.
+	speculativeModal = regexp.MustCompile(`(?i)\b(may|might|could|can|would|should)\s*$`)
+
+	// bareThanAfter matches any "than" comparator after a downward cue, with
+	// or without a preposition ("more than chewing gum did"). Like
+	// thanIntervention, it marks the intervention as the compared-against arm
+	// when the claim's intervention follows it within thanInterventionReach.
+	bareThanAfter = regexp.MustCompile(`(?i)\bthan\s+(the\s+)?`)
+
+	// interventionNegationCues must not sit between a downward cue and the
+	// first intervention stem after it: in "reduced in the subgroup that did
+	// not receive gum" the lower value belongs to the patients without the
+	// intervention.
+	interventionNegationCues = regexp.MustCompile(`(?i)(\b(no|not|never|without|neither|nor|fail\w*)\b|n't)`)
+
 	// negationCues mark a clause as negated. Applied ONLY to a short backward
 	// window before a positive cue (negation scope is local): a sentence-wide
 	// search would silently drop genuine harm findings that merely follow an
@@ -174,6 +238,14 @@ const (
 	// the stance. Weaker than the counting path on purpose: a single paired
 	// downward cue is less evidence than a cue the counting path recognizes.
 	downwardClaimConfidence = 0.6
+
+	// thanInterventionReach is how far after a thanIntervention match the
+	// claim's intervention is searched for.
+	thanInterventionReach = 30
+
+	// passiveOutcomeReach is how far before a downward cue the claim's outcome
+	// may sit in the passive form "<outcome> was/were <cue>".
+	passiveOutcomeReach = 40
 )
 
 // ClassifyStance scores a single work's title+abstract relative to the claim.
@@ -254,11 +326,18 @@ func stanceFromCounts(pos, neg int) (Stance, float64) {
 // downwardClaimSupports reports whether hay contains a downward finding for a
 // "X reduces Y" claim: the claim splits at its first claimDownVerbCues match,
 // and a studyDownCues match has both an intervention and an outcome stem
-// within posPairWindow in its own sentence (pairInScope). The cue is skipped
-// in a framing sentence, in a sentence that ends with "?", and when the text
-// just before it is a negation or the purpose marker "to".
+// within posPairWindow in its own sentence (pairInScope) and describes the
+// outcome itself (outcomeTiedToCue). A negated claim is declined. The cue is
+// skipped in a framing, "neither ... nor" or question sentence, when the text
+// just before it is a negation, the purpose marker "to" or a modal verb, when
+// the text after it puts the lower value in the control arm, compares against
+// the intervention, negates the intervention or holds a contrast word, and
+// when the text before it names the intervention as the comparator.
 func downwardClaimSupports(hay, claim string) bool {
 	lc := strings.ToLower(claim)
+	if claimNegationCues.MatchString(lc) {
+		return false
+	}
 	loc := claimDownVerbCues.FindStringIndex(lc)
 	if loc == nil {
 		return false
@@ -273,6 +352,9 @@ func downwardClaimSupports(hay, claim string) bool {
 		if framingCues.MatchString(hay[sentStart:sentEnd]) {
 			continue
 		}
+		if neitherNorCues.MatchString(hay[sentStart:sentEnd]) {
+			continue
+		}
 		if strings.HasSuffix(strings.TrimSpace(hay[sentStart:sentEnd]), "?") {
 			continue
 		}
@@ -280,9 +362,132 @@ func downwardClaimSupports(hay, claim string) bool {
 		if negationCues.MatchString(back) || purposeTail.MatchString(back) {
 			continue
 		}
+		if speculativeModal.MatchString(back) {
+			continue
+		}
+		if controlRightAfterCue.MatchString(hay[m[1]:sentEnd]) {
+			continue
+		}
+		if comparesAgainstIntervention(hay[m[1]:sentEnd], intervention) {
+			continue
+		}
+		if thanBeforeIntervention(hay[m[1]:sentEnd], intervention) {
+			continue
+		}
+		if negatedBeforeIntervention(hay[m[1]:sentEnd], intervention) {
+			continue
+		}
+		if interventionIsComparator(hay[sentStart:m[0]], intervention) {
+			continue
+		}
+		if !outcomeTiedToCue(hay, m[0], m[1], sentStart, sentEnd, outcome) {
+			continue
+		}
+		// A tied forward outcome has no contrast word between the cue and
+		// it, so this covers the text after the outcome as well as the
+		// text after a passive cue ("reduced ileus before, but not now").
+		if contrastCues.MatchString(hay[m[1]:sentEnd]) {
+			continue
+		}
 		if pairInScope(hay, cueSpan{m[0], m[1]}, sentStart, sentEnd, intervention, outcome) {
 			return true
 		}
+	}
+	return false
+}
+
+// comparesAgainstIntervention reports whether the text after a downward cue
+// holds a thanIntervention comparator followed by the claim's intervention
+// within thanInterventionReach ("shorter with usual care than with gum").
+func comparesAgainstIntervention(after string, intervention []string) bool {
+	for _, t := range thanIntervention.FindAllStringIndex(after, -1) {
+		end := t[1] + thanInterventionReach
+		if end > len(after) {
+			end = len(after)
+		}
+		if containsAnyStem(after[t[1]:end], intervention) {
+			return true
+		}
+	}
+	return false
+}
+
+// thanBeforeIntervention reports whether the text after a downward cue holds
+// a bareThanAfter comparator followed by the claim's intervention within
+// thanInterventionReach ("reduced ileus more than gum did").
+func thanBeforeIntervention(after string, intervention []string) bool {
+	for _, t := range bareThanAfter.FindAllStringIndex(after, -1) {
+		end := t[1] + thanInterventionReach
+		if end > len(after) {
+			end = len(after)
+		}
+		if containsAnyStem(after[t[1]:end], intervention) {
+			return true
+		}
+	}
+	return false
+}
+
+// negatedBeforeIntervention reports whether interventionNegationCues match
+// the text between a downward cue and the first intervention stem after it
+// ("reduced in patients who did not chew gum").
+func negatedBeforeIntervention(after string, intervention []string) bool {
+	first := -1
+	for _, st := range intervention {
+		if i := strings.Index(after, st); i >= 0 && (first < 0 || i < first) {
+			first = i
+		}
+	}
+	return first >= 0 && interventionNegationCues.MatchString(after[:first])
+}
+
+// interventionIsComparator reports whether the text before a downward cue
+// names the claim's intervention as the comparison arm: a
+// comparatorBeforeCue match followed by an intervention stem in the same
+// clause, up to the next clauseBreak or the cue ("compared with gum, sham
+// feeding reduced ileus"). "Compared with controls, gum reduced ileus" names
+// controls as the comparator, so it still counts.
+func interventionIsComparator(before string, intervention []string) bool {
+	for _, c := range comparatorBeforeCue.FindAllStringIndex(before, -1) {
+		clause := before[c[1]:]
+		if b := clauseBreak.FindStringIndex(clause); b != nil {
+			clause = clause[:b[0]]
+		}
+		if containsAnyStem(clause, intervention) {
+			return true
+		}
+	}
+	return false
+}
+
+// outcomeTiedToCue reports whether a downward cue describes the claim's
+// outcome rather than another one: the head outcome stem follows the cue
+// within posPairWindow ("reduced the duration of ileus"), or precedes it
+// within passiveOutcomeReach linked by was/were ("ileus was reduced"). Both
+// are clipped to the sentence, and the text between cue and outcome must not
+// match contrastCues ("reduced pain but not ileus") or clauseBreak ("reduced
+// costs, and ileus resolved").
+func outcomeTiedToCue(hay string, cueStart, cueEnd, sentStart, sentEnd int, outcome []string) bool {
+	// The head is the last outcome stem: in "postoperative ileus" the
+	// outcome is "ileus" and "postoperative" only modifies it, so "reduced
+	// postoperative pain" must not tie.
+	head := outcome[len(outcome)-1]
+	hi := cueEnd + posPairWindow
+	if hi > sentEnd {
+		hi = sentEnd
+	}
+	after := hay[cueEnd:hi]
+	if i := strings.Index(after, head); i >= 0 && !contrastCues.MatchString(after[:i]) && !clauseBreak.MatchString(after[:i]) {
+		return true
+	}
+	lo := cueStart - passiveOutcomeReach
+	if lo < sentStart {
+		lo = sentStart
+	}
+	before := hay[lo:cueStart]
+	if j := strings.LastIndex(before, head); j >= 0 {
+		link := before[j+len(head):]
+		return passiveLinkCues.MatchString(link) && !contrastCues.MatchString(link) && !clauseBreak.MatchString(link)
 	}
 	return false
 }
