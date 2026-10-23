@@ -23,7 +23,7 @@ func newCustomersOfflineUserDataJobsAddOperationsCmd(flags *rootFlags) *cobra.Co
 		Use:         "add-operations <resourceName>",
 		Short:       "Adds operations to the offline user data job.",
 		Example:     "  google-ads-pp-cli customers-offline-user-data-jobs add-operations example-resource",
-		Annotations: map[string]string{"pp:endpoint": "customers_offline_user_data_jobs.add_operations", "pp:method": "POST", "pp:path": "/v22/{resourceName}:addOperations"},
+		Annotations: map[string]string{"pp:endpoint": "customers_offline_user_data_jobs.add_operations", "pp:method": "POST", "pp:path": "/v26/{resourceName}:addOperations"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -35,7 +35,7 @@ func newCustomersOfflineUserDataJobsAddOperationsCmd(flags *rootFlags) *cobra.Co
 				return err
 			}
 
-			path := "/v22/{resourceName}:addOperations"
+			path := "/v26/{resourceName}:addOperations"
 			path = replacePathParam(path, "resourceName", args[0])
 			var body map[string]any
 			if stdinBody {

@@ -1,10 +1,12 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 )
 
@@ -53,5 +55,37 @@ func (f roundTripFunc) RoundTrip(r *http.Request) (*http.Response, error) { retu
 func TestPinterestOAuthRedirectURI(t *testing.T) {
 	if got := pinterestOAuthRedirectURI(8875); got != "http://localhost:8875/callback" {
 		t.Fatalf("redirect URI = %q", got)
+	}
+}
+
+func TestPinterestLoginScopes(t *testing.T) {
+	run := func(args ...string) string {
+		cmd := newAuthLoginCmd(&rootFlags{dryRun: true})
+		var out bytes.Buffer
+		cmd.SetOut(&out)
+		cmd.SetArgs(append([]string{"--client-id", "x", "--client-secret", "y"}, args...))
+		if err := cmd.Execute(); err != nil {
+			t.Fatal(err)
+		}
+		line := strings.TrimPrefix(strings.TrimSpace(out.String()), "would launch: ")
+		u, err := url.Parse(line)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return u.Query().Get("scope")
+	}
+	t.Setenv("PINTEREST_SCOPES", "")
+	if got := run(); strings.Contains(got, "msot") || !strings.Contains(got, "pins:read") {
+		t.Fatalf("default scopes = %q", got)
+	}
+	if got := run("--scopes", "pins:read,boards:read"); got != "pins:read boards:read" {
+		t.Fatalf("override scopes = %q", got)
+	}
+	if got := run("--scopes", "basic,msot:write"); strings.Contains(got, "ads:") || !strings.HasSuffix(got, " msot:write") {
+		t.Fatalf("basic scopes = %q", got)
+	}
+	t.Setenv("PINTEREST_SCOPES", "pins:read user_accounts:read")
+	if got := run(); got != "pins:read user_accounts:read" {
+		t.Fatalf("env scopes = %q", got)
 	}
 }

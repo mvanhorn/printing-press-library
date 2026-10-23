@@ -22,14 +22,14 @@ func newCustomersCampaignBidModifiersPromotedCmd(flags *rootFlags) *cobra.Comman
 		Short:       "Creates, updates, or removes campaign bid modifiers. Operation statuses are returned.",
 		Long:        "Shortcut for 'customers_campaign_bid_modifiers mutate'. Creates, updates, or removes campaign bid modifiers. Operation statuses are returned.",
 		Example:     "  google-ads-pp-cli customers-campaign-bid-modifiers",
-		Annotations: map[string]string{"pp:endpoint": "customers_campaign_bid_modifiers.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/campaignBidModifiers:mutate"},
+		Annotations: map[string]string{"pp:endpoint": "customers_campaign_bid_modifiers.mutate", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/campaignBidModifiers:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/campaignBidModifiers:mutate"
+			path := "/v26/customers/{customerId}/campaignBidModifiers:mutate"
 			if len(args) < 1 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.

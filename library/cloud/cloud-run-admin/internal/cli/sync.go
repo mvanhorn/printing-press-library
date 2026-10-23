@@ -82,7 +82,7 @@ Exit codes & warnings:
 			c.NoCache = true
 
 			if dbPath == "" {
-				dbPath = defaultDBPath("cloud-run-admin-pp-cli")
+				dbPath = defaultDBPath(cmd.Context(), "cloud-run-admin-pp-cli")
 			}
 
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)

@@ -20,7 +20,7 @@ func newCustomersCampaignDraftsPromoteCmd(flags *rootFlags) *cobra.Command {
 		Use:         "promote <campaignDraft>",
 		Short:       "Promotes the changes in a draft back to the base campaign. This method returns a Long Running Operation (LRO)...",
 		Example:     "  google-ads-pp-cli customers-campaign-drafts promote example-value",
-		Annotations: map[string]string{"pp:endpoint": "customers_campaign_drafts.promote", "pp:method": "POST", "pp:path": "/v22/{campaignDraft}:promote"},
+		Annotations: map[string]string{"pp:endpoint": "customers_campaign_drafts.promote", "pp:method": "POST", "pp:path": "/v26/{campaignDraft}:promote"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -32,7 +32,7 @@ func newCustomersCampaignDraftsPromoteCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/v22/{campaignDraft}:promote"
+			path := "/v26/{campaignDraft}:promote"
 			path = replacePathParam(path, "campaignDraft", args[0])
 			var body map[string]any
 			if stdinBody {

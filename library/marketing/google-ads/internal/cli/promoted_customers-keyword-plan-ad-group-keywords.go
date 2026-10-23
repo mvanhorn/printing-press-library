@@ -21,14 +21,14 @@ func newCustomersKeywordPlanAdGroupKeywordsPromotedCmd(flags *rootFlags) *cobra.
 		Short:       "Creates, updates, or removes Keyword Plan ad group keywords. Operation statuses are returned.",
 		Long:        "Shortcut for 'customers_keyword_plan_ad_group_keywords mutate'. Creates, updates, or removes Keyword Plan ad group keywords. Operation statuses are returned.",
 		Example:     "  google-ads-pp-cli customers-keyword-plan-ad-group-keywords",
-		Annotations: map[string]string{"pp:endpoint": "customers_keyword_plan_ad_group_keywords.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/keywordPlanAdGroupKeywords:mutate"},
+		Annotations: map[string]string{"pp:endpoint": "customers_keyword_plan_ad_group_keywords.mutate", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/keywordPlanAdGroupKeywords:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/keywordPlanAdGroupKeywords:mutate"
+			path := "/v26/customers/{customerId}/keywordPlanAdGroupKeywords:mutate"
 			if len(args) < 1 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.

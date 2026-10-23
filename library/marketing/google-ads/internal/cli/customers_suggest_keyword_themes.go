@@ -20,7 +20,7 @@ func newCustomersSuggestKeywordThemesCmd(flags *rootFlags) *cobra.Command {
 		Use:         "suggest-keyword-themes <customerId>",
 		Short:       "Suggests keyword themes to advertise on.",
 		Example:     "  google-ads-pp-cli customers suggest-keyword-themes 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "customers.suggest_keyword_themes", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}:suggestKeywordThemes"},
+		Annotations: map[string]string{"pp:endpoint": "customers.suggest_keyword_themes", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}:suggestKeywordThemes"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -32,7 +32,7 @@ func newCustomersSuggestKeywordThemesCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}:suggestKeywordThemes"
+			path := "/v26/customers/{customerId}:suggestKeywordThemes"
 			path = replacePathParam(path, "customerId", args[0])
 			var body map[string]any
 			if stdinBody {

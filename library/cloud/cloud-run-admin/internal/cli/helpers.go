@@ -4,17 +4,18 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/cloud/cloud-run-admin/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/cloud/cloud-run-admin/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/cloud/cloud-run-admin/internal/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"
 	"net/url"
 	"os"
-	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
@@ -1182,7 +1183,6 @@ func wrapWithProvenance(data json.RawMessage, prov DataProvenance) (json.RawMess
 }
 
 // defaultDBPath returns the canonical path for the local SQLite database.
-func defaultDBPath(name string) string {
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".local", "share", name, "data.db")
+func defaultDBPath(ctx context.Context, name string) string {
+	return config.DataPath(ctx)
 }

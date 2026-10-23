@@ -18,7 +18,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/cloud/cloud-run-admin/internal/config"
 	"github.com/spf13/cobra"
 )
 
@@ -31,6 +30,7 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newAuthLoginCmd(flags))
 	cmd.AddCommand(newAuthStatusCmd(flags))
 	cmd.AddCommand(newAuthLogoutCmd(flags))
+	addAccountCommands(cmd, flags)
 
 	return cmd
 }
@@ -44,13 +44,21 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 		Use:   "login",
 		Short: "Authenticate via OAuth2",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if clientID == "" {
-				return fmt.Errorf("--client-id is required")
-			}
-
-			cfg, err := config.Load(flags.configPath)
+			cfg, err := flags.loadConfig()
 			if err != nil {
 				return err
+			}
+			if clientID == "" {
+				clientID = cfg.ClientID
+			}
+			if clientSecret == "" {
+				clientSecret = os.Getenv("CLOUD_RUN_ADMIN_CLIENT_SECRET")
+			}
+			if clientSecret == "" {
+				clientSecret = cfg.ClientSecret
+			}
+			if clientID == "" {
+				return fmt.Errorf("--client-id is required")
 			}
 
 			stateBytes := make([]byte, 16)
@@ -144,10 +152,6 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 			defer resp.Body.Close()
 
 			if resp.StatusCode >= 400 {
-				var body map[string]any
-				if err := json.NewDecoder(resp.Body).Decode(&body); err == nil {
-					return fmt.Errorf("exchanging code for token: HTTP %d: %v", resp.StatusCode, body)
-				}
 				return fmt.Errorf("exchanging code for token: HTTP %d", resp.StatusCode)
 			}
 
@@ -175,7 +179,7 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	cmd.Flags().StringVar(&clientID, "client-id", os.Getenv("CLOUD_RUN_ADMIN_CLIENT_ID"), "OAuth2 client ID")
-	cmd.Flags().StringVar(&clientSecret, "client-secret", os.Getenv("CLOUD_RUN_ADMIN_CLIENT_SECRET"), "OAuth2 client secret")
+	cmd.Flags().StringVar(&clientSecret, "client-secret", "", "OAuth2 client secret (or CLOUD_RUN_ADMIN_CLIENT_SECRET)")
 	cmd.Flags().IntVar(&port, "port", 8085, "Local callback server port")
 
 	return cmd
@@ -186,16 +190,20 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 		Use:   "status",
 		Short: "Show authentication status",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, err := config.Load(flags.configPath)
+			cfg, err := flags.loadConfig()
 			if err != nil {
 				return err
 			}
 
 			w := cmd.OutOrStdout()
-			authed := cfg.AccessToken != ""
+			authed := cfg.AuthHeader() != ""
+			if !flags.asJSON {
+				fmt.Fprintf(w, "  account: %s\n", cfg.Account)
+			}
 			// JSON envelope: {authenticated, source, config}.
 			if flags.asJSON {
 				out := map[string]any{
+					"account":       cfg.Account,
 					"authenticated": authed,
 					"source":        cfg.AuthSource,
 					"config":        cfg.Path,
@@ -233,7 +241,7 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 		Use:   "logout",
 		Short: "Remove stored authentication tokens",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, err := config.Load(flags.configPath)
+			cfg, err := flags.loadConfig()
 			if err != nil {
 				return err
 			}

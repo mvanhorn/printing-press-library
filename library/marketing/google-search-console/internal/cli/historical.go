@@ -4,7 +4,6 @@
 package cli
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -38,7 +37,7 @@ func newHistoricalCmd(flags *rootFlags) *cobra.Command {
 			if !validDim(dim) {
 				return usageErr(fmt.Errorf("invalid --dim %q", dim))
 			}
-			ctx := context.Background()
+			ctx := cmd.Context()
 			s, err := openStore(ctx)
 			if err != nil {
 				return configErr(err)

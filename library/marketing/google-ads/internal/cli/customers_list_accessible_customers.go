@@ -17,14 +17,14 @@ func newCustomersListAccessibleCustomersCmd(flags *rootFlags) *cobra.Command {
 		Use:         "list-accessible-customers",
 		Short:       "Returns resource names of customers directly accessible by the user authenticating the call.",
 		Example:     "  google-ads-pp-cli customers list-accessible-customers",
-		Annotations: map[string]string{"pp:endpoint": "customers.list_accessible_customers", "pp:method": "GET", "pp:path": "/v22/customers:listAccessibleCustomers", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "customers.list_accessible_customers", "pp:method": "GET", "pp:path": "/v26/customers:listAccessibleCustomers", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/v22/customers:listAccessibleCustomers"
+			path := "/v26/customers:listAccessibleCustomers"
 			params := map[string]string{}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "customers", false, path, params, nil)
 			if err != nil {

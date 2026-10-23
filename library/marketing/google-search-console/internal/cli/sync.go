@@ -64,7 +64,7 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 				return nil
 			}
 
-			ctx := context.Background()
+			ctx := cmd.Context()
 			s, err := openStore(ctx)
 			if err != nil {
 				return configErr(err)

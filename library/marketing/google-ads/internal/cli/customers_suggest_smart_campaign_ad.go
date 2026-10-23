@@ -20,7 +20,7 @@ func newCustomersSuggestSmartCampaignAdCmd(flags *rootFlags) *cobra.Command {
 		Use:         "suggest-smart-campaign-ad <customerId>",
 		Short:       "Suggests a Smart campaign ad compatible with the Ad family of resources, based on data points such as targeting and...",
 		Example:     "  google-ads-pp-cli customers suggest-smart-campaign-ad 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "customers.suggest_smart_campaign_ad", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}:suggestSmartCampaignAd"},
+		Annotations: map[string]string{"pp:endpoint": "customers.suggest_smart_campaign_ad", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}:suggestSmartCampaignAd"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -32,7 +32,7 @@ func newCustomersSuggestSmartCampaignAdCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}:suggestSmartCampaignAd"
+			path := "/v26/customers/{customerId}:suggestSmartCampaignAd"
 			path = replacePathParam(path, "customerId", args[0])
 			var body map[string]any
 			if stdinBody {

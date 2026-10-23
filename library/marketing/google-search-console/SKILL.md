@@ -202,6 +202,21 @@ Surfaces existing queries where multiple pages on the site already compete. Run 
 
 ## Auth Setup
 
+### Several saved accounts
+
+```bash
+google-search-console-pp-cli auth set-client CLIENT_ID CLIENT_SECRET --account bestself
+google-search-console-pp-cli auth login --account bestself
+google-search-console-pp-cli auth set-client CLIENT_ID CLIENT_SECRET --account littlemight
+google-search-console-pp-cli auth login --account littlemight
+google-search-console-pp-cli auth accounts
+google-search-console-pp-cli auth set-default bestself
+google-search-console-pp-cli webmasters list-sites --account littlemight --json
+google-search-console-pp-cli auth remove littlemight --yes
+```
+
+Selection: `--account` > `GOOGLE_SEARCH_CONSOLE_ACCOUNT` > saved default > legacy `default`. Named accounts store independent OAuth tokens with mode 0600, refresh automatically, ignore ambient `GSC_ACCESS_TOKEN` and isolate caches/local analytics. Explicit config paths bypass the saved default and conflict with account selectors. Existing single-account setups stay `default`; `auth set-default default` restores legacy usage. `auth add <name> --from-config /path/to/config.toml` imports saved OAuth credentials with an access token. Switch defaults before removing the current named default; removal preserves local data and does not revoke at Google. `PRINTING_PRESS_STORE_DB` remains caller-controlled. Diagnostics show account names, never tokens.
+
 Two paths.
 
 **Recommended: `auth login`** -- one-time browser-based login, auto-refreshes thereafter.

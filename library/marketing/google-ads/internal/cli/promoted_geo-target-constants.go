@@ -22,14 +22,14 @@ func newGeoTargetConstantsPromotedCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Returns GeoTargetConstant suggestions by location name or by resource name.",
 		Long:        "Shortcut for 'geo_target_constants suggest'. Returns GeoTargetConstant suggestions by location name or by resource name.",
 		Example:     "  google-ads-pp-cli geo-target-constants",
-		Annotations: map[string]string{"pp:endpoint": "geo_target_constants.suggest", "pp:method": "POST", "pp:path": "/v22/geoTargetConstants:suggest"},
+		Annotations: map[string]string{"pp:endpoint": "geo_target_constants.suggest", "pp:method": "POST", "pp:path": "/v26/geoTargetConstants:suggest"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/v22/geoTargetConstants:suggest"
+			path := "/v26/geoTargetConstants:suggest"
 			// HasStore + non-GET falls through to a live API call here
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a

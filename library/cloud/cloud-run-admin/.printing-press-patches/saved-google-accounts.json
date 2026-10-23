@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "id": "saved-google-accounts",
+  "applied_at": "2026-10-22",
+  "base_run_id": "20260507T171842Z-6844a8b4",
+  "base_printing_press_version": "4.0.1",
+  "summary": "Preserve independently refreshed named Google logins with explicit account selection, a saved default, isolated local state and redacted diagnostics.",
+  "reason": "Operators need to switch Google identities without repeated consent or accidentally reusing another account\u2019s tokens or inventory; legacy single-account credentials must keep working.",
+  "files": [
+    "internal/cli/accounts.go",
+    "internal/cli/accounts_test.go",
+    "internal/cli/agent_context.go",
+    "internal/cli/analytics.go",
+    "internal/cli/auth.go",
+    "internal/cli/channel_workflow.go",
+    "internal/cli/data_source.go",
+    "internal/cli/doctor.go",
+    "internal/cli/helpers.go",
+    "internal/cli/root.go",
+    "internal/cli/search.go",
+    "internal/cli/sync.go",
+    "internal/client/accounts_test.go",
+    "internal/client/client.go",
+    "internal/config/accounts.go",
+    "internal/config/accounts_test.go",
+    "internal/config/config.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "Offline tests cover two accounts, selection precedence, refresh persistence, legacy config, permissions, deletion and secret redaction."
+}

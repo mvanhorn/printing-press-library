@@ -4,7 +4,6 @@
 package cli
 
 import (
-	"context"
 	"fmt"
 	"math"
 	"sort"
@@ -37,7 +36,7 @@ func newOutliersCmd(flags *rootFlags) *cobra.Command {
 			if metric != "ctr" {
 				return usageErr(fmt.Errorf("only --metric ctr supported (got %q)", metric))
 			}
-			ctx := context.Background()
+			ctx := cmd.Context()
 			s, err := openStore(ctx)
 			if err != nil {
 				return configErr(err)

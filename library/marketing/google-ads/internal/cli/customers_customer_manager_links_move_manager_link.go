@@ -22,7 +22,7 @@ func newCustomersCustomerManagerLinksMoveManagerLinkCmd(flags *rootFlags) *cobra
 		Use:         "move-manager-link <customerId>",
 		Short:       "Moves a client customer to a new manager customer. This simplifies the complex request that requires two operations...",
 		Example:     "  google-ads-pp-cli customers-customer-manager-links move-manager-link 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "customers_customer_manager_links.move_manager_link", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/customerManagerLinks:moveManagerLink"},
+		Annotations: map[string]string{"pp:endpoint": "customers_customer_manager_links.move_manager_link", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/customerManagerLinks:moveManagerLink"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -34,7 +34,7 @@ func newCustomersCustomerManagerLinksMoveManagerLinkCmd(flags *rootFlags) *cobra
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/customerManagerLinks:moveManagerLink"
+			path := "/v26/customers/{customerId}/customerManagerLinks:moveManagerLink"
 			path = replacePathParam(path, "customerId", args[0])
 			var body map[string]any
 			if stdinBody {

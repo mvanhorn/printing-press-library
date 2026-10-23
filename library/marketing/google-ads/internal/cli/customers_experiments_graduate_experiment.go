@@ -21,7 +21,7 @@ func newCustomersExperimentsGraduateExperimentCmd(flags *rootFlags) *cobra.Comma
 		Use:         "graduate-experiment <experiment>",
 		Short:       "Graduates an experiment to a full campaign.",
 		Example:     "  google-ads-pp-cli customers-experiments graduate-experiment example-value",
-		Annotations: map[string]string{"pp:endpoint": "customers_experiments.graduate_experiment", "pp:method": "POST", "pp:path": "/v22/{experiment}:graduateExperiment"},
+		Annotations: map[string]string{"pp:endpoint": "customers_experiments.graduate_experiment", "pp:method": "POST", "pp:path": "/v26/{experiment}:graduateExperiment"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -33,7 +33,7 @@ func newCustomersExperimentsGraduateExperimentCmd(flags *rootFlags) *cobra.Comma
 				return err
 			}
 
-			path := "/v22/{experiment}:graduateExperiment"
+			path := "/v26/{experiment}:graduateExperiment"
 			path = replacePathParam(path, "experiment", args[0])
 			var body map[string]any
 			if stdinBody {

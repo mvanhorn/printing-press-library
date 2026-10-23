@@ -62,11 +62,11 @@ their datasets via the shared schema, then reports:
 Examples:
   apify-pp-cli ab run apidojo/tweet-scraper kaitoeasyapi/twitter-x-data-tweet-scraper-pay-per-result-cheapest \
       --input @q.json --judge cost-per-novel --json
-  apify-pp-cli ab run apify/google-news-scraper apidojo/google-news-aggregator-scraper \
+  apify-pp-cli ab run johnvc/GoogleNewsAPI s-r/google-news \
       --input '{"q":"AI"}' --judge novelty
 `, "\n"),
 		Example: strings.Trim(`
-  apify-pp-cli ab run apidojo/tweet-scraper kaitoeasyapi/twitter-x-data-tweet-scraper --input @q.json --judge cost-per-novel --json
+  apify-pp-cli ab run apidojo/tweet-scraper kaitoeasyapi/twitter-x-data-tweet-scraper-pay-per-result-cheapest --input @q.json --judge cost-per-novel --json
 `, "\n"),
 		Args: cobra.MaximumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {

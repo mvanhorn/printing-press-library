@@ -45,7 +45,7 @@ func newCliffCmd(flags *rootFlags) *cobra.Command {
 			}
 			windowDays := int(window.Hours()/24) + 1
 
-			ctx := context.Background()
+			ctx := cmd.Context()
 			s, err := openStore(ctx)
 			if err != nil {
 				return configErr(err)

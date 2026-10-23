@@ -21,14 +21,14 @@ func newCustomersAssetGroupListingGroupFiltersPromotedCmd(flags *rootFlags) *cob
 		Short:       "Creates, updates or removes asset group listing group filters. Operation statuses are returned.",
 		Long:        "Shortcut for 'customers_asset_group_listing_group_filters mutate'. Creates, updates or removes asset group listing group filters. Operation statuses are returned.",
 		Example:     "  google-ads-pp-cli customers-asset-group-listing-group-filters",
-		Annotations: map[string]string{"pp:endpoint": "customers_asset_group_listing_group_filters.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/assetGroupListingGroupFilters:mutate"},
+		Annotations: map[string]string{"pp:endpoint": "customers_asset_group_listing_group_filters.mutate", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/assetGroupListingGroupFilters:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/assetGroupListingGroupFilters:mutate"
+			path := "/v26/customers/{customerId}/assetGroupListingGroupFilters:mutate"
 			if len(args) < 1 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.

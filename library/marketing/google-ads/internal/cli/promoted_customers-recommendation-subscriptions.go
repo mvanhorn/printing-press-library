@@ -22,14 +22,14 @@ func newCustomersRecommendationSubscriptionsPromotedCmd(flags *rootFlags) *cobra
 		Short:       "Mutates given subscription with corresponding apply parameters.",
 		Long:        "Shortcut for 'customers_recommendation_subscriptions mutate_recommendation_subscription'. Mutates given subscription with corresponding apply parameters.",
 		Example:     "  google-ads-pp-cli customers-recommendation-subscriptions",
-		Annotations: map[string]string{"pp:endpoint": "customers_recommendation_subscriptions.mutate_recommendation_subscription", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/recommendationSubscriptions:mutateRecommendationSubscription"},
+		Annotations: map[string]string{"pp:endpoint": "customers_recommendation_subscriptions.mutate_recommendation_subscription", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/recommendationSubscriptions:mutateRecommendationSubscription"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/recommendationSubscriptions:mutateRecommendationSubscription"
+			path := "/v26/customers/{customerId}/recommendationSubscriptions:mutateRecommendationSubscription"
 			if len(args) < 1 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.

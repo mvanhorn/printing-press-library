@@ -47,7 +47,7 @@ func newCompareCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("--dim must be one of: query, page, country, device"))
 			}
 
-			ctx := context.Background()
+			ctx := cmd.Context()
 			s, err := openStore(ctx)
 			if err != nil {
 				return configErr(err)

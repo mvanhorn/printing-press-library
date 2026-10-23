@@ -21,7 +21,7 @@ func newCustomersRemoveCampaignAutomaticallyCreatedAssetCmd(flags *rootFlags) *c
 		Use:         "remove-campaign-automatically-created-asset <customerId>",
 		Short:       "Removes automatically created assets from a campaign.",
 		Example:     "  google-ads-pp-cli customers remove-campaign-automatically-created-asset 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "customers.remove_campaign_automatically_created_asset", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}:removeCampaignAutomaticallyCreatedAsset"},
+		Annotations: map[string]string{"pp:endpoint": "customers.remove_campaign_automatically_created_asset", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}:removeCampaignAutomaticallyCreatedAsset"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -33,7 +33,7 @@ func newCustomersRemoveCampaignAutomaticallyCreatedAssetCmd(flags *rootFlags) *c
 				return err
 			}
 
-			path := "/v22/customers/{customerId}:removeCampaignAutomaticallyCreatedAsset"
+			path := "/v26/customers/{customerId}:removeCampaignAutomaticallyCreatedAsset"
 			path = replacePathParam(path, "customerId", args[0])
 			var body map[string]any
 			if stdinBody {

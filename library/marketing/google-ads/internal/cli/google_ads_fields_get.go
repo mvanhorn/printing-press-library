@@ -17,7 +17,7 @@ func newGoogleAdsFieldsGetCmd(flags *rootFlags) *cobra.Command {
 		Use:         "get <resourceName>",
 		Short:       "Returns just the requested field.",
 		Example:     "  google-ads-pp-cli google-ads-fields get example-resource",
-		Annotations: map[string]string{"pp:endpoint": "google_ads_fields.get", "pp:method": "GET", "pp:path": "/v22/{resourceName}", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "google_ads_fields.get", "pp:method": "GET", "pp:path": "/v26/{resourceName}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -27,7 +27,7 @@ func newGoogleAdsFieldsGetCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/v22/{resourceName}"
+			path := "/v26/{resourceName}"
 			path = replacePathParam(path, "resourceName", args[0])
 			params := map[string]string{}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "google_ads_fields", false, path, params, nil)

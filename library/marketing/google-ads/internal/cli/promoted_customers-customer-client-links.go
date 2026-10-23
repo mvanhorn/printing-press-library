@@ -20,14 +20,14 @@ func newCustomersCustomerClientLinksPromotedCmd(flags *rootFlags) *cobra.Command
 		Short:       "Creates or updates a customer client link. Operation statuses are returned.",
 		Long:        "Shortcut for 'customers_customer_client_links mutate'. Creates or updates a customer client link. Operation statuses are returned.",
 		Example:     "  google-ads-pp-cli customers-customer-client-links",
-		Annotations: map[string]string{"pp:endpoint": "customers_customer_client_links.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/customerClientLinks:mutate"},
+		Annotations: map[string]string{"pp:endpoint": "customers_customer_client_links.mutate", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/customerClientLinks:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/customerClientLinks:mutate"
+			path := "/v26/customers/{customerId}/customerClientLinks:mutate"
 			if len(args) < 1 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.

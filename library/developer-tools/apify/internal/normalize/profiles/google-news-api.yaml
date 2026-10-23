@@ -1,0 +1,8 @@
+actor: johnvc/GoogleNewsAPI
+items: news_results
+title: [title]
+url: [link]
+body: [snippet]
+author: [source.name, source]
+published_at: [published_at, date]
+engagement: []

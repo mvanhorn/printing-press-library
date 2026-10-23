@@ -37,7 +37,7 @@ func TestDefaultSyncRootIsNonPaginated(t *testing.T) {
 			t.Fatalf("syncResourcePath(%q) returned error: %v", resource, err)
 		}
 		// Google Ads custom methods use a ":verb" suffix on the collection
-		// path (e.g. /v22/customers:listAccessibleCustomers) and bind query
+		// path (e.g. /v26/customers:listAccessibleCustomers) and bind query
 		// params strictly. Any such default resource must be non-paginated.
 		if containsColonMethod(path) && !nonPaginatedResources[resource] {
 			t.Fatalf("default resource %q maps to custom-method path %q but is not marked non-paginated; sync will send pagination params the API rejects with HTTP 400", resource, path)

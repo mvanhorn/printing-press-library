@@ -53,7 +53,7 @@ Save Actor input JSON under a name for replay via --preset on the run command.
 Examples:
   apify-pp-cli preset save weekly-ai --actor apidojo/twitter-scraper --input @q.json
   apify-pp-cli preset save daily-reddit --actor trudax/reddit-scraper --from-run abc123
-  apify-pp-cli preset save quick --actor apify/google-news-scraper --input '{"q":"AI"}'
+  apify-pp-cli preset save quick --actor johnvc/GoogleNewsAPI --input '{"q":"AI"}'
 `, "\n"),
 		Example: strings.Trim(`
   apify-pp-cli preset save weekly-ai --actor apidojo/twitter-scraper --input @q.json

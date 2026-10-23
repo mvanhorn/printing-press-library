@@ -21,7 +21,7 @@ func newCustomersSuggestSmartCampaignBudgetOptionsCmd(flags *rootFlags) *cobra.C
 		Use:         "suggest-smart-campaign-budget-options <customerId>",
 		Short:       "Returns BudgetOption suggestions.",
 		Example:     "  google-ads-pp-cli customers suggest-smart-campaign-budget-options 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "customers.suggest_smart_campaign_budget_options", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}:suggestSmartCampaignBudgetOptions"},
+		Annotations: map[string]string{"pp:endpoint": "customers.suggest_smart_campaign_budget_options", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}:suggestSmartCampaignBudgetOptions"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -33,7 +33,7 @@ func newCustomersSuggestSmartCampaignBudgetOptionsCmd(flags *rootFlags) *cobra.C
 				return err
 			}
 
-			path := "/v22/customers/{customerId}:suggestSmartCampaignBudgetOptions"
+			path := "/v26/customers/{customerId}:suggestSmartCampaignBudgetOptions"
 			path = replacePathParam(path, "customerId", args[0])
 			var body map[string]any
 			if stdinBody {

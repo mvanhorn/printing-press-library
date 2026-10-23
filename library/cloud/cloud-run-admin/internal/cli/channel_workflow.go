@@ -47,7 +47,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			c.NoCache = true
 
 			if dbPath == "" {
-				dbPath = defaultDBPath("cloud-run-admin-pp-cli")
+				dbPath = defaultDBPath(cmd.Context(), "cloud-run-admin-pp-cli")
 			}
 			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
@@ -157,7 +157,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
   cloud-run-admin-pp-cli workflow status --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dbPath == "" {
-				dbPath = defaultDBPath("cloud-run-admin-pp-cli")
+				dbPath = defaultDBPath(cmd.Context(), "cloud-run-admin-pp-cli")
 			}
 			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {

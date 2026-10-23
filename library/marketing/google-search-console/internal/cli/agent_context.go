@@ -5,7 +5,7 @@ package cli
 
 import (
 	"encoding/json"
-	"os"
+	"github.com/mvanhorn/printing-press-library/library/marketing/google-search-console/internal/config"
 	"sort"
 
 	"github.com/spf13/cobra"
@@ -38,6 +38,7 @@ type agentContextCLI struct {
 }
 
 type agentContextAuth struct {
+	Account string                   `json:"account"`
 	Mode    string                   `json:"mode"`
 	EnvVars []agentContextAuthEnvVar `json:"env_vars"`
 }
@@ -91,7 +92,14 @@ agents can introspect this CLI at runtime without parsing --help or
 reading source. Schema is versioned via schema_version.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := buildAgentContext(rootCmd)
-			enc := json.NewEncoder(os.Stdout)
+			path, _ := cmd.Flags().GetString("config")
+			account, _ := cmd.Flags().GetString("account")
+			_, active, err := config.ResolveAccount(path, account)
+			if err != nil {
+				return err
+			}
+			ctx.Auth.Account = active
+			enc := json.NewEncoder(cmd.OutOrStdout())
 			if pretty {
 				enc.SetIndent("", "  ")
 			}

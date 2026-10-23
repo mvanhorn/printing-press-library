@@ -228,7 +228,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		for k, v := range headerOverrides {
 			req.Header.Set(k, v)
 		}
-		req.Header.Set("User-Agent", "google-ads-pp-cli/v22")
+		req.Header.Set("User-Agent", "google-ads-pp-cli/v26")
 
 		resp, err := c.HTTPClient.Do(req)
 		if err != nil {

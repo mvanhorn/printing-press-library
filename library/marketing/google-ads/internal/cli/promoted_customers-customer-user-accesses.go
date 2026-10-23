@@ -19,14 +19,14 @@ func newCustomersCustomerUserAccessesPromotedCmd(flags *rootFlags) *cobra.Comman
 		Short:       "Updates, removes permission of a user on a given customer. Operation statuses are returned.",
 		Long:        "Shortcut for 'customers_customer_user_accesses mutate'. Updates, removes permission of a user on a given customer. Operation statuses are returned.",
 		Example:     "  google-ads-pp-cli customers-customer-user-accesses",
-		Annotations: map[string]string{"pp:endpoint": "customers_customer_user_accesses.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/customerUserAccesses:mutate"},
+		Annotations: map[string]string{"pp:endpoint": "customers_customer_user_accesses.mutate", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/customerUserAccesses:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/customerUserAccesses:mutate"
+			path := "/v26/customers/{customerId}/customerUserAccesses:mutate"
 			if len(args) < 1 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.

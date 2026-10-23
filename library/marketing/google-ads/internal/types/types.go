@@ -5,53 +5,53 @@ package types
 
 import "encoding/json"
 
-type GoogleAdsGoogleadsV22CommonActivityCityInfo struct {
+type GoogleAdsGoogleadsV26CommonActivityCityInfo struct {
 	Value string `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22CommonActivityCountryInfo struct {
+type GoogleAdsGoogleadsV26CommonActivityCountryInfo struct {
 	Value string `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22CommonActivityIdInfo struct {
+type GoogleAdsGoogleadsV26CommonActivityIdInfo struct {
 	Value string `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22CommonActivityRatingInfo struct {
+type GoogleAdsGoogleadsV26CommonActivityRatingInfo struct {
 	Value string `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22CommonActivityStateInfo struct {
+type GoogleAdsGoogleadsV26CommonActivityStateInfo struct {
 	Value string `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22CommonAdAppDeepLinkAsset struct {
+type GoogleAdsGoogleadsV26CommonAdAppDeepLinkAsset struct {
 	Asset string `json:"asset"`
 }
 
-type GoogleAdsGoogleadsV22CommonAdAssetPolicySummary struct {
+type GoogleAdsGoogleadsV26CommonAdAssetPolicySummary struct {
 	PolicyTopicEntries json.RawMessage `json:"policyTopicEntries"`
 	ApprovalStatus     string          `json:"approvalStatus"`
 	ReviewStatus       string          `json:"reviewStatus"`
 }
 
-type GoogleAdsGoogleadsV22CommonAdCallToActionAsset struct {
+type GoogleAdsGoogleadsV26CommonAdCallToActionAsset struct {
 	Asset string `json:"asset"`
 }
 
-type GoogleAdsGoogleadsV22CommonAdDemandGenCarouselCardAsset struct {
+type GoogleAdsGoogleadsV26CommonAdDemandGenCarouselCardAsset struct {
 	Asset string `json:"asset"`
 }
 
-type GoogleAdsGoogleadsV22CommonAdImageAsset struct {
+type GoogleAdsGoogleadsV26CommonAdImageAsset struct {
 	Asset string `json:"asset"`
 }
 
-type GoogleAdsGoogleadsV22CommonAdMediaBundleAsset struct {
+type GoogleAdsGoogleadsV26CommonAdMediaBundleAsset struct {
 	Asset string `json:"asset"`
 }
 
-type GoogleAdsGoogleadsV22CommonAdScheduleInfo struct {
+type GoogleAdsGoogleadsV26CommonAdScheduleInfo struct {
 	EndMinute   string `json:"endMinute"`
 	StartHour   int    `json:"startHour"`
 	StartMinute string `json:"startMinute"`
@@ -59,34 +59,34 @@ type GoogleAdsGoogleadsV22CommonAdScheduleInfo struct {
 	EndHour     int    `json:"endHour"`
 }
 
-type GoogleAdsGoogleadsV22CommonAdTextAsset struct {
+type GoogleAdsGoogleadsV26CommonAdTextAsset struct {
 	PinnedField           string          `json:"pinnedField"`
 	PolicySummaryInfo     json.RawMessage `json:"policySummaryInfo"`
 	Text                  string          `json:"text"`
 	AssetPerformanceLabel string          `json:"assetPerformanceLabel"`
 }
 
-type GoogleAdsGoogleadsV22CommonAdVideoAsset struct {
+type GoogleAdsGoogleadsV26CommonAdVideoAsset struct {
 	Asset            string          `json:"asset"`
 	AdVideoAssetInfo json.RawMessage `json:"adVideoAssetInfo"`
 }
 
-type GoogleAdsGoogleadsV22CommonAdVideoAssetInfo struct {
+type GoogleAdsGoogleadsV26CommonAdVideoAssetInfo struct {
 	AdVideoAssetInventoryPreferences json.RawMessage `json:"adVideoAssetInventoryPreferences"`
 }
 
-type GoogleAdsGoogleadsV22CommonAdVideoAssetInventoryPreferences struct {
+type GoogleAdsGoogleadsV26CommonAdVideoAssetInventoryPreferences struct {
 	InFeedPreference   bool `json:"inFeedPreference"`
 	InStreamPreference bool `json:"inStreamPreference"`
 	ShortsPreference   bool `json:"shortsPreference"`
 }
 
-type GoogleAdsGoogleadsV22CommonAdditionalApplicationInfo struct {
+type GoogleAdsGoogleadsV26CommonAdditionalApplicationInfo struct {
 	ApplicationInstance string `json:"applicationInstance"`
 	ApplicationId       string `json:"applicationId"`
 }
 
-type GoogleAdsGoogleadsV22CommonAddressInfo struct {
+type GoogleAdsGoogleadsV26CommonAddressInfo struct {
 	ProvinceCode   string `json:"provinceCode"`
 	CityName       string `json:"cityName"`
 	StreetAddress2 string `json:"streetAddress2"`
@@ -96,21 +96,21 @@ type GoogleAdsGoogleadsV22CommonAddressInfo struct {
 	CountryCode    string `json:"countryCode"`
 }
 
-type GoogleAdsGoogleadsV22CommonAgeDimension struct {
+type GoogleAdsGoogleadsV26CommonAgeDimension struct {
 	AgeRanges           json.RawMessage `json:"ageRanges"`
 	IncludeUndetermined bool            `json:"includeUndetermined"`
 }
 
-type GoogleAdsGoogleadsV22CommonAgeRangeInfo struct {
+type GoogleAdsGoogleadsV26CommonAgeRangeInfo struct {
 	Type string `json:"type"`
 }
 
-type GoogleAdsGoogleadsV22CommonAgeSegment struct {
+type GoogleAdsGoogleadsV26CommonAgeSegment struct {
 	MinAge int `json:"minAge"`
 	MaxAge int `json:"maxAge"`
 }
 
-type GoogleAdsGoogleadsV22CommonAppAdInfo struct {
+type GoogleAdsGoogleadsV26CommonAppAdInfo struct {
 	Headlines         json.RawMessage `json:"headlines"`
 	Images            json.RawMessage `json:"images"`
 	Html5MediaBundles json.RawMessage `json:"html5MediaBundles"`
@@ -120,49 +120,49 @@ type GoogleAdsGoogleadsV22CommonAppAdInfo struct {
 	AppDeepLink       json.RawMessage `json:"appDeepLink"`
 }
 
-type GoogleAdsGoogleadsV22CommonAppDeepLinkAsset struct {
+type GoogleAdsGoogleadsV26CommonAppDeepLinkAsset struct {
 	AppDeepLinkUri string `json:"appDeepLinkUri"`
 }
 
-type GoogleAdsGoogleadsV22CommonAppEngagementAdInfo struct {
+type GoogleAdsGoogleadsV26CommonAppEngagementAdInfo struct {
 	Headlines    json.RawMessage `json:"headlines"`
 	Images       json.RawMessage `json:"images"`
 	Descriptions json.RawMessage `json:"descriptions"`
 	Videos       json.RawMessage `json:"videos"`
 }
 
-type GoogleAdsGoogleadsV22CommonAppPaymentModelInfo struct {
+type GoogleAdsGoogleadsV26CommonAppPaymentModelInfo struct {
 	Type string `json:"type"`
 }
 
-type GoogleAdsGoogleadsV22CommonAppPreRegistrationAdInfo struct {
+type GoogleAdsGoogleadsV26CommonAppPreRegistrationAdInfo struct {
 	Descriptions  json.RawMessage `json:"descriptions"`
 	YoutubeVideos json.RawMessage `json:"youtubeVideos"`
 	Headlines     json.RawMessage `json:"headlines"`
 	Images        json.RawMessage `json:"images"`
 }
 
-type GoogleAdsGoogleadsV22CommonAssetDisapproved struct {
+type GoogleAdsGoogleadsV26CommonAssetDisapproved struct {
 	OfflineEvaluationErrorReasons json.RawMessage `json:"offlineEvaluationErrorReasons"`
 }
 
-type GoogleAdsGoogleadsV22CommonAssetInteractionTarget struct {
+type GoogleAdsGoogleadsV26CommonAssetInteractionTarget struct {
 	Asset                  string `json:"asset"`
 	InteractionOnThisAsset bool   `json:"interactionOnThisAsset"`
 }
 
-type GoogleAdsGoogleadsV22CommonAssetLinkPrimaryStatusDetails struct {
+type GoogleAdsGoogleadsV26CommonAssetLinkPrimaryStatusDetails struct {
 	Status           string          `json:"status"`
 	Reason           string          `json:"reason"`
 	AssetDisapproved json.RawMessage `json:"assetDisapproved"`
 }
 
-type GoogleAdsGoogleadsV22CommonAssetUsage struct {
+type GoogleAdsGoogleadsV26CommonAssetUsage struct {
 	Asset                string `json:"asset"`
 	ServedAssetFieldType string `json:"servedAssetFieldType"`
 }
 
-type GoogleAdsGoogleadsV22CommonAudienceDimension struct {
+type GoogleAdsGoogleadsV26CommonAudienceDimension struct {
 	Age              json.RawMessage `json:"age"`
 	Gender           json.RawMessage `json:"gender"`
 	HouseholdIncome  json.RawMessage `json:"householdIncome"`
@@ -170,15 +170,15 @@ type GoogleAdsGoogleadsV22CommonAudienceDimension struct {
 	AudienceSegments json.RawMessage `json:"audienceSegments"`
 }
 
-type GoogleAdsGoogleadsV22CommonAudienceExclusionDimension struct {
+type GoogleAdsGoogleadsV26CommonAudienceExclusionDimension struct {
 	Exclusions json.RawMessage `json:"exclusions"`
 }
 
-type GoogleAdsGoogleadsV22CommonAudienceInfo struct {
+type GoogleAdsGoogleadsV26CommonAudienceInfo struct {
 	Audience string `json:"audience"`
 }
 
-type GoogleAdsGoogleadsV22CommonAudienceInsightsAttribute struct {
+type GoogleAdsGoogleadsV26CommonAudienceInsightsAttribute struct {
 	Category       json.RawMessage `json:"category"`
 	Lineup         json.RawMessage `json:"lineup"`
 	AgeRange       json.RawMessage `json:"ageRange"`
@@ -194,7 +194,7 @@ type GoogleAdsGoogleadsV22CommonAudienceInsightsAttribute struct {
 	IncomeRange    json.RawMessage `json:"incomeRange"`
 }
 
-type GoogleAdsGoogleadsV22CommonAudienceInsightsAttributeMetadata struct {
+type GoogleAdsGoogleadsV26CommonAudienceInsightsAttributeMetadata struct {
 	ViewerShare                     float64         `json:"viewerShare"`
 	YoutubeChannelMetadata          json.RawMessage `json:"youtubeChannelMetadata"`
 	Attribute                       json.RawMessage `json:"attribute"`
@@ -211,23 +211,23 @@ type GoogleAdsGoogleadsV22CommonAudienceInsightsAttributeMetadata struct {
 	PotentialYoutubeReach           string          `json:"potentialYoutubeReach"`
 }
 
-type GoogleAdsGoogleadsV22CommonAudienceInsightsAttributeMetadataGroup struct {
+type GoogleAdsGoogleadsV26CommonAudienceInsightsAttributeMetadataGroup struct {
 	Attributes json.RawMessage `json:"attributes"`
 }
 
-type GoogleAdsGoogleadsV22CommonAudienceInsightsCategory struct {
+type GoogleAdsGoogleadsV26CommonAudienceInsightsCategory struct {
 	CategoryId string `json:"categoryId"`
 }
 
-type GoogleAdsGoogleadsV22CommonAudienceInsightsEntity struct {
+type GoogleAdsGoogleadsV26CommonAudienceInsightsEntity struct {
 	KnowledgeGraphMachineId string `json:"knowledgeGraphMachineId"`
 }
 
-type GoogleAdsGoogleadsV22CommonAudienceInsightsLineup struct {
+type GoogleAdsGoogleadsV26CommonAudienceInsightsLineup struct {
 	LineupId string `json:"lineupId"`
 }
 
-type GoogleAdsGoogleadsV22CommonAudienceSegment struct {
+type GoogleAdsGoogleadsV26CommonAudienceSegment struct {
 	UserList            json.RawMessage `json:"userList"`
 	LifeEvent           json.RawMessage `json:"lifeEvent"`
 	DetailedDemographic json.RawMessage `json:"detailedDemographic"`
@@ -235,15 +235,15 @@ type GoogleAdsGoogleadsV22CommonAudienceSegment struct {
 	UserInterest        json.RawMessage `json:"userInterest"`
 }
 
-type GoogleAdsGoogleadsV22CommonAudienceSegmentDimension struct {
+type GoogleAdsGoogleadsV26CommonAudienceSegmentDimension struct {
 	Segments json.RawMessage `json:"segments"`
 }
 
-type GoogleAdsGoogleadsV22CommonBasicUserListInfo struct {
+type GoogleAdsGoogleadsV26CommonBasicUserListInfo struct {
 	Actions json.RawMessage `json:"actions"`
 }
 
-type GoogleAdsGoogleadsV22CommonBrandInfo struct {
+type GoogleAdsGoogleadsV26CommonBrandInfo struct {
 	Status          string `json:"status"`
 	DisplayName     string `json:"displayName"`
 	EntityId        string `json:"entityId"`
@@ -251,16 +251,16 @@ type GoogleAdsGoogleadsV22CommonBrandInfo struct {
 	RejectionReason string `json:"rejectionReason"`
 }
 
-type GoogleAdsGoogleadsV22CommonBrandListInfo struct {
+type GoogleAdsGoogleadsV26CommonBrandListInfo struct {
 	SharedSet string `json:"sharedSet"`
 }
 
-type GoogleAdsGoogleadsV22CommonBudgetCampaignAssociationStatus struct {
+type GoogleAdsGoogleadsV26CommonBudgetCampaignAssociationStatus struct {
 	Campaign string `json:"campaign"`
 	Status   string `json:"status"`
 }
 
-type GoogleAdsGoogleadsV22CommonBudgetSimulationPoint struct {
+type GoogleAdsGoogleadsV26CommonBudgetSimulationPoint struct {
 	RequiredCpcBidCeilingMicros string  `json:"requiredCpcBidCeilingMicros"`
 	Interactions                string  `json:"interactions"`
 	TopSlotImpressions          string  `json:"topSlotImpressions"`
@@ -272,38 +272,38 @@ type GoogleAdsGoogleadsV22CommonBudgetSimulationPoint struct {
 	BiddableConversions         float64 `json:"biddableConversions"`
 }
 
-type GoogleAdsGoogleadsV22CommonBudgetSimulationPointList struct {
+type GoogleAdsGoogleadsV26CommonBudgetSimulationPointList struct {
 	Points json.RawMessage `json:"points"`
 }
 
-type GoogleAdsGoogleadsV22CommonBusinessMessageAsset struct {
+type GoogleAdsGoogleadsV26CommonBusinessMessageAsset struct {
 	MessageProvider string          `json:"messageProvider"`
 	WhatsappInfo    json.RawMessage `json:"whatsappInfo"`
 	StarterMessage  string          `json:"starterMessage"`
 	CallToAction    json.RawMessage `json:"callToAction"`
 }
 
-type GoogleAdsGoogleadsV22CommonBusinessMessageCallToActionInfo struct {
+type GoogleAdsGoogleadsV26CommonBusinessMessageCallToActionInfo struct {
 	CallToActionSelection   string `json:"callToActionSelection"`
 	CallToActionDescription string `json:"callToActionDescription"`
 }
 
-type GoogleAdsGoogleadsV22CommonBusinessProfileBusinessNameFilter struct {
+type GoogleAdsGoogleadsV26CommonBusinessProfileBusinessNameFilter struct {
 	FilterType   string `json:"filterType"`
 	BusinessName string `json:"businessName"`
 }
 
-type GoogleAdsGoogleadsV22CommonBusinessProfileLocation struct {
+type GoogleAdsGoogleadsV26CommonBusinessProfileLocation struct {
 	ListingId string          `json:"listingId"`
 	Labels    json.RawMessage `json:"labels"`
 	StoreCode string          `json:"storeCode"`
 }
 
-type GoogleAdsGoogleadsV22CommonBusinessProfileLocationGroup struct {
+type GoogleAdsGoogleadsV26CommonBusinessProfileLocationGroup struct {
 	DynamicBusinessProfileLocationGroupFilter json.RawMessage `json:"dynamicBusinessProfileLocationGroupFilter"`
 }
 
-type GoogleAdsGoogleadsV22CommonBusinessProfileLocationSet struct {
+type GoogleAdsGoogleadsV26CommonBusinessProfileLocationSet struct {
 	LabelFilters           json.RawMessage `json:"labelFilters"`
 	EmailAddress           string          `json:"emailAddress"`
 	HttpAuthorizationToken string          `json:"httpAuthorizationToken"`
@@ -312,7 +312,7 @@ type GoogleAdsGoogleadsV22CommonBusinessProfileLocationSet struct {
 	BusinessNameFilter     string          `json:"businessNameFilter"`
 }
 
-type GoogleAdsGoogleadsV22CommonCallAdInfo struct {
+type GoogleAdsGoogleadsV26CommonCallAdInfo struct {
 	ConversionReportingState   string `json:"conversionReportingState"`
 	CallTracked                bool   `json:"callTracked"`
 	Headline2                  string `json:"headline2"`
@@ -329,7 +329,7 @@ type GoogleAdsGoogleadsV22CommonCallAdInfo struct {
 	Description2               string `json:"description2"`
 }
 
-type GoogleAdsGoogleadsV22CommonCallAsset struct {
+type GoogleAdsGoogleadsV26CommonCallAsset struct {
 	PhoneNumber                  string          `json:"phoneNumber"`
 	CallConversionAction         string          `json:"callConversionAction"`
 	CountryCode                  string          `json:"countryCode"`
@@ -337,7 +337,7 @@ type GoogleAdsGoogleadsV22CommonCallAsset struct {
 	CallConversionReportingState string          `json:"callConversionReportingState"`
 }
 
-type GoogleAdsGoogleadsV22CommonCallFeedItem struct {
+type GoogleAdsGoogleadsV26CommonCallFeedItem struct {
 	PhoneNumber                    string `json:"phoneNumber"`
 	CallConversionAction           string `json:"callConversionAction"`
 	CountryCode                    string `json:"countryCode"`
@@ -346,75 +346,75 @@ type GoogleAdsGoogleadsV22CommonCallFeedItem struct {
 	CallTrackingEnabled            bool   `json:"callTrackingEnabled"`
 }
 
-type GoogleAdsGoogleadsV22CommonCallToActionAsset struct {
+type GoogleAdsGoogleadsV26CommonCallToActionAsset struct {
 	CallToAction string `json:"callToAction"`
 }
 
-type GoogleAdsGoogleadsV22CommonCalloutAsset struct {
+type GoogleAdsGoogleadsV26CommonCalloutAsset struct {
 	StartDate         string          `json:"startDate"`
 	EndDate           string          `json:"endDate"`
 	CalloutText       string          `json:"calloutText"`
 	AdScheduleTargets json.RawMessage `json:"adScheduleTargets"`
 }
 
-type GoogleAdsGoogleadsV22CommonCalloutFeedItem struct {
+type GoogleAdsGoogleadsV26CommonCalloutFeedItem struct {
 	CalloutText string `json:"calloutText"`
 }
 
-type GoogleAdsGoogleadsV22CommonCampaignGoalSettingsCampaignRetentionGoalSettings struct {
+type GoogleAdsGoogleadsV26CommonCampaignGoalSettingsCampaignRetentionGoalSettings struct {
 	ValueSettingsOverride json.RawMessage `json:"valueSettingsOverride"`
 	TargetOption          string          `json:"targetOption"`
 }
 
-type GoogleAdsGoogleadsV22CommonCampaignThirdPartyBrandLiftIntegrationPartner struct {
+type GoogleAdsGoogleadsV26CommonCampaignThirdPartyBrandLiftIntegrationPartner struct {
 	ShareCost                       bool            `json:"shareCost"`
 	BrandLiftIntegrationPartner     string          `json:"brandLiftIntegrationPartner"`
 	BrandLiftIntegrationPartnerData json.RawMessage `json:"brandLiftIntegrationPartnerData"`
 }
 
-type GoogleAdsGoogleadsV22CommonCampaignThirdPartyBrandSafetyIntegrationPartner struct {
+type GoogleAdsGoogleadsV26CommonCampaignThirdPartyBrandSafetyIntegrationPartner struct {
 	BrandSafetyIntegrationPartner     string          `json:"brandSafetyIntegrationPartner"`
 	BrandSafetyIntegrationPartnerData json.RawMessage `json:"brandSafetyIntegrationPartnerData"`
 }
 
-type GoogleAdsGoogleadsV22CommonCampaignThirdPartyIntegrationPartners struct {
+type GoogleAdsGoogleadsV26CommonCampaignThirdPartyIntegrationPartners struct {
 	ReachIntegrationPartners       json.RawMessage `json:"reachIntegrationPartners"`
 	BrandLiftIntegrationPartners   json.RawMessage `json:"brandLiftIntegrationPartners"`
 	BrandSafetyIntegrationPartners json.RawMessage `json:"brandSafetyIntegrationPartners"`
 	ViewabilityIntegrationPartners json.RawMessage `json:"viewabilityIntegrationPartners"`
 }
 
-type GoogleAdsGoogleadsV22CommonCampaignThirdPartyReachIntegrationPartner struct {
+type GoogleAdsGoogleadsV26CommonCampaignThirdPartyReachIntegrationPartner struct {
 	ReachIntegrationPartner     string          `json:"reachIntegrationPartner"`
 	ReachIntegrationPartnerData json.RawMessage `json:"reachIntegrationPartnerData"`
 	ShareCost                   bool            `json:"shareCost"`
 }
 
-type GoogleAdsGoogleadsV22CommonCampaignThirdPartyViewabilityIntegrationPartner struct {
+type GoogleAdsGoogleadsV26CommonCampaignThirdPartyViewabilityIntegrationPartner struct {
 	ViewabilityIntegrationPartner     string          `json:"viewabilityIntegrationPartner"`
 	ShareCost                         bool            `json:"shareCost"`
 	ViewabilityIntegrationPartnerData json.RawMessage `json:"viewabilityIntegrationPartnerData"`
 }
 
-type GoogleAdsGoogleadsV22CommonCarrierInfo struct {
+type GoogleAdsGoogleadsV26CommonCarrierInfo struct {
 	CarrierConstant string `json:"carrierConstant"`
 }
 
-type GoogleAdsGoogleadsV22CommonChainFilter struct {
+type GoogleAdsGoogleadsV26CommonChainFilter struct {
 	ChainId            string          `json:"chainId"`
 	LocationAttributes json.RawMessage `json:"locationAttributes"`
 }
 
-type GoogleAdsGoogleadsV22CommonChainLocationGroup struct {
+type GoogleAdsGoogleadsV26CommonChainLocationGroup struct {
 	DynamicChainLocationGroupFilters json.RawMessage `json:"dynamicChainLocationGroupFilters"`
 }
 
-type GoogleAdsGoogleadsV22CommonChainSet struct {
+type GoogleAdsGoogleadsV26CommonChainSet struct {
 	RelationshipType string          `json:"relationshipType"`
 	Chains           json.RawMessage `json:"chains"`
 }
 
-type GoogleAdsGoogleadsV22CommonClickLocation struct {
+type GoogleAdsGoogleadsV26CommonClickLocation struct {
 	Metro        string `json:"metro"`
 	MostSpecific string `json:"mostSpecific"`
 	Region       string `json:"region"`
@@ -422,29 +422,29 @@ type GoogleAdsGoogleadsV22CommonClickLocation struct {
 	Country      string `json:"country"`
 }
 
-type GoogleAdsGoogleadsV22CommonCombinedAudienceInfo struct {
+type GoogleAdsGoogleadsV26CommonCombinedAudienceInfo struct {
 	CombinedAudience string `json:"combinedAudience"`
 }
 
-type GoogleAdsGoogleadsV22CommonCommission struct {
+type GoogleAdsGoogleadsV26CommonCommission struct {
 	CommissionRateMicros string `json:"commissionRateMicros"`
 }
 
-type GoogleAdsGoogleadsV22CommonConceptGroup struct {
+type GoogleAdsGoogleadsV26CommonConceptGroup struct {
 	Name string `json:"name"`
 	Type string `json:"type"`
 }
 
-type GoogleAdsGoogleadsV22CommonConsent struct {
+type GoogleAdsGoogleadsV26CommonConsent struct {
 	AdUserData        string `json:"adUserData"`
 	AdPersonalization string `json:"adPersonalization"`
 }
 
-type GoogleAdsGoogleadsV22CommonContentLabelInfo struct {
+type GoogleAdsGoogleadsV26CommonContentLabelInfo struct {
 	Type string `json:"type"`
 }
 
-type GoogleAdsGoogleadsV22CommonCpcBidSimulationPoint struct {
+type GoogleAdsGoogleadsV26CommonCpcBidSimulationPoint struct {
 	RequiredBudgetAmountMicros string  `json:"requiredBudgetAmountMicros"`
 	CpcBidScalingModifier      float64 `json:"cpcBidScalingModifier"`
 	TopSlotImpressions         string  `json:"topSlotImpressions"`
@@ -456,113 +456,113 @@ type GoogleAdsGoogleadsV22CommonCpcBidSimulationPoint struct {
 	BiddableConversions        float64 `json:"biddableConversions"`
 }
 
-type GoogleAdsGoogleadsV22CommonCpcBidSimulationPointList struct {
+type GoogleAdsGoogleadsV26CommonCpcBidSimulationPointList struct {
 	Points json.RawMessage `json:"points"`
 }
 
-type GoogleAdsGoogleadsV22CommonCpvBidSimulationPoint struct {
+type GoogleAdsGoogleadsV26CommonCpvBidSimulationPoint struct {
 	CostMicros   string `json:"costMicros"`
 	CpvBidMicros string `json:"cpvBidMicros"`
 	Impressions  string `json:"impressions"`
 	Views        string `json:"views"`
 }
 
-type GoogleAdsGoogleadsV22CommonCpvBidSimulationPointList struct {
+type GoogleAdsGoogleadsV26CommonCpvBidSimulationPointList struct {
 	Points json.RawMessage `json:"points"`
 }
 
-type GoogleAdsGoogleadsV22CommonCriterionCategoryAvailability struct {
+type GoogleAdsGoogleadsV26CommonCriterionCategoryAvailability struct {
 	Channel json.RawMessage `json:"channel"`
 	Locale  json.RawMessage `json:"locale"`
 }
 
-type GoogleAdsGoogleadsV22CommonCriterionCategoryChannelAvailability struct {
+type GoogleAdsGoogleadsV26CommonCriterionCategoryChannelAvailability struct {
 	AdvertisingChannelSubType    json.RawMessage `json:"advertisingChannelSubType"`
 	AdvertisingChannelType       string          `json:"advertisingChannelType"`
 	AvailabilityMode             string          `json:"availabilityMode"`
 	IncludeDefaultChannelSubType bool            `json:"includeDefaultChannelSubType"`
 }
 
-type GoogleAdsGoogleadsV22CommonCriterionCategoryLocaleAvailability struct {
+type GoogleAdsGoogleadsV26CommonCriterionCategoryLocaleAvailability struct {
 	AvailabilityMode string `json:"availabilityMode"`
 	CountryCode      string `json:"countryCode"`
 	LanguageCode     string `json:"languageCode"`
 }
 
-type GoogleAdsGoogleadsV22CommonCrmBasedUserListInfo struct {
+type GoogleAdsGoogleadsV26CommonCrmBasedUserListInfo struct {
 	UploadKeyType  string `json:"uploadKeyType"`
 	DataSourceType string `json:"dataSourceType"`
 	AppId          string `json:"appId"`
 }
 
-type GoogleAdsGoogleadsV22CommonCustomAffinityInfo struct {
+type GoogleAdsGoogleadsV26CommonCustomAffinityInfo struct {
 	CustomAffinity string `json:"customAffinity"`
 }
 
-type GoogleAdsGoogleadsV22CommonCustomAudienceInfo struct {
+type GoogleAdsGoogleadsV26CommonCustomAudienceInfo struct {
 	CustomAudience string `json:"customAudience"`
 }
 
-type GoogleAdsGoogleadsV22CommonCustomAudienceSegment struct {
+type GoogleAdsGoogleadsV26CommonCustomAudienceSegment struct {
 	CustomAudience string `json:"customAudience"`
 }
 
-type GoogleAdsGoogleadsV22CommonCustomIntentInfo struct {
+type GoogleAdsGoogleadsV26CommonCustomIntentInfo struct {
 	CustomIntent string `json:"customIntent"`
 }
 
-type GoogleAdsGoogleadsV22CommonCustomParameter struct {
+type GoogleAdsGoogleadsV26CommonCustomParameter struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22CommonCustomerLifecycleOptimizationValueSettings struct {
+type GoogleAdsGoogleadsV26CommonCustomerLifecycleOptimizationValueSettings struct {
 	AdditionalHighLifetimeValue float64 `json:"additionalHighLifetimeValue"`
 	AdditionalValue             float64 `json:"additionalValue"`
 }
 
-type GoogleAdsGoogleadsV22CommonCustomerMatchUserListMetadata struct {
+type GoogleAdsGoogleadsV26CommonCustomerMatchUserListMetadata struct {
 	UserList string          `json:"userList"`
 	Consent  json.RawMessage `json:"consent"`
 }
 
-type GoogleAdsGoogleadsV22CommonCustomerThirdPartyBrandLiftIntegrationPartner struct {
+type GoogleAdsGoogleadsV26CommonCustomerThirdPartyBrandLiftIntegrationPartner struct {
 	AllowShareCost              bool   `json:"allowShareCost"`
 	BrandLiftIntegrationPartner string `json:"brandLiftIntegrationPartner"`
 }
 
-type GoogleAdsGoogleadsV22CommonCustomerThirdPartyBrandSafetyIntegrationPartner struct {
+type GoogleAdsGoogleadsV26CommonCustomerThirdPartyBrandSafetyIntegrationPartner struct {
 	BrandSafetyIntegrationPartner string `json:"brandSafetyIntegrationPartner"`
 }
 
-type GoogleAdsGoogleadsV22CommonCustomerThirdPartyIntegrationPartners struct {
+type GoogleAdsGoogleadsV26CommonCustomerThirdPartyIntegrationPartners struct {
 	ViewabilityIntegrationPartners json.RawMessage `json:"viewabilityIntegrationPartners"`
 	BrandSafetyIntegrationPartners json.RawMessage `json:"brandSafetyIntegrationPartners"`
 	BrandLiftIntegrationPartners   json.RawMessage `json:"brandLiftIntegrationPartners"`
 	ReachIntegrationPartners       json.RawMessage `json:"reachIntegrationPartners"`
 }
 
-type GoogleAdsGoogleadsV22CommonCustomerThirdPartyReachIntegrationPartner struct {
+type GoogleAdsGoogleadsV26CommonCustomerThirdPartyReachIntegrationPartner struct {
 	ReachIntegrationPartner string `json:"reachIntegrationPartner"`
 	AllowShareCost          bool   `json:"allowShareCost"`
 }
 
-type GoogleAdsGoogleadsV22CommonCustomerThirdPartyViewabilityIntegrationPartner struct {
+type GoogleAdsGoogleadsV26CommonCustomerThirdPartyViewabilityIntegrationPartner struct {
 	ViewabilityIntegrationPartner string `json:"viewabilityIntegrationPartner"`
 	AllowShareCost                bool   `json:"allowShareCost"`
 }
 
-type GoogleAdsGoogleadsV22CommonCustomizerValue struct {
+type GoogleAdsGoogleadsV26CommonCustomizerValue struct {
 	StringValue string `json:"stringValue"`
 	Type        string `json:"type"`
 }
 
-type GoogleAdsGoogleadsV22CommonDateRange struct {
+type GoogleAdsGoogleadsV26CommonDateRange struct {
 	StartDate string `json:"startDate"`
 	EndDate   string `json:"endDate"`
 }
 
-type GoogleAdsGoogleadsV22CommonDemandGenCarouselAdInfo struct {
+type GoogleAdsGoogleadsV26CommonDemandGenCarouselAdInfo struct {
 	CallToActionText string          `json:"callToActionText"`
 	Description      json.RawMessage `json:"description"`
 	CarouselCards    json.RawMessage `json:"carouselCards"`
@@ -571,7 +571,7 @@ type GoogleAdsGoogleadsV22CommonDemandGenCarouselAdInfo struct {
 	BusinessName     string          `json:"businessName"`
 }
 
-type GoogleAdsGoogleadsV22CommonDemandGenCarouselCardAsset struct {
+type GoogleAdsGoogleadsV26CommonDemandGenCarouselCardAsset struct {
 	SquareMarketingImageAsset   string `json:"squareMarketingImageAsset"`
 	CallToActionText            string `json:"callToActionText"`
 	MarketingImageAsset         string `json:"marketingImageAsset"`
@@ -579,7 +579,7 @@ type GoogleAdsGoogleadsV22CommonDemandGenCarouselCardAsset struct {
 	Headline                    string `json:"headline"`
 }
 
-type GoogleAdsGoogleadsV22CommonDemandGenMultiAssetAdInfo struct {
+type GoogleAdsGoogleadsV26CommonDemandGenMultiAssetAdInfo struct {
 	MarketingImages             json.RawMessage `json:"marketingImages"`
 	CallToActionText            string          `json:"callToActionText"`
 	SquareMarketingImages       json.RawMessage `json:"squareMarketingImages"`
@@ -592,7 +592,7 @@ type GoogleAdsGoogleadsV22CommonDemandGenMultiAssetAdInfo struct {
 	LogoImages                  json.RawMessage `json:"logoImages"`
 }
 
-type GoogleAdsGoogleadsV22CommonDemandGenProductAdInfo struct {
+type GoogleAdsGoogleadsV26CommonDemandGenProductAdInfo struct {
 	Headline     json.RawMessage `json:"headline"`
 	BusinessName json.RawMessage `json:"businessName"`
 	Description  json.RawMessage `json:"description"`
@@ -602,7 +602,7 @@ type GoogleAdsGoogleadsV22CommonDemandGenProductAdInfo struct {
 	Breadcrumb2  string          `json:"breadcrumb2"`
 }
 
-type GoogleAdsGoogleadsV22CommonDemandGenVideoResponsiveAdInfo struct {
+type GoogleAdsGoogleadsV26CommonDemandGenVideoResponsiveAdInfo struct {
 	BusinessName  json.RawMessage `json:"businessName"`
 	Descriptions  json.RawMessage `json:"descriptions"`
 	CallToActions json.RawMessage `json:"callToActions"`
@@ -614,26 +614,26 @@ type GoogleAdsGoogleadsV22CommonDemandGenVideoResponsiveAdInfo struct {
 	Headlines     json.RawMessage `json:"headlines"`
 }
 
-type GoogleAdsGoogleadsV22CommonDetailedDemographicSegment struct {
+type GoogleAdsGoogleadsV26CommonDetailedDemographicSegment struct {
 	DetailedDemographic string `json:"detailedDemographic"`
 }
 
-type GoogleAdsGoogleadsV22CommonDeviceInfo struct {
+type GoogleAdsGoogleadsV26CommonDeviceInfo struct {
 	Type string `json:"type"`
 }
 
-type GoogleAdsGoogleadsV22CommonDisplayUploadAdInfo struct {
+type GoogleAdsGoogleadsV26CommonDisplayUploadAdInfo struct {
 	MediaBundle              json.RawMessage `json:"mediaBundle"`
 	DisplayUploadProductType string          `json:"displayUploadProductType"`
 }
 
-type GoogleAdsGoogleadsV22CommonDynamicBusinessProfileLocationGroupFilter struct {
+type GoogleAdsGoogleadsV26CommonDynamicBusinessProfileLocationGroupFilter struct {
 	LabelFilters       json.RawMessage `json:"labelFilters"`
 	ListingIdFilters   json.RawMessage `json:"listingIdFilters"`
 	BusinessNameFilter json.RawMessage `json:"businessNameFilter"`
 }
 
-type GoogleAdsGoogleadsV22CommonDynamicCustomAsset struct {
+type GoogleAdsGoogleadsV26CommonDynamicCustomAsset struct {
 	ItemAddress        string          `json:"itemAddress"`
 	SimilarIds         json.RawMessage `json:"similarIds"`
 	ItemSubtitle       string          `json:"itemSubtitle"`
@@ -653,7 +653,7 @@ type GoogleAdsGoogleadsV22CommonDynamicCustomAsset struct {
 	FormattedPrice     string          `json:"formattedPrice"`
 }
 
-type GoogleAdsGoogleadsV22CommonDynamicEducationAsset struct {
+type GoogleAdsGoogleadsV26CommonDynamicEducationAsset struct {
 	LocationId         string          `json:"locationId"`
 	ImageUrl           string          `json:"imageUrl"`
 	Address            string          `json:"address"`
@@ -670,7 +670,7 @@ type GoogleAdsGoogleadsV22CommonDynamicEducationAsset struct {
 	ProgramDescription string          `json:"programDescription"`
 }
 
-type GoogleAdsGoogleadsV22CommonDynamicFlightsAsset struct {
+type GoogleAdsGoogleadsV26CommonDynamicFlightsAsset struct {
 	AndroidAppLink        string          `json:"androidAppLink"`
 	IosAppStoreId         string          `json:"iosAppStoreId"`
 	SimilarDestinationIds json.RawMessage `json:"similarDestinationIds"`
@@ -688,7 +688,7 @@ type GoogleAdsGoogleadsV22CommonDynamicFlightsAsset struct {
 	DestinationId         string          `json:"destinationId"`
 }
 
-type GoogleAdsGoogleadsV22CommonDynamicHotelsAndRentalsAsset struct {
+type GoogleAdsGoogleadsV26CommonDynamicHotelsAndRentalsAsset struct {
 	SimilarPropertyIds json.RawMessage `json:"similarPropertyIds"`
 	PropertyId         string          `json:"propertyId"`
 	StarRating         string          `json:"starRating"`
@@ -708,7 +708,7 @@ type GoogleAdsGoogleadsV22CommonDynamicHotelsAndRentalsAsset struct {
 	Price              string          `json:"price"`
 }
 
-type GoogleAdsGoogleadsV22CommonDynamicJobsAsset struct {
+type GoogleAdsGoogleadsV26CommonDynamicJobsAsset struct {
 	JobTitle           string          `json:"jobTitle"`
 	JobId              string          `json:"jobId"`
 	AndroidAppLink     string          `json:"androidAppLink"`
@@ -725,7 +725,7 @@ type GoogleAdsGoogleadsV22CommonDynamicJobsAsset struct {
 	JobSubtitle        string          `json:"jobSubtitle"`
 }
 
-type GoogleAdsGoogleadsV22CommonDynamicLocalAsset struct {
+type GoogleAdsGoogleadsV26CommonDynamicLocalAsset struct {
 	DealName           string          `json:"dealName"`
 	DealId             string          `json:"dealId"`
 	Subtitle           string          `json:"subtitle"`
@@ -744,7 +744,7 @@ type GoogleAdsGoogleadsV22CommonDynamicLocalAsset struct {
 	Price              string          `json:"price"`
 }
 
-type GoogleAdsGoogleadsV22CommonDynamicRealEstateAsset struct {
+type GoogleAdsGoogleadsV26CommonDynamicRealEstateAsset struct {
 	PropertyType       string          `json:"propertyType"`
 	FormattedPrice     string          `json:"formattedPrice"`
 	Description        string          `json:"description"`
@@ -762,7 +762,7 @@ type GoogleAdsGoogleadsV22CommonDynamicRealEstateAsset struct {
 	ListingName        string          `json:"listingName"`
 }
 
-type GoogleAdsGoogleadsV22CommonDynamicTravelAsset struct {
+type GoogleAdsGoogleadsV26CommonDynamicTravelAsset struct {
 	IosAppLink            string          `json:"iosAppLink"`
 	FormattedSalePrice    string          `json:"formattedSalePrice"`
 	DestinationAddress    string          `json:"destinationAddress"`
@@ -782,26 +782,26 @@ type GoogleAdsGoogleadsV22CommonDynamicTravelAsset struct {
 	SimilarDestinationIds json.RawMessage `json:"similarDestinationIds"`
 }
 
-type GoogleAdsGoogleadsV22CommonEventAttribute struct {
+type GoogleAdsGoogleadsV26CommonEventAttribute struct {
 	Event         string          `json:"event"`
 	ItemAttribute json.RawMessage `json:"itemAttribute"`
 	EventDateTime string          `json:"eventDateTime"`
 }
 
-type GoogleAdsGoogleadsV22CommonEventItemAttribute struct {
+type GoogleAdsGoogleadsV26CommonEventItemAttribute struct {
 	ItemId string `json:"itemId"`
 }
 
-type GoogleAdsGoogleadsV22CommonExclusionSegment struct {
+type GoogleAdsGoogleadsV26CommonExclusionSegment struct {
 	UserList json.RawMessage `json:"userList"`
 }
 
-type GoogleAdsGoogleadsV22CommonExpandedDynamicSearchAdInfo struct {
+type GoogleAdsGoogleadsV26CommonExpandedDynamicSearchAdInfo struct {
 	Description  string `json:"description"`
 	Description2 string `json:"description2"`
 }
 
-type GoogleAdsGoogleadsV22CommonExpandedTextAdInfo struct {
+type GoogleAdsGoogleadsV26CommonExpandedTextAdInfo struct {
 	HeadlinePart3 string `json:"headlinePart3"`
 	Description2  string `json:"description2"`
 	HeadlinePart1 string `json:"headlinePart1"`
@@ -811,131 +811,131 @@ type GoogleAdsGoogleadsV22CommonExpandedTextAdInfo struct {
 	Description   string `json:"description"`
 }
 
-type GoogleAdsGoogleadsV22CommonExtendedDemographicInfo struct {
+type GoogleAdsGoogleadsV26CommonExtendedDemographicInfo struct {
 	ExtendedDemographicId string `json:"extendedDemographicId"`
 }
 
-type GoogleAdsGoogleadsV22CommonFinalAppUrl struct {
+type GoogleAdsGoogleadsV26CommonFinalAppUrl struct {
 	OsType string `json:"osType"`
 	Url    string `json:"url"`
 }
 
-type GoogleAdsGoogleadsV22CommonFixedCpm struct {
+type GoogleAdsGoogleadsV26CommonFixedCpm struct {
 	Goal                string          `json:"goal"`
 	TargetFrequencyInfo json.RawMessage `json:"targetFrequencyInfo"`
 }
 
-type GoogleAdsGoogleadsV22CommonFixedCpmTargetFrequencyGoalInfo struct {
+type GoogleAdsGoogleadsV26CommonFixedCpmTargetFrequencyGoalInfo struct {
 	TargetCount string `json:"targetCount"`
 	TimeUnit    string `json:"timeUnit"`
 }
 
-type GoogleAdsGoogleadsV22CommonFlexibleRuleOperandInfo struct {
+type GoogleAdsGoogleadsV26CommonFlexibleRuleOperandInfo struct {
 	Rule               json.RawMessage `json:"rule"`
 	LookbackWindowDays string          `json:"lookbackWindowDays"`
 }
 
-type GoogleAdsGoogleadsV22CommonFlexibleRuleUserListInfo struct {
+type GoogleAdsGoogleadsV26CommonFlexibleRuleUserListInfo struct {
 	InclusiveRuleOperator string          `json:"inclusiveRuleOperator"`
 	InclusiveOperands     json.RawMessage `json:"inclusiveOperands"`
 	ExclusiveOperands     json.RawMessage `json:"exclusiveOperands"`
 }
 
-type GoogleAdsGoogleadsV22CommonFrequencyCapEntry struct {
+type GoogleAdsGoogleadsV26CommonFrequencyCapEntry struct {
 	Key json.RawMessage `json:"key"`
 	Cap int             `json:"cap"`
 }
 
-type GoogleAdsGoogleadsV22CommonFrequencyCapKey struct {
+type GoogleAdsGoogleadsV26CommonFrequencyCapKey struct {
 	Level      string `json:"level"`
 	EventType  string `json:"eventType"`
 	TimeUnit   string `json:"timeUnit"`
 	TimeLength int    `json:"timeLength"`
 }
 
-type GoogleAdsGoogleadsV22CommonGenderDimension struct {
+type GoogleAdsGoogleadsV26CommonGenderDimension struct {
 	Genders             json.RawMessage `json:"genders"`
 	IncludeUndetermined bool            `json:"includeUndetermined"`
 }
 
-type GoogleAdsGoogleadsV22CommonGenderInfo struct {
+type GoogleAdsGoogleadsV26CommonGenderInfo struct {
 	Type string `json:"type"`
 }
 
-type GoogleAdsGoogleadsV22CommonGeoPointInfo struct {
+type GoogleAdsGoogleadsV26CommonGeoPointInfo struct {
 	LongitudeInMicroDegrees int `json:"longitudeInMicroDegrees"`
 	LatitudeInMicroDegrees  int `json:"latitudeInMicroDegrees"`
 }
 
-type GoogleAdsGoogleadsV22CommonGoalSettingRetentionGoal struct {
+type GoogleAdsGoogleadsV26CommonGoalSettingRetentionGoal struct {
 	ValueSettings json.RawMessage `json:"valueSettings"`
 }
 
-type GoogleAdsGoogleadsV22CommonHistoricalMetricsOptions struct {
+type GoogleAdsGoogleadsV26CommonHistoricalMetricsOptions struct {
 	IncludeAverageCpc bool            `json:"includeAverageCpc"`
 	YearMonthRange    json.RawMessage `json:"yearMonthRange"`
 }
 
-type GoogleAdsGoogleadsV22CommonHotelAdvanceBookingWindowInfo struct {
+type GoogleAdsGoogleadsV26CommonHotelAdvanceBookingWindowInfo struct {
 	MinDays string `json:"minDays"`
 	MaxDays string `json:"maxDays"`
 }
 
-type GoogleAdsGoogleadsV22CommonHotelCalloutAsset struct {
+type GoogleAdsGoogleadsV26CommonHotelCalloutAsset struct {
 	Text         string `json:"text"`
 	LanguageCode string `json:"languageCode"`
 }
 
-type GoogleAdsGoogleadsV22CommonHotelCheckInDateRangeInfo struct {
+type GoogleAdsGoogleadsV26CommonHotelCheckInDateRangeInfo struct {
 	StartDate string `json:"startDate"`
 	EndDate   string `json:"endDate"`
 }
 
-type GoogleAdsGoogleadsV22CommonHotelCheckInDayInfo struct {
+type GoogleAdsGoogleadsV26CommonHotelCheckInDayInfo struct {
 	DayOfWeek string `json:"dayOfWeek"`
 }
 
-type GoogleAdsGoogleadsV22CommonHotelCityInfo struct {
+type GoogleAdsGoogleadsV26CommonHotelCityInfo struct {
 	CityCriterion string `json:"cityCriterion"`
 }
 
-type GoogleAdsGoogleadsV22CommonHotelClassInfo struct {
+type GoogleAdsGoogleadsV26CommonHotelClassInfo struct {
 	Value string `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22CommonHotelCountryRegionInfo struct {
+type GoogleAdsGoogleadsV26CommonHotelCountryRegionInfo struct {
 	CountryRegionCriterion string `json:"countryRegionCriterion"`
 }
 
-type GoogleAdsGoogleadsV22CommonHotelDateSelectionTypeInfo struct {
+type GoogleAdsGoogleadsV26CommonHotelDateSelectionTypeInfo struct {
 	Type string `json:"type"`
 }
 
-type GoogleAdsGoogleadsV22CommonHotelIdInfo struct {
+type GoogleAdsGoogleadsV26CommonHotelIdInfo struct {
 	Value string `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22CommonHotelLengthOfStayInfo struct {
+type GoogleAdsGoogleadsV26CommonHotelLengthOfStayInfo struct {
 	MinNights string `json:"minNights"`
 	MaxNights string `json:"maxNights"`
 }
 
-type GoogleAdsGoogleadsV22CommonHotelPropertyAsset struct {
+type GoogleAdsGoogleadsV26CommonHotelPropertyAsset struct {
 	HotelName    string `json:"hotelName"`
 	HotelAddress string `json:"hotelAddress"`
 	PlaceId      string `json:"placeId"`
 }
 
-type GoogleAdsGoogleadsV22CommonHotelStateInfo struct {
+type GoogleAdsGoogleadsV26CommonHotelStateInfo struct {
 	StateCriterion string `json:"stateCriterion"`
 }
 
-type GoogleAdsGoogleadsV22CommonHouseholdIncomeDimension struct {
+type GoogleAdsGoogleadsV26CommonHouseholdIncomeDimension struct {
 	IncomeRanges        json.RawMessage `json:"incomeRanges"`
 	IncludeUndetermined bool            `json:"includeUndetermined"`
 }
 
-type GoogleAdsGoogleadsV22CommonImageAdInfo struct {
+type GoogleAdsGoogleadsV26CommonImageAdInfo struct {
 	PixelHeight         string          `json:"pixelHeight"`
 	Data                string          `json:"data"`
 	PixelWidth          string          `json:"pixelWidth"`
@@ -949,39 +949,39 @@ type GoogleAdsGoogleadsV22CommonImageAdInfo struct {
 	AdIdToCopyImageFrom string          `json:"adIdToCopyImageFrom"`
 }
 
-type GoogleAdsGoogleadsV22CommonImageAsset struct {
+type GoogleAdsGoogleadsV26CommonImageAsset struct {
 	FileSize string          `json:"fileSize"`
 	FullSize json.RawMessage `json:"fullSize"`
 	Data     string          `json:"data"`
 	MimeType string          `json:"mimeType"`
 }
 
-type GoogleAdsGoogleadsV22CommonImageDimension struct {
+type GoogleAdsGoogleadsV26CommonImageDimension struct {
 	HeightPixels string `json:"heightPixels"`
 	Url          string `json:"url"`
 	WidthPixels  string `json:"widthPixels"`
 }
 
-type GoogleAdsGoogleadsV22CommonInFeedVideoAdInfo struct {
+type GoogleAdsGoogleadsV26CommonInFeedVideoAdInfo struct {
 	Description2 string `json:"description2"`
 	Headline     string `json:"headline"`
 	Thumbnail    string `json:"thumbnail"`
 	Description1 string `json:"description1"`
 }
 
-type GoogleAdsGoogleadsV22CommonIncomeRangeInfo struct {
+type GoogleAdsGoogleadsV26CommonIncomeRangeInfo struct {
 	Type string `json:"type"`
 }
 
-type GoogleAdsGoogleadsV22CommonInteractionTypeInfo struct {
+type GoogleAdsGoogleadsV26CommonInteractionTypeInfo struct {
 	Type string `json:"type"`
 }
 
-type GoogleAdsGoogleadsV22CommonIpBlockInfo struct {
+type GoogleAdsGoogleadsV26CommonIpBlockInfo struct {
 	IpAddress string `json:"ipAddress"`
 }
 
-type GoogleAdsGoogleadsV22CommonItemAttribute struct {
+type GoogleAdsGoogleadsV26CommonItemAttribute struct {
 	CountryCode  string `json:"countryCode"`
 	Quantity     string `json:"quantity"`
 	ItemId       string `json:"itemId"`
@@ -989,39 +989,39 @@ type GoogleAdsGoogleadsV22CommonItemAttribute struct {
 	MerchantId   string `json:"merchantId"`
 }
 
-type GoogleAdsGoogleadsV22CommonKeyword struct {
+type GoogleAdsGoogleadsV26CommonKeyword struct {
 	Info             json.RawMessage `json:"info"`
 	AdGroupCriterion string          `json:"adGroupCriterion"`
 }
 
-type GoogleAdsGoogleadsV22CommonKeywordAnnotations struct {
+type GoogleAdsGoogleadsV26CommonKeywordAnnotations struct {
 	Concepts json.RawMessage `json:"concepts"`
 }
 
-type GoogleAdsGoogleadsV22CommonKeywordConcept struct {
+type GoogleAdsGoogleadsV26CommonKeywordConcept struct {
 	Name         string          `json:"name"`
 	ConceptGroup json.RawMessage `json:"conceptGroup"`
 }
 
-type GoogleAdsGoogleadsV22CommonKeywordInfo struct {
+type GoogleAdsGoogleadsV26CommonKeywordInfo struct {
 	Text      string `json:"text"`
 	MatchType string `json:"matchType"`
 }
 
-type GoogleAdsGoogleadsV22CommonKeywordPlanAggregateMetricResults struct {
+type GoogleAdsGoogleadsV26CommonKeywordPlanAggregateMetricResults struct {
 	DeviceSearches json.RawMessage `json:"deviceSearches"`
 }
 
-type GoogleAdsGoogleadsV22CommonKeywordPlanAggregateMetrics struct {
+type GoogleAdsGoogleadsV26CommonKeywordPlanAggregateMetrics struct {
 	AggregateMetricTypes json.RawMessage `json:"aggregateMetricTypes"`
 }
 
-type GoogleAdsGoogleadsV22CommonKeywordPlanDeviceSearches struct {
+type GoogleAdsGoogleadsV26CommonKeywordPlanDeviceSearches struct {
 	Device      string `json:"device"`
 	SearchCount string `json:"searchCount"`
 }
 
-type GoogleAdsGoogleadsV22CommonKeywordPlanHistoricalMetrics struct {
+type GoogleAdsGoogleadsV26CommonKeywordPlanHistoricalMetrics struct {
 	MonthlySearchVolumes   json.RawMessage `json:"monthlySearchVolumes"`
 	Competition            string          `json:"competition"`
 	CompetitionIndex       string          `json:"competitionIndex"`
@@ -1031,21 +1031,21 @@ type GoogleAdsGoogleadsV22CommonKeywordPlanHistoricalMetrics struct {
 	LowTopOfPageBidMicros  string          `json:"lowTopOfPageBidMicros"`
 }
 
-type GoogleAdsGoogleadsV22CommonKeywordThemeInfo struct {
+type GoogleAdsGoogleadsV26CommonKeywordThemeInfo struct {
 	KeywordThemeConstant string `json:"keywordThemeConstant"`
 	FreeFormKeywordTheme string `json:"freeFormKeywordTheme"`
 }
 
-type GoogleAdsGoogleadsV22CommonKnowledgeGraphAttributeMetadata struct {
+type GoogleAdsGoogleadsV26CommonKnowledgeGraphAttributeMetadata struct {
 	EntityCapabilities json.RawMessage `json:"entityCapabilities"`
 	RelatedCategories  json.RawMessage `json:"relatedCategories"`
 }
 
-type GoogleAdsGoogleadsV22CommonLanguageInfo struct {
+type GoogleAdsGoogleadsV26CommonLanguageInfo struct {
 	LanguageConstant string `json:"languageConstant"`
 }
 
-type GoogleAdsGoogleadsV22CommonLeadFormAsset struct {
+type GoogleAdsGoogleadsV26CommonLeadFormAsset struct {
 	CallToActionDescription    string          `json:"callToActionDescription"`
 	PostSubmitDescription      string          `json:"postSubmitDescription"`
 	DesiredIntent              string          `json:"desiredIntent"`
@@ -1063,27 +1063,27 @@ type GoogleAdsGoogleadsV22CommonLeadFormAsset struct {
 	BusinessName               string          `json:"businessName"`
 }
 
-type GoogleAdsGoogleadsV22CommonLeadFormCustomQuestionField struct {
+type GoogleAdsGoogleadsV26CommonLeadFormCustomQuestionField struct {
 	SingleChoiceAnswers json.RawMessage `json:"singleChoiceAnswers"`
 	HasLocationAnswer   bool            `json:"hasLocationAnswer"`
 	CustomQuestionText  string          `json:"customQuestionText"`
 }
 
-type GoogleAdsGoogleadsV22CommonLeadFormDeliveryMethod struct {
+type GoogleAdsGoogleadsV26CommonLeadFormDeliveryMethod struct {
 	Webhook json.RawMessage `json:"webhook"`
 }
 
-type GoogleAdsGoogleadsV22CommonLeadFormField struct {
+type GoogleAdsGoogleadsV26CommonLeadFormField struct {
 	InputType           string          `json:"inputType"`
 	SingleChoiceAnswers json.RawMessage `json:"singleChoiceAnswers"`
 	HasLocationAnswer   bool            `json:"hasLocationAnswer"`
 }
 
-type GoogleAdsGoogleadsV22CommonLeadFormSingleChoiceAnswers struct {
+type GoogleAdsGoogleadsV26CommonLeadFormSingleChoiceAnswers struct {
 	Answers json.RawMessage `json:"answers"`
 }
 
-type GoogleAdsGoogleadsV22CommonLegacyAppInstallAdInfo struct {
+type GoogleAdsGoogleadsV26CommonLegacyAppInstallAdInfo struct {
 	AppId        string `json:"appId"`
 	AppStore     string `json:"appStore"`
 	Headline     string `json:"headline"`
@@ -1091,7 +1091,7 @@ type GoogleAdsGoogleadsV22CommonLegacyAppInstallAdInfo struct {
 	Description2 string `json:"description2"`
 }
 
-type GoogleAdsGoogleadsV22CommonLegacyResponsiveDisplayAdInfo struct {
+type GoogleAdsGoogleadsV26CommonLegacyResponsiveDisplayAdInfo struct {
 	LogoImage            string `json:"logoImage"`
 	SquareLogoImage      string `json:"squareLogoImage"`
 	Description          string `json:"description"`
@@ -1109,20 +1109,20 @@ type GoogleAdsGoogleadsV22CommonLegacyResponsiveDisplayAdInfo struct {
 	AllowFlexibleColor   bool   `json:"allowFlexibleColor"`
 }
 
-type GoogleAdsGoogleadsV22CommonLifeEventInfo struct {
+type GoogleAdsGoogleadsV26CommonLifeEventInfo struct {
 	LifeEventId string `json:"lifeEventId"`
 }
 
-type GoogleAdsGoogleadsV22CommonLifeEventSegment struct {
+type GoogleAdsGoogleadsV26CommonLifeEventSegment struct {
 	LifeEvent string `json:"lifeEvent"`
 }
 
-type GoogleAdsGoogleadsV22CommonLifecycleGoalValueSettings struct {
+type GoogleAdsGoogleadsV26CommonLifecycleGoalValueSettings struct {
 	HighLifetimeValue float64 `json:"highLifetimeValue"`
 	Value             float64 `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22CommonLineupAttributeMetadata struct {
+type GoogleAdsGoogleadsV26CommonLineupAttributeMetadata struct {
 	ChannelCountUpperBound string          `json:"channelCountUpperBound"`
 	SampleChannels         json.RawMessage `json:"sampleChannels"`
 	MedianMonthlyInventory string          `json:"medianMonthlyInventory"`
@@ -1130,13 +1130,13 @@ type GoogleAdsGoogleadsV22CommonLineupAttributeMetadata struct {
 	ChannelCountLowerBound string          `json:"channelCountLowerBound"`
 }
 
-type GoogleAdsGoogleadsV22CommonLineupAttributeMetadataSampleChannel struct {
+type GoogleAdsGoogleadsV26CommonLineupAttributeMetadataSampleChannel struct {
 	YoutubeChannel         json.RawMessage `json:"youtubeChannel"`
 	YoutubeChannelMetadata json.RawMessage `json:"youtubeChannelMetadata"`
 	DisplayName            string          `json:"displayName"`
 }
 
-type GoogleAdsGoogleadsV22CommonListingDimensionInfo struct {
+type GoogleAdsGoogleadsV26CommonListingDimensionInfo struct {
 	ProductBrand              json.RawMessage `json:"productBrand"`
 	ActivityCity              json.RawMessage `json:"activityCity"`
 	ActivityCountry           json.RawMessage `json:"activityCountry"`
@@ -1162,22 +1162,22 @@ type GoogleAdsGoogleadsV22CommonListingDimensionInfo struct {
 	ProductCustomAttribute    json.RawMessage `json:"productCustomAttribute"`
 }
 
-type GoogleAdsGoogleadsV22CommonListingDimensionPath struct {
+type GoogleAdsGoogleadsV26CommonListingDimensionPath struct {
 	Dimensions json.RawMessage `json:"dimensions"`
 }
 
-type GoogleAdsGoogleadsV22CommonListingGroupInfo struct {
+type GoogleAdsGoogleadsV26CommonListingGroupInfo struct {
 	Type                   string          `json:"type"`
 	ParentAdGroupCriterion string          `json:"parentAdGroupCriterion"`
 	CaseValue              json.RawMessage `json:"caseValue"`
 	Path                   json.RawMessage `json:"path"`
 }
 
-type GoogleAdsGoogleadsV22CommonListingScopeInfo struct {
+type GoogleAdsGoogleadsV26CommonListingScopeInfo struct {
 	Dimensions json.RawMessage `json:"dimensions"`
 }
 
-type GoogleAdsGoogleadsV22CommonLocalAdInfo struct {
+type GoogleAdsGoogleadsV26CommonLocalAdInfo struct {
 	Headlines       json.RawMessage `json:"headlines"`
 	MarketingImages json.RawMessage `json:"marketingImages"`
 	CallToActions   json.RawMessage `json:"callToActions"`
@@ -1188,25 +1188,25 @@ type GoogleAdsGoogleadsV22CommonLocalAdInfo struct {
 	Videos          json.RawMessage `json:"videos"`
 }
 
-type GoogleAdsGoogleadsV22CommonLocalServiceIdInfo struct {
+type GoogleAdsGoogleadsV26CommonLocalServiceIdInfo struct {
 	ServiceId string `json:"serviceId"`
 }
 
-type GoogleAdsGoogleadsV22CommonLocalServicesDocumentReadOnly struct {
+type GoogleAdsGoogleadsV26CommonLocalServicesDocumentReadOnly struct {
 	DocumentUrl string `json:"documentUrl"`
 }
 
-type GoogleAdsGoogleadsV22CommonLocationAsset struct {
+type GoogleAdsGoogleadsV26CommonLocationAsset struct {
 	LocationOwnershipType    string          `json:"locationOwnershipType"`
 	PlaceId                  string          `json:"placeId"`
 	BusinessProfileLocations json.RawMessage `json:"businessProfileLocations"`
 }
 
-type GoogleAdsGoogleadsV22CommonLocationAttributeMetadata struct {
+type GoogleAdsGoogleadsV26CommonLocationAttributeMetadata struct {
 	CountryLocation json.RawMessage `json:"countryLocation"`
 }
 
-type GoogleAdsGoogleadsV22CommonLocationGroupInfo struct {
+type GoogleAdsGoogleadsV26CommonLocationGroupInfo struct {
 	Radius                              string          `json:"radius"`
 	RadiusUnits                         string          `json:"radiusUnits"`
 	FeedItemSets                        json.RawMessage `json:"feedItemSets"`
@@ -1215,66 +1215,66 @@ type GoogleAdsGoogleadsV22CommonLocationGroupInfo struct {
 	LocationGroupAssetSets              json.RawMessage `json:"locationGroupAssetSets"`
 }
 
-type GoogleAdsGoogleadsV22CommonLocationInfo struct {
+type GoogleAdsGoogleadsV26CommonLocationInfo struct {
 	GeoTargetConstant string `json:"geoTargetConstant"`
 }
 
-type GoogleAdsGoogleadsV22CommonLocationSet struct {
+type GoogleAdsGoogleadsV26CommonLocationSet struct {
 	MapsLocationSet            json.RawMessage `json:"mapsLocationSet"`
 	BusinessProfileLocationSet json.RawMessage `json:"businessProfileLocationSet"`
 	ChainLocationSet           json.RawMessage `json:"chainLocationSet"`
 	LocationOwnershipType      string          `json:"locationOwnershipType"`
 }
 
-type GoogleAdsGoogleadsV22CommonLogicalUserListInfo struct {
+type GoogleAdsGoogleadsV26CommonLogicalUserListInfo struct {
 	Rules json.RawMessage `json:"rules"`
 }
 
-type GoogleAdsGoogleadsV22CommonLogicalUserListOperandInfo struct {
+type GoogleAdsGoogleadsV26CommonLogicalUserListOperandInfo struct {
 	UserList string `json:"userList"`
 }
 
-type GoogleAdsGoogleadsV22CommonLookalikeUserListInfo struct {
+type GoogleAdsGoogleadsV26CommonLookalikeUserListInfo struct {
 	SeedUserListIds json.RawMessage `json:"seedUserListIds"`
 	ExpansionLevel  string          `json:"expansionLevel"`
 	CountryCodes    json.RawMessage `json:"countryCodes"`
 }
 
-type GoogleAdsGoogleadsV22CommonManualCpc struct {
+type GoogleAdsGoogleadsV26CommonManualCpc struct {
 	EnhancedCpcEnabled bool `json:"enhancedCpcEnabled"`
 }
 
-type GoogleAdsGoogleadsV22CommonMapsLocationInfo struct {
+type GoogleAdsGoogleadsV26CommonMapsLocationInfo struct {
 	PlaceId string `json:"placeId"`
 }
 
-type GoogleAdsGoogleadsV22CommonMapsLocationSet struct {
+type GoogleAdsGoogleadsV26CommonMapsLocationSet struct {
 	MapsLocations json.RawMessage `json:"mapsLocations"`
 }
 
-type GoogleAdsGoogleadsV22CommonMaximizeConversionValue struct {
+type GoogleAdsGoogleadsV26CommonMaximizeConversionValue struct {
 	TargetRoas                       float64 `json:"targetRoas"`
 	CpcBidCeilingMicros              string  `json:"cpcBidCeilingMicros"`
 	CpcBidFloorMicros                string  `json:"cpcBidFloorMicros"`
 	TargetRoasTolerancePercentMillis string  `json:"targetRoasTolerancePercentMillis"`
 }
 
-type GoogleAdsGoogleadsV22CommonMaximizeConversions struct {
+type GoogleAdsGoogleadsV26CommonMaximizeConversions struct {
 	CpcBidCeilingMicros string `json:"cpcBidCeilingMicros"`
 	TargetCpaMicros     string `json:"targetCpaMicros"`
 	CpcBidFloorMicros   string `json:"cpcBidFloorMicros"`
 }
 
-type GoogleAdsGoogleadsV22CommonMediaBundleAsset struct {
+type GoogleAdsGoogleadsV26CommonMediaBundleAsset struct {
 	Data string `json:"data"`
 }
 
-type GoogleAdsGoogleadsV22CommonMetricGoal struct {
+type GoogleAdsGoogleadsV26CommonMetricGoal struct {
 	Metric    string `json:"metric"`
 	Direction string `json:"direction"`
 }
 
-type GoogleAdsGoogleadsV22CommonMetrics struct {
+type GoogleAdsGoogleadsV26CommonMetrics struct {
 	ConversionsFromInteractionsRate                                      float64         `json:"conversionsFromInteractionsRate"`
 	CurrentModelAttributedConversions                                    float64         `json:"currentModelAttributedConversions"`
 	HistoricalQualityScore                                               string          `json:"historicalQualityScore"`
@@ -1503,7 +1503,7 @@ type GoogleAdsGoogleadsV22CommonMetrics struct {
 	ValuePerAllConversions                                               float64         `json:"valuePerAllConversions"`
 }
 
-type GoogleAdsGoogleadsV22CommonMobileAppAsset struct {
+type GoogleAdsGoogleadsV26CommonMobileAppAsset struct {
 	AppId     string `json:"appId"`
 	StartDate string `json:"startDate"`
 	EndDate   string `json:"endDate"`
@@ -1511,35 +1511,35 @@ type GoogleAdsGoogleadsV22CommonMobileAppAsset struct {
 	AppStore  string `json:"appStore"`
 }
 
-type GoogleAdsGoogleadsV22CommonMobileAppCategoryInfo struct {
+type GoogleAdsGoogleadsV26CommonMobileAppCategoryInfo struct {
 	MobileAppCategoryConstant string `json:"mobileAppCategoryConstant"`
 }
 
-type GoogleAdsGoogleadsV22CommonMobileApplicationInfo struct {
+type GoogleAdsGoogleadsV26CommonMobileApplicationInfo struct {
 	AppId string `json:"appId"`
 	Name  string `json:"name"`
 }
 
-type GoogleAdsGoogleadsV22CommonMobileDeviceInfo struct {
+type GoogleAdsGoogleadsV26CommonMobileDeviceInfo struct {
 	MobileDeviceConstant string `json:"mobileDeviceConstant"`
 }
 
-type GoogleAdsGoogleadsV22CommonMoney struct {
+type GoogleAdsGoogleadsV26CommonMoney struct {
 	AmountMicros string `json:"amountMicros"`
 	CurrencyCode string `json:"currencyCode"`
 }
 
-type GoogleAdsGoogleadsV22CommonMonthlySearchVolume struct {
+type GoogleAdsGoogleadsV26CommonMonthlySearchVolume struct {
 	MonthlySearches string `json:"monthlySearches"`
 	Year            string `json:"year"`
 	Month           string `json:"month"`
 }
 
-type GoogleAdsGoogleadsV22CommonNegativeKeywordListInfo struct {
+type GoogleAdsGoogleadsV26CommonNegativeKeywordListInfo struct {
 	SharedSet string `json:"sharedSet"`
 }
 
-type GoogleAdsGoogleadsV22CommonOfflineUserAddressInfo struct {
+type GoogleAdsGoogleadsV26CommonOfflineUserAddressInfo struct {
 	City                string `json:"city"`
 	HashedFirstName     string `json:"hashedFirstName"`
 	State               string `json:"state"`
@@ -1549,30 +1549,30 @@ type GoogleAdsGoogleadsV22CommonOfflineUserAddressInfo struct {
 	HashedStreetAddress string `json:"hashedStreetAddress"`
 }
 
-type GoogleAdsGoogleadsV22CommonOperatingSystemVersionInfo struct {
+type GoogleAdsGoogleadsV26CommonOperatingSystemVersionInfo struct {
 	OperatingSystemVersionConstant string `json:"operatingSystemVersionConstant"`
 }
 
-type GoogleAdsGoogleadsV22CommonPageFeedAsset struct {
+type GoogleAdsGoogleadsV26CommonPageFeedAsset struct {
 	Labels  json.RawMessage `json:"labels"`
 	PageUrl string          `json:"pageUrl"`
 }
 
-type GoogleAdsGoogleadsV22CommonParentalStatusDimension struct {
+type GoogleAdsGoogleadsV26CommonParentalStatusDimension struct {
 	ParentalStatuses    json.RawMessage `json:"parentalStatuses"`
 	IncludeUndetermined bool            `json:"includeUndetermined"`
 }
 
-type GoogleAdsGoogleadsV22CommonParentalStatusInfo struct {
+type GoogleAdsGoogleadsV26CommonParentalStatusInfo struct {
 	Type string `json:"type"`
 }
 
-type GoogleAdsGoogleadsV22CommonPercentCpc struct {
+type GoogleAdsGoogleadsV26CommonPercentCpc struct {
 	CpcBidCeilingMicros string `json:"cpcBidCeilingMicros"`
 	EnhancedCpcEnabled  bool   `json:"enhancedCpcEnabled"`
 }
 
-type GoogleAdsGoogleadsV22CommonPercentCpcBidSimulationPoint struct {
+type GoogleAdsGoogleadsV26CommonPercentCpcBidSimulationPoint struct {
 	BiddableConversions      float64 `json:"biddableConversions"`
 	BiddableConversionsValue float64 `json:"biddableConversionsValue"`
 	CostMicros               string  `json:"costMicros"`
@@ -1582,48 +1582,48 @@ type GoogleAdsGoogleadsV22CommonPercentCpcBidSimulationPoint struct {
 	Clicks                   string  `json:"clicks"`
 }
 
-type GoogleAdsGoogleadsV22CommonPercentCpcBidSimulationPointList struct {
+type GoogleAdsGoogleadsV26CommonPercentCpcBidSimulationPointList struct {
 	Points json.RawMessage `json:"points"`
 }
 
-type GoogleAdsGoogleadsV22CommonPlacementInfo struct {
+type GoogleAdsGoogleadsV26CommonPlacementInfo struct {
 	Url string `json:"url"`
 }
 
-type GoogleAdsGoogleadsV22CommonPlacementListInfo struct {
+type GoogleAdsGoogleadsV26CommonPlacementListInfo struct {
 	SharedSet string `json:"sharedSet"`
 }
 
-type GoogleAdsGoogleadsV22CommonPolicySummary struct {
+type GoogleAdsGoogleadsV26CommonPolicySummary struct {
 	ApprovalStatus     string          `json:"approvalStatus"`
 	PolicyTopicEntries json.RawMessage `json:"policyTopicEntries"`
 	ReviewStatus       string          `json:"reviewStatus"`
 }
 
-type GoogleAdsGoogleadsV22CommonPolicyTopicConstraint struct {
+type GoogleAdsGoogleadsV26CommonPolicyTopicConstraint struct {
 	ResellerConstraint                     json.RawMessage `json:"resellerConstraint"`
 	CertificateMissingInCountryList        json.RawMessage `json:"certificateMissingInCountryList"`
 	CertificateDomainMismatchInCountryList json.RawMessage `json:"certificateDomainMismatchInCountryList"`
 	CountryConstraintList                  json.RawMessage `json:"countryConstraintList"`
 }
 
-type GoogleAdsGoogleadsV22CommonPolicyTopicConstraintCountryConstraint struct {
+type GoogleAdsGoogleadsV26CommonPolicyTopicConstraintCountryConstraint struct {
 	CountryCriterion string `json:"countryCriterion"`
 }
 
-type GoogleAdsGoogleadsV22CommonPolicyTopicConstraintCountryConstraintList struct {
+type GoogleAdsGoogleadsV26CommonPolicyTopicConstraintCountryConstraintList struct {
 	TotalTargetedCountries int             `json:"totalTargetedCountries"`
 	Countries              json.RawMessage `json:"countries"`
 }
 
-type GoogleAdsGoogleadsV22CommonPolicyTopicEntry struct {
+type GoogleAdsGoogleadsV26CommonPolicyTopicEntry struct {
 	Topic       string          `json:"topic"`
 	Constraints json.RawMessage `json:"constraints"`
 	Type        string          `json:"type"`
 	Evidences   json.RawMessage `json:"evidences"`
 }
 
-type GoogleAdsGoogleadsV22CommonPolicyTopicEvidence struct {
+type GoogleAdsGoogleadsV26CommonPolicyTopicEvidence struct {
 	WebsiteList           json.RawMessage `json:"websiteList"`
 	LanguageCode          string          `json:"languageCode"`
 	DestinationNotWorking json.RawMessage `json:"destinationNotWorking"`
@@ -1632,11 +1632,11 @@ type GoogleAdsGoogleadsV22CommonPolicyTopicEvidence struct {
 	DestinationMismatch   json.RawMessage `json:"destinationMismatch"`
 }
 
-type GoogleAdsGoogleadsV22CommonPolicyTopicEvidenceDestinationMismatch struct {
+type GoogleAdsGoogleadsV26CommonPolicyTopicEvidenceDestinationMismatch struct {
 	UrlTypes json.RawMessage `json:"urlTypes"`
 }
 
-type GoogleAdsGoogleadsV22CommonPolicyTopicEvidenceDestinationNotWorking struct {
+type GoogleAdsGoogleadsV26CommonPolicyTopicEvidenceDestinationNotWorking struct {
 	Device              string `json:"device"`
 	LastCheckedDateTime string `json:"lastCheckedDateTime"`
 	DnsErrorType        string `json:"dnsErrorType"`
@@ -1644,36 +1644,36 @@ type GoogleAdsGoogleadsV22CommonPolicyTopicEvidenceDestinationNotWorking struct 
 	ExpandedUrl         string `json:"expandedUrl"`
 }
 
-type GoogleAdsGoogleadsV22CommonPolicyTopicEvidenceDestinationTextList struct {
+type GoogleAdsGoogleadsV26CommonPolicyTopicEvidenceDestinationTextList struct {
 	DestinationTexts json.RawMessage `json:"destinationTexts"`
 }
 
-type GoogleAdsGoogleadsV22CommonPolicyTopicEvidenceTextList struct {
+type GoogleAdsGoogleadsV26CommonPolicyTopicEvidenceTextList struct {
 	Texts json.RawMessage `json:"texts"`
 }
 
-type GoogleAdsGoogleadsV22CommonPolicyTopicEvidenceWebsiteList struct {
+type GoogleAdsGoogleadsV26CommonPolicyTopicEvidenceWebsiteList struct {
 	Websites json.RawMessage `json:"websites"`
 }
 
-type GoogleAdsGoogleadsV22CommonPolicyValidationParameter struct {
+type GoogleAdsGoogleadsV26CommonPolicyValidationParameter struct {
 	IgnorablePolicyTopics     json.RawMessage `json:"ignorablePolicyTopics"`
 	ExemptPolicyViolationKeys json.RawMessage `json:"exemptPolicyViolationKeys"`
 }
 
-type GoogleAdsGoogleadsV22CommonPolicyViolationKey struct {
+type GoogleAdsGoogleadsV26CommonPolicyViolationKey struct {
 	PolicyName    string `json:"policyName"`
 	ViolatingText string `json:"violatingText"`
 }
 
-type GoogleAdsGoogleadsV22CommonPriceAsset struct {
+type GoogleAdsGoogleadsV26CommonPriceAsset struct {
 	PriceOfferings json.RawMessage `json:"priceOfferings"`
 	PriceQualifier string          `json:"priceQualifier"`
 	LanguageCode   string          `json:"languageCode"`
 	Type           string          `json:"type"`
 }
 
-type GoogleAdsGoogleadsV22CommonPriceOffering struct {
+type GoogleAdsGoogleadsV26CommonPriceOffering struct {
 	Header         string          `json:"header"`
 	Description    string          `json:"description"`
 	Unit           string          `json:"unit"`
@@ -1682,58 +1682,58 @@ type GoogleAdsGoogleadsV22CommonPriceOffering struct {
 	FinalUrl       string          `json:"finalUrl"`
 }
 
-type GoogleAdsGoogleadsV22CommonProductBrandInfo struct {
+type GoogleAdsGoogleadsV26CommonProductBrandInfo struct {
 	Value string `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22CommonProductCategoryInfo struct {
+type GoogleAdsGoogleadsV26CommonProductCategoryInfo struct {
 	CategoryId string `json:"categoryId"`
 	Level      string `json:"level"`
 }
 
-type GoogleAdsGoogleadsV22CommonProductChannelExclusivityInfo struct {
+type GoogleAdsGoogleadsV26CommonProductChannelExclusivityInfo struct {
 	ChannelExclusivity string `json:"channelExclusivity"`
 }
 
-type GoogleAdsGoogleadsV22CommonProductChannelInfo struct {
+type GoogleAdsGoogleadsV26CommonProductChannelInfo struct {
 	Channel string `json:"channel"`
 }
 
-type GoogleAdsGoogleadsV22CommonProductConditionInfo struct {
+type GoogleAdsGoogleadsV26CommonProductConditionInfo struct {
 	Condition string `json:"condition"`
 }
 
-type GoogleAdsGoogleadsV22CommonProductCustomAttributeInfo struct {
+type GoogleAdsGoogleadsV26CommonProductCustomAttributeInfo struct {
 	Value string `json:"value"`
 	Index string `json:"index"`
 }
 
-type GoogleAdsGoogleadsV22CommonProductGroupingInfo struct {
+type GoogleAdsGoogleadsV26CommonProductGroupingInfo struct {
 	Value string `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22CommonProductItemIdInfo struct {
+type GoogleAdsGoogleadsV26CommonProductItemIdInfo struct {
 	Value string `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22CommonProductLabelsInfo struct {
+type GoogleAdsGoogleadsV26CommonProductLabelsInfo struct {
 	Value string `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22CommonProductLegacyConditionInfo struct {
+type GoogleAdsGoogleadsV26CommonProductLegacyConditionInfo struct {
 	Value string `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22CommonProductTypeFullInfo struct {
+type GoogleAdsGoogleadsV26CommonProductTypeFullInfo struct {
 	Value string `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22CommonProductTypeInfo struct {
+type GoogleAdsGoogleadsV26CommonProductTypeInfo struct {
 	Value string `json:"value"`
 	Level string `json:"level"`
 }
 
-type GoogleAdsGoogleadsV22CommonPromotionAsset struct {
+type GoogleAdsGoogleadsV26CommonPromotionAsset struct {
 	MoneyAmountOff         json.RawMessage `json:"moneyAmountOff"`
 	Occasion               string          `json:"occasion"`
 	OrdersOverAmount       json.RawMessage `json:"ordersOverAmount"`
@@ -1753,32 +1753,32 @@ type GoogleAdsGoogleadsV22CommonPromotionAsset struct {
 	PromotionCode          string          `json:"promotionCode"`
 }
 
-type GoogleAdsGoogleadsV22CommonPromotionBarcodeInfo struct {
+type GoogleAdsGoogleadsV26CommonPromotionBarcodeInfo struct {
 	Type           string `json:"type"`
 	BarcodeContent string `json:"barcodeContent"`
 }
 
-type GoogleAdsGoogleadsV22CommonPromotionQrCodeInfo struct {
+type GoogleAdsGoogleadsV26CommonPromotionQrCodeInfo struct {
 	QrCodeContent string `json:"qrCodeContent"`
 }
 
-type GoogleAdsGoogleadsV22CommonProximityInfo struct {
+type GoogleAdsGoogleadsV26CommonProximityInfo struct {
 	RadiusUnits string          `json:"radiusUnits"`
 	GeoPoint    json.RawMessage `json:"geoPoint"`
 	Radius      float64         `json:"radius"`
 	Address     json.RawMessage `json:"address"`
 }
 
-type GoogleAdsGoogleadsV22CommonRealTimeBiddingSetting struct {
+type GoogleAdsGoogleadsV26CommonRealTimeBiddingSetting struct {
 	OptIn bool `json:"optIn"`
 }
 
-type GoogleAdsGoogleadsV22CommonResponsiveDisplayAdControlSpec struct {
+type GoogleAdsGoogleadsV26CommonResponsiveDisplayAdControlSpec struct {
 	EnableAssetEnhancements bool `json:"enableAssetEnhancements"`
 	EnableAutogenVideo      bool `json:"enableAutogenVideo"`
 }
 
-type GoogleAdsGoogleadsV22CommonResponsiveDisplayAdInfo struct {
+type GoogleAdsGoogleadsV26CommonResponsiveDisplayAdInfo struct {
 	SquareMarketingImages json.RawMessage `json:"squareMarketingImages"`
 	CallToActionText      string          `json:"callToActionText"`
 	MarketingImages       json.RawMessage `json:"marketingImages"`
@@ -1798,28 +1798,28 @@ type GoogleAdsGoogleadsV22CommonResponsiveDisplayAdInfo struct {
 	PromoText             string          `json:"promoText"`
 }
 
-type GoogleAdsGoogleadsV22CommonResponsiveSearchAdInfo struct {
+type GoogleAdsGoogleadsV26CommonResponsiveSearchAdInfo struct {
 	Headlines    json.RawMessage `json:"headlines"`
 	Path2        string          `json:"path2"`
 	Path1        string          `json:"path1"`
 	Descriptions json.RawMessage `json:"descriptions"`
 }
 
-type GoogleAdsGoogleadsV22CommonRuleBasedUserListInfo struct {
+type GoogleAdsGoogleadsV26CommonRuleBasedUserListInfo struct {
 	PrepopulationStatus  string          `json:"prepopulationStatus"`
 	FlexibleRuleUserList json.RawMessage `json:"flexibleRuleUserList"`
 }
 
-type GoogleAdsGoogleadsV22CommonSearchThemeInfo struct {
+type GoogleAdsGoogleadsV26CommonSearchThemeInfo struct {
 	Text string `json:"text"`
 }
 
-type GoogleAdsGoogleadsV22CommonSearchVolumeRange struct {
+type GoogleAdsGoogleadsV26CommonSearchVolumeRange struct {
 	Max string `json:"max"`
 	Min string `json:"min"`
 }
 
-type GoogleAdsGoogleadsV22CommonSegments struct {
+type GoogleAdsGoogleadsV26CommonSegments struct {
 	ConversionOrAdjustmentLagBucket             string          `json:"conversionOrAdjustmentLagBucket"`
 	BudgetCampaignAssociationStatus             json.RawMessage `json:"budgetCampaignAssociationStatus"`
 	ConversionAttributionEventType              string          `json:"conversionAttributionEventType"`
@@ -1941,19 +1941,19 @@ type GoogleAdsGoogleadsV22CommonSegments struct {
 	AssetGroup                                  string          `json:"assetGroup"`
 }
 
-type GoogleAdsGoogleadsV22CommonShoppingComparisonListingAdInfo struct {
+type GoogleAdsGoogleadsV26CommonShoppingComparisonListingAdInfo struct {
 	Headline string `json:"headline"`
 }
 
-type GoogleAdsGoogleadsV22CommonShoppingLoyalty struct {
+type GoogleAdsGoogleadsV26CommonShoppingLoyalty struct {
 	LoyaltyTier string `json:"loyaltyTier"`
 }
 
-type GoogleAdsGoogleadsV22CommonSimilarUserListInfo struct {
+type GoogleAdsGoogleadsV26CommonSimilarUserListInfo struct {
 	SeedUserList string `json:"seedUserList"`
 }
 
-type GoogleAdsGoogleadsV22CommonSitelinkAsset struct {
+type GoogleAdsGoogleadsV26CommonSitelinkAsset struct {
 	AdScheduleTargets json.RawMessage `json:"adScheduleTargets"`
 	LinkText          string          `json:"linkText"`
 	Description1      string          `json:"description1"`
@@ -1962,7 +1962,7 @@ type GoogleAdsGoogleadsV22CommonSitelinkAsset struct {
 	StartDate         string          `json:"startDate"`
 }
 
-type GoogleAdsGoogleadsV22CommonSitelinkFeedItem struct {
+type GoogleAdsGoogleadsV26CommonSitelinkFeedItem struct {
 	FinalUrls           json.RawMessage `json:"finalUrls"`
 	FinalUrlSuffix      string          `json:"finalUrlSuffix"`
 	TrackingUrlTemplate string          `json:"trackingUrlTemplate"`
@@ -1973,27 +1973,27 @@ type GoogleAdsGoogleadsV22CommonSitelinkFeedItem struct {
 	FinalMobileUrls     json.RawMessage `json:"finalMobileUrls"`
 }
 
-type GoogleAdsGoogleadsV22CommonSkAdNetworkSourceApp struct {
+type GoogleAdsGoogleadsV26CommonSkAdNetworkSourceApp struct {
 	SkAdNetworkSourceAppId string `json:"skAdNetworkSourceAppId"`
 }
 
-type GoogleAdsGoogleadsV22CommonSmartCampaignAdInfo struct {
+type GoogleAdsGoogleadsV26CommonSmartCampaignAdInfo struct {
 	Headlines    json.RawMessage `json:"headlines"`
 	Descriptions json.RawMessage `json:"descriptions"`
 }
 
-type GoogleAdsGoogleadsV22CommonStoreAttribute struct {
+type GoogleAdsGoogleadsV26CommonStoreAttribute struct {
 	StoreCode string `json:"storeCode"`
 }
 
-type GoogleAdsGoogleadsV22CommonStoreSalesMetadata struct {
+type GoogleAdsGoogleadsV26CommonStoreSalesMetadata struct {
 	LoyaltyFraction           float64         `json:"loyaltyFraction"`
 	TransactionUploadFraction float64         `json:"transactionUploadFraction"`
 	CustomKey                 string          `json:"customKey"`
 	ThirdPartyMetadata        json.RawMessage `json:"thirdPartyMetadata"`
 }
 
-type GoogleAdsGoogleadsV22CommonStoreSalesThirdPartyMetadata struct {
+type GoogleAdsGoogleadsV26CommonStoreSalesThirdPartyMetadata struct {
 	AdvertiserUploadDateTime string  `json:"advertiserUploadDateTime"`
 	PartnerMatchFraction     float64 `json:"partnerMatchFraction"`
 	PartnerId                string  `json:"partnerId"`
@@ -2002,25 +2002,25 @@ type GoogleAdsGoogleadsV22CommonStoreSalesThirdPartyMetadata struct {
 	BridgeMapVersionId       string  `json:"bridgeMapVersionId"`
 }
 
-type GoogleAdsGoogleadsV22CommonStructuredSnippetAsset struct {
+type GoogleAdsGoogleadsV26CommonStructuredSnippetAsset struct {
 	Values json.RawMessage `json:"values"`
 	Header string          `json:"header"`
 }
 
-type GoogleAdsGoogleadsV22CommonTagSnippet struct {
+type GoogleAdsGoogleadsV26CommonTagSnippet struct {
 	Type          string `json:"type"`
 	PageFormat    string `json:"pageFormat"`
 	GlobalSiteTag string `json:"globalSiteTag"`
 	EventSnippet  string `json:"eventSnippet"`
 }
 
-type GoogleAdsGoogleadsV22CommonTargetCpa struct {
+type GoogleAdsGoogleadsV26CommonTargetCpa struct {
 	TargetCpaMicros     string `json:"targetCpaMicros"`
 	CpcBidCeilingMicros string `json:"cpcBidCeilingMicros"`
 	CpcBidFloorMicros   string `json:"cpcBidFloorMicros"`
 }
 
-type GoogleAdsGoogleadsV22CommonTargetCpaSimulationPoint struct {
+type GoogleAdsGoogleadsV26CommonTargetCpaSimulationPoint struct {
 	BiddableConversions        float64 `json:"biddableConversions"`
 	AppInstalls                float64 `json:"appInstalls"`
 	Clicks                     string  `json:"clicks"`
@@ -2035,30 +2035,30 @@ type GoogleAdsGoogleadsV22CommonTargetCpaSimulationPoint struct {
 	TargetCpaMicros            string  `json:"targetCpaMicros"`
 }
 
-type GoogleAdsGoogleadsV22CommonTargetCpaSimulationPointList struct {
+type GoogleAdsGoogleadsV26CommonTargetCpaSimulationPointList struct {
 	Points json.RawMessage `json:"points"`
 }
 
-type GoogleAdsGoogleadsV22CommonTargetCpc struct {
+type GoogleAdsGoogleadsV26CommonTargetCpc struct {
 	TargetCpcMicros string `json:"targetCpcMicros"`
 }
 
-type GoogleAdsGoogleadsV22CommonTargetCpm struct {
+type GoogleAdsGoogleadsV26CommonTargetCpm struct {
 	TargetFrequencyGoal json.RawMessage `json:"targetFrequencyGoal"`
 }
 
-type GoogleAdsGoogleadsV22CommonTargetCpmTargetFrequencyGoal struct {
+type GoogleAdsGoogleadsV26CommonTargetCpmTargetFrequencyGoal struct {
 	TimeUnit    string `json:"timeUnit"`
 	TargetCount string `json:"targetCount"`
 }
 
-type GoogleAdsGoogleadsV22CommonTargetImpressionShare struct {
+type GoogleAdsGoogleadsV26CommonTargetImpressionShare struct {
 	CpcBidCeilingMicros    string `json:"cpcBidCeilingMicros"`
 	Location               string `json:"location"`
 	LocationFractionMicros string `json:"locationFractionMicros"`
 }
 
-type GoogleAdsGoogleadsV22CommonTargetImpressionShareSimulationPoint struct {
+type GoogleAdsGoogleadsV26CommonTargetImpressionShareSimulationPoint struct {
 	TargetImpressionShareMicros string  `json:"targetImpressionShareMicros"`
 	TopSlotImpressions          string  `json:"topSlotImpressions"`
 	BiddableConversionsValue    float64 `json:"biddableConversionsValue"`
@@ -2071,28 +2071,28 @@ type GoogleAdsGoogleadsV22CommonTargetImpressionShareSimulationPoint struct {
 	Impressions                 string  `json:"impressions"`
 }
 
-type GoogleAdsGoogleadsV22CommonTargetImpressionShareSimulationPointList struct {
+type GoogleAdsGoogleadsV26CommonTargetImpressionShareSimulationPointList struct {
 	Points json.RawMessage `json:"points"`
 }
 
-type GoogleAdsGoogleadsV22CommonTargetRestriction struct {
+type GoogleAdsGoogleadsV26CommonTargetRestriction struct {
 	BidOnly            bool   `json:"bidOnly"`
 	TargetingDimension string `json:"targetingDimension"`
 }
 
-type GoogleAdsGoogleadsV22CommonTargetRestrictionOperation struct {
+type GoogleAdsGoogleadsV26CommonTargetRestrictionOperation struct {
 	Operator string          `json:"operator"`
 	Value    json.RawMessage `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22CommonTargetRoas struct {
+type GoogleAdsGoogleadsV26CommonTargetRoas struct {
 	CpcBidFloorMicros                string  `json:"cpcBidFloorMicros"`
 	TargetRoasTolerancePercentMillis string  `json:"targetRoasTolerancePercentMillis"`
 	TargetRoas                       float64 `json:"targetRoas"`
 	CpcBidCeilingMicros              string  `json:"cpcBidCeilingMicros"`
 }
 
-type GoogleAdsGoogleadsV22CommonTargetRoasSimulationPoint struct {
+type GoogleAdsGoogleadsV26CommonTargetRoasSimulationPoint struct {
 	RequiredBudgetAmountMicros string  `json:"requiredBudgetAmountMicros"`
 	Clicks                     string  `json:"clicks"`
 	TargetRoas                 float64 `json:"targetRoas"`
@@ -2103,46 +2103,46 @@ type GoogleAdsGoogleadsV22CommonTargetRoasSimulationPoint struct {
 	CostMicros                 string  `json:"costMicros"`
 }
 
-type GoogleAdsGoogleadsV22CommonTargetRoasSimulationPointList struct {
+type GoogleAdsGoogleadsV26CommonTargetRoasSimulationPointList struct {
 	Points json.RawMessage `json:"points"`
 }
 
-type GoogleAdsGoogleadsV22CommonTargetSpend struct {
+type GoogleAdsGoogleadsV26CommonTargetSpend struct {
 	TargetSpendMicros   string `json:"targetSpendMicros"`
 	CpcBidCeilingMicros string `json:"cpcBidCeilingMicros"`
 }
 
-type GoogleAdsGoogleadsV22CommonTargetingSetting struct {
+type GoogleAdsGoogleadsV26CommonTargetingSetting struct {
 	TargetRestrictions          json.RawMessage `json:"targetRestrictions"`
 	TargetRestrictionOperations json.RawMessage `json:"targetRestrictionOperations"`
 }
 
-type GoogleAdsGoogleadsV22CommonTextAdInfo struct {
+type GoogleAdsGoogleadsV26CommonTextAdInfo struct {
 	Description1 string `json:"description1"`
 	Headline     string `json:"headline"`
 	Description2 string `json:"description2"`
 }
 
-type GoogleAdsGoogleadsV22CommonTextAsset struct {
+type GoogleAdsGoogleadsV26CommonTextAsset struct {
 	Text string `json:"text"`
 }
 
-type GoogleAdsGoogleadsV22CommonTextLabel struct {
+type GoogleAdsGoogleadsV26CommonTextLabel struct {
 	BackgroundColor string `json:"backgroundColor"`
 	Description     string `json:"description"`
 }
 
-type GoogleAdsGoogleadsV22CommonThirdPartyIntegrationPartnerData struct {
+type GoogleAdsGoogleadsV26CommonThirdPartyIntegrationPartnerData struct {
 	ClientId              string `json:"clientId"`
 	ThirdPartyPlacementId string `json:"thirdPartyPlacementId"`
 }
 
-type GoogleAdsGoogleadsV22CommonTopicInfo struct {
+type GoogleAdsGoogleadsV26CommonTopicInfo struct {
 	Path          json.RawMessage `json:"path"`
 	TopicConstant string          `json:"topicConstant"`
 }
 
-type GoogleAdsGoogleadsV22CommonTransactionAttribute struct {
+type GoogleAdsGoogleadsV26CommonTransactionAttribute struct {
 	TransactionAmountMicros float64         `json:"transactionAmountMicros"`
 	CurrencyCode            string          `json:"currencyCode"`
 	TransactionDateTime     string          `json:"transactionDateTime"`
@@ -2153,14 +2153,14 @@ type GoogleAdsGoogleadsV22CommonTransactionAttribute struct {
 	StoreAttribute          json.RawMessage `json:"storeAttribute"`
 }
 
-type GoogleAdsGoogleadsV22CommonUrlCollection struct {
+type GoogleAdsGoogleadsV26CommonUrlCollection struct {
 	UrlCollectionId     string          `json:"urlCollectionId"`
 	FinalUrls           json.RawMessage `json:"finalUrls"`
 	FinalMobileUrls     json.RawMessage `json:"finalMobileUrls"`
 	TrackingUrlTemplate string          `json:"trackingUrlTemplate"`
 }
 
-type GoogleAdsGoogleadsV22CommonUserAttribute struct {
+type GoogleAdsGoogleadsV26CommonUserAttribute struct {
 	LifetimeValueBucket        int             `json:"lifetimeValueBucket"`
 	AveragePurchaseValueMicros string          `json:"averagePurchaseValueMicros"`
 	ShoppingLoyalty            json.RawMessage `json:"shoppingLoyalty"`
@@ -2173,14 +2173,14 @@ type GoogleAdsGoogleadsV22CommonUserAttribute struct {
 	LifetimeValueMicros        string          `json:"lifetimeValueMicros"`
 }
 
-type GoogleAdsGoogleadsV22CommonUserData struct {
+type GoogleAdsGoogleadsV26CommonUserData struct {
 	UserAttribute        json.RawMessage `json:"userAttribute"`
 	Consent              json.RawMessage `json:"consent"`
 	TransactionAttribute json.RawMessage `json:"transactionAttribute"`
 	UserIdentifiers      json.RawMessage `json:"userIdentifiers"`
 }
 
-type GoogleAdsGoogleadsV22CommonUserIdentifier struct {
+type GoogleAdsGoogleadsV26CommonUserIdentifier struct {
 	HashedEmail          string          `json:"hashedEmail"`
 	HashedPhoneNumber    string          `json:"hashedPhoneNumber"`
 	ThirdPartyUserId     string          `json:"thirdPartyUserId"`
@@ -2189,73 +2189,73 @@ type GoogleAdsGoogleadsV22CommonUserIdentifier struct {
 	MobileId             string          `json:"mobileId"`
 }
 
-type GoogleAdsGoogleadsV22CommonUserInterestAttributeMetadata struct {
+type GoogleAdsGoogleadsV26CommonUserInterestAttributeMetadata struct {
 	UserInterestDescription string `json:"userInterestDescription"`
 }
 
-type GoogleAdsGoogleadsV22CommonUserInterestInfo struct {
+type GoogleAdsGoogleadsV26CommonUserInterestInfo struct {
 	UserInterestCategory string `json:"userInterestCategory"`
 }
 
-type GoogleAdsGoogleadsV22CommonUserInterestSegment struct {
+type GoogleAdsGoogleadsV26CommonUserInterestSegment struct {
 	UserInterestCategory string `json:"userInterestCategory"`
 }
 
-type GoogleAdsGoogleadsV22CommonUserListActionInfo struct {
+type GoogleAdsGoogleadsV26CommonUserListActionInfo struct {
 	RemarketingAction string `json:"remarketingAction"`
 	ConversionAction  string `json:"conversionAction"`
 }
 
-type GoogleAdsGoogleadsV22CommonUserListAttributeMetadata struct {
+type GoogleAdsGoogleadsV26CommonUserListAttributeMetadata struct {
 	UserListType string `json:"userListType"`
 }
 
-type GoogleAdsGoogleadsV22CommonUserListDateRuleItemInfo struct {
+type GoogleAdsGoogleadsV26CommonUserListDateRuleItemInfo struct {
 	Value        string `json:"value"`
 	OffsetInDays string `json:"offsetInDays"`
 	Operator     string `json:"operator"`
 }
 
-type GoogleAdsGoogleadsV22CommonUserListInfo struct {
+type GoogleAdsGoogleadsV26CommonUserListInfo struct {
 	UserList string `json:"userList"`
 }
 
-type GoogleAdsGoogleadsV22CommonUserListLogicalRuleInfo struct {
+type GoogleAdsGoogleadsV26CommonUserListLogicalRuleInfo struct {
 	RuleOperands json.RawMessage `json:"ruleOperands"`
 	Operator     string          `json:"operator"`
 }
 
-type GoogleAdsGoogleadsV22CommonUserListNumberRuleItemInfo struct {
+type GoogleAdsGoogleadsV26CommonUserListNumberRuleItemInfo struct {
 	Operator string  `json:"operator"`
 	Value    float64 `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22CommonUserListRuleInfo struct {
+type GoogleAdsGoogleadsV26CommonUserListRuleInfo struct {
 	RuleType       string          `json:"ruleType"`
 	RuleItemGroups json.RawMessage `json:"ruleItemGroups"`
 }
 
-type GoogleAdsGoogleadsV22CommonUserListRuleItemGroupInfo struct {
+type GoogleAdsGoogleadsV26CommonUserListRuleItemGroupInfo struct {
 	RuleItems json.RawMessage `json:"ruleItems"`
 }
 
-type GoogleAdsGoogleadsV22CommonUserListRuleItemInfo struct {
+type GoogleAdsGoogleadsV26CommonUserListRuleItemInfo struct {
 	StringRuleItem json.RawMessage `json:"stringRuleItem"`
 	DateRuleItem   json.RawMessage `json:"dateRuleItem"`
 	Name           string          `json:"name"`
 	NumberRuleItem json.RawMessage `json:"numberRuleItem"`
 }
 
-type GoogleAdsGoogleadsV22CommonUserListSegment struct {
+type GoogleAdsGoogleadsV26CommonUserListSegment struct {
 	UserList string `json:"userList"`
 }
 
-type GoogleAdsGoogleadsV22CommonUserListStringRuleItemInfo struct {
+type GoogleAdsGoogleadsV26CommonUserListStringRuleItemInfo struct {
 	Operator string `json:"operator"`
 	Value    string `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22CommonValue struct {
+type GoogleAdsGoogleadsV26CommonValue struct {
 	DoubleValue  float64 `json:"doubleValue"`
 	StringValue  string  `json:"stringValue"`
 	FloatValue   float64 `json:"floatValue"`
@@ -2263,7 +2263,7 @@ type GoogleAdsGoogleadsV22CommonValue struct {
 	Int64Value   string  `json:"int64Value"`
 }
 
-type GoogleAdsGoogleadsV22CommonVideoAdInfo struct {
+type GoogleAdsGoogleadsV26CommonVideoAdInfo struct {
 	OutStream    json.RawMessage `json:"outStream"`
 	NonSkippable json.RawMessage `json:"nonSkippable"`
 	InStream     json.RawMessage `json:"inStream"`
@@ -2273,28 +2273,28 @@ type GoogleAdsGoogleadsV22CommonVideoAdInfo struct {
 	Audio        json.RawMessage `json:"audio"`
 }
 
-type GoogleAdsGoogleadsV22CommonVideoBumperInStreamAdInfo struct {
+type GoogleAdsGoogleadsV26CommonVideoBumperInStreamAdInfo struct {
 	ActionButtonLabel string          `json:"actionButtonLabel"`
 	ActionHeadline    string          `json:"actionHeadline"`
 	CompanionBanner   json.RawMessage `json:"companionBanner"`
 }
 
-type GoogleAdsGoogleadsV22CommonVideoLineupInfo struct {
+type GoogleAdsGoogleadsV26CommonVideoLineupInfo struct {
 	VideoLineupId string `json:"videoLineupId"`
 }
 
-type GoogleAdsGoogleadsV22CommonVideoNonSkippableInStreamAdInfo struct {
+type GoogleAdsGoogleadsV26CommonVideoNonSkippableInStreamAdInfo struct {
 	ActionHeadline    string          `json:"actionHeadline"`
 	ActionButtonLabel string          `json:"actionButtonLabel"`
 	CompanionBanner   json.RawMessage `json:"companionBanner"`
 }
 
-type GoogleAdsGoogleadsV22CommonVideoOutstreamAdInfo struct {
+type GoogleAdsGoogleadsV26CommonVideoOutstreamAdInfo struct {
 	Description string `json:"description"`
 	Headline    string `json:"headline"`
 }
 
-type GoogleAdsGoogleadsV22CommonVideoResponsiveAdInfo struct {
+type GoogleAdsGoogleadsV26CommonVideoResponsiveAdInfo struct {
 	Descriptions     json.RawMessage `json:"descriptions"`
 	Videos           json.RawMessage `json:"videos"`
 	CompanionBanners json.RawMessage `json:"companionBanners"`
@@ -2305,63 +2305,63 @@ type GoogleAdsGoogleadsV22CommonVideoResponsiveAdInfo struct {
 	Breadcrumb1      string          `json:"breadcrumb1"`
 }
 
-type GoogleAdsGoogleadsV22CommonVideoTrueViewInStreamAdInfo struct {
+type GoogleAdsGoogleadsV26CommonVideoTrueViewInStreamAdInfo struct {
 	ActionHeadline    string          `json:"actionHeadline"`
 	ActionButtonLabel string          `json:"actionButtonLabel"`
 	CompanionBanner   json.RawMessage `json:"companionBanner"`
 }
 
-type GoogleAdsGoogleadsV22CommonWebhookDelivery struct {
+type GoogleAdsGoogleadsV26CommonWebhookDelivery struct {
 	AdvertiserWebhookUrl string `json:"advertiserWebhookUrl"`
 	PayloadSchemaVersion string `json:"payloadSchemaVersion"`
 	GoogleSecret         string `json:"googleSecret"`
 }
 
-type GoogleAdsGoogleadsV22CommonWebpageConditionInfo struct {
+type GoogleAdsGoogleadsV26CommonWebpageConditionInfo struct {
 	Operand  string `json:"operand"`
 	Argument string `json:"argument"`
 	Operator string `json:"operator"`
 }
 
-type GoogleAdsGoogleadsV22CommonWebpageInfo struct {
+type GoogleAdsGoogleadsV26CommonWebpageInfo struct {
 	CriterionName      string          `json:"criterionName"`
 	Conditions         json.RawMessage `json:"conditions"`
 	Sample             json.RawMessage `json:"sample"`
 	CoveragePercentage float64         `json:"coveragePercentage"`
 }
 
-type GoogleAdsGoogleadsV22CommonWebpageListInfo struct {
+type GoogleAdsGoogleadsV26CommonWebpageListInfo struct {
 	SharedSet string `json:"sharedSet"`
 }
 
-type GoogleAdsGoogleadsV22CommonWebpageSampleInfo struct {
+type GoogleAdsGoogleadsV26CommonWebpageSampleInfo struct {
 	SampleUrls json.RawMessage `json:"sampleUrls"`
 }
 
-type GoogleAdsGoogleadsV22CommonWhatsappBusinessMessageInfo struct {
+type GoogleAdsGoogleadsV26CommonWhatsappBusinessMessageInfo struct {
 	CountryCode string `json:"countryCode"`
 	PhoneNumber string `json:"phoneNumber"`
 }
 
-type GoogleAdsGoogleadsV22CommonYearMonth struct {
+type GoogleAdsGoogleadsV26CommonYearMonth struct {
 	Year  string `json:"year"`
 	Month string `json:"month"`
 }
 
-type GoogleAdsGoogleadsV22CommonYearMonthRange struct {
+type GoogleAdsGoogleadsV26CommonYearMonthRange struct {
 	Start json.RawMessage `json:"start"`
 	End   json.RawMessage `json:"end"`
 }
 
-type GoogleAdsGoogleadsV22CommonYouTubeChannelAttributeMetadata struct {
+type GoogleAdsGoogleadsV26CommonYouTubeChannelAttributeMetadata struct {
 	SubscriberCount string `json:"subscriberCount"`
 }
 
-type GoogleAdsGoogleadsV22CommonYouTubeChannelInfo struct {
+type GoogleAdsGoogleadsV26CommonYouTubeChannelInfo struct {
 	ChannelId string `json:"channelId"`
 }
 
-type GoogleAdsGoogleadsV22CommonYouTubeVideoAttributeMetadata struct {
+type GoogleAdsGoogleadsV26CommonYouTubeVideoAttributeMetadata struct {
 	CommentsCount   string          `json:"commentsCount"`
 	ThumbnailUrl    string          `json:"thumbnailUrl"`
 	ViewsCount      string          `json:"viewsCount"`
@@ -2371,20 +2371,20 @@ type GoogleAdsGoogleadsV22CommonYouTubeVideoAttributeMetadata struct {
 	LikesCount      string          `json:"likesCount"`
 }
 
-type GoogleAdsGoogleadsV22CommonYouTubeVideoInfo struct {
+type GoogleAdsGoogleadsV26CommonYouTubeVideoInfo struct {
 	VideoId string `json:"videoId"`
 }
 
-type GoogleAdsGoogleadsV22CommonYouTubeVideoListAsset struct {
+type GoogleAdsGoogleadsV26CommonYouTubeVideoListAsset struct {
 	YoutubeVideos json.RawMessage `json:"youtubeVideos"`
 }
 
-type GoogleAdsGoogleadsV22CommonYoutubeVideoAsset struct {
+type GoogleAdsGoogleadsV26CommonYoutubeVideoAsset struct {
 	YoutubeVideoId    string `json:"youtubeVideoId"`
 	YoutubeVideoTitle string `json:"youtubeVideoTitle"`
 }
 
-type GoogleAdsGoogleadsV22ErrorsBudgetPerDayMinimumErrorDetails struct {
+type GoogleAdsGoogleadsV26ErrorsBudgetPerDayMinimumErrorDetails struct {
 	FailedBudgetTotalAmountMicros  string `json:"failedBudgetTotalAmountMicros"`
 	MinimumBudgetTotalAmountMicros string `json:"minimumBudgetTotalAmountMicros"`
 	FailedBudgetAmountMicros       string `json:"failedBudgetAmountMicros"`
@@ -2393,7 +2393,7 @@ type GoogleAdsGoogleadsV22ErrorsBudgetPerDayMinimumErrorDetails struct {
 	MinimumBudgetAmountMicros      string `json:"minimumBudgetAmountMicros"`
 }
 
-type GoogleAdsGoogleadsV22ErrorsErrorCode struct {
+type GoogleAdsGoogleadsV26ErrorsErrorCode struct {
 	ClickViewError                                string `json:"clickViewError"`
 	RegionCodeError                               string `json:"regionCodeError"`
 	ProductLinkError                              string `json:"productLinkError"`
@@ -2559,7 +2559,7 @@ type GoogleAdsGoogleadsV22ErrorsErrorCode struct {
 	AssetLinkError                                string `json:"assetLinkError"`
 }
 
-type GoogleAdsGoogleadsV22ErrorsErrorDetails struct {
+type GoogleAdsGoogleadsV26ErrorsErrorDetails struct {
 	PolicyFindingDetails            json.RawMessage `json:"policyFindingDetails"`
 	QuotaErrorDetails               json.RawMessage `json:"quotaErrorDetails"`
 	PolicyViolationDetails          json.RawMessage `json:"policyViolationDetails"`
@@ -2568,16 +2568,16 @@ type GoogleAdsGoogleadsV22ErrorsErrorDetails struct {
 	UnpublishedErrorCode            string          `json:"unpublishedErrorCode"`
 }
 
-type GoogleAdsGoogleadsV22ErrorsErrorLocation struct {
+type GoogleAdsGoogleadsV26ErrorsErrorLocation struct {
 	FieldPathElements json.RawMessage `json:"fieldPathElements"`
 }
 
-type GoogleAdsGoogleadsV22ErrorsErrorLocationFieldPathElement struct {
+type GoogleAdsGoogleadsV26ErrorsErrorLocationFieldPathElement struct {
 	Index     int    `json:"index"`
 	FieldName string `json:"fieldName"`
 }
 
-type GoogleAdsGoogleadsV22ErrorsGoogleAdsError struct {
+type GoogleAdsGoogleadsV26ErrorsGoogleAdsError struct {
 	ErrorCode json.RawMessage `json:"errorCode"`
 	Details   json.RawMessage `json:"details"`
 	Message   string          `json:"message"`
@@ -2585,29 +2585,29 @@ type GoogleAdsGoogleadsV22ErrorsGoogleAdsError struct {
 	Location  json.RawMessage `json:"location"`
 }
 
-type GoogleAdsGoogleadsV22ErrorsGoogleAdsFailure struct {
+type GoogleAdsGoogleadsV26ErrorsGoogleAdsFailure struct {
 	Errors    json.RawMessage `json:"errors"`
 	RequestId string          `json:"requestId"`
 }
 
-type GoogleAdsGoogleadsV22ErrorsPolicyFindingDetails struct {
+type GoogleAdsGoogleadsV26ErrorsPolicyFindingDetails struct {
 	PolicyTopicEntries json.RawMessage `json:"policyTopicEntries"`
 }
 
-type GoogleAdsGoogleadsV22ErrorsPolicyViolationDetails struct {
+type GoogleAdsGoogleadsV26ErrorsPolicyViolationDetails struct {
 	ExternalPolicyDescription string          `json:"externalPolicyDescription"`
 	Key                       json.RawMessage `json:"key"`
 	ExternalPolicyName        string          `json:"externalPolicyName"`
 	IsExemptible              bool            `json:"isExemptible"`
 }
 
-type GoogleAdsGoogleadsV22ErrorsQuotaErrorDetails struct {
+type GoogleAdsGoogleadsV26ErrorsQuotaErrorDetails struct {
 	RateScope  string `json:"rateScope"`
 	RetryDelay string `json:"retryDelay"`
 	RateName   string `json:"rateName"`
 }
 
-type GoogleAdsGoogleadsV22ErrorsResourceCountDetails struct {
+type GoogleAdsGoogleadsV26ErrorsResourceCountDetails struct {
 	LimitType         string `json:"limitType"`
 	ExistingCount     int    `json:"existingCount"`
 	Limit             int    `json:"limit"`
@@ -2615,7 +2615,7 @@ type GoogleAdsGoogleadsV22ErrorsResourceCountDetails struct {
 	EnclosingResource string `json:"enclosingResource"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAccessibleBiddingStrategy struct {
+type GoogleAdsGoogleadsV26ResourcesAccessibleBiddingStrategy struct {
 	TargetSpend             json.RawMessage `json:"targetSpend"`
 	TargetCpa               json.RawMessage `json:"targetCpa"`
 	TargetImpressionShare   json.RawMessage `json:"targetImpressionShare"`
@@ -2630,34 +2630,34 @@ type GoogleAdsGoogleadsV22ResourcesAccessibleBiddingStrategy struct {
 	Type                    string          `json:"type"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAccessibleBiddingStrategyMaximizeConversionValue struct {
+type GoogleAdsGoogleadsV26ResourcesAccessibleBiddingStrategyMaximizeConversionValue struct {
 	TargetRoas float64 `json:"targetRoas"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAccessibleBiddingStrategyMaximizeConversions struct {
+type GoogleAdsGoogleadsV26ResourcesAccessibleBiddingStrategyMaximizeConversions struct {
 	TargetCpaMicros string `json:"targetCpaMicros"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAccessibleBiddingStrategyTargetCpa struct {
+type GoogleAdsGoogleadsV26ResourcesAccessibleBiddingStrategyTargetCpa struct {
 	TargetCpaMicros string `json:"targetCpaMicros"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAccessibleBiddingStrategyTargetImpressionShare struct {
+type GoogleAdsGoogleadsV26ResourcesAccessibleBiddingStrategyTargetImpressionShare struct {
 	Location               string `json:"location"`
 	LocationFractionMicros string `json:"locationFractionMicros"`
 	CpcBidCeilingMicros    string `json:"cpcBidCeilingMicros"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAccessibleBiddingStrategyTargetRoas struct {
+type GoogleAdsGoogleadsV26ResourcesAccessibleBiddingStrategyTargetRoas struct {
 	TargetRoas float64 `json:"targetRoas"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAccessibleBiddingStrategyTargetSpend struct {
+type GoogleAdsGoogleadsV26ResourcesAccessibleBiddingStrategyTargetSpend struct {
 	TargetSpendMicros   string `json:"targetSpendMicros"`
 	CpcBidCeilingMicros string `json:"cpcBidCeilingMicros"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAccountBudget struct {
+type GoogleAdsGoogleadsV26ResourcesAccountBudget struct {
 	BillingSetup                string          `json:"billingSetup"`
 	ProposedStartDateTime       string          `json:"proposedStartDateTime"`
 	AdjustedSpendingLimitMicros string          `json:"adjustedSpendingLimitMicros"`
@@ -2682,7 +2682,7 @@ type GoogleAdsGoogleadsV22ResourcesAccountBudget struct {
 	ApprovedEndDateTime         string          `json:"approvedEndDateTime"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAccountBudgetPendingAccountBudgetProposal struct {
+type GoogleAdsGoogleadsV26ResourcesAccountBudgetPendingAccountBudgetProposal struct {
 	AccountBudgetProposal string `json:"accountBudgetProposal"`
 	PurchaseOrderNumber   string `json:"purchaseOrderNumber"`
 	SpendingLimitType     string `json:"spendingLimitType"`
@@ -2696,7 +2696,7 @@ type GoogleAdsGoogleadsV22ResourcesAccountBudgetPendingAccountBudgetProposal str
 	Notes                 string `json:"notes"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAccountBudgetProposal struct {
+type GoogleAdsGoogleadsV26ResourcesAccountBudgetProposal struct {
 	Id                          string `json:"id"`
 	ApprovedEndDateTime         string `json:"approvedEndDateTime"`
 	ApprovalDateTime            string `json:"approvalDateTime"`
@@ -2721,7 +2721,7 @@ type GoogleAdsGoogleadsV22ResourcesAccountBudgetProposal struct {
 	BillingSetup                string `json:"billingSetup"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAccountLink struct {
+type GoogleAdsGoogleadsV26ResourcesAccountLink struct {
 	ResourceName           string          `json:"resourceName"`
 	AccountLinkId          string          `json:"accountLinkId"`
 	Status                 string          `json:"status"`
@@ -2729,7 +2729,7 @@ type GoogleAdsGoogleadsV22ResourcesAccountLink struct {
 	Type                   string          `json:"type"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAd struct {
+type GoogleAdsGoogleadsV26ResourcesAd struct {
 	DemandGenProductAd          json.RawMessage `json:"demandGenProductAd"`
 	DevicePreference            string          `json:"devicePreference"`
 	FinalUrls                   json.RawMessage `json:"finalUrls"`
@@ -2773,7 +2773,7 @@ type GoogleAdsGoogleadsV22ResourcesAd struct {
 	ImageAd                     json.RawMessage `json:"imageAd"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroup struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroup struct {
 	Id                            string          `json:"id"`
 	EffectiveTargetCpc            string          `json:"effectiveTargetCpc"`
 	ExcludedParentAssetSetTypes   json.RawMessage `json:"excludedParentAssetSetTypes"`
@@ -2817,7 +2817,7 @@ type GoogleAdsGoogleadsV22ResourcesAdGroup struct {
 	EffectiveTargetCpcSource      string          `json:"effectiveTargetCpcSource"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupAd struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupAd struct {
 	PrimaryStatusReasons             json.RawMessage `json:"primaryStatusReasons"`
 	AdGroup                          string          `json:"adGroup"`
 	AdGroupAdAssetAutomationSettings json.RawMessage `json:"adGroupAdAssetAutomationSettings"`
@@ -2831,24 +2831,24 @@ type GoogleAdsGoogleadsV22ResourcesAdGroupAd struct {
 	PolicySummary                    json.RawMessage `json:"policySummary"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupAdAssetAutomationSetting struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupAdAssetAutomationSetting struct {
 	AssetAutomationStatus string `json:"assetAutomationStatus"`
 	AssetAutomationType   string `json:"assetAutomationType"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupAdAssetCombinationView struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupAdAssetCombinationView struct {
 	ResourceName string          `json:"resourceName"`
 	Enabled      bool            `json:"enabled"`
 	ServedAssets json.RawMessage `json:"servedAssets"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupAdAssetPolicySummary struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupAdAssetPolicySummary struct {
 	ReviewStatus       string          `json:"reviewStatus"`
 	PolicyTopicEntries json.RawMessage `json:"policyTopicEntries"`
 	ApprovalStatus     string          `json:"approvalStatus"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupAdAssetView struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupAdAssetView struct {
 	AdGroupAd        string          `json:"adGroupAd"`
 	ResourceName     string          `json:"resourceName"`
 	Enabled          bool            `json:"enabled"`
@@ -2860,23 +2860,23 @@ type GoogleAdsGoogleadsV22ResourcesAdGroupAdAssetView struct {
 	Source           string          `json:"source"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupAdLabel struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupAdLabel struct {
 	AdGroupAd    string `json:"adGroupAd"`
 	Label        string `json:"label"`
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupAdPolicySummary struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupAdPolicySummary struct {
 	ReviewStatus       string          `json:"reviewStatus"`
 	ApprovalStatus     string          `json:"approvalStatus"`
 	PolicyTopicEntries json.RawMessage `json:"policyTopicEntries"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupAiMaxAdGroupSetting struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupAiMaxAdGroupSetting struct {
 	DisableSearchTermMatching bool `json:"disableSearchTermMatching"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupAsset struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupAsset struct {
 	AdGroup              string          `json:"adGroup"`
 	PrimaryStatusDetails json.RawMessage `json:"primaryStatusDetails"`
 	Source               string          `json:"source"`
@@ -2888,22 +2888,22 @@ type GoogleAdsGoogleadsV22ResourcesAdGroupAsset struct {
 	Status               string          `json:"status"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupAssetSet struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupAssetSet struct {
 	Status       string `json:"status"`
 	ResourceName string `json:"resourceName"`
 	AdGroup      string `json:"adGroup"`
 	AssetSet     string `json:"assetSet"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupAudienceSetting struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupAudienceSetting struct {
 	UseAudienceGrouped bool `json:"useAudienceGrouped"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupAudienceView struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupAudienceView struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupBidModifier struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupBidModifier struct {
 	HotelLengthOfStay         json.RawMessage `json:"hotelLengthOfStay"`
 	AdGroup                   string          `json:"adGroup"`
 	BaseAdGroup               string          `json:"baseAdGroup"`
@@ -2918,7 +2918,7 @@ type GoogleAdsGoogleadsV22ResourcesAdGroupBidModifier struct {
 	ResourceName              string          `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupCriterion struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupCriterion struct {
 	EffectivePercentCpcBidMicros string          `json:"effectivePercentCpcBidMicros"`
 	SystemServingStatus          string          `json:"systemServingStatus"`
 	UrlCustomParameters          json.RawMessage `json:"urlCustomParameters"`
@@ -2981,7 +2981,7 @@ type GoogleAdsGoogleadsV22ResourcesAdGroupCriterion struct {
 	Labels                       json.RawMessage `json:"labels"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupCriterionCustomizer struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupCriterionCustomizer struct {
 	ResourceName        string          `json:"resourceName"`
 	Status              string          `json:"status"`
 	Value               json.RawMessage `json:"value"`
@@ -2989,13 +2989,13 @@ type GoogleAdsGoogleadsV22ResourcesAdGroupCriterionCustomizer struct {
 	CustomizerAttribute string          `json:"customizerAttribute"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupCriterionLabel struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupCriterionLabel struct {
 	AdGroupCriterion string `json:"adGroupCriterion"`
 	Label            string `json:"label"`
 	ResourceName     string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupCriterionPositionEstimates struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupCriterionPositionEstimates struct {
 	EstimatedAddClicksAtFirstPositionCpc string `json:"estimatedAddClicksAtFirstPositionCpc"`
 	FirstPageCpcMicros                   string `json:"firstPageCpcMicros"`
 	TopOfPageCpcMicros                   string `json:"topOfPageCpcMicros"`
@@ -3003,14 +3003,14 @@ type GoogleAdsGoogleadsV22ResourcesAdGroupCriterionPositionEstimates struct {
 	EstimatedAddCostAtFirstPositionCpc   string `json:"estimatedAddCostAtFirstPositionCpc"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupCriterionQualityInfo struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupCriterionQualityInfo struct {
 	SearchPredictedCtr    string `json:"searchPredictedCtr"`
 	PostClickQualityScore string `json:"postClickQualityScore"`
 	QualityScore          int    `json:"qualityScore"`
 	CreativeQualityScore  string `json:"creativeQualityScore"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupCriterionSimulation struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupCriterionSimulation struct {
 	CriterionId            string          `json:"criterionId"`
 	ResourceName           string          `json:"resourceName"`
 	PercentCpcBidPointList json.RawMessage `json:"percentCpcBidPointList"`
@@ -3022,7 +3022,7 @@ type GoogleAdsGoogleadsV22ResourcesAdGroupCriterionSimulation struct {
 	StartDate              string          `json:"startDate"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupCustomizer struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupCustomizer struct {
 	CustomizerAttribute string          `json:"customizerAttribute"`
 	Value               json.RawMessage `json:"value"`
 	AdGroup             string          `json:"adGroup"`
@@ -3030,17 +3030,17 @@ type GoogleAdsGoogleadsV22ResourcesAdGroupCustomizer struct {
 	ResourceName        string          `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupDemandGenAdGroupSettings struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupDemandGenAdGroupSettings struct {
 	ChannelControls json.RawMessage `json:"channelControls"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupDemandGenAdGroupSettingsDemandGenChannelControls struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupDemandGenAdGroupSettingsDemandGenChannelControls struct {
 	ChannelStrategy  string          `json:"channelStrategy"`
 	SelectedChannels json.RawMessage `json:"selectedChannels"`
 	ChannelConfig    string          `json:"channelConfig"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupDemandGenAdGroupSettingsDemandGenChannelControlsDemandGenSelectedChannels struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupDemandGenAdGroupSettingsDemandGenChannelControlsDemandGenSelectedChannels struct {
 	YoutubeInStream bool `json:"youtubeInStream"`
 	Gmail           bool `json:"gmail"`
 	YoutubeInFeed   bool `json:"youtubeInFeed"`
@@ -3049,13 +3049,13 @@ type GoogleAdsGoogleadsV22ResourcesAdGroupDemandGenAdGroupSettingsDemandGenChann
 	Display         bool `json:"display"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupLabel struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupLabel struct {
 	ResourceName string `json:"resourceName"`
 	AdGroup      string `json:"adGroup"`
 	Label        string `json:"label"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupSimulation struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupSimulation struct {
 	Type                string          `json:"type"`
 	CpvBidPointList     json.RawMessage `json:"cpvBidPointList"`
 	TargetRoasPointList json.RawMessage `json:"targetRoasPointList"`
@@ -3068,49 +3068,49 @@ type GoogleAdsGoogleadsV22ResourcesAdGroupSimulation struct {
 	AdGroupId           string          `json:"adGroupId"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupVideoAdGroupSettings struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupVideoAdGroupSettings struct {
 	VideoAdSequence json.RawMessage `json:"videoAdSequence"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdGroupVideoAdGroupSettingsVideoAdSequenceStepSetting struct {
+type GoogleAdsGoogleadsV26ResourcesAdGroupVideoAdGroupSettingsVideoAdSequenceStepSetting struct {
 	StepId string `json:"stepId"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdParameter struct {
+type GoogleAdsGoogleadsV26ResourcesAdParameter struct {
 	AdGroupCriterion string `json:"adGroupCriterion"`
 	ResourceName     string `json:"resourceName"`
 	ParameterIndex   string `json:"parameterIndex"`
 	InsertionText    string `json:"insertionText"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdScheduleView struct {
+type GoogleAdsGoogleadsV26ResourcesAdScheduleView struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdStrengthActionItem struct {
+type GoogleAdsGoogleadsV26ResourcesAdStrengthActionItem struct {
 	ActionItemType  string          `json:"actionItemType"`
 	AddAssetDetails json.RawMessage `json:"addAssetDetails"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdStrengthActionItemAddAssetDetails struct {
+type GoogleAdsGoogleadsV26ResourcesAdStrengthActionItemAddAssetDetails struct {
 	AssetFieldType              string `json:"assetFieldType"`
 	AssetCount                  int    `json:"assetCount"`
 	VideoAspectRatioRequirement string `json:"videoAspectRatioRequirement"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdvertisingPartnerIdentifier struct {
+type GoogleAdsGoogleadsV26ResourcesAdvertisingPartnerIdentifier struct {
 	Customer string `json:"customer"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAdvertisingPartnerLinkInvitationIdentifier struct {
+type GoogleAdsGoogleadsV26ResourcesAdvertisingPartnerLinkInvitationIdentifier struct {
 	Customer string `json:"customer"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAgeRangeView struct {
+type GoogleAdsGoogleadsV26ResourcesAgeRangeView struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAiMaxSearchTermAdCombinationView struct {
+type GoogleAdsGoogleadsV26ResourcesAiMaxSearchTermAdCombinationView struct {
 	AdGroup      string `json:"adGroup"`
 	LandingPage  string `json:"landingPage"`
 	ResourceName string `json:"resourceName"`
@@ -3118,7 +3118,7 @@ type GoogleAdsGoogleadsV22ResourcesAiMaxSearchTermAdCombinationView struct {
 	Headline     string `json:"headline"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAndroidPrivacySharedKeyGoogleAdGroup struct {
+type GoogleAdsGoogleadsV26ResourcesAndroidPrivacySharedKeyGoogleAdGroup struct {
 	AndroidPrivacyNetworkType     string `json:"androidPrivacyNetworkType"`
 	AndroidPrivacyInteractionType string `json:"androidPrivacyInteractionType"`
 	CampaignId                    string `json:"campaignId"`
@@ -3128,7 +3128,7 @@ type GoogleAdsGoogleadsV22ResourcesAndroidPrivacySharedKeyGoogleAdGroup struct {
 	AndroidPrivacyInteractionDate string `json:"androidPrivacyInteractionDate"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAndroidPrivacySharedKeyGoogleCampaign struct {
+type GoogleAdsGoogleadsV26ResourcesAndroidPrivacySharedKeyGoogleCampaign struct {
 	AndroidPrivacyInteractionDate string `json:"androidPrivacyInteractionDate"`
 	ResourceName                  string `json:"resourceName"`
 	CampaignId                    string `json:"campaignId"`
@@ -3136,7 +3136,7 @@ type GoogleAdsGoogleadsV22ResourcesAndroidPrivacySharedKeyGoogleCampaign struct 
 	SharedCampaignKey             string `json:"sharedCampaignKey"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAndroidPrivacySharedKeyGoogleNetworkType struct {
+type GoogleAdsGoogleadsV26ResourcesAndroidPrivacySharedKeyGoogleNetworkType struct {
 	SharedNetworkTypeKey          string `json:"sharedNetworkTypeKey"`
 	AndroidPrivacyInteractionDate string `json:"androidPrivacyInteractionDate"`
 	ResourceName                  string `json:"resourceName"`
@@ -3145,7 +3145,7 @@ type GoogleAdsGoogleadsV22ResourcesAndroidPrivacySharedKeyGoogleNetworkType stru
 	AndroidPrivacyNetworkType     string `json:"androidPrivacyNetworkType"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAsset struct {
+type GoogleAdsGoogleadsV26ResourcesAsset struct {
 	Name                         string          `json:"name"`
 	SitelinkAsset                json.RawMessage `json:"sitelinkAsset"`
 	TrackingUrlTemplate          string          `json:"trackingUrlTemplate"`
@@ -3190,22 +3190,22 @@ type GoogleAdsGoogleadsV22ResourcesAsset struct {
 	BookOnGoogleAsset            json.RawMessage `json:"bookOnGoogleAsset"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAssetCoverage struct {
+type GoogleAdsGoogleadsV26ResourcesAssetCoverage struct {
 	AdStrengthActionItems json.RawMessage `json:"adStrengthActionItems"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAssetFieldTypePolicySummary struct {
+type GoogleAdsGoogleadsV26ResourcesAssetFieldTypePolicySummary struct {
 	AssetSource       string          `json:"assetSource"`
 	AssetFieldType    string          `json:"assetFieldType"`
 	PolicySummaryInfo json.RawMessage `json:"policySummaryInfo"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAssetFieldTypeView struct {
+type GoogleAdsGoogleadsV26ResourcesAssetFieldTypeView struct {
 	FieldType    string `json:"fieldType"`
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAssetGroup struct {
+type GoogleAdsGoogleadsV26ResourcesAssetGroup struct {
 	ResourceName         string          `json:"resourceName"`
 	Status               string          `json:"status"`
 	Id                   string          `json:"id"`
@@ -3221,7 +3221,7 @@ type GoogleAdsGoogleadsV22ResourcesAssetGroup struct {
 	FinalUrls            json.RawMessage `json:"finalUrls"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAssetGroupAsset struct {
+type GoogleAdsGoogleadsV26ResourcesAssetGroupAsset struct {
 	AssetGroup           string          `json:"assetGroup"`
 	FieldType            string          `json:"fieldType"`
 	PrimaryStatusReasons json.RawMessage `json:"primaryStatusReasons"`
@@ -3234,11 +3234,11 @@ type GoogleAdsGoogleadsV22ResourcesAssetGroupAsset struct {
 	Asset                string          `json:"asset"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAssetGroupAssetCombinationData struct {
+type GoogleAdsGoogleadsV26ResourcesAssetGroupAssetCombinationData struct {
 	AssetCombinationServedAssets json.RawMessage `json:"assetCombinationServedAssets"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAssetGroupListingGroupFilter struct {
+type GoogleAdsGoogleadsV26ResourcesAssetGroupListingGroupFilter struct {
 	ResourceName             string          `json:"resourceName"`
 	AssetGroup               string          `json:"assetGroup"`
 	CaseValue                json.RawMessage `json:"caseValue"`
@@ -3249,13 +3249,13 @@ type GoogleAdsGoogleadsV22ResourcesAssetGroupListingGroupFilter struct {
 	Path                     json.RawMessage `json:"path"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAssetGroupProductGroupView struct {
+type GoogleAdsGoogleadsV26ResourcesAssetGroupProductGroupView struct {
 	ResourceName                 string `json:"resourceName"`
 	AssetGroup                   string `json:"assetGroup"`
 	AssetGroupListingGroupFilter string `json:"assetGroupListingGroupFilter"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAssetGroupSignal struct {
+type GoogleAdsGoogleadsV26ResourcesAssetGroupSignal struct {
 	AssetGroup         string          `json:"assetGroup"`
 	ResourceName       string          `json:"resourceName"`
 	ApprovalStatus     string          `json:"approvalStatus"`
@@ -3264,18 +3264,18 @@ type GoogleAdsGoogleadsV22ResourcesAssetGroupSignal struct {
 	Audience           json.RawMessage `json:"audience"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAssetGroupTopCombinationView struct {
+type GoogleAdsGoogleadsV26ResourcesAssetGroupTopCombinationView struct {
 	ResourceName              string          `json:"resourceName"`
 	AssetGroupTopCombinations json.RawMessage `json:"assetGroupTopCombinations"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAssetPolicySummary struct {
+type GoogleAdsGoogleadsV26ResourcesAssetPolicySummary struct {
 	ReviewStatus       string          `json:"reviewStatus"`
 	ApprovalStatus     string          `json:"approvalStatus"`
 	PolicyTopicEntries json.RawMessage `json:"policyTopicEntries"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAssetSet struct {
+type GoogleAdsGoogleadsV26ResourcesAssetSet struct {
 	Status                        string          `json:"status"`
 	HotelPropertyData             json.RawMessage `json:"hotelPropertyData"`
 	LocationSet                   json.RawMessage `json:"locationSet"`
@@ -3289,29 +3289,29 @@ type GoogleAdsGoogleadsV22ResourcesAssetSet struct {
 	Id                            string          `json:"id"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAssetSetAsset struct {
+type GoogleAdsGoogleadsV26ResourcesAssetSetAsset struct {
 	ResourceName string `json:"resourceName"`
 	AssetSet     string `json:"assetSet"`
 	Asset        string `json:"asset"`
 	Status       string `json:"status"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAssetSetHotelPropertyData struct {
+type GoogleAdsGoogleadsV26ResourcesAssetSetHotelPropertyData struct {
 	HotelCenterId string `json:"hotelCenterId"`
 	PartnerName   string `json:"partnerName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAssetSetMerchantCenterFeed struct {
+type GoogleAdsGoogleadsV26ResourcesAssetSetMerchantCenterFeed struct {
 	MerchantId string `json:"merchantId"`
 	FeedLabel  string `json:"feedLabel"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAssetSetTypeView struct {
+type GoogleAdsGoogleadsV26ResourcesAssetSetTypeView struct {
 	ResourceName string `json:"resourceName"`
 	AssetSetType string `json:"assetSetType"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesAudience struct {
+type GoogleAdsGoogleadsV26ResourcesAudience struct {
 	Status             string          `json:"status"`
 	ExclusionDimension json.RawMessage `json:"exclusionDimension"`
 	ResourceName       string          `json:"resourceName"`
@@ -3323,12 +3323,12 @@ type GoogleAdsGoogleadsV22ResourcesAudience struct {
 	Description        string          `json:"description"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesBackgroundCheckVerificationArtifact struct {
+type GoogleAdsGoogleadsV26ResourcesBackgroundCheckVerificationArtifact struct {
 	CaseUrl                   string `json:"caseUrl"`
 	FinalAdjudicationDateTime string `json:"finalAdjudicationDateTime"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesBatchJob struct {
+type GoogleAdsGoogleadsV26ResourcesBatchJob struct {
 	Status               string          `json:"status"`
 	LongRunningOperation string          `json:"longRunningOperation"`
 	ResourceName         string          `json:"resourceName"`
@@ -3337,7 +3337,7 @@ type GoogleAdsGoogleadsV22ResourcesBatchJob struct {
 	Id                   string          `json:"id"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesBatchJobBatchJobMetadata struct {
+type GoogleAdsGoogleadsV26ResourcesBatchJobBatchJobMetadata struct {
 	StartDateTime            string  `json:"startDateTime"`
 	ExecutionLimitSeconds    int     `json:"executionLimitSeconds"`
 	OperationCount           string  `json:"operationCount"`
@@ -3347,7 +3347,7 @@ type GoogleAdsGoogleadsV22ResourcesBatchJobBatchJobMetadata struct {
 	ExecutedOperationCount   string  `json:"executedOperationCount"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesBiddingDataExclusion struct {
+type GoogleAdsGoogleadsV26ResourcesBiddingDataExclusion struct {
 	ResourceName            string          `json:"resourceName"`
 	Devices                 json.RawMessage `json:"devices"`
 	Status                  string          `json:"status"`
@@ -3361,7 +3361,7 @@ type GoogleAdsGoogleadsV22ResourcesBiddingDataExclusion struct {
 	AdvertisingChannelTypes json.RawMessage `json:"advertisingChannelTypes"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesBiddingSeasonalityAdjustment struct {
+type GoogleAdsGoogleadsV26ResourcesBiddingSeasonalityAdjustment struct {
 	SeasonalityAdjustmentId string          `json:"seasonalityAdjustmentId"`
 	ConversionRateModifier  float64         `json:"conversionRateModifier"`
 	ResourceName            string          `json:"resourceName"`
@@ -3376,7 +3376,7 @@ type GoogleAdsGoogleadsV22ResourcesBiddingSeasonalityAdjustment struct {
 	Campaigns               json.RawMessage `json:"campaigns"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesBiddingStrategy struct {
+type GoogleAdsGoogleadsV26ResourcesBiddingStrategy struct {
 	Name                    string          `json:"name"`
 	TargetImpressionShare   json.RawMessage `json:"targetImpressionShare"`
 	TargetSpend             json.RawMessage `json:"targetSpend"`
@@ -3396,7 +3396,7 @@ type GoogleAdsGoogleadsV22ResourcesBiddingStrategy struct {
 	TargetRoas              json.RawMessage `json:"targetRoas"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesBiddingStrategySimulation struct {
+type GoogleAdsGoogleadsV26ResourcesBiddingStrategySimulation struct {
 	EndDate             string          `json:"endDate"`
 	ResourceName        string          `json:"resourceName"`
 	TargetCpaPointList  json.RawMessage `json:"targetCpaPointList"`
@@ -3407,7 +3407,7 @@ type GoogleAdsGoogleadsV22ResourcesBiddingStrategySimulation struct {
 	Type                string          `json:"type"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesBillingSetup struct {
+type GoogleAdsGoogleadsV26ResourcesBillingSetup struct {
 	ResourceName        string          `json:"resourceName"`
 	Status              string          `json:"status"`
 	EndTimeType         string          `json:"endTimeType"`
@@ -3419,7 +3419,7 @@ type GoogleAdsGoogleadsV22ResourcesBillingSetup struct {
 	PaymentsAccountInfo json.RawMessage `json:"paymentsAccountInfo"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesBillingSetupPaymentsAccountInfo struct {
+type GoogleAdsGoogleadsV26ResourcesBillingSetupPaymentsAccountInfo struct {
 	SecondaryPaymentsProfileId string `json:"secondaryPaymentsProfileId"`
 	PaymentsProfileId          string `json:"paymentsProfileId"`
 	PaymentsAccountId          string `json:"paymentsAccountId"`
@@ -3427,7 +3427,7 @@ type GoogleAdsGoogleadsV22ResourcesBillingSetupPaymentsAccountInfo struct {
 	PaymentsProfileName        string `json:"paymentsProfileName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesBusinessRegistrationCheckVerificationArtifact struct {
+type GoogleAdsGoogleadsV26ResourcesBusinessRegistrationCheckVerificationArtifact struct {
 	RegistrationNumber   json.RawMessage `json:"registrationNumber"`
 	CheckId              string          `json:"checkId"`
 	RegistrationDocument json.RawMessage `json:"registrationDocument"`
@@ -3435,21 +3435,21 @@ type GoogleAdsGoogleadsV22ResourcesBusinessRegistrationCheckVerificationArtifact
 	RegistrationType     string          `json:"registrationType"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesBusinessRegistrationDocument struct {
+type GoogleAdsGoogleadsV26ResourcesBusinessRegistrationDocument struct {
 	DocumentReadonly json.RawMessage `json:"documentReadonly"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesBusinessRegistrationNumber struct {
+type GoogleAdsGoogleadsV26ResourcesBusinessRegistrationNumber struct {
 	Number string `json:"number"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCallReportingSetting struct {
+type GoogleAdsGoogleadsV26ResourcesCallReportingSetting struct {
 	CallConversionAction           string `json:"callConversionAction"`
 	CallConversionReportingEnabled bool   `json:"callConversionReportingEnabled"`
 	CallReportingEnabled           bool   `json:"callReportingEnabled"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCallView struct {
+type GoogleAdsGoogleadsV26ResourcesCallView struct {
 	EndCallDateTime             string `json:"endCallDateTime"`
 	StartCallDateTime           string `json:"startCallDateTime"`
 	CallTrackingDisplayLocation string `json:"callTrackingDisplayLocation"`
@@ -3461,7 +3461,7 @@ type GoogleAdsGoogleadsV22ResourcesCallView struct {
 	CallDurationSeconds         string `json:"callDurationSeconds"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaign struct {
+type GoogleAdsGoogleadsV26ResourcesCampaign struct {
 	LocalServicesCampaignSettings            json.RawMessage `json:"localServicesCampaignSettings"`
 	OptimizationGoalSetting                  json.RawMessage `json:"optimizationGoalSetting"`
 	ServingStatus                            string          `json:"servingStatus"`
@@ -3541,7 +3541,7 @@ type GoogleAdsGoogleadsV22ResourcesCampaign struct {
 	PrimaryStatus                            string          `json:"primaryStatus"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignAggregateAssetView struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignAggregateAssetView struct {
 	ResourceName string `json:"resourceName"`
 	Campaign     string `json:"campaign"`
 	AssetSource  string `json:"assetSource"`
@@ -3549,18 +3549,18 @@ type GoogleAdsGoogleadsV22ResourcesCampaignAggregateAssetView struct {
 	Asset        string `json:"asset"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignAiMaxSetting struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignAiMaxSetting struct {
 	EnableAiMax      bool   `json:"enableAiMax"`
 	BundlingRequired string `json:"bundlingRequired"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignAppCampaignSetting struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignAppCampaignSetting struct {
 	BiddingStrategyGoalType string `json:"biddingStrategyGoalType"`
 	AppId                   string `json:"appId"`
 	AppStore                string `json:"appStore"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignAsset struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignAsset struct {
 	PrimaryStatus        string          `json:"primaryStatus"`
 	ResourceName         string          `json:"resourceName"`
 	Status               string          `json:"status"`
@@ -3572,27 +3572,27 @@ type GoogleAdsGoogleadsV22ResourcesCampaignAsset struct {
 	PrimaryStatusDetails json.RawMessage `json:"primaryStatusDetails"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignAssetAutomationSetting struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignAssetAutomationSetting struct {
 	AssetAutomationStatus string `json:"assetAutomationStatus"`
 	AssetAutomationType   string `json:"assetAutomationType"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignAssetSet struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignAssetSet struct {
 	ResourceName string `json:"resourceName"`
 	Campaign     string `json:"campaign"`
 	AssetSet     string `json:"assetSet"`
 	Status       string `json:"status"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignAudienceSetting struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignAudienceSetting struct {
 	UseAudienceGrouped bool `json:"useAudienceGrouped"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignAudienceView struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignAudienceView struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignBidModifier struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignBidModifier struct {
 	InteractionType json.RawMessage `json:"interactionType"`
 	BidModifier     float64         `json:"bidModifier"`
 	ResourceName    string          `json:"resourceName"`
@@ -3600,13 +3600,13 @@ type GoogleAdsGoogleadsV22ResourcesCampaignBidModifier struct {
 	CriterionId     string          `json:"criterionId"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignBrandGuidelines struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignBrandGuidelines struct {
 	AccentColor          string `json:"accentColor"`
 	PredefinedFontFamily string `json:"predefinedFontFamily"`
 	MainColor            string `json:"mainColor"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignBudget struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignBudget struct {
 	Id                                                 string `json:"id"`
 	AlignedBiddingStrategyId                           string `json:"alignedBiddingStrategyId"`
 	ReferenceCount                                     string `json:"referenceCount"`
@@ -3627,13 +3627,13 @@ type GoogleAdsGoogleadsV22ResourcesCampaignBudget struct {
 	ExplicitlyShared                                   bool   `json:"explicitlyShared"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignCategoryBid struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignCategoryBid struct {
 	ManualCpaBidMicros string `json:"manualCpaBidMicros"`
 	TargetCpaBidMicros string `json:"targetCpaBidMicros"`
 	CategoryId         string `json:"categoryId"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignConversionGoal struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignConversionGoal struct {
 	Category     string `json:"category"`
 	Origin       string `json:"origin"`
 	Biddable     bool   `json:"biddable"`
@@ -3641,7 +3641,7 @@ type GoogleAdsGoogleadsV22ResourcesCampaignConversionGoal struct {
 	Campaign     string `json:"campaign"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignCriterion struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignCriterion struct {
 	YoutubeVideo           json.RawMessage `json:"youtubeVideo"`
 	IpBlock                json.RawMessage `json:"ipBlock"`
 	Negative               bool            `json:"negative"`
@@ -3688,7 +3688,7 @@ type GoogleAdsGoogleadsV22ResourcesCampaignCriterion struct {
 	DisplayName            string          `json:"displayName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignCustomizer struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignCustomizer struct {
 	ResourceName        string          `json:"resourceName"`
 	Campaign            string          `json:"campaign"`
 	Status              string          `json:"status"`
@@ -3696,11 +3696,11 @@ type GoogleAdsGoogleadsV22ResourcesCampaignCustomizer struct {
 	Value               json.RawMessage `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignDemandGenCampaignSettings struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignDemandGenCampaignSettings struct {
 	UpgradedTargeting bool `json:"upgradedTargeting"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignDraft struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignDraft struct {
 	Status               string `json:"status"`
 	LongRunningOperation string `json:"longRunningOperation"`
 	ResourceName         string `json:"resourceName"`
@@ -3711,18 +3711,18 @@ type GoogleAdsGoogleadsV22ResourcesCampaignDraft struct {
 	HasExperimentRunning bool   `json:"hasExperimentRunning"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignDynamicSearchAdsSetting struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignDynamicSearchAdsSetting struct {
 	UseSuppliedUrlsOnly bool   `json:"useSuppliedUrlsOnly"`
 	DomainName          string `json:"domainName"`
 	LanguageCode        string `json:"languageCode"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignGeoTargetTypeSetting struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignGeoTargetTypeSetting struct {
 	PositiveGeoTargetType string `json:"positiveGeoTargetType"`
 	NegativeGeoTargetType string `json:"negativeGeoTargetType"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignGoalConfig struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignGoalConfig struct {
 	ResourceName              string          `json:"resourceName"`
 	Campaign                  string          `json:"campaign"`
 	GoalType                  string          `json:"goalType"`
@@ -3730,38 +3730,38 @@ type GoogleAdsGoogleadsV22ResourcesCampaignGoalConfig struct {
 	Goal                      string          `json:"goal"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignGroup struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignGroup struct {
 	Status       string `json:"status"`
 	Id           string `json:"id"`
 	Name         string `json:"name"`
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignHotelSettingInfo struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignHotelSettingInfo struct {
 	HotelCenterId string `json:"hotelCenterId"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignLabel struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignLabel struct {
 	ResourceName string `json:"resourceName"`
 	Campaign     string `json:"campaign"`
 	Label        string `json:"label"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignLifecycleGoal struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignLifecycleGoal struct {
 	ResourceName                    string          `json:"resourceName"`
 	Campaign                        string          `json:"campaign"`
 	CustomerAcquisitionGoalSettings json.RawMessage `json:"customerAcquisitionGoalSettings"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignLocalCampaignSetting struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignLocalCampaignSetting struct {
 	LocationSourceType string `json:"locationSourceType"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignLocalServicesCampaignSettings struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignLocalServicesCampaignSettings struct {
 	CategoryBids json.RawMessage `json:"categoryBids"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignNetworkSettings struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignNetworkSettings struct {
 	TargetSearchNetwork        bool `json:"targetSearchNetwork"`
 	TargetContentNetwork       bool `json:"targetContentNetwork"`
 	TargetGoogleTvNetwork      bool `json:"targetGoogleTvNetwork"`
@@ -3770,49 +3770,49 @@ type GoogleAdsGoogleadsV22ResourcesCampaignNetworkSettings struct {
 	TargetGoogleSearch         bool `json:"targetGoogleSearch"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignOptimizationGoalSetting struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignOptimizationGoalSetting struct {
 	OptimizationGoalTypes json.RawMessage `json:"optimizationGoalTypes"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignPerformanceMaxUpgrade struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignPerformanceMaxUpgrade struct {
 	PerformanceMaxCampaign string `json:"performanceMaxCampaign"`
 	Status                 string `json:"status"`
 	PreUpgradeCampaign     string `json:"preUpgradeCampaign"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignPmaxCampaignSettings struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignPmaxCampaignSettings struct {
 	BrandTargetingOverrides json.RawMessage `json:"brandTargetingOverrides"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignPmaxCampaignSettingsBrandTargetingOverrides struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignPmaxCampaignSettingsBrandTargetingOverrides struct {
 	IgnoreExclusionsForShoppingAds bool `json:"ignoreExclusionsForShoppingAds"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignSearchTermInsight struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignSearchTermInsight struct {
 	Id            string `json:"id"`
 	ResourceName  string `json:"resourceName"`
 	CategoryLabel string `json:"categoryLabel"`
 	CampaignId    string `json:"campaignId"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignSearchTermView struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignSearchTermView struct {
 	ResourceName string `json:"resourceName"`
 	SearchTerm   string `json:"searchTerm"`
 	Campaign     string `json:"campaign"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignSelectiveOptimization struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignSelectiveOptimization struct {
 	ConversionActions json.RawMessage `json:"conversionActions"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignSharedSet struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignSharedSet struct {
 	ResourceName string `json:"resourceName"`
 	Campaign     string `json:"campaign"`
 	SharedSet    string `json:"sharedSet"`
 	Status       string `json:"status"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignShoppingSetting struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignShoppingSetting struct {
 	AdvertisingPartnerIds json.RawMessage `json:"advertisingPartnerIds"`
 	DisableProductFeed    bool            `json:"disableProductFeed"`
 	FeedLabel             string          `json:"feedLabel"`
@@ -3822,7 +3822,7 @@ type GoogleAdsGoogleadsV22ResourcesCampaignShoppingSetting struct {
 	MerchantId            string          `json:"merchantId"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignSimulation struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignSimulation struct {
 	ModificationMethod             string          `json:"modificationMethod"`
 	StartDate                      string          `json:"startDate"`
 	TargetImpressionSharePointList json.RawMessage `json:"targetImpressionSharePointList"`
@@ -3836,48 +3836,48 @@ type GoogleAdsGoogleadsV22ResourcesCampaignSimulation struct {
 	TargetCpaPointList             json.RawMessage `json:"targetCpaPointList"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignTrackingSetting struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignTrackingSetting struct {
 	TrackingUrl string `json:"trackingUrl"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignTravelCampaignSettings struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignTravelCampaignSettings struct {
 	TravelAccountId string `json:"travelAccountId"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignVanityPharma struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignVanityPharma struct {
 	VanityPharmaText           string `json:"vanityPharmaText"`
 	VanityPharmaDisplayUrlMode string `json:"vanityPharmaDisplayUrlMode"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignVideoCampaignSettings struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignVideoCampaignSettings struct {
 	VideoAdSequence         json.RawMessage `json:"videoAdSequence"`
 	VideoAdInventoryControl json.RawMessage `json:"videoAdInventoryControl"`
 	VideoAdFormatControl    json.RawMessage `json:"videoAdFormatControl"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignVideoCampaignSettingsNonSkippableInStreamRestrictions struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignVideoCampaignSettingsNonSkippableInStreamRestrictions struct {
 	MinDuration string `json:"minDuration"`
 	MaxDuration string `json:"maxDuration"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignVideoCampaignSettingsVideoAdFormatControl struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignVideoCampaignSettingsVideoAdFormatControl struct {
 	FormatRestriction                string          `json:"formatRestriction"`
 	NonSkippableInStreamRestrictions json.RawMessage `json:"nonSkippableInStreamRestrictions"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignVideoCampaignSettingsVideoAdInventoryControl struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignVideoCampaignSettingsVideoAdInventoryControl struct {
 	AllowInStream             bool `json:"allowInStream"`
 	AllowShorts               bool `json:"allowShorts"`
 	AllowInFeed               bool `json:"allowInFeed"`
 	AllowNonSkippableInStream bool `json:"allowNonSkippableInStream"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignVideoCampaignSettingsVideoAdSequence struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignVideoCampaignSettingsVideoAdSequence struct {
 	Steps           json.RawMessage `json:"steps"`
 	MinimumDuration string          `json:"minimumDuration"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCampaignVideoCampaignSettingsVideoAdSequenceStep struct {
+type GoogleAdsGoogleadsV26ResourcesCampaignVideoCampaignSettingsVideoAdSequenceStep struct {
 	AdGroupType                 string `json:"adGroupType"`
 	AssetId                     string `json:"assetId"`
 	VideoAdSequenceStepId       string `json:"videoAdSequenceStepId"`
@@ -3885,14 +3885,14 @@ type GoogleAdsGoogleadsV22ResourcesCampaignVideoCampaignSettingsVideoAdSequenceS
 	PreviousStepInteractionType string `json:"previousStepInteractionType"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCarrierConstant struct {
+type GoogleAdsGoogleadsV26ResourcesCarrierConstant struct {
 	CountryCode  string `json:"countryCode"`
 	Id           string `json:"id"`
 	Name         string `json:"name"`
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesChangeEvent struct {
+type GoogleAdsGoogleadsV26ResourcesChangeEvent struct {
 	Asset                   string          `json:"asset"`
 	ResourceName            string          `json:"resourceName"`
 	ChangeResourceType      string          `json:"changeResourceType"`
@@ -3908,7 +3908,7 @@ type GoogleAdsGoogleadsV22ResourcesChangeEvent struct {
 	NewResource             json.RawMessage `json:"newResource"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesChangeEventChangedResource struct {
+type GoogleAdsGoogleadsV26ResourcesChangeEventChangedResource struct {
 	AssetSet           json.RawMessage `json:"assetSet"`
 	Ad                 json.RawMessage `json:"ad"`
 	CustomerAsset      json.RawMessage `json:"customerAsset"`
@@ -3926,7 +3926,7 @@ type GoogleAdsGoogleadsV22ResourcesChangeEventChangedResource struct {
 	CampaignBudget     json.RawMessage `json:"campaignBudget"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesChangeStatus struct {
+type GoogleAdsGoogleadsV26ResourcesChangeStatus struct {
 	LastChangeDateTime string `json:"lastChangeDateTime"`
 	CampaignAssetSet   string `json:"campaignAssetSet"`
 	CampaignBudget     string `json:"campaignBudget"`
@@ -3950,7 +3950,7 @@ type GoogleAdsGoogleadsV22ResourcesChangeStatus struct {
 	ResourceStatus     string `json:"resourceStatus"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesChannelAggregateAssetView struct {
+type GoogleAdsGoogleadsV26ResourcesChannelAggregateAssetView struct {
 	AdvertisingChannelType string `json:"advertisingChannelType"`
 	AssetSource            string `json:"assetSource"`
 	FieldType              string `json:"fieldType"`
@@ -3958,7 +3958,7 @@ type GoogleAdsGoogleadsV22ResourcesChannelAggregateAssetView struct {
 	Asset                  string `json:"asset"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesClickView struct {
+type GoogleAdsGoogleadsV26ResourcesClickView struct {
 	AreaOfInterest         json.RawMessage `json:"areaOfInterest"`
 	LocationOfPresence     json.RawMessage `json:"locationOfPresence"`
 	KeywordInfo            json.RawMessage `json:"keywordInfo"`
@@ -3971,7 +3971,7 @@ type GoogleAdsGoogleadsV22ResourcesClickView struct {
 	CampaignLocationTarget string          `json:"campaignLocationTarget"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCombinedAudience struct {
+type GoogleAdsGoogleadsV26ResourcesCombinedAudience struct {
 	Name         string `json:"name"`
 	ResourceName string `json:"resourceName"`
 	Status       string `json:"status"`
@@ -3979,17 +3979,17 @@ type GoogleAdsGoogleadsV22ResourcesCombinedAudience struct {
 	Description  string `json:"description"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesContactDetails struct {
+type GoogleAdsGoogleadsV26ResourcesContactDetails struct {
 	Email        string `json:"email"`
 	PhoneNumber  string `json:"phoneNumber"`
 	ConsumerName string `json:"consumerName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesContentCriterionView struct {
+type GoogleAdsGoogleadsV26ResourcesContentCriterionView struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesConversionAction struct {
+type GoogleAdsGoogleadsV26ResourcesConversionAction struct {
 	AttributionModelSettings       json.RawMessage `json:"attributionModelSettings"`
 	Type                           string          `json:"type"`
 	Origin                         string          `json:"origin"`
@@ -4014,36 +4014,36 @@ type GoogleAdsGoogleadsV22ResourcesConversionAction struct {
 	OwnerCustomer                  string          `json:"ownerCustomer"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesConversionActionAttributionModelSettings struct {
+type GoogleAdsGoogleadsV26ResourcesConversionActionAttributionModelSettings struct {
 	AttributionModel      string `json:"attributionModel"`
 	DataDrivenModelStatus string `json:"dataDrivenModelStatus"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesConversionActionFirebaseSettings struct {
+type GoogleAdsGoogleadsV26ResourcesConversionActionFirebaseSettings struct {
 	ProjectId    string `json:"projectId"`
 	PropertyId   string `json:"propertyId"`
 	EventName    string `json:"eventName"`
 	PropertyName string `json:"propertyName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesConversionActionGoogleAnalytics4Settings struct {
+type GoogleAdsGoogleadsV26ResourcesConversionActionGoogleAnalytics4Settings struct {
 	PropertyName string `json:"propertyName"`
 	EventName    string `json:"eventName"`
 	PropertyId   string `json:"propertyId"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesConversionActionThirdPartyAppAnalyticsSettings struct {
+type GoogleAdsGoogleadsV26ResourcesConversionActionThirdPartyAppAnalyticsSettings struct {
 	EventName    string `json:"eventName"`
 	ProviderName string `json:"providerName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesConversionActionValueSettings struct {
+type GoogleAdsGoogleadsV26ResourcesConversionActionValueSettings struct {
 	DefaultValue          float64 `json:"defaultValue"`
 	AlwaysUseDefaultValue bool    `json:"alwaysUseDefaultValue"`
 	DefaultCurrencyCode   string  `json:"defaultCurrencyCode"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesConversionCustomVariable struct {
+type GoogleAdsGoogleadsV26ResourcesConversionCustomVariable struct {
 	Id            string `json:"id"`
 	Name          string `json:"name"`
 	Tag           string `json:"tag"`
@@ -4052,14 +4052,14 @@ type GoogleAdsGoogleadsV22ResourcesConversionCustomVariable struct {
 	Status        string `json:"status"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesConversionGoalCampaignConfig struct {
+type GoogleAdsGoogleadsV26ResourcesConversionGoalCampaignConfig struct {
 	ResourceName         string `json:"resourceName"`
 	Campaign             string `json:"campaign"`
 	GoalConfigLevel      string `json:"goalConfigLevel"`
 	CustomConversionGoal string `json:"customConversionGoal"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesConversionTrackingSetting struct {
+type GoogleAdsGoogleadsV26ResourcesConversionTrackingSetting struct {
 	AcceptedCustomerDataTerms          bool   `json:"acceptedCustomerDataTerms"`
 	GoogleAdsConversionCustomer        string `json:"googleAdsConversionCustomer"`
 	ConversionTrackingId               string `json:"conversionTrackingId"`
@@ -4068,7 +4068,7 @@ type GoogleAdsGoogleadsV22ResourcesConversionTrackingSetting struct {
 	CrossAccountConversionTrackingId   string `json:"crossAccountConversionTrackingId"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesConversionValueRule struct {
+type GoogleAdsGoogleadsV26ResourcesConversionValueRule struct {
 	AudienceCondition    json.RawMessage `json:"audienceCondition"`
 	ItineraryCondition   json.RawMessage `json:"itineraryCondition"`
 	OwnerCustomer        string          `json:"ownerCustomer"`
@@ -4080,7 +4080,7 @@ type GoogleAdsGoogleadsV22ResourcesConversionValueRule struct {
 	GeoLocationCondition json.RawMessage `json:"geoLocationCondition"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesConversionValueRuleSet struct {
+type GoogleAdsGoogleadsV26ResourcesConversionValueRuleSet struct {
 	OwnerCustomer              string          `json:"ownerCustomer"`
 	Campaign                   string          `json:"campaign"`
 	Id                         string          `json:"id"`
@@ -4092,44 +4092,44 @@ type GoogleAdsGoogleadsV22ResourcesConversionValueRuleSet struct {
 	ConversionActionCategories json.RawMessage `json:"conversionActionCategories"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesConversionValueRuleValueRuleAction struct {
+type GoogleAdsGoogleadsV26ResourcesConversionValueRuleValueRuleAction struct {
 	Operation string  `json:"operation"`
 	Value     float64 `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesConversionValueRuleValueRuleAudienceCondition struct {
+type GoogleAdsGoogleadsV26ResourcesConversionValueRuleValueRuleAudienceCondition struct {
 	UserInterests json.RawMessage `json:"userInterests"`
 	UserLists     json.RawMessage `json:"userLists"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesConversionValueRuleValueRuleDeviceCondition struct {
+type GoogleAdsGoogleadsV26ResourcesConversionValueRuleValueRuleDeviceCondition struct {
 	DeviceTypes json.RawMessage `json:"deviceTypes"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesConversionValueRuleValueRuleGeoLocationCondition struct {
+type GoogleAdsGoogleadsV26ResourcesConversionValueRuleValueRuleGeoLocationCondition struct {
 	ExcludedGeoTargetConstants json.RawMessage `json:"excludedGeoTargetConstants"`
 	ExcludedGeoMatchType       string          `json:"excludedGeoMatchType"`
 	GeoTargetConstants         json.RawMessage `json:"geoTargetConstants"`
 	GeoMatchType               string          `json:"geoMatchType"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesConversionValueRuleValueRuleItineraryAdvanceBookingWindow struct {
+type GoogleAdsGoogleadsV26ResourcesConversionValueRuleValueRuleItineraryAdvanceBookingWindow struct {
 	MinDays int `json:"minDays"`
 	MaxDays int `json:"maxDays"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesConversionValueRuleValueRuleItineraryCondition struct {
+type GoogleAdsGoogleadsV26ResourcesConversionValueRuleValueRuleItineraryCondition struct {
 	TravelLength         json.RawMessage `json:"travelLength"`
 	TravelStartDay       json.RawMessage `json:"travelStartDay"`
 	AdvanceBookingWindow json.RawMessage `json:"advanceBookingWindow"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesConversionValueRuleValueRuleItineraryTravelLength struct {
+type GoogleAdsGoogleadsV26ResourcesConversionValueRuleValueRuleItineraryTravelLength struct {
 	MinNights int `json:"minNights"`
 	MaxNights int `json:"maxNights"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesConversionValueRuleValueRuleItineraryTravelStartDay struct {
+type GoogleAdsGoogleadsV26ResourcesConversionValueRuleValueRuleItineraryTravelStartDay struct {
 	Friday    bool `json:"friday"`
 	Wednesday bool `json:"wednesday"`
 	Tuesday   bool `json:"tuesday"`
@@ -4139,12 +4139,12 @@ type GoogleAdsGoogleadsV22ResourcesConversionValueRuleValueRuleItineraryTravelSt
 	Saturday  bool `json:"saturday"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCreditDetails struct {
+type GoogleAdsGoogleadsV26ResourcesCreditDetails struct {
 	CreditStateLastUpdateDateTime string `json:"creditStateLastUpdateDateTime"`
 	CreditState                   string `json:"creditState"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCurrencyConstant struct {
+type GoogleAdsGoogleadsV26ResourcesCurrencyConstant struct {
 	ResourceName       string `json:"resourceName"`
 	Name               string `json:"name"`
 	BillableUnitMicros string `json:"billableUnitMicros"`
@@ -4152,7 +4152,7 @@ type GoogleAdsGoogleadsV22ResourcesCurrencyConstant struct {
 	Symbol             string `json:"symbol"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomAudience struct {
+type GoogleAdsGoogleadsV26ResourcesCustomAudience struct {
 	Id           string          `json:"id"`
 	Description  string          `json:"description"`
 	Type         string          `json:"type"`
@@ -4162,7 +4162,7 @@ type GoogleAdsGoogleadsV22ResourcesCustomAudience struct {
 	Members      json.RawMessage `json:"members"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomAudienceMember struct {
+type GoogleAdsGoogleadsV26ResourcesCustomAudienceMember struct {
 	PlaceCategory string `json:"placeCategory"`
 	App           string `json:"app"`
 	MemberType    string `json:"memberType"`
@@ -4170,7 +4170,7 @@ type GoogleAdsGoogleadsV22ResourcesCustomAudienceMember struct {
 	Keyword       string `json:"keyword"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomConversionGoal struct {
+type GoogleAdsGoogleadsV26ResourcesCustomConversionGoal struct {
 	Id                string          `json:"id"`
 	Name              string          `json:"name"`
 	ConversionActions json.RawMessage `json:"conversionActions"`
@@ -4178,7 +4178,7 @@ type GoogleAdsGoogleadsV22ResourcesCustomConversionGoal struct {
 	Status            string          `json:"status"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomInterest struct {
+type GoogleAdsGoogleadsV26ResourcesCustomInterest struct {
 	Id           string          `json:"id"`
 	Description  string          `json:"description"`
 	Type         string          `json:"type"`
@@ -4188,17 +4188,17 @@ type GoogleAdsGoogleadsV22ResourcesCustomInterest struct {
 	ResourceName string          `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomInterestMember struct {
+type GoogleAdsGoogleadsV26ResourcesCustomInterestMember struct {
 	MemberType string `json:"memberType"`
 	Parameter  string `json:"parameter"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomLeadFormSubmissionField struct {
+type GoogleAdsGoogleadsV26ResourcesCustomLeadFormSubmissionField struct {
 	QuestionText string `json:"questionText"`
 	FieldValue   string `json:"fieldValue"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomer struct {
+type GoogleAdsGoogleadsV26ResourcesCustomer struct {
 	CurrencyCode                              string          `json:"currencyCode"`
 	LocalServicesSettings                     json.RawMessage `json:"localServicesSettings"`
 	TimeZone                                  string          `json:"timeZone"`
@@ -4228,16 +4228,16 @@ type GoogleAdsGoogleadsV22ResourcesCustomer struct {
 	Id                                        string          `json:"id"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomerAcquisitionGoalSettings struct {
+type GoogleAdsGoogleadsV26ResourcesCustomerAcquisitionGoalSettings struct {
 	OptimizationMode string          `json:"optimizationMode"`
 	ValueSettings    json.RawMessage `json:"valueSettings"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomerAgreementSetting struct {
+type GoogleAdsGoogleadsV26ResourcesCustomerAgreementSetting struct {
 	AcceptedLeadFormTerms bool `json:"acceptedLeadFormTerms"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomerAsset struct {
+type GoogleAdsGoogleadsV26ResourcesCustomerAsset struct {
 	PrimaryStatus        string          `json:"primaryStatus"`
 	ResourceName         string          `json:"resourceName"`
 	FieldType            string          `json:"fieldType"`
@@ -4248,14 +4248,14 @@ type GoogleAdsGoogleadsV22ResourcesCustomerAsset struct {
 	PrimaryStatusDetails json.RawMessage `json:"primaryStatusDetails"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomerAssetSet struct {
+type GoogleAdsGoogleadsV26ResourcesCustomerAssetSet struct {
 	Customer     string `json:"customer"`
 	Status       string `json:"status"`
 	ResourceName string `json:"resourceName"`
 	AssetSet     string `json:"assetSet"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomerClient struct {
+type GoogleAdsGoogleadsV26ResourcesCustomerClient struct {
 	AppliedLabels   json.RawMessage `json:"appliedLabels"`
 	Id              string          `json:"id"`
 	TimeZone        string          `json:"timeZone"`
@@ -4270,7 +4270,7 @@ type GoogleAdsGoogleadsV22ResourcesCustomerClient struct {
 	Level           string          `json:"level"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomerClientLink struct {
+type GoogleAdsGoogleadsV26ResourcesCustomerClientLink struct {
 	Hidden         bool   `json:"hidden"`
 	ClientCustomer string `json:"clientCustomer"`
 	ManagerLinkId  string `json:"managerLinkId"`
@@ -4278,40 +4278,40 @@ type GoogleAdsGoogleadsV22ResourcesCustomerClientLink struct {
 	Status         string `json:"status"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomerConversionGoal struct {
+type GoogleAdsGoogleadsV26ResourcesCustomerConversionGoal struct {
 	ResourceName string `json:"resourceName"`
 	Origin       string `json:"origin"`
 	Category     string `json:"category"`
 	Biddable     bool   `json:"biddable"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomerCustomizer struct {
+type GoogleAdsGoogleadsV26ResourcesCustomerCustomizer struct {
 	ResourceName        string          `json:"resourceName"`
 	CustomizerAttribute string          `json:"customizerAttribute"`
 	Status              string          `json:"status"`
 	Value               json.RawMessage `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomerLabel struct {
+type GoogleAdsGoogleadsV26ResourcesCustomerLabel struct {
 	ResourceName string `json:"resourceName"`
 	Label        string `json:"label"`
 	Customer     string `json:"customer"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomerLifecycleGoal struct {
+type GoogleAdsGoogleadsV26ResourcesCustomerLifecycleGoal struct {
 	ResourceName                         string          `json:"resourceName"`
 	OwnerCustomer                        string          `json:"ownerCustomer"`
 	CustomerAcquisitionGoalValueSettings json.RawMessage `json:"customerAcquisitionGoalValueSettings"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomerManagerLink struct {
+type GoogleAdsGoogleadsV26ResourcesCustomerManagerLink struct {
 	ManagerCustomer string `json:"managerCustomer"`
 	ManagerLinkId   string `json:"managerLinkId"`
 	Status          string `json:"status"`
 	ResourceName    string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomerNegativeCriterion struct {
+type GoogleAdsGoogleadsV26ResourcesCustomerNegativeCriterion struct {
 	PlacementList       json.RawMessage `json:"placementList"`
 	Type                string          `json:"type"`
 	NegativeKeywordList json.RawMessage `json:"negativeKeywordList"`
@@ -4326,37 +4326,37 @@ type GoogleAdsGoogleadsV22ResourcesCustomerNegativeCriterion struct {
 	IpBlock             json.RawMessage `json:"ipBlock"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomerSearchTermInsight struct {
+type GoogleAdsGoogleadsV26ResourcesCustomerSearchTermInsight struct {
 	ResourceName  string `json:"resourceName"`
 	CategoryLabel string `json:"categoryLabel"`
 	Id            string `json:"id"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomerSkAdNetworkConversionValueSchema struct {
+type GoogleAdsGoogleadsV26ResourcesCustomerSkAdNetworkConversionValueSchema struct {
 	ResourceName string          `json:"resourceName"`
 	Schema       json.RawMessage `json:"schema"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomerSkAdNetworkConversionValueSchemaSkAdNetworkConversionValueSchema struct {
+type GoogleAdsGoogleadsV26ResourcesCustomerSkAdNetworkConversionValueSchemaSkAdNetworkConversionValueSchema struct {
 	AppId                              string          `json:"appId"`
 	FineGrainedConversionValueMappings json.RawMessage `json:"fineGrainedConversionValueMappings"`
 	MeasurementWindowHours             int             `json:"measurementWindowHours"`
 	PostbackMappings                   json.RawMessage `json:"postbackMappings"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomerSkAdNetworkConversionValueSchemaSkAdNetworkConversionValueSchemaCoarseGrainedConversionValueMappings struct {
+type GoogleAdsGoogleadsV26ResourcesCustomerSkAdNetworkConversionValueSchemaSkAdNetworkConversionValueSchemaCoarseGrainedConversionValueMappings struct {
 	HighConversionValueMapping   json.RawMessage `json:"highConversionValueMapping"`
 	LowConversionValueMapping    json.RawMessage `json:"lowConversionValueMapping"`
 	MediumConversionValueMapping json.RawMessage `json:"mediumConversionValueMapping"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomerSkAdNetworkConversionValueSchemaSkAdNetworkConversionValueSchemaConversionValueMapping struct {
+type GoogleAdsGoogleadsV26ResourcesCustomerSkAdNetworkConversionValueSchemaSkAdNetworkConversionValueSchemaConversionValueMapping struct {
 	MaxTimePostInstallHours string          `json:"maxTimePostInstallHours"`
 	MappedEvents            json.RawMessage `json:"mappedEvents"`
 	MinTimePostInstallHours string          `json:"minTimePostInstallHours"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomerSkAdNetworkConversionValueSchemaSkAdNetworkConversionValueSchemaEvent struct {
+type GoogleAdsGoogleadsV26ResourcesCustomerSkAdNetworkConversionValueSchemaSkAdNetworkConversionValueSchemaEvent struct {
 	EventRevenueValue    float64         `json:"eventRevenueValue"`
 	EventCounter         string          `json:"eventCounter"`
 	CurrencyCode         string          `json:"currencyCode"`
@@ -4365,22 +4365,22 @@ type GoogleAdsGoogleadsV22ResourcesCustomerSkAdNetworkConversionValueSchemaSkAdN
 	EventOccurrenceRange json.RawMessage `json:"eventOccurrenceRange"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomerSkAdNetworkConversionValueSchemaSkAdNetworkConversionValueSchemaEventEventOccurrenceRange struct {
+type GoogleAdsGoogleadsV26ResourcesCustomerSkAdNetworkConversionValueSchemaSkAdNetworkConversionValueSchemaEventEventOccurrenceRange struct {
 	MinEventCount string `json:"minEventCount"`
 	MaxEventCount string `json:"maxEventCount"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomerSkAdNetworkConversionValueSchemaSkAdNetworkConversionValueSchemaEventRevenueRange struct {
+type GoogleAdsGoogleadsV26ResourcesCustomerSkAdNetworkConversionValueSchemaSkAdNetworkConversionValueSchemaEventRevenueRange struct {
 	MaxEventRevenue float64 `json:"maxEventRevenue"`
 	MinEventRevenue float64 `json:"minEventRevenue"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomerSkAdNetworkConversionValueSchemaSkAdNetworkConversionValueSchemaFineGrainedConversionValueMappings struct {
+type GoogleAdsGoogleadsV26ResourcesCustomerSkAdNetworkConversionValueSchemaSkAdNetworkConversionValueSchemaFineGrainedConversionValueMappings struct {
 	FineGrainedConversionValue int             `json:"fineGrainedConversionValue"`
 	ConversionValueMapping     json.RawMessage `json:"conversionValueMapping"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomerSkAdNetworkConversionValueSchemaSkAdNetworkConversionValueSchemaPostbackMapping struct {
+type GoogleAdsGoogleadsV26ResourcesCustomerSkAdNetworkConversionValueSchemaSkAdNetworkConversionValueSchemaPostbackMapping struct {
 	CoarseGrainedConversionValueMappings json.RawMessage `json:"coarseGrainedConversionValueMappings"`
 	PostbackSequenceIndex                int             `json:"postbackSequenceIndex"`
 	LockWindowEvent                      string          `json:"lockWindowEvent"`
@@ -4388,7 +4388,7 @@ type GoogleAdsGoogleadsV22ResourcesCustomerSkAdNetworkConversionValueSchemaSkAdN
 	LockWindowFineConversionValue        int             `json:"lockWindowFineConversionValue"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomerUserAccess struct {
+type GoogleAdsGoogleadsV26ResourcesCustomerUserAccess struct {
 	ResourceName            string `json:"resourceName"`
 	EmailAddress            string `json:"emailAddress"`
 	AccessRole              string `json:"accessRole"`
@@ -4397,7 +4397,7 @@ type GoogleAdsGoogleadsV22ResourcesCustomerUserAccess struct {
 	UserId                  string `json:"userId"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomerUserAccessInvitation struct {
+type GoogleAdsGoogleadsV26ResourcesCustomerUserAccessInvitation struct {
 	AccessRole       string `json:"accessRole"`
 	InvitationId     string `json:"invitationId"`
 	CreationDateTime string `json:"creationDateTime"`
@@ -4406,7 +4406,7 @@ type GoogleAdsGoogleadsV22ResourcesCustomerUserAccessInvitation struct {
 	EmailAddress     string `json:"emailAddress"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesCustomizerAttribute struct {
+type GoogleAdsGoogleadsV26ResourcesCustomizerAttribute struct {
 	Type         string `json:"type"`
 	Id           string `json:"id"`
 	Status       string `json:"status"`
@@ -4414,7 +4414,7 @@ type GoogleAdsGoogleadsV22ResourcesCustomizerAttribute struct {
 	Name         string `json:"name"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesDataLink struct {
+type GoogleAdsGoogleadsV26ResourcesDataLink struct {
 	DataLinkId    string          `json:"dataLinkId"`
 	Type          string          `json:"type"`
 	Status        string          `json:"status"`
@@ -4423,11 +4423,11 @@ type GoogleAdsGoogleadsV22ResourcesDataLink struct {
 	ProductLinkId string          `json:"productLinkId"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesDataPartnerIdentifier struct {
+type GoogleAdsGoogleadsV26ResourcesDataPartnerIdentifier struct {
 	DataPartnerId string `json:"dataPartnerId"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesDetailContentSuitabilityPlacementView struct {
+type GoogleAdsGoogleadsV26ResourcesDetailContentSuitabilityPlacementView struct {
 	ResourceName  string `json:"resourceName"`
 	DisplayName   string `json:"displayName"`
 	Placement     string `json:"placement"`
@@ -4435,7 +4435,7 @@ type GoogleAdsGoogleadsV22ResourcesDetailContentSuitabilityPlacementView struct 
 	TargetUrl     string `json:"targetUrl"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesDetailPlacementView struct {
+type GoogleAdsGoogleadsV26ResourcesDetailPlacementView struct {
 	TargetUrl               string `json:"targetUrl"`
 	GroupPlacementTargetUrl string `json:"groupPlacementTargetUrl"`
 	ResourceName            string `json:"resourceName"`
@@ -4444,7 +4444,7 @@ type GoogleAdsGoogleadsV22ResourcesDetailPlacementView struct {
 	PlacementType           string `json:"placementType"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesDetailedDemographic struct {
+type GoogleAdsGoogleadsV26ResourcesDetailedDemographic struct {
 	Parent         string          `json:"parent"`
 	ResourceName   string          `json:"resourceName"`
 	Availabilities json.RawMessage `json:"availabilities"`
@@ -4453,17 +4453,17 @@ type GoogleAdsGoogleadsV22ResourcesDetailedDemographic struct {
 	Id             string          `json:"id"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesDisplayKeywordView struct {
+type GoogleAdsGoogleadsV26ResourcesDisplayKeywordView struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesDistanceView struct {
+type GoogleAdsGoogleadsV26ResourcesDistanceView struct {
 	MetricSystem   bool   `json:"metricSystem"`
 	ResourceName   string `json:"resourceName"`
 	DistanceBucket string `json:"distanceBucket"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesDomainCategory struct {
+type GoogleAdsGoogleadsV26ResourcesDomainCategory struct {
 	LanguageCode            string  `json:"languageCode"`
 	RecommendedCpcBidMicros string  `json:"recommendedCpcBidMicros"`
 	Category                string  `json:"category"`
@@ -4475,7 +4475,7 @@ type GoogleAdsGoogleadsV22ResourcesDomainCategory struct {
 	CategoryRank            string  `json:"categoryRank"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesDynamicSearchAdsSearchTermView struct {
+type GoogleAdsGoogleadsV26ResourcesDynamicSearchAdsSearchTermView struct {
 	ResourceName       string `json:"resourceName"`
 	SearchTerm         string `json:"searchTerm"`
 	Headline           string `json:"headline"`
@@ -4486,12 +4486,12 @@ type GoogleAdsGoogleadsV22ResourcesDynamicSearchAdsSearchTermView struct {
 	HasNegativeKeyword bool   `json:"hasNegativeKeyword"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesExpandedLandingPageView struct {
+type GoogleAdsGoogleadsV26ResourcesExpandedLandingPageView struct {
 	ResourceName     string `json:"resourceName"`
 	ExpandedFinalUrl string `json:"expandedFinalUrl"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesExperiment struct {
+type GoogleAdsGoogleadsV26ResourcesExperiment struct {
 	StartDate            string          `json:"startDate"`
 	Description          string          `json:"description"`
 	Name                 string          `json:"name"`
@@ -4507,7 +4507,7 @@ type GoogleAdsGoogleadsV22ResourcesExperiment struct {
 	Goals                json.RawMessage `json:"goals"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesExperimentArm struct {
+type GoogleAdsGoogleadsV26ResourcesExperimentArm struct {
 	Control           bool            `json:"control"`
 	TrafficSplit      string          `json:"trafficSplit"`
 	InDesignCampaigns json.RawMessage `json:"inDesignCampaigns"`
@@ -4517,12 +4517,12 @@ type GoogleAdsGoogleadsV22ResourcesExperimentArm struct {
 	Name              string          `json:"name"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesFellowship struct {
+type GoogleAdsGoogleadsV26ResourcesFellowship struct {
 	CompletionYear  int    `json:"completionYear"`
 	InstitutionName string `json:"institutionName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesFinalUrlExpansionAssetView struct {
+type GoogleAdsGoogleadsV26ResourcesFinalUrlExpansionAssetView struct {
 	ResourceName string `json:"resourceName"`
 	Campaign     string `json:"campaign"`
 	FieldType    string `json:"fieldType"`
@@ -4533,11 +4533,11 @@ type GoogleAdsGoogleadsV22ResourcesFinalUrlExpansionAssetView struct {
 	Asset        string `json:"asset"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesGenderView struct {
+type GoogleAdsGoogleadsV26ResourcesGenderView struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesGeoTargetConstant struct {
+type GoogleAdsGoogleadsV26ResourcesGeoTargetConstant struct {
 	CountryCode     string `json:"countryCode"`
 	TargetType      string `json:"targetType"`
 	Status          string `json:"status"`
@@ -4548,13 +4548,13 @@ type GoogleAdsGoogleadsV22ResourcesGeoTargetConstant struct {
 	Id              string `json:"id"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesGeographicView struct {
+type GoogleAdsGoogleadsV26ResourcesGeographicView struct {
 	ResourceName       string `json:"resourceName"`
 	LocationType       string `json:"locationType"`
 	CountryCriterionId string `json:"countryCriterionId"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesGoal struct {
+type GoogleAdsGoogleadsV26ResourcesGoal struct {
 	OptimizationEligibility string          `json:"optimizationEligibility"`
 	GoalId                  string          `json:"goalId"`
 	GoalType                string          `json:"goalType"`
@@ -4563,7 +4563,7 @@ type GoogleAdsGoogleadsV22ResourcesGoal struct {
 	RetentionGoalSettings   json.RawMessage `json:"retentionGoalSettings"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesGoogleAdsField struct {
+type GoogleAdsGoogleadsV26ResourcesGoogleAdsField struct {
 	IsRepeated         bool            `json:"isRepeated"`
 	TypeUrl            string          `json:"typeUrl"`
 	Sortable           bool            `json:"sortable"`
@@ -4580,23 +4580,23 @@ type GoogleAdsGoogleadsV22ResourcesGoogleAdsField struct {
 	DataType           string          `json:"dataType"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesGoogleAdsIdentifier struct {
+type GoogleAdsGoogleadsV26ResourcesGoogleAdsIdentifier struct {
 	Customer string `json:"customer"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesGranularInsuranceStatus struct {
+type GoogleAdsGoogleadsV26ResourcesGranularInsuranceStatus struct {
 	GeoCriterionId     string `json:"geoCriterionId"`
 	VerificationStatus string `json:"verificationStatus"`
 	CategoryId         string `json:"categoryId"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesGranularLicenseStatus struct {
+type GoogleAdsGoogleadsV26ResourcesGranularLicenseStatus struct {
 	GeoCriterionId     string `json:"geoCriterionId"`
 	CategoryId         string `json:"categoryId"`
 	VerificationStatus string `json:"verificationStatus"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesGroupContentSuitabilityPlacementView struct {
+type GoogleAdsGoogleadsV26ResourcesGroupContentSuitabilityPlacementView struct {
 	ResourceName  string `json:"resourceName"`
 	DisplayName   string `json:"displayName"`
 	Placement     string `json:"placement"`
@@ -4604,7 +4604,7 @@ type GoogleAdsGoogleadsV22ResourcesGroupContentSuitabilityPlacementView struct {
 	TargetUrl     string `json:"targetUrl"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesGroupPlacementView struct {
+type GoogleAdsGoogleadsV26ResourcesGroupPlacementView struct {
 	ResourceName  string `json:"resourceName"`
 	Placement     string `json:"placement"`
 	DisplayName   string `json:"displayName"`
@@ -4612,19 +4612,19 @@ type GoogleAdsGoogleadsV22ResourcesGroupPlacementView struct {
 	TargetUrl     string `json:"targetUrl"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesHotelCenterLinkInvitationIdentifier struct {
+type GoogleAdsGoogleadsV26ResourcesHotelCenterLinkInvitationIdentifier struct {
 	HotelCenterId string `json:"hotelCenterId"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesHotelGroupView struct {
+type GoogleAdsGoogleadsV26ResourcesHotelGroupView struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesHotelPerformanceView struct {
+type GoogleAdsGoogleadsV26ResourcesHotelPerformanceView struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesHotelReconciliation struct {
+type GoogleAdsGoogleadsV26ResourcesHotelReconciliation struct {
 	CommissionId          string `json:"commissionId"`
 	CheckInDate           string `json:"checkInDate"`
 	ResourceName          string `json:"resourceName"`
@@ -4638,18 +4638,18 @@ type GoogleAdsGoogleadsV22ResourcesHotelReconciliation struct {
 	OrderId               string `json:"orderId"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesIncomeRangeView struct {
+type GoogleAdsGoogleadsV26ResourcesIncomeRangeView struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesInsuranceVerificationArtifact struct {
+type GoogleAdsGoogleadsV26ResourcesInsuranceVerificationArtifact struct {
 	AmountMicros              string          `json:"amountMicros"`
 	InsuranceDocumentReadonly json.RawMessage `json:"insuranceDocumentReadonly"`
 	ExpirationDateTime        string          `json:"expirationDateTime"`
 	RejectionReason           string          `json:"rejectionReason"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesInvoice struct {
+type GoogleAdsGoogleadsV26ResourcesInvoice struct {
 	ReplacedInvoices                    json.RawMessage `json:"replacedInvoices"`
 	RegulatoryCostsTaxAmountMicros      string          `json:"regulatoryCostsTaxAmountMicros"`
 	IssueDate                           string          `json:"issueDate"`
@@ -4679,7 +4679,7 @@ type GoogleAdsGoogleadsV22ResourcesInvoice struct {
 	CorrectedInvoice                    string          `json:"correctedInvoice"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesInvoiceAccountBudgetSummary struct {
+type GoogleAdsGoogleadsV26ResourcesInvoiceAccountBudgetSummary struct {
 	TaxAmountMicros             string          `json:"taxAmountMicros"`
 	Customer                    string          `json:"customer"`
 	InvalidActivitySummaries    json.RawMessage `json:"invalidActivitySummaries"`
@@ -4696,7 +4696,7 @@ type GoogleAdsGoogleadsV22ResourcesInvoiceAccountBudgetSummary struct {
 	BilledAmountMicros          string          `json:"billedAmountMicros"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesInvoiceAccountSummary struct {
+type GoogleAdsGoogleadsV26ResourcesInvoiceAccountSummary struct {
 	RegulatoryCostsSubtotalAmountMicros        string `json:"regulatoryCostsSubtotalAmountMicros"`
 	CouponAdjustmentTaxAmountMicros            string `json:"couponAdjustmentTaxAmountMicros"`
 	ExportChargeTotalAmountMicros              string `json:"exportChargeTotalAmountMicros"`
@@ -4718,7 +4718,7 @@ type GoogleAdsGoogleadsV22ResourcesInvoiceAccountSummary struct {
 	TotalAmountMicros                          string `json:"totalAmountMicros"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesInvoiceInvalidActivitySummary struct {
+type GoogleAdsGoogleadsV26ResourcesInvoiceInvalidActivitySummary struct {
 	OriginalPurchaseOrderNumber string `json:"originalPurchaseOrderNumber"`
 	OriginalYearOfService       string `json:"originalYearOfService"`
 	OriginalAccountBudgetName   string `json:"originalAccountBudgetName"`
@@ -4727,14 +4727,14 @@ type GoogleAdsGoogleadsV22ResourcesInvoiceInvalidActivitySummary struct {
 	OriginalMonthOfService      string `json:"originalMonthOfService"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesKeywordPlan struct {
+type GoogleAdsGoogleadsV26ResourcesKeywordPlan struct {
 	ForecastPeriod json.RawMessage `json:"forecastPeriod"`
 	ResourceName   string          `json:"resourceName"`
 	Id             string          `json:"id"`
 	Name           string          `json:"name"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesKeywordPlanAdGroup struct {
+type GoogleAdsGoogleadsV26ResourcesKeywordPlanAdGroup struct {
 	KeywordPlanCampaign string `json:"keywordPlanCampaign"`
 	Id                  string `json:"id"`
 	ResourceName        string `json:"resourceName"`
@@ -4742,7 +4742,7 @@ type GoogleAdsGoogleadsV22ResourcesKeywordPlanAdGroup struct {
 	Name                string `json:"name"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesKeywordPlanAdGroupKeyword struct {
+type GoogleAdsGoogleadsV26ResourcesKeywordPlanAdGroupKeyword struct {
 	ResourceName       string `json:"resourceName"`
 	KeywordPlanAdGroup string `json:"keywordPlanAdGroup"`
 	Text               string `json:"text"`
@@ -4752,7 +4752,7 @@ type GoogleAdsGoogleadsV22ResourcesKeywordPlanAdGroupKeyword struct {
 	Negative           bool   `json:"negative"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesKeywordPlanCampaign struct {
+type GoogleAdsGoogleadsV26ResourcesKeywordPlanCampaign struct {
 	KeywordPlanNetwork string          `json:"keywordPlanNetwork"`
 	LanguageConstants  json.RawMessage `json:"languageConstants"`
 	ResourceName       string          `json:"resourceName"`
@@ -4763,7 +4763,7 @@ type GoogleAdsGoogleadsV22ResourcesKeywordPlanCampaign struct {
 	Id                 string          `json:"id"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesKeywordPlanCampaignKeyword struct {
+type GoogleAdsGoogleadsV26ResourcesKeywordPlanCampaignKeyword struct {
 	ResourceName        string `json:"resourceName"`
 	Text                string `json:"text"`
 	Negative            bool   `json:"negative"`
@@ -4772,27 +4772,27 @@ type GoogleAdsGoogleadsV22ResourcesKeywordPlanCampaignKeyword struct {
 	MatchType           string `json:"matchType"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesKeywordPlanForecastPeriod struct {
+type GoogleAdsGoogleadsV26ResourcesKeywordPlanForecastPeriod struct {
 	DateInterval string          `json:"dateInterval"`
 	DateRange    json.RawMessage `json:"dateRange"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesKeywordPlanGeoTarget struct {
+type GoogleAdsGoogleadsV26ResourcesKeywordPlanGeoTarget struct {
 	GeoTargetConstant string `json:"geoTargetConstant"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesKeywordThemeConstant struct {
+type GoogleAdsGoogleadsV26ResourcesKeywordThemeConstant struct {
 	LanguageCode string `json:"languageCode"`
 	ResourceName string `json:"resourceName"`
 	DisplayName  string `json:"displayName"`
 	CountryCode  string `json:"countryCode"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesKeywordView struct {
+type GoogleAdsGoogleadsV26ResourcesKeywordView struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesLabel struct {
+type GoogleAdsGoogleadsV26ResourcesLabel struct {
 	Name         string          `json:"name"`
 	ResourceName string          `json:"resourceName"`
 	Status       string          `json:"status"`
@@ -4800,12 +4800,12 @@ type GoogleAdsGoogleadsV22ResourcesLabel struct {
 	TextLabel    json.RawMessage `json:"textLabel"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesLandingPageView struct {
+type GoogleAdsGoogleadsV26ResourcesLandingPageView struct {
 	ResourceName       string `json:"resourceName"`
 	UnexpandedFinalUrl string `json:"unexpandedFinalUrl"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesLanguageConstant struct {
+type GoogleAdsGoogleadsV26ResourcesLanguageConstant struct {
 	Name         string `json:"name"`
 	Targetable   bool   `json:"targetable"`
 	ResourceName string `json:"resourceName"`
@@ -4813,7 +4813,7 @@ type GoogleAdsGoogleadsV22ResourcesLanguageConstant struct {
 	Code         string `json:"code"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesLeadFormSubmissionData struct {
+type GoogleAdsGoogleadsV26ResourcesLeadFormSubmissionData struct {
 	Asset                          string          `json:"asset"`
 	AdGroupAd                      string          `json:"adGroupAd"`
 	LeadFormSubmissionFields       json.RawMessage `json:"leadFormSubmissionFields"`
@@ -4826,12 +4826,12 @@ type GoogleAdsGoogleadsV22ResourcesLeadFormSubmissionData struct {
 	Gclid                          string          `json:"gclid"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesLeadFormSubmissionField struct {
+type GoogleAdsGoogleadsV26ResourcesLeadFormSubmissionField struct {
 	FieldType  string `json:"fieldType"`
 	FieldValue string `json:"fieldValue"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesLicenseVerificationArtifact struct {
+type GoogleAdsGoogleadsV26ResourcesLicenseVerificationArtifact struct {
 	LicenseNumber           string          `json:"licenseNumber"`
 	LicenseeLastName        string          `json:"licenseeLastName"`
 	LicenseDocumentReadonly json.RawMessage `json:"licenseDocumentReadonly"`
@@ -4841,7 +4841,7 @@ type GoogleAdsGoogleadsV22ResourcesLicenseVerificationArtifact struct {
 	RejectionReason         string          `json:"rejectionReason"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesLifeEvent struct {
+type GoogleAdsGoogleadsV26ResourcesLifeEvent struct {
 	Name           string          `json:"name"`
 	ResourceName   string          `json:"resourceName"`
 	Availabilities json.RawMessage `json:"availabilities"`
@@ -4850,7 +4850,7 @@ type GoogleAdsGoogleadsV22ResourcesLifeEvent struct {
 	LaunchedToAll  bool            `json:"launchedToAll"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesListingGroupFilterDimension struct {
+type GoogleAdsGoogleadsV26ResourcesListingGroupFilterDimension struct {
 	ProductCondition       json.RawMessage `json:"productCondition"`
 	ProductChannel         json.RawMessage `json:"productChannel"`
 	ProductItemId          json.RawMessage `json:"productItemId"`
@@ -4861,51 +4861,51 @@ type GoogleAdsGoogleadsV22ResourcesListingGroupFilterDimension struct {
 	ProductBrand           json.RawMessage `json:"productBrand"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesListingGroupFilterDimensionPath struct {
+type GoogleAdsGoogleadsV26ResourcesListingGroupFilterDimensionPath struct {
 	Dimensions json.RawMessage `json:"dimensions"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesListingGroupFilterDimensionProductBrand struct {
+type GoogleAdsGoogleadsV26ResourcesListingGroupFilterDimensionProductBrand struct {
 	Value string `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesListingGroupFilterDimensionProductCategory struct {
+type GoogleAdsGoogleadsV26ResourcesListingGroupFilterDimensionProductCategory struct {
 	CategoryId string `json:"categoryId"`
 	Level      string `json:"level"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesListingGroupFilterDimensionProductChannel struct {
+type GoogleAdsGoogleadsV26ResourcesListingGroupFilterDimensionProductChannel struct {
 	Channel string `json:"channel"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesListingGroupFilterDimensionProductCondition struct {
+type GoogleAdsGoogleadsV26ResourcesListingGroupFilterDimensionProductCondition struct {
 	Condition string `json:"condition"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesListingGroupFilterDimensionProductCustomAttribute struct {
+type GoogleAdsGoogleadsV26ResourcesListingGroupFilterDimensionProductCustomAttribute struct {
 	Index string `json:"index"`
 	Value string `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesListingGroupFilterDimensionProductItemId struct {
+type GoogleAdsGoogleadsV26ResourcesListingGroupFilterDimensionProductItemId struct {
 	Value string `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesListingGroupFilterDimensionProductType struct {
+type GoogleAdsGoogleadsV26ResourcesListingGroupFilterDimensionProductType struct {
 	Value string `json:"value"`
 	Level string `json:"level"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesListingGroupFilterDimensionWebpage struct {
+type GoogleAdsGoogleadsV26ResourcesListingGroupFilterDimensionWebpage struct {
 	Conditions json.RawMessage `json:"conditions"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesListingGroupFilterDimensionWebpageCondition struct {
+type GoogleAdsGoogleadsV26ResourcesListingGroupFilterDimensionWebpageCondition struct {
 	CustomLabel string `json:"customLabel"`
 	UrlContains string `json:"urlContains"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesLocalServicesEmployee struct {
+type GoogleAdsGoogleadsV26ResourcesLocalServicesEmployee struct {
 	Fellowships              json.RawMessage `json:"fellowships"`
 	LanguagesSpoken          json.RawMessage `json:"languagesSpoken"`
 	CreationDateTime         string          `json:"creationDateTime"`
@@ -4925,7 +4925,7 @@ type GoogleAdsGoogleadsV22ResourcesLocalServicesEmployee struct {
 	Type                     string          `json:"type"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesLocalServicesLead struct {
+type GoogleAdsGoogleadsV26ResourcesLocalServicesLead struct {
 	Id                    string          `json:"id"`
 	LeadCharged           bool            `json:"leadCharged"`
 	ResourceName          string          `json:"resourceName"`
@@ -4941,7 +4941,7 @@ type GoogleAdsGoogleadsV22ResourcesLocalServicesLead struct {
 	Note                  json.RawMessage `json:"note"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesLocalServicesLeadConversation struct {
+type GoogleAdsGoogleadsV26ResourcesLocalServicesLeadConversation struct {
 	Id                  string          `json:"id"`
 	PhoneCallDetails    json.RawMessage `json:"phoneCallDetails"`
 	ConversationChannel string          `json:"conversationChannel"`
@@ -4952,12 +4952,12 @@ type GoogleAdsGoogleadsV22ResourcesLocalServicesLeadConversation struct {
 	EventDateTime       string          `json:"eventDateTime"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesLocalServicesSettings struct {
+type GoogleAdsGoogleadsV26ResourcesLocalServicesSettings struct {
 	GranularInsuranceStatuses json.RawMessage `json:"granularInsuranceStatuses"`
 	GranularLicenseStatuses   json.RawMessage `json:"granularLicenseStatuses"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesLocalServicesVerificationArtifact struct {
+type GoogleAdsGoogleadsV26ResourcesLocalServicesVerificationArtifact struct {
 	ResourceName                                  string          `json:"resourceName"`
 	Status                                        string          `json:"status"`
 	InsuranceVerificationArtifact                 json.RawMessage `json:"insuranceVerificationArtifact"`
@@ -4969,28 +4969,28 @@ type GoogleAdsGoogleadsV22ResourcesLocalServicesVerificationArtifact struct {
 	BusinessRegistrationCheckVerificationArtifact json.RawMessage `json:"businessRegistrationCheckVerificationArtifact"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesLocationInterestView struct {
+type GoogleAdsGoogleadsV26ResourcesLocationInterestView struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesLocationView struct {
+type GoogleAdsGoogleadsV26ResourcesLocationView struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesManagedPlacementView struct {
+type GoogleAdsGoogleadsV26ResourcesManagedPlacementView struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesMediaAudio struct {
+type GoogleAdsGoogleadsV26ResourcesMediaAudio struct {
 	AdDurationMillis string `json:"adDurationMillis"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesMediaBundle struct {
+type GoogleAdsGoogleadsV26ResourcesMediaBundle struct {
 	Url  string `json:"url"`
 	Data string `json:"data"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesMediaFile struct {
+type GoogleAdsGoogleadsV26ResourcesMediaFile struct {
 	Name         string          `json:"name"`
 	Image        json.RawMessage `json:"image"`
 	Video        json.RawMessage `json:"video"`
@@ -5004,39 +5004,39 @@ type GoogleAdsGoogleadsV22ResourcesMediaFile struct {
 	MimeType     string          `json:"mimeType"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesMediaImage struct {
+type GoogleAdsGoogleadsV26ResourcesMediaImage struct {
 	PreviewSizeImageUrl string `json:"previewSizeImageUrl"`
 	Data                string `json:"data"`
 	FullSizeImageUrl    string `json:"fullSizeImageUrl"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesMediaVideo struct {
+type GoogleAdsGoogleadsV26ResourcesMediaVideo struct {
 	AdvertisingIdCode string `json:"advertisingIdCode"`
 	IsciCode          string `json:"isciCode"`
 	AdDurationMillis  string `json:"adDurationMillis"`
 	YoutubeVideoId    string `json:"youtubeVideoId"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesMerchantCenterIdentifier struct {
+type GoogleAdsGoogleadsV26ResourcesMerchantCenterIdentifier struct {
 	MerchantCenterId string `json:"merchantCenterId"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesMerchantCenterLinkInvitationIdentifier struct {
+type GoogleAdsGoogleadsV26ResourcesMerchantCenterLinkInvitationIdentifier struct {
 	MerchantCenterId string `json:"merchantCenterId"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesMessageDetails struct {
+type GoogleAdsGoogleadsV26ResourcesMessageDetails struct {
 	Text           string          `json:"text"`
 	AttachmentUrls json.RawMessage `json:"attachmentUrls"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesMobileAppCategoryConstant struct {
+type GoogleAdsGoogleadsV26ResourcesMobileAppCategoryConstant struct {
 	ResourceName string `json:"resourceName"`
 	Id           int    `json:"id"`
 	Name         string `json:"name"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesMobileDeviceConstant struct {
+type GoogleAdsGoogleadsV26ResourcesMobileDeviceConstant struct {
 	Type                string `json:"type"`
 	Id                  string `json:"id"`
 	ResourceName        string `json:"resourceName"`
@@ -5045,17 +5045,17 @@ type GoogleAdsGoogleadsV22ResourcesMobileDeviceConstant struct {
 	OperatingSystemName string `json:"operatingSystemName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesNote struct {
+type GoogleAdsGoogleadsV26ResourcesNote struct {
 	Description  string `json:"description"`
 	EditDateTime string `json:"editDateTime"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesOfflineConversionAlert struct {
+type GoogleAdsGoogleadsV26ResourcesOfflineConversionAlert struct {
 	ErrorPercentage float64         `json:"errorPercentage"`
 	Error           json.RawMessage `json:"error"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesOfflineConversionError struct {
+type GoogleAdsGoogleadsV26ResourcesOfflineConversionError struct {
 	StringLengthError               string `json:"stringLengthError"`
 	FieldError                      string `json:"fieldError"`
 	DateError                       string `json:"dateError"`
@@ -5068,7 +5068,7 @@ type GoogleAdsGoogleadsV22ResourcesOfflineConversionError struct {
 	CollectionSizeError             string `json:"collectionSizeError"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesOfflineConversionSummary struct {
+type GoogleAdsGoogleadsV26ResourcesOfflineConversionSummary struct {
 	FailedCount     string `json:"failedCount"`
 	JobId           string `json:"jobId"`
 	PendingCount    string `json:"pendingCount"`
@@ -5076,7 +5076,7 @@ type GoogleAdsGoogleadsV22ResourcesOfflineConversionSummary struct {
 	SuccessfulCount string `json:"successfulCount"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesOfflineConversionUploadClientSummary struct {
+type GoogleAdsGoogleadsV26ResourcesOfflineConversionUploadClientSummary struct {
 	Alerts               json.RawMessage `json:"alerts"`
 	DailySummaries       json.RawMessage `json:"dailySummaries"`
 	ResourceName         string          `json:"resourceName"`
@@ -5091,7 +5091,7 @@ type GoogleAdsGoogleadsV22ResourcesOfflineConversionUploadClientSummary struct {
 	LastUploadDateTime   string          `json:"lastUploadDateTime"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesOfflineConversionUploadConversionActionSummary struct {
+type GoogleAdsGoogleadsV26ResourcesOfflineConversionUploadConversionActionSummary struct {
 	ConversionActionName string          `json:"conversionActionName"`
 	PendingEventCount    string          `json:"pendingEventCount"`
 	ConversionActionId   string          `json:"conversionActionId"`
@@ -5106,7 +5106,7 @@ type GoogleAdsGoogleadsV22ResourcesOfflineConversionUploadConversionActionSummar
 	TotalEventCount      string          `json:"totalEventCount"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesOfflineUserDataJob struct {
+type GoogleAdsGoogleadsV26ResourcesOfflineUserDataJob struct {
 	OperationMetadata             json.RawMessage `json:"operationMetadata"`
 	StoreSalesMetadata            json.RawMessage `json:"storeSalesMetadata"`
 	Id                            string          `json:"id"`
@@ -5118,11 +5118,11 @@ type GoogleAdsGoogleadsV22ResourcesOfflineUserDataJob struct {
 	FailureReason                 string          `json:"failureReason"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesOfflineUserDataJobMetadata struct {
+type GoogleAdsGoogleadsV26ResourcesOfflineUserDataJobMetadata struct {
 	MatchRateRange string `json:"matchRateRange"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesOperatingSystemVersionConstant struct {
+type GoogleAdsGoogleadsV26ResourcesOperatingSystemVersionConstant struct {
 	ResourceName   string `json:"resourceName"`
 	Name           string `json:"name"`
 	OsMinorVersion int    `json:"osMinorVersion"`
@@ -5131,16 +5131,16 @@ type GoogleAdsGoogleadsV22ResourcesOperatingSystemVersionConstant struct {
 	Id             string `json:"id"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesPaidOrganicSearchTermView struct {
+type GoogleAdsGoogleadsV26ResourcesPaidOrganicSearchTermView struct {
 	ResourceName string `json:"resourceName"`
 	SearchTerm   string `json:"searchTerm"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesParentalStatusView struct {
+type GoogleAdsGoogleadsV26ResourcesParentalStatusView struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesPaymentsAccount struct {
+type GoogleAdsGoogleadsV26ResourcesPaymentsAccount struct {
 	Name                       string `json:"name"`
 	SecondaryPaymentsProfileId string `json:"secondaryPaymentsProfileId"`
 	ResourceName               string `json:"resourceName"`
@@ -5150,12 +5150,12 @@ type GoogleAdsGoogleadsV22ResourcesPaymentsAccount struct {
 	PaymentsProfileId          string `json:"paymentsProfileId"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesPerStoreView struct {
+type GoogleAdsGoogleadsV26ResourcesPerStoreView struct {
 	PlaceId      string `json:"placeId"`
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesPerformanceMaxPlacementView struct {
+type GoogleAdsGoogleadsV26ResourcesPerformanceMaxPlacementView struct {
 	ResourceName  string `json:"resourceName"`
 	Placement     string `json:"placement"`
 	DisplayName   string `json:"displayName"`
@@ -5163,12 +5163,12 @@ type GoogleAdsGoogleadsV22ResourcesPerformanceMaxPlacementView struct {
 	TargetUrl     string `json:"targetUrl"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesPhoneCallDetails struct {
+type GoogleAdsGoogleadsV26ResourcesPhoneCallDetails struct {
 	CallDurationMillis string `json:"callDurationMillis"`
 	CallRecordingUrl   string `json:"callRecordingUrl"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesProductCategoryConstant struct {
+type GoogleAdsGoogleadsV26ResourcesProductCategoryConstant struct {
 	Level                         string          `json:"level"`
 	State                         string          `json:"state"`
 	ProductCategoryConstantParent string          `json:"productCategoryConstantParent"`
@@ -5177,17 +5177,17 @@ type GoogleAdsGoogleadsV22ResourcesProductCategoryConstant struct {
 	Localizations                 json.RawMessage `json:"localizations"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesProductCategoryConstantProductCategoryLocalization struct {
+type GoogleAdsGoogleadsV26ResourcesProductCategoryConstantProductCategoryLocalization struct {
 	LanguageCode string `json:"languageCode"`
 	RegionCode   string `json:"regionCode"`
 	Value        string `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesProductGroupView struct {
+type GoogleAdsGoogleadsV26ResourcesProductGroupView struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesProductLink struct {
+type GoogleAdsGoogleadsV26ResourcesProductLink struct {
 	DataPartner        json.RawMessage `json:"dataPartner"`
 	Type               string          `json:"type"`
 	GoogleAds          json.RawMessage `json:"googleAds"`
@@ -5197,7 +5197,7 @@ type GoogleAdsGoogleadsV22ResourcesProductLink struct {
 	ResourceName       string          `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesProductLinkInvitation struct {
+type GoogleAdsGoogleadsV26ResourcesProductLinkInvitation struct {
 	Type                    string          `json:"type"`
 	ProductLinkInvitationId string          `json:"productLinkInvitationId"`
 	Status                  string          `json:"status"`
@@ -5207,14 +5207,14 @@ type GoogleAdsGoogleadsV22ResourcesProductLinkInvitation struct {
 	ResourceName            string          `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesQualifyingQuestion struct {
+type GoogleAdsGoogleadsV26ResourcesQualifyingQuestion struct {
 	Locale               string `json:"locale"`
 	QualifyingQuestionId string `json:"qualifyingQuestionId"`
 	ResourceName         string `json:"resourceName"`
 	Text                 string `json:"text"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendation struct {
 	Impact                                                                     json.RawMessage `json:"impact"`
 	ImproveGoogleTagCoverageRecommendation                                     json.RawMessage `json:"improveGoogleTagCoverageRecommendation"`
 	CampaignBudgetRecommendation                                               json.RawMessage `json:"campaignBudgetRecommendation"`
@@ -5279,117 +5279,117 @@ type GoogleAdsGoogleadsV22ResourcesRecommendation struct {
 	ResourceName                                                               string          `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationAccountInfo struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationAccountInfo struct {
 	DescriptiveName string `json:"descriptiveName"`
 	CustomerId      string `json:"customerId"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationCalloutAssetRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationCalloutAssetRecommendation struct {
 	RecommendedCustomerCalloutAssets json.RawMessage `json:"recommendedCustomerCalloutAssets"`
 	RecommendedCampaignCalloutAssets json.RawMessage `json:"recommendedCampaignCalloutAssets"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationCampaignBudget struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationCampaignBudget struct {
 	CurrentAmountMicros        string `json:"currentAmountMicros"`
 	RecommendedNewAmountMicros string `json:"recommendedNewAmountMicros"`
 	NewStartDate               string `json:"newStartDate"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationCampaignBudgetRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationCampaignBudgetRecommendation struct {
 	CurrentBudgetAmountMicros     string          `json:"currentBudgetAmountMicros"`
 	RecommendedBudgetAmountMicros string          `json:"recommendedBudgetAmountMicros"`
 	BudgetOptions                 json.RawMessage `json:"budgetOptions"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationCampaignBudgetRecommendationCampaignBudgetRecommendationOption struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationCampaignBudgetRecommendationCampaignBudgetRecommendationOption struct {
 	Impact             json.RawMessage `json:"impact"`
 	BudgetAmountMicros string          `json:"budgetAmountMicros"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationCustomAudienceOptInRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationCustomAudienceOptInRecommendation struct {
 	Keywords json.RawMessage `json:"keywords"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationForecastingSetTargetCpaRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationForecastingSetTargetCpaRecommendation struct {
 	RecommendedTargetCpaMicros string          `json:"recommendedTargetCpaMicros"`
 	CampaignBudget             json.RawMessage `json:"campaignBudget"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationForecastingSetTargetRoasRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationForecastingSetTargetRoasRecommendation struct {
 	CampaignBudget        json.RawMessage `json:"campaignBudget"`
 	RecommendedTargetRoas float64         `json:"recommendedTargetRoas"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationImproveDemandGenAdStrengthRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationImproveDemandGenAdStrengthRecommendation struct {
 	Ad                        string          `json:"ad"`
 	AdStrength                string          `json:"adStrength"`
 	DemandGenAssetActionItems json.RawMessage `json:"demandGenAssetActionItems"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationImprovePerformanceMaxAdStrengthRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationImprovePerformanceMaxAdStrengthRecommendation struct {
 	AssetGroup string `json:"assetGroup"`
 	AdStrength string `json:"adStrength"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationKeywordMatchTypeRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationKeywordMatchTypeRecommendation struct {
 	Keyword              json.RawMessage `json:"keyword"`
 	RecommendedMatchType string          `json:"recommendedMatchType"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationKeywordRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationKeywordRecommendation struct {
 	Keyword                 json.RawMessage `json:"keyword"`
 	RecommendedCpcBidMicros string          `json:"recommendedCpcBidMicros"`
 	SearchTerms             json.RawMessage `json:"searchTerms"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationKeywordRecommendationSearchTerm struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationKeywordRecommendationSearchTerm struct {
 	Text                       string `json:"text"`
 	EstimatedWeeklySearchCount string `json:"estimatedWeeklySearchCount"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationLowerTargetRoasRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationLowerTargetRoasRecommendation struct {
 	TargetAdjustment json.RawMessage `json:"targetAdjustment"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationMaximizeClicksOptInRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationMaximizeClicksOptInRecommendation struct {
 	RecommendedBudgetAmountMicros string `json:"recommendedBudgetAmountMicros"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationMaximizeConversionsOptInRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationMaximizeConversionsOptInRecommendation struct {
 	RecommendedBudgetAmountMicros string `json:"recommendedBudgetAmountMicros"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationMerchantInfo struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationMerchantInfo struct {
 	Id          string `json:"id"`
 	Name        string `json:"name"`
 	MultiClient bool   `json:"multiClient"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationMigrateDynamicSearchAdsCampaignToPerformanceMaxRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationMigrateDynamicSearchAdsCampaignToPerformanceMaxRecommendation struct {
 	ApplyLink string `json:"applyLink"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationMoveUnusedBudgetRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationMoveUnusedBudgetRecommendation struct {
 	ExcessCampaignBudget string          `json:"excessCampaignBudget"`
 	BudgetRecommendation json.RawMessage `json:"budgetRecommendation"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationRaiseTargetCpaBidTooLowRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationRaiseTargetCpaBidTooLowRecommendation struct {
 	RecommendedTargetMultiplier float64 `json:"recommendedTargetMultiplier"`
 	AverageTargetCpaMicros      string  `json:"averageTargetCpaMicros"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationRaiseTargetCpaRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationRaiseTargetCpaRecommendation struct {
 	TargetAdjustment json.RawMessage `json:"targetAdjustment"`
 	AppBiddingGoal   string          `json:"appBiddingGoal"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationRecommendationImpact struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationRecommendationImpact struct {
 	BaseMetrics      json.RawMessage `json:"baseMetrics"`
 	PotentialMetrics json.RawMessage `json:"potentialMetrics"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationRecommendationMetrics struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationRecommendationMetrics struct {
 	VideoViews       float64 `json:"videoViews"`
 	Clicks           float64 `json:"clicks"`
 	ConversionsValue float64 `json:"conversionsValue"`
@@ -5398,7 +5398,7 @@ type GoogleAdsGoogleadsV22ResourcesRecommendationRecommendationMetrics struct {
 	CostMicros       string  `json:"costMicros"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationRefreshCustomerMatchListRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationRefreshCustomerMatchListRecommendation struct {
 	UserListName           string          `json:"userListName"`
 	UserListId             string          `json:"userListId"`
 	TopSpendingAccount     json.RawMessage `json:"topSpendingAccount"`
@@ -5407,62 +5407,62 @@ type GoogleAdsGoogleadsV22ResourcesRecommendationRefreshCustomerMatchListRecomme
 	OwnerAccount           json.RawMessage `json:"ownerAccount"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationResponsiveSearchAdAssetRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationResponsiveSearchAdAssetRecommendation struct {
 	CurrentAd         json.RawMessage `json:"currentAd"`
 	RecommendedAssets json.RawMessage `json:"recommendedAssets"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationResponsiveSearchAdImproveAdStrengthRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationResponsiveSearchAdImproveAdStrengthRecommendation struct {
 	CurrentAd     json.RawMessage `json:"currentAd"`
 	RecommendedAd json.RawMessage `json:"recommendedAd"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationResponsiveSearchAdRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationResponsiveSearchAdRecommendation struct {
 	Ad json.RawMessage `json:"ad"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationShoppingAddProductsToCampaignRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationShoppingAddProductsToCampaignRecommendation struct {
 	FeedLabel string          `json:"feedLabel"`
 	Reason    string          `json:"reason"`
 	Merchant  json.RawMessage `json:"merchant"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationShoppingFixDisapprovedProductsRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationShoppingFixDisapprovedProductsRecommendation struct {
 	Merchant                 json.RawMessage `json:"merchant"`
 	ProductsCount            string          `json:"productsCount"`
 	DisapprovedProductsCount string          `json:"disapprovedProductsCount"`
 	FeedLabel                string          `json:"feedLabel"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationShoppingMerchantCenterAccountSuspensionRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationShoppingMerchantCenterAccountSuspensionRecommendation struct {
 	FeedLabel string          `json:"feedLabel"`
 	Merchant  json.RawMessage `json:"merchant"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationShoppingMigrateRegularShoppingCampaignOffersToPerformanceMaxRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationShoppingMigrateRegularShoppingCampaignOffersToPerformanceMaxRecommendation struct {
 	FeedLabel string          `json:"feedLabel"`
 	Merchant  json.RawMessage `json:"merchant"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationShoppingOfferAttributeRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationShoppingOfferAttributeRecommendation struct {
 	OffersCount        string          `json:"offersCount"`
 	Merchant           json.RawMessage `json:"merchant"`
 	DemotedOffersCount string          `json:"demotedOffersCount"`
 	FeedLabel          string          `json:"feedLabel"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationShoppingTargetAllOffersRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationShoppingTargetAllOffersRecommendation struct {
 	UntargetedOffersCount string          `json:"untargetedOffersCount"`
 	FeedLabel             string          `json:"feedLabel"`
 	Merchant              json.RawMessage `json:"merchant"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationSitelinkAssetRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationSitelinkAssetRecommendation struct {
 	RecommendedCampaignSitelinkAssets json.RawMessage `json:"recommendedCampaignSitelinkAssets"`
 	RecommendedCustomerSitelinkAssets json.RawMessage `json:"recommendedCustomerSitelinkAssets"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationSubscription struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationSubscription struct {
 	ModifyDateTime string `json:"modifyDateTime"`
 	Status         string `json:"status"`
 	ResourceName   string `json:"resourceName"`
@@ -5470,41 +5470,41 @@ type GoogleAdsGoogleadsV22ResourcesRecommendationSubscription struct {
 	Type           string `json:"type"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationTargetAdjustmentInfo struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationTargetAdjustmentInfo struct {
 	SharedSet                   string  `json:"sharedSet"`
 	RecommendedTargetMultiplier float64 `json:"recommendedTargetMultiplier"`
 	CurrentAverageTargetMicros  string  `json:"currentAverageTargetMicros"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationTargetCpaOptInRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationTargetCpaOptInRecommendation struct {
 	Options                    json.RawMessage `json:"options"`
 	RecommendedTargetCpaMicros string          `json:"recommendedTargetCpaMicros"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationTargetCpaOptInRecommendationTargetCpaOptInRecommendationOption struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationTargetCpaOptInRecommendationTargetCpaOptInRecommendationOption struct {
 	Goal                               string          `json:"goal"`
 	TargetCpaMicros                    string          `json:"targetCpaMicros"`
 	RequiredCampaignBudgetAmountMicros string          `json:"requiredCampaignBudgetAmountMicros"`
 	Impact                             json.RawMessage `json:"impact"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationTargetRoasOptInRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationTargetRoasOptInRecommendation struct {
 	RecommendedTargetRoas              float64 `json:"recommendedTargetRoas"`
 	RequiredCampaignBudgetAmountMicros string  `json:"requiredCampaignBudgetAmountMicros"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationTextAdRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationTextAdRecommendation struct {
 	CreationDate  string          `json:"creationDate"`
 	AutoApplyDate string          `json:"autoApplyDate"`
 	Ad            json.RawMessage `json:"ad"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationUpgradeSmartShoppingCampaignToPerformanceMaxRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationUpgradeSmartShoppingCampaignToPerformanceMaxRecommendation struct {
 	SalesCountryCode string `json:"salesCountryCode"`
 	MerchantId       string `json:"merchantId"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRecommendationUseBroadMatchKeywordRecommendation struct {
+type GoogleAdsGoogleadsV26ResourcesRecommendationUseBroadMatchKeywordRecommendation struct {
 	SuggestedKeywordsCount             string          `json:"suggestedKeywordsCount"`
 	RequiredCampaignBudgetAmountMicros string          `json:"requiredCampaignBudgetAmountMicros"`
 	CampaignUsesSharedBudget           bool            `json:"campaignUsesSharedBudget"`
@@ -5512,30 +5512,30 @@ type GoogleAdsGoogleadsV22ResourcesRecommendationUseBroadMatchKeywordRecommendat
 	CampaignKeywordsCount              string          `json:"campaignKeywordsCount"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRemarketingAction struct {
+type GoogleAdsGoogleadsV26ResourcesRemarketingAction struct {
 	ResourceName string          `json:"resourceName"`
 	TagSnippets  json.RawMessage `json:"tagSnippets"`
 	Id           string          `json:"id"`
 	Name         string          `json:"name"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesRemarketingSetting struct {
+type GoogleAdsGoogleadsV26ResourcesRemarketingSetting struct {
 	GoogleGlobalSiteTag string `json:"googleGlobalSiteTag"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesResidency struct {
+type GoogleAdsGoogleadsV26ResourcesResidency struct {
 	InstitutionName string `json:"institutionName"`
 	CompletionYear  int    `json:"completionYear"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesSearchTermView struct {
+type GoogleAdsGoogleadsV26ResourcesSearchTermView struct {
 	Status       string `json:"status"`
 	ResourceName string `json:"resourceName"`
 	SearchTerm   string `json:"searchTerm"`
 	AdGroup      string `json:"adGroup"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesSharedCriterion struct {
+type GoogleAdsGoogleadsV26ResourcesSharedCriterion struct {
 	YoutubeVideo      json.RawMessage `json:"youtubeVideo"`
 	SharedSet         string          `json:"sharedSet"`
 	MobileAppCategory json.RawMessage `json:"mobileAppCategory"`
@@ -5550,7 +5550,7 @@ type GoogleAdsGoogleadsV22ResourcesSharedCriterion struct {
 	Type              string          `json:"type"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesSharedSet struct {
+type GoogleAdsGoogleadsV26ResourcesSharedSet struct {
 	Type           string `json:"type"`
 	Id             string `json:"id"`
 	MemberCount    string `json:"memberCount"`
@@ -5560,11 +5560,11 @@ type GoogleAdsGoogleadsV22ResourcesSharedSet struct {
 	Status         string `json:"status"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesShoppingPerformanceView struct {
+type GoogleAdsGoogleadsV26ResourcesShoppingPerformanceView struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesShoppingProduct struct {
+type GoogleAdsGoogleadsV26ResourcesShoppingProduct struct {
 	LanguageCode          string          `json:"languageCode"`
 	CategoryLevel4        string          `json:"categoryLevel4"`
 	Issues                json.RawMessage `json:"issues"`
@@ -5602,7 +5602,7 @@ type GoogleAdsGoogleadsV22ResourcesShoppingProduct struct {
 	ProductTypeLevel1     string          `json:"productTypeLevel1"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesShoppingProductProductIssue struct {
+type GoogleAdsGoogleadsV26ResourcesShoppingProductProductIssue struct {
 	Description     string          `json:"description"`
 	AdsSeverity     string          `json:"adsSeverity"`
 	AttributeName   string          `json:"attributeName"`
@@ -5612,13 +5612,13 @@ type GoogleAdsGoogleadsV22ResourcesShoppingProductProductIssue struct {
 	Detail          string          `json:"detail"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesSmartCampaignSearchTermView struct {
+type GoogleAdsGoogleadsV26ResourcesSmartCampaignSearchTermView struct {
 	ResourceName string `json:"resourceName"`
 	SearchTerm   string `json:"searchTerm"`
 	Campaign     string `json:"campaign"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesSmartCampaignSetting struct {
+type GoogleAdsGoogleadsV26ResourcesSmartCampaignSetting struct {
 	PhoneNumber                       json.RawMessage `json:"phoneNumber"`
 	BusinessName                      string          `json:"businessName"`
 	AdvertisingLanguageCode           string          `json:"advertisingLanguageCode"`
@@ -5629,56 +5629,56 @@ type GoogleAdsGoogleadsV22ResourcesSmartCampaignSetting struct {
 	Campaign                          string          `json:"campaign"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesSmartCampaignSettingAdOptimizedBusinessProfileSetting struct {
+type GoogleAdsGoogleadsV26ResourcesSmartCampaignSettingAdOptimizedBusinessProfileSetting struct {
 	IncludeLeadForm bool `json:"includeLeadForm"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesSmartCampaignSettingPhoneNumber struct {
+type GoogleAdsGoogleadsV26ResourcesSmartCampaignSettingPhoneNumber struct {
 	CountryCode string `json:"countryCode"`
 	PhoneNumber string `json:"phoneNumber"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesTargetingExpansionView struct {
+type GoogleAdsGoogleadsV26ResourcesTargetingExpansionView struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesThirdPartyAppAnalyticsLink struct {
+type GoogleAdsGoogleadsV26ResourcesThirdPartyAppAnalyticsLink struct {
 	ResourceName    string `json:"resourceName"`
 	ShareableLinkId string `json:"shareableLinkId"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesThirdPartyAppAnalyticsLinkIdentifier struct {
+type GoogleAdsGoogleadsV26ResourcesThirdPartyAppAnalyticsLinkIdentifier struct {
 	AppAnalyticsProviderId string `json:"appAnalyticsProviderId"`
 	AppId                  string `json:"appId"`
 	AppVendor              string `json:"appVendor"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesTopicConstant struct {
+type GoogleAdsGoogleadsV26ResourcesTopicConstant struct {
 	Path                json.RawMessage `json:"path"`
 	ResourceName        string          `json:"resourceName"`
 	TopicConstantParent string          `json:"topicConstantParent"`
 	Id                  string          `json:"id"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesTopicView struct {
+type GoogleAdsGoogleadsV26ResourcesTopicView struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesTravelActivityGroupView struct {
+type GoogleAdsGoogleadsV26ResourcesTravelActivityGroupView struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesTravelActivityPerformanceView struct {
+type GoogleAdsGoogleadsV26ResourcesTravelActivityPerformanceView struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesUniversityDegree struct {
+type GoogleAdsGoogleadsV26ResourcesUniversityDegree struct {
 	InstitutionName string `json:"institutionName"`
 	Degree          string `json:"degree"`
 	GraduationYear  int    `json:"graduationYear"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesUserInterest struct {
+type GoogleAdsGoogleadsV26ResourcesUserInterest struct {
 	LaunchedToAll      bool            `json:"launchedToAll"`
 	UserInterestId     string          `json:"userInterestId"`
 	Name               string          `json:"name"`
@@ -5688,7 +5688,7 @@ type GoogleAdsGoogleadsV22ResourcesUserInterest struct {
 	Availabilities     json.RawMessage `json:"availabilities"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesUserList struct {
+type GoogleAdsGoogleadsV26ResourcesUserList struct {
 	CrmBasedUserList      json.RawMessage `json:"crmBasedUserList"`
 	ClosingReason         string          `json:"closingReason"`
 	MembershipStatus      string          `json:"membershipStatus"`
@@ -5716,19 +5716,19 @@ type GoogleAdsGoogleadsV22ResourcesUserList struct {
 	BasicUserList         json.RawMessage `json:"basicUserList"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesUserListCustomerType struct {
+type GoogleAdsGoogleadsV26ResourcesUserListCustomerType struct {
 	UserList             string `json:"userList"`
 	ResourceName         string `json:"resourceName"`
 	CustomerTypeCategory string `json:"customerTypeCategory"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesUserLocationView struct {
+type GoogleAdsGoogleadsV26ResourcesUserLocationView struct {
 	TargetingLocation  bool   `json:"targetingLocation"`
 	CountryCriterionId string `json:"countryCriterionId"`
 	ResourceName       string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesVideo struct {
+type GoogleAdsGoogleadsV26ResourcesVideo struct {
 	ChannelId      string `json:"channelId"`
 	Id             string `json:"id"`
 	DurationMillis string `json:"durationMillis"`
@@ -5736,37 +5736,37 @@ type GoogleAdsGoogleadsV22ResourcesVideo struct {
 	ResourceName   string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesVideoCustomer struct {
+type GoogleAdsGoogleadsV26ResourcesVideoCustomer struct {
 	ThirdPartyIntegrationPartners json.RawMessage `json:"thirdPartyIntegrationPartners"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesWebpageView struct {
+type GoogleAdsGoogleadsV26ResourcesWebpageView struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ResourcesYoutubeVideoIdentifier struct {
+type GoogleAdsGoogleadsV26ResourcesYoutubeVideoIdentifier struct {
 	ChannelId string `json:"channelId"`
 	VideoId   string `json:"videoId"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAccountBudgetProposalOperation struct {
+type GoogleAdsGoogleadsV26ServicesAccountBudgetProposalOperation struct {
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 	Remove     string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAccountLinkOperation struct {
+type GoogleAdsGoogleadsV26ServicesAccountLinkOperation struct {
 	UpdateMask string          `json:"updateMask"`
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAdGroupAdLabelOperation struct {
+type GoogleAdsGoogleadsV26ServicesAdGroupAdLabelOperation struct {
 	Create json.RawMessage `json:"create"`
 	Remove string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAdGroupAdOperation struct {
+type GoogleAdsGoogleadsV26ServicesAdGroupAdOperation struct {
 	UpdateMask                string          `json:"updateMask"`
 	Update                    json.RawMessage `json:"update"`
 	Remove                    string          `json:"remove"`
@@ -5774,36 +5774,36 @@ type GoogleAdsGoogleadsV22ServicesAdGroupAdOperation struct {
 	Create                    json.RawMessage `json:"create"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAdGroupAssetOperation struct {
+type GoogleAdsGoogleadsV26ServicesAdGroupAssetOperation struct {
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAdGroupAssetSetOperation struct {
+type GoogleAdsGoogleadsV26ServicesAdGroupAssetSetOperation struct {
 	Create json.RawMessage `json:"create"`
 	Remove string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAdGroupBidModifierOperation struct {
+type GoogleAdsGoogleadsV26ServicesAdGroupBidModifierOperation struct {
 	UpdateMask string          `json:"updateMask"`
 	Create     json.RawMessage `json:"create"`
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAdGroupCriterionCustomizerOperation struct {
+type GoogleAdsGoogleadsV26ServicesAdGroupCriterionCustomizerOperation struct {
 	Create json.RawMessage `json:"create"`
 	Remove string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAdGroupCriterionLabelOperation struct {
+type GoogleAdsGoogleadsV26ServicesAdGroupCriterionLabelOperation struct {
 	Create json.RawMessage `json:"create"`
 	Remove string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAdGroupCriterionOperation struct {
+type GoogleAdsGoogleadsV26ServicesAdGroupCriterionOperation struct {
 	Update                    json.RawMessage `json:"update"`
 	Remove                    string          `json:"remove"`
 	Create                    json.RawMessage `json:"create"`
@@ -5811,12 +5811,12 @@ type GoogleAdsGoogleadsV22ServicesAdGroupCriterionOperation struct {
 	UpdateMask                string          `json:"updateMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAdGroupCustomizerOperation struct {
+type GoogleAdsGoogleadsV26ServicesAdGroupCustomizerOperation struct {
 	Create json.RawMessage `json:"create"`
 	Remove string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAdGroupKeywordSuggestion struct {
+type GoogleAdsGoogleadsV26ServicesAdGroupKeywordSuggestion struct {
 	SuggestedAdGroup     string `json:"suggestedAdGroup"`
 	SuggestedKeywordText string `json:"suggestedKeywordText"`
 	KeywordText          string `json:"keywordText"`
@@ -5824,68 +5824,68 @@ type GoogleAdsGoogleadsV22ServicesAdGroupKeywordSuggestion struct {
 	SuggestedCampaign    string `json:"suggestedCampaign"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAdGroupLabelOperation struct {
+type GoogleAdsGoogleadsV26ServicesAdGroupLabelOperation struct {
 	Create json.RawMessage `json:"create"`
 	Remove string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAdGroupOperation struct {
+type GoogleAdsGoogleadsV26ServicesAdGroupOperation struct {
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 	UpdateMask string          `json:"updateMask"`
 	Create     json.RawMessage `json:"create"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAdOperation struct {
+type GoogleAdsGoogleadsV26ServicesAdOperation struct {
 	UpdateMask                string          `json:"updateMask"`
 	Update                    json.RawMessage `json:"update"`
 	PolicyValidationParameter json.RawMessage `json:"policyValidationParameter"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAdParameterOperation struct {
+type GoogleAdsGoogleadsV26ServicesAdParameterOperation struct {
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAddBatchJobOperationsRequest struct {
+type GoogleAdsGoogleadsV26ServicesAddBatchJobOperationsRequest struct {
 	MutateOperations json.RawMessage `json:"mutateOperations"`
 	SequenceToken    string          `json:"sequenceToken"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAddBatchJobOperationsResponse struct {
+type GoogleAdsGoogleadsV26ServicesAddBatchJobOperationsResponse struct {
 	TotalOperations   string `json:"totalOperations"`
 	NextSequenceToken string `json:"nextSequenceToken"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAddOfflineUserDataJobOperationsRequest struct {
+type GoogleAdsGoogleadsV26ServicesAddOfflineUserDataJobOperationsRequest struct {
 	EnableWarnings       bool            `json:"enableWarnings"`
 	Operations           json.RawMessage `json:"operations"`
 	ValidateOnly         bool            `json:"validateOnly"`
 	EnablePartialFailure bool            `json:"enablePartialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAddOfflineUserDataJobOperationsResponse struct {
+type GoogleAdsGoogleadsV26ServicesAddOfflineUserDataJobOperationsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Warning             json.RawMessage `json:"warning"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAdvancedProductTargeting struct {
+type GoogleAdsGoogleadsV26ServicesAdvancedProductTargeting struct {
 	SurfaceTargetingSettings json.RawMessage `json:"surfaceTargetingSettings"`
 	TargetFrequencySettings  json.RawMessage `json:"targetFrequencySettings"`
 	YoutubeSelectSettings    json.RawMessage `json:"youtubeSelectSettings"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAppendLeadConversationRequest struct {
+type GoogleAdsGoogleadsV26ServicesAppendLeadConversationRequest struct {
 	Conversations json.RawMessage `json:"conversations"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAppendLeadConversationResponse struct {
+type GoogleAdsGoogleadsV26ServicesAppendLeadConversationResponse struct {
 	Responses json.RawMessage `json:"responses"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperation struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationOperation struct {
 	CalloutAsset                        json.RawMessage `json:"calloutAsset"`
 	MoveUnusedBudget                    json.RawMessage `json:"moveUnusedBudget"`
 	ResponsiveSearchAdAsset             json.RawMessage `json:"responsiveSearchAdAsset"`
@@ -5913,276 +5913,276 @@ type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperation struct {
 	ForecastingSetTargetCpa             json.RawMessage `json:"forecastingSetTargetCpa"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperationAdAssetApplyParameters struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationOperationAdAssetApplyParameters struct {
 	Scope          string          `json:"scope"`
 	NewAssets      json.RawMessage `json:"newAssets"`
 	ExistingAssets json.RawMessage `json:"existingAssets"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperationCallAssetParameters struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationOperationCallAssetParameters struct {
 	AdAssetApplyParameters json.RawMessage `json:"adAssetApplyParameters"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperationCallExtensionParameters struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationOperationCallExtensionParameters struct {
 	CallExtensions json.RawMessage `json:"callExtensions"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperationCalloutAssetParameters struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationOperationCalloutAssetParameters struct {
 	AdAssetApplyParameters json.RawMessage `json:"adAssetApplyParameters"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperationCalloutExtensionParameters struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationOperationCalloutExtensionParameters struct {
 	CalloutExtensions json.RawMessage `json:"calloutExtensions"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperationCampaignBudgetParameters struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationOperationCampaignBudgetParameters struct {
 	NewBudgetAmountMicros string `json:"newBudgetAmountMicros"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperationForecastingSetTargetCpaParameters struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationOperationForecastingSetTargetCpaParameters struct {
 	TargetCpaMicros            string `json:"targetCpaMicros"`
 	CampaignBudgetAmountMicros string `json:"campaignBudgetAmountMicros"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperationForecastingSetTargetRoasParameters struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationOperationForecastingSetTargetRoasParameters struct {
 	TargetRoas                 float64 `json:"targetRoas"`
 	CampaignBudgetAmountMicros string  `json:"campaignBudgetAmountMicros"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperationKeywordParameters struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationOperationKeywordParameters struct {
 	AdGroup      string `json:"adGroup"`
 	CpcBidMicros string `json:"cpcBidMicros"`
 	MatchType    string `json:"matchType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperationLeadFormAssetParameters struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationOperationLeadFormAssetParameters struct {
 	AdAssetApplyParameters             json.RawMessage `json:"adAssetApplyParameters"`
 	SetSubmitLeadFormAssetCampaignGoal bool            `json:"setSubmitLeadFormAssetCampaignGoal"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperationLowerTargetRoasParameters struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationOperationLowerTargetRoasParameters struct {
 	TargetRoasMultiplier float64 `json:"targetRoasMultiplier"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperationMoveUnusedBudgetParameters struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationOperationMoveUnusedBudgetParameters struct {
 	BudgetMicrosToMove string `json:"budgetMicrosToMove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperationRaiseTargetCpaBidTooLowParameters struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationOperationRaiseTargetCpaBidTooLowParameters struct {
 	TargetMultiplier float64 `json:"targetMultiplier"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperationRaiseTargetCpaParameters struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationOperationRaiseTargetCpaParameters struct {
 	TargetCpaMultiplier float64 `json:"targetCpaMultiplier"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperationResponsiveSearchAdAssetParameters struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationOperationResponsiveSearchAdAssetParameters struct {
 	UpdatedAd json.RawMessage `json:"updatedAd"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperationResponsiveSearchAdImproveAdStrengthParameters struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationOperationResponsiveSearchAdImproveAdStrengthParameters struct {
 	UpdatedAd json.RawMessage `json:"updatedAd"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperationResponsiveSearchAdParameters struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationOperationResponsiveSearchAdParameters struct {
 	Ad json.RawMessage `json:"ad"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperationSitelinkAssetParameters struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationOperationSitelinkAssetParameters struct {
 	AdAssetApplyParameters json.RawMessage `json:"adAssetApplyParameters"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperationSitelinkExtensionParameters struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationOperationSitelinkExtensionParameters struct {
 	SitelinkExtensions json.RawMessage `json:"sitelinkExtensions"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperationTargetCpaOptInParameters struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationOperationTargetCpaOptInParameters struct {
 	TargetCpaMicros               string `json:"targetCpaMicros"`
 	NewCampaignBudgetAmountMicros string `json:"newCampaignBudgetAmountMicros"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperationTargetRoasOptInParameters struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationOperationTargetRoasOptInParameters struct {
 	NewCampaignBudgetAmountMicros string  `json:"newCampaignBudgetAmountMicros"`
 	TargetRoas                    float64 `json:"targetRoas"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperationTextAdParameters struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationOperationTextAdParameters struct {
 	Ad json.RawMessage `json:"ad"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationOperationUseBroadMatchKeywordParameters struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationOperationUseBroadMatchKeywordParameters struct {
 	NewBudgetAmountMicros string `json:"newBudgetAmountMicros"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationRequest struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationRequest struct {
 	Operations     json.RawMessage `json:"operations"`
 	PartialFailure bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationResponse struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationResponse struct {
 	Results             json.RawMessage `json:"results"`
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 }
 
-type GoogleAdsGoogleadsV22ServicesApplyRecommendationResult struct {
+type GoogleAdsGoogleadsV26ServicesApplyRecommendationResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAssetGenerationExistingContext struct {
+type GoogleAdsGoogleadsV26ServicesAssetGenerationExistingContext struct {
 	ExistingAssetGroup string `json:"existingAssetGroup"`
 	ExistingAdGroupAd  string `json:"existingAdGroupAd"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAssetGroupAssetOperation struct {
+type GoogleAdsGoogleadsV26ServicesAssetGroupAssetOperation struct {
 	UpdateMask string          `json:"updateMask"`
 	Create     json.RawMessage `json:"create"`
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAssetGroupIdentifier struct {
+type GoogleAdsGoogleadsV26ServicesAssetGroupIdentifier struct {
 	AssetGroupId string `json:"assetGroupId"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAssetGroupListingGroupFilterOperation struct {
+type GoogleAdsGoogleadsV26ServicesAssetGroupListingGroupFilterOperation struct {
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAssetGroupOperation struct {
+type GoogleAdsGoogleadsV26ServicesAssetGroupOperation struct {
 	UpdateMask string          `json:"updateMask"`
 	Create     json.RawMessage `json:"create"`
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAssetGroupSignalOperation struct {
+type GoogleAdsGoogleadsV26ServicesAssetGroupSignalOperation struct {
 	Create                    json.RawMessage `json:"create"`
 	ExemptPolicyViolationKeys json.RawMessage `json:"exemptPolicyViolationKeys"`
 	Remove                    string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAssetOperation struct {
+type GoogleAdsGoogleadsV26ServicesAssetOperation struct {
 	Update     json.RawMessage `json:"update"`
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAssetSetAssetOperation struct {
+type GoogleAdsGoogleadsV26ServicesAssetSetAssetOperation struct {
 	Create json.RawMessage `json:"create"`
 	Remove string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAssetSetOperation struct {
+type GoogleAdsGoogleadsV26ServicesAssetSetOperation struct {
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAssetsWithFieldType struct {
+type GoogleAdsGoogleadsV26ServicesAssetsWithFieldType struct {
 	Asset          string `json:"asset"`
 	AssetFieldType string `json:"assetFieldType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAudienceCompositionAttribute struct {
+type GoogleAdsGoogleadsV26ServicesAudienceCompositionAttribute struct {
 	AttributeMetadata json.RawMessage `json:"attributeMetadata"`
 	Metrics           json.RawMessage `json:"metrics"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAudienceCompositionAttributeCluster struct {
+type GoogleAdsGoogleadsV26ServicesAudienceCompositionAttributeCluster struct {
 	ClusterDisplayName string          `json:"clusterDisplayName"`
 	Attributes         json.RawMessage `json:"attributes"`
 	ClusterMetrics     json.RawMessage `json:"clusterMetrics"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAudienceCompositionMetrics struct {
+type GoogleAdsGoogleadsV26ServicesAudienceCompositionMetrics struct {
 	BaselineAudienceShare float64 `json:"baselineAudienceShare"`
 	AudienceShare         float64 `json:"audienceShare"`
 	Index                 float64 `json:"index"`
 	Score                 float64 `json:"score"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAudienceCompositionSection struct {
+type GoogleAdsGoogleadsV26ServicesAudienceCompositionSection struct {
 	Dimension           string          `json:"dimension"`
 	ClusteredAttributes json.RawMessage `json:"clusteredAttributes"`
 	TopAttributes       json.RawMessage `json:"topAttributes"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAudienceOperation struct {
+type GoogleAdsGoogleadsV26ServicesAudienceOperation struct {
 	Update     json.RawMessage `json:"update"`
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAudienceOverlapItem struct {
+type GoogleAdsGoogleadsV26ServicesAudienceOverlapItem struct {
 	AttributeMetadata                 json.RawMessage `json:"attributeMetadata"`
 	PotentialYoutubeReachIntersection string          `json:"potentialYoutubeReachIntersection"`
 }
 
-type GoogleAdsGoogleadsV22ServicesAudienceTargeting struct {
+type GoogleAdsGoogleadsV26ServicesAudienceTargeting struct {
 	UserLists    json.RawMessage `json:"userLists"`
 	UserInterest json.RawMessage `json:"userInterest"`
 }
 
-type GoogleAdsGoogleadsV22ServicesBatchJobOperation struct {
+type GoogleAdsGoogleadsV26ServicesBatchJobOperation struct {
 	Create json.RawMessage `json:"create"`
 	Remove string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesBatchJobResult struct {
+type GoogleAdsGoogleadsV26ServicesBatchJobResult struct {
 	OperationIndex          string          `json:"operationIndex"`
 	MutateOperationResponse json.RawMessage `json:"mutateOperationResponse"`
 	Status                  json.RawMessage `json:"status"`
 }
 
-type GoogleAdsGoogleadsV22ServicesBiddableKeyword struct {
+type GoogleAdsGoogleadsV26ServicesBiddableKeyword struct {
 	Keyword         json.RawMessage `json:"keyword"`
 	MaxCpcBidMicros string          `json:"maxCpcBidMicros"`
 }
 
-type GoogleAdsGoogleadsV22ServicesBiddingDataExclusionOperation struct {
+type GoogleAdsGoogleadsV26ServicesBiddingDataExclusionOperation struct {
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesBiddingSeasonalityAdjustmentOperation struct {
+type GoogleAdsGoogleadsV26ServicesBiddingSeasonalityAdjustmentOperation struct {
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesBiddingStrategyOperation struct {
+type GoogleAdsGoogleadsV26ServicesBiddingStrategyOperation struct {
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesBillingSetupOperation struct {
+type GoogleAdsGoogleadsV26ServicesBillingSetupOperation struct {
 	Create json.RawMessage `json:"create"`
 	Remove string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesBrandCampaignAssets struct {
+type GoogleAdsGoogleadsV26ServicesBrandCampaignAssets struct {
 	LogoAsset          json.RawMessage `json:"logoAsset"`
 	LandscapeLogoAsset json.RawMessage `json:"landscapeLogoAsset"`
 	BusinessNameAsset  string          `json:"businessNameAsset"`
 }
 
-type GoogleAdsGoogleadsV22ServicesBrandSuggestion struct {
+type GoogleAdsGoogleadsV26ServicesBrandSuggestion struct {
 	Id    string          `json:"id"`
 	Name  string          `json:"name"`
 	Urls  json.RawMessage `json:"urls"`
 	State string          `json:"state"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCallConversion struct {
+type GoogleAdsGoogleadsV26ServicesCallConversion struct {
 	ConversionAction   string          `json:"conversionAction"`
 	ConversionDateTime string          `json:"conversionDateTime"`
 	CurrencyCode       string          `json:"currencyCode"`
@@ -6193,111 +6193,111 @@ type GoogleAdsGoogleadsV22ServicesCallConversion struct {
 	CustomVariables    json.RawMessage `json:"customVariables"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCallConversionResult struct {
+type GoogleAdsGoogleadsV26ServicesCallConversionResult struct {
 	CallerId           string `json:"callerId"`
 	CallStartDateTime  string `json:"callStartDateTime"`
 	ConversionAction   string `json:"conversionAction"`
 	ConversionDateTime string `json:"conversionDateTime"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCampaignAssetOperation struct {
+type GoogleAdsGoogleadsV26ServicesCampaignAssetOperation struct {
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCampaignAssetSetOperation struct {
+type GoogleAdsGoogleadsV26ServicesCampaignAssetSetOperation struct {
 	Create json.RawMessage `json:"create"`
 	Remove string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCampaignBidModifierOperation struct {
+type GoogleAdsGoogleadsV26ServicesCampaignBidModifierOperation struct {
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCampaignBudgetMapping struct {
+type GoogleAdsGoogleadsV26ServicesCampaignBudgetMapping struct {
 	ExperimentCampaign string `json:"experimentCampaign"`
 	CampaignBudget     string `json:"campaignBudget"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCampaignBudgetOperation struct {
+type GoogleAdsGoogleadsV26ServicesCampaignBudgetOperation struct {
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 	UpdateMask string          `json:"updateMask"`
 	Create     json.RawMessage `json:"create"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCampaignConversionGoalOperation struct {
+type GoogleAdsGoogleadsV26ServicesCampaignConversionGoalOperation struct {
 	Update     json.RawMessage `json:"update"`
 	UpdateMask string          `json:"updateMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCampaignCriterionOperation struct {
+type GoogleAdsGoogleadsV26ServicesCampaignCriterionOperation struct {
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCampaignCustomizerOperation struct {
+type GoogleAdsGoogleadsV26ServicesCampaignCustomizerOperation struct {
 	Create json.RawMessage `json:"create"`
 	Remove string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCampaignDraftOperation struct {
+type GoogleAdsGoogleadsV26ServicesCampaignDraftOperation struct {
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCampaignDuration struct {
+type GoogleAdsGoogleadsV26ServicesCampaignDuration struct {
 	DurationInDays int             `json:"durationInDays"`
 	DateRange      json.RawMessage `json:"dateRange"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCampaignGoalConfigOperation struct {
+type GoogleAdsGoogleadsV26ServicesCampaignGoalConfigOperation struct {
 	UpdateMask string          `json:"updateMask"`
 	Create     json.RawMessage `json:"create"`
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCampaignGroupOperation struct {
+type GoogleAdsGoogleadsV26ServicesCampaignGroupOperation struct {
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCampaignLabelOperation struct {
+type GoogleAdsGoogleadsV26ServicesCampaignLabelOperation struct {
 	Create json.RawMessage `json:"create"`
 	Remove string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCampaignLifecycleGoalOperation struct {
+type GoogleAdsGoogleadsV26ServicesCampaignLifecycleGoalOperation struct {
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 	Update     json.RawMessage `json:"update"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCampaignOperation struct {
+type GoogleAdsGoogleadsV26ServicesCampaignOperation struct {
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCampaignSharedSetOperation struct {
+type GoogleAdsGoogleadsV26ServicesCampaignSharedSetOperation struct {
 	Create json.RawMessage `json:"create"`
 	Remove string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCampaignToForecast struct {
+type GoogleAdsGoogleadsV26ServicesCampaignToForecast struct {
 	AdGroups           json.RawMessage `json:"adGroups"`
 	NegativeKeywords   json.RawMessage `json:"negativeKeywords"`
 	GeoModifiers       json.RawMessage `json:"geoModifiers"`
@@ -6307,13 +6307,13 @@ type GoogleAdsGoogleadsV22ServicesCampaignToForecast struct {
 	ConversionRate     float64         `json:"conversionRate"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCampaignToForecastCampaignBiddingStrategy struct {
+type GoogleAdsGoogleadsV26ServicesCampaignToForecastCampaignBiddingStrategy struct {
 	ManualCpcBiddingStrategy           json.RawMessage `json:"manualCpcBiddingStrategy"`
 	MaximizeClicksBiddingStrategy      json.RawMessage `json:"maximizeClicksBiddingStrategy"`
 	MaximizeConversionsBiddingStrategy json.RawMessage `json:"maximizeConversionsBiddingStrategy"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCartData struct {
+type GoogleAdsGoogleadsV26ServicesCartData struct {
 	FeedCountryCode      string          `json:"feedCountryCode"`
 	FeedLanguageCode     string          `json:"feedLanguageCode"`
 	Items                json.RawMessage `json:"items"`
@@ -6321,13 +6321,13 @@ type GoogleAdsGoogleadsV22ServicesCartData struct {
 	LocalTransactionCost float64         `json:"localTransactionCost"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCartDataItem struct {
+type GoogleAdsGoogleadsV26ServicesCartDataItem struct {
 	ProductId string  `json:"productId"`
 	UnitPrice float64 `json:"unitPrice"`
 	Quantity  int     `json:"quantity"`
 }
 
-type GoogleAdsGoogleadsV22ServicesClickConversion struct {
+type GoogleAdsGoogleadsV26ServicesClickConversion struct {
 	ConversionEnvironment          string          `json:"conversionEnvironment"`
 	SessionAttributesKeyValuePairs json.RawMessage `json:"sessionAttributesKeyValuePairs"`
 	CustomerType                   string          `json:"customerType"`
@@ -6348,7 +6348,7 @@ type GoogleAdsGoogleadsV22ServicesClickConversion struct {
 	Consent                        json.RawMessage `json:"consent"`
 }
 
-type GoogleAdsGoogleadsV22ServicesClickConversionResult struct {
+type GoogleAdsGoogleadsV26ServicesClickConversionResult struct {
 	ConversionDateTime string          `json:"conversionDateTime"`
 	Wbraid             string          `json:"wbraid"`
 	ConversionAction   string          `json:"conversionAction"`
@@ -6357,50 +6357,50 @@ type GoogleAdsGoogleadsV22ServicesClickConversionResult struct {
 	Gbraid             string          `json:"gbraid"`
 }
 
-type GoogleAdsGoogleadsV22ServicesConfigureCampaignLifecycleGoalsRequest struct {
+type GoogleAdsGoogleadsV26ServicesConfigureCampaignLifecycleGoalsRequest struct {
 	Operation    json.RawMessage `json:"operation"`
 	ValidateOnly bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesConfigureCampaignLifecycleGoalsResponse struct {
+type GoogleAdsGoogleadsV26ServicesConfigureCampaignLifecycleGoalsResponse struct {
 	Result json.RawMessage `json:"result"`
 }
 
-type GoogleAdsGoogleadsV22ServicesConfigureCampaignLifecycleGoalsResult struct {
+type GoogleAdsGoogleadsV26ServicesConfigureCampaignLifecycleGoalsResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesConfigureCustomerLifecycleGoalsRequest struct {
+type GoogleAdsGoogleadsV26ServicesConfigureCustomerLifecycleGoalsRequest struct {
 	Operation    json.RawMessage `json:"operation"`
 	ValidateOnly bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesConfigureCustomerLifecycleGoalsResponse struct {
+type GoogleAdsGoogleadsV26ServicesConfigureCustomerLifecycleGoalsResponse struct {
 	Result json.RawMessage `json:"result"`
 }
 
-type GoogleAdsGoogleadsV22ServicesConfigureCustomerLifecycleGoalsResult struct {
+type GoogleAdsGoogleadsV26ServicesConfigureCustomerLifecycleGoalsResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesConversation struct {
+type GoogleAdsGoogleadsV26ServicesConversation struct {
 	LocalServicesLead string `json:"localServicesLead"`
 	Text              string `json:"text"`
 }
 
-type GoogleAdsGoogleadsV22ServicesConversationOrError struct {
+type GoogleAdsGoogleadsV26ServicesConversationOrError struct {
 	LocalServicesLeadConversation string          `json:"localServicesLeadConversation"`
 	PartialFailureError           json.RawMessage `json:"partialFailureError"`
 }
 
-type GoogleAdsGoogleadsV22ServicesConversionActionOperation struct {
+type GoogleAdsGoogleadsV26ServicesConversionActionOperation struct {
 	UpdateMask string          `json:"updateMask"`
 	Create     json.RawMessage `json:"create"`
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesConversionAdjustment struct {
+type GoogleAdsGoogleadsV26ServicesConversionAdjustment struct {
 	GclidDateTimePair  json.RawMessage `json:"gclidDateTimePair"`
 	UserAgent          string          `json:"userAgent"`
 	UserIdentifiers    json.RawMessage `json:"userIdentifiers"`
@@ -6411,7 +6411,7 @@ type GoogleAdsGoogleadsV22ServicesConversionAdjustment struct {
 	RestatementValue   json.RawMessage `json:"restatementValue"`
 }
 
-type GoogleAdsGoogleadsV22ServicesConversionAdjustmentResult struct {
+type GoogleAdsGoogleadsV26ServicesConversionAdjustmentResult struct {
 	OrderId            string          `json:"orderId"`
 	AdjustmentType     string          `json:"adjustmentType"`
 	GclidDateTimePair  json.RawMessage `json:"gclidDateTimePair"`
@@ -6419,220 +6419,220 @@ type GoogleAdsGoogleadsV22ServicesConversionAdjustmentResult struct {
 	AdjustmentDateTime string          `json:"adjustmentDateTime"`
 }
 
-type GoogleAdsGoogleadsV22ServicesConversionCustomVariableOperation struct {
+type GoogleAdsGoogleadsV26ServicesConversionCustomVariableOperation struct {
 	Update     json.RawMessage `json:"update"`
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesConversionGoalCampaignConfigOperation struct {
+type GoogleAdsGoogleadsV26ServicesConversionGoalCampaignConfigOperation struct {
 	UpdateMask string          `json:"updateMask"`
 	Update     json.RawMessage `json:"update"`
 }
 
-type GoogleAdsGoogleadsV22ServicesConversionRateSuggestion struct {
+type GoogleAdsGoogleadsV26ServicesConversionRateSuggestion struct {
 	PlannableProductCode string  `json:"plannableProductCode"`
 	ConversionRate       float64 `json:"conversionRate"`
 	ConversionRateModel  string  `json:"conversionRateModel"`
 }
 
-type GoogleAdsGoogleadsV22ServicesConversionValueRuleOperation struct {
+type GoogleAdsGoogleadsV26ServicesConversionValueRuleOperation struct {
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesConversionValueRuleSetOperation struct {
+type GoogleAdsGoogleadsV26ServicesConversionValueRuleSetOperation struct {
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCreateAccountLinkRequest struct {
+type GoogleAdsGoogleadsV26ServicesCreateAccountLinkRequest struct {
 	AccountLink json.RawMessage `json:"accountLink"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCreateAccountLinkResponse struct {
+type GoogleAdsGoogleadsV26ServicesCreateAccountLinkResponse struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCreateCustomerClientRequest struct {
+type GoogleAdsGoogleadsV26ServicesCreateCustomerClientRequest struct {
 	CustomerClient json.RawMessage `json:"customerClient"`
 	EmailAddress   string          `json:"emailAddress"`
 	ValidateOnly   bool            `json:"validateOnly"`
 	AccessRole     string          `json:"accessRole"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCreateCustomerClientResponse struct {
+type GoogleAdsGoogleadsV26ServicesCreateCustomerClientResponse struct {
 	ResourceName   string `json:"resourceName"`
 	InvitationLink string `json:"invitationLink"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCreateDataLinkRequest struct {
+type GoogleAdsGoogleadsV26ServicesCreateDataLinkRequest struct {
 	DataLink json.RawMessage `json:"dataLink"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCreateDataLinkResponse struct {
+type GoogleAdsGoogleadsV26ServicesCreateDataLinkResponse struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCreateOfflineUserDataJobRequest struct {
+type GoogleAdsGoogleadsV26ServicesCreateOfflineUserDataJobRequest struct {
 	ValidateOnly                bool            `json:"validateOnly"`
 	Job                         json.RawMessage `json:"job"`
 	EnableMatchRateRangePreview bool            `json:"enableMatchRateRangePreview"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCreateOfflineUserDataJobResponse struct {
+type GoogleAdsGoogleadsV26ServicesCreateOfflineUserDataJobResponse struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCreateProductLinkInvitationRequest struct {
+type GoogleAdsGoogleadsV26ServicesCreateProductLinkInvitationRequest struct {
 	ProductLinkInvitation json.RawMessage `json:"productLinkInvitation"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCreateProductLinkInvitationResponse struct {
+type GoogleAdsGoogleadsV26ServicesCreateProductLinkInvitationResponse struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCreateProductLinkRequest struct {
+type GoogleAdsGoogleadsV26ServicesCreateProductLinkRequest struct {
 	ProductLink json.RawMessage `json:"productLink"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCreateProductLinkResponse struct {
+type GoogleAdsGoogleadsV26ServicesCreateProductLinkResponse struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCriterionBidModifier struct {
+type GoogleAdsGoogleadsV26ServicesCriterionBidModifier struct {
 	GeoTargetConstant string  `json:"geoTargetConstant"`
 	BidModifier       float64 `json:"bidModifier"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCustomAudienceOperation struct {
+type GoogleAdsGoogleadsV26ServicesCustomAudienceOperation struct {
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCustomConversionGoalOperation struct {
+type GoogleAdsGoogleadsV26ServicesCustomConversionGoalOperation struct {
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCustomInterestOperation struct {
+type GoogleAdsGoogleadsV26ServicesCustomInterestOperation struct {
 	Update     json.RawMessage `json:"update"`
 	UpdateMask string          `json:"updateMask"`
 	Create     json.RawMessage `json:"create"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCustomVariable struct {
+type GoogleAdsGoogleadsV26ServicesCustomVariable struct {
 	ConversionCustomVariable string `json:"conversionCustomVariable"`
 	Value                    string `json:"value"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCustomerAssetOperation struct {
+type GoogleAdsGoogleadsV26ServicesCustomerAssetOperation struct {
 	UpdateMask string          `json:"updateMask"`
 	Create     json.RawMessage `json:"create"`
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCustomerAssetSetOperation struct {
+type GoogleAdsGoogleadsV26ServicesCustomerAssetSetOperation struct {
 	Create json.RawMessage `json:"create"`
 	Remove string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCustomerClientLinkOperation struct {
+type GoogleAdsGoogleadsV26ServicesCustomerClientLinkOperation struct {
 	Update     json.RawMessage `json:"update"`
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCustomerConversionGoalOperation struct {
+type GoogleAdsGoogleadsV26ServicesCustomerConversionGoalOperation struct {
 	UpdateMask string          `json:"updateMask"`
 	Update     json.RawMessage `json:"update"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCustomerCustomizerOperation struct {
+type GoogleAdsGoogleadsV26ServicesCustomerCustomizerOperation struct {
 	Create json.RawMessage `json:"create"`
 	Remove string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCustomerLabelOperation struct {
+type GoogleAdsGoogleadsV26ServicesCustomerLabelOperation struct {
 	Create json.RawMessage `json:"create"`
 	Remove string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCustomerLifecycleGoalOperation struct {
+type GoogleAdsGoogleadsV26ServicesCustomerLifecycleGoalOperation struct {
 	Update     json.RawMessage `json:"update"`
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCustomerManagerLinkOperation struct {
+type GoogleAdsGoogleadsV26ServicesCustomerManagerLinkOperation struct {
 	Update     json.RawMessage `json:"update"`
 	UpdateMask string          `json:"updateMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCustomerNegativeCriterionOperation struct {
+type GoogleAdsGoogleadsV26ServicesCustomerNegativeCriterionOperation struct {
 	Create json.RawMessage `json:"create"`
 	Remove string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCustomerOperation struct {
+type GoogleAdsGoogleadsV26ServicesCustomerOperation struct {
 	UpdateMask string          `json:"updateMask"`
 	Update     json.RawMessage `json:"update"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCustomerSkAdNetworkConversionValueSchemaOperation struct {
+type GoogleAdsGoogleadsV26ServicesCustomerSkAdNetworkConversionValueSchemaOperation struct {
 	Update json.RawMessage `json:"update"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCustomerUserAccessInvitationOperation struct {
+type GoogleAdsGoogleadsV26ServicesCustomerUserAccessInvitationOperation struct {
 	Create json.RawMessage `json:"create"`
 	Remove string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCustomerUserAccessOperation struct {
+type GoogleAdsGoogleadsV26ServicesCustomerUserAccessOperation struct {
 	UpdateMask string          `json:"updateMask"`
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesCustomizerAttributeOperation struct {
+type GoogleAdsGoogleadsV26ServicesCustomizerAttributeOperation struct {
 	Remove     string          `json:"remove"`
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesDimensionOverlapResult struct {
+type GoogleAdsGoogleadsV26ServicesDimensionOverlapResult struct {
 	Dimension string          `json:"dimension"`
 	Items     json.RawMessage `json:"items"`
 }
 
-type GoogleAdsGoogleadsV22ServicesDismissRecommendationRequest struct {
+type GoogleAdsGoogleadsV26ServicesDismissRecommendationRequest struct {
 	Operations     json.RawMessage `json:"operations"`
 	PartialFailure bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesDismissRecommendationRequestDismissRecommendationOperation struct {
+type GoogleAdsGoogleadsV26ServicesDismissRecommendationRequestDismissRecommendationOperation struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesDismissRecommendationResponse struct {
+type GoogleAdsGoogleadsV26ServicesDismissRecommendationResponse struct {
 	Results             json.RawMessage `json:"results"`
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 }
 
-type GoogleAdsGoogleadsV22ServicesDismissRecommendationResponseDismissRecommendationResult struct {
+type GoogleAdsGoogleadsV26ServicesDismissRecommendationResponseDismissRecommendationResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesEffectiveFrequencyBreakdown struct {
+type GoogleAdsGoogleadsV26ServicesEffectiveFrequencyBreakdown struct {
 	OnTargetEffectiveCoviewReach string `json:"onTargetEffectiveCoviewReach"`
 	EffectiveFrequency           int    `json:"effectiveFrequency"`
 	TotalReach                   string `json:"totalReach"`
@@ -6640,11 +6640,11 @@ type GoogleAdsGoogleadsV22ServicesEffectiveFrequencyBreakdown struct {
 	OnTargetReach                string `json:"onTargetReach"`
 }
 
-type GoogleAdsGoogleadsV22ServicesEffectiveFrequencyLimit struct {
+type GoogleAdsGoogleadsV26ServicesEffectiveFrequencyLimit struct {
 	EffectiveFrequencyBreakdownLimit int `json:"effectiveFrequencyBreakdownLimit"`
 }
 
-type GoogleAdsGoogleadsV22ServicesEnableOperation struct {
+type GoogleAdsGoogleadsV26ServicesEnableOperation struct {
 	MainColor               string          `json:"mainColor"`
 	BrandAssets             json.RawMessage `json:"brandAssets"`
 	FontFamily              string          `json:"fontFamily"`
@@ -6654,47 +6654,47 @@ type GoogleAdsGoogleadsV22ServicesEnableOperation struct {
 	FinalUriDomain          string          `json:"finalUriDomain"`
 }
 
-type GoogleAdsGoogleadsV22ServicesEnablePmaxBrandGuidelinesRequest struct {
+type GoogleAdsGoogleadsV26ServicesEnablePmaxBrandGuidelinesRequest struct {
 	Operations json.RawMessage `json:"operations"`
 }
 
-type GoogleAdsGoogleadsV22ServicesEnablePmaxBrandGuidelinesResponse struct {
+type GoogleAdsGoogleadsV26ServicesEnablePmaxBrandGuidelinesResponse struct {
 	Results json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesEnablementResult struct {
+type GoogleAdsGoogleadsV26ServicesEnablementResult struct {
 	Campaign        string          `json:"campaign"`
 	EnablementError json.RawMessage `json:"enablementError"`
 }
 
-type GoogleAdsGoogleadsV22ServicesEndExperimentRequest struct {
+type GoogleAdsGoogleadsV26ServicesEndExperimentRequest struct {
 	ValidateOnly bool `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesExperimentArmOperation struct {
+type GoogleAdsGoogleadsV26ServicesExperimentArmOperation struct {
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 	UpdateMask string          `json:"updateMask"`
 	Create     json.RawMessage `json:"create"`
 }
 
-type GoogleAdsGoogleadsV22ServicesExperimentOperation struct {
+type GoogleAdsGoogleadsV26ServicesExperimentOperation struct {
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesExternalAttributionData struct {
+type GoogleAdsGoogleadsV26ServicesExternalAttributionData struct {
 	ExternalAttributionCredit float64 `json:"externalAttributionCredit"`
 	ExternalAttributionModel  string  `json:"externalAttributionModel"`
 }
 
-type GoogleAdsGoogleadsV22ServicesFinalUrlImageGenerationInput struct {
+type GoogleAdsGoogleadsV26ServicesFinalUrlImageGenerationInput struct {
 	FinalUrl string `json:"finalUrl"`
 }
 
-type GoogleAdsGoogleadsV22ServicesForecast struct {
+type GoogleAdsGoogleadsV26ServicesForecast struct {
 	ViewableImpressions          string          `json:"viewableImpressions"`
 	EffectiveFrequencyBreakdowns json.RawMessage `json:"effectiveFrequencyBreakdowns"`
 	TotalCoviewReach             string          `json:"totalCoviewReach"`
@@ -6709,41 +6709,41 @@ type GoogleAdsGoogleadsV22ServicesForecast struct {
 	TrueviewViews                string          `json:"trueviewViews"`
 }
 
-type GoogleAdsGoogleadsV22ServicesForecastAdGroup struct {
+type GoogleAdsGoogleadsV26ServicesForecastAdGroup struct {
 	BiddableKeywords json.RawMessage `json:"biddableKeywords"`
 	MaxCpcBidMicros  string          `json:"maxCpcBidMicros"`
 	NegativeKeywords json.RawMessage `json:"negativeKeywords"`
 }
 
-type GoogleAdsGoogleadsV22ServicesForecastMetricOptions struct {
+type GoogleAdsGoogleadsV26ServicesForecastMetricOptions struct {
 	IncludeCoview bool `json:"includeCoview"`
 }
 
-type GoogleAdsGoogleadsV22ServicesFreeformImageGenerationInput struct {
+type GoogleAdsGoogleadsV26ServicesFreeformImageGenerationInput struct {
 	FreeformPrompt string `json:"freeformPrompt"`
 }
 
-type GoogleAdsGoogleadsV22ServicesFrequencyCap struct {
+type GoogleAdsGoogleadsV26ServicesFrequencyCap struct {
 	Impressions int    `json:"impressions"`
 	TimeUnit    string `json:"timeUnit"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGclidDateTimePair struct {
+type GoogleAdsGoogleadsV26ServicesGclidDateTimePair struct {
 	Gclid              string `json:"gclid"`
 	ConversionDateTime string `json:"conversionDateTime"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateAdGroupThemesRequest struct {
+type GoogleAdsGoogleadsV26ServicesGenerateAdGroupThemesRequest struct {
 	Keywords json.RawMessage `json:"keywords"`
 	AdGroups json.RawMessage `json:"adGroups"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateAdGroupThemesResponse struct {
+type GoogleAdsGoogleadsV26ServicesGenerateAdGroupThemesResponse struct {
 	AdGroupKeywordSuggestions json.RawMessage `json:"adGroupKeywordSuggestions"`
 	UnusableAdGroups          json.RawMessage `json:"unusableAdGroups"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateAudienceCompositionInsightsRequest struct {
+type GoogleAdsGoogleadsV26ServicesGenerateAudienceCompositionInsightsRequest struct {
 	BaselineAudience        json.RawMessage `json:"baselineAudience"`
 	Dimensions              json.RawMessage `json:"dimensions"`
 	InsightsApplicationInfo json.RawMessage `json:"insightsApplicationInfo"`
@@ -6752,11 +6752,11 @@ type GoogleAdsGoogleadsV22ServicesGenerateAudienceCompositionInsightsRequest str
 	DataMonth               string          `json:"dataMonth"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateAudienceCompositionInsightsResponse struct {
+type GoogleAdsGoogleadsV26ServicesGenerateAudienceCompositionInsightsResponse struct {
 	Sections json.RawMessage `json:"sections"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateAudienceOverlapInsightsRequest struct {
+type GoogleAdsGoogleadsV26ServicesGenerateAudienceOverlapInsightsRequest struct {
 	Dimensions              json.RawMessage `json:"dimensions"`
 	InsightsApplicationInfo json.RawMessage `json:"insightsApplicationInfo"`
 	CountryLocation         json.RawMessage `json:"countryLocation"`
@@ -6764,22 +6764,22 @@ type GoogleAdsGoogleadsV22ServicesGenerateAudienceOverlapInsightsRequest struct 
 	CustomerInsightsGroup   string          `json:"customerInsightsGroup"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateAudienceOverlapInsightsResponse struct {
+type GoogleAdsGoogleadsV26ServicesGenerateAudienceOverlapInsightsResponse struct {
 	DimensionResults         json.RawMessage `json:"dimensionResults"`
 	PrimaryAttributeMetadata json.RawMessage `json:"primaryAttributeMetadata"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateConversionRatesRequest struct {
+type GoogleAdsGoogleadsV26ServicesGenerateConversionRatesRequest struct {
 	CustomerId           string          `json:"customerId"`
 	CustomerReachGroup   string          `json:"customerReachGroup"`
 	ReachApplicationInfo json.RawMessage `json:"reachApplicationInfo"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateConversionRatesResponse struct {
+type GoogleAdsGoogleadsV26ServicesGenerateConversionRatesResponse struct {
 	ConversionRateSuggestions json.RawMessage `json:"conversionRateSuggestions"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateCreatorInsightsRequest struct {
+type GoogleAdsGoogleadsV26ServicesGenerateCreatorInsightsRequest struct {
 	SubCountryLocations     json.RawMessage `json:"subCountryLocations"`
 	SearchBrand             json.RawMessage `json:"searchBrand"`
 	CustomerInsightsGroup   string          `json:"customerInsightsGroup"`
@@ -6789,25 +6789,25 @@ type GoogleAdsGoogleadsV22ServicesGenerateCreatorInsightsRequest struct {
 	InsightsApplicationInfo json.RawMessage `json:"insightsApplicationInfo"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateCreatorInsightsRequestSearchAttributes struct {
+type GoogleAdsGoogleadsV26ServicesGenerateCreatorInsightsRequestSearchAttributes struct {
 	AudienceAttributes json.RawMessage `json:"audienceAttributes"`
 	CreatorAttributes  json.RawMessage `json:"creatorAttributes"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateCreatorInsightsRequestSearchBrand struct {
+type GoogleAdsGoogleadsV26ServicesGenerateCreatorInsightsRequestSearchBrand struct {
 	IncludeRelatedTopics bool            `json:"includeRelatedTopics"`
 	BrandEntities        json.RawMessage `json:"brandEntities"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateCreatorInsightsRequestYouTubeChannels struct {
+type GoogleAdsGoogleadsV26ServicesGenerateCreatorInsightsRequestYouTubeChannels struct {
 	YoutubeChannels json.RawMessage `json:"youtubeChannels"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateCreatorInsightsResponse struct {
+type GoogleAdsGoogleadsV26ServicesGenerateCreatorInsightsResponse struct {
 	CreatorInsights json.RawMessage `json:"creatorInsights"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateImagesRequest struct {
+type GoogleAdsGoogleadsV26ServicesGenerateImagesRequest struct {
 	FreeformGeneration         json.RawMessage `json:"freeformGeneration"`
 	FinalUrlGeneration         json.RawMessage `json:"finalUrlGeneration"`
 	AdvertisingChannelType     string          `json:"advertisingChannelType"`
@@ -6815,32 +6815,32 @@ type GoogleAdsGoogleadsV22ServicesGenerateImagesRequest struct {
 	AssetFieldTypes            json.RawMessage `json:"assetFieldTypes"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateImagesResponse struct {
+type GoogleAdsGoogleadsV26ServicesGenerateImagesResponse struct {
 	GeneratedImages json.RawMessage `json:"generatedImages"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateInsightsFinderReportRequest struct {
+type GoogleAdsGoogleadsV26ServicesGenerateInsightsFinderReportRequest struct {
 	BaselineAudience        json.RawMessage `json:"baselineAudience"`
 	CustomerInsightsGroup   string          `json:"customerInsightsGroup"`
 	InsightsApplicationInfo json.RawMessage `json:"insightsApplicationInfo"`
 	SpecificAudience        json.RawMessage `json:"specificAudience"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateInsightsFinderReportResponse struct {
+type GoogleAdsGoogleadsV26ServicesGenerateInsightsFinderReportResponse struct {
 	SavedReportUrl string `json:"savedReportUrl"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateKeywordForecastMetricsRequest struct {
+type GoogleAdsGoogleadsV26ServicesGenerateKeywordForecastMetricsRequest struct {
 	Campaign       json.RawMessage `json:"campaign"`
 	CurrencyCode   string          `json:"currencyCode"`
 	ForecastPeriod json.RawMessage `json:"forecastPeriod"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateKeywordForecastMetricsResponse struct {
+type GoogleAdsGoogleadsV26ServicesGenerateKeywordForecastMetricsResponse struct {
 	CampaignForecastMetrics json.RawMessage `json:"campaignForecastMetrics"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateKeywordHistoricalMetricsRequest struct {
+type GoogleAdsGoogleadsV26ServicesGenerateKeywordHistoricalMetricsRequest struct {
 	KeywordPlanNetwork       string          `json:"keywordPlanNetwork"`
 	Language                 string          `json:"language"`
 	AggregateMetrics         json.RawMessage `json:"aggregateMetrics"`
@@ -6850,32 +6850,32 @@ type GoogleAdsGoogleadsV22ServicesGenerateKeywordHistoricalMetricsRequest struct
 	IncludeAdultKeywords     bool            `json:"includeAdultKeywords"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateKeywordHistoricalMetricsResponse struct {
+type GoogleAdsGoogleadsV26ServicesGenerateKeywordHistoricalMetricsResponse struct {
 	Results                json.RawMessage `json:"results"`
 	AggregateMetricResults json.RawMessage `json:"aggregateMetricResults"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateKeywordHistoricalMetricsResult struct {
+type GoogleAdsGoogleadsV26ServicesGenerateKeywordHistoricalMetricsResult struct {
 	CloseVariants  json.RawMessage `json:"closeVariants"`
 	Text           string          `json:"text"`
 	KeywordMetrics json.RawMessage `json:"keywordMetrics"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateKeywordIdeaResponse struct {
+type GoogleAdsGoogleadsV26ServicesGenerateKeywordIdeaResponse struct {
 	NextPageToken          string          `json:"nextPageToken"`
 	Results                json.RawMessage `json:"results"`
 	AggregateMetricResults json.RawMessage `json:"aggregateMetricResults"`
 	TotalSize              string          `json:"totalSize"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateKeywordIdeaResult struct {
+type GoogleAdsGoogleadsV26ServicesGenerateKeywordIdeaResult struct {
 	KeywordAnnotations json.RawMessage `json:"keywordAnnotations"`
 	CloseVariants      json.RawMessage `json:"closeVariants"`
 	Text               string          `json:"text"`
 	KeywordIdeaMetrics json.RawMessage `json:"keywordIdeaMetrics"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateKeywordIdeasRequest struct {
+type GoogleAdsGoogleadsV26ServicesGenerateKeywordIdeasRequest struct {
 	KeywordAnnotation        json.RawMessage `json:"keywordAnnotation"`
 	PageSize                 int             `json:"pageSize"`
 	UrlSeed                  json.RawMessage `json:"urlSeed"`
@@ -6891,7 +6891,7 @@ type GoogleAdsGoogleadsV22ServicesGenerateKeywordIdeasRequest struct {
 	SiteSeed                 json.RawMessage `json:"siteSeed"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateReachForecastRequest struct {
+type GoogleAdsGoogleadsV26ServicesGenerateReachForecastRequest struct {
 	CookieFrequencyCap        int             `json:"cookieFrequencyCap"`
 	CampaignDuration          json.RawMessage `json:"campaignDuration"`
 	EffectiveFrequencyLimit   json.RawMessage `json:"effectiveFrequencyLimit"`
@@ -6905,12 +6905,12 @@ type GoogleAdsGoogleadsV22ServicesGenerateReachForecastRequest struct {
 	PlannedProducts           json.RawMessage `json:"plannedProducts"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateReachForecastResponse struct {
+type GoogleAdsGoogleadsV26ServicesGenerateReachForecastResponse struct {
 	ReachCurve              json.RawMessage `json:"reachCurve"`
 	OnTargetAudienceMetrics json.RawMessage `json:"onTargetAudienceMetrics"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateRecommendationsRequest struct {
+type GoogleAdsGoogleadsV26ServicesGenerateRecommendationsRequest struct {
 	ConversionTrackingStatus   string          `json:"conversionTrackingStatus"`
 	CountryCodes               json.RawMessage `json:"countryCodes"`
 	LanguageCodes              json.RawMessage `json:"languageCodes"`
@@ -6931,73 +6931,73 @@ type GoogleAdsGoogleadsV22ServicesGenerateRecommendationsRequest struct {
 	PositiveLocationsIds       json.RawMessage `json:"positiveLocationsIds"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateRecommendationsRequestAdGroupInfo struct {
+type GoogleAdsGoogleadsV26ServicesGenerateRecommendationsRequestAdGroupInfo struct {
 	AdGroupType string          `json:"adGroupType"`
 	Keywords    json.RawMessage `json:"keywords"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateRecommendationsRequestAssetGroupInfo struct {
+type GoogleAdsGoogleadsV26ServicesGenerateRecommendationsRequestAssetGroupInfo struct {
 	FinalUrl    string          `json:"finalUrl"`
 	Description json.RawMessage `json:"description"`
 	Headline    json.RawMessage `json:"headline"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateRecommendationsRequestBiddingInfo struct {
+type GoogleAdsGoogleadsV26ServicesGenerateRecommendationsRequestBiddingInfo struct {
 	TargetCpaMicros           string          `json:"targetCpaMicros"`
 	TargetRoas                float64         `json:"targetRoas"`
 	TargetImpressionShareInfo json.RawMessage `json:"targetImpressionShareInfo"`
 	BiddingStrategyType       string          `json:"biddingStrategyType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateRecommendationsRequestBudgetInfo struct {
+type GoogleAdsGoogleadsV26ServicesGenerateRecommendationsRequestBudgetInfo struct {
 	CurrentBudget string `json:"currentBudget"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateRecommendationsRequestSeedInfo struct {
+type GoogleAdsGoogleadsV26ServicesGenerateRecommendationsRequestSeedInfo struct {
 	UrlSeed      string          `json:"urlSeed"`
 	KeywordSeeds json.RawMessage `json:"keywordSeeds"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateRecommendationsRequestTargetImpressionShareInfo struct {
+type GoogleAdsGoogleadsV26ServicesGenerateRecommendationsRequestTargetImpressionShareInfo struct {
 	MaxCpcBidCeiling            string `json:"maxCpcBidCeiling"`
 	Location                    string `json:"location"`
 	TargetImpressionShareMicros string `json:"targetImpressionShareMicros"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateRecommendationsResponse struct {
+type GoogleAdsGoogleadsV26ServicesGenerateRecommendationsResponse struct {
 	Recommendations json.RawMessage `json:"recommendations"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateShareablePreviewsRequest struct {
+type GoogleAdsGoogleadsV26ServicesGenerateShareablePreviewsRequest struct {
 	ShareablePreviews json.RawMessage `json:"shareablePreviews"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateShareablePreviewsResponse struct {
+type GoogleAdsGoogleadsV26ServicesGenerateShareablePreviewsResponse struct {
 	Responses json.RawMessage `json:"responses"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateSuggestedTargetingInsightsRequest struct {
+type GoogleAdsGoogleadsV26ServicesGenerateSuggestedTargetingInsightsRequest struct {
 	AudienceDefinition      json.RawMessage `json:"audienceDefinition"`
 	CustomerInsightsGroup   string          `json:"customerInsightsGroup"`
 	InsightsApplicationInfo json.RawMessage `json:"insightsApplicationInfo"`
 	AudienceDescription     json.RawMessage `json:"audienceDescription"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateSuggestedTargetingInsightsResponse struct {
+type GoogleAdsGoogleadsV26ServicesGenerateSuggestedTargetingInsightsResponse struct {
 	Suggestions json.RawMessage `json:"suggestions"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateTargetingSuggestionMetricsRequest struct {
+type GoogleAdsGoogleadsV26ServicesGenerateTargetingSuggestionMetricsRequest struct {
 	CustomerInsightsGroup   string          `json:"customerInsightsGroup"`
 	InsightsApplicationInfo json.RawMessage `json:"insightsApplicationInfo"`
 	Audiences               json.RawMessage `json:"audiences"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateTargetingSuggestionMetricsResponse struct {
+type GoogleAdsGoogleadsV26ServicesGenerateTargetingSuggestionMetricsResponse struct {
 	Suggestions json.RawMessage `json:"suggestions"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateTextRequest struct {
+type GoogleAdsGoogleadsV26ServicesGenerateTextRequest struct {
 	ExistingGenerationContext json.RawMessage `json:"existingGenerationContext"`
 	FreeformPrompt            string          `json:"freeformPrompt"`
 	Keywords                  json.RawMessage `json:"keywords"`
@@ -7006,11 +7006,11 @@ type GoogleAdsGoogleadsV22ServicesGenerateTextRequest struct {
 	FinalUrl                  string          `json:"finalUrl"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateTextResponse struct {
+type GoogleAdsGoogleadsV26ServicesGenerateTextResponse struct {
 	GeneratedText json.RawMessage `json:"generatedText"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateTrendingInsightsRequest struct {
+type GoogleAdsGoogleadsV26ServicesGenerateTrendingInsightsRequest struct {
 	InsightsApplicationInfo json.RawMessage `json:"insightsApplicationInfo"`
 	SearchTopics            json.RawMessage `json:"searchTopics"`
 	SearchAudience          json.RawMessage `json:"searchAudience"`
@@ -7018,21 +7018,21 @@ type GoogleAdsGoogleadsV22ServicesGenerateTrendingInsightsRequest struct {
 	CustomerInsightsGroup   string          `json:"customerInsightsGroup"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGenerateTrendingInsightsResponse struct {
+type GoogleAdsGoogleadsV26ServicesGenerateTrendingInsightsResponse struct {
 	TrendInsights json.RawMessage `json:"trendInsights"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGeneratedImage struct {
+type GoogleAdsGoogleadsV26ServicesGeneratedImage struct {
 	AssetFieldType    string `json:"assetFieldType"`
 	ImageTemporaryUrl string `json:"imageTemporaryUrl"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGeneratedText struct {
+type GoogleAdsGoogleadsV26ServicesGeneratedText struct {
 	Text           string `json:"text"`
 	AssetFieldType string `json:"assetFieldType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGeoTargetConstantSuggestion struct {
+type GoogleAdsGoogleadsV26ServicesGeoTargetConstantSuggestion struct {
 	Locale                   string          `json:"locale"`
 	Reach                    string          `json:"reach"`
 	SearchTerm               string          `json:"searchTerm"`
@@ -7040,11 +7040,11 @@ type GoogleAdsGoogleadsV22ServicesGeoTargetConstantSuggestion struct {
 	GeoTargetConstant        json.RawMessage `json:"geoTargetConstant"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGetIdentityVerificationResponse struct {
+type GoogleAdsGoogleadsV26ServicesGetIdentityVerificationResponse struct {
 	IdentityVerification json.RawMessage `json:"identityVerification"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGetSmartCampaignStatusResponse struct {
+type GoogleAdsGoogleadsV26ServicesGetSmartCampaignStatusResponse struct {
 	RemovedDetails      json.RawMessage `json:"removedDetails"`
 	EndedDetails        json.RawMessage `json:"endedDetails"`
 	SmartCampaignStatus string          `json:"smartCampaignStatus"`
@@ -7053,13 +7053,13 @@ type GoogleAdsGoogleadsV22ServicesGetSmartCampaignStatusResponse struct {
 	EligibleDetails     json.RawMessage `json:"eligibleDetails"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGoalOperation struct {
+type GoogleAdsGoogleadsV26ServicesGoalOperation struct {
 	Update     json.RawMessage `json:"update"`
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGoogleAdsRow struct {
+type GoogleAdsGoogleadsV26ServicesGoogleAdsRow struct {
 	CustomerLifecycleGoal                          json.RawMessage `json:"customerLifecycleGoal"`
 	CampaignGroup                                  json.RawMessage `json:"campaignGroup"`
 	AdGroupAdAssetCombinationView                  json.RawMessage `json:"adGroupAdAssetCombinationView"`
@@ -7240,12 +7240,12 @@ type GoogleAdsGoogleadsV22ServicesGoogleAdsRow struct {
 	LifeEvent                                      json.RawMessage `json:"lifeEvent"`
 }
 
-type GoogleAdsGoogleadsV22ServicesGraduateExperimentRequest struct {
+type GoogleAdsGoogleadsV26ServicesGraduateExperimentRequest struct {
 	CampaignBudgetMappings json.RawMessage `json:"campaignBudgetMappings"`
 	ValidateOnly           bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesHotelAssetSuggestion struct {
+type GoogleAdsGoogleadsV26ServicesHotelAssetSuggestion struct {
 	HotelName    string          `json:"hotelName"`
 	FinalUrl     string          `json:"finalUrl"`
 	Status       string          `json:"status"`
@@ -7255,34 +7255,34 @@ type GoogleAdsGoogleadsV22ServicesHotelAssetSuggestion struct {
 	CallToAction string          `json:"callToAction"`
 }
 
-type GoogleAdsGoogleadsV22ServicesHotelImageAsset struct {
+type GoogleAdsGoogleadsV26ServicesHotelImageAsset struct {
 	Uri            string `json:"uri"`
 	AssetFieldType string `json:"assetFieldType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesHotelTextAsset struct {
+type GoogleAdsGoogleadsV26ServicesHotelTextAsset struct {
 	Text           string `json:"text"`
 	AssetFieldType string `json:"assetFieldType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesIdentityVerification struct {
+type GoogleAdsGoogleadsV26ServicesIdentityVerification struct {
 	VerificationProgram             string          `json:"verificationProgram"`
 	IdentityVerificationRequirement json.RawMessage `json:"identityVerificationRequirement"`
 	VerificationProgress            json.RawMessage `json:"verificationProgress"`
 }
 
-type GoogleAdsGoogleadsV22ServicesIdentityVerificationProgress struct {
+type GoogleAdsGoogleadsV26ServicesIdentityVerificationProgress struct {
 	ActionUrl                    string `json:"actionUrl"`
 	ProgramStatus                string `json:"programStatus"`
 	InvitationLinkExpirationTime string `json:"invitationLinkExpirationTime"`
 }
 
-type GoogleAdsGoogleadsV22ServicesIdentityVerificationRequirement struct {
+type GoogleAdsGoogleadsV26ServicesIdentityVerificationRequirement struct {
 	VerificationStartDeadlineTime      string `json:"verificationStartDeadlineTime"`
 	VerificationCompletionDeadlineTime string `json:"verificationCompletionDeadlineTime"`
 }
 
-type GoogleAdsGoogleadsV22ServicesInsightsAudience struct {
+type GoogleAdsGoogleadsV26ServicesInsightsAudience struct {
 	ParentalStatus            json.RawMessage `json:"parentalStatus"`
 	IncomeRanges              json.RawMessage `json:"incomeRanges"`
 	SubCountryLocations       json.RawMessage `json:"subCountryLocations"`
@@ -7294,28 +7294,28 @@ type GoogleAdsGoogleadsV22ServicesInsightsAudience struct {
 	TopicAudienceCombinations json.RawMessage `json:"topicAudienceCombinations"`
 }
 
-type GoogleAdsGoogleadsV22ServicesInsightsAudienceAttributeGroup struct {
+type GoogleAdsGoogleadsV26ServicesInsightsAudienceAttributeGroup struct {
 	Attributes json.RawMessage `json:"attributes"`
 }
 
-type GoogleAdsGoogleadsV22ServicesInsightsAudienceDefinition struct {
+type GoogleAdsGoogleadsV26ServicesInsightsAudienceDefinition struct {
 	DataMonth        string          `json:"dataMonth"`
 	BaselineAudience json.RawMessage `json:"baselineAudience"`
 	Audience         json.RawMessage `json:"audience"`
 }
 
-type GoogleAdsGoogleadsV22ServicesInsightsAudienceDescription struct {
+type GoogleAdsGoogleadsV26ServicesInsightsAudienceDescription struct {
 	CountryLocations    json.RawMessage `json:"countryLocations"`
 	AudienceDescription string          `json:"audienceDescription"`
 	MarketingObjective  string          `json:"marketingObjective"`
 }
 
-type GoogleAdsGoogleadsV22ServicesKeywordAndUrlSeed struct {
+type GoogleAdsGoogleadsV26ServicesKeywordAndUrlSeed struct {
 	Url      string          `json:"url"`
 	Keywords json.RawMessage `json:"keywords"`
 }
 
-type GoogleAdsGoogleadsV22ServicesKeywordForecastMetrics struct {
+type GoogleAdsGoogleadsV26ServicesKeywordForecastMetrics struct {
 	CostMicros       string  `json:"costMicros"`
 	ConversionRate   float64 `json:"conversionRate"`
 	AverageCpaMicros string  `json:"averageCpaMicros"`
@@ -7326,57 +7326,57 @@ type GoogleAdsGoogleadsV22ServicesKeywordForecastMetrics struct {
 	Clicks           float64 `json:"clicks"`
 }
 
-type GoogleAdsGoogleadsV22ServicesKeywordPlanAdGroupKeywordOperation struct {
+type GoogleAdsGoogleadsV26ServicesKeywordPlanAdGroupKeywordOperation struct {
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 	UpdateMask string          `json:"updateMask"`
 	Create     json.RawMessage `json:"create"`
 }
 
-type GoogleAdsGoogleadsV22ServicesKeywordPlanAdGroupOperation struct {
+type GoogleAdsGoogleadsV26ServicesKeywordPlanAdGroupOperation struct {
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesKeywordPlanCampaignKeywordOperation struct {
+type GoogleAdsGoogleadsV26ServicesKeywordPlanCampaignKeywordOperation struct {
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesKeywordPlanCampaignOperation struct {
+type GoogleAdsGoogleadsV26ServicesKeywordPlanCampaignOperation struct {
 	UpdateMask string          `json:"updateMask"`
 	Create     json.RawMessage `json:"create"`
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesKeywordPlanOperation struct {
+type GoogleAdsGoogleadsV26ServicesKeywordPlanOperation struct {
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesKeywordSeed struct {
+type GoogleAdsGoogleadsV26ServicesKeywordSeed struct {
 	Keywords json.RawMessage `json:"keywords"`
 }
 
-type GoogleAdsGoogleadsV22ServicesLabelOperation struct {
+type GoogleAdsGoogleadsV26ServicesLabelOperation struct {
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesListAccessibleCustomersResponse struct {
+type GoogleAdsGoogleadsV26ServicesListAccessibleCustomersResponse struct {
 	ResourceNames json.RawMessage `json:"resourceNames"`
 }
 
-type GoogleAdsGoogleadsV22ServicesListAudienceInsightsAttributesRequest struct {
+type GoogleAdsGoogleadsV26ServicesListAudienceInsightsAttributesRequest struct {
 	LocationCountryFilters  json.RawMessage `json:"locationCountryFilters"`
 	QueryText               string          `json:"queryText"`
 	Dimensions              json.RawMessage `json:"dimensions"`
@@ -7385,60 +7385,60 @@ type GoogleAdsGoogleadsV22ServicesListAudienceInsightsAttributesRequest struct {
 	CustomerInsightsGroup   string          `json:"customerInsightsGroup"`
 }
 
-type GoogleAdsGoogleadsV22ServicesListAudienceInsightsAttributesResponse struct {
+type GoogleAdsGoogleadsV26ServicesListAudienceInsightsAttributesResponse struct {
 	Attributes json.RawMessage `json:"attributes"`
 }
 
-type GoogleAdsGoogleadsV22ServicesListBatchJobResultsResponse struct {
+type GoogleAdsGoogleadsV26ServicesListBatchJobResultsResponse struct {
 	NextPageToken string          `json:"nextPageToken"`
 	Results       json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesListCampaignDraftAsyncErrorsResponse struct {
+type GoogleAdsGoogleadsV26ServicesListCampaignDraftAsyncErrorsResponse struct {
 	Errors        json.RawMessage `json:"errors"`
 	NextPageToken string          `json:"nextPageToken"`
 }
 
-type GoogleAdsGoogleadsV22ServicesListExperimentAsyncErrorsResponse struct {
+type GoogleAdsGoogleadsV26ServicesListExperimentAsyncErrorsResponse struct {
 	Errors        json.RawMessage `json:"errors"`
 	NextPageToken string          `json:"nextPageToken"`
 }
 
-type GoogleAdsGoogleadsV22ServicesListInsightsEligibleDatesRequest struct {
+type GoogleAdsGoogleadsV26ServicesListInsightsEligibleDatesRequest struct {
 	InsightsApplicationInfo json.RawMessage `json:"insightsApplicationInfo"`
 }
 
-type GoogleAdsGoogleadsV22ServicesListInsightsEligibleDatesResponse struct {
+type GoogleAdsGoogleadsV26ServicesListInsightsEligibleDatesResponse struct {
 	DataMonths     json.RawMessage `json:"dataMonths"`
 	LastThirtyDays json.RawMessage `json:"lastThirtyDays"`
 }
 
-type GoogleAdsGoogleadsV22ServicesListInvoicesResponse struct {
+type GoogleAdsGoogleadsV26ServicesListInvoicesResponse struct {
 	Invoices json.RawMessage `json:"invoices"`
 }
 
-type GoogleAdsGoogleadsV22ServicesListPaymentsAccountsResponse struct {
+type GoogleAdsGoogleadsV26ServicesListPaymentsAccountsResponse struct {
 	PaymentsAccounts json.RawMessage `json:"paymentsAccounts"`
 }
 
-type GoogleAdsGoogleadsV22ServicesListPlannableLocationsRequest struct {
+type GoogleAdsGoogleadsV26ServicesListPlannableLocationsRequest struct {
 	ReachApplicationInfo json.RawMessage `json:"reachApplicationInfo"`
 }
 
-type GoogleAdsGoogleadsV22ServicesListPlannableLocationsResponse struct {
+type GoogleAdsGoogleadsV26ServicesListPlannableLocationsResponse struct {
 	PlannableLocations json.RawMessage `json:"plannableLocations"`
 }
 
-type GoogleAdsGoogleadsV22ServicesListPlannableProductsRequest struct {
+type GoogleAdsGoogleadsV26ServicesListPlannableProductsRequest struct {
 	PlannableLocationId  string          `json:"plannableLocationId"`
 	ReachApplicationInfo json.RawMessage `json:"reachApplicationInfo"`
 }
 
-type GoogleAdsGoogleadsV22ServicesListPlannableProductsResponse struct {
+type GoogleAdsGoogleadsV26ServicesListPlannableProductsResponse struct {
 	ProductMetadata json.RawMessage `json:"productMetadata"`
 }
 
-type GoogleAdsGoogleadsV22ServicesListPlannableUserInterestsRequest struct {
+type GoogleAdsGoogleadsV26ServicesListPlannableUserInterestsRequest struct {
 	CustomerId                string          `json:"customerId"`
 	NameQuery                 string          `json:"nameQuery"`
 	PathQuery                 string          `json:"pathQuery"`
@@ -7446,1174 +7446,1174 @@ type GoogleAdsGoogleadsV22ServicesListPlannableUserInterestsRequest struct {
 	ReachApplicationInfo      json.RawMessage `json:"reachApplicationInfo"`
 }
 
-type GoogleAdsGoogleadsV22ServicesListPlannableUserInterestsResponse struct {
+type GoogleAdsGoogleadsV26ServicesListPlannableUserInterestsResponse struct {
 	PlannableUserInterests json.RawMessage `json:"plannableUserInterests"`
 }
 
-type GoogleAdsGoogleadsV22ServicesListPlannableUserListsRequest struct {
+type GoogleAdsGoogleadsV26ServicesListPlannableUserListsRequest struct {
 	CustomerReachGroup   string          `json:"customerReachGroup"`
 	ReachApplicationInfo json.RawMessage `json:"reachApplicationInfo"`
 	CustomerId           string          `json:"customerId"`
 }
 
-type GoogleAdsGoogleadsV22ServicesListPlannableUserListsResponse struct {
+type GoogleAdsGoogleadsV26ServicesListPlannableUserListsResponse struct {
 	PlannableUserLists json.RawMessage `json:"plannableUserLists"`
 }
 
-type GoogleAdsGoogleadsV22ServicesManualCpcBiddingStrategy struct {
+type GoogleAdsGoogleadsV26ServicesManualCpcBiddingStrategy struct {
 	MaxCpcBidMicros   string `json:"maxCpcBidMicros"`
 	DailyBudgetMicros string `json:"dailyBudgetMicros"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMaximizeClicksBiddingStrategy struct {
+type GoogleAdsGoogleadsV26ServicesMaximizeClicksBiddingStrategy struct {
 	DailyTargetSpendMicros string `json:"dailyTargetSpendMicros"`
 	MaxCpcBidCeilingMicros string `json:"maxCpcBidCeilingMicros"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMaximizeConversionsBiddingStrategy struct {
+type GoogleAdsGoogleadsV26ServicesMaximizeConversionsBiddingStrategy struct {
 	DailyTargetSpendMicros string `json:"dailyTargetSpendMicros"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMoveManagerLinkRequest struct {
+type GoogleAdsGoogleadsV26ServicesMoveManagerLinkRequest struct {
 	ValidateOnly                bool   `json:"validateOnly"`
 	NewManager                  string `json:"newManager"`
 	PreviousCustomerManagerLink string `json:"previousCustomerManagerLink"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMoveManagerLinkResponse struct {
+type GoogleAdsGoogleadsV26ServicesMoveManagerLinkResponse struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAccountBudgetProposalRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateAccountBudgetProposalRequest struct {
 	Operation    json.RawMessage `json:"operation"`
 	ValidateOnly bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAccountBudgetProposalResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateAccountBudgetProposalResponse struct {
 	Result json.RawMessage `json:"result"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAccountBudgetProposalResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateAccountBudgetProposalResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAccountLinkRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateAccountLinkRequest struct {
 	ValidateOnly   bool            `json:"validateOnly"`
 	PartialFailure bool            `json:"partialFailure"`
 	Operation      json.RawMessage `json:"operation"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAccountLinkResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateAccountLinkResponse struct {
 	Result              json.RawMessage `json:"result"`
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAccountLinkResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateAccountLinkResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupAdLabelResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupAdLabelResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupAdLabelsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupAdLabelsRequest struct {
 	Operations     json.RawMessage `json:"operations"`
 	ValidateOnly   bool            `json:"validateOnly"`
 	PartialFailure bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupAdLabelsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupAdLabelsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupAdResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupAdResult struct {
 	AdGroupAd    json.RawMessage `json:"adGroupAd"`
 	ResourceName string          `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupAdsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupAdsRequest struct {
 	ResponseContentType string          `json:"responseContentType"`
 	PartialFailure      bool            `json:"partialFailure"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupAdsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupAdsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupAssetResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupAssetResult struct {
 	ResourceName string          `json:"resourceName"`
 	AdGroupAsset json.RawMessage `json:"adGroupAsset"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupAssetSetResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupAssetSetResult struct {
 	ResourceName    string          `json:"resourceName"`
 	AdGroupAssetSet json.RawMessage `json:"adGroupAssetSet"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupAssetSetsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupAssetSetsRequest struct {
 	PartialFailure      bool            `json:"partialFailure"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupAssetSetsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupAssetSetsResponse struct {
 	Results             json.RawMessage `json:"results"`
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupAssetsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupAssetsRequest struct {
 	ResponseContentType string          `json:"responseContentType"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupAssetsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupAssetsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupBidModifierResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupBidModifierResult struct {
 	ResourceName       string          `json:"resourceName"`
 	AdGroupBidModifier json.RawMessage `json:"adGroupBidModifier"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupBidModifiersRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupBidModifiersRequest struct {
 	ResponseContentType string          `json:"responseContentType"`
 	PartialFailure      bool            `json:"partialFailure"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupBidModifiersResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupBidModifiersResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupCriteriaRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupCriteriaRequest struct {
 	PartialFailure      bool            `json:"partialFailure"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupCriteriaResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupCriteriaResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupCriterionCustomizerResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupCriterionCustomizerResult struct {
 	ResourceName               string          `json:"resourceName"`
 	AdGroupCriterionCustomizer json.RawMessage `json:"adGroupCriterionCustomizer"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupCriterionCustomizersRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupCriterionCustomizersRequest struct {
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupCriterionCustomizersResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupCriterionCustomizersResponse struct {
 	Results             json.RawMessage `json:"results"`
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupCriterionLabelResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupCriterionLabelResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupCriterionLabelsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupCriterionLabelsRequest struct {
 	Operations     json.RawMessage `json:"operations"`
 	ValidateOnly   bool            `json:"validateOnly"`
 	PartialFailure bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupCriterionLabelsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupCriterionLabelsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupCriterionResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupCriterionResult struct {
 	ResourceName     string          `json:"resourceName"`
 	AdGroupCriterion json.RawMessage `json:"adGroupCriterion"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupCustomizerResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupCustomizerResult struct {
 	ResourceName      string          `json:"resourceName"`
 	AdGroupCustomizer json.RawMessage `json:"adGroupCustomizer"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupCustomizersRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupCustomizersRequest struct {
 	PartialFailure      bool            `json:"partialFailure"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupCustomizersResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupCustomizersResponse struct {
 	Results             json.RawMessage `json:"results"`
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupLabelResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupLabelResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupLabelsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupLabelsRequest struct {
 	Operations     json.RawMessage `json:"operations"`
 	ValidateOnly   bool            `json:"validateOnly"`
 	PartialFailure bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupLabelsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupLabelsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupResult struct {
 	ResourceName string          `json:"resourceName"`
 	AdGroup      json.RawMessage `json:"adGroup"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupsRequest struct {
 	ResponseContentType string          `json:"responseContentType"`
 	PartialFailure      bool            `json:"partialFailure"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdGroupsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdGroupsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdParameterResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdParameterResult struct {
 	ResourceName string          `json:"resourceName"`
 	AdParameter  json.RawMessage `json:"adParameter"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdParametersRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdParametersRequest struct {
 	PartialFailure      bool            `json:"partialFailure"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdParametersResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdParametersResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdResult struct {
 	ResourceName string          `json:"resourceName"`
 	Ad           json.RawMessage `json:"ad"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdsRequest struct {
 	ResponseContentType string          `json:"responseContentType"`
 	PartialFailure      bool            `json:"partialFailure"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAdsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateAdsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAssetGroupAssetResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateAssetGroupAssetResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAssetGroupAssetsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateAssetGroupAssetsRequest struct {
 	Operations     json.RawMessage `json:"operations"`
 	ValidateOnly   bool            `json:"validateOnly"`
 	PartialFailure bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAssetGroupAssetsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateAssetGroupAssetsResponse struct {
 	Results             json.RawMessage `json:"results"`
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAssetGroupListingGroupFilterResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateAssetGroupListingGroupFilterResult struct {
 	ResourceName                 string          `json:"resourceName"`
 	AssetGroupListingGroupFilter json.RawMessage `json:"assetGroupListingGroupFilter"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAssetGroupListingGroupFiltersRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateAssetGroupListingGroupFiltersRequest struct {
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAssetGroupListingGroupFiltersResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateAssetGroupListingGroupFiltersResponse struct {
 	Results json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAssetGroupResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateAssetGroupResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAssetGroupSignalResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateAssetGroupSignalResult struct {
 	ResourceName     string          `json:"resourceName"`
 	AssetGroupSignal json.RawMessage `json:"assetGroupSignal"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAssetGroupSignalsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateAssetGroupSignalsRequest struct {
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAssetGroupSignalsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateAssetGroupSignalsResponse struct {
 	Results             json.RawMessage `json:"results"`
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAssetGroupsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateAssetGroupsRequest struct {
 	Operations   json.RawMessage `json:"operations"`
 	ValidateOnly bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAssetGroupsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateAssetGroupsResponse struct {
 	Results             json.RawMessage `json:"results"`
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAssetResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateAssetResult struct {
 	ResourceName string          `json:"resourceName"`
 	Asset        json.RawMessage `json:"asset"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAssetSetAssetResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateAssetSetAssetResult struct {
 	ResourceName  string          `json:"resourceName"`
 	AssetSetAsset json.RawMessage `json:"assetSetAsset"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAssetSetAssetsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateAssetSetAssetsRequest struct {
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAssetSetAssetsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateAssetSetAssetsResponse struct {
 	Results             json.RawMessage `json:"results"`
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAssetSetResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateAssetSetResult struct {
 	ResourceName string          `json:"resourceName"`
 	AssetSet     json.RawMessage `json:"assetSet"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAssetSetsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateAssetSetsRequest struct {
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAssetSetsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateAssetSetsResponse struct {
 	Results             json.RawMessage `json:"results"`
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAssetsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateAssetsRequest struct {
 	ResponseContentType string          `json:"responseContentType"`
 	PartialFailure      bool            `json:"partialFailure"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAssetsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateAssetsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAudienceResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateAudienceResult struct {
 	ResourceName string          `json:"resourceName"`
 	Audience     json.RawMessage `json:"audience"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAudiencesRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateAudiencesRequest struct {
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateAudiencesResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateAudiencesResponse struct {
 	Results             json.RawMessage `json:"results"`
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateBatchJobRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateBatchJobRequest struct {
 	Operation json.RawMessage `json:"operation"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateBatchJobResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateBatchJobResponse struct {
 	Result json.RawMessage `json:"result"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateBatchJobResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateBatchJobResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateBiddingDataExclusionsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateBiddingDataExclusionsRequest struct {
 	ResponseContentType string          `json:"responseContentType"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateBiddingDataExclusionsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateBiddingDataExclusionsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateBiddingDataExclusionsResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateBiddingDataExclusionsResult struct {
 	ResourceName         string          `json:"resourceName"`
 	BiddingDataExclusion json.RawMessage `json:"biddingDataExclusion"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateBiddingSeasonalityAdjustmentsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateBiddingSeasonalityAdjustmentsRequest struct {
 	ResponseContentType string          `json:"responseContentType"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateBiddingSeasonalityAdjustmentsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateBiddingSeasonalityAdjustmentsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateBiddingSeasonalityAdjustmentsResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateBiddingSeasonalityAdjustmentsResult struct {
 	BiddingSeasonalityAdjustment json.RawMessage `json:"biddingSeasonalityAdjustment"`
 	ResourceName                 string          `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateBiddingStrategiesRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateBiddingStrategiesRequest struct {
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateBiddingStrategiesResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateBiddingStrategiesResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateBiddingStrategyResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateBiddingStrategyResult struct {
 	ResourceName    string          `json:"resourceName"`
 	BiddingStrategy json.RawMessage `json:"biddingStrategy"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateBillingSetupRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateBillingSetupRequest struct {
 	Operation json.RawMessage `json:"operation"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateBillingSetupResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateBillingSetupResponse struct {
 	Result json.RawMessage `json:"result"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateBillingSetupResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateBillingSetupResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignAssetResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignAssetResult struct {
 	ResourceName  string          `json:"resourceName"`
 	CampaignAsset json.RawMessage `json:"campaignAsset"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignAssetSetResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignAssetSetResult struct {
 	ResourceName     string          `json:"resourceName"`
 	CampaignAssetSet json.RawMessage `json:"campaignAssetSet"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignAssetSetsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignAssetSetsRequest struct {
 	ResponseContentType string          `json:"responseContentType"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignAssetSetsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignAssetSetsResponse struct {
 	Results             json.RawMessage `json:"results"`
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignAssetsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignAssetsRequest struct {
 	PartialFailure      bool            `json:"partialFailure"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignAssetsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignAssetsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignBidModifierResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignBidModifierResult struct {
 	CampaignBidModifier json.RawMessage `json:"campaignBidModifier"`
 	ResourceName        string          `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignBidModifiersRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignBidModifiersRequest struct {
 	PartialFailure      bool            `json:"partialFailure"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignBidModifiersResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignBidModifiersResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignBudgetResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignBudgetResult struct {
 	ResourceName   string          `json:"resourceName"`
 	CampaignBudget json.RawMessage `json:"campaignBudget"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignBudgetsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignBudgetsRequest struct {
 	PartialFailure      bool            `json:"partialFailure"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignBudgetsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignBudgetsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignConversionGoalResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignConversionGoalResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignConversionGoalsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignConversionGoalsRequest struct {
 	Operations   json.RawMessage `json:"operations"`
 	ValidateOnly bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignConversionGoalsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignConversionGoalsResponse struct {
 	Results json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignCriteriaRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignCriteriaRequest struct {
 	ResponseContentType string          `json:"responseContentType"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignCriteriaResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignCriteriaResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignCriterionResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignCriterionResult struct {
 	ResourceName      string          `json:"resourceName"`
 	CampaignCriterion json.RawMessage `json:"campaignCriterion"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignCustomizerResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignCustomizerResult struct {
 	ResourceName       string          `json:"resourceName"`
 	CampaignCustomizer json.RawMessage `json:"campaignCustomizer"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignCustomizersRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignCustomizersRequest struct {
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignCustomizersResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignCustomizersResponse struct {
 	Results             json.RawMessage `json:"results"`
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignDraftResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignDraftResult struct {
 	ResourceName  string          `json:"resourceName"`
 	CampaignDraft json.RawMessage `json:"campaignDraft"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignDraftsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignDraftsRequest struct {
 	ResponseContentType string          `json:"responseContentType"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignDraftsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignDraftsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignGoalConfigResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignGoalConfigResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignGoalConfigsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignGoalConfigsRequest struct {
 	PartialFailure bool            `json:"partialFailure"`
 	Operations     json.RawMessage `json:"operations"`
 	ValidateOnly   bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignGoalConfigsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignGoalConfigsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignGroupResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignGroupResult struct {
 	CampaignGroup json.RawMessage `json:"campaignGroup"`
 	ResourceName  string          `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignGroupsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignGroupsRequest struct {
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignGroupsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignGroupsResponse struct {
 	Results             json.RawMessage `json:"results"`
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignLabelResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignLabelResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignLabelsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignLabelsRequest struct {
 	Operations     json.RawMessage `json:"operations"`
 	ValidateOnly   bool            `json:"validateOnly"`
 	PartialFailure bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignLabelsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignLabelsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignResult struct {
 	ResourceName string          `json:"resourceName"`
 	Campaign     json.RawMessage `json:"campaign"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignSharedSetResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignSharedSetResult struct {
 	CampaignSharedSet json.RawMessage `json:"campaignSharedSet"`
 	ResourceName      string          `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignSharedSetsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignSharedSetsRequest struct {
 	ResponseContentType string          `json:"responseContentType"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignSharedSetsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignSharedSetsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignsRequest struct {
 	ResponseContentType string          `json:"responseContentType"`
 	PartialFailure      bool            `json:"partialFailure"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCampaignsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCampaignsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateConversionActionResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateConversionActionResult struct {
 	ResourceName     string          `json:"resourceName"`
 	ConversionAction json.RawMessage `json:"conversionAction"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateConversionActionsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateConversionActionsRequest struct {
 	ResponseContentType string          `json:"responseContentType"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateConversionActionsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateConversionActionsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateConversionCustomVariableResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateConversionCustomVariableResult struct {
 	ResourceName             string          `json:"resourceName"`
 	ConversionCustomVariable json.RawMessage `json:"conversionCustomVariable"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateConversionCustomVariablesRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateConversionCustomVariablesRequest struct {
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateConversionCustomVariablesResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateConversionCustomVariablesResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateConversionGoalCampaignConfigResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateConversionGoalCampaignConfigResult struct {
 	ConversionGoalCampaignConfig json.RawMessage `json:"conversionGoalCampaignConfig"`
 	ResourceName                 string          `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateConversionGoalCampaignConfigsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateConversionGoalCampaignConfigsRequest struct {
 	ResponseContentType string          `json:"responseContentType"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateConversionGoalCampaignConfigsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateConversionGoalCampaignConfigsResponse struct {
 	Results json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateConversionValueRuleResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateConversionValueRuleResult struct {
 	ResourceName        string          `json:"resourceName"`
 	ConversionValueRule json.RawMessage `json:"conversionValueRule"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateConversionValueRuleSetResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateConversionValueRuleSetResult struct {
 	ResourceName           string          `json:"resourceName"`
 	ConversionValueRuleSet json.RawMessage `json:"conversionValueRuleSet"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateConversionValueRuleSetsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateConversionValueRuleSetsRequest struct {
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateConversionValueRuleSetsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateConversionValueRuleSetsResponse struct {
 	Results             json.RawMessage `json:"results"`
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateConversionValueRulesRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateConversionValueRulesRequest struct {
 	ResponseContentType string          `json:"responseContentType"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateConversionValueRulesResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateConversionValueRulesResponse struct {
 	Results             json.RawMessage `json:"results"`
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomAudienceResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomAudienceResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomAudiencesRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomAudiencesRequest struct {
 	Operations   json.RawMessage `json:"operations"`
 	ValidateOnly bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomAudiencesResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomAudiencesResponse struct {
 	Results json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomConversionGoalResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomConversionGoalResult struct {
 	ResourceName         string          `json:"resourceName"`
 	CustomConversionGoal json.RawMessage `json:"customConversionGoal"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomConversionGoalsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomConversionGoalsRequest struct {
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomConversionGoalsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomConversionGoalsResponse struct {
 	Results json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomInterestResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomInterestResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomInterestsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomInterestsRequest struct {
 	Operations   json.RawMessage `json:"operations"`
 	ValidateOnly bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomInterestsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomInterestsResponse struct {
 	Results json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerAssetResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerAssetResult struct {
 	ResourceName  string          `json:"resourceName"`
 	CustomerAsset json.RawMessage `json:"customerAsset"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerAssetSetResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerAssetSetResult struct {
 	ResourceName     string          `json:"resourceName"`
 	CustomerAssetSet json.RawMessage `json:"customerAssetSet"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerAssetSetsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerAssetSetsRequest struct {
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerAssetSetsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerAssetSetsResponse struct {
 	Results             json.RawMessage `json:"results"`
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerAssetsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerAssetsRequest struct {
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerAssetsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerAssetsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerClientLinkRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerClientLinkRequest struct {
 	Operation    json.RawMessage `json:"operation"`
 	ValidateOnly bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerClientLinkResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerClientLinkResponse struct {
 	Result json.RawMessage `json:"result"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerClientLinkResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerClientLinkResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerConversionGoalResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerConversionGoalResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerConversionGoalsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerConversionGoalsRequest struct {
 	Operations   json.RawMessage `json:"operations"`
 	ValidateOnly bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerConversionGoalsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerConversionGoalsResponse struct {
 	Results json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerCustomizerResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerCustomizerResult struct {
 	ResourceName       string          `json:"resourceName"`
 	CustomerCustomizer json.RawMessage `json:"customerCustomizer"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerCustomizersRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerCustomizersRequest struct {
 	ResponseContentType string          `json:"responseContentType"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerCustomizersResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerCustomizersResponse struct {
 	Results             json.RawMessage `json:"results"`
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerLabelResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerLabelResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerLabelsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerLabelsRequest struct {
 	Operations     json.RawMessage `json:"operations"`
 	ValidateOnly   bool            `json:"validateOnly"`
 	PartialFailure bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerLabelsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerLabelsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerManagerLinkRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerManagerLinkRequest struct {
 	Operations   json.RawMessage `json:"operations"`
 	ValidateOnly bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerManagerLinkResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerManagerLinkResponse struct {
 	Results json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerManagerLinkResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerManagerLinkResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerNegativeCriteriaRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerNegativeCriteriaRequest struct {
 	PartialFailure      bool            `json:"partialFailure"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerNegativeCriteriaResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerNegativeCriteriaResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerNegativeCriteriaResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerNegativeCriteriaResult struct {
 	ResourceName              string          `json:"resourceName"`
 	CustomerNegativeCriterion json.RawMessage `json:"customerNegativeCriterion"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerRequest struct {
 	Operation           json.RawMessage `json:"operation"`
 	ResponseContentType string          `json:"responseContentType"`
 	ValidateOnly        bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerResponse struct {
 	Result json.RawMessage `json:"result"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerResult struct {
 	ResourceName string          `json:"resourceName"`
 	Customer     json.RawMessage `json:"customer"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerSkAdNetworkConversionValueSchemaRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerSkAdNetworkConversionValueSchemaRequest struct {
 	ValidateOnly   bool            `json:"validateOnly"`
 	EnableWarnings bool            `json:"enableWarnings"`
 	Operation      json.RawMessage `json:"operation"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerSkAdNetworkConversionValueSchemaResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerSkAdNetworkConversionValueSchemaResponse struct {
 	Warning json.RawMessage `json:"warning"`
 	Result  json.RawMessage `json:"result"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerSkAdNetworkConversionValueSchemaResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerSkAdNetworkConversionValueSchemaResult struct {
 	ResourceName string `json:"resourceName"`
 	AppId        string `json:"appId"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerUserAccessInvitationRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerUserAccessInvitationRequest struct {
 	Operation json.RawMessage `json:"operation"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerUserAccessInvitationResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerUserAccessInvitationResponse struct {
 	Result json.RawMessage `json:"result"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerUserAccessInvitationResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerUserAccessInvitationResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerUserAccessRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerUserAccessRequest struct {
 	Operation json.RawMessage `json:"operation"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerUserAccessResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerUserAccessResponse struct {
 	Result json.RawMessage `json:"result"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomerUserAccessResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomerUserAccessResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomizerAttributeResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomizerAttributeResult struct {
 	CustomizerAttribute json.RawMessage `json:"customizerAttribute"`
 	ResourceName        string          `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomizerAttributesRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomizerAttributesRequest struct {
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateCustomizerAttributesResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateCustomizerAttributesResponse struct {
 	Results             json.RawMessage `json:"results"`
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateExperimentArmResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateExperimentArmResult struct {
 	ResourceName  string          `json:"resourceName"`
 	ExperimentArm json.RawMessage `json:"experimentArm"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateExperimentArmsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateExperimentArmsRequest struct {
 	PartialFailure      bool            `json:"partialFailure"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateExperimentArmsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateExperimentArmsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateExperimentResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateExperimentResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateExperimentsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateExperimentsRequest struct {
 	Operations     json.RawMessage `json:"operations"`
 	ValidateOnly   bool            `json:"validateOnly"`
 	PartialFailure bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateExperimentsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateExperimentsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateGoalResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateGoalResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateGoalsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateGoalsRequest struct {
 	PartialFailure bool            `json:"partialFailure"`
 	Operations     json.RawMessage `json:"operations"`
 	ValidateOnly   bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateGoalsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateGoalsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateGoogleAdsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateGoogleAdsRequest struct {
 	PartialFailure      bool            `json:"partialFailure"`
 	MutateOperations    json.RawMessage `json:"mutateOperations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateGoogleAdsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateGoogleAdsResponse struct {
 	PartialFailureError      json.RawMessage `json:"partialFailureError"`
 	MutateOperationResponses json.RawMessage `json:"mutateOperationResponses"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateKeywordPlanAdGroupKeywordResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateKeywordPlanAdGroupKeywordResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateKeywordPlanAdGroupKeywordsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateKeywordPlanAdGroupKeywordsRequest struct {
 	Operations     json.RawMessage `json:"operations"`
 	ValidateOnly   bool            `json:"validateOnly"`
 	PartialFailure bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateKeywordPlanAdGroupKeywordsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateKeywordPlanAdGroupKeywordsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateKeywordPlanAdGroupResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateKeywordPlanAdGroupResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateKeywordPlanAdGroupsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateKeywordPlanAdGroupsRequest struct {
 	Operations     json.RawMessage `json:"operations"`
 	ValidateOnly   bool            `json:"validateOnly"`
 	PartialFailure bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateKeywordPlanAdGroupsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateKeywordPlanAdGroupsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateKeywordPlanCampaignKeywordResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateKeywordPlanCampaignKeywordResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateKeywordPlanCampaignKeywordsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateKeywordPlanCampaignKeywordsRequest struct {
 	PartialFailure bool            `json:"partialFailure"`
 	Operations     json.RawMessage `json:"operations"`
 	ValidateOnly   bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateKeywordPlanCampaignKeywordsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateKeywordPlanCampaignKeywordsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateKeywordPlanCampaignResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateKeywordPlanCampaignResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateKeywordPlanCampaignsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateKeywordPlanCampaignsRequest struct {
 	Operations     json.RawMessage `json:"operations"`
 	ValidateOnly   bool            `json:"validateOnly"`
 	PartialFailure bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateKeywordPlanCampaignsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateKeywordPlanCampaignsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateKeywordPlansRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateKeywordPlansRequest struct {
 	PartialFailure bool            `json:"partialFailure"`
 	Operations     json.RawMessage `json:"operations"`
 	ValidateOnly   bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateKeywordPlansResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateKeywordPlansResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateKeywordPlansResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateKeywordPlansResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateLabelResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateLabelResult struct {
 	Label        json.RawMessage `json:"label"`
 	ResourceName string          `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateLabelsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateLabelsRequest struct {
 	ResponseContentType string          `json:"responseContentType"`
 	PartialFailure      bool            `json:"partialFailure"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateLabelsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateLabelsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateOperation struct {
+type GoogleAdsGoogleadsV26ServicesMutateOperation struct {
 	ConversionCustomVariableOperation     json.RawMessage `json:"conversionCustomVariableOperation"`
 	ExperimentArmOperation                json.RawMessage `json:"experimentArmOperation"`
 	AdGroupCriterionLabelOperation        json.RawMessage `json:"adGroupCriterionLabelOperation"`
@@ -8678,7 +8678,7 @@ type GoogleAdsGoogleadsV22ServicesMutateOperation struct {
 	AssetGroupListingGroupFilterOperation json.RawMessage `json:"assetGroupListingGroupFilterOperation"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateOperationResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateOperationResponse struct {
 	CampaignCustomizerResult           json.RawMessage `json:"campaignCustomizerResult"`
 	AssetGroupAssetResult              json.RawMessage `json:"assetGroupAssetResult"`
 	CampaignResult                     json.RawMessage `json:"campaignResult"`
@@ -8743,131 +8743,131 @@ type GoogleAdsGoogleadsV22ServicesMutateOperationResponse struct {
 	ExperimentArmResult                json.RawMessage `json:"experimentArmResult"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateRecommendationSubscriptionRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateRecommendationSubscriptionRequest struct {
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateRecommendationSubscriptionResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateRecommendationSubscriptionResponse struct {
 	Results             json.RawMessage `json:"results"`
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateRecommendationSubscriptionResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateRecommendationSubscriptionResult struct {
 	ResourceName               string          `json:"resourceName"`
 	RecommendationSubscription json.RawMessage `json:"recommendationSubscription"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateRemarketingActionResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateRemarketingActionResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateRemarketingActionsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateRemarketingActionsRequest struct {
 	Operations     json.RawMessage `json:"operations"`
 	ValidateOnly   bool            `json:"validateOnly"`
 	PartialFailure bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateRemarketingActionsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateRemarketingActionsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateSharedCriteriaRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateSharedCriteriaRequest struct {
 	ResponseContentType string          `json:"responseContentType"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateSharedCriteriaResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateSharedCriteriaResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateSharedCriterionResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateSharedCriterionResult struct {
 	ResourceName    string          `json:"resourceName"`
 	SharedCriterion json.RawMessage `json:"sharedCriterion"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateSharedSetResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateSharedSetResult struct {
 	ResourceName string          `json:"resourceName"`
 	SharedSet    json.RawMessage `json:"sharedSet"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateSharedSetsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateSharedSetsRequest struct {
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 	ResponseContentType string          `json:"responseContentType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateSharedSetsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateSharedSetsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateSmartCampaignSettingResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateSmartCampaignSettingResult struct {
 	ResourceName         string          `json:"resourceName"`
 	SmartCampaignSetting json.RawMessage `json:"smartCampaignSetting"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateSmartCampaignSettingsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateSmartCampaignSettingsRequest struct {
 	ResponseContentType string          `json:"responseContentType"`
 	Operations          json.RawMessage `json:"operations"`
 	ValidateOnly        bool            `json:"validateOnly"`
 	PartialFailure      bool            `json:"partialFailure"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateSmartCampaignSettingsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateSmartCampaignSettingsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateUserListCustomerTypeResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateUserListCustomerTypeResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateUserListCustomerTypesRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateUserListCustomerTypesRequest struct {
 	PartialFailure bool            `json:"partialFailure"`
 	Operations     json.RawMessage `json:"operations"`
 	ValidateOnly   bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateUserListCustomerTypesResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateUserListCustomerTypesResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateUserListResult struct {
+type GoogleAdsGoogleadsV26ServicesMutateUserListResult struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateUserListsRequest struct {
+type GoogleAdsGoogleadsV26ServicesMutateUserListsRequest struct {
 	PartialFailure bool            `json:"partialFailure"`
 	Operations     json.RawMessage `json:"operations"`
 	ValidateOnly   bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesMutateUserListsResponse struct {
+type GoogleAdsGoogleadsV26ServicesMutateUserListsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesOfflineUserDataJobOperation struct {
+type GoogleAdsGoogleadsV26ServicesOfflineUserDataJobOperation struct {
 	RemoveAll bool            `json:"removeAll"`
 	Create    json.RawMessage `json:"create"`
 	Remove    json.RawMessage `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesOnTargetAudienceMetrics struct {
+type GoogleAdsGoogleadsV26ServicesOnTargetAudienceMetrics struct {
 	YoutubeAudienceSize string `json:"youtubeAudienceSize"`
 	CensusAudienceSize  string `json:"censusAudienceSize"`
 }
 
-type GoogleAdsGoogleadsV22ServicesPlannableLocation struct {
+type GoogleAdsGoogleadsV26ServicesPlannableLocation struct {
 	Name            string `json:"name"`
 	CountryCode     string `json:"countryCode"`
 	LocationType    string `json:"locationType"`
@@ -8875,7 +8875,7 @@ type GoogleAdsGoogleadsV22ServicesPlannableLocation struct {
 	ParentCountryId string `json:"parentCountryId"`
 }
 
-type GoogleAdsGoogleadsV22ServicesPlannableTargeting struct {
+type GoogleAdsGoogleadsV26ServicesPlannableTargeting struct {
 	YoutubeSelectLineups json.RawMessage `json:"youtubeSelectLineups"`
 	Genders              json.RawMessage `json:"genders"`
 	Networks             json.RawMessage `json:"networks"`
@@ -8884,14 +8884,14 @@ type GoogleAdsGoogleadsV22ServicesPlannableTargeting struct {
 	Devices              json.RawMessage `json:"devices"`
 }
 
-type GoogleAdsGoogleadsV22ServicesPlannableUserInterest struct {
+type GoogleAdsGoogleadsV26ServicesPlannableUserInterest struct {
 	UserInterest            json.RawMessage `json:"userInterest"`
 	UserInterestDisplayName string          `json:"userInterestDisplayName"`
 	UserInterestPath        string          `json:"userInterestPath"`
 	UserInterestType        string          `json:"userInterestType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesPlannableUserList struct {
+type GoogleAdsGoogleadsV26ServicesPlannableUserList struct {
 	PlannableStatus           string          `json:"plannableStatus"`
 	DisplayName               string          `json:"displayName"`
 	UserListType              string          `json:"userListType"`
@@ -8899,18 +8899,18 @@ type GoogleAdsGoogleadsV22ServicesPlannableUserList struct {
 	UserListInfo              json.RawMessage `json:"userListInfo"`
 }
 
-type GoogleAdsGoogleadsV22ServicesPlannableUserListMetadata struct {
+type GoogleAdsGoogleadsV26ServicesPlannableUserListMetadata struct {
 	UserListCrmDataSourceType string `json:"userListCrmDataSourceType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesPlannedProduct struct {
+type GoogleAdsGoogleadsV26ServicesPlannedProduct struct {
 	PlannableProductCode     string          `json:"plannableProductCode"`
 	ConversionRate           float64         `json:"conversionRate"`
 	AdvancedProductTargeting json.RawMessage `json:"advancedProductTargeting"`
 	BudgetMicros             string          `json:"budgetMicros"`
 }
 
-type GoogleAdsGoogleadsV22ServicesPlannedProductForecast struct {
+type GoogleAdsGoogleadsV26ServicesPlannedProductForecast struct {
 	TotalCoviewReach          string  `json:"totalCoviewReach"`
 	ViewableImpressions       string  `json:"viewableImpressions"`
 	TotalReach                string  `json:"totalReach"`
@@ -8925,145 +8925,145 @@ type GoogleAdsGoogleadsV22ServicesPlannedProductForecast struct {
 	OnTargetReach             string  `json:"onTargetReach"`
 }
 
-type GoogleAdsGoogleadsV22ServicesPlannedProductReachForecast struct {
+type GoogleAdsGoogleadsV26ServicesPlannedProductReachForecast struct {
 	PlannableProductCode   string          `json:"plannableProductCode"`
 	CostMicros             string          `json:"costMicros"`
 	PlannedProductForecast json.RawMessage `json:"plannedProductForecast"`
 }
 
-type GoogleAdsGoogleadsV22ServicesProductMetadata struct {
+type GoogleAdsGoogleadsV26ServicesProductMetadata struct {
 	PlannableTargeting   json.RawMessage `json:"plannableTargeting"`
 	PlannableProductCode string          `json:"plannableProductCode"`
 	PlannableProductName string          `json:"plannableProductName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesProductRecontextGenerationImageInput struct {
+type GoogleAdsGoogleadsV26ServicesProductRecontextGenerationImageInput struct {
 	SourceImages json.RawMessage `json:"sourceImages"`
 	Prompt       string          `json:"prompt"`
 }
 
-type GoogleAdsGoogleadsV22ServicesPromoteCampaignDraftRequest struct {
+type GoogleAdsGoogleadsV26ServicesPromoteCampaignDraftRequest struct {
 	ValidateOnly bool `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesPromoteExperimentMetadata struct {
+type GoogleAdsGoogleadsV26ServicesPromoteExperimentMetadata struct {
 	Experiment string `json:"experiment"`
 }
 
-type GoogleAdsGoogleadsV22ServicesPromoteExperimentRequest struct {
+type GoogleAdsGoogleadsV26ServicesPromoteExperimentRequest struct {
 	ValidateOnly bool `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesProvideLeadFeedbackRequest struct {
+type GoogleAdsGoogleadsV26ServicesProvideLeadFeedbackRequest struct {
 	SurveyDissatisfied json.RawMessage `json:"surveyDissatisfied"`
 	SurveyAnswer       string          `json:"surveyAnswer"`
 	SurveySatisfied    json.RawMessage `json:"surveySatisfied"`
 }
 
-type GoogleAdsGoogleadsV22ServicesProvideLeadFeedbackResponse struct {
+type GoogleAdsGoogleadsV26ServicesProvideLeadFeedbackResponse struct {
 	CreditIssuanceDecision string `json:"creditIssuanceDecision"`
 }
 
-type GoogleAdsGoogleadsV22ServicesReachCurve struct {
+type GoogleAdsGoogleadsV26ServicesReachCurve struct {
 	ReachForecasts json.RawMessage `json:"reachForecasts"`
 }
 
-type GoogleAdsGoogleadsV22ServicesReachForecast struct {
+type GoogleAdsGoogleadsV26ServicesReachForecast struct {
 	Forecast                     json.RawMessage `json:"forecast"`
 	PlannedProductReachForecasts json.RawMessage `json:"plannedProductReachForecasts"`
 	CostMicros                   string          `json:"costMicros"`
 }
 
-type GoogleAdsGoogleadsV22ServicesRecommendationSubscriptionOperation struct {
+type GoogleAdsGoogleadsV26ServicesRecommendationSubscriptionOperation struct {
 	Create     json.RawMessage `json:"create"`
 	UpdateMask string          `json:"updateMask"`
 	Update     json.RawMessage `json:"update"`
 }
 
-type GoogleAdsGoogleadsV22ServicesRemarketingActionOperation struct {
+type GoogleAdsGoogleadsV26ServicesRemarketingActionOperation struct {
 	Update     json.RawMessage `json:"update"`
 	UpdateMask string          `json:"updateMask"`
 	Create     json.RawMessage `json:"create"`
 }
 
-type GoogleAdsGoogleadsV22ServicesRemoveAutomaticallyCreatedAssetsRequest struct {
+type GoogleAdsGoogleadsV26ServicesRemoveAutomaticallyCreatedAssetsRequest struct {
 	AssetsWithFieldType json.RawMessage `json:"assetsWithFieldType"`
 }
 
-type GoogleAdsGoogleadsV22ServicesRemoveCampaignAutomaticallyCreatedAssetOperation struct {
+type GoogleAdsGoogleadsV26ServicesRemoveCampaignAutomaticallyCreatedAssetOperation struct {
 	Campaign  string `json:"campaign"`
 	FieldType string `json:"fieldType"`
 	Asset     string `json:"asset"`
 }
 
-type GoogleAdsGoogleadsV22ServicesRemoveCampaignAutomaticallyCreatedAssetRequest struct {
+type GoogleAdsGoogleadsV26ServicesRemoveCampaignAutomaticallyCreatedAssetRequest struct {
 	PartialFailure bool            `json:"partialFailure"`
 	Operations     json.RawMessage `json:"operations"`
 }
 
-type GoogleAdsGoogleadsV22ServicesRemoveCampaignAutomaticallyCreatedAssetResponse struct {
+type GoogleAdsGoogleadsV26ServicesRemoveCampaignAutomaticallyCreatedAssetResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 }
 
-type GoogleAdsGoogleadsV22ServicesRemoveDataLinkRequest struct {
+type GoogleAdsGoogleadsV26ServicesRemoveDataLinkRequest struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesRemoveDataLinkResponse struct {
+type GoogleAdsGoogleadsV26ServicesRemoveDataLinkResponse struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesRemoveProductLinkInvitationRequest struct {
+type GoogleAdsGoogleadsV26ServicesRemoveProductLinkInvitationRequest struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesRemoveProductLinkInvitationResponse struct {
+type GoogleAdsGoogleadsV26ServicesRemoveProductLinkInvitationResponse struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesRemoveProductLinkRequest struct {
+type GoogleAdsGoogleadsV26ServicesRemoveProductLinkRequest struct {
 	ResourceName string `json:"resourceName"`
 	ValidateOnly bool   `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesRemoveProductLinkResponse struct {
+type GoogleAdsGoogleadsV26ServicesRemoveProductLinkResponse struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesRestatementValue struct {
+type GoogleAdsGoogleadsV26ServicesRestatementValue struct {
 	AdjustedValue float64 `json:"adjustedValue"`
 	CurrencyCode  string  `json:"currencyCode"`
 }
 
-type GoogleAdsGoogleadsV22ServicesRunOfflineUserDataJobRequest struct {
+type GoogleAdsGoogleadsV26ServicesRunOfflineUserDataJobRequest struct {
 	ValidateOnly bool `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesScheduleExperimentMetadata struct {
+type GoogleAdsGoogleadsV26ServicesScheduleExperimentMetadata struct {
 	Experiment string `json:"experiment"`
 }
 
-type GoogleAdsGoogleadsV22ServicesScheduleExperimentRequest struct {
+type GoogleAdsGoogleadsV26ServicesScheduleExperimentRequest struct {
 	ValidateOnly bool `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSearchAudience struct {
+type GoogleAdsGoogleadsV26ServicesSearchAudience struct {
 	AudienceAttributes json.RawMessage `json:"audienceAttributes"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSearchGoogleAdsFieldsRequest struct {
+type GoogleAdsGoogleadsV26ServicesSearchGoogleAdsFieldsRequest struct {
 	Query     string `json:"query"`
 	PageSize  int    `json:"pageSize"`
 	PageToken string `json:"pageToken"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSearchGoogleAdsFieldsResponse struct {
+type GoogleAdsGoogleadsV26ServicesSearchGoogleAdsFieldsResponse struct {
 	NextPageToken     string          `json:"nextPageToken"`
 	Results           json.RawMessage `json:"results"`
 	TotalResultsCount string          `json:"totalResultsCount"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSearchGoogleAdsRequest struct {
+type GoogleAdsGoogleadsV26ServicesSearchGoogleAdsRequest struct {
 	PageToken      string          `json:"pageToken"`
 	SearchSettings json.RawMessage `json:"searchSettings"`
 	ValidateOnly   bool            `json:"validateOnly"`
@@ -9071,7 +9071,7 @@ type GoogleAdsGoogleadsV22ServicesSearchGoogleAdsRequest struct {
 	PageSize       int             `json:"pageSize"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSearchGoogleAdsResponse struct {
+type GoogleAdsGoogleadsV26ServicesSearchGoogleAdsResponse struct {
 	NextPageToken            string          `json:"nextPageToken"`
 	SummaryRow               json.RawMessage `json:"summaryRow"`
 	QueryResourceConsumption string          `json:"queryResourceConsumption"`
@@ -9080,12 +9080,12 @@ type GoogleAdsGoogleadsV22ServicesSearchGoogleAdsResponse struct {
 	FieldMask                string          `json:"fieldMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSearchGoogleAdsStreamRequest struct {
+type GoogleAdsGoogleadsV26ServicesSearchGoogleAdsStreamRequest struct {
 	Query             string `json:"query"`
 	SummaryRowSetting string `json:"summaryRowSetting"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSearchGoogleAdsStreamResponse struct {
+type GoogleAdsGoogleadsV26ServicesSearchGoogleAdsStreamResponse struct {
 	SummaryRow               json.RawMessage `json:"summaryRow"`
 	RequestId                string          `json:"requestId"`
 	QueryResourceConsumption string          `json:"queryResourceConsumption"`
@@ -9093,83 +9093,83 @@ type GoogleAdsGoogleadsV22ServicesSearchGoogleAdsStreamResponse struct {
 	FieldMask                string          `json:"fieldMask"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSearchSettings struct {
+type GoogleAdsGoogleadsV26ServicesSearchSettings struct {
 	ReturnTotalResultsCount bool `json:"returnTotalResultsCount"`
 	OmitResults             bool `json:"omitResults"`
 	ReturnSummaryRow        bool `json:"returnSummaryRow"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSearchTopics struct {
+type GoogleAdsGoogleadsV26ServicesSearchTopics struct {
 	Entities json.RawMessage `json:"entities"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSessionAttributeKeyValuePair struct {
+type GoogleAdsGoogleadsV26ServicesSessionAttributeKeyValuePair struct {
 	SessionAttributeKey   string `json:"sessionAttributeKey"`
 	SessionAttributeValue string `json:"sessionAttributeValue"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSessionAttributesKeyValuePairs struct {
+type GoogleAdsGoogleadsV26ServicesSessionAttributesKeyValuePairs struct {
 	KeyValuePairs json.RawMessage `json:"keyValuePairs"`
 }
 
-type GoogleAdsGoogleadsV22ServicesShareablePreview struct {
+type GoogleAdsGoogleadsV26ServicesShareablePreview struct {
 	AssetGroupIdentifier json.RawMessage `json:"assetGroupIdentifier"`
 }
 
-type GoogleAdsGoogleadsV22ServicesShareablePreviewOrError struct {
+type GoogleAdsGoogleadsV26ServicesShareablePreviewOrError struct {
 	PartialFailureError    json.RawMessage `json:"partialFailureError"`
 	ShareablePreviewResult json.RawMessage `json:"shareablePreviewResult"`
 	AssetGroupIdentifier   json.RawMessage `json:"assetGroupIdentifier"`
 }
 
-type GoogleAdsGoogleadsV22ServicesShareablePreviewResult struct {
+type GoogleAdsGoogleadsV26ServicesShareablePreviewResult struct {
 	ShareablePreviewUrl string `json:"shareablePreviewUrl"`
 	ExpirationDateTime  string `json:"expirationDateTime"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSharedCriterionOperation struct {
+type GoogleAdsGoogleadsV26ServicesSharedCriterionOperation struct {
 	Create json.RawMessage `json:"create"`
 	Remove string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSharedSetOperation struct {
+type GoogleAdsGoogleadsV26ServicesSharedSetOperation struct {
 	UpdateMask string          `json:"updateMask"`
 	Create     json.RawMessage `json:"create"`
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSiteSeed struct {
+type GoogleAdsGoogleadsV26ServicesSiteSeed struct {
 	Site string `json:"site"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSmartCampaignEligibleDetails struct {
+type GoogleAdsGoogleadsV26ServicesSmartCampaignEligibleDetails struct {
 	EndDateTime            string `json:"endDateTime"`
 	LastImpressionDateTime string `json:"lastImpressionDateTime"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSmartCampaignEndedDetails struct {
+type GoogleAdsGoogleadsV26ServicesSmartCampaignEndedDetails struct {
 	EndDateTime string `json:"endDateTime"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSmartCampaignNotEligibleDetails struct {
+type GoogleAdsGoogleadsV26ServicesSmartCampaignNotEligibleDetails struct {
 	NotEligibleReason string `json:"notEligibleReason"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSmartCampaignPausedDetails struct {
+type GoogleAdsGoogleadsV26ServicesSmartCampaignPausedDetails struct {
 	PausedDateTime string `json:"pausedDateTime"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSmartCampaignRemovedDetails struct {
+type GoogleAdsGoogleadsV26ServicesSmartCampaignRemovedDetails struct {
 	RemovedDateTime string `json:"removedDateTime"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSmartCampaignSettingOperation struct {
+type GoogleAdsGoogleadsV26ServicesSmartCampaignSettingOperation struct {
 	UpdateMask string          `json:"updateMask"`
 	Update     json.RawMessage `json:"update"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSmartCampaignSuggestionInfo struct {
+type GoogleAdsGoogleadsV26ServicesSmartCampaignSuggestionInfo struct {
 	KeywordThemes           json.RawMessage `json:"keywordThemes"`
 	BusinessProfileLocation string          `json:"businessProfileLocation"`
 	BusinessContext         json.RawMessage `json:"businessContext"`
@@ -9180,136 +9180,136 @@ type GoogleAdsGoogleadsV22ServicesSmartCampaignSuggestionInfo struct {
 	Proximity               json.RawMessage `json:"proximity"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSmartCampaignSuggestionInfoBusinessContext struct {
+type GoogleAdsGoogleadsV26ServicesSmartCampaignSuggestionInfoBusinessContext struct {
 	BusinessName string `json:"businessName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSmartCampaignSuggestionInfoLocationList struct {
+type GoogleAdsGoogleadsV26ServicesSmartCampaignSuggestionInfoLocationList struct {
 	Locations json.RawMessage `json:"locations"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSourceImage struct {
+type GoogleAdsGoogleadsV26ServicesSourceImage struct {
 	ImageData string `json:"imageData"`
 }
 
-type GoogleAdsGoogleadsV22ServicesStartIdentityVerificationRequest struct {
+type GoogleAdsGoogleadsV26ServicesStartIdentityVerificationRequest struct {
 	VerificationProgram string `json:"verificationProgram"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSuggestBrandsRequest struct {
+type GoogleAdsGoogleadsV26ServicesSuggestBrandsRequest struct {
 	BrandPrefix    string          `json:"brandPrefix"`
 	SelectedBrands json.RawMessage `json:"selectedBrands"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSuggestBrandsResponse struct {
+type GoogleAdsGoogleadsV26ServicesSuggestBrandsResponse struct {
 	Brands json.RawMessage `json:"brands"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSuggestGeoTargetConstantsRequest struct {
+type GoogleAdsGoogleadsV26ServicesSuggestGeoTargetConstantsRequest struct {
 	Locale        string          `json:"locale"`
 	LocationNames json.RawMessage `json:"locationNames"`
 	GeoTargets    json.RawMessage `json:"geoTargets"`
 	CountryCode   string          `json:"countryCode"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSuggestGeoTargetConstantsRequestGeoTargets struct {
+type GoogleAdsGoogleadsV26ServicesSuggestGeoTargetConstantsRequestGeoTargets struct {
 	GeoTargetConstants json.RawMessage `json:"geoTargetConstants"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSuggestGeoTargetConstantsRequestLocationNames struct {
+type GoogleAdsGoogleadsV26ServicesSuggestGeoTargetConstantsRequestLocationNames struct {
 	Names json.RawMessage `json:"names"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSuggestGeoTargetConstantsResponse struct {
+type GoogleAdsGoogleadsV26ServicesSuggestGeoTargetConstantsResponse struct {
 	GeoTargetConstantSuggestions json.RawMessage `json:"geoTargetConstantSuggestions"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSuggestKeywordThemeConstantsRequest struct {
+type GoogleAdsGoogleadsV26ServicesSuggestKeywordThemeConstantsRequest struct {
 	QueryText    string `json:"queryText"`
 	CountryCode  string `json:"countryCode"`
 	LanguageCode string `json:"languageCode"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSuggestKeywordThemeConstantsResponse struct {
+type GoogleAdsGoogleadsV26ServicesSuggestKeywordThemeConstantsResponse struct {
 	KeywordThemeConstants json.RawMessage `json:"keywordThemeConstants"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSuggestKeywordThemesRequest struct {
+type GoogleAdsGoogleadsV26ServicesSuggestKeywordThemesRequest struct {
 	SuggestionInfo json.RawMessage `json:"suggestionInfo"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSuggestKeywordThemesResponse struct {
+type GoogleAdsGoogleadsV26ServicesSuggestKeywordThemesResponse struct {
 	KeywordThemes json.RawMessage `json:"keywordThemes"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSuggestKeywordThemesResponseKeywordTheme struct {
+type GoogleAdsGoogleadsV26ServicesSuggestKeywordThemesResponseKeywordTheme struct {
 	KeywordThemeConstant json.RawMessage `json:"keywordThemeConstant"`
 	FreeFormKeywordTheme string          `json:"freeFormKeywordTheme"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSuggestSmartCampaignAdRequest struct {
+type GoogleAdsGoogleadsV26ServicesSuggestSmartCampaignAdRequest struct {
 	SuggestionInfo json.RawMessage `json:"suggestionInfo"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSuggestSmartCampaignAdResponse struct {
+type GoogleAdsGoogleadsV26ServicesSuggestSmartCampaignAdResponse struct {
 	AdInfo json.RawMessage `json:"adInfo"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSuggestSmartCampaignBudgetOptionsRequest struct {
+type GoogleAdsGoogleadsV26ServicesSuggestSmartCampaignBudgetOptionsRequest struct {
 	Campaign       string          `json:"campaign"`
 	SuggestionInfo json.RawMessage `json:"suggestionInfo"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSuggestSmartCampaignBudgetOptionsResponse struct {
+type GoogleAdsGoogleadsV26ServicesSuggestSmartCampaignBudgetOptionsResponse struct {
 	Low         json.RawMessage `json:"low"`
 	Recommended json.RawMessage `json:"recommended"`
 	High        json.RawMessage `json:"high"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSuggestSmartCampaignBudgetOptionsResponseBudgetOption struct {
+type GoogleAdsGoogleadsV26ServicesSuggestSmartCampaignBudgetOptionsResponseBudgetOption struct {
 	Metrics           json.RawMessage `json:"metrics"`
 	DailyAmountMicros string          `json:"dailyAmountMicros"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSuggestSmartCampaignBudgetOptionsResponseMetrics struct {
+type GoogleAdsGoogleadsV26ServicesSuggestSmartCampaignBudgetOptionsResponseMetrics struct {
 	MinDailyClicks string `json:"minDailyClicks"`
 	MaxDailyClicks string `json:"maxDailyClicks"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSuggestTravelAssetsRequest struct {
+type GoogleAdsGoogleadsV26ServicesSuggestTravelAssetsRequest struct {
 	LanguageOption string          `json:"languageOption"`
 	PlaceIds       json.RawMessage `json:"placeIds"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSuggestTravelAssetsResponse struct {
+type GoogleAdsGoogleadsV26ServicesSuggestTravelAssetsResponse struct {
 	HotelAssetSuggestions json.RawMessage `json:"hotelAssetSuggestions"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSurfaceTargeting struct {
+type GoogleAdsGoogleadsV26ServicesSurfaceTargeting struct {
 	Surfaces json.RawMessage `json:"surfaces"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSurfaceTargetingCombinations struct {
+type GoogleAdsGoogleadsV26ServicesSurfaceTargetingCombinations struct {
 	AvailableTargetingCombinations json.RawMessage `json:"availableTargetingCombinations"`
 	DefaultTargeting               json.RawMessage `json:"defaultTargeting"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSurveyDissatisfied struct {
+type GoogleAdsGoogleadsV26ServicesSurveyDissatisfied struct {
 	OtherReasonComment       string `json:"otherReasonComment"`
 	SurveyDissatisfiedReason string `json:"surveyDissatisfiedReason"`
 }
 
-type GoogleAdsGoogleadsV22ServicesSurveySatisfied struct {
+type GoogleAdsGoogleadsV26ServicesSurveySatisfied struct {
 	SurveySatisfiedReason string `json:"surveySatisfiedReason"`
 	OtherReasonComment    string `json:"otherReasonComment"`
 }
 
-type GoogleAdsGoogleadsV22ServicesTargetFrequencySettings struct {
+type GoogleAdsGoogleadsV26ServicesTargetFrequencySettings struct {
 	TimeUnit        string `json:"timeUnit"`
 	TargetFrequency int    `json:"targetFrequency"`
 }
 
-type GoogleAdsGoogleadsV22ServicesTargeting struct {
+type GoogleAdsGoogleadsV26ServicesTargeting struct {
 	AgeRange             string          `json:"ageRange"`
 	Devices              json.RawMessage `json:"devices"`
 	PlannableLocationId  string          `json:"plannableLocationId"`
@@ -9319,7 +9319,7 @@ type GoogleAdsGoogleadsV22ServicesTargeting struct {
 	PlannableLocationIds json.RawMessage `json:"plannableLocationIds"`
 }
 
-type GoogleAdsGoogleadsV22ServicesTargetingSuggestionMetrics struct {
+type GoogleAdsGoogleadsV26ServicesTargetingSuggestionMetrics struct {
 	Gender                json.RawMessage `json:"gender"`
 	Index                 float64         `json:"index"`
 	Locations             json.RawMessage `json:"locations"`
@@ -9330,7 +9330,7 @@ type GoogleAdsGoogleadsV22ServicesTargetingSuggestionMetrics struct {
 	ParentalStatus        json.RawMessage `json:"parentalStatus"`
 }
 
-type GoogleAdsGoogleadsV22ServicesTrendInsight struct {
+type GoogleAdsGoogleadsV26ServicesTrendInsight struct {
 	TrendMetrics    json.RawMessage `json:"trendMetrics"`
 	TrendAttribute  json.RawMessage `json:"trendAttribute"`
 	RelatedVideos   json.RawMessage `json:"relatedVideos"`
@@ -9338,103 +9338,103 @@ type GoogleAdsGoogleadsV22ServicesTrendInsight struct {
 	RelatedCreators json.RawMessage `json:"relatedCreators"`
 }
 
-type GoogleAdsGoogleadsV22ServicesTrendInsightMetrics struct {
+type GoogleAdsGoogleadsV26ServicesTrendInsightMetrics struct {
 	AudienceShare float64 `json:"audienceShare"`
 	ViewsCount    string  `json:"viewsCount"`
 }
 
-type GoogleAdsGoogleadsV22ServicesUnusableAdGroup struct {
+type GoogleAdsGoogleadsV26ServicesUnusableAdGroup struct {
 	AdGroup  string `json:"adGroup"`
 	Campaign string `json:"campaign"`
 }
 
-type GoogleAdsGoogleadsV22ServicesUpdateDataLinkRequest struct {
+type GoogleAdsGoogleadsV26ServicesUpdateDataLinkRequest struct {
 	DataLinkStatus string `json:"dataLinkStatus"`
 	ResourceName   string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesUpdateDataLinkResponse struct {
+type GoogleAdsGoogleadsV26ServicesUpdateDataLinkResponse struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesUpdateProductLinkInvitationRequest struct {
+type GoogleAdsGoogleadsV26ServicesUpdateProductLinkInvitationRequest struct {
 	ResourceName                string `json:"resourceName"`
 	ProductLinkInvitationStatus string `json:"productLinkInvitationStatus"`
 }
 
-type GoogleAdsGoogleadsV22ServicesUpdateProductLinkInvitationResponse struct {
+type GoogleAdsGoogleadsV26ServicesUpdateProductLinkInvitationResponse struct {
 	ResourceName string `json:"resourceName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesUploadCallConversionsRequest struct {
+type GoogleAdsGoogleadsV26ServicesUploadCallConversionsRequest struct {
 	PartialFailure bool            `json:"partialFailure"`
 	ValidateOnly   bool            `json:"validateOnly"`
 	Conversions    json.RawMessage `json:"conversions"`
 }
 
-type GoogleAdsGoogleadsV22ServicesUploadCallConversionsResponse struct {
+type GoogleAdsGoogleadsV26ServicesUploadCallConversionsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesUploadClickConversionsRequest struct {
+type GoogleAdsGoogleadsV26ServicesUploadClickConversionsRequest struct {
 	PartialFailure bool            `json:"partialFailure"`
 	JobId          int             `json:"jobId"`
 	ValidateOnly   bool            `json:"validateOnly"`
 	Conversions    json.RawMessage `json:"conversions"`
 }
 
-type GoogleAdsGoogleadsV22ServicesUploadClickConversionsResponse struct {
+type GoogleAdsGoogleadsV26ServicesUploadClickConversionsResponse struct {
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 	JobId               string          `json:"jobId"`
 }
 
-type GoogleAdsGoogleadsV22ServicesUploadConversionAdjustmentsRequest struct {
+type GoogleAdsGoogleadsV26ServicesUploadConversionAdjustmentsRequest struct {
 	ConversionAdjustments json.RawMessage `json:"conversionAdjustments"`
 	PartialFailure        bool            `json:"partialFailure"`
 	JobId                 int             `json:"jobId"`
 	ValidateOnly          bool            `json:"validateOnly"`
 }
 
-type GoogleAdsGoogleadsV22ServicesUploadConversionAdjustmentsResponse struct {
+type GoogleAdsGoogleadsV26ServicesUploadConversionAdjustmentsResponse struct {
 	JobId               string          `json:"jobId"`
 	PartialFailureError json.RawMessage `json:"partialFailureError"`
 	Results             json.RawMessage `json:"results"`
 }
 
-type GoogleAdsGoogleadsV22ServicesUploadUserDataRequest struct {
+type GoogleAdsGoogleadsV26ServicesUploadUserDataRequest struct {
 	Operations                    json.RawMessage `json:"operations"`
 	CustomerMatchUserListMetadata json.RawMessage `json:"customerMatchUserListMetadata"`
 }
 
-type GoogleAdsGoogleadsV22ServicesUploadUserDataResponse struct {
+type GoogleAdsGoogleadsV26ServicesUploadUserDataResponse struct {
 	UploadDateTime          string `json:"uploadDateTime"`
 	ReceivedOperationsCount int    `json:"receivedOperationsCount"`
 }
 
-type GoogleAdsGoogleadsV22ServicesUrlSeed struct {
+type GoogleAdsGoogleadsV26ServicesUrlSeed struct {
 	Url string `json:"url"`
 }
 
-type GoogleAdsGoogleadsV22ServicesUserDataOperation struct {
+type GoogleAdsGoogleadsV26ServicesUserDataOperation struct {
 	Create json.RawMessage `json:"create"`
 	Remove json.RawMessage `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesUserListCustomerTypeOperation struct {
+type GoogleAdsGoogleadsV26ServicesUserListCustomerTypeOperation struct {
 	Create json.RawMessage `json:"create"`
 	Remove string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesUserListOperation struct {
+type GoogleAdsGoogleadsV26ServicesUserListOperation struct {
 	UpdateMask string          `json:"updateMask"`
 	Create     json.RawMessage `json:"create"`
 	Update     json.RawMessage `json:"update"`
 	Remove     string          `json:"remove"`
 }
 
-type GoogleAdsGoogleadsV22ServicesYouTubeChannelInsights struct {
+type GoogleAdsGoogleadsV26ServicesYouTubeChannelInsights struct {
 	PublishDate               string          `json:"publishDate"`
 	CountryLocation           json.RawMessage `json:"countryLocation"`
 	ChannelUrl                string          `json:"channelUrl"`
@@ -9450,12 +9450,12 @@ type GoogleAdsGoogleadsV22ServicesYouTubeChannelInsights struct {
 	ChannelMetrics            json.RawMessage `json:"channelMetrics"`
 }
 
-type GoogleAdsGoogleadsV22ServicesYouTubeCreatorInsights struct {
+type GoogleAdsGoogleadsV26ServicesYouTubeCreatorInsights struct {
 	CreatorName     string          `json:"creatorName"`
 	CreatorChannels json.RawMessage `json:"creatorChannels"`
 }
 
-type GoogleAdsGoogleadsV22ServicesYouTubeMetrics struct {
+type GoogleAdsGoogleadsV26ServicesYouTubeMetrics struct {
 	AverageLikesPerVideo      float64 `json:"averageLikesPerVideo"`
 	SubscriberCount           string  `json:"subscriberCount"`
 	ShortsVideoCount          string  `json:"shortsVideoCount"`
@@ -9474,12 +9474,12 @@ type GoogleAdsGoogleadsV22ServicesYouTubeMetrics struct {
 	IsActiveLiveStreamCreator bool    `json:"isActiveLiveStreamCreator"`
 }
 
-type GoogleAdsGoogleadsV22ServicesYouTubeSelectLineUp struct {
+type GoogleAdsGoogleadsV26ServicesYouTubeSelectLineUp struct {
 	LineupId   string `json:"lineupId"`
 	LineupName string `json:"lineupName"`
 }
 
-type GoogleAdsGoogleadsV22ServicesYouTubeSelectSettings struct {
+type GoogleAdsGoogleadsV26ServicesYouTubeSelectSettings struct {
 	LineupId string `json:"lineupId"`
 }
 

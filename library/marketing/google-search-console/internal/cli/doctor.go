@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/marketing/google-search-console/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/marketing/google-search-console/internal/config"
 	"github.com/spf13/cobra"
 )
 
@@ -72,12 +71,13 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			report := map[string]any{}
 
 			// Check config
-			cfg, err := config.Load(flags.configPath)
+			cfg, err := flags.loadConfig()
 			if err != nil {
 				report["config"] = fmt.Sprintf("error: %s", err)
 			} else {
 				report["config"] = "ok"
 				report["config_path"] = cfg.Path
+				report["account"] = cfg.Account
 				report["base_url"] = cfg.BaseURL
 			}
 
@@ -264,7 +264,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintf(w, "  %s %s: %s\n", indicator, ck.label, s)
 			}
 			// Print info keys without status indicator
-			for _, key := range []string{"config_path", "base_url", "auth_source", "version"} {
+			for _, key := range []string{"account", "config_path", "base_url", "auth_source", "version"} {
 				if v, ok := report[key]; ok {
 					fmt.Fprintf(w, "  %s: %v\n", key, v)
 				}

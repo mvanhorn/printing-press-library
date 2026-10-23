@@ -37,6 +37,8 @@ go install github.com/mvanhorn/printing-press-library/library/marketing/pinteres
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
+> **First time?** Pinterest's API needs your own (free) Pinterest developer app before you can log in. Follow [Auth Setup](#auth-setup) once, then come back here.
+
 Covers boards, Pins, analytics, trends, ads, catalogs, and audiences from one binary with --dry-run on writes, no interactive prompts, and explicit --yes confirmation. A bounded local sync powers offline search, the 'pins audit' hygiene report, and 'trends gaps'; 'perf compare' and 'pins funnel' turn raw analytics into answers.
 
 ## When to Use This CLI
@@ -364,17 +366,34 @@ Trending keywords your synced Pins don't cover yet.
 
 ## Auth Setup
 
-Pinterest uses OAuth 2.0 authorization code. Register an app at developers.pinterest.com with the redirect URI `http://localhost:8875/callback`, then log in:
+Pinterest uses OAuth 2.0 authorization code.
 
-```bash
-PINTEREST_CLIENT_ID=<app-id> PINTEREST_CLIENT_SECRET=<app-secret> pinterest-pp-cli auth login --port 8875
-```
+**Before you start: you need your own Pinterest developer app.** A normal Pinterest login is not enough. Pinterest only gives API access to apps registered on its developer site, and this CLI does not ship one, so it logs in as *your* app. Creating one is free and takes a few minutes; you only do it once.
 
-The redirect URI must exactly match the one registered on the app. Token exchange and refresh authenticate the app with HTTP Basic, and continuous refresh keeps access alive.
+1. **Create your developer app.** Sign in at https://developers.pinterest.com/apps/ with the Pinterest account you want to manage, then create (connect) a new app. Give it a name, a short description and your website, and accept the developer terms. Pinterest may take a while to approve it. A new app starts with **Trial access**, which is enough for the CLI to work on your own account. If you already have an app, open it instead.
+2. **Register the redirect URI** `http://localhost:8875/callback` under the app's redirect links. It must match exactly; if you change it, pass the same port with `--port`.
+3. **Copy the App ID** and **reveal the App secret key** on the app page. Copy the revealed value, not the masked dots.
+4. **Log in:**
 
-Alternatives when you already have an access token: export it as `PINTEREST_ACCESS_TOKEN` (`PINTEREST_OAUTH2` is also accepted) for one-off runs, or store it with `echo "$TOKEN" | pinterest-pp-cli auth set-token`.
+   ```bash
+   pinterest-pp-cli auth login --client-id <app-id>
+   ```
 
-Run `pinterest-pp-cli doctor` to verify setup.
+   The CLI asks for the client secret with hidden input, so it never shows on screen or lands in shell history. Paste it and press Enter. (Non-interactive alternative: set `PINTEREST_CLIENT_ID` and `PINTEREST_CLIENT_SECRET`.)
+5. **Approve in the browser.** Pinterest shows "Authorize app"; click **Give access**. The CLI saves the token and keeps it fresh with continuous refresh.
+6. **Check it:** `pinterest-pp-cli auth status` or `pinterest-pp-cli doctor`.
+
+**Scopes.** By default, login requests every scope Pinterest documents: ads, billing, biz_access, boards, catalogs, pins and user_accounts, read/write plus the secret variants. It leaves out `msot:write`, which Pinterest's OAuth docs do not list. To choose a different set, pass `--scopes` (comma-separated, replaces the default) or set `PINTEREST_SCOPES` to keep the choice. `--scopes basic` means boards, pins and user_accounts read+write, a smaller set for accounts or apps that cannot grant ads, billing, biz_access or catalogs. Pinterest's docs do not say whether personal (non-business) accounts can grant those four; if login is rejected, try `basic`. Add `msot:write` only if Pinterest has enabled MSOT for your app, e.g. `--scopes basic,msot:write`.
+
+**Already have an access token?** Export it as `PINTEREST_ACCESS_TOKEN` (`PINTEREST_OAUTH2` is also accepted) for one-off runs, or store it with `echo "$TOKEN" | pinterest-pp-cli auth set-token`.
+
+**Login troubleshooting**
+
+| What you see | Cause | Fix |
+|---|---|---|
+| "invalid scopes requested" on Pinterest's page | Your app or account can't grant one of the requested scopes | Retry with `--scopes basic`, or list only the scopes you need |
+| Redirect error on Pinterest's page | The redirect URI isn't registered exactly | Add `http://localhost:8875/callback` to the app, or match `--port` to the one you registered |
+| `exchanging code for token: HTTP 401 ... Authentication failed` | Wrong client secret (often the masked dots were copied, or the secret was reset) | Reveal the secret on the app page, or reset it, and log in again |
 
 ## Agent Mode
 

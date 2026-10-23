@@ -4,11 +4,9 @@ This CLI is GA4-only. Do not add Search Console endpoints here; use `google-sear
 
 ## Auth
 
-Use a Google service account JSON key with `https://www.googleapis.com/auth/analytics.readonly`. Resolution order:
+Use a Google service account JSON key with `https://www.googleapis.com/auth/analytics.readonly`. Named selection is `--account`, `GOOGLE_ANALYTICS_ACCOUNT`, then saved default. `auth add <name> --from-credentials <file>` saves a 0600 copy; each invocation mints a fresh token. `auth accounts`, `auth set-default`, and `auth remove` manage saved keys. Named accounts ignore ambient `GOOGLE_APPLICATION_CREDENTIALS`.
 
-1. `--credentials`
-2. `GOOGLE_APPLICATION_CREDENTIALS`
-3. No implicit local fallback. Pass `--credentials` or set `GOOGLE_APPLICATION_CREDENTIALS`.
+The legacy `default` account still resolves `--credentials` before `GOOGLE_APPLICATION_CREDENTIALS`, with no implicit local fallback. Explicit credential paths bypass saved defaults and conflict with account selectors. Keep diagnostics free of private keys and tokens.
 
 Property resolution for data commands is `--property`, then `GA4_PROPERTY_ID`. Do not hard-code brand property IDs in command implementations. Fleet checks can pass `health --properties <comma-list>` or set `GA4_PROPERTY_IDS`.
 

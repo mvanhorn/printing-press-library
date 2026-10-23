@@ -59,6 +59,9 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 	// silently deleted the store mid-upsert; sync reported success because Close
 	// races RemoveAll, but the next command saw zero rows.
 	cacheDir := filepath.Join(homeDir, ".cache", "google-search-console-pp-cli", "responses")
+	if cfg.Account != "" && cfg.Account != "default" {
+		cacheDir = filepath.Join(homeDir, ".cache", "google-search-console-pp-cli", "accounts", cfg.Account, "responses")
+	}
 	httpClient := newHTTPClient(timeout, nil)
 	return &Client{
 		BaseURL:    strings.TrimRight(cfg.BaseURL, "/"),
@@ -439,7 +442,7 @@ func (c *Client) refreshAccessToken() error {
 			_ = c.Config.ClearTokens()
 			return ErrRefreshRevoked
 		}
-		return fmt.Errorf("refreshing access token: HTTP %d: %s", resp.StatusCode, truncateBody(body))
+		return fmt.Errorf("refreshing access token: HTTP %d", resp.StatusCode)
 	}
 
 	var tokenResp struct {

@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/marketing/google-search-console/internal/config"
 	"os"
 	"path/filepath"
 	"strings"
@@ -87,11 +88,11 @@ func DefaultDBPath() string {
 	return filepath.Join(os.TempDir(), "google-search-console-pp-cli-store.db")
 }
 
-// Open opens the SQLite store. An empty path uses DefaultDBPath().
+// Open uses the account-scoped default unless an explicit path is supplied.
 // The directory is created if it doesn't exist.
 func Open(ctx context.Context, path string) (*Store, error) {
 	if path == "" {
-		path = DefaultDBPath()
+		path = config.DataPath(ctx)
 	}
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return nil, fmt.Errorf("ensure store dir: %w", err)

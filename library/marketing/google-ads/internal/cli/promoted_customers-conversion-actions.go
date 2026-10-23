@@ -22,14 +22,14 @@ func newCustomersConversionActionsPromotedCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Creates, updates or removes conversion actions. Operation statuses are returned.",
 		Long:        "Shortcut for 'customers_conversion_actions mutate'. Creates, updates or removes conversion actions. Operation statuses are returned.",
 		Example:     "  google-ads-pp-cli customers-conversion-actions",
-		Annotations: map[string]string{"pp:endpoint": "customers_conversion_actions.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/conversionActions:mutate"},
+		Annotations: map[string]string{"pp:endpoint": "customers_conversion_actions.mutate", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/conversionActions:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/conversionActions:mutate"
+			path := "/v26/customers/{customerId}/conversionActions:mutate"
 			if len(args) < 1 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.

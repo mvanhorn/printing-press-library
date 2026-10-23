@@ -28,7 +28,7 @@ func newCustomersUploadClickConversionsCmd(flags *rootFlags) *cobra.Command {
 		Use:         "upload-click-conversions <customerId>",
 		Short:       "Processes the given click conversions.",
 		Example:     "  google-ads-pp-cli customers upload-click-conversions 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "customers.upload_click_conversions", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}:uploadClickConversions"},
+		Annotations: map[string]string{"pp:endpoint": "customers.upload_click_conversions", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}:uploadClickConversions"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -40,7 +40,7 @@ func newCustomersUploadClickConversionsCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}:uploadClickConversions"
+			path := "/v26/customers/{customerId}:uploadClickConversions"
 			path = replacePathParam(path, "customerId", args[0])
 			var body map[string]any
 			if stdinBody {
@@ -90,7 +90,7 @@ func newCustomersUploadClickConversionsCmd(flags *rootFlags) *cobra.Command {
 					if ctx == nil {
 						ctx = context.Background()
 					}
-					final, werr := WaitForJob(ctx, c, "/v22/{name}", asyncJobID, WaitOptions{
+					final, werr := WaitForJob(ctx, c, "/v26/{name}", asyncJobID, WaitOptions{
 						Interval: flagWaitInterval,
 						Timeout:  flagWaitTimeout,
 					})

@@ -17,7 +17,7 @@ func newCustomersGetIdentityVerificationCmd(flags *rootFlags) *cobra.Command {
 		Use:         "get-identity-verification <customerId>",
 		Short:       "Returns Identity Verification information.",
 		Example:     "  google-ads-pp-cli customers get-identity-verification 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "customers.get_identity_verification", "pp:method": "GET", "pp:path": "/v22/customers/{customerId}/getIdentityVerification", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "customers.get_identity_verification", "pp:method": "GET", "pp:path": "/v26/customers/{customerId}/getIdentityVerification", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -27,7 +27,7 @@ func newCustomersGetIdentityVerificationCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/getIdentityVerification"
+			path := "/v26/customers/{customerId}/getIdentityVerification"
 			path = replacePathParam(path, "customerId", args[0])
 			params := map[string]string{}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "customers", false, path, params, nil)

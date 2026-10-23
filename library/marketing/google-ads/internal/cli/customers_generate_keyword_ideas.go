@@ -32,7 +32,7 @@ func newCustomersGenerateKeywordIdeasCmd(flags *rootFlags) *cobra.Command {
 		Use:         "generate-keyword-ideas <customerId>",
 		Short:       "Returns a list of keyword ideas.",
 		Example:     "  google-ads-pp-cli customers generate-keyword-ideas 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "customers.generate_keyword_ideas", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}:generateKeywordIdeas"},
+		Annotations: map[string]string{"pp:endpoint": "customers.generate_keyword_ideas", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}:generateKeywordIdeas"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -44,7 +44,7 @@ func newCustomersGenerateKeywordIdeasCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}:generateKeywordIdeas"
+			path := "/v26/customers/{customerId}:generateKeywordIdeas"
 			path = replacePathParam(path, "customerId", args[0])
 			var body map[string]any
 			if stdinBody {

@@ -20,7 +20,7 @@ func newCustomersBatchJobsListResultsCmd(flags *rootFlags) *cobra.Command {
 		Use:         "list-results <resourceName>",
 		Short:       "Returns the results of the batch job. The job must be done. Supports standard list paging.",
 		Example:     "  google-ads-pp-cli customers-batch-jobs list-results example-resource",
-		Annotations: map[string]string{"pp:endpoint": "customers_batch_jobs.list_results", "pp:method": "GET", "pp:path": "/v22/{resourceName}:listResults", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "customers_batch_jobs.list_results", "pp:method": "GET", "pp:path": "/v26/{resourceName}:listResults", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -43,7 +43,7 @@ func newCustomersBatchJobsListResultsCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/v22/{resourceName}:listResults"
+			path := "/v26/{resourceName}:listResults"
 			path = replacePathParam(path, "resourceName", args[0])
 			params := map[string]string{}
 			if flagResponseContentType != "" {

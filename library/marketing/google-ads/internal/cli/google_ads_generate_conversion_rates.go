@@ -22,7 +22,7 @@ func newGoogleAdsGenerateConversionRatesCmd(flags *rootFlags) *cobra.Command {
 		Use:         "generate-conversion-rates",
 		Short:       "Returns a collection of conversion rate suggestions for supported plannable products.",
 		Example:     "  google-ads-pp-cli google-ads generate-conversion-rates",
-		Annotations: map[string]string{"pp:endpoint": "google_ads.generate_conversion_rates", "pp:method": "POST", "pp:path": "/v22:generateConversionRates"},
+		Annotations: map[string]string{"pp:endpoint": "google_ads.generate_conversion_rates", "pp:method": "POST", "pp:path": "/v26:generateConversionRates"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 			}
@@ -31,7 +31,7 @@ func newGoogleAdsGenerateConversionRatesCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/v22:generateConversionRates"
+			path := "/v26:generateConversionRates"
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)

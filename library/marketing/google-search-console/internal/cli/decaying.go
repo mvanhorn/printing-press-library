@@ -4,7 +4,6 @@
 package cli
 
 import (
-	"context"
 	"math"
 	"sort"
 
@@ -38,7 +37,7 @@ func newDecayingCmd(flags *rootFlags) *cobra.Command {
 			}
 			startDate, _ := dateRange(dur)
 
-			ctx := context.Background()
+			ctx := cmd.Context()
 			s, err := openStore(ctx)
 			if err != nil {
 				return configErr(err)

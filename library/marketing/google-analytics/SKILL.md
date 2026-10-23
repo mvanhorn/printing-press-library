@@ -35,17 +35,29 @@ Use `google-analytics-pp-cli` for GA4-only analytics work. Search Console is cov
 ## Auth and property selection
 
 - Service account key: `--credentials`, else `GOOGLE_APPLICATION_CREDENTIALS`.
+- Saved accounts: `--account` > `GOOGLE_ANALYTICS_ACCOUNT` > saved default > legacy `default`. Named accounts ignore the ambient credential path; explicit `--credentials` bypasses the saved default and conflicts with account selectors.
 - Scope: `https://www.googleapis.com/auth/analytics.readonly`.
 - Property: pass `--property`, or set `GA4_PROPERTY_ID`.
 - Fleet health checks: `health --properties $GA4_PROPERTY_IDS --agent` or set `GA4_PROPERTY_IDS`.
 
 Durable gotcha: Google Cloud API access is not GA4 property access. The service account must be granted Viewer access inside the GA4 property. If `health` shows token/admin OK but a property check is 403/404, fix the GA4 property grant rather than rotating credentials.
 
+```bash
+google-analytics-pp-cli auth add bestself --from-credentials /path/to/bestself.json
+google-analytics-pp-cli auth add littlemight --from-credentials /path/to/littlemight.json
+google-analytics-pp-cli auth accounts
+google-analytics-pp-cli auth set-default bestself
+google-analytics-pp-cli channels --account littlemight --property PROPERTY_ID --agent
+google-analytics-pp-cli auth remove littlemight --yes
+```
+
+`auth login` aliases key import, with no browser flow. Saved keys have mode 0600 and mint fresh tokens automatically per command. Imports never overwrite an account; switch defaults before removing the current named default. Removal preserves the original imported file and does not revoke the key. `auth set-default default` restores legacy credential-path selection.
+
 ## Best commands for agents
 
 ```bash
 google-analytics-pp-cli agent-context --agent
-google-analytics-pp-cli health --properties $GA4_PROPERTY_IDS --agent
+google-analytics-pp-cli health --properties "$GA4_PROPERTY_IDS" --agent
 google-analytics-pp-cli channels --property "$GA4_PROPERTY_ID" --start 28daysAgo --end yesterday --agent
 google-analytics-pp-cli sources --property "$GA4_PROPERTY_ID" --agent
 google-analytics-pp-cli top-pages --property "$GA4_PROPERTY_ID" --agent

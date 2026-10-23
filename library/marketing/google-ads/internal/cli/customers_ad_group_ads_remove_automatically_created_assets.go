@@ -20,7 +20,7 @@ func newCustomersAdGroupAdsRemoveAutomaticallyCreatedAssetsCmd(flags *rootFlags)
 		Use:         "remove-automatically-created-assets <adGroupAd>",
 		Short:       "Remove automatically created assets from an ad.",
 		Example:     "  google-ads-pp-cli customers-ad-group-ads remove-automatically-created-assets example-value",
-		Annotations: map[string]string{"pp:endpoint": "customers_ad_group_ads.remove_automatically_created_assets", "pp:method": "POST", "pp:path": "/v22/{adGroupAd}:removeAutomaticallyCreatedAssets"},
+		Annotations: map[string]string{"pp:endpoint": "customers_ad_group_ads.remove_automatically_created_assets", "pp:method": "POST", "pp:path": "/v26/{adGroupAd}:removeAutomaticallyCreatedAssets"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -32,7 +32,7 @@ func newCustomersAdGroupAdsRemoveAutomaticallyCreatedAssetsCmd(flags *rootFlags)
 				return err
 			}
 
-			path := "/v22/{adGroupAd}:removeAutomaticallyCreatedAssets"
+			path := "/v26/{adGroupAd}:removeAutomaticallyCreatedAssets"
 			path = replacePathParam(path, "adGroupAd", args[0])
 			var body map[string]any
 			if stdinBody {

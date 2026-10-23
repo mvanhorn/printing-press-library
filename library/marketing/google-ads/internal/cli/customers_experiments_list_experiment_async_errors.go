@@ -19,7 +19,7 @@ func newCustomersExperimentsListExperimentAsyncErrorsCmd(flags *rootFlags) *cobr
 		Use:         "list-experiment-async-errors <resourceName>",
 		Short:       "Returns all errors that occurred during the last Experiment update (either scheduling or promotion). Supports...",
 		Example:     "  google-ads-pp-cli customers-experiments list-experiment-async-errors example-resource",
-		Annotations: map[string]string{"pp:endpoint": "customers_experiments.list_experiment_async_errors", "pp:method": "GET", "pp:path": "/v22/{resourceName}:listExperimentAsyncErrors", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "customers_experiments.list_experiment_async_errors", "pp:method": "GET", "pp:path": "/v26/{resourceName}:listExperimentAsyncErrors", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -29,7 +29,7 @@ func newCustomersExperimentsListExperimentAsyncErrorsCmd(flags *rootFlags) *cobr
 				return err
 			}
 
-			path := "/v22/{resourceName}:listExperimentAsyncErrors"
+			path := "/v26/{resourceName}:listExperimentAsyncErrors"
 			if len(args) < 2 {
 				return usageErr(fmt.Errorf("resourceName is required\nUsage: %s <%s>", cmd.CommandPath(), "resourceName"))
 			}

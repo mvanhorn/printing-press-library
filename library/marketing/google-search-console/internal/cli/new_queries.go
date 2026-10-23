@@ -4,8 +4,6 @@
 package cli
 
 import (
-	"context"
-
 	"github.com/spf13/cobra"
 )
 
@@ -36,7 +34,7 @@ func newNewQueriesCmd(flags *rootFlags) *cobra.Command {
 			}
 			startDate, _ := dateRange(dur)
 
-			ctx := context.Background()
+			ctx := cmd.Context()
 			s, err := openStore(ctx)
 			if err != nil {
 				return configErr(err)

@@ -22,14 +22,14 @@ func newCustomersCustomizerAttributesPromotedCmd(flags *rootFlags) *cobra.Comman
 		Short:       "Creates, updates or removes customizer attributes. Operation statuses are returned.",
 		Long:        "Shortcut for 'customers_customizer_attributes mutate'. Creates, updates or removes customizer attributes. Operation statuses are returned.",
 		Example:     "  google-ads-pp-cli customers-customizer-attributes",
-		Annotations: map[string]string{"pp:endpoint": "customers_customizer_attributes.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/customizerAttributes:mutate"},
+		Annotations: map[string]string{"pp:endpoint": "customers_customizer_attributes.mutate", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/customizerAttributes:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/customizerAttributes:mutate"
+			path := "/v26/customers/{customerId}/customizerAttributes:mutate"
 			if len(args) < 1 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.

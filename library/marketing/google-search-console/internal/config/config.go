@@ -15,6 +15,7 @@ import (
 )
 
 type Config struct {
+	Account       string            `toml:"-"`
 	BaseURL       string            `toml:"base_url"`
 	AuthHeaderVal string            `toml:"auth_header"`
 	Headers       map[string]string `toml:"headers,omitempty"`
@@ -28,19 +29,19 @@ type Config struct {
 }
 
 func Load(configPath string) (*Config, error) {
+	return LoadAccount(configPath, "")
+}
+
+func LoadAccount(configPath, account string) (*Config, error) {
 	cfg := &Config{
 		BaseURL: "https://searchconsole.googleapis.com",
 	}
 
-	// Resolve config path
-	path := configPath
-	if path == "" {
-		path = os.Getenv("GOOGLE_SEARCH_CONSOLE_CONFIG")
+	path, name, err := ResolveAccount(configPath, account)
+	if err != nil {
+		return nil, err
 	}
-	if path == "" {
-		home, _ := os.UserHomeDir()
-		path = filepath.Join(home, ".config", "google-search-console-pp-cli", "config.toml")
-	}
+	cfg.Account = name
 	cfg.Path = path
 
 	// PATCH(oauth-login): clean up stale .tmp files from interrupted writes.
@@ -52,12 +53,14 @@ func Load(configPath string) (*Config, error) {
 	data, err := os.ReadFile(path)
 	if err == nil {
 		if err := toml.Unmarshal(data, cfg); err != nil {
-			return nil, fmt.Errorf("parsing config %s: %w", path, err)
+			return nil, fmt.Errorf("invalid config format in %s", path)
 		}
+	} else if !os.IsNotExist(err) {
+		return nil, fmt.Errorf("reading config: %w", err)
 	}
 
 	// Env var overrides
-	if v := os.Getenv("GSC_ACCESS_TOKEN"); v != "" {
+	if v := os.Getenv("GSC_ACCESS_TOKEN"); v != "" && name == "default" {
 		cfg.AccessToken = v
 		cfg.AuthSource = "env:GSC_ACCESS_TOKEN"
 	}
@@ -167,15 +170,7 @@ func (c *Config) save() error {
 	if err != nil {
 		return fmt.Errorf("marshaling config: %w", err)
 	}
-	tmp := c.Path + ".tmp"
-	if err := os.WriteFile(tmp, data, 0o600); err != nil {
-		return fmt.Errorf("writing temp config: %w", err)
-	}
-	if err := os.Rename(tmp, c.Path); err != nil {
-		_ = os.Remove(tmp)
-		return fmt.Errorf("atomic rename %s -> %s: %w", tmp, c.Path, err)
-	}
-	return nil
+	return writePrivate(c.Path, data, false)
 }
 
 // Ensure strings import is used

@@ -23,7 +23,7 @@ func newCustomersAdGroupAdsMutateCmd(flags *rootFlags) *cobra.Command {
 		Use:         "mutate <customerId>",
 		Short:       "Creates, updates, or removes ads. Operation statuses are returned.",
 		Example:     "  google-ads-pp-cli customers-ad-group-ads mutate 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "customers_ad_group_ads.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/adGroupAds:mutate"},
+		Annotations: map[string]string{"pp:endpoint": "customers_ad_group_ads.mutate", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/adGroupAds:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -35,7 +35,7 @@ func newCustomersAdGroupAdsMutateCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/adGroupAds:mutate"
+			path := "/v26/customers/{customerId}/adGroupAds:mutate"
 			path = replacePathParam(path, "customerId", args[0])
 			var body map[string]any
 			if stdinBody {

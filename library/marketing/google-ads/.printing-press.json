@@ -17,6 +17,10 @@
     {
       "handle": "marshalldavies",
       "name": "Marshall Davies"
+    },
+    {
+      "handle": "azbirovskiy",
+      "name": "azbirovskiy"
     }
   ],
   "owner": "user",
@@ -24,13 +28,13 @@
   "printer_name": "Cathryn Lavery",
   "spec_path": ".context/google-ads/google-ads-press-spec.json",
   "spec_format": "internal",
-  "spec_checksum": "sha256:dbef066a5b9e8e8dae3d0fc8f914c0663ecc06434d7c43c917d7cec2641ce5ec",
+  "spec_checksum": "sha256:a5ef1be6e4f9e595546bf92f8cf0bf54a25500396d23919488afe2bf18249a79",
   "run_id": "20260506-162403",
   "description": "Google Ads API for account discovery, GAQL reporting, campaigns, budgets, assets, conversions, audiences, planning, and billing operations.",
   "mcp_binary": "google-ads-pp-mcp",
   "mcp_tool_count": 162,
   "mcp_ready": "full",
-  "api_version": "v22",
+  "api_version": "v26",
   "auth_type": "bearer_token",
   "auth_env_vars": [
     "GOOGLE_ADS_ACCESS_TOKEN",

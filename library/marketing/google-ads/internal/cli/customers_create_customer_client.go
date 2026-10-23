@@ -23,7 +23,7 @@ func newCustomersCreateCustomerClientCmd(flags *rootFlags) *cobra.Command {
 		Use:         "create-customer-client <customerId>",
 		Short:       "Creates a new client under manager. The new client customer is returned.",
 		Example:     "  google-ads-pp-cli customers create-customer-client 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "customers.create_customer_client", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}:createCustomerClient"},
+		Annotations: map[string]string{"pp:endpoint": "customers.create_customer_client", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}:createCustomerClient"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -35,7 +35,7 @@ func newCustomersCreateCustomerClientCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}:createCustomerClient"
+			path := "/v26/customers/{customerId}:createCustomerClient"
 			path = replacePathParam(path, "customerId", args[0])
 			var body map[string]any
 			if stdinBody {

@@ -7,8 +7,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -465,9 +463,7 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 }
 
 func newMCPClient() (*client.Client, error) {
-	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "cloud-run-admin-pp-cli", "config.toml")
-	cfg, err := config.Load(cfgPath)
+	cfg, err := config.Load("")
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}
@@ -481,9 +477,12 @@ func newMCPClient() (*client.Client, error) {
 	return c, nil
 }
 
-func dbPath() string {
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".local", "share", "cloud-run-admin-pp-cli", "data.db")
+func dbPath() (string, error) {
+	_, name, err := config.ResolveAccount("", "")
+	if err != nil {
+		return "", err
+	}
+	return config.DataPath(config.WithAccount(context.Background(), name)), nil
 }
 
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
@@ -501,7 +500,11 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 		limit = int(v)
 	}
 
-	db, err := store.OpenWithContext(ctx, dbPath())
+	p, err := dbPath()
+	if err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
+	db, err := store.OpenWithContext(ctx, p)
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}
@@ -531,7 +534,11 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		}
 	}
 
-	db, err := store.OpenWithContext(ctx, dbPath())
+	p, err := dbPath()
+	if err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
+	db, err := store.OpenWithContext(ctx, p)
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}

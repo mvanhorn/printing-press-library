@@ -22,14 +22,14 @@ func newCustomersLabelsPromotedCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Creates, updates, or removes labels. Operation statuses are returned.",
 		Long:        "Shortcut for 'customers_labels mutate'. Creates, updates, or removes labels. Operation statuses are returned.",
 		Example:     "  google-ads-pp-cli customers-labels",
-		Annotations: map[string]string{"pp:endpoint": "customers_labels.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/labels:mutate"},
+		Annotations: map[string]string{"pp:endpoint": "customers_labels.mutate", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/labels:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/labels:mutate"
+			path := "/v26/customers/{customerId}/labels:mutate"
 			if len(args) < 1 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.

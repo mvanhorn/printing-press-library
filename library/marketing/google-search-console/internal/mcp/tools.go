@@ -297,9 +297,7 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 }
 
 func newMCPClient() (*client.Client, error) {
-	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "google-search-console-pp-cli", "config.toml")
-	cfg, err := config.Load(cfgPath)
+	cfg, err := config.Load("")
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}

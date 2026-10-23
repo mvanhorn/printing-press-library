@@ -19,14 +19,14 @@ func newAudienceInsightsPromotedCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Lists date ranges for which audience insights data can be requested.",
 		Long:        "Shortcut for 'audience_insights list_insights_eligible_dates'. Lists date ranges for which audience insights data can be requested.",
 		Example:     "  google-ads-pp-cli audience-insights",
-		Annotations: map[string]string{"pp:endpoint": "audience_insights.list_insights_eligible_dates", "pp:method": "POST", "pp:path": "/v22/audienceInsights:listInsightsEligibleDates"},
+		Annotations: map[string]string{"pp:endpoint": "audience_insights.list_insights_eligible_dates", "pp:method": "POST", "pp:path": "/v26/audienceInsights:listInsightsEligibleDates"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/v22/audienceInsights:listInsightsEligibleDates"
+			path := "/v26/audienceInsights:listInsightsEligibleDates"
 			// HasStore + non-GET falls through to a live API call here
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a

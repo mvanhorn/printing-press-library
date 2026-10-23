@@ -21,14 +21,14 @@ func newCustomersCustomConversionGoalsPromotedCmd(flags *rootFlags) *cobra.Comma
 		Short:       "Creates, updates or removes custom conversion goals. Operation statuses are returned.",
 		Long:        "Shortcut for 'customers_custom_conversion_goals mutate'. Creates, updates or removes custom conversion goals. Operation statuses are returned.",
 		Example:     "  google-ads-pp-cli customers-custom-conversion-goals",
-		Annotations: map[string]string{"pp:endpoint": "customers_custom_conversion_goals.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/customConversionGoals:mutate"},
+		Annotations: map[string]string{"pp:endpoint": "customers_custom_conversion_goals.mutate", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/customConversionGoals:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/customConversionGoals:mutate"
+			path := "/v26/customers/{customerId}/customConversionGoals:mutate"
 			if len(args) < 1 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.

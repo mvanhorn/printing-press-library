@@ -5,7 +5,7 @@
 A single binary covering search analytics, URL inspection, sitemaps, and site management -- with the agent-native JSON and CSV outputs, --dry-run, exit codes, and offline search every other GSC tool half-implements. The transcendence layer (compare, quick-wins, cannibalization, historical, decaying, outliers, cliff, roll-up, coverage-drift, sitemap-watch, new-queries) runs entirely from the local SQLite store, so the workflows the API can't answer in one call are answered in one command.
 
 Created by [@bossriceshark](https://github.com/bossriceshark) (Matt).
-Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow), [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 
 ## Install
 
@@ -121,6 +121,27 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 </details>
 
 ## Authentication
+
+### Several saved accounts
+
+Use the existing OAuth setup below for each named login:
+
+```bash
+google-search-console-pp-cli auth set-client CLIENT_ID CLIENT_SECRET --account bestself
+google-search-console-pp-cli auth login --account bestself
+google-search-console-pp-cli auth set-client CLIENT_ID CLIENT_SECRET --account littlemight
+google-search-console-pp-cli auth login --account littlemight
+google-search-console-pp-cli auth accounts
+google-search-console-pp-cli auth set-default bestself
+google-search-console-pp-cli webmasters list-sites --account littlemight --json
+google-search-console-pp-cli auth remove littlemight --yes
+```
+
+Each name has its own `~/.config/google-search-console-pp-cli/<name>/config.toml` with mode 0600, access token, refresh token and OAuth client. Expired tokens refresh into the selected file automatically. Names use 1–63 lowercase letters, digits, dots, underscores or hyphens, starting with a letter or digit; consecutive dots are rejected. `auth add <name> --from-config /path/to/config.toml` copies existing OAuth credentials without overwriting an account; an access token is required when importing.
+
+Selection order: `--account`, `GOOGLE_SEARCH_CONSOLE_ACCOUNT`, saved default, then legacy `default`. The legacy account keeps the original `config.toml` and `GSC_ACCESS_TOKEN` precedence; named accounts ignore that ambient token. Explicit `--config` / `GOOGLE_SEARCH_CONSOLE_CONFIG` paths bypass the saved default and conflict with account selectors. Use `auth set-default default` to restore legacy usage, including environment-only setups. `auth status`, `doctor` and `agent-context` name the selected account without displaying tokens.
+
+Named accounts isolate HTTP caches and the default analytics store. Existing synced data stays with `default`; run `sync` for each named account. `PRINTING_PRESS_STORE_DB` remains an explicit caller-controlled store override. Logout, forget and refresh affect only the selected account. Switch defaults before removing the current named default; removal deletes credentials only, preserves local data and does not revoke access at Google.
 
 Two paths. Pick one.
 

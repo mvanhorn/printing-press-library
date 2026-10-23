@@ -21,7 +21,7 @@ func newCustomersDataLinksUpdateCmd(flags *rootFlags) *cobra.Command {
 		Use:         "update <customerId>",
 		Short:       "Update a data link.",
 		Example:     "  google-ads-pp-cli customers-data-links update 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "customers_data_links.update", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/dataLinks:update"},
+		Annotations: map[string]string{"pp:endpoint": "customers_data_links.update", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/dataLinks:update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -33,7 +33,7 @@ func newCustomersDataLinksUpdateCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/dataLinks:update"
+			path := "/v26/customers/{customerId}/dataLinks:update"
 			path = replacePathParam(path, "customerId", args[0])
 			var body map[string]any
 			if stdinBody {

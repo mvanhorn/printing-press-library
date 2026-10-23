@@ -48,7 +48,7 @@ func isNetworkError(err error) bool {
 // openStoreForRead opens the local SQLite store for reading.
 // Returns nil, nil if the database file does not exist (no sync has been run).
 func openStoreForRead(ctx context.Context, cliName string) (*store.Store, error) {
-	dbPath := defaultDBPath(cliName)
+	dbPath := defaultDBPath(ctx, cliName)
 	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
 		return nil, nil
 	}
@@ -161,7 +161,7 @@ func resolvePaginatedRead(ctx context.Context, c *client.Client, flags *rootFlag
 // FTS search covers everything the user has looked up — not just explicit syncs.
 // Best-effort: failures are silently ignored (the live result already succeeded).
 func writeThroughCache(ctx context.Context, resourceType string, data json.RawMessage) {
-	db, err := store.OpenWithContext(ctx, defaultDBPath("cloud-run-admin-pp-cli"))
+	db, err := store.OpenWithContext(ctx, defaultDBPath(ctx, "cloud-run-admin-pp-cli"))
 	if err != nil {
 		return
 	}

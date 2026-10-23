@@ -21,14 +21,14 @@ func newCustomersUserListCustomerTypesPromotedCmd(flags *rootFlags) *cobra.Comma
 		Short:       "Attach or remove user list customer types. Operation statuses are returned.",
 		Long:        "Shortcut for 'customers_user_list_customer_types mutate'. Attach or remove user list customer types. Operation statuses are returned.",
 		Example:     "  google-ads-pp-cli customers-user-list-customer-types",
-		Annotations: map[string]string{"pp:endpoint": "customers_user_list_customer_types.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/userListCustomerTypes:mutate"},
+		Annotations: map[string]string{"pp:endpoint": "customers_user_list_customer_types.mutate", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/userListCustomerTypes:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/userListCustomerTypes:mutate"
+			path := "/v26/customers/{customerId}/userListCustomerTypes:mutate"
 			if len(args) < 1 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.

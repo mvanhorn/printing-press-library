@@ -8,7 +8,7 @@
 //
 //	apify-pp-cli run apidojo/twitter-scraper-lite --input @q.json --only-new --format markdown
 //	apify-pp-cli run trudax/reddit-scraper --max-cost 0.25 --wait
-//	apify-pp-cli run apify/google-news-scraper --memory 4096 --timeout 600 --format json
+//	apify-pp-cli run johnvc/GoogleNewsAPI --memory 4096 --timeout 600 --format json
 package cli
 
 import (
@@ -77,7 +77,7 @@ the first run of an Actor, which has no cached history to project from.
 Examples:
   apify-pp-cli run apidojo/twitter-scraper-lite --input @q.json --only-new --format markdown
   apify-pp-cli run trudax/reddit-scraper --max-cost 0.25 --wait
-  apify-pp-cli run apify/google-news-scraper --memory 4096 --timeout 600 --format json
+  apify-pp-cli run johnvc/GoogleNewsAPI --memory 4096 --timeout 600 --format json
 `, "\n"),
 		Example: strings.Trim(`
   apify-pp-cli run apidojo/twitter-scraper-lite --input @q.json --only-new

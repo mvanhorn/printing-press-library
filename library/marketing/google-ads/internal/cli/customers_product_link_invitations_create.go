@@ -20,7 +20,7 @@ func newCustomersProductLinkInvitationsCreateCmd(flags *rootFlags) *cobra.Comman
 		Use:         "create <customerId>",
 		Short:       "Creates a product link invitation.",
 		Example:     "  google-ads-pp-cli customers-product-link-invitations create 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "customers_product_link_invitations.create", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/productLinkInvitations:create"},
+		Annotations: map[string]string{"pp:endpoint": "customers_product_link_invitations.create", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/productLinkInvitations:create"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -32,7 +32,7 @@ func newCustomersProductLinkInvitationsCreateCmd(flags *rootFlags) *cobra.Comman
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/productLinkInvitations:create"
+			path := "/v26/customers/{customerId}/productLinkInvitations:create"
 			path = replacePathParam(path, "customerId", args[0])
 			var body map[string]any
 			if stdinBody {

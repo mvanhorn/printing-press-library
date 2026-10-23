@@ -4,7 +4,6 @@
 package cli
 
 import (
-	"context"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -32,7 +31,7 @@ func newCannibalizationCmd(flags *rootFlags) *cobra.Command {
 			}
 			site := args[0]
 
-			ctx := context.Background()
+			ctx := cmd.Context()
 			s, err := openStore(ctx)
 			if err != nil {
 				return configErr(err)

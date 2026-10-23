@@ -20,7 +20,7 @@ func newCustomersStartIdentityVerificationCmd(flags *rootFlags) *cobra.Command {
 		Use:         "start-identity-verification <customerId>",
 		Short:       "Starts Identity Verification for a given verification program type. Statuses are returned.",
 		Example:     "  google-ads-pp-cli customers start-identity-verification 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "customers.start_identity_verification", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}:startIdentityVerification"},
+		Annotations: map[string]string{"pp:endpoint": "customers.start_identity_verification", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}:startIdentityVerification"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -32,7 +32,7 @@ func newCustomersStartIdentityVerificationCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}:startIdentityVerification"
+			path := "/v26/customers/{customerId}:startIdentityVerification"
 			path = replacePathParam(path, "customerId", args[0])
 			var body map[string]any
 			if stdinBody {

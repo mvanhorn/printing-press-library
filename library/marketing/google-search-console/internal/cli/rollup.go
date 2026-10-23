@@ -4,7 +4,6 @@
 package cli
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -40,7 +39,7 @@ func newRollUpCmd(flags *rootFlags) *cobra.Command {
 			}
 			startDate, endDate := dateRange(dur)
 
-			ctx := context.Background()
+			ctx := cmd.Context()
 			s, err := openStore(ctx)
 			if err != nil {
 				return configErr(err)

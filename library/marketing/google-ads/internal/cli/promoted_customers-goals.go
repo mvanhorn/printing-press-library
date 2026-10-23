@@ -21,14 +21,14 @@ func newCustomersGoalsPromotedCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Create or update goals.",
 		Long:        "Shortcut for 'customers_goals mutate'. Create or update goals.",
 		Example:     "  google-ads-pp-cli customers-goals",
-		Annotations: map[string]string{"pp:endpoint": "customers_goals.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/Goals:mutate"},
+		Annotations: map[string]string{"pp:endpoint": "customers_goals.mutate", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/Goals:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/Goals:mutate"
+			path := "/v26/customers/{customerId}/Goals:mutate"
 			if len(args) < 1 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.

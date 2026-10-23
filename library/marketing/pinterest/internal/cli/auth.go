@@ -27,6 +27,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/marketing/pinterest/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/marketing/pinterest/internal/config"
 	"github.com/spf13/cobra"
+	"golang.org/x/term"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
@@ -103,6 +104,7 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 	var clientID string
 	var clientSecret string
 	var port int
+	var scopeOverride []string
 
 	cmd := &cobra.Command{
 		Use:   "login",
@@ -119,18 +121,19 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 			if clientSecret == "" {
 				clientSecret = os.Getenv("PINTEREST_CLIENT_SECRET")
 			}
-			return runOAuthLogin(cmd, flags, clientID, clientSecret, port, clientIDFromFlag, clientSecretFromFlag)
+			return runOAuthLogin(cmd, flags, clientID, clientSecret, port, scopeOverride, clientIDFromFlag, clientSecretFromFlag)
 		},
 	}
 
 	cmd.Flags().StringVar(&clientID, "client-id", "", "OAuth2 client ID")
 	cmd.Flags().StringVar(&clientSecret, "client-secret", "", "OAuth2 client secret")
 	cmd.Flags().IntVar(&port, "port", 8875, "Local callback server port")
+	cmd.Flags().StringSliceVar(&scopeOverride, "scopes", nil, "OAuth scopes to request, comma-separated (replaces the default of all documented scopes except msot:write; env PINTEREST_SCOPES; \"basic\" = boards/pins/user_accounts read+write; add msot:write only if your app has MSOT access)")
 
 	return cmd
 }
 
-func runOAuthLogin(cmd *cobra.Command, flags *rootFlags, clientID, clientSecret string, port int, clientIDFromFlag, clientSecretFromFlag bool) error {
+func runOAuthLogin(cmd *cobra.Command, flags *rootFlags, clientID, clientSecret string, port int, scopeOverride []string, clientIDFromFlag, clientSecretFromFlag bool) error {
 	w := cmd.OutOrStdout()
 	cfg, err := config.Load(flags.configPath)
 	if err != nil {
@@ -187,7 +190,7 @@ func runOAuthLogin(cmd *cobra.Command, flags *rootFlags, clientID, clientSecret 
 		params.Set("code_challenge", pkceCodeChallengeS256(codeVerifier))
 		params.Set("code_challenge_method", "S256")
 	}
-	scopes := []string{"ads:read", "ads:write", "billing:read", "billing:write", "biz_access:read", "biz_access:write", "boards:read", "boards:read_secret", "boards:write", "boards:write_secret", "catalogs:read", "catalogs:write", "msot:write", "pins:read", "pins:read_secret", "pins:write", "pins:write_secret", "user_accounts:read", "user_accounts:write"}
+	scopes := resolveLoginScopes(scopeOverride, os.Getenv("PINTEREST_SCOPES"))
 	if len(scopes) > 0 {
 		params.Set("scope", strings.Join(scopes, " "))
 	}
@@ -231,7 +234,7 @@ func runOAuthLogin(cmd *cobra.Command, flags *rootFlags, clientID, clientSecret 
 			return
 		}
 		if errMsg := r.URL.Query().Get("error"); errMsg != "" {
-			errCh <- fmt.Errorf("auth error: %s", errMsg)
+			errCh <- fmt.Errorf("auth error: %s (if Pinterest rejected the scopes, retry with a smaller set, e.g. --scopes basic)", errMsg)
 			http.Error(w, errMsg, http.StatusBadRequest)
 			return
 		}
@@ -363,6 +366,16 @@ func resolveOAuthCredentials(cmd *cobra.Command, flags *rootFlags, cfg *config.C
 		clientSecret = cfg.ClientSecret
 	}
 	if clientID != "" {
+		// Pinterest's token endpoint needs the secret (no PKCE), so ask for it
+		// rather than silently falling through to a public-client exchange.
+		// --dry-run only previews the authorize URL, which needs no secret.
+		if clientSecret == "" && !flags.noInput && !flags.dryRun && stdinIsTerminal(cmd.InOrStdin()) {
+			var err error
+			clientSecret, err = promptOAuthSecret(cmd, bufio.NewReader(cmd.InOrStdin()))
+			if err != nil {
+				return "", "", err
+			}
+		}
 		return clientID, clientSecret, nil
 	}
 	if flags.noInput {
@@ -378,7 +391,7 @@ func resolveOAuthCredentials(cmd *cobra.Command, flags *rootFlags, cfg *config.C
 		return "", "", fmt.Errorf("OAuth2 client ID is required")
 	}
 	if clientSecret == "" {
-		clientSecret, err = promptOAuthCredential(cmd, reader, "OAuth2 Client Secret (press Enter if not required)")
+		clientSecret, err = promptOAuthSecret(cmd, reader)
 		if err != nil {
 			return "", "", err
 		}
@@ -397,6 +410,39 @@ func promptOAuthCredential(cmd *cobra.Command, reader *bufio.Reader, label strin
 		return "", fmt.Errorf("reading %s: %w", strings.ToLower(label), err)
 	}
 	return strings.TrimSpace(line), nil
+}
+
+// promptOAuthSecret reads the client secret without echoing it when stdin is
+// a terminal; piped input falls back to a plain line read. An empty answer is
+// rejected before the browser opens: Pinterest's token exchange always needs it.
+func promptOAuthSecret(cmd *cobra.Command, reader *bufio.Reader) (string, error) {
+	const label = "OAuth2 Client Secret (required; input hidden)"
+	var secret string
+	f, ok := cmd.InOrStdin().(*os.File)
+	if !ok || !term.IsTerminal(int(f.Fd())) {
+		s, err := promptOAuthCredential(cmd, reader, label)
+		if err != nil {
+			return "", err
+		}
+		secret = s
+	} else {
+		fmt.Fprintf(cmd.ErrOrStderr(), "%s: ", label)
+		b, err := term.ReadPassword(int(f.Fd()))
+		fmt.Fprintln(cmd.ErrOrStderr())
+		if err != nil {
+			return "", fmt.Errorf("reading client secret: %w", err)
+		}
+		secret = strings.TrimSpace(string(b))
+	}
+	if secret == "" {
+		return "", fmt.Errorf("OAuth2 client secret is required; copy the revealed App secret key from your Pinterest app page")
+	}
+	return secret, nil
+}
+
+func stdinIsTerminal(r io.Reader) bool {
+	f, ok := r.(*os.File)
+	return ok && term.IsTerminal(int(f.Fd()))
 }
 
 func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
@@ -604,4 +650,31 @@ func openBrowser(url string) {
 		return
 	}
 	cmd.Start()
+}
+
+var (
+	pinterestDefaultScopes = []string{"ads:read", "ads:write", "billing:read", "billing:write", "biz_access:read", "biz_access:write", "boards:read", "boards:read_secret", "boards:write", "boards:write_secret", "catalogs:read", "catalogs:write", "pins:read", "pins:read_secret", "pins:write", "pins:write_secret", "user_accounts:read", "user_accounts:write"}
+	pinterestBasicScopes   = []string{"boards:read", "boards:read_secret", "boards:write", "boards:write_secret", "pins:read", "pins:read_secret", "pins:write", "pins:write_secret", "user_accounts:read", "user_accounts:write"}
+)
+
+// resolveLoginScopes picks the OAuth scopes: --scopes, else PINTEREST_SCOPES
+// (comma or space separated), else every documented scope except msot:write.
+// The token "basic" expands to the boards/pins/user_accounts preset.
+func resolveLoginScopes(flagScopes []string, env string) []string {
+	in := flagScopes
+	if len(in) == 0 {
+		in = strings.FieldsFunc(env, func(r rune) bool { return r == ',' || r == ' ' })
+	}
+	if len(in) == 0 {
+		return pinterestDefaultScopes
+	}
+	var out []string
+	for _, sc := range in {
+		if sc = strings.TrimSpace(sc); sc == "basic" {
+			out = append(out, pinterestBasicScopes...)
+		} else if sc != "" {
+			out = append(out, sc)
+		}
+	}
+	return out
 }

@@ -22,14 +22,14 @@ func newCustomersCampaignSharedSetsPromotedCmd(flags *rootFlags) *cobra.Command 
 		Short:       "Creates or removes campaign shared sets. Operation statuses are returned.",
 		Long:        "Shortcut for 'customers_campaign_shared_sets mutate'. Creates or removes campaign shared sets. Operation statuses are returned.",
 		Example:     "  google-ads-pp-cli customers-campaign-shared-sets",
-		Annotations: map[string]string{"pp:endpoint": "customers_campaign_shared_sets.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/campaignSharedSets:mutate"},
+		Annotations: map[string]string{"pp:endpoint": "customers_campaign_shared_sets.mutate", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/campaignSharedSets:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/campaignSharedSets:mutate"
+			path := "/v26/customers/{customerId}/campaignSharedSets:mutate"
 			if len(args) < 1 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.

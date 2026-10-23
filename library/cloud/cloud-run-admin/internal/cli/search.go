@@ -121,7 +121,7 @@ In local mode: searches locally synced data only.`,
 
 			// Local FTS search
 			if dbPath == "" {
-				dbPath = defaultDBPath("cloud-run-admin-pp-cli")
+				dbPath = defaultDBPath(cmd.Context(), "cloud-run-admin-pp-cli")
 			}
 
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)

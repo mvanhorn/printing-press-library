@@ -35,7 +35,7 @@ Data must be synced first with the sync command.`,
   cloud-run-admin-pp-cli analytics --type messages --group-by channel_id --limit 10 --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dbPath == "" {
-				dbPath = defaultDBPath("cloud-run-admin-pp-cli")
+				dbPath = defaultDBPath(cmd.Context(), "cloud-run-admin-pp-cli")
 			}
 
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)

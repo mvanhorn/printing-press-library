@@ -25,7 +25,7 @@ func newCustomersGenerateAudienceCompositionInsightsCmd(flags *rootFlags) *cobra
 		Use:         "generate-audience-composition-insights <customerId>",
 		Short:       "Returns a collection of attributes that are represented in an audience of interest, with metrics that compare each...",
 		Example:     "  google-ads-pp-cli customers generate-audience-composition-insights 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "customers.generate_audience_composition_insights", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}:generateAudienceCompositionInsights"},
+		Annotations: map[string]string{"pp:endpoint": "customers.generate_audience_composition_insights", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}:generateAudienceCompositionInsights"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -37,7 +37,7 @@ func newCustomersGenerateAudienceCompositionInsightsCmd(flags *rootFlags) *cobra
 				return err
 			}
 
-			path := "/v22/customers/{customerId}:generateAudienceCompositionInsights"
+			path := "/v26/customers/{customerId}:generateAudienceCompositionInsights"
 			path = replacePathParam(path, "customerId", args[0])
 			var body map[string]any
 			if stdinBody {

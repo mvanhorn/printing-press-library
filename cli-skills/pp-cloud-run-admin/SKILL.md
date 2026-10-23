@@ -160,7 +160,18 @@ Search local Cloud Run inventory after a sync.
 
 ## Auth Setup
 
-Cloud Run Admin uses Google OAuth bearer tokens with the cloud-platform scope. For local use, run `gcloud auth print-access-token` and export the value as `CLOUD_RUN_ADMIN_OAUTH2C`; do not commit the token or paste it into docs.
+Save each Google OAuth login once, then switch without another login:
+
+```bash
+cloud-run-admin-pp-cli auth login --account bestself --client-id YOUR_DESKTOP_CLIENT_ID
+cloud-run-admin-pp-cli auth login --account littlemight --client-id YOUR_DESKTOP_CLIENT_ID
+cloud-run-admin-pp-cli auth accounts
+cloud-run-admin-pp-cli auth set-default bestself
+cloud-run-admin-pp-cli --account littlemight services list projects/PROJECT_ID/locations/REGION --agent
+cloud-run-admin-pp-cli auth remove littlemight --yes
+```
+
+Use `CLOUD_RUN_ADMIN_CLIENT_SECRET` when needed. Selection: `--account` > `CLOUD_RUN_ADMIN_ACCOUNT` > saved default > legacy `default`. Credentials are stored per account with mode 0600 and refreshed automatically. Named accounts ignore the legacy `CLOUD_RUN_ADMIN_OAUTH2C` token override and isolate caches/local inventory. Explicit config paths bypass the saved default and conflict with account selectors. Existing single-account configs remain `default`. `auth add <name> --from-config /path/to/config.toml` imports saved OAuth credentials with an access token. Set another default before removing the current named default; removal preserves local data and does not revoke at Google.
 
 Run `cloud-run-admin-pp-cli doctor` to verify setup.
 

@@ -21,7 +21,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/marketing/google-search-console/internal/config"
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -87,7 +86,7 @@ Google Cloud Console setup walkthrough.`,
 }
 
 func runAuthLogin(cmd *cobra.Command, flags *rootFlags, scopeArg string, noBrowser bool, port int) error {
-	cfg, err := config.Load(flags.configPath)
+	cfg, err := flags.loadConfig()
 	if err != nil {
 		return configErr(err)
 	}
@@ -181,7 +180,11 @@ Walkthrough: https://developers.google.com/identity/protocols/oauth2/native-app#
 	defer cancel()
 	token, err := oauthCfg.Exchange(ctx, code, oauth2.VerifierOption(verifier))
 	if err != nil {
-		return authErr(fmt.Errorf("exchanging code for tokens: %w", err))
+		var retrieveErr *oauth2.RetrieveError
+		if errors.As(err, &retrieveErr) && retrieveErr.Response != nil {
+			return authErr(fmt.Errorf("exchanging code for tokens: HTTP %d", retrieveErr.Response.StatusCode))
+		}
+		return authErr(fmt.Errorf("token exchange failed; check connectivity and OAuth client configuration"))
 	}
 	if token.RefreshToken == "" {
 		// This shouldn't happen with prompt=consent + access_type=offline, but

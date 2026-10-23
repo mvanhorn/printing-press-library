@@ -4,7 +4,6 @@
 package cli
 
 import (
-	"context"
 	"fmt"
 	"regexp"
 	"strings"
@@ -52,7 +51,7 @@ func newSQLCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("statement contains a mutating SQL keyword; only SELECT is allowed"))
 			}
 
-			ctx := context.Background()
+			ctx := cmd.Context()
 			s, err := openStore(ctx)
 			if err != nil {
 				return configErr(err)

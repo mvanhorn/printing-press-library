@@ -48,8 +48,12 @@ type Item struct {
 
 // Profile maps raw item fields to the unified shape. Each field accepts a
 // list of dotted paths tried in order until one resolves to a non-empty value.
+// Items, when set, is a dotted path to an array inside each raw dataset row;
+// NormalizeBatch then treats every map element of that array as its own item
+// (for Actors that emit one row per results page).
 type Profile struct {
 	Actor       string   `yaml:"actor"`
+	Items       string   `yaml:"items,omitempty"`
 	Title       []string `yaml:"title,omitempty"`
 	URL         []string `yaml:"url,omitempty"`
 	Body        []string `yaml:"body,omitempty"`
@@ -164,18 +168,44 @@ func (r *Registry) Normalize(actor string, rawItem map[string]any) (*Item, error
 	return item, nil
 }
 
-// NormalizeBatch normalizes a slice of raw items for the same Actor.
-// Errors on individual items are skipped; the caller gets back what worked.
+// NormalizeBatch normalizes a slice of raw items for the same Actor. When the
+// profile sets Items, each raw row is expanded into the rows found at that
+// path. Errors on individual items are skipped; the caller gets back what worked.
 func (r *Registry) NormalizeBatch(actor string, raw []map[string]any) []*Item {
+	profile := r.Lookup(actor)
 	out := make([]*Item, 0, len(raw))
 	for _, m := range raw {
-		item, err := r.Normalize(actor, m)
-		if err != nil {
-			continue
+		for _, row := range expandItems(m, profile.Items) {
+			item, err := r.Normalize(actor, row)
+			if err != nil {
+				continue
+			}
+			out = append(out, item)
 		}
-		out = append(out, item)
 	}
 	return out
+}
+
+// expandItems returns the per-item rows inside one raw dataset row. With no
+// Items path, or when the path does not resolve to an array, the row itself is
+// the single item. Non-map array elements are skipped.
+func expandItems(m map[string]any, path string) []map[string]any {
+	if path == "" {
+		return []map[string]any{m}
+	}
+	arr, ok := walkDotted(m, path).([]any)
+	if !ok {
+		return []map[string]any{m}
+	}
+	rows := make([]map[string]any, 0, len(arr))
+	for _, el := range arr {
+		row, isMap := el.(map[string]any)
+		if !isMap {
+			continue
+		}
+		rows = append(rows, row)
+	}
+	return rows
 }
 
 // ActorNames returns the list of registered Actor profile keys (sorted),
@@ -264,6 +294,7 @@ func parseTime(s string) time.Time {
 		"2006-01-02 15:04:05",
 		"2006-01-02",
 		time.RFC1123,
+		"2006-01-02 15:04:05 MST",
 	}
 	for _, l := range layouts {
 		if t, err := time.Parse(l, s); err == nil {

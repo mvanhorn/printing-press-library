@@ -23,7 +23,7 @@ func newCustomersSmartCampaignSettingsMutateCmd(flags *rootFlags) *cobra.Command
 		Use:         "mutate <customerId>",
 		Short:       "Updates Smart campaign settings for campaigns.",
 		Example:     "  google-ads-pp-cli customers-smart-campaign-settings mutate 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "customers_smart_campaign_settings.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/smartCampaignSettings:mutate"},
+		Annotations: map[string]string{"pp:endpoint": "customers_smart_campaign_settings.mutate", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/smartCampaignSettings:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -35,7 +35,7 @@ func newCustomersSmartCampaignSettingsMutateCmd(flags *rootFlags) *cobra.Command
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/smartCampaignSettings:mutate"
+			path := "/v26/customers/{customerId}/smartCampaignSettings:mutate"
 			path = replacePathParam(path, "customerId", args[0])
 			var body map[string]any
 			if stdinBody {

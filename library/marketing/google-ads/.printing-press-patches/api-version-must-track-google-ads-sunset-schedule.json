@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "api-version-must-track-google-ads-sunset-schedule",
+  "applied_at": "2026-10-22",
+  "base_run_id": "20260506-162403",
+  "base_printing_press_version": "3.10.0",
+  "summary": "The Google Ads REST version baked into every path, schema name, spec version and User-Agent is a moving target: it must be a currently supported version, and a reprint must re-source the spec from the live discovery doc rather than keep the printed one.",
+  "reason": "Google retires each Ads API version on a fixed sunset schedule and then rejects it with requestError UNSUPPORTED_VERSION, so a CLI printed against a retired version fails every call. v22 now returns that error, so this patch retargets the printed v22 surface to v26 (newest live version) as a mechanical whole-word rewrite.",
+  "files": [
+    "spec.json",
+    ".printing-press.json",
+    "internal/cli/*.go",
+    "internal/client/client.go",
+    "internal/mcp/code_orch.go",
+    "internal/types/types.go"
+  ],
+  "validated_outcome": "Against the live API: listAccessibleCustomers, GAQL googleAds:search on a manager and a client account, and MCP execute(customers_google_ads.search) all succeed on v26 where the same calls on v22 return HTTP 400 UNSUPPORTED_VERSION. Diffing the v22 and v26 discovery docs, only configureCampaignLifecycleGoals and configureCustomerLifecycleGoals are gone, so those two commands fail on v26."
+}

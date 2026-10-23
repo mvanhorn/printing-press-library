@@ -4,7 +4,6 @@
 package cli
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -33,7 +32,7 @@ func newSitemapWatchCmd(flags *rootFlags) *cobra.Command {
 			}
 			startTS, _ := dateRange(dur)
 
-			ctx := context.Background()
+			ctx := cmd.Context()
 			s, err := openStore(ctx)
 			if err != nil {
 				return configErr(err)

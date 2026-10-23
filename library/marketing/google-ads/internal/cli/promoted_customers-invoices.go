@@ -21,7 +21,7 @@ func newCustomersInvoicesPromotedCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Returns all invoices associated with a billing setup, for a given month.",
 		Long:        "Shortcut for 'customers_invoices list'. Returns all invoices associated with a billing setup, for a given month.",
 		Example:     "  google-ads-pp-cli customers-invoices",
-		Annotations: map[string]string{"pp:endpoint": "customers_invoices.list", "pp:method": "GET", "pp:path": "/v22/customers/{customerId}/invoices", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "customers_invoices.list", "pp:method": "GET", "pp:path": "/v26/customers/{customerId}/invoices", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("issue-month") {
 				allowedIssueMonth := []string{"UNSPECIFIED", "UNKNOWN", "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"}
@@ -41,7 +41,7 @@ func newCustomersInvoicesPromotedCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/invoices"
+			path := "/v26/customers/{customerId}/invoices"
 			if len(args) < 1 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.

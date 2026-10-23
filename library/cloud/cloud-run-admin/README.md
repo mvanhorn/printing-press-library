@@ -124,7 +124,22 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Authentication
 
-Cloud Run Admin uses Google OAuth bearer tokens with the cloud-platform scope. For local use, run `gcloud auth print-access-token` and export the value as `CLOUD_RUN_ADMIN_OAUTH2C`; do not commit the token or paste it into docs.
+Cloud Run Admin uses Google OAuth with the cloud-platform scope. Save each login once:
+
+```bash
+cloud-run-admin-pp-cli auth login --account bestself --client-id YOUR_DESKTOP_CLIENT_ID
+cloud-run-admin-pp-cli auth login --account littlemight --client-id YOUR_DESKTOP_CLIENT_ID
+cloud-run-admin-pp-cli auth accounts
+cloud-run-admin-pp-cli auth set-default bestself
+cloud-run-admin-pp-cli --account littlemight services list projects/PROJECT_ID/locations/REGION --json
+cloud-run-admin-pp-cli auth remove littlemight --yes
+```
+
+Set `CLOUD_RUN_ADMIN_CLIENT_SECRET` if the Desktop OAuth client requires a secret. Each account stores its own access and refresh tokens in `~/.config/cloud-run-admin-pp-cli/<name>/config.toml` with mode 0600; expired tokens refresh automatically. Account names use 1–63 lowercase letters, digits, dots, underscores or hyphens, starting with a letter or digit; consecutive dots are rejected. `auth add <name> --from-config /path/to/config.toml` imports an existing OAuth config with an access token, without overwriting an account.
+
+Selection order: `--account`, `CLOUD_RUN_ADMIN_ACCOUNT`, saved default, then `default` (the unchanged legacy `config.toml`). Named accounts ignore `CLOUD_RUN_ADMIN_OAUTH2C`; the legacy `default` account keeps its environment-token override. Explicit config paths (`--config` or `CLOUD_RUN_ADMIN_CONFIG`) bypass the saved default and cannot be combined with an account selector. Named accounts have separate response caches and local databases; existing inventory stays with `default`. Explicit database paths remain caller-controlled. Switch defaults before removing the current named default. Removal deletes credentials only, preserving local data; it does not revoke access at Google.
+
+Existing scripts using `CLOUD_RUN_ADMIN_OAUTH2C` continue to work; those one-shot tokens do not auto-refresh. `doctor`, `agent-context`, and `auth status` name the active account without displaying tokens.
 
 ## Quick Start
 

@@ -377,7 +377,7 @@ Terraform-style diff between local YAML and the live Apify schedules; output is 
 ### A/B test two Twitter scrapers
 
 ```bash
-apify-pp ab run apidojo/tweet-scraper kaitoeasyapi/twitter-x-data-tweet-scraper --input shared.json --judge cost-per-novel --agent
+apify-pp ab run apidojo/tweet-scraper kaitoeasyapi/twitter-x-data-tweet-scraper-pay-per-result-cheapest --input shared.json --judge cost-per-novel --agent
 ```
 
 Runs both, normalizes via unified schema, reports cost-per-novel-item and overlap %.

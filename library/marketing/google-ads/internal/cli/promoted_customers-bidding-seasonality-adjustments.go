@@ -22,14 +22,14 @@ func newCustomersBiddingSeasonalityAdjustmentsPromotedCmd(flags *rootFlags) *cob
 		Short:       "Creates, updates, or removes seasonality adjustments. Operation statuses are returned.",
 		Long:        "Shortcut for 'customers_bidding_seasonality_adjustments mutate'. Creates, updates, or removes seasonality adjustments. Operation statuses are returned.",
 		Example:     "  google-ads-pp-cli customers-bidding-seasonality-adjustments",
-		Annotations: map[string]string{"pp:endpoint": "customers_bidding_seasonality_adjustments.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/biddingSeasonalityAdjustments:mutate"},
+		Annotations: map[string]string{"pp:endpoint": "customers_bidding_seasonality_adjustments.mutate", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/biddingSeasonalityAdjustments:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/biddingSeasonalityAdjustments:mutate"
+			path := "/v26/customers/{customerId}/biddingSeasonalityAdjustments:mutate"
 			if len(args) < 1 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.

@@ -1005,7 +1005,7 @@ func defaultSyncResources() []string {
 // this preserves the actual endpoint path like "/ISteamApps/GetAppList/v2".
 func syncResourcePath(resource string) (string, error) {
 	paths := map[string]string{
-		"customers": "/v22/customers:listAccessibleCustomers",
+		"customers": "/v26/customers:listAccessibleCustomers",
 	}
 	if p, ok := paths[resource]; ok {
 		return p, nil
@@ -1044,7 +1044,7 @@ var criticalResources = map[string]bool{}
 // rather than ignoring them. For these, the sync loop sends no generated query
 // params (limit/after/since) and consumes the single full response.
 //
-// customers maps to /v22/customers:listAccessibleCustomers, a custom method on
+// customers maps to /v26/customers:listAccessibleCustomers, a custom method on
 // the Google Ads REST surface that returns all directly-accessible customer
 // resource names in one shot and binds every query parameter strictly. Because
 // customers is also the cascade root, sending limit= here failed the very first

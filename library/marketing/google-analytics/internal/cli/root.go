@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "2026.8.1"
+var version = "2026.10.1"
 
 type rootFlags struct {
 	asJSON      bool
@@ -24,6 +24,7 @@ type rootFlags struct {
 	agent       bool
 	propertyID  string
 	credentials string
+	accountName string
 	timeout     time.Duration
 	client      *ga4.Client
 	key         ga4.ServiceAccountKey
@@ -48,14 +49,22 @@ Property resolution for data commands: --property, then GA4_PROPERTY_ID. The CLI
 	cmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Agent mode: --json --compact --no-input --yes")
 	cmd.PersistentFlags().StringVar(&flags.propertyID, "property", "", "GA4 numeric property ID (defaults to GA4_PROPERTY_ID)")
 	cmd.PersistentFlags().StringVar(&flags.credentials, "credentials", "", "Service-account JSON key path (defaults to GOOGLE_APPLICATION_CREDENTIALS)")
+	cmd.PersistentFlags().StringVar(&flags.accountName, "account", "", "Saved Google account (or GOOGLE_ANALYTICS_ACCOUNT)")
 	cmd.PersistentFlags().DurationVar(&flags.timeout, "timeout", 30*time.Second, "HTTP request timeout")
 	cmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		if flags.agent {
 			flags.asJSON, flags.compact, flags.noInput, flags.yes = true, true, true, true
 		}
+		_, active, err := resolveAccount(flags)
+		if err != nil {
+			return err
+		}
+		if flags.credentials == "" {
+			flags.accountName = active
+		}
 		return nil
 	}
-	cmd.AddCommand(newAgentContextCmd())
+	cmd.AddCommand(newAgentContextCmd(flags), newAuthCmd(flags))
 	cmd.AddCommand(newHealthCmd(flags), newDoctorCmd(flags))
 	cmd.AddCommand(newReportCmd(flags), newPivotCmd(flags), newBatchCmd(flags), newRealtimeCmd(flags), newMetadataCmd(flags), newCompatibilityCmd(flags))
 	cmd.AddCommand(newPropertiesCmd(flags), newPropertyCmd(flags), newStreamsCmd(flags))
@@ -69,7 +78,10 @@ func (f *rootFlags) newClient() (*ga4.Client, ga4.ServiceAccountKey, error) {
 		return f.client, f.key, nil
 	}
 	var key ga4.ServiceAccountKey
-	path := credentialPath(f)
+	path, _, err := resolveAccount(f)
+	if err != nil {
+		return nil, key, err
+	}
 	if path == "" {
 		return nil, key, fmt.Errorf("missing credentials: set GOOGLE_APPLICATION_CREDENTIALS or pass --credentials")
 	}
@@ -78,7 +90,7 @@ func (f *rootFlags) newClient() (*ga4.Client, ga4.ServiceAccountKey, error) {
 		return nil, key, err
 	}
 	if err := jsonDecode(b, &key); err != nil {
-		return nil, key, err
+		return nil, key, fmt.Errorf("invalid service-account JSON")
 	}
 	tok, err := ga4.MintToken(key)
 	if err != nil {
@@ -115,11 +127,6 @@ func requireProperty(f *rootFlags) (string, error) {
 }
 func cleanProperty(p string) string { return strings.TrimSpace(strings.TrimPrefix(p, "properties/")) }
 func credentialPath(f *rootFlags) string {
-	if f.credentials != "" {
-		return f.credentials
-	}
-	if p := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"); p != "" {
-		return p
-	}
-	return ""
+	p, _, _ := resolveAccount(f)
+	return p
 }

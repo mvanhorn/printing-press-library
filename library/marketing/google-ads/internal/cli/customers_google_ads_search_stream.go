@@ -26,7 +26,7 @@ func newCustomersGoogleAdsSearchStreamCmd(flags *rootFlags) *cobra.Command {
 		Use:         "search-stream <customerId>",
 		Short:       "Returns all rows that match the search stream query.",
 		Example:     "  google-ads-pp-cli customers-google-ads search-stream 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "customers_google_ads.search_stream", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/googleAds:searchStream"},
+		Annotations: map[string]string{"pp:endpoint": "customers_google_ads.search_stream", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/googleAds:searchStream"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -38,7 +38,7 @@ func newCustomersGoogleAdsSearchStreamCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/googleAds:searchStream"
+			path := "/v26/customers/{customerId}/googleAds:searchStream"
 			path = replacePathParam(path, "customerId", args[0])
 			var body map[string]any
 			if stdinBody {
@@ -78,7 +78,7 @@ func newCustomersGoogleAdsSearchStreamCmd(flags *rootFlags) *cobra.Command {
 					if ctx == nil {
 						ctx = context.Background()
 					}
-					final, werr := WaitForJob(ctx, c, "/v22/{name}", asyncJobID, WaitOptions{
+					final, werr := WaitForJob(ctx, c, "/v26/{name}", asyncJobID, WaitOptions{
 						Interval: flagWaitInterval,
 						Timeout:  flagWaitTimeout,
 					})

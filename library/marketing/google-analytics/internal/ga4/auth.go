@@ -18,21 +18,37 @@ import (
 	"time"
 )
 
+func privateKey(key ServiceAccountKey) (*rsa.PrivateKey, error) {
+	block, _ := pem.Decode([]byte(key.PrivateKey))
+	if block == nil {
+		return nil, fmt.Errorf("invalid service-account private_key PEM")
+	}
+	parsed, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+	if err != nil {
+		return nil, fmt.Errorf("invalid service-account private key")
+	}
+	pk, ok := parsed.(*rsa.PrivateKey)
+	if !ok {
+		return nil, fmt.Errorf("service-account private key is not RSA")
+	}
+	return pk, nil
+}
+
+func ValidateKey(key ServiceAccountKey) error {
+	if key.ClientEmail == "" {
+		return fmt.Errorf("service-account client_email is required")
+	}
+	_, err := privateKey(key)
+	return err
+}
+
 func MintToken(key ServiceAccountKey) (string, error) {
 	if key.TokenURI == "" {
 		key.TokenURI = "https://oauth2.googleapis.com/token"
 	}
-	block, _ := pem.Decode([]byte(key.PrivateKey))
-	if block == nil {
-		return "", fmt.Errorf("invalid service-account private_key PEM")
-	}
-	parsed, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+	pk, err := privateKey(key)
 	if err != nil {
 		return "", err
-	}
-	pk, ok := parsed.(*rsa.PrivateKey)
-	if !ok {
-		return "", fmt.Errorf("service-account private key is not RSA")
 	}
 	now := time.Now().Unix()
 	header := b64json(map[string]string{"alg": "RS256", "typ": "JWT"})
@@ -54,7 +70,7 @@ func MintToken(key ServiceAccountKey) (string, error) {
 		return "", err
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return "", APIError{Status: resp.StatusCode, Body: string(body)}
+		return "", APIError{Status: resp.StatusCode, Body: "token exchange failed (response omitted)"}
 	}
 	var out struct {
 		AccessToken string `json:"access_token"`

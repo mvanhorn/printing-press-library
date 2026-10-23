@@ -188,7 +188,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					} else if reachErr != nil && !errors.As(reachErr, &reachAPIErr) {
 						report["credentials"] = "skipped (API unreachable)"
 					} else {
-						verifyPath := "/v22/customers:listAccessibleCustomers"
+						verifyPath := "/v26/customers:listAccessibleCustomers"
 						if !strings.HasPrefix(verifyPath, "/") {
 							verifyPath = "/" + verifyPath
 						}

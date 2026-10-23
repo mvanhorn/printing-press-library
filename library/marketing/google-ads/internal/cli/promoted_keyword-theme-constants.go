@@ -21,14 +21,14 @@ func newKeywordThemeConstantsPromotedCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Returns KeywordThemeConstant suggestions by keyword themes.",
 		Long:        "Shortcut for 'keyword_theme_constants suggest'. Returns KeywordThemeConstant suggestions by keyword themes.",
 		Example:     "  google-ads-pp-cli keyword-theme-constants",
-		Annotations: map[string]string{"pp:endpoint": "keyword_theme_constants.suggest", "pp:method": "POST", "pp:path": "/v22/keywordThemeConstants:suggest"},
+		Annotations: map[string]string{"pp:endpoint": "keyword_theme_constants.suggest", "pp:method": "POST", "pp:path": "/v26/keywordThemeConstants:suggest"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/v22/keywordThemeConstants:suggest"
+			path := "/v26/keywordThemeConstants:suggest"
 			// HasStore + non-GET falls through to a live API call here
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a

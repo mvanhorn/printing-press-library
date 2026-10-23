@@ -22,14 +22,14 @@ func newCustomersAssetsPromotedCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Creates assets. Operation statuses are returned.",
 		Long:        "Shortcut for 'customers_assets mutate'. Creates assets. Operation statuses are returned.",
 		Example:     "  google-ads-pp-cli customers-assets",
-		Annotations: map[string]string{"pp:endpoint": "customers_assets.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/assets:mutate"},
+		Annotations: map[string]string{"pp:endpoint": "customers_assets.mutate", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/assets:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/assets:mutate"
+			path := "/v26/customers/{customerId}/assets:mutate"
 			if len(args) < 1 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.

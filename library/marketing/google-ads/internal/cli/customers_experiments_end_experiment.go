@@ -20,7 +20,7 @@ func newCustomersExperimentsEndExperimentCmd(flags *rootFlags) *cobra.Command {
 		Use:         "end-experiment <experiment>",
 		Short:       "Immediately ends an experiment, changing the experiment's scheduled end date and without waiting for end of day. End...",
 		Example:     "  google-ads-pp-cli customers-experiments end-experiment example-value",
-		Annotations: map[string]string{"pp:endpoint": "customers_experiments.end_experiment", "pp:method": "POST", "pp:path": "/v22/{experiment}:endExperiment"},
+		Annotations: map[string]string{"pp:endpoint": "customers_experiments.end_experiment", "pp:method": "POST", "pp:path": "/v26/{experiment}:endExperiment"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -32,7 +32,7 @@ func newCustomersExperimentsEndExperimentCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/v22/{experiment}:endExperiment"
+			path := "/v26/{experiment}:endExperiment"
 			path = replacePathParam(path, "experiment", args[0])
 			var body map[string]any
 			if stdinBody {

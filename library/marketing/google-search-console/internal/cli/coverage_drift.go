@@ -4,7 +4,6 @@
 package cli
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -35,7 +34,7 @@ func newCoverageDriftCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(err)
 			}
 			startDate := daysAgo(days)
-			ctx := context.Background()
+			ctx := cmd.Context()
 			s, err := openStore(ctx)
 			if err != nil {
 				return configErr(err)

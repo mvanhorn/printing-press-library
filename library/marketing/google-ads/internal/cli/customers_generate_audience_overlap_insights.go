@@ -24,7 +24,7 @@ func newCustomersGenerateAudienceOverlapInsightsCmd(flags *rootFlags) *cobra.Com
 		Use:         "generate-audience-overlap-insights <customerId>",
 		Short:       "Returns a collection of audience attributes along with estimates of the overlap between their potential YouTube...",
 		Example:     "  google-ads-pp-cli customers generate-audience-overlap-insights 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "customers.generate_audience_overlap_insights", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}:generateAudienceOverlapInsights"},
+		Annotations: map[string]string{"pp:endpoint": "customers.generate_audience_overlap_insights", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}:generateAudienceOverlapInsights"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -36,7 +36,7 @@ func newCustomersGenerateAudienceOverlapInsightsCmd(flags *rootFlags) *cobra.Com
 				return err
 			}
 
-			path := "/v22/customers/{customerId}:generateAudienceOverlapInsights"
+			path := "/v26/customers/{customerId}:generateAudienceOverlapInsights"
 			path = replacePathParam(path, "customerId", args[0])
 			var body map[string]any
 			if stdinBody {

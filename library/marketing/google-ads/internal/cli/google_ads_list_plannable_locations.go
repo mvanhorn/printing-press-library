@@ -20,7 +20,7 @@ func newGoogleAdsListPlannableLocationsCmd(flags *rootFlags) *cobra.Command {
 		Use:         "list-plannable-locations",
 		Short:       "Returns the list of plannable locations (for example, countries).",
 		Example:     "  google-ads-pp-cli google-ads list-plannable-locations",
-		Annotations: map[string]string{"pp:endpoint": "google_ads.list_plannable_locations", "pp:method": "POST", "pp:path": "/v22:listPlannableLocations"},
+		Annotations: map[string]string{"pp:endpoint": "google_ads.list_plannable_locations", "pp:method": "POST", "pp:path": "/v26:listPlannableLocations"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 			}
@@ -29,7 +29,7 @@ func newGoogleAdsListPlannableLocationsCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/v22:listPlannableLocations"
+			path := "/v26:listPlannableLocations"
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)

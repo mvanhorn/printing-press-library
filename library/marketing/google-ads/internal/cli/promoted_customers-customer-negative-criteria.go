@@ -22,14 +22,14 @@ func newCustomersCustomerNegativeCriteriaPromotedCmd(flags *rootFlags) *cobra.Co
 		Short:       "Creates or removes criteria. Operation statuses are returned.",
 		Long:        "Shortcut for 'customers_customer_negative_criteria mutate'. Creates or removes criteria. Operation statuses are returned.",
 		Example:     "  google-ads-pp-cli customers-customer-negative-criteria",
-		Annotations: map[string]string{"pp:endpoint": "customers_customer_negative_criteria.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/customerNegativeCriteria:mutate"},
+		Annotations: map[string]string{"pp:endpoint": "customers_customer_negative_criteria.mutate", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/customerNegativeCriteria:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/customerNegativeCriteria:mutate"
+			path := "/v26/customers/{customerId}/customerNegativeCriteria:mutate"
 			if len(args) < 1 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.

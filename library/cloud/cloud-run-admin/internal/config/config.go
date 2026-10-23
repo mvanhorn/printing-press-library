@@ -14,6 +14,7 @@ import (
 )
 
 type Config struct {
+	Account              string    `toml:"-"`
 	BaseURL              string    `toml:"base_url"`
 	AuthHeaderVal        string    `toml:"auth_header"`
 	AuthSource           string    `toml:"-"`
@@ -27,31 +28,33 @@ type Config struct {
 }
 
 func Load(configPath string) (*Config, error) {
+	return LoadAccount(configPath, "")
+}
+
+func LoadAccount(configPath, account string) (*Config, error) {
 	cfg := &Config{
 		BaseURL: "https://run.googleapis.com",
 	}
 
-	// Resolve config path
-	path := configPath
-	if path == "" {
-		path = os.Getenv("CLOUD_RUN_ADMIN_CONFIG")
+	path, name, err := ResolveAccount(configPath, account)
+	if err != nil {
+		return nil, err
 	}
-	if path == "" {
-		home, _ := os.UserHomeDir()
-		path = filepath.Join(home, ".config", "cloud-run-admin-pp-cli", "config.toml")
-	}
+	cfg.Account = name
 	cfg.Path = path
 
 	// Try to load config file
 	data, err := os.ReadFile(path)
 	if err == nil {
 		if err := toml.Unmarshal(data, cfg); err != nil {
-			return nil, fmt.Errorf("parsing config %s: %w", path, err)
+			return nil, fmt.Errorf("invalid config format in %s", path)
 		}
+	} else if !os.IsNotExist(err) {
+		return nil, fmt.Errorf("reading config: %w", err)
 	}
 
 	// Env var overrides
-	if v := os.Getenv("CLOUD_RUN_ADMIN_OAUTH2C"); v != "" {
+	if v := os.Getenv("CLOUD_RUN_ADMIN_OAUTH2C"); v != "" && name == "default" {
 		cfg.CloudRunAdminOauth2c = v
 		cfg.AuthSource = "env:CLOUD_RUN_ADMIN_OAUTH2C"
 	}
@@ -117,7 +120,7 @@ func (c *Config) save() error {
 	if err != nil {
 		return fmt.Errorf("marshaling config: %w", err)
 	}
-	return os.WriteFile(c.Path, data, 0o600)
+	return writePrivate(c.Path, data, false)
 }
 
 // Ensure strings import is used

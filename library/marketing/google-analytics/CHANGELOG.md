@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.10.1 - 2026-10-22
+
+- feat(google-analytics): support multiple saved Google accounts (#2361).
+
 ## 2026.8.1 - 2026-08-17
 
 - fix(catalog): align Go fallback docs with toolchain floor (#1735).

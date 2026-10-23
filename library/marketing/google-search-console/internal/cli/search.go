@@ -4,7 +4,6 @@
 package cli
 
 import (
-	"context"
 	"fmt"
 	"strings"
 
@@ -35,7 +34,7 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("search term required"))
 			}
 
-			ctx := context.Background()
+			ctx := cmd.Context()
 			s, err := openStore(ctx)
 			if err != nil {
 				return configErr(err)

@@ -20,14 +20,14 @@ func newCustomersCustomerLifecycleGoalPromotedCmd(flags *rootFlags) *cobra.Comma
 		Short:       "Process the given customer lifecycle configurations.",
 		Long:        "Shortcut for 'customers_customer_lifecycle_goal configure_customer_lifecycle_goals'. Process the given customer lifecycle configurations.",
 		Example:     "  google-ads-pp-cli customers-customer-lifecycle-goal",
-		Annotations: map[string]string{"pp:endpoint": "customers_customer_lifecycle_goal.configure_customer_lifecycle_goals", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/customerLifecycleGoal:configureCustomerLifecycleGoals"},
+		Annotations: map[string]string{"pp:endpoint": "customers_customer_lifecycle_goal.configure_customer_lifecycle_goals", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/customerLifecycleGoal:configureCustomerLifecycleGoals"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/customerLifecycleGoal:configureCustomerLifecycleGoals"
+			path := "/v26/customers/{customerId}/customerLifecycleGoal:configureCustomerLifecycleGoals"
 			if len(args) < 1 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.

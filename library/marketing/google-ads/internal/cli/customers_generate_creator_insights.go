@@ -26,7 +26,7 @@ func newCustomersGenerateCreatorInsightsCmd(flags *rootFlags) *cobra.Command {
 		Use:         "generate-creator-insights <customerId>",
 		Short:       "Returns insights for a collection of YouTube Creators and Channels.",
 		Example:     "  google-ads-pp-cli customers generate-creator-insights 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "customers.generate_creator_insights", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}:generateCreatorInsights"},
+		Annotations: map[string]string{"pp:endpoint": "customers.generate_creator_insights", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}:generateCreatorInsights"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -38,7 +38,7 @@ func newCustomersGenerateCreatorInsightsCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}:generateCreatorInsights"
+			path := "/v26/customers/{customerId}:generateCreatorInsights"
 			path = replacePathParam(path, "customerId", args[0])
 			var body map[string]any
 			if stdinBody {

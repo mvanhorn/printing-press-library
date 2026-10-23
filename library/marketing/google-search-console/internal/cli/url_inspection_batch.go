@@ -5,7 +5,6 @@ package cli
 
 import (
 	"bufio"
-	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -64,7 +63,7 @@ func newUrlInspectionInspectBatchCmd(flags *rootFlags) *cobra.Command {
 				urls = urls[:maxPerDay]
 			}
 
-			ctx := context.Background()
+			ctx := cmd.Context()
 			s, err := openStore(ctx)
 			if err != nil {
 				return configErr(err)

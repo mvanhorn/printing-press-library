@@ -12,7 +12,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/marketing/google-search-console/internal/config"
 	"github.com/spf13/cobra"
 )
 
@@ -28,6 +27,7 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newAuthLoginCmd(flags))
 	cmd.AddCommand(newAuthLogoutCmd(flags))
 	cmd.AddCommand(newAuthForgetCmd(flags))
+	addAccountCommands(cmd, flags)
 
 	return cmd
 }
@@ -38,12 +38,15 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 		Short:   "Show authentication status",
 		Example: "  google-search-console-pp-cli auth status",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, err := config.Load(flags.configPath)
+			cfg, err := flags.loadConfig()
 			if err != nil {
 				return configErr(err)
 			}
 
 			w := cmd.OutOrStdout()
+			if !flags.asJSON {
+				fmt.Fprintf(w, "  Account: %s\n", cfg.Account)
+			}
 			header := cfg.AuthHeader()
 			authed := header != ""
 
@@ -65,6 +68,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 
 			if flags.asJSON {
 				out := map[string]any{
+					"account":             cfg.Account,
 					"authenticated":       authed,
 					"source":              cfg.AuthSource,
 					"config":              cfg.Path,
@@ -118,7 +122,7 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 		Example: "  google-search-console-pp-cli auth set-token YOUR_TOKEN_HERE",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, err := config.Load(flags.configPath)
+			cfg, err := flags.loadConfig()
 			if err != nil {
 				return configErr(err)
 			}
@@ -172,7 +176,7 @@ shared logs.`,
 		Example: "  google-search-console-pp-cli auth set-client 1234.apps.googleusercontent.com GOCSPX-abc123",
 		Args:    cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, err := config.Load(flags.configPath)
+			cfg, err := flags.loadConfig()
 			if err != nil {
 				return configErr(err)
 			}
@@ -200,7 +204,7 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 		Short:   "Clear stored tokens (keeps OAuth client — use 'auth forget' to nuke everything)",
 		Example: "  google-search-console-pp-cli auth logout\n  google-search-console-pp-cli auth logout --revoke",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, err := config.Load(flags.configPath)
+			cfg, err := flags.loadConfig()
 			if err != nil {
 				return configErr(err)
 			}
@@ -223,7 +227,7 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			envStillSet := ""
-			if os.Getenv("GSC_ACCESS_TOKEN") != "" {
+			if os.Getenv("GSC_ACCESS_TOKEN") != "" && cfg.Account == "default" {
 				envStillSet = "GSC_ACCESS_TOKEN"
 			}
 
@@ -262,7 +266,7 @@ func newAuthForgetCmd(flags *rootFlags) *cobra.Command {
 		Short:   "Clear ALL auth state (tokens + OAuth client)",
 		Example: "  google-search-console-pp-cli auth forget",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, err := config.Load(flags.configPath)
+			cfg, err := flags.loadConfig()
 			if err != nil {
 				return configErr(err)
 			}

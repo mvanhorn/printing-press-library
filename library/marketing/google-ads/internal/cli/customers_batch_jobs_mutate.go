@@ -20,7 +20,7 @@ func newCustomersBatchJobsMutateCmd(flags *rootFlags) *cobra.Command {
 		Use:         "mutate <customerId>",
 		Short:       "Mutates a batch job.",
 		Example:     "  google-ads-pp-cli customers-batch-jobs mutate 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "customers_batch_jobs.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/batchJobs:mutate"},
+		Annotations: map[string]string{"pp:endpoint": "customers_batch_jobs.mutate", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/batchJobs:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -32,7 +32,7 @@ func newCustomersBatchJobsMutateCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/batchJobs:mutate"
+			path := "/v26/customers/{customerId}/batchJobs:mutate"
 			path = replacePathParam(path, "customerId", args[0])
 			var body map[string]any
 			if stdinBody {

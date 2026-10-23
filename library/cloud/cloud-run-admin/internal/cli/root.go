@@ -18,7 +18,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "2026.9.1"
+var version = "2026.10.1"
 
 type rootFlags struct {
 	asJSON        bool
@@ -35,6 +35,7 @@ type rootFlags struct {
 	agent         bool
 	selectFields  string
 	configPath    string
+	accountName   string
 	profileName   string
 	deliverSpec   string
 	timeout       time.Duration
@@ -107,6 +108,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().BoolVar(&flags.plain, "plain", false, "Output as plain tab-separated text")
 	rootCmd.PersistentFlags().BoolVar(&flags.quiet, "quiet", false, "Bare output, one value per line")
 	rootCmd.PersistentFlags().StringVar(&flags.configPath, "config", "", "Config file path")
+	rootCmd.PersistentFlags().StringVar(&flags.accountName, "account", "", "Saved Google account (or CLOUD_RUN_ADMIN_ACCOUNT)")
 	rootCmd.PersistentFlags().DurationVar(&flags.timeout, "timeout", 30*time.Second, "Request timeout")
 	rootCmd.PersistentFlags().BoolVar(&flags.dryRun, "dry-run", false, "Show request without sending")
 	rootCmd.PersistentFlags().BoolVar(&flags.noCache, "no-cache", false, "Bypass response cache")
@@ -174,6 +176,14 @@ See README.md or the bundled SKILL.md for recipes.`,
 		default:
 			return fmt.Errorf("invalid --data-source value %q: must be auto, live, or local", flags.dataSource)
 		}
+		_, active, err := config.ResolveAccount(flags.configPath, flags.accountName)
+		if err != nil {
+			return err
+		}
+		if flags.configPath == "" && os.Getenv("CLOUD_RUN_ADMIN_CONFIG") == "" {
+			flags.accountName = active
+		}
+		cmd.SetContext(config.WithAccount(cmd.Context(), active))
 		return nil
 	}
 	rootCmd.AddCommand(newCloudRunAdminJobsCmd(flags))
@@ -205,7 +215,7 @@ func ExitCode(err error) int {
 }
 
 func (f *rootFlags) newClient() (*client.Client, error) {
-	cfg, err := config.Load(f.configPath)
+	cfg, err := f.loadConfig()
 	if err != nil {
 		return nil, configErr(err)
 	}
@@ -213,6 +223,10 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	c.DryRun = f.dryRun
 	c.NoCache = f.noCache
 	return c, nil
+}
+
+func (f *rootFlags) loadConfig() (*config.Config, error) {
+	return config.LoadAccount(f.configPath, f.accountName)
 }
 
 func (f *rootFlags) printJSON(w *cobra.Command, v any) error {

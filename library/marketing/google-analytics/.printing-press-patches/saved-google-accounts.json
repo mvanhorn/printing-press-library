@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "saved-google-accounts",
+  "applied_at": "2026-10-22",
+  "base_run_id": "ga4-20260612",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Preserve named saved service-account keys, deterministic identity selection and secret-free diagnostics while retaining external legacy credential paths.",
+  "reason": "GA4 operators need multiple saved identities without replacing ambient credentials; each command must mint its token from the selected key.",
+  "files": [
+    "internal/cli/accounts.go",
+    "internal/cli/accounts_test.go",
+    "internal/cli/root.go",
+    "internal/cli/agent_context.go",
+    "internal/cli/health.go",
+    "internal/ga4/auth.go"
+  ],
+  "validated_outcome": "Offline tests exercise two keys, JWT identity selection, defaults, legacy paths, removal, private permissions and redaction."
+}

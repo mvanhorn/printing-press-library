@@ -19,7 +19,7 @@ func newCustomersCampaignDraftsListAsyncErrorsCmd(flags *rootFlags) *cobra.Comma
 		Use:         "list-async-errors <resourceName>",
 		Short:       "Returns all errors that occurred during CampaignDraft promote. Throws an error if called before campaign draft is...",
 		Example:     "  google-ads-pp-cli customers-campaign-drafts list-async-errors example-resource",
-		Annotations: map[string]string{"pp:endpoint": "customers_campaign_drafts.list_async_errors", "pp:method": "GET", "pp:path": "/v22/{resourceName}:listAsyncErrors", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "customers_campaign_drafts.list_async_errors", "pp:method": "GET", "pp:path": "/v26/{resourceName}:listAsyncErrors", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -29,7 +29,7 @@ func newCustomersCampaignDraftsListAsyncErrorsCmd(flags *rootFlags) *cobra.Comma
 				return err
 			}
 
-			path := "/v22/{resourceName}:listAsyncErrors"
+			path := "/v26/{resourceName}:listAsyncErrors"
 			if len(args) < 3 {
 				return usageErr(fmt.Errorf("resourceName is required\nUsage: %s <%s>", cmd.CommandPath(), "resourceName"))
 			}

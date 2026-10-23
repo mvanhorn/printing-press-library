@@ -18,14 +18,14 @@ func newCustomersPaymentsAccountsPromotedCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Returns all payments accounts associated with all managers between the login customer ID and specified serving...",
 		Long:        "Shortcut for 'customers_payments_accounts list'. Returns all payments accounts associated with all managers between the login customer ID and specified serving...",
 		Example:     "  google-ads-pp-cli customers-payments-accounts",
-		Annotations: map[string]string{"pp:endpoint": "customers_payments_accounts.list", "pp:method": "GET", "pp:path": "/v22/customers/{customerId}/paymentsAccounts", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "customers_payments_accounts.list", "pp:method": "GET", "pp:path": "/v26/customers/{customerId}/paymentsAccounts", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/paymentsAccounts"
+			path := "/v26/customers/{customerId}/paymentsAccounts"
 			if len(args) < 1 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.

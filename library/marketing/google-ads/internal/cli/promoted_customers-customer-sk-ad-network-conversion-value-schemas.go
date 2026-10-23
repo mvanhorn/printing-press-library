@@ -21,14 +21,14 @@ func newCustomersCustomerSkAdNetworkConversionValueSchemasPromotedCmd(flags *roo
 		Short:       "Creates or updates the CustomerSkAdNetworkConversionValueSchema.",
 		Long:        "Shortcut for 'customers_customer_sk_ad_network_conversion_value_schemas mutate'. Creates or updates the CustomerSkAdNetworkConversionValueSchema.",
 		Example:     "  google-ads-pp-cli customers-customer-sk-ad-network-conversion-value-schemas",
-		Annotations: map[string]string{"pp:endpoint": "customers_customer_sk_ad_network_conversion_value_schemas.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/customerSkAdNetworkConversionValueSchemas:mutate"},
+		Annotations: map[string]string{"pp:endpoint": "customers_customer_sk_ad_network_conversion_value_schemas.mutate", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}/customerSkAdNetworkConversionValueSchemas:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}/customerSkAdNetworkConversionValueSchemas:mutate"
+			path := "/v26/customers/{customerId}/customerSkAdNetworkConversionValueSchemas:mutate"
 			if len(args) < 1 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.

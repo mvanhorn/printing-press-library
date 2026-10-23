@@ -15,7 +15,20 @@ PP_LIBRARY_REPO=/path/to/printing-press-library pp-sync build google-analytics-p
 
 Use a service-account JSON key with Analytics readonly scope. Set `GOOGLE_APPLICATION_CREDENTIALS` to your service-account JSON path, or pass `--credentials` explicitly.
 
-Resolution order: `--credentials`, then `GOOGLE_APPLICATION_CREDENTIALS`. There is no implicit developer-local credential fallback.
+Save several service-account keys once, then select one without another login:
+
+```bash
+google-analytics-pp-cli auth add bestself --from-credentials /path/to/bestself.json
+google-analytics-pp-cli auth add littlemight --from-credentials /path/to/littlemight.json
+google-analytics-pp-cli auth accounts
+google-analytics-pp-cli auth set-default bestself
+google-analytics-pp-cli channels --account littlemight --property PROPERTY_ID --agent
+google-analytics-pp-cli auth remove littlemight --yes
+```
+
+`auth login` is an alias for `auth add`: it imports a service-account key, with no browser consent. Keys are copied to `~/.config/google-analytics-pp-cli/<name>/credentials.json` with mode 0600. Each command automatically mints a fresh access token from the selected key; tokens are never displayed or saved. Accounts must have Viewer access to the relevant GA4 properties. Names use 1–63 lowercase letters, digits, dots, underscores or hyphens, starting with a letter or digit; consecutive dots are rejected. Existing accounts are never overwritten; switch defaults before removing the current named default. Removal deletes the saved copy only and does not revoke the key at Google.
+
+Selection: `--account`, `GOOGLE_ANALYTICS_ACCOUNT`, saved default, then legacy `default`. Named accounts ignore `GOOGLE_APPLICATION_CREDENTIALS`. Without a named selection, `--credentials` still overrides `GOOGLE_APPLICATION_CREDENTIALS`; an explicit credential path bypasses the saved default and conflicts with account selectors. The reserved `default` account keeps existing external credential-path usage unchanged; it has no implicit local fallback. Use `auth set-default default` to return to that behavior. `doctor` and `agent-context` report the active name without exposing keys or tokens.
 
 GA4 property resolution for data commands: `--property`, then `GA4_PROPERTY_ID`. The CLI does not hard-code the first authorized property or the second authorized property property IDs. For fleet health checks, pass explicit properties or set `GA4_PROPERTY_IDS`.
 
@@ -63,9 +76,9 @@ Every command inherits:
 
 ```bash
 google-analytics-pp-cli agent-context --agent
-google-analytics-pp-cli health --properties $GA4_PROPERTY_IDS --agent
-google-analytics-pp-cli channels --property $GA4_PROPERTY_ID --start 28daysAgo --end yesterday --agent
-google-analytics-pp-cli compare --property $GA4_PROPERTY_ID --metric sessions,totalRevenue --period wow --agent
-google-analytics-pp-cli whats-changed --property $GA4_PROPERTY_ID --agent
-google-analytics-pp-cli funnel --property $GA4_PROPERTY_ID --steps view_item,add_to_cart,begin_checkout,purchase --agent
+google-analytics-pp-cli health --properties "$GA4_PROPERTY_IDS" --agent
+google-analytics-pp-cli channels --property "$GA4_PROPERTY_ID" --start 28daysAgo --end yesterday --agent
+google-analytics-pp-cli compare --property "$GA4_PROPERTY_ID" --metric sessions,totalRevenue --period wow --agent
+google-analytics-pp-cli whats-changed --property "$GA4_PROPERTY_ID" --agent
+google-analytics-pp-cli funnel --property "$GA4_PROPERTY_ID" --steps view_item,add_to_cart,begin_checkout,purchase --agent
 ```

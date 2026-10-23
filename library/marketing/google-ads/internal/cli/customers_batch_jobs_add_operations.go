@@ -21,7 +21,7 @@ func newCustomersBatchJobsAddOperationsCmd(flags *rootFlags) *cobra.Command {
 		Use:         "add-operations <resourceName>",
 		Short:       "Add operations to the batch job.",
 		Example:     "  google-ads-pp-cli customers-batch-jobs add-operations example-resource",
-		Annotations: map[string]string{"pp:endpoint": "customers_batch_jobs.add_operations", "pp:method": "POST", "pp:path": "/v22/{resourceName}:addOperations"},
+		Annotations: map[string]string{"pp:endpoint": "customers_batch_jobs.add_operations", "pp:method": "POST", "pp:path": "/v26/{resourceName}:addOperations"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -33,7 +33,7 @@ func newCustomersBatchJobsAddOperationsCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/v22/{resourceName}:addOperations"
+			path := "/v26/{resourceName}:addOperations"
 			path = replacePathParam(path, "resourceName", args[0])
 			var body map[string]any
 			if stdinBody {

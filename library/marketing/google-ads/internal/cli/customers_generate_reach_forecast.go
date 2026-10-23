@@ -30,7 +30,7 @@ func newCustomersGenerateReachForecastCmd(flags *rootFlags) *cobra.Command {
 		Use:         "generate-reach-forecast <customerId>",
 		Short:       "Generates a reach forecast for a given targeting / product mix.",
 		Example:     "  google-ads-pp-cli customers generate-reach-forecast 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "customers.generate_reach_forecast", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}:generateReachForecast"},
+		Annotations: map[string]string{"pp:endpoint": "customers.generate_reach_forecast", "pp:method": "POST", "pp:path": "/v26/customers/{customerId}:generateReachForecast"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -42,7 +42,7 @@ func newCustomersGenerateReachForecastCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/v22/customers/{customerId}:generateReachForecast"
+			path := "/v26/customers/{customerId}:generateReachForecast"
 			path = replacePathParam(path, "customerId", args[0])
 			var body map[string]any
 			if stdinBody {

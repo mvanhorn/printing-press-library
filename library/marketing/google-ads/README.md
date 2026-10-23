@@ -5,7 +5,7 @@ Google Ads API for account discovery, GAQL reporting, campaigns, budgets, assets
 Learn more at [Google Ads](https://developers.google.com/google-ads/api/).
 
 Created by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
-Contributors: [@bobeglz](https://github.com/bobeglz) (bobe), [@marshalldavies](https://github.com/marshalldavies) (Marshall Davies).
+Contributors: [@bobeglz](https://github.com/bobeglz) (bobe), [@marshalldavies](https://github.com/marshalldavies) (Marshall Davies), [@azbirovskiy](https://github.com/azbirovskiy) (azbirovskiy).
 
 ## Install
 

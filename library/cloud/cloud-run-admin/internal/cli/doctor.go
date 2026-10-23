@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/cloud/cloud-run-admin/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/cloud/cloud-run-admin/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/cloud/cloud-run-admin/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -75,12 +74,13 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			report := map[string]any{}
 
 			// Check config
-			cfg, err := config.Load(flags.configPath)
+			cfg, err := flags.loadConfig()
 			if err != nil {
 				report["config"] = fmt.Sprintf("error: %s", err)
 			} else {
 				report["config"] = "ok"
 				report["config_path"] = cfg.Path
+				report["account"] = cfg.Account
 				report["base_url"] = cfg.BaseURL
 			}
 
@@ -109,6 +109,8 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				authEnvRequiredMissing = append(authEnvRequiredMissing, "CLOUD_RUN_ADMIN_OAUTH2C")
 			}
 			switch {
+			case cfg != nil && cfg.AuthHeader() != "":
+				report["env_vars"] = "OK saved or environment credentials available"
 			case len(authEnvRequiredMissing) > 0:
 				report["env_vars"] = "ERROR missing required: " + strings.Join(authEnvRequiredMissing, ", ")
 			case len(authEnvOptionalNames) > 1 && !authEnvOptionalSatisfied:
@@ -260,7 +262,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintf(w, "  %s %s: %s\n", indicator, ck.label, s)
 			}
 			// Print info keys without status indicator
-			for _, key := range []string{"config_path", "base_url", "auth_source", "version"} {
+			for _, key := range []string{"account", "config_path", "base_url", "auth_source", "version"} {
 				if v, ok := report[key]; ok {
 					fmt.Fprintf(w, "  %s: %v\n", key, v)
 				}
@@ -333,7 +335,7 @@ func doctorExitForFailOn(failOn string, report map[string]any) error {
 // because the alternative is no freshness story at all.
 func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]any {
 	report := map[string]any{}
-	dbPath := defaultDBPath("cloud-run-admin-pp-cli")
+	dbPath := defaultDBPath(ctx, "cloud-run-admin-pp-cli")
 	report["db_path"] = dbPath
 
 	fi, err := os.Stat(dbPath)

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "pinterest-login-scopes-2026-10-22",
+  "applied_at": "2026-10-22",
+  "base_run_id": "20261021-092559-b7e82418",
+  "base_printing_press_version": "4.33.9",
+  "summary": "Pinterest login must request only scopes Pinterest's OAuth docs list (never msot:write by default), let the user choose scopes (--scopes / PINTEREST_SCOPES / basic preset), and collect the client secret with hidden input whenever it is missing.",
+  "reason": "Pinterest rejects msot:write as an invalid scope, failing every login; its token endpoint also requires the client secret, so silently falling through to a secret-less PKCE exchange fails with 401 and pasting the secret as a flag leaks it to the terminal.",
+  "files": ["internal/cli/auth.go", "internal/cli/auth_pinterest_test.go", "go.mod", "go.sum"],
+  "call_sites": ["resolveLoginScopes(", "promptOAuthSecret("],
+  "validated_outcome": "Live login against a trial-access app succeeded with the default scope set and a hidden-prompt secret; user-account get and boards list returned live data."
+}
