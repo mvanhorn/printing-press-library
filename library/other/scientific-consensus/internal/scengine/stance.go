@@ -62,6 +62,19 @@ var (
 	directionUpCues   = regexp.MustCompile(`(?i)\b(significantly\s+)?(greater|higher|elevated|more|increas\w+)\b`)
 	directionDownCues = regexp.MustCompile(`(?i)\b(significantly\s+)?(less|lower|fewer|smaller|reduc\w+|decreas\w+)\b`)
 
+	// claimDownVerbCues find the verb of a "X reduces Y" claim, which
+	// claimBenefitCues leaves ambiguous unless the object is "risk". The first
+	// match splits the claim into intervention and outcome for
+	// downwardClaimSupports. studyDownCues are the matching downward findings
+	// in a study ("reduced the duration of Y", "shorter Y", "fewer Y").
+	claimDownVerbCues = regexp.MustCompile(`(?i)\b(reduc\w*|lower\w*|decreas\w*|shorten\w*|diminish\w*)`)
+	studyDownCues     = regexp.MustCompile(`(?i)\b(reduc\w+|lower\w*|decreas\w+|shorter|shorten\w*|fewer|less|diminish\w+)\b`)
+
+	// purposeTail matches a backWindow that ends in the infinitive "to", so a
+	// stated aim ("aimed to reduce", "gum to decrease ileus") is not read by
+	// downwardClaimSupports as a reported finding.
+	purposeTail = regexp.MustCompile(`(?i)\bto\s*$`)
+
 	// negationCues mark a clause as negated. Applied ONLY to a short backward
 	// window before a positive cue (negation scope is local): a sentence-wide
 	// search would silently drop genuine harm findings that merely follow an
@@ -156,6 +169,11 @@ const (
 	// confidenceFrom, so a decisive refutation is not scored as more certain
 	// than the counting path can justify.
 	refutationConfidence = 0.9
+
+	// downwardClaimConfidence is reported when downwardClaimSupports decides
+	// the stance. Weaker than the counting path on purpose: a single paired
+	// downward cue is less evidence than a cue the counting path recognizes.
+	downwardClaimConfidence = 0.6
 )
 
 // ClassifyStance scores a single work's title+abstract relative to the claim.
@@ -164,6 +182,12 @@ const (
 // reporting benefit or less of the harm as refuting. BENEFIT-asserting and
 // ambiguous claims (including the empty claim) keep the claim-agnostic
 // baseline: stance from the reported finding's polarity. confidence is 0..1.
+//
+// When the baseline finds no cue at all, a "X reduces Y" claim gets one more
+// look: a downward finding ("reduced", "shorter", "fewer") next to both the
+// claim's intervention and outcome, in a sentence that is not framing, not a
+// question, not locally negated and not a purpose phrase, reads as supporting
+// at downwardClaimConfidence. Title-only works never take this path.
 func ClassifyStance(title, abstract, claim string) (Stance, float64) {
 	hay := strings.ToLower(normalizeText(title + ". " + abstract))
 	if detectClaimDirection(claim) == claimHarm {
@@ -187,6 +211,13 @@ func ClassifyStance(title, abstract, claim string) (Stance, float64) {
 	}
 	null := len(nullCues.FindAllString(hay, -1))
 	harm := len(harmCues.FindAllString(hay, -1))
+
+	// No cue at all would be inconclusive; a paired downward finding for a
+	// "X reduces Y" claim is the only signal allowed to change that. A title
+	// alone is not a reported finding, so an empty abstract keeps the baseline.
+	if support == 0 && null == 0 && harm == 0 && strings.TrimSpace(abstract) != "" && downwardClaimSupports(hay, claim) {
+		return StanceSupporting, downwardClaimConfidence
+	}
 
 	// Null cues frequently overlap with support phrasing ("no significant
 	// reduction in risk"); count net.
@@ -218,6 +249,42 @@ func stanceFromCounts(pos, neg int) (Stance, float64) {
 		return StanceRefuting, confidenceFrom(neg, total)
 	}
 	return StanceMixed, 0.45
+}
+
+// downwardClaimSupports reports whether hay contains a downward finding for a
+// "X reduces Y" claim: the claim splits at its first claimDownVerbCues match,
+// and a studyDownCues match has both an intervention and an outcome stem
+// within posPairWindow in its own sentence (pairInScope). The cue is skipped
+// in a framing sentence, in a sentence that ends with "?", and when the text
+// just before it is a negation or the purpose marker "to".
+func downwardClaimSupports(hay, claim string) bool {
+	lc := strings.ToLower(claim)
+	loc := claimDownVerbCues.FindStringIndex(lc)
+	if loc == nil {
+		return false
+	}
+	intervention := stemTokens(ClaimContentTokens(lc[:loc[0]]))
+	outcome := stemTokens(ClaimContentTokens(lc[loc[1]:]))
+	if len(intervention) == 0 || len(outcome) == 0 {
+		return false
+	}
+	for _, m := range studyDownCues.FindAllStringIndex(hay, -1) {
+		sentStart, sentEnd := sentenceBounds(hay, m[0])
+		if framingCues.MatchString(hay[sentStart:sentEnd]) {
+			continue
+		}
+		if strings.HasSuffix(strings.TrimSpace(hay[sentStart:sentEnd]), "?") {
+			continue
+		}
+		back := backWindow(hay, m[0], sentStart)
+		if negationCues.MatchString(back) || purposeTail.MatchString(back) {
+			continue
+		}
+		if pairInScope(hay, cueSpan{m[0], m[1]}, sentStart, sentEnd, intervention, outcome) {
+			return true
+		}
+	}
+	return false
 }
 
 // claimDir is the direction a claim asserts about its subject.
