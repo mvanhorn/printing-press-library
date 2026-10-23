@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-05-27T23:31:11.943099Z",
-  "printing_press_version": "4.18.1",
+  "printing_press_version": "4.33.10",
   "api_name": "amazon-ads",
   "display_name": "Amazon Ads",
   "cli_name": "amazon-ads-pp-cli",

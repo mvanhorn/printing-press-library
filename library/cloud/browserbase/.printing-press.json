@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "generated_at": "2026-08-13T18:26:29.889886Z",
-  "printing_press_version": "4.30.2",
+  "printing_press_version": "4.33.10",
   "api_name": "browserbase",
   "display_name": "Browserbase",
   "cli_name": "browserbase-pp-cli",

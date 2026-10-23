@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-05-13T15:35:39.207696Z",
-  "printing_press_version": "4.5.2",
+  "printing_press_version": "4.33.10",
   "api_name": "elevenlabs",
   "display_name": "ElevenLabs",
   "cli_name": "elevenlabs-pp-cli",

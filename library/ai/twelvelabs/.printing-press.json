@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-06-05T15:06:27.902623Z",
-  "printing_press_version": "4.21.0",
+  "printing_press_version": "4.33.10",
   "api_name": "twelvelabs",
   "display_name": "Twelvelabs Video Understanding",
   "cli_name": "twelvelabs-pp-cli",

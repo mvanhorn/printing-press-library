@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "browserbase-pp-mcp",
   "display_name": "Browserbase",
-  "version": "4.30.2",
+  "version": "4.33.10",
   "description": "Every Browserbase cloud feature, plus session lifecycle control, local history, and usage analytics no other tool has.",
   "author": {
     "name": "CLI Printing Press"

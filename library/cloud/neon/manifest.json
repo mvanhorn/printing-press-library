@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "neon-pp-mcp",
   "display_name": "Neon",
-  "version": "4.33.4",
+  "version": "4.33.10",
   "description": "Neon API commands in one static binary, plus a local fleet mirror for stale-branch cleanup, usage trends and compute audits.",
   "author": {
     "name": "CLI Printing Press"

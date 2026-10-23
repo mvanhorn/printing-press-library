@@ -2668,10 +2668,11 @@ func codeOrchInvoke(ctx context.Context, req mcplib.CallToolRequest, executeTool
 	case "POST":
 		// pp:patch mcp-code-orch-multipart-upload — n8n requires multipart/form-data for package imports.
 		if fileKeys, ok := codeOrchMultipartFiles[ep.ID]; ok {
-			fields, files, perr := codeOrchMultipartParts(ep.ID, fileKeys, params)
+			fields, files, cleanupUploads, perr := codeOrchMultipartParts(ep.ID, fileKeys, params)
 			if perr != nil {
 				return mcplib.NewToolResultError(perr.Error()), nil
 			}
+			defer cleanupUploads()
 			data, _, err = c.PostMultipart(ctx, path, fields, files)
 			break
 		}
@@ -2711,27 +2712,62 @@ func codeOrchInvoke(ctx context.Context, req mcplib.CallToolRequest, executeTool
 	return mcplib.NewToolResultText(text), nil
 }
 
-// codeOrchMultipartFiles lists endpoints whose body must be multipart/form-data, with the
-// params that name local files to upload; every other param is sent as a form field.
+// codeOrchMultipartFiles lists endpoints whose body must be multipart/form-data.
+// File params are resolved like typed MCP uploads: base64-encoded content by
+// default, or a path confined to N8N_MCP_UPLOAD_ROOT when that directory is set.
+// A "<param>_filename" entry sets the upload filename and is not a form field.
 var codeOrchMultipartFiles = map[string][]string{
 	"n8n-packages.import-package": {"package"},
 }
 
-// codeOrchMultipartParts splits params into form fields and file parts; it errors when a required file param is missing.
-func codeOrchMultipartParts(id string, fileKeys []string, params map[string]any) (map[string]string, map[string]string, error) {
+// codeOrchMultipartParts splits params into form fields and staged file parts.
+// It errors when a required file param is missing. cleanup removes staged files.
+func codeOrchMultipartParts(id string, fileKeys []string, params map[string]any) (map[string]string, map[string]string, func(), error) {
 	fields, files := map[string]string{}, map[string]string{}
+	var cleanups []func()
+	cleanup := func() {
+		for _, c := range cleanups {
+			c()
+		}
+	}
+	fileParam := func(name string) bool {
+		for _, fp := range fileKeys {
+			if fp == name {
+				return true
+			}
+		}
+		return false
+	}
 	for k, v := range params {
+		if fileParam(k) {
+			continue
+		}
+		rest, ok := strings.CutSuffix(k, "_filename")
+		if ok && fileParam(rest) {
+			continue
+		}
 		fields[k] = formatMCPParamValue(v)
 	}
 	for _, k := range fileKeys {
-		p, _ := params[k].(string)
-		if strings.TrimSpace(p) == "" {
-			return nil, nil, fmt.Errorf("%s uploads a file: set params.%s to a local file path", id, k)
+		v, ok := params[k]
+		raw, isStr := v.(string)
+		if !ok || !isStr || strings.TrimSpace(raw) == "" {
+			cleanup()
+			return nil, nil, nil, fmt.Errorf("%s uploads a file: set params.%s to base64-encoded file content", id, k)
 		}
-		files[k] = p
-		delete(fields, k)
+		filenameHint := ""
+		if fv, ok := params[k+"_filename"]; ok {
+			filenameHint = fmt.Sprintf("%v", fv)
+		}
+		staged, c, err := resolveMCPMultipartFile(k, filenameHint, v)
+		if err != nil {
+			cleanup()
+			return nil, nil, nil, err
+		}
+		cleanups = append(cleanups, c)
+		files[k] = staged
 	}
-	return fields, files, nil
+	return fields, files, cleanup, nil
 }
 
 // codeOrchWriteBody returns the value handed to the client layer as the

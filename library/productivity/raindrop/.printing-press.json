@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "generated_at": "2026-08-14T12:01:32.547689708Z",
-  "printing_press_version": "4.30.2",
+  "printing_press_version": "4.33.10",
   "api_name": "raindrop",
   "display_name": "Raindrop Io",
   "cli_name": "raindrop-pp-cli",

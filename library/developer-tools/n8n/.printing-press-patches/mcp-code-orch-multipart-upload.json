@@ -4,9 +4,14 @@
   "applied_at": "2026-10-20",
   "base_run_id": "20261020-022313-25b483ed",
   "base_printing_press_version": "4.33.8",
-  "summary": "n8n_execute sends n8n-packages.import-package as multipart/form-data: params.package is a local .n8np path uploaded as the file part, other params become form fields.",
-  "reason": "POST /n8n-packages/import requires multipart/form-data with a binary package part; the code-orchestration route only sent JSON bodies and the per-endpoint upload handlers are not registered. Generator template gap.",
-  "files": ["internal/mcp/code_orch.go", "internal/mcp/n8n_paging_test.go"],
-  "markers": ["pp:patch mcp-code-orch-multipart-upload"],
-  "validated_outcome": "TestCodeOrchUploadsPackageAsMultipart: the server receives multipart/form-data with the package bytes and projectId field; a missing params.package is a tool error."
+  "summary": "n8n_execute sends n8n-packages.import-package as multipart/form-data: params.package is file content resolved the same way as typed MCP uploads (base64 by default, optional package_filename), and other params become form fields.",
+  "reason": "POST /n8n-packages/import requires multipart/form-data with a binary package part; the code-orchestration route only sent JSON bodies and the per-endpoint upload handlers are not registered. A regen must keep that multipart route and the generator's MCP upload input (base64 content unless N8N_MCP_UPLOAD_ROOT is set).",
+  "files": [
+    "internal/mcp/code_orch.go",
+    "internal/mcp/n8n_paging_test.go"
+  ],
+  "markers": [
+    "pp:patch mcp-code-orch-multipart-upload"
+  ],
+  "validated_outcome": "TestCodeOrchUploadsPackageAsMultipart: base64 package content is uploaded as the multipart file part with projectId; a plain filesystem path is rejected; a missing params.package is a tool error."
 }

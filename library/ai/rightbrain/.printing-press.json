@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "generated_at": "2026-08-01T16:17:22.518395779Z",
-  "printing_press_version": "4.29.0",
+  "printing_press_version": "4.33.10",
   "api_name": "rightbrain",
   "cli_name": "rightbrain-pp-cli",
   "creator": {

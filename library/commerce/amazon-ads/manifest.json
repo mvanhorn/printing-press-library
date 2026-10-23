@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "amazon-ads-pp-mcp",
   "display_name": "Amazon Ads",
-  "version": "4.18.1",
+  "version": "4.33.10",
   "description": "Amazon Ads MCP server for reports, analytics, keyword optimization, and guarded automation.",
   "author": {
     "name": "CLI Printing Press"

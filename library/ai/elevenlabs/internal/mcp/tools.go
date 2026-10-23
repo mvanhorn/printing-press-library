@@ -5,8 +5,10 @@ package mcp
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -27,7 +29,8 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("audio-isolation_audio_isolation",
 			mcplib.WithDescription("Removes background noise from audio. Required: audio. Optional: file_format (default: other), preview_b64."),
-			mcplib.WithString("audio", mcplib.Required(), mcplib.Description("The audio file from which vocals/speech will be isolated from.")),
+			mcplib.WithString("audio", mcplib.Required(), mcplib.Description("The audio file from which vocals/speech will be isolated from. base64-encoded file content (a filesystem path is accepted only when ELEVENLABS_MCP_UPLOAD_ROOT is set)")),
+			mcplib.WithString("audio_filename", mcplib.Description("Optional filename for this upload (for example photo.png); servers may sniff the format from the extension. Sanitized to a base name; path separators and control characters are rejected. Defaults to the parameter name.")),
 			mcplib.WithString("file_format", mcplib.Description("The format of input audio.")),
 			mcplib.WithString("preview_b64", mcplib.Description("Optional preview image base64 for tracking this generation.")),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -59,7 +62,8 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("audio-isolation_stream",
 			mcplib.WithDescription("Removes background noise from audio and streams the result. Required: audio. Optional: file_format (default: other)."),
-			mcplib.WithString("audio", mcplib.Required(), mcplib.Description("The audio file from which vocals/speech will be isolated from.")),
+			mcplib.WithString("audio", mcplib.Required(), mcplib.Description("The audio file from which vocals/speech will be isolated from. base64-encoded file content (a filesystem path is accepted only when ELEVENLABS_MCP_UPLOAD_ROOT is set)")),
+			mcplib.WithString("audio_filename", mcplib.Description("Optional filename for this upload (for example photo.png); servers may sniff the format from the extension. Sanitized to a base name; path separators and control characters are rejected. Defaults to the parameter name.")),
 			mcplib.WithString("file_format", mcplib.Description("The format of input audio.")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -73,7 +77,8 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("author", mcplib.Description("Author used in the player and inserted at the start of the uploaded article. If not provided, the default author set...")),
 			mcplib.WithString("auto_convert", mcplib.Description("Whether to auto convert the project to audio or not.")),
 			mcplib.WithString("background_color", mcplib.Description("Background color used in the player. If not provided, default background color set in the Player settings is used.")),
-			mcplib.WithString("file", mcplib.Description("Either txt or HTML input file containing the article content. HTML should be formatted as follows...")),
+			mcplib.WithString("file", mcplib.Description("Either txt or HTML input file containing the article content. HTML should be formatted as follows... base64-encoded file content (a filesystem path is accepted only when ELEVENLABS_MCP_UPLOAD_ROOT is set)")),
+			mcplib.WithString("file_filename", mcplib.Description("Optional filename for this upload (for example photo.png); servers may sniff the format from the extension. Sanitized to a base name; path separators and control characters are rejected. Defaults to the parameter name.")),
 			mcplib.WithString("image", mcplib.Description("(Deprecated) Image URL used in the player. If not provided, default image set in the Player settings is used.")),
 			mcplib.WithString("model_id", mcplib.Description("TTS Model ID used in the player. If not provided, default model ID set in the Player settings is used.")),
 			mcplib.WithString("name", mcplib.Required(), mcplib.Description("Project name.")),
@@ -105,7 +110,8 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("project_id", mcplib.Required(), mcplib.Description("The ID of the Studio project.")),
 			mcplib.WithString("auto_convert", mcplib.Description("Whether to auto convert the project to audio or not.")),
 			mcplib.WithString("auto_publish", mcplib.Description("Whether to auto publish the new project snapshot after it's converted.")),
-			mcplib.WithString("file", mcplib.Description("Either txt or HTML input file containing the article content. HTML should be formatted as follows...")),
+			mcplib.WithString("file", mcplib.Description("Either txt or HTML input file containing the article content. HTML should be formatted as follows... base64-encoded file content (a filesystem path is accepted only when ELEVENLABS_MCP_UPLOAD_ROOT is set)")),
+			mcplib.WithString("file_filename", mcplib.Description("Optional filename for this upload (for example photo.png); servers may sniff the format from the extension. Sanitized to a base name; path separators and control characters are rejected. Defaults to the parameter name.")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
@@ -125,7 +131,8 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("convai_add-documentation-to-knowledge-base",
 			mcplib.WithDescription("Uploads a file or reference a webpage to use as part of the shared knowledge base. Optional: agent_id, file, name (plus 1 more). Returns the new AddKnowledgeBaseResponseModel."),
 			mcplib.WithString("agent_id", mcplib.Description("Agent id")),
-			mcplib.WithString("file", mcplib.Description("Documentation that the agent will have access to in order to interact with users.")),
+			mcplib.WithString("file", mcplib.Description("Documentation that the agent will have access to in order to interact with users. base64-encoded file content (a filesystem path is accepted only when ELEVENLABS_MCP_UPLOAD_ROOT is set)")),
+			mcplib.WithString("file_filename", mcplib.Description("Optional filename for this upload (for example photo.png); servers may sniff the format from the extension. Sanitized to a base name; path separators and control characters are rejected. Defaults to the parameter name.")),
 			mcplib.WithString("name", mcplib.Description("A custom, human-readable name for the document.")),
 			mcplib.WithString("url", mcplib.Description("URL to a page of documentation that the agent will have access to in order to interact with users.")),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -329,7 +336,8 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("convai_create-file-document-route",
 			mcplib.WithDescription("Create a knowledge base document generated form the uploaded file. Required: file. Optional: name, parent_folder_id. Returns the new AddKnowledgeBaseResponseModel."),
-			mcplib.WithString("file", mcplib.Required(), mcplib.Description("Documentation that the agent will have access to in order to interact with users.")),
+			mcplib.WithString("file", mcplib.Required(), mcplib.Description("Documentation that the agent will have access to in order to interact with users. base64-encoded file content (a filesystem path is accepted only when ELEVENLABS_MCP_UPLOAD_ROOT is set)")),
+			mcplib.WithString("file_filename", mcplib.Description("Optional filename for this upload (for example photo.png); servers may sniff the format from the extension. Sanitized to a base name; path separators and control characters are rejected. Defaults to the parameter name.")),
 			mcplib.WithString("name", mcplib.Description("A custom, human-readable name for the document.")),
 			mcplib.WithString("parent_folder_id", mcplib.Description("If set, the created document or folder will be placed inside the given folder.")),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -1352,7 +1360,8 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("convai_post-agent-avatar-route",
 			mcplib.WithDescription("Sets the avatar for an agent displayed in the widget. Required: agent_id, avatar_file. Returns the new PostAgentAvatarResponseModel."),
 			mcplib.WithString("agent_id", mcplib.Required(), mcplib.Description("The id of an agent. This is returned on agent creation.")),
-			mcplib.WithString("avatar_file", mcplib.Required(), mcplib.Description("An image file to be used as the agent's avatar.")),
+			mcplib.WithString("avatar_file", mcplib.Required(), mcplib.Description("An image file to be used as the agent's avatar. base64-encoded file content (a filesystem path is accepted only when ELEVENLABS_MCP_UPLOAD_ROOT is set)")),
+			mcplib.WithString("avatar_file_filename", mcplib.Description("Optional filename for this upload (for example photo.png); servers may sniff the format from the extension. Sanitized to a base name; path separators and control characters are rejected. Defaults to the parameter name.")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
@@ -1646,7 +1655,8 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("convai_update-file-document-route",
 			mcplib.WithDescription("Update the source file of a file document. The document name, content, and metadata are updated to reflect the new file. Any manual content edits will be overwritten. Required: documentation_id, file. Partial update."),
 			mcplib.WithString("documentation_id", mcplib.Required(), mcplib.Description("The id of a document from the knowledge base. This is returned on document addition.")),
-			mcplib.WithString("file", mcplib.Required(), mcplib.Description("Documentation that the agent will have access to in order to interact with users.")),
+			mcplib.WithString("file", mcplib.Required(), mcplib.Description("Documentation that the agent will have access to in order to interact with users. base64-encoded file content (a filesystem path is accepted only when ELEVENLABS_MCP_UPLOAD_ROOT is set)")),
+			mcplib.WithString("file_filename", mcplib.Description("Optional filename for this upload (for example photo.png); servers may sniff the format from the extension. Sanitized to a base name; path separators and control characters are rejected. Defaults to the parameter name.")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("PATCH", "/v1/convai/knowledge-base/{documentation_id}/update-file", []mcpParamBinding{{PublicName: "documentation_id", WireName: "documentation_id", Location: "path", RequestContentType: "multipart/form-data"}, {PublicName: "file", WireName: "file", Location: "body", Format: "binary", RequestContentType: "multipart/form-data"}}, []string{"documentation_id"}),
@@ -1764,7 +1774,8 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("convai_upload-file-route",
 			mcplib.WithDescription("Upload an image or PDF file for a conversation. Returns a unique file ID that can be used to reference the file in the conversation. Required: conversation_id, file."),
 			mcplib.WithString("conversation_id", mcplib.Required(), mcplib.Description("Conversation id")),
-			mcplib.WithString("file", mcplib.Required(), mcplib.Description("Image or PDF file to upload")),
+			mcplib.WithString("file", mcplib.Required(), mcplib.Description("Image or PDF file to upload. base64-encoded file content (a filesystem path is accepted only when ELEVENLABS_MCP_UPLOAD_ROOT is set)")),
+			mcplib.WithString("file_filename", mcplib.Description("Optional filename for this upload (for example photo.png); servers may sniff the format from the extension. Sanitized to a base name; path separators and control characters are rejected. Defaults to the parameter name.")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
@@ -2060,7 +2071,8 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("forced-alignment_forced_alignment",
 			mcplib.WithDescription("Force align an audio file to text. Use this endpoint to get the timing information for each character and word in an audio file based on a provided text transcript. Required: file, text. Returns the new ForcedAlignmentResponseModel."),
-			mcplib.WithString("file", mcplib.Required(), mcplib.Description("The file to align. All major audio formats are supported. The file size must be less than 1GB.")),
+			mcplib.WithString("file", mcplib.Required(), mcplib.Description("The file to align. All major audio formats are supported. The file size must be less than 1GB. base64-encoded file content (a filesystem path is accepted only when ELEVENLABS_MCP_UPLOAD_ROOT is set)")),
+			mcplib.WithString("file_filename", mcplib.Description("Optional filename for this upload (for example photo.png); servers may sniff the format from the extension. Sanitized to a base name; path separators and control characters are rejected. Defaults to the parameter name.")),
 			mcplib.WithString("text", mcplib.Required(), mcplib.Description("The text to align with the audio. The input text can be in any format, however diarization is not supported at this...")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -2197,7 +2209,8 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("music_separate-song-stems",
 			mcplib.WithDescription("Separate an audio file into individual stems. This endpoint might have high latency, depending on the length of the audio file. Required: file. Optional: output_format (default: mp3_44100_128), sign_with_c2pa (default: false), stem_variation_id (default: six_stems_v1)."),
 			mcplib.WithString("output_format", mcplib.Description("Output format of the generated audio.")),
-			mcplib.WithString("file", mcplib.Required(), mcplib.Description("The audio file to separate into stems.")),
+			mcplib.WithString("file", mcplib.Required(), mcplib.Description("The audio file to separate into stems. base64-encoded file content (a filesystem path is accepted only when ELEVENLABS_MCP_UPLOAD_ROOT is set)")),
+			mcplib.WithString("file_filename", mcplib.Description("Optional filename for this upload (for example photo.png); servers may sniff the format from the extension. Sanitized to a base name; path separators and control characters are rejected. Defaults to the parameter name.")),
 			mcplib.WithString("sign_with_c2pa", mcplib.Description("Whether to sign the generated song with C2PA. Applicable only for mp3 files.")),
 			mcplib.WithString("stem_variation_id", mcplib.Description("The id of the stem variation to use.")),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -2230,7 +2243,8 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("music_upload-song",
 			mcplib.WithDescription("Upload a music file to be later used for inpainting. Only available to enterprise clients with access to the inpainting feature. Price for uploading is the same as the one for song generation. All uploaded content gets inspected for copyright infringement. If copyrighted content is detected, half of the request cost is still charged. Required: file. Optional: extract_composition_plan (default: false). Returns the new MusicUploadResponse."),
 			mcplib.WithString("extract_composition_plan", mcplib.Description("Whether to generate and return the composition plan for the uploaded song. If True, the response will include the...")),
-			mcplib.WithString("file", mcplib.Required(), mcplib.Description("The audio file to upload.")),
+			mcplib.WithString("file", mcplib.Required(), mcplib.Description("The audio file to upload. base64-encoded file content (a filesystem path is accepted only when ELEVENLABS_MCP_UPLOAD_ROOT is set)")),
+			mcplib.WithString("file_filename", mcplib.Description("Optional filename for this upload (for example photo.png); servers may sniff the format from the extension. Sanitized to a base name; path separators and control characters are rejected. Defaults to the parameter name.")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
@@ -2433,7 +2447,8 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("similar-voices_get-similar-library-voices",
 			mcplib.WithDescription("Returns a list of shared voices similar to the provided audio sample. If neither similarity_threshold nor top_k is provided, we will apply default values. Optional: audio_file, similarity_threshold, top_k."),
-			mcplib.WithString("audio_file", mcplib.Description("Audio file")),
+			mcplib.WithString("audio_file", mcplib.Description("Audio file. base64-encoded file content (a filesystem path is accepted only when ELEVENLABS_MCP_UPLOAD_ROOT is set)")),
+			mcplib.WithString("audio_file_filename", mcplib.Description("Optional filename for this upload (for example photo.png); servers may sniff the format from the extension. Sanitized to a base name; path separators and control characters are rejected. Defaults to the parameter name.")),
 			mcplib.WithString("similarity_threshold", mcplib.Description("Threshold for voice similarity between provided sample and library voices. Values range from 0 to 2. The smaller the...")),
 			mcplib.WithString("top_k", mcplib.Description("Number of most similar voices to return. If similarity_threshold is provided, less than this number of voices may be...")),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -2540,7 +2555,8 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("enable_logging", mcplib.Description("When enable_logging is set to false zero retention mode will be used for the request.")),
 			mcplib.WithString("optimize_streaming_latency", mcplib.Description("You can turn on latency optimizations at some cost of quality.")),
 			mcplib.WithString("output_format", mcplib.Description("Output format of the generated audio.")),
-			mcplib.WithString("audio", mcplib.Required(), mcplib.Description("The audio file which holds the content and emotion that will control the generated speech.")),
+			mcplib.WithString("audio", mcplib.Required(), mcplib.Description("The audio file which holds the content and emotion that will control the generated speech. base64-encoded file content (a filesystem path is accepted only when ELEVENLABS_MCP_UPLOAD_ROOT is set)")),
+			mcplib.WithString("audio_filename", mcplib.Description("Optional filename for this upload (for example photo.png); servers may sniff the format from the extension. Sanitized to a base name; path separators and control characters are rejected. Defaults to the parameter name.")),
 			mcplib.WithString("file_format", mcplib.Description("The format of input audio.")),
 			mcplib.WithString("model_id", mcplib.Description("Identifier of the model that will be used, you can query them using GET /v1/models. The model needs to have support...")),
 			mcplib.WithString("remove_background_noise", mcplib.Description("If set, will remove the background noise from your audio input using our audio isolation model. Only applies to...")),
@@ -2558,7 +2574,8 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("enable_logging", mcplib.Description("When enable_logging is set to false zero retention mode will be used for the request.")),
 			mcplib.WithString("optimize_streaming_latency", mcplib.Description("You can turn on latency optimizations at some cost of quality.")),
 			mcplib.WithString("output_format", mcplib.Description("Output format of the generated audio.")),
-			mcplib.WithString("audio", mcplib.Required(), mcplib.Description("The audio file which holds the content and emotion that will control the generated speech.")),
+			mcplib.WithString("audio", mcplib.Required(), mcplib.Description("The audio file which holds the content and emotion that will control the generated speech. base64-encoded file content (a filesystem path is accepted only when ELEVENLABS_MCP_UPLOAD_ROOT is set)")),
+			mcplib.WithString("audio_filename", mcplib.Description("Optional filename for this upload (for example photo.png); servers may sniff the format from the extension. Sanitized to a base name; path separators and control characters are rejected. Defaults to the parameter name.")),
 			mcplib.WithString("file_format", mcplib.Description("The format of input audio.")),
 			mcplib.WithString("model_id", mcplib.Description("Identifier of the model that will be used, you can query them using GET /v1/models. The model needs to have support...")),
 			mcplib.WithString("remove_background_noise", mcplib.Description("If set, will remove the background noise from your audio input using our audio isolation model. Only applies to...")),
@@ -3424,7 +3441,8 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("voices_verify-pvc-captcha",
 			mcplib.WithDescription("Submit captcha verification for PVC voice. Required: voice_id, recording. Returns the new VerifyPvcvoiceCaptchaResponseModel."),
 			mcplib.WithString("voice_id", mcplib.Required(), mcplib.Description("Voice ID to be used, you can use https://api.")),
-			mcplib.WithString("recording", mcplib.Required(), mcplib.Description("Audio recording of the user")),
+			mcplib.WithString("recording", mcplib.Required(), mcplib.Description("Audio recording of the user. base64-encoded file content (a filesystem path is accepted only when ELEVENLABS_MCP_UPLOAD_ROOT is set)")),
+			mcplib.WithString("recording_filename", mcplib.Description("Optional filename for this upload (for example photo.png); servers may sniff the format from the extension. Sanitized to a base name; path separators and control characters are rejected. Defaults to the parameter name.")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
@@ -3777,6 +3795,192 @@ func mcpMultipartFieldValue(v any) string {
 	return fmt.Sprintf("%v", v)
 }
 
+// mcpUploadRootEnvVar, when set to a directory, lets an operator opt into
+// path-based multipart uploads confined to that directory. When it is unset
+// (the default), a binary multipart parameter supplied over MCP must be
+// base64-encoded file content: an MCP caller cannot name an arbitrary local
+// path for the server to read and exfiltrate.
+const mcpUploadRootEnvVar = "ELEVENLABS_MCP_UPLOAD_ROOT"
+
+// mcpMaxUploadBytes caps the decoded size of a single MCP multipart upload.
+// It bounds the memory an MCP caller can make the server allocate for one file
+// param and the size of a file read out of the opt-in upload root. There is no
+// env override; raise this constant if a legitimate workload needs larger
+// uploads.
+const mcpMaxUploadBytes = 100 << 20 // 100 MiB
+
+// resolveMCPMultipartFile converts an MCP-supplied binary multipart value into
+// a local temp file that this process owns, returning its path plus a cleanup
+// func the caller must defer. In the default (base64) mode the value is decoded
+// as file content. In the opt-in path mode (mcpUploadRootEnvVar set) the value
+// is resolved inside that root via os.Root, which refuses path traversal and any
+// symlink that escapes the root, and a non-regular file is refused. This keeps
+// an MCP client from making the server open an arbitrary local file (CWE-22,
+// CWE-73). The plain-CLI --flag <path> behavior for human operators is
+// unaffected; this path is MCP-only.
+//
+// filenameHint, when set, supplies the multipart filename vendors sniff by
+// extension. It is sanitized to a base name (path separators, control chars,
+// "", ".", and ".." are rejected) and falls back to the parameter name. In the
+// opt-in path mode the filename is derived from the confined path's base name
+// and filenameHint is ignored.
+func resolveMCPMultipartFile(field, filenameHint string, v any) (string, func(), error) {
+	raw, ok := v.(string)
+	if !ok {
+		return "", nil, fmt.Errorf("multipart file parameter %q must be a string over MCP (base64-encoded file content, or a path when %s is set)", field, mcpUploadRootEnvVar)
+	}
+	root := mcpUploadRootValue()
+	if root == "" {
+		trimmed := strings.TrimSpace(raw)
+		// Reject an over-cap payload before decoding so a hostile caller cannot
+		// force the server to allocate the decoded bytes just to reject them.
+		// EncodedLen(max) is the ceiling of base64 characters for max decoded
+		// bytes; the slack covers newlines and padding in a wrapped payload.
+		if len(trimmed) > base64.StdEncoding.EncodedLen(mcpMaxUploadBytes)+4096 {
+			return "", nil, fmt.Errorf("multipart file parameter %q base64 payload is too large (exceeds the %d-byte decoded MCP upload limit)", field, mcpMaxUploadBytes)
+		}
+		data, err := base64.StdEncoding.DecodeString(trimmed)
+		if err != nil {
+			return "", nil, fmt.Errorf("multipart file parameter %q must be base64-encoded file content over MCP (a filesystem path is not accepted unless %s is set to a directory to allow confined path uploads): %w", field, mcpUploadRootEnvVar, err)
+		}
+		if len(data) > mcpMaxUploadBytes {
+			return "", nil, fmt.Errorf("multipart file parameter %q is %d bytes, which exceeds the %d-byte MCP upload limit", field, len(data), mcpMaxUploadBytes)
+		}
+		return writeMCPUploadTemp(mcpUploadFileName(field, filenameHint), data)
+	}
+	return resolveMCPUploadFromRoot(field, root, raw)
+}
+
+// resolveMCPUploadFromRoot reads a path-mode multipart upload confined to the
+// opt-in upload root. os.Root refuses any name that escapes the root (including
+// an escaping symlink). The file is opened once; a non-regular file (directory,
+// FIFO, device, or a symlink whose target is not a regular file) is refused so a
+// read cannot hang or pull in something unexpected, and io.LimitReader bounds
+// the bytes even if the file grows or its reported size lies.
+func resolveMCPUploadFromRoot(field, root, raw string) (string, func(), error) {
+	r, err := os.OpenRoot(root)
+	if err != nil {
+		return "", nil, fmt.Errorf("open upload root for multipart file parameter %q: %w", field, err)
+	}
+	defer r.Close()
+	rel := raw
+	// Accept an absolute path that still lives inside the root by making it
+	// root-relative; os.Root rejects an absolute name outright.
+	if filepath.IsAbs(raw) {
+		rr, rerr := filepath.Rel(root, raw)
+		if rerr != nil {
+			return "", nil, fmt.Errorf("multipart file parameter %q (%q) is not inside the upload root: %w", field, raw, rerr)
+		}
+		rel = rr
+	}
+	rel = filepath.ToSlash(rel)
+	f, err := r.Open(rel)
+	if err != nil {
+		return "", nil, fmt.Errorf("open multipart file parameter %q (%q) under upload root: %w", field, raw, err)
+	}
+	defer f.Close()
+	info, err := f.Stat()
+	if err != nil {
+		return "", nil, fmt.Errorf("stat multipart file parameter %q (%q) under upload root: %w", field, raw, err)
+	}
+	if !info.Mode().IsRegular() {
+		return "", nil, fmt.Errorf("multipart file parameter %q (%q) is not a regular file; only regular files may be uploaded", field, raw)
+	}
+	if info.Size() > mcpMaxUploadBytes {
+		return "", nil, fmt.Errorf("multipart file parameter %q (%q) is %d bytes, which exceeds the %d-byte MCP upload limit", field, raw, info.Size(), mcpMaxUploadBytes)
+	}
+	data, err := io.ReadAll(io.LimitReader(f, mcpMaxUploadBytes+1))
+	if err != nil {
+		return "", nil, fmt.Errorf("read multipart file parameter %q (%q) under upload root: %w", field, raw, err)
+	}
+	if len(data) > mcpMaxUploadBytes {
+		return "", nil, fmt.Errorf("multipart file parameter %q (%q) exceeds the %d-byte MCP upload limit", field, raw, mcpMaxUploadBytes)
+	}
+	return writeMCPUploadTemp(mcpUploadFileName(field, filepath.Base(filepath.FromSlash(rel))), data)
+}
+
+// writeMCPUploadTemp stages upload bytes in a private temp dir under a sanitized
+// filename, returning the staged path plus a cleanup that removes the dir.
+func writeMCPUploadTemp(name string, data []byte) (string, func(), error) {
+	dir, err := os.MkdirTemp("", "elevenlabs-pp-mcp-upload-")
+	if err != nil {
+		return "", nil, fmt.Errorf("stage multipart upload %q: %w", name, err)
+	}
+	cleanup := func() { _ = os.RemoveAll(dir) }
+	path := filepath.Join(dir, name)
+	if err := os.WriteFile(path, data, 0o600); err != nil {
+		cleanup()
+		return "", nil, fmt.Errorf("stage multipart upload %q: %w", name, err)
+	}
+	return path, cleanup, nil
+}
+
+// mcpUploadFileName picks a safe multipart filename: the sanitized caller hint
+// when usable, otherwise the sanitized parameter name, otherwise "upload".
+func mcpUploadFileName(field, hint string) string {
+	if name, ok := sanitizeMCPUploadName(hint); ok {
+		return name
+	}
+	if name, ok := sanitizeMCPUploadName(field); ok {
+		return name
+	}
+	return "upload"
+}
+
+// mcpMaxUploadFilenameLen bounds a caller-supplied multipart filename hint. A
+// longer hint falls back to the parameter name rather than erroring.
+const mcpMaxUploadFilenameLen = 255
+
+// sanitizeMCPUploadName reduces a candidate to a safe base filename. It reports
+// false (so the caller falls back) for an empty or over-long name, ".", "..", a
+// name containing a path separator, drive/stream separator ':', control
+// characters, Unicode line/paragraph separators or bidi controls, or a name
+// filepath.IsLocal rejects, so a caller cannot smuggle a directory component,
+// terminal controls, or a deceptive bidi-reordered name into the filename.
+func sanitizeMCPUploadName(candidate string) (string, bool) {
+	candidate = strings.TrimSpace(candidate)
+	if candidate == "" || len(candidate) > mcpMaxUploadFilenameLen {
+		return "", false
+	}
+	for _, r := range candidate {
+		switch {
+		case r < 0x20 || r == 0x7f: // C0 controls and DEL
+			return "", false
+		case r >= 0x80 && r <= 0x9f: // C1 controls
+			return "", false
+		case r == '\u2028' || r == '\u2029': // line and paragraph separators
+			return "", false
+		case r == '\u200e' || r == '\u200f': // LRM / RLM
+			return "", false
+		case r >= '\u202a' && r <= '\u202e': // bidi embeddings and overrides
+			return "", false
+		case r >= '\u2066' && r <= '\u2069': // bidi isolates
+			return "", false
+		}
+	}
+	if strings.ContainsRune(candidate, '/') || strings.ContainsRune(candidate, '\\') || strings.ContainsRune(candidate, ':') {
+		return "", false
+	}
+	base := filepath.Base(filepath.FromSlash(candidate))
+	if base == "" || base == "." || base == ".." || base == string(filepath.Separator) {
+		return "", false
+	}
+	if !filepath.IsLocal(base) {
+		return "", false
+	}
+	return base, true
+}
+
+// mcpUploadRootValue reads the opt-in upload root, ignoring an unresolved
+// MCPB ${...} placeholder the same way cliutil.EnvOverride does.
+func mcpUploadRootValue() string {
+	v := os.Getenv(mcpUploadRootEnvVar)
+	if len(v) >= 3 && strings.HasPrefix(v, "${") && strings.HasSuffix(v, "}") && !strings.Contains(v[2:len(v)-1], "}") {
+		return ""
+	}
+	return strings.TrimSpace(v)
+}
+
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
 func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
@@ -3810,6 +4014,11 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 			if strings.EqualFold(binding.RequestContentType, "multipart/form-data") {
 				multipart = true
 			}
+			if strings.EqualFold(binding.Format, "binary") {
+				// The optional companion filename arg is declared in the tool
+				// schema; register it so rejectUndeclaredMCPArgs accepts it.
+				knownArgs[binding.PublicName+"_filename"] = true
+			}
 			v, ok := args[binding.PublicName]
 			if !ok {
 				continue
@@ -3823,7 +4032,16 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 				bodyArgs[binding.WireName] = v
 				if multipart {
 					if strings.EqualFold(binding.Format, "binary") {
-						multipartFileFields[binding.WireName] = fmt.Sprintf("%v", v)
+						filenameHint := ""
+						if fv, ok := args[binding.PublicName+"_filename"]; ok {
+							filenameHint = fmt.Sprintf("%v", fv)
+						}
+						stagedPath, cleanupUpload, uploadErr := resolveMCPMultipartFile(binding.WireName, filenameHint, v)
+						if uploadErr != nil {
+							return mcplib.NewToolResultError(uploadErr.Error()), nil
+						}
+						defer cleanupUpload()
+						multipartFileFields[binding.WireName] = stagedPath
 					} else {
 						multipartFields[binding.WireName] = mcpMultipartFieldValue(v)
 					}

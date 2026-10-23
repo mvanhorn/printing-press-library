@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "generated_at": "2026-07-18T21:59:40.348915512Z",
-  "printing_press_version": "4.29.0",
+  "printing_press_version": "4.33.10",
   "api_name": "roblox",
   "display_name": "Roblox",
   "cli_name": "roblox-pp-cli",

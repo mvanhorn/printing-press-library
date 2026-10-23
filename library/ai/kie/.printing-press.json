@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-08-03T07:56:19Z",
-  "printing_press_version": "4.30.1",
+  "printing_press_version": "4.33.10",
   "api_name": "kie",
   "display_name": "Kie.ai",
   "cli_name": "kie-pp-cli",

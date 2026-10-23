@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "generated_at": "2026-09-03T00:08:43.662961951Z",
-  "printing_press_version": "4.31.4",
+  "printing_press_version": "4.33.10",
   "api_name": "openrouter",
   "display_name": "OpenRouter",
   "cli_name": "openrouter-pp-cli",

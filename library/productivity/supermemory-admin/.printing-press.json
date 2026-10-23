@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-06-16T21:06:32.577338Z",
-  "printing_press_version": "4.24.0",
+  "printing_press_version": "4.33.10",
   "api_name": "supermemory-admin",
   "display_name": "Supermemory",
   "cli_name": "supermemory-admin-pp-cli",

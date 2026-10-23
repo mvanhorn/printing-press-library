@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "discord-pp-mcp",
   "display_name": "Discord",
-  "version": "4.30.1",
+  "version": "4.33.10",
   "description": "Preview of the Discord v10 HTTP API specification. See https://discord.com/developers/docs for more details.",
   "author": {
     "name": "CLI Printing Press"

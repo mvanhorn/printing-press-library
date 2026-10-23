@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "twelvelabs-pp-mcp",
   "display_name": "Twelvelabs Video Understanding",
-  "version": "4.21.0",
+  "version": "4.33.10",
   "description": "Use the TwelveLabs Video Understanding API to extract information from your videos and make it available to your",
   "author": {
     "name": "CLI Printing Press"

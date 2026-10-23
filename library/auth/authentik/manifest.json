@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "authentik-pp-mcp",
   "display_name": "authentik",
-  "version": "4.12.0",
+  "version": "4.33.10",
   "description": "Agent-native admin CLI for authentik identity provider with offline SQLite cache and an MCP server for Claude Desktop.",
   "author": {
     "name": "CLI Printing Press"

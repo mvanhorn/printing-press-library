@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "generated_at": "2026-08-05T16:04:46.9197724Z",
-  "printing_press_version": "4.30.0",
+  "printing_press_version": "4.33.10",
   "api_name": "square",
   "display_name": "Square",
   "cli_name": "square-pp-cli",

@@ -1,6 +1,7 @@
 package mcp
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -55,14 +56,19 @@ func keys(m map[string]any) []string {
 
 func TestCodeOrchUploadsPackageAsMultipart(t *testing.T) {
 	testenv.Isolate(t)
-	var gotType, gotPart, gotField string
+	t.Setenv("N8N_MCP_UPLOAD_ROOT", "")
+	var hits int
+	var gotType, gotPart, gotField, gotName string
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		hits++
 		gotType = r.Header.Get("Content-Type")
 		if err := r.ParseMultipartForm(1 << 20); err == nil {
 			gotField = r.FormValue("projectId")
-			if f, _, err := r.FormFile("package"); err == nil {
+			if f, hdr, err := r.FormFile("package"); err == nil {
 				b, _ := io.ReadAll(f)
 				gotPart = string(b)
+				gotName = hdr.Filename
+				_ = f.Close()
 			}
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -71,29 +77,44 @@ func TestCodeOrchUploadsPackageAsMultipart(t *testing.T) {
 	t.Cleanup(srv.Close)
 	t.Setenv("N8N_BASE_URL", srv.URL)
 	t.Setenv("N8N_API_KEY", "test")
-	pkg := filepath.Join(t.TempDir(), "p.n8np")
-	if err := os.WriteFile(pkg, []byte("PKGBYTES"), 0o600); err != nil {
-		t.Fatal(err)
-	}
+
+	enc := base64.StdEncoding.EncodeToString([]byte("PKGBYTES"))
 	var req mcplib.CallToolRequest
 	req.Params.Arguments = map[string]any{"endpoint_id": "n8n-packages.import-package", "confirm": true,
-		"params": map[string]any{"package": pkg, "projectId": "p1"}}
+		"params": map[string]any{"package": enc, "package_filename": "p.n8np", "projectId": "p1"}}
 	res, err := codeOrchInvoke(t.Context(), req, true)
 	if err != nil || res == nil || res.IsError {
 		t.Fatalf("upload failed: %+v err=%v", res, err)
 	}
-	if !strings.HasPrefix(gotType, "multipart/form-data") || gotPart != "PKGBYTES" || gotField != "p1" {
-		t.Fatalf("server saw type=%q part=%q projectId=%q", gotType, gotPart, gotField)
+	if hits != 1 || !strings.HasPrefix(gotType, "multipart/form-data") || gotPart != "PKGBYTES" || gotField != "p1" || gotName != "p.n8np" {
+		t.Fatalf("server saw hits=%d type=%q part=%q name=%q projectId=%q", hits, gotType, gotPart, gotName, gotField)
+	}
+
+	pkg := filepath.Join(t.TempDir(), "p.n8np")
+	if err := os.WriteFile(pkg, []byte("PKGBYTES"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	req.Params.Arguments = map[string]any{"endpoint_id": "n8n-packages.import-package", "confirm": true,
+		"params": map[string]any{"package": pkg, "projectId": "p1"}}
+	res, err = codeOrchInvoke(t.Context(), req, true)
+	if err != nil {
+		t.Fatalf("path upload returned error value: %v", err)
+	}
+	if res == nil || !res.IsError || hits != 1 {
+		t.Fatalf("plain path should be rejected without a server call, hits=%d res=%+v", hits, res)
+	}
+	msg := fmt.Sprint(res.Content)
+	if !strings.Contains(msg, "base64") || !strings.Contains(msg, "N8N_MCP_UPLOAD_ROOT") {
+		t.Fatalf("path rejection should name base64 and the upload root, got %s", msg)
 	}
 
 	req.Params.Arguments = map[string]any{"endpoint_id": "n8n-packages.import-package", "confirm": true, "params": map[string]any{}}
 	res, _ = codeOrchInvoke(t.Context(), req, true)
-	if res == nil || !res.IsError || !strings.Contains(fmt.Sprint(res.Content), "params.package") {
-		t.Fatalf("missing package should be a tool error, got %+v", res)
+	if res == nil || !res.IsError || !strings.Contains(fmt.Sprint(res.Content), "params.package") || hits != 1 {
+		t.Fatalf("missing package should be a tool error, hits=%d got %+v", hits, res)
 	}
 }
 
-// A truncated page fetched with a raw n8n cursor must continue on that same server page.
 func TestCodeOrchPagingKeepsRequestCursor(t *testing.T) {
 	rows := make([]string, 0, 400)
 	for i := 0; i < 400; i++ {

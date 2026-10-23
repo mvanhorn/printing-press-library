@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-05-12T03:10:10.529011Z",
-  "printing_press_version": "4.4.0",
+  "printing_press_version": "4.33.10",
   "api_name": "marianatek",
   "display_name": "Mariana Tek",
   "description": "Every Mariana Tek booking feature, plus multi-tenant search, cancellation watching, and an offline class catalog no other tool has. Mariana Tek powers hundreds of boutique-fitness, yoga, sauna, and wellness studios via per-brand subdomains; this CLI works against any of them.",

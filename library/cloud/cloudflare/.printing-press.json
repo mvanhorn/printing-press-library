@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-06-08T22:30:04.539644Z",
-  "printing_press_version": "4.24.0",
+  "printing_press_version": "4.33.10",
   "api_name": "cloudflare",
   "display_name": "Cloudflare",
   "cli_name": "cloudflare-pp-cli",

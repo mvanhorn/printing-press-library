@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-05-12T01:00:08Z",
-  "printing_press_version": "4.5.0",
+  "printing_press_version": "4.33.10",
   "api_name": "posthog",
   "display_name": "PostHog",
   "cli_name": "posthog-pp-cli",

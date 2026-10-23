@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-06-15T02:52:37.948474Z",
-  "printing_press_version": "4.24.0",
+  "printing_press_version": "4.33.10",
   "api_name": "wahoo",
   "display_name": "Wahoo Cloud API",
   "cli_name": "wahoo-pp-cli",

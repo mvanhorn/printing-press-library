@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "unipile-pp-mcp",
   "display_name": "Unipile",
-  "version": "4.31.1",
+  "version": "4.33.10",
   "description": "Every Unipile endpoint as a typed command, plus a local mirror that makes cross-provider search possible and an invitation ledger that shows how much LinkedIn headroom you have left.",
   "author": {
     "name": "CLI Printing Press"

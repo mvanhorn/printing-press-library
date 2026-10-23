@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-05-25T03:47:40.44181Z",
-  "printing_press_version": "4.12.0",
+  "printing_press_version": "4.33.10",
   "api_name": "authentik",
   "display_name": "authentik",
   "cli_name": "authentik-pp-cli",

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-05-25T00:54:11.154201Z",
-  "printing_press_version": "4.14.0",
+  "printing_press_version": "4.33.10",
   "api_name": "forgejo",
   "display_name": "Forgejo",
   "cli_name": "forgejo-pp-cli",

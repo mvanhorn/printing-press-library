@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"math"
 	"os"
 	"path/filepath"
@@ -55,7 +56,8 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("audio_transcribe",
 			mcplib.WithDescription("Transcribes audio into the input language. Required: model. Optional: file, language, prompt (plus 4 more). Returns the new CreateTranscriptionResponseJson."),
-			mcplib.WithString("file", mcplib.Description("The audio file object (not file name) to transcribe, in one of these formats: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav")),
+			mcplib.WithString("file", mcplib.Description("The audio file object (not file name) to transcribe, in one of these formats: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav. base64-encoded file content (a filesystem path is accepted only when GROQ_MCP_UPLOAD_ROOT is set)")),
+			mcplib.WithString("file_filename", mcplib.Description("Optional filename for this upload (for example photo.png); servers may sniff the format from the extension. Sanitized to a base name; path separators and control characters are rejected. Defaults to the parameter name.")),
 			mcplib.WithString("language", mcplib.Description("The language of the input audio. Supplying the input language in [ISO-639-1](https://en.wikipedia.")),
 			mcplib.WithString("model", mcplib.Required(), mcplib.Description("ID of the model to use. `whisper-large-v3` and `whisper-large-v3-turbo` are currently available.")),
 			mcplib.WithString("prompt", mcplib.Description("An optional text to guide the model's style or continue a previous audio segment.")),
@@ -71,7 +73,8 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("audio_translate",
 			mcplib.WithDescription("Translates audio into English. Required: model. Optional: file, prompt, response_format (default: json) (plus 2 more). Returns the new CreateTranslationResponseJson."),
-			mcplib.WithString("file", mcplib.Description("The audio file object (not file name) translate, in one of these formats: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav")),
+			mcplib.WithString("file", mcplib.Description("The audio file object (not file name) translate, in one of these formats: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav. base64-encoded file content (a filesystem path is accepted only when GROQ_MCP_UPLOAD_ROOT is set)")),
+			mcplib.WithString("file_filename", mcplib.Description("Optional filename for this upload (for example photo.png); servers may sniff the format from the extension. Sanitized to a base name; path separators and control characters are rejected. Defaults to the parameter name.")),
 			mcplib.WithString("model", mcplib.Required(), mcplib.Description("ID of the model to use. `whisper-large-v3` and `whisper-large-v3-turbo` are currently available.")),
 			mcplib.WithString("prompt", mcplib.Description("An optional text to guide the model's style or continue a previous audio segment.")),
 			mcplib.WithString("response_format", mcplib.Description("The format of the transcript output, in one of these options: `json`, `text`, or `verbose_json`.")),
@@ -229,7 +232,8 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("files_upload",
 			mcplib.WithDescription("Upload a file that can be used across various endpoints. The Batch API only supports `.jsonl` files up to 100 MB in size. The input also has a specific required. Required: file, purpose. Returns the new File."),
-			mcplib.WithString("file", mcplib.Required(), mcplib.Description("The File object (not file name) to be uploaded.")),
+			mcplib.WithString("file", mcplib.Required(), mcplib.Description("The File object (not file name) to be uploaded. base64-encoded file content (a filesystem path is accepted only when GROQ_MCP_UPLOAD_ROOT is set)")),
+			mcplib.WithString("file_filename", mcplib.Description("Optional filename for this upload (for example photo.png); servers may sniff the format from the extension. Sanitized to a base name; path separators and control characters are rejected. Defaults to the parameter name.")),
 			mcplib.WithString("purpose", mcplib.Required(), mcplib.Description("The intended purpose of the uploaded file. Use 'batch' for [Batch API](/docs/api-reference#batches).")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -443,6 +447,193 @@ func mcpMultipartFieldValue(v any) string {
 	}
 	return fmt.Sprintf("%v", v)
 }
+
+// mcpUploadRootEnvVar, when set to a directory, lets an operator opt into
+// path-based multipart uploads confined to that directory. When it is unset
+// (the default), a binary multipart parameter supplied over MCP must be
+// base64-encoded file content: an MCP caller cannot name an arbitrary local
+// path for the server to read and exfiltrate.
+const mcpUploadRootEnvVar = "GROQ_MCP_UPLOAD_ROOT"
+
+// mcpMaxUploadBytes caps the decoded size of a single MCP multipart upload.
+// It bounds the memory an MCP caller can make the server allocate for one file
+// param and the size of a file read out of the opt-in upload root. There is no
+// env override; raise this constant if a legitimate workload needs larger
+// uploads.
+const mcpMaxUploadBytes = 100 << 20 // 100 MiB
+
+// resolveMCPMultipartFile converts an MCP-supplied binary multipart value into
+// a local temp file that this process owns, returning its path plus a cleanup
+// func the caller must defer. In the default (base64) mode the value is decoded
+// as file content. In the opt-in path mode (mcpUploadRootEnvVar set) the value
+// is resolved inside that root via os.Root, which refuses path traversal and any
+// symlink that escapes the root, and a non-regular file is refused. This keeps
+// an MCP client from making the server open an arbitrary local file (CWE-22,
+// CWE-73). The plain-CLI --flag <path> behavior for human operators is
+// unaffected; this path is MCP-only.
+//
+// filenameHint, when set, supplies the multipart filename vendors sniff by
+// extension. It is sanitized to a base name (path separators, control chars,
+// "", ".", and ".." are rejected) and falls back to the parameter name. In the
+// opt-in path mode the filename is derived from the confined path's base name
+// and filenameHint is ignored.
+func resolveMCPMultipartFile(field, filenameHint string, v any) (string, func(), error) {
+	raw, ok := v.(string)
+	if !ok {
+		return "", nil, fmt.Errorf("multipart file parameter %q must be a string over MCP (base64-encoded file content, or a path when %s is set)", field, mcpUploadRootEnvVar)
+	}
+	root := mcpUploadRootValue()
+	if root == "" {
+		trimmed := strings.TrimSpace(raw)
+		// Reject an over-cap payload before decoding so a hostile caller cannot
+		// force the server to allocate the decoded bytes just to reject them.
+		// EncodedLen(max) is the ceiling of base64 characters for max decoded
+		// bytes; the slack covers newlines and padding in a wrapped payload.
+		if len(trimmed) > base64.StdEncoding.EncodedLen(mcpMaxUploadBytes)+4096 {
+			return "", nil, fmt.Errorf("multipart file parameter %q base64 payload is too large (exceeds the %d-byte decoded MCP upload limit)", field, mcpMaxUploadBytes)
+		}
+		data, err := base64.StdEncoding.DecodeString(trimmed)
+		if err != nil {
+			return "", nil, fmt.Errorf("multipart file parameter %q must be base64-encoded file content over MCP (a filesystem path is not accepted unless %s is set to a directory to allow confined path uploads): %w", field, mcpUploadRootEnvVar, err)
+		}
+		if len(data) > mcpMaxUploadBytes {
+			return "", nil, fmt.Errorf("multipart file parameter %q is %d bytes, which exceeds the %d-byte MCP upload limit", field, len(data), mcpMaxUploadBytes)
+		}
+		return writeMCPUploadTemp(mcpUploadFileName(field, filenameHint), data)
+	}
+	return resolveMCPUploadFromRoot(field, root, raw)
+}
+
+// resolveMCPUploadFromRoot reads a path-mode multipart upload confined to the
+// opt-in upload root. os.Root refuses any name that escapes the root (including
+// an escaping symlink). The file is opened once; a non-regular file (directory,
+// FIFO, device, or a symlink whose target is not a regular file) is refused so a
+// read cannot hang or pull in something unexpected, and io.LimitReader bounds
+// the bytes even if the file grows or its reported size lies.
+func resolveMCPUploadFromRoot(field, root, raw string) (string, func(), error) {
+	r, err := os.OpenRoot(root)
+	if err != nil {
+		return "", nil, fmt.Errorf("open upload root for multipart file parameter %q: %w", field, err)
+	}
+	defer r.Close()
+	rel := raw
+	// Accept an absolute path that still lives inside the root by making it
+	// root-relative; os.Root rejects an absolute name outright.
+	if filepath.IsAbs(raw) {
+		rr, rerr := filepath.Rel(root, raw)
+		if rerr != nil {
+			return "", nil, fmt.Errorf("multipart file parameter %q (%q) is not inside the upload root: %w", field, raw, rerr)
+		}
+		rel = rr
+	}
+	rel = filepath.ToSlash(rel)
+	f, err := r.Open(rel)
+	if err != nil {
+		return "", nil, fmt.Errorf("open multipart file parameter %q (%q) under upload root: %w", field, raw, err)
+	}
+	defer f.Close()
+	info, err := f.Stat()
+	if err != nil {
+		return "", nil, fmt.Errorf("stat multipart file parameter %q (%q) under upload root: %w", field, raw, err)
+	}
+	if !info.Mode().IsRegular() {
+		return "", nil, fmt.Errorf("multipart file parameter %q (%q) is not a regular file; only regular files may be uploaded", field, raw)
+	}
+	if info.Size() > mcpMaxUploadBytes {
+		return "", nil, fmt.Errorf("multipart file parameter %q (%q) is %d bytes, which exceeds the %d-byte MCP upload limit", field, raw, info.Size(), mcpMaxUploadBytes)
+	}
+	data, err := io.ReadAll(io.LimitReader(f, mcpMaxUploadBytes+1))
+	if err != nil {
+		return "", nil, fmt.Errorf("read multipart file parameter %q (%q) under upload root: %w", field, raw, err)
+	}
+	if len(data) > mcpMaxUploadBytes {
+		return "", nil, fmt.Errorf("multipart file parameter %q (%q) exceeds the %d-byte MCP upload limit", field, raw, mcpMaxUploadBytes)
+	}
+	return writeMCPUploadTemp(mcpUploadFileName(field, filepath.Base(filepath.FromSlash(rel))), data)
+}
+
+// writeMCPUploadTemp stages upload bytes in a private temp dir under a sanitized
+// filename, returning the staged path plus a cleanup that removes the dir.
+func writeMCPUploadTemp(name string, data []byte) (string, func(), error) {
+	dir, err := os.MkdirTemp("", "groq-pp-mcp-upload-")
+	if err != nil {
+		return "", nil, fmt.Errorf("stage multipart upload %q: %w", name, err)
+	}
+	cleanup := func() { _ = os.RemoveAll(dir) }
+	path := filepath.Join(dir, name)
+	if err := os.WriteFile(path, data, 0o600); err != nil {
+		cleanup()
+		return "", nil, fmt.Errorf("stage multipart upload %q: %w", name, err)
+	}
+	return path, cleanup, nil
+}
+
+// mcpUploadFileName picks a safe multipart filename: the sanitized caller hint
+// when usable, otherwise the sanitized parameter name, otherwise "upload".
+func mcpUploadFileName(field, hint string) string {
+	if name, ok := sanitizeMCPUploadName(hint); ok {
+		return name
+	}
+	if name, ok := sanitizeMCPUploadName(field); ok {
+		return name
+	}
+	return "upload"
+}
+
+// mcpMaxUploadFilenameLen bounds a caller-supplied multipart filename hint. A
+// longer hint falls back to the parameter name rather than erroring.
+const mcpMaxUploadFilenameLen = 255
+
+// sanitizeMCPUploadName reduces a candidate to a safe base filename. It reports
+// false (so the caller falls back) for an empty or over-long name, ".", "..", a
+// name containing a path separator, drive/stream separator ':', control
+// characters, Unicode line/paragraph separators or bidi controls, or a name
+// filepath.IsLocal rejects, so a caller cannot smuggle a directory component,
+// terminal controls, or a deceptive bidi-reordered name into the filename.
+func sanitizeMCPUploadName(candidate string) (string, bool) {
+	candidate = strings.TrimSpace(candidate)
+	if candidate == "" || len(candidate) > mcpMaxUploadFilenameLen {
+		return "", false
+	}
+	for _, r := range candidate {
+		switch {
+		case r < 0x20 || r == 0x7f: // C0 controls and DEL
+			return "", false
+		case r >= 0x80 && r <= 0x9f: // C1 controls
+			return "", false
+		case r == '\u2028' || r == '\u2029': // line and paragraph separators
+			return "", false
+		case r == '\u200e' || r == '\u200f': // LRM / RLM
+			return "", false
+		case r >= '\u202a' && r <= '\u202e': // bidi embeddings and overrides
+			return "", false
+		case r >= '\u2066' && r <= '\u2069': // bidi isolates
+			return "", false
+		}
+	}
+	if strings.ContainsRune(candidate, '/') || strings.ContainsRune(candidate, '\\') || strings.ContainsRune(candidate, ':') {
+		return "", false
+	}
+	base := filepath.Base(filepath.FromSlash(candidate))
+	if base == "" || base == "." || base == ".." || base == string(filepath.Separator) {
+		return "", false
+	}
+	if !filepath.IsLocal(base) {
+		return "", false
+	}
+	return base, true
+}
+
+// mcpUploadRootValue reads the opt-in upload root, ignoring an unresolved
+// MCPB ${...} placeholder the same way cliutil.EnvOverride does.
+func mcpUploadRootValue() string {
+	v := os.Getenv(mcpUploadRootEnvVar)
+	if len(v) >= 3 && strings.HasPrefix(v, "${") && strings.HasSuffix(v, "}") && !strings.Contains(v[2:len(v)-1], "}") {
+		return ""
+	}
+	return strings.TrimSpace(v)
+}
+
 func setNestedBodyArg(body map[string]any, path []string, value any) {
 	if len(path) == 0 {
 		return
@@ -548,6 +739,11 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			if strings.EqualFold(binding.RequestContentType, "multipart/form-data") {
 				multipart = true
 			}
+			if strings.EqualFold(binding.Format, "binary") {
+				// The optional companion filename arg is declared in the tool
+				// schema; register it so rejectUndeclaredMCPArgs accepts it.
+				knownArgs[binding.PublicName+"_filename"] = true
+			}
 			v, ok := args[binding.PublicName]
 			if !ok {
 				continue
@@ -574,7 +770,16 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 				}
 				if multipart {
 					if strings.EqualFold(binding.Format, "binary") {
-						multipartFileFields[binding.WireName] = fmt.Sprintf("%v", v)
+						filenameHint := ""
+						if fv, ok := args[binding.PublicName+"_filename"]; ok {
+							filenameHint = fmt.Sprintf("%v", fv)
+						}
+						stagedPath, cleanupUpload, uploadErr := resolveMCPMultipartFile(binding.WireName, filenameHint, v)
+						if uploadErr != nil {
+							return mcpToolError(uploadErr.Error()), nil
+						}
+						defer cleanupUpload()
+						multipartFileFields[binding.WireName] = stagedPath
 					} else {
 						multipartFields[binding.WireName] = mcpMultipartFieldValue(v)
 					}

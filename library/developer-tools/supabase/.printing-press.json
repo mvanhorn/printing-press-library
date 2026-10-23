@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-05-12T23:06:14.806252Z",
-  "printing_press_version": "4.5.1",
+  "printing_press_version": "4.33.10",
   "api_name": "supabase",
   "display_name": "Supabase",
   "cli_name": "supabase-pp-cli",

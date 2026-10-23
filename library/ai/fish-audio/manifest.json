@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "fish-audio-pp-mcp",
   "display_name": "Fish Audio",
-  "version": "4.31.1",
+  "version": "4.33.10",
   "description": "Fish Audio API: text-to-speech, speech-to-text, voice design, voice models (clones), and account credit.",
   "author": {
     "name": "CLI Printing Press"

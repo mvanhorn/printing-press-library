@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "groq-pp-mcp",
   "display_name": "Groq Cloud",
-  "version": "4.31.1",
+  "version": "4.33.10",
   "description": "Every Groq endpoint in your terminal, plus a local ledger that tracks token cost and rate-limit budget.",
   "author": {
     "name": "CLI Printing Press"

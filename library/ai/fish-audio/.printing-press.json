@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "generated_at": "2026-08-29T15:27:38.094894Z",
-  "printing_press_version": "4.31.1",
+  "printing_press_version": "4.33.10",
   "api_name": "fish-audio",
   "display_name": "Fish Audio",
   "cli_name": "fish-audio-pp-cli",

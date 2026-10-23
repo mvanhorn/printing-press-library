@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "generated_at": "2026-08-13T18:12:12.607157Z",
-  "printing_press_version": "4.30.2",
+  "printing_press_version": "4.33.10",
   "api_name": "pinecone",
   "display_name": "Pinecone",
   "cli_name": "pinecone-pp-cli",

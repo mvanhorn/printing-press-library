@@ -18,10 +18,12 @@ package mcp
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/ai/sarvam/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/ai/sarvam/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/ai/sarvam/internal/mcp/cobratree"
 )
@@ -29,20 +31,26 @@ import (
 // RegisterIntents adds generated intent tools to the MCP server.
 // This is called from RegisterTools when spec intents or recipe-lifted intents exist.
 func RegisterIntents(s *server.MCPServer) {
-	s.AddTool(
-		mcplib.NewTool("reprocess_failed_batch_files",
-			mcplib.WithDescription("Re-run only the files that failed in a batch transcription job"),
-			mcplib.WithString("slug", mcplib.Required(), mcplib.Description("Override the recipe's positional slug value.")),
-			mcplib.WithBoolean("failed_only", mcplib.Description("Override the recipe's --failed-only value.")),
-		),
-		handleReprocessFailedBatchFiles,
-	)
+	if recipeTargetExposed([]string{"stt-job", "retry"}) {
+		s.AddTool(
+			mcplib.NewTool("reprocess_failed_batch_files",
+				mcplib.WithDescription("Re-run only the files that failed in a batch transcription job"),
+				mcplib.WithString("slug", mcplib.Required(), mcplib.Description("Override the recipe's positional slug value.")),
+				mcplib.WithBoolean("failed_only", mcplib.Description("Override the recipe's --failed-only value.")),
+			),
+			handleReprocessFailedBatchFiles,
+		)
+	}
 }
 
 // handleReprocessFailedBatchFiles runs the reprocess_failed_batch_files recipe intent: Re-run only the files that failed in a batch transcription job
 func handleReprocessFailedBatchFiles(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	if recipeCLIPathErr != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("companion CLI binary not found: %v", recipeCLIPathErr)), nil
+	}
+
+	if !recipeTargetExposed([]string{"stt-job", "retry"}) {
+		return mcplib.NewToolResultError("tool is not available"), nil
 	}
 
 	input := req.GetArguments()
@@ -70,6 +78,45 @@ var (
 
 func init() {
 	recipeCLIPath, recipeCLIPathErr = cobratree.SiblingCLIPath()
+}
+
+// recipeCommandRoot is the live Cobra tree consulted for a recipe's target
+// command: its hidden / mcp:hidden / read-only annotations. Recipe text does
+// not carry these; the live command does.
+var recipeCommandRoot = cli.RootCmd
+
+// recipeTargetExposed reports whether the command a recipe wraps may be surfaced
+// and run over MCP right now. When the recipe's target resolves to an in-tree
+// command, that command must not be hidden (itself or an ancestor, Cobra-hidden
+// or mcp:hidden). While the MCP read-only switch is on, the recipe is withheld
+// unless its target is annotated mcp:read-only or mcp:local-write. A recipe whose
+// target does not resolve to an in-tree command is not blocked when the read-only
+// switch is off, but it is withheld under read-only.
+func recipeTargetExposed(path []string) bool {
+	if recipeCommandRoot == nil {
+		return true
+	}
+	cmd := cobratree.CommandAtPath(recipeCommandRoot(), recipeCommandPath(path))
+	if cmd != nil && !cobratree.CommandExposableOverMCP(cmd) {
+		return false
+	}
+	if os.Getenv("SARVAM_MCP_READ_ONLY") == "1" && !cobratree.CommandAllowedUnderMCPReadOnly(cmd) {
+		return false
+	}
+	return true
+}
+
+// recipeCommandPath keeps the Cobra command words. Static flags such as
+// --json are stored on the same slice and are not part of the command path.
+func recipeCommandPath(path []string) []string {
+	out := make([]string, 0, len(path))
+	for _, token := range path {
+		if token == "" || strings.HasPrefix(token, "-") {
+			break
+		}
+		out = append(out, token)
+	}
+	return out
 }
 
 func appendRecipePositional(args []string, value any, required bool) ([]string, bool) {

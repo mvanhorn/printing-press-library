@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "generated_at": "2026-10-20T16:33:12.901587Z",
-  "printing_press_version": "4.33.8",
+  "printing_press_version": "4.33.10",
   "api_name": "n8n",
   "display_name": "n8n",
   "cli_name": "n8n-pp-cli",

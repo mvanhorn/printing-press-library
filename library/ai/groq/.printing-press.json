@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "generated_at": "2026-08-29T06:32:20.176233Z",
-  "printing_press_version": "4.31.1",
+  "printing_press_version": "4.33.10",
   "api_name": "groq",
   "display_name": "Groq Cloud",
   "cli_name": "groq-pp-cli",

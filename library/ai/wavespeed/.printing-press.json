@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "generated_at": "2026-10-01T04:50:50.188123Z",
-  "printing_press_version": "4.32.6",
+  "printing_press_version": "4.33.10",
   "api_name": "wavespeed",
   "display_name": "WaveSpeed",
   "cli_name": "wavespeed-pp-cli",

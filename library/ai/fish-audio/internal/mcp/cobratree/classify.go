@@ -165,3 +165,57 @@ func annotationIsTrue(cmd *cobra.Command, key string) bool {
 	v := strings.ToLower(strings.TrimSpace(cmd.Annotations[key]))
 	return v == "true" || v == "1" || v == "yes"
 }
+
+// CommandAtPath returns the command reached by walking path from root.
+// Each segment matches the command name or a Cobra alias. Recipe tools use
+// it to apply the same write-sink rules as the walker.
+func CommandAtPath(root *cobra.Command, path []string) *cobra.Command {
+	if root == nil || len(path) == 0 {
+		return nil
+	}
+	cmd := root
+	for _, name := range path {
+		next := commandChild(cmd, name)
+		if next == nil {
+			return nil
+		}
+		cmd = next
+	}
+	return cmd
+}
+
+func commandChild(cmd *cobra.Command, name string) *cobra.Command {
+	if cmd == nil || name == "" {
+		return nil
+	}
+	for _, child := range cmd.Commands() {
+		if child != nil && (child.Name() == name || child.HasAlias(name)) {
+			return child
+		}
+	}
+	return nil
+}
+
+// CommandExposableOverMCP reports whether cmd may be surfaced as an MCP tool:
+// cmd must be non-nil, and neither it nor any ancestor may be Cobra-hidden or
+// mcp:hidden. Recipe intents call it so a recipe cannot re-expose a command the
+// mirror walker would have pruned (for example a hidden `share publish`).
+func CommandExposableOverMCP(cmd *cobra.Command) bool {
+	if cmd == nil {
+		return false
+	}
+	for c := cmd; c != nil; c = c.Parent() {
+		if c.Hidden || isMCPHidden(c) {
+			return false
+		}
+	}
+	return true
+}
+
+// CommandAllowedUnderMCPReadOnly reports whether a recipe wrapping cmd may be
+// exposed while the MCP read-only switch is on. It mirrors the endpoint rule:
+// only a command annotated mcp:read-only or mcp:local-write stays available.
+// Callers gate on this only when the read-only switch is actually set.
+func CommandAllowedUnderMCPReadOnly(cmd *cobra.Command) bool {
+	return isMCPReadOnly(cmd) || isMCPLocalWrite(cmd)
+}

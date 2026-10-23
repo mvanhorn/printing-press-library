@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "generated_at": "2026-08-14T12:37:00.917216Z",
-  "printing_press_version": "4.30.2",
+  "printing_press_version": "4.33.10",
   "api_name": "sarvam",
   "cli_name": "sarvam-pp-cli",
   "creator": {

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-07-03T09:51:46.012198Z",
-  "printing_press_version": "4.27.0",
+  "printing_press_version": "4.33.10",
   "api_name": "netlify",
   "cli_name": "netlify-pp-cli",
   "creator": {
