@@ -1,0 +1,622 @@
+name: app-store
+description: Discovered API spec for apps-apple
+version: 0.1.0
+base_url: https://apps.apple.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "limit[reviews]" from query: search input'
+config:
+    format: toml
+    path: ~/.config/app-store-pp-cli/config.toml
+resources:
+    apps:
+        description: Operations on contents
+        endpoints:
+            get_apps:
+                method: GET
+                path: /api/apps/v1/catalog/us/apps/{app_id}
+                description: GET /api/apps/v1/catalog/us/apps/{app_id}
+                params:
+                    - name: additionalPlatforms
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: app_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The app_id path segment
+                      fields: []
+                    - name: availableIn[app-events]
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: extend
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: extend[app-events]
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: extend[apps]
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: include
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: include[apps]
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: l
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: limit[reviews]
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: platform
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sparseLimit[apps:customers-also-bought-apps]
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sparseLimit[apps:developer-other-apps]
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sparseLimit[apps:related-editorial-items]
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sparseLimit[apps:reviews]
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: views
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: AppData
+                pagination: null
+                response_path: data
+                observed_auth:
+                    - authorization
+            get_contents:
+                method: GET
+                path: /api/apps/v1/editorial/us/collections/{collection_id}/contents
+                description: GET /api/apps/v1/editorial/us/collections/{collection_id}/contents
+                params:
+                    - name: collection_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The collection_id path segment
+                      fields: []
+                    - name: extend[editorial-items]
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: extend[editorial-pages]
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: l
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: platform
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: previewPlatform
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sparseLimit[card-contents]
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: contents
+                pagination: null
+                observed_auth:
+                    - authorization
+            get_developers:
+                method: GET
+                path: /api/apps/v1/catalog/us/developers/{developer_id}
+                description: GET /api/apps/v1/catalog/us/developers/{developer_id}
+                params:
+                    - name: additionalPlatforms
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: developer_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The developer_id path segment
+                      fields: []
+                    - name: extend
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: extend[apps]
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: include
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: l
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: platform
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sparseLimit[developers:ios-apps]
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: with
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: DeveloperData
+                pagination: null
+                response_path: data
+                observed_auth:
+                    - authorization
+            list_groupings:
+                method: GET
+                path: /api/apps/v1/editorial/us/groupings
+                description: GET /api/apps/v1/editorial/us/groupings
+                params:
+                    - name: additionalPlatforms
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: extend
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: extend[app-events]
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: extend[apps]
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: include[app-events]
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: include[editorial-items]
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: l
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: meta[editorial-elements:contents]
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: meta[marketing-items]
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: name
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: platform
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: previewPlatform
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sparseCount
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sparseLimit[editorial-elements:contents]
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: with
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: groupings
+                pagination: null
+                observed_auth:
+                    - authorization
+    manifest.json:
+        description: Operations on manifest.json
+        endpoints:
+            list_manifest.json:
+                method: GET
+                path: /manifest.json
+                description: GET /manifest.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: manifest.json
+                pagination: null
+    us:
+        description: Operations on charts
+        endpoints:
+            get_charts:
+                method: GET
+                path: /us/iphone/charts/{chart_id}
+                description: Fetch structured metadata from /us/iphone/charts/{chart_id}
+                params:
+                    - name: chart
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: chart_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The chart_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+types:
+    AppData:
+        fields:
+            - name: attributes
+              type: ref:Attributes
+            - name: href
+              type: string
+            - name: id
+              type: string
+            - name: meta
+              type: ref:Meta
+              omit_empty: true
+            - name: relationships
+              type: ref:Relationships
+            - name: type
+              type: string
+            - name: views
+              type: ref:Views
+              omit_empty: true
+    Attributes:
+        fields:
+            - name: accessibility
+              type: object
+              omit_empty: true
+            - name: accessibilityDetails
+              type: object
+              omit_empty: true
+            - name: ageRating
+              type: object
+              omit_empty: true
+            - name: artistName
+              type: string
+            - name: chartPositions
+              type: object
+              omit_empty: true
+            - name: contentRatingsBySystem
+              type: object
+            - name: deviceFamilies
+              type: array
+            - name: distributionKind
+              type: string
+              omit_empty: true
+            - name: familyShareEnabledDate
+              type: string
+              format: date-time
+            - name: fileSizeByDevice
+              type: object
+              omit_empty: true
+            - name: firstVersionSupportingInAppPurchaseApi
+              type: string
+            - name: genreDisplayName
+              type: string
+            - name: hasEula
+              type: bool
+            - name: isFirstPartyHideableApp
+              type: bool
+            - name: isIOSBinaryMacOSCompatible
+              type: bool
+            - name: isPreorder
+              type: bool
+            - name: name
+              type: string
+            - name: platformAttributes
+              type: object
+            - name: privacy
+              type: object
+              omit_empty: true
+            - name: privacyDetails
+              type: object
+              omit_empty: true
+            - name: requirementsByDeviceFamily
+              type: object
+              omit_empty: true
+            - name: reviewsRestricted
+              type: bool
+            - name: sellerLabel
+              type: string
+            - name: supportsArcade
+              type: bool
+            - name: supportsStreamlinedBuy
+              type: bool
+            - name: url
+              type: string
+              format: url
+            - name: userRating
+              type: object
+            - name: usesLocationBackgroundMode
+              type: bool
+    Attributes2:
+        fields:
+            - name: editorialArtwork
+              type: object
+            - name: genreNames
+              type: array
+            - name: hasApps
+              type: bool
+            - name: hasGames
+              type: bool
+            - name: mediaType
+              type: string
+            - name: name
+              type: string
+            - name: url
+              type: string
+              format: url
+    DeveloperData:
+        fields:
+            - name: attributes
+              type: ref:Attributes2
+            - name: href
+              type: string
+            - name: id
+              type: string
+            - name: relationships
+              type: ref:Relationships2
+            - name: type
+              type: string
+    Meta:
+        fields:
+            - name: experimentData
+              type: object
+            - name: views
+              type: object
+    Relationships:
+        fields:
+            - name: alternate-apps
+              type: object
+              omit_empty: true
+            - name: app-bundles
+              type: object
+              omit_empty: true
+            - name: app-events
+              type: object
+              omit_empty: true
+            - name: customers-also-bought-apps
+              type: object
+              omit_empty: true
+            - name: developer
+              type: object
+            - name: developer-other-apps
+              type: object
+              omit_empty: true
+            - name: genres
+              type: object
+            - name: merchandised-in-apps
+              type: object
+              omit_empty: true
+            - name: related-editorial-items
+              type: object
+              omit_empty: true
+            - name: reviews
+              type: object
+    Relationships2:
+        fields:
+            - name: app-bundles
+              type: object
+            - name: arcade-apps
+              type: object
+            - name: atv-apps
+              type: object
+            - name: imessage-apps
+              type: object
+            - name: ios-apps
+              type: object
+            - name: latest-release-app
+              type: object
+            - name: mac-apps
+              type: object
+            - name: system-apps
+              type: object
+            - name: watch-apps
+              type: object
+            - name: xros-apps
+              type: object
+    Views:
+        fields:
+            - name: categorizations
+              type: object
+            - name: top-in-app-purchasables
+              type: object

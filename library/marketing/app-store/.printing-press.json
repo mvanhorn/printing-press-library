@@ -1,0 +1,96 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-24T10:15:32.303488Z",
+  "printing_press_version": "4.33.10",
+  "api_name": "app-store",
+  "display_name": "App Store",
+  "cli_name": "app-store-pp-cli",
+  "creator": {
+    "handle": "qazmataz",
+    "name": "qazmataz"
+  },
+  "owner": "qazmataz",
+  "printer": "qazmataz",
+  "printer_name": "qazmataz",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:3beb34ee8b5b8ccff3ff9f5b240717e3ded4fa4c616c5734e72a3cfbd59be87a",
+  "run_id": "20261023-151515-ab5f6220",
+  "category": "marketing",
+  "description": "Apple App Store charts, listings, ratings and reviews for any storefront from one Go binary, with a local history that turns repeated captures into rank, listing-change and traction trends.",
+  "mcp_binary": "app-store-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Traction by storefront",
+      "command": "traction",
+      "description": "See per-country demand signals for any app, rolled up daily, monthly, annually or all-time: new ratings, chart rank and review volume, clearly labelled as proxies."
+    },
+    {
+      "name": "Release and change impact",
+      "command": "impact",
+      "description": "Compare rank, new ratings, review stars and keyword positions in equal windows before and after a release, listing change or date."
+    },
+    {
+      "name": "Cross-app change feed",
+      "command": "changes",
+      "description": "One dated feed of every change across your tracked apps: new versions, title and subtitle edits, price and in-app purchase price changes, privacy labels, events and featuring."
+    },
+    {
+      "name": "Keyword share of voice",
+      "command": "keyword-share",
+      "description": "See which apps hold the top search results across a set of tracked terms and how that share moved since the last capture."
+    },
+    {
+      "name": "Multi-storefront breakouts",
+      "command": "breakouts",
+      "description": "Find apps climbing or entering the same chart in several countries at once."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Traction by storefront",
+      "command": "traction",
+      "description": "See per-country demand signals for any app, rolled up daily, monthly, annually or all-time: new ratings, chart rank and review volume, clearly labelled as proxies."
+    },
+    {
+      "name": "Release and change impact",
+      "command": "impact",
+      "description": "Compare rank, new ratings, review stars and keyword positions in equal windows before and after a release, listing change or date."
+    },
+    {
+      "name": "Cross-app change feed",
+      "command": "changes",
+      "description": "One dated feed of every change across your tracked apps: new versions, title and subtitle edits, price and in-app purchase price changes, privacy labels, events and featuring."
+    },
+    {
+      "name": "Keyword share of voice",
+      "command": "keyword-share",
+      "description": "See which apps hold the top search results across a set of tracked terms and how that share moved since the last capture."
+    },
+    {
+      "name": "Multi-storefront breakouts",
+      "command": "breakouts",
+      "description": "Find apps climbing or entering the same chart in several countries at once."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 51,
+    "total": 51,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 80,
+      "grade": "A",
+      "total": 80
+    }
+  }
+}

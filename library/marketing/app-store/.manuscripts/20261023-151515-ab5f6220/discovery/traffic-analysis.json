@@ -1,0 +1,1738 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://apps.apple.com/us/iphone/today",
+    "entry_count": 669,
+    "api_entry_count": 18,
+    "noise_entry_count": 651,
+    "host_distribution": {
+      "apps.apple.com": 99,
+      "apptrailers.itunes.apple.com": 120,
+      "is1-ssl.mzstatic.com": 405,
+      "js-cdn.music.apple.com": 8,
+      "www.apple.com": 7,
+      "xp.apple.com": 26
+    },
+    "http_version_distribution": {
+      "h2": 207,
+      "h3": 314,
+      "http/1.1": 148
+    },
+    "time_start": "2026-10-23T12:19:16.035923968Z",
+    "time_end": "2026-10-23T12:24:02.478Z"
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.65,
+    "reasons": [
+      "no browser-only reachability signals observed"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "ssr_embedded_data",
+      "confidence": 0.85,
+      "evidence": [
+        {
+          "entry_index": 197,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/us/iphone/charts/36",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML contains embedded structured data"
+        }
+      ],
+      "details": {
+        "signature": "application/ld+json"
+      }
+    },
+    {
+      "label": "rest_json",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 50,
+          "method": "GET",
+          "host": "xp.apple.com",
+          "path": "/config/1/report/xp_amp_appstore_unidentified",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 51,
+          "method": "GET",
+          "host": "xp.apple.com",
+          "path": "/config/1/report/xp_amp_appstore_perf",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 54,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/collections/1842456901/contents",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 119,
+          "method": "POST",
+          "host": "xp.apple.com",
+          "path": "/report/2/xp_amp_appstore_perf",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 125,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/groupings",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 196,
+          "method": "POST",
+          "host": "xp.apple.com",
+          "path": "/report/2/xp_amp_appstore_perf",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 253,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 263,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/collections/1842456901/contents",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 265,
+          "method": "GET",
+          "host": "xp.apple.com",
+          "path": "/config/1/report/xp_amp_appstore_perf",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 266,
+          "method": "GET",
+          "host": "xp.apple.com",
+          "path": "/config/1/report/xp_amp_appstore_unidentified",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 276,
+          "method": "POST",
+          "host": "xp.apple.com",
+          "path": "/report/2/xp_amp_appstore_perf",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 277,
+          "method": "POST",
+          "host": "xp.apple.com",
+          "path": "/report/2/xp_amp_appstore_unidentified",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 309,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 319,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/collections/1842456901/contents",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 321,
+          "method": "GET",
+          "host": "xp.apple.com",
+          "path": "/config/1/report/xp_amp_appstore_perf",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 322,
+          "method": "GET",
+          "host": "xp.apple.com",
+          "path": "/config/1/report/xp_amp_appstore_unidentified",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 332,
+          "method": "POST",
+          "host": "xp.apple.com",
+          "path": "/report/2/xp_amp_appstore_perf",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 333,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/groupings",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 382,
+          "method": "POST",
+          "host": "xp.apple.com",
+          "path": "/report/2/xp_amp_appstore_perf",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 383,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/catalog/us/apps/1621328561",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 430,
+          "method": "POST",
+          "host": "xp.apple.com",
+          "path": "/report/2/xp_amp_appstore_perf",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 431,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/catalog/us/apps/1621328561",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 449,
+          "method": "POST",
+          "host": "xp.apple.com",
+          "path": "/report/2/xp_amp_appstore_unidentified",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 450,
+          "method": "POST",
+          "host": "xp.apple.com",
+          "path": "/report/2/xp_amp_appstore_perf",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 460,
+          "method": "POST",
+          "host": "xp.apple.com",
+          "path": "/report/2/xp_amp_appstore_perf",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 461,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/catalog/us/developers/305003647",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 473,
+          "method": "POST",
+          "host": "xp.apple.com",
+          "path": "/report/2/xp_amp_appstore_perf",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 520,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 536,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/collections/1842456901/contents",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 538,
+          "method": "GET",
+          "host": "xp.apple.com",
+          "path": "/config/1/report/xp_amp_appstore_perf",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 539,
+          "method": "GET",
+          "host": "xp.apple.com",
+          "path": "/config/1/report/xp_amp_appstore_unidentified",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 589,
+          "method": "POST",
+          "host": "xp.apple.com",
+          "path": "/report/2/xp_amp_appstore_perf",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 635,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 639,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/collections/1842456901/contents",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 641,
+          "method": "GET",
+          "host": "xp.apple.com",
+          "path": "/config/1/report/xp_amp_appstore_perf",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 642,
+          "method": "GET",
+          "host": "xp.apple.com",
+          "path": "/config/1/report/xp_amp_appstore_unidentified",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 665,
+          "method": "POST",
+          "host": "xp.apple.com",
+          "path": "/report/2/xp_amp_appstore_perf",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 666,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/catalog/us/developers/526656015",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 667,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/catalog/us/apps/553834731",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 668,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/catalog/us/apps/850417475",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        }
+      ]
+    }
+  ],
+  "auth": {},
+  "endpoint_clusters": [
+    {
+      "host": "apps.apple.com",
+      "method": "GET",
+      "path": "/api/apps/v1/catalog/us/apps/{app_id}",
+      "count": 4,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "large",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "data",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "authorization"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 383,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/catalog/us/apps/1621328561",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 431,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/catalog/us/apps/1621328561",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 667,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/catalog/us/apps/553834731",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 668,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/catalog/us/apps/850417475",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "apps.apple.com",
+      "method": "GET",
+      "path": "/api/apps/v1/catalog/us/developers/{developer_id}",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "large",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "data",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "observed_auth": [
+        "authorization"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 461,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/catalog/us/developers/305003647",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 666,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/catalog/us/developers/526656015",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "apps.apple.com",
+      "method": "GET",
+      "path": "/api/apps/v1/editorial/us/collections/{collection_id}/contents",
+      "count": 5,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "authorization"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 54,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/collections/1842456901/contents",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 263,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/collections/1842456901/contents",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 319,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/collections/1842456901/contents",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 536,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/collections/1842456901/contents",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 639,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/collections/1842456901/contents",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "apps.apple.com",
+      "method": "GET",
+      "path": "/api/apps/v1/editorial/us/groupings",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "observed_auth": [
+        "authorization"
+      ],
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 125,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/groupings",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 333,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/groupings",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "apps.apple.com",
+      "method": "GET",
+      "path": "/manifest.json",
+      "count": 5,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 253,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 309,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 520,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 635,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "request_sequences": [
+    {
+      "label": "observed_api_flow",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 54,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/collections/1842456901/contents",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 125,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/groupings",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 253,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 263,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/collections/1842456901/contents",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 309,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 319,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/collections/1842456901/contents",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 333,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/groupings",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        }
+      ],
+      "notes": [
+        "HAR timing available for at least one request."
+      ]
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "get_apps",
+      "resource": "apps",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/apps/v1/catalog/us/apps/{app_id} traffic.",
+      "evidence": [
+        {
+          "entry_index": 383,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/catalog/us/apps/1621328561",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 431,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/catalog/us/apps/1621328561",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 667,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/catalog/us/apps/553834731",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 668,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/catalog/us/apps/850417475",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_contents",
+      "resource": "contents",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/apps/v1/editorial/us/collections/{collection_id}/contents traffic.",
+      "evidence": [
+        {
+          "entry_index": 54,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/collections/1842456901/contents",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 263,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/collections/1842456901/contents",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 319,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/collections/1842456901/contents",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 536,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/collections/1842456901/contents",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 639,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/collections/1842456901/contents",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_developers",
+      "resource": "developers",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/apps/v1/catalog/us/developers/{developer_id} traffic.",
+      "evidence": [
+        {
+          "entry_index": 461,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/catalog/us/developers/305003647",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 666,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/catalog/us/developers/526656015",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_groupings",
+      "resource": "groupings",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/apps/v1/editorial/us/groupings traffic.",
+      "evidence": [
+        {
+          "entry_index": 125,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/groupings",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 333,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/groupings",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_manifest.json",
+      "resource": "manifest.json",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /manifest.json traffic.",
+      "evidence": [
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 253,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 309,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 520,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 635,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "generation_hints": [
+    "weak_schema_confidence"
+  ],
+  "warnings": [
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 125,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/groupings",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 263,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/collections/1842456901/contents",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 319,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/collections/1842456901/contents",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 333,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/groupings",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 383,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/catalog/us/apps/1621328561",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 431,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/catalog/us/apps/1621328561",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 448,
+          "method": "GET",
+          "host": "www.apple.com",
+          "path": "/wss/fonts/SF-Pro-Icons/v1/SFProIcons_regular.woff",
+          "status": 200,
+          "content_type": "font/woff",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 461,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/catalog/us/developers/305003647",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 536,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/collections/1842456901/contents",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 54,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/collections/1842456901/contents",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 639,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/api/apps/v1/editorial/us/collections/1842456901/contents",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 118,
+          "method": "OPTIONS",
+          "host": "xp.apple.com",
+          "path": "/report/2/xp_amp_appstore_perf",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 17,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/assets/fonts/locale-switcher/ArabicUIText-Regular-subset.woff2",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 198,
+          "method": "GET",
+          "host": "is1-ssl.mzstatic.com",
+          "path": "/image/thumb/PurpleSource211/v4/67/e2/84/67e28477-4843-a834-93b8-b1bf0a521d87/Placeholder.mill/64x64Icon.ApSiOS01-75.webp",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 199,
+          "method": "GET",
+          "host": "is1-ssl.mzstatic.com",
+          "path": "/image/thumb/PurpleSource221/v4/fe/83/a0/fe83a0bb-ff7f-4276-0e86-013e5c9cba50/Placeholder.mill/64x64Icon.ApSiOS01-75.webp",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 200,
+          "method": "GET",
+          "host": "is1-ssl.mzstatic.com",
+          "path": "/image/thumb/PurpleSource221/v4/5c/b9/5e/5cb95e03-c341-a0ec-b9b6-ba7d7835bd86/Placeholder.mill/64x64Icon.ApSiOS01-75.webp",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 201,
+          "method": "GET",
+          "host": "is1-ssl.mzstatic.com",
+          "path": "/image/thumb/PurpleSource221/v4/f5/c0/79/f5c079dc-5841-ae31-bc43-269eeabf99bc/Placeholder.mill/64x64Icon.ApSiOS01-75.webp",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 202,
+          "method": "GET",
+          "host": "is1-ssl.mzstatic.com",
+          "path": "/image/thumb/PurpleSource211/v4/23/ba/f1/23baf135-976b-498a-dafb-2d3e9c850607/Placeholder.mill/64x64Icon.ApSiOS01-75.webp",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 203,
+          "method": "GET",
+          "host": "is1-ssl.mzstatic.com",
+          "path": "/image/thumb/PurpleSource211/v4/4a/1f/92/4a1f92e1-b1fe-e553-47b0-c430a4a99f24/Placeholder.mill/64x64Icon.ApSiOS01-75.webp",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 204,
+          "method": "GET",
+          "host": "is1-ssl.mzstatic.com",
+          "path": "/image/thumb/PurpleSource211/v4/32/9f/a9/329fa94a-2b40-6de8-8835-77c0a5d13919/Placeholder.mill/64x64Icon.ApSiOS01-75.webp",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 205,
+          "method": "GET",
+          "host": "is1-ssl.mzstatic.com",
+          "path": "/image/thumb/PurpleSource211/v4/19/da/75/19da750c-03ae-9976-9919-ee80796e184d/Placeholder.mill/64x64Icon.ApSiOS01-75.webp",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 207,
+          "method": "GET",
+          "host": "is1-ssl.mzstatic.com",
+          "path": "/image/thumb/PurpleSource221/v4/14/04/a3/1404a319-0a86-5f8a-ef1d-331b2f8c2658/Placeholder.mill/64x64Icon.ApSiOS01-75.webp",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 208,
+          "method": "GET",
+          "host": "is1-ssl.mzstatic.com",
+          "path": "/image/thumb/PurpleSource211/v4/e6/09/b8/e609b8e8-ca97-7980-7ec9-8411dc943c02/Placeholder.mill/64x64Icon.ApSiOS01-75.webp",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 209,
+          "method": "GET",
+          "host": "is1-ssl.mzstatic.com",
+          "path": "/image/thumb/PurpleSource221/v4/5e/cb/67/5ecb6705-d7f9-502b-8a39-fa2f73398585/Placeholder.mill/64x64Icon.ApSiOS01-75.webp",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 210,
+          "method": "GET",
+          "host": "is1-ssl.mzstatic.com",
+          "path": "/image/thumb/PurpleSource211/v4/5c/35/ef/5c35ef9d-98a2-12a1-e8a0-fdcf3ec5b22d/Placeholder.mill/64x64Icon.ApSiOS01-75.webp",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 211,
+          "method": "GET",
+          "host": "is1-ssl.mzstatic.com",
+          "path": "/image/thumb/PurpleSource211/v4/59/63/cd/5963cd8b-3048-96b8-2e8c-b15c14a11d63/Placeholder.mill/64x64Icon.ApSiOS01-75.webp",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 212,
+          "method": "GET",
+          "host": "is1-ssl.mzstatic.com",
+          "path": "/image/thumb/PurpleSource211/v4/b9/2a/d4/b92ad445-5bc8-6117-7338-44788d832da2/Placeholder.mill/64x64Icon.ApSiOS01-75.webp",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 213,
+          "method": "GET",
+          "host": "is1-ssl.mzstatic.com",
+          "path": "/image/thumb/PurpleSource211/v4/4c/ff/08/4cff087a-6dab-13ff-b18d-d0daefc49f1c/Placeholder.mill/64x64Icon.ApSiOS01-75.webp",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 214,
+          "method": "GET",
+          "host": "is1-ssl.mzstatic.com",
+          "path": "/image/thumb/PurpleSource211/v4/a3/cf/c2/a3cfc207-7cbe-0365-eb55-8b1465b2dee6/Placeholder.mill/64x64Icon.ApSiOS01-75.webp",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 215,
+          "method": "GET",
+          "host": "is1-ssl.mzstatic.com",
+          "path": "/image/thumb/PurpleSource211/v4/a7/1b/3b/a71b3b3a-4468-f5fb-eeb8-1758ec372945/Placeholder.mill/64x64Icon.ApSiOS01-75.webp",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 216,
+          "method": "GET",
+          "host": "is1-ssl.mzstatic.com",
+          "path": "/image/thumb/PurpleSource221/v4/26/82/cc/2682cc00-8d82-c85c-5f1a-a17f06a37d22/Placeholder.mill/64x64Icon.ApSiOS01-75.webp",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 217,
+          "method": "GET",
+          "host": "is1-ssl.mzstatic.com",
+          "path": "/image/thumb/PurpleSource211/v4/54/5d/55/545d555e-aee0-54e7-4746-1b109eb380ed/Placeholder.mill/64x64Icon.ApSiOS01-75.webp",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 218,
+          "method": "GET",
+          "host": "is1-ssl.mzstatic.com",
+          "path": "/image/thumb/PurpleSource211/v4/13/74/c4/1374c4de-4355-5c64-70a5-f44a7d0d17d0/Placeholder.mill/64x64Icon.ApSiOS01-75.webp",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 219,
+          "method": "GET",
+          "host": "is1-ssl.mzstatic.com",
+          "path": "/image/thumb/PurpleSource211/v4/51/10/25/511025e8-7157-ccb2-2ef7-12350695772e/Placeholder.mill/64x64Icon.ApSiOS01-75.webp",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 220,
+          "method": "GET",
+          "host": "is1-ssl.mzstatic.com",
+          "path": "/image/thumb/PurpleSource221/v4/b8/d5/69/b8d56951-7c78-5e90-e658-db25946d3057/Placeholder.mill/64x64Icon.ApSiOS01-75.webp",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 221,
+          "method": "GET",
+          "host": "is1-ssl.mzstatic.com",
+          "path": "/image/thumb/PurpleSource211/v4/80/b7/da/80b7dabd-0d5a-9472-d545-0451106419ba/Placeholder.mill/64x64Icon.ApSiOS01-75.webp",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 222,
+          "method": "GET",
+          "host": "is1-ssl.mzstatic.com",
+          "path": "/image/thumb/PurpleSource221/v4/d0/36/3b/d0363b0d-f57a-13ea-dcf6-5515fda8a9de/Placeholder.mill/64x64Icon.ApSiOS01-75.webp",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 226,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/assets/fonts/locale-switcher/ArabicUIText-Regular-subset.woff2",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 283,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/assets/fonts/locale-switcher/ArabicUIText-Regular-subset.woff2",
+          "status": 304,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 418,
+          "method": "GET",
+          "path": "/63b9b6b8-124f-462b-8c11-cacc655298d8",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 478,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/assets/fonts/locale-switcher/ArabicUIText-Regular-subset.woff2",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 48,
+          "method": "OPTIONS",
+          "host": "xp.apple.com",
+          "path": "/config/1/report/xp_amp_appstore_unidentified",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 49,
+          "method": "OPTIONS",
+          "host": "xp.apple.com",
+          "path": "/config/1/report/xp_amp_appstore_perf",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 540,
+          "method": "GET",
+          "path": "/1f20173b-7f15-4b9a-9623-c217a2b62dd9",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 599,
+          "method": "GET",
+          "host": "apps.apple.com",
+          "path": "/assets/fonts/locale-switcher/ArabicUIText-Regular-subset.woff2",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 643,
+          "method": "GET",
+          "path": "/3f9b5c58-a5c1-450f-b110-b6cc2f0dd565",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 68,
+          "method": "GET",
+          "path": "/3290d230-4d36-4ff4-aa47-60450a22b112",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    }
+  ]
+}

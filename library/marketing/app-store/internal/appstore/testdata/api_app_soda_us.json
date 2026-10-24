@@ -1,0 +1,223 @@
+{
+ "data": [
+  {
+   "id": "850417475",
+   "type": "apps",
+   "attributes": {
+    "name": "Candy Crush Soda Saga",
+    "artistName": "King",
+    "url": "https://apps.apple.com/us/app/candy-crush-soda-saga/id850417475",
+    "userRating": {
+     "ariaLabelForRatings": "4.7 stars",
+     "ratingCount": 778842,
+     "ratingCountList": [
+      14687,
+      8571,
+      27830,
+      82022,
+      645732
+     ],
+     "value": 4.7
+    }
+   },
+   "views": {
+    "categorizations": {
+     "data": [
+      {
+       "id": "7003",
+       "type": "genres",
+       "href": "/v1/catalog/us/genres/7003?l=en-US",
+       "attributes": {
+        "name": "Casual",
+        "parentId": "6014",
+        "parentName": "Games",
+        "url": "https://itunes.apple.com/us/genre/id7003"
+       }
+      },
+      {
+       "id": "tg.3172",
+       "type": "tags",
+       "href": "/v1/catalog/us/tags/tg.3172?l=en-US",
+       "attributes": {
+        "name": "Matching"
+       }
+      },
+      {
+       "id": "tg.3306",
+       "type": "tags",
+       "href": "/v1/catalog/us/tags/tg.3306?l=en-US",
+       "attributes": {
+        "name": "Cartoony"
+       }
+      }
+     ]
+    },
+    "top-in-app-purchasables": {
+     "next": "/v1/catalog/us/apps/850417475/view/top-in-app-purchasables?l=en-US&offset=10",
+     "data": [
+      {
+       "id": "1455390578",
+       "type": "in-apps",
+       "attributes": {
+        "name": "Dainty offer",
+        "isSubscription": false,
+        "offers": [
+         {
+          "currencyCode": "USD",
+          "price": 1.99,
+          "priceFormatted": "$1.99",
+          "type": "buy"
+         }
+        ]
+       }
+      },
+      {
+       "id": "867510796",
+       "type": "in-apps",
+       "attributes": {
+        "name": "Extra Small Gold Bar Package",
+        "isSubscription": false,
+        "offers": [
+         {
+          "currencyCode": "USD",
+          "price": 0.99,
+          "priceFormatted": "$0.99",
+          "type": "buy"
+         }
+        ]
+       }
+      },
+      {
+       "id": "1084724955",
+       "type": "in-apps",
+       "attributes": {
+        "name": "Hard Currency 2 XS",
+        "isSubscription": false,
+        "offers": [
+         {
+          "currencyCode": "USD",
+          "price": 0.99,
+          "priceFormatted": "$0.99",
+          "type": "buy"
+         }
+        ]
+       }
+      },
+      {
+       "id": "1172828416",
+       "type": "in-apps",
+       "attributes": {
+        "name": "Hard Currency 3 XS",
+        "isSubscription": false,
+        "offers": [
+         {
+          "currencyCode": "USD",
+          "price": 1.99,
+          "priceFormatted": "$1.99",
+          "type": "buy"
+         }
+        ]
+       }
+      },
+      {
+       "id": "867515063",
+       "type": "in-apps",
+       "attributes": {
+        "name": "Small Gold Bar Package",
+        "isSubscription": false,
+        "offers": [
+         {
+          "currencyCode": "USD",
+          "price": 4.99,
+          "priceFormatted": "$4.99",
+          "type": "buy"
+         }
+        ]
+       }
+      },
+      {
+       "id": "1455345052",
+       "type": "in-apps",
+       "attributes": {
+        "name": "Sweet offer",
+        "isSubscription": false,
+        "offers": [
+         {
+          "currencyCode": "USD",
+          "price": 3.99,
+          "priceFormatted": "$3.99",
+          "type": "buy"
+         }
+        ]
+       }
+      },
+      {
+       "id": "1084731717",
+       "type": "in-apps",
+       "attributes": {
+        "name": "Offer Small",
+        "isSubscription": false,
+        "offers": [
+         {
+          "currencyCode": "USD",
+          "price": 6.99,
+          "priceFormatted": "$6.99",
+          "type": "buy"
+         }
+        ]
+       }
+      },
+      {
+       "id": "1455347601",
+       "type": "in-apps",
+       "attributes": {
+        "name": "Juicy offer",
+        "isSubscription": false,
+        "offers": [
+         {
+          "currencyCode": "USD",
+          "price": 8.99,
+          "priceFormatted": "$8.99",
+          "type": "buy"
+         }
+        ]
+       }
+      },
+      {
+       "id": "1455392501",
+       "type": "in-apps",
+       "attributes": {
+        "name": "Sweet offer",
+        "isSubscription": false,
+        "offers": [
+         {
+          "currencyCode": "USD",
+          "price": 4.99,
+          "priceFormatted": "$4.99",
+          "type": "buy"
+         }
+        ]
+       }
+      },
+      {
+       "id": "1455631310",
+       "type": "in-apps",
+       "attributes": {
+        "name": "Sweet offer",
+        "isSubscription": false,
+        "offers": [
+         {
+          "currencyCode": "USD",
+          "price": 5.99,
+          "priceFormatted": "$5.99",
+          "type": "buy"
+         }
+        ]
+       }
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

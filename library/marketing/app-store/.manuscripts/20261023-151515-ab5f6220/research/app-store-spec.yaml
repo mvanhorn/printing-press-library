@@ -1,0 +1,184 @@
+name: app-store
+description: "App Store intelligence from Apple's public storefront and keyless iTunes APIs: top-200 charts, full listings, reviews across storefronts, privacy labels, version history, in-app purchase prices and events, with a local SQLite history for rank, listing, keyword and per-country traction tracking."
+version: "0.1.0"
+base_url: "https://itunes.apple.com"
+# probe-reachability on the storefront proxy and the browser capture both classified
+# the runtime as standard_http (2026-10-23).
+http_transport: standard
+category: marketing
+health_check_path: "/lookup?id=324684580&country=us"
+# Owner decision at Phase Gate 1.5: send a Chrome browser user agent, matching the
+# sibling google-play CLI.
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/app-store-pp-cli/config.toml"
+
+learn:
+  ticker_patterns:
+    - "^(id)?[0-9]{6,12}$"
+    - "^[a-z0-9-]+(\\.[a-z0-9-]+){2,}$"
+  synonyms:
+    "top free": "top-free"
+    "top paid": "top-paid"
+    "top grossing": "top-grossing"
+    "iphone apps": "iphone"
+    "ipad apps": "ipad"
+    "mac apps": "mac"
+  entity_lookup_seeds:
+    app_genre:
+      - canonical: Games
+        aliases: [game, gaming]
+      - canonical: Books
+        aliases: [ebooks]
+      - canonical: Business
+      - canonical: Developer Tools
+        aliases: [dev tools, devtools]
+      - canonical: Education
+        aliases: [edu, learning]
+      - canonical: Entertainment
+      - canonical: Finance
+        aliases: [fintech, banking]
+      - canonical: Food & Drink
+        aliases: [food, food and drink]
+      - canonical: Graphics & Design
+        aliases: [design, graphics and design]
+      - canonical: Health & Fitness
+        aliases: [health, fitness, health and fitness]
+      - canonical: Lifestyle
+      - canonical: Magazines & Newspapers
+        aliases: [magazines, newspapers]
+      - canonical: Medical
+      - canonical: Music
+      - canonical: Navigation
+        aliases: [maps]
+      - canonical: News
+      - canonical: Photo & Video
+        aliases: [photo, video, photo and video]
+      - canonical: Productivity
+      - canonical: Reference
+      - canonical: Shopping
+        aliases: [ecommerce]
+      - canonical: Social Networking
+        aliases: [social, social media]
+      - canonical: Sports
+      - canonical: Travel
+      - canonical: Utilities
+        aliases: [utility, tools]
+      - canonical: Weather
+    game_genre:
+      - canonical: Action
+        aliases: [action games]
+      - canonical: Adventure
+        aliases: [adventure games]
+      - canonical: Board
+        aliases: [board games]
+      - canonical: Card
+        aliases: [card games]
+      - canonical: Casual
+        aliases: [casual games, arcade]
+      - canonical: Family
+        aliases: [family games]
+      - canonical: Puzzle
+        aliases: [puzzle games, puzzles]
+      - canonical: Racing
+        aliases: [racing games]
+      - canonical: Role-Playing
+        aliases: [rpg, role playing]
+      - canonical: Simulation
+        aliases: [sim, simulation games]
+      - canonical: Strategy
+        aliases: [strategy games]
+      - canonical: Trivia
+        aliases: [quiz]
+      - canonical: Word
+        aliases: [word games]
+    storefront:
+      - canonical: us
+        aliases: [united states, usa, america]
+      - canonical: gb
+        aliases: [united kingdom, uk, britain]
+      - canonical: pk
+        aliases: [pakistan]
+      - canonical: in
+        aliases: [india]
+      - canonical: jp
+        aliases: [japan]
+      - canonical: de
+        aliases: [germany]
+      - canonical: fr
+        aliases: [france]
+      - canonical: ca
+        aliases: [canada]
+      - canonical: au
+        aliases: [australia]
+      - canonical: br
+        aliases: [brazil]
+      - canonical: kr
+        aliases: [south korea, korea]
+      - canonical: cn
+        aliases: [china]
+      - canonical: ae
+        aliases: [uae, united arab emirates]
+      - canonical: sa
+        aliases: [saudi arabia, ksa]
+      - canonical: tr
+        aliases: [turkey, turkiye]
+      - canonical: id
+        aliases: [indonesia]
+      - canonical: mx
+        aliases: [mexico]
+      - canonical: es
+        aliases: [spain]
+      - canonical: it
+        aliases: [italy]
+
+resources:
+  categories:
+    description: "List App Store chart categories and their genre ids from the public charts pages"
+    base_url: "https://apps.apple.com"
+    endpoints:
+      list:
+        method: GET
+        path: "/us/iphone/charts/36"
+        description: "List App Store app categories (genre ids such as 6014 Games, 6026 Developer Tools, Kids age bands) as chart links from the public charts page"
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/us/iphone/charts"]
+      games:
+        method: GET
+        path: "/us/iphone/charts/6014"
+        description: "List App Store game subcategories (genre ids 7001-7019 such as 7012 Puzzle) as chart links from the public games charts page"
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/us/iphone/charts"]
+
+types:
+  App:
+    fields:
+      - name: trackId
+        type: int
+      - name: trackName
+        type: string
+      - name: bundleId
+        type: string
+      - name: artistName
+        type: string
+      - name: primaryGenreName
+        type: string
+      - name: averageUserRating
+        type: float
+      - name: userRatingCount
+        type: int
+      - name: price
+        type: float
+      - name: version
+        type: string
