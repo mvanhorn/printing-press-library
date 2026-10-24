@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-10-24T09:56:38.402402Z",
+  "cli_dir": "\u003ccli-dir\u003e/app-store-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-10-24T07:59:46.408073Z"
+  }
+}

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0">
+  <dict>
+    <key>title</key>
+    <string>Suggestions</string>
+    <key>hints</key>
+    <array>
+      <dict>
+        <key>term</key>
+        <string>instagram</string>
+        <key>url</key>
+        <string>https://search.itunes.apple.com/WebObjects/MZStore.woa/wa/search?clientApplication=Software&amp;src=hint&amp;submit=edit&amp;term=instagram</string>
+      </dict>
+      <dict>
+        <key>term</key>
+        <string>instacart</string>
+        <key>url</key>
+        <string>https://search.itunes.apple.com/WebObjects/MZStore.woa/wa/search?clientApplication=Software&amp;src=hint&amp;submit=edit&amp;term=instacart</string>
+      </dict>
+      <dict>
+        <key>term</key>
+        <string>instacart shopper</string>
+        <key>url</key>
+        <string>https://search.itunes.apple.com/WebObjects/MZStore.woa/wa/search?clientApplication=Software&amp;src=hint&amp;submit=edit&amp;term=instacart%20shopper</string>
+      </dict>
+      <dict>
+        <key>term</key>
+        <string>instawork</string>
+        <key>url</key>
+        <string>https://search.itunes.apple.com/WebObjects/MZStore.woa/wa/search?clientApplication=Software&amp;src=hint&amp;submit=edit&amp;term=instawork</string>
+      </dict>
+      <dict>
+        <key>term</key>
+        <string>insta360</string>
+        <key>url</key>
+        <string>https://search.itunes.apple.com/WebObjects/MZStore.woa/wa/search?clientApplication=Software&amp;src=hint&amp;submit=edit&amp;term=insta360</string>
+      </dict>
+      <dict>
+        <key>term</key>
+        <string>instagram unfollowers</string>
+        <key>url</key>
+        <string>https://search.itunes.apple.com/WebObjects/MZStore.woa/wa/search?clientApplication=Software&amp;src=hint&amp;submit=edit&amp;term=instagram%20unfollowers</string>
+      </dict>
+      <dict>
+        <key>term</key>
+        <string>instant cash advance</string>
+        <key>url</key>
+        <string>https://search.itunes.apple.com/WebObjects/MZStore.woa/wa/search?clientApplication=Software&amp;src=hint&amp;submit=edit&amp;term=instant%20cash%20advance</string>
+      </dict>
+      <dict>
+        <key>term</key>
+        <string>instants</string>
+        <key>url</key>
+        <string>https://search.itunes.apple.com/WebObjects/MZStore.woa/wa/search?clientApplication=Software&amp;src=hint&amp;submit=edit&amp;term=instants</string>
+      </dict>
+      <dict>
+        <key>term</key>
+        <string>instacart driver app</string>
+        <key>url</key>
+        <string>https://search.itunes.apple.com/WebObjects/MZStore.woa/wa/search?clientApplication=Software&amp;src=hint&amp;submit=edit&amp;term=instacart%20driver%20app</string>
+      </dict>
+      <dict>
+        <key>term</key>
+        <string>instants, an instagram app</string>
+        <key>url</key>
+        <string>https://search.itunes.apple.com/WebObjects/MZStore.woa/wa/search?clientApplication=Software&amp;src=hint&amp;submit=edit&amp;term=instants%2C%20an%20instagram%20app</string>
+      </dict>
+    </array>
+  </dict>
+</plist>

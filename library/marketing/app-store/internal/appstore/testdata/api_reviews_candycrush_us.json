@@ -1,0 +1,130 @@
+{
+ "next": "/v1/catalog/us/apps/553834731/reviews?l=en-US&offset=10",
+ "data": [
+  {
+   "id": "14652023608",
+   "type": "user-reviews",
+   "attributes": {
+    "date": "2026-10-11T01:59:17Z",
+    "isEdited": false,
+    "rating": 5,
+    "review": "Sample body 1",
+    "title": "Sample title 1",
+    "userName": "reviewer-1",
+    "developerResponse": {
+     "id": 1,
+     "body": "Sample developer response 1",
+     "modified": "2026-10-12T00:00:00Z"
+    }
+   }
+  },
+  {
+   "id": "14655593870",
+   "type": "user-reviews",
+   "attributes": {
+    "date": "2026-10-11T22:47:11Z",
+    "isEdited": false,
+    "rating": 5,
+    "review": "Sample body 2",
+    "title": "Sample title 2",
+    "userName": "reviewer-2"
+   }
+  },
+  {
+   "id": "14593829680",
+   "type": "user-reviews",
+   "attributes": {
+    "date": "2026-09-26T01:48:20Z",
+    "isEdited": false,
+    "rating": 4,
+    "review": "Sample body 3",
+    "title": "Sample title 3",
+    "userName": "reviewer-3"
+   }
+  },
+  {
+   "id": "14179007180",
+   "type": "user-reviews",
+   "attributes": {
+    "date": "2026-06-13T19:24:05Z",
+    "isEdited": false,
+    "rating": 5,
+    "review": "Sample body 4",
+    "title": "Sample title 4",
+    "userName": "reviewer-4"
+   }
+  },
+  {
+   "id": "14391625163",
+   "type": "user-reviews",
+   "attributes": {
+    "date": "2026-08-05T16:40:40Z",
+    "isEdited": false,
+    "rating": 5,
+    "review": "Sample body 5",
+    "title": "Sample title 5",
+    "userName": "reviewer-5"
+   }
+  },
+  {
+   "id": "14543185053",
+   "type": "user-reviews",
+   "attributes": {
+    "date": "2026-09-13T01:32:39Z",
+    "isEdited": false,
+    "rating": 4,
+    "review": "Sample body 6",
+    "title": "Sample title 6",
+    "userName": "reviewer-6"
+   }
+  },
+  {
+   "id": "14119959443",
+   "type": "user-reviews",
+   "attributes": {
+    "date": "2026-05-29T15:53:32Z",
+    "isEdited": false,
+    "rating": 5,
+    "review": "Sample body 7",
+    "title": "Sample title 7",
+    "userName": "reviewer-7"
+   }
+  },
+  {
+   "id": "14546987103",
+   "type": "user-reviews",
+   "attributes": {
+    "date": "2026-09-13T23:54:10Z",
+    "isEdited": false,
+    "rating": 5,
+    "review": "Sample body 8",
+    "title": "Sample title 8",
+    "userName": "reviewer-8"
+   }
+  },
+  {
+   "id": "14343374031",
+   "type": "user-reviews",
+   "attributes": {
+    "date": "2026-07-24T17:48:36Z",
+    "isEdited": false,
+    "rating": 5,
+    "review": "Sample body 9",
+    "title": "Sample title 9",
+    "userName": "reviewer-9"
+   }
+  },
+  {
+   "id": "14320616837",
+   "type": "user-reviews",
+   "attributes": {
+    "date": "2026-07-19T02:27:11Z",
+    "isEdited": false,
+    "rating": 5,
+    "review": "Sample body 10",
+    "title": "Sample title 10",
+    "userName": "reviewer-10"
+   }
+  }
+ ]
+}

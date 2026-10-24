@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/app-store-pp-cli
+/app-store-pp-cli.exe
+/app-store-pp-mcp
+/app-store-pp-mcp.exe
+/bin/
+/build/
+/dist/

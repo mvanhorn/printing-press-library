@@ -1,0 +1,34 @@
+{
+  "api_name": "app-store",
+  "base_url": "https://itunes.apple.com",
+  "description": "Apple App Store charts, listings, ratings and reviews for any storefront from one Go binary, with a local history that turns repeated captures into rank, listing-change and traction trends.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+    }
+  ],
+  "tools": [
+    {
+      "name": "categories_games",
+      "description": "List App Store game subcategories (genre ids 7001-7019 such as 7012 Puzzle) as chart links from the public games charts page.",
+      "method": "GET",
+      "path": "https://apps.apple.com/us/iphone/charts/6014",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "categories_list",
+      "description": "List App Store app categories (genre ids such as 6014 Games, 6026 Developer Tools, Kids age bands) as chart links from the public charts page.",
+      "method": "GET",
+      "path": "https://apps.apple.com/us/iphone/charts/36",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

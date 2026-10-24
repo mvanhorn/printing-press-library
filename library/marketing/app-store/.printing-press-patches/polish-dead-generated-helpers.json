@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "appstore-polish-dead-generated-helpers",
+  "applied_at": "2026-10-24",
+  "base_run_id": "20261023-151515-ab5f6220",
+  "base_printing_press_version": "4.33.10",
+  "summary": "Removed 9 generated helpers from internal/cli/helpers.go that no command calls: requiredInputWaived, endpointPositionalArgs, endpointArgsUsageErr, endpointUsageLine, booleanSpaceFormPositionalErr, booleanNoValueFlags, hasChangedLocalFlags, retainCLIQueryParams and retainExplicitQueryParams. paginatedGet's comment no longer names retainCLIQueryParams.",
+  "reason": "Dogfood reported all 9 as defined but never called (dead-functions WARN; scorecard dead_code 1/5). The generator emits them for typed endpoint commands, and this CLI's only generated endpoints (categories list and games) are replaced by offline commands, so nothing reaches them. A grep of every .go file, tests included, found no caller outside the removed set. Press retro candidate: emit these helpers only when a generated command uses them.",
+  "files": [
+    "internal/cli/helpers.go"
+  ],
+  "call_sites": [
+    "// Every value that reaches this loop, including an operator-set false/0,"
+  ],
+  "validated_outcome": "go build, gofmt, go vet and go test -count=1 ./... green (14 packages); dogfood Dead Functions 0 (was 9), verdict PASS (was WARN). No live requests were made for this change."
+}

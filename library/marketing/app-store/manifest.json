@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "app-store-pp-mcp",
+  "display_name": "App Store",
+  "version": "0.1.0",
+  "description": "Apple App Store charts, listings, ratings and reviews for any storefront from one Go binary, with a local history that turns repeated captures into rank, listing-change and traction trends.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/app-store-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/app-store-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

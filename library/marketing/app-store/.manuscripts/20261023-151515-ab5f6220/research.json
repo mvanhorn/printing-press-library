@@ -1,0 +1,278 @@
+{
+  "api_name": "app-store",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "facundoolano/app-store-scraper",
+      "url": "https://github.com/facundoolano/app-store-scraper",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 1436,
+      "last_updated": "",
+      "command_count": 13,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "google-play (Printing Press)",
+      "url": "https://github.com/mvanhorn/printing-press-library/tree/main/library/marketing/google-play",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 29,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "DIYgod/RSSHub",
+      "url": "https://github.com/DIYgod/RSSHub",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 46615,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "plahteenlahti/app-store-scraper",
+      "url": "https://github.com/plahteenlahti/app-store-scraper",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 19,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "drewster99/appstore-mcp-server",
+      "url": "https://github.com/drewster99/appstore-mcp-server",
+      "language": "Swift",
+      "install_method": "",
+      "stars": 7,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "appreply-co/mcp-appstore",
+      "url": "https://github.com/appreply-co/mcp-appstore",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 78,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "hristo2612/aso-cli",
+      "url": "https://github.com/hristo2612/aso-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 19,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "respectlytics/respectaso",
+      "url": "https://github.com/respectlytics/respectaso",
+      "language": "Python",
+      "install_method": "",
+      "stars": 529,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-23T13:02:39Z",
+  "novel_features": [
+    {
+      "name": "Traction by storefront",
+      "command": "traction",
+      "description": "See per-country demand signals for any app, rolled up daily, monthly, annually or all-time: new ratings, chart rank and review volume, clearly labelled as proxies.",
+      "rationale": "Apple publishes no download numbers; only a local history of per-storefront rating counts, chart ranks and reviews can turn today's values into a time series.",
+      "example": "app-store-pp-cli traction 324684580 --countries us,gb,pk --period monthly --agent",
+      "why_it_matters": "Reach for this when asked for downloads, installs or demand by country over time; it returns honest proxies instead of invented download counts.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Release and change impact",
+      "command": "impact",
+      "description": "Compare rank, new ratings, review stars and keyword positions in equal windows before and after a release, listing change or date.",
+      "rationale": "Requires joining stored version dates and listing changes with stored chart, rating, review and keyword captures; no store endpoint returns before/after views.",
+      "example": "app-store-pp-cli impact 324684580 --at latest --window 7d --agent",
+      "why_it_matters": "Use it to check whether a release or metadata change moved anything, with co-movement numbers and no causal claims.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Cross-app change feed",
+      "command": "changes",
+      "description": "One dated feed of every change across your tracked apps: new versions, title and subtitle edits, price and in-app purchase price changes, privacy labels, events and featuring.",
+      "rationale": "Built from diffs between consecutive stored snapshots across apps; the store only shows each app as it is now.",
+      "example": "app-store-pp-cli changes --since 7d --apps 553834731,850417475 --agent",
+      "why_it_matters": "Use it for a weekly competitor review instead of opening every listing.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Keyword share of voice",
+      "command": "keyword-share",
+      "description": "See which apps hold the top search results across a set of tracked terms and how that share moved since the last capture.",
+      "rationale": "Aggregates stored top-N result lists across many terms and captures; a live search answers one term at one moment.",
+      "example": "app-store-pp-cli keyword-share \"music streaming\" \"podcast player\" --country us --top 10 --app 324684580 --agent",
+      "why_it_matters": "Use it for keyword reports across a basket of terms rather than one term at a time.",
+      "group": "Market and keyword intelligence"
+    },
+    {
+      "name": "Multi-storefront breakouts",
+      "command": "breakouts",
+      "description": "Find apps climbing or entering the same chart in several countries at once.",
+      "rationale": "Joins stored chart snapshots across storefronts; each chart page covers one country.",
+      "example": "app-store-pp-cli breakouts --genre 6014 --chart top-free --since 7d --min-markets 3 --agent",
+      "why_it_matters": "Use it to separate a multi-market breakout from noise in one storefront.",
+      "group": "Market and keyword intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Traction by storefront",
+      "command": "traction",
+      "description": "See per-country demand signals for any app, rolled up daily, monthly, annually or all-time: new ratings, chart rank and review volume, clearly labelled as proxies.",
+      "rationale": "Apple publishes no download numbers; only a local history of per-storefront rating counts, chart ranks and reviews can turn today's values into a time series.",
+      "example": "app-store-pp-cli traction 324684580 --countries us,gb,pk --period monthly --agent",
+      "why_it_matters": "Reach for this when asked for downloads, installs or demand by country over time; it returns honest proxies instead of invented download counts.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Release and change impact",
+      "command": "impact",
+      "description": "Compare rank, new ratings, review stars and keyword positions in equal windows before and after a release, listing change or date.",
+      "rationale": "Requires joining stored version dates and listing changes with stored chart, rating, review and keyword captures; no store endpoint returns before/after views.",
+      "example": "app-store-pp-cli impact 324684580 --at latest --window 7d --agent",
+      "why_it_matters": "Use it to check whether a release or metadata change moved anything, with co-movement numbers and no causal claims.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Cross-app change feed",
+      "command": "changes",
+      "description": "One dated feed of every change across your tracked apps: new versions, title and subtitle edits, price and in-app purchase price changes, privacy labels, events and featuring.",
+      "rationale": "Built from diffs between consecutive stored snapshots across apps; the store only shows each app as it is now.",
+      "example": "app-store-pp-cli changes --since 7d --apps 553834731,850417475 --agent",
+      "why_it_matters": "Use it for a weekly competitor review instead of opening every listing.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Keyword share of voice",
+      "command": "keyword-share",
+      "description": "See which apps hold the top search results across a set of tracked terms and how that share moved since the last capture.",
+      "rationale": "Aggregates stored top-N result lists across many terms and captures; a live search answers one term at one moment.",
+      "example": "app-store-pp-cli keyword-share \"music streaming\" \"podcast player\" --country us --top 10 --app 324684580 --agent",
+      "why_it_matters": "Use it for keyword reports across a basket of terms rather than one term at a time.",
+      "group": "Market and keyword intelligence"
+    },
+    {
+      "name": "Multi-storefront breakouts",
+      "command": "breakouts",
+      "description": "Find apps climbing or entering the same chart in several countries at once.",
+      "rationale": "Joins stored chart snapshots across storefronts; each chart page covers one country.",
+      "example": "app-store-pp-cli breakouts --genre 6014 --chart top-free --since 7d --min-markets 3 --agent",
+      "why_it_matters": "Use it to separate a multi-market breakout from noise in one storefront.",
+      "group": "Market and keyword intelligence"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "App Store",
+    "headline": "Apple App Store charts, listings, ratings and reviews for any storefront from one Go binary, with a local history that turns repeated captures into rank, listing-change and traction trends.",
+    "value_prop": "Pull 200-rank free and paid charts (top-grossing: up to 100 rows from Apple's legacy feed), listings with privacy labels, version history, in-app purchase prices (the page's top 10) and in-app events, and both review feeds, for any app in any storefront, with no key and no account. Every capture lands in SQLite, so traction, impact, changes, keyword-share and breakouts answer week-over-week questions once you have captures from more than one day.",
+    "auth_narrative": "No API key or Apple account. By default commands read Apple's public iTunes Lookup, Search and RSS feeds and public App Store web pages. suggest calls Apple's undocumented search-hints endpoint, and --source web (search-store, keyword-rank) and --source api (reviews) reach robots-disallowed surfaces: use those only when asked. Data is per storefront: pass --country with a two-letter code; ratings, reviews, iap, prices and compare, and the local readers traction, impact, changes, breakouts and review-digest, also take --countries for a list. Other commands read one storefront per run.\n\nRun `app-store-pp-cli doctor` to verify setup (one paced iTunes Lookup).\n\nPacing: apps.apple.com pages go about 20 s apart across runs, other surfaces about 1 request per second (Search about 20 per minute). The first 403/429 stops the run (exit 7) and holds that host for at least 5 minutes, across runs; never retry in a loop.",
+    "quickstart": [
+      {
+        "command": "app-store-pp-cli doctor",
+        "comment": "Check configuration, resolved paths and reachability (one paced iTunes Lookup)."
+      },
+      {
+        "command": "app-store-pp-cli app 324684580 --country us --agent",
+        "comment": "Fetch one full listing (Spotify) and record a snapshot."
+      },
+      {
+        "command": "app-store-pp-cli top --chart top-free --genre 6014 --country pk --limit 50",
+        "comment": "Read a games chart and store it for movers and rank history."
+      },
+      {
+        "command": "app-store-pp-cli reviews 6448311069 --countries us,gb --sort recent",
+        "comment": "Archive the newest reviews from two storefronts."
+      },
+      {
+        "command": "app-store-pp-cli traction 324684580 --countries us,pk --period daily",
+        "comment": "Read per-country demand proxies once some history exists."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Exit code 7 or 'rate limited' after a burst of requests",
+        "fix": "Wait a few minutes, then retry with a narrower --countries list or a lower --rate-limit; the client stops at the first 403 or 429 on purpose and holds that host for at least 5 minutes, across runs. A 'may go only in Ns' message is the CLI's own pacing (apps.apple.com pages go about 20 s apart): nothing was sent, so rerun after that wait or raise --timeout."
+      },
+      {
+        "symptom": "reviews returns no rows for an app that has reviews",
+        "fix": "Apple's review feed arrives in lagged batches and is sometimes empty; retry later, and keep the default --sort both (or drop an explicit --sort recent) so the helpful feed is included."
+      },
+      {
+        "symptom": "impact reports insufficient_data, or traction returns empty results or null newRatings",
+        "fix": "These read only your local captures. Run the capture commands on more than one day: ratings, top and reviews for traction; app, ratings, top, reviews and keyword-rank for impact; app, iap, privacy, events and featured for changes; keyword-rank for keyword-share; top in several storefronts for breakouts. Schedule them daily with cron or launchd."
+      },
+      {
+        "symptom": "You need real download or sales numbers",
+        "fix": "Apple publishes none for public apps; for apps you own, use the asc CLI (App Store Connect)."
+      }
+    ],
+    "when_to_use": "Use this CLI for public App Store data on any app: listings, top charts (200 free and paid ranks), reviews across storefronts, privacy labels, version history, in-app purchase prices and in-app events. Its local SQLite history answers week-over-week questions: rank movement, listing changes, keyword share and per-country traction proxies. It needs no Apple account.",
+    "anti_triggers": [
+      "Do not use it for real download, sales or revenue numbers: Apple publishes none publicly. For download questions run traction and say its numbers are proxies, never downloads; for apps you own, the asc CLI reads App Store Connect sales.",
+      "Do not use it for App Store Connect work such as builds, TestFlight, submissions or replying to reviews.",
+      "Do not use it for Apple Search Ads campaigns or keyword popularity; use apple-search-ads.",
+      "Do not use it for Google Play apps; use google-play.",
+      "Do not use it to install, buy or download apps."
+    ],
+    "recipes": [
+      {
+        "title": "Top 200 free games in Pakistan",
+        "command": "app-store-pp-cli top --chart top-free --genre 6014 --country pk --limit 200 --agent --select rank,title,developerName,ratingCount",
+        "explanation": "One chart page plus two Lookup requests (150 + 50 ids) return 200 ranked games with exact rating counts."
+      },
+      {
+        "title": "In-app purchase prices for a game",
+        "command": "app-store-pp-cli app 553834731 --full --agent --select trackName,inAppPurchases.name,inAppPurchases.price",
+        "explanation": "Narrows the full listing to the in-app purchase names and prices (the page's top 10) with dotted paths."
+      },
+      {
+        "title": "Weekly competitor change feed",
+        "command": "app-store-pp-cli changes --since 7d --apps 553834731,850417475 --agent",
+        "explanation": "Lists every recorded version, price, IAP, privacy, event and featuring change for the tracked apps."
+      },
+      {
+        "title": "Monthly demand proxies by country",
+        "command": "app-store-pp-cli traction 324684580 --countries us,gb,pk --period monthly --agent",
+        "explanation": "New ratings, best chart rank and review volume per storefront, labelled as proxies."
+      }
+    ],
+    "trigger_phrases": [
+      "top free games on the app store",
+      "app store reviews for",
+      "track this app's rank across countries",
+      "what changed in this app store listing",
+      "app store traction by country",
+      "use app-store",
+      "run app-store"
+    ]
+  }
+}
