@@ -244,6 +244,18 @@ func TestInboundPlanCreatePreviewsWithoutYes(t *testing.T) {
 	}
 }
 
+func TestInboundPlanWritesRequireExplicitYesUnderAgent(t *testing.T) {
+	for _, args := range [][]string{
+		{"--agent", "inbound-plans", "cancel", "wf123"},
+		{"--agent", "inbound-plans", "packing", "confirm", "--inbound-plan-id", "wf123", "--option-id", "po123"},
+	} {
+		_, _, err := runInboundCLI(args...)
+		if err == nil || !strings.Contains(err.Error(), "requires --yes") {
+			t.Fatalf("%v: --agent must not confirm a write, got err=%v", args, err)
+		}
+	}
+}
+
 func runInboundCLI(args ...string) (string, string, error) {
 	root := RootCmd()
 	var stdout bytes.Buffer

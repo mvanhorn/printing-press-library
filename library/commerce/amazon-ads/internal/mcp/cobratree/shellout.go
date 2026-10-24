@@ -50,6 +50,7 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string) server.
 // target, all of which sit outside the per-command surface the agent is
 // supposed to be calling.
 var blockedRootFlags = map[string]bool{
+	"account":  true,
 	"args":     true,
 	"base-url": true,
 	"client":   true,

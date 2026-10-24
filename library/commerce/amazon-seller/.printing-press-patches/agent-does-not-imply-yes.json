@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "agent-does-not-imply-yes",
+  "applied_at": "2026-10-20",
+  "base_run_id": "2026-05-06T17:12:38.566433Z",
+  "base_printing_press_version": "3.10.0",
+  "summary": "--agent no longer implies --yes, so inbound-plans writes need an explicit --yes (or --dry-run) even in agent mode.",
+  "reason": "inbound-plans create/cancel/confirm already require --yes, but --agent set it silently, so any agent-mode call sent the FBA write with no confirmation step.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/inbound_plans_test.go"
+  ],
+  "markers": [
+    "--agent deliberately does not grant --yes"
+  ],
+  "validated_outcome": "go build, go vet, go test ./... pass; new test asserts --agent inbound-plans cancel and packing confirm fail with 'requires --yes'; verify_skill.py: 0 errors.",
+  "deferred_to_upstream": [
+    {
+      "feature": "Printing Press >= 4.30.3 already emits --agent without --yes (cli-printing-press#4182); a reprint supersedes this patch.",
+      "reason": "This CLI was printed under 3.10.0, before the generator fix."
+    }
+  ],
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/3794"
+}

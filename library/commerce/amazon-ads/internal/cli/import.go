@@ -35,6 +35,9 @@ but do not stop the import.`,
   cat data.jsonl | amazon-ads-pp-cli import <resource> --input -`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !dryRun && !flags.yes {
+				return usageErr(fmt.Errorf("import sends POST /%s for every record; pass --yes to confirm or --dry-run to preview", args[0]))
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err

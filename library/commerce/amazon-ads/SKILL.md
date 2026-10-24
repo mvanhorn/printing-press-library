@@ -630,6 +630,13 @@ Then run `amazon-ads-pp-cli auth login --port 8085` to authorize `advertising::c
 
 Run `amazon-ads-pp-cli doctor` to verify setup.
 
+For a second Amazon login, add `--account <name>` to every command. It uses `~/.config/amazon-ads-pp-cli/<name>/config.toml` and the `.env` beside it, like setting `AMAZON_ADS_CONFIG` to that file:
+
+```bash
+amazon-ads-pp-cli auth login --account brand-b --port 8085
+amazon-ads-pp-cli profiles list --account brand-b --json
+```
+
 List or change the persisted Amazon Ads profile scope before running scoped endpoints:
 
 ```bash
@@ -678,7 +685,7 @@ Automation commands print plans by default. Use `--apply` only when the report i
 
 ## Agent Mode
 
-Add `--agent` to any command. Expands to: `--json --compact --no-input --no-color --yes`.
+Add `--agent` to any command. Expands to: `--json --compact --no-input --no-color`.
 
 - **Pipeable** — JSON on stdout, errors on stderr
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
@@ -687,6 +694,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
   amazon-ads-pp-cli amazon-ads-dsp-dsp list --agent --select id,name,status
   ```
 - **Previewable** — `--dry-run` shows the request without sending
+- **Explicit confirmation** — `--agent` does not imply `--yes`; remote writes (POST/PUT/PATCH/DELETE endpoint commands other than read-style POSTs such as list, search, recommendations and report requests, plus `import`) exit 2 until you pass `--yes` or `--dry-run`
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
 - **Non-interactive** — never prompts, every input is a flag
 - **Explicit retries** — use `--idempotent` only when an already-existing create should count as success, and `--ignore-missing` only when a missing delete target should count as success
