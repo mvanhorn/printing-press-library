@@ -348,7 +348,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 		f.DefValue = "auto"
 	}
 	rootCmd.PersistentFlags().StringVar(&flags.country, "country", "us", "App Store storefront as a two-letter country code (us, gb, jp, pk ...)")
-	rootCmd.PersistentFlags().StringVar(&flags.lang, "lang", "", "Language for App Store pages (the page's l= parameter, with Accept-Language as a hint; e.g. en-GB, ja); empty uses the storefront default")
+	rootCmd.PersistentFlags().StringVar(&flags.lang, "lang", "", "Language for App Store pages (the page's l= parameter, with Accept-Language as a hint; e.g. en-GB, ja); empty uses the storefront default. Captures in a named language are printed but not added to the listing history")
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		resetProfileAppliedFlags()
@@ -440,9 +440,10 @@ See README.md or the bundled SKILL.md for recipes.`,
 		// process. Skipped for framework commands that should never
 		// touch the local store (auth, doctor, help, etc.), for
 		// --no-learn invocations so deterministic agent flows don't
-		// race a background seed, and for read-only commands so a GET
-		// never runs the one-way schema migration.
-		if !noLearnActive(flags) && !shouldSkipLearnHook(cmd.CommandPath()) && commandMayWriteStore(cmd) {
+		// race a background seed, for read-only commands so a GET
+		// never runs the one-way schema migration, and for --dry-run
+		// previews, which must leave local data alone.
+		if !noLearnActive(flags) && !dryRunOK(flags) && !shouldSkipLearnHook(cmd.CommandPath()) && commandMayWriteStore(cmd) {
 			runLearnInitOnce(cmd.Context())
 			runPlaybookInitOnce(cmd.Context())
 		}
@@ -586,10 +587,11 @@ func commandMayWriteStore(cmd *cobra.Command) bool {
 // relocated one. Successful runs journal post-run, after the override
 // took effect, so their entries land in the relocated dir.
 func journalInvocation(flags *rootFlags, rootCmd, executed *cobra.Command, err error, failedFlag, suggestedFlag string) {
-	// The master --no-learn switch kills journaling too. On the
-	// parse-failure path the flag was never parsed into rootFlags, so
-	// the raw args are consulted as well.
-	if noLearnActive(flags) || argsDisableLearn(os.Args[1:]) {
+	// The master --no-learn switch kills journaling too, and a --dry-run
+	// preview writes no journal entry. On the parse-failure path the
+	// flags were never parsed into rootFlags, so the raw args are
+	// consulted as well.
+	if noLearnActive(flags) || argsDisableLearn(os.Args[1:]) || dryRunOK(flags) || argsDryRun(os.Args[1:]) {
 		return
 	}
 	exitCode := 0
@@ -691,6 +693,26 @@ func argsDisableLearn(args []string) bool {
 	return false
 }
 
+// argsDryRun reports whether the raw args ask for a --dry-run preview,
+// which leaves local data alone (no learn setup, journal entry or
+// derivation pass). Like argsDisableLearn it covers the parse-failure
+// path; an explicit --dry-run=false does not count.
+func argsDryRun(args []string) bool {
+	for _, tok := range args {
+		if tok == "--dry-run" {
+			return true
+		}
+		if v, ok := strings.CutPrefix(tok, "--dry-run="); ok {
+			switch strings.ToLower(strings.TrimSpace(v)) {
+			case "false", "0", "no":
+			default:
+				return true
+			}
+		}
+	}
+	return false
+}
+
 // learnFamilyCommands are the commands whose own invocations must
 // never trigger a derivation pass — deriving off the learn surface's
 // own journal traffic would compound into derive-on-derive noise.
@@ -714,7 +736,7 @@ var learnFamilyCommands = map[string]struct{}{
 // appended may wait out the peer still holding the offset lock so that
 // line is not left unpaired when the process exits.
 func deriveFlagCorrections(flags *rootFlags, rootCmd, executed *cobra.Command) {
-	if noLearnActive(flags) || argsDisableLearn(os.Args[1:]) || learn.JournalCaptureDisabled() {
+	if noLearnActive(flags) || argsDisableLearn(os.Args[1:]) || dryRunOK(flags) || argsDryRun(os.Args[1:]) || learn.JournalCaptureDisabled() {
 		return
 	}
 	chain := journalVerbChain(rootCmd, executed)

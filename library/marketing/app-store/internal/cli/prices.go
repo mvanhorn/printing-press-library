@@ -145,7 +145,7 @@ Use this for prices and availability; 'iap' for in-app purchase prices,
 					available++
 					price, currency, formatted := lk.Price, lk.Currency, lk.FormattedPrice
 					rows = append(rows, priceRow{Storefront: cc, App: id, Title: lk.TrackName, Available: true, Price: &price, Currency: &currency, FormattedPrice: &formatted})
-					s2aWarnStore(cmd, "the "+cc+" listing snapshot of "+id, s2aRecordLookupSnapshot(ctx, st, cc, lk, s2aIDFetchedAt(resp, ids, id)))
+					s2aWarnStore(cmd, "the "+cc+" listing snapshot of "+id, s2aRecordLookupSnapshot(ctx, cmd, st, cc, lk, s2aIDFetchedAt(resp, ids, id)))
 				}
 			}
 			meta.Requests = c.Requests()

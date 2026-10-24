@@ -94,7 +94,7 @@ of the listing. An unknown id exits 3.`, "\n"),
 			if err != nil {
 				return err
 			}
-			s2aWarnStore(cmd, "the privacy snapshot", s2aRecordProductPage(ctx, st, cc, page, lk))
+			s2aWarnStore(cmd, "the privacy snapshot", s2aRecordProductPage(ctx, cmd, st, cc, page, lk))
 
 			view := privacyView{
 				App:          lk.AppID(),

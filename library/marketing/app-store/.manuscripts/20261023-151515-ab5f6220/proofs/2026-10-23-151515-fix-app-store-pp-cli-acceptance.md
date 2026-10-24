@@ -3,7 +3,7 @@
 Gate: **PASS** after two fix loops: one before polish and one after it (see "After polish" below).
 
 - **Level:** Full Dogfood. This is the press's live matrix, `cli-printing-press dogfood --live --level full`, run against the real App Store on 2026-10-24. No auth is needed.
-- **Tests:** 202 of 202 passed in runs 2, 3 and 4. In run 1, 202 of 205 passed. Run 4 wrote the current `phase5-acceptance.json`.
+- **Tests:** 202 of 202 passed in runs 2, 3 and 4. In run 1, 202 of 205 passed. The publish-time gate ran the same full matrix twice: before PR #2374 opened, and again after the fixes for its first review. Both passed 202 of 202, and the second wrote the current `phase5-acceptance.json`.
 - **Not run:** 88 tests were skipped by the runner. Its notes say why: framework commands that need a fixture (profile, learnings, feedback, export, teach), dry-run-only mutating framework commands, and the error-path probe on commands that take no positional argument.
 - **Coverage:** every App Store command has a passing happy-path and a passing JSON-fidelity test: app, top, reviews, ratings, compare, prices, iap, privacy, versions, events, similar, developer, featured, search-store, suggest, keyword-rank, categories list/games, and the local readers (traction, impact, changes, keyword-share, breakouts, movers, rank-history, keyword-history, watch-listing, review-digest, search).
 - **Real data, checked by hand** (the runner's own output samples):

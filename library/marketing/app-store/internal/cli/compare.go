@@ -190,7 +190,7 @@ depth, 'ratings' for one app across many storefronts.`, "\n"),
 						Languages:             len(lk.LanguageCodesISO2A),
 					})
 					s2aWarnStore(cmd, "the "+cc+" ratings snapshot of "+id, s2aRecordLookupRatings(ctx, st, cc, lk, s2aIDFetchedAt(resp, ids, id)))
-					s2aWarnStore(cmd, "the "+cc+" listing snapshot of "+id, s2aRecordLookupSnapshot(ctx, st, cc, lk, s2aIDFetchedAt(resp, ids, id)))
+					s2aWarnStore(cmd, "the "+cc+" listing snapshot of "+id, s2aRecordLookupSnapshot(ctx, cmd, st, cc, lk, s2aIDFetchedAt(resp, ids, id)))
 				}
 			}
 			meta.Requests = c.Requests()

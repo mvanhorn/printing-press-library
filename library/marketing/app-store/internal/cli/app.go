@@ -184,7 +184,7 @@ alone 'versions'. An unknown id exits 3.`, "\n"),
 				}
 				s2aPrintf(cmd.ErrOrStderr(), "warning: product page unavailable (%v); showing Lookup fields only\n", pageErr)
 			} else {
-				s2aWarnStore(cmd, "the listing snapshot", s2aRecordProductPage(ctx, st, cc, page, lk))
+				s2aWarnStore(cmd, "the listing snapshot", s2aRecordProductPage(ctx, cmd, st, cc, page, lk))
 			}
 			view := s2aBuildAppView(cc, lk, page, full)
 			if pageErr != nil {

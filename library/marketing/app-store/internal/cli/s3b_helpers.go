@@ -281,15 +281,6 @@ func s3bRatingsByStorefront(all []store.RatingsSnapshot, scope s3bScope, since t
 // days (UTC, by observation time), so one stray Lookup row cannot hide a dense
 // page series. Ties prefer lookup (exact counts), then page.
 func s3bPickRatingSource(bySource map[string][]store.RatingsSnapshot) string {
-	preference := func(src string) int {
-		switch src {
-		case store.SourceLookup:
-			return 0
-		case store.SourcePage:
-			return 1
-		}
-		return 2
-	}
 	keys := make([]string, 0, len(bySource))
 	for k := range bySource {
 		keys = append(keys, k)
@@ -303,11 +294,23 @@ func s3bPickRatingSource(bySource map[string][]store.RatingsSnapshot) string {
 				days[s3bDayStart(at)] = true
 			}
 		}
-		if n := len(days); n > bestDays || (n == bestDays && preference(k) < preference(best)) {
+		if n := len(days); n > bestDays || (n == bestDays && s3bRatingSourceRank(k) < s3bRatingSourceRank(best)) {
 			best, bestDays = k, n
 		}
 	}
 	return best
+}
+
+// s3bRatingSourceRank orders rating sources on a tie: lookup (exact
+// counts), then page, then anything else.
+func s3bRatingSourceRank(src string) int {
+	switch src {
+	case store.SourceLookup:
+		return 0
+	case store.SourcePage:
+		return 1
+	}
+	return 2
 }
 
 // s3bDayCount is a storefront's rating count at the end of one UTC capture

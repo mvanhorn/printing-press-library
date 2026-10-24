@@ -6,6 +6,8 @@ package cli
 import (
 	"context"
 	"fmt"
+	"slices"
+	"sort"
 	"strings"
 	"time"
 
@@ -379,6 +381,53 @@ func resolveFeaturedEvent(ctx context.Context, st *store.Store, appID string, sp
 	return best, bestAt, "", nil
 }
 
+// impactRatingSeries groups the stored rating counts like
+// s3bRatingsByStorefront, but picks each storefront's source by coverage
+// inside the two windows, the only counts the metric reads: the most capture
+// days in the thinner window, then in both windows, then lookup over page. A
+// long older series from one source cannot hide the captures made around the
+// event through another.
+func impactRatingSeries(all []store.RatingsSnapshot, scope s3bScope, inBefore, inAfter func(time.Time) bool) map[string]s3bRatingSeries {
+	bySF := map[string]map[string][]store.RatingsSnapshot{}
+	for _, r := range all {
+		if !scope.has(r.Storefront) || r.ObservedAt().IsZero() {
+			continue
+		}
+		if bySF[r.Storefront] == nil {
+			bySF[r.Storefront] = map[string][]store.RatingsSnapshot{}
+		}
+		bySF[r.Storefront][r.Source] = append(bySF[r.Storefront][r.Source], r)
+	}
+	out := map[string]s3bRatingSeries{}
+	for sf, bySource := range bySF {
+		srcs := make([]string, 0, len(bySource))
+		for src := range bySource {
+			srcs = append(srcs, src)
+		}
+		sort.Strings(srcs)
+		best, bestScore := "", []int(nil)
+		for _, src := range srcs {
+			before, after := map[time.Time]bool{}, map[time.Time]bool{}
+			for _, s := range bySource[src] {
+				switch at := s.ObservedAt(); {
+				case inBefore(at):
+					before[s3bDayStart(at)] = true
+				case inAfter(at):
+					after[s3bDayStart(at)] = true
+				}
+			}
+			score := []int{min(len(before), len(after)), len(before) + len(after), -s3bRatingSourceRank(src)}
+			if bestScore == nil || slices.Compare(score, bestScore) > 0 {
+				best, bestScore = src, score
+			}
+		}
+		snaps := bySource[best]
+		sort.SliceStable(snaps, func(i, j int) bool { return snaps[i].ObservedAt().Before(snaps[j].ObservedAt()) })
+		out[sf] = s3bRatingSeries{Source: best, Snaps: snaps}
+	}
+	return out
+}
+
 // impactRows computes every metric row per storefront (storefront asc,
 // metric order, series asc) and the storefronts that had data.
 func impactRows(ctx context.Context, st *store.Store, appID string, at time.Time, window time.Duration, scope s3bScope) ([]impactRow, []string, error) {
@@ -391,7 +440,7 @@ func impactRows(ctx context.Context, st *store.Store, appID string, at time.Time
 	if err != nil {
 		return nil, nil, err
 	}
-	series := s3bRatingsByStorefront(ratings, scope, time.Time{})
+	series := impactRatingSeries(ratings, scope, inBefore, inAfter)
 	for sf := range series {
 		sfs[sf] = true
 	}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "appstore-dry-run-local-writes",
+  "applied_at": "2026-10-24",
+  "base_run_id": "20261023-151515-ab5f6220",
+  "base_printing_press_version": "4.33.10",
+  "summary": "A --dry-run preview skips the learn setup in PersistentPreRunE, the post-run journal entry and the flag-correction pass, so it never opens, migrates or writes local data.",
+  "reason": "The generated PersistentPreRunE ran the learn init (store open, migration, entity seed) for every command that may write, and Execute() journaled every invocation, whether or not --dry-run was set: a teach --dry-run preview changed local data. Found in the public-library review of PR #2374; the same template ships in every printed CLI.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/review_greptile1_test.go"
+  ],
+  "call_sites": [
+    "!noLearnActive(flags) && !dryRunOK(flags) && !shouldSkipLearnHook(cmd.CommandPath())",
+    "dryRunOK(flags) || argsDryRun(os.Args[1:])",
+    "func argsDryRun(args []string) bool",
+    "func TestDryRunLeavesLocalDataAlone(t *testing.T)"
+  ],
+  "validated_outcome": "TestDryRunLeavesLocalDataAlone (teach --dry-run leaves no store file; a dry-run journal call writes no file while a non-dry-run control does) and TestArgsDryRun; go build, go vet and go test ./... green."
+}

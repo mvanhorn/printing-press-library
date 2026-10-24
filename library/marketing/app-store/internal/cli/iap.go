@@ -131,7 +131,7 @@ contributes no rows and a note. Not sold in any requested storefront exits 3.`, 
 							meta.Title = lk.TrackName
 						}
 						meta.App = lk.AppID()
-						s2aWarnStore(cmd, "the "+cc+" IAP prices", s2aRecordProductPage(ctx, st, cc, page, lk))
+						s2aWarnStore(cmd, "the "+cc+" IAP prices", s2aRecordProductPage(ctx, cmd, st, cc, page, lk))
 						for _, it := range page.InAppPurchases {
 							rows = append(rows, iapRow{Storefront: cc, Position: it.Position, Name: it.Name, Price: it.Price, Currency: lk.Currency})
 						}

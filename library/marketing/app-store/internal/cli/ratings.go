@@ -165,7 +165,7 @@ over time.`, "\n"),
 					FetchedAt:             appstore.FormatTime(fetchedAt),
 				}
 				if page != nil {
-					s2aWarnStore(cmd, "the "+cc+" listing snapshot", s2aRecordProductPage(ctx, st, cc, page, lk))
+					s2aWarnStore(cmd, "the "+cc+" listing snapshot", s2aRecordProductPage(ctx, cmd, st, cc, page, lk))
 					row.Histogram = append(make([]int64, 0, 5), page.Histogram...)
 					row.HistogramTotal = page.TotalRatings
 					if len(page.Histogram) == 0 {

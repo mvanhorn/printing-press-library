@@ -15,6 +15,7 @@ import (
 	"io"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/marketing/app-store/internal/appstore"
@@ -173,12 +174,42 @@ func s2aRefLabel(ref appstore.AppRef) string {
 // idempotent on that observation (app, storefront, source, time), so
 // recording a cached response again adds nothing.
 
+// The listing history (snapshots, versions, privacy, IAP prices, events)
+// keeps each storefront's default language. A capture in a language the run
+// names with --lang is printed but kept out of it, so a translated subtitle or
+// purchase name never reads as a listing edit in watch-listing or changes;
+// rating counts do not depend on the language and are still recorded.
+
+// s2aLangNoted holds the root commands that already printed the --lang note.
+var s2aLangNoted sync.Map
+
+// s2aLangKeepsOutOfHistory reports whether this run names a page language
+// (--lang) and, the first time per run, says on stderr that its captures stay
+// out of the listing history.
+func s2aLangKeepsOutOfHistory(cmd *cobra.Command) bool {
+	if cmd == nil {
+		return false
+	}
+	f := cmd.Flag("lang")
+	if f == nil || strings.TrimSpace(f.Value.String()) == "" {
+		return false
+	}
+	if _, seen := s2aLangNoted.LoadOrStore(cmd.Root(), true); !seen {
+		fmt.Fprintf(cmd.ErrOrStderr(), "note: --lang %s captures are printed but not added to the listing history, which keeps each storefront's default language so a translation never reads as a listing edit; rating counts are still recorded\n", strings.TrimSpace(f.Value.String()))
+	}
+	return true
+}
+
 // s2aRecordProductPage persists a product page with store.RecordProductPage
 // (listing snapshot when lk is set, versions, privacy, IAP prices, events and
-// a page ratings snapshot), dated at the page's fetch time.
-func s2aRecordProductPage(ctx context.Context, st *store.Store, storefront string, page *appstore.ProductPage, lk appstore.LookupResult) error {
+// a page ratings snapshot), dated at the page's fetch time. Under --lang only
+// the page ratings snapshot is written.
+func s2aRecordProductPage(ctx context.Context, cmd *cobra.Command, st *store.Store, storefront string, page *appstore.ProductPage, lk appstore.LookupResult) error {
 	if st == nil || page == nil {
 		return nil
+	}
+	if s2aLangKeepsOutOfHistory(cmd) {
+		return store.RecordPageRatings(s2bWriteCtx(ctx), st, storefront, *page, lk)
 	}
 	return store.RecordProductPage(s2bWriteCtx(ctx), st, storefront, *page, lk)
 }
@@ -202,9 +233,10 @@ func s2aRecordLookupRatings(ctx context.Context, st *store.Store, storefront str
 }
 
 // s2aRecordLookupSnapshot appends a lookup-only listing snapshot (source
-// "lookup"), stamped with the Lookup's fetch time.
-func s2aRecordLookupSnapshot(ctx context.Context, st *store.Store, storefront string, lk appstore.LookupResult, fetchedAt time.Time) error {
-	if st == nil || lk.TrackID == 0 {
+// "lookup"), stamped with the Lookup's fetch time. Under --lang nothing is
+// written: Lookup localizes the title, release notes and description too.
+func s2aRecordLookupSnapshot(ctx context.Context, cmd *cobra.Command, st *store.Store, storefront string, lk appstore.LookupResult, fetchedAt time.Time) error {
+	if st == nil || lk.TrackID == 0 || s2aLangKeepsOutOfHistory(cmd) {
 		return nil
 	}
 	return store.RecordLookupSnapshot(s2bWriteCtx(ctx), st, storefront, lk, fetchedAt)

@@ -542,8 +542,17 @@ type AppSnapshot struct {
 	Fields          AppSnapshotFields `json:"fields"`
 }
 
+// descriptionHash is the stored stand-in for a listing description: the first
+// 8 bytes of its SHA-256, hex; empty for an empty description.
+func descriptionHash(desc string) string {
+	if desc == "" {
+		return ""
+	}
+	sum := sha256.Sum256([]byte(desc))
+	return hex.EncodeToString(sum[:8])
+}
+
 func lookupFields(lk appstore.LookupResult) AppSnapshotFields {
-	sum := sha256.Sum256([]byte(lk.Description))
 	f := AppSnapshotFields{
 		Source:            SourceLookup,
 		AppID:             lk.AppID(),
@@ -566,9 +575,7 @@ func lookupFields(lk appstore.LookupResult) AppSnapshotFields {
 		ScreenshotCount:   len(lk.ScreenshotURLs) + len(lk.IPadScreenshotURLs) + len(lk.AppleTVScreenshotURLs),
 		PrimaryGenre:      lk.PrimaryGenreName,
 		CanonicalURL:      lk.CanonicalURL(),
-	}
-	if lk.Description != "" {
-		f.DescriptionHash = hex.EncodeToString(sum[:8])
+		DescriptionHash:   descriptionHash(lk.Description),
 	}
 	if lk.ArtistID != 0 {
 		f.DeveloperID = fmt.Sprint(lk.ArtistID)
@@ -683,6 +690,12 @@ func RecordProductPage(ctx context.Context, st *Store, storefront string, page a
 				f.Version, f.VersionReleasedAt, f.ReleaseNotes = cv.Version, cv.ReleasedAt, cv.Notes
 				f.VersionSource, f.LookupVersion = "page", cv.LookupVersion
 			}
+			// The full listing shows the page's description, so the snapshot
+			// hashes that text: a Lookup CDN copy can keep serving the old
+			// description for hours after an edit the page already shows.
+			if page.Description != "" {
+				f.DescriptionHash = descriptionHash(page.Description)
+			}
 			f.Subtitle = page.Subtitle
 			f.EditorsChoice = page.EditorsChoice
 			f.HasIAP = page.HasInAppPurchases || len(page.InAppPurchases) > 0
@@ -720,24 +733,43 @@ func RecordProductPage(ctx context.Context, st *Store, storefront string, page a
 		if err := recordEventsTx(ctx, tx, storefront, appID, page.Events, at); err != nil {
 			return err
 		}
-		if page.TotalRatings > 0 || len(page.Histogram) > 0 {
-			// The page's totals pair with the page's own newest version (the
-			// same observation), never with a Lookup copy that may be hours
-			// older.
-			version := lk.Version
-			if len(page.Versions) > 0 && page.Versions[0].Version != "" {
-				version = page.Versions[0].Version
-			}
-			if _, err := insertRatingsTx(ctx, tx, RatingsSnapshot{
-				Storefront: storefront, AppID: appID, AverageRating: page.RatingAverage,
-				RatingCount: page.TotalRatings, Histogram: page.Histogram, Version: version, Source: SourcePage,
-				DataAsOf: page.DataAsOf,
-			}, at); err != nil {
-				return err
-			}
-		}
-		return nil
+		return insertPageRatingsTx(ctx, tx, storefront, appID, page, lk, at)
 	})
+}
+
+// RecordPageRatings writes only the ratings snapshot of a product page
+// (source "page"): the counts do not depend on the page language, so a
+// capture in a named language (--lang) keeps them while its translated
+// listing text stays out of the history. Idempotent like RecordProductPage.
+func RecordPageRatings(ctx context.Context, st *Store, storefront string, page appstore.ProductPage, lk appstore.LookupResult) error {
+	appID := firstNonEmptyStr(page.AdamID, lk.AppID())
+	if appID == "" {
+		return fmt.Errorf("product page has no app id")
+	}
+	at := tsOrNow(firstTime(page.FetchedAt, lk.FetchedAt))
+	return withWriteTx(ctx, st, func(tx *sql.Tx) error {
+		return insertPageRatingsTx(ctx, tx, storefront, appID, page, lk, at)
+	})
+}
+
+// insertPageRatingsTx appends the page's ratings snapshot when the page shows
+// ratings.
+func insertPageRatingsTx(ctx context.Context, tx *sql.Tx, storefront, appID string, page appstore.ProductPage, lk appstore.LookupResult, at string) error {
+	if page.TotalRatings <= 0 && len(page.Histogram) == 0 {
+		return nil
+	}
+	// The page's totals pair with the page's own newest version (the same
+	// observation), never with a Lookup copy that may be hours older.
+	version := lk.Version
+	if len(page.Versions) > 0 && page.Versions[0].Version != "" {
+		version = page.Versions[0].Version
+	}
+	_, err := insertRatingsTx(ctx, tx, RatingsSnapshot{
+		Storefront: storefront, AppID: appID, AverageRating: page.RatingAverage,
+		RatingCount: page.TotalRatings, Histogram: page.Histogram, Version: version, Source: SourcePage,
+		DataAsOf: page.DataAsOf,
+	}, at)
+	return err
 }
 
 func firstNonEmptyStr(vals ...string) string {
