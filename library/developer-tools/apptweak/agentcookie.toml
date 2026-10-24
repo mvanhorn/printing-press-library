@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "apptweak-pp-cli"
+display_name = "AppTweak"
+description = "Every AppTweak endpoint in a local-first CLI — keyword rank fan-outs, competitor metadata diffs, and review mining that no MCP server can do."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/apptweak-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+APPTWEAK_API_KEY = true
