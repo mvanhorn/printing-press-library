@@ -54,6 +54,9 @@ func newNovelAppsMetadataDiffCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("required flag \"vs\" not set")
 			}
 			if dryRunOK(flags) {
+				if flags.asJSON {
+					return json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{"dry_run": true, "action": cmd.CommandPath()})
+				}
 				fmt.Fprintf(cmd.OutOrStdout(), "would diff metadata for app %q vs %q in country %q\n", flagApp, flagVs, flagCountry)
 				return nil
 			}
@@ -99,10 +102,10 @@ func newNovelAppsMetadataDiffCmd(flags *rootFlags) *cobra.Command {
 			vsRes := <-vsCh
 
 			if appRes.err != nil {
-				return classifyAPIError(appRes.err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), appRes.err, flags)
 			}
 			if vsRes.err != nil {
-				return classifyAPIError(vsRes.err, flags)
+				return classifyAPIError(cmd.OutOrStdout(), vsRes.err, flags)
 			}
 
 			appFields := extractFirstMetadataFields(appRes.data)

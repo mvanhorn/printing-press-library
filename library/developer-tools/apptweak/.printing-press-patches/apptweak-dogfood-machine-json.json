@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-10-25",
+  "base_run_id": "20260528-190526",
+  "base_printing_press_version": "4.34.1",
+  "id": "apptweak-dogfood-machine-json",
+  "summary": "Dry-run machine output precedes disabled-learning early return and local-data purge includes a named action.",
+  "reason": "Full dogfood reported empty or invalid JSON for teach, teach-playbook, playbook amend and local-data purge.",
+  "files": ["internal/cli/teach.go", "internal/cli/teach_playbook.go", "internal/cli/local_data.go", "internal/cli/dogfood_dryrun_json_test.go"],
+  "validated_outcome": "All 12 prior non-credit runner invocations now exit 0 with JSON dry_run and action offline."
+}

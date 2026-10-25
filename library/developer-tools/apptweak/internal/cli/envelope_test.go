@@ -55,9 +55,13 @@ func TestExtractFirstMetadataFieldsResultEnvelope(t *testing.T) {
 }
 
 func TestParseCreditsResponseResultEnvelope(t *testing.T) {
-	data := []byte(`{"result":{"current_monthly_api_credits":24752,"total_monthly_api_credits":25000}}`)
+	data := []byte(`{"result":{"current_monthly_api_credits":0,"additional_api_credits":5664,"total_monthly_api_credits":25000}}`)
 	out := parseCreditsResponse(data)
-	if out.CreditsRemaining == nil || *out.CreditsRemaining != 24752 {
+	// Monthly balance is spent, so remaining credits are the additional ones.
+	if out.CreditsRemaining == nil || *out.CreditsRemaining != 5664 {
 		t.Fatalf("got %+v", out)
+	}
+	if out.MonthlyCredits == nil || *out.MonthlyCredits != 0 || out.AdditionalCredits == nil || *out.AdditionalCredits != 5664 {
+		t.Fatalf("split not reported: %+v", out)
 	}
 }

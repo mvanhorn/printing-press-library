@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-10-25",
+  "base_run_id": "20260528-190526",
+  "base_printing_press_version": "4.34.1",
+  "id": "apptweak-one-day-live-fixtures",
+  "summary": "Bound historical dogfood examples to one inclusive day, one chart category and one valid DNA class while retaining each endpoint probe.",
+  "reason": "The full live runner performs two read probes and AppTweak charges per day and selected item.",
+  "files": ["internal/cli/apps_get-category-ranking-history.go", "internal/cli/apps_get-keyword-rankings-history.go", "internal/cli/apps_get-metadata-history.go", "internal/cli/apps_get-metrics-history.go", "internal/cli/apps_get-review-stats.go", "internal/cli/apps_search-reviews.go", "internal/cli/charts_get-top-current.go", "internal/cli/charts_get-top-history.go", "internal/cli/charts_get-dna-current.go", "internal/cli/keywords_get-metrics-history.go", "internal/cli/keywords_get-search-history.go", "internal/cli/promoted_featured-content.go", "internal/cli/categories_get-conversion-rate-benchmarks.go", "internal/cli/keywords_paid_organic_gap.go", "internal/cli/keywords_rank_fanout.go", "internal/cli/keywords_track.go", "internal/cli/reviews_sentiment.go", "spec.yaml"],
+  "validated_outcome": "Offline CLI tests pass; new live run requires revised credit approval."
+}

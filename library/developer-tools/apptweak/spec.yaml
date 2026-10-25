@@ -54,18 +54,21 @@ paths:
       parameters:
         - name: apps
           in: query
+          example: "324684580"
           required: true
           schema:
             type: string
           description: "Comma-separated app IDs"
         - name: country
           in: query
+          example: "us"
           required: true
           schema:
             type: string
           description: "ISO Alpha-2 country code"
         - name: device
           in: query
+          example: "iphone"
           required: true
           schema:
             type: string
@@ -93,28 +96,33 @@ paths:
       parameters:
         - name: apps
           in: query
+          example: "324684580"
           required: true
           schema:
             type: string
         - name: country
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: device
           in: query
+          example: "iphone"
           required: true
           schema:
             type: string
             enum: [iphone, ipad, android]
         - name: start_date
           in: query
+          example: "2026-09-01"
           required: true
           schema:
             type: string
           description: "Start date YYYY-MM-DD"
         - name: end_date
           in: query
+          example: "2026-09-07"
           required: true
           schema:
             type: string
@@ -140,22 +148,26 @@ paths:
       parameters:
         - name: apps
           in: query
+          example: "324684580"
           required: true
           schema:
             type: string
         - name: country
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: device
           in: query
+          example: "iphone"
           required: true
           schema:
             type: string
             enum: [iphone, ipad, android]
         - name: metrics
           in: query
+          example: "downloads"
           required: true
           schema:
             type: string
@@ -176,32 +188,38 @@ paths:
       parameters:
         - name: apps
           in: query
+          example: "324684580"
           required: true
           schema:
             type: string
         - name: country
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: device
           in: query
+          example: "iphone"
           required: true
           schema:
             type: string
             enum: [iphone, ipad, android]
         - name: start_date
           in: query
+          example: "2026-09-01"
           required: true
           schema:
             type: string
         - name: end_date
           in: query
+          example: "2026-09-07"
           required: true
           schema:
             type: string
         - name: metrics
           in: query
+          example: "downloads"
           required: true
           schema:
             type: string
@@ -222,16 +240,19 @@ paths:
       parameters:
         - name: apps
           in: query
+          example: "324684580"
           required: true
           schema:
             type: string
         - name: country
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: device
           in: query
+          example: "iphone"
           required: true
           schema:
             type: string
@@ -253,27 +274,32 @@ paths:
       parameters:
         - name: apps
           in: query
+          example: "324684580"
           required: true
           schema:
             type: string
         - name: country
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: device
           in: query
+          example: "iphone"
           required: true
           schema:
             type: string
             enum: [iphone, ipad, android]
         - name: start_date
           in: query
+          example: "2026-09-01"
           required: true
           schema:
             type: string
         - name: end_date
           in: query
+          example: "2026-09-07"
           required: true
           schema:
             type: string
@@ -294,22 +320,26 @@ paths:
       parameters:
         - name: apps
           in: query
+          example: "324684580"
           required: true
           schema:
             type: string
         - name: keywords
           in: query
+          example: "music"
           required: true
           schema:
             type: string
           description: "Comma-separated keywords"
         - name: country
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: device
           in: query
+          example: "iphone"
           required: true
           schema:
             type: string
@@ -320,6 +350,7 @@ paths:
             type: string
         - name: metrics
           in: query
+          example: "rank"
           required: true
           schema:
             type: string
@@ -340,32 +371,38 @@ paths:
       parameters:
         - name: apps
           in: query
+          example: "324684580"
           required: true
           schema:
             type: string
         - name: keywords
           in: query
+          example: "music"
           required: true
           schema:
             type: string
         - name: country
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: device
           in: query
+          example: "iphone"
           required: true
           schema:
             type: string
             enum: [iphone, ipad, android]
         - name: start_date
           in: query
+          example: "2026-09-01"
           required: true
           schema:
             type: string
         - name: end_date
           in: query
+          example: "2026-09-07"
           required: true
           schema:
             type: string
@@ -375,6 +412,7 @@ paths:
             type: string
         - name: metrics
           in: query
+          example: "rank"
           required: true
           schema:
             type: string
@@ -393,18 +431,26 @@ paths:
       description: "Reviews currently displayed in the App Store or Google Play for an app."
       tags: [reviews]
       parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            maximum: 500
         - name: apps
           in: query
+          example: "324684580"
           required: true
           schema:
             type: string
         - name: country
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: device
           in: query
+          example: "iphone"
           required: true
           schema:
             type: string
@@ -415,6 +461,7 @@ paths:
             type: string
         - name: sort
           in: query
+          example: "most_useful"
           schema:
             type: string
             enum: [most_useful, most_recent, most_critical, most_positive]
@@ -433,34 +480,45 @@ paths:
       description: "Search through review text, filter by rating or date range. Requires tracked app."
       tags: [reviews]
       parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            maximum: 500
         - name: apps
           in: query
+          example: "324684580"
           required: true
           schema:
             type: string
           description: "Up to 5 app IDs (requires tracked app)"
         - name: country
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: device
           in: query
+          example: "iphone"
           required: true
           schema:
             type: string
             enum: [iphone, ipad, android]
         - name: term
           in: query
+          example: "crash"
           schema:
             type: string
           description: "Keyword to search in review text"
         - name: start_date
           in: query
+          example: "2026-09-01"
           schema:
             type: string
         - name: end_date
           in: query
+          example: "2026-09-07"
           schema:
             type: string
         - name: language
@@ -484,26 +542,31 @@ paths:
       parameters:
         - name: apps
           in: query
+          example: "324684580"
           required: true
           schema:
             type: string
         - name: country
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: device
           in: query
+          example: "iphone"
           required: true
           schema:
             type: string
             enum: [iphone, ipad, android]
         - name: start_date
           in: query
+          example: "2026-09-01"
           schema:
             type: string
         - name: end_date
           in: query
+          example: "2026-09-07"
           schema:
             type: string
         - name: language
@@ -527,25 +590,30 @@ paths:
       parameters:
         - name: app
           in: query
+          example: "324684580"
           required: true
           schema:
             type: string
         - name: country
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: device
           in: query
+          example: "iphone"
           schema:
             type: string
             enum: [iphone, ipad]
         - name: start_date
           in: query
+          example: "2026-09-01"
           schema:
             type: string
         - name: end_date
           in: query
+          example: "2026-09-07"
           schema:
             type: string
       responses:
@@ -565,16 +633,19 @@ paths:
       parameters:
         - name: apps
           in: query
+          example: "324684580"
           required: true
           schema:
             type: string
         - name: country
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: device
           in: query
+          example: "iphone"
           schema:
             type: string
             enum: [iphone, ipad]
@@ -584,10 +655,12 @@ paths:
             type: string
         - name: start_date
           in: query
+          example: "2026-09-01"
           schema:
             type: string
         - name: end_date
           in: query
+          example: "2026-09-01"
           schema:
             type: string
       responses:
@@ -607,15 +680,17 @@ paths:
       parameters:
         - name: apps
           in: query
+          example: "324684580"
           required: true
           schema:
             type: string
         - name: store
           in: query
+          example: "ios"
           required: true
           schema:
             type: string
-            enum: [iphone, ipad, android]
+            enum: [ios, android]
       responses:
         "200":
           description: Platform twin app
@@ -633,16 +708,19 @@ paths:
       parameters:
         - name: keywords
           in: query
+          example: "music"
           required: true
           schema:
             type: string
         - name: country
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: device
           in: query
+          example: "iphone"
           required: true
           schema:
             type: string
@@ -653,6 +731,7 @@ paths:
             type: string
         - name: metrics
           in: query
+          example: "volume"
           required: true
           schema:
             type: string
@@ -673,27 +752,32 @@ paths:
       parameters:
         - name: keywords
           in: query
+          example: "music"
           required: true
           schema:
             type: string
         - name: country
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: device
           in: query
+          example: "iphone"
           required: true
           schema:
             type: string
             enum: [iphone, ipad, android]
         - name: start_date
           in: query
+          example: "2026-09-01"
           required: true
           schema:
             type: string
         - name: end_date
           in: query
+          example: "2026-09-07"
           required: true
           schema:
             type: string
@@ -703,6 +787,7 @@ paths:
             type: string
         - name: metrics
           in: query
+          example: "volume"
           required: true
           schema:
             type: string
@@ -723,16 +808,19 @@ paths:
       parameters:
         - name: keyword
           in: query
+          example: "music"
           required: true
           schema:
             type: string
         - name: country
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: device
           in: query
+          example: "iphone"
           required: true
           schema:
             type: string
@@ -758,16 +846,19 @@ paths:
       parameters:
         - name: keyword
           in: query
+          example: "music"
           required: true
           schema:
             type: string
         - name: country
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: device
           in: query
+          example: "iphone"
           schema:
             type: string
             enum: [iphone, ipad]
@@ -792,27 +883,32 @@ paths:
       parameters:
         - name: keyword
           in: query
+          example: "music"
           required: true
           schema:
             type: string
         - name: country
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: device
           in: query
+          example: "iphone"
           required: true
           schema:
             type: string
             enum: [iphone, ipad, android]
         - name: start_date
           in: query
+          example: "2026-09-01"
           required: true
           schema:
             type: string
         - name: end_date
           in: query
+          example: "2026-09-07"
           required: true
           schema:
             type: string
@@ -835,18 +931,26 @@ paths:
       description: "Keyword ideas based on an app's install patterns — top installs, trending, or volume change."
       tags: [keywords]
       parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            maximum: 500
         - name: apps
           in: query
+          example: "324684580"
           required: true
           schema:
             type: string
         - name: country
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: device
           in: query
+          example: "iphone"
           required: true
           schema:
             type: string
@@ -870,18 +974,26 @@ paths:
       description: "Highest-volume and trending keywords for an App Store category."
       tags: [keywords]
       parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            maximum: 50
         - name: categories
           in: query
+          example: "6007"
           required: true
           schema:
             type: string
         - name: country
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: device
           in: query
+          example: "iphone"
           required: true
           schema:
             type: string
@@ -907,16 +1019,19 @@ paths:
       parameters:
         - name: keywords
           in: query
+          example: "music"
           required: true
           schema:
             type: string
         - name: country
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: device
           in: query
+          example: "iphone"
           schema:
             type: string
             enum: [iphone, ipad]
@@ -926,10 +1041,12 @@ paths:
             type: string
         - name: start_date
           in: query
+          example: "2026-09-01"
           schema:
             type: string
         - name: end_date
           in: query
+          example: "2026-09-01"
           schema:
             type: string
       responses:
@@ -949,23 +1066,27 @@ paths:
       parameters:
         - name: country
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: device
           in: query
+          example: "iphone"
           required: true
           schema:
             type: string
             enum: [iphone, ipad, android]
         - name: types
           in: query
+          example: "free"
           required: true
           schema:
             type: string
             enum: [free, paid, grossing]
         - name: categories
           in: query
+          example: "6007"
           schema:
             type: string
           description: "App Store category ID"
@@ -986,33 +1107,39 @@ paths:
       parameters:
         - name: country
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: device
           in: query
+          example: "iphone"
           required: true
           schema:
             type: string
             enum: [iphone, ipad, android]
         - name: types
           in: query
+          example: "free"
           required: true
           schema:
             type: string
             enum: [free, paid, grossing]
         - name: start_date
           in: query
+          example: "2026-09-01"
           required: true
           schema:
             type: string
         - name: end_date
           in: query
+          example: "2026-09-07"
           required: true
           schema:
             type: string
         - name: categories
           in: query
+          example: "6007"
           schema:
             type: string
       responses:
@@ -1032,23 +1159,27 @@ paths:
       parameters:
         - name: dna_ids
           in: query
+          example: "10"
           required: true
           schema:
             type: string
           description: "DNA segment ID"
         - name: countries
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: store
           in: query
+          example: "ios"
           required: true
           schema:
             type: string
-            enum: [iphone, ipad, android]
+            enum: [ios, android]
         - name: type
           in: query
+          example: "free"
           schema:
             type: string
             enum: [free, paid]
@@ -1067,13 +1198,23 @@ paths:
       description: "Industry average conversion rates by category — benchmark your app's store listing performance."
       tags: [charts]
       parameters:
+        - name: start_date
+          in: query
+          schema:
+            type: string
+        - name: end_date
+          in: query
+          schema:
+            type: string
         - name: country
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: device
           in: query
+          example: "iphone"
           required: true
           schema:
             type: string
@@ -1093,23 +1234,35 @@ paths:
       description: "Aggregate downloads, revenue, and top performers for an App Store category."
       tags: [charts]
       parameters:
+        - name: start_date
+          in: query
+          schema:
+            type: string
+        - name: end_date
+          in: query
+          schema:
+            type: string
         - name: countries
           in: query
+          example: "us"
           required: true
           schema:
             type: string
         - name: device
           in: query
+          example: "iphone"
           required: true
           schema:
             type: string
             enum: [iphone, ipad, android]
         - name: categories
           in: query
+          example: "6007"
           schema:
             type: string
         - name: metric
           in: query
+          example: "downloads"
           required: true
           schema:
             type: string
@@ -1130,9 +1283,10 @@ paths:
       parameters:
         - name: store
           in: query
+          example: "ios"
           schema:
             type: string
-            enum: [iphone, ipad, android]
+            enum: [ios, android]
       responses:
         "200":
           description: Countries list
@@ -1150,12 +1304,15 @@ paths:
       parameters:
         - name: countries
           in: query
+          example: "us"
           schema:
             type: string
         - name: store
           in: query
+          example: "ios"
           schema:
             type: string
+            enum: [ios, android]
       responses:
         "200":
           description: Languages list
@@ -1173,9 +1330,9 @@ paths:
       parameters:
         - name: types
           in: query
+          example: "apps"
           schema:
             type: string
-            enum: [iphone, ipad, android]
       responses:
         "200":
           description: DNA list

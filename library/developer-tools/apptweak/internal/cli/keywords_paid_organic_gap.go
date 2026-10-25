@@ -39,7 +39,7 @@ func newNovelKeywordsPaidOrganicGapCmd(flags *rootFlags) *cobra.Command {
 		Use:   "paid-organic-gap",
 		Short: "Find keywords a competitor bids on where your app doesn't rank organically — ASA opportunity map.",
 		Example: `  # Find ASA gaps vs a competitor in the US
-  apptweak-pp-cli keywords paid-organic-gap --competitor 284882215 --app 544007664 --country us --days 1
+  apptweak-pp-cli keywords paid-organic-gap --competitor 284882215 --app 544007664 --country us --days 1 --max-paid-keywords 6
 
   # Check against a competitor on Android in Germany
   apptweak-pp-cli keywords paid-organic-gap --competitor 284882215 --app 544007664 --country de --device android --json`,
@@ -61,6 +61,9 @@ func newNovelKeywordsPaidOrganicGapCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("--max-paid-keywords must be at least 1, got %d", flagMaxPaidKeywords)
 			}
 			if dryRunOK(flags) {
+				if flags.asJSON {
+					return json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{"dry_run": true, "action": cmd.CommandPath()})
+				}
 				fmt.Fprintf(cmd.OutOrStdout(), "would fetch competitor paid keywords and check organic rankings\n")
 				return nil
 			}
@@ -82,7 +85,7 @@ func newNovelKeywordsPaidOrganicGapCmd(flags *rootFlags) *cobra.Command {
 			}
 			paidData, apiErr := c.Get(cmd.Context(), "/apps/keywords/bids.json", paidParams)
 			if apiErr != nil {
-				return classifyAPIError(apiErr, flags)
+				return classifyAPIError(cmd.OutOrStdout(), apiErr, flags)
 			}
 
 			allPaidKeywords := extractPaidKeywords(paidData)
@@ -122,7 +125,7 @@ func newNovelKeywordsPaidOrganicGapCmd(flags *rootFlags) *cobra.Command {
 				}
 				organicData, apiErr := c.Get(cmd.Context(), "/apps/keywords-rankings/current.json", organicParams)
 				if apiErr != nil {
-					return classifyAPIError(apiErr, flags)
+					return classifyAPIError(cmd.OutOrStdout(), apiErr, flags)
 				}
 				for kw, rank := range extractKeywordRanks(organicData) {
 					kwRanks[kw] = rank

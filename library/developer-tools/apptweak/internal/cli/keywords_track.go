@@ -40,7 +40,7 @@ func newNovelKeywordsTrackCmd(flags *rootFlags) *cobra.Command {
 		Use:   "track",
 		Short: "Sync and alert on ranking changes for a saved keyword basket across apps and countries.",
 		Example: `  # Track ranking changes for Spotify keywords over the past 7 days
-  apptweak-pp-cli keywords track --app 324684580 --keywords "music,playlist,podcast" --country us
+  apptweak-pp-cli keywords track --app 324684580 --keywords "music,playlist,podcast" --country us --since 1d
 
   # Look back 30 days, Android, JSON output
   apptweak-pp-cli keywords track --app 324684580 --keywords "music,radio" --country de --device android --since 30d --json`,
@@ -56,6 +56,9 @@ func newNovelKeywordsTrackCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("required flag \"keywords\" not set")
 			}
 			if dryRunOK(flags) {
+				if flags.asJSON {
+					return json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{"dry_run": true, "action": cmd.CommandPath()})
+				}
 				fmt.Fprintf(cmd.OutOrStdout(), "would fetch keyword ranking history\n")
 				return nil
 			}
@@ -90,7 +93,7 @@ func newNovelKeywordsTrackCmd(flags *rootFlags) *cobra.Command {
 
 			data, apiErr := c.Get(cmd.Context(), "/apps/keywords-rankings/history.json", params)
 			if apiErr != nil {
-				return classifyAPIError(apiErr, flags)
+				return classifyAPIError(cmd.OutOrStdout(), apiErr, flags)
 			}
 
 			changes := extractKeywordRankChanges(data)

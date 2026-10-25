@@ -10,14 +10,18 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/apptweak/internal/client"
 	"github.com/spf13/cobra"
 )
 
 type creditsStatusOutput struct {
 	CreditsRemaining *int64 `json:"credits_remaining,omitempty"`
-	CreditsUsed      *int64 `json:"credits_used,omitempty"`
-	Plan             string `json:"plan,omitempty"`
-	RawResponse      any    `json:"raw_response,omitempty"`
+	// MonthlyCredits and AdditionalCredits split CreditsRemaining when the API reports both.
+	MonthlyCredits    *int64 `json:"monthly_credits_remaining,omitempty"`
+	AdditionalCredits *int64 `json:"additional_credits,omitempty"`
+	CreditsUsed       *int64 `json:"credits_used,omitempty"`
+	Plan              string `json:"plan,omitempty"`
+	RawResponse       any    `json:"raw_response,omitempty"`
 }
 
 func newNovelCreditsStatusCmd(flags *rootFlags) *cobra.Command {
@@ -33,6 +37,9 @@ func newNovelCreditsStatusCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
+				if flags.asJSON {
+					return json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{"dry_run": true, "action": cmd.CommandPath()})
+				}
 				fmt.Fprintf(cmd.OutOrStdout(), "would check credits balance\n")
 				return nil
 			}
@@ -66,6 +73,10 @@ func fetchCreditsStatus(httpClient *http.Client, ctx context.Context, apiKey str
 		return nil, err
 	}
 	req.Header.Set("x-apptweak-key", apiKey)
+	if err := client.ReserveAppTweakCredits(req); err != nil {
+		return nil, err
+	}
+	httpClient = client.GuardedHTTPClient(httpClient)
 	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
@@ -118,6 +129,16 @@ func parseCreditsResponse(data []byte) creditsStatusOutput {
 			var n int64
 			if json.Unmarshal(raw, &n) == nil {
 				out.CreditsRemaining = &n
+				if key == "current_monthly_api_credits" {
+					// AppTweak draws on additional credits once the monthly balance is spent.
+					out.MonthlyCredits = &n
+					var extra int64
+					if json.Unmarshal(content["additional_api_credits"], &extra) == nil {
+						total := n + extra
+						out.CreditsRemaining = &total
+						out.AdditionalCredits = &extra
+					}
+				}
 				break
 			}
 		}

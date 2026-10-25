@@ -1,7 +1,9 @@
 .PHONY: build test lint install clean
 
+BIN_EXT := $(if $(filter windows,$(shell go env GOOS)),.exe,)
+
 build:
-	go build -o bin/apptweak-pp-cli ./cmd/apptweak-pp-cli
+	go build -trimpath -o bin/apptweak-pp-cli$(BIN_EXT) ./cmd/apptweak-pp-cli
 
 test:
 	go test ./...
@@ -16,7 +18,7 @@ clean:
 	rm -rf bin/
 
 build-mcp:
-	go build -o bin/apptweak-pp-mcp ./cmd/apptweak-pp-mcp
+	go build -trimpath -o bin/apptweak-pp-mcp$(BIN_EXT) ./cmd/apptweak-pp-mcp
 
 install-mcp:
 	go install ./cmd/apptweak-pp-mcp

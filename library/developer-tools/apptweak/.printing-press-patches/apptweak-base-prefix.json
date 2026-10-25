@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-09-21",
+  "base_run_id": "20260528-190526",
+  "base_printing_press_version": "4.32.4",
+  "id": "apptweak-base-prefix",
+  "summary": "Client routes /apptweak/* paths (countries, languages, dnas, usage/credits) to the sibling /api/public/apptweak base instead of /api/public/store.",
+  "reason": "AppTweak serves account and reference endpoints outside the store base path; the generated client only joins one base URL.",
+  "files": [
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "apptweak get-supported-countries and credits status return real data live."
+}

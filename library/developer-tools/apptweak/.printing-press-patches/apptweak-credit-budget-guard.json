@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-10-25",
+  "base_run_id": "20260528-190526",
+  "base_printing_press_version": "4.34.1",
+  "id": "apptweak-credit-budget-guard",
+  "summary": "Reserve a configured worst-case credit cost before every AppTweak client HTTP attempt; reject unknown paths or exhausted budgets. An append-only limit extension preserves prior reservations in the same journal and hash chain.",
+  "reason": "The full live dogfood has no native credit ceiling and shared credits require a hard gate before paid calls.",
+  "files": ["internal/client/client.go", "internal/client/credit_guard.go", "internal/client/credit_guard_test.go"],
+  "validated_outcome": "Focused guard tests, including limit-extension reservation preservation, pass offline; no paid call was made for this patch."
+}

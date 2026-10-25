@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/apptweak-pp-cli
+/apptweak-pp-cli.exe
+/apptweak-pp-mcp
+/apptweak-pp-mcp.exe
+/bin/
+/build/
+/dist/

@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-10-25",
+  "base_run_id": "20260528-190526",
+  "base_printing_press_version": "4.34.1",
+  "id": "apptweak-dry-run-json",
+  "summary": "Novel command dry runs emit JSON when the caller requests JSON, preserving machine-output contract.",
+  "reason": "Live dogfood dry_run_json detected prose output for novel commands.",
+  "files": ["internal/cli/credits_status.go", "internal/cli/apps_metadata_diff.go", "internal/cli/keywords_paid_organic_gap.go", "internal/cli/keywords_rank_fanout.go", "internal/cli/keywords_track.go", "internal/cli/reviews_sentiment.go"],
+  "validated_outcome": "CLI package tests pass; no second live run performed."
+}

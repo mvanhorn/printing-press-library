@@ -96,44 +96,8 @@
       ]
     },
     {
-      "name": "apps_get-featured-content",
-      "description": "When and in which editorial lists an app was featured (iOS only). Required: apps, country. Optional: start_date, end_date. Returns the AppsGetFeaturedContentResponse.",
-      "method": "GET",
-      "path": "/featured_content/filter.json",
-      "params": [
-        {
-          "name": "apps",
-          "type": "string",
-          "location": "query",
-          "description": "Apps",
-          "required": true
-        },
-        {
-          "name": "country",
-          "type": "string",
-          "location": "query",
-          "description": "Country",
-          "required": true
-        },
-        {
-          "name": "start_date",
-          "type": "string",
-          "location": "query",
-          "description": "Start date",
-          "required": true
-        },
-        {
-          "name": "end_date",
-          "type": "string",
-          "location": "query",
-          "description": "End date",
-          "required": true
-        }
-      ]
-    },
-    {
       "name": "apps_get-keyword-rankings-current",
-      "description": "Rank position for a list of keywords across a country and device. Required: apps, keywords, country, device. Optional: language. Returns the AppsGetKeywordRankingsCurrentResponse.",
+      "description": "Rank position for a list of keywords across a country and device. Required: apps, keywords, country, device, metrics. Optional: language. Returns the AppsGetKeywordRankingsCurrentResponse.",
       "method": "GET",
       "path": "/apps/keywords-rankings/current.json",
       "params": [
@@ -175,14 +139,14 @@
           "name": "metrics",
           "type": "string",
           "location": "query",
-          "description": "Comma-separated metrics to return",
+          "description": "Metrics",
           "required": true
         }
       ]
     },
     {
       "name": "apps_get-keyword-rankings-history",
-      "description": "Track keyword rank positions over time — core ASO monitoring endpoint. Required: apps, keywords, country, device, start_date, end_date. Optional: language. Returns the AppsGetKeywordRankingsHistoryResponse.",
+      "description": "Track keyword rank positions over time — core ASO monitoring endpoint. Required: apps, keywords, country, device, start_date, end_date, metrics. Optional: language. Returns the AppsGetKeywordRankingsHistoryResponse.",
       "method": "GET",
       "path": "/apps/keywords-rankings/history.json",
       "params": [
@@ -238,7 +202,7 @@
           "name": "metrics",
           "type": "string",
           "location": "query",
-          "description": "Comma-separated metrics to return",
+          "description": "Metrics",
           "required": true
         }
       ]
@@ -329,7 +293,7 @@
     },
     {
       "name": "apps_get-metrics-current",
-      "description": "Estimated downloads, revenues, and App Power score. Required: apps, country, device. Returns the AppsGetMetricsCurrentResponse.",
+      "description": "Estimated downloads, revenues, and App Power score. Required: apps, country, device, metrics. Returns the AppsGetMetricsCurrentResponse.",
       "method": "GET",
       "path": "/apps/metrics/current.json",
       "params": [
@@ -358,14 +322,14 @@
           "name": "metrics",
           "type": "string",
           "location": "query",
-          "description": "Comma-separated metrics to return",
+          "description": "Metrics",
           "required": true
         }
       ]
     },
     {
       "name": "apps_get-metrics-history",
-      "description": "Downloads, revenues, and App Power score over a date range. Required: apps, country, device, start_date, end_date. Returns the AppsGetMetricsHistoryResponse.",
+      "description": "Downloads, revenues, and App Power score over a date range. Required: apps, country, device, start_date, end_date, metrics. Returns the AppsGetMetricsHistoryResponse.",
       "method": "GET",
       "path": "/apps/metrics/history.json",
       "params": [
@@ -408,14 +372,14 @@
           "name": "metrics",
           "type": "string",
           "location": "query",
-          "description": "Comma-separated metrics to return",
+          "description": "Metrics",
           "required": true
         }
       ]
     },
     {
       "name": "apps_get-paid-keywords",
-      "description": "Keywords an app bids on in Apple Search Ads — competitor paid strategy intelligence. Required: apps, country. Optional: language. Returns the AppsGetPaidKeywordsResponse.",
+      "description": "Keywords an app bids on in Apple Search Ads — competitor paid strategy intelligence. Required: apps, country. Optional: language, start_date, end_date. Returns the AppsGetPaidKeywordsResponse.",
       "method": "GET",
       "path": "/apps/keywords/bids.json",
       "params": [
@@ -438,6 +402,18 @@
           "type": "string",
           "location": "query",
           "description": "Language"
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
         }
       ]
     },
@@ -531,7 +507,7 @@
     },
     {
       "name": "apps_get-twin",
-      "description": "Find the Android equivalent of an iOS app or vice versa. Required: apps, device. Returns the AppsGetTwinResponse.",
+      "description": "Find the Android equivalent of an iOS app or vice versa. Required: apps, store. Returns the AppsGetTwinResponse.",
       "method": "GET",
       "path": "/apps/twin.json",
       "params": [
@@ -546,14 +522,14 @@
           "name": "store",
           "type": "string",
           "location": "query",
-          "description": "Device",
+          "description": "Store",
           "required": true
         }
       ]
     },
     {
       "name": "apps_search-reviews",
-      "description": "Search through review text, filter by rating or date range. Requires tracked app. Required: apps, country, device. Optional: word, rating, date_from (plus 2 more). Returns the AppsSearchReviewsResponse.",
+      "description": "Search through review text, filter by rating or date range. Requires tracked app. Required: apps, country, device. Optional: term, start_date, end_date (plus 1 more). Returns the AppsSearchReviewsResponse.",
       "method": "GET",
       "path": "/apps/reviews/search.json",
       "params": [
@@ -579,22 +555,22 @@
           "required": true
         },
         {
-          "name": "word",
+          "name": "term",
           "type": "string",
           "location": "query",
           "description": "Keyword to search in review text"
         },
         {
-          "name": "date_from",
+          "name": "start_date",
           "type": "string",
           "location": "query",
-          "description": "Date from"
+          "description": "Start date"
         },
         {
-          "name": "date_to",
+          "name": "end_date",
           "type": "string",
           "location": "query",
-          "description": "Date to"
+          "description": "End date"
         },
         {
           "name": "language",
@@ -605,16 +581,64 @@
       ]
     },
     {
-      "name": "charts_get-category-metrics",
-      "description": "Aggregate downloads, revenue, and top performers for an App Store category. Required: country, device. Optional: category. Returns the ChartsGetCategoryMetricsResponse.",
+      "name": "apptweak_get-dna-list",
+      "description": "AppTweak's proprietary DNA sub-genre taxonomy identifiers. Optional: types. Returns the ApptweakGetDnaListResponse.",
+      "method": "GET",
+      "path": "/apptweak/dnas",
+      "params": [
+        {
+          "name": "types",
+          "type": "string",
+          "location": "query",
+          "description": "Types"
+        }
+      ]
+    },
+    {
+      "name": "apptweak_get-supported-countries",
+      "description": "List all countries supported for a given store. Optional: store. Returns the ApptweakGetSupportedCountriesResponse.",
+      "method": "GET",
+      "path": "/apptweak/countries",
+      "params": [
+        {
+          "name": "store",
+          "type": "string",
+          "location": "query",
+          "description": "Store"
+        }
+      ]
+    },
+    {
+      "name": "apptweak_get-supported-languages",
+      "description": "List all supported language codes. Optional: countries, store. Returns the ApptweakGetSupportedLanguagesResponse.",
+      "method": "GET",
+      "path": "/apptweak/languages",
+      "params": [
+        {
+          "name": "countries",
+          "type": "string",
+          "location": "query",
+          "description": "Countries"
+        },
+        {
+          "name": "store",
+          "type": "string",
+          "location": "query",
+          "description": "Store"
+        }
+      ]
+    },
+    {
+      "name": "categories_get-category-metrics",
+      "description": "Aggregate downloads, revenue, and top performers for an App Store category. Required: countries, device, metric. Optional: categories. Returns the CategoriesGetCategoryMetricsResponse.",
       "method": "GET",
       "path": "/categories/metrics",
       "params": [
         {
-          "name": "country",
+          "name": "countries",
           "type": "string",
           "location": "query",
-          "description": "Country",
+          "description": "Countries",
           "required": true
         },
         {
@@ -625,23 +649,23 @@
           "required": true
         },
         {
-          "name": "category",
+          "name": "categories",
           "type": "string",
           "location": "query",
-          "description": "Category"
+          "description": "Categories"
         },
         {
           "name": "metric",
           "type": "string",
           "location": "query",
-          "description": "Market size metric (one of: downloads, revenues)",
+          "description": "Metric",
           "required": true
         }
       ]
     },
     {
-      "name": "charts_get-conversion-rate-benchmarks",
-      "description": "Industry average conversion rates by category — benchmark your app's store listing performance. Required: country, device. Optional: category. Returns the ChartsGetConversionRateBenchmarksResponse.",
+      "name": "categories_get-conversion-rate-benchmarks",
+      "description": "Industry average conversion rates by category — benchmark your app's store listing performance. Required: country, device. Returns the CategoriesGetConversionRateBenchmarksResponse.",
       "method": "GET",
       "path": "/categories/benchmarks",
       "params": [
@@ -663,42 +687,42 @@
     },
     {
       "name": "charts_get-dna-current",
-      "description": "AppTweak's proprietary DNA sub-genre taxonomy charts — more granular than official categories. Required: dna, country, device. Optional: chart_type. Returns the ChartsGetDnaCurrentResponse.",
+      "description": "AppTweak's proprietary DNA sub-genre taxonomy charts — more granular than official categories. Required: dna_ids, countries, store. Optional: type. Returns the ChartsGetDnaCurrentResponse.",
       "method": "GET",
       "path": "/charts/dna/current.json",
       "params": [
         {
-          "name": "dna",
+          "name": "dna_ids",
           "type": "string",
           "location": "query",
           "description": "DNA segment ID",
           "required": true
         },
         {
-          "name": "country",
+          "name": "countries",
           "type": "string",
           "location": "query",
-          "description": "Country",
+          "description": "Countries",
           "required": true
         },
         {
           "name": "store",
           "type": "string",
           "location": "query",
-          "description": "Device",
+          "description": "Store",
           "required": true
         },
         {
-          "name": "chart_type",
+          "name": "type",
           "type": "string",
           "location": "query",
-          "description": "Chart type"
+          "description": "Type"
         }
       ]
     },
     {
       "name": "charts_get-top-current",
-      "description": "Current free, paid, or grossing chart for a category and country. Required: country, device, chart_type. Optional: category. Returns the ChartsGetTopCurrentResponse.",
+      "description": "Current free, paid, or grossing chart for a category and country. Required: country, device, types. Optional: categories. Returns the ChartsGetTopCurrentResponse.",
       "method": "GET",
       "path": "/charts/top-results/current.json",
       "params": [
@@ -717,14 +741,14 @@
           "required": true
         },
         {
-          "name": "chart_type",
+          "name": "types",
           "type": "string",
           "location": "query",
-          "description": "Chart type",
+          "description": "Types",
           "required": true
         },
         {
-          "name": "category",
+          "name": "categories",
           "type": "string",
           "location": "query",
           "description": "App Store category ID"
@@ -733,7 +757,7 @@
     },
     {
       "name": "charts_get-top-history",
-      "description": "How the free/paid/grossing chart changed over a date range. Required: country, device, chart_type, start_date, end_date. Optional: category. Returns the ChartsGetTopHistoryResponse.",
+      "description": "How the free/paid/grossing chart changed over a date range. Required: country, device, types, start_date, end_date. Optional: categories. Returns the ChartsGetTopHistoryResponse.",
       "method": "GET",
       "path": "/charts/top-results/history",
       "params": [
@@ -752,10 +776,10 @@
           "required": true
         },
         {
-          "name": "chart_type",
+          "name": "types",
           "type": "string",
           "location": "query",
-          "description": "Chart type",
+          "description": "Types",
           "required": true
         },
         {
@@ -773,24 +797,58 @@
           "required": true
         },
         {
-          "name": "category",
+          "name": "categories",
           "type": "string",
           "location": "query",
-          "description": "Category"
+          "description": "Categories"
+        }
+      ]
+    },
+    {
+      "name": "featured-content_get-app",
+      "description": "When and in which editorial lists an app was featured (iOS only). Required: app, country. Optional: start_date, end_date. Returns the FeaturedContentGetAppResponse.",
+      "method": "GET",
+      "path": "/featured_content/filter.json",
+      "params": [
+        {
+          "name": "app",
+          "type": "string",
+          "location": "query",
+          "description": "App",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Country",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
         }
       ]
     },
     {
       "name": "keywords_get-live-search-ads-current",
-      "description": "Apps running Apple Search Ads for a keyword right now. Required: keywords, country. Optional: language. Returns the KeywordsGetLiveSearchAdsCurrentResponse.",
+      "description": "Apps running Apple Search Ads for a keyword right now. Required: keyword, country. Optional: language. Returns the KeywordsGetLiveSearchAdsCurrentResponse.",
       "method": "GET",
       "path": "/keywords/search-results/ads/current",
       "params": [
         {
-          "name": "keywords",
+          "name": "keyword",
           "type": "string",
           "location": "query",
-          "description": "Keywords",
+          "description": "Keyword",
           "required": true
         },
         {
@@ -810,15 +868,15 @@
     },
     {
       "name": "keywords_get-live-search-current",
-      "description": "Apps appearing in search results right now for a given keyword. Required: keywords, country, device. Optional: language. Returns the KeywordsGetLiveSearchCurrentResponse.",
+      "description": "Apps appearing in search results right now for a given keyword. Required: keyword, country, device. Optional: language. Returns the KeywordsGetLiveSearchCurrentResponse.",
       "method": "GET",
       "path": "/keywords/search-results/current",
       "params": [
         {
-          "name": "keywords",
+          "name": "keyword",
           "type": "string",
           "location": "query",
-          "description": "Keywords",
+          "description": "Keyword",
           "required": true
         },
         {
@@ -845,7 +903,7 @@
     },
     {
       "name": "keywords_get-metrics-current",
-      "description": "Search volume, difficulty score, and brand score for keywords. Required: keywords, country, device. Optional: language. Returns the KeywordsGetMetricsCurrentResponse.",
+      "description": "Search volume, difficulty score, and brand score for keywords. Required: keywords, country, device, metrics. Optional: language. Returns the KeywordsGetMetricsCurrentResponse.",
       "method": "GET",
       "path": "/keywords/metrics/current.json",
       "params": [
@@ -880,14 +938,14 @@
           "name": "metrics",
           "type": "string",
           "location": "query",
-          "description": "Comma-separated metrics to return",
+          "description": "Metrics",
           "required": true
         }
       ]
     },
     {
       "name": "keywords_get-metrics-history",
-      "description": "Search volume and difficulty score trends over time. Required: keywords, country, device, start_date, end_date. Optional: language. Returns the KeywordsGetMetricsHistoryResponse.",
+      "description": "Search volume and difficulty score trends over time. Required: keywords, country, device, start_date, end_date, metrics. Optional: language. Returns the KeywordsGetMetricsHistoryResponse.",
       "method": "GET",
       "path": "/keywords/metrics/history.json",
       "params": [
@@ -936,22 +994,22 @@
           "name": "metrics",
           "type": "string",
           "location": "query",
-          "description": "Comma-separated metrics to return",
+          "description": "Metrics",
           "required": true
         }
       ]
     },
     {
       "name": "keywords_get-search-history",
-      "description": "How search results for a keyword changed over time. Required: keywords, country, device, start_date, end_date. Optional: language. Returns the KeywordsGetSearchHistoryResponse.",
+      "description": "How search results for a keyword changed over time. Required: keyword, country, device, start_date, end_date. Optional: language. Returns the KeywordsGetSearchHistoryResponse.",
       "method": "GET",
       "path": "/keywords/search-results/history.json",
       "params": [
         {
-          "name": "keywords",
+          "name": "keyword",
           "type": "string",
           "location": "query",
-          "description": "Keywords",
+          "description": "Keyword",
           "required": true
         },
         {
@@ -992,7 +1050,7 @@
     },
     {
       "name": "keywords_get-share-of-voice",
-      "description": "Ad impression share across all bidders for a keyword — identify dominant advertisers. Required: keywords, country. Optional: language. Returns the KeywordsGetShareOfVoiceResponse.",
+      "description": "Ad impression share across all bidders for a keyword — identify dominant advertisers. Required: keywords, country. Optional: language, start_date, end_date. Returns the KeywordsGetShareOfVoiceResponse.",
       "method": "GET",
       "path": "/keywords/apps/bids.json",
       "params": [
@@ -1015,12 +1073,24 @@
           "type": "string",
           "location": "query",
           "description": "Language"
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
         }
       ]
     },
     {
       "name": "keywords_get-suggestions-by-app",
-      "description": "Keyword ideas based on an app's install patterns — top installs, trending, or volume change. Required: apps, country, device. Optional: type, language. Returns the KeywordsGetSuggestionsByAppResponse.",
+      "description": "Keyword ideas based on an app's install patterns — top installs, trending, or volume change. Required: apps, country, device. Optional: language. Returns the KeywordsGetSuggestionsByAppResponse.",
       "method": "GET",
       "path": "/keywords/suggestions/app.json",
       "params": [
@@ -1055,15 +1125,15 @@
     },
     {
       "name": "keywords_get-suggestions-by-category",
-      "description": "Highest-volume and trending keywords for an App Store category. Required: category, country, device. Optional: language. Returns the KeywordsGetSuggestionsByCategoryResponse.",
+      "description": "Highest-volume and trending keywords for an App Store category. Required: categories, country, device. Optional: language. Returns the KeywordsGetSuggestionsByCategoryResponse.",
       "method": "GET",
       "path": "/keywords/suggestions/category.json",
       "params": [
         {
-          "name": "category",
+          "name": "categories",
           "type": "string",
           "location": "query",
-          "description": "Category",
+          "description": "Categories",
           "required": true
         },
         {
@@ -1087,27 +1157,38 @@
           "description": "Language"
         }
       ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-Country Keyword Rank Fan-Out",
+      "command": "keywords rank-fanout",
+      "description": "Check keyword rankings across many countries in one command — no MCP tool or competitor offers multi-country fan-out."
     },
     {
-      "name": "utils_get-dna-list",
-      "description": "AppTweak's proprietary DNA sub-genre taxonomy identifiers. Returns the UtilsGetDnaListResponse.",
-      "method": "GET",
-      "path": "/apptweak/dnas",
-      "params": []
+      "name": "Competitor Metadata Diff",
+      "command": "apps metadata-diff",
+      "description": "Compare metadata between two app versions or two competitor apps to spot ASO experiments."
     },
     {
-      "name": "utils_get-supported-countries",
-      "description": "List all countries supported for a given store. Returns the UtilsGetSupportedCountriesResponse.",
-      "method": "GET",
-      "path": "/apptweak/countries",
-      "params": []
+      "name": "Keyword Basket Tracker",
+      "command": "keywords track",
+      "description": "Sync and alert on ranking changes for a saved keyword basket across apps and countries."
     },
     {
-      "name": "utils_get-supported-languages",
-      "description": "List all supported language codes. Returns the UtilsGetSupportedLanguagesResponse.",
-      "method": "GET",
-      "path": "/apptweak/languages",
-      "params": []
+      "name": "Review Sentiment Pipeline",
+      "command": "reviews sentiment",
+      "description": "Aggregate review ratings by keyword term — find what topics drive 1-star vs 5-star reviews."
+    },
+    {
+      "name": "Paid vs Organic Keyword Gap",
+      "command": "keywords paid-organic-gap",
+      "description": "Find keywords a competitor bids on where your app doesn't rank organically — ASA opportunity map."
+    },
+    {
+      "name": "Credits Monitor",
+      "command": "credits status",
+      "description": "Check remaining API credits and burn rate before running expensive bulk queries."
     }
   ]
 }

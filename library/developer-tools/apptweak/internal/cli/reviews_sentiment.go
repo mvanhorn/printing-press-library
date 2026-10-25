@@ -26,6 +26,7 @@ func newNovelReviewsSentimentCmd(flags *rootFlags) *cobra.Command {
 	var flagDevice string
 	var flagWord string
 	var flagLanguage string
+	var flagAPILimit int
 
 	cmd := &cobra.Command{
 		Use:   "sentiment",
@@ -43,7 +44,13 @@ func newNovelReviewsSentimentCmd(flags *rootFlags) *cobra.Command {
 			if !cmd.Flags().Changed("app") && !flags.dryRun {
 				return fmt.Errorf("required flag \"app\" not set")
 			}
+			if flagAPILimit < 1 || flagAPILimit > 500 {
+				return fmt.Errorf("--api-limit must be 1-500")
+			}
 			if dryRunOK(flags) {
+				if flags.asJSON {
+					return json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{"dry_run": true, "action": cmd.CommandPath()})
+				}
 				fmt.Fprintf(cmd.OutOrStdout(), "would fetch reviews\n")
 				return nil
 			}
@@ -57,6 +64,7 @@ func newNovelReviewsSentimentCmd(flags *rootFlags) *cobra.Command {
 				"apps":    flagApp,
 				"country": flagCountry,
 				"device":  flagDevice,
+				"limit":   fmt.Sprint(flagAPILimit),
 			}
 			// AppTweak rejects language/country pairs it does not know, so only send it when asked.
 			if flagLanguage != "" {
@@ -74,7 +82,7 @@ func newNovelReviewsSentimentCmd(flags *rootFlags) *cobra.Command {
 
 			data, apiErr := c.Get(cmd.Context(), path, params)
 			if apiErr != nil {
-				return classifyAPIError(apiErr, flags)
+				return classifyAPIError(cmd.OutOrStdout(), apiErr, flags)
 			}
 
 			ratings := extractReviewRatings(data)
@@ -124,6 +132,7 @@ func newNovelReviewsSentimentCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagCountry, "country", "us", "ISO Alpha-2 country code")
 	cmd.Flags().StringVar(&flagDevice, "device", "iphone", "Target device (iphone, ipad, android)")
 	cmd.Flags().StringVar(&flagWord, "word", "", "Filter reviews by keyword")
+	cmd.Flags().IntVar(&flagAPILimit, "api-limit", 10, "Maximum reviews requested from AppTweak (1-500)")
 	cmd.Flags().StringVar(&flagLanguage, "language", "", "ISO Alpha-2 language code (default: chosen by AppTweak from --country)")
 	return cmd
 }

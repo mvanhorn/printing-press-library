@@ -38,7 +38,7 @@ func newNovelKeywordsRankFanoutCmd(flags *rootFlags) *cobra.Command {
 		Use:   "rank-fanout",
 		Short: "Check keyword rankings across many countries in one command — no MCP tool or competitor offers multi-country fan-out.",
 		Example: `  # Check Spotify's ranking for "music" and "playlist" across 5 countries
-  apptweak-pp-cli keywords rank-fanout --app 324684580 --keywords "music,playlist" --countries us,gb,de,fr,jp
+  apptweak-pp-cli keywords rank-fanout --app 324684580 --keywords "music,playlist" --countries us,gb
 
   # iPhone only, JSON output for agent consumption
   apptweak-pp-cli keywords rank-fanout --app 324684580 --keywords "music" --countries us,gb,de --device iphone --json`,
@@ -57,6 +57,9 @@ func newNovelKeywordsRankFanoutCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("required flag \"countries\" not set")
 			}
 			if dryRunOK(flags) {
+				if flags.asJSON {
+					return json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{"dry_run": true, "action": cmd.CommandPath()})
+				}
 				fmt.Fprintf(cmd.OutOrStdout(), "would fan out keyword ranking check for app %q across countries\n", flagApp)
 				return nil
 			}

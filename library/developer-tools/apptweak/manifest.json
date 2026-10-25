@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "apptweak-pp-mcp",
   "display_name": "AppTweak",
-  "version": "4.19.0",
+  "version": "4.34.1",
   "description": "Every AppTweak endpoint in a local-first CLI — keyword rank fan-outs, competitor metadata diffs, and review mining that no MCP server can do.",
   "author": {
     "name": "CLI Printing Press"
