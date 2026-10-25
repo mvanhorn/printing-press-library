@@ -26,3 +26,10 @@ func creditJournalIdentity(f *os.File) (string, error) {
 	}
 	return fmt.Sprintf("%d:%d", st.Dev, st.Ino), nil
 }
+
+func creditJournalPrivate(_ *os.File, info os.FileInfo) error {
+	if info.Mode().Perm()&0077 != 0 {
+		return fmt.Errorf("Unix group or other permissions are present")
+	}
+	return nil
+}

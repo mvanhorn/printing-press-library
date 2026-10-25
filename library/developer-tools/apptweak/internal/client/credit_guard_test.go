@@ -319,3 +319,66 @@ func TestCreditGuardBoundedResponseKeywords(t *testing.T) {
 		t.Fatal("second wildcard request exceeded conservative 51-credit reservation")
 	}
 }
+
+func TestCreditGuardRejectsPublicUnixJournal(t *testing.T) {
+	dir := t.TempDir()
+	budget, costs := filepath.Join(dir, "journal"), filepath.Join(dir, "costs")
+	if err := os.WriteFile(budget, []byte("{\"run_id\":\"test\",\"limit\":1}\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(budget, 0644); err != nil {
+		t.Fatal(err)
+	}
+	data := []byte(`{"GET https://public-api.apptweak.com/known":1}`)
+	if err := os.WriteFile(costs, data, 0600); err != nil {
+		t.Fatal(err)
+	}
+	info, _ := os.Stat(budget)
+	st := info.Sys().(*syscall.Stat_t)
+	hash := sha256.Sum256(data)
+	t.Setenv(creditBudgetEnv, budget)
+	t.Setenv(creditCostsEnv, costs)
+	t.Setenv(creditBudgetIdentityEnv, fmt.Sprintf("%d:%d", st.Dev, st.Ino))
+	t.Setenv(creditRunIDEnv, "test")
+	t.Setenv(creditCostsHashEnv, hex.EncodeToString(hash[:]))
+	req, _ := http.NewRequest("GET", "https://public-api.apptweak.com/known", nil)
+	if err := reserveAppTweakCredits(req); err == nil || !strings.Contains(err.Error(), "not private") {
+		t.Fatalf("public journal accepted: %v", err)
+	}
+}
+
+func TestCreditGuardRejectsSymlinkAndMissingJournal(t *testing.T) {
+	dir := t.TempDir()
+	budget, link, costs := filepath.Join(dir, "journal"), filepath.Join(dir, "link"), filepath.Join(dir, "costs")
+	if err := os.WriteFile(budget, []byte("{\"run_id\":\"test\",\"limit\":1}\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(budget, link); err != nil {
+		t.Fatal(err)
+	}
+	data := []byte(`{"GET https://public-api.apptweak.com/known":1}`)
+	if err := os.WriteFile(costs, data, 0600); err != nil {
+		t.Fatal(err)
+	}
+	info, err := os.Stat(budget)
+	if err != nil {
+		t.Fatal(err)
+	}
+	st := info.Sys().(*syscall.Stat_t)
+	hash := sha256.Sum256(data)
+	t.Setenv(creditBudgetEnv, link)
+	t.Setenv(creditCostsEnv, costs)
+	t.Setenv(creditBudgetIdentityEnv, fmt.Sprintf("%d:%d", st.Dev, st.Ino))
+	t.Setenv(creditRunIDEnv, "test")
+	t.Setenv(creditCostsHashEnv, hex.EncodeToString(hash[:]))
+	req, _ := http.NewRequest("GET", "https://public-api.apptweak.com/known", nil)
+	if err := reserveAppTweakCredits(req); err == nil {
+		t.Fatal("symlink journal accepted")
+	}
+	if err := os.Remove(link); err != nil {
+		t.Fatal(err)
+	}
+	if err := reserveAppTweakCredits(req); err == nil {
+		t.Fatal("missing journal accepted")
+	}
+}

@@ -113,8 +113,11 @@ func reserveAppTweakCredits(req *http.Request) error {
 		return err
 	}
 	pathInfo, err := os.Lstat(budgetPath)
-	if err != nil || !info.Mode().IsRegular() || info.Mode().Perm()&0077 != 0 || pathInfo.Mode()&os.ModeSymlink != 0 || !os.SameFile(info, pathInfo) {
+	if err != nil || !info.Mode().IsRegular() || pathInfo.Mode()&os.ModeSymlink != 0 || !os.SameFile(info, pathInfo) {
 		return errors.New("AppTweak credit journal path or mode changed")
+	}
+	if err := creditJournalPrivate(f, info); err != nil {
+		return fmt.Errorf("AppTweak credit journal access rules are not private: %w", err)
 	}
 	identity, err := creditJournalIdentity(f)
 	if err != nil || identity != os.Getenv(creditBudgetIdentityEnv) {
