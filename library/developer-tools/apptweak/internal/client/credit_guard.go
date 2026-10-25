@@ -11,7 +11,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"syscall"
 )
 
 // The caller creates a private journal with one header line and pins its inode.
@@ -104,10 +103,11 @@ func reserveAppTweakCredits(req *http.Request) error {
 		return err
 	}
 	defer f.Close()
-	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
+	unlock, err := lockCreditJournal(f)
+	if err != nil {
 		return err
 	}
-	defer syscall.Flock(int(f.Fd()), syscall.LOCK_UN)
+	defer unlock()
 	info, err := f.Stat()
 	if err != nil {
 		return err
@@ -116,8 +116,8 @@ func reserveAppTweakCredits(req *http.Request) error {
 	if err != nil || !info.Mode().IsRegular() || info.Mode().Perm()&0077 != 0 || pathInfo.Mode()&os.ModeSymlink != 0 || !os.SameFile(info, pathInfo) {
 		return errors.New("AppTweak credit journal path or mode changed")
 	}
-	stat, ok := info.Sys().(*syscall.Stat_t)
-	if !ok || fmt.Sprintf("%d:%d", stat.Dev, stat.Ino) != os.Getenv(creditBudgetIdentityEnv) {
+	identity, err := creditJournalIdentity(f)
+	if err != nil || identity != os.Getenv(creditBudgetIdentityEnv) {
 		return errors.New("AppTweak credit journal identity changed")
 	}
 	if _, err := f.Seek(0, 0); err != nil {

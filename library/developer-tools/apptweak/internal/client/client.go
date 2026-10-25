@@ -1924,6 +1924,16 @@ func isMutatingVerb(method string) bool {
 	return false
 }
 
+// A lost response can mean a write committed remotely. AppTweak does not
+// promise that PUT or DELETE are safe to repeat, so every write requires an
+// explicit idempotency key unless an endpoint declares replay safety.
+func safeToRetryAmbiguous(method string, mutationIntent bool, idempotencyKey string) bool {
+	if strings.TrimSpace(idempotencyKey) != "" {
+		return true
+	}
+	return !mutationIntent && !isMutatingVerb(method) && platform.CanRetryRequest(method, "")
+}
+
 // verifyShortCircuitEnvelope returns the synthetic JSON body that
 // stands in for a real mutating response when do() short-circuits in
 // verify mode. The __pp_verify_synthetic__ sentinel is namespace-
@@ -2097,7 +2107,8 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 	// Retry only operations that are safe to replay after an ambiguous
 	// transport failure or server error; a write may already have committed
 	// remotely even when its wire method is GET.
-	canRetryAmbiguousFailure := readOnlyIntent || (!mutationIntent && platform.CanRetryRequest(method, requestIdempotencyKey(c.Config, headerOverrides)))
+	retryKey := requestIdempotencyKey(c.Config, headerOverrides)
+	canRetryAmbiguousFailure := safeToRetryAmbiguous(method, mutationIntent, retryKey)
 	// The spec can declare replay safety per endpoint. Free uploads opt in
 	// so a stalled socket does not lose the file; requests that start
 	// billable work opt out so an ambiguous failure is never resubmitted.
@@ -2107,7 +2118,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		if replaySafe {
 			canRetryAmbiguousFailure = true
 		} else {
-			canRetryAmbiguousFailure = requestIdempotencyKey(c.Config, headerOverrides) != ""
+			canRetryAmbiguousFailure = retryKey != ""
 		}
 	}
 	endpointClass := safeEndpointClass(method, path)
