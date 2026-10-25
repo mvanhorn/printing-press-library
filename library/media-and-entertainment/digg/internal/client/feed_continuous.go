@@ -149,10 +149,11 @@ func (c *Client) WalkFeedFrom(ctx context.Context, endpoint string, p FeedParams
 }
 
 func (c *Client) fetchFeedPage(ctx context.Context, endpoint string, p FeedParams, cursor string) (*FeedPage, error) {
+	if err := c.limiter.WaitContext(ctx); err != nil {
+		return nil, err
+	}
 	cctx, cancel := context.WithTimeout(ctx, c.ConfiguredTimeout())
 	defer cancel()
-
-	c.limiter.Wait()
 
 	q := url.Values{}
 	q.Set("topic", p.Topic)

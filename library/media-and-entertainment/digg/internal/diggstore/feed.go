@@ -93,8 +93,14 @@ func tableColumns(db *sql.DB, table string) (map[string]bool, error) {
 // feed gets an empty last_seen_at so it stays out of the latest-scrape set
 // that `top` and `rising` read.
 func UpsertFeedPage(db *sql.DB, stories []client.FeedStory, topic, feedRange string, seenAt time.Time) error {
-	return withWriteTx(db, func(tx *sql.Conn) error {
-		return upsertFeedStories(tx, stories, topic, feedRange, seenAt)
+	return UpsertFeedPageContext(context.Background(), db, stories, topic, feedRange, seenAt)
+}
+
+// UpsertFeedPageContext is UpsertFeedPage that gives up, lock wait
+// included, when ctx ends.
+func UpsertFeedPageContext(ctx context.Context, db *sql.DB, stories []client.FeedStory, topic, feedRange string, seenAt time.Time) error {
+	return withWriteTx(ctx, db, func(tx *sql.Conn) error {
+		return upsertFeedStories(ctx, tx, stories, topic, feedRange, seenAt)
 	})
 }
 
@@ -110,8 +116,7 @@ const feedWriteLockWait = 10 * time.Second
 // takes the write lock up front, so writers queue instead; BEGIN itself
 // is retried because modernc.org/sqlite's busy_timeout does not reliably
 // cover it.
-func withWriteTx(db *sql.DB, fn func(*sql.Conn) error) error {
-	ctx := context.Background()
+func withWriteTx(ctx context.Context, db *sql.DB, fn func(*sql.Conn) error) error {
 	conn, err := db.Conn(ctx)
 	if err != nil {
 		return err
@@ -126,14 +131,20 @@ func withWriteTx(db *sql.DB, fn func(*sql.Conn) error) error {
 		if !isBusy(err) || time.Now().After(deadline) {
 			return fmt.Errorf("begin feed write: %w", err)
 		}
-		time.Sleep(backoff)
+		select {
+		case <-ctx.Done():
+			return fmt.Errorf("begin feed write: %w", ctx.Err())
+		case <-time.After(backoff):
+		}
 	}
+	// ROLLBACK runs on a fresh context so an ended ctx cannot leave the
+	// pinned connection inside an open transaction.
 	if err := fn(conn); err != nil {
-		_, _ = conn.ExecContext(ctx, "ROLLBACK")
+		_, _ = conn.ExecContext(context.Background(), "ROLLBACK")
 		return err
 	}
 	if _, err := conn.ExecContext(ctx, "COMMIT"); err != nil {
-		_, _ = conn.ExecContext(ctx, "ROLLBACK")
+		_, _ = conn.ExecContext(context.Background(), "ROLLBACK")
 		return fmt.Errorf("commit feed write: %w", err)
 	}
 	return nil
@@ -144,8 +155,7 @@ func isBusy(err error) bool {
 	return strings.Contains(msg, "SQLITE_BUSY") || strings.Contains(msg, "database is locked")
 }
 
-func upsertFeedStories(tx *sql.Conn, stories []client.FeedStory, topic, feedRange string, seenAt time.Time) error {
-	ctx := context.Background()
+func upsertFeedStories(ctx context.Context, tx *sql.Conn, stories []client.FeedStory, topic, feedRange string, seenAt time.Time) error {
 	now := seenAt.UTC().Format(time.RFC3339Nano)
 	for _, s := range stories {
 		if s.ClusterID == "" {

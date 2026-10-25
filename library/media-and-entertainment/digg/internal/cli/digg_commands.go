@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -1009,17 +1010,20 @@ func searchTopUp(ctx context.Context, flags *rootFlags, db *sql.DB, topics []str
 			break
 		}
 		res, err := walkFeed(ctx, c, client.FeedParams{Topic: t, View: "top", Range: feedRange}, perTopic, func(p *client.FeedPage) error {
-			return diggstore.UpsertFeedPage(db, p.Posts, t, feedRange, time.Now())
+			return diggstore.UpsertFeedPageContext(ctx, db, p.Posts, t, feedRange, time.Now())
 		})
 		pages += res.Pages
-		if ctx.Err() != nil {
+		budgetSpent := ctx.Err() != nil
+		// The budget running out is how the top-up ends, not a failure;
+		// any other error still is.
+		if err != nil && firstErr == nil && !(budgetSpent && errors.Is(err, ctx.Err())) {
+			firstErr = fmt.Errorf("%s: %w", t, err)
+		}
+		if budgetSpent {
 			if firstErr == nil && pages == 0 {
 				firstErr = fmt.Errorf("%s: no feed page within %s: %w", t, searchTopUpBudget, ctx.Err())
 			}
 			break
-		}
-		if err != nil && firstErr == nil {
-			firstErr = fmt.Errorf("%s: %w", t, err)
 		}
 	}
 	return pages, firstErr

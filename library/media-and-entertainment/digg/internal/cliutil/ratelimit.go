@@ -4,6 +4,7 @@
 package cliutil
 
 import (
+	"context"
 	"fmt"
 	"math"
 	"net/http"
@@ -54,6 +55,31 @@ func (l *AdaptiveLimiter) Wait() {
 	l.mu.Lock()
 	l.lastRequest = time.Now()
 	l.mu.Unlock()
+}
+
+// WaitContext is Wait that returns ctx.Err() instead of sleeping past the
+// end of ctx, for callers working to a deadline.
+func (l *AdaptiveLimiter) WaitContext(ctx context.Context) error {
+	if l == nil {
+		return ctx.Err()
+	}
+	l.mu.Lock()
+	delay := time.Duration(float64(time.Second) / l.rate)
+	elapsed := time.Since(l.lastRequest)
+	l.mu.Unlock()
+	if elapsed < delay {
+		t := time.NewTimer(delay - elapsed)
+		defer t.Stop()
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-t.C:
+		}
+	}
+	l.mu.Lock()
+	l.lastRequest = time.Now()
+	l.mu.Unlock()
+	return nil
 }
 
 func (l *AdaptiveLimiter) OnSuccess() {

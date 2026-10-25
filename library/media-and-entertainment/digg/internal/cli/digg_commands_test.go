@@ -327,6 +327,27 @@ func TestSearchTopUpStopsAtTimeBudget(t *testing.T) {
 	}
 }
 
+func TestSearchTopUpBudgetCoversRateLimitWait(t *testing.T) {
+	withTempHome(t)
+	prev := searchTopUpBudget
+	searchTopUpBudget = 500 * time.Millisecond
+	t.Cleanup(func() { searchTopUpBudget = prev })
+	stub := &feedStub{stories: []testStory{{"live", "Claude live", "", time.Hour}}}
+
+	// At 0.5 req/s the second page would wait 2s for the limiter.
+	start := time.Now()
+	stdout, _, err := runSearchCmd(t, stub.serve(t), "claude", "--json", "--rate-limit", "0.5")
+	if err != nil {
+		t.Fatalf("search should answer once the budget ends: %v", err)
+	}
+	if elapsed := time.Since(start); elapsed > 1500*time.Millisecond {
+		t.Fatalf("search took %s, want the limiter wait cut off by the 500ms budget", elapsed)
+	}
+	if ids := resultIDs(decodeSearch(t, stdout)); len(ids) != 1 || ids[0] != "live" {
+		t.Fatalf("results %v, want the story from the first page", ids)
+	}
+}
+
 func TestSearchDataSourceLocalSkipsTopUp(t *testing.T) {
 	withTempHome(t)
 	seedTopic(t, "ai", false, testStory{"stored", "Claude stored", "", time.Hour})
