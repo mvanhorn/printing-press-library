@@ -92,6 +92,7 @@ func seedTopic(t *testing.T, topic string, fresh bool, stories ...testStory) {
 type feedStub struct {
 	stories []testStory
 	fail    bool
+	delay   time.Duration
 	mu      sync.Mutex
 	queries []string
 }
@@ -105,6 +106,7 @@ func (f *feedStub) serve(t *testing.T) string {
 		page++
 		n := page
 		f.mu.Unlock()
+		time.Sleep(f.delay)
 		if f.fail {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -299,6 +301,29 @@ func TestSearchTopUpPageBudget(t *testing.T) {
 	}
 	if h := stub.hits(); h == 0 || h > 8 {
 		t.Fatalf("top-up made %d feed requests, want 1 to 8", h)
+	}
+}
+
+func TestSearchTopUpStopsAtTimeBudget(t *testing.T) {
+	withTempHome(t)
+	prev := searchTopUpBudget
+	searchTopUpBudget = 500 * time.Millisecond
+	t.Cleanup(func() { searchTopUpBudget = prev })
+	stub := &feedStub{stories: []testStory{{"live", "Claude live", "", time.Hour}}, delay: 200 * time.Millisecond}
+
+	start := time.Now()
+	stdout, _, err := runSearchCmd(t, stub.serve(t), "claude", "--json")
+	if err != nil {
+		t.Fatalf("search past its top-up budget should still answer: %v", err)
+	}
+	if elapsed := time.Since(start); elapsed > 2*time.Second {
+		t.Fatalf("search took %s, want the top-up cut off near its 500ms budget", elapsed)
+	}
+	if h := stub.hits(); h >= 8 {
+		t.Fatalf("top-up made %d feed requests, want the budget to stop it before the page cap", h)
+	}
+	if ids := resultIDs(decodeSearch(t, stdout)); len(ids) != 1 || ids[0] != "live" {
+		t.Fatalf("results %v, want the story stored before the budget ran out", ids)
 	}
 }
 

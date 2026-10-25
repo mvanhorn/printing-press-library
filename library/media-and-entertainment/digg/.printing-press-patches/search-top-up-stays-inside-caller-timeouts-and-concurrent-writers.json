@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "search-top-up-stays-inside-caller-timeouts-and-concurrent-writers",
+  "applied_at": "2026-10-25",
+  "base_run_id": "20260508-234057",
+  "base_printing_press_version": "4.0.6",
+  "summary": "A stale search's live feed top-up runs under one overall time budget and returns what it stored when the budget ends; a feed page counts as delivered only after it is stored; and feed page writes take SQLite's write lock up front so concurrent searches on one store queue instead of failing.",
+  "reason": "Research pipelines call `search --agent` with a hard kill timeout (30s) and run several searches at once against the same store. Without these, eight sequential page fetches could outrun the caller and discard every stored match, a failed write could exit 0 as an empty live search, and a read-then-write deferred transaction lost its write upgrade to SQLITE_BUSY that busy_timeout cannot wait out.",
+  "files": [
+    "internal/cli/digg_commands.go",
+    "internal/client/feed_continuous.go",
+    "internal/diggstore/feed.go"
+  ],
+  "validated_outcome": "Each new test fails without its fix: four store handles writing overlapping feed pages concurrently hit SQLITE_BUSY under the deferred transaction and pass with BEGIN IMMEDIATE."
+}

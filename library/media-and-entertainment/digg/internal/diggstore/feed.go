@@ -8,6 +8,7 @@ package diggstore
 // one.
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -92,22 +93,70 @@ func tableColumns(db *sql.DB, table string) (map[string]bool, error) {
 // feed gets an empty last_seen_at so it stays out of the latest-scrape set
 // that `top` and `rising` read.
 func UpsertFeedPage(db *sql.DB, stories []client.FeedStory, topic, feedRange string, seenAt time.Time) error {
-	tx, err := db.Begin()
+	return withWriteTx(db, func(tx *sql.Conn) error {
+		return upsertFeedStories(tx, stories, topic, feedRange, seenAt)
+	})
+}
+
+// feedWriteLockWait bounds how long a page write waits for another
+// process's write to finish before giving up.
+const feedWriteLockWait = 10 * time.Second
+
+// withWriteTx runs fn in a BEGIN IMMEDIATE transaction on one pinned
+// connection. Concurrent searches share one database, and the page write
+// reads before it writes: a deferred transaction would take its read
+// snapshot first and then fail the write upgrade with SQLITE_BUSY once
+// another writer commits, which busy_timeout cannot wait out. IMMEDIATE
+// takes the write lock up front, so writers queue instead; BEGIN itself
+// is retried because modernc.org/sqlite's busy_timeout does not reliably
+// cover it.
+func withWriteTx(db *sql.DB, fn func(*sql.Conn) error) error {
+	ctx := context.Background()
+	conn, err := db.Conn(ctx)
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer conn.Close()
+	deadline := time.Now().Add(feedWriteLockWait)
+	for backoff := 5 * time.Millisecond; ; backoff = min(backoff*2, 100*time.Millisecond) {
+		_, err = conn.ExecContext(ctx, "BEGIN IMMEDIATE")
+		if err == nil {
+			break
+		}
+		if !isBusy(err) || time.Now().After(deadline) {
+			return fmt.Errorf("begin feed write: %w", err)
+		}
+		time.Sleep(backoff)
+	}
+	if err := fn(conn); err != nil {
+		_, _ = conn.ExecContext(ctx, "ROLLBACK")
+		return err
+	}
+	if _, err := conn.ExecContext(ctx, "COMMIT"); err != nil {
+		_, _ = conn.ExecContext(ctx, "ROLLBACK")
+		return fmt.Errorf("commit feed write: %w", err)
+	}
+	return nil
+}
+
+func isBusy(err error) bool {
+	msg := err.Error()
+	return strings.Contains(msg, "SQLITE_BUSY") || strings.Contains(msg, "database is locked")
+}
+
+func upsertFeedStories(tx *sql.Conn, stories []client.FeedStory, topic, feedRange string, seenAt time.Time) error {
+	ctx := context.Background()
 	now := seenAt.UTC().Format(time.RFC3339Nano)
 	for _, s := range stories {
 		if s.ClusterID == "" {
 			continue
 		}
-		before, existed, err := ftsSource(tx, s.ClusterID)
+		before, existed, err := ftsSource(ctx, tx, s.ClusterID)
 		if err != nil {
 			return err
 		}
 		authorsJSON, _ := json.Marshal(s.Authors)
-		if _, err := tx.Exec(`
+		if _, err := tx.ExecContext(ctx, `
 			INSERT INTO digg_clusters (
 				cluster_id, cluster_url_id, title, tldr, topic,
 				created_at, last_source_post_at, post_count, unique_authors, digg_score, feed_rank,
@@ -141,7 +190,7 @@ func UpsertFeedPage(db *sql.DB, stories []client.FeedStory, topic, feedRange str
 		); err != nil {
 			return fmt.Errorf("upsert feed story %s: %w", s.ClusterID, err)
 		}
-		if _, err := tx.Exec(`
+		if _, err := tx.ExecContext(ctx, `
 			INSERT INTO digg_cluster_topics (cluster_id, topic, feed_range, rank, seen_at)
 			VALUES (?,?,?,?,?)
 			ON CONFLICT(cluster_id, topic) DO UPDATE SET
@@ -152,7 +201,7 @@ func UpsertFeedPage(db *sql.DB, stories []client.FeedStory, topic, feedRange str
 		// Reindex only when the searchable text changed. cluster_id is an
 		// UNINDEXED FTS column, so the delete scans the whole index; doing
 		// it for every story made deep syncs slow down as the store grew.
-		after, _, err := ftsSource(tx, s.ClusterID)
+		after, _, err := ftsSource(ctx, tx, s.ClusterID)
 		if err != nil {
 			return err
 		}
@@ -160,25 +209,25 @@ func UpsertFeedPage(db *sql.DB, stories []client.FeedStory, topic, feedRange str
 			continue
 		}
 		if existed {
-			if _, err := tx.Exec(`DELETE FROM digg_clusters_fts WHERE cluster_id = ?`, s.ClusterID); err != nil {
+			if _, err := tx.ExecContext(ctx, `DELETE FROM digg_clusters_fts WHERE cluster_id = ?`, s.ClusterID); err != nil {
 				return fmt.Errorf("fts delete: %w", err)
 			}
 		}
-		if _, err := tx.Exec(`
+		if _, err := tx.ExecContext(ctx, `
 			INSERT INTO digg_clusters_fts (cluster_id, cluster_url_id, label, title, tldr, source_title)
 			SELECT cluster_id, cluster_url_id, label, title, tldr, source_title FROM digg_clusters WHERE cluster_id = ?
 		`, s.ClusterID); err != nil {
 			return fmt.Errorf("fts insert: %w", err)
 		}
 	}
-	return tx.Commit()
+	return nil
 }
 
 // ftsSource returns the digg_clusters text the FTS index is built from,
 // and whether the cluster row exists.
-func ftsSource(tx *sql.Tx, clusterID string) (string, bool, error) {
+func ftsSource(ctx context.Context, tx *sql.Conn, clusterID string) (string, bool, error) {
 	var src string
-	err := tx.QueryRow(`SELECT COALESCE(cluster_url_id,'') || char(31) || COALESCE(label,'') || char(31) ||
+	err := tx.QueryRowContext(ctx, `SELECT COALESCE(cluster_url_id,'') || char(31) || COALESCE(label,'') || char(31) ||
 		COALESCE(title,'') || char(31) || COALESCE(tldr,'') || char(31) || COALESCE(source_title,'')
 		FROM digg_clusters WHERE cluster_id = ?`, clusterID).Scan(&src)
 	if err == sql.ErrNoRows {

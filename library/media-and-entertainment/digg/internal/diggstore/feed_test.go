@@ -1,12 +1,17 @@
 package diggstore
 
 import (
+	"database/sql"
 	"encoding/json"
+	"fmt"
+	"path/filepath"
+	"sync"
 	"testing"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/diggparse"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/store"
 )
 
 func feedStory(t *testing.T, id, urlID, title, desc string, created time.Time) client.FeedStory {
@@ -271,5 +276,56 @@ func TestSearchFeedStoriesIgnoresSourceTitleAndLabel(t *testing.T) {
 	}
 	if got, _ := SearchFeedStories(db, "summary", []string{"ai"}, now.Add(-24*time.Hour), 10); len(got) != 1 {
 		t.Fatalf("summary word should still match: %+v", got)
+	}
+}
+
+// Concurrent searches each open their own handle on one database. The
+// page write reads before it writes, so a deferred transaction would lose
+// its write upgrade to another writer with SQLITE_BUSY.
+func TestUpsertFeedPageConcurrentWriters(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	const writers = 4
+	dbs := make([]*sql.DB, writers)
+	for i := range dbs {
+		s, err := store.Open(dbPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() { s.Close() })
+		if err := EnsureSchema(s.DB()); err != nil {
+			t.Fatal(err)
+		}
+		dbs[i] = s.DB()
+	}
+	now := time.Now()
+	const pages = 20
+	work := make([][][]client.FeedStory, writers)
+	for w := range work {
+		for p := 0; p < pages; p++ {
+			var page []client.FeedStory
+			for i := 0; i < 20; i++ {
+				id := fmt.Sprintf("c%d", (p*20+i+w*7)%60)
+				page = append(page, feedStory(t, id, id+"-u", fmt.Sprintf("Story %s by writer %d", id, w), "", now))
+			}
+			work[w] = append(work[w], page)
+		}
+	}
+	var wg sync.WaitGroup
+	errs := make(chan error, writers*pages)
+	for w, db := range dbs {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for _, page := range work[w] {
+				if err := UpsertFeedPage(db, page, "ai", "30d", now); err != nil {
+					errs <- err
+				}
+			}
+		}()
+	}
+	wg.Wait()
+	close(errs)
+	for err := range errs {
+		t.Fatalf("concurrent page write failed: %v", err)
 	}
 }

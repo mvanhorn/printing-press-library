@@ -740,10 +740,15 @@ const (
 	// searchFreshFor is how old a completed sync may be before search
 	// treats the topic as stale. Matches doctor's stale_after.
 	searchFreshFor = 6 * time.Hour
-	// searchTopUpPages caps live feed pages per search across all topics,
-	// keeping a stale search to roughly 20 seconds.
+	// searchTopUpPages caps live feed pages per search across all topics.
 	searchTopUpPages = 8
 )
+
+// searchTopUpBudget bounds the whole top-up. Callers such as research
+// pipelines kill the CLI after a fixed timeout (30s is common), so the
+// top-up must stop early enough to still print what it stored. A var so
+// tests can shorten it.
+var searchTopUpBudget = 15 * time.Second
 
 // feedRangeFor maps a --since window to the smallest feed range that
 // covers it. No window uses the range sync defaults to.
@@ -984,12 +989,15 @@ months of about 30 days). firstPostAge is measured from now.`,
 // searchTopUp fetches up to searchTopUpPages live feed pages split across
 // topics and stores them. It never records freshness: a top-up sees only
 // the highest-ranked stories, so it must not stand in for a sync. It
-// returns the pages stored and the first error hit.
+// returns the pages stored and the first error hit. Running out of
+// searchTopUpBudget ends the top-up with the pages stored so far.
 func searchTopUp(ctx context.Context, flags *rootFlags, db *sql.DB, topics []string, feedRange string) (int, error) {
 	c, err := flags.newClient()
 	if err != nil {
 		return 0, err
 	}
+	ctx, cancel := context.WithTimeout(ctx, searchTopUpBudget)
+	defer cancel()
 	perTopic := searchTopUpPages / len(topics)
 	if perTopic < 1 {
 		perTopic = 1
@@ -1004,6 +1012,12 @@ func searchTopUp(ctx context.Context, flags *rootFlags, db *sql.DB, topics []str
 			return diggstore.UpsertFeedPage(db, p.Posts, t, feedRange, time.Now())
 		})
 		pages += res.Pages
+		if ctx.Err() != nil {
+			if firstErr == nil && pages == 0 {
+				firstErr = fmt.Errorf("%s: no feed page within %s: %w", t, searchTopUpBudget, ctx.Err())
+			}
+			break
+		}
 		if err != nil && firstErr == nil {
 			firstErr = fmt.Errorf("%s: %w", t, err)
 		}

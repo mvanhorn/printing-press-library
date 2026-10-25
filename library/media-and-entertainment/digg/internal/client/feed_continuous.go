@@ -133,11 +133,13 @@ func (c *Client) WalkFeedFrom(ctx context.Context, endpoint string, p FeedParams
 			res.Complete = true
 			return res, nil
 		}
-		res.Pages++
-		res.Stories += len(page.Posts)
+		// Count a page only once fn has stored it, so a failed write is not
+		// reported as delivered progress.
 		if err := fn(page); err != nil {
 			return res, err
 		}
+		res.Pages++
+		res.Stories += len(page.Posts)
 		if page.NextCursor == nil || *page.NextCursor == "" {
 			res.Complete = true
 			return res, nil

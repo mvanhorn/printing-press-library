@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -208,5 +209,21 @@ func TestFeedStoryNullSummaryDecodes(t *testing.T) {
 	}
 	if s.Summary.Title != "" {
 		t.Fatalf("title = %q, want empty", s.Summary.Title)
+	}
+}
+
+func TestWalkFeedDoesNotCountPageWhoseCallbackFails(t *testing.T) {
+	fs := &feedServer{pages: map[string]string{"": feedPageJSON(0, 20, "c2")}}
+	srv := httptest.NewServer(http.HandlerFunc(fs.handler))
+	defer srv.Close()
+
+	res, err := newTestClient().WalkFeedFrom(context.Background(), srv.URL,
+		FeedParams{Topic: "ai", View: "top", Range: "30d"}, 5,
+		func(p *FeedPage) error { return errors.New("store write failed") })
+	if err == nil {
+		t.Fatal("want the callback error")
+	}
+	if res.Pages != 0 || res.Stories != 0 {
+		t.Fatalf("result = %+v, want no pages counted for a page that was not stored", res)
 	}
 }
