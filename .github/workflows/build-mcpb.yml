@@ -108,13 +108,20 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: ${{ env.BUILD_REF }}
+      - name: Resolve Go module directory
+        id: module
+        env:
+          CLI_TARGET: ${{ matrix.target }}
+        run: |
+          set -euo pipefail
+          module_dir="$(bash tools/release-ledger/resolve-module-dir.sh "library/${CLI_TARGET}")"
+          # Normal CLIs keep library/<cat>/<slug>/go.sum. A nested module
+          # (library/ai/v0/vzero) has the sum next to its go.mod.
+          echo "gosum=${module_dir}/go.sum" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-go@v6
         with:
           go-version-file: .go-version
-          # Public library is a monorepo with per-CLI go.mod under library/<cat>/<slug>/.
-          # Point setup-go at this matrix entry's go.sum so its module cache is keyed
-          # correctly. Without this, setup-go warns "Dependencies file is not found".
-          cache-dependency-path: library/${{ matrix.target }}/go.sum
+          cache-dependency-path: ${{ steps.module.outputs.gosum }}
       - name: Pin CI Go to .go-version
         run: echo "GOTOOLCHAIN=local" >> "$GITHUB_ENV"
       - name: Configure git for private modules
@@ -191,16 +198,26 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: ${{ env.BUILD_REF }}
+      - name: Resolve Go module directory
+        id: module
+        env:
+          CLI_TARGET: ${{ matrix.target }}
+        run: |
+          set -euo pipefail
+          module_dir="$(bash tools/release-ledger/resolve-module-dir.sh "library/${CLI_TARGET}")"
+          echo "dir=${module_dir}" >> "$GITHUB_OUTPUT"
+          echo "gosum=${module_dir}/go.sum" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-go@v6
         with:
           go-version-file: .go-version
-          cache-dependency-path: library/${{ matrix.target }}/go.sum
+          cache-dependency-path: ${{ steps.module.outputs.gosum }}
       - name: Pin CI Go to .go-version
         run: echo "GOTOOLCHAIN=local" >> "$GITHUB_ENV"
       - name: Build CLI binary
         env:
           CLI_TARGET: ${{ matrix.target }}
           PLATFORM: ${{ matrix.platform }}
+          MODULE_DIR: ${{ steps.module.outputs.dir }}
         run: |
           set -euo pipefail
           cli_dir="library/${CLI_TARGET}"
@@ -223,7 +240,9 @@ jobs:
           fi
           out="${RUNNER_TEMP}/out/${slug}-pp-cli-${os}-${arch}${ext}"
           mkdir -p "$(dirname "$out")"
-          cd "$cli_dir"
+          # A catalog root with no go.mod keeps the module one directory down
+          # (library/ai/v0/vzero). Normal CLIs resolve to the catalog root.
+          cd "$MODULE_DIR"
           # CGO_ENABLED=0 — printed CLIs use the pure-Go modernc/sqlite driver
           # so cross-compile works without C toolchains. Matches the goreleaser
           # config the CLI ships with.
@@ -338,8 +357,10 @@ jobs:
           ledger="${cli_dir}/.printing-press-release.json"
           # Read the version the build compiled (same checkout, no -X override)
           # instead of running the binary in a job that holds the release PAT.
-          # Same pattern tools/release-ledger stamps; either file may be absent.
-          stamped=$({ cat "${cli_dir}/internal/cli/version.go" "${cli_dir}/internal/cli/root.go" 2>/dev/null || true; } \
+          # Same directory the stamper writes, including a nested module such
+          # as library/ai/v0/vzero. Either file may be absent.
+          module_dir="$(bash tools/release-ledger/resolve-module-dir.sh "$cli_dir")"
+          stamped=$({ cat "${module_dir}/internal/cli/version.go" "${module_dir}/internal/cli/root.go" 2>/dev/null || true; } \
             | sed -nE 's/.*var[[:space:]]+version[[:space:]]*=[[:space:]]*"([^"]*)".*/\1/p' | head -n 1)
           if [ ! -f "$ledger" ] || [ -z "$stamped" ]; then
             echo "::notice::Skipping version check for ${SLUG}: no release ledger or stampable version var."

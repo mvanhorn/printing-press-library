@@ -48,13 +48,60 @@ def is_release_file(rel: str) -> bool:
     return rel in {RELEASE_MANIFEST, CHANGELOG}
 
 
-def is_runtime_version_candidate(rel: str) -> bool:
+MODULE_DIR_SCRIPT = Path(__file__).resolve().parents[3] / "tools" / "release-ledger" / "resolve-module-dir.sh"
+_module_rel_cache: dict[str, str] = {}
+
+
+def is_direct_runtime_version(rel: str) -> bool:
     parts = Path(rel).parts
     if parts == ("internal", "cli", "root.go"):
         return True
     if parts == ("internal", "cli", "version.go"):
         return True
     return len(parts) == 3 and parts[0] == "cmd" and parts[2] == "main.go" and parts[1].endswith("-pp-mcp")
+
+
+def module_rel(root: str) -> str:
+    """Relative module dir under a catalog root, or "" when the module is the root.
+
+    Matches tools/release-ledger/resolve-module-dir.sh. A catalog with go.mod
+    stays at the root, so normal CLIs keep the direct internal/cli and cmd paths.
+    """
+    key = str(Path(root).resolve())
+    if key in _module_rel_cache:
+        return _module_rel_cache[key]
+    result = subprocess.run(
+        ["bash", str(MODULE_DIR_SCRIPT), root],
+        check=False,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if result.returncode != 0:
+        message = result.stderr.strip() or "resolve-module-dir.sh failed"
+        raise RuntimeError(f"{root}: {message}")
+    resolved = result.stdout.strip()
+    catalog = str(Path(root))
+    rel = ""
+    if resolved and resolved != catalog:
+        prefix = catalog.rstrip("/") + "/"
+        if not resolved.startswith(prefix):
+            raise RuntimeError(f"{root}: module dir {resolved} is outside the catalog root")
+        rel = resolved[len(prefix):]
+    _module_rel_cache[key] = rel
+    return rel
+
+
+def is_runtime_version_candidate(root: str, rel: str) -> bool:
+    if is_direct_runtime_version(rel):
+        return True
+    nested = module_rel(root)
+    if not nested:
+        return False
+    prefix = nested + "/"
+    if not rel.startswith(prefix):
+        return False
+    return is_direct_runtime_version(rel[len(prefix):])
 
 
 def diff_line_kinds(base_ref: str, path: str) -> tuple[bool, bool]:
@@ -100,7 +147,7 @@ def collect_changes(base_ref: str) -> dict[str, CLIChange]:
         if is_release_file(rel):
             change.release_files.add(rel)
             continue
-        if is_runtime_version_candidate(rel):
+        if is_runtime_version_candidate(root, rel):
             version_change, other_change = diff_line_kinds(base_ref, path)
             if version_change:
                 change.runtime_version_files.add(rel)
@@ -133,7 +180,11 @@ def validate_new_cli_skeleton(root: str, rel: str) -> list[str]:
 
 def verify(base_ref: str) -> list[str]:
     errors: list[str] = []
-    for change in collect_changes(base_ref).values():
+    try:
+        changes = collect_changes(base_ref)
+    except RuntimeError as exc:
+        return [str(exc)]
+    for change in changes.values():
         if not change.release_files and not change.runtime_version_files:
             continue
 

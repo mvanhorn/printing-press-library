@@ -198,6 +198,61 @@ class ReleaseLedgerVerifierTest(unittest.TestCase):
         run(["git", "checkout", "feature"], self.repo)
         self.assertEqual(self.verifier_against("main").returncode, 0)
 
+    def seed_nested_module(self):
+        root = "library/ai/v0"
+        self.write(f"{root}/.printing-press.json", json.dumps({"api_name": "v0"}) + "\n")
+        self.write(
+            f"{root}/.printing-press-release.json",
+            json.dumps({"schema_version": 1, "slug": "v0", "version": "2026.9.1"}) + "\n",
+        )
+        self.write(
+            f"{root}/.goreleaser.yaml",
+            "version: 2\nbuilds:\n  - id: cli\n    dir: ./vzero\n  - id: mcp\n    dir: ./vzero\n",
+        )
+        self.write(f"{root}/vzero/internal/cli/version.go", 'package cli\n\nvar version = "2026.8.1"\n')
+        self.write(f"{root}/vzero/cmd/v0-pp-mcp/main.go", 'package main\n\nvar version = "2026.8.1"\n')
+        self.write(f"{root}/README.md", "# v0\n")
+        run(["git", "add", "."], self.repo)
+        run(["git", "commit", "-m", "nested module"], self.repo)
+
+    def test_blocks_nested_module_version_bump_with_other_files(self):
+        self.seed_existing_cli()
+        self.seed_nested_module()
+        root = "library/ai/v0"
+        self.write(f"{root}/README.md", "# v0\n\nFeature.\n")
+        self.write(f"{root}/vzero/internal/cli/version.go", 'package cli\n\nvar version = "2026.9.1"\n')
+        run(["git", "add", "."], self.repo)
+        run(["git", "commit", "-m", "nested version plus readme"], self.repo)
+
+        result = self.verifier()
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("runtime version changed with normal CLI files", result.stderr)
+        self.assertIn("v0", result.stderr)
+
+    def test_blocks_nested_module_mcp_version_bump_with_other_files(self):
+        self.seed_existing_cli()
+        self.seed_nested_module()
+        root = "library/ai/v0"
+        self.write(f"{root}/README.md", "# v0\n\nFeature.\n")
+        self.write(f"{root}/vzero/cmd/v0-pp-mcp/main.go", 'package main\n\nvar version = "2026.9.1"\n')
+        run(["git", "add", "."], self.repo)
+        run(["git", "commit", "-m", "nested mcp version plus readme"], self.repo)
+
+        result = self.verifier()
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("vzero/cmd/v0-pp-mcp/main.go", result.stderr)
+
+    def test_allows_nested_module_non_version_edit(self):
+        self.seed_existing_cli()
+        self.seed_nested_module()
+        self.write("library/ai/v0/README.md", "# v0\n\nDocs only.\n")
+        run(["git", "add", "."], self.repo)
+        run(["git", "commit", "-m", "docs only"], self.repo)
+
+        self.assertEqual(self.verifier().returncode, 0)
+
 
 if __name__ == "__main__":
     unittest.main()

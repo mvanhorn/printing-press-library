@@ -497,17 +497,21 @@ func insertChangelogEntry(existing, entry []byte) []byte {
 }
 
 func stampRuntimeVersion(dir string, manifest releaseManifest, check bool) (bool, error) {
+	moduleDir, err := resolveModuleDir(dir)
+	if err != nil {
+		return false, err
+	}
 	var paths []string
 	for _, rel := range []string{
 		filepath.Join("internal", "cli", "version.go"),
 		filepath.Join("internal", "cli", "root.go"),
 	} {
-		path := filepath.Join(dir, rel)
+		path := filepath.Join(moduleDir, rel)
 		if exists(path) {
 			paths = append(paths, path)
 		}
 	}
-	matches, err := filepath.Glob(filepath.Join(dir, "cmd", "*-pp-mcp", "main.go"))
+	matches, err := filepath.Glob(filepath.Join(moduleDir, "cmd", "*-pp-mcp", "main.go"))
 	if err != nil {
 		return false, err
 	}
