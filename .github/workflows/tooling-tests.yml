@@ -8,6 +8,10 @@ on:
       - 'tools/**'
       - 'scripts/**'
       - '.go-version'
+      # fleet-safety-audit pins reviewed retry policies in published clients.
+      - 'library/**/internal/client/client.go'
+      - 'library/**/internal/cli/helpers.go'
+      - 'library/**/internal/store/store.go'
   workflow_dispatch:
 
 permissions:
