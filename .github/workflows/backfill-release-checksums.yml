@@ -1,0 +1,30 @@
+name: Backfill release checksums
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'List what would be published without uploading'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Publish missing checksums.txt
+        env:
+          # GITHUB_TOKEN cannot write releases in this repo; see build-mcpb.yml.
+          GH_TOKEN: ${{ secrets.RELEASE_WRITE_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          args=(--repo "${GITHUB_REPOSITORY}" --all-missing)
+          if [ "${DRY_RUN}" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          python3 .github/scripts/release-checksums/release_checksums.py "${args[@]}"

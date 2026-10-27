@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.25
+
+- Correct the README's checksum guidance: `checksums.txt` now ships on every `<slug>-current` release, and the README shows how to check a single downloaded file against it.
+
 ## 0.1.24
 
 - Point the direct `go install` requirement at the repository `.go-version` file so a Go patch bump does not require an npm release.

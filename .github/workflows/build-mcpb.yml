@@ -397,7 +397,7 @@ jobs:
             exit 0
           fi
           # shellcheck disable=SC2016
-          notes=$(printf 'Auto-built artifacts for **%s** at commit %s.\n\n**Claude Desktop:** download the matching `.mcpb` file and double-click to install.\n\n**Terminal CLI:** download the binary matching your platform. On macOS you may need to clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, `chmod +x <binary>`.\n\n_This is a moving tag — it always points at the latest build._' "${CLI_TARGET}" "${GITHUB_SHA}")
+          notes=$(printf 'Auto-built artifacts for **%s** at commit %s.\n\n**Claude Desktop:** download the matching `.mcpb` file and double-click to install.\n\n**Terminal CLI:** download the binary matching your platform. On macOS you may need to clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, `chmod +x <binary>`.\n\n**Verify:** `checksums.txt` lists the SHA-256 of every asset on this release. Check the file you downloaded with `grep '"'"' <file>$'"'"' checksums.txt | sha256sum -c` (macOS: `shasum -a 256 -c`).\n\n_This is a moving tag — it always points at the latest build._' "${CLI_TARGET}" "${GITHUB_SHA}")
           if gh release view "${tag}" >/dev/null 2>&1; then
             echo "Updating existing release ${tag}"
             gh release upload "${tag}" "${RUNNER_TEMP}"/dl/* --clobber
@@ -410,3 +410,5 @@ jobs:
               --target "${GITHUB_SHA}" \
               --latest=false
           fi
+          python3 .github/scripts/release-checksums/release_checksums.py \
+            --repo "${GITHUB_REPOSITORY}" --tag "${tag}"
