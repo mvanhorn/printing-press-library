@@ -9,7 +9,7 @@ import (
 
 func TestReviewedRetryPoliciesArePinned(t *testing.T) {
 	for _, tc := range []struct{ path, function, guard string }{
-		{"commerce/fedex", "do", "canRetry"},
+		{"commerce/fedex", "send", "canRetry"},
 		{"project-management/paperclip-self-hosted", "doInternal", "requestCanRetry(method, readOnlyIntent)"},
 		{"marketing/dataforseo", "do", "requestCanRetry(req)"},
 	} {

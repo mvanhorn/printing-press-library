@@ -31,8 +31,8 @@ func reviewedRetryGuard(path, function string, data []byte) string {
 	var guard, expected string
 	var prefixes []string
 	switch {
-	case strings.HasSuffix(path, "/commerce/fedex/internal/client/client.go") && function == "do":
-		guard, expected = "canRetry", "f438d14da593bae2cf3692769e33d9bec6c9eaa1f333e4417e6dda70d877e0ce"
+	case strings.HasSuffix(path, "/commerce/fedex/internal/client/client.go") && function == "send":
+		guard, expected = "canRetry", "941dda8e9ffbc912aabe4c6b6ec8930971e55567abeff93307401615ec6b06d7"
 		prefixes = []string{"var retryableReadOnlyPosts =", "func canRetryAmbiguousFailure("}
 		if !strings.Contains(string(data), "canRetry := canRetryAmbiguousFailure(method, path)") {
 			panic("FedEx retry binding changed; manual safety review required")
