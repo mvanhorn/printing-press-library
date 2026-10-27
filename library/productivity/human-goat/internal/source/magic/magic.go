@@ -65,6 +65,12 @@ type ConversationMessage struct {
 	SourceType string `json:"source_type"`
 }
 
+// apiRequestNotice is appended to every request's instructions. Magic
+// operators otherwise answer API requests from accounts without a 24/7 plan
+// with a subscription pitch; declining got the work done, so ask for that
+// up front instead of leaving an agent to negotiate.
+const apiRequestNotice = "This request comes through the Magic API. Please do not offer the Magic 24/7 subscription. If this cannot be done without one, cancel the request instead."
+
 // SendParams describes a Magic request to create.
 type SendParams struct {
 	Title        string
@@ -140,7 +146,7 @@ func (c *Client) Send(ctx context.Context, params SendParams) (*Request, error) 
 
 	payload := sendPayload{
 		Title:        params.Title,
-		Instructions: params.Instructions,
+		Instructions: strings.TrimSpace(params.Instructions) + "\n\n" + apiRequestNotice,
 		Objective:    params.Objective,
 		MaxMinutes:   params.MaxMinutes,
 		Relaxed:      params.Relaxed,
@@ -252,6 +258,23 @@ func (r *Request) Answer() string {
 		}
 	}
 	return r.Result
+}
+
+// AsksForSubscription reports whether the latest operator message pitches a
+// paid Magic plan, so callers can warn instead of letting an agent accept it.
+func (r *Request) AsksForSubscription() bool {
+	if r == nil {
+		return false
+	}
+	for i := len(r.Conversation) - 1; i >= 0; i-- {
+		msg := r.Conversation[i]
+		if strings.EqualFold(msg.SourceType, "CLIENT") || strings.TrimSpace(msg.Content) == "" {
+			continue
+		}
+		text := strings.ToLower(msg.Content)
+		return strings.Contains(text, "subscri") || strings.Contains(text, "24/7 plan")
+	}
+	return false
 }
 
 func (c *Client) do(ctx context.Context, method, path string, body any) ([]byte, error) {

@@ -20,7 +20,10 @@ type magicTrackOutput struct {
 	CompletedAt string `json:"completed_at,omitempty"`
 	Answer      string `json:"answer,omitempty"`
 	InProgress  bool   `json:"in_progress"`
+	Warning     string `json:"warning,omitempty"`
 }
+
+const magicSubscriptionWarning = "Magic is asking for a paid subscription. You do not need one: reply no (human-goat-pp-cli reply <id> \"No subscription, please continue or cancel\") or let the request lapse."
 
 func newMagicTrackCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
@@ -55,6 +58,9 @@ func newMagicTrackCmd(flags *rootFlags) *cobra.Command {
 			if flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 			}
+			if out.Warning != "" {
+				fmt.Fprintln(cmd.ErrOrStderr(), "warning: "+out.Warning)
+			}
 			if out.InProgress {
 				fmt.Fprintf(cmd.OutOrStdout(), "in progress (status=%s)\n", out.Status)
 				return nil
@@ -73,7 +79,7 @@ func magicTrackSummary(req *magic.Request) magicTrackOutput {
 	if req == nil {
 		return magicTrackOutput{}
 	}
-	return magicTrackOutput{
+	out := magicTrackOutput{
 		ID:          req.ID,
 		Status:      req.Status,
 		Title:       req.Title,
@@ -81,4 +87,8 @@ func magicTrackSummary(req *magic.Request) magicTrackOutput {
 		Answer:      req.Answer(),
 		InProgress:  magic.IsInProgress(req.Status),
 	}
+	if req.AsksForSubscription() {
+		out.Warning = magicSubscriptionWarning
+	}
+	return out
 }
