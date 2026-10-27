@@ -15,6 +15,7 @@ from pathlib import Path
 RELEASE_MANIFEST = ".printing-press-release.json"
 CHANGELOG = "CHANGELOG.md"
 VERSION_VAR_RE = re.compile(r"\bvar\s+version\s*=")
+STAMP_LITERAL_RE = re.compile(r'\bvar\s+version\s*=\s*"([^"]*)"')
 CHANGELOG_RELEASE_RE = re.compile(r"^##\s+\d{4}\.\d{1,2}\.\d+\b", re.MULTILINE)
 
 
@@ -48,7 +49,6 @@ def is_release_file(rel: str) -> bool:
     return rel in {RELEASE_MANIFEST, CHANGELOG}
 
 
-MODULE_DIR_SCRIPT = Path(__file__).resolve().parents[3] / "tools" / "release-ledger" / "resolve-module-dir.sh"
 _module_rel_cache: dict[str, str] = {}
 
 
@@ -64,36 +64,91 @@ def is_direct_runtime_version(rel: str) -> bool:
 def module_rel(root: str) -> str:
     """Relative module dir under a catalog root, or "" when the module is the root.
 
-    Matches tools/release-ledger/resolve-module-dir.sh. A catalog with go.mod
-    stays at the root, so normal CLIs keep the direct internal/cli and cmd paths.
-    Empty output is a failure: treating it as the catalog root would skip the
-    nested version files the guard is supposed to see.
+    Same rule as resolveModuleDir in tools/release-ledger/main.go. The logic
+    lives in this verifier, which CI overlays from the base branch. A PR cannot
+    replace it with a helper script, and a branch that never had
+    resolve-module-dir.sh still runs.
     """
     key = str(Path(root).resolve())
     if key in _module_rel_cache:
         return _module_rel_cache[key]
-    result = subprocess.run(
-        ["bash", str(MODULE_DIR_SCRIPT), root],
-        check=False,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    if result.returncode != 0:
-        message = result.stderr.strip() or "resolve-module-dir.sh failed"
-        raise RuntimeError(f"{root}: {message}")
-    resolved = result.stdout.strip()
-    if not resolved:
-        raise RuntimeError(f"{root}: resolve-module-dir.sh printed nothing")
-    catalog = str(Path(root))
-    rel = ""
-    if resolved != catalog:
-        prefix = catalog.rstrip("/") + "/"
-        if not resolved.startswith(prefix):
-            raise RuntimeError(f"{root}: module dir {resolved} is outside the catalog root")
-        rel = resolved[len(prefix):]
+    rel = _module_rel_uncached(Path(root))
     _module_rel_cache[key] = rel
     return rel
+
+
+def _module_rel_uncached(catalog: Path) -> str:
+    if (catalog / "go.mod").is_file():
+        return ""
+    rel = _goreleaser_module_rel(catalog)
+    if rel and (catalog / rel).is_dir():
+        return rel
+    return _sole_nested_module_rel(catalog)
+
+
+def _goreleaser_module_rel(catalog: Path) -> str:
+    path = catalog / ".goreleaser.yaml"
+    if not path.is_file():
+        return ""
+    dirs: list[str] = []
+    in_builds = False
+    for line in path.read_text(encoding="utf-8").splitlines():
+        trimmed = line.strip()
+        if not trimmed or trimmed.startswith("#"):
+            continue
+        # Leading spaces only, matching indentOf in the Go stamper.
+        if len(line) - len(line.lstrip(" ")) == 0:
+            in_builds = trimmed == "builds:"
+            continue
+        if not in_builds:
+            continue
+        item = trimmed[2:].strip() if trimmed.startswith("- ") else trimmed
+        key, sep, val = item.partition(":")
+        if not sep or key.strip() != "dir":
+            continue
+        normalized = _normalize_build_dir(catalog, val)
+        if normalized:
+            dirs.append(normalized)
+    unique = list(dict.fromkeys(dirs))
+    if len(unique) > 1:
+        raise RuntimeError(
+            f"{catalog}: .goreleaser.yaml builds disagree on dir: {', '.join(unique)}"
+        )
+    return unique[0] if unique else ""
+
+
+def _normalize_build_dir(catalog: Path, raw: str) -> str:
+    val = raw.strip()
+    comment = val.find(" #")
+    if comment >= 0:
+        val = val[:comment].strip()
+    val = val.strip("'\"")
+    val = val.strip()
+    if val in ("", ".", "./"):
+        return ""
+    if val.startswith("./"):
+        val = val[2:]
+    val = val.rstrip("/")
+    if val in ("", "."):
+        return ""
+    if ".." in val or val.startswith("/") or any(ch in val for ch in " \t\\"):
+        raise RuntimeError(f"{catalog}: refusing goreleaser build dir {raw.strip()!r}")
+    return val
+
+
+def _sole_nested_module_rel(catalog: Path) -> str:
+    if not catalog.is_dir():
+        return ""
+    found: list[str] = []
+    for entry in catalog.iterdir():
+        name = entry.name
+        if not name or name.startswith(".") or not entry.is_dir():
+            continue
+        if (entry / "go.mod").is_file():
+            found.append(name)
+    if len(found) == 1:
+        return found[0]
+    return ""
 
 
 def is_runtime_version_candidate(root: str, rel: str) -> bool:
@@ -182,6 +237,43 @@ def validate_new_cli_skeleton(root: str, rel: str) -> list[str]:
     return errors
 
 
+def added_stamp_literals(base_ref: str, path: str) -> list[str]:
+    result = git("diff", "--unified=0", f"{base_ref}...HEAD", "--", path)
+    literals: list[str] = []
+    for line in result.stdout.splitlines():
+        if not line.startswith("+") or line.startswith("+++"):
+            continue
+        match = STAMP_LITERAL_RE.search(line[1:])
+        if match:
+            literals.append(match.group(1))
+    return literals
+
+
+def aligns_with_current_ledger(change: CLIChange, base_ref: str) -> bool:
+    """True when new stamp literals equal the ledger version this PR did not bump.
+
+    Introducing `var version = "<ledger>"` so the release job can see it is not
+    a hand-bump. A literal that disagrees with .printing-press-release.json, or
+    any edit to the ledger files themselves, still fails.
+    """
+    if change.release_files or not change.runtime_version_files:
+        return False
+    ledger_path = Path(change.root) / RELEASE_MANIFEST
+    try:
+        version = json.loads(ledger_path.read_text(encoding="utf-8")).get("version") or ""
+    except (OSError, json.JSONDecodeError):
+        return False
+    if not version:
+        return False
+    saw_literal = False
+    for rel in sorted(change.runtime_version_files):
+        for literal in added_stamp_literals(base_ref, f"{change.root}/{rel}"):
+            saw_literal = True
+            if literal != version:
+                return False
+    return saw_literal
+
+
 def verify(base_ref: str) -> list[str]:
     errors: list[str] = []
     try:
@@ -197,7 +289,7 @@ def verify(base_ref: str) -> list[str]:
                 errors.extend(validate_new_cli_skeleton(change.root, rel))
             continue
 
-        if change.non_release_files:
+        if change.non_release_files and not aligns_with_current_ledger(change, base_ref):
             files = ", ".join(sorted(change.release_files | change.runtime_version_files))
             normal = ", ".join(sorted(change.non_release_files)[:5])
             errors.append(

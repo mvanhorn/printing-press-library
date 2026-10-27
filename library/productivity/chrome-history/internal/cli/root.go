@@ -15,13 +15,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// version is the ledger stamp. CLIVersion is the alias the version command reads.
+var version = "2026.10.1"
+
 const (
 	ExitOK              = 0
 	ExitUsage           = 2
 	ExitNoSnapshot      = 3
 	ExitChromeDBMissing = 4
-	CLIVersion          = "0.1.0"
 )
+
+var CLIVersion = version
 
 var (
 	ErrNoSnapshot      = errors.New("run sync first")

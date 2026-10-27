@@ -7,10 +7,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	jsonOutput bool
-	version    = "1.0.0"
-)
+var jsonOutput bool
+
+var version = "2026.10.2"
 
 var rootCmd = &cobra.Command{
 	Use:         "agent-capture",

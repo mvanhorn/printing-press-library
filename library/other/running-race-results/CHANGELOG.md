@@ -2,6 +2,10 @@
 
 Release versions are assigned by the public printing-press-library release workflow after merge.
 
+## 2026.10.1 - 2026-10-27
+
+- chore: standardize CLI version literals for ledger stamping (#2387).
+
 ## 2026.8.1 - 2026-08-17
 
 - fix(catalog): align Go fallback docs with toolchain floor (#1735).

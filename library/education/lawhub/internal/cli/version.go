@@ -2,10 +2,11 @@ package cli
 
 import "github.com/spf13/cobra"
 
+var version = "2026.10.1"
+
 var (
-	version = "dev"
-	commit  = "unknown"
-	date    = "unknown"
+	commit = "unknown"
+	date   = "unknown"
 )
 
 func versionInfo() map[string]string {

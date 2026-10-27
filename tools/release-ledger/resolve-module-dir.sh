@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Print the Go module directory for a catalog root.
 #
-# Same rule as resolveModuleDir in module_dir.go. A root that already has
+# Same rule as resolveModuleDir in main.go. A root that already has
 # go.mod is printed unchanged. Otherwise use .goreleaser.yaml builds[].dir
 # when every build names the same relative directory and that directory
 # exists, and otherwise the single child directory that contains go.mod.

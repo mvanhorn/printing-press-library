@@ -106,8 +106,10 @@ func (a *AppContext) RequireSession() error {
 // stderr returns os.Stderr. Wrapped in a method so tests can swap it.
 func (a *AppContext) stderr() *os.File { return os.Stderr }
 
-// Version is set at build time via -ldflags or defaults to "dev".
-var Version = "1.0.0"
+// version is the ledger stamp. Version is the exported alias --version reads.
+var version = "2026.10.1"
+
+var Version = version
 
 func Root() *cobra.Command {
 	root := &cobra.Command{

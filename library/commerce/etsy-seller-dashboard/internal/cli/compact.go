@@ -11552,9 +11552,6 @@ func resolvePlaybookInputs(playbookFile, notesInline, notesFile string) (string,
 	return playbookJSON, notes, nil
 }
 
-// version is the printed CLI's version, overridable at build time via ldflags.
-var version = "0.0.0-dev"
-
 // newVersionCmd prints the CLI name and version. Shared by the HTTP and device
 // generators so both printed-CLI shapes carry an identical version command.
 func newVersionCmd() *cobra.Command {

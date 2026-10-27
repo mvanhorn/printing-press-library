@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "anylist",
   "cli_name": "anylist-pp-cli",
-  "version": "2026.10.1",
-  "released_at": "2026-10-01T20:21:20Z",
-  "source_commit": "e45694c266280c6daad0291562155315c44b73c7",
+  "version": "2026.10.2",
+  "released_at": "2026-10-27T22:08:44Z",
+  "source_commit": "b25570d3d2c0bd241ee4de0c07ee1854d87cf247",
   "printing_press_version": "4.6.1",
   "run_id": "20260514-120439",
   "changes": [
     {
-      "title": "fix(library): stop replaying ambiguous AnyList and Supabase writes",
-      "pr": 2113,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/2113",
-      "commit": "e45694c266280c6daad0291562155315c44b73c7"
+      "title": "chore: standardize CLI version literals for ledger stamping",
+      "pr": 2387,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2387",
+      "commit": "b25570d3d2c0bd241ee4de0c07ee1854d87cf247"
     }
   ]
 }

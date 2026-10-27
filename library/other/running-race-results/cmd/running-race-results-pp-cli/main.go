@@ -13,8 +13,6 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/other/running-race-results/internal/provider/raceresult"
 )
 
-var version = "0.1.0"
-
 func main() {
 	reg := provider.NewRegistry()
 	reg.Register(nyrr.New())
@@ -22,7 +20,6 @@ func main() {
 	reg.Register(athlinks.New())
 	reg.Register(raceresult.New())
 	root := cli.NewRoot(reg)
-	root.Version = version
 	if err := root.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, "error:", err)
 		os.Exit(1)

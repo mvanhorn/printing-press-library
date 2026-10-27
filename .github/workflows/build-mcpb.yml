@@ -111,27 +111,40 @@ jobs:
       - name: Locate module-dir resolver
         run: |
           set -euo pipefail
-          # BUILD_REF can be an older ledger commit that predates
-          # resolve-module-dir.sh. This workflow file is the dispatch
-          # revision (GITHUB_SHA, usually main), so load the helper from
-          # there when the tree does not have it. A missing helper fails
-          # the job: the catalog root of library/ai/v0 is not a module.
+          # BUILD_REF is the source checkout and can predate this helper.
+          # Read the helper from the workflow revision (GITHUB_SHA) into a
+          # separate git dir. Do not use the copy in the source tree: an
+          # older commit does not have it, and a caller must not be able to
+          # swap it by checking out a different ref. If the workflow revision
+          # has no helper, leave the path empty. The next step then uses the
+          # catalog root, which is the right directory for a root-module CLI.
           dest="${RUNNER_TEMP}/resolve-module-dir.sh"
-          src="tools/release-ledger/resolve-module-dir.sh"
-          if [ -f "$src" ]; then
-            cp "$src" "$dest"
-          else
-            git fetch --no-tags --depth=1 origin "$GITHUB_SHA"
-            git show "${GITHUB_SHA}:tools/release-ledger/resolve-module-dir.sh" > "$dest"
+          rm -f "$dest"
+          work="${RUNNER_TEMP}/workflow-rev.git"
+          rm -rf "$work"
+          git init --bare "$work" >/dev/null
+          url="$(git remote get-url origin)"
+          if git --git-dir="$work" fetch --no-tags --depth=1 "$url" "$GITHUB_SHA" \
+            && git --git-dir="$work" cat-file -e "${GITHUB_SHA}:tools/release-ledger/resolve-module-dir.sh"; then
+            git --git-dir="$work" show "${GITHUB_SHA}:tools/release-ledger/resolve-module-dir.sh" > "$dest"
           fi
-          echo "RESOLVE_MODULE_DIR_SH=${dest}" >> "$GITHUB_ENV"
+          if [ -s "$dest" ]; then
+            echo "RESOLVE_MODULE_DIR_SH=${dest}" >> "$GITHUB_ENV"
+          else
+            echo "RESOLVE_MODULE_DIR_SH=" >> "$GITHUB_ENV"
+          fi
       - name: Resolve Go module directory
         id: module
         env:
           CLI_TARGET: ${{ matrix.target }}
         run: |
           set -euo pipefail
-          module_dir="$(bash "${RESOLVE_MODULE_DIR_SH:?}" "library/${CLI_TARGET}")"
+          catalog="library/${CLI_TARGET}"
+          if [ -n "${RESOLVE_MODULE_DIR_SH:-}" ]; then
+            module_dir="$(bash "$RESOLVE_MODULE_DIR_SH" "$catalog")"
+          else
+            module_dir="$catalog"
+          fi
           # Normal CLIs keep library/<cat>/<slug>/go.sum. A nested module
           # (library/ai/v0/vzero) has the sum next to its go.mod.
           echo "gosum=${module_dir}/go.sum" >> "$GITHUB_OUTPUT"
@@ -218,27 +231,40 @@ jobs:
       - name: Locate module-dir resolver
         run: |
           set -euo pipefail
-          # BUILD_REF can be an older ledger commit that predates
-          # resolve-module-dir.sh. This workflow file is the dispatch
-          # revision (GITHUB_SHA, usually main), so load the helper from
-          # there when the tree does not have it. A missing helper fails
-          # the job: the catalog root of library/ai/v0 is not a module.
+          # BUILD_REF is the source checkout and can predate this helper.
+          # Read the helper from the workflow revision (GITHUB_SHA) into a
+          # separate git dir. Do not use the copy in the source tree: an
+          # older commit does not have it, and a caller must not be able to
+          # swap it by checking out a different ref. If the workflow revision
+          # has no helper, leave the path empty. The next step then uses the
+          # catalog root, which is the right directory for a root-module CLI.
           dest="${RUNNER_TEMP}/resolve-module-dir.sh"
-          src="tools/release-ledger/resolve-module-dir.sh"
-          if [ -f "$src" ]; then
-            cp "$src" "$dest"
-          else
-            git fetch --no-tags --depth=1 origin "$GITHUB_SHA"
-            git show "${GITHUB_SHA}:tools/release-ledger/resolve-module-dir.sh" > "$dest"
+          rm -f "$dest"
+          work="${RUNNER_TEMP}/workflow-rev.git"
+          rm -rf "$work"
+          git init --bare "$work" >/dev/null
+          url="$(git remote get-url origin)"
+          if git --git-dir="$work" fetch --no-tags --depth=1 "$url" "$GITHUB_SHA" \
+            && git --git-dir="$work" cat-file -e "${GITHUB_SHA}:tools/release-ledger/resolve-module-dir.sh"; then
+            git --git-dir="$work" show "${GITHUB_SHA}:tools/release-ledger/resolve-module-dir.sh" > "$dest"
           fi
-          echo "RESOLVE_MODULE_DIR_SH=${dest}" >> "$GITHUB_ENV"
+          if [ -s "$dest" ]; then
+            echo "RESOLVE_MODULE_DIR_SH=${dest}" >> "$GITHUB_ENV"
+          else
+            echo "RESOLVE_MODULE_DIR_SH=" >> "$GITHUB_ENV"
+          fi
       - name: Resolve Go module directory
         id: module
         env:
           CLI_TARGET: ${{ matrix.target }}
         run: |
           set -euo pipefail
-          module_dir="$(bash "${RESOLVE_MODULE_DIR_SH:?}" "library/${CLI_TARGET}")"
+          catalog="library/${CLI_TARGET}"
+          if [ -n "${RESOLVE_MODULE_DIR_SH:-}" ]; then
+            module_dir="$(bash "$RESOLVE_MODULE_DIR_SH" "$catalog")"
+          else
+            module_dir="$catalog"
+          fi
           echo "dir=${module_dir}" >> "$GITHUB_OUTPUT"
           echo "gosum=${module_dir}/go.sum" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-go@v6
@@ -319,20 +345,28 @@ jobs:
       - name: Locate module-dir resolver
         run: |
           set -euo pipefail
-          # BUILD_REF can be an older ledger commit that predates
-          # resolve-module-dir.sh. This workflow file is the dispatch
-          # revision (GITHUB_SHA, usually main), so load the helper from
-          # there when the tree does not have it. A missing helper fails
-          # the job: the catalog root of library/ai/v0 is not a module.
+          # BUILD_REF is the source checkout and can predate this helper.
+          # Read the helper from the workflow revision (GITHUB_SHA) into a
+          # separate git dir. Do not use the copy in the source tree: an
+          # older commit does not have it, and a caller must not be able to
+          # swap it by checking out a different ref. If the workflow revision
+          # has no helper, leave the path empty. The next step then uses the
+          # catalog root, which is the right directory for a root-module CLI.
           dest="${RUNNER_TEMP}/resolve-module-dir.sh"
-          src="tools/release-ledger/resolve-module-dir.sh"
-          if [ -f "$src" ]; then
-            cp "$src" "$dest"
-          else
-            git fetch --no-tags --depth=1 origin "$GITHUB_SHA"
-            git show "${GITHUB_SHA}:tools/release-ledger/resolve-module-dir.sh" > "$dest"
+          rm -f "$dest"
+          work="${RUNNER_TEMP}/workflow-rev.git"
+          rm -rf "$work"
+          git init --bare "$work" >/dev/null
+          url="$(git remote get-url origin)"
+          if git --git-dir="$work" fetch --no-tags --depth=1 "$url" "$GITHUB_SHA" \
+            && git --git-dir="$work" cat-file -e "${GITHUB_SHA}:tools/release-ledger/resolve-module-dir.sh"; then
+            git --git-dir="$work" show "${GITHUB_SHA}:tools/release-ledger/resolve-module-dir.sh" > "$dest"
           fi
-          echo "RESOLVE_MODULE_DIR_SH=${dest}" >> "$GITHUB_ENV"
+          if [ -s "$dest" ]; then
+            echo "RESOLVE_MODULE_DIR_SH=${dest}" >> "$GITHUB_ENV"
+          else
+            echo "RESOLVE_MODULE_DIR_SH=" >> "$GITHUB_ENV"
+          fi
       - name: Compute slug
         id: slug
         env:
@@ -410,7 +444,11 @@ jobs:
           # instead of running the binary in a job that holds the release PAT.
           # Same directory the stamper writes, including a nested module such
           # as library/ai/v0/vzero. Either file may be absent.
-          module_dir="$(bash "${RESOLVE_MODULE_DIR_SH:?}" "$cli_dir")"
+          if [ -n "${RESOLVE_MODULE_DIR_SH:-}" ]; then
+            module_dir="$(bash "$RESOLVE_MODULE_DIR_SH" "$cli_dir")"
+          else
+            module_dir="$cli_dir"
+          fi
           stamped=$({ cat "${module_dir}/internal/cli/version.go" "${module_dir}/internal/cli/root.go" 2>/dev/null || true; } \
             | sed -nE 's/.*var[[:space:]]+version[[:space:]]*=[[:space:]]*"([^"]*)".*/\1/p' | head -n 1)
           if [ ! -f "$ledger" ] || [ -z "$stamped" ]; then

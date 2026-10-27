@@ -5,7 +5,8 @@ name: Update per-CLI release ledger
 # version in sync without making contributors manually bump 233 independent
 # CLIs or fight changelog conflicts in feature PRs.
 #
-# Source of truth: the tools/release-ledger package (go run -C tools/release-ledger .).
+# Source of truth: tools/release-ledger/main.go.
+# `go run` is given that file alone, so the module resolver lives in it too.
 
 on:
   push:
@@ -108,7 +109,7 @@ jobs:
           changed_from="$(git rev-parse "$changed_from^{commit}")"
           changed_to="$(git rev-parse "$changed_to^{commit}")"
 
-          commits="$(go run -C tools/release-ledger . \
+          commits="$(go run ./tools/release-ledger/main.go \
             --list-first-parent \
             --changed-from "$changed_from" \
             --changed-to "$changed_to")"
@@ -165,7 +166,7 @@ jobs:
             if [ -n "$pr_url" ]; then
               args+=(--change-url "$pr_url")
             fi
-            go run -C tools/release-ledger . "${args[@]}"
+            go run ./tools/release-ledger/main.go "${args[@]}"
           done <<< "$RELEASE_COMMITS"
       - name: Commit if changed
         id: commit

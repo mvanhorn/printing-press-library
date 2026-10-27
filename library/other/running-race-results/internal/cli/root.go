@@ -7,6 +7,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// version is the ledger stamp. Release builds do not inject -X.
+var version = "2026.10.1"
+
 // NewRoot builds the root command with all subcommands wired to reg.
 func NewRoot(reg *provider.Registry) *cobra.Command {
 	// Embedded catalog; parse is covered by catalog package tests.
@@ -14,6 +17,7 @@ func NewRoot(reg *provider.Registry) *cobra.Command {
 	root := &cobra.Command{
 		Use:           "running-race-results-pp-cli",
 		Short:         "Look up a runner's race result by race name + bib",
+		Version:       version,
 		SilenceUsage:  true,
 		SilenceErrors: true,
 	}

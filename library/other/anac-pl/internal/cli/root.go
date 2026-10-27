@@ -18,10 +18,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// version e' la versione mostrata da --version. La fonte e'
-// cliutil.Version, iniettata al build, cosi' che CLI, server MCP e
-// User-Agent dichiarino tutti lo stesso numero.
-var version = cliutil.Version
+// version is the stampable ledger literal. Release builds pass no -X.
+// cliutil.Version stays the ldflags injection point: without an injection it
+// follows this literal, and an injected value still wins for --version.
+var version = "2026.10.2"
+
+func init() {
+	if cliutil.Version == "" || cliutil.Version == "dev" {
+		cliutil.Version = version
+		return
+	}
+	version = cliutil.Version
+}
 
 type rootFlags struct {
 	asJSON        bool

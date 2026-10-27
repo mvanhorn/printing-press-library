@@ -199,6 +199,36 @@ class ReleaseLedgerVerifierTest(unittest.TestCase):
         run(["git", "checkout", "feature"], self.repo)
         self.assertEqual(self.verifier_against("main").returncode, 0)
 
+    def test_allows_rewire_onto_stamp_literal_matching_ledger(self):
+        self.seed_existing_cli()
+        root = "library/social-and-messaging/x-twitter"
+        # HEAD~1 must be a non-stampable declaration. Rewriting the seeded
+        # literal in place would not touch `var version =`, so verify() would
+        # skip the CLI and this test would pass without the alignment exception.
+        self.write(f"{root}/internal/cli/root.go", 'package cli\n\nconst version = "0.1.0"\n')
+        run(["git", "add", "."], self.repo)
+        run(["git", "commit", "-m", "non-stampable const"], self.repo)
+
+        self.write(f"{root}/README.md", "# X Twitter\n\nRewire only.\n")
+        self.write(f"{root}/internal/cli/root.go", 'package cli\n\nvar version = "2026.6.1"\n')
+        run(["git", "add", "."], self.repo)
+        run(["git", "commit", "-m", "align stamp literal"], self.repo)
+
+        self.assertEqual(self.verifier().returncode, 0)
+
+    def test_blocks_stamp_literal_that_disagrees_with_ledger(self):
+        self.seed_existing_cli()
+        root = "library/social-and-messaging/x-twitter"
+        self.write(f"{root}/README.md", "# X Twitter\n\nRewire only.\n")
+        self.write(f"{root}/internal/cli/root.go", 'package cli\n\nvar version = "2026.6.2"\n')
+        run(["git", "add", "."], self.repo)
+        run(["git", "commit", "-m", "bump version with other edit"], self.repo)
+
+        result = self.verifier()
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("runtime version changed with normal CLI files", result.stderr)
+
     def seed_nested_module(self):
         root = "library/ai/v0"
         self.write(f"{root}/.printing-press.json", json.dumps({"api_name": "v0"}) + "\n")
@@ -221,7 +251,7 @@ class ReleaseLedgerVerifierTest(unittest.TestCase):
         self.seed_nested_module()
         root = "library/ai/v0"
         self.write(f"{root}/README.md", "# v0\n\nFeature.\n")
-        self.write(f"{root}/vzero/internal/cli/version.go", 'package cli\n\nvar version = "2026.9.1"\n')
+        self.write(f"{root}/vzero/internal/cli/version.go", 'package cli\n\nvar version = "2026.9.2"\n')
         run(["git", "add", "."], self.repo)
         run(["git", "commit", "-m", "nested version plus readme"], self.repo)
 
@@ -231,12 +261,23 @@ class ReleaseLedgerVerifierTest(unittest.TestCase):
         self.assertIn("runtime version changed with normal CLI files", result.stderr)
         self.assertIn("v0", result.stderr)
 
+    def test_allows_nested_module_rewire_onto_ledger(self):
+        self.seed_existing_cli()
+        self.seed_nested_module()
+        root = "library/ai/v0"
+        self.write(f"{root}/README.md", "# v0\n\nRewire.\n")
+        self.write(f"{root}/vzero/internal/cli/version.go", 'package cli\n\nvar version = "2026.9.1"\n')
+        run(["git", "add", "."], self.repo)
+        run(["git", "commit", "-m", "align nested stamp"], self.repo)
+
+        self.assertEqual(self.verifier().returncode, 0)
+
     def test_blocks_nested_module_mcp_version_bump_with_other_files(self):
         self.seed_existing_cli()
         self.seed_nested_module()
         root = "library/ai/v0"
         self.write(f"{root}/README.md", "# v0\n\nFeature.\n")
-        self.write(f"{root}/vzero/cmd/v0-pp-mcp/main.go", 'package main\n\nvar version = "2026.9.1"\n')
+        self.write(f"{root}/vzero/cmd/v0-pp-mcp/main.go", 'package main\n\nvar version = "2026.9.2"\n')
         run(["git", "add", "."], self.repo)
         run(["git", "commit", "-m", "nested mcp version plus readme"], self.repo)
 
@@ -254,22 +295,29 @@ class ReleaseLedgerVerifierTest(unittest.TestCase):
 
         self.assertEqual(self.verifier().returncode, 0)
 
-    def test_module_rel_rejects_empty_helper_output(self):
+    def test_module_rel_ignores_a_helper_script_in_the_tree(self):
         sys.path.insert(0, str(SCRIPT.parent))
         import verify_release_ledger as guard
 
-        class Result:
-            returncode = 0
-            stdout = " \n"
-            stderr = ""
+        catalog = self.repo / "library" / "ai" / "v0"
+        (catalog / "vzero").mkdir(parents=True)
+        (catalog / "vzero" / "go.mod").write_text("module example.com/vzero\n", encoding="utf-8")
+        (catalog / ".goreleaser.yaml").write_text("builds:\n  - dir: ./vzero\n", encoding="utf-8")
+        (catalog / "resolve-module-dir.sh").write_text("#!/bin/sh\necho pwned\n", encoding="utf-8")
+
+        def fail_run(*args, **kwargs):
+            raise AssertionError(args)
 
         original = guard.subprocess.run
-        guard.subprocess.run = lambda *args, **kwargs: Result()
+        guard.subprocess.run = fail_run
         guard._module_rel_cache.clear()
         try:
-            with self.assertRaises(RuntimeError) as caught:
-                guard.module_rel("library/ai/v0")
-            self.assertIn("printed nothing", str(caught.exception))
+            self.assertEqual(guard.module_rel(str(catalog)), "vzero")
+            rooted = self.repo / "library" / "health" / "grants"
+            rooted.mkdir(parents=True)
+            (rooted / "go.mod").write_text("module example.com/grants\n", encoding="utf-8")
+            (rooted / ".goreleaser.yaml").write_text("builds:\n  - dir: ./elsewhere\n", encoding="utf-8")
+            self.assertEqual(guard.module_rel(str(rooted)), "")
         finally:
             guard.subprocess.run = original
             guard._module_rel_cache.clear()

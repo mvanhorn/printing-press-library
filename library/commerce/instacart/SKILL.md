@@ -223,14 +223,7 @@ The CLI is agent-native by default. Pass `--json` on any command for machine-rea
 
 ### Filtering output
 
-`--select` accepts dotted paths to descend into nested responses; arrays traverse element-wise:
-
-```bash
-instacart-pp-cli <command> --agent --select id,name
-instacart-pp-cli <command> --agent --select items.id,items.owner.name
-```
-
-Use this to narrow huge payloads to the fields you actually need — critical for deeply nested API responses.
+This CLI has no field selector. Pass `--json` and filter the payload in the caller.
 
 
 ### Response envelope
@@ -265,7 +258,7 @@ Setup check:
 
 1. Confirm `instacart-pp-cli` is on PATH. If not, install: `go install github.com/mvanhorn/printing-press-library/library/commerce/instacart/cmd/instacart-pp-cli@latest`.
 2. Probe `mcp__claude-in-chrome__tabs_context_mcp`. If the tool is unavailable, route to the DevTools fallback: fetch [`docs/backfill-devtools-fallback.md`](https://github.com/mvanhorn/printing-press-library/blob/main/library/commerce/instacart/docs/backfill-devtools-fallback.md) and walk the user through it. Stop.
-3. Run `instacart-pp-cli history stats --agent`. If orders > 0, this is a top-up run; the resume state will skip already-dumped orders automatically.
+3. Run `instacart-pp-cli history stats --json`. If orders > 0, this is a top-up run; the resume state will skip already-dumped orders automatically.
 
 Chrome MCP loop:
 
@@ -277,8 +270,8 @@ Chrome MCP loop:
 3. Inject `dumper.js` via `mcp__claude-in-chrome__javascript_tool`. Read back `total_ids` and `pending_extract`.
 4. For each order ID in the pending set, navigate to `/store/orders/<id>` then inject `extract-one.js`. Report progress to the user every 10 orders.
 5. When pending reaches 0, inject `export-jsonl.js`. It downloads `instacart-orders.jsonl` to the user's default Downloads folder.
-6. Run `instacart-pp-cli history import ~/Downloads/instacart-orders.jsonl --agent` in a Bash tool. Show the summary JSON to the user.
-7. Verify: `instacart-pp-cli history stats --agent`. Offer a follow-up sanity check: `instacart-pp-cli add <retailer> "<something they've bought>" --dry-run --json` and flag `resolved_via: "history"` when it appears.
+6. Run `instacart-pp-cli history import ~/Downloads/instacart-orders.jsonl --json` in a Bash tool. Show the summary JSON to the user.
+7. Verify: `instacart-pp-cli history stats --json`. Offer a follow-up sanity check: `instacart-pp-cli add <retailer> "<something they've bought>" --dry-run --json` and flag `resolved_via: "history"` when it appears.
 
 Error surfaces worth translating for the user:
 

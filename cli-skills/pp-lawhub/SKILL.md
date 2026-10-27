@@ -96,7 +96,7 @@ Expected: `live.ok` is `true`.
 Fallback:
 
 ```bash
-lawhub-pp-cli auth import-file <storage-state.json>
+lawhub-pp-cli auth import-file storage-state.json
 ```
 
 If user-id discovery fails:
@@ -136,7 +136,7 @@ Auth:
 
 ```bash
 lawhub-pp-cli auth login --cdp http://127.0.0.1:9222
-lawhub-pp-cli auth import-file <storage-state.json>
+lawhub-pp-cli auth import-file storage-state.json
 lawhub-pp-cli auth status --live --agent
 lawhub-pp-cli auth path --agent
 lawhub-pp-cli auth logout --agent

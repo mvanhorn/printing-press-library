@@ -52,6 +52,8 @@ name: Verify library conventions
 #    workflow. New CLIs may add blank skeletons, and scoped ledger-only repair
 #    PRs are allowed, but normal CLI feature/fix PRs must not hand-bump
 #    CHANGELOG.md, .printing-press-release.json, or runtime `var version`.
+#    Pointing a CLI at `var version = "<the ledger version already on the
+#    branch>"` so the release job can stamp it is alignment, not a bump.
 
 on:
   pull_request:
@@ -108,11 +110,6 @@ jobs:
           # the --validate flag existed otherwise runs its own stale tool
           # and dies with "flag provided but not defined: -validate"
           # instead of a real validation message (or a pass).
-          #
-          # resolve-module-dir.sh is part of that guard: the release-ledger
-          # verifier shells out to it. Overlay the base copy so a PR cannot
-          # replace the helper, and so a branch from before the helper existed
-          # still has it once the helper is on base.
           for path in \
             .github/scripts/verify-attribution \
             .github/scripts/verify-binary-payload \
@@ -120,12 +117,12 @@ jobs:
             .github/scripts/verify-publish-package \
             .github/scripts/verify-release-ledger \
             tools/generate-registry \
-            tools/generate-skills \
-            tools/release-ledger/resolve-module-dir.sh
+            tools/generate-skills
           do
-            if [ "$path" = ".github/scripts/verify-publish-package" ] &&
+            if { [ "$path" = ".github/scripts/verify-publish-package" ] ||
+                 [ "$path" = ".github/scripts/verify-release-ledger" ]; } &&
               ! git diff --quiet "${BASE_REMOTE_REF}...HEAD" -- "$path" ".github/workflows/verify-library-conventions.yml"; then
-              echo "Keeping PR-updated ${path}; this PR is changing the publish-package verifier itself."
+              echo "Keeping PR-updated ${path}; this PR is changing that verifier itself."
               continue
             fi
             if git cat-file -e "${BASE_REMOTE_REF}:${path}" 2>/dev/null; then

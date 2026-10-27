@@ -419,9 +419,9 @@
       "path": "library/developer-tools/agent-capture",
       "release": {
         "cli_name": "agent-capture-pp-cli",
-        "version": "2026.10.1",
-        "released_at": "2026-10-07T08:58:29Z",
-        "source_commit": "0fdcc7ad49d502db6f8f22d85b51b8c8462a5035"
+        "version": "2026.10.2",
+        "released_at": "2026-10-27T22:08:44Z",
+        "source_commit": "75cc8a0327a78381d55f7d47328e638e19a466af"
       },
       "printer": "mvanhorn",
       "printer_name": "Matt Van Horn",
@@ -1718,9 +1718,9 @@
       "path": "library/other/anac-pl",
       "release": {
         "cli_name": "anac-pl-pp-cli",
-        "version": "2026.10.1",
-        "released_at": "2026-10-02T00:02:45Z",
-        "source_commit": "3cf71d16211c76ec81a88cf389148016afc7b40a"
+        "version": "2026.10.2",
+        "released_at": "2026-10-27T22:08:44Z",
+        "source_commit": "75cc8a0327a78381d55f7d47328e638e19a466af"
       },
       "printer": "aborruso",
       "printer_name": "aborruso",
@@ -1854,9 +1854,9 @@
       "path": "library/food-and-dining/anylist",
       "release": {
         "cli_name": "anylist-pp-cli",
-        "version": "2026.10.1",
-        "released_at": "2026-10-01T20:21:20Z",
-        "source_commit": "89018101ff84463de8a81f86c737c82717ebcb58"
+        "version": "2026.10.2",
+        "released_at": "2026-10-27T22:08:44Z",
+        "source_commit": "75cc8a0327a78381d55f7d47328e638e19a466af"
       },
       "printer": "jeeves",
       "printer_name": "Jeeves",
@@ -4950,9 +4950,9 @@
       "path": "library/productivity/chrome-history",
       "release": {
         "cli_name": "chrome-history-pp-cli",
-        "version": "2026.8.2",
-        "released_at": "2026-08-17T07:57:07Z",
-        "source_commit": "c77428f67014093b620fc79b4e03fa9aac727902"
+        "version": "2026.10.1",
+        "released_at": "2026-10-27T22:08:44Z",
+        "source_commit": "75cc8a0327a78381d55f7d47328e638e19a466af"
       },
       "printer": "vinnyp",
       "printer_name": "Vinny Pasceri",
@@ -8836,9 +8836,9 @@
       "path": "library/commerce/etsy-seller-dashboard",
       "release": {
         "cli_name": "etsy-seller-dashboard-pp-cli",
-        "version": "2026.8.3",
-        "released_at": "2026-08-30T09:08:18Z",
-        "source_commit": "7f181720cea92259c3639dd490fbaaa16248d70c"
+        "version": "2026.10.1",
+        "released_at": "2026-10-27T22:08:44Z",
+        "source_commit": "75cc8a0327a78381d55f7d47328e638e19a466af"
       },
       "printer": "horknfbr",
       "printer_name": "horknfbr",
@@ -14131,9 +14131,9 @@
       "path": "library/media-and-entertainment/icloud",
       "release": {
         "cli_name": "icloud-pp-cli",
-        "version": "2026.8.1",
-        "released_at": "2026-08-17T07:57:07Z",
-        "source_commit": "c77428f67014093b620fc79b4e03fa9aac727902"
+        "version": "2026.10.1",
+        "released_at": "2026-10-27T22:08:44Z",
+        "source_commit": "75cc8a0327a78381d55f7d47328e638e19a466af"
       },
       "printer": "matysanchez",
       "printer_name": "Matias Sanchez Moises",
@@ -14723,9 +14723,9 @@
       "path": "library/commerce/instacart",
       "release": {
         "cli_name": "instacart-pp-cli",
-        "version": "2026.8.2",
-        "released_at": "2026-08-17T07:57:07Z",
-        "source_commit": "c77428f67014093b620fc79b4e03fa9aac727902"
+        "version": "2026.10.1",
+        "released_at": "2026-10-27T22:08:44Z",
+        "source_commit": "75cc8a0327a78381d55f7d47328e638e19a466af"
       },
       "printer": "mvanhorn",
       "printer_name": "Matt Van Horn",
@@ -16426,9 +16426,9 @@
       "path": "library/monitoring/kuma",
       "release": {
         "cli_name": "kuma-pp-cli",
-        "version": "2026.10.1",
-        "released_at": "2026-10-01T21:04:57Z",
-        "source_commit": "d4124a0e698fa0416163b74b76df1c0c0a831658"
+        "version": "2026.10.2",
+        "released_at": "2026-10-27T22:08:44Z",
+        "source_commit": "75cc8a0327a78381d55f7d47328e638e19a466af"
       },
       "printer": "keithah",
       "printer_name": "Keith",
@@ -16574,9 +16574,9 @@
       "path": "library/education/lawhub",
       "release": {
         "cli_name": "lawhub-pp-cli",
-        "version": "2026.8.1",
-        "released_at": "2026-08-17T07:57:07Z",
-        "source_commit": "c77428f67014093b620fc79b4e03fa9aac727902"
+        "version": "2026.10.1",
+        "released_at": "2026-10-27T22:08:44Z",
+        "source_commit": "75cc8a0327a78381d55f7d47328e638e19a466af"
       },
       "printer": "nolan",
       "printer_name": "Nolan McCafferty",
@@ -17637,9 +17637,9 @@
       "path": "library/travel/masterpark",
       "release": {
         "cli_name": "masterpark-pp-cli",
-        "version": "2026.8.1",
-        "released_at": "2026-08-17T07:57:07Z",
-        "source_commit": "c77428f67014093b620fc79b4e03fa9aac727902"
+        "version": "2026.10.1",
+        "released_at": "2026-10-27T22:08:44Z",
+        "source_commit": "75cc8a0327a78381d55f7d47328e638e19a466af"
       },
       "printer": "bwishan",
       "printer_name": "Brian Wishan",
@@ -25585,9 +25585,9 @@
       "path": "library/other/running-race-results",
       "release": {
         "cli_name": "running-race-results-pp-cli",
-        "version": "2026.8.1",
-        "released_at": "2026-08-17T07:57:07Z",
-        "source_commit": "c77428f67014093b620fc79b4e03fa9aac727902"
+        "version": "2026.10.1",
+        "released_at": "2026-10-27T22:08:44Z",
+        "source_commit": "75cc8a0327a78381d55f7d47328e638e19a466af"
       },
       "printer": "jiahongc",
       "printer_name": "Jiahong Chen",
@@ -25622,9 +25622,9 @@
       "path": "library/productivity/safari-history",
       "release": {
         "cli_name": "safari-history-pp-cli",
-        "version": "2026.8.1",
-        "released_at": "2026-08-17T05:47:06Z",
-        "source_commit": "da62189271b59d193ee4f186eb4af589b1c4b472"
+        "version": "2026.10.1",
+        "released_at": "2026-10-27T22:08:44Z",
+        "source_commit": "75cc8a0327a78381d55f7d47328e638e19a466af"
       },
       "printer": "vinnyp",
       "printer_name": "Vinny Pasceri",

@@ -15,10 +15,6 @@ import (
 	kuma "github.com/mvanhorn/printing-press-library/library/monitoring/kuma/internal/client"
 )
 
-// version is the single source of truth for the CLI version, shared by the
-// version command, --version, and the agent-context surface.
-const version = "2026.8.26"
-
 const usage = `kuma-pp-cli — Uptime Kuma v2 operator CLI
 
 Usage:

@@ -578,6 +578,17 @@ func assertCheckModeFindsVersion(t *testing.T, catalog string, rels ...string) {
 	}
 }
 
+func TestGoRunMainGoCompiles(t *testing.T) {
+	cmd := exec.Command("go", "run", "main.go", "--help")
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("go run main.go --help: %v\n%s", err, out)
+	}
+	if !bytes.Contains(out, []byte("-list-first-parent")) {
+		t.Fatalf("go run main.go --help missing flags:\n%s", out)
+	}
+}
+
 func resolveModuleDirShell(t *testing.T, catalog string) (string, error) {
 	t.Helper()
 	cmd := exec.Command("bash", "resolve-module-dir.sh", catalog)

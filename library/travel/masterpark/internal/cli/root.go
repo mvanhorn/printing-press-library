@@ -26,7 +26,7 @@ func IsVerifyEnv() bool {
 	return os.Getenv("PRINTING_PRESS_VERIFY") == "1"
 }
 
-const version = "0.0.0-dev"
+var version = "2026.10.1"
 
 // Execute builds and runs the root command.
 func Execute() error {

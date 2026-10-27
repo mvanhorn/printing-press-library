@@ -8,7 +8,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.6
-	golang.org/x/net v0.55.0
+	golang.org/x/net v0.62.0
 )
 
 require modernc.org/sqlite v1.37.0
@@ -27,13 +27,13 @@ require (
 // behind `//go:build windows`, so running `go mod tidy` under GOOS=linux/darwin
 // re-marks this // indirect (that GOOS compiles no file that imports it); under
 // GOOS=windows it stays direct. That is tolerated churn, NOT a bug to "fix".
-require golang.org/x/sys v0.46.0
+require golang.org/x/sys v0.49.0
 
 // Floor the HTTP/3 transitive deps pulled in only via github.com/enetx/surf
 // above their vulnerable versions (osv flags module presence; govulncheck
 // reachability = 0 for these REST CLIs). Emitted only when the surf transport
 // is present, so MVS keeps the floor; tidy drops it for CLIs without surf.
-require golang.org/x/crypto v0.53.0 // indirect
+require golang.org/x/crypto v0.58.0 // indirect
 
 require (
 	github.com/andybalholm/brotli v1.2.1 // indirect
@@ -56,7 +56,7 @@ require (
 	github.com/wzshiming/socks5 v0.7.0 // indirect
 	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
-	golang.org/x/text v0.39.0 // indirect
+	golang.org/x/text v0.43.0 // indirect
 	modernc.org/libc v1.62.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.9.1 // indirect

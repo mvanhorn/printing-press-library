@@ -201,7 +201,7 @@ Auth:
 
 ```bash
 lawhub-pp-cli auth login --cdp http://127.0.0.1:9222
-lawhub-pp-cli auth import-file <storage-state.json>
+lawhub-pp-cli auth import-file storage-state.json
 lawhub-pp-cli auth status --live --agent
 lawhub-pp-cli auth path --agent
 lawhub-pp-cli auth logout --agent
@@ -286,7 +286,7 @@ report-metadata
 
 These prototype commands are intentionally not public unless reimplemented Go-native:
 
-```bash
+```text
 lawhub-pp-cli sync all
 lawhub-pp-cli sync questions
 lawhub-pp-cli capture-har

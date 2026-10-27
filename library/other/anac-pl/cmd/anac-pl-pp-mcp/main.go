@@ -9,8 +9,9 @@ import (
 	"os"
 	"strings"
 
-	mcptools "github.com/mvanhorn/printing-press-library/library/other/anac-pl/internal/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/other/anac-pl/internal/cliutil"
+	mcptools "github.com/mvanhorn/printing-press-library/library/other/anac-pl/internal/mcp"
 )
 
 // Transport selection order: --transport flag, then PP_MCP_TRANSPORT env,
@@ -26,7 +27,7 @@ const (
 func main() {
 	s := server.NewMCPServer(
 		"Anac Pl",
-		"1.0.0",
+		cliutil.Version,
 		server.WithToolCapabilities(false),
 	)
 

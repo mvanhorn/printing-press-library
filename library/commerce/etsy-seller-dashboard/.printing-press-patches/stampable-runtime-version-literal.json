@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "stampable-runtime-version-literal",
+  "applied_at": "2026-10-27",
+  "summary": "The runtime version is a var version = \"<calver>\" string literal under internal/cli so the library release ledger can stamp it.",
+  "reason": "A const, an exported Version, a var-block entry, or a non-literal alias is invisible to stampRuntimeVersion and to the release job's version check, so the published binary keeps a placeholder version.",
+  "validated_outcome": "The release-job sed matches the ledger version, and the built CLI prints that version.",
+  "base_run_id": "20260725-212952-c7905991",
+  "base_printing_press_version": "4.29.0",
+  "files": [
+    "internal/cli/compact.go",
+    "internal/cli/version.go"
+  ]
+}

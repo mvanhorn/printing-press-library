@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "etsy-seller-dashboard",
   "cli_name": "etsy-seller-dashboard-pp-cli",
-  "version": "2026.8.3",
-  "released_at": "2026-08-30T09:08:18Z",
-  "source_commit": "d97ee8c93245eee634bbf3f75541341e48fbfc44",
+  "version": "2026.10.1",
+  "released_at": "2026-10-27T22:08:44Z",
+  "source_commit": "b25570d3d2c0bd241ee4de0c07ee1854d87cf247",
   "printing_press_version": "4.29.0",
   "run_id": "20260725-212952-c7905991",
   "changes": [
     {
-      "title": "fix: bump github.com/enetx/http to v1.0.29 across 68 modules",
-      "pr": 1865,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1865",
-      "commit": "d97ee8c93245eee634bbf3f75541341e48fbfc44"
+      "title": "chore: standardize CLI version literals for ledger stamping",
+      "pr": 2387,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/2387",
+      "commit": "b25570d3d2c0bd241ee4de0c07ee1854d87cf247"
     }
   ]
 }
