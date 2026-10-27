@@ -181,9 +181,10 @@ jobs:
           slug=$(basename "${CLI_TARGET}")
           # Set artifact-name env vars unconditionally so the upload step
           # always has valid values, even when we early-exit below.
-          # actions/upload-artifact@v4 rejects / in names; slugs are unique
-          # across the library (slug-keyed dirs), so slug + os-arch is a
-          # safe and stable artifact name.
+          # "__" after the slug is the delimiter. A hyphen matches other CLIs
+          # that share this slug as a prefix (github / github-contents).
+          # "_" is not a legal slug character. The release asset filename
+          # below is unchanged.
           echo "SLUG=${slug}" >> "$GITHUB_ENV"
           echo "PLATFORM_TAG=${os}-${arch}" >> "$GITHUB_ENV"
           if [ ! -f "${cli_dir}/manifest.json" ]; then
@@ -197,7 +198,7 @@ jobs:
       - name: Upload bundle artifact
         uses: actions/upload-artifact@v6
         with:
-          name: mcpb-${{ env.SLUG }}-${{ env.PLATFORM_TAG }}
+          name: mcpb-${{ env.SLUG }}__${{ env.PLATFORM_TAG }}
           path: ${{ runner.temp }}/out/*.mcpb
           if-no-files-found: ignore
           retention-days: 7
@@ -313,7 +314,7 @@ jobs:
       - name: Upload CLI artifact
         uses: actions/upload-artifact@v6
         with:
-          name: cli-${{ env.SLUG }}-${{ env.PLATFORM_TAG }}
+          name: cli-${{ env.SLUG }}__${{ env.PLATFORM_TAG }}
           path: ${{ runner.temp }}/out/*
           if-no-files-found: ignore
           retention-days: 7
@@ -374,17 +375,19 @@ jobs:
         run: |
           slug=$(basename "${CLI_TARGET}")
           echo "slug=${slug}" >> "$GITHUB_OUTPUT"
+      # "__" is the slug delimiter from the upload names. A hyphen glob
+      # also matches CLIs whose slug continues past this one.
       - name: Download MCPB artifacts for this CLI
         uses: actions/download-artifact@v7
         with:
           path: ${{ runner.temp }}/dl
-          pattern: mcpb-${{ steps.slug.outputs.slug }}-*
+          pattern: mcpb-${{ steps.slug.outputs.slug }}__*
           merge-multiple: true
       - name: Download CLI binary artifacts for this CLI
         uses: actions/download-artifact@v7
         with:
           path: ${{ runner.temp }}/dl
-          pattern: cli-${{ steps.slug.outputs.slug }}-*
+          pattern: cli-${{ steps.slug.outputs.slug }}__*
           merge-multiple: true
       - name: List downloaded artifacts and enforce per-app gate
         env:
@@ -507,6 +510,38 @@ jobs:
           if ! find "${RUNNER_TEMP}/dl" -type f -print -quit | grep -q .; then
             echo "No artifacts to publish for ${SLUG}; skipping release."
             exit 0
+          fi
+          # Exact asset names. A glob on ${SLUG}-* would publish another
+          # CLI's binaries onto this release. Partial platform sets are fine.
+          owned_suffixes=(
+            pp-cli-darwin-amd64
+            pp-cli-darwin-arm64
+            pp-cli-linux-amd64
+            pp-cli-linux-arm64
+            pp-cli-windows-amd64.exe
+            pp-cli-windows-arm64.exe
+            pp-mcp-darwin-arm64.mcpb
+            pp-mcp-windows-amd64.mcpb
+            pp-mcp-windows-arm64.mcpb
+          )
+          foreign=0
+          for f in "${RUNNER_TEMP}/dl"/*; do
+            [ -f "$f" ] || continue
+            base=$(basename "$f")
+            owned=0
+            for suffix in "${owned_suffixes[@]}"; do
+              if [ "$base" = "${SLUG}-${suffix}" ]; then
+                owned=1
+                break
+              fi
+            done
+            if [ "$owned" -ne 1 ]; then
+              echo "::error::Refusing to publish ${base} on ${tag}: not a ${SLUG} release asset."
+              foreign=1
+            fi
+          done
+          if [ "$foreign" -ne 0 ]; then
+            exit 1
           fi
           # shellcheck disable=SC2016
           notes=$(printf 'Auto-built artifacts for **%s** at commit %s.\n\n**Claude Desktop:** download the matching `.mcpb` file and double-click to install.\n\n**Terminal CLI:** download the binary matching your platform. On macOS you may need to clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, `chmod +x <binary>`.\n\n**Verify:** `checksums.txt` lists the SHA-256 of every asset on this release. Check the file you downloaded with `grep '"'"' <file>$'"'"' checksums.txt | sha256sum -c` (macOS: `shasum -a 256 -c`).\n\n_This is a moving tag — it always points at the latest build._' "${CLI_TARGET}" "${BUILD_REF}")
