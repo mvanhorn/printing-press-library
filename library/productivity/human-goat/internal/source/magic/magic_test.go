@@ -161,6 +161,8 @@ func TestAsksForSubscription(t *testing.T) {
 		{"our own decline after pitch", []ConversationMessage{{Content: pitch, SourceType: "ASSISTANT"}, {Content: "No subscription", SourceType: "CLIENT"}}, true},
 		{"answered after pitch", []ConversationMessage{{Content: pitch, SourceType: "ASSISTANT"}, {Content: "Open 10am to 5pm", SourceType: "ASSISTANT"}}, false},
 		{"no operator reply", []ConversationMessage{{Content: "subscription question", SourceType: "CLIENT"}}, false},
+		{"says no subscription needed", []ConversationMessage{{Content: "No subscription is needed; I'm working on it now.", SourceType: "ASSISTANT"}}, false},
+		{"confirms a cancellation", []ConversationMessage{{Content: "I've cancelled your Magic 24/7 plan subscription as requested.", SourceType: "ASSISTANT"}}, false},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {

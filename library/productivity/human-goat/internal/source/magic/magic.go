@@ -271,10 +271,24 @@ func (r *Request) AsksForSubscription() bool {
 		if strings.EqualFold(msg.SourceType, "CLIENT") || strings.TrimSpace(msg.Content) == "" {
 			continue
 		}
-		text := strings.ToLower(msg.Content)
-		return strings.Contains(text, "subscri") || strings.Contains(text, "24/7 plan")
+		return offersPaidPlan(msg.Content)
 	}
 	return false
+}
+
+// offersPaidPlan reports whether text offers a paid Magic plan: it names a plan
+// and either a price or an invitation to subscribe, and does not say that no
+// subscription is needed.
+func offersPaidPlan(text string) bool {
+	text = strings.ToLower(strings.ReplaceAll(text, "’", "'"))
+	for _, negation := range []string{"no subscription", "don't need", "do not need", "not need", "not required", "isn't required"} {
+		if strings.Contains(text, negation) {
+			return false
+		}
+	}
+	namesPlan := strings.Contains(text, "24/7") || strings.Contains(text, " plan")
+	offers := strings.Contains(text, "$") || strings.Contains(text, "subscribe to") || strings.Contains(text, "proceed with the subscription")
+	return namesPlan && offers
 }
 
 func (c *Client) do(ctx context.Context, method, path string, body any) ([]byte, error) {
