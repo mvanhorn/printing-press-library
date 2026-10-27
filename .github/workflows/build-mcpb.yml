@@ -6,11 +6,13 @@ name: Build CLI release artifacts
 #   - raw CLI binaries for terminal users (6 platforms: standard Go matrix)
 #
 # The README in each CLI links to releases/download/<slug>-current/<asset>,
-# so each push to main rebuilds and the URLs stay stable forever.
+# so each release rebuilds and the URLs stay stable forever.
 #
-# Triggers:
-#   - workflow_dispatch (manual): rebuild a specific CLI
-#   - push to main on library/** (excluding build/): rebuild affected CLIs
+# Triggers (workflow_dispatch only):
+#   - update-cli-release-ledger.yml dispatches this after its ledger commit, for
+#     every CLI it stamped, so binaries report the released version. Building
+#     on the merge-commit push compiled the previous version (issue #1908).
+#   - manual: rebuild one or more CLIs
 #
 # Auth: requires GENERATOR_READ_TOKEN (fine-grained PAT with Contents:read on
 # mvanhorn/cli-printing-press) so the bundle job can `go install` the
@@ -21,30 +23,8 @@ on:
   workflow_dispatch:
     inputs:
       cli:
-        description: 'CLI to rebuild as <category>/<slug>'
+        description: 'CLIs to rebuild as space-separated <category>/<slug> (at most 42)'
         required: true
-  push:
-    branches: [main]
-    paths:
-      # Inputs that actually affect the compiled CLI binary or MCPB
-      # bundle: Go source, module files, and the MCPB manifest. The
-      # //go:embed directive can include any file type, but in practice
-      # those files live inside cmd/ or internal/ (e.g. dub's
-      # internal/mcp/embedded_manifest.json), so this whitelist still
-      # catches them.
-      #
-      # Anything else under library/<cat>/<slug>/ — README.md, SKILL.md,
-      # LICENSE, NOTICE, Makefile, .golangci.yml, .goreleaser.yaml,
-      # .printing-press.json, spec.{yaml,json}, dogfood-results.json,
-      # workflow-verify-report.json, .manuscripts/** — is documentation,
-      # provenance, archived input, or post-build artifact and does not
-      # belong in the rebuild trigger.
-      - 'library/**/cmd/**'
-      - 'library/**/internal/**'
-      - 'library/**/go.mod'
-      - 'library/**/go.sum'
-      - 'library/**/manifest.json'
-      - '.github/workflows/build-mcpb.yml'
 
 permissions:
   contents: write  # for creating/updating releases
@@ -58,70 +38,29 @@ jobs:
       count: ${{ steps.detect.outputs.count }}
     steps:
       - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0  # need history to diff against parent commit
       - id: detect
         name: Determine affected CLIs
         env:
-          EVENT_NAME: ${{ github.event_name }}
           INPUT_CLI: ${{ inputs.cli }}
-          BEFORE_SHA: ${{ github.event.before }}
-          AFTER_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
-          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            if [ -z "$INPUT_CLI" ]; then
-              echo "::error::No CLI target provided. Specify a target with cli=<category>/<slug>, for example cli=media-and-entertainment/substack."
-              exit 1
-            fi
-            if [ "$INPUT_CLI" = "all" ]; then
-              total=$(find library -mindepth 2 -maxdepth 2 -type d | wc -l | tr -d ' ')
-              echo "::error::Manual all-CLI rebuilds would expand to ${total} targets and exceed GitHub Actions' 256-combination matrix limit. Re-run with a specific CLI, for example cli=media-and-entertainment/substack."
-              exit 1
-            fi
-            if [ ! -d "library/$INPUT_CLI" ]; then
-              echo "::error::Unknown CLI target '${INPUT_CLI}'. Expected a path like media-and-entertainment/substack under library/."
-              exit 1
-            fi
-            affected=$(printf '%s' "$INPUT_CLI" | jq -R . | jq -s -c .)
-          else
-            # Push event: diff against parent commit. The all-zeros sentinel
-            # appears for initial branch pushes; fall back to HEAD^ then to
-            # listing all library entries so the workflow degrades gracefully.
-            #
-            # Pathspec is restricted to build-relevant files (Go source under
-            # cmd/ and internal/, module files, MCPB manifest). This mirrors
-            # the on.push.paths filter above so a mixed commit that touches
-            # build-relevant files in CLI A and only docs in CLI B rebuilds
-            # A only. Without this filter, the awk extraction would include
-            # B as affected because any path under library/<cat>/<slug>/
-            # surfaces the same <cat>/<slug>.
-            build_paths=(
-              'library/**/cmd/**'
-              'library/**/internal/**'
-              'library/**/go.mod'
-              'library/**/go.sum'
-              'library/**/manifest.json'
-            )
-            if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ] || [ -z "$BEFORE_SHA" ]; then
-              changed_paths=$(git diff --name-only "HEAD^" "HEAD" -- "${build_paths[@]}" 2>/dev/null || git ls-files "${build_paths[@]}")
-            else
-              changed_paths=$(git diff --name-only "$BEFORE_SHA" "$AFTER_SHA" -- "${build_paths[@]}" || true)
-            fi
-            # Filter to directories that still exist in the merged tree so a
-            # rename (which surfaces in `git diff` as deletions under the old
-            # slug + additions under the new slug) doesn't spawn a spurious
-            # matrix branch for the now-deleted directory. Without this, the
-            # bundle/build/release jobs run vacuously or fail noisily for the
-            # old slug. See issue #250 for the flightgoat -> flight-goat case.
-            affected=$(printf '%s\n' "$changed_paths" \
-              | awk -F/ 'NF >= 3 && $1 == "library" { print $2"/"$3 }' \
-              | sort -u \
-              | while IFS= read -r entry; do
-                  [ -d "library/$entry" ] && printf '%s\n' "$entry"
-                done \
-              | jq -R . | jq -s -c .)
+          read -r -a targets <<< "$INPUT_CLI"
+          if [ "${#targets[@]}" -eq 0 ]; then
+            echo "::error::No CLI target provided. Specify a target with cli=<category>/<slug>, for example cli=media-and-entertainment/substack."
+            exit 1
           fi
+          # build-cli runs each target on 6 platforms and a matrix caps at 256 jobs.
+          if [ "${targets[0]}" = "all" ] || [ "${#targets[@]}" -gt 42 ]; then
+            echo "::error::At most 42 CLIs per run (GitHub Actions' 256-job matrix limit across 6 platforms). Split the list into batches."
+            exit 1
+          fi
+          for target in "${targets[@]}"; do
+            if [[ ! "$target" =~ ^[a-z0-9-]+/[a-z0-9-]+$ ]] || [ ! -d "library/$target" ]; then
+              echo "::error::Unknown CLI target '${target}'. Expected a path like media-and-entertainment/substack under library/."
+              exit 1
+            fi
+          done
+          affected=$(printf '%s\n' "${targets[@]}" | sort -u | jq -R . | jq -s -c .)
           # Filter out empty/null entries
           affected=$(printf '%s' "$affected" | jq -c '[ .[] | select(. != null and . != "") ]')
           count=$(printf '%s' "$affected" | jq 'length')
@@ -351,6 +290,34 @@ jobs:
             echo "::warning::Skipping release for ${SLUG}: app declares manifest.json (expects MCPB) but no .mcpb produced (bundle matrix failed for this app)."
             exit 0
           fi
+      - name: Verify CLI version matches the release ledger
+        env:
+          CLI_TARGET: ${{ matrix.target }}
+          SLUG: ${{ steps.slug.outputs.slug }}
+        run: |
+          set -euo pipefail
+          cli_dir="library/${CLI_TARGET}"
+          ledger="${cli_dir}/.printing-press-release.json"
+          binary="${RUNNER_TEMP}/dl/${SLUG}-pp-cli-linux-amd64"
+          # Same pattern tools/release-ledger stamps; CLIs without it can't match.
+          # Either file may be absent; `|| true` keeps pipefail from masking a match.
+          if [ ! -f "$ledger" ] || ! { cat "${cli_dir}/internal/cli/version.go" "${cli_dir}/internal/cli/root.go" 2>/dev/null || true; } \
+              | grep -Eq 'var[[:space:]]+version[[:space:]]*=[[:space:]]*"'; then
+            echo "::notice::Skipping version check for ${SLUG}: no release ledger or stampable version var."
+            exit 0
+          fi
+          if [ ! -f "$binary" ]; then
+            echo "::warning::Skipping version check for ${SLUG}: linux/amd64 binary was not built."
+            exit 0
+          fi
+          expected=$(jq -er .version "$ledger")
+          chmod +x "$binary"
+          reported=$("$binary" version 2>/dev/null || "$binary" --version 2>&1 || true)
+          if ! grep -qwF -- "$expected" <<< "$reported"; then
+            echo "::error::${SLUG} binary reports '${reported}' but the release ledger says ${expected}. Refusing to publish a mislabeled build."
+            exit 1
+          fi
+          echo "${SLUG} reports ${expected}, matching the release ledger."
       - name: Verify release-write PAT
         env:
           GH_TOKEN: ${{ secrets.RELEASE_WRITE_TOKEN }}

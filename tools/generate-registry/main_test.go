@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -1087,5 +1088,69 @@ No sentinels here.
 	}
 	if !strings.Contains(err.Error(), "missing begin sentinel") {
 		t.Errorf("expected missing-sentinel error, got: %v", err)
+	}
+}
+
+// The ledger commits the stamped version after the merge commit it records,
+// so the registry must point at the commit that last wrote the release file.
+func TestReleaseManifestCommitsPicksCommitThatLastWroteEachReleaseFile(t *testing.T) {
+	repo := t.TempDir()
+	git := func(args ...string) string {
+		t.Helper()
+		cmd := exec.Command("git", append([]string{"-C", repo}, args...)...)
+		cmd.Env = append(os.Environ(), "GIT_AUTHOR_NAME=t", "GIT_AUTHOR_EMAIL=t@t", "GIT_COMMITTER_NAME=t", "GIT_COMMITTER_EMAIL=t@t")
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			t.Fatalf("git %v: %v\n%s", args, err, out)
+		}
+		return strings.TrimSpace(string(out))
+	}
+	write := func(rel, body string) {
+		t.Helper()
+		path := filepath.Join(repo, rel)
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	git("init", "-q", "-b", "main")
+	write("library/cat/alpha/.printing-press-release.json", `{"version":"2026.10.1"}`)
+	write("library/cat/beta/.printing-press-release.json", `{"version":"2026.10.1"}`)
+	git("add", ".")
+	git("commit", "-q", "-m", "merge")
+	write("library/cat/alpha/.printing-press-release.json", `{"version":"2026.10.2"}`)
+	git("commit", "-q", "-am", "chore(releases): update CLI release ledger [skip ci]")
+	ledger := git("rev-parse", "HEAD")
+	betaCommit := git("rev-parse", "HEAD^")
+	write("library/cat/alpha/README.md", "docs")
+	git("add", ".")
+	git("commit", "-q", "-m", "docs")
+
+	commits, err := releaseManifestCommits(repo, "library")
+	if err != nil {
+		t.Fatalf("releaseManifestCommits: %v", err)
+	}
+	want := map[string]string{
+		filepath.Join("library", "cat", "alpha", ".printing-press-release.json"): ledger,
+		filepath.Join("library", "cat", "beta", ".printing-press-release.json"):  betaCommit,
+	}
+	if len(commits) != len(want) {
+		t.Fatalf("commits = %v, want %v", commits, want)
+	}
+	for path, sha := range want {
+		if commits[path] != sha {
+			t.Errorf("commits[%s] = %q, want %q", path, commits[path], sha)
+		}
+	}
+
+	shallow := filepath.Join(t.TempDir(), "shallow")
+	if out, err := exec.Command("git", "clone", "-q", "--depth", "1", "file://"+repo, shallow).CombinedOutput(); err != nil {
+		t.Fatalf("shallow clone: %v\n%s", err, out)
+	}
+	if commits, err := releaseManifestCommits(shallow, "library"); err != nil || commits != nil {
+		t.Fatalf("shallow clone: commits = %v, err = %v; want no override", commits, err)
 	}
 }

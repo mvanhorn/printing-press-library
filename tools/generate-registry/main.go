@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -230,6 +231,15 @@ func main() {
 	}
 
 	existing := loadExistingEntries(registryPath)
+
+	commits, err := releaseManifestCommits(".", libraryDir)
+	if err != nil {
+		log.Fatalf("reading release ledger history: %v", err)
+	}
+	if commits == nil {
+		fmt.Fprintln(os.Stderr, "warning: shallow clone; release.source_commit keeps each ledger's recorded merge commit")
+	}
+	releaseCommitByPath = commits
 
 	entries, err := buildEntries(libraryDir, existing)
 	if err != nil {
@@ -438,6 +448,9 @@ func buildEntry(dir, category, slug string, existing map[string]RegistryEntry) (
 		// malformed — skipping the whole CLI. Omitting it keeps the generated
 		// registry, the --validate gate, and the npm parser consistent: a
 		// release block is present only once the CLI is actually released.
+		if commit := releaseCommitByPath[filepath.Join(dir, ".printing-press-release.json")]; commit != "" {
+			release.SourceCommit = commit
+		}
 		entry.Release = release
 	}
 
@@ -482,6 +495,45 @@ func isUnreleasedSkeleton(r *Release) bool {
 		strings.TrimSpace(r.Version) == "" &&
 		strings.TrimSpace(r.ReleasedAt) == "" &&
 		strings.TrimSpace(r.SourceCommit) == ""
+}
+
+// releaseCommitByPath maps each .printing-press-release.json path to the
+// commit that last wrote it; see releaseManifestCommits.
+var releaseCommitByPath map[string]string
+
+// releaseManifestCommits returns, for every <library>/<cat>/<slug>/
+// .printing-press-release.json, the commit that last wrote it. The ledger
+// records the merge commit as source_commit but stamps the runtime version in
+// its own later commit, so only that later commit builds a binary reporting
+// the released version (issue #1908). A shallow clone cannot answer this and
+// returns nil, leaving each recorded source_commit unchanged.
+func releaseManifestCommits(repoRoot, library string) (map[string]string, error) {
+	shallow, err := exec.Command("git", "-C", repoRoot, "rev-parse", "--is-shallow-repository").Output()
+	if err != nil {
+		return nil, fmt.Errorf("git rev-parse: %w", err)
+	}
+	if strings.TrimSpace(string(shallow)) == "true" {
+		return nil, nil
+	}
+	out, err := exec.Command("git", "-C", repoRoot, "log", "--format=%x00%H", "--name-only", "--",
+		library+"/*/*/.printing-press-release.json").Output()
+	if err != nil {
+		return nil, fmt.Errorf("git log: %w", err)
+	}
+	commits := map[string]string{}
+	var current string
+	for _, line := range strings.Split(string(out), "\n") {
+		switch {
+		case strings.HasPrefix(line, "\x00"):
+			current = strings.TrimPrefix(line, "\x00")
+		case line != "":
+			path := filepath.FromSlash(line)
+			if _, seen := commits[path]; !seen {
+				commits[path] = current
+			}
+		}
+	}
+	return commits, nil
 }
 
 func readRelease(path string) (*Release, error) {

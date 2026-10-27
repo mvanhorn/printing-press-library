@@ -27,6 +27,7 @@ on:
 permissions:
   contents: write
   pull-requests: read
+  actions: write  # dispatch build-mcpb.yml and generate-registry.yml after the ledger commit
 
 jobs:
   update:
@@ -164,6 +165,7 @@ jobs:
             go run ./tools/release-ledger/main.go "${args[@]}"
           done <<< "$RELEASE_COMMITS"
       - name: Commit if changed
+        id: commit
         run: |
           set -euo pipefail
           if git diff --quiet -- library; then
@@ -179,3 +181,30 @@ jobs:
           # A sibling writer can land after a rebase but before the push.
           # Retry the complete fetch/rebase/push sequence.
           bash .github/scripts/push-generated-artifact/push.sh main
+          echo "pushed=true" >> "$GITHUB_OUTPUT"
+      # The ledger commit is [skip ci], and builds or registry regens triggered
+      # by the merge commit run before the version is stamped (issue #1908).
+      # Start them from main now that it holds the stamped tree.
+      - name: Rebuild stamped CLIs and regenerate the registry
+        if: steps.commit.outputs.pushed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mapfile -t targets < <(
+            git diff-tree --no-commit-id --name-only -r HEAD -- 'library/*/*/.printing-press-release.json' \
+              | awk -F/ '{ print $2 "/" $3 }' \
+              | sort -u \
+              | while IFS= read -r target; do
+                  [ -f "library/${target}/go.mod" ] && printf '%s\n' "$target"
+                done
+          )
+          echo "Stamped CLIs to rebuild: ${#targets[@]}"
+          # build-cli fans each CLI out to 6 platforms and a matrix caps at 256
+          # jobs, so dispatch in batches of 40.
+          for ((i = 0; i < ${#targets[@]}; i += 40)); do
+            batch="${targets[*]:i:40}"
+            echo "Dispatching build-mcpb.yml for: ${batch}"
+            gh workflow run build-mcpb.yml --ref main -f cli="${batch}"
+          done
+          gh workflow run generate-registry.yml --ref main
