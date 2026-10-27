@@ -205,7 +205,9 @@ jobs:
             fi
           } | awk -F/ 'NF >= 3 { print $2 "/" $3 }' | sort -u > "$RUNNER_TEMP/targets"
           targets=$(while IFS= read -r target; do
-            [ -f "library/${target}/go.mod" ] && printf '%s ' "$target"
+            if [ -f "library/${target}/go.mod" ]; then
+              printf '%s ' "$target"
+            fi
           done < "$RUNNER_TEMP/targets")
           echo "targets=${targets% }" >> "$GITHUB_OUTPUT"
           echo "ref=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"

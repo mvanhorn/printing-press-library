@@ -309,7 +309,26 @@ jobs:
             echo "::warning::Skipping release for ${SLUG}: app declares manifest.json (expects MCPB) but no .mcpb produced (bundle matrix failed for this app)."
             exit 0
           fi
+      # A replayed or late run must not replace a newer release built from a
+      # later ledger commit.
+      - name: Skip if main has a newer release
+        id: current
+        env:
+          CLI_TARGET: ${{ matrix.target }}
+          SLUG: ${{ steps.slug.outputs.slug }}
+        run: |
+          set -euo pipefail
+          ledger="library/${CLI_TARGET}/.printing-press-release.json"
+          [ -f "$ledger" ] || exit 0
+          git fetch --no-tags --depth=1 origin main
+          built=$(jq -r .version "$ledger")
+          latest=$(git show "FETCH_HEAD:${ledger}" 2>/dev/null | jq -r .version || true)
+          if [ "$built" != "$latest" ]; then
+            echo "::notice::Not publishing ${SLUG} ${built}: main's release ledger is at '${latest:-removed}'."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
       - name: Verify CLI version matches the release ledger
+        if: steps.current.outputs.skip != 'true'
         env:
           CLI_TARGET: ${{ matrix.target }}
           SLUG: ${{ steps.slug.outputs.slug }}
@@ -333,6 +352,7 @@ jobs:
           fi
           echo "${SLUG} was built with ${expected}, matching the release ledger."
       - name: Verify release-write PAT
+        if: steps.current.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ secrets.RELEASE_WRITE_TOKEN }}
         run: |
@@ -359,6 +379,7 @@ jobs:
           fi
           echo "PAT confirmed for repo ${GITHUB_REPOSITORY}."
       - name: Publish release ${{ steps.slug.outputs.slug }}-current
+        if: steps.current.outputs.skip != 'true'
         env:
           # Use a fine-grained PAT (Contents:write on this repo) instead of
           # the default GITHUB_TOKEN. The workflow's GITHUB_TOKEN reports
