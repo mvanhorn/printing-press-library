@@ -23,7 +23,6 @@ import (
 	"regexp"
 	"sort"
 	"strings"
-	"syscall"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/productivity/gmail/internal/client"
@@ -59,6 +58,11 @@ const (
 func refusedErr(err error) error      { return &cliError{code: 4, err: err} }
 func partialApplyErr(err error) error { return &cliError{code: 3, err: err} }
 func lockBusyErr(err error) error     { return &cliError{code: 7, err: err} }
+
+// errApplyLockBusy is returned by the platform lock when another holder
+// already has the apply lock. Unix maps EWOULDBLOCK; Windows maps
+// ERROR_LOCK_VIOLATION.
+var errApplyLockBusy = errors.New("apply lock busy")
 
 // classifyEngineAPIError maps any transport/API failure inside the engine
 // to the engine's auth/API exit (5). Typed cliErrors (refusals, partials,
@@ -111,8 +115,8 @@ func verifyLiveIdentity(ctx context.Context, c *client.Client, flags *rootFlags,
 	return nil
 }
 
-// acquireApplyLock takes the advisory apply lock at <auth-dir>/apply.lock
-// via flock(LOCK_EX|LOCK_NB). Busy is a typed exit 7. No timestamp or
+// acquireApplyLock takes a non-blocking exclusive lock at <auth-dir>/apply.lock.
+// Busy is a typed exit 7. No timestamp or
 // staleness break-in logic on purpose (grill R3-C4): the OS releases the
 // lock automatically when the holding process dies, so "stale lock"
 // cannot exist and breaking a live one must be impossible.
@@ -125,16 +129,16 @@ func acquireApplyLock(authDir string) (func(), error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
+	if err := lockApplyFile(f); err != nil {
 		_ = f.Close()
-		if errors.Is(err, syscall.EWOULDBLOCK) {
+		if errors.Is(err, errApplyLockBusy) {
 			return nil, lockBusyErr(fmt.Errorf(
 				"another apply/recover/undo currently holds %s — wait for it to finish (the OS releases the lock the moment that process exits, even on a crash)", path))
 		}
 		return nil, fmt.Errorf("acquiring apply lock %s: %w", path, err)
 	}
 	release := func() {
-		_ = syscall.Flock(int(f.Fd()), syscall.LOCK_UN)
+		_ = unlockApplyFile(f)
 		_ = f.Close()
 	}
 	return release, nil

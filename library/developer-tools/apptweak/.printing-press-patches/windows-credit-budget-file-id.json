@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "windows-credit-budget-file-id",
+  "applied_at": "2026-10-27",
+  "base_run_id": "20260528-190526",
+  "base_printing_press_version": "4.34.1",
+  "summary": "The credits-status guard test identifies the budget journal the same way the client does: Unix dev/inode, Windows volume serial and file index.",
+  "reason": "syscall.Stat_t is Unix-only, so the guard test does not compile on Windows. The identity string has to match creditJournalIdentity or the free-route assertion rejects a valid journal.",
+  "files": [
+    "internal/cli/credits_status_guard_test.go",
+    "internal/cli/credits_budget_id_unix_test.go",
+    "internal/cli/credits_budget_id_windows_test.go"
+  ]
+}

@@ -4,6 +4,9 @@
 
 Addresses owner/repo/path#ref like degit, but streams big files past the 1 MB contents-API limit via the raw CDN, preserves folder structure, and gives every command --json for agents. The plan/verify/sync-dir loop — preview cost before downloading, prove local files match remote by git blob SHA, then fetch only the diff — exists in no other GitHub download tool.
 
+Created by [@rvdlaar](https://github.com/rvdlaar) (Rick van de Laar).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Install
 
 The recommended path installs both the `github-contents-pp-cli` binary and the `pp-github-contents` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

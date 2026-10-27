@@ -9,6 +9,12 @@
     "handle": "rvdlaar",
     "name": "Rick van de Laar"
   },
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
   "owner": "rvdlaar",
   "printer": "rvdlaar",
   "printer_name": "Rick van de Laar",

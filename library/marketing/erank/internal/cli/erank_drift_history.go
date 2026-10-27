@@ -6,7 +6,6 @@ import (
 	"math"
 	"os"
 	"path/filepath"
-	"syscall"
 	"time"
 )
 
@@ -51,12 +50,12 @@ func lockDriftHistory(path string) (func(), error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := syscall.Flock(int(lockFile.Fd()), syscall.LOCK_EX); err != nil {
+	if err := lockDriftFile(lockFile); err != nil {
 		_ = lockFile.Close()
 		return nil, err
 	}
 	return func() {
-		_ = syscall.Flock(int(lockFile.Fd()), syscall.LOCK_UN)
+		_ = unlockDriftFile(lockFile)
 		_ = lockFile.Close()
 	}, nil
 }

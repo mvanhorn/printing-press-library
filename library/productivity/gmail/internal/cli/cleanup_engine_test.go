@@ -17,7 +17,6 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
-	"syscall"
 	"testing"
 	"time"
 
@@ -1276,10 +1275,10 @@ func TestCleanupApply_LockBusy(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer f.Close()
-	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
+	if err := lockApplyFile(f); err != nil {
 		t.Fatalf("test could not take the lock: %v", err)
 	}
-	defer func() { _ = syscall.Flock(int(f.Fd()), syscall.LOCK_UN) }()
+	defer func() { _ = unlockApplyFile(f) }()
 
 	fx.fake.resetLog()
 	out, _, code := fx.runCLI(t, "cleanup", "apply", "--plan", sha, "--token", nonce)
@@ -1291,7 +1290,7 @@ func TestCleanupApply_LockBusy(t *testing.T) {
 	}
 
 	// Release; the same token must now work (it was never burned).
-	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_UN); err != nil {
+	if err := unlockApplyFile(f); err != nil {
 		t.Fatal(err)
 	}
 	out, _, code = fx.runCLI(t, "cleanup", "apply", "--plan", sha, "--token", nonce)

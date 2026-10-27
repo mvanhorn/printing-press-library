@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "windows-apply-lock",
+  "applied_at": "2026-10-27",
+  "base_run_id": "20260818-095450",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Cleanup apply takes a non-blocking exclusive lock with flock on Unix and LockFileEx on Windows, and a busy lock is still exit 7.",
+  "reason": "syscall.Flock is Unix-only, so the apply lock does not build on Windows. A second holder must still fail immediately instead of waiting, on every platform.",
+  "files": [
+    "internal/cli/cleanup_support.go",
+    "internal/cli/cleanup_lock_unix.go",
+    "internal/cli/cleanup_lock_windows.go",
+    "internal/cli/cleanup_engine_test.go"
+  ]
+}

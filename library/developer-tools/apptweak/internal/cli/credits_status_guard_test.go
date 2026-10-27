@@ -4,13 +4,11 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
-	"syscall"
 	"testing"
 )
 
@@ -28,13 +26,15 @@ func TestCreditsStatusGuardedFreeRoute(t *testing.T) {
 	if err := os.WriteFile(costs, data, 0600); err != nil {
 		t.Fatal(err)
 	}
-	info, _ := os.Stat(journal)
-	st := info.Sys().(*syscall.Stat_t)
+	budgetID, err := creditBudgetFileID(journal)
+	if err != nil {
+		t.Fatal(err)
+	}
 	sum := sha256.Sum256(data)
 	t.Setenv("APPTWEAK_CREDIT_BUDGET_FILE", journal)
 	t.Setenv("APPTWEAK_CREDIT_COSTS_FILE", costs)
 	t.Setenv("APPTWEAK_CREDIT_RUN_ID", "test")
-	t.Setenv("APPTWEAK_CREDIT_BUDGET_ID", fmt.Sprintf("%d:%d", st.Dev, st.Ino))
+	t.Setenv("APPTWEAK_CREDIT_BUDGET_ID", budgetID)
 	t.Setenv("APPTWEAK_CREDIT_COSTS_SHA256", hex.EncodeToString(sum[:]))
 	hits := 0
 	httpClient := &http.Client{Transport: roundTripFunc(func(r *http.Request) (*http.Response, error) {

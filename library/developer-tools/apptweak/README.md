@@ -5,6 +5,7 @@
 The only CLI for AppTweak. Track keyword rankings across countries, diff competitor metadata changes, mine reviews by sentiment, and monitor paid vs organic keyword gaps — all stored in SQLite for offline analysis and CSV export. The AppTweak MCP servers cover individual queries; this CLI covers the workflows that require persistence, loops, and aggregation.
 
 Created by [@rk-labs-tech](https://github.com/rk-labs-tech) (Ryan Kelley).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 

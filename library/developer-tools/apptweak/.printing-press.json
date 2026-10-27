@@ -9,6 +9,12 @@
     "handle": "rk-labs-tech",
     "name": "Ryan Kelley"
   },
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
   "owner": "rk-labs-tech",
   "printer": "rk-labs-tech",
   "printer_name": "Ryan Kelley",
