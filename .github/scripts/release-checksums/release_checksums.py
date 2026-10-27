@@ -37,12 +37,15 @@ def checksums_text(assets: list[dict]) -> str:
     return "".join(lines)
 
 
+def has_checksums(assets: list[dict]) -> bool:
+    return any(a["name"] == CHECKSUMS_NAME for a in assets)
+
+
 def releases_missing_checksums(releases: list[dict]) -> list[dict]:
     return [
         r
         for r in releases
-        if r["tag_name"].endswith("-current")
-        and not any(a["name"] == CHECKSUMS_NAME for a in r["assets"])
+        if r["tag_name"].endswith("-current") and not has_checksums(r["assets"])
     ]
 
 
@@ -62,7 +65,7 @@ def fetch_assets(repo: str, tag: str) -> list[dict]:
     return assets
 
 
-def publish(repo: str, tag: str, assets: list[dict], dry_run: bool) -> None:
+def publish(repo: str, tag: str, assets: list[dict], dry_run: bool, clobber: bool) -> None:
     text = checksums_text(assets)
     count = len(text.splitlines())
     if dry_run:
@@ -71,10 +74,10 @@ def publish(repo: str, tag: str, assets: list[dict], dry_run: bool) -> None:
     with tempfile.TemporaryDirectory() as tmp:
         path = Path(tmp) / CHECKSUMS_NAME
         path.write_text(text)
-        subprocess.run(
-            ["gh", "release", "upload", tag, str(path), "--clobber", "--repo", repo],
-            check=True,
-        )
+        cmd = ["gh", "release", "upload", tag, str(path), "--repo", repo]
+        if clobber:
+            cmd.append("--clobber")
+        subprocess.run(cmd, check=True)
     print(f"{tag}: published {CHECKSUMS_NAME} for {count} assets")
 
 
@@ -88,7 +91,7 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.tag:
-        publish(args.repo, args.tag, fetch_assets(args.repo, args.tag), args.dry_run)
+        publish(args.repo, args.tag, fetch_assets(args.repo, args.tag), args.dry_run, clobber=True)
         return 0
 
     pages = gh_json("--paginate", "--slurp", f"repos/{args.repo}/releases?per_page=100")
@@ -98,13 +101,18 @@ def main() -> int:
     for release in releases:
         tag = release["tag_name"]
         try:
-            # Re-read right before writing: a build may have published a fresh
-            # checksums.txt since the listing, and clobbering it would go stale.
+            # A build may publish a fresher list at any point, so the backfill
+            # never overwrites: re-read first, and upload without --clobber.
             assets = fetch_assets(args.repo, tag)
-            if any(a["name"] == CHECKSUMS_NAME for a in assets):
+            if has_checksums(assets):
                 print(f"{tag}: already has {CHECKSUMS_NAME}, skipping")
                 continue
-            publish(args.repo, tag, assets, args.dry_run)
+            try:
+                publish(args.repo, tag, assets, args.dry_run, clobber=False)
+            except subprocess.CalledProcessError:
+                if not has_checksums(fetch_assets(args.repo, tag)):
+                    raise
+                print(f"{tag}: a build published {CHECKSUMS_NAME} first, skipping")
         except (ValueError, subprocess.CalledProcessError) as err:
             print(f"::error::{tag}: {err}", file=sys.stderr)
             failed.append(tag)
