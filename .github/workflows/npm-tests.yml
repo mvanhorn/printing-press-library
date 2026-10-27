@@ -6,6 +6,9 @@ on:
       - '.github/workflows/npm-tests.yml'
       - '.github/workflows/npm-publish.yml'
       - 'npm/**'
+      # Files outside npm/ that npm/tests reads.
+      - 'library/**/go.mod'
+      - 'library/food-and-dining/texas-roadhouse/README.md'
 
 permissions:
   contents: read
