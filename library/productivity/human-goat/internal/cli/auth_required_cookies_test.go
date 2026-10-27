@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -47,5 +48,44 @@ func TestAuthLoginRequiresTr6Cookie(t *testing.T) {
 				t.Fatalf("want error containing %q, got %v", tc.wantErr, err)
 			}
 		})
+	}
+}
+
+// TaskRabbit sets its auth cookies host-only on www, so the Chrome lookup must
+// ask the cookie reader for the www host. A fake `cookies` binary stands in for
+// the reader and only returns the auth cookies for that exact URL.
+func TestAuthLoginChromeReadsWWWHost(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("shell-script cookie reader")
+	}
+	bin := t.TempDir()
+	argFile := filepath.Join(bin, "url")
+	script := `#!/bin/sh
+[ "$1" = "--help" ] && exit 0
+printf '%s' "$1" > "` + argFile + `"
+if [ "$1" = "https://www.taskrabbit.com" ]; then
+  echo "Cookie: session=s; XSRF-TOKEN=x; tr6=t; _ga=junk"
+else
+  echo "Cookie: _ga=junk"
+fi
+`
+	if err := os.WriteFile(filepath.Join(bin, "cookies"), []byte(script), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PATH", bin)
+
+	cmd := RootCmd()
+	cmd.SetArgs([]string{"--home", t.TempDir(), "auth", "login", "--chrome"})
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("auth login --chrome: %v\n%s", err, out.String())
+	}
+	if got, _ := os.ReadFile(argFile); string(got) != "https://www.taskrabbit.com" {
+		t.Fatalf("cookie reader asked for %q, want https://www.taskrabbit.com", got)
+	}
+	if !strings.Contains(out.String(), "Found 3 cookies") {
+		t.Fatalf("expected the three auth cookies, got:\n%s", out.String())
 	}
 }
