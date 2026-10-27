@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "magic-answer-excludes-client-messages",
+  "applied_at": "2026-10-27",
+  "base_run_id": "20260703-152050-dff84056",
+  "base_printing_press_version": "4.27.1",
+  "summary": "A Magic request's answer comes only from non-CLIENT conversation messages; the requester's own instructions and replies are never reported as the answer.",
+  "reason": "Magic seeds the conversation with the request's instructions as a source_type CLIENT message, so track printed our own instructions as the answer until an operator replied.",
+  "files": [
+    "internal/source/magic/magic.go",
+    "internal/source/magic/magic_test.go"
+  ]
+}

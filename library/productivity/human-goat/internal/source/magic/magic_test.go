@@ -91,6 +91,23 @@ func TestAnswer(t *testing.T) {
 		}
 	})
 
+	t.Run("skips client messages", func(t *testing.T) {
+		request := Request{
+			Conversation: []ConversationMessage{
+				{Content: "Look up the hours", SourceType: "CLIENT"},
+			},
+		}
+		if got := request.Answer(); got != "" {
+			t.Fatalf("Answer() = %q, want empty while only our instructions exist", got)
+		}
+		request.Conversation = append(request.Conversation,
+			ConversationMessage{Content: "10am to 5pm", SourceType: "OPERATOR"},
+			ConversationMessage{Content: "thanks", SourceType: "CLIENT"})
+		if got := request.Answer(); got != "10am to 5pm" {
+			t.Fatalf("Answer() = %q, want the operator reply", got)
+		}
+	})
+
 	t.Run("result fallback", func(t *testing.T) {
 		request := Request{Result: "from result", Conversation: []ConversationMessage{}}
 		if got := request.Answer(); got != "from result" {

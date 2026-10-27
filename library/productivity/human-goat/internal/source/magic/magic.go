@@ -61,7 +61,8 @@ func (r *Request) UnmarshalJSON(data []byte) error {
 
 // ConversationMessage is a single Magic conversation message.
 type ConversationMessage struct {
-	Content string `json:"content"`
+	Content    string `json:"content"`
+	SourceType string `json:"source_type"`
 }
 
 // SendParams describes a Magic request to create.
@@ -241,6 +242,11 @@ func (r *Request) Answer() string {
 		return ""
 	}
 	for i := len(r.Conversation) - 1; i >= 0; i-- {
+		// CLIENT messages are our own instructions and replies, not the
+		// operator's answer.
+		if strings.EqualFold(r.Conversation[i].SourceType, "CLIENT") {
+			continue
+		}
 		if content := strings.TrimSpace(r.Conversation[i].Content); content != "" {
 			return r.Conversation[i].Content
 		}
