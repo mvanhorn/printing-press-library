@@ -43,6 +43,9 @@ func TestCreateLabelRequestValidation(t *testing.T) {
 		{"weight", func(r *CreateLabelRequest) { r.RequestedShipment.RequestedPackageLineItems[0].Weight.Value = 0 }, "greater than zero"},
 		{"package count", func(r *CreateLabelRequest) { r.RequestedShipment.TotalPackageCount = 2 }, "must match"},
 		{"format", func(r *CreateLabelRequest) { r.RequestedShipment.LabelSpecification.ImageType = "ZPLII" }, "must be PDF"},
+		{"pickup type", func(r *CreateLabelRequest) { r.RequestedShipment.PickupType = "" }, "pickupType"},
+		{"payment", func(r *CreateLabelRequest) { r.RequestedShipment.ShippingChargesPayment.PaymentType = "" }, "paymentType"},
+		{"label stock", func(r *CreateLabelRequest) { r.RequestedShipment.LabelSpecification.LabelStockType = "" }, "labelStockType"},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -192,7 +195,8 @@ func validCreateLabelRequest() CreateLabelRequest {
 		RequestedShipment: RequestedShipment{
 			Shipper:     Party{Contact: Contact{CompanyName: "Origin LLC", PhoneNumber: "5551112222"}, Address: Address{StreetLines: []string{"1 Main St"}, City: "Chicago", StateOrProvinceCode: "IL", PostalCode: "60601", CountryCode: "US"}},
 			Recipients:  []Party{{Contact: Contact{CompanyName: "Destination Inc", PhoneNumber: "5553334444"}, Address: Address{StreetLines: []string{"2 Market St", "Dock 3"}, City: "Detroit", StateOrProvinceCode: "MI", PostalCode: "48201", CountryCode: "US"}}},
-			ServiceType: "FEDEX_GROUND", PackagingType: "YOUR_PACKAGING", TotalPackageCount: 1,
+			PickupType: "USE_SCHEDULED_PICKUP", ServiceType: "FEDEX_GROUND", PackagingType: "YOUR_PACKAGING",
+			ShippingChargesPayment: ShipmentPayment{PaymentType: "SENDER"}, TotalPackageCount: 1,
 			RequestedPackageLineItems: []PackageLineItem{{SequenceNumber: 1, Weight: Weight{Units: "LB", Value: 3.5}, CustomerReferences: []CustomerReference{{CustomerReferenceType: "CUSTOMER_REFERENCE", Value: "ORDER-42"}}}},
 			LabelSpecification:        LabelSpecification{ImageType: "PDF", LabelStockType: "PAPER_4X6"},
 		},

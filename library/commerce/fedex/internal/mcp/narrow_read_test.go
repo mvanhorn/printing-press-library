@@ -174,10 +174,9 @@ func TestValidateNarrowReadRequestAcceptsWellFormedRequests(t *testing.T) {
 
 func TestValidateAddressAcceptsCountrySpecificMinimums(t *testing.T) {
 	addresses := map[string]map[string]any{
-		"US postal":             {"streetLines": []any{"10 FedEx Parkway"}, "postalCode": "38116", "countryCode": "US"},
-		"US city state":         {"streetLines": []any{"10 FedEx Parkway"}, "city": "Memphis", "stateOrProvinceCode": "TN", "countryCode": "US"},
-		"non-US common":         {"streetLines": []any{"20 Rue de la Paix"}, "countryCode": "FR"},
-		"non-US optional empty": {"streetLines": []any{"20 Rue de la Paix"}, "city": "", "stateOrProvinceCode": "", "postalCode": "", "countryCode": "FR"},
+		"US street city state postal": {"streetLines": []any{"10 FedEx Parkway"}, "city": "Memphis", "stateOrProvinceCode": "TN", "postalCode": "38116", "countryCode": "US"},
+		"CA street city state postal": {"streetLines": []any{"100 Queen St W"}, "city": "Toronto", "stateOrProvinceCode": "ON", "postalCode": "M5H2N1", "countryCode": "CA"},
+		"DE street city postal":       {"streetLines": []any{"Adam-von-Trott-Strasse 1"}, "city": "Berlin", "postalCode": "13627", "countryCode": "DE"},
 	}
 	for name, address := range addresses {
 		t.Run(name, func(t *testing.T) {
@@ -242,7 +241,7 @@ func testReadRequests() map[string]map[string]any {
 				}},
 			},
 		},
-		"validate_address":  {"addressesToValidate": []any{map[string]any{"clientReferenceId": "test-address", "address": map[string]any{"streetLines": []any{"10 FedEx Parkway"}, "postalCode": "38116", "countryCode": "US"}}}, "validateAddressControlParameters": map[string]any{"includeResolutionTokens": true}},
+		"validate_address": {"addressesToValidate": []any{map[string]any{"clientReferenceId": "test-address", "address": map[string]any{"streetLines": []any{"10 FedEx Parkway"}, "city": "Memphis", "stateOrProvinceCode": "TN", "postalCode": "38116", "countryCode": "US"}}}, "validateAddressControlParameters": map[string]any{"includeResolutionTokens": true}},
 		"validate_shipment": testShipmentValidationRequest(),
 		"pickup_availability": {
 			"pickupAddress":           testPickupAvailabilityAddress(),

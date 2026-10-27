@@ -264,20 +264,16 @@ func validateAddressResolutionAddress(address map[string]any) error {
 	if err := validateStreetLines(address); err != nil {
 		return err
 	}
-	if err := requireNonblankFields(address, "countryCode"); err != nil {
+	if err := requireNonblankFields(address, "city", "postalCode", "countryCode"); err != nil {
 		return err
 	}
-	for _, field := range []string{"city", "stateOrProvinceCode", "postalCode"} {
-		if err := validateOptionalStringField(address, field); err != nil {
-			return err
-		}
+	if err := validateOptionalStringField(address, "stateOrProvinceCode"); err != nil {
+		return err
 	}
-	if strings.EqualFold(strings.TrimSpace(address["countryCode"].(string)), "US") {
-		postalCode, _ := address["postalCode"].(string)
-		city, _ := address["city"].(string)
-		state, _ := address["stateOrProvinceCode"].(string)
-		if strings.TrimSpace(postalCode) == "" && (strings.TrimSpace(city) == "" || strings.TrimSpace(state) == "") {
-			return fmt.Errorf("US addresses require postalCode or both city and stateOrProvinceCode")
+	country := strings.ToUpper(strings.TrimSpace(address["countryCode"].(string)))
+	if country == "US" || country == "CA" || country == "PR" {
+		if err := requireNonblankFields(address, "stateOrProvinceCode"); err != nil {
+			return fmt.Errorf("%s addresses require stateOrProvinceCode", country)
 		}
 	}
 	return nil
@@ -514,6 +510,36 @@ func positiveIntegerAtMost(value any, maximum float64) bool {
 	return ok && !math.IsNaN(number) && !math.IsInf(number, 0) && number >= 1 && number <= maximum && number == math.Trunc(number)
 }
 
+type narrowAlert struct {
+	Code      string `json:"code"`
+	AlertType string `json:"alertType"`
+}
+
+func minimizedAlerts(alerts []narrowAlert) []map[string]any {
+	out := make([]map[string]any, 0, len(alerts))
+	for _, alert := range alerts {
+		code := strings.TrimSpace(alert.Code)
+		alertType := strings.ToUpper(strings.TrimSpace(alert.AlertType))
+		if code == "" || alertType == "" {
+			continue
+		}
+		out = append(out, map[string]any{"code": code, "alert_type": alertType})
+	}
+	return out
+}
+
+// ValidateNarrowReadRequestForTest exposes the read-body validator to the
+// offline OpenAPI contract tests.
+func ValidateNarrowReadRequestForTest(action string, body map[string]any) error {
+	return validateNarrowReadRequest(action, body)
+}
+
+// MinimizeNarrowReadResponseForTest exposes the allowlist reducer to the
+// offline OpenAPI contract tests.
+func MinimizeNarrowReadResponseForTest(action string, data []byte) (any, error) {
+	return minimizeNarrowReadResponse(action, data)
+}
+
 func minimizeNarrowReadResponse(action string, data []byte) (any, error) {
 	switch action {
 	case "get_rates":
@@ -532,6 +558,7 @@ func minimizeNarrowReadResponse(action string, data []byte) (any, error) {
 func minimizeRateResponse(data []byte) (any, error) {
 	var response struct {
 		Output struct {
+			Alerts           []narrowAlert `json:"alerts"`
 			RateReplyDetails []struct {
 				ServiceType       string `json:"serviceType"`
 				OperationalDetail struct {
@@ -583,12 +610,17 @@ func minimizeRateResponse(data []byte) (any, error) {
 			})
 		}
 	}
-	return map[string]any{"rates": rates}, nil
+	result := map[string]any{"rates": rates}
+	if alerts := minimizedAlerts(response.Output.Alerts); len(alerts) > 0 {
+		result["alerts"] = alerts
+	}
+	return result, nil
 }
 
 func minimizeAddressResponse(data []byte) (any, error) {
 	var response struct {
 		Output struct {
+			Alerts            []narrowAlert `json:"alerts"`
 			ResolvedAddresses []struct {
 				Classification      string   `json:"classification"`
 				StreetLines         []string `json:"streetLines"`
@@ -618,7 +650,11 @@ func minimizeAddressResponse(data []byte) (any, error) {
 			"country_code":           resolved.CountryCode,
 		})
 	}
-	return map[string]any{"resolved_addresses": addresses}, nil
+	result := map[string]any{"resolved_addresses": addresses}
+	if alerts := minimizedAlerts(response.Output.Alerts); len(alerts) > 0 {
+		result["alerts"] = alerts
+	}
+	return result, nil
 }
 
 func minimizeShipmentValidationResponse(data []byte) (any, error) {

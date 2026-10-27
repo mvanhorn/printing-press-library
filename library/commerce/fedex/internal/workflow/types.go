@@ -81,6 +81,12 @@ type LabelSpecification struct {
 	LabelStockType string `json:"labelStockType,omitempty"`
 }
 
+// ShipmentPayment is the shippingChargesPayment object. Payor details stay in
+// the original request; only paymentType is required by the published schema.
+type ShipmentPayment struct {
+	PaymentType string `json:"paymentType"`
+}
+
 // RequestedShipment is the typed subset needed to safely create one shipment.
 // Additional FedEx options may remain in the original request passed to the
 // client; ValidateRequest validates this safety-critical subset without
@@ -88,8 +94,10 @@ type LabelSpecification struct {
 type RequestedShipment struct {
 	Shipper                   Party              `json:"shipper"`
 	Recipients                []Party            `json:"recipients"`
+	PickupType                string             `json:"pickupType"`
 	ServiceType               string             `json:"serviceType"`
 	PackagingType             string             `json:"packagingType"`
+	ShippingChargesPayment    ShipmentPayment    `json:"shippingChargesPayment"`
 	TotalPackageCount         int                `json:"totalPackageCount,omitempty"`
 	RequestedPackageLineItems []PackageLineItem  `json:"requestedPackageLineItems"`
 	LabelSpecification        LabelSpecification `json:"labelSpecification"`
@@ -174,6 +182,12 @@ func (r CreateLabelRequest) Validate() error {
 	}
 	require(&problems, "requestedShipment.serviceType", s.ServiceType)
 	require(&problems, "requestedShipment.packagingType", s.PackagingType)
+	if !allowedPickupType(s.PickupType) {
+		problems = append(problems, "requestedShipment.pickupType must be CONTACT_FEDEX_TO_SCHEDULE, DROPOFF_AT_FEDEX_LOCATION, or USE_SCHEDULED_PICKUP")
+	}
+	if !allowedPaymentType(s.ShippingChargesPayment.PaymentType) {
+		problems = append(problems, "requestedShipment.shippingChargesPayment.paymentType must be SENDER, RECIPIENT, THIRD_PARTY, or COLLECT")
+	}
 	if len(s.RequestedPackageLineItems) != 1 {
 		problems = append(problems, "requestedShipment.requestedPackageLineItems must contain exactly one package")
 	}
@@ -188,6 +202,9 @@ func (r CreateLabelRequest) Validate() error {
 	}
 	if strings.TrimSpace(s.LabelSpecification.ImageType) != "PDF" {
 		problems = append(problems, "requestedShipment.labelSpecification.imageType must be PDF")
+	}
+	if !allowedLabelStockType(s.LabelSpecification.LabelStockType) {
+		problems = append(problems, "requestedShipment.labelSpecification.labelStockType must be a FedEx stock type")
 	}
 	return validationError(ActionCreateLabel, problems)
 }
@@ -366,6 +383,8 @@ func validatePickupLocation(problems *[]string, field string, location PickupLoc
 	}
 	require(problems, field+".contact.phoneNumber", location.Contact.PhoneNumber)
 	validateAddress(problems, field+".address", location.Address)
+	// PickupLocationParty_address requires state even when a shipment party address does not.
+	require(problems, field+".address.stateOrProvinceCode", location.Address.StateOrProvinceCode)
 }
 
 func validateAddress(problems *[]string, field string, address Address) {
@@ -396,6 +415,37 @@ func validateCarrier(problems *[]string, carrier string) {
 	case "FDXE", "FDXG":
 	default:
 		*problems = append(*problems, "carrierCode must be FDXE or FDXG")
+	}
+}
+
+func allowedPickupType(value string) bool {
+	switch strings.TrimSpace(value) {
+	case "CONTACT_FEDEX_TO_SCHEDULE", "DROPOFF_AT_FEDEX_LOCATION", "USE_SCHEDULED_PICKUP":
+		return true
+	default:
+		return false
+	}
+}
+
+func allowedPaymentType(value string) bool {
+	switch strings.TrimSpace(value) {
+	case "SENDER", "RECIPIENT", "THIRD_PARTY", "COLLECT":
+		return true
+	default:
+		return false
+	}
+}
+
+func allowedLabelStockType(value string) bool {
+	switch strings.TrimSpace(value) {
+	case "PAPER_4X6", "STOCK_4X675", "PAPER_4X675", "PAPER_4X8", "PAPER_4X9",
+		"PAPER_7X475", "PAPER_85X11_BOTTOM_HALF_LABEL", "PAPER_85X11_TOP_HALF_LABEL", "PAPER_LETTER",
+		"STOCK_4X675_LEADING_DOC_TAB", "STOCK_4X8", "STOCK_4X9_LEADING_DOC_TAB", "STOCK_4X6",
+		"STOCK_4X675_TRAILING_DOC_TAB", "STOCK_4X9_TRAILING_DOC_TAB", "STOCK_4X9",
+		"STOCK_4X85_TRAILING_DOC_TAB", "STOCK_4X105_TRAILING_DOC_TAB":
+		return true
+	default:
+		return false
 	}
 }
 

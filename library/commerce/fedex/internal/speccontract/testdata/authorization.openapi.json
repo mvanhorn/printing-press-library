@@ -1,0 +1,261 @@
+{
+  "openapi" : "3.0.0",
+  "info" : {
+    "title" : "API Authorization",
+    "version" : "1.0"
+  },
+  "servers" : [ {
+    "url" : "/"
+  } ],
+  "paths" : {
+    "/oauth/token" : {
+      "post" : {
+        "summary" : "API Authorization",
+        "description" : "Use this endpoint to request the OAuth token (bearer token) to authorize your application to access FedEx resources. You can pass this bearer token in your subsequent individual FedEx API endpoint requests.<br/><i>Note: FedEx APIs do not support Cross-Origin Resource Sharing (CORS) mechanism.</i>",
+        "operationId" : "API Authorization",
+        "parameters" : [ {
+          "name" : "content-type",
+          "in" : "header",
+          "description" : "This is used to indicate the media type of the resource. The media type is a string sent along with the file indicating format of the file.<br> Example: application/x-www-form-urlencoded",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string",
+            "example" : "application/x-www-form-urlencoded"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/x-www-form-urlencoded" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/FullSchema"
+              },
+              "examples" : {
+                "B2B-Proprietary" : {
+                  "value" : {
+                    "grant_type" : "client_credentials",
+                    "client_id" : "Your_client_ID",
+                    "client_secret" : "Your_secret"
+                  }
+                },
+                "B2B-Proprietary-PC" : {
+                  "value" : {
+                    "grant_type" : "client_pc_credentials",
+                    "client_id" : "Client_ID",
+                    "client_secret" : "Client_secret",
+                    "child_Key" : "Child_key",
+                    "child_secret" : "Child_Secret"
+                  }
+                },
+                "Compatible" : {
+                  "value" : {
+                    "grant_type" : "csp_credentials",
+                    "client_id" : "Client_ID",
+                    "client_secret" : "Client_secret",
+                    "child_Key" : "Child_key",
+                    "child_secret" : "Child_Secret"
+                  }
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseVO"
+                },
+                "example" : {
+                  "transactionId" : "624deea6-b709-470c-8c39-4b5511281492",
+                  "errors" : [ {
+                    "code" : "NOT.AUTHORIZED.ERROR",
+                    "message" : "The given client credentials were not valid. Please modify your request and try again."
+                  } ]
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Failure",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseVO"
+                },
+                "example" : {
+                  "transactionId" : "624deea6-b709-470c-8c39-4b5511281492",
+                  "errors" : [ {
+                    "code" : "INTERNAL.SERVER.ERROR",
+                    "message" : "We encountered an unexpected error and are working to resolve the issue. We apologize for any inconvenience. Please check back at a later time."
+                  } ]
+                }
+              }
+            }
+          },
+          "503" : {
+            "description" : "Service Unavailable",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseVO"
+                },
+                "example" : {
+                  "transactionId" : "624deea6-b709-470c-8c39-4b5511281492",
+                  "errors" : [ {
+                    "code" : "SERVICE.UNAVAILABLE.ERROR",
+                    "message" : "The service is currently unavailable and we are working to resolve the issue. We apologize for any inconvenience. Please check back at a later time."
+                  } ]
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples" : [ {
+          "lang" : "C#",
+          "source" : "var client = new RestClient(\"https://apis-sandbox.fedex.com/oauth/token\");\nvar request = new RestRequest(Method.POST);\nrequest.AddHeader(\"Content-Type\", \"application/x-www-form-urlencoded\");\n// 'input' refers to JSON Payload\nrequest.AddParameter(\"application/x-www-form-urlencoded\", input, ParameterType.RequestBody);\nIRestResponse response = client.Execute(request);"
+        }, {
+          "lang" : "JAVA",
+          "source" : "OkHttpClient client = new OkHttpClient();\n\nMediaType mediaType = MediaType.parse(\"application/json\");\n// 'input' refers to JSON Payload\nRequestBody body = RequestBody.create(mediaType, input);\nRequest request = new Request.Builder()\n    .url(\"https://apis-sandbox.fedex.com/oauth/token\")\n    .post(body)\n    .addHeader(\"Content-Type\", \"application/x-www-form-urlencoded\")\n    .build();\n            \nResponse response = client.newCall(request).execute();"
+        }, {
+          "lang" : "JAVASCRIPT",
+          "source" : "// 'input' refers to JSON Payload\nvar data = JSON.stringify(input);\n  \n  var xhr = new XMLHttpRequest();\n  xhr.withCredentials = true;\n  \n  xhr.addEventListener(\"readystatechange\", function () {\n    if (this.readyState === 4) {\n      console.log(this.responseText);\n    }\n  });\n  \n  xhr.open(\"POST\", \"https://apis-sandbox.fedex.com/oauth/token\");\n  xhr.setRequestHeader(\"Content-Type\", \"application/x-www-form-urlencoded\");\n  xhr.send(data);"
+        }, {
+          "lang" : "PHP",
+          "source" : "<?php\n\n$request = new HttpRequest();\n$request->setUrl('https://apis-sandbox.fedex.com/oauth/token');\n$request->setMethod(HTTP_METH_POST);\n\n$request->setHeaders(array(\n  'Content-Type' => 'application/x-www-form-urlencoded'\n));\n\n$request->setBody(input); // 'input' refers to JSON Payload\n\ntry {\n  $response = $request->send();\n\n  echo $response->getBody();\n} catch (HttpException $ex) {\n  echo $ex;\n}"
+        }, {
+          "lang" : "PYTHON",
+          "source" : "import requests\n\nurl = \"https://apis-sandbox.fedex.com/oauth/token\"\n\npayload = input # 'input' refers to JSON Payload\nheaders = {\n    'Content-Type': \"application/x-www-form-urlencoded\"\n    }\n\nresponse = requests.post(url, data=payload, headers=headers)\n\nprint(response.text)"
+        }, {
+          "lang" : "RUST",
+          "source" : "extern crate reqwest;\n\nuse std::io::Read;\n\nfn construct_headers() -> HeaderMap {\n    let mut headers = HeaderMap::new();\n    headers.insert(\"Content-Type\", \"application/x-www-form-urlencoded\");\n   \n    headers\n}\n\nfn run() -> Result<()> {\n    let client = reqwest::Client::new();\n    let mut res = client.post(\"https://apis-sandbox.fedex.com/oauth/token\")\n        .body(input) // 'input' refers to JSON Payload\n        .headers(construct_headers())\n        .send()?;\n    let mut body = String::new();\n    res.read_to_string(&mut body)?;\n\n    println!(\"Status: {}\", res.status());\n    println!(\"Headers:\\n{:#?}\", res.headers());\n    println!(\"Body:\\n{}\", body);\n\n    Ok(())\n}"
+        }, {
+          "lang" : "SWIFT",
+          "source" : "import Foundation\n\nlet headers = [\n  \"Content-Type\": \"application/x-www-form-urlencoded\"\n]\nlet parameters = [\n  input // 'input' refers to JSON Payload\n] as [String : Any]\n\nlet postData = JSONSerialization.data(withJSONObject: parameters, options: [])\n\nlet request = NSMutableURLRequest(url: NSURL(string: \"https://apis-sandbox.fedex.com/oauth/token\")! as URL,\n                                        cachePolicy: .useProtocolCachePolicy,\n                                    timeoutInterval: 10.0)\nrequest.httpMethod = \"POST\"\nrequest.allHTTPHeaderFields = headers\nrequest.httpBody = postData as Data\n\nlet session = URLSession.shared\nlet dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in\n  if (error != nil) {\n    print(error)\n  } else {\n    let httpResponse = response as? HTTPURLResponse\n    print(httpResponse)\n  }\n})\n\ndataTask.resume()"
+        } ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "FullSchema" : {
+        "required" : [ "client_id", "client_secret", "grant_type" ],
+        "type" : "object",
+        "properties" : {
+          "grant_type" : {
+            "type" : "string",
+            "description" : "Specify Type of customer requesting the Oauth token.<br>Valid Values: client_credentials, csp_credentials, client_pc_credentials<br>Note:<br>client_credentials - should be used for customers, Integrators, and brand new Compatible Provider customers who are yet to unboard child accounts.<br>csp_credentials - should be used for Integrators, and Compatible Provider customers with existing child accounts.<br>client_pc_credentials – should be used for Proprietary Parent Child customers."
+          },
+          "client_id" : {
+            "type" : "string",
+            "description" : "Specify the Client ID also known as API Key received during FedEx Developer portal registration.<br>Example: XXXX-XXX-XXXX-XXX"
+          },
+          "client_secret" : {
+            "type" : "string",
+            "description" : "Specify the Client secret also known as Secret Key received during FedEx Developer portal registration.<br>Example: XXXX-XXX-XXXX-XXX"
+          },
+          "child_Key" : {
+            "type" : "string",
+            "description" : "Specify the Client ID also known as Customer Key. This element is used as a login credential for an Integrator customer, Compatible customer or a Proprietary Parent Child customer to access the application on behalf of their customer.<br>Example: XXXX-XXX-XXXX-XXX<br>Note: This element should be used by Integrator, Compatible and Proprietary Parent Child customers."
+          },
+          "child_secret" : {
+            "type" : "string",
+            "description" : "Specify the Client secret also known as Customer Secret. This element is used as a login credential for an Integrator customer, Compatible customer or a Proprietary Parent Child customer to access the application on behalf of their customer.<br>Example: XXXX-XXX-XXXX-XXX<br>Note: This element should be used by Integrator, Compatible and Proprietary Parent Child customers."
+          }
+        },
+        "description" : "The request elements for OAuth API."
+      },
+      "Response" : {
+        "type" : "object",
+        "properties" : {
+          "access_token" : {
+            "type" : "string",
+            "description" : "This is an encrypted OAuth token used to authenticate your API requests. Use it in the authorization header of your API requests.<br>Example:  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpX……",
+            "example" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpX……"
+          },
+          "token_type" : {
+            "type" : "string",
+            "description" : "This is a token type. In this case, it is 'bearer authentication'.",
+            "example" : "bearer"
+          },
+          "expires_in" : {
+            "type" : "integer",
+            "description" : "Indicates the token expiration time in seconds. The standard token expiration time is one hour. <br>Example: 3600",
+            "example" : 3600
+          },
+          "scope" : {
+            "type" : "string",
+            "description" : "Indicates the scope of authorization provided to the consumer.<br> Example: CXS",
+            "example" : "CXS"
+          }
+        },
+        "description" : "This is the response of OAuth token and having access token details."
+      },
+      "ErrorResponseVO" : {
+        "type" : "object",
+        "properties" : {
+          "transactionId" : {
+            "type" : "string",
+            "description" : "The transaction ID is a special set of numbers that defines each transaction.<br>Example: bc95c0e4-b33e-42a2-80d2-334282b5d37a",
+            "example" : "bc95c0e4-b33e-42a2-80d2-334282b5d37a"
+          },
+          "errors" : {
+            "type" : "array",
+            "description" : "Indicates error details when suspicious files, potential exploits and viruses are found while scanning files, directories and user accounts. This includes code, message and error parameters.",
+            "items" : {
+              "$ref" : "#/components/schemas/CXSError"
+            }
+          }
+        }
+      },
+      "CXSError" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string",
+            "description" : "Indicates the error code.<br>Example: NOT.FOUND.ERROR"
+          },
+          "parameterList" : {
+            "type" : "array",
+            "description" : "List of parameters which indicates the properties of the alert message.",
+            "items" : {
+              "$ref" : "#/components/schemas/Parameter"
+            }
+          },
+          "message" : {
+            "type" : "string",
+            "description" : "Indicates the API error alert message.<br>Example: We are unable to process this request. Please try again later or contact FedEx Customer Service.",
+            "example" : "We are unable to process this request. Please try again later or contact FedEx Customer Service."
+          }
+        }
+      },
+      "Parameter" : {
+        "type" : "object",
+        "properties" : {
+          "value" : {
+            "type" : "string",
+            "description" : "Indicates the error option to be applied."
+          },
+          "key" : {
+            "type" : "string",
+            "description" : "Indicates the value associated with the key."
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "retrieved": "2026-10-27",
+  "note": "Downloaded from the JSON schema links embedded in the FedEx Developer Portal documentation pages. info.version is the version field inside each OpenAPI document. last_modified is the HTTP Last-Modified header of that file.",
+  "specs": [
+    {
+      "file": "authorization.openapi.json",
+      "title": "API Authorization",
+      "openapi": "3.0.0",
+      "info_version": "1.0",
+      "source_page": "https://developer.fedex.com/api/en-us/catalog/authorization/docs.html",
+      "source_url": "https://developer.fedex.com/wirc/json/api_groups/APIAuthorization/APIAuthorization-Resource.json",
+      "last_modified": "Sun, 18 Oct 2026 14:52:08 GMT"
+    },
+    {
+      "file": "ship.openapi.json",
+      "title": "Ship API",
+      "openapi": "3.0.0",
+      "info_version": "1.0.0",
+      "source_page": "https://developer.fedex.com/api/en-us/catalog/ship/docs.html",
+      "source_url": "https://developer.fedex.com/wirc/json/api_groups/Ship/Shipment-Resource.json",
+      "last_modified": "Sun, 18 Oct 2026 14:52:32 GMT"
+    },
+    {
+      "file": "pickup.openapi.json",
+      "title": "Pickup Request API",
+      "openapi": "3.0.0",
+      "info_version": "1.0.0",
+      "source_page": "https://developer.fedex.com/api/en-us/catalog/pickup/docs.html",
+      "source_url": "https://developer.fedex.com/wirc/json/api_groups/Pickup/Pickup-Resource.json",
+      "last_modified": "Sun, 18 Oct 2026 14:52:25 GMT"
+    },
+    {
+      "file": "rate.openapi.json",
+      "title": "Rates and Transit Times API",
+      "openapi": "3.0.0",
+      "info_version": "1.0.0",
+      "source_page": "https://developer.fedex.com/api/en-us/catalog/rate/docs.html",
+      "source_url": "https://developer.fedex.com/wirc/json/api_groups/Rate/RateQuotes-Resource.json",
+      "last_modified": "Sun, 18 Oct 2026 14:52:25 GMT"
+    },
+    {
+      "file": "address.openapi.json",
+      "title": "Address Validation API",
+      "openapi": "3.0.0",
+      "info_version": "1.0.0",
+      "source_page": "https://developer.fedex.com/api/en-us/catalog/address-validation/docs.html",
+      "source_url": "https://developer.fedex.com/wirc/json/api_groups/AddressValidation/Addresses-Resource.json",
+      "last_modified": "Sun, 18 Oct 2026 14:52:05 GMT"
+    }
+  ]
+}

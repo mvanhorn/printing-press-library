@@ -876,6 +876,7 @@ func maskToken(token string) string {
 
 func safeAPIErrorBody(body []byte) string {
 	var envelope struct {
+		Error  string `json:"error"`
 		Errors []struct {
 			Code string `json:"code"`
 		} `json:"errors"`
@@ -883,20 +884,16 @@ func safeAPIErrorBody(body []byte) string {
 	if json.Unmarshal(body, &envelope) != nil {
 		return "response body redacted"
 	}
-	codes := make([]string, 0, len(envelope.Errors))
+	codes := make([]string, 0, len(envelope.Errors)+1)
 	for _, item := range envelope.Errors {
-		code := strings.TrimSpace(item.Code)
-		if code == "" || len(code) > 80 {
-			continue
+		if code := acceptableErrorCode(item.Code); code != "" {
+			codes = append(codes, code)
 		}
-		valid := true
-		for _, r := range code {
-			if !((r >= 'A' && r <= 'Z') || (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '.' || r == '_' || r == '-') {
-				valid = false
-				break
-			}
-		}
-		if valid {
+	}
+	// Ship package-validation's published 404 example uses a top-level
+	// "error" code instead of errors[].code. Messages stay redacted.
+	if len(codes) == 0 {
+		if code := acceptableErrorCode(envelope.Error); code != "" {
 			codes = append(codes, code)
 		}
 	}
@@ -905,4 +902,17 @@ func safeAPIErrorBody(body []byte) string {
 	}
 	encoded, _ := json.Marshal(map[string]any{"codes": codes})
 	return string(encoded)
+}
+
+func acceptableErrorCode(code string) string {
+	code = strings.TrimSpace(code)
+	if code == "" || len(code) > 80 {
+		return ""
+	}
+	for _, r := range code {
+		if !((r >= 'A' && r <= 'Z') || (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '.' || r == '_' || r == '-') {
+			return ""
+		}
+	}
+	return code
 }

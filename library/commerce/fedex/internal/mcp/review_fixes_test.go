@@ -19,9 +19,11 @@ func shipRequest(ref string) map[string]any {
 		"labelResponseOptions": "LABEL",
 		"accountNumber":        map[string]any{"value": "123456789"},
 		"requestedShipment": map[string]any{
-			"serviceType":       "FEDEX_GROUND",
-			"packagingType":     "YOUR_PACKAGING",
-			"totalPackageCount": 1,
+			"pickupType":             "USE_SCHEDULED_PICKUP",
+			"serviceType":            "FEDEX_GROUND",
+			"packagingType":          "YOUR_PACKAGING",
+			"shippingChargesPayment": map[string]any{"paymentType": "SENDER"},
+			"totalPackageCount":      1,
 			"shipper": map[string]any{
 				"contact": map[string]any{"personName": "Ship Er", "phoneNumber": "5551112222"},
 				"address": map[string]any{"streetLines": []any{"1 Main St"}, "city": "Seattle", "stateOrProvinceCode": "WA", "postalCode": "98101", "countryCode": "US"},
