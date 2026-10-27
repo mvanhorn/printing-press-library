@@ -430,6 +430,28 @@ func (t *Client) Recommendations(ctx context.Context, input RecommendationsInput
 	return parseRecommendationsPayloadWithID(payload)
 }
 
+// TaskerTotalHourlyCents returns TaskRabbit's quoted hourly total for a Tasker
+// (rate plus trust-and-safety fee) from the booking flow's availability call.
+func (t *Client) TaskerTotalHourlyCents(ctx context.Context, inviteeID, categoryID, taskTemplateID int, lat, lng float64) (int, error) {
+	body, err := t.c.Get(ctx, "/api/v3/web-client/build/rabbit_granular_availability.json", map[string]string{
+		"invitee_id":       strconv.Itoa(inviteeID),
+		"category_id":      strconv.Itoa(categoryID),
+		"task_template_id": strconv.Itoa(taskTemplateID),
+		"location[lat]":    strconv.FormatFloat(lat, 'f', -1, 64),
+		"location[lng]":    strconv.FormatFloat(lng, 'f', -1, 64),
+	})
+	if err != nil {
+		return 0, err
+	}
+	var decoded struct {
+		TotalHourlyRateCents flexInt `json:"total_hourly_rate_cents"`
+	}
+	if err := json.Unmarshal(body, &decoded); err != nil {
+		return 0, fmt.Errorf("taskrabbit availability: decode: %w", err)
+	}
+	return int(decoded.TotalHourlyRateCents), nil
+}
+
 // Schedule reads TaskRabbit availability for a tasker/category.
 func (t *Client) Schedule(ctx context.Context, categoryID, inviteeID int, locale string, lat, lng float64, taskTemplateID int) ([]AvailableDate, error) {
 	payload, err := t.Query(ctx, "page.book.schedule", struct {

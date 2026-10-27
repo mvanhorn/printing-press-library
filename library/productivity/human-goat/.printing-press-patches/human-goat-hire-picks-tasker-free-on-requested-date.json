@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "human-goat-hire-picks-tasker-free-on-requested-date",
+  "applied_at": "2026-10-27",
+  "base_run_id": "20260703-152050-dff84056",
+  "base_printing_press_version": "4.27.1",
+  "summary": "hire walks the price-ranked Taskers until one has an open slot on the requested date, and caps against TaskRabbit's quoted hourly total when it exceeds the modeled all-in rate.",
+  "reason": "Recommendations for a date still list Taskers who are booked that day, so taking the cheapest one blocked every booking beyond a day or two out. TaskRabbit's trust-and-safety fee can run above the modeled percentage, which let the cap underestimate the charge.",
+  "files": [
+    "internal/cli/hire.go",
+    "internal/source/taskrabbit/trpc.go"
+  ],
+  "validated_outcome": "Live: four requested dates each resolved to a Tasker free on that exact date. For one Tasker, TaskRabbit quoted $38.13/hr against a modeled $37.35/hr."
+}
