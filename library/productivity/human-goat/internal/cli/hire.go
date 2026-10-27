@@ -119,7 +119,7 @@ func newNovelHireCmd(flags *rootFlags) *cobra.Command {
 
 			best, ok := selectHireTasker(taskers, minRating, flagState)
 			if !ok {
-				return fmt.Errorf("no Tasker matches --min-rating")
+				return fmt.Errorf("no Tasker with a known hourly rate matches --min-rating")
 			}
 
 			inviteeID, notes := hireInviteeID(best)
@@ -177,6 +177,11 @@ func newNovelHireCmd(flags *rootFlags) *cobra.Command {
 			// real checkout against a slot the Schedule API did not actually offer.
 			if availabilityNote != "" {
 				return fmt.Errorf("no available slot for %q around %s; not booking (try a different date)", query, date)
+			}
+			// Never book a day the caller did not ask for: a substituted date can
+			// land inside TaskRabbit's late-cancellation fee window.
+			if slotDate != date {
+				return fmt.Errorf("%s has no open slot with %s; not booking %s instead (rerun with --on %s to accept it)", date, taskerDisplayName(best), slotDate, slotDate)
 			}
 
 			if recommendationID == "" {
@@ -363,6 +368,11 @@ func selectHireTasker(taskers []taskrabbit.Tasker, minRating float64, state stri
 	candidates := make([]taskrabbit.Tasker, 0, len(taskers))
 	for _, tasker := range taskers {
 		if minRating > 0 && tasker.RabbitRating < minRating {
+			continue
+		}
+		// A Tasker without an hourly rate would sort first and slip under any
+		// spend cap at $0; never pick one.
+		if tasker.PosterHourlyRateCents <= 0 {
 			continue
 		}
 		candidates = append(candidates, tasker)

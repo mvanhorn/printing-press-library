@@ -186,9 +186,22 @@ func resolveTaskRabbitCategory(ctx context.Context, c *client.Client, query stri
 		return taskrabbitCategoryMatch{}, fmt.Errorf("decode TaskRabbit task templates: %w", err)
 	}
 
+	return pickTaskRabbitCategory(decoded.InitialTaskTemplates, query)
+}
+
+// pickTaskRabbitCategory resolves a job query to a task template.
+func pickTaskRabbitCategory(templates []taskrabbitCategoryMatch, query string) (taskrabbitCategoryMatch, error) {
 	needle := strings.ToLower(strings.TrimSpace(query))
-	titles := make([]string, 0, len(decoded.InitialTaskTemplates))
-	for _, template := range decoded.InitialTaskTemplates {
+	// An exact title wins over a substring hit: "furniture assembly" must pick
+	// the hourly-priced "Furniture Assembly" template, not "IKEA Furniture
+	// Assembly", whose recommendations carry no hourly rate.
+	for _, template := range templates {
+		if needle != "" && strings.ToLower(strings.TrimSpace(template.Title)) == needle {
+			return template, nil
+		}
+	}
+	titles := make([]string, 0, len(templates))
+	for _, template := range templates {
 		if template.Title != "" {
 			titles = append(titles, template.Title)
 		}
