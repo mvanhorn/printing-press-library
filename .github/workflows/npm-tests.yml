@@ -1,12 +1,10 @@
 name: npm package tests
 
-# npm-publish.yml runs `npm test` only after a version tag lands, so a broken
-# test script used to surface as a failed publish. Run the same steps on PRs.
-
 on:
   pull_request:
     paths:
       - '.github/workflows/npm-tests.yml'
+      - '.github/workflows/npm-publish.yml'
       - 'npm/**'
 
 permissions:
