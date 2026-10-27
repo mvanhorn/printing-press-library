@@ -112,9 +112,6 @@ func runMCPWorkflow(ctx context.Context, fedexClient *client.Client, ep endpoint
 	var unknown *client.OutcomeUnknownError
 	isUnknown := errors.As(err, &unknown)
 	finished, finishErr := workflow.Finish(ctx, action, body, data, err, isUnknown, options)
-	if isUnknown && finishErr != nil {
-		return nil, status, fmt.Errorf("%w (workflow operation %s)", finishErr, options.OperationID)
-	}
 	if finishErr != nil {
 		return nil, status, finishErr
 	}

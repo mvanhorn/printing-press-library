@@ -299,6 +299,9 @@ func TestWrite500IsOutcomeUnknownNotRetriedAndBlocksResend(t *testing.T) {
 	if !result.IsError || envelope["error_class"] != "outcome_unknown" {
 		t.Fatalf("pickups_create 500=%v, want outcome_unknown", envelope)
 	}
+	if operationID, _ := envelope["operation_id"].(string); operationID == "" {
+		t.Fatalf("pickups_create 500 dropped operation_id: %v", envelope)
+	}
 	if fake.calls != 1 {
 		t.Fatalf("write was retried: calls=%d", fake.calls)
 	}
@@ -308,6 +311,33 @@ func TestWrite500IsOutcomeUnknownNotRetriedAndBlocksResend(t *testing.T) {
 	}
 	if fake.calls != 1 {
 		t.Fatalf("resend reached FedEx: calls=%d", fake.calls)
+	}
+}
+
+func TestUnusablePickupSuccessReturnsOperationID(t *testing.T) {
+	fake := newFakeAPI(t, http.StatusOK, `{"output":{"message":"no confirmation"}}`)
+	tools := registeredTools(t)
+	request := map[string]any{
+		"associatedAccountNumber": map[string]any{"value": "123456789"},
+		"originDetail": map[string]any{
+			"readyDateTimestamp": "2026-09-03T14:00:00-05:00",
+			"customerCloseTime":  "18:00:00",
+			"pickupLocation": map[string]any{
+				"contact": map[string]any{"companyName": "Origin LLC", "phoneNumber": "5551112222"},
+				"address": map[string]any{"streetLines": []any{"1 Main St"}, "city": "Chicago", "stateOrProvinceCode": "IL", "postalCode": "60601", "countryCode": "US"},
+			},
+		},
+		"totalWeight":  map[string]any{"units": "LB", "value": 3.5},
+		"packageCount": 1,
+		"carrierCode":  "FDXG",
+	}
+	result, envelope := callTool(t, tools, "pickups_create", map[string]any{"request": request, "availability_override_reason": "carrier desk confirmed the window"})
+	if !result.IsError {
+		t.Fatalf("unusable pickup success=%v", envelope)
+	}
+	operationID, _ := envelope["operation_id"].(string)
+	if operationID == "" || fake.calls != 1 {
+		t.Fatalf("unusable pickup success envelope=%v calls=%d", envelope, fake.calls)
 	}
 }
 

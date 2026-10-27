@@ -28,13 +28,40 @@ func Prepare(ctx context.Context, action string, body map[string]any, options Pe
 	return MarshalSafeResult(already)
 }
 
+// PickupOperationError is a schedule-pickup failure that may have left an
+// outcome_unknown ledger row. OperationID is the value for
+// `operations reconcile --operation-id`.
+type PickupOperationError struct {
+	OperationID string
+	Err         error
+}
+
+func (e *PickupOperationError) Error() string {
+	if e == nil {
+		return "pickup outcome unknown"
+	}
+	if e.Err == nil {
+		return "pickup outcome unknown (workflow operation " + e.OperationID + ")"
+	}
+	return fmt.Sprintf("%s (workflow operation %s)", e.Err.Error(), e.OperationID)
+}
+
+func (e *PickupOperationError) Unwrap() error { return e.Err }
+
+func withPickupOperation(action, operationID string, err error) error {
+	if err == nil || action != ActionSchedulePickup || strings.TrimSpace(operationID) == "" {
+		return err
+	}
+	return &PickupOperationError{OperationID: operationID, Err: err}
+}
+
 // Finish records the FedEx result. unknown is true when the write was sent
 // and the outcome cannot be determined.
 func Finish(ctx context.Context, action string, body map[string]any, response []byte, callErr error, unknown bool, options PersistOptions) ([]byte, error) {
 	if callErr != nil {
 		if unknown {
 			PersistOutcomeUnknown(ctx, action, body, options)
-			return nil, callErr
+			return nil, withPickupOperation(action, options.OperationID, callErr)
 		}
 		PersistRejected(ctx, action, body, options)
 		return nil, callErr
@@ -46,7 +73,7 @@ func Finish(ctx context.Context, action string, body map[string]any, response []
 			return nil, err
 		}
 		PersistOutcomeUnknown(ctx, action, body, options)
-		return nil, err
+		return nil, withPickupOperation(action, options.OperationID, err)
 	}
 	return MarshalSafeResult(result)
 }

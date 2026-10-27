@@ -7,7 +7,6 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
-	"fmt"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/mutationguard"
@@ -47,9 +46,6 @@ func runWorkflowMutation(ctx context.Context, fedexClient *client.Client, action
 	var unknown *client.OutcomeUnknownError
 	isUnknown := errors.As(err, &unknown)
 	finished, finishErr := workflow.Finish(ctx, action, body, data, err, isUnknown, options)
-	if isUnknown && finishErr != nil {
-		return nil, status, fmt.Errorf("%w (workflow operation %s)", finishErr, options.OperationID)
-	}
 	return finished, status, finishErr
 }
 

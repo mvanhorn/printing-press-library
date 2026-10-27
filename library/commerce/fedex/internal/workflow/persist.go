@@ -165,6 +165,9 @@ func ReconcileOperationalState(ctx context.Context, action, operationID, trackin
 
 	switch action {
 	case ActionCancelShipment:
+		if strings.TrimSpace(trackingNumber) == "" {
+			return fmt.Errorf("tracking number is required to reconcile a shipment cancellation")
+		}
 		status := "cancel_rejected"
 		if resolution == "succeeded" {
 			status = "cancelled"
@@ -177,6 +180,9 @@ func ReconcileOperationalState(ctx context.Context, action, operationID, trackin
 			return fmt.Errorf("shipment %s is missing from the reconciliation ledger", trackingNumber)
 		}
 	case ActionSchedulePickup:
+		if strings.TrimSpace(operationID) == "" {
+			return fmt.Errorf("operation id is required to reconcile a pickup")
+		}
 		status := "rejected"
 		if resolution == "succeeded" {
 			status = "succeeded_unverified_identifiers"
@@ -189,6 +195,9 @@ func ReconcileOperationalState(ctx context.Context, action, operationID, trackin
 			return fmt.Errorf("pickup operation %s is missing from the reconciliation ledger", operationID)
 		}
 	case ActionCancelPickup:
+		if strings.TrimSpace(pickupConfirmation) == "" {
+			return fmt.Errorf("pickup confirmation is required to reconcile a pickup cancellation")
+		}
 		status := "cancel_rejected"
 		if resolution == "succeeded" {
 			status = "cancelled"

@@ -53,6 +53,48 @@ func TestValidatePickupAvailabilityBinding(t *testing.T) {
 	}
 }
 
+func TestPickupCloseTimeMatchesAcrossClockFormats(t *testing.T) {
+	schedule, availability := matchingPickupBinding()
+	schedule["originDetail"].(map[string]any)["customerCloseTime"] = "17:00"
+	availability["customerCloseTime"] = "17:00:00"
+	if err := ValidatePickupAvailabilityBinding(schedule, availability); err != nil {
+		t.Fatalf("17:00 vs 17:00:00 rejected: %v", err)
+	}
+	availability["customerCloseTime"] = "17:00:01"
+	if err := ValidatePickupAvailabilityBinding(schedule, availability); err == nil {
+		t.Fatal("17:00 matched 17:00:01")
+	}
+}
+
+func matchingPickupBinding() (map[string]any, map[string]any) {
+	address := map[string]any{"streetLines": []any{"1 Test Way"}, "city": "Austin", "stateOrProvinceCode": "TX", "postalCode": "78701", "countryCode": "US"}
+	schedule := map[string]any{
+		"associatedAccountNumber": map[string]any{"value": "123456789"},
+		"carrierCode":             "FDXG",
+		"packageCount":            1,
+		"totalWeight":             map[string]any{"units": "LB", "value": 2.0},
+		"originDetail": map[string]any{
+			"readyDateTimestamp": "2026-09-04T09:00:00-05:00",
+			"customerCloseTime":  "17:00:00",
+			"pickupLocation": map[string]any{
+				"contact": map[string]any{"personName": "Test User", "phoneNumber": "5555550100"},
+				"address": address,
+			},
+		},
+	}
+	availability := map[string]any{
+		"associatedAccountNumber": "123456789",
+		"carriers":                []any{"FDXG"},
+		"pickupRequestType":       []any{"SAME_DAY"},
+		"countryRelationship":     "DOMESTIC",
+		"dispatchDate":            "2026-09-04",
+		"packageReadyTime":        "09:00:00",
+		"customerCloseTime":       "17:00:00",
+		"pickupAddress":           map[string]any{"postalCode": "78701", "countryCode": "US"},
+	}
+	return schedule, availability
+}
+
 func TestMatchingPickupAvailabilityRequiresOneCorrelatedOption(t *testing.T) {
 	response := []byte(`{"output":{"options":[{"carrier":"FDXG","available":true,"pickupDate":"2026-09-04","scheduleDay":"FRI","cutOffTime":"16:00"},{"carrier":"FDXG","available":false,"pickupDate":"2026-09-04","scheduleDay":"FRI","cutOffTime":"18:00"}]}}`)
 	if _, err := matchingPickupAvailability(response, "FDXG", "2026-09-04"); err == nil {

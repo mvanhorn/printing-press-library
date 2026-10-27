@@ -67,7 +67,7 @@ func ValidatePickupAvailabilityBinding(scheduleRequest, availabilityRequest map[
 		return fmt.Errorf("availability packageReadyTime must match the pickup ready time")
 	}
 	wantClose := strings.TrimSpace(nestedString(scheduleRequest, "originDetail", "customerCloseTime"))
-	if strings.TrimSpace(stringField(availabilityRequest, "customerCloseTime")) != wantClose {
+	if !sameClockTime(wantClose, stringField(availabilityRequest, "customerCloseTime")) {
 		return fmt.Errorf("availability customerCloseTime must match the pickup request")
 	}
 	availabilityAddress, ok := objectAt(availabilityRequest, "pickupAddress")
@@ -198,6 +198,26 @@ func matchingPickupAvailability(data []byte, carrier, dispatchDate string) (pick
 		return pickupAvailabilityOption{}, fmt.Errorf("FedEx availability response must contain exactly one option matching carrier %s and date %s", carrier, dispatchDate)
 	}
 	return matches[0], nil
+}
+
+func sameClockTime(left, right string) bool {
+	leftTime, leftOK := parseClockTime(left)
+	rightTime, rightOK := parseClockTime(right)
+	if !leftOK || !rightOK {
+		return false
+	}
+	return leftTime.Hour() == rightTime.Hour() && leftTime.Minute() == rightTime.Minute() && leftTime.Second() == rightTime.Second()
+}
+
+func parseClockTime(value string) (time.Time, bool) {
+	value = strings.TrimSpace(value)
+	for _, layout := range []string{"15:04:05", "15:04"} {
+		parsed, err := time.Parse(layout, value)
+		if err == nil {
+			return parsed, true
+		}
+	}
+	return time.Time{}, false
 }
 
 func nestedString(value map[string]any, path ...string) string {

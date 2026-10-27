@@ -277,10 +277,79 @@ func Open(path string) (*Store, error) {
 	return &Store{db: db, path: path}, nil
 }
 
+type shipmentWorkflowColumn struct {
+	name       string
+	definition string
+}
+
+var shipmentWorkflowColumns = []shipmentWorkflowColumn{
+	{"transaction_id", "TEXT"},
+	{"request_hash", "TEXT"},
+	{"status", "TEXT NOT NULL DEFAULT 'created'"},
+	{"cancellation_transaction_id", "TEXT"},
+	{"cancellation_status", "TEXT"},
+	{"cancelled_at", "TIMESTAMP"},
+}
+
 func ensureShipmentWorkflowColumns(db *sql.DB) error {
-	rows, err := db.Query("PRAGMA table_info(shipments)")
+	return migrateShipmentWorkflowColumns(context.Background(), db, nil)
+}
+
+// beforeAlter runs after the column list is read and before ALTER. Tests use
+// it to add the column on the same connection, the way a second process
+// wins the race after this one has already decided the column is missing.
+func migrateShipmentWorkflowColumns(ctx context.Context, db *sql.DB, beforeAlter func(context.Context, *sql.Conn, string) error) error {
+	conn, err := db.Conn(ctx)
 	if err != nil {
 		return err
+	}
+	defer conn.Close()
+	if _, err := conn.ExecContext(ctx, "BEGIN IMMEDIATE"); err != nil {
+		return err
+	}
+	committed := false
+	defer func() {
+		if !committed {
+			_, _ = conn.ExecContext(context.Background(), "ROLLBACK")
+		}
+	}()
+	existing, err := shipmentColumnSet(ctx, conn)
+	if err != nil {
+		return err
+	}
+	for _, column := range shipmentWorkflowColumns {
+		if existing[column.name] {
+			continue
+		}
+		if beforeAlter != nil {
+			if err := beforeAlter(ctx, conn, column.name); err != nil {
+				return err
+			}
+		}
+		if _, err := conn.ExecContext(ctx, "ALTER TABLE shipments ADD COLUMN "+column.name+" "+column.definition); err != nil {
+			if !duplicateColumnError(err) {
+				return err
+			}
+			present, checkErr := shipmentHasColumn(ctx, conn, column.name)
+			if checkErr != nil {
+				return checkErr
+			}
+			if !present {
+				return err
+			}
+		}
+	}
+	if _, err := conn.ExecContext(ctx, "COMMIT"); err != nil {
+		return err
+	}
+	committed = true
+	return nil
+}
+
+func shipmentColumnSet(ctx context.Context, conn *sql.Conn) (map[string]bool, error) {
+	rows, err := conn.QueryContext(ctx, "PRAGMA table_info(shipments)")
+	if err != nil {
+		return nil, err
 	}
 	existing := make(map[string]bool)
 	for rows.Next() {
@@ -290,33 +359,30 @@ func ensureShipmentWorkflowColumns(db *sql.DB) error {
 		var defaultValue any
 		if err := rows.Scan(&cid, &name, &dataType, &notNull, &defaultValue, &primaryKey); err != nil {
 			rows.Close()
-			return err
+			return nil, err
 		}
 		existing[name] = true
 	}
+	if err := rows.Err(); err != nil {
+		rows.Close()
+		return nil, err
+	}
 	if err := rows.Close(); err != nil {
-		return err
+		return nil, err
 	}
-	columns := []struct {
-		name       string
-		definition string
-	}{
-		{"transaction_id", "TEXT"},
-		{"request_hash", "TEXT"},
-		{"status", "TEXT NOT NULL DEFAULT 'created'"},
-		{"cancellation_transaction_id", "TEXT"},
-		{"cancellation_status", "TEXT"},
-		{"cancelled_at", "TIMESTAMP"},
+	return existing, nil
+}
+
+func shipmentHasColumn(ctx context.Context, conn *sql.Conn, column string) (bool, error) {
+	existing, err := shipmentColumnSet(ctx, conn)
+	if err != nil {
+		return false, err
 	}
-	for _, column := range columns {
-		if existing[column.name] {
-			continue
-		}
-		if _, err := db.Exec("ALTER TABLE shipments ADD COLUMN " + column.name + " " + column.definition); err != nil {
-			return err
-		}
-	}
-	return nil
+	return existing[column], nil
+}
+
+func duplicateColumnError(err error) bool {
+	return err != nil && strings.Contains(strings.ToLower(err.Error()), "duplicate column name")
 }
 
 func (s *Store) DB() *sql.DB  { return s.db }
@@ -541,10 +607,14 @@ func (s *Store) getPickup(ctx context.Context, column, value string) (*Pickup, e
 }
 
 func (s *Store) UpdatePickupCancellation(ctx context.Context, confirmation, status, transactionID string) (bool, error) {
+	confirmation = strings.TrimSpace(confirmation)
+	if confirmation == "" {
+		return false, fmt.Errorf("pickup confirmation is required")
+	}
 	if status == "canceling" {
 		result, err := s.db.ExecContext(ctx, `
 			UPDATE pickups SET status = ?, updated_at = CURRENT_TIMESTAMP
-			WHERE confirmation_number = ? AND status IN ('scheduled', 'cancel_rejected')
+			WHERE confirmation_number = ? AND confirmation_number <> '' AND status IN ('scheduled', 'cancel_rejected')
 		`, status, confirmation)
 		if err != nil {
 			return false, err
@@ -558,7 +628,7 @@ func (s *Store) UpdatePickupCancellation(ctx context.Context, confirmation, stat
 	}
 	result, err := s.db.ExecContext(ctx, `
 		UPDATE pickups SET status = ?, cancellation_transaction_id = ?, cancelled_at = ?, updated_at = CURRENT_TIMESTAMP
-		WHERE confirmation_number = ?
+		WHERE confirmation_number = ? AND confirmation_number <> ''
 	`, status, transactionID, cancelledAt, confirmation)
 	if err != nil {
 		return false, err

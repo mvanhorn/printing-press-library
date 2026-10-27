@@ -215,6 +215,10 @@ func writeErrorResult(err error, status int, readOnly bool) *mcplib.CallToolResu
 	if status > 0 {
 		fields["http_status"] = status
 	}
+	var pickup *workflow.PickupOperationError
+	if errors.As(err, &pickup) && strings.TrimSpace(pickup.OperationID) != "" {
+		fields["operation_id"] = pickup.OperationID
+	}
 	return toolJSONErrorFields(class, message, fields)
 }
 
