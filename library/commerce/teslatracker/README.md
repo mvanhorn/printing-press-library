@@ -8,7 +8,7 @@ Learn more at [TeslaTracker](https://teslatracker.com).
 
 Created by [@michegz](https://github.com/michegz) (michegz).
 
-Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+Contributors: [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery), [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 

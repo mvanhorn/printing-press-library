@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "windows-creds-perms-helpers",
+  "applied_at": "2026-10-27",
+  "base_run_id": "20260813-144423-eaf11561",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Windows private-file checks call cliutil.VerifyCredsPerms, so the POSIX helper, the Windows owner/DACL helper, and the shared SDDL evaluator must all be present.",
+  "reason": "platform/perms_windows.go delegates to cliutil.VerifyCredsPerms, but this print omitted the generator's credential-permission files. GOOS=windows fails with undefined: cliutil.VerifyCredsPerms. A regen must keep a VerifyCredsPerms implementation on both windows and non-windows, including the SDDL evaluator the Windows helper calls.",
+  "files": [
+    "internal/cliutil/creds_perms_unix.go",
+    "internal/cliutil/creds_perms_windows.go",
+    "internal/cliutil/creds_perms_eval.go",
+    "internal/cliutil/creds_perms_eval_test.go"
+  ],
+  "validated_outcome": "GOOS=windows GOARCH=amd64 and arm64 builds succeed, as do native, darwin/arm64, go vet, and go test."
+}
