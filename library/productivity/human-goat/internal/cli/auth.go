@@ -49,7 +49,7 @@ type chromeProfile struct {
 }
 
 func requiredAuthCookies() []string {
-	raw := []string{"session", "XSRF-TOKEN"}
+	raw := []string{"session", "XSRF-TOKEN", "tr6"}
 	out := raw[:0]
 	for _, name := range raw {
 		name = strings.TrimSpace(name)
@@ -85,6 +85,9 @@ profile by name when the installed backend supports it.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			w := cmd.OutOrStdout()
 			domain := ".taskrabbit.com"
+			// TaskRabbit sets session, XSRF-TOKEN and tr6 host-only on www, so a
+			// bare-domain lookup misses them. Read through the www host instead.
+			cookieHost := "www.taskrabbit.com"
 			if !browserFlag && cookiesFile == "" {
 				fmt.Fprintln(w, "Use --chrome, --browser, or --cookies-file to authenticate from your browser session:")
 				fmt.Fprintf(cmd.OutOrStdout(), "  human-goat-pp-cli auth login --chrome\n")
@@ -181,7 +184,7 @@ profile by name when the installed backend supports it.`,
 				}
 
 				// Step 3: Extract cookies from the resolved profile
-				cookies, err = extractCookies(tool, domain, profileDir)
+				cookies, err = extractCookies(tool, cookieHost, profileDir)
 				if err != nil {
 					return authErr(fmt.Errorf("extracting cookies: %w", err))
 				}
@@ -195,7 +198,7 @@ profile by name when the installed backend supports it.`,
 			// Cookie header on every request, which routinely trips upstream
 			// WAFs and shadows the real credential.
 			cookieMap := parseCookieString(cookies)
-			requiredCookies := []string{"session", "XSRF-TOKEN"}
+			requiredCookies := requiredAuthCookies()
 			kept := make([]string, 0, len(requiredCookies))
 			for _, name := range requiredCookies {
 				v, ok := cookieMap[name]

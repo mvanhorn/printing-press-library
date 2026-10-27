@@ -199,7 +199,7 @@ Splits TaskRabbit vs Magic totals from the local store, with TaskRabbit rows usi
 
 ## Auth Setup
 
-TaskRabbit auth is cookie replay from a logged-in Chrome session: run `human-goat-pp-cli auth login --chrome` to lift the session + XSRF-TOKEN cookies. Never a programmatic password login (the login form is reCAPTCHA-gated). Magic uses an x-api-key read from $MAGIC_API_KEY or ~/.magic/api_key.
+TaskRabbit auth is cookie replay from a logged-in Chrome session: run `human-goat-pp-cli auth login --chrome` to lift the session, XSRF-TOKEN, and tr6 cookies. Never a programmatic password login (the login form is reCAPTCHA-gated). Magic uses an x-api-key read from $MAGIC_API_KEY or ~/.magic/api_key.
 
 Run `human-goat-pp-cli doctor` to verify setup.
 

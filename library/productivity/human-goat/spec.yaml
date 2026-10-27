@@ -6,7 +6,7 @@ description: |-
   mounting, cleaning) and Magic for remote errands (phone calls, lookups, online
   bookings, data entry). The headline capability is autonomous soup-to-nuts hire
   on TaskRabbit against the card on file, made safe by a verified cancel and a
-  spend cap. TaskRabbit is authenticated via Chrome cookies (session + XSRF-TOKEN,
+  spend cap. TaskRabbit is authenticated via Chrome cookies (session + XSRF-TOKEN + tr6,
   never headless login); Magic via x-api-key.
 version: "0.1.0"
 cli_description: "Hire real humans from the terminal — autonomous TaskRabbit checkout with all-in pricing and a verified undo, plus Magic remote errands, in one agent-native binary."
@@ -33,6 +33,7 @@ auth:
   cookies:
     - session
     - XSRF-TOKEN
+    - tr6
 
 config:
   format: toml
