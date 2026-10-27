@@ -8,6 +8,7 @@ package cli
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
@@ -159,13 +160,40 @@ func csrfToken(ctx context.Context, flags *rootFlags) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	// TaskRabbit renders `<meta name="csrf-token" content="..." />` (self-closing,
+	// The Next.js site sends the XSRF-TOKEN cookie back as X-CSRF-Token (the
+	// axios xsrf pattern); the dashboard GET above refreshes that cookie.
+	if token := xsrfCookieToken(c); token != "" {
+		return token, nil
+	}
+	// Older pages render `<meta name="csrf-token" content="..." />` (self-closing,
 	// space before />), so match up to the closing quote rather than a literal ">".
 	matches := regexp.MustCompile(`<meta name="csrf-token" content="([^"]+)"`).FindSubmatch(body)
 	if len(matches) < 2 {
-		return "", fmt.Errorf("csrf-token meta tag not found")
+		return "", fmt.Errorf("no XSRF-TOKEN cookie or csrf-token meta tag; run 'auth login --chrome' again")
 	}
 	return string(matches[1]), nil
+}
+
+// xsrfCookieToken returns the URL-decoded XSRF-TOKEN cookie for the client's
+// base URL, or "" when the jar has none.
+func xsrfCookieToken(c *client.Client) string {
+	if c == nil || c.HTTPClient == nil || c.HTTPClient.Jar == nil {
+		return ""
+	}
+	base, err := url.Parse(c.RequestBaseURL())
+	if err != nil {
+		return ""
+	}
+	for _, cookie := range c.HTTPClient.Jar.Cookies(base) {
+		if cookie.Name != "XSRF-TOKEN" || cookie.Value == "" {
+			continue
+		}
+		if decoded, err := url.QueryUnescape(cookie.Value); err == nil {
+			return decoded
+		}
+		return cookie.Value
+	}
+	return ""
 }
 
 func joinNotes(notes ...string) string {
