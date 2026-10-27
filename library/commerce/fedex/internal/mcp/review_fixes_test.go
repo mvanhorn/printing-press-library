@@ -12,23 +12,30 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/store"
 )
 
-const shipResponse = `{"output":{"transactionShipments":[{"masterTrackingNumber":"794600000001","serviceType":"FEDEX_GROUND","pieceResponses":[{"trackingNumber":"794600000001","netCharge":12.34,"currency":"USD","packageDocuments":[{"url":"https://fedex.example/label.pdf","encodedLabel":"QUJD"}]}]}]}}`
+const shipResponse = `{"output":{"transactionShipments":[{"masterTrackingNumber":"794600000001","serviceType":"FEDEX_GROUND","pieceResponses":[{"trackingNumber":"794600000001","netCharge":12.34,"currency":"USD","packageDocuments":[{"contentType":"LABEL","docType":"PDF","encodedLabel":"JVBERi0xLjcKJSVFT0YK"}]}]}]}}`
 
 func shipRequest(ref string) map[string]any {
 	return map[string]any{
-		"accountNumber": map[string]any{"value": "123456789"},
+		"labelResponseOptions": "LABEL",
+		"accountNumber":        map[string]any{"value": "123456789"},
 		"requestedShipment": map[string]any{
-			"serviceType":   "FEDEX_GROUND",
-			"packagingType": "YOUR_PACKAGING",
-			"shipper":       map[string]any{"contact": map[string]any{"personName": "Ship Er"}, "address": map[string]any{"postalCode": "98101", "countryCode": "US"}},
+			"serviceType":       "FEDEX_GROUND",
+			"packagingType":     "YOUR_PACKAGING",
+			"totalPackageCount": 1,
+			"shipper": map[string]any{
+				"contact": map[string]any{"personName": "Ship Er", "phoneNumber": "5551112222"},
+				"address": map[string]any{"streetLines": []any{"1 Main St"}, "city": "Seattle", "stateOrProvinceCode": "WA", "postalCode": "98101", "countryCode": "US"},
+			},
 			"recipients": []any{map[string]any{
-				"contact": map[string]any{"personName": "Re Cipient"},
+				"contact": map[string]any{"personName": "Re Cipient", "phoneNumber": "5553334444"},
 				"address": map[string]any{"streetLines": []any{"1 Main St"}, "city": "Portland", "stateOrProvinceCode": "OR", "postalCode": "97201", "countryCode": "US"},
 			}},
 			"requestedPackageLineItems": []any{map[string]any{
+				"sequenceNumber":     1,
 				"weight":             map[string]any{"units": "LB", "value": 2.5},
 				"customerReferences": []any{map[string]any{"customerReferenceType": "CUSTOMER_REFERENCE", "value": ref}},
 			}},
+			"labelSpecification": map[string]any{"imageType": "PDF", "labelStockType": "PAPER_4X6"},
 		},
 	}
 }
@@ -105,7 +112,7 @@ func TestWriteSummaryKeepsPieceNetCharge(t *testing.T) {
 			t.Fatalf("summary %s missing %s", text, want)
 		}
 	}
-	if contains(text, "QUJD") {
+	if contains(text, "JVBERi0xLjcKJSVFT0YK") {
 		t.Fatalf("summary kept encoded label: %s", text)
 	}
 }

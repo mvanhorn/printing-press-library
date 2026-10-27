@@ -53,7 +53,7 @@ func newFakeFedEx(t *testing.T) *fakeFedEx {
 		fake.calls++
 		fake.paths = append(fake.paths, r.Method+" "+r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"output":{"transactionShipments":[]}}`))
+		_, _ = w.Write([]byte(`{"output":{"transactionShipments":[{"masterTrackingNumber":"794600000000","serviceType":"FEDEX_GROUND","pieceResponses":[{"trackingNumber":"794600000000","packageDocuments":[{"contentType":"LABEL","docType":"PDF","encodedLabel":"JVBERi0xLjcKJSVFT0YK"}]}]}]}}`))
 	}))
 	t.Cleanup(api.Close)
 	t.Setenv("HOME", t.TempDir())
@@ -116,8 +116,9 @@ func TestShipmentCreateRunsWithYesAndRefusesDuplicate(t *testing.T) {
 	shipment := []string{
 		"--json", "--yes",
 		"shipments", "create",
-		"--requested-shipment", `{"serviceType":"FEDEX_GROUND"}`,
+		"--label-response-options", "LABEL",
 		"--account-number", `{"value":"123456789"}`,
+		"--requested-shipment", `{"serviceType":"FEDEX_GROUND","packagingType":"YOUR_PACKAGING","totalPackageCount":1,"shipper":{"contact":{"personName":"Ship Er","phoneNumber":"5551112222"},"address":{"streetLines":["1 Main St"],"city":"Seattle","postalCode":"98101","countryCode":"US"}},"recipients":[{"contact":{"personName":"Re Cipient","phoneNumber":"5553334444"},"address":{"streetLines":["1 Main St"],"city":"Portland","postalCode":"97201","countryCode":"US"}}],"requestedPackageLineItems":[{"weight":{"units":"LB","value":1}}],"labelSpecification":{"imageType":"PDF"}}`,
 	}
 	if err := runCLI(t, shipment...); err != nil {
 		t.Fatalf("shipments create --yes: %v", err)

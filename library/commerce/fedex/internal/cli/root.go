@@ -187,6 +187,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newFreightPickupsCmd(flags))
 	rootCmd.AddCommand(newOpenshipCmd(flags))
 	rootCmd.AddCommand(newPickupsCmd(flags))
+	rootCmd.AddCommand(newOperationsCmd(flags))
 	rootCmd.AddCommand(newRatesCmd(flags))
 	rootCmd.AddCommand(newShipmentsCmd(flags))
 	trackCmd := newTrackCmd(flags)

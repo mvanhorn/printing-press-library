@@ -138,6 +138,7 @@ arguments, written to shell history, or serialized in the CLI config.
 				return configErr(err)
 			}
 			expiry := time.Now().Add(time.Duration(tok.ExpiresIn) * time.Second)
+			cfg.BaseURL = base
 			// Running auth login is an explicit request to cache the short-lived
 			// access token; reusable client credentials are never serialized.
 			cfg.CacheAccessToken = true

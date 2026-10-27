@@ -13,6 +13,7 @@ import (
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/mutationguard"
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/workflow"
 )
 
 const allowDuplicateDescription = "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended."
@@ -51,6 +52,17 @@ func registerEndpointTools(s *server.MCPServer) {
 				mcplib.WithIdempotentHintAnnotation(false),
 				mcplib.WithBoolean("allow_duplicate", mcplib.Description(allowDuplicateDescription)),
 			)
+			if ep.ID == "pickups.create" {
+				options = append(options,
+					mcplib.WithObject("availability_request", mcplib.Description("Pickup availability request. Required unless availability_override_reason is set. Not sent to the create endpoint.")),
+					mcplib.WithString("availability_override_reason", mcplib.Description("Why availability preflight is being bypassed. At least 10 characters. Do not combine with availability_request.")),
+				)
+			}
+			if ep.ID == "pickups.cancel" {
+				options = append(options,
+					mcplib.WithString("legacy_reason", mcplib.Description("Required when the pickup confirmation is not in the local ledger. At least 10 characters.")),
+				)
+			}
 		}
 		s.AddTool(mcplib.NewTool(toolNameForEndpoint(ep.ID), options...), makeEndpointHandler(ep))
 	}
@@ -60,9 +72,15 @@ func makeEndpointHandler(ep endpointTool) server.ToolHandlerFunc {
 	readOnly := ep.readOnly()
 	toolName := toolNameForEndpoint(ep.ID)
 	return func(ctx context.Context, request mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-		body, err := requestObject(request.GetArguments(), "request")
+		arguments := request.GetArguments()
+		body, err := requestObject(arguments, "request")
 		if err != nil {
 			return toolJSONError("invalid_request", err.Error()), nil
+		}
+		if readAction, ok := readActionFor(ep); ok {
+			if err := validateNarrowReadRequest(readAction, body); err != nil {
+				return toolJSONError("invalid_request", err.Error()), nil
+			}
 		}
 		fedexClient, err := newMCPClient()
 		if err != nil {
@@ -72,18 +90,29 @@ func makeEndpointHandler(ep endpointTool) server.ToolHandlerFunc {
 			// The MCP client's per-call approval is the human gate for this
 			// tool; the duplicate ledger still guards against replays.
 			fedexClient.WriteApproved = true
-			fedexClient.AllowDuplicate, _ = request.GetArguments()["allow_duplicate"].(bool)
+			fedexClient.AllowDuplicate, _ = arguments["allow_duplicate"].(bool)
 			if err := writePacer.wait(ctx); err != nil {
 				return toolJSONError("canceled", "canceled before the FedEx write was sent"), nil
 			}
 		}
 		fedexClient.Context = ctx
+		if action, ok := workflowActionFor(ep); ok {
+			return handleWorkflowEndpoint(ctx, fedexClient, ep, action, toolName, body, arguments)
+		}
 		data, status, err := executeEndpoint(fedexClient, ep.Method, ep.Path, body)
 		if err != nil {
 			return writeErrorResult(err, status, readOnly), nil
 		}
 		result := map[string]any{"status": "succeeded", "http_status": status}
 		if readOnly {
+			if readAction, ok := readActionFor(ep); ok {
+				minimized, err := minimizeNarrowReadResponse(readAction, data)
+				if err != nil {
+					return toolJSONError("invalid_response", err.Error()), nil
+				}
+				result["data"] = minimized
+				return toolJSON(result), nil
+			}
 			result["data"] = decodeJSON(data)
 			return toolJSON(result), nil
 		}
@@ -95,6 +124,53 @@ func makeEndpointHandler(ep endpointTool) server.ToolHandlerFunc {
 		}
 		return toolJSON(result), nil
 	}
+}
+
+func handleWorkflowEndpoint(ctx context.Context, fedexClient *client.Client, ep endpointTool, action, toolName string, body, arguments map[string]any) (*mcplib.CallToolResult, error) {
+	options := workflow.PersistOptions{OperationID: newWorkflowOperationID()}
+	switch action {
+	case workflow.ActionSchedulePickup:
+		preflight, err := pickupPreflightOptions(fedexClient, body, arguments)
+		if err != nil {
+			class := "pickup_preflight_failed"
+			if strings.HasPrefix(err.Error(), "invalid ") {
+				class = "invalid_request"
+			}
+			return toolJSONError(class, err.Error()), nil
+		}
+		preflight.OperationID = options.OperationID
+		options = preflight
+	case workflow.ActionCancelPickup:
+		legacy, _ := arguments["legacy_reason"].(string)
+		resolved, err := workflow.ResolvePickupCancellation(ctx, body, legacy)
+		if errors.Is(err, workflow.ErrAlreadyCancelled) {
+			receipt, _ := json.Marshal(workflow.PickupReceipt{Status: "already_cancelled", ConfirmationNumber: stringField(body, "pickupConfirmationCode")})
+			return toolJSON(map[string]any{"status": "succeeded", "http_status": 200, "data": decodeJSON(receipt)}), nil
+		}
+		if err != nil {
+			return toolJSONError("pickup_resolution_failed", err.Error()), nil
+		}
+		body = resolved.Body
+	}
+	data, status, err := runMCPWorkflow(ctx, fedexClient, ep, body, options)
+	if err != nil {
+		if class := workflowErrorClass(err); class != "" {
+			return toolJSONError(class, err.Error()), nil
+		}
+		return writeErrorResult(err, status, false), nil
+	}
+	result := map[string]any{"status": "succeeded", "http_status": status, "data": decodeJSON(data)}
+	if toolName == "shipments_create" {
+		// The workflow ledger already stored the operational shipment row and
+		// the private PDF. Do not archive the raw FedEx body a second time.
+		_ = toolName
+	}
+	return toolJSON(result), nil
+}
+
+func stringField(body map[string]any, key string) string {
+	value, _ := body[key].(string)
+	return strings.TrimSpace(value)
 }
 
 func executeEndpoint(fedexClient *client.Client, method, path string, body map[string]any) (json.RawMessage, int, error) {

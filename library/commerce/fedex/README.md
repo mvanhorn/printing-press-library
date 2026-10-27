@@ -7,6 +7,7 @@ FedEx retires its SOAP APIs on June 1, 2026 and every existing wrapper goes dark
 Learn more at [FedEx](https://developer.fedex.com).
 
 Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+Contributors: [@jesseraasch](https://github.com/jesseraasch) (Jesse Raasch).
 
 ## Install
 
@@ -140,6 +141,8 @@ There is no generic endpoint executor, SQL tool, raw CLI passthrough, or tool th
 Commands that change FedEx state (`shipments create/cancel/tag/tag_cancel`, `ship bulk`, `ship etd`, `return create`, `pickups create/cancel`, `freight_pickups create/cancel`, `freight_shipments create`, `endofday close/modify`, `manifest --close`, `openship *` writes, `consolidations *` writes, `track notifications`) only send when you pass `--yes`. `--agent` never implies `--yes`, and a saved profile cannot set it. Use `--dry-run` to preview the request shape first; a dry run needs no approval and sends nothing.
 
 Writes are never retried automatically. If an identical write (same FedEx origin, method, path, and request body) succeeded, is still in flight, or ended with an unknown outcome in the last 24 hours, the CLI refuses it instead of buying a second label or booking a second pickup. Check FedEx (`track number`, `shipments results`) after an unknown outcome; pass `--allow-duplicate` only when a second identical operation is really what you want. The local write ledger stores request digests, never request bodies.
+
+Label create (`shipments create` and the `shipments_create` MCP tool) is limited to one shipper, one recipient, and one PDF package. The CLI writes that PDF under `labels/` in the private data directory and keeps an operational shipment row. Pickup scheduling requires either an availability request that matches the pickup (`--availability-request` / MCP `availability_request`) or an override reason of at least 10 characters. The confirmation, carrier, date, and location are stored locally and reused by pickup cancel; a pickup this CLI did not schedule needs `--legacy-reason`. Ambiguous write failures stay `outcome_unknown` until `operations reconcile` records `not_executed` or `succeeded`. That reconciles the operational ledger only; an identical body is still refused for 24 hours unless you pass `--allow-duplicate`. Access tokens are bound to the sandbox or production origin that minted them.
 
 ## Authentication
 

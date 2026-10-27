@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "fedex-typed-label-workflow",
+  "applied_at": "2026-10-27",
+  "base_run_id": "20260502-152509",
+  "base_printing_press_version": "3.6.0",
+  "summary": "Validate single-package PDF label requests, write one private PDF, and persist a typed shipment receipt instead of the raw Ship response.",
+  "reason": "A successful Ship call can return multiple documents or an unusable label. The CLI must refuse those requests before treating the shipment as created, and must not keep the encoded label in command output.",
+  "files": [
+    "internal/cli/shipments_create.go",
+    "internal/cli/workflow_run.go",
+    "internal/mcp/endpoint_handlers.go",
+    "internal/store/store.go",
+    "internal/workflow/label.go",
+    "internal/workflow/persist.go",
+    "internal/workflow/request.go",
+    "internal/workflow/response.go",
+    "internal/workflow/types.go"
+  ]
+}

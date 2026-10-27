@@ -212,7 +212,9 @@ These capabilities aren't available in any other tool for this API.
 
 - `fedex-pp-cli pickups availability` — Check whether pickup is available for a postal code on a date
 - `fedex-pp-cli pickups cancel` — Cancel a previously-scheduled Express/Ground pickup
-- `fedex-pp-cli pickups create` — Schedule an Express or Ground pickup at a specified address
+- `fedex-pp-cli pickups create` — Schedule an Express or Ground pickup at a specified address. Requires `--availability-request` (JSON matching the pickup) or `--availability-override-reason` (at least 10 characters), plus `--yes`
+- `fedex-pp-cli pickups cancel` — Cancel a pickup. `--pickup-confirmation-code` is required; account, carrier, date, and location are filled from the local ledger, or pass `--legacy-reason` (at least 10 characters) for a pickup this CLI did not schedule
+- `fedex-pp-cli operations reconcile` — After an unknown label or pickup outcome, record `--action create_label|cancel_shipment|schedule_pickup|cancel_pickup --resolution not_executed|succeeded --reason <text>` with `--tracking-number`, `--pickup-confirmation`, or `--operation-id` as appropriate
 
 **postal** — Postal code validation and country servicing
 
@@ -327,6 +329,8 @@ Run `fedex-pp-cli doctor` to verify setup.
 Commands that change FedEx state (`shipments create/cancel/tag/tag_cancel`, `ship bulk`, `ship etd`, `return create`, `pickups create/cancel`, `freight_pickups create/cancel`, `freight_shipments create`, `endofday close/modify`, `manifest --close`, `openship *` writes, `consolidations *` writes, `track notifications`) only send when you pass `--yes`. `--agent` never implies `--yes`, and a saved profile cannot set it. Use `--dry-run` to preview the request shape first; a dry run needs no approval and sends nothing.
 
 Writes are never retried automatically. If an identical write (same FedEx origin, method, path, and request body) succeeded, is still in flight, or ended with an unknown outcome in the last 24 hours, the CLI refuses it instead of buying a second label or booking a second pickup. Check FedEx (`track number`, `shipments results`) after an unknown outcome; pass `--allow-duplicate` only when a second identical operation is really what you want. The local write ledger stores request digests, never request bodies.
+
+`shipments create` accepts one shipper, one recipient, and one PDF label package. A successful create writes that PDF under the private data directory `labels/` and stores an operational shipment row, not the raw FedEx body. `pickups create` checks availability (or records an override) before scheduling and keeps the confirmation, carrier, date, and location in the local ledger. `pickups cancel` reuses those identifiers. Transport errors, HTTP 5xx, oversized bodies, and unusable success payloads are `outcome_unknown`; `operations reconcile` updates that operational row. Cached OAuth tokens are bound to the FedEx origin that minted them (`auth set-token` requires `--env sandbox` or `--env prod`).
 
 ## Agent Mode
 

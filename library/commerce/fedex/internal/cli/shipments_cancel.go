@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/workflow"
 	"github.com/spf13/cobra"
 )
 
@@ -76,7 +77,7 @@ func newShipmentsCancelCmd(flags *rootFlags) *cobra.Command {
 					body["trackingNumber"] = bodyTrackingNumber
 				}
 			}
-			data, statusCode, err := c.Put(path, body)
+			data, statusCode, err := runWorkflowMutation(cmd.Context(), c, "cancel_shipment", "PUT", path, body, workflow.PersistOptions{})
 			if err != nil {
 				return classifyAPIError(err)
 			}

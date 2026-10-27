@@ -123,10 +123,6 @@ func dryRunOK(flags *rootFlags) bool {
 func classifyAPIError(err error) error {
 	msg := err.Error()
 	switch {
-	case strings.Contains(msg, "HTTP 409"):
-		// 409 Conflict = resource already exists. For agents retrying creates, this is success.
-		fmt.Fprintln(os.Stderr, "already exists (no-op)")
-		return nil
 	case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
 		return authErr(fmt.Errorf("%w\nhint: the API rejected the request — this usually means auth is missing or invalid."+
 			"\n      Set your API key: export FEDEX_API_KEY=<your-key>"+

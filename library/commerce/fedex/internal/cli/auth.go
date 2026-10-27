@@ -43,10 +43,10 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			if header == "" {
 				fmt.Fprintln(w, red("Not authenticated"))
 				fmt.Fprintln(w, "")
-				fmt.Fprintln(w, "Set your token:")
-				fmt.Fprintln(w, "  export FEDEX_API_KEY=\"your-token-here\"")
-				fmt.Fprintln(w, "  export FEDEX_SECRET_KEY=\"your-token-here\"")
-				fmt.Fprintf(w, "  fedex-pp-cli auth set-token <token>\n")
+				fmt.Fprintln(w, "Provide your FedEx client credentials through FEDEX_API_KEY and FEDEX_SECRET_KEY, then run:")
+				fmt.Fprintln(w, "  fedex-pp-cli auth login --env sandbox")
+				fmt.Fprintln(w, "Or cache a bounded access token explicitly:")
+				fmt.Fprintln(w, "  fedex-pp-cli auth set-token <token> --expires-in 55m --env sandbox")
 				return authErr(fmt.Errorf("no credentials configured"))
 			}
 
@@ -60,10 +60,11 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 
 func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 	var expiresIn time.Duration
+	var env string
 	cmd := &cobra.Command{
 		Use:     "set-token <token>",
 		Short:   "Save a bounded-lifetime access token to the config file",
-		Example: "  fedex-pp-cli auth set-token <token> --expires-in 55m",
+		Example: "  fedex-pp-cli auth set-token <token> --expires-in 55m --env sandbox",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if expiresIn <= 0 || expiresIn > 24*time.Hour {
@@ -81,6 +82,14 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 			// Silent clear (no log line): a masked-tail variant could leak
 			// token bytes through scripted dogfood that captures stderr.
 			cfg.AuthHeaderVal = ""
+			switch env {
+			case "sandbox":
+				cfg.BaseURL = "https://apis-sandbox.fedex.com"
+			case "prod", "production":
+				cfg.BaseURL = "https://apis.fedex.com"
+			default:
+				return usageErr(fmt.Errorf("--env must be sandbox or prod"))
+			}
 
 			// Supplying a token to this command explicitly opts into caching this
 			// short-lived value. Reusable client credentials are never serialized.
@@ -94,6 +103,8 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().DurationVar(&expiresIn, "expires-in", 0, "Required access-token lifetime (for example 55m; maximum 24h)")
+	cmd.Flags().StringVar(&env, "env", "", "Required token environment: sandbox or prod")
+	_ = cmd.MarkFlagRequired("env")
 	return cmd
 }
 

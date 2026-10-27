@@ -1012,6 +1012,10 @@
             "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
             "type": "boolean"
           },
+          "legacy_reason": {
+            "description": "Required when the pickup confirmation is not in the local ledger. At least 10 characters.",
+            "type": "string"
+          },
           "request": {
             "description": "FedEx REST request body for PUT /pickup/v1/pickups/cancel.",
             "properties": {},
@@ -1038,6 +1042,15 @@
           "allow_duplicate": {
             "description": "Send even if an identical request succeeded, is in flight, or ended with an unknown outcome in the last 24h. Only set this when a second identical operation is really intended.",
             "type": "boolean"
+          },
+          "availability_override_reason": {
+            "description": "Why availability preflight is being bypassed. At least 10 characters. Do not combine with availability_request.",
+            "type": "string"
+          },
+          "availability_request": {
+            "description": "Pickup availability request. Required unless availability_override_reason is set. Not sent to the create endpoint.",
+            "properties": {},
+            "type": "object"
           },
           "request": {
             "description": "FedEx REST request body for POST /pickup/v1/pickups.",

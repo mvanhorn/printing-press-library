@@ -243,13 +243,10 @@ func callTool(t *testing.T, tools map[string]*server.ServerTool, name string, ar
 }
 
 func TestWriteToolRunsInOneCallAndRefusesDuplicate(t *testing.T) {
-	label := strings.Repeat("QkFTRTY0LUxBQkVM", 400)
-	fake := newFakeAPI(t, http.StatusOK, `{"output":{"transactionShipments":[{"masterTrackingNumber":"794600000000","pieceResponses":[{"packageDocuments":[{"encodedLabel":"`+label+`"}]}]}]}}`)
+	label := "JVBERi0xLjcKJSVFT0YK"
+	fake := newFakeAPI(t, http.StatusOK, `{"output":{"transactionShipments":[{"masterTrackingNumber":"794600000000","serviceType":"FEDEX_GROUND","pieceResponses":[{"trackingNumber":"794600000000","packageDocuments":[{"contentType":"LABEL","docType":"PDF","encodedLabel":"`+label+`"}]}]}]}}`)
 	tools := registeredTools(t)
-	request := map[string]any{
-		"accountNumber":     map[string]any{"value": "123456789"},
-		"requestedShipment": map[string]any{"serviceType": "FEDEX_GROUND"},
-	}
+	request := shipRequest("DUPLICATE")
 
 	result, envelope := callTool(t, tools, "shipments_create", map[string]any{"request": request})
 	if result.IsError || envelope["status"] != "succeeded" {
@@ -283,16 +280,29 @@ func TestWriteToolRunsInOneCallAndRefusesDuplicate(t *testing.T) {
 func TestWrite500IsOutcomeUnknownNotRetriedAndBlocksResend(t *testing.T) {
 	fake := newFakeAPI(t, http.StatusInternalServerError, `{"errors":[{"code":"SYSTEM.UNAVAILABLE"}]}`)
 	tools := registeredTools(t)
-	request := map[string]any{"associatedAccountNumber": map[string]any{"value": "123456789"}, "carrierCode": "FDXG", "packageCount": 1}
+	request := map[string]any{
+		"associatedAccountNumber": map[string]any{"value": "123456789"},
+		"originDetail": map[string]any{
+			"readyDateTimestamp": "2026-09-03T14:00:00-05:00",
+			"customerCloseTime":  "18:00:00",
+			"pickupLocation": map[string]any{
+				"contact": map[string]any{"companyName": "Origin LLC", "phoneNumber": "5551112222"},
+				"address": map[string]any{"streetLines": []any{"1 Main St"}, "city": "Chicago", "stateOrProvinceCode": "IL", "postalCode": "60601", "countryCode": "US"},
+			},
+		},
+		"totalWeight":  map[string]any{"units": "LB", "value": 3.5},
+		"packageCount": 1,
+		"carrierCode":  "FDXG",
+	}
 
-	result, envelope := callTool(t, tools, "pickups_create", map[string]any{"request": request})
+	result, envelope := callTool(t, tools, "pickups_create", map[string]any{"request": request, "availability_override_reason": "carrier desk confirmed the window"})
 	if !result.IsError || envelope["error_class"] != "outcome_unknown" {
 		t.Fatalf("pickups_create 500=%v, want outcome_unknown", envelope)
 	}
 	if fake.calls != 1 {
 		t.Fatalf("write was retried: calls=%d", fake.calls)
 	}
-	result, envelope = callTool(t, tools, "pickups_create", map[string]any{"request": request})
+	result, envelope = callTool(t, tools, "pickups_create", map[string]any{"request": request, "availability_override_reason": "carrier desk confirmed the window"})
 	if !result.IsError || envelope["error_class"] != "duplicate_refused" {
 		t.Fatalf("resend after unknown outcome=%v, want duplicate_refused", envelope)
 	}
@@ -313,7 +323,15 @@ func TestUnwiredWriteToolWorks(t *testing.T) {
 func TestReadOnlyToolCallsFedExAndAllowsRepeats(t *testing.T) {
 	fake := newFakeAPI(t, http.StatusOK, `{"output":{"rateReplyDetails":[]}}`)
 	tools := registeredTools(t)
-	args := map[string]any{"request": map[string]any{"accountNumber": map[string]any{"value": "123456789"}}}
+	args := map[string]any{"request": map[string]any{
+		"accountNumber": map[string]any{"value": "123456789"},
+		"requestedShipment": map[string]any{
+			"shipper":                   map[string]any{"address": map[string]any{"postalCode": "60601", "countryCode": "US"}},
+			"recipient":                 map[string]any{"address": map[string]any{"postalCode": "48201", "countryCode": "US"}},
+			"pickupType":                "DROPOFF_AT_FEDEX_LOCATION",
+			"requestedPackageLineItems": []any{map[string]any{"weight": map[string]any{"units": "LB", "value": 1}, "groupPackageCount": 1}},
+		},
+	}}
 	for i := 0; i < 2; i++ {
 		result, envelope := callTool(t, tools, "rates_quote", args)
 		if result.IsError {

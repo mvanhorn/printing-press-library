@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/fedex/internal/workflow"
 	"github.com/spf13/cobra"
 )
 
@@ -77,7 +78,7 @@ func newShipmentsCreateCmd(flags *rootFlags) *cobra.Command {
 					body["oneLabelAtATime"] = bodyOneLabelAtATime
 				}
 			}
-			data, statusCode, err := c.Post(path, body)
+			data, statusCode, err := runWorkflowMutation(cmd.Context(), c, "create_label", "POST", path, body, workflow.PersistOptions{})
 			if err != nil {
 				return classifyAPIError(err)
 			}
