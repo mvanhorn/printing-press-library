@@ -4,12 +4,13 @@
 // asking contributors to edit 233 independent changelogs by hand. Versions use
 // YYYY.M.N, where N is the release count for that CLI within the month.
 //
-// Usage:
+// Usage, from the repository root. Run the package: `go run` on main.go alone
+// does not compile module_dir.go.
 //
-//	go run ./tools/release-ledger/main.go --init-missing
-//	go run ./tools/release-ledger/main.go --changed-from <sha> --changed-to <sha>
-//	go run ./tools/release-ledger/main.go --check --changed-from <sha> --changed-to <sha>
-//	go run ./tools/release-ledger/main.go --list-first-parent --changed-from <sha> --changed-to <sha>
+//	go run -C tools/release-ledger . --init-missing
+//	go run -C tools/release-ledger . --changed-from <sha> --changed-to <sha>
+//	go run -C tools/release-ledger . --check --changed-from <sha> --changed-to <sha>
+//	go run -C tools/release-ledger . --list-first-parent --changed-from <sha> --changed-to <sha>
 package main
 
 import (
@@ -116,7 +117,7 @@ func main() {
 			for _, result := range changed {
 				paths = append(paths, fmt.Sprintf("%s -> %s", result.dir, result.version))
 			}
-			log.Fatalf("release ledger drift detected:\n%s\nRun `go run ./tools/release-ledger/main.go` with the same scope and commit the result.", strings.Join(paths, "\n"))
+			log.Fatalf("release ledger drift detected:\n%s\nRun `go run -C tools/release-ledger .` with the same scope and commit the result.", strings.Join(paths, "\n"))
 		}
 		fmt.Fprintln(os.Stderr, "release ledger is in sync")
 		return

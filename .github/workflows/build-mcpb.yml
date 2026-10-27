@@ -108,13 +108,30 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: ${{ env.BUILD_REF }}
+      - name: Locate module-dir resolver
+        run: |
+          set -euo pipefail
+          # BUILD_REF can be an older ledger commit that predates
+          # resolve-module-dir.sh. This workflow file is the dispatch
+          # revision (GITHUB_SHA, usually main), so load the helper from
+          # there when the tree does not have it. A missing helper fails
+          # the job: the catalog root of library/ai/v0 is not a module.
+          dest="${RUNNER_TEMP}/resolve-module-dir.sh"
+          src="tools/release-ledger/resolve-module-dir.sh"
+          if [ -f "$src" ]; then
+            cp "$src" "$dest"
+          else
+            git fetch --no-tags --depth=1 origin "$GITHUB_SHA"
+            git show "${GITHUB_SHA}:tools/release-ledger/resolve-module-dir.sh" > "$dest"
+          fi
+          echo "RESOLVE_MODULE_DIR_SH=${dest}" >> "$GITHUB_ENV"
       - name: Resolve Go module directory
         id: module
         env:
           CLI_TARGET: ${{ matrix.target }}
         run: |
           set -euo pipefail
-          module_dir="$(bash tools/release-ledger/resolve-module-dir.sh "library/${CLI_TARGET}")"
+          module_dir="$(bash "${RESOLVE_MODULE_DIR_SH:?}" "library/${CLI_TARGET}")"
           # Normal CLIs keep library/<cat>/<slug>/go.sum. A nested module
           # (library/ai/v0/vzero) has the sum next to its go.mod.
           echo "gosum=${module_dir}/go.sum" >> "$GITHUB_OUTPUT"
@@ -198,13 +215,30 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: ${{ env.BUILD_REF }}
+      - name: Locate module-dir resolver
+        run: |
+          set -euo pipefail
+          # BUILD_REF can be an older ledger commit that predates
+          # resolve-module-dir.sh. This workflow file is the dispatch
+          # revision (GITHUB_SHA, usually main), so load the helper from
+          # there when the tree does not have it. A missing helper fails
+          # the job: the catalog root of library/ai/v0 is not a module.
+          dest="${RUNNER_TEMP}/resolve-module-dir.sh"
+          src="tools/release-ledger/resolve-module-dir.sh"
+          if [ -f "$src" ]; then
+            cp "$src" "$dest"
+          else
+            git fetch --no-tags --depth=1 origin "$GITHUB_SHA"
+            git show "${GITHUB_SHA}:tools/release-ledger/resolve-module-dir.sh" > "$dest"
+          fi
+          echo "RESOLVE_MODULE_DIR_SH=${dest}" >> "$GITHUB_ENV"
       - name: Resolve Go module directory
         id: module
         env:
           CLI_TARGET: ${{ matrix.target }}
         run: |
           set -euo pipefail
-          module_dir="$(bash tools/release-ledger/resolve-module-dir.sh "library/${CLI_TARGET}")"
+          module_dir="$(bash "${RESOLVE_MODULE_DIR_SH:?}" "library/${CLI_TARGET}")"
           echo "dir=${module_dir}" >> "$GITHUB_OUTPUT"
           echo "gosum=${module_dir}/go.sum" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-go@v6
@@ -282,6 +316,23 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: ${{ env.BUILD_REF }}
+      - name: Locate module-dir resolver
+        run: |
+          set -euo pipefail
+          # BUILD_REF can be an older ledger commit that predates
+          # resolve-module-dir.sh. This workflow file is the dispatch
+          # revision (GITHUB_SHA, usually main), so load the helper from
+          # there when the tree does not have it. A missing helper fails
+          # the job: the catalog root of library/ai/v0 is not a module.
+          dest="${RUNNER_TEMP}/resolve-module-dir.sh"
+          src="tools/release-ledger/resolve-module-dir.sh"
+          if [ -f "$src" ]; then
+            cp "$src" "$dest"
+          else
+            git fetch --no-tags --depth=1 origin "$GITHUB_SHA"
+            git show "${GITHUB_SHA}:tools/release-ledger/resolve-module-dir.sh" > "$dest"
+          fi
+          echo "RESOLVE_MODULE_DIR_SH=${dest}" >> "$GITHUB_ENV"
       - name: Compute slug
         id: slug
         env:
@@ -359,7 +410,7 @@ jobs:
           # instead of running the binary in a job that holds the release PAT.
           # Same directory the stamper writes, including a nested module such
           # as library/ai/v0/vzero. Either file may be absent.
-          module_dir="$(bash tools/release-ledger/resolve-module-dir.sh "$cli_dir")"
+          module_dir="$(bash "${RESOLVE_MODULE_DIR_SH:?}" "$cli_dir")"
           stamped=$({ cat "${module_dir}/internal/cli/version.go" "${module_dir}/internal/cli/root.go" 2>/dev/null || true; } \
             | sed -nE 's/.*var[[:space:]]+version[[:space:]]*=[[:space:]]*"([^"]*)".*/\1/p' | head -n 1)
           if [ ! -f "$ledger" ] || [ -z "$stamped" ]; then

@@ -66,6 +66,8 @@ def module_rel(root: str) -> str:
 
     Matches tools/release-ledger/resolve-module-dir.sh. A catalog with go.mod
     stays at the root, so normal CLIs keep the direct internal/cli and cmd paths.
+    Empty output is a failure: treating it as the catalog root would skip the
+    nested version files the guard is supposed to see.
     """
     key = str(Path(root).resolve())
     if key in _module_rel_cache:
@@ -81,9 +83,11 @@ def module_rel(root: str) -> str:
         message = result.stderr.strip() or "resolve-module-dir.sh failed"
         raise RuntimeError(f"{root}: {message}")
     resolved = result.stdout.strip()
+    if not resolved:
+        raise RuntimeError(f"{root}: resolve-module-dir.sh printed nothing")
     catalog = str(Path(root))
     rel = ""
-    if resolved and resolved != catalog:
+    if resolved != catalog:
         prefix = catalog.rstrip("/") + "/"
         if not resolved.startswith(prefix):
             raise RuntimeError(f"{root}: module dir {resolved} is outside the catalog root")

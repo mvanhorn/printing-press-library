@@ -1,5 +1,6 @@
 import json
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -252,6 +253,26 @@ class ReleaseLedgerVerifierTest(unittest.TestCase):
         run(["git", "commit", "-m", "docs only"], self.repo)
 
         self.assertEqual(self.verifier().returncode, 0)
+
+    def test_module_rel_rejects_empty_helper_output(self):
+        sys.path.insert(0, str(SCRIPT.parent))
+        import verify_release_ledger as guard
+
+        class Result:
+            returncode = 0
+            stdout = " \n"
+            stderr = ""
+
+        original = guard.subprocess.run
+        guard.subprocess.run = lambda *args, **kwargs: Result()
+        guard._module_rel_cache.clear()
+        try:
+            with self.assertRaises(RuntimeError) as caught:
+                guard.module_rel("library/ai/v0")
+            self.assertIn("printed nothing", str(caught.exception))
+        finally:
+            guard.subprocess.run = original
+            guard._module_rel_cache.clear()
 
 
 if __name__ == "__main__":

@@ -108,6 +108,11 @@ jobs:
           # the --validate flag existed otherwise runs its own stale tool
           # and dies with "flag provided but not defined: -validate"
           # instead of a real validation message (or a pass).
+          #
+          # resolve-module-dir.sh is part of that guard: the release-ledger
+          # verifier shells out to it. Overlay the base copy so a PR cannot
+          # replace the helper, and so a branch from before the helper existed
+          # still has it once the helper is on base.
           for path in \
             .github/scripts/verify-attribution \
             .github/scripts/verify-binary-payload \
@@ -115,7 +120,8 @@ jobs:
             .github/scripts/verify-publish-package \
             .github/scripts/verify-release-ledger \
             tools/generate-registry \
-            tools/generate-skills
+            tools/generate-skills \
+            tools/release-ledger/resolve-module-dir.sh
           do
             if [ "$path" = ".github/scripts/verify-publish-package" ] &&
               ! git diff --quiet "${BASE_REMOTE_REF}...HEAD" -- "$path" ".github/workflows/verify-library-conventions.yml"; then

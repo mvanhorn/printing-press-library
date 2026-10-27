@@ -254,7 +254,7 @@ can do the right thing.
 If the release ledger itself drifts or a historical CLI is missing these files, run the scoped repair from the repo root and commit only the intended release-ledger outputs:
 
 ```bash
-go run ./tools/release-ledger/main.go --init-missing
+go run -C tools/release-ledger . --init-missing
 ```
 
 ## Attribution: creator + contributors
