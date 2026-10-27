@@ -378,7 +378,7 @@ func TestBuildEntryCatalogDisplayNameOverridesPriorAPI(t *testing.T) {
 
 	entry, err := buildEntry(dir, "other", "weather-goat", map[string]RegistryEntry{
 		"weather-goat": {API: "Open-Meteo + NWS"},
-	})
+	}, nil)
 	if err != nil {
 		t.Fatalf("buildEntry: %v", err)
 	}
@@ -502,7 +502,7 @@ func TestBuildEntriesIncludesReleaseMetadataFromReleaseFiles(t *testing.T) {
 	}
 	t.Cleanup(func() { _ = os.Chdir(cwd) })
 
-	generatedEntries, err := buildEntries(libraryDir, loadExistingEntries(registryPath))
+	generatedEntries, err := buildEntries(libraryDir, loadExistingEntries(registryPath), nil)
 	if err != nil {
 		t.Fatalf("build entries: %v", err)
 	}
@@ -572,7 +572,7 @@ func TestBuildEntriesOmitsReleaseForUnreleasedSkeleton(t *testing.T) {
 	writeCLI("ai", "skeleton", `{"display_name":"Skeleton","api_name":"skeleton","description":"Does things."}`,
 		`{"cli_name":"skeleton-pp-cli","version":"","released_at":"","source_commit":""}`)
 
-	entries, err := buildEntries(root, map[string]RegistryEntry{})
+	entries, err := buildEntries(root, map[string]RegistryEntry{}, nil)
 	if err != nil {
 		t.Fatalf("buildEntries: %v", err)
 	}
@@ -614,7 +614,7 @@ func TestBuildEntriesKeepsReleaseForBlankCLINameSkeleton(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	entries, err := buildEntries(root, map[string]RegistryEntry{})
+	entries, err := buildEntries(root, map[string]RegistryEntry{}, nil)
 	if err != nil {
 		t.Fatalf("buildEntries: %v", err)
 	}
@@ -1152,5 +1152,36 @@ func TestReleaseManifestCommitsPicksCommitThatLastWroteEachReleaseFile(t *testin
 	}
 	if commits, err := releaseManifestCommits(shallow, "library"); err != nil || commits != nil {
 		t.Fatalf("shallow clone: commits = %v, err = %v; want no override", commits, err)
+	}
+}
+
+func TestBuildEntriesUsesLedgerCommitAsReleaseSourceCommit(t *testing.T) {
+	root := t.TempDir()
+	dir := filepath.Join(root, "ai", "alpha")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, ".printing-press.json"), []byte(`{"display_name":"Alpha","api_name":"alpha","description":"Does things."}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, ".printing-press-release.json"), []byte(`{"cli_name":"alpha-pp-cli","version":"2026.10.2","released_at":"2026-10-27T00:00:00Z","source_commit":"merge"}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	for _, tc := range []struct {
+		name    string
+		commits map[string]string
+		want    string
+	}{
+		{"ledger commit known", map[string]string{filepath.Join(dir, ".printing-press-release.json"): "ledger"}, "ledger"},
+		{"shallow clone", nil, "merge"},
+	} {
+		entries, err := buildEntries(root, map[string]RegistryEntry{}, tc.commits)
+		if err != nil {
+			t.Fatalf("%s: buildEntries: %v", tc.name, err)
+		}
+		if len(entries) != 1 || entries[0].Release == nil || entries[0].Release.SourceCommit != tc.want {
+			t.Errorf("%s: release = %+v, want source_commit %q", tc.name, entries[0].Release, tc.want)
+		}
 	}
 }

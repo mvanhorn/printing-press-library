@@ -27,12 +27,15 @@ on:
 permissions:
   contents: write
   pull-requests: read
-  actions: write  # dispatch build-mcpb.yml and generate-registry.yml after the ledger commit
 
 jobs:
   update:
     name: Update and commit
     runs-on: ubuntu-latest
+    outputs:
+      targets: ${{ steps.targets.outputs.targets }}
+      ref: ${{ steps.targets.outputs.ref }}
+      pushed: ${{ steps.commit.outputs.pushed }}
     # Keep release-ledger runs serialized because push.sh rebases but cannot
     # recover rebase conflicts or recompute CalVer versions. GitHub permits
     # only one pending run per group: a newer push can evict a pending sibling,
@@ -182,29 +185,69 @@ jobs:
           # Retry the complete fetch/rebase/push sequence.
           bash .github/scripts/push-generated-artifact/push.sh main
           echo "pushed=true" >> "$GITHUB_OUTPUT"
-      # The ledger commit is [skip ci], and builds or registry regens triggered
-      # by the merge commit run before the version is stamped (issue #1908).
-      # Start them from main now that it holds the stamped tree.
-      - name: Rebuild stamped CLIs and regenerate the registry
-        if: steps.commit.outputs.pushed == 'true'
+      - name: Select CLIs to rebuild
+        id: targets
         env:
-          GH_TOKEN: ${{ github.token }}
+          CHANGED_FROM: ${{ steps.meta.outputs.changed_from }}
+          CHANGED_TO: ${{ steps.meta.outputs.changed_to }}
+          PUSHED: ${{ steps.commit.outputs.pushed }}
         run: |
           set -euo pipefail
-          mapfile -t targets < <(
-            git diff-tree --no-commit-id --name-only -r HEAD -- 'library/*/*/.printing-press-release.json' \
-              | awk -F/ '{ print $2 "/" $3 }' \
-              | sort -u \
-              | while IFS= read -r target; do
-                  [ -f "library/${target}/go.mod" ] && printf '%s\n' "$target"
-                done
-          )
-          echo "Stamped CLIs to rebuild: ${#targets[@]}"
-          # build-cli fans each CLI out to 6 platforms and a matrix caps at 256
-          # jobs, so dispatch in batches of 40.
+          # Stamped CLIs plus any whose build inputs changed without a stamp
+          # (the ledger skips deletion-only changes).
+          {
+            if [ "$PUSHED" = "true" ]; then
+              git diff-tree --no-commit-id --name-only -r HEAD -- 'library/*/*/.printing-press-release.json'
+            fi
+            if [ -n "$CHANGED_FROM" ] && [ -n "$CHANGED_TO" ]; then
+              git diff --name-only "$CHANGED_FROM" "$CHANGED_TO" -- \
+                'library/*/*/cmd/*' 'library/*/*/internal/*' 'library/*/*/go.mod' 'library/*/*/go.sum' 'library/*/*/manifest.json'
+            fi
+          } | awk -F/ 'NF >= 3 { print $2 "/" $3 }' | sort -u > "$RUNNER_TEMP/targets"
+          targets=$(while IFS= read -r target; do
+            [ -f "library/${target}/go.mod" ] && printf '%s ' "$target"
+          done < "$RUNNER_TEMP/targets")
+          echo "targets=${targets% }" >> "$GITHUB_OUTPUT"
+          echo "ref=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "CLIs to rebuild at $(git rev-parse HEAD): ${targets:-none}"
+
+  # The ledger commit is [skip ci], and anything triggered by the merge commit
+  # runs before the version is stamped (issue #1908), so build and index from
+  # the ledger commit here. A separate job so "Re-run failed jobs" replays it.
+  dispatch:
+    name: Rebuild CLIs and regenerate the registry
+    needs: update
+    if: needs.update.outputs.targets != '' || needs.update.outputs.pushed == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TARGETS: ${{ needs.update.outputs.targets }}
+          BUILD_REF: ${{ needs.update.outputs.ref }}
+          PUSHED: ${{ needs.update.outputs.pushed }}
+        run: |
+          set -uo pipefail
+          failed=0
+          dispatch() {
+            for attempt in 1 2 3; do
+              gh workflow run "$@" && return 0
+              echo "::warning::gh workflow run $* failed (attempt ${attempt}/3)"
+              sleep $((attempt * 10))
+            done
+            echo "::error::Could not dispatch: gh workflow run $*"
+            failed=1
+          }
+          read -r -a targets <<< "$TARGETS"
+          # Stay under build-mcpb.yml's 42-CLI-per-run limit.
           for ((i = 0; i < ${#targets[@]}; i += 40)); do
             batch="${targets[*]:i:40}"
-            echo "Dispatching build-mcpb.yml for: ${batch}"
-            gh workflow run build-mcpb.yml --ref main -f cli="${batch}"
+            echo "Dispatching build-mcpb.yml at ${BUILD_REF} for: ${batch}"
+            dispatch build-mcpb.yml --ref main -f cli="${batch}" -f ref="${BUILD_REF}"
           done
-          gh workflow run generate-registry.yml --ref main
+          if [ "$PUSHED" = "true" ]; then
+            dispatch generate-registry.yml --ref main
+          fi
+          exit "$failed"

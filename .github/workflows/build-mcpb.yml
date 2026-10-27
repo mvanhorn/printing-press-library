@@ -12,7 +12,6 @@ name: Build CLI release artifacts
 #   - update-cli-release-ledger.yml dispatches this after its ledger commit, for
 #     every CLI it stamped, so binaries report the released version. Building
 #     on the merge-commit push compiled the previous version (issue #1908).
-#   - manual: rebuild one or more CLIs
 #
 # Auth: requires GENERATOR_READ_TOKEN (fine-grained PAT with Contents:read on
 # mvanhorn/cli-printing-press) so the bundle job can `go install` the
@@ -25,9 +24,17 @@ on:
       cli:
         description: 'CLIs to rebuild as space-separated <category>/<slug> (at most 42)'
         required: true
+      ref:
+        description: 'Commit SHA to build (default: the dispatched ref)'
+        required: false
 
 permissions:
   contents: write  # for creating/updating releases
+
+env:
+  # The ledger passes its own commit so a sibling merge landing on main before
+  # this run starts is not built under the previous version.
+  BUILD_REF: ${{ inputs.ref || github.sha }}
 
 jobs:
   detect:
@@ -38,12 +45,18 @@ jobs:
       count: ${{ steps.detect.outputs.count }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.BUILD_REF }}
       - id: detect
         name: Determine affected CLIs
         env:
           INPUT_CLI: ${{ inputs.cli }}
         run: |
           set -euo pipefail
+          if [[ ! "$BUILD_REF" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::ref must be a full commit SHA, got '${BUILD_REF}'."
+            exit 1
+          fi
           read -r -a targets <<< "$INPUT_CLI"
           if [ "${#targets[@]}" -eq 0 ]; then
             echo "::error::No CLI target provided. Specify a target with cli=<category>/<slug>, for example cli=media-and-entertainment/substack."
@@ -93,6 +106,8 @@ jobs:
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.BUILD_REF }}
       - uses: actions/setup-go@v6
         with:
           go-version-file: .go-version
@@ -174,6 +189,8 @@ jobs:
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.BUILD_REF }}
       - uses: actions/setup-go@v6
         with:
           go-version-file: .go-version
@@ -244,6 +261,8 @@ jobs:
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.BUILD_REF }}
       - name: Compute slug
         id: slug
         env:
@@ -298,26 +317,21 @@ jobs:
           set -euo pipefail
           cli_dir="library/${CLI_TARGET}"
           ledger="${cli_dir}/.printing-press-release.json"
-          binary="${RUNNER_TEMP}/dl/${SLUG}-pp-cli-linux-amd64"
-          # Same pattern tools/release-ledger stamps; CLIs without it can't match.
-          # Either file may be absent; `|| true` keeps pipefail from masking a match.
-          if [ ! -f "$ledger" ] || ! { cat "${cli_dir}/internal/cli/version.go" "${cli_dir}/internal/cli/root.go" 2>/dev/null || true; } \
-              | grep -Eq 'var[[:space:]]+version[[:space:]]*=[[:space:]]*"'; then
+          # Read the version the build compiled (same checkout, no -X override)
+          # instead of running the binary in a job that holds the release PAT.
+          # Same pattern tools/release-ledger stamps; either file may be absent.
+          stamped=$({ cat "${cli_dir}/internal/cli/version.go" "${cli_dir}/internal/cli/root.go" 2>/dev/null || true; } \
+            | sed -nE 's/.*var[[:space:]]+version[[:space:]]*=[[:space:]]*"([^"]*)".*/\1/p' | head -n 1)
+          if [ ! -f "$ledger" ] || [ -z "$stamped" ]; then
             echo "::notice::Skipping version check for ${SLUG}: no release ledger or stampable version var."
             exit 0
           fi
-          if [ ! -f "$binary" ]; then
-            echo "::warning::Skipping version check for ${SLUG}: linux/amd64 binary was not built."
-            exit 0
-          fi
           expected=$(jq -er .version "$ledger")
-          chmod +x "$binary"
-          reported=$("$binary" version 2>/dev/null || "$binary" --version 2>&1 || true)
-          if ! grep -qwF -- "$expected" <<< "$reported"; then
-            echo "::error::${SLUG} binary reports '${reported}' but the release ledger says ${expected}. Refusing to publish a mislabeled build."
+          if [ "$stamped" != "$expected" ]; then
+            echo "::error::${SLUG} was built with version ${stamped} but the release ledger says ${expected}. Refusing to publish a mislabeled build."
             exit 1
           fi
-          echo "${SLUG} reports ${expected}, matching the release ledger."
+          echo "${SLUG} was built with ${expected}, matching the release ledger."
       - name: Verify release-write PAT
         env:
           GH_TOKEN: ${{ secrets.RELEASE_WRITE_TOKEN }}
@@ -364,17 +378,17 @@ jobs:
             exit 0
           fi
           # shellcheck disable=SC2016
-          notes=$(printf 'Auto-built artifacts for **%s** at commit %s.\n\n**Claude Desktop:** download the matching `.mcpb` file and double-click to install.\n\n**Terminal CLI:** download the binary matching your platform. On macOS you may need to clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, `chmod +x <binary>`.\n\n**Verify:** `checksums.txt` lists the SHA-256 of every asset on this release. Check the file you downloaded with `grep '"'"' <file>$'"'"' checksums.txt | sha256sum -c` (macOS: `shasum -a 256 -c`).\n\n_This is a moving tag — it always points at the latest build._' "${CLI_TARGET}" "${GITHUB_SHA}")
+          notes=$(printf 'Auto-built artifacts for **%s** at commit %s.\n\n**Claude Desktop:** download the matching `.mcpb` file and double-click to install.\n\n**Terminal CLI:** download the binary matching your platform. On macOS you may need to clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, `chmod +x <binary>`.\n\n**Verify:** `checksums.txt` lists the SHA-256 of every asset on this release. Check the file you downloaded with `grep '"'"' <file>$'"'"' checksums.txt | sha256sum -c` (macOS: `shasum -a 256 -c`).\n\n_This is a moving tag — it always points at the latest build._' "${CLI_TARGET}" "${BUILD_REF}")
           if gh release view "${tag}" >/dev/null 2>&1; then
             echo "Updating existing release ${tag}"
             gh release upload "${tag}" "${RUNNER_TEMP}"/dl/* --clobber
-            gh release edit "${tag}" --notes "${notes}" --target "${GITHUB_SHA}"
+            gh release edit "${tag}" --notes "${notes}" --target "${BUILD_REF}"
           else
             echo "Creating new release ${tag}"
             gh release create "${tag}" "${RUNNER_TEMP}"/dl/* \
               --title "${SLUG} (latest build)" \
               --notes "${notes}" \
-              --target "${GITHUB_SHA}" \
+              --target "${BUILD_REF}" \
               --latest=false
           fi
           python3 .github/scripts/release-checksums/release_checksums.py \
