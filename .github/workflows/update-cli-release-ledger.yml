@@ -292,7 +292,7 @@ jobs:
   dispatch:
     name: Rebuild CLIs and regenerate the registry
     needs: update
-    if: needs.update.outputs.targets != '' || needs.update.outputs.pushed == 'true'
+    if: needs.update.outputs.targets != '' || needs.update.outputs.pushed == 'true' || inputs.restamp != ''
     runs-on: ubuntu-latest
     permissions:
       actions: write
