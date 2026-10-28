@@ -10,6 +10,7 @@
 //	go run ./tools/release-ledger/main.go --changed-from <sha> --changed-to <sha>
 //	go run ./tools/release-ledger/main.go --check --changed-from <sha> --changed-to <sha>
 //	go run ./tools/release-ledger/main.go --list-first-parent --changed-from <sha> --changed-to <sha>
+//	go run ./tools/release-ledger/main.go --restamp [--check] [<category>/<slug> ...]
 //
 // resolveModuleDir is in this file on purpose. `go run` of a single file does
 // not compile its siblings, and the workflow and docs pin that invocation.
@@ -70,6 +71,8 @@ type printingPressManifest struct {
 
 type options struct {
 	initMissing     bool
+	restamp         bool
+	restampKeys     []string
 	check           bool
 	listFirstParent bool
 	changedFrom     string
@@ -103,7 +106,12 @@ func main() {
 		return
 	}
 
-	results, err := run(opts)
+	var results []updateResult
+	if opts.restamp {
+		results, err = restampCLIs(libraryDir, opts.restampKeys, opts.check)
+	} else {
+		results, err = run(opts)
+	}
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -120,9 +128,20 @@ func main() {
 			for _, result := range changed {
 				paths = append(paths, fmt.Sprintf("%s -> %s", result.dir, result.version))
 			}
+			if opts.restamp {
+				log.Fatalf("runtime version drift detected:\n%s\nRun `go run ./tools/release-ledger/main.go --restamp` with the same CLIs and commit the result.", strings.Join(paths, "\n"))
+			}
 			log.Fatalf("release ledger drift detected:\n%s\nRun `go run ./tools/release-ledger/main.go` with the same scope and commit the result.", strings.Join(paths, "\n"))
 		}
+		if opts.restamp {
+			fmt.Fprintln(os.Stderr, "runtime versions match the release ledger")
+			return
+		}
 		fmt.Fprintln(os.Stderr, "release ledger is in sync")
+		return
+	}
+	if opts.restamp {
+		fmt.Fprintf(os.Stderr, "restamped %d CLIs\n", len(changed))
 		return
 	}
 	fmt.Fprintf(os.Stderr, "updated %d CLI release ledger entries\n", len(changed))
@@ -132,6 +151,7 @@ func parseFlags() (options, error) {
 	var opts options
 	var releasedAt string
 	flag.BoolVar(&opts.initMissing, "init-missing", false, "initialize CLIs missing release metadata")
+	flag.BoolVar(&opts.restamp, "restamp", false, "re-stamp runtime version vars from each CLI's existing release ledger without cutting a release; optional arguments name <category>/<slug> CLIs")
 	flag.BoolVar(&opts.check, "check", false, "exit non-zero if the selected release ledger entries would change")
 	flag.BoolVar(&opts.listFirstParent, "list-first-parent", false, "list first-parent commits in the selected range")
 	flag.StringVar(&opts.changedFrom, "changed-from", "", "git ref to diff from when selecting changed CLIs")
@@ -143,6 +163,16 @@ func parseFlags() (options, error) {
 	flag.StringVar(&opts.changeURL, "change-url", "", "pull request URL for the changelog entry")
 	flag.Parse()
 
+	if opts.restamp {
+		if opts.initMissing || opts.listFirstParent || opts.changedFrom != "" || opts.changedTo != "" {
+			return opts, errors.New("--restamp cannot be combined with --init-missing/--list-first-parent/--changed-from/--changed-to")
+		}
+		opts.restampKeys = flag.Args()
+		return opts, nil
+	}
+	if flag.NArg() > 0 {
+		return opts, fmt.Errorf("unexpected arguments %q; only --restamp takes CLI names", flag.Args())
+	}
 	if opts.initMissing && (opts.changedFrom != "" || opts.changedTo != "") {
 		return opts, errors.New("--init-missing cannot be combined with --changed-from/--changed-to")
 	}
@@ -220,6 +250,52 @@ func selectCLIDirs(opts options) ([]string, error) {
 		}
 	}
 	return out, nil
+}
+
+// restampCLIs rewrites runtime version vars to match each CLI's existing
+// release ledger, so a stamping fix reaches CLIs that have not changed since
+// their last release. It never writes the ledger or changelog. keys are
+// "<category>/<slug>", optionally prefixed with "library/"; none means all.
+func restampCLIs(root string, keys []string, check bool) ([]updateResult, error) {
+	dirs, err := listCLIDirs(root)
+	if err != nil {
+		return nil, err
+	}
+	if len(keys) > 0 {
+		byKey := make(map[string]string, len(dirs))
+		for _, dir := range dirs {
+			byKey[cliKeyFromDir(dir)] = dir
+		}
+		var selected []string
+		for _, key := range keys {
+			if strings.HasPrefix(key, "-") {
+				return nil, fmt.Errorf("--restamp: put flags before CLI names, got %q", key)
+			}
+			normalized := strings.Trim(strings.TrimPrefix(filepath.ToSlash(key), libraryDir+"/"), "/")
+			dir, ok := byKey[normalized]
+			if !ok {
+				return nil, fmt.Errorf("--restamp: no published CLI %q", key)
+			}
+			selected = append(selected, dir)
+		}
+		dirs = uniqueStrings(selected)
+	}
+	var results []updateResult
+	for _, dir := range dirs {
+		manifest, err := readReleaseManifest(filepath.Join(dir, releaseManifestName))
+		if err != nil {
+			return results, err
+		}
+		if manifest.Version == "" {
+			continue
+		}
+		changed, err := stampRuntimeVersion(dir, manifest, check)
+		if err != nil {
+			return results, fmt.Errorf("%s: %w", dir, err)
+		}
+		results = append(results, updateResult{dir: dir, version: manifest.Version, changed: changed})
+	}
+	return results, nil
 }
 
 func listCLIDirs(root string) ([]string, error) {

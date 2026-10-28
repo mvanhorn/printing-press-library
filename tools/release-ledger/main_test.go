@@ -683,3 +683,173 @@ func resolveModuleDirShell(t *testing.T, catalog string) (string, error) {
 	}
 	return strings.TrimSpace(string(out)), nil
 }
+
+func writeRestampFixture(t *testing.T, root string) {
+	t.Helper()
+	ledger := func(version string) string {
+		return `{"schema_version": 1, "version": "` + version + `", "released_at": "2026-09-11T09:22:21Z", "source_commit": "81f5764eda401077520268afe74913c0f21f5b7e"}` + "\n"
+	}
+	// ai/v0: nested module, stale stamps.
+	writeFile(t, root, "library/ai/v0/.printing-press.json", "{}\n")
+	writeFile(t, root, "library/ai/v0/.printing-press-release.json", ledger("2026.9.1"))
+	writeFile(t, root, "library/ai/v0/CHANGELOG.md", "# Changelog\n\n## 2026.9.1 - 2026-09-11\n\n- fix.\n")
+	writeFile(t, root, "library/ai/v0/.goreleaser.yaml", "builds:\n  - dir: ./vzero\n")
+	writeFile(t, root, "library/ai/v0/vzero/go.mod", "module example.com/vzero\n")
+	writeFile(t, root, "library/ai/v0/vzero/internal/cli/version.go", "package cli\n\nvar version = \"2026.8.1\"\n")
+	writeFile(t, root, "library/ai/v0/vzero/cmd/v0-pp-mcp/main.go", "package main\n\nvar version = \"2026.8.1\"\n")
+	// health/grants: root module with commit/date vars, stale stamps.
+	writeFile(t, root, "library/health/grants/.printing-press.json", "{}\n")
+	writeFile(t, root, "library/health/grants/.printing-press-release.json", ledger("2026.10.2"))
+	writeFile(t, root, "library/health/grants/go.mod", "module example.com/grants\n")
+	writeFile(t, root, "library/health/grants/internal/cli/root.go", "package cli\n\nvar version = \"2026.10.1\"\nvar commit = \"old\"\nvar date = \"old\"\n")
+	// payments/kalshi: already in sync.
+	writeFile(t, root, "library/payments/kalshi/.printing-press.json", "{}\n")
+	writeFile(t, root, "library/payments/kalshi/.printing-press-release.json", ledger("2026.10.1"))
+	writeFile(t, root, "library/payments/kalshi/go.mod", "module example.com/kalshi\n")
+	writeFile(t, root, "library/payments/kalshi/internal/cli/root.go", "package cli\n\nvar version = \"2026.10.1\"\n")
+	// media/plain: released, but nothing to stamp.
+	writeFile(t, root, "library/media/plain/.printing-press.json", "{}\n")
+	writeFile(t, root, "library/media/plain/.printing-press-release.json", ledger("2026.10.1"))
+	writeFile(t, root, "library/media/plain/go.mod", "module example.com/plain\n")
+	writeFile(t, root, "library/media/plain/internal/cli/root.go", "package cli\n\nconst name = \"plain\"\n")
+	// media/fresh: unreleased skeleton and media/none: no ledger.
+	writeFile(t, root, "library/media/fresh/.printing-press.json", "{}\n")
+	writeFile(t, root, "library/media/fresh/.printing-press-release.json", ledger(""))
+	writeFile(t, root, "library/media/fresh/internal/cli/root.go", "package cli\n\nvar version = \"0.0.0\"\n")
+	writeFile(t, root, "library/media/none/.printing-press.json", "{}\n")
+	writeFile(t, root, "library/media/none/internal/cli/root.go", "package cli\n\nvar version = \"0.0.0\"\n")
+}
+
+func changedKeys(results []updateResult) []string {
+	var keys []string
+	for _, result := range results {
+		if result.changed {
+			keys = append(keys, cliKeyFromDir(result.dir))
+		}
+	}
+	return keys
+}
+
+func TestRestampSyncsRuntimeVersionsWithoutCuttingARelease(t *testing.T) {
+	root := t.TempDir()
+	writeRestampFixture(t, root)
+	library := filepath.Join(root, "library")
+	ledgerBefore := readFile(t, root, "library/ai/v0/.printing-press-release.json")
+	changelogBefore := readFile(t, root, "library/ai/v0/CHANGELOG.md")
+
+	results, err := restampCLIs(library, nil, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := strings.Join(changedKeys(results), " "), "ai/v0 health/grants"; got != want {
+		t.Fatalf("changed CLIs = %q, want %q", got, want)
+	}
+	for _, rel := range []string{"library/ai/v0/vzero/internal/cli/version.go", "library/ai/v0/vzero/cmd/v0-pp-mcp/main.go"} {
+		if got := readFile(t, root, rel); !strings.Contains(got, `var version = "2026.9.1"`) {
+			t.Fatalf("%s was not restamped:\n%s", rel, got)
+		}
+	}
+	grants := readFile(t, root, "library/health/grants/internal/cli/root.go")
+	for _, want := range []string{
+		`var version = "2026.10.2"`,
+		`var commit = "81f5764eda401077520268afe74913c0f21f5b7e"`,
+		`var date = "2026-09-11T09:22:21Z"`,
+	} {
+		if !strings.Contains(grants, want) {
+			t.Fatalf("grants root.go missing %q:\n%s", want, grants)
+		}
+	}
+	for _, rel := range []string{"library/media/fresh/internal/cli/root.go", "library/media/none/internal/cli/root.go"} {
+		if got := readFile(t, root, rel); !strings.Contains(got, `var version = "0.0.0"`) {
+			t.Fatalf("%s has no release and must not be stamped:\n%s", rel, got)
+		}
+	}
+	if got := readFile(t, root, "library/ai/v0/.printing-press-release.json"); got != ledgerBefore {
+		t.Fatalf("restamp rewrote the release ledger:\n%s", got)
+	}
+	if got := readFile(t, root, "library/ai/v0/CHANGELOG.md"); got != changelogBefore {
+		t.Fatalf("restamp rewrote the changelog:\n%s", got)
+	}
+
+	again, err := restampCLIs(library, nil, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if keys := changedKeys(again); len(keys) != 0 {
+		t.Fatalf("second restamp changed %v, want no-op", keys)
+	}
+}
+
+func TestRestampNamedCLIsAndCheckMode(t *testing.T) {
+	root := t.TempDir()
+	writeRestampFixture(t, root)
+	library := filepath.Join(root, "library")
+
+	results, err := restampCLIs(library, []string{"library/ai/v0", "payments/kalshi", "media/plain"}, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := strings.Join(changedKeys(results), " "); got != "ai/v0" {
+		t.Fatalf("check-mode drift = %q, want only ai/v0", got)
+	}
+	if got := readFile(t, root, "library/ai/v0/vzero/internal/cli/version.go"); !strings.Contains(got, `"2026.8.1"`) {
+		t.Fatalf("check mode wrote version.go:\n%s", got)
+	}
+	if got := readFile(t, root, "library/health/grants/internal/cli/root.go"); !strings.Contains(got, `"2026.10.1"`) {
+		t.Fatalf("unnamed CLI was touched:\n%s", got)
+	}
+
+	if _, err := restampCLIs(library, []string{"ai/missing"}, false); err == nil {
+		t.Fatal("expected an unknown CLI to fail")
+	}
+}
+
+func TestChangedCLIKeysIgnoresNestedModuleStampOnlyChanges(t *testing.T) {
+	repo := t.TempDir()
+	runGit(t, repo, "init")
+	runGit(t, repo, "config", "user.name", "Test")
+	runGit(t, repo, "config", "user.email", "test@example.com")
+
+	stamp := func(version string) string {
+		return "package main\n\nvar version = \"" + version + "\"\nvar commit = \"" + version + "-sha\"\nvar date = \"" + version + "-date\"\n\nfunc main() {}\n"
+	}
+	writeFile(t, repo, "library/ai/v0/.printing-press.json", "{}\n")
+	writeFile(t, repo, "library/ai/v0/vzero/internal/cli/version.go", "package cli\n\nvar version = \"2026.8.1\"\n")
+	writeFile(t, repo, "library/ai/v0/vzero/cmd/v0-pp-mcp/main.go", stamp("2026.8.1"))
+	writeFile(t, repo, "library/ai/v1/.printing-press.json", "{}\n")
+	writeFile(t, repo, "library/ai/v1/vone/cmd/v1-pp-mcp/main.go", stamp("2026.8.1"))
+	runGit(t, repo, "add", ".")
+	runGit(t, repo, "commit", "-m", "initial")
+	base := gitOutputIn(t, repo, "rev-parse", "HEAD")
+
+	writeFile(t, repo, "library/ai/v0/vzero/internal/cli/version.go", "package cli\n\nvar version = \"2026.9.1\"\n")
+	writeFile(t, repo, "library/ai/v0/vzero/cmd/v0-pp-mcp/main.go", stamp("2026.9.1"))
+	writeFile(t, repo, "library/ai/v1/vone/cmd/v1-pp-mcp/main.go", stamp("2026.9.1")+"\nfunc extra() {}\n")
+	runGit(t, repo, "add", ".")
+	runGit(t, repo, "commit", "-m", "chore(releases): restamp CLI runtime versions")
+	head := gitOutputIn(t, repo, "rev-parse", "HEAD")
+
+	oldWD, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chdir(repo); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		if err := os.Chdir(oldWD); err != nil {
+			t.Fatalf("restore wd: %v", err)
+		}
+	})
+
+	got, err := changedCLIKeys(base, head)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got["ai/v0"] {
+		t.Fatalf("nested stamp-only change must not cut a release: %#v", got)
+	}
+	if !got["ai/v1"] {
+		t.Fatalf("nested MCP main with a real edit must select ai/v1: %#v", got)
+	}
+}
