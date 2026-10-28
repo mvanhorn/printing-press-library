@@ -147,7 +147,6 @@ jobs:
           fi
           # Normal CLIs keep library/<cat>/<slug>/go.sum. A nested module
           # (library/ai/v0/vzero) has the sum next to its go.mod.
-          echo "dir=${module_dir}" >> "$GITHUB_OUTPUT"
           echo "gosum=${module_dir}/go.sum" >> "$GITHUB_OUTPUT"
           echo "dir=${module_dir}" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-go@v6
@@ -192,12 +191,6 @@ jobs:
           echo "PLATFORM_TAG=${os}-${arch}" >> "$GITHUB_ENV"
           if [ ! -f "${cli_dir}/manifest.json" ]; then
             echo "::warning::${cli_dir} has no manifest.json — skipping bundle (likely pre-v3.0.0; needs regen via printing-press-publish)."
-            exit 0
-          fi
-          # cli-printing-press bundle builds from cli_dir, so it can't build a
-          # nested module (library/ai/v0/vzero) until cli-printing-press#5273 ships.
-          if [ "$MODULE_DIR" != "$cli_dir" ]; then
-            echo "::warning::${cli_dir} builds from nested module ${MODULE_DIR}; skipping bundle until cli-printing-press#5273 ships."
             exit 0
           fi
           out="${RUNNER_TEMP}/out/${slug}-pp-mcp-${os}-${arch}.mcpb"
