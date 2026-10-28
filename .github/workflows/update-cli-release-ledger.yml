@@ -24,6 +24,9 @@ on:
       changed_to:
         description: 'Head ref/sha to diff to'
         required: false
+      restamp:
+        description: 'Re-stamp runtime versions from the existing release ledger without cutting a release: space-separated <category>/<slug> list, or all'
+        required: false
 
 permissions:
   contents: write
@@ -60,6 +63,7 @@ jobs:
         run: echo "GOTOOLCHAIN=local" >> "$GITHUB_ENV"
       - name: Resolve release metadata
         id: meta
+        if: inputs.restamp == ''
         env:
           GH_TOKEN: ${{ github.token }}
           EVENT_SHA: ${{ github.sha }}
@@ -123,6 +127,7 @@ jobs:
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
       - name: Run release-ledger
+        if: inputs.restamp == ''
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_COMMITS: ${{ steps.meta.outputs.commits }}
@@ -168,8 +173,45 @@ jobs:
             fi
             go run ./tools/release-ledger/main.go "${args[@]}"
           done <<< "$RELEASE_COMMITS"
+      # Re-applies each CLI's existing ledger version to its runtime version
+      # vars, for stamping fixes that should reach CLIs with no new change.
+      # It cuts no release, and its commit carries no Processed through:
+      # marker, so the meta step's low-water-mark search skips it.
+      - name: Restamp runtime versions
+        id: restamp
+        if: inputs.restamp != ''
+        env:
+          RESTAMP: ${{ inputs.restamp }}
+          MANUAL_CHANGED_FROM: ${{ inputs.changed_from }}
+          MANUAL_CHANGED_TO: ${{ inputs.changed_to }}
+        run: |
+          set -euo pipefail
+          if [ -n "${MANUAL_CHANGED_FROM}${MANUAL_CHANGED_TO}" ]; then
+            echo "::error::restamp cannot be combined with changed_from/changed_to."
+            exit 1
+          fi
+          read -r -a requested <<< "$RESTAMP"
+          if [ "${#requested[@]}" -eq 0 ]; then
+            echo "::error::restamp needs <category>/<slug> names or all."
+            exit 1
+          fi
+          named=()
+          if [ "${requested[*]}" != "all" ]; then
+            for key in "${requested[@]}"; do
+              if [[ ! "$key" =~ ^[a-z0-9][a-z0-9._-]*/[a-z0-9][a-z0-9._-]*$ ]]; then
+                echo "::error::restamp entry '${key}' is not <category>/<slug>."
+                exit 1
+              fi
+              named+=("$key")
+            done
+          fi
+          go run ./tools/release-ledger/main.go --restamp "${named[@]}"
+          echo "named=${named[*]}" >> "$GITHUB_OUTPUT"
       - name: Commit if changed
         id: commit
+        env:
+          RESTAMP: ${{ inputs.restamp }}
+          PROCESSED_THROUGH: ${{ steps.meta.outputs.changed_to }}
         run: |
           set -euo pipefail
           if git diff --quiet -- library; then
@@ -179,9 +221,17 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add library
-          git commit \
-            -m "chore(releases): update CLI release ledger [skip ci]" \
-            -m "Processed through: ${{ steps.meta.outputs.changed_to }}"
+          if [ -n "$RESTAMP" ]; then
+            # generate-registry matches this subject (restampSubject) to pin
+            # release.source_commit; keep the two in sync.
+            git commit \
+              -m "chore(releases): restamp CLI runtime versions [skip ci]" \
+              -m "Runtime versions re-synced to existing release ledgers for: ${RESTAMP}"
+          else
+            git commit \
+              -m "chore(releases): update CLI release ledger [skip ci]" \
+              -m "Processed through: ${PROCESSED_THROUGH}"
+          fi
           # A sibling writer can land after a rebase but before the push.
           # Retry the complete fetch/rebase/push sequence.
           bash .github/scripts/push-generated-artifact/push.sh main
@@ -189,20 +239,37 @@ jobs:
       - name: Select CLIs to rebuild
         id: targets
         env:
-          CHANGED_FROM: ${{ steps.meta.outputs.changed_from }}
-          CHANGED_TO: ${{ steps.meta.outputs.changed_to }}
+          RESTAMP: ${{ inputs.restamp }}
+          RESTAMP_NAMED: ${{ steps.restamp.outputs.named }}
+          RELEASE_COMMITS: ${{ steps.meta.outputs.commits }}
           PUSHED: ${{ steps.commit.outputs.pushed }}
         run: |
           set -euo pipefail
-          # Stamped CLIs plus any whose build inputs changed without a stamp
-          # (the ledger skips deletion-only changes).
           {
-            if [ "$PUSHED" = "true" ]; then
-              git diff-tree --no-commit-id --name-only -r HEAD -- 'library/*/*/.printing-press-release.json'
-            fi
-            if [ -n "$CHANGED_FROM" ] && [ -n "$CHANGED_TO" ]; then
-              git diff --name-only "$CHANGED_FROM" "$CHANGED_TO" -- \
-                'library/*/*/cmd/*' 'library/*/*/internal/*' 'library/*/*/go.mod' 'library/*/*/go.sum' 'library/*/*/manifest.json'
+            if [ -n "$RESTAMP" ]; then
+              # Named CLIs rebuild even when already in sync, to republish
+              # stale -current binaries. "all" rebuilds only what changed.
+              if [ -n "$RESTAMP_NAMED" ]; then
+                read -r -a named <<< "$RESTAMP_NAMED"
+                printf 'library/%s\n' "${named[@]}"
+              elif [ "$PUSHED" = "true" ]; then
+                git diff-tree --no-commit-id --name-only -r HEAD -- library
+              fi
+            else
+              # Stamped CLIs plus any whose build inputs changed without a
+              # stamp (the ledger skips deletion-only changes). Restamp
+              # commits were already rebuilt by their own run.
+              if [ "$PUSHED" = "true" ]; then
+                git diff-tree --no-commit-id --name-only -r HEAD -- 'library/*/*/.printing-press-release.json'
+              fi
+              while IFS= read -r commit; do
+                [ -z "$commit" ] && continue
+                case "$(git log -1 --format=%s "$commit")" in
+                  'chore(releases): restamp CLI runtime versions'*) continue ;;
+                esac
+                git diff --name-only "$commit^" "$commit" -- \
+                  'library/*/*/cmd/*' 'library/*/*/internal/*' 'library/*/*/go.mod' 'library/*/*/go.sum' 'library/*/*/manifest.json'
+              done <<< "$RELEASE_COMMITS"
             fi
           } | awk -F/ 'NF >= 3 { print $2 "/" $3 }' | sort -u > "$RUNNER_TEMP/targets"
           targets=$(while IFS= read -r target; do

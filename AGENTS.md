@@ -258,6 +258,8 @@ If the release ledger itself drifts or a historical CLI is missing these files, 
 go run ./tools/release-ledger/main.go --init-missing
 ```
 
+Runtime versions are stamped only when a CLI's release is cut, so a fix to stamping (for example nested-module support) does not reach CLIs that have not changed since. When a compiled `var version` disagrees with its `.printing-press-release.json` and build-mcpb.yml refuses the rebuild, restamp instead of cutting a release: dispatch `update-cli-release-ledger.yml` with `restamp` set to a space-separated `<category>/<slug>` list (or `all`). It runs `go run ./tools/release-ledger/main.go --restamp <cli>...`, which rewrites only the runtime version vars from the existing ledger, commits to main, rebuilds the named CLIs at that commit, and regenerates the registry. `--restamp --check` lists drifted CLIs locally. A newer push can evict a pending dispatched run from the shared concurrency group; if the restamp run shows as cancelled, dispatch it again.
+
 ## Attribution: creator + contributors
 
 A printed CLI's attribution is a single permanent **`creator`** plus a multi-valued **`contributors[]`** in `.printing-press.json`, each a `{handle, name}` object — `handle` is the slug-safe GitHub `@handle` (drives the copyright header and byline links), `name` is the prose display name (drives the README byline parenthetical, NOTICE, and SKILL `author:`). This replaces the legacy `owner`/`owner_name`/`printer`/`printer_name` fields, which are still **dual-written** (derived from `creator`) during a transition window so older tooling keeps working. The registry generator emits both shapes.
