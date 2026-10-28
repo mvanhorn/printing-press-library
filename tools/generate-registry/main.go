@@ -505,10 +505,15 @@ func isUnreleasedSkeleton(r *Release) bool {
 		strings.TrimSpace(r.SourceCommit) == ""
 }
 
+// restampSubject starts the subject of the restamp commit made by
+// update-cli-release-ledger.yml. Keep the two in sync.
+const restampSubject = "chore(releases): restamp CLI runtime versions"
+
 // releaseManifestCommits maps each ledger file to the commit that last wrote
 // it. The ledger records the merge commit as source_commit but stamps the
 // runtime version in its own later commit, and only that later commit builds a
-// binary reporting the released version (issue #1908).
+// binary reporting the released version (issue #1908). A later restamp commit
+// re-stamps the runtime version without writing the ledger, so it wins too.
 func releaseManifestCommits(repoRoot, library string) (map[string]string, error) {
 	shallow, err := exec.Command("git", "-C", repoRoot, "rev-parse", "--is-shallow-repository").Output()
 	if err != nil {
@@ -517,19 +522,34 @@ func releaseManifestCommits(repoRoot, library string) (map[string]string, error)
 	if strings.TrimSpace(string(shallow)) == "true" {
 		return nil, nil
 	}
-	out, err := exec.Command("git", "-C", repoRoot, "log", "--format=%x00%H", "--name-only", "--",
-		library+"/*/*/.printing-press-release.json").Output()
+	out, err := exec.Command("git", "-C", repoRoot, "log", "--format=%x00%H%x09%s", "--name-only", "--",
+		library+"/*/*/.printing-press-release.json",
+		library+"/*/internal/cli/version.go",
+		library+"/*/internal/cli/root.go",
+		library+"/*/cmd/*-pp-mcp/main.go").Output()
 	if err != nil {
 		return nil, fmt.Errorf("git log: %w", err)
 	}
 	commits := map[string]string{}
 	var current string
+	var restamp bool
 	for _, line := range strings.Split(string(out), "\n") {
 		switch {
 		case strings.HasPrefix(line, "\x00"):
-			current = strings.TrimPrefix(line, "\x00")
-		case line != "":
+			hash, subject, _ := strings.Cut(strings.TrimPrefix(line, "\x00"), "\t")
+			current, restamp = hash, strings.HasPrefix(subject, restampSubject)
+		case line == "":
+		case strings.HasSuffix(line, "/.printing-press-release.json"):
 			path := filepath.FromSlash(line)
+			if _, seen := commits[path]; !seen {
+				commits[path] = current
+			}
+		case restamp:
+			parts := strings.SplitN(line, "/", 4)
+			if len(parts) < 4 {
+				continue
+			}
+			path := filepath.Join(parts[0], parts[1], parts[2], ".printing-press-release.json")
 			if _, seen := commits[path]; !seen {
 				commits[path] = current
 			}

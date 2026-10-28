@@ -1230,6 +1230,79 @@ func TestReleaseManifestCommitsPicksCommitThatLastWroteEachReleaseFile(t *testin
 	}
 }
 
+// A restamp commit moves a CLI's runtime version without writing its ledger,
+// so it must become that CLI's source commit until the next ledger commit.
+func TestReleaseManifestCommitsPicksRestampCommits(t *testing.T) {
+	repo := t.TempDir()
+	git := func(args ...string) string {
+		t.Helper()
+		cmd := exec.Command("git", append([]string{"-C", repo}, args...)...)
+		cmd.Env = append(os.Environ(), "GIT_AUTHOR_NAME=t", "GIT_AUTHOR_EMAIL=t@t", "GIT_COMMITTER_NAME=t", "GIT_COMMITTER_EMAIL=t@t")
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			t.Fatalf("git %v: %v\n%s", args, err, out)
+		}
+		return strings.TrimSpace(string(out))
+	}
+	write := func(rel, body string) {
+		t.Helper()
+		path := filepath.Join(repo, rel)
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	git("init", "-q", "-b", "main")
+	for _, slug := range []string{"nested", "root", "later", "edited"} {
+		write("library/cat/"+slug+"/.printing-press-release.json", `{"version":"2026.9.1"}`)
+	}
+	write("library/cat/nested/vzero/internal/cli/version.go", `var version = "2026.8.1"`)
+	write("library/cat/nested/vzero/cmd/nested-pp-mcp/main.go", `var version = "2026.8.1"`)
+	write("library/cat/root/internal/cli/root.go", `var version = "2026.8.1"`)
+	write("library/cat/later/internal/cli/root.go", `var version = "2026.8.1"`)
+	write("library/cat/edited/internal/cli/root.go", `var version = "2026.9.1"`)
+	git("add", ".")
+	git("commit", "-q", "-m", "chore(releases): update CLI release ledger [skip ci]")
+	ledger := git("rev-parse", "HEAD")
+
+	write("library/cat/nested/vzero/internal/cli/version.go", `var version = "2026.9.1"`)
+	write("library/cat/nested/vzero/cmd/nested-pp-mcp/main.go", `var version = "2026.9.1"`)
+	write("library/cat/root/internal/cli/root.go", `var version = "2026.9.1"`)
+	write("library/cat/later/internal/cli/root.go", `var version = "2026.9.1"`)
+	git("commit", "-q", "-am", "chore(releases): restamp CLI runtime versions [skip ci]")
+	restamp := git("rev-parse", "HEAD")
+
+	write("library/cat/later/.printing-press-release.json", `{"version":"2026.10.1"}`)
+	write("library/cat/later/internal/cli/root.go", `var version = "2026.10.1"`)
+	git("commit", "-q", "-am", "chore(releases): update CLI release ledger [skip ci]")
+	laterLedger := git("rev-parse", "HEAD")
+
+	write("library/cat/edited/internal/cli/root.go", `var version = "2026.9.1" // edited`)
+	git("commit", "-q", "-am", "fix(cli): edit root.go")
+
+	commits, err := releaseManifestCommits(repo, "library")
+	if err != nil {
+		t.Fatalf("releaseManifestCommits: %v", err)
+	}
+	want := map[string]string{
+		filepath.Join("library", "cat", "nested", ".printing-press-release.json"): restamp,
+		filepath.Join("library", "cat", "root", ".printing-press-release.json"):   restamp,
+		filepath.Join("library", "cat", "later", ".printing-press-release.json"):  laterLedger,
+		filepath.Join("library", "cat", "edited", ".printing-press-release.json"): ledger,
+	}
+	if len(commits) != len(want) {
+		t.Fatalf("commits = %v, want %v", commits, want)
+	}
+	for path, sha := range want {
+		if commits[path] != sha {
+			t.Errorf("commits[%s] = %q, want %q", path, commits[path], sha)
+		}
+	}
+}
+
 func TestBuildEntriesUsesLedgerCommitAsReleaseSourceCommit(t *testing.T) {
 	root := t.TempDir()
 	dir := filepath.Join(root, "ai", "alpha")
