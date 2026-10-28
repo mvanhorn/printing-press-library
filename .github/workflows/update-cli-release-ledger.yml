@@ -50,6 +50,10 @@ jobs:
     concurrency:
       group: update-cli-release-ledger-main
       cancel-in-progress: false
+    env:
+      # generate-registry matches this exact subject (restampSubject) to pin
+      # release.source_commit; its tests fail if the two drift.
+      RESTAMP_SUBJECT: 'chore(releases): restamp CLI runtime versions [skip ci]'
     steps:
       - uses: actions/checkout@v6
         with:
@@ -222,10 +226,8 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add library
           if [ -n "$RESTAMP" ]; then
-            # generate-registry matches this subject (restampSubject) to pin
-            # release.source_commit; keep the two in sync.
             git commit \
-              -m "chore(releases): restamp CLI runtime versions [skip ci]" \
+              -m "$RESTAMP_SUBJECT" \
               -m "Runtime versions re-synced to existing release ledgers for: ${RESTAMP}"
           else
             git commit \
@@ -265,7 +267,7 @@ jobs:
               while IFS= read -r commit; do
                 [ -z "$commit" ] && continue
                 case "$(git log -1 --format=%s "$commit")" in
-                  'chore(releases): restamp CLI runtime versions'*) continue ;;
+                  "$RESTAMP_SUBJECT") continue ;;
                 esac
                 git diff --name-only "$commit^" "$commit" -- \
                   'library/*/*/cmd/*' 'library/*/*/internal/*' 'library/*/*/go.mod' 'library/*/*/go.sum' 'library/*/*/manifest.json'
@@ -301,6 +303,7 @@ jobs:
           TARGETS: ${{ needs.update.outputs.targets }}
           BUILD_REF: ${{ needs.update.outputs.ref }}
           PUSHED: ${{ needs.update.outputs.pushed }}
+          RESTAMP: ${{ inputs.restamp }}
         run: |
           set -uo pipefail
           failed=0
@@ -320,7 +323,9 @@ jobs:
             echo "Dispatching build-mcpb.yml at ${BUILD_REF} for: ${batch}"
             dispatch build-mcpb.yml --ref main -f cli="${batch}" -f ref="${BUILD_REF}"
           done
-          if [ "$PUSHED" = "true" ]; then
+          # A restamp re-run after its commit already landed pushes nothing,
+          # but the registry may still pin the pre-restamp commit.
+          if [ "$PUSHED" = "true" ] || [ -n "$RESTAMP" ]; then
             dispatch generate-registry.yml --ref main
           fi
           exit "$failed"

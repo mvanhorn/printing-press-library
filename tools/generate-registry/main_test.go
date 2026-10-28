@@ -1256,7 +1256,7 @@ func TestReleaseManifestCommitsPicksRestampCommits(t *testing.T) {
 	}
 
 	git("init", "-q", "-b", "main")
-	for _, slug := range []string{"nested", "root", "later", "edited"} {
+	for _, slug := range []string{"nested", "root", "later", "edited", "near"} {
 		write("library/cat/"+slug+"/.printing-press-release.json", `{"version":"2026.9.1"}`)
 	}
 	write("library/cat/nested/vzero/internal/cli/version.go", `var version = "2026.8.1"`)
@@ -1264,6 +1264,7 @@ func TestReleaseManifestCommitsPicksRestampCommits(t *testing.T) {
 	write("library/cat/root/internal/cli/root.go", `var version = "2026.8.1"`)
 	write("library/cat/later/internal/cli/root.go", `var version = "2026.8.1"`)
 	write("library/cat/edited/internal/cli/root.go", `var version = "2026.9.1"`)
+	write("library/cat/near/internal/cli/root.go", `var version = "2026.8.1"`)
 	git("add", ".")
 	git("commit", "-q", "-m", "chore(releases): update CLI release ledger [skip ci]")
 	ledger := git("rev-parse", "HEAD")
@@ -1283,6 +1284,9 @@ func TestReleaseManifestCommitsPicksRestampCommits(t *testing.T) {
 	write("library/cat/edited/internal/cli/root.go", `var version = "2026.9.1" // edited`)
 	git("commit", "-q", "-am", "fix(cli): edit root.go")
 
+	write("library/cat/near/internal/cli/root.go", `var version = "2026.9.1"`)
+	git("commit", "-q", "-am", "chore(releases): restamp CLI runtime versions (#5)")
+
 	commits, err := releaseManifestCommits(repo, "library")
 	if err != nil {
 		t.Fatalf("releaseManifestCommits: %v", err)
@@ -1292,6 +1296,7 @@ func TestReleaseManifestCommitsPicksRestampCommits(t *testing.T) {
 		filepath.Join("library", "cat", "root", ".printing-press-release.json"):   restamp,
 		filepath.Join("library", "cat", "later", ".printing-press-release.json"):  laterLedger,
 		filepath.Join("library", "cat", "edited", ".printing-press-release.json"): ledger,
+		filepath.Join("library", "cat", "near", ".printing-press-release.json"):   ledger,
 	}
 	if len(commits) != len(want) {
 		t.Fatalf("commits = %v, want %v", commits, want)
@@ -1300,6 +1305,16 @@ func TestReleaseManifestCommitsPicksRestampCommits(t *testing.T) {
 		if commits[path] != sha {
 			t.Errorf("commits[%s] = %q, want %q", path, commits[path], sha)
 		}
+	}
+}
+
+func TestRestampSubjectMatchesLedgerWorkflow(t *testing.T) {
+	workflow, err := os.ReadFile(filepath.Join("..", "..", ".github", "workflows", "update-cli-release-ledger.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := "RESTAMP_SUBJECT: '" + restampSubject + "'"; !strings.Contains(string(workflow), want) {
+		t.Fatalf("update-cli-release-ledger.yml does not set %s", want)
 	}
 }
 

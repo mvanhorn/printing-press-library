@@ -34,10 +34,11 @@ import (
 )
 
 const (
-	libraryDir    = "library"
-	registryPath  = "registry.json"
-	readmePath    = "README.md"
-	schemaVersion = 2
+	libraryDir          = "library"
+	registryPath        = "registry.json"
+	readmePath          = "README.md"
+	releaseManifestName = ".printing-press-release.json"
+	schemaVersion       = 2
 	// stdioTransport / httpTransport are the registry-side names for the
 	// MCP transports an emitted binary can serve. Detection of which
 	// transports a CLI actually supports happens in detectMCPTransports
@@ -446,7 +447,7 @@ func buildEntry(dir, category, slug string, existing map[string]RegistryEntry, r
 	)
 	entry.Homepage = strings.TrimSpace(pp.Homepage)
 	entry.SearchTerms = searchTerms(pp)
-	if release, err := readRelease(filepath.Join(dir, ".printing-press-release.json")); err != nil {
+	if release, err := readRelease(filepath.Join(dir, releaseManifestName)); err != nil {
 		return nil, err
 	} else if release != nil && !isUnreleasedSkeleton(release) {
 		// Skip an unreleased skeleton (version/released_at/source_commit all
@@ -456,7 +457,7 @@ func buildEntry(dir, category, slug string, existing map[string]RegistryEntry, r
 		// malformed — skipping the whole CLI. Omitting it keeps the generated
 		// registry, the --validate gate, and the npm parser consistent: a
 		// release block is present only once the CLI is actually released.
-		if commit := releaseCommits[filepath.Join(dir, ".printing-press-release.json")]; commit != "" {
+		if commit := releaseCommits[filepath.Join(dir, releaseManifestName)]; commit != "" {
 			release.SourceCommit = commit
 		}
 		entry.Release = release
@@ -505,9 +506,9 @@ func isUnreleasedSkeleton(r *Release) bool {
 		strings.TrimSpace(r.SourceCommit) == ""
 }
 
-// restampSubject starts the subject of the restamp commit made by
-// update-cli-release-ledger.yml. Keep the two in sync.
-const restampSubject = "chore(releases): restamp CLI runtime versions"
+// restampSubject is the exact subject of the restamp commit made by
+// update-cli-release-ledger.yml (RESTAMP_SUBJECT there).
+const restampSubject = "chore(releases): restamp CLI runtime versions [skip ci]"
 
 // releaseManifestCommits maps each ledger file to the commit that last wrote
 // it. The ledger records the merge commit as source_commit but stamps the
@@ -523,7 +524,7 @@ func releaseManifestCommits(repoRoot, library string) (map[string]string, error)
 		return nil, nil
 	}
 	out, err := exec.Command("git", "-C", repoRoot, "log", "--format=%x00%H%x09%s", "--name-only", "--",
-		library+"/*/*/.printing-press-release.json",
+		library+"/*/*/"+releaseManifestName,
 		library+"/*/internal/cli/version.go",
 		library+"/*/internal/cli/root.go",
 		library+"/*/cmd/*-pp-mcp/main.go").Output()
@@ -534,25 +535,20 @@ func releaseManifestCommits(repoRoot, library string) (map[string]string, error)
 	var current string
 	var restamp bool
 	for _, line := range strings.Split(string(out), "\n") {
+		var path string
 		switch {
 		case strings.HasPrefix(line, "\x00"):
 			hash, subject, _ := strings.Cut(strings.TrimPrefix(line, "\x00"), "\t")
-			current, restamp = hash, strings.HasPrefix(subject, restampSubject)
-		case line == "":
-		case strings.HasSuffix(line, "/.printing-press-release.json"):
-			path := filepath.FromSlash(line)
-			if _, seen := commits[path]; !seen {
-				commits[path] = current
+			current, restamp = hash, subject == restampSubject
+		case strings.HasSuffix(line, "/"+releaseManifestName):
+			path = filepath.FromSlash(line)
+		case restamp && line != "":
+			if parts := strings.SplitN(line, "/", 4); len(parts) == 4 {
+				path = filepath.Join(parts[0], parts[1], parts[2], releaseManifestName)
 			}
-		case restamp:
-			parts := strings.SplitN(line, "/", 4)
-			if len(parts) < 4 {
-				continue
-			}
-			path := filepath.Join(parts[0], parts[1], parts[2], ".printing-press-release.json")
-			if _, seen := commits[path]; !seen {
-				commits[path] = current
-			}
+		}
+		if _, seen := commits[path]; path != "" && !seen {
+			commits[path] = current
 		}
 	}
 	return commits, nil
