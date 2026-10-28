@@ -1,0 +1,49 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-28T18:38:39.899213Z",
+  "printing_press_version": "4.34.2",
+  "api_name": "normattiva",
+  "display_name": "Normattiva",
+  "cli_name": "normattiva-pp-cli",
+  "creator": {
+    "handle": "luigipastore61063-del",
+    "name": "Luigi Pastore"
+  },
+  "owner": "luigipastore61063-del",
+  "printer": "luigipastore61063-del",
+  "printer_name": "Luigi Pastore",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:024e3633a96f5764c47ee557d675aa9f8dc4748bcd2f92095f34e7162dfe3097",
+  "run_id": "20261028-132341-29de1036",
+  "category": "productivity",
+  "description": "Italian law in your terminal: resolve citations, read any article at any date, diff versions and track amendments.",
+  "mcp_binary": "normattiva-pp-mcp",
+  "mcp_tool_count": 11,
+  "mcp_public_tool_count": 11,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Citation checker",
+      "command": "verifica",
+      "description": "Check every Italian law citation in a draft or an AI answer: does it exist, and was it in force on a given date?"
+    },
+    {
+      "name": "Article diff between dates",
+      "command": "diff",
+      "description": "See word by word what an article said on one date versus another, or versus its original text."
+    },
+    {
+      "name": "Watchlist change report",
+      "command": "novita",
+      "description": "Follow the acts you care about (segui add) and get a report of which ones and which articles changed since your last check."
+    },
+    {
+      "name": "Context pack",
+      "command": "fascicolo",
+      "description": "Assemble several articles from different laws, all pinned to one reference date, into one Markdown document."
+    }
+  ]
+}
