@@ -655,7 +655,7 @@ These capabilities aren't available in any other tool for this API.
 - `conduyt-crm-pp-cli integrations list` — List active integrations
 - `conduyt-crm-pp-cli integrations list-zapier-subscriptions` — List Zapier webhook subscriptions
 - `conduyt-crm-pp-cli integrations post-dpp-ingest` — Create / invoke integrations dpp ingest
-- `conduyt-crm-pp-cli integrations post-slack-settings` — Create / invoke integrations slack settings
+- `conduyt-crm-pp-cli integrations post-slack-settings` — Create / invoke integrations slack settings; `--channel` and `--notify-events` are optional, an omitted flag keeps the stored value and an explicit empty value clears it
 - `conduyt-crm-pp-cli integrations post-slack-test` — Create / invoke integrations slack test
 
 **invoices** — Invoice creation, sending, payments, PDF generation
@@ -1237,6 +1237,16 @@ conduyt-crm-pp-cli dialer coverage --agent
 ```
 
 priorities in dial order with queue depth and available agents
+
+### Point Slack alerts at a channel without touching the alert groups
+
+```bash
+conduyt-crm-pp-cli integrations post-slack-settings --channel '#alerts'
+conduyt-crm-pp-cli integrations post-slack-settings --notify-events sms,calls
+conduyt-crm-pp-cli integrations post-slack-settings --notify-events ""
+```
+
+a flag you leave out keeps its stored value; `--notify-events ""` turns every alert group off and `--channel ""` clears the destination
 
 ## Auth Setup
 

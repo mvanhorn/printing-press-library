@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "slack-settings-typed-body-578",
+  "applied_at": "2026-10-29",
+  "base_run_id": "20260916-101513-9e12dad7",
+  "base_printing_press_version": "4.33.10",
+  "summary": "integrations post-slack-settings sends exactly the fields the caller passed: --channel and --notify-events are typed flags, a flag that was not passed is not sent (the API keeps the stored value), an explicit empty value (--notify-events \"\" or --notify-events=, --channel \"\") reaches the wire as [] / \"\" (clear), and --stdin passes the body through untouched so a non-list notifyEvents gets the API's 400.",
+  "reason": "The live POST /integrations/slack/settings distinguishes an omitted notifyEvents (keep) from [] (turn every alert group off) from a non-array (400), but the catalog spec typed this body as an untyped object, so the printed command offered only --stdin. Sending the field only when the slice is non-empty, instead of when the flag was passed (Changed()), silently turns a clear into a keep. spec.yaml carries the live typed requestBody for this one operation only; a reprint must re-fetch the live spec rather than fall back to the untyped placeholder, and the parity test pins spec.yaml, tools-manifest.json and the command to the same typed body.",
+  "files": [
+    "internal/cli/integrations_post-slack-settings.go",
+    "internal/cli/integrations_post_slack_settings_test.go",
+    "internal/cli/slack_settings_spec_parity_test.go",
+    "spec.yaml",
+    "tools-manifest.json",
+    "README.md",
+    "SKILL.md"
+  ],
+  "call_sites": [
+    "cmd.Flags().Changed(\"notify-events\")",
+    "cmd.InOrStdin()"
+  ],
+  "patch_count": 6,
+  "validated_outcome": "Wire body is exactly the flags passed ({}, {channel}, {notifyEvents:[]} for an explicit empty value, both); --stdin bodies including a non-array notifyEvents reach the API unchanged; spec.yaml, tools-manifest.json and the command flags agree on the typed body; go build, go vet and the focused internal/cli tests pass. Ported from the creator's private print (ptaramona/conduyt-crm-cli 45ae027, PR #1, Codex approved)."
+}

@@ -14168,8 +14168,15 @@ paths:
           application/json:
             schema:
               type: object
-              additionalProperties: true
-              description: See GET /schema/api-catalog (authenticated) for the full field-level request schema of this endpoint.
+              properties:
+                channel:
+                  description: Omit to keep the stored destination; send an empty string to clear it; a channel name, channel ID or member ID is normalised
+                  type: string
+                notifyEvents:
+                  description: Omit to keep the stored list; send [] to turn all alert groups off; unknown names are dropped; any non-list value is refused with 400
+                  type: array
+                  items:
+                    type: string
       responses:
         '200':
           description: Success

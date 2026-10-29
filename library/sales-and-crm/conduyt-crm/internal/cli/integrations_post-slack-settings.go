@@ -13,12 +13,23 @@ import (
 )
 
 func newIntegrationsPostSlackSettingsCmd(flags *rootFlags) *cobra.Command {
+	var bodyChannel string
+	var bodyNotifyEvents []string
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:         "post-slack-settings",
-		Short:       "Create / invoke integrations slack settings",
-		Example:     "  conduyt-crm-pp-cli integrations post-slack-settings",
+		Use:   "post-slack-settings",
+		Short: "Create / invoke integrations slack settings",
+		// PATCH(slack-settings-typed-body-578): Long states the keep / clear / 400 semantics; see .printing-press-patches/slack-settings-typed-body-578.json.
+		Long: `Create / invoke integrations slack settings.
+
+Each field is optional and a field you leave out keeps its stored value:
+  --channel         omitted keeps the stored destination; an empty value (--channel "") clears it;
+                    a channel name, channel ID or member ID is normalised.
+  --notify-events   omitted keeps the stored alert groups; an explicit empty list
+                    (--notify-events "") turns every alert group off; unknown names are dropped.
+                    A non-list notifyEvents (sent through --stdin) is refused by the API with 400.`,
+		Example:     "  conduyt-crm-pp-cli integrations post-slack-settings --channel '#alerts' --notify-events sms,calls\n  conduyt-crm-pp-cli integrations post-slack-settings --notify-events \"\"",
 		Annotations: map[string]string{"pp:endpoint": "integrations.post-slack-settings", "pp:method": "POST", "pp:path": "/integrations/slack/settings"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -31,7 +42,7 @@ func newIntegrationsPostSlackSettingsCmd(flags *rootFlags) *cobra.Command {
 			params := map[string]string{}
 			var body any
 			if stdinBody {
-				stdinData, err := io.ReadAll(os.Stdin)
+				stdinData, err := io.ReadAll(cmd.InOrStdin()) // PATCH(slack-settings-typed-body-578): testable stdin, same as os.Stdin by default
 				if err != nil {
 					return fmt.Errorf("reading stdin: %w", err)
 				}
@@ -43,6 +54,17 @@ func newIntegrationsPostSlackSettingsCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				bodyMap := map[string]any{}
 				body = bodyMap
+				// PATCH(slack-settings-typed-body-578): an explicit empty --channel is sent (clear the destination)
+				if cmd.Flags().Changed("channel") || bodyChannel != "" {
+					bodyMap["channel"] = bodyChannel
+				}
+				// PATCH(slack-settings-typed-body-578): Changed(), not len(): an explicit empty list must reach the API as [] (clear every event)
+				if cmd.Flags().Changed("notify-events") || len(bodyNotifyEvents) > 0 {
+					if bodyNotifyEvents == nil {
+						bodyNotifyEvents = []string{}
+					}
+					bodyMap["notifyEvents"] = bodyNotifyEvents
+				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 			if err != nil {
@@ -201,6 +223,8 @@ func newIntegrationsPostSlackSettingsCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
+	cmd.Flags().StringVar(&bodyChannel, "channel", "", "Omit to keep the stored destination; send an empty string to clear it; a channel name, channel ID or member ID is normalised")
+	cmd.Flags().StringSliceVar(&bodyNotifyEvents, "notify-events", nil, "Alert groups to notify on (comma list or repeatable). Omit to keep the stored list; pass an empty value (--notify-events \"\") to turn all alert groups off; unknown names are dropped; any non-list value sent via --stdin is refused with 400")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

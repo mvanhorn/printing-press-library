@@ -8203,10 +8203,23 @@
     },
     {
       "name": "integrations_post-slack-settings",
-      "description": "Create / invoke integrations slack settings. Returns the new DataEnvelope.",
+      "description": "Create / invoke integrations slack settings. Optional: channel, notifyEvents. Returns the new DataEnvelope.",
       "method": "POST",
       "path": "/integrations/slack/settings",
-      "params": []
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Omit to keep the stored destination; send an empty string to clear it; a channel name, channel ID or member ID is normalised"
+        },
+        {
+          "name": "notifyEvents",
+          "type": "array",
+          "location": "body",
+          "description": "Omit to keep the stored list; send [] to turn all alert groups off; unknown names are dropped; any non-list value is refused with 400"
+        }
+      ]
     },
     {
       "name": "integrations_post-slack-test",
