@@ -4,7 +4,7 @@
   "applied_at": "2026-10-29",
   "base_run_id": "20260518-132617",
   "base_printing_press_version": "4.8.0",
-  "summary": "The embedded Hacker News and smart article normalize profiles were keyed to apify/hacker-news-scraper and apify/smart-article-extractor, which no longer exist on Apify (the acts API returns 404), so no run ever matched them. They are now keyed to constructive_calm/hacker-news-scraper, whose rows carry title, url, hnUrl, text, by, createdAt and score, and to lukaskrivka/article-extractor-smart, whose rows carry title, url, text and date; neither field list changed. The Reddit profile stays on trudax/reddit-scraper, which is deprecated but still runs, and a second profile with the same mapping covers trudax/reddit-scraper-lite. Both Reddit Actors emit upvotes as upVotes, so that key now leads the engagement list.",
+  "summary": "Embedded normalize profiles must use Actor names available on Apify and map the fields those Actors actually return; reprints must recheck both rather than preserve stale names or field assumptions.",
   "reason": "The registry keys profiles on the Actor name, so a profile keyed to a removed Actor is dead weight; keep each embedded profile keyed to an Actor that the acts API still serves, and match the field names those Actors actually emit.",
   "files": [
     "internal/normalize/profiles/hacker-news.yaml",
