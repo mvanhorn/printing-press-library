@@ -233,7 +233,7 @@ These capabilities aren't available in any other tool for this API.
   _Pick this when a relocator or investor needs the 'where in this metro is hottest' answer._
 
   ```bash
-  redfin-pp-cli appreciation --parent "city/30772/TX/Austin" --period 12 --json --limit 10
+  redfin-pp-cli appreciation --parent "city/30772/TX/Austin" --period 12 --json
   ```
 
 ## Usage
@@ -365,7 +365,7 @@ redfin-pp-cli rank --by price-per-sqft --region-id 30772 --region-type 6 --json 
   | jq '[.[] | select(.beds >= 4 and .price_per_sqft < 350)]'
 
 # Use a saved profile to bake in repeating flags (region, filters)
-redfin-pp-cli profile save austin-3br --region-id 30772 --region-type 6 --beds-min 3
+redfin-pp-cli profile save austin-3br --json
 redfin-pp-cli homes --profile austin-3br --price-max 600000 --json
 ```
 

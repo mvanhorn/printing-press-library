@@ -120,7 +120,7 @@ These capabilities aren't available in any other tool for this API.
   _Pick this when a relocator or investor needs the 'where in this metro is hottest' answer._
 
   ```bash
-  redfin-pp-cli appreciation --parent "city/30772/TX/Austin" --period 12 --json --limit 10
+  redfin-pp-cli appreciation --parent "city/30772/TX/Austin" --period 12 --json
   ```
 
 ## HTTP Transport

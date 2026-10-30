@@ -100,7 +100,13 @@ bedroom match, and a months window.`,
 			}
 			path := extractPathFromArg(args[0])
 			subj, err := lookupListingByURL(cmd.Context(), s.DB(), c, path)
-			if err != nil || subj == nil {
+			if err != nil {
+				if hinted := listingBlockedHint(err); hinted != err {
+					return authErr(hinted)
+				}
+				return apiErr(fmt.Errorf("could not resolve subject listing %s: %w", path, err))
+			}
+			if subj == nil {
 				return apiErr(fmt.Errorf("could not resolve subject listing %s", path))
 			}
 			if subj.Address.Latitude == 0 || subj.Address.Longitude == 0 {

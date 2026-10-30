@@ -344,7 +344,7 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 		fmt.Fprintf(os.Stderr, "  %s: %s\n", "Authorization", maskToken(authHeader))
 	}
 	if cookie := cookieHeaderFor(targetURL, c.Config); cookie != "" {
-		fmt.Fprintf(os.Stderr, "  %s: %s\n", "Cookie", maskToken(cookie))
+		fmt.Fprintf(os.Stderr, "  %s: %s\n", "Cookie", "[REDACTED]")
 	}
 	fmt.Fprintf(os.Stderr, "\n(dry run - no request sent)\n")
 	return json.RawMessage(`{"dry_run": true}`), 0, nil

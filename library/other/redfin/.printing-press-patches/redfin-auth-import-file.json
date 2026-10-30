@@ -10,14 +10,15 @@
     "internal/cli/auth.go",
     "internal/cli/root.go",
     "internal/cli/promoted_listing.go",
-    "internal/cli/apt_helpers.go",
+    "internal/cli/apt_comps.go",
     "internal/client/client.go",
     "internal/client/cookie_test.go",
     "internal/config/config.go",
+    "internal/config/config_test.go",
     "internal/redfin/cookies.go",
     "internal/redfin/cookies_test.go",
     "README.md",
     "SKILL.md"
   ],
-  "validated_outcome": "Parser and host-guard unit tests pass. Not yet checked against a live Redfin session."
+  "validated_outcome": "Parser, host-guard and dry-run redaction unit tests pass. Not yet checked against a live Redfin session."
 }

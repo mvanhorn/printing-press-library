@@ -51,7 +51,12 @@ func ParseCookieExport(data []byte, now time.Time) ([]Cookie, error) {
 
 	byName := map[string]Cookie{}
 	for _, c := range parsed {
-		if c.Name == "" || !isRedfinDomain(c.Domain) {
+		if c.Name == "" || !appliesToRedfinHost(c.Domain) {
+			continue
+		}
+		// A host cookie beats a parent-domain cookie of the same name, as it
+		// would in the browser's request to www.redfin.com.
+		if prev, ok := byName[c.Name]; ok && len(cookieHost(prev.Domain)) > len(cookieHost(c.Domain)) {
 			continue
 		}
 		byName[c.Name] = c
@@ -119,9 +124,15 @@ func parseNetscapeCookies(data string, now time.Time) ([]Cookie, error) {
 	return out, nil
 }
 
-func isRedfinDomain(domain string) bool {
-	d := strings.ToLower(strings.TrimPrefix(strings.TrimSpace(domain), "."))
-	return d == "redfin.com" || strings.HasSuffix(d, ".redfin.com")
+// appliesToRedfinHost reports whether a browser would send a cookie with this
+// domain to www.redfin.com, the host every CLI request goes to.
+func appliesToRedfinHost(domain string) bool {
+	d := cookieHost(domain)
+	return d == "redfin.com" || d == "www.redfin.com"
+}
+
+func cookieHost(domain string) string {
+	return strings.ToLower(strings.TrimPrefix(strings.TrimSpace(domain), "."))
 }
 
 // CookieHeader renders cookies as a Cookie request header value.

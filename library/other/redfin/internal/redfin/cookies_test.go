@@ -73,3 +73,20 @@ func TestParseCookieExportRejects(t *testing.T) {
 		})
 	}
 }
+
+func TestParseCookieExportPicksCookieForRequestHost(t *testing.T) {
+	file := `[
+		{"name":"_abck","value":"parent","domain":".redfin.com"},
+		{"name":"_abck","value":"host","domain":"www.redfin.com"},
+		{"name":"_abck","value":"parent2","domain":"redfin.com"},
+		{"name":"_abck","value":"sibling","domain":"insights.redfin.com"},
+		{"name":"bm_sz","value":"sibling-only","domain":"insights.redfin.com"}
+	]`
+	got, err := ParseCookieExport([]byte(file), cookieTestNow)
+	if err != nil {
+		t.Fatalf("ParseCookieExport: %v", err)
+	}
+	if h := CookieHeader(got); h != "_abck=host" {
+		t.Fatalf("CookieHeader = %q, want the www.redfin.com value only", h)
+	}
+}

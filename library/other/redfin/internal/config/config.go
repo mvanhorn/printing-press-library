@@ -111,6 +111,11 @@ func (c *Config) save() error {
 	if err != nil {
 		return fmt.Errorf("marshaling config: %w", err)
 	}
+	// WriteFile's mode applies only on create, so tighten an existing file
+	// before cookies or tokens land in it.
+	if err := os.Chmod(c.Path, 0o600); err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("securing config file: %w", err)
+	}
 	return os.WriteFile(c.Path, data, 0o600)
 }
 
