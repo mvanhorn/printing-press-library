@@ -4,8 +4,10 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/internal/store"
 	"github.com/spf13/cobra"
 	"net/url"
@@ -344,6 +346,9 @@ func syncResource(c interface {
 		// Try to extract items from the response.
 		// Strategy: try array first, then common wrapper keys.
 		items, nextCursor, hasMore := extractPageItems(data, pageSize.cursorParam)
+		if storySnapshotList(resource) != "" {
+			items = hydrateStoryListItems(c, db, resource, items)
+		}
 
 		if len(items) == 0 {
 			// Single object response - try to store as-is
@@ -903,6 +908,85 @@ func recordStoryListSnapshot(db *store.Store, resource string, items []json.RawM
 	}
 }
 
+// hydratedStoryItems caches /item/<id>.json bodies for the life of one sync
+// run so a story that appears on several lists (top, best, show) is fetched
+// once.
+var hydratedStoryItems sync.Map
+
+// hydrateStoryListItems swaps the bare IDs returned by the Firebase story
+// list endpoints for the full /item/<id>.json bodies, so the stored rows
+// carry title, score, by, time and descendants for the analytics commands.
+// An ID whose fetch fails, or that HN reports as null, keeps the row already
+// stored for it, or an ID-only row when there is none.
+func hydrateStoryListItems(c interface {
+	Get(string, map[string]string) (json.RawMessage, error)
+}, db *store.Store, resource string, items []json.RawMessage) []json.RawMessage {
+	positions := map[string][]int{}
+	ids := make([]string, 0, len(items))
+	for i, item := range items {
+		var obj map[string]any
+		if err := json.Unmarshal(item, &obj); err == nil {
+			continue
+		}
+		id := storyIDFromRawItem(item)
+		if id == "" {
+			continue
+		}
+		if _, seen := positions[id]; !seen {
+			ids = append(ids, id)
+		}
+		positions[id] = append(positions[id], i)
+	}
+	if len(ids) == 0 {
+		return items
+	}
+
+	results, errs := cliutil.FanoutRun(
+		context.Background(),
+		ids,
+		func(id string) string { return id },
+		func(ctx context.Context, id string) (json.RawMessage, error) {
+			if cached, ok := hydratedStoryItems.Load(id); ok {
+				return cached.(json.RawMessage), nil
+			}
+			data, err := c.Get("/item/"+id+".json", nil)
+			if err != nil {
+				return nil, err
+			}
+			var obj map[string]any
+			if err := json.Unmarshal(data, &obj); err != nil || obj == nil {
+				return nil, fmt.Errorf("item %s: no item body", id)
+			}
+			hydratedStoryItems.Store(id, data)
+			return data, nil
+		},
+		cliutil.WithConcurrency(8),
+	)
+
+	out := make([]json.RawMessage, len(items))
+	copy(out, items)
+	for _, r := range results {
+		for _, i := range positions[r.Source] {
+			out[i] = r.Value
+		}
+	}
+	for _, e := range errs {
+		if existing, err := db.Get("stories", e.Source); err == nil && existing != nil {
+			for _, i := range positions[e.Source] {
+				out[i] = existing
+			}
+		}
+	}
+	if len(errs) > 0 {
+		if humanFriendly {
+			fmt.Fprintf(os.Stderr, "\nwarning: %s: %d of %d items could not be fetched; stored as IDs only\n", resource, len(errs), len(ids))
+		} else {
+			fmt.Fprintf(os.Stderr, `{"event":"sync_warning","resource":"%s","reason":"item_hydration_failed","count":%d,"total":%d}`+"\n", resource, len(errs), len(ids))
+		}
+	}
+	return out
+}
+
 func storyIDsFromItems(items []json.RawMessage, limit int) []string {
 	if limit <= 0 || limit > len(items) {
 		limit = len(items)
@@ -977,7 +1061,7 @@ var criticalResources = map[string]bool{}
 func extractID(resource string, obj map[string]any) string {
 	if override, ok := resourceIDFieldOverrides[resource]; ok && override != "" {
 		if v := store.LookupFieldValue(obj, override); v != nil {
-			s := fmt.Sprintf("%v", v)
+			s := store.FormatIDValue(v)
 			if s != "" && s != "<nil>" {
 				return s
 			}
@@ -985,7 +1069,7 @@ func extractID(resource string, obj map[string]any) string {
 	}
 	for _, key := range genericIDFieldFallbacks {
 		if v := store.LookupFieldValue(obj, key); v != nil {
-			s := fmt.Sprintf("%v", v)
+			s := store.FormatIDValue(v)
 			if s != "" && s != "<nil>" {
 				return s
 			}

@@ -11,9 +11,11 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -513,10 +515,21 @@ func (s *Store) Search(query string, limit int) ([]json.RawMessage, error) {
 func extractObjectID(obj map[string]any) string {
 	for _, key := range []string{"id", "ID", "uuid", "slug", "name"} {
 		if v, ok := obj[key]; ok {
-			return fmt.Sprintf("%v", v)
+			return FormatIDValue(v)
 		}
 	}
 	return ""
+}
+
+// FormatIDValue renders a primary-key value as a string. JSON numbers decode
+// to float64, and %v prints large integral floats in exponent form
+// (48250144 becomes "4.8250144e+07"), so integral floats are printed as
+// plain integers to keep Hacker News item IDs stable.
+func FormatIDValue(v any) string {
+	if f, ok := v.(float64); ok && f == math.Trunc(f) && math.Abs(f) < 1e18 {
+		return strconv.FormatInt(int64(f), 10)
+	}
+	return fmt.Sprintf("%v", v)
 }
 
 func scalarItemID(item json.RawMessage) (string, map[string]any, json.RawMessage, bool) {
@@ -715,7 +728,7 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 		if id == "" {
 			if override, ok := resourceIDFieldOverrides[resourceType]; ok && override != "" {
 				if v := lookupFieldValue(obj, override); v != nil {
-					s := fmt.Sprintf("%v", v)
+					s := FormatIDValue(v)
 					if s != "" && s != "<nil>" {
 						id = s
 					}
@@ -725,7 +738,7 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 		if id == "" {
 			for _, key := range genericIDFieldFallbacks {
 				if v := lookupFieldValue(obj, key); v != nil {
-					s := fmt.Sprintf("%v", v)
+					s := FormatIDValue(v)
 					if s != "" && s != "<nil>" {
 						id = s
 						break

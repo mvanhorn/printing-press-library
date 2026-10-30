@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "hackernews-story-item-hydration",
+  "applied_at": "2026-10-30",
+  "base_run_id": "20260504-190931",
+  "base_printing_press_version": "3.9.0",
+  "summary": "Hacker News story-list sync fetches /item/<id>.json for each listed ID and stores the full body.",
+  "reason": "Firebase list endpoints return bare IDs, so synced rows had no title, score or comment count for the analytics commands (issue #800). Large integer IDs decoded to float64 also printed in exponent form, which would mis-key hydrated rows.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/sync_test.go",
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "A live sync of the show and job lists stored 171 of 171 rows with titles and plain integer IDs; go build, go vet and go test -race pass."
+}

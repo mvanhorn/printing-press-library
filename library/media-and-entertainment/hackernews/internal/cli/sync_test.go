@@ -8,17 +8,21 @@ import (
 	"fmt"
 	"path/filepath"
 	"reflect"
+	"sync"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/internal/store"
 )
 
 type fakeSyncClient struct {
+	mu        sync.Mutex
 	responses map[string]json.RawMessage
 	paths     []string
 }
 
 func (c *fakeSyncClient) Get(path string, params map[string]string) (json.RawMessage, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	c.paths = append(c.paths, path)
 	data, ok := c.responses[path]
 	if !ok {
@@ -88,8 +92,8 @@ func TestSyncResourceStoresStoryListScalarIDs(t *testing.T) {
 	if result.Count != 2 {
 		t.Fatalf("result.Count = %d, want 2", result.Count)
 	}
-	if !reflect.DeepEqual(client.paths, []string{"/topstories.json"}) {
-		t.Fatalf("paths = %#v, want /topstories.json", client.paths)
+	if len(client.paths) == 0 || client.paths[0] != "/topstories.json" {
+		t.Fatalf("paths = %#v, want /topstories.json first", client.paths)
 	}
 
 	var resourceRows int
@@ -126,5 +130,96 @@ func TestSyncResourceStoresStoryListScalarIDs(t *testing.T) {
 	}
 	if snapshotRows != 2 {
 		t.Fatalf("snapshotRows = %d, want 2", snapshotRows)
+	}
+}
+
+func TestSyncResourceHydratesStoryListItems(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	defer db.Close()
+
+	client := &fakeSyncClient{
+		responses: map[string]json.RawMessage{
+			"/beststories.json":   json.RawMessage(`[48250144,48250145]`),
+			"/item/48250144.json": json.RawMessage(`{"id":48250144,"type":"story","title":"Show HN: a thing","score":321,"by":"pg","descendants":42,"time":1779000000}`),
+			"/item/48250145.json": json.RawMessage(`null`),
+		},
+	}
+	result := syncResource(client, db, "stories_best", "", false, 1)
+	if result.Err != nil {
+		t.Fatalf("syncResource: %v", result.Err)
+	}
+	if result.Count != 2 {
+		t.Fatalf("result.Count = %d, want 2", result.Count)
+	}
+
+	data, err := db.Get("stories", "48250144")
+	if err != nil {
+		t.Fatalf("get hydrated story: %v", err)
+	}
+	var story map[string]any
+	if err := json.Unmarshal(data, &story); err != nil {
+		t.Fatalf("unmarshal hydrated story: %v", err)
+	}
+	if story["title"] != "Show HN: a thing" || story["score"] != float64(321) {
+		t.Fatalf("hydrated story = %#v, want full item body", story)
+	}
+
+	// A null item body keeps the ID-only row instead of dropping it.
+	if _, err := db.Get("stories", "48250145"); err != nil {
+		t.Fatalf("get id-only story: %v", err)
+	}
+
+	var snapshotIDs []string
+	rows, err := db.DB().Query(`SELECT item_id FROM frontpage_snapshots WHERE list = ? ORDER BY rank`, "beststories")
+	if err != nil {
+		t.Fatalf("query snapshots: %v", err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			t.Fatalf("scan snapshot: %v", err)
+		}
+		snapshotIDs = append(snapshotIDs, id)
+	}
+	if !reflect.DeepEqual(snapshotIDs, []string{"48250144", "48250145"}) {
+		t.Fatalf("snapshot ids = %#v, want plain integer ids", snapshotIDs)
+	}
+}
+
+func TestSyncResourceKeepsStoredBodyWhenHydrationFails(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	defer db.Close()
+
+	body := json.RawMessage(`{"id":48250146,"title":"Already stored","score":7}`)
+	if _, _, err := db.UpsertBatch("stories", []json.RawMessage{body}); err != nil {
+		t.Fatalf("seed story: %v", err)
+	}
+
+	client := &fakeSyncClient{
+		responses: map[string]json.RawMessage{
+			"/newstories.json": json.RawMessage(`[48250146]`),
+		},
+	}
+	if result := syncResource(client, db, "stories_new", "", false, 1); result.Err != nil {
+		t.Fatalf("syncResource: %v", result.Err)
+	}
+
+	data, err := db.Get("stories", "48250146")
+	if err != nil {
+		t.Fatalf("get story: %v", err)
+	}
+	var story map[string]any
+	if err := json.Unmarshal(data, &story); err != nil {
+		t.Fatalf("unmarshal story: %v", err)
+	}
+	if story["title"] != "Already stored" {
+		t.Fatalf("story = %#v, want stored body preserved after failed fetch", story)
 	}
 }
