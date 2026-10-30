@@ -908,9 +908,16 @@ func recordStoryListSnapshot(db *store.Store, resource string, items []json.RawM
 	}
 }
 
-// hydratedStoryItems caches /item/<id>.json bodies for the life of one sync
-// run so a story that appears on several lists (top, best, show) is fetched
-// once.
+// storyItemFetch is one shared /item/<id>.json request.
+type storyItemFetch struct {
+	once sync.Once
+	data json.RawMessage
+	err  error
+}
+
+// hydratedStoryItems holds one storyItemFetch per story ID for the life of one
+// sync run. Lists sync concurrently, so a story on several lists (top, best,
+// show) waits on the first request instead of fetching again.
 var hydratedStoryItems sync.Map
 
 // hydrateStoryListItems swaps the bare IDs returned by the Firebase story
@@ -946,19 +953,22 @@ func hydrateStoryListItems(c interface {
 		ids,
 		func(id string) string { return id },
 		func(ctx context.Context, id string) (json.RawMessage, error) {
-			if cached, ok := hydratedStoryItems.Load(id); ok {
-				return cached.(json.RawMessage), nil
-			}
-			data, err := c.Get("/item/"+id+".json", nil)
-			if err != nil {
-				return nil, err
-			}
-			var obj map[string]any
-			if err := json.Unmarshal(data, &obj); err != nil || obj == nil {
-				return nil, fmt.Errorf("item %s: no item body", id)
-			}
-			hydratedStoryItems.Store(id, data)
-			return data, nil
+			entry, _ := hydratedStoryItems.LoadOrStore(id, &storyItemFetch{})
+			fetch := entry.(*storyItemFetch)
+			fetch.once.Do(func() {
+				data, err := c.Get("/item/"+id+".json", nil)
+				if err != nil {
+					fetch.err = err
+					return
+				}
+				var obj map[string]any
+				if err := json.Unmarshal(data, &obj); err != nil || obj == nil {
+					fetch.err = fmt.Errorf("item %s: no item body", id)
+					return
+				}
+				fetch.data = data
+			})
+			return fetch.data, fetch.err
 		},
 		cliutil.WithConcurrency(8),
 	)

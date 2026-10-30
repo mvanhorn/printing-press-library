@@ -223,3 +223,42 @@ func TestSyncResourceKeepsStoredBodyWhenHydrationFails(t *testing.T) {
 		t.Fatalf("story = %#v, want stored body preserved after failed fetch", story)
 	}
 }
+
+func TestSyncResourceFetchesSharedStoryOnceAcrossLists(t *testing.T) {
+	hydratedStoryItems.Delete("48250147")
+
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	defer db.Close()
+
+	client := &fakeSyncClient{
+		responses: map[string]json.RawMessage{
+			"/askstories.json":    json.RawMessage(`[48250147]`),
+			"/showstories.json":   json.RawMessage(`[48250147]`),
+			"/item/48250147.json": json.RawMessage(`{"id":48250147,"title":"On two lists"}`),
+		},
+	}
+	var wg sync.WaitGroup
+	for _, resource := range []string{"stories_ask", "stories_show"} {
+		wg.Add(1)
+		go func(resource string) {
+			defer wg.Done()
+			if result := syncResource(client, db, resource, "", false, 1); result.Err != nil {
+				t.Errorf("syncResource(%s): %v", resource, result.Err)
+			}
+		}(resource)
+	}
+	wg.Wait()
+
+	fetches := 0
+	for _, path := range client.paths {
+		if path == "/item/48250147.json" {
+			fetches++
+		}
+	}
+	if fetches != 1 {
+		t.Fatalf("item fetched %d times, want 1 (paths %#v)", fetches, client.paths)
+	}
+}
