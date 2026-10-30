@@ -35,7 +35,7 @@ func computeConsensus(ctx context.Context, c apiGetter, claim string, limit, yea
 	// Detect retractions and twins first: a twin dropped by the relevance
 	// gate must still mark its relevant copy.
 	works = markRetractions(works)
-	works = filterRelevant(claim, works)
+	works, gate := filterRelevant(ctx, claim, works)
 	// Same retraction gate the consensus command applies. computeConsensus is
 	// the scoring path for BOTH compare and batch, so leaving it out here
 	// would let a retracted work set the evidence tier of one side of a
@@ -53,6 +53,7 @@ func computeConsensus(ctx context.Context, c apiGetter, claim string, limit, yea
 		TotalCitations: r.TotalCitations, NearUnanimous: r.NearUnanimous,
 		RetractedExcluded: len(retracted),
 		Method:            stanceMethodLabel(stances),
+		RelevanceGate:     gate,
 		TopSupporting:     topByStance(stances, scengine.StanceSupporting, 2),
 		TopRefuting:       topByStance(stances, scengine.StanceRefuting, 2),
 		AllStudies:        append(allStudyBriefs(stances), retractedBriefs(retracted)...),

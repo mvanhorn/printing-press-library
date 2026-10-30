@@ -18,6 +18,7 @@ type controversyOutput struct {
 	Inconclusive     int         `json:"inconclusive"`
 	ControversyScore float64     `json:"controversy_score"` // 0 (settled) .. 1 (highly contested)
 	Contested        bool        `json:"contested"`
+	RelevanceGate    string      `json:"relevance_gate,omitempty"`
 	SupportingSide   []workBrief `json:"supporting_side"`
 	RefutingSide     []workBrief `json:"refuting_side"`
 	Note             string      `json:"note,omitempty"`
@@ -61,7 +62,7 @@ func newNovelControversiesCmd(flags *rootFlags) *cobra.Command {
 			// fixes StudyCount below, which counts len(works): without the
 			// gate the reported study count included works the stance tally
 			// never described.
-			works = filterRelevant(query, works)
+			works, gate := filterRelevant(ctx, query, works)
 			if enrich {
 				enrichPubTypes(ctx, works, 50)
 			}
@@ -71,6 +72,7 @@ func newNovelControversiesCmd(flags *rootFlags) *cobra.Command {
 			prog.done()
 
 			out := tallyControversy(query, len(works), stances)
+			out.RelevanceGate = gate
 			return emit(cmd, flags, out, func(w io.Writer) { renderControversy(w, out) })
 		},
 	}

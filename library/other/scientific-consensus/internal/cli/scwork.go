@@ -289,8 +289,17 @@ func relevantToClaim(claim string, w scWork) bool {
 // change's purpose. The two are alternatives, not layers: running both would
 // apply a title/topic rule on top of an abstract-aware one and silently
 // re-drop works the PICO gate deliberately kept.
-func filterRelevant(claim string, works []scWork) []scWork {
-	ivTokens, outTokens := scengine.PICOTokens(claim)
+//
+// When PICOTokens cannot split the claim and an LLM key is configured,
+// claimSplit tries an LLM split before giving up on the PICO gate. Any failure
+// lands back on the token-overlap gate. The returned label names the gate that
+// ran, for output next to stance_method; it is empty when there were no works
+// to filter, which also avoids paying for a split nothing would use.
+func filterRelevant(ctx context.Context, claim string, works []scWork) ([]scWork, string) {
+	if len(works) == 0 {
+		return []scWork{}, ""
+	}
+	ivTokens, outTokens, gate := claimSplit(ctx, claim)
 	usePICO := len(ivTokens) > 0 && len(outTokens) > 0
 	kept := make([]scWork, 0, len(works))
 	for _, w := range works {
@@ -304,8 +313,11 @@ func filterRelevant(claim string, works []scWork) []scWork {
 			kept = append(kept, w)
 		}
 	}
-	return kept
+	return kept, gate
 }
+
+// claimSplit is a variable so tests can stub the provider-backed split.
+var claimSplit = scengine.ClaimSplitAuto
 
 // nonAlnumRun matches a run of characters that are not a lowercase ASCII
 // letter or digit; normalizedTitle collapses each run to one space.

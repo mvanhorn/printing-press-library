@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "relevance-gate-llm-claim-split",
+  "applied_at": "2026-10-30",
+  "base_run_id": "20260620-165352-e55cec69",
+  "base_printing_press_version": "4.24.0",
+  "summary": "When PICOTokens cannot split a claim and a provider key is configured, one LLM call splits it so the PICO gate can run; the gate used is reported as relevance_gate.",
+  "reason": "Most claims have no polarity verb to split on, so the weaker title/topic overlap gate usually ran. Issue #2327 measured that an LLM split roughly halves the off-topic works let through, at a small recall cost, so the gate used is reported to keep that cost visible when comparing runs.",
+  "files": [
+    "internal/scengine/llm_split.go",
+    "internal/scengine/llm_split_test.go",
+    "internal/cli/scwork.go",
+    "internal/cli/scwork_test.go",
+    "internal/cli/consensus.go",
+    "internal/cli/compare.go",
+    "internal/cli/controversies.go",
+    "internal/cli/report.go",
+    "internal/cli/export_out.go"
+  ],
+  "validated_outcome": "A stubbed provider covers the split path, every fallback (provider error, bad JSON, empty side, stopword-only side), the keyless path with no call, and no call when there are no works; go build, go vet and go test pass."
+}

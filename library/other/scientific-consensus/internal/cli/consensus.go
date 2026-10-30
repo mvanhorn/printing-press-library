@@ -59,10 +59,13 @@ type consensusOutput struct {
 	// RetractedExcluded counts works kept out of the score by a retraction
 	// signal. Reported separately from StudyCount so a reader can see that
 	// works were dropped and why, rather than inferring it from a gap.
-	RetractedExcluded int         `json:"retracted_excluded,omitempty"`
-	Method            string      `json:"stance_method"`
-	TopSupporting     []workBrief `json:"top_supporting"`
-	TopRefuting       []workBrief `json:"top_refuting"`
+	RetractedExcluded int    `json:"retracted_excluded,omitempty"`
+	Method            string `json:"stance_method"`
+	// RelevanceGate names the gate that filtered the works: pico,
+	// llm_split:<provider> or token_overlap. Empty when nothing was fetched.
+	RelevanceGate string      `json:"relevance_gate,omitempty"`
+	TopSupporting []workBrief `json:"top_supporting"`
+	TopRefuting   []workBrief `json:"top_refuting"`
 	// AllStudies lists every analyzed work (post relevance gate) in fetch
 	// (relevance) order, so content-aware consumers can re-filter by
 	// abstract instead of trusting the top lists alone. Retraction-excluded
@@ -123,7 +126,11 @@ func newNovelConsensusCmd(flags *rootFlags) *cobra.Command {
 			"  5. MISTRAL_API_KEY    (mistral-small-latest)\n" +
 			"The LLM path is best-effort: a single attempt with a 15s timeout, and any error\n" +
 			"silently falls back to the heuristic. The method used is reported as\n" +
-			"stance_method (heuristic or llm:<provider>).",
+			"stance_method (heuristic or llm:<provider>).\n\n" +
+			"The same key also backs the relevance gate: when a claim has no polarity verb to\n" +
+			"split on, one LLM call splits it into intervention and outcome. Any error or empty\n" +
+			"split falls back to the title/topic overlap gate. The gate used is reported as\n" +
+			"relevance_gate (pico, llm_split:<provider> or token_overlap).",
 		Example:     "  scientific-consensus-pp-cli consensus \"vitamin D reduces respiratory infections\" --agent",
 		Annotations: map[string]string{"mcp:read-only": "true", "pp:no-error-path-probe": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -161,7 +168,7 @@ func newNovelConsensusCmd(flags *rootFlags) *cobra.Command {
 			// Detect retractions and twins first: a twin dropped by the
 			// relevance gate must still mark its relevant copy.
 			works = markRetractions(works)
-			works = filterRelevant(claim, works)
+			works, gate := filterRelevant(ctx, claim, works)
 			dropped := fetched - len(works)
 
 			// Retraction gate: a retracted work is not evidence, so it is
@@ -191,6 +198,7 @@ func newNovelConsensusCmd(flags *rootFlags) *cobra.Command {
 				NearUnanimous:     result.NearUnanimous,
 				RetractedExcluded: len(retracted),
 				Method:            stanceMethodLabel(stances),
+				RelevanceGate:     gate,
 			}
 			out.TopSupporting = topByStance(stances, scengine.StanceSupporting, 3)
 			out.TopRefuting = topByStance(stances, scengine.StanceRefuting, 3)
@@ -335,6 +343,9 @@ func renderConsensus(w io.Writer, o consensusOutput) {
 		fmt.Fprintf(w, "  Retracted:         %d excluded from the score\n", o.RetractedExcluded)
 	}
 	fmt.Fprintf(w, "  Stance method:     %s\n", o.Method)
+	if o.RelevanceGate != "" {
+		fmt.Fprintf(w, "  Relevance gate:    %s\n", o.RelevanceGate)
+	}
 	if len(o.TopSupporting) > 0 {
 		fmt.Fprintln(w, "\n  Top supporting:")
 		for _, b := range o.TopSupporting {

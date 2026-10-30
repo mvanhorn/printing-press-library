@@ -1,6 +1,11 @@
 package cli
 
-import "testing"
+import (
+	"context"
+	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/other/scientific-consensus/internal/scengine"
+)
 
 // TestRelevantToClaim pins the relevance gate (see relevantToClaim): before a
 // work is classified/scored, it must share at least one non-stopword,
@@ -78,7 +83,7 @@ func TestFilterRelevant(t *testing.T) {
 		{Title: "Caffeine, coffee and alertness: a randomized crossover trial", Topic: "Cognitive Performance"},
 		{Title: "Genomic selection improved crop yield and disease resistance", Topic: "Plant Genetics and Breeding"},
 	}
-	kept := filterRelevant("coffee improves alertness", works)
+	kept, _ := filterRelevant(context.Background(), "coffee improves alertness", works)
 	if len(kept) != 1 || kept[0].Title != works[0].Title {
 		t.Errorf("filterRelevant kept %d works (%+v), want only the coffee trial", len(kept), kept)
 	}
@@ -103,7 +108,7 @@ func TestFilterRelevantPICOGate(t *testing.T) {
 		// apart.
 		{Title: "Coffee bean roasting temperature and yield", Abstract: "Roast profiles were compared for extraction yield."},
 	}
-	kept := filterRelevant("coffee improves alertness", works)
+	kept, _ := filterRelevant(context.Background(), "coffee improves alertness", works)
 	if len(kept) != 1 || kept[0].Title != works[0].Title {
 		t.Errorf("PICO gate not on the production path: kept %d works (%+v), want only the alertness abstract", len(kept), kept)
 	}
@@ -118,8 +123,69 @@ func TestFilterRelevantUnsplittableClaim(t *testing.T) {
 		{Title: "Mediterranean diet adherence in older adults", Topic: "Nutrition"},
 		{Title: "Genomic selection for crop yield", Topic: "Plant Genetics and Breeding"},
 	}
-	kept := filterRelevant("mediterranean diet", works)
+	clearLLMKeys(t)
+	kept, _ := filterRelevant(context.Background(), "mediterranean diet", works)
 	if len(kept) != 1 || kept[0].Title != works[0].Title {
 		t.Errorf("fallback gate did not run: kept %d works (%+v), want only the diet paper", len(kept), kept)
+	}
+}
+
+// clearLLMKeys keeps a test on the keyless path even when the developer's
+// environment has a provider key set.
+func clearLLMKeys(t *testing.T) {
+	t.Helper()
+	for _, k := range []string{"ANTHROPIC_API_KEY", "OPENAI_API_KEY", "DEEPSEEK_API_KEY", "GEMINI_API_KEY", "GROQ_API_KEY", "MISTRAL_API_KEY"} {
+		t.Setenv(k, "")
+	}
+}
+
+// TestFilterRelevantUsesLLMSplitForUnsplittableClaim stubs the split: the work
+// that shares a token with the claim but names only one side is dropped, which
+// the overlap gate would have kept.
+func TestFilterRelevantUsesLLMSplitForUnsplittableClaim(t *testing.T) {
+	prev := claimSplit
+	t.Cleanup(func() { claimSplit = prev })
+	claimSplit = func(ctx context.Context, claim string) ([]string, []string, string) {
+		return []string{"gum"}, []string{"ileus"}, "llm_split:stub"
+	}
+
+	works := []scWork{
+		{Title: "Chewing gum and postoperative ileus"},
+		{Title: "Bowel surgery recovery times"},
+	}
+	kept, gate := filterRelevant(context.Background(), "chewing gum after bowel surgery", works)
+	if gate != "llm_split:stub" {
+		t.Fatalf("gate = %q, want llm_split:stub", gate)
+	}
+	if len(kept) != 1 || kept[0].Title != works[0].Title {
+		t.Fatalf("kept = %+v, want only the ileus trial", kept)
+	}
+}
+
+func TestFilterRelevantFallsBackToOverlapGate(t *testing.T) {
+	clearLLMKeys(t)
+	works := []scWork{
+		{Title: "Chewing gum and postoperative ileus"},
+		{Title: "Bowel surgery recovery times"},
+		{Title: "Crop genetics in maize"},
+	}
+	kept, gate := filterRelevant(context.Background(), "chewing gum after bowel surgery", works)
+	if gate != scengine.GateTokenOverlap {
+		t.Fatalf("gate = %q, want token_overlap", gate)
+	}
+	if len(kept) != 2 {
+		t.Fatalf("kept = %+v, want the two works sharing a claim token", kept)
+	}
+}
+
+func TestFilterRelevantNoWorksNoSplit(t *testing.T) {
+	prev := claimSplit
+	t.Cleanup(func() { claimSplit = prev })
+	claimSplit = func(ctx context.Context, claim string) ([]string, []string, string) {
+		t.Fatal("split must not run with no works")
+		return nil, nil, ""
+	}
+	if kept, gate := filterRelevant(context.Background(), "chewing gum", nil); len(kept) != 0 || gate != "" {
+		t.Fatalf("kept=%v gate=%q, want empty", kept, gate)
 	}
 }

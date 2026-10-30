@@ -482,6 +482,7 @@ Static request headers can be configured under `headers`; per-command header ove
 - **Semantic Scholar results missing or sparse** — Semantic Scholar rate-limits keyless requests (HTTP 429). Set SEMANTIC_SCHOLAR_API_KEY or rely on OpenAlex/PubMed/Europe PMC; commands degrade gracefully.
 - **PubMed throttling on large syncs** — Set NCBI_API_KEY to raise the rate limit from 3 to 10 requests/second.
 - **consensus reports method=heuristic** — Stance classification is lexical without an AI key. Set ANTHROPIC_API_KEY, OPENAI_API_KEY, DEEPSEEK_API_KEY, or GEMINI_API_KEY for AI-assisted stance detection (priority: Anthropic, OpenAI, DeepSeek, then Gemini/Groq/Mistral; sampling is temperature 0).
+- **relevance_gate shows token_overlap** — The claim has no polarity verb for the PICO gate to split on. With an AI key set, one LLM call splits it and the output reports `llm_split:<provider>`. Any error or empty split stays on `token_overlap`, and a claim that splits on its own reports `pico` with no LLM call.
 - **Empty results offline** — Run 'scientific-consensus sync "<topic>"' first to populate the local store, or use --data-source live.
 
 ## Sources & Inspiration

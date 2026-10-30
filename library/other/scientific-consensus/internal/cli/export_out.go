@@ -64,15 +64,16 @@ func newReportCmd(flags *rootFlags) *cobra.Command {
 			}
 			if flags.asJSON || flags.agent {
 				return flags.printJSON(cmd, map[string]any{
-					"file":          outputFile,
-					"works":         data.Analyzed,
-					"total_matches": data.TotalMatches,
-					"supporting":    data.Supporting,
-					"refuting":      data.Refuting,
-					"mixed":         data.Mixed,
-					"inconclusive":  data.Inconclusive,
-					"apex_design":   data.ApexDesign,
-					"stance_method": data.StanceMethod,
+					"file":           outputFile,
+					"works":          data.Analyzed,
+					"total_matches":  data.TotalMatches,
+					"supporting":     data.Supporting,
+					"refuting":       data.Refuting,
+					"mixed":          data.Mixed,
+					"inconclusive":   data.Inconclusive,
+					"apex_design":    data.ApexDesign,
+					"stance_method":  data.StanceMethod,
+					"relevance_gate": data.RelevanceGate,
 				})
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Exported %d works (of %d matches) to %s\n", data.Analyzed, data.TotalMatches, outputFile)

@@ -31,19 +31,20 @@ type CitationSummary struct {
 // reportData is everything the Excel writer needs: the per-work rows plus the
 // aggregate stats shown on the Summary sheet.
 type reportData struct {
-	Query        string            `json:"query"`
-	Filter       string            `json:"filter,omitempty"`
-	Claim        string            `json:"claim"`
-	TotalMatches int               `json:"total_matches"`
-	Analyzed     int               `json:"analyzed"`
-	Supporting   int               `json:"supporting"`
-	Refuting     int               `json:"refuting"`
-	Mixed        int               `json:"mixed"`
-	Inconclusive int               `json:"inconclusive"`
-	ApexDesign   scengine.Design   `json:"apex_design"`
-	StanceMethod string            `json:"stance_method"`
-	GeneratedAt  time.Time         `json:"generated_at"`
-	Rows         []CitationSummary `json:"rows"`
+	Query         string            `json:"query"`
+	Filter        string            `json:"filter,omitempty"`
+	Claim         string            `json:"claim"`
+	TotalMatches  int               `json:"total_matches"`
+	Analyzed      int               `json:"analyzed"`
+	Supporting    int               `json:"supporting"`
+	Refuting      int               `json:"refuting"`
+	Mixed         int               `json:"mixed"`
+	Inconclusive  int               `json:"inconclusive"`
+	ApexDesign    scengine.Design   `json:"apex_design"`
+	StanceMethod  string            `json:"stance_method"`
+	RelevanceGate string            `json:"relevance_gate,omitempty"`
+	GeneratedAt   time.Time         `json:"generated_at"`
+	Rows          []CitationSummary `json:"rows"`
 }
 
 // buildReportData fetches works for the query, classifies each one, and
@@ -61,17 +62,18 @@ func buildReportData(ctx context.Context, c apiGetter, query, filter, claim stri
 	// of works the rows and stance stats actually describe. TotalMatches is
 	// deliberately left alone: it reports what the query matched upstream, not
 	// what this run analyzed.
-	works = filterRelevant(claim, works)
+	works, gate := filterRelevant(ctx, claim, works)
 	_, stances := scoreWorks(ctx, works, claim)
 
 	data := &reportData{
-		Query:        query,
-		Filter:       filter,
-		Claim:        claim,
-		TotalMatches: total,
-		Analyzed:     len(works),
-		GeneratedAt:  time.Now().UTC(),
-		Rows:         make([]CitationSummary, 0, len(stances)),
+		Query:         query,
+		Filter:        filter,
+		Claim:         claim,
+		TotalMatches:  total,
+		Analyzed:      len(works),
+		RelevanceGate: gate,
+		GeneratedAt:   time.Now().UTC(),
+		Rows:          make([]CitationSummary, 0, len(stances)),
 	}
 	classifications := make([]scengine.Classification, 0, len(stances))
 	for _, st := range stances {
@@ -183,6 +185,7 @@ func writeReportXLSX(path string, data *reportData) (err error) {
 		{"Inconclusive", data.Inconclusive},
 		{"Strongest design present", string(data.ApexDesign)},
 		{"Stance method", data.StanceMethod},
+		{"Relevance gate", data.RelevanceGate},
 		{"Generated at (UTC)", data.GeneratedAt.Format(time.RFC3339)},
 		{"CLI version", version},
 	}
