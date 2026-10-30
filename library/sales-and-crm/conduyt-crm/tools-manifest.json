@@ -3782,7 +3782,7 @@
     },
     {
       "name": "conduyt-auth_register",
-      "description": "Creates a new user and account. Rate limited to 3 requests per hour per IP. Required: accountName, email, password. Optional: firstName, lastName. Returns the new AuthResponse. (public)",
+      "description": "Creates a new user and account. Rate limited to 3 requests per hour per IP. Required: accountName, email, password, termsAccepted. Optional: firstName, lastName. Returns the new AuthResponse. (public)",
       "method": "POST",
       "path": "/auth/register",
       "no_auth": true,
@@ -3818,6 +3818,13 @@
           "type": "string",
           "location": "body",
           "description": "Password",
+          "required": true
+        },
+        {
+          "name": "termsAccepted",
+          "type": "boolean",
+          "location": "body",
+          "description": "Required, true only: consent to the Terms of Service (/terms) and the Privacy Policy (/privacy). Any other value, or none, is a 400",
           "required": true
         }
       ]

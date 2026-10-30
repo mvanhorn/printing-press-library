@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "register-terms-accepted-601",
+  "applied_at": "2026-10-30",
+  "base_run_id": "20260916-101513-9e12dad7",
+  "base_printing_press_version": "4.33.10",
+  "summary": "conduyt-auth register takes a required --terms-accepted flag that sends termsAccepted true (POST /auth/register requires it). The command takes no positional arguments (pflag reads `--terms-accepted false` as the bare flag plus a stray \"false\"; that spelling is refused locally, nothing sent). Without the flag (or with --terms-accepted=false) the command refuses locally, naming the Terms and Privacy Policy, and sends nothing; --stdin passes the body through untouched (reads cmd.InOrStdin()).",
+  "reason": "The live POST /auth/register answers 400 to any body without termsAccepted true, so a reprint from the old spec would drop the flag and every CLI registration would fail. spec.yaml carries the typed requestBody for this one operation only; the parity test pins spec.yaml, tools-manifest.json and the command to the same typed body.",
+  "files": [
+    "internal/cli/conduyt-auth_register.go",
+    "internal/cli/conduyt_auth_register_test.go",
+    "spec.yaml",
+    "tools-manifest.json",
+    "README.md",
+    "SKILL.md"
+  ],
+  "call_sites": [
+    "Args: func(cmd *cobra.Command, args []string) error",
+    "cmd.InOrStdin()"
+  ],
+  "patch_count": 6,
+  "validated_outcome": "With --terms-accepted the wire body carries termsAccepted true; without it (or =false) no request is sent and the error names the terms; any positional argument is refused before RunE with no request; spec.yaml, tools-manifest.json and the command flags agree on the required const-true boolean; go build, go vet and the focused internal/cli tests pass. Ported from the creator's private print (ptaramona/conduyt-crm-cli 917ee77, PR #2, Codex approved)."
+}
