@@ -118,10 +118,15 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 	}
 }
 
+// listingBlocked reports whether err is a 403 from the Redfin API.
+func listingBlocked(err error) bool {
+	var apiError *client.APIError
+	return errors.As(err, &apiError) && apiError.StatusCode == http.StatusForbidden
+}
+
 // listingBlockedHint adds the fix to a 403 from a listing detail endpoint.
 func listingBlockedHint(err error) error {
-	var apiError *client.APIError
-	if errors.As(err, &apiError) && apiError.StatusCode == http.StatusForbidden {
+	if listingBlocked(err) {
 		return fmt.Errorf("%w\nhint: Redfin blocks this endpoint without a browser session. Browse redfin.com, export cookies, then run: redfin-pp-cli auth import-file <path>", err)
 	}
 	return err

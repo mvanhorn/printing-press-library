@@ -101,8 +101,8 @@ bedroom match, and a months window.`,
 			path := extractPathFromArg(args[0])
 			subj, err := lookupListingByURL(cmd.Context(), s.DB(), c, path)
 			if err != nil {
-				if hinted := listingBlockedHint(err); hinted != err {
-					return authErr(hinted)
+				if listingBlocked(err) {
+					return authErr(err)
 				}
 				return apiErr(fmt.Errorf("could not resolve subject listing %s: %w", path, err))
 			}

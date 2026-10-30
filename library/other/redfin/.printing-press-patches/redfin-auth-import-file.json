@@ -11,6 +11,7 @@
     "internal/cli/root.go",
     "internal/cli/promoted_listing.go",
     "internal/cli/apt_comps.go",
+    "internal/cli/apt_helpers.go",
     "internal/client/client.go",
     "internal/client/cookie_test.go",
     "internal/config/config.go",

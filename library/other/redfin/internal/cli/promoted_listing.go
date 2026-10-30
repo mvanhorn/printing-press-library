@@ -68,8 +68,8 @@ later transcendence commands (compare, comps, rank) can read it offline.`,
 
 			initial, ierr := c.Get("/stingray/api/home/details/initialInfo", map[string]string{"path": path})
 			if ierr != nil {
-				if hinted := listingBlockedHint(ierr); hinted != ierr {
-					return authErr(hinted)
+				if listingBlocked(ierr) {
+					return authErr(listingBlockedHint(ierr))
 				}
 				return classifyAPIError(ierr)
 			}

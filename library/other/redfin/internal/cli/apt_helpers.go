@@ -146,7 +146,7 @@ func lookupListingByURL(ctx context.Context, db *sql.DB, c *client.Client, url s
 func fetchListingDetailLive(c *client.Client, urlPath string) (redfin.Listing, error) {
 	initial, err1 := c.Get("/stingray/api/home/details/initialInfo", map[string]string{"path": urlPath})
 	if err1 != nil {
-		return redfin.Listing{}, err1
+		return redfin.Listing{}, listingBlockedHint(err1)
 	}
 	// Pull propertyId / listingId from initialInfo so we can request the rest.
 	var env struct {
