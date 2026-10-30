@@ -12,6 +12,7 @@
     "internal/cli/scwork.go",
     "internal/cli/scwork_test.go",
     "internal/cli/consensus.go",
+    "internal/cli/batch.go",
     "internal/cli/compare.go",
     "internal/cli/controversies.go",
     "internal/cli/report.go",

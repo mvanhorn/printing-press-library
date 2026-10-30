@@ -1,7 +1,9 @@
 package cli
 
 import (
+	"bytes"
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/other/scientific-consensus/internal/scengine"
@@ -187,5 +189,21 @@ func TestFilterRelevantNoWorksNoSplit(t *testing.T) {
 	}
 	if kept, gate := filterRelevant(context.Background(), "chewing gum", nil); len(kept) != 0 || gate != "" {
 		t.Fatalf("kept=%v gate=%q, want empty", kept, gate)
+	}
+}
+
+func TestTextOutputShowsRelevanceGate(t *testing.T) {
+	const gate = "llm_split:stub"
+	result := consensusOutput{RelevanceGate: gate}
+
+	var compare, batch, controversy bytes.Buffer
+	renderCompare(&compare, compareOutput{ClaimA: result, ClaimB: consensusOutput{}})
+	renderBatch(&batch, batchSummary{Items: []batchItem{{Claim: "a claim", Result: &result}}})
+	renderControversy(&controversy, controversyOutput{RelevanceGate: gate})
+
+	for name, out := range map[string]string{"compare": compare.String(), "batch": batch.String(), "controversies": controversy.String()} {
+		if !strings.Contains(out, gate) {
+			t.Errorf("%s output has no gate: %q", name, out)
+		}
 	}
 }

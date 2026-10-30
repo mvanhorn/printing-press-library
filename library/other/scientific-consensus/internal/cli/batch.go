@@ -152,15 +152,15 @@ func parseClaimLines(content string) []string {
 func renderBatch(w io.Writer, s batchSummary) {
 	fmt.Fprintf(w, "Batch consensus: %d claims (%d ok, %d failed)\n\n", s.Total, s.OK, s.Failed)
 	tw := newTabWriter(w)
-	fmt.Fprintln(tw, "CLAIM\tVERDICT\tSCORE\tCONF\tSTUDIES\tSTATUS")
+	fmt.Fprintln(tw, "CLAIM\tVERDICT\tSCORE\tCONF\tSTUDIES\tGATE\tSTATUS")
 	for _, it := range s.Items {
 		if it.Error != "" {
-			fmt.Fprintf(tw, "%s\t-\t-\t-\t-\terror: %s\n", truncate(it.Claim, 50), truncate(it.Error, 40))
+			fmt.Fprintf(tw, "%s\t-\t-\t-\t-\t-\terror: %s\n", truncate(it.Claim, 50), truncate(it.Error, 40))
 			continue
 		}
 		r := it.Result
-		fmt.Fprintf(tw, "%s\t%s\t%+.2f\t%.0f%%\t%d\tok\n",
-			truncate(it.Claim, 50), r.Verdict, r.ConsensusScore, r.Confidence*100, r.StudyCount)
+		fmt.Fprintf(tw, "%s\t%s\t%+.2f\t%.0f%%\t%d\t%s\tok\n",
+			truncate(it.Claim, 50), r.Verdict, r.ConsensusScore, r.Confidence*100, r.StudyCount, gateLabel(r.RelevanceGate))
 	}
 	_ = tw.Flush()
 }

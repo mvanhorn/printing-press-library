@@ -131,6 +131,9 @@ func renderControversy(w io.Writer, o controversyOutput) {
 	fmt.Fprintf(w, "  Controversy score: %.2f  (%s)\n", o.ControversyScore, verdict)
 	fmt.Fprintf(w, "  Studies: %d  (support %d / refute %d / mixed %d / inconclusive %d)\n\n",
 		o.StudyCount, o.Supporting, o.Refuting, o.Mixed, o.Inconclusive)
+	if o.RelevanceGate != "" {
+		fmt.Fprintf(w, "  Relevance gate: %s\n", o.RelevanceGate)
+	}
 	if len(o.SupportingSide) > 0 {
 		fmt.Fprintln(w, "  Supporting side:")
 		for _, b := range o.SupportingSide {
