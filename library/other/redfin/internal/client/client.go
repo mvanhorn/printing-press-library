@@ -239,6 +239,11 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		if authHeader != "" {
 			req.Header.Set("Authorization", authHeader)
 		}
+		// PATCH: send imported browser cookies, to redfin.com only, so a
+		// REDFIN_BASE_URL override never receives them.
+		if cookie := cookieHeaderFor(targetURL, c.Config); cookie != "" {
+			req.Header.Set("Cookie", cookie)
+		}
 		// Per-endpoint header overrides (e.g., different API version per resource)
 		for k, v := range headerOverrides {
 			req.Header.Set(k, v)
@@ -338,8 +343,28 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 	if authHeader != "" {
 		fmt.Fprintf(os.Stderr, "  %s: %s\n", "Authorization", maskToken(authHeader))
 	}
+	if cookie := cookieHeaderFor(targetURL, c.Config); cookie != "" {
+		fmt.Fprintf(os.Stderr, "  %s: %s\n", "Cookie", maskToken(cookie))
+	}
 	fmt.Fprintf(os.Stderr, "\n(dry run - no request sent)\n")
 	return json.RawMessage(`{"dry_run": true}`), 0, nil
+}
+
+// cookieHeaderFor returns the stored Cookie header when targetURL is an https
+// redfin.com URL, and "" otherwise.
+func cookieHeaderFor(targetURL string, cfg *config.Config) string {
+	if cfg == nil || cfg.CookieHeader == "" {
+		return ""
+	}
+	u, err := url.Parse(targetURL)
+	if err != nil || u.Scheme != "https" {
+		return ""
+	}
+	host := strings.ToLower(u.Hostname())
+	if host != "redfin.com" && !strings.HasSuffix(host, ".redfin.com") {
+		return ""
+	}
+	return cfg.CookieHeader
 }
 
 func (c *Client) ConfiguredTimeout() time.Duration {

@@ -234,7 +234,7 @@ Slices the price space into bands, page-walks gis-csv per band, dedupes on listi
 
 ## Auth Setup
 
-No authentication required.
+No authentication required for search and market commands. If `listing` or `comps` returns HTTP 403, have the user export their redfin.com browser cookies to a JSON or cookies.txt file, then run `redfin-pp-cli auth import-file <path>`.
 
 Run `redfin-pp-cli doctor` to verify setup.
 

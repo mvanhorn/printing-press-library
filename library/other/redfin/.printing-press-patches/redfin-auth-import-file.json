@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "redfin-auth-import-file",
+  "applied_at": "2026-10-30",
+  "base_run_id": "20260504-175601",
+  "base_printing_press_version": "3.8.0",
+  "summary": "Add auth import-file, status and logout so listing detail requests can carry a browser session's redfin.com cookies.",
+  "reason": "Redfin blocks /stingray/api/home/details/initialInfo with HTTP 403 for requests without a browser-earned session (issue #698), and no header change gets past it.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/root.go",
+    "internal/cli/promoted_listing.go",
+    "internal/cli/apt_helpers.go",
+    "internal/client/client.go",
+    "internal/client/cookie_test.go",
+    "internal/config/config.go",
+    "internal/redfin/cookies.go",
+    "internal/redfin/cookies_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Parser and host-guard unit tests pass. Not yet checked against a live Redfin session."
+}

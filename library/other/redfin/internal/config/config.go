@@ -22,6 +22,7 @@ type Config struct {
 	TokenExpiry   time.Time `toml:"token_expiry"`
 	ClientID      string    `toml:"client_id"`
 	ClientSecret  string    `toml:"client_secret"`
+	CookieHeader  string    `toml:"cookie_header"`
 	Path          string    `toml:"-"`
 }
 
@@ -91,6 +92,13 @@ func (c *Config) ClearTokens() error {
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
+	return c.save()
+}
+
+// SaveCookies stores the Cookie header value for redfin.com requests. An empty
+// value removes it.
+func (c *Config) SaveCookies(header string) error {
+	c.CookieHeader = header
 	return c.save()
 }
 

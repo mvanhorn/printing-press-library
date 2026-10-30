@@ -122,6 +122,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 No authentication required. The Stingray endpoints are the same ones Redfin's web app uses, served unauthenticated to US IPs. Account-only features (saved homes, alerts, agent dashboard) are intentionally out of scope. Surf with Chrome TLS fingerprint clears AWS-WAF protection at runtime; cliutil.AdaptiveLimiter handles per-IP rate limits with exponential backoff.
 
+`listing` and `comps` call detail endpoints that can return HTTP 403 without a browser session. Browse a redfin.com listing page in a browser, export the cookies to a JSON or Netscape cookies.txt file, then run `redfin-pp-cli auth import-file <path>`. Cookies are stored in the config file (mode 0600), sent only to redfin.com, and never printed. Browser challenge cookies expire, so re-import if the 403 returns. `auth status` shows how many are stored and `auth logout` removes them.
+
 ## Quick Start
 
 ```bash
@@ -375,6 +377,7 @@ redfin-pp-cli homes --profile austin-3br --price-max 600000 --json
 ### API-specific
 
 - **homes / region returns HTTP 403 or 429** — Surf cleared the homepage but Redfin rate-limits per IP. Run `redfin-pp-cli doctor` and wait 30-60 seconds before retrying; cliutil.AdaptiveLimiter will back off automatically.
+- **listing / comps return HTTP 403 while homes works** — Redfin blocks the detail endpoints without a browser session. Export your redfin.com cookies and run `redfin-pp-cli auth import-file <path>`. If it still returns 403, the cookies may have expired or may not carry over from the browser's network, so export again from the same machine.
 - **All commands return 403 from non-US IPs** — Stingray is geo-restricted to US IPs. Run from a US-based machine, or use a US VPN.
 - **watch reports no changes when you know listings changed** — Confirm a previous `sync-search` exists. Check with: `sqlite3 ~/.local/share/redfin-pp-cli/data.db "SELECT MAX(observed_at) FROM listing_snapshots WHERE saved_search = 'austin-3br'"`. If empty, run sync first.
 - **rank or summary returns empty** — These read from the local store. Run `sync-search` first. Check with: `sqlite3 ~/.local/share/redfin-pp-cli/data.db "SELECT COUNT(*) FROM listing"`.
