@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "podscan-resource-id-overrides",
+  "applied_at": "2026-10-30",
+  "base_run_id": "20260509-110700",
+  "base_printing_press_version": "4.1.0",
+  "summary": "Populate resourceIDFieldOverrides with PodScan's {resource}_id fields so sync stores rows.",
+  "reason": "PodScan items carry alert_id, category_id, episode_id and podcast_id rather than id, and export listings are keyed by path. With both override maps empty every item fell through the generic fallback list and was dropped (issue #383: categories consumed 163, stored 0).",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/store/store.go",
+    "internal/store/upsert_batch_test.go"
+  ],
+  "validated_outcome": "UpsertBatch stores categories, alerts, episodes, podcasts, mentions and export listings keyed by their spec ID fields; go build, go vet and go test pass."
+}

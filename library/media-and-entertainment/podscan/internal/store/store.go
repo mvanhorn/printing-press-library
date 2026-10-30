@@ -953,7 +953,15 @@ func (s *Store) UpsertPodcastsEpisodes(data json.RawMessage) error {
 // Includes both flat resources and dependent (parent-child) resources so a
 // child path-item annotated with x-resource-id resolves the same as a flat
 // path-item.
-var resourceIDFieldOverrides = map[string]string{}
+var resourceIDFieldOverrides = map[string]string{
+	"alerts":           "alert_id",
+	"categories":       "category_id",
+	"episodes":         "episode_id",
+	"podcasts":         "podcast_id",
+	"exports":          "path",
+	"exports-podcasts": "path",
+	"mentions":         "episode_id",
+}
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did
 // NOT receive a templated IDField. API-specific names belong in spec

@@ -499,3 +499,35 @@ func TestUpsertBatch_PopulatesPodcastsEpisodesTable(t *testing.T) {
 		t.Fatalf("podcasts_episodes count = %d, want %d (typed table not populated by UpsertBatch)", typed, len(items))
 	}
 }
+
+// TestUpsertBatch_PodscanResourceIDFields pins the PodScan {resource}_id
+// overrides. Items have no generic fallback field, so without the override
+// map every item was dropped (issue #383).
+func TestUpsertBatch_PodscanResourceIDFields(t *testing.T) {
+	s, err := Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	cases := map[string][]json.RawMessage{
+		"categories": {
+			json.RawMessage(`{"category_id": "ct_1", "category_name": "Arts"}`),
+			json.RawMessage(`{"category_id": "ct_2", "category_name": "Business"}`),
+		},
+		"alerts":           {json.RawMessage(`{"alert_id": "al_1", "alert_term": "golang"}`)},
+		"episodes":         {json.RawMessage(`{"episode_id": "ep_1", "episode_title": "Pilot"}`)},
+		"podcasts":         {json.RawMessage(`{"podcast_id": "pd_1", "podcast_name": "Show"}`)},
+		"exports":          {json.RawMessage(`{"date": "2026-10-01", "path": "episodes/2026-10-01.jsonl.gz", "size_bytes": 10}`)},
+		"exports-podcasts": {json.RawMessage(`{"date": "2026-10-01", "path": "podcasts/2026-10-01.jsonl.gz", "size_bytes": 10}`)},
+	}
+	for resource, items := range cases {
+		stored, extractFailures, err := s.UpsertBatch(resource, items)
+		if err != nil {
+			t.Fatalf("%s: UpsertBatch: %v", resource, err)
+		}
+		if stored != len(items) || extractFailures != 0 {
+			t.Fatalf("%s: stored=%d extractFailures=%d, want stored=%d extractFailures=0", resource, stored, extractFailures, len(items))
+		}
+	}
+}

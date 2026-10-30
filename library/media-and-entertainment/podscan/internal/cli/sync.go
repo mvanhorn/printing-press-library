@@ -1069,7 +1069,15 @@ func syncDependentResource(c interface {
 // Includes both flat resources and dependent (parent-child) resources so
 // annotations on a child path-item are honored at runtime, not just on
 // flat paths.
-var resourceIDFieldOverrides = map[string]string{}
+var resourceIDFieldOverrides = map[string]string{
+	"alerts":           "alert_id",
+	"categories":       "category_id",
+	"episodes":         "episode_id",
+	"podcasts":         "podcast_id",
+	"exports":          "path",
+	"exports-podcasts": "path",
+	"mentions":         "episode_id",
+}
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did
 // NOT receive a templated IDField. API-specific names belong in spec
