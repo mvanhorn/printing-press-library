@@ -4,7 +4,7 @@
   "applied_at": "2026-10-30",
   "base_run_id": "20260509-110700",
   "base_printing_press_version": "4.1.0",
-  "summary": "Populate resourceIDFieldOverrides with PodScan's {resource}_id fields so sync stores rows.",
+  "summary": "Populate resourceIDFieldOverrides with PodScan's {resource}_id fields so sync stores rows. Also bind mentions typed-table values in column order.",
   "reason": "PodScan items carry alert_id, category_id, episode_id and podcast_id rather than id, and export listings are keyed by path. With both override maps empty every item fell through the generic fallback list and was dropped (issue #383: categories consumed 163, stored 0).",
   "files": [
     "internal/cli/sync.go",

@@ -729,14 +729,24 @@ func (s *Store) UpsertAlerts(data json.RawMessage) error {
 // Splitting this out lets UpsertBatch dispatch typed inserts per item without
 // opening a per-item transaction.
 func (s *Store) upsertMentionsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	// PATCH: values were bound out of column order (data landed in
+	// alerts_id). Mentions from dependent sync carry the alert only as the
+	// injected parent_id, so alerts_id falls back to it; the column is NOT NULL.
+	alertsID := lookupFieldValue(obj, "alerts_id")
+	if alertsID == nil {
+		alertsID = lookupFieldValue(obj, "parent_id")
+	}
+	if alertsID == nil {
+		alertsID = ""
+	}
 	if _, err := tx.Exec(
 		`INSERT INTO mentions (id, alerts_id, data, synced_at, parent_id)
 		 VALUES (?, ?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET alerts_id = excluded.alerts_id, data = excluded.data, synced_at = excluded.synced_at, parent_id = excluded.parent_id`,
 		id,
+		alertsID,
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "alerts_id"),
 		lookupFieldValue(obj, "parent_id"),
 	); err != nil {
 		return fmt.Errorf("insert into mentions: %w", err)

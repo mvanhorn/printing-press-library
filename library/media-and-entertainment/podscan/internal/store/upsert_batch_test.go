@@ -531,3 +531,31 @@ func TestUpsertBatch_PodscanResourceIDFields(t *testing.T) {
 		}
 	}
 }
+
+// TestUpsertBatch_PodscanMentionColumns checks a mention keyed only by
+// episode_id lands with its JSON in data and its alert in alerts_id.
+func TestUpsertBatch_PodscanMentionColumns(t *testing.T) {
+	s, err := Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	item := json.RawMessage(`{"episode_id": "ep_9", "term": "golang", "parent_id": "al_1"}`)
+	stored, _, err := s.UpsertBatch("mentions", []json.RawMessage{item})
+	if err != nil || stored != 1 {
+		t.Fatalf("UpsertBatch: stored=%d err=%v", stored, err)
+	}
+
+	var id, alertsID, data, parentID string
+	if err := s.DB().QueryRow(`SELECT id, alerts_id, data, parent_id FROM mentions`).Scan(&id, &alertsID, &data, &parentID); err != nil {
+		t.Fatalf("select mention: %v", err)
+	}
+	if id != "ep_9" || alertsID != "al_1" || parentID != "al_1" {
+		t.Fatalf("mention row id=%q alerts_id=%q parent_id=%q, want ep_9/al_1/al_1", id, alertsID, parentID)
+	}
+	var obj map[string]any
+	if err := json.Unmarshal([]byte(data), &obj); err != nil || obj["term"] != "golang" {
+		t.Fatalf("mention data = %q, want the item JSON", data)
+	}
+}
