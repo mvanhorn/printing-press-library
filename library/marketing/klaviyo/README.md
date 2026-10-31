@@ -133,7 +133,7 @@ Set KLAVIYO_API_KEY to a private Klaviyo API key. Requests send Authorization: K
 klaviyo-pp-cli auth doctor
 
 # Fetch one profile and keep the response small for agents.
-klaviyo-pp-cli profiles list --limit 1 --json --select data.id,data.email
+klaviyo-pp-cli profiles get --page-size 1 --json --select data.id,data.email
 
 # Populate local metric data for search and analytics.
 klaviyo-pp-cli sync metrics
