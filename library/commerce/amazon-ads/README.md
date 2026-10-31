@@ -1419,7 +1419,7 @@ This CLI is designed for AI agent consumption:
 - **Filterable** - `--select id,name` returns only fields you need
 - **Previewable** - `--dry-run` shows the request without sending
 - **Explicit retries** - add `--idempotent` to create retries and `--ignore-missing` to delete retries when a no-op success is acceptable
-- **Confirmable** - `--yes` for explicit confirmation of destructive actions
+- **Explicit confirmation** - remote writes (POST/PUT/PATCH/DELETE endpoint commands other than read-style POSTs such as list, search, recommendations and report requests, plus `import`) exit 2 unless you pass `--yes` or `--dry-run`; `--agent` does not imply `--yes`
 - **Piped input** - write commands can accept structured input when their help lists `--stdin`
 - **Offline-friendly** - sync/search commands can use the local SQLite store when available
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
@@ -1452,6 +1452,18 @@ Environment variables:
 | `AMAZON_ADS_PROFILE_ID` | request_scope | Yes for scoped endpoints | Selected Amazon Ads advertising profile ID. |
 
 The CLI reads these values from the process environment first, then from `~/.config/amazon-ads-pp-cli/.env`.
+
+### Multiple Amazon accounts
+
+`--account <name>` selects `~/.config/amazon-ads-pp-cli/<name>/config.toml` (and the `.env` beside it), the same as setting `AMAZON_ADS_CONFIG` to that file. Log in once per account, then pick one per command:
+
+```bash
+amazon-ads-pp-cli auth login --account brand-b --port 8085
+amazon-ads-pp-cli profiles list --account brand-b --json
+amazon-ads-pp-cli doctor --account brand-b
+```
+
+`--account` and `--config` are mutually exclusive. Without either, the default `~/.config/amazon-ads-pp-cli/config.toml` (or `AMAZON_ADS_CONFIG`) is used. The local SQLite store is not split per account.
 
 ### agentcookie (optional)
 

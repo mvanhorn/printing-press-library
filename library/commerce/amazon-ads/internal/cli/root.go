@@ -39,6 +39,7 @@ type rootFlags struct {
 	allowPartialFailure bool
 	selectFields        string
 	configPath          string
+	account             string
 	profileName         string
 	deliverSpec         string
 	timeout             time.Duration
@@ -163,6 +164,7 @@ Run 'amazon-ads-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.PersistentFlags().BoolVar(&flags.plain, "plain", false, "Output as plain tab-separated text")
 	rootCmd.PersistentFlags().BoolVar(&flags.quiet, "quiet", false, "Bare output, one value per line")
 	rootCmd.PersistentFlags().StringVar(&flags.configPath, "config", "", "Config file path")
+	rootCmd.PersistentFlags().StringVar(&flags.account, "account", "", "Named account: use ~/.config/amazon-ads-pp-cli/<name>/config.toml (like AMAZON_ADS_CONFIG)")
 	rootCmd.PersistentFlags().DurationVar(&flags.timeout, "timeout", 60*time.Second, "Request timeout")
 	rootCmd.PersistentFlags().BoolVar(&flags.dryRun, "dry-run", false, "Show request without sending")
 	rootCmd.PersistentFlags().BoolVar(&flags.noCache, "no-cache", false, "Bypass response cache")
@@ -170,10 +172,10 @@ Run 'amazon-ads-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.PersistentFlags().BoolVar(&flags.idempotent, "idempotent", false, "Treat already-existing create results as a successful no-op")
 	rootCmd.PersistentFlags().BoolVar(&flags.ignoreMissing, "ignore-missing", false, "Treat missing delete targets as a successful no-op")
 	rootCmd.PersistentFlags().StringVar(&flags.selectFields, "select", "", "Comma-separated fields to include in output (e.g. --select id,name,status)")
-	rootCmd.PersistentFlags().BoolVar(&flags.yes, "yes", false, "Skip confirmation prompts (for agents and scripts)")
+	rootCmd.PersistentFlags().BoolVar(&flags.yes, "yes", false, "Confirm remote writes and skip confirmation prompts (explicit; --agent does not imply it)")
 	rootCmd.PersistentFlags().BoolVar(&noColor, "no-color", false, "Disable colored output")
 	rootCmd.PersistentFlags().BoolVar(&humanFriendly, "human-friendly", false, "Enable colored output and rich formatting")
-	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)")
+	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set agent-friendly output defaults (--json --compact --no-input --no-color)")
 	rootCmd.PersistentFlags().BoolVar(&flags.allowPartialFailure, "allow-partial-failure", false, "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
 	rootCmd.PersistentFlags().DurationVar(&flags.maxAge, "max-age", 30*time.Minute, "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables")
@@ -206,8 +208,20 @@ Run 'amazon-ads-pp-cli doctor' to verify auth and connectivity.`,
 				return err
 			}
 		}
+		if flags.account != "" {
+			if flags.configPath != "" {
+				return usageErr(fmt.Errorf("--account and --config are mutually exclusive"))
+			}
+			path, err := config.AccountPath(flags.account)
+			if err != nil {
+				return usageErr(err)
+			}
+			flags.configPath = path
+		}
 		resolvePersona(flags, cmd)
 		maybeEmitFeedbackNudge(cmd, flags)
+		// --agent sets output/interaction defaults only. It deliberately does
+		// not grant --yes: remote writes need an explicit confirmation.
 		if flags.agent {
 			if !cmd.Flags().Changed("json") {
 				flags.asJSON = true
@@ -218,12 +232,12 @@ Run 'amazon-ads-pp-cli doctor' to verify auth and connectivity.`,
 			if !cmd.Flags().Changed("no-input") {
 				flags.noInput = true
 			}
-			if !cmd.Flags().Changed("yes") {
-				flags.yes = true
-			}
 			if !cmd.Flags().Changed("no-color") {
 				noColor = true
 			}
+		}
+		if err := requireRemoteWriteConfirmation(cmd, flags); err != nil {
+			return err
 		}
 		switch flags.dataSource {
 		case "auto", "live", "local":

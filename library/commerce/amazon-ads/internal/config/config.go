@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -39,6 +40,23 @@ type Config struct {
 	AmazonAdsRefreshToken string `toml:"ads_refresh_token"`
 	AmazonAdsApiClientId  string `toml:"ads_api_client_id"`
 	AmazonAdsProfileId    string `toml:"ads_profile_id"`
+}
+
+var accountNamePattern = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._-]*$`)
+
+// AccountPath returns the config file for a named account:
+// ~/.config/amazon-ads-pp-cli/<name>/config.toml. Selecting it is equivalent
+// to pointing AMAZON_ADS_CONFIG at that file, so saved tokens, the sibling
+// .env, and the response-cache key are all scoped to the account.
+func AccountPath(name string) (string, error) {
+	if !accountNamePattern.MatchString(name) {
+		return "", fmt.Errorf("invalid --account %q: use letters, digits, '.', '_' or '-', starting with a letter or digit", name)
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", fmt.Errorf("resolving home dir: %w", err)
+	}
+	return filepath.Join(home, ".config", "amazon-ads-pp-cli", name, "config.toml"), nil
 }
 
 func Load(configPath string) (*Config, error) {

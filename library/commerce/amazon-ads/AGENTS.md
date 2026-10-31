@@ -18,7 +18,7 @@ amazon-ads-pp-cli which "<capability>" --json
 amazon-ads-pp-cli <command> --help
 ```
 
-Add `--agent` to command invocations for JSON, compact output, non-interactive defaults, no color, and confirmation-safe scripting:
+Add `--agent` to command invocations for JSON, compact output, non-interactive defaults, and no color:
 
 ```bash
 amazon-ads-pp-cli <command> --agent
@@ -31,7 +31,7 @@ amazon-ads-pp-cli <command> --help
 amazon-ads-pp-cli <command> --dry-run --agent
 ```
 
-Use `--yes --no-input` only after the target, arguments, and side effects are clear.
+When a command requires confirmation, pass `--yes` explicitly only after the target, arguments, and side effects are clear. `--agent` does not imply `--yes`.
 
 For install, auth, examples, and longer product guidance, read `README.md` and `SKILL.md`. This file intentionally stays small so repo-local agents get invariant local guidance without duplicating the generated docs.
 

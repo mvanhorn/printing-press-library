@@ -154,7 +154,7 @@ Run `amazon-seller-pp-cli doctor` to verify setup.
 
 ## Agent Mode
 
-Add `--agent` to any command. Expands to: `--json --compact --no-input --no-color --yes`.
+Add `--agent` to any command. Expands to: `--json --compact --no-input --no-color`.
 
 - **Pipeable** — JSON on stdout, errors on stderr
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
@@ -163,6 +163,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
   amazon-seller-pp-cli catalog get <asin> --marketplace-ids ATVPDKIKX0DER --agent --select asin,attributes,summaries
   ```
 - **Previewable** — `--dry-run` shows the request without sending
+- **Explicit confirmation** — `--agent` does not imply `--yes`; `inbound-plans` writes need `--yes` (or `--dry-run`) passed separately, only after the target, arguments, and side effects are clear
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
 - **Non-interactive** — never prompts, every input is a flag
 - **Explicit retries** — use `--idempotent` only when an already-existing create should count as success
