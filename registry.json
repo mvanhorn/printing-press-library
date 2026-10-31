@@ -419,9 +419,9 @@
       "path": "library/developer-tools/agent-capture",
       "release": {
         "cli_name": "agent-capture-pp-cli",
-        "version": "2026.10.2",
-        "released_at": "2026-10-27T22:08:44Z",
-        "source_commit": "75cc8a0327a78381d55f7d47328e638e19a466af"
+        "version": "2026.10.3",
+        "released_at": "2026-10-31T08:53:42Z",
+        "source_commit": "584e105521e73243c355f113703c838e3ec2a872"
       },
       "printer": "mvanhorn",
       "printer_name": "Matt Van Horn",
