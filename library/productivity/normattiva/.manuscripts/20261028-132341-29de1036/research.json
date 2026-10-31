@@ -1,0 +1,235 @@
+{
+  "api_name": "normattiva",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "normattiva-sdk",
+      "url": "https://github.com/IreneBurresi/normattiva-sdk",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "normattiva-mcp (adellorto)",
+      "url": "https://github.com/adellorto/normattiva-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 4,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "normattiva-mcp (avvocati-e-mac)",
+      "url": "https://github.com/avvocati-e-mac/normattiva-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-it-normattiva",
+      "url": "https://github.com/pipeworx-io/mcp-it-normattiva",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "normattiva_2_md",
+      "url": "https://github.com/ondata/normattiva_2_md",
+      "language": "Python",
+      "install_method": "",
+      "stars": 22,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "gov-it-legal-mcp",
+      "url": "https://github.com/SimonBerg255/gov-it-legal-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 11,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-28T12:34:42Z",
+  "novel_features": [
+    {
+      "name": "Citation checker",
+      "command": "verifica",
+      "description": "Check every Italian law citation in a draft or an AI answer: does it exist, and was it in force on a given date?",
+      "rationale": "Extracts citations with deterministic patterns, resolves aliases like c.c. or GDPR, and classifies each against point-in-time Normattiva text.",
+      "example": "normattiva-pp-cli verifica \"art. 2043 c.c.\" \"art. 3 L. 241/1990\" --al 2024-01-01 --agent",
+      "why_it_matters": "Reach for this before trusting any generated legal citation; non-zero exit means at least one citation is wrong or no longer in force.",
+      "group": "Citation checking and context packs"
+    },
+    {
+      "name": "Article diff between dates",
+      "command": "diff",
+      "description": "See word by word what an article said on one date versus another, or versus its original text.",
+      "rationale": "Combines two multivigente fetches into a rendered diff with both vigenza windows, caching versions locally.",
+      "example": "normattiva-pp-cli diff \"d.lgs. 196/2003\" --articolo 2-ter --dal 2019-01-01",
+      "why_it_matters": "Use it when the applicable version of a norm depends on the date of the facts (tempus regit actum).",
+      "group": "Law across time"
+    },
+    {
+      "name": "Watchlist change report",
+      "command": "novita",
+      "description": "Follow the acts you care about (segui add) and get a report of which ones and which articles changed since your last check.",
+      "rationale": "Joins the national updated-acts feed against a local watchlist and stored article snapshots.",
+      "example": "normattiva-pp-cli novita --agent",
+      "why_it_matters": "Use it for recurring compliance monitoring instead of scanning the whole national updates feed.",
+      "group": "Law across time"
+    },
+    {
+      "name": "Context pack",
+      "command": "fascicolo",
+      "description": "Assemble several articles from different laws, all pinned to one reference date, into one Markdown document.",
+      "rationale": "Resolves many citations, fetches each at the same vigenza date, and composes one LLM-ready document with permalinks.",
+      "example": "normattiva-pp-cli fascicolo \"art. 2043 c.c.\" \"art. 3 L. 241/1990\" --al 2021-05-10",
+      "why_it_matters": "Use it to give an agent or a filing the exact text of every relevant norm as of one date.",
+      "group": "Citation checking and context packs"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Citation checker",
+      "command": "verifica",
+      "description": "Check every Italian law citation in a draft or an AI answer: does it exist, and was it in force on a given date?",
+      "rationale": "Extracts citations with deterministic patterns, resolves aliases like c.c. or GDPR, and classifies each against point-in-time Normattiva text.",
+      "example": "normattiva-pp-cli verifica \"art. 2043 c.c.\" \"art. 3 L. 241/1990\" --al 2024-01-01 --agent",
+      "why_it_matters": "Reach for this before trusting any generated legal citation; non-zero exit means at least one citation is wrong or no longer in force.",
+      "group": "Citation checking and context packs"
+    },
+    {
+      "name": "Article diff between dates",
+      "command": "diff",
+      "description": "See word by word what an article said on one date versus another, or versus its original text.",
+      "rationale": "Combines two multivigente fetches into a rendered diff with both vigenza windows, caching versions locally.",
+      "example": "normattiva-pp-cli diff \"d.lgs. 196/2003\" --articolo 2-ter --dal 2019-01-01",
+      "why_it_matters": "Use it when the applicable version of a norm depends on the date of the facts (tempus regit actum).",
+      "group": "Law across time"
+    },
+    {
+      "name": "Watchlist change report",
+      "command": "novita",
+      "description": "Follow the acts you care about (segui add) and get a report of which ones and which articles changed since your last check.",
+      "rationale": "Joins the national updated-acts feed against a local watchlist and stored article snapshots.",
+      "example": "normattiva-pp-cli novita --agent",
+      "why_it_matters": "Use it for recurring compliance monitoring instead of scanning the whole national updates feed.",
+      "group": "Law across time"
+    },
+    {
+      "name": "Context pack",
+      "command": "fascicolo",
+      "description": "Assemble several articles from different laws, all pinned to one reference date, into one Markdown document.",
+      "rationale": "Resolves many citations, fetches each at the same vigenza date, and composes one LLM-ready document with permalinks.",
+      "example": "normattiva-pp-cli fascicolo \"art. 2043 c.c.\" \"art. 3 L. 241/1990\" --al 2021-05-10",
+      "why_it_matters": "Use it to give an agent or a filing the exact text of every relevant norm as of one date.",
+      "group": "Citation checking and context packs"
+    }
+  ],
+  "narrative": {
+    "display_name": "Normattiva",
+    "headline": "Italian law in your terminal: resolve citations, read any article at any date, diff versions and track amendments.",
+    "value_prop": "Type citations the way lawyers write them (\"art. 2043 c.c.\", \"d.lgs. 196/2003 art. 13\") and get the authoritative Normattiva text as clean text (or Markdown with --formato markdown), at today's date or any past date. On top of search and reading: verifica checks citations in a draft, diff shows how an article changed, novita reports changes to the acts you follow with segui add, and fascicolo builds date-pinned context packs for filings and AI agents.",
+    "auth_narrative": "No account or API key needed: the Normattiva Open Data API is public. Be gentle with it — the CLI caches article text locally and paces its requests. Every result carries a permanent link on www.normattiva.it (https://www.normattiva.it/uri-res/N2Ls?\u003cURN\u003e).",
+    "quickstart": [
+      {
+        "command": "normattiva-pp-cli doctor --dry-run",
+        "comment": "Check the CLI is installed and configured, without touching the network"
+      },
+      {
+        "command": "normattiva-pp-cli fonti codice",
+        "comment": "List well-known acts you can call by name, like the codice civile"
+      },
+      {
+        "command": "normattiva-pp-cli testo \"codice civile\" --articolo 2043",
+        "comment": "Read one article as clean text"
+      },
+      {
+        "command": "normattiva-pp-cli cerca \"intelligenza artificiale\" --per-pagina 5",
+        "comment": "Search acts by keyword"
+      },
+      {
+        "command": "normattiva-pp-cli verifica \"art. 3 L. 241/1990\" --al 2024-01-01",
+        "comment": "Check a citation was in force on a date"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Connection reset by peer",
+        "fix": "Wait a minute and retry; the Normattiva gateway drops bursts. Cached reads keep working offline."
+      },
+      {
+        "symptom": "Atto non trovato for a URN",
+        "fix": "Read it from its Gazzetta coordinates (codice_redazionale and data_gu are in every search result): normattiva-pp-cli testo --codice 090G0294 --data-gu 1990-08-18"
+      },
+      {
+        "symptom": "periodo di esportazione superiore a 12 mesi (code 1501)",
+        "fix": "Use a shorter window, e.g. normattiva-pp-cli aggiornati --since 90d."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or a person needs the authoritative text of Italian national legislation (laws, decrees, codes, the Constitution), possibly as in force on a specific date, or needs to check that cited norms exist and are current. It is the right tool for citation verification, point-in-time reading, article diffs and amendment monitoring.",
+    "anti_triggers": [
+      "Case law and court rulings (use a giurisprudenza tool such as giustizia-amministrativa)",
+      "Regional laws and EU regulations, which are outside Normattiva's State-law corpus",
+      "Legal advice or interpretation: the CLI returns text, not opinions"
+    ],
+    "recipes": [
+      {
+        "title": "Verify citations in an AI answer",
+        "command": "normattiva-pp-cli verifica --file risposta.txt --agent",
+        "explanation": "Extracts every citation, resolves it and exits non-zero if any is missing or no longer in force."
+      },
+      {
+        "title": "What changed in an article",
+        "command": "normattiva-pp-cli diff \"d.lgs. 196/2003\" --articolo 2-ter --dal 2019-01-01",
+        "explanation": "Word-level diff between two point-in-time versions, with both vigenza windows."
+      },
+      {
+        "title": "Lean search results for agents",
+        "command": "normattiva-pp-cli cerca \"protezione dati\" --agent --select totale,risultati.descrizione,risultati.urn,risultati.data_gu",
+        "explanation": "Search responses carry long titles and facets; select only the fields you need."
+      },
+      {
+        "title": "Weekly compliance check",
+        "command": "normattiva-pp-cli novita",
+        "explanation": "After adding acts with segui add \"d.lgs. 231/2001\" --articoli 5,6, reports which followed acts and articles changed since the last check."
+      },
+      {
+        "title": "Bulk export, gated",
+        "command": "normattiva-pp-cli esporta --tipo LEGGE --anno 1990 --numero 241 --formato AKN",
+        "explanation": "Prints the export request only; add --avvia to queue it on Normattiva and --attendi --output file.zip to download. scarica likewise downloads only with --output."
+      }
+    ],
+    "trigger_phrases": [
+      "leggi l'articolo 2043 del codice civile",
+      "verifica queste citazioni normative",
+      "cosa diceva l'articolo nel 2019",
+      "quali leggi sono cambiate questa settimana",
+      "use normattiva",
+      "run normattiva"
+    ]
+  }
+}

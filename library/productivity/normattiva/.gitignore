@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/normattiva-pp-cli
+/normattiva-pp-cli.exe
+/normattiva-pp-mcp
+/normattiva-pp-mcp.exe
+/bin/
+/build/
+/dist/

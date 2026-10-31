@@ -1,0 +1,7 @@
+# Phase 4.95 local code review
+Review path: direct subagent dispatch (combined correctness/security/maintainability reviewer); two earlier dispatches failed on a transient API/DNS error and were retried.
+Autofix: 4 high, 6 medium and most low findings fixed in place in one round (leadingArticleRe concatenation, markdown+json empty testo, line breaks kept via EscapeTerminalStream, LCS table capped at 4M cells, atto resume with string --da and correct next candidate, plural "artt./articoli" lists, verifica exits 5 when citations could not be checked and lists them, scarica follows redirects, esporta token validation + status>=400, upstream text scrubbed, future end-date vigenza, Gazzetta --articolo validation, URL escaping, dead ctx, --max-articoli validation, NormalizeArticle plurals, void-tag stack, hoisted regexes, codeRe trailing boundary, 10MB file read cap, atomic temp-file writes, cacheAttoRows empty keys, segui add merges articles). Regression tests added in internal/norma.
+Convergence: cleared at round 1 (re-verified live).
+Not fixed (low, documented): non-Fonte acts followed with an explicit annex lose the annex in the watchlist; two-digit years ("81/08") not parsed.
+Template-shape retro candidates: `ricerca` group Short "Get and create ricerca" for POST read-only search endpoints (generator labels POST resources as create); 2 dead generated helpers (retainCLIQueryParams, retainExplicitQueryParams).
+Year-only URN concern: verified live 2026-10-28 (urn:nir:stato:decreto.legislativo:2003;196~art13 resolved).

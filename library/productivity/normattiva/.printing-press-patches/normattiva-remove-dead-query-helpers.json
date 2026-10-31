@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "normattiva-remove-dead-query-helpers",
+  "applied_at": "2026-10-28",
+  "base_run_id": "20261028-132341-29de1036",
+  "base_printing_press_version": "4.34.2",
+  "summary": "Removed unused generated helpers retainCLIQueryParams and retainExplicitQueryParams.",
+  "reason": "No command calls them for this spec; dogfood flagged them as dead code.",
+  "files": ["internal/cli/helpers.go"],
+  "validated_outcome": "go build, go vet and dogfood dead-code check pass."
+}
