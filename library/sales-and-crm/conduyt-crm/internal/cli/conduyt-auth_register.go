@@ -18,12 +18,22 @@ func newConduytAuthRegisterCmd(flags *rootFlags) *cobra.Command {
 	var bodyFirstName string
 	var bodyLastName string
 	var bodyPassword string
+	var bodyTermsAccepted bool
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:         "register",
-		Short:       "Creates a new user and account. Rate limited to 3 requests per hour per IP.",
-		Example:     "  conduyt-crm-pp-cli conduyt-auth register --account-name example-resource",
+		Use:   "register",
+		Short: "Creates a new user and account. Rate limited to 3 requests per hour per IP.",
+		// PATCH(register-terms-accepted-601): Long states that --terms-accepted is required; see .printing-press-patches/register-terms-accepted-601.json.
+		Long:    "Creates a new user and account. Rate limited to 3 requests per hour per IP.\n\nRegistering requires --terms-accepted, your consent to the Terms of Service (https://conduyt.app/terms) and the Privacy Policy (https://conduyt.app/privacy). Without it the CLI refuses locally and sends nothing; the API answers 400 (field termsAccepted) to a request without it. With --stdin the body is passed through untouched, so it must carry \"termsAccepted\": true itself.",
+		Example: "  conduyt-crm-pp-cli conduyt-auth register --account-name example-resource --email you@example.com --password '...' --terms-accepted",
+		// PATCH(register-terms-accepted-601): pflag reads `--terms-accepted false` as --terms-accepted=true plus a stray "false"; refuse every positional so that spelling can never register
+		Args: func(cmd *cobra.Command, args []string) error {
+			if len(args) > 0 {
+				return fmt.Errorf("unexpected argument %q: registering takes no positional arguments. Accepting the terms is the bare flag --terms-accepted (or --terms-accepted=true); a spaced value such as `--terms-accepted false` is NOT read as false. Nothing was sent", args[0])
+			}
+			return nil
+		},
 		Annotations: map[string]string{"pp:endpoint": "conduyt-auth.register", "pp:method": "POST", "pp:path": "/auth/register", "pp:requires-input": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with required input prints help
@@ -54,6 +64,10 @@ func newConduytAuthRegisterCmd(flags *rootFlags) *cobra.Command {
 				if !cmd.Flags().Changed("password") && bodyPassword == "" && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "password")
 				}
+				// PATCH(register-terms-accepted-601): refuse locally, never a 400 round trip; --terms-accepted=false is a refusal too
+				if !bodyTermsAccepted && !flags.dryRun {
+					return fmt.Errorf("registering requires --terms-accepted: pass it to confirm you accept the Terms of Service (https://conduyt.app/terms) and the Privacy Policy (https://conduyt.app/privacy)")
+				}
 			}
 			path := "/auth/register"
 			c, err := flags.newClient()
@@ -63,7 +77,7 @@ func newConduytAuthRegisterCmd(flags *rootFlags) *cobra.Command {
 			params := map[string]string{}
 			var body any
 			if stdinBody {
-				stdinData, err := io.ReadAll(os.Stdin)
+				stdinData, err := io.ReadAll(cmd.InOrStdin()) // PATCH(register-terms-accepted-601): testable stdin, same as os.Stdin by default
 				if err != nil {
 					return fmt.Errorf("reading stdin: %w", err)
 				}
@@ -89,6 +103,10 @@ func newConduytAuthRegisterCmd(flags *rootFlags) *cobra.Command {
 				}
 				if cmd.Flags().Changed("password") || bodyPassword != "" {
 					bodyMap["password"] = bodyPassword
+				}
+				// PATCH(register-terms-accepted-601): the API requires the const true
+				if bodyTermsAccepted {
+					bodyMap["termsAccepted"] = true
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
@@ -253,6 +271,8 @@ func newConduytAuthRegisterCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyFirstName, "first-name", "", "First name")
 	cmd.Flags().StringVar(&bodyLastName, "last-name", "", "Last name")
 	cmd.Flags().StringVar(&bodyPassword, "password", "", "Password")
+	// PATCH(register-terms-accepted-601): required consent flag
+	cmd.Flags().BoolVar(&bodyTermsAccepted, "terms-accepted", false, "Required: accept the Terms of Service (https://conduyt.app/terms) and the Privacy Policy (https://conduyt.app/privacy). Sends termsAccepted true")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

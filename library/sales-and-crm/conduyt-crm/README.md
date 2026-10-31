@@ -633,7 +633,7 @@ Manage conduyt auth
 - **`conduyt-crm-pp-cli conduyt-auth post-mfa-setup`** - Create / invoke auth mfa setup
 - **`conduyt-crm-pp-cli conduyt-auth post-mfa-verify`** - Create / invoke auth mfa verify
 - **`conduyt-crm-pp-cli conduyt-auth post-sandbox-key`** - Create / invoke auth sandbox-key
-- **`conduyt-crm-pp-cli conduyt-auth register`** - Creates a new user and account. Rate limited to 3 requests per hour per IP.
+- **`conduyt-crm-pp-cli conduyt-auth register`** - Creates a new user and account. Rate limited to 3 requests per hour per IP. Requires `--terms-accepted` (consent to the Terms of Service and Privacy Policy)
 - **`conduyt-crm-pp-cli conduyt-auth reset-password`** - Reset password with token
 - **`conduyt-crm-pp-cli conduyt-auth switch-account`** - Switch to a different account
 

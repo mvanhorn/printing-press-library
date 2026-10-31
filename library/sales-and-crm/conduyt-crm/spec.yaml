@@ -157,6 +157,7 @@ paths:
               - email
               - password
               - accountName
+              - termsAccepted
               properties:
                 email:
                   type: string
@@ -172,6 +173,10 @@ paths:
                 accountName:
                   type: string
                   minLength: 2
+                termsAccepted:
+                  type: boolean
+                  const: true
+                  description: 'Required, true only: consent to the Terms of Service (/terms) and the Privacy Policy (/privacy). Any other value, or none, is a 400 (field termsAccepted, code required) and nothing is created.'
       responses:
         '200':
           description: Registration successful
