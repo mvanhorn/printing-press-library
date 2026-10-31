@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.10.4 - 2026-10-31
+
+- feat(conduyt-crm): required --terms-accepted on auth register; positional args refused (#2408).
+
 ## 2026.10.3 - 2026-10-30
 
 - feat(conduyt-crm): typed --channel / --notify-events for integrations post-slack-settings (#2403).
