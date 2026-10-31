@@ -1,0 +1,147 @@
+{
+ "data": {
+  "company": {
+   "id": "f290a54b-9dd2-1285-9772-7b50837a84af",
+   "canRunPayroll": true,
+   "companyOnboardingCurrentExperienceType": "payroll",
+   "finishedOnboardingAt": "2026-09-24T14:24:10-07:00",
+   "isApproved": true,
+   "isMigrationDashboardFeatureEnabled": false,
+   "isOnboarding": false,
+   "isSuspended": false,
+   "legalEntities": {
+    "nodes": [
+     {
+      "id": "e5a5570c-d911-1ace-f329-6c15ea83d184",
+      "countryCode": "US",
+      "__typename": "LegalEntity"
+     }
+    ],
+    "__typename": "CompanyLegalEntityConnection"
+   },
+   "name": "Example Co LLC",
+   "payrollBlockerNotifications": [],
+   "suspension": null,
+   "correctionOffCycles": {
+    "nodes": [],
+    "__typename": "CompanyDraftPayrollConnection"
+   },
+   "draftInternationalEmployeeIncentives": [],
+   "hasBonusDraftOffCycles": [],
+   "hasCorrectionDraftOffCycles": [],
+   "activeInternationalEmployeeMembers": {
+    "totalCount": 0,
+    "__typename": "CompanyCompanyMemberConnection"
+   },
+   "__typename": "Company",
+   "draftPayrollsByDashboardPrioritization": {
+    "nodes": [],
+    "__typename": "CompanyDraftPayrollConnection"
+   },
+   "safeExpediteReason": null,
+   "upcomingInternationalPayrolls": [],
+   "hasArchivedPayrolls": false,
+   "isEligibleForSafeExpedite": false,
+   "isPeoClient": false,
+   "payrollAutomationSettings": {
+    "id": "f290a54b-9dd2-1285-9772-7b50837a84af-payroll-automation-setting",
+    "isAutoSubmissionEnabled": false,
+    "__typename": "PayrollAutomationSettings",
+    "isAutoPrepEnabled": false
+   },
+   "payScheduleSchemeName": null,
+   "canPayContractors": true,
+   "hasRunPayroll": true,
+   "internationalContractorList": {
+    "edges": [],
+    "__typename": "InternationalContractorConnection"
+   },
+   "unprocessedContractorsPayGroups": {
+    "nodes": [],
+    "__typename": "CompanyPayGroupInterfaceConnection"
+   },
+   "onboardedDomesticContractorMembers": {
+    "totalCount": 0,
+    "__typename": "CompanyCompanyMemberConnection"
+   },
+   "isUnifiedContractorPaymentEnabled": true,
+   "isUnifiedContractorPaymentEnabledForInternationalContractors": true,
+   "earnedAccessFlags": {
+    "earnedAccessToFasterPayments": false,
+    "inEarnedAccessVariation": false,
+    "__typename": "EarnedAccessFlags"
+   },
+   "tierName": "SIMPLE",
+   "analyticsId": "0429180324317886",
+   "canMaxOut401k": false,
+   "achPayrollProcessingDays": 1,
+   "allowRunPayrollWhenAutoDebitRetryInProgress": false,
+   "missingStatesForPayroll": {
+    "id": "f290a54b-9dd2-1285-9772-7b50837a84af-2026-10-24",
+    "employees": {
+     "nodes": [],
+     "__typename": "EmployeeConnection"
+    },
+    "missingStates": [],
+    "__typename": "MissingStatesForPayroll"
+   },
+   "nextFastAchEligibilityDate": null,
+   "showDelayedPaymentAlert": false,
+   "payrollAdmins": [
+    {
+     "id": "3595144251674854",
+     "companyMember": {
+      "id": "9dc1ae4c-e69f-16d5-9088-863bd78d3321",
+      "access": {
+       "id": "9dc1ae4c-e69f-16d5-9088-863bd78d3321",
+       "abilities": [
+        {
+         "level": "NO_ACCESS",
+         "__typename": "CompanyMemberAbility"
+        }
+       ],
+       "hasFullAccess": true,
+       "__typename": "CompanyMemberAccess"
+      },
+      "__typename": "CompanyMember"
+     },
+     "__typename": "PayrollAdmin"
+    }
+   ],
+   "payrollApprovalRequestsWithoutAcknowledgment": {
+    "edges": [],
+    "__typename": "CompanyPayrollApprovalRequestConnection"
+   },
+   "isEligibleToOptIntoProjectedPaycheck": true,
+   "isPayrollApprovalsEnabled": false,
+   "isProjectedPaycheckOptOut": false,
+   "paySchedules": [
+    {
+     "id": "3299295136144041",
+     "autoPilot": false,
+     "autoPilotEligible": false,
+     "name": "every Friday",
+     "__typename": "PaySchedule",
+     "label": "Every week \u2014 every Friday"
+    }
+   ],
+   "hasThirdPartyTimeTracking": false,
+   "timeTrackingStatus": "available",
+   "upcomingPayrollDebitDate": "2026-11-05T00:00:00-08:00",
+   "hasAddressWithGeocode": false,
+   "isDefaultBankAccountVerified": true,
+   "payrollBlockersCompanySide": false,
+   "primaryPayrollAdmin": {
+    "id": "3595144251674854",
+    "preferredFullName": "Admin He",
+    "__typename": "PayrollAdmin"
+   },
+   "nextPayrollDate": "2026-10-29"
+  },
+  "hasDismissedAutopilotPromotion": false,
+  "hasDismissedPaycheckPreviewPromotion": false,
+  "hasDismissedPayNavigationUpdateAwarenessBannerForMobile": false,
+  "hasDismissedTimeTrackingActivation": false,
+  "__typename": "Query"
+ }
+}

@@ -1,0 +1,148 @@
+mutation AutoSaveReimbursements($employeeUuid: ID!, $input: UpdateDraftPayrollInput!) {
+  updateDraftPayroll(input: $input) {
+    draftPayroll {
+      id
+      draftEmployeePayroll(employeeUuid: $employeeUuid) {
+        id
+        allReimbursements {
+          __typename
+          ...PayrollReimbursementsDrawerContentEmployeeReimbursementInterface
+        }
+        __typename
+      }
+      __typename
+    }
+    ...AutoSaveFieldUpdateDraftPayrollPayload
+    __typename
+  }
+}
+
+fragment PayrollReimbursementsDrawerContentEmployeeReimbursementInterface on EmployeeReimbursementInterface {
+  __typename
+  amount
+  ...PayrollReimbursementsAccordionEmployeeReimbursementInterface
+  ... on EmployeeReimbursement {
+    id
+    category {
+      name
+      __typename
+    }
+    description
+    reimbursementType
+    __typename
+  }
+}
+
+fragment AutoSaveFieldUpdateDraftPayrollPayload on UpdateDraftPayrollPayload {
+  draftPayrollValidationErrors {
+    id
+    ...PayrollValidationErrorHelper
+    __typename
+  }
+  errors {
+    argument
+    message
+    __typename
+  }
+  success
+  __typename
+}
+
+fragment PayrollReimbursementsAccordionEmployeeReimbursementInterface on EmployeeReimbursementInterface {
+  __typename
+  amount
+  ...PayrollReimbursementsCardViewEmployeeReimbursementInterface
+  ...PayrollReimbursementsTableEmployeeReimbursementInterface
+}
+
+fragment PayrollValidationErrorHelper on DraftPayrollValidationError {
+  id
+  payrollItemValidationErrors {
+    id
+    ...PayrollItemValidationErrorHelper
+    __typename
+  }
+  ...TopLevelPayrollValidationErrorHelper
+  __typename
+}
+
+fragment PayrollReimbursementsCardViewEmployeeReimbursementInterface on EmployeeReimbursementInterface {
+  __typename
+  ... on EmployeeReimbursement {
+    id
+    amount
+    category {
+      name
+      __typename
+    }
+    description
+    __typename
+  }
+}
+
+fragment PayrollReimbursementsTableEmployeeReimbursementInterface on EmployeeReimbursementInterface {
+  __typename
+  amount
+  ... on EmployeeReimbursement {
+    id
+    description
+    __typename
+  }
+}
+
+fragment PayrollItemValidationErrorHelper on DraftEmployeePayrollValidationError {
+  id
+  __typename
+  benefitIdsAreNotUniqueErrors
+  bonusEarningsErrors
+  cashTipsEarningsErrors
+  commissionEarningsErrors
+  correctionPaymentEarningsErrors
+  customEarningsErrors
+  customWithholdingErrors
+  doubleOvertimeHoursErrors
+  employeeId
+  employeeJobCompensationMissingErrors
+  employeeJobMissingErrors
+  employeePayScheduleMismatchErrors
+  missedBreakHoursErrors
+  missingAddressErrors
+  multipleJobsBonusEarningsErrors
+  multipleJobsCashTipsEarningsErrors
+  multipleJobsCommissionEarningsErrors
+  multipleJobsCorrectionPaymentEarningsErrors
+  multipleJobsCustomEarningsErrors
+  multipleJobsDoubleOvertimeHoursErrors
+  multipleJobsMissedBreakHoursErrors
+  multipleJobsOvertimeHoursErrors
+  multipleJobsOwnersDrawEarningsErrors
+  multipleJobsPaycheckTipsEarningsErrors
+  multipleJobsRegularHoursErrors
+  multipleJobsSeveranceEarningsErrors
+  netPayErrors
+  overtimeHoursErrors
+  ownersDrawDisallowedInputsErrors
+  ownersDrawEarningsErrors
+  paidHolidayHoursErrors
+  paidTimeOffHoursErrors
+  paycheckTipsEarningsErrors
+  paymentMethodMustBeCheckErrors
+  regularHoursErrors
+  reimbursementsErrors
+  severanceEarningsErrors
+  sickHoursErrors
+  taxErrors
+  totalHoursDoNotFitInPaymentPeriodErrors
+  workAddressNotFoundErrors
+}
+
+fragment TopLevelPayrollValidationErrorHelper on DraftPayrollValidationError {
+  id
+  paymentPeriodEndAtRequiredErrors
+  payrollAlreadySuccessfullyRunErrors
+  payrollBuildErrors
+  payrollCurrentlyProcessingErrors
+  payrollInputsErrors
+  regularPaymentPeriodIsUniqueErrors
+  __typename
+}

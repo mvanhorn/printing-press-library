@@ -1,0 +1,1052 @@
+query PayPageAdmin($autoSubmissionEnabled: Boolean!, $eorRemoteMigrationBannerActive: Boolean!, $hasPayContractorCapability: Boolean!, $hasPayEmployeeCapability: Boolean!, $manageCompanyOnboardingPermissionActive: Boolean!, $mjpFirstPaydaySearchEndDate: ISO8601Date!, $mjpSwitcherAwaitingNextYearActive: Boolean!, $offCycleReasons: [OffCycleReason!], $timeTrackingActivationPromptActive: Boolean!, $usePayrollIdentifierOffCycle: Boolean!) {
+  company {
+    id
+    canRunPayroll
+    companyOnboardingCurrentExperienceType @include(if: $manageCompanyOnboardingPermissionActive)
+    finishedOnboardingAt
+    isApproved
+    isMigrationDashboardFeatureEnabled
+    isOnboarding
+    isSuspended
+    legalEntities {
+      nodes {
+        ...LegalEntityCountryCode
+        __typename
+      }
+      __typename
+    }
+    name
+    payrollBlockerNotifications @include(if: $hasPayEmployeeCapability) {
+      title
+      __typename
+    }
+    suspension {
+      id
+      suspendedAt
+      __typename
+    }
+    ...DraftOffCyclePayrollsContextProviderCompany @include(if: $hasPayEmployeeCapability)
+    ...DraftPayrollsSectionCompany @include(if: $hasPayEmployeeCapability)
+    ...EorRemoteMigrationAlertCompany @include(if: $eorRemoteMigrationBannerActive)
+    ...MjpSwitcherAwaitingNextYearCompany @include(if: $mjpSwitcherAwaitingNextYearActive)
+    ...OtherPayrollOptionsCardContainerCompany
+    ...PayContractorsPageSectionCompany
+    ...PayPageCriticalAlertsCompany @include(if: $hasPayEmployeeCapability)
+    ...PayPageOptionalAlertsCompany @include(if: $hasPayEmployeeCapability)
+    ...PayPagePromotionsCompany @include(if: $hasPayEmployeeCapability)
+    ...PayrollBlockerPageSectionCompany @include(if: $hasPayEmployeeCapability)
+    ...PayrollNotSetupPageSectionCompany @include(if: $hasPayEmployeeCapability)
+    ...PayrollUpNextPageSectionCompany @include(if: $hasPayEmployeeCapability)
+    __typename
+  }
+  ...PayPagePromotionsQuery @include(if: $hasPayEmployeeCapability)
+}
+
+fragment LegalEntityCountryCode on LegalEntity {
+  id
+  countryCode
+  __typename
+}
+
+fragment DraftOffCyclePayrollsContextProviderCompany on Company {
+  id
+  correctionOffCycles: draftOffCyclePayrolls(offCycleReasons: $offCycleReasons) @include(if: $usePayrollIdentifierOffCycle) {
+    nodes {
+      id
+      __typename
+    }
+    __typename
+  }
+  draftInternationalEmployeeIncentives {
+    id
+    __typename
+  }
+  hasBonusDraftOffCycles: hasDraftOffCycleType(offCycleType: bonus)
+  hasCorrectionDraftOffCycles: hasDraftOffCycleType(offCycleType: correction)
+  ...CompanyMemberCoreActiveInternationalEmployeeCount
+  __typename
+}
+
+fragment DraftPayrollsSectionCompany on Company {
+  id
+  correctionOffCycles: draftOffCyclePayrolls(offCycleReasons: $offCycleReasons) @include(if: $usePayrollIdentifierOffCycle) {
+    nodes {
+      id
+      ...CorrectionDraftPayrollsDraftPayroll
+      __typename
+    }
+    __typename
+  }
+  draftPayrollsByDashboardPrioritization {
+    nodes {
+      id
+      ...DraftPayrollsSectionDraftPayroll
+      __typename
+    }
+    __typename
+  }
+  safeExpediteReason
+  upcomingInternationalPayrolls {
+    id
+    payPeriod {
+      id
+      checkDate
+      countries
+      endDate
+      payFrequency
+      runPayrollBy
+      startDate
+      __typename
+    }
+    payrollType
+    __typename
+  }
+  ...LateDraftPayrollGroupCompany
+  ...UpcomingDraftPayrollsGroupCompany
+  __typename
+}
+
+fragment EorRemoteMigrationAlertCompany on Company {
+  id
+  internationalEmployees(activeAndOnboarded: true, first: 1) {
+    nodes {
+      id
+      __typename
+    }
+    __typename
+  }
+  __typename
+}
+
+fragment MjpSwitcherAwaitingNextYearCompany on Company {
+  id
+  payrollBlockers
+  upcomingPayPeriods(endDate: $mjpFirstPaydaySearchEndDate) {
+    id
+    checkDate
+    __typename
+  }
+  ...PayrollBlockerBannerCompany
+  __typename
+}
+
+fragment OtherPayrollOptionsCardContainerCompany on Company {
+  id
+  canPayContractors
+  canRunPayroll
+  hasRunPayroll
+  ...ContractorPaymentOptionsCompany
+  ...SeeMoreOptionsCompany
+  __typename
+}
+
+fragment PayContractorsPageSectionCompany on Company {
+  id
+  canPayContractors
+  internationalContractorList(activeAndOnboarded: true, first: 1) {
+    edges {
+      node {
+        id
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  isApproved
+  payrollBlockerNotifications {
+    title
+    __typename
+  }
+  unprocessedContractorsPayGroups: payGroupInterfaces(
+    filter: {payTypes: [CONTRACTOR_ADHOC], processingStates: [UNPROCESSED]}
+    first: 1
+  ) @include(if: $hasPayContractorCapability) {
+    nodes {
+      id
+      __typename
+      uniqueIdentifier
+    }
+    __typename
+  }
+  ...CompanyMemberCoreOnboardedDomesticContractorCount
+  ...UseUnifiedContractorPaymentFeaturesCompany
+  __typename
+}
+
+fragment PayPageCriticalAlertsCompany on Company {
+  id
+  achPayrollProcessingDays
+  allowRunPayrollWhenAutoDebitRetryInProgress
+  ...StatesNotSetupForPayrollAlertCompany
+  __typename
+}
+
+fragment PayPageOptionalAlertsCompany on Company {
+  id
+  achPayrollProcessingDays
+  name
+  nextFastAchEligibilityDate
+  showDelayedPaymentAlert
+  tierName
+  ...PayrollApprovalAlerts
+  __typename
+}
+
+fragment PayPagePromotionsCompany on Company {
+  id
+  draftPayrollsByDashboardPrioritization {
+    nodes {
+      id
+      payPeriod {
+        id
+        runPayrollBy
+        __typename
+      }
+      paySchedule {
+        id
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  isEligibleToOptIntoProjectedPaycheck
+  isPayrollApprovalsEnabled
+  isProjectedPaycheckOptOut
+  payrollAutomationSettings {
+    id
+    isAutoPrepEnabled
+    isAutoSubmissionEnabled
+    __typename
+  }
+  paySchedules(onlyActive: true) {
+    id
+    autoPilot
+    autoPilotEligible
+    name
+    __typename
+  }
+  ...TimeTrackingActivationEligibilityCompany @include(if: $timeTrackingActivationPromptActive)
+  __typename
+}
+
+fragment PayrollBlockerPageSectionCompany on Company {
+  id
+  payrollBlockerNotifications {
+    ...PayrollBlockerRowPayrollBlockerNotification
+    __typename
+  }
+  ...PayrollBlockerBannerCompany
+  ...PayrollBlockerRowCompany
+  __typename
+}
+
+fragment PayrollNotSetupPageSectionCompany on Company {
+  id
+  canRunPayroll
+  hasAddressWithGeocode
+  isApproved
+  isDefaultBankAccountVerified
+  isOnboarding
+  payrollBlockersCompanySide
+  primaryPayrollAdmin {
+    id
+    preferredFullName
+    __typename
+  }
+  __typename
+}
+
+fragment PayrollUpNextPageSectionCompany on Company {
+  id
+  draftPayrollsByDashboardPrioritization {
+    nodes {
+      id
+      offCycleReason
+      payroll {
+        id
+        __typename
+      }
+      pendingDraftTransitionPayroll {
+        id
+        __typename
+      }
+      ...UpNextDraftPayrollCardDraftPayroll
+      __typename
+    }
+    __typename
+  }
+  paySchedules(onlyActive: true) {
+    id
+    ...PayScheduleCalendarDropdownPaySchedule
+    __typename
+  }
+  upcomingInternationalPayrolls {
+    id
+    payPeriod {
+      id
+      __typename
+    }
+    payrollType
+    __typename
+  }
+  ...DraftPayrollsEmptyStateCompany
+  ...UpNextDraftPayrollCardCompany
+  __typename
+}
+
+fragment PayPagePromotionsQuery on Query {
+  hasDismissedAutopilotPromotion: hasActiveAlertConfirmation(
+    category: "promotion_auto_pilot"
+  )
+  hasDismissedPaycheckPreviewPromotion: hasActiveAlertConfirmation(
+    category: "run_payroll_paycheck_preview_upsell_program"
+  )
+  hasDismissedPayNavigationUpdateAwarenessBannerForMobile: hasActiveAlertConfirmation(
+    category: "pay_navigation_update_awareness_banner_for_mobile"
+  )
+  ...TimeTrackingActivationEligibilityQuery @include(if: $timeTrackingActivationPromptActive)
+  __typename
+}
+
+fragment CompanyMemberCoreActiveInternationalEmployeeCount on Company {
+  id
+  activeInternationalEmployeeMembers: members(
+    employmentSetupStatuses: [COMPLETED]
+    employmentStatus: CURRENT_OR_PENDING_HIRE
+    isEor: true
+    workerTypes: [EMPLOYEE]
+  ) {
+    totalCount
+    __typename
+  }
+  __typename
+}
+
+fragment CorrectionDraftPayrollsDraftPayroll on DraftPayroll {
+  id
+  ...CreatePayrollDescriptiveLabelDraftPayroll
+  ...DraftPayrollCardButtonsDraftPayroll
+  ...DraftPayrollCompactAlertDraftPayroll
+  ...GetDraftPayrollDetailsDraftPayroll
+  __typename
+}
+
+fragment DraftPayrollsSectionDraftPayroll on DraftPayroll {
+  id
+  pendingDraftTransitionPayroll {
+    id
+    __typename
+  }
+  ...LateDraftPayrollsGroupDraftPayroll
+  ...UpcomingDraftPayrollsGroupDraftPayroll
+  __typename
+}
+
+fragment LateDraftPayrollGroupCompany on Company {
+  id
+  hasArchivedPayrolls
+  ...UseGenerateDraftPayrollGroupItemsCompany
+  __typename
+}
+
+fragment UpcomingDraftPayrollsGroupCompany on Company {
+  id
+  ...UseGenerateDraftPayrollGroupItemsCompany
+  __typename
+}
+
+fragment PayrollBlockerBannerCompany on Company {
+  id
+  upcomingPayrollDebitDate
+  __typename
+}
+
+fragment ContractorPaymentOptionsCompany on Company {
+  id
+  internationalContractorList(activeAndOnboarded: true, first: 1) {
+    edges {
+      node {
+        id
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  unprocessedContractorsPayGroups: payGroupInterfaces(
+    filter: {payTypes: [CONTRACTOR_ADHOC], processingStates: [UNPROCESSED]}
+    first: 1
+  ) @include(if: $hasPayContractorCapability) {
+    nodes {
+      id
+      __typename
+      uniqueIdentifier
+    }
+    __typename
+  }
+  ...CompanyMemberCoreOnboardedDomesticContractorCount
+  ...UseUnifiedContractorPaymentFeaturesCompany
+  __typename
+}
+
+fragment SeeMoreOptionsCompany on Company {
+  id
+  ...OtherPayrollsDrawerV2Company
+  __typename
+}
+
+fragment CompanyMemberCoreOnboardedDomesticContractorCount on Company {
+  id
+  onboardedDomesticContractorMembers: members(
+    countryCodes: [US]
+    employmentSetupStatuses: [COMPLETED]
+    workerTypes: [CONTRACTOR]
+  ) {
+    totalCount
+    __typename
+  }
+  __typename
+}
+
+fragment UseUnifiedContractorPaymentFeaturesCompany on Company {
+  id
+  isUnifiedContractorPaymentEnabled @include(if: $hasPayContractorCapability)
+  isUnifiedContractorPaymentEnabledForInternationalContractors @include(if: $hasPayContractorCapability)
+  __typename
+}
+
+fragment StatesNotSetupForPayrollAlertCompany on Company {
+  missingStatesForPayroll {
+    id
+    employees {
+      nodes {
+        id
+        preferredFullName
+        __typename
+      }
+      __typename
+    }
+    missingStates
+    __typename
+  }
+  __typename
+}
+
+fragment PayrollApprovalAlerts on Company {
+  id
+  payrollAdmins {
+    id
+    companyMember {
+      id
+      access {
+        id
+        abilities(features: [RUN_PAYROLL]) {
+          level
+          __typename
+        }
+        hasFullAccess
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  payrollApprovalRequestsWithoutAcknowledgment(first: 5) {
+    edges {
+      node {
+        id
+        preparer {
+          id
+          __typename
+        }
+        responses {
+          nodes {
+            id
+            resolutionStatus
+            responder {
+              id
+              preferredFullName
+              __typename
+            }
+            ...ApprovedAlertsPayrollApprovalRequestResponse
+            __typename
+          }
+          __typename
+        }
+        ...ApprovedAlertsPayrollApprovalRequest
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  __typename
+}
+
+fragment TimeTrackingActivationEligibilityCompany on Company {
+  id
+  hasThirdPartyTimeTracking
+  tierName
+  timeTrackingStatus
+  __typename
+}
+
+fragment PayrollBlockerRowPayrollBlockerNotification on PayrollBlockerNotification {
+  href
+  message
+  title
+  __typename
+}
+
+fragment PayrollBlockerRowCompany on Company {
+  id
+  analyticsId
+  __typename
+}
+
+fragment UpNextDraftPayrollCardDraftPayroll on DraftPayroll {
+  id
+  canPayByCheckOnTime
+  canWireInOnTime
+  currentApprovalRequest {
+    id
+    __typename
+  }
+  ...AutoPayrollTagDraftPayroll
+  ...CreatePayrollDescriptiveLabelDraftPayroll
+  ...CreatePayrollExplanationDraftPayroll
+  ...DraftPayrollCompactAlertDraftPayroll
+  ...GetDraftPayrollDetailsDraftPayroll
+  ...ShouldShowAutopilotTagDraftPayroll
+  ...TimeLeftTagDraftPayroll
+  ...UpNextDraftPayrollCardFooterDraftPayroll
+  ...UseDraftPayrollCardActionButtonTextDraftPayroll
+  ...UseDraftPayrollRoutesDraftPayroll
+  __typename
+}
+
+fragment PayScheduleCalendarDropdownPaySchedule on PaySchedule {
+  id
+  label
+  __typename
+}
+
+fragment DraftPayrollsEmptyStateCompany on Company {
+  id
+  nextPayrollDate
+  __typename
+}
+
+fragment UpNextDraftPayrollCardCompany on Company {
+  id
+  isEligibleForSafeExpedite
+  isPeoClient
+  payrollAutomationSettings {
+    id
+    isAutoSubmissionEnabled
+    __typename
+  }
+  payScheduleSchemeName
+  __typename
+}
+
+fragment TimeTrackingActivationEligibilityQuery on Query {
+  hasDismissedTimeTrackingActivation: hasActiveAlertConfirmation(
+    category: "post_payroll_time_tracking_banner"
+  )
+  __typename
+}
+
+fragment CreatePayrollDescriptiveLabelDraftPayroll on DraftPayroll {
+  id
+  allDraftEmployeePayrolls(first: 1) {
+    nodes {
+      id
+      employee {
+        id
+        preferredFullName
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  customName
+  payrollType
+  paySchedule {
+    id
+    frequency
+    name
+    payGroup
+    __typename
+  }
+  __typename
+}
+
+fragment DraftPayrollCardButtonsDraftPayroll on DraftPayroll {
+  id
+  payrollType
+  ...DraftPayrollRowMoreActionsDraftPayroll
+  ...UseDraftPayrollCardActionButtonTextDraftPayroll
+  ...UseDraftPayrollRoutesDraftPayroll
+  __typename
+}
+
+fragment DraftPayrollCompactAlertDraftPayroll on DraftPayroll {
+  id
+  currentApprovalRequest {
+    id
+    preparer {
+      id
+      __typename
+    }
+    status
+    __typename
+  }
+  ...AbandonedDraftPayrollAlertDraftPayroll
+  ...DebitDateMovedDueToWeekendAlertDraftPayroll
+  ...GetDraftPayrollDetailsDraftPayroll
+  ...ImpactingBankHolidayAlertDraftPayroll
+  __typename
+}
+
+fragment GetDraftPayrollDetailsDraftPayroll on DraftPayroll {
+  id
+  payPeriod {
+    id
+    checkDate
+    endDate
+    originalCheckDate
+    runPayrollBy
+    startDate
+    __typename
+  }
+  payrollType
+  __typename
+}
+
+fragment LateDraftPayrollsGroupDraftPayroll on DraftPayroll {
+  id
+  ...DraftPayrollCompactAlertDraftPayroll
+  ...UseGenerateDraftPayrollGroupItemsDraftPayroll
+  __typename
+}
+
+fragment UpcomingDraftPayrollsGroupDraftPayroll on DraftPayroll {
+  id
+  ...DraftPayrollCompactAlertDraftPayroll
+  ...UseGenerateDraftPayrollGroupItemsDraftPayroll
+  __typename
+}
+
+fragment UseGenerateDraftPayrollGroupItemsCompany on Company {
+  id
+  isEligibleForSafeExpedite
+  isPeoClient
+  payrollAutomationSettings {
+    id
+    isAutoSubmissionEnabled
+    __typename
+  }
+  payScheduleSchemeName
+  __typename
+}
+
+fragment OtherPayrollsDrawerV2Company on Company {
+  id
+  earnedAccessFlags {
+    earnedAccessToFasterPayments
+    inEarnedAccessVariation
+    __typename
+  }
+  tierName
+  ...UsePayrollButtonActionsCompany
+  __typename
+}
+
+fragment ApprovedAlertsPayrollApprovalRequestResponse on PayrollApprovalRequestResponse {
+  id
+  responder {
+    id
+    preferredFullName
+    __typename
+  }
+  __typename
+}
+
+fragment ApprovedAlertsPayrollApprovalRequest on PayrollApprovalRequest {
+  id
+  payroll {
+    id
+    name
+    paymentPeriodEndAt
+    paymentPeriodStartAt
+    payrollType
+    __typename
+  }
+  __typename
+}
+
+fragment AutoPayrollTagDraftPayroll on DraftPayroll {
+  id
+  payPeriod {
+    id
+    runPayrollBy
+    __typename
+  }
+  __typename
+}
+
+fragment CreatePayrollExplanationDraftPayroll on DraftPayroll {
+  id
+  allDraftEmployeePayrolls(first: 1) {
+    nodes {
+      id
+      employee {
+        id
+        preferredFirstName
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  __typename
+}
+
+fragment ShouldShowAutopilotTagDraftPayroll on DraftPayroll {
+  id
+  isLateRegularPayroll
+  payPeriod {
+    id
+    runPayrollBy
+    __typename
+  }
+  payrollType
+  paySchedule {
+    id
+    autoPilot
+    nextAutoPilotDate
+    __typename
+  }
+  __typename
+}
+
+fragment TimeLeftTagDraftPayroll on DraftPayroll {
+  id
+  isLateRegularPayroll
+  payPeriod {
+    id
+    originalDebitDate
+    runPayrollBy
+    __typename
+  }
+  __typename
+}
+
+fragment UpNextDraftPayrollCardFooterDraftPayroll on DraftPayroll {
+  id
+  inputAnomalyCount @include(if: $autoSubmissionEnabled)
+  pendingTimeTrackingTasks @include(if: $autoSubmissionEnabled) {
+    id
+    unreviewedTimesheetsCount
+    __typename
+  }
+  timeOffRequestsForPayPeriodByStatus(status: PENDING) @include(if: $autoSubmissionEnabled) {
+    id
+    __typename
+  }
+  ...SkipPayrollDialogDraftPayroll
+  ...UpNextDraftPayrollCardAvatarGroupDraftPayroll
+  ...UpNextDraftPayrollCardMoreActionsDraftPayroll
+  ...UseDraftPayrollCardActionButtonTextDraftPayroll
+  ...UseDraftPayrollRoutesDraftPayroll
+  __typename
+}
+
+fragment UseDraftPayrollCardActionButtonTextDraftPayroll on DraftPayroll {
+  id
+  currentApprovalRequest {
+    id
+    preparer {
+      id
+      __typename
+    }
+    status
+    __typename
+  }
+  payrollType
+  paySchedule {
+    id
+    autoPilot
+    __typename
+  }
+  __typename
+}
+
+fragment UseDraftPayrollRoutesDraftPayroll on DraftPayroll {
+  id
+  payrollType
+  __typename
+}
+
+fragment DraftPayrollRowMoreActionsDraftPayroll on DraftPayroll {
+  id
+  ...DeletePayrollActionDraftPayroll
+  ...PayrollApprovalRequestCancelActionDraftPayroll
+  ...SkipPayrollActionDraftPayroll
+  __typename
+}
+
+fragment AbandonedDraftPayrollAlertDraftPayroll on DraftPayroll {
+  id
+  isAbandoned
+  isLateRegularPayroll
+  paySchedule {
+    id
+    frequency
+    __typename
+  }
+  __typename
+}
+
+fragment DebitDateMovedDueToWeekendAlertDraftPayroll on DraftPayroll {
+  id
+  calculatedDebitDate
+  debitDateMovedDueToWeekend
+  payPeriod {
+    id
+    bankHolidays {
+      nodes {
+        name
+        __typename
+      }
+      __typename
+    }
+    runPayrollBy
+    __typename
+  }
+  __typename
+}
+
+fragment ImpactingBankHolidayAlertDraftPayroll on DraftPayroll {
+  id
+  payPeriod {
+    id
+    bankHolidays {
+      nodes {
+        name
+        __typename
+      }
+      __typename
+    }
+    runPayrollBy
+    __typename
+  }
+  __typename
+}
+
+fragment UseGenerateDraftPayrollGroupItemsDraftPayroll on DraftPayroll {
+  id
+  canPayByCheckOnTime
+  canWireInOnTime
+  payPeriod {
+    id
+    runPayrollBy
+    __typename
+  }
+  payrollType
+  ...CreatePayrollDescriptiveLabelDraftPayroll
+  ...DraftPayrollCardButtonsDraftPayroll
+  ...DraftPayrollCompactAlertDraftPayroll
+  ...GetDraftPayrollDetailsDraftPayroll
+  ...PayrollGroupItemTagDraftPayroll
+  __typename
+}
+
+fragment UsePayrollButtonActionsCompany on Company {
+  id
+  analyticsId
+  canMaxOut401k
+  canRunPayroll
+  hasRunPayroll
+  internationalContractorList(activeAndOnboarded: true, first: 1) {
+    edges {
+      node {
+        id
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  unprocessedContractorsPayGroups: payGroupInterfaces(
+    filter: {payTypes: [CONTRACTOR_ADHOC], processingStates: [UNPROCESSED]}
+    first: 1
+  ) @include(if: $hasPayContractorCapability) {
+    nodes {
+      id
+      __typename
+      uniqueIdentifier
+    }
+    __typename
+  }
+  ...CompanyMemberCoreOnboardedDomesticContractorCount
+  ...UseUnifiedContractorPaymentFeaturesCompany
+  __typename
+}
+
+fragment SkipPayrollDialogDraftPayroll on DraftPayroll {
+  id
+  allDraftEmployeePayrolls(first: 1) {
+    nodes {
+      id
+      employee {
+        id
+        ...SkipPayrollDialogEmployee
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  payrollType
+  ...FormatPayScheduleLabelDraftPayroll
+  ...GetDraftPayrollDetailsDraftPayroll
+  ...UseSkipPayrollDraftPayroll
+  __typename
+}
+
+fragment UpNextDraftPayrollCardAvatarGroupDraftPayroll on DraftPayroll {
+  id
+  __typename
+}
+
+fragment UpNextDraftPayrollCardMoreActionsDraftPayroll on DraftPayroll {
+  id
+  ...SkipPayrollDialogDraftPayroll
+  __typename
+}
+
+fragment DeletePayrollActionDraftPayroll on DraftPayroll {
+  id
+  ...DeletePayrollActionDialogDraftPayroll
+  __typename
+}
+
+fragment PayrollApprovalRequestCancelActionDraftPayroll on DraftPayroll {
+  id
+  currentApprovalRequest {
+    id
+    preparer {
+      id
+      __typename
+    }
+    status
+    __typename
+  }
+  __typename
+}
+
+fragment SkipPayrollActionDraftPayroll on DraftPayroll {
+  id
+  ...FormatPayScheduleLabelDraftPayroll
+  ...GetDraftPayrollDetailsDraftPayroll
+  ...SkipPayrollDialogDraftPayroll
+  ...UseSkipPayrollDraftPayroll
+  __typename
+}
+
+fragment PayrollGroupItemTagDraftPayroll on DraftPayroll {
+  id
+  ...AutoPayrollTagDraftPayroll
+  ...ShouldShowAutopilotTagDraftPayroll
+  ...TimeLeftTagDraftPayroll
+  __typename
+}
+
+fragment SkipPayrollDialogEmployee on Employee {
+  id
+  preferredFirstName
+  preferredFullName
+  __typename
+}
+
+fragment FormatPayScheduleLabelDraftPayroll on DraftPayroll {
+  id
+  allDraftEmployeePayrolls(first: 1) {
+    nodes {
+      id
+      employee {
+        id
+        preferredFullName
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  payPeriod {
+    id
+    __typename
+  }
+  payrollType
+  paySchedule {
+    id
+    labelForPayroll
+    __typename
+  }
+  __typename
+}
+
+fragment UseSkipPayrollDraftPayroll on DraftPayroll {
+  id
+  allDraftEmployeePayrolls(first: 1) {
+    nodes {
+      id
+      employee {
+        id
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  payPeriod {
+    id
+    endDate
+    startDate
+    __typename
+  }
+  payrollType
+  paySchedule {
+    id
+    __typename
+  }
+  __typename
+}
+
+fragment DeletePayrollActionDialogDraftPayroll on DraftPayroll {
+  id
+  customName
+  offCycleReason
+  payroll {
+    id
+    __typename
+  }
+  payrollType
+  ...UseDeleteDraftOffCyclePayrollDraftPayroll
+  __typename
+}
+
+fragment UseDeleteDraftOffCyclePayrollDraftPayroll on DraftPayroll {
+  id
+  payroll {
+    id
+    __typename
+  }
+  payrollType
+  __typename
+}

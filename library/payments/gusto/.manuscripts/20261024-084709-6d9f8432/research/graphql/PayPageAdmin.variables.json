@@ -1,0 +1,17 @@
+{
+ "autoSubmissionEnabled": false,
+ "eorRemoteMigrationBannerActive": false,
+ "hasPayContractorCapability": true,
+ "hasPayEmployeeCapability": true,
+ "manageCompanyOnboardingPermissionActive": true,
+ "mjpFirstPaydaySearchEndDate": "2027-02-28",
+ "mjpSwitcherAwaitingNextYearActive": false,
+ "offCycleReasons": [
+  "MAX_OUT_401K",
+  "CORRECTION",
+  "ADHOC",
+  "BONUS"
+ ],
+ "timeTrackingActivationPromptActive": true,
+ "usePayrollIdentifierOffCycle": true
+}

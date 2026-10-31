@@ -1,0 +1,38 @@
+query BackgroundNetPayPreviewByIds($draftPayrollId: ID!, $ids: [ID!]!) {
+  company {
+    id
+    draftPayroll(uuid: $draftPayrollId) {
+      id
+      draftEmployeePayrollsByIds(ids: $ids) {
+        employee {
+          id
+          __typename
+        }
+        ...BackgroundNetPayPreviewPay
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+}
+
+fragment BackgroundNetPayPreviewPay on DraftEmployeePayroll {
+  id
+  __typename
+  previewPay {
+    id
+    grossPay {
+      amount
+      __typename
+    }
+    netPayAmount
+    reimbursements {
+      amount
+      name
+      __typename
+    }
+    totalReimbursements
+    __typename
+  }
+}

@@ -1,0 +1,10 @@
+{
+ "canViewPayrolls": true,
+ "processedPayrollFilter": {},
+ "processedPayrollOrder": {
+  "sortDirection": "DESC",
+  "type": "CHECK_DATE"
+ },
+ "first": 10,
+ "payHistoryPhaseThreeEnabled": true
+}

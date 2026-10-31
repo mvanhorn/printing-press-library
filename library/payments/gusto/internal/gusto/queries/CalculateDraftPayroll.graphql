@@ -1,0 +1,28 @@
+mutation CalculateDraftPayroll($input: CalculateDraftPayrollInput!) {
+  calculateDraftPayroll(input: $input) {
+    result {
+      __typename
+      ... on CalculateDraftPayrollSuccess {
+        draftPayrollOnSuccess: draftPayroll {
+          id
+          __typename
+        }
+        __typename
+      }
+      ... on CalculateDraftPayrollFailure {
+        draftPayrollOnFailure: draftPayroll {
+          id
+          totalAmountToBeDebited
+          __typename
+        }
+        errors {
+          argument
+          message
+          __typename
+        }
+        __typename
+      }
+    }
+    __typename
+  }
+}

@@ -1,0 +1,105 @@
+query PayrollHistoryContainerPayrollSummaries($after: String, $before: String, $canViewPayrolls: Boolean!, $first: Int, $last: Int, $payHistoryPhaseThreeEnabled: Boolean!, $processedPayrollFilter: ProcessedPayrollsQueryFilter, $processedPayrollOrder: ProcessedPayrollsQueryOrder!) {
+  company {
+    id
+    processedPayrolls(
+      after: $after
+      before: $before
+      filter: $processedPayrollFilter
+      first: $first
+      last: $last
+      order: $processedPayrollOrder
+    ) @include(if: $canViewPayrolls) {
+      edges {
+        node {
+          id
+          ...PayrollSummariesTablePayroll
+          __typename
+        }
+        __typename
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+}
+
+fragment PayrollSummariesTablePayroll on Payroll {
+  id
+  autoPilot
+  cancelValid
+  canClawBackEmployeeFunds
+  checkDate
+  convertToCheckValid
+  debitDate
+  description
+  employeePayrollsCount
+  hasReversals
+  inAppReversalValid
+  isBlockedByPlaidRtb
+  isPeoClient
+  lastFundingAttemptFundingMethod {
+    id
+    bankName
+    fundingType
+    hiddenAccountNumber
+    __typename
+  }
+  name
+  offCycle
+  offCycleReason
+  paymentPeriodEndAt
+  paymentPeriodStartAt
+  payrollDetails
+  payrollRisk @include(if: $payHistoryPhaseThreeEnabled) {
+    id
+    paymentStatusInformation {
+      status
+      __typename
+    }
+    ...ActionLink
+    __typename
+  }
+  payrollType
+  totalDebitAmount
+  totalPayableTax
+  wireInRequest {
+    id
+    status
+    __typename
+  }
+  __typename
+}
+
+fragment ActionLink on PaymentRisk {
+  id
+  creditBlockers {
+    blockerType
+    selectedOption {
+      __typename
+    }
+    status
+    unblockOptions {
+      __typename
+      ... on SubmitWireUnblockOption {
+        amount
+        checkDate
+        deadline
+        __typename
+      }
+      ... on RespondToHighRiskFraudRfiUnblockOption {
+        informationRequestUuid
+        __typename
+      }
+    }
+    __typename
+  }
+  isBlockedByPlaidRtb
+  __typename
+}

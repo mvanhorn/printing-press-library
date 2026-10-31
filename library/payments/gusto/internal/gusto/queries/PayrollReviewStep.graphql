@@ -1,0 +1,1158 @@
+query PayrollReviewStep($draftPayrollId: ID!, $hasAccessToPayrollBridge: Boolean!) {
+  company {
+    id
+    achFundingMethods {
+      id
+      ...PayrollReviewStepFundingMethod
+      __typename
+    }
+    activeTierSubscription {
+      edges {
+        baseFee
+        name
+        perEmployeeFee
+        __typename
+      }
+      __typename
+    }
+    analyticsId
+    companyOnboardingPackageRecommendation {
+      id
+      recommendedPlan
+      selectedPlan
+      __typename
+    }
+    draftPayroll(uuid: $draftPayrollId) {
+      ...PayrollReviewStepDraftPayroll
+      __typename
+    }
+    firstPayDay
+    hasRunPayroll
+    isPeoClient
+    payScheduleSchemeName
+    subscriptions {
+      edges {
+        node {
+          id
+          prices {
+            __typename
+            ...CommercePriceBase
+          }
+          product {
+            id
+            namespace
+            __typename
+          }
+          __typename
+        }
+        startOn
+        __typename
+      }
+      __typename
+    }
+    ...CompanyMemberCoreVerifiedActiveEmployeeCount
+    ...PaymentOptionsSummaryCompany
+    ...PaymentSummaryCompany
+    ...PayrollFooterCompany
+    ...PayrollTaxBreakdownAccordionCompany
+    ...UseRiskFeaturesCompany
+    ...WireInPaymentOptionsDialogsCompany
+    __typename
+  }
+}
+
+fragment PayrollReviewStepFundingMethod on FundingMethod {
+  id
+  ...PayFundingMethodsInputFundingMethod
+  __typename
+}
+
+fragment PayrollReviewStepDraftPayroll on DraftPayroll {
+  id
+  analyticsId
+  payroll {
+    id
+    __typename
+  }
+  payrollRisk {
+    id
+    ...PayrollBridgePaymentRisk
+    __typename
+  }
+  paySchedule {
+    id
+    autoPilot
+    __typename
+  }
+  ...DismissalFinalPayAlertDraftPayroll
+  ...EmployeeHoursAndEarningsAccordionDraftPayroll
+  ...FasterPaymentOptionsDraftPayroll
+  ...MoveToFourDayDialogDraftPayroll
+  ...PaymentOptionsSummaryDraftPayroll
+  ...PaymentSummaryDraftPayroll
+  ...PayrollBlockedAlertDraftPayroll
+  ...PayrollCompanyCostsAccordionDraftPayroll
+  ...PayrollDeletedDialogDraftPayroll
+  ...PayrollFooterDraftPayroll
+  ...PayrollProcessedDialogDraftPayroll
+  ...PayrollReviewUpsellDraftPayroll
+  ...PayrollStepHeaderDraftPayroll
+  ...PayrollSubmissionReminderDialogDraftPayroll
+  ...PayrollTaxBreakdownAccordionDraftPayroll
+  ...ReverseWireAlertDraftPayroll
+  ...UseRiskFeaturesDraftPayroll
+  ...UseShowAnomalyDetectionUIDraftPayroll
+  ...WireInPaymentOptionsDialogsDraftPayroll
+  ...ZeroCheckAmountInfoAlertDraftPayroll
+  __typename
+}
+
+fragment CommercePriceBase on CommercePrice {
+  id
+  __typename
+  frequency
+  ... on CommercePriceFlat {
+    amount {
+      amount
+      currencyCode
+      __typename
+    }
+    __typename
+  }
+  ... on CommercePricePerUnit {
+    amount {
+      amount
+      currencyCode
+      __typename
+    }
+    unitKey
+    unitName
+    __typename
+  }
+  ... on CommercePriceTiered {
+    tieredPrices {
+      id
+      __typename
+      ... on CommerceTieredPriceFlat {
+        amount {
+          amount
+          currencyCode
+          __typename
+        }
+        __typename
+      }
+      ... on CommerceTieredPricePerUnit {
+        amount {
+          amount
+          currencyCode
+          __typename
+        }
+        unitKey
+        unitName
+        __typename
+      }
+    }
+    __typename
+  }
+  ... on CommercePriceUnknown {
+    amount {
+      amount
+      currencyCode
+      __typename
+    }
+    __typename
+  }
+}
+
+fragment CompanyMemberCoreVerifiedActiveEmployeeCount on Company {
+  id
+  activeEmployeeMembers: members(
+    employmentSetupStatuses: [COMPLETED]
+    employmentStatus: CURRENT_OR_PENDING_HIRE
+    isEor: false
+    workerTypes: [EMPLOYEE]
+  ) {
+    totalCount
+    __typename
+  }
+  __typename
+}
+
+fragment PaymentOptionsSummaryCompany on Company {
+  id
+  ...DownloadPayrollSummaryDialogCompany
+  ...UseRiskFeaturesCompany
+  __typename
+}
+
+fragment PaymentSummaryCompany on Company {
+  id
+  ...DownloadPayrollSummaryDialogCompany
+  ...UseRiskFeaturesCompany
+  __typename
+}
+
+fragment PayrollFooterCompany on Company {
+  id
+  isPayrollApprovalsEnabled
+  __typename
+}
+
+fragment PayrollTaxBreakdownAccordionCompany on Company {
+  id
+  ...PayrollDebitTotalsCardListCompany
+  ...PayrollDebitTotalsTableCompany
+  ...PayrollTaxBreakdownCardListCompany
+  ...PayrollTaxBreakdownTableCompany
+  __typename
+}
+
+fragment UseRiskFeaturesCompany on Company {
+  id
+  isEligibleForSafeExpedite
+  __typename
+}
+
+fragment WireInPaymentOptionsDialogsCompany on Company {
+  id
+  analyticsId
+  earnedAccessFlags {
+    earnedAccessToFasterPayments
+    inEarnedAccessVariation
+    __typename
+  }
+  ...WireTransferRequirementsDialogCompany
+  __typename
+}
+
+fragment PayFundingMethodsInputFundingMethod on FundingMethod {
+  id
+  accountType
+  bankName
+  hiddenAccountNumber
+  isVerified
+  __typename
+}
+
+fragment PayrollBridgePaymentRisk on PaymentRisk {
+  id
+  allEligibleFundingMethods {
+    id
+    fundingMethod {
+      id
+      __typename
+      ... on LineOfCreditFundingMethod {
+        id
+        availableBalance
+        __typename
+      }
+      ... on AchFundingMethod {
+        id
+        accountType
+        availableBalance
+        balanceLastCheckedAt
+        bankName
+        hiddenAccountNumber
+        isConnected
+        __typename
+      }
+    }
+    isRequestedFundingMethod
+    __typename
+  }
+  payrollBridgeFunding @include(if: $hasAccessToPayrollBridge) {
+    id
+    spendingPower
+    status
+    __typename
+  }
+  __typename
+}
+
+fragment DismissalFinalPayAlertDraftPayroll on DraftPayroll {
+  id
+  draftEmployeePayrolls {
+    id
+    isDismissedInPayPeriod
+    paymentMethod
+    __typename
+  }
+  payrollType
+  __typename
+}
+
+fragment EmployeeHoursAndEarningsAccordionDraftPayroll on DraftPayroll {
+  id
+  includedDraftEmployeePayrolls {
+    nodes {
+      id
+      hasMailedCheck
+      ...EmployeeEarningsDataCardListDraftEmployeePayroll
+      ...EmployeeEarningsTableDraftEmployeePayroll
+      ...EmployeeHoursAndPayTableDraftEmployeePayroll
+      __typename
+    }
+    __typename
+  }
+  payroll {
+    id
+    employeePayrolls {
+      nodes {
+        id
+        employee {
+          id
+          __typename
+        }
+        negativePayroll {
+          id
+          uuid
+          __typename
+        }
+        reversed
+        __typename
+      }
+      __typename
+    }
+    ...EmployeeHoursAndEarningsButtonsPayroll
+    __typename
+  }
+  payrollType
+  __typename
+}
+
+fragment FasterPaymentOptionsDraftPayroll on DraftPayroll {
+  id
+  canActivateFastAch
+  canNextDayAchOnTime
+  checkDateWithNextDayPay
+  fasterPayoutRails {
+    ...FasterPayoutRailOptionPart
+    __typename
+  }
+  isLateRegularPayroll
+  payPeriod {
+    id
+    checkDate
+    __typename
+  }
+  payrollRisk {
+    id
+    achSpeed
+    __typename
+  }
+  payrollType
+  totalAmountToBeDebited
+  ...FasterPaymentOptionAlertsDraftPayroll
+  __typename
+}
+
+fragment MoveToFourDayDialogDraftPayroll on DraftPayroll {
+  id
+  payPeriod {
+    id
+    checkDate
+    fourDayCheckDate
+    fourDayDebitDate
+    __typename
+  }
+  totalAmountToBeDebited
+  __typename
+}
+
+fragment PaymentOptionsSummaryDraftPayroll on DraftPayroll {
+  id
+  fasterPayoutRails {
+    ...PaymentOptionsSummaryFasterPayoutRailOption
+    __typename
+  }
+  fundingMethod {
+    id
+    bankRequiresWireIn
+    fundingType
+    hiddenAccountNumber
+    __typename
+  }
+  payPeriod {
+    id
+    checkDate
+    fourDayCheckDate
+    fourDayDebitDate
+    runPayrollByBankCutoffTime
+    __typename
+  }
+  payrollRisk {
+    id
+    achSpeed
+    unchallengedForPlaidRtbExperiment
+    waitingForWireIn
+    wireCutoffTime
+    wireInDeadlineAt
+    __typename
+  }
+  totalAmountToBeDebited
+  ...DownloadPayrollSummaryDialogDraftPayroll
+  ...UseRiskFeaturesDraftPayroll
+  __typename
+}
+
+fragment PaymentSummaryDraftPayroll on DraftPayroll {
+  id
+  fundingMethod {
+    id
+    fundingType
+    __typename
+  }
+  ...DefaultPayrollSummaryPanelDraftPayroll
+  ...DownloadPayrollSummaryDialogDraftPayroll
+  ...LineOfCreditPanelDraftPayroll
+  ...UseRiskFeaturesDraftPayroll
+  ...WireTransferPanelDraftPayroll
+  __typename
+}
+
+fragment PayrollBlockedAlertDraftPayroll on DraftPayroll {
+  id
+  payPeriod {
+    id
+    runPayrollBy
+    __typename
+  }
+  __typename
+}
+
+fragment PayrollCompanyCostsAccordionDraftPayroll on DraftPayroll {
+  id
+  includedDraftEmployeePayrolls {
+    nodes {
+      id
+      ...CompanyCostsDataCardListDraftEmployeePayroll
+      ...CompanyCostsTableDraftEmployeePayroll
+      __typename
+    }
+    __typename
+  }
+  __typename
+}
+
+fragment PayrollDeletedDialogDraftPayroll on DraftPayroll {
+  id
+  customName
+  payrollType
+  __typename
+}
+
+fragment PayrollFooterDraftPayroll on DraftPayroll {
+  id
+  __typename
+}
+
+fragment PayrollProcessedDialogDraftPayroll on DraftPayroll {
+  id
+  payPeriod {
+    id
+    checkDate
+    __typename
+  }
+  totalAmountToBeDebited
+  __typename
+}
+
+fragment PayrollReviewUpsellDraftPayroll on DraftPayroll {
+  id
+  draftPayrollCalculatedAmounts {
+    employerDebitTotals {
+      reimbursements
+      __typename
+    }
+    __typename
+  }
+  includedDraftEmployeePayrolls {
+    nodes {
+      id
+      allAdditionalPays {
+        id
+        amount
+        payType {
+          id
+          name
+          __typename
+        }
+        __typename
+      }
+      draftEmployeePayrollCalculatedAmounts {
+        benefitTotals {
+          employerContribution
+          __typename
+        }
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  __typename
+}
+
+fragment PayrollStepHeaderDraftPayroll on DraftPayroll {
+  id
+  payPeriod {
+    id
+    endDate
+    startDate
+    __typename
+  }
+  ...CreatePayrollDescriptiveLabelDraftPayroll
+  __typename
+}
+
+fragment PayrollSubmissionReminderDialogDraftPayroll on DraftPayroll {
+  id
+  isOffCyclePayroll
+  __typename
+}
+
+fragment PayrollTaxBreakdownAccordionDraftPayroll on DraftPayroll {
+  id
+  draftPayrollCalculatedAmounts {
+    ...PayrollTaxBreakdownCardListDraftPayrollCalculatedAmounts
+    ...PayrollTaxBreakdownTableDraftPayrollCalculatedAmounts
+    __typename
+  }
+  ...PayrollDebitTotalsCardListDraftPayroll
+  ...PayrollDebitTotalsTableDraftPayroll
+  ...PayrollTaxBreakdownCardListDraftPayroll
+  ...PayrollTaxBreakdownTableDraftPayroll
+  __typename
+}
+
+fragment ReverseWireAlertDraftPayroll on DraftPayroll {
+  id
+  payrollRisk {
+    id
+    isReverseWireFastAch
+    __typename
+  }
+  __typename
+}
+
+fragment UseRiskFeaturesDraftPayroll on DraftPayroll {
+  id
+  fundingMethod {
+    id
+    fundingType
+    __typename
+  }
+  isLateRegularPayroll
+  payrollRisk {
+    id
+    isBankScreenshotRequired
+    isBankScreenshotUploaded
+    submitBlockers {
+      blockerType
+      selectedOption {
+        checkDate
+        metadata
+        unblockOptionType
+        __typename
+      }
+      status
+      unblockOptions {
+        checkDate
+        metadata
+        unblockOptionType
+        __typename
+      }
+      __typename
+    }
+    unchallengedForPlaidRtbExperiment
+    wireInFunded
+    __typename
+  }
+  __typename
+}
+
+fragment UseShowAnomalyDetectionUIDraftPayroll on DraftPayroll {
+  id
+  anomalyBatchId
+  payrollType
+  __typename
+}
+
+fragment WireInPaymentOptionsDialogsDraftPayroll on DraftPayroll {
+  id
+  payroll {
+    id
+    __typename
+  }
+  ...CheckPaymentDialogDraftPayroll
+  ...MoveToFourDayDialogDraftPayroll
+  ...UseRiskFeaturesDraftPayroll
+  __typename
+}
+
+fragment ZeroCheckAmountInfoAlertDraftPayroll on DraftPayroll {
+  id
+  includedDraftEmployeePayrolls {
+    nodes {
+      ...ZeroCheckAmountInfoAertDraftEmployeePayroll
+      __typename
+    }
+    __typename
+  }
+  __typename
+}
+
+fragment DownloadPayrollSummaryDialogCompany on Company {
+  id
+  __typename
+}
+
+fragment PayrollDebitTotalsCardListCompany on Company {
+  id
+  __typename
+}
+
+fragment PayrollDebitTotalsTableCompany on Company {
+  id
+  __typename
+}
+
+fragment PayrollTaxBreakdownCardListCompany on Company {
+  id
+  enrolledInRealtimeResearchAndDevelopment
+  __typename
+}
+
+fragment PayrollTaxBreakdownTableCompany on Company {
+  id
+  enrolledInRealtimeResearchAndDevelopment
+  __typename
+}
+
+fragment WireTransferRequirementsDialogCompany on Company {
+  id
+  tradeOrLegalName
+  __typename
+}
+
+fragment EmployeeEarningsDataCardListDraftEmployeePayroll on DraftEmployeePayroll {
+  id
+  checkNumber
+  hasMailedCheck
+  paymentMethod
+  payrollItem {
+    id
+    checkMailingDetails {
+      liveStatus {
+        status
+        __typename
+      }
+      mailingSpeed
+      __typename
+    }
+    __typename
+  }
+  uuid
+  ...EmployeeEarningsDraftEmployeePayroll
+  __typename
+}
+
+fragment EmployeeEarningsTableDraftEmployeePayroll on DraftEmployeePayroll {
+  id
+  checkNumber
+  hasMailedCheck
+  paymentMethod
+  payrollItem {
+    id
+    checkMailingDetails {
+      liveStatus {
+        status
+        __typename
+      }
+      mailingSpeed
+      __typename
+    }
+    __typename
+  }
+  uuid
+  ...EmployeeEarningsDraftEmployeePayroll
+  __typename
+}
+
+fragment EmployeeHoursAndPayTableDraftEmployeePayroll on DraftEmployeePayroll {
+  id
+  employee {
+    id
+    legalFirstName
+    __typename
+  }
+  payAdjustmentSummary {
+    id
+    amount
+    hours
+    name
+    __typename
+  }
+  ...EmployeeHoursAndPayCardListDraftEmployeePayroll
+  ...EmployeeHoursRowDraftEmployeePayroll
+  ...EmployeePayRowDraftEmployeePayroll
+  __typename
+}
+
+fragment EmployeeHoursAndEarningsButtonsPayroll on Payroll {
+  id
+  ...PrintChecksButtonPayroll
+  __typename
+}
+
+fragment FasterPayoutRailOptionPart on FasterPayoutRailOption {
+  cutoff
+  eligible
+  price
+  value
+  __typename
+}
+
+fragment FasterPaymentOptionAlertsDraftPayroll on DraftPayroll {
+  id
+  fasterPayoutRails {
+    ...FasterPaymentOptionAlertsFasterPayoutRailOption
+    __typename
+  }
+  __typename
+}
+
+fragment PaymentOptionsSummaryFasterPayoutRailOption on FasterPayoutRailOption {
+  canPayOnTime
+  cutoff
+  eligible
+  value
+  __typename
+}
+
+fragment DownloadPayrollSummaryDialogDraftPayroll on DraftPayroll {
+  id
+  payroll {
+    id
+    __typename
+  }
+  __typename
+}
+
+fragment DefaultPayrollSummaryPanelDraftPayroll on DraftPayroll {
+  id
+  checkDateWithNextDayPay
+  fundingMethod {
+    id
+    accountType
+    bankName
+    hiddenAccountNumber
+    __typename
+  }
+  isLateRegularPayroll
+  payPeriod {
+    id
+    checkDate
+    runPayrollBy
+    __typename
+  }
+  payrollRisk {
+    id
+    __typename
+  }
+  payrollType
+  totalAmountToBeDebited
+  totalEmployerCost
+  __typename
+}
+
+fragment LineOfCreditPanelDraftPayroll on DraftPayroll {
+  id
+  checkDateWithNextDayPay
+  payPeriod {
+    id
+    checkDate
+    __typename
+  }
+  payrollRisk {
+    id
+    __typename
+  }
+  totalAmountToBeDebited
+  totalEmployerCost
+  __typename
+}
+
+fragment WireTransferPanelDraftPayroll on DraftPayroll {
+  id
+  payPeriod {
+    id
+    checkDate
+    __typename
+  }
+  payrollRisk {
+    id
+    hasOneDayAch
+    wireInDeadlineAt
+    __typename
+  }
+  totalAmountToBeDebited
+  totalEmployerCost
+  __typename
+}
+
+fragment CompanyCostsDataCardListDraftEmployeePayroll on DraftEmployeePayroll {
+  id
+  ...CompanyCostsDraftEmployeePayroll
+  __typename
+}
+
+fragment CompanyCostsTableDraftEmployeePayroll on DraftEmployeePayroll {
+  id
+  ...CompanyCostsDraftEmployeePayroll
+  __typename
+}
+
+fragment CreatePayrollDescriptiveLabelDraftPayroll on DraftPayroll {
+  id
+  allDraftEmployeePayrolls(first: 1) {
+    nodes {
+      id
+      employee {
+        id
+        preferredFullName
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  customName
+  payrollType
+  paySchedule {
+    id
+    frequency
+    name
+    payGroup
+    __typename
+  }
+  __typename
+}
+
+fragment PayrollTaxBreakdownCardListDraftPayrollCalculatedAmounts on DraftPayrollCalculatedAmounts {
+  allTaxTotals {
+    description
+    employeeAmount
+    employerAmount
+    __typename
+  }
+  __typename
+}
+
+fragment PayrollTaxBreakdownTableDraftPayrollCalculatedAmounts on DraftPayrollCalculatedAmounts {
+  allTaxTotals {
+    description
+    employeeAmount
+    employerAmount
+    __typename
+  }
+  __typename
+}
+
+fragment PayrollDebitTotalsCardListDraftPayroll on DraftPayroll {
+  id
+  draftPayrollCalculatedAmounts {
+    employerDebitTotals {
+      employeeDirectDepositNetPay
+      garnishments
+      reimbursements
+      taxes
+      __typename
+    }
+    __typename
+  }
+  payroll {
+    id
+    __typename
+  }
+  __typename
+}
+
+fragment PayrollDebitTotalsTableDraftPayroll on DraftPayroll {
+  id
+  draftPayrollCalculatedAmounts {
+    employerDebitTotals {
+      employeeDirectDepositNetPay
+      garnishments
+      reimbursements
+      taxes
+      __typename
+    }
+    __typename
+  }
+  payroll {
+    id
+    __typename
+  }
+  __typename
+}
+
+fragment PayrollTaxBreakdownCardListDraftPayroll on DraftPayroll {
+  id
+  totalEligibleResearchDevelopmentCredit
+  __typename
+}
+
+fragment PayrollTaxBreakdownTableDraftPayroll on DraftPayroll {
+  id
+  totalEligibleResearchDevelopmentCredit
+  __typename
+}
+
+fragment CheckPaymentDialogDraftPayroll on DraftPayroll {
+  id
+  payPeriod {
+    id
+    fourDayCheckDate
+    fourDayDebitDate
+    __typename
+  }
+  totalPayableTax
+  __typename
+}
+
+fragment ZeroCheckAmountInfoAertDraftEmployeePayroll on DraftEmployeePayroll {
+  id
+  draftEmployeePayrollCalculatedAmounts {
+    checkAmount
+    __typename
+  }
+  employee {
+    id
+    ...FormatMemberNameAsPreferredEmployee
+    __typename
+  }
+  __typename
+}
+
+fragment EmployeeEarningsDraftEmployeePayroll on DraftEmployeePayroll {
+  id
+  __typename
+  draftEmployeePayrollCalculatedAmounts {
+    benefitTotals {
+      employeeDeduction
+      __typename
+    }
+    checkAmount
+    grossPay
+    totalDeductionAmount
+    totalEmployeeTax
+    totalReimbursementAmount
+    __typename
+  }
+  employee {
+    id
+    legalFirstName
+    ...FormatMemberNameAsPreferredEmployee
+    __typename
+  }
+  qualifiedFederalOvertimeAmount
+  qualifiedTipsAmount
+}
+
+fragment EmployeeHoursAndPayCardListDraftEmployeePayroll on DraftEmployeePayroll {
+  id
+  employee {
+    id
+    legalFirstName
+    __typename
+  }
+  payAdjustmentSummary {
+    id
+    amount
+    hours
+    name
+    __typename
+  }
+  ...EmployeeHoursCardDraftEmployeePayroll
+  ...EmployeePayCardDraftEmployeePayroll
+  __typename
+}
+
+fragment EmployeeHoursRowDraftEmployeePayroll on DraftEmployeePayroll {
+  id
+  allWorkedHours {
+    id
+    doubleOvertimeHours
+    missedBreakHours
+    overtimeHours
+    regularHours
+    workweekEndDate
+    workweekStartDate
+    __typename
+  }
+  draftEmployeePayrollCalculatedAmounts {
+    paidTimeOffHours
+    unpaidTimeOffHours
+    __typename
+  }
+  employee {
+    id
+    ...FormatMemberNameAsPreferredEmployee
+    __typename
+  }
+  payAdjustmentSummary {
+    id
+    hours
+    name
+    __typename
+  }
+  primaryJobApplicableCompensation {
+    id
+    flsaStatus: nullableFlsaStatus
+    __typename
+  }
+  __typename
+}
+
+fragment EmployeePayRowDraftEmployeePayroll on DraftEmployeePayroll {
+  id
+  draftEmployeePayrollCalculatedAmounts {
+    allHourBasedPayTotals {
+      amount
+      compensationTypeName
+      __typename
+    }
+    paidTimeOffPay
+    __typename
+  }
+  employee {
+    id
+    ...FormatMemberNameAsPreferredEmployee
+    __typename
+  }
+  payAdjustmentSummary {
+    id
+    amount
+    name
+    __typename
+  }
+  primaryJobApplicableCompensation {
+    flsaStatus: nullableFlsaStatus
+    __typename
+  }
+  __typename
+}
+
+fragment PrintChecksButtonPayroll on Payroll {
+  id
+  __typename
+}
+
+fragment FasterPaymentOptionAlertsFasterPayoutRailOption on FasterPayoutRailOption {
+  cutoff
+  eligible
+  ineligibleReasons
+  value
+  __typename
+}
+
+fragment CompanyCostsDraftEmployeePayroll on DraftEmployeePayroll {
+  id
+  __typename
+  draftEmployeePayrollCalculatedAmounts {
+    benefitTotals {
+      employerContribution
+      __typename
+    }
+    employerCost
+    employerTax
+    grossPay
+    totalReimbursementAmount
+    __typename
+  }
+  employee {
+    id
+    legalFirstName
+    ...FormatMemberNameAsPreferredEmployee
+    __typename
+  }
+  payrollItem {
+    id
+    __typename
+  }
+}
+
+fragment FormatMemberNameAsPreferredEmployee on Employee {
+  id
+  lastName
+  legalFirstName
+  preferredFirstName
+  __typename
+}
+
+fragment EmployeeHoursCardDraftEmployeePayroll on DraftEmployeePayroll {
+  id
+  allWorkedHours {
+    id
+    doubleOvertimeHours
+    missedBreakHours
+    overtimeHours
+    regularHours
+    workweekEndDate
+    workweekStartDate
+    __typename
+  }
+  draftEmployeePayrollCalculatedAmounts {
+    paidTimeOffHours
+    unpaidTimeOffHours
+    __typename
+  }
+  employee {
+    id
+    ...FormatMemberNameAsPreferredEmployee
+    __typename
+  }
+  payAdjustmentSummary {
+    id
+    hours
+    name
+    __typename
+  }
+  primaryJobApplicableCompensation {
+    id
+    flsaStatus: nullableFlsaStatus
+    __typename
+  }
+  __typename
+}
+
+fragment EmployeePayCardDraftEmployeePayroll on DraftEmployeePayroll {
+  id
+  draftEmployeePayrollCalculatedAmounts {
+    allHourBasedPayTotals {
+      amount
+      compensationTypeName
+      __typename
+    }
+    paidTimeOffPay
+    __typename
+  }
+  employee {
+    id
+    ...FormatMemberNameAsPreferredEmployee
+    __typename
+  }
+  payAdjustmentSummary {
+    id
+    amount
+    name
+    __typename
+  }
+  primaryJobApplicableCompensation {
+    id
+    flsaStatus: nullableFlsaStatus
+    __typename
+  }
+  __typename
+}

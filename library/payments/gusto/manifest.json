@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "gusto-pp-mcp",
+  "display_name": "Gusto",
+  "version": "0.1.0",
+  "description": "Prep a Gusto payroll from the terminal, including mileage reimbursements that Gusto's hosted connector cannot enter, and stop at review so a human submits.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/gusto-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/gusto-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

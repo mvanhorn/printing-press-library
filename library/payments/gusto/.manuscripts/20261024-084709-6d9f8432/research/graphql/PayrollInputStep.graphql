@@ -1,0 +1,249 @@
+query PayrollInputStep($between: TimeTrackingDateRange!, $draftPayrollId: ID!, $featureFlagInputs: [GustoFfeFeatureInput!]!, $hasPaySchedule: Boolean!, $shouldQueryTimeTrackingFields: Boolean!) {
+  company {
+    id
+    draftPayroll(uuid: $draftPayrollId) {
+      id
+      ... on DraftPayroll {
+        id
+        analyticsId
+        payPeriod {
+          id
+          endDate
+          runPayrollBy
+          checkDate
+          ... on PayPeriod {
+            id
+            checkDate
+            runPayrollBy
+            projectedCheckDate
+            endDate
+            startDate
+            __typename
+          }
+          runPayrollByBankCutoffTime @include(if: $hasPaySchedule)
+          originalCheckDate
+          projectedCheckDate
+          startDate
+          nextAvailableFourDayCheckDate
+          __typename
+        }
+        paySchedule {
+          id
+          frequency
+          name
+          payGroup
+          uuid
+          __typename
+        }
+        payType
+        saveDetails {
+          lastSavedOn
+          __typename
+        }
+        submissionStatus {
+          id
+          state
+          __typename
+        }
+        payrollType
+        customName
+        totalAmountToBeDebited
+        offCycleReason
+        paidHolidays {
+          id
+          ... on PaidHoliday {
+            id
+            name
+            __typename
+          }
+          __typename
+        }
+        payroll {
+          id
+          autoPilot
+          __typename
+        }
+        canNextDayAchOnTime
+        isLateRegularPayroll
+        fundingMethod {
+          id
+          ... on FundingMethodV2 {
+            id
+            fundingType
+            __typename
+          }
+          fundingType
+          __typename
+        }
+        draftEmployeePayrollsCount
+        allDraftEmployeePayrolls(first: 1) {
+          nodes {
+            id
+            employee {
+              id
+              preferredFirstName
+              preferredFullName
+              __typename
+            }
+            __typename
+          }
+          __typename
+        }
+        canWireInOnTime
+        payrollRisk {
+          id
+          wireCutoffTime
+          __typename
+        }
+        draftPayrollAdvancedSettings {
+          id
+          shouldMakeInternalDeductions
+          shouldMakeRegularDeductions
+          __typename
+        }
+        overlappingWorkweeks {
+          endDate
+          startDate
+          __typename
+        }
+        isRegularRateOfPayEnabled
+        __typename
+      }
+      __typename
+    }
+    ... on Company {
+      id
+      payScheduleSchemeName
+      supportedTimeTrackingDataSources
+      isPayrollApprovalsEnabled
+      achFundingMethods {
+        id
+        ... on FundingMethod {
+          id
+          accountType
+          bankName
+          hiddenAccountNumber
+          isVerified
+          __typename
+        }
+        __typename
+      }
+      hasRunPayroll
+      schedulingSettings @include(if: $shouldQueryTimeTrackingFields) {
+        ... on SchedulingSettings {
+          id
+          schedulingStatus
+          __typename
+        }
+        __typename
+      }
+      shouldAutoupgradeToPlus
+      timeTrackingPayPeriods(between: $between) @include(if: $shouldQueryTimeTrackingFields) {
+        id
+        ... on TimeTrackingPayPeriod {
+          id
+          endDate
+          kind
+          payScheduleId
+          startDate
+          timesheetAbilities {
+            ... on TimesheetAbility {
+              action
+              actionReason
+              locked
+              __typename
+            }
+            action
+            actionReason
+            locked
+            __typename
+          }
+          checkDate
+          status
+          __typename
+        }
+        __typename
+      }
+      activeEmployeeMembers: members(
+        employmentStatus: CURRENT_OR_PENDING_HIRE
+        isEor: false
+        workerTypes: [EMPLOYEE]
+      ) {
+        totalCount
+        __typename
+      }
+      processedPayrolls(
+        filter: {includedPayrollTypes: [REGULAR]}
+        first: 1
+        order: {type: CHECK_DATE, sortDirection: DESC}
+      ) {
+        nodes {
+          id
+          paymentPeriodStartAt
+          __typename
+        }
+        __typename
+      }
+      missingStatesForPayroll {
+        id
+        employees {
+          nodes {
+            id
+            preferredFullName
+            __typename
+          }
+          __typename
+        }
+        missingStates
+        __typename
+      }
+      isEligibleForSafeExpedite
+      defaultFundingMethod {
+        id
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  gustoFfeFeatures(input: $featureFlagInputs) @include(if: $shouldQueryTimeTrackingFields) {
+    ... on GustoFfeFeatureResult {
+      __typename
+      entityId
+      entityType
+      featureFlagKey
+      featureVariables {
+        __typename
+        ... on StringFeatureVariable {
+          stringVariableValue: variableValue
+          variableKey
+          __typename
+        }
+        ... on IntFeatureVariable {
+          intVariableValue: variableValue
+          variableKey
+          __typename
+        }
+        ... on FloatFeatureVariable {
+          floatVariableValue: variableValue
+          variableKey
+          __typename
+        }
+        ... on BooleanFeatureVariable {
+          booleanVariableValue: variableValue
+          variableKey
+          __typename
+        }
+        ... on JsonFeatureVariable {
+          jsonVariableValue: variableValue
+          variableKey
+          __typename
+        }
+      }
+      isFeatureEnabled
+      projectEntity
+      variationName
+    }
+    __typename
+  }
+}

@@ -1,0 +1,533 @@
+{
+ "data": {
+  "company": {
+   "id": "f290a54b-9dd2-1285-9772-7b50837a84af",
+   "achFundingMethods": [
+    {
+     "id": "a2aa45bd-8603-138f-fb70-dcb562c25895",
+     "accountType": "Checking",
+     "bankName": "EXAMPLE BANK, NA",
+     "hiddenAccountNumber": "XXXX_PII_CARD_LAST4_EXAMPLE",
+     "isVerified": true,
+     "__typename": "FundingMethod"
+    }
+   ],
+   "activeTierSubscription": {
+    "edges": [
+     {
+      "baseFee": "49.00",
+      "name": "simple",
+      "perEmployeeFee": "6.00",
+      "__typename": "CommerceSubscriptionEdge"
+     }
+    ],
+    "__typename": "CommerceSubscriptionConnection"
+   },
+   "analyticsId": "0429180324317886",
+   "companyOnboardingPackageRecommendation": {
+    "id": "3e67fb4e-ae61-952a-7995-e623bd7c1a57",
+    "recommendedPlan": "SIMPLE",
+    "selectedPlan": "SIMPLE",
+    "__typename": "CompanyOnboardingPackageRecommendation"
+   },
+   "draftPayroll": {
+    "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01",
+    "analyticsId": "2526335797234851",
+    "payroll": {
+     "id": "19fc728d-bd9c-bc4a-4064-137d08fb4b78",
+     "__typename": "Payroll",
+     "employeePayrolls": {
+      "nodes": [
+       {
+        "id": "6261ae49-9fbc-6fa4-d648-005d95427d22",
+        "employee": {
+         "id": "556e0a31-11ae-beae-f79f-eaef81dac0c8",
+         "__typename": "Employee"
+        },
+        "negativePayroll": null,
+        "reversed": false,
+        "__typename": "EmployeePayroll"
+       }
+      ],
+      "__typename": "PayrollEmployeePayrollConnection"
+     }
+    },
+    "payrollRisk": {
+     "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01",
+     "allEligibleFundingMethods": [
+      {
+       "id": "a2aa45bd-8603-138f-fb70-dcb562c25895",
+       "fundingMethod": {
+        "id": "a2aa45bd-8603-138f-fb70-dcb562c25895",
+        "__typename": "AchFundingMethod",
+        "accountType": "Checking",
+        "availableBalance": "47172.33",
+        "balanceLastCheckedAt": "2026-10-24T05:06:54-07:00",
+        "bankName": "EXAMPLE BANK, NA",
+        "hiddenAccountNumber": "XXXX_PII_CARD_LAST4_EXAMPLE",
+        "isConnected": true
+       },
+       "isRequestedFundingMethod": true,
+       "__typename": "EligibleFundingMethod"
+      }
+     ],
+     "payrollBridgeFunding": {
+      "id": "Payroll:19fc728d-bd9c-bc4a-4064-137d08fb4b78:f290a54b-9dd2-1285-9772-7b50837a84af",
+      "spendingPower": "0.00",
+      "status": "CAN_APPLY_AND_ORDER",
+      "__typename": "PayrollBridgeFunding"
+     },
+     "__typename": "PaymentRisk",
+     "achSpeed": "one_day_ach",
+     "unchallengedForPlaidRtbExperiment": false,
+     "waitingForWireIn": false,
+     "wireCutoffTime": "12:15pm",
+     "wireInDeadlineAt": "2026-11-06T12:15:00-08:00",
+     "isBankScreenshotRequired": false,
+     "isBankScreenshotUploaded": false,
+     "submitBlockers": [],
+     "wireInFunded": false,
+     "hasOneDayAch": true,
+     "isReverseWireFastAch": false
+    },
+    "paySchedule": {
+     "id": "3299295136144041",
+     "autoPilot": false,
+     "__typename": "PaySchedule",
+     "frequency": "Every week",
+     "name": "every Friday",
+     "payGroup": null
+    },
+    "draftEmployeePayrolls": [
+     {
+      "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8",
+      "isDismissedInPayPeriod": false,
+      "paymentMethod": "direct_deposit",
+      "__typename": "DraftEmployeePayroll"
+     }
+    ],
+    "payrollType": "regular",
+    "__typename": "DraftPayroll",
+    "includedDraftEmployeePayrolls": {
+     "nodes": [
+      {
+       "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8",
+       "hasMailedCheck": false,
+       "checkNumber": null,
+       "paymentMethod": "direct_deposit",
+       "payrollItem": {
+        "id": "6261ae49-9fbc-6fa4-d648-005d95427d22",
+        "checkMailingDetails": null,
+        "__typename": "EmployeePayroll"
+       },
+       "uuid": "6261ae49-9fbc-6fa4-d648-005d95427d22",
+       "__typename": "DraftEmployeePayroll",
+       "draftEmployeePayrollCalculatedAmounts": {
+        "benefitTotals": {
+         "employeeDeduction": "0.00",
+         "__typename": "DraftEmployeePayrollBenefitTotal",
+         "employerContribution": "0.00"
+        },
+        "checkAmount": "16.01",
+        "grossPay": "16.00",
+        "totalDeductionAmount": "0.00",
+        "totalEmployeeTax": "1.22",
+        "totalReimbursementAmount": "1.23",
+        "__typename": "DraftEmployeePayrollCalculatedAmounts",
+        "paidTimeOffHours": "0.0",
+        "unpaidTimeOffHours": "0.0",
+        "allHourBasedPayTotals": [
+         {
+          "amount": "16.00",
+          "compensationTypeName": "Regular",
+          "__typename": "DraftEmployeePayrollCalculatedHourBasedPayTotal"
+         }
+        ],
+        "paidTimeOffPay": "0.00",
+        "employerCost": "18.72",
+        "employerTax": "1.49"
+       },
+       "employee": {
+        "id": "556e0a31-11ae-beae-f79f-eaef81dac0c8",
+        "legalFirstName": "Ava",
+        "lastName": "Example",
+        "preferredFirstName": "Ava",
+        "__typename": "Employee"
+       },
+       "qualifiedFederalOvertimeAmount": "0.00",
+       "qualifiedTipsAmount": "0.00",
+       "payAdjustmentSummary": [],
+       "allWorkedHours": [
+        {
+         "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8.b9e7913d-f628-87fe-98bb-ebbaff2e8b90",
+         "doubleOvertimeHours": null,
+         "missedBreakHours": null,
+         "overtimeHours": null,
+         "regularHours": "1.0",
+         "workweekEndDate": null,
+         "workweekStartDate": null,
+         "__typename": "DraftEmployeePayrollWorkedHours"
+        }
+       ],
+       "primaryJobApplicableCompensation": {
+        "id": "1572439278432227",
+        "flsaStatus": "Nonexempt",
+        "__typename": "EmployeeJobCompensation"
+       },
+       "allAdditionalPays": [
+        {
+         "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8.1180b84b-6442-f2c0-a81b-19464e21cc88",
+         "amount": "0.00",
+         "payType": {
+          "id": "1180b84b-6442-f2c0-a81b-19464e21cc88",
+          "name": "Bonus",
+          "__typename": "DraftEmployeePayrollPayType"
+         },
+         "__typename": "DraftEmployeePayrollAdditionalPay"
+        },
+        {
+         "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8.5fa2330c-38c2-d081-839d-27c7967dbbed",
+         "amount": "0.00",
+         "payType": {
+          "id": "5fa2330c-38c2-d081-839d-27c7967dbbed",
+          "name": "Cash Tips",
+          "__typename": "DraftEmployeePayrollPayType"
+         },
+         "__typename": "DraftEmployeePayrollAdditionalPay"
+        },
+        {
+         "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8.287907f7-4f89-ee0f-0b0b-2b05fdf4cd65",
+         "amount": "0.00",
+         "payType": {
+          "id": "287907f7-4f89-ee0f-0b0b-2b05fdf4cd65",
+          "name": "Commission",
+          "__typename": "DraftEmployeePayrollPayType"
+         },
+         "__typename": "DraftEmployeePayrollAdditionalPay"
+        },
+        {
+         "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8.739125b4-9f54-45c8-a344-b6510423c262",
+         "amount": "0.00",
+         "payType": {
+          "id": "739125b4-9f54-45c8-a344-b6510423c262",
+          "name": "Correction Payment",
+          "__typename": "DraftEmployeePayrollPayType"
+         },
+         "__typename": "DraftEmployeePayrollAdditionalPay"
+        },
+        {
+         "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8.ce68c450-bcda-e1a3-372b-a9d089ffadd8",
+         "amount": "0.00",
+         "payType": {
+          "id": "ce68c450-bcda-e1a3-372b-a9d089ffadd8",
+          "name": "Minimum Wage Adjustment",
+          "__typename": "DraftEmployeePayrollPayType"
+         },
+         "__typename": "DraftEmployeePayrollAdditionalPay"
+        },
+        {
+         "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8.7e12effa-616d-fbd5-1f90-a1742782676c",
+         "amount": "0.00",
+         "payType": {
+          "id": "7e12effa-616d-fbd5-1f90-a1742782676c",
+          "name": "Paycheck Tips",
+          "__typename": "DraftEmployeePayrollPayType"
+         },
+         "__typename": "DraftEmployeePayrollAdditionalPay"
+        }
+       ]
+      }
+     ],
+     "__typename": "DraftPayrollDraftEmployeePayrollConnection"
+    },
+    "canActivateFastAch": true,
+    "canNextDayAchOnTime": true,
+    "checkDateWithNextDayPay": "2026-10-27",
+    "fasterPayoutRails": [
+     {
+      "cutoff": null,
+      "eligible": false,
+      "price": "100.00",
+      "value": "INSTANT_PAY",
+      "__typename": "FasterPayoutRailOption",
+      "ineligibleReasons": [],
+      "canPayOnTime": true
+     },
+     {
+      "cutoff": "2026-10-24T11:00:00-07:00",
+      "eligible": false,
+      "price": "90.00",
+      "value": "SAME_DAY_ACH",
+      "__typename": "FasterPayoutRailOption",
+      "ineligibleReasons": [
+       "AFTER_CUTOFF_TIME"
+      ],
+      "canPayOnTime": true
+     }
+    ],
+    "isLateRegularPayroll": false,
+    "payPeriod": {
+     "id": "3299295136144041-2026-10-26",
+     "checkDate": "2026-11-06",
+     "__typename": "PayPeriod",
+     "fourDayCheckDate": "2026-11-06",
+     "fourDayDebitDate": "2026-11-02",
+     "runPayrollByBankCutoffTime": "2026-11-05T16:00:00-08:00",
+     "runPayrollBy": "2026-11-05",
+     "endDate": "2026-11-01",
+     "startDate": "2026-10-26"
+    },
+    "totalAmountToBeDebited": "18.72",
+    "fundingMethod": {
+     "id": "a2aa45bd-8603-138f-fb70-dcb562c25895",
+     "bankRequiresWireIn": false,
+     "fundingType": "ach",
+     "hiddenAccountNumber": "XXXX_PII_CARD_LAST4_EXAMPLE",
+     "__typename": "FundingMethodV2",
+     "accountType": "Checking",
+     "bankName": "EXAMPLE BANK, NA"
+    },
+    "totalEmployerCost": "18.72",
+    "customName": null,
+    "draftPayrollCalculatedAmounts": {
+     "employerDebitTotals": {
+      "reimbursements": "1.23",
+      "__typename": "DraftPayrollCalculatedEmployerDebitTotals",
+      "employeeDirectDepositNetPay": "14.78",
+      "garnishments": "0.00",
+      "taxes": "2.71"
+     },
+     "__typename": "DraftPayrollCalculatedAmounts",
+     "allTaxTotals": [
+      {
+       "description": "Federal Income Tax",
+       "employeeAmount": "0.00",
+       "employerAmount": null,
+       "__typename": "DraftPayrollCalculatedTaxTotal"
+      },
+      {
+       "description": "Social Security",
+       "employeeAmount": "0.99",
+       "employerAmount": "0.99",
+       "__typename": "DraftPayrollCalculatedTaxTotal"
+      },
+      {
+       "description": "Medicare",
+       "employeeAmount": "0.23",
+       "employerAmount": "0.23",
+       "__typename": "DraftPayrollCalculatedTaxTotal"
+      },
+      {
+       "description": "FUTA",
+       "employeeAmount": null,
+       "employerAmount": "0.10",
+       "__typename": "DraftPayrollCalculatedTaxTotal"
+      },
+      {
+       "description": "State of SC Withholding Tax",
+       "employeeAmount": "0.00",
+       "employerAmount": null,
+       "__typename": "DraftPayrollCalculatedTaxTotal"
+      },
+      {
+       "description": "SC Unemployment Tax",
+       "employeeAmount": null,
+       "employerAmount": "0.16",
+       "__typename": "DraftPayrollCalculatedTaxTotal"
+      },
+      {
+       "description": "SC Contingency Assessment (DACA)",
+       "employeeAmount": null,
+       "employerAmount": "0.01",
+       "__typename": "DraftPayrollCalculatedTaxTotal"
+      },
+      {
+       "description": "Additional Medicare",
+       "employeeAmount": "0.00",
+       "employerAmount": null,
+       "__typename": "DraftPayrollCalculatedTaxTotal"
+      }
+     ]
+    },
+    "allDraftEmployeePayrolls": {
+     "nodes": [
+      {
+       "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8",
+       "employee": {
+        "id": "556e0a31-11ae-beae-f79f-eaef81dac0c8",
+        "preferredFullName": "Ava Example",
+        "__typename": "Employee"
+       },
+       "__typename": "DraftEmployeePayroll"
+      }
+     ],
+     "__typename": "DraftPayrollDraftEmployeePayrollConnection"
+    },
+    "isOffCyclePayroll": false,
+    "totalEligibleResearchDevelopmentCredit": "0.00",
+    "anomalyBatchId": null,
+    "totalPayableTax": "2.71"
+   },
+   "firstPayDay": "2026-10-05T00:00:00-07:00",
+   "hasRunPayroll": true,
+   "isPeoClient": false,
+   "payScheduleSchemeName": null,
+   "subscriptions": {
+    "edges": [
+     {
+      "node": {
+       "id": "592e72f7-814d-9ddd-4f01-a141331a0f2e",
+       "prices": [
+        {
+         "__typename": "CommercePriceFlat",
+         "id": "30b5d388-b487-27ea-541d-83c800cca348",
+         "frequency": "MONTHLY",
+         "amount": {
+          "amount": "49.0",
+          "currencyCode": "USD",
+          "__typename": "Money"
+         }
+        },
+        {
+         "__typename": "CommercePricePerUnit",
+         "id": "7e4c3f2c-992e-8e48-de3d-479bf43b433f",
+         "frequency": "MONTHLY",
+         "amount": {
+          "amount": "6.0",
+          "currencyCode": "USD",
+          "__typename": "Money"
+         },
+         "unitKey": "EMPLOYEE",
+         "unitName": "Employee"
+        },
+        {
+         "__typename": "CommercePricePerUnit",
+         "id": "4324a884-be19-d145-0558-bbd818a3ba4c",
+         "frequency": "MONTHLY",
+         "amount": {
+          "amount": "6.0",
+          "currencyCode": "USD",
+          "__typename": "Money"
+         },
+         "unitKey": "CONTRACTOR",
+         "unitName": "Contractor"
+        }
+       ],
+       "product": {
+        "id": "bfddc4b7-3421-0e3f-8d35-d76e6854fd00",
+        "namespace": "payroll",
+        "__typename": "CommerceProduct"
+       },
+       "__typename": "CommercePricingPlan"
+      },
+      "startOn": "2026-09-23T18:52:10-07:00",
+      "__typename": "CommerceSubscriptionEdge"
+     },
+     {
+      "node": {
+       "id": "2a2b239b-0ddf-ea8a-82be-85330127f481",
+       "prices": [
+        {
+         "__typename": "CommercePricePerUnit",
+         "id": "f46de296-28dc-e2a1-5b51-a6b85c9f1d30",
+         "frequency": "MONTHLY",
+         "amount": {
+          "amount": "6.0",
+          "currencyCode": "USD",
+          "__typename": "Money"
+         },
+         "unitKey": "EMPLOYEE",
+         "unitName": "Employee"
+        },
+        {
+         "__typename": "CommercePricePerUnit",
+         "id": "56cc3407-7b66-ca43-4609-3e132daea730",
+         "frequency": "MONTHLY",
+         "amount": {
+          "amount": "6.0",
+          "currencyCode": "USD",
+          "__typename": "Money"
+         },
+         "unitKey": "CONTRACTOR",
+         "unitName": "Contractor"
+        }
+       ],
+       "product": {
+        "id": "1e340d47-81cf-971a-f177-9c04ae82edcf",
+        "namespace": "time_and_project_tracking",
+        "__typename": "CommerceProduct"
+       },
+       "__typename": "CommercePricingPlan"
+      },
+      "startOn": "2026-09-23T19:26:06-07:00",
+      "__typename": "CommerceSubscriptionEdge"
+     },
+     {
+      "node": {
+       "id": "d4d8918e-2850-e70f-a2c9-87ab3053b2c7",
+       "prices": [
+        {
+         "__typename": "CommercePriceFlat",
+         "id": "48493c26-1395-29e4-b3a0-13a95ea132b1",
+         "frequency": "MONTHLY",
+         "amount": {
+          "amount": "15.0",
+          "currencyCode": "USD",
+          "__typename": "Money"
+         }
+        },
+        {
+         "__typename": "CommercePricePerUnit",
+         "id": "ccdbd937-8884-7576-ef95-dd8bed4d0b43",
+         "frequency": "MONTHLY",
+         "amount": {
+          "amount": "3.0",
+          "currencyCode": "USD",
+          "__typename": "Money"
+         },
+         "unitKey": "EMPLOYEE",
+         "unitName": "Employee"
+        },
+        {
+         "__typename": "CommercePricePerUnit",
+         "id": "c330daa0-21d4-1657-828d-15907bd5df37",
+         "frequency": "MONTHLY",
+         "amount": {
+          "amount": "3.0",
+          "currencyCode": "USD",
+          "__typename": "Money"
+         },
+         "unitKey": "CONTRACTOR",
+         "unitName": "Contractor"
+        }
+       ],
+       "product": {
+        "id": "66e21b33-8fc9-21d2-3a91-c72edc943e1d",
+        "namespace": "next_day_direct_deposit",
+        "__typename": "CommerceProduct"
+       },
+       "__typename": "CommercePricingPlan"
+      },
+      "startOn": "2026-10-22T04:49:11-07:00",
+      "__typename": "CommerceSubscriptionEdge"
+     }
+    ],
+    "__typename": "CommerceSubscriptionConnection"
+   },
+   "activeEmployeeMembers": {
+    "totalCount": 1,
+    "__typename": "CompanyCompanyMemberConnection"
+   },
+   "__typename": "Company",
+   "isEligibleForSafeExpedite": false,
+   "isPayrollApprovalsEnabled": false,
+   "enrolledInRealtimeResearchAndDevelopment": false,
+   "earnedAccessFlags": {
+    "earnedAccessToFasterPayments": false,
+    "inEarnedAccessVariation": false,
+    "__typename": "EarnedAccessFlags"
+   },
+   "tradeOrLegalName": "Example Co LLC"
+  }
+ }
+}

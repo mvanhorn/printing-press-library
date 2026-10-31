@@ -1,0 +1,11 @@
+{
+ "data": {
+  "company": {
+   "id": "f290a54b-9dd2-1285-9772-7b50837a84af",
+   "reimbursementDescriptionSuggestions": [
+    "PP-CAPTURE test mileage"
+   ],
+   "__typename": "Company"
+  }
+ }
+}

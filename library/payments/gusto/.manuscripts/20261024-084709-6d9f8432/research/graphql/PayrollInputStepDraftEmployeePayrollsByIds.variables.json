@@ -1,0 +1,11 @@
+{
+ "includeAnomalyChecks": false,
+ "draftPayrollId": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01",
+ "ids": [
+  "556e0a31-11ae-beae-f79f-eaef81dac0c8"
+ ],
+ "includeNetPay": false,
+ "includePreviewPay": false,
+ "includeTaxOverrideInformation": false,
+ "includeWorkLocation": false
+}

@@ -1,0 +1,55 @@
+version: 2
+project_name: gusto-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: gusto-pp-cli
+    main: ./cmd/gusto-pp-cli
+    binary: gusto-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/payments/gusto/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: gusto-pp-mcp
+    main: ./cmd/gusto-pp-mcp
+    binary: gusto-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: gusto-pp-cli
+    repository:
+      owner: beetz12
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Prep a Gusto payroll from the terminal, including mileage reimbursements that Gusto's hosted connector cannot enter, and stop at review so a human submits."
+    install: |
+      bin.install "gusto-pp-cli"
+      bin.install "gusto-pp-mcp"

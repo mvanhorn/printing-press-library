@@ -1,0 +1,89 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-10-25T00:24:40.627576Z",
+  "printing_press_version": "4.34.0",
+  "api_name": "gusto",
+  "display_name": "Gusto",
+  "cli_name": "gusto-pp-cli",
+  "creator": {
+    "handle": "beetz12",
+    "name": "david"
+  },
+  "owner": "beetz12",
+  "printer": "beetz12",
+  "printer_name": "david",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:ca3f5a53dfb7cf529a52b3c22801447e6f541afadef510d591aa1025e84b0539",
+  "run_id": "20261024-084709-6d9f8432",
+  "category": "payments",
+  "description": "Prep a Gusto payroll from the terminal, including mileage reimbursements that Gusto's hosted connector cannot enter, and stop at review so a human submits.",
+  "mcp_binary": "gusto-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Mileage reimbursement",
+      "command": "payrolls mileage",
+      "description": "Add or correct the mileage reimbursement on the open draft payroll from miles and a per-mile rate; one mileage line per employee."
+    },
+    {
+      "name": "One-shot weekly prep",
+      "command": "payrolls prep",
+      "description": "Load a week's hours and mileage from a CSV onto the open draft, calculate it, and print the review totals, stopping before submit."
+    },
+    {
+      "name": "Draft read-back verify",
+      "command": "payrolls verify",
+      "description": "Check the draft payroll against your timesheet CSV (hours, each reimbursement line, unexplained lines, duplicates) and exit 1 on any mismatch."
+    },
+    {
+      "name": "Period-over-period compare",
+      "command": "payrolls compare",
+      "description": "Calculate the draft and show how its total debit and payable tax changed against the last processed payroll, alongside the draft's gross, reimbursements, taxes and net."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Mileage reimbursement",
+      "command": "payrolls mileage",
+      "description": "Add or correct the mileage reimbursement on the open draft payroll from miles and a per-mile rate; one mileage line per employee."
+    },
+    {
+      "name": "One-shot weekly prep",
+      "command": "payrolls prep",
+      "description": "Load a week's hours and mileage from a CSV onto the open draft, calculate it, and print the review totals, stopping before submit."
+    },
+    {
+      "name": "Draft read-back verify",
+      "command": "payrolls verify",
+      "description": "Check the draft payroll against your timesheet CSV (hours, each reimbursement line, unexplained lines, duplicates) and exit 1 on any mismatch."
+    },
+    {
+      "name": "Period-over-period compare",
+      "command": "payrolls compare",
+      "description": "Calculate the draft and show how its total debit and payable tax changed against the last processed payroll, alongside the draft's gross, reimbursements, taxes and net."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 96.96969696969697,
+    "passed": 32,
+    "total": 33,
+    "failed": 1,
+    "data_pipeline": true,
+    "browser_session_required": true,
+    "browser_session_proof": "missing-or-invalid",
+    "verdict": "FAIL"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 69,
+      "grade": "B",
+      "total": 69
+    }
+  }
+}

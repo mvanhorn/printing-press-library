@@ -1,0 +1,35 @@
+# learn no-entities escape: entities are a company's own employees, with no shared aliasable vocabulary across users
+name: gusto
+description: 'Prep Gusto payroll drafts from the terminal: hours, reimbursements, calculate and review, never submit.'
+cli_description: Prep a Gusto payroll from the terminal, including mileage reimbursements that Gusto's hosted connector cannot enter, and stop at review so a human submits.
+version: 0.1.0
+category: payments
+base_url: https://app.gusto.com
+http_transport: browser-chrome
+required_headers:
+- name: apollographql-client-name
+  value: gusto-web
+- name: origin
+  value: https://app.gusto.com
+- name: referer
+  value: https://app.gusto.com/
+auth:
+  type: cookie
+  cookie_domain: app.gusto.com
+  cookies:
+  - 840a22fc9ad70376dfbd8085e21a53e2
+  login_url: https://app.gusto.com/login
+  login_complete_selector: a[href="/pay"]
+  requires_browser_session: true
+  browser_session_validation_path: /api/user_authentication_events
+  browser_session_validation_method: GET
+  browser_session_reason: Gusto's web GraphQL API only accepts the signed-in app.gusto.com session plus a CSRF token and role id read from an app page.
+resources:
+  session:
+    description: Your Gusto web session
+    endpoints:
+      list:
+        method: GET
+        path: /api/user_authentication_events
+        description: Show recent sign-in events for the signed-in Gusto user (confirms the session works)
+        example: '  gusto-pp-cli session --json'

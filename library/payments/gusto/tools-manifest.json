@@ -1,0 +1,54 @@
+{
+  "api_name": "gusto",
+  "base_url": "https://app.gusto.com",
+  "description": "Prep a Gusto payroll from the terminal, including mileage reimbursements that Gusto's hosted connector cannot enter, and stop at review so a human submits.",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "cookie",
+    "cookie_domain": "app.gusto.com",
+    "cookies": [
+      "840a22fc9ad70376dfbd8085e21a53e2"
+    ],
+    "requires_browser_session": true,
+    "browser_session_validation_path": "/api/user_authentication_events",
+    "browser_session_validation_method": "GET"
+  },
+  "required_headers": [
+    {
+      "name": "apollographql-client-name",
+      "value": "gusto-web"
+    },
+    {
+      "name": "origin",
+      "value": "https://app.gusto.com"
+    },
+    {
+      "name": "referer",
+      "value": "https://app.gusto.com/"
+    }
+  ],
+  "tools": [],
+  "novel_features": [
+    {
+      "name": "Mileage reimbursement",
+      "command": "payrolls mileage",
+      "description": "Add or correct the mileage reimbursement on the open draft payroll from miles and a per-mile rate; one mileage line per employee."
+    },
+    {
+      "name": "One-shot weekly prep",
+      "command": "payrolls prep",
+      "description": "Load a week's hours and mileage from a CSV onto the open draft, calculate it, and print the review totals, stopping before submit."
+    },
+    {
+      "name": "Draft read-back verify",
+      "command": "payrolls verify",
+      "description": "Check the draft payroll against your timesheet CSV (hours, each reimbursement line, unexplained lines, duplicates) and exit 1 on any mismatch."
+    },
+    {
+      "name": "Period-over-period compare",
+      "command": "payrolls compare",
+      "description": "Calculate the draft and show how its total debit and payable tax changed against the last processed payroll, alongside the draft's gross, reimbursements, taxes and net."
+    }
+  ]
+}

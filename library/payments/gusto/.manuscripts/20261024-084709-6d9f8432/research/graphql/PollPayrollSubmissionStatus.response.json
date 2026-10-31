@@ -1,0 +1,29 @@
+{
+ "data": {
+  "company": {
+   "id": "f290a54b-9dd2-1285-9772-7b50837a84af",
+   "draftPayroll": {
+    "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01",
+    "payrollErrors": {
+     "id": "19fc728d-bd9c-bc4a-4064-137d08fb4b78",
+     "payrollItemValidationErrors": [],
+     "paymentPeriodEndAtRequiredErrors": [],
+     "payrollAlreadySuccessfullyRunErrors": [],
+     "payrollBuildErrors": [],
+     "payrollCurrentlyProcessingErrors": [],
+     "payrollInputsErrors": [],
+     "regularPaymentPeriodIsUniqueErrors": [],
+     "__typename": "DraftPayrollValidationError"
+    },
+    "submissionStatus": {
+     "id": "19fc728d-bd9c-bc4a-4064-137d08fb4b78",
+     "calculationProgressPercentage": 100,
+     "state": "UNSUBMITTED",
+     "__typename": "DraftPayrollSubmissionStatus"
+    },
+    "__typename": "DraftPayroll"
+   },
+   "__typename": "Company"
+  }
+ }
+}

@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/gusto-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20261024-084709-6d9f8432",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

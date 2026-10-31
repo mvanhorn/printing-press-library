@@ -1,0 +1,199 @@
+{
+  "api_name": "gusto",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "gusto-mcp-2026-complete",
+      "url": "https://github.com/BusyBee3333/gusto-mcp-2026-complete",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "gusto-mcp-http",
+      "url": "https://github.com/agenticledger/gusto-mcp-http",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "gusto-typescript-client",
+      "url": "https://github.com/Gusto/gusto-typescript-client",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "Bonus edits not captured",
+    "No captured operation lists upcoming drafts; draft id is built from --period-end"
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-10-24T21:23:22Z",
+  "novel_features": [
+    {
+      "name": "Mileage reimbursement",
+      "command": "payrolls mileage",
+      "description": "Add or correct the mileage reimbursement on the open draft payroll from miles and a per-mile rate; one mileage line per employee.",
+      "rationale": "Gusto's hosted connector cannot edit reimbursements; this computes miles x rate and writes one idempotent line through Gusto's own web mutation.",
+      "example": "gusto-pp-cli payrolls mileage --period-end 2026-11-01 --employee 'Ava Example' --miles 5.2 --rate 0.60 --dry-run",
+      "why_it_matters": "Reach for this whenever a timesheet lists trip miles; Gusto's hosted connector cannot put a reimbursement on a draft.",
+      "group": "Payroll prep without the web UI"
+    },
+    {
+      "name": "One-shot weekly prep",
+      "command": "payrolls prep",
+      "description": "Load a week's hours and mileage from a CSV onto the open draft, calculate it, and print the review totals, stopping before submit.",
+      "rationale": "Chains six Gusto web operations behind one command with a hard stop at review.",
+      "example": "gusto-pp-cli payrolls prep --period-end 2026-11-01 --from week.csv --rate 0.60 --dry-run",
+      "why_it_matters": "Use this for the weekly payroll ritual so a human only has to review and submit.",
+      "group": "Payroll prep without the web UI"
+    },
+    {
+      "name": "Draft read-back verify",
+      "command": "payrolls verify",
+      "description": "Check the draft payroll against your timesheet CSV (hours, each reimbursement line, unexplained lines, duplicates) and exit 1 on any mismatch.",
+      "rationale": "Joins a local source file with the live draft and review; no single Gusto screen or API call does this comparison.",
+      "example": "gusto-pp-cli payrolls verify --period-end 2026-11-01 --from week.csv --rate 0.60 --agent",
+      "why_it_matters": "Run it before telling a human the payroll is ready; a non-zero exit means do not hand it off.",
+      "group": "Read-back you can trust"
+    },
+    {
+      "name": "Period-over-period compare",
+      "command": "payrolls compare",
+      "description": "Calculate the draft and show how its total debit and payable tax changed against the last processed payroll, alongside the draft's gross, reimbursements, taxes and net.",
+      "rationale": "Joins draft review totals with processed payroll history.",
+      "example": "gusto-pp-cli payrolls compare --period-end 2026-11-01 --agent",
+      "why_it_matters": "Use it to explain an unusual debit before the human submits.",
+      "group": "Read-back you can trust"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Mileage reimbursement",
+      "command": "payrolls mileage",
+      "description": "Add or correct the mileage reimbursement on the open draft payroll from miles and a per-mile rate; one mileage line per employee.",
+      "rationale": "Gusto's hosted connector cannot edit reimbursements; this computes miles x rate and writes one idempotent line through Gusto's own web mutation.",
+      "example": "gusto-pp-cli payrolls mileage --period-end 2026-11-01 --employee 'Ava Example' --miles 5.2 --rate 0.60 --dry-run",
+      "why_it_matters": "Reach for this whenever a timesheet lists trip miles; Gusto's hosted connector cannot put a reimbursement on a draft.",
+      "group": "Payroll prep without the web UI"
+    },
+    {
+      "name": "One-shot weekly prep",
+      "command": "payrolls prep",
+      "description": "Load a week's hours and mileage from a CSV onto the open draft, calculate it, and print the review totals, stopping before submit.",
+      "rationale": "Chains six Gusto web operations behind one command with a hard stop at review.",
+      "example": "gusto-pp-cli payrolls prep --period-end 2026-11-01 --from week.csv --rate 0.60 --dry-run",
+      "why_it_matters": "Use this for the weekly payroll ritual so a human only has to review and submit.",
+      "group": "Payroll prep without the web UI"
+    },
+    {
+      "name": "Draft read-back verify",
+      "command": "payrolls verify",
+      "description": "Check the draft payroll against your timesheet CSV (hours, each reimbursement line, unexplained lines, duplicates) and exit 1 on any mismatch.",
+      "rationale": "Joins a local source file with the live draft and review; no single Gusto screen or API call does this comparison.",
+      "example": "gusto-pp-cli payrolls verify --period-end 2026-11-01 --from week.csv --rate 0.60 --agent",
+      "why_it_matters": "Run it before telling a human the payroll is ready; a non-zero exit means do not hand it off.",
+      "group": "Read-back you can trust"
+    },
+    {
+      "name": "Period-over-period compare",
+      "command": "payrolls compare",
+      "description": "Calculate the draft and show how its total debit and payable tax changed against the last processed payroll, alongside the draft's gross, reimbursements, taxes and net.",
+      "rationale": "Joins draft review totals with processed payroll history.",
+      "example": "gusto-pp-cli payrolls compare --period-end 2026-11-01 --agent",
+      "why_it_matters": "Use it to explain an unusual debit before the human submits.",
+      "group": "Read-back you can trust"
+    }
+  ],
+  "narrative": {
+    "display_name": "Gusto",
+    "headline": "Prep a Gusto payroll from the terminal, including mileage reimbursements that Gusto's hosted connector cannot enter, and stop at review so a human submits.",
+    "value_prop": "gusto-pp-cli drives Gusto's own web app with your signed-in session. It sets hours, adds reimbursements (payrolls mileage turns miles into a labeled line), calculates, and reads back gross, net and debit. payrolls verify proves the draft matches your timesheet before anyone clicks Submit.",
+    "auth_narrative": "This CLI uses your Gusto web session, not an API key, and works on macOS only. Step 1: install press-auth (go install github.com/mvanhorn/cli-printing-press/v4/cmd/press-auth@latest) and run press-auth login app.gusto.com --login-url https://app.gusto.com/login --complete-selector 'a[href=\"/pay\"]'; sign in in the window it opens and choose Always Allow on the Keychain prompt. Step 2: run gusto-pp-cli auth login --chrome, which imports that session (it can also fall back to pycookiecheat, cookies or cookie-scoop-cli). Check it with gusto-pp-cli doctor. Sessions expire; repeat both steps when requests land on the login page.",
+    "quickstart": [
+      {
+        "command": "gusto-pp-cli doctor --dry-run",
+        "comment": "Checks config and auth wiring without touching Gusto."
+      },
+      {
+        "command": "gusto-pp-cli payrolls due",
+        "comment": "Shows the open payroll and its submit deadline."
+      },
+      {
+        "command": "gusto-pp-cli payrolls mileage --period-end 2026-11-01 --employee 'Ava Example' --miles 5.2 --rate 0.60 --dry-run",
+        "comment": "Previews the mileage reimbursement before writing it."
+      },
+      {
+        "command": "gusto-pp-cli payrolls review --period-end 2026-11-01",
+        "comment": "Calculates the draft and prints gross, net and debit for the human who submits."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Requests land on the Gusto login page or return 401",
+        "fix": "Run press-auth login app.gusto.com --login-url https://app.gusto.com/login --force, then gusto-pp-cli auth login --chrome."
+      },
+      {
+        "symptom": "HTTP 403 with a Cloudflare challenge",
+        "fix": "Re-run gusto-pp-cli auth login --chrome; the CLI already uses Chrome-compatible transport."
+      },
+      {
+        "symptom": "No draft payroll for a period",
+        "fix": "Run gusto-pp-cli payrolls due to see the open draft, then pass that --period-end (YYYY-MM-DD)."
+      },
+      {
+        "symptom": "payrolls verify exits 1",
+        "fix": "Read the mismatches list; run gusto-pp-cli payrolls prep --from week.csv --rate 0.60 to apply the timesheet, then verify again."
+      }
+    ],
+    "when_to_use": "Use this CLI to prepare a Gusto payroll draft: set hours, add mileage or other one-time reimbursements, calculate, and read back totals for a human to submit. Requirements: macOS, the press-auth companion, and a signed-in app.gusto.com session. It drives Gusto's private web GraphQL API, which can change without notice. It writes only draft inputs (hours and one-time reimbursements) and never submits, approves or deletes a payroll; preview writes with --dry-run. Payroll data is always read live, not synced.",
+    "anti_triggers": [
+      "Submitting or approving a payroll; a human does that in app.gusto.com",
+      "Hiring, onboarding, benefits, contractors or tax setup; use the Gusto web app or the official API",
+      "Adding a bonus; the bonus operation is not supported yet"
+    ],
+    "recipes": [
+      {
+        "title": "Mileage for one trip week",
+        "command": "gusto-pp-cli payrolls mileage --period-end 2026-11-01 --employee 'Ava Example' --miles 7.8 --rate 0.60",
+        "explanation": "Writes one reimbursement line, Mileage 7.8 mi x $0.60, onto the draft."
+      },
+      {
+        "title": "Weekly prep from a CSV",
+        "command": "gusto-pp-cli payrolls prep --period-end 2026-11-01 --from week.csv --rate 0.60",
+        "explanation": "Sets hours and mileage for each employee, calculates, and prints the review totals."
+      },
+      {
+        "title": "Gate the handoff",
+        "command": "gusto-pp-cli payrolls verify --period-end 2026-11-01 --from week.csv --rate 0.60 --agent --select ok,mismatches",
+        "explanation": "Returns only the pass flag and the mismatch list so an agent can decide whether to hand off."
+      },
+      {
+        "title": "Read only the totals that matter",
+        "command": "gusto-pp-cli payrolls review --period-end 2026-11-01 --agent --select review.gross,review.net_pay,review.total_debit",
+        "explanation": "Calculates the draft and returns just gross, net and total debit for the human who submits."
+      }
+    ],
+    "trigger_phrases": [
+      "run payroll prep in gusto",
+      "add mileage reimbursement to gusto payroll",
+      "check the gusto draft payroll",
+      "use gusto-pp-cli",
+      "run gusto"
+    ]
+  }
+}
