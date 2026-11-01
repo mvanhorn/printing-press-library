@@ -9,11 +9,17 @@ import (
 	"io"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/yahoo-fantasy/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/yahoo-fantasy/internal/store"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/yahoo-fantasy/internal/yahoofantasy"
+)
+
+var (
+	yahooPlayerUpsertMu  sync.Mutex
+	yahooLegacyMigrateMu sync.Mutex
 )
 
 func isYahooLeagueScopedSyncResource(resource string) bool {
@@ -112,17 +118,24 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 			}
 			teams := extractLeagueTeamsFromBlobs([][]byte{rawTm}, lk)
 			if len(teams) > 0 {
-				_, _ = db.DB().ExecContext(ctx, `DELETE FROM resources WHERE id = ?`, lk+":teams")
+				var writeErr error
 				for _, t := range teams {
 					if t.LeagueKey == "" {
 						t.LeagueKey = lk
 					}
 					b, mErr := json.Marshal(t)
 					if mErr != nil {
+						writeErr = mErr
 						recordErr(mErr)
 						continue
 					}
-					recordErr(upsertLeagueJSON("teams", t.TeamKey, lk, b))
+					if uErr := upsertLeagueJSON("teams", t.TeamKey, lk, b); uErr != nil {
+						writeErr = uErr
+						recordErr(uErr)
+					}
+				}
+				if writeErr == nil {
+					_, _ = db.DB().ExecContext(ctx, `DELETE FROM resources WHERE id = ?`, lk+":teams")
 				}
 			} else {
 				recordErr(upsertLeagueJSON("teams", lk+":teams", lk, rawTm))
@@ -144,17 +157,24 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 			}
 			teams := extractLeagueTeamsFromBlobs([][]byte{rawSt}, lk)
 			if len(teams) > 0 {
-				_, _ = db.DB().ExecContext(ctx, `DELETE FROM resources WHERE id = ?`, lk+":standings")
+				var writeErr error
 				for _, t := range teams {
 					if t.LeagueKey == "" {
 						t.LeagueKey = lk
 					}
 					b, mErr := json.Marshal(t)
 					if mErr != nil {
+						writeErr = mErr
 						recordErr(mErr)
 						continue
 					}
-					recordErr(upsertLeagueJSON("standings", t.TeamKey+":standings", lk, b))
+					if uErr := upsertLeagueJSON("standings", t.TeamKey+":standings", lk, b); uErr != nil {
+						writeErr = uErr
+						recordErr(uErr)
+					}
+				}
+				if writeErr == nil {
+					_, _ = db.DB().ExecContext(ctx, `DELETE FROM resources WHERE id = ?`, lk+":standings")
 				}
 			} else {
 				recordErr(upsertLeagueJSON("standings", lk+":standings", lk, rawSt))
@@ -183,7 +203,7 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 				}
 				matchups := yahoofantasy.ExtractMatchups(rawSB)
 				if len(matchups) > 0 {
-					_, _ = db.DB().ExecContext(ctx, `DELETE FROM resources WHERE id = ?`, fmt.Sprintf("%s.sb.%d", lk, w))
+					var writeErr error
 					for _, m := range matchups {
 						if m.LeagueKey == "" {
 							m.LeagueKey = lk
@@ -193,10 +213,17 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 						}
 						b, mErr := json.Marshal(m)
 						if mErr != nil {
+							writeErr = mErr
 							recordErr(mErr)
 							continue
 						}
-						recordErr(upsertLeagueJSON("matchups", fmt.Sprintf("%s.m.%d.%s.%s", lk, m.Week, m.TeamKey, m.OpponentKey), lk, b))
+						if uErr := upsertLeagueJSON("matchups", fmt.Sprintf("%s.m.%d.%s.%s", lk, m.Week, m.TeamKey, m.OpponentKey), lk, b); uErr != nil {
+							writeErr = uErr
+							recordErr(uErr)
+						}
+					}
+					if writeErr == nil {
+						_, _ = db.DB().ExecContext(ctx, `DELETE FROM resources WHERE id = ?`, fmt.Sprintf("%s.sb.%d", lk, w))
 					}
 				} else {
 					recordErr(upsertLeagueJSON(resource, fmt.Sprintf("%s.sb.%d", lk, w), lk, rawSB))
@@ -206,6 +233,7 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 
 	case "draftresults", "draft":
 		for _, lk := range leagueKeys {
+			recordErr(migrateLegacyLeaguePlayerRows(ctx, db, lk))
 			rawDR, err := c.Get(ctx, fmt.Sprintf("/league/%s/draftresults", lk), jsonParams)
 			if err != nil {
 				recordErr(err)
@@ -221,21 +249,28 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 			var draftedKeys []string
 			seenPK := map[string]bool{}
 			if len(picks) > 0 {
-				_, _ = db.DB().ExecContext(ctx, `DELETE FROM resources WHERE id = ?`, lk+".draft")
+				var writeErr error
 				for _, pk := range picks {
 					if pk.LeagueKey == "" {
 						pk.LeagueKey = lk
 					}
 					b, mErr := json.Marshal(pk)
 					if mErr != nil {
+						writeErr = mErr
 						recordErr(mErr)
 						continue
 					}
-					recordErr(upsertLeagueJSON("draft", fmt.Sprintf("%s.pick.%d.%d", lk, pk.Round, pk.Pick), lk, b))
+					if uErr := upsertLeagueJSON("draft", fmt.Sprintf("%s.pick.%d.%d", lk, pk.Round, pk.Pick), lk, b); uErr != nil {
+						writeErr = uErr
+						recordErr(uErr)
+					}
 					if pk.PlayerKey != "" && !seenPK[pk.PlayerKey] {
 						seenPK[pk.PlayerKey] = true
 						draftedKeys = append(draftedKeys, pk.PlayerKey)
 					}
+				}
+				if writeErr == nil {
+					_, _ = db.DB().ExecContext(ctx, `DELETE FROM resources WHERE id = ?`, lk+".draft")
 				}
 			} else {
 				recordErr(upsertLeagueJSON("draft", lk+".draft", lk, rawDR))
@@ -247,7 +282,7 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 					baseByKey[p.PlayerKey] = p
 				}
 			}
-			recordErr(syncYahooPlayerStatsAndOwnership(ctx, c, db, lk, draftedKeys, baseByKey, upsertLeagueJSON))
+			recordErr(syncYahooPlayerStatsAndOwnership(ctx, c, db, lk, draftedKeys, baseByKey, &storedCount))
 		}
 
 	case "transactions":
@@ -265,13 +300,14 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 			}
 			txs := yahoofantasy.ExtractTransactions(rawTx)
 			if len(txs) > 0 {
-				_, _ = db.DB().ExecContext(ctx, `DELETE FROM resources WHERE id = ?`, lk+".transactions")
+				var writeErr error
 				for _, tx := range txs {
 					if tx.LeagueKey == "" {
 						tx.LeagueKey = lk
 					}
 					b, mErr := json.Marshal(tx)
 					if mErr != nil {
+						writeErr = mErr
 						recordErr(mErr)
 						continue
 					}
@@ -279,7 +315,13 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 					if txID == "" {
 						txID = fmt.Sprintf("%s.tx.%s.%s.%d", lk, tx.TeamKey, tx.AddPlayerKey, tx.Timestamp)
 					}
-					recordErr(upsertLeagueJSON("transactions", txID, lk, b))
+					if uErr := upsertLeagueJSON("transactions", txID, lk, b); uErr != nil {
+						writeErr = uErr
+						recordErr(uErr)
+					}
+				}
+				if writeErr == nil {
+					_, _ = db.DB().ExecContext(ctx, `DELETE FROM resources WHERE id = ?`, lk+".transactions")
 				}
 			} else {
 				recordErr(upsertLeagueJSON("transactions", lk+".transactions", lk, rawTx))
@@ -294,8 +336,7 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 			pages = maxPages
 		}
 		for _, lk := range leagueKeys {
-			_, _ = db.DB().ExecContext(ctx, `DELETE FROM resources WHERE id LIKE ? OR id LIKE ? OR id LIKE ?`,
-				lk+":players:fa:%", lk+":stats:%", lk+":ownership:%")
+			recordErr(migrateLegacyLeaguePlayerRows(ctx, db, lk))
 			var pKeys []string
 			seenPK := map[string]bool{}
 			baseByKey := map[string]yahoofantasy.PlayerRecord{}
@@ -333,7 +374,7 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 				}
 			}
 			if len(pKeys) > 0 {
-				recordErr(syncYahooPlayerStatsAndOwnership(ctx, c, db, lk, pKeys, baseByKey, upsertLeagueJSON))
+				recordErr(syncYahooPlayerStatsAndOwnership(ctx, c, db, lk, pKeys, baseByKey, &storedCount))
 			} else if firstRawFA != nil {
 				recordErr(upsertLeagueJSON("players", lk+":players", lk, firstRawFA))
 			}
@@ -357,6 +398,7 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 		leagueCurrentWeek := map[string]int{}
 		for _, tk := range teamKeys {
 			lk := yahoofantasy.YahooLeagueKeyFromEntityKey(tk)
+			recordErr(migrateLegacyLeaguePlayerRows(ctx, db, lk))
 			curW, ok := leagueCurrentWeek[lk]
 			if !ok {
 				_, cw, wErr := resolveSyncWeekRange(ctx, c, db, lk, 1, true)
@@ -380,14 +422,19 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 			}
 			rosterPlayers := yahoofantasy.ExtractPlayers(rawR)
 			if len(rosterPlayers) > 0 {
-				_, _ = db.DB().ExecContext(ctx, `DELETE FROM resources WHERE id = ?`, tk+":roster")
 				for i := range rosterPlayers {
 					rosterPlayers[i].LeagueKey = lk
+					rosterPlayers[i].OwnershipStatus = "T"
 					if rosterPlayers[i].OwnerTeamKey == "" {
 						rosterPlayers[i].OwnerTeamKey = tk
 					}
 				}
-				recordErr(upsertYahooPlayerRecords(ctx, db, lk, rosterPlayers, upsertLeagueJSON))
+				if uErr := upsertYahooPlayerRecords(ctx, db, lk, rosterPlayers, &storedCount); uErr != nil {
+					recordErr(uErr)
+				} else {
+					recordErr(evictDroppedTeamRosterPlayers(ctx, db, lk, tk, rosterPlayers))
+					_, _ = db.DB().ExecContext(ctx, `DELETE FROM resources WHERE id = ?`, tk+":roster")
+				}
 			} else {
 				recordErr(upsertLeagueJSON("rosters", tk+":roster", lk, rawR))
 			}
@@ -416,16 +463,126 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 	return syncResult{Resource: resource, Count: cachedCount, Duration: time.Since(started)}
 }
 
+// migrateLegacyLeaguePlayerRows migrates any legacy batch rows (<leagueKey>:players:fa:*, <leagueKey>:stats:*, <leagueKey>:ownership:*)
+// into stable per-player keys (<leagueKey>:player:<playerKey>) first, and removes each legacy batch row only after its records are safely saved.
+func migrateLegacyLeaguePlayerRows(ctx context.Context, db *store.Store, leagueKey string) error {
+	if leagueKey == "" {
+		return nil
+	}
+	yahooLegacyMigrateMu.Lock()
+	defer yahooLegacyMigrateMu.Unlock()
+
+	rows, err := db.DB().QueryContext(ctx,
+		`SELECT id, data FROM resources WHERE id LIKE ? OR id LIKE ? OR id LIKE ? ORDER BY synced_at ASC, rowid ASC`,
+		leagueKey+":players:fa:%", leagueKey+":stats:%", leagueKey+":ownership:%")
+	if err != nil {
+		return nil
+	}
+	type legacyRow struct {
+		id   string
+		data string
+	}
+	var legacy []legacyRow
+	for rows.Next() {
+		var r legacyRow
+		if rows.Scan(&r.id, &r.data) == nil {
+			legacy = append(legacy, r)
+		}
+	}
+	_ = rows.Close()
+
+	var firstErr error
+	for _, r := range legacy {
+		extracted := yahoofantasy.ExtractPlayers([]byte(r.data))
+		for i := range extracted {
+			extracted[i].LeagueKey = leagueKey
+		}
+		if len(extracted) > 0 {
+			if uErr := upsertYahooPlayerRecords(ctx, db, leagueKey, extracted, nil); uErr != nil {
+				if firstErr == nil {
+					firstErr = uErr
+				}
+				continue
+			}
+		}
+		_, _ = db.DB().ExecContext(ctx, `DELETE FROM resources WHERE id = ?`, r.id)
+	}
+	return firstErr
+}
+
+// evictDroppedTeamRosterPlayers clears OwnerTeamKey and SelectedPosition on any saved league player row
+// that previously belonged to teamKey but is no longer present in the team's freshly synced roster.
+func evictDroppedTeamRosterPlayers(ctx context.Context, db *store.Store, leagueKey, teamKey string, currentRoster []yahoofantasy.PlayerRecord) error {
+	if leagueKey == "" || teamKey == "" {
+		return nil
+	}
+	onRoster := make(map[string]bool, len(currentRoster))
+	for _, p := range currentRoster {
+		if p.PlayerKey != "" {
+			onRoster[p.PlayerKey] = true
+		}
+	}
+
+	yahooPlayerUpsertMu.Lock()
+	defer yahooPlayerUpsertMu.Unlock()
+
+	tx, err := db.DB().BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	rows, err := tx.QueryContext(ctx, `SELECT id, data FROM resources WHERE id LIKE ?`, leagueKey+":player:%")
+	if err != nil {
+		return err
+	}
+	type rowItem struct {
+		id   string
+		data string
+	}
+	var items []rowItem
+	for rows.Next() {
+		var it rowItem
+		if rows.Scan(&it.id, &it.data) == nil {
+			items = append(items, it)
+		}
+	}
+	_ = rows.Close()
+
+	for _, it := range items {
+		extracted := yahoofantasy.ExtractPlayers([]byte(it.data))
+		if len(extracted) == 0 {
+			continue
+		}
+		p := extracted[0]
+		if strings.EqualFold(p.OwnerTeamKey, teamKey) && !onRoster[p.PlayerKey] {
+			p.LeagueKey = leagueKey
+			p.OwnershipStatus = "FA"
+			p.OwnerTeamKey = ""
+			p.SelectedPosition = ""
+			b, mErr := json.Marshal(p)
+			if mErr != nil {
+				return mErr
+			}
+			stamped := stampLeagueKeyInJSON(b, leagueKey)
+			if _, execErr := tx.ExecContext(ctx,
+				`UPDATE resources SET data = ?, synced_at = strftime('%Y-%m-%dT%H:%M:%SZ', 'now') WHERE id = ?`,
+				string(stamped), it.id); execErr != nil {
+				return execErr
+			}
+		}
+	}
+	return tx.Commit()
+}
+
 // syncYahooPlayerStatsAndOwnership fetches season stats and ownership in batches of 25 and stores
 // merged player details under stable per-player keys (<league_key>:player:<player_key>).
 func syncYahooPlayerStatsAndOwnership(ctx context.Context, c interface {
 	Get(context.Context, string, map[string]string) (json.RawMessage, error)
-}, db *store.Store, leagueKey string, playerKeys []string, baseByKey map[string]yahoofantasy.PlayerRecord, upsertFn func(resType, id, leagueKey string, raw []byte) error) error {
+}, db *store.Store, leagueKey string, playerKeys []string, baseByKey map[string]yahoofantasy.PlayerRecord, storedCount *int) error {
 	if len(playerKeys) == 0 {
 		return nil
 	}
-	_, _ = db.DB().ExecContext(ctx, `DELETE FROM resources WHERE id LIKE ? OR id LIKE ?`,
-		leagueKey+":stats:%", leagueKey+":ownership:%")
 	var firstErr error
 	recordErr := func(err error) {
 		if err != nil && firstErr == nil {
@@ -487,40 +644,66 @@ func syncYahooPlayerStatsAndOwnership(ctx context.Context, c interface {
 				batchRecords = append(batchRecords, rec)
 			}
 		}
-		recordErr(upsertYahooPlayerRecords(ctx, db, leagueKey, batchRecords, upsertFn))
+		recordErr(upsertYahooPlayerRecords(ctx, db, leagueKey, batchRecords, storedCount))
 	}
 	return firstErr
 }
 
-func upsertYahooPlayerRecords(ctx context.Context, db *store.Store, leagueKey string, players []yahoofantasy.PlayerRecord, upsertFn func(resType, id, leagueKey string, raw []byte) error) error {
-	var firstErr error
+// upsertYahooPlayerRecords holds a mutex and SQLite transaction across reading, merging, and writing
+// each stable player row (<leagueKey>:player:<playerKey>), replacing the full JSON column so cleared
+// fields (like OwnerTeamKey and SelectedPosition when a player becomes FA/W) are actually removed.
+func upsertYahooPlayerRecords(ctx context.Context, db *store.Store, leagueKey string, players []yahoofantasy.PlayerRecord, storedCount *int) error {
+	if len(players) == 0 {
+		return nil
+	}
+	yahooPlayerUpsertMu.Lock()
+	defer yahooPlayerUpsertMu.Unlock()
+
+	tx, err := db.DB().BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = tx.Rollback() }()
+
 	for _, incoming := range players {
 		if incoming.PlayerKey == "" {
 			continue
 		}
 		rowID := fmt.Sprintf("%s:player:%s", leagueKey, incoming.PlayerKey)
-		// Also clean up legacy "<leagueKey>:<playerKey>" key if present.
-		_, _ = db.DB().ExecContext(ctx, `DELETE FROM resources WHERE id = ?`, leagueKey+":"+incoming.PlayerKey)
+		legacyID := leagueKey + ":" + incoming.PlayerKey
 		merged := incoming
 		merged.LeagueKey = leagueKey
+
 		var existingJSON string
-		if err := db.DB().QueryRowContext(ctx, `SELECT data FROM resources WHERE id = ?`, rowID).Scan(&existingJSON); err == nil && existingJSON != "" {
+		if qErr := tx.QueryRowContext(ctx, `SELECT data FROM resources WHERE id = ?`, rowID).Scan(&existingJSON); qErr == nil && existingJSON != "" {
+			if existingPlayers := yahoofantasy.ExtractPlayers([]byte(existingJSON)); len(existingPlayers) > 0 {
+				merged = mergePlayerRecordRefresh(existingPlayers[0], incoming, leagueKey)
+			}
+		} else if qErr := tx.QueryRowContext(ctx, `SELECT data FROM resources WHERE id = ?`, legacyID).Scan(&existingJSON); qErr == nil && existingJSON != "" {
 			if existingPlayers := yahoofantasy.ExtractPlayers([]byte(existingJSON)); len(existingPlayers) > 0 {
 				merged = mergePlayerRecordRefresh(existingPlayers[0], incoming, leagueKey)
 			}
 		}
+
 		b, mErr := json.Marshal(merged)
 		if mErr != nil {
-			if firstErr == nil {
-				firstErr = mErr
-			}
-			continue
+			return mErr
 		}
-		if uErr := upsertFn("players", rowID, leagueKey, b); uErr != nil && firstErr == nil {
-			firstErr = uErr
+		stamped := stampLeagueKeyInJSON(b, leagueKey)
+		if _, execErr := tx.ExecContext(ctx,
+			`INSERT INTO resources (id, resource_type, data, synced_at, updated_at)
+			 VALUES (?, 'players', ?, strftime('%Y-%m-%dT%H:%M:%SZ', 'now'), strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
+			 ON CONFLICT(resource_type, id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, updated_at = excluded.updated_at`,
+			rowID, string(stamped)); execErr != nil {
+			return execErr
+		}
+		_, _ = tx.ExecContext(ctx, `DELETE FROM resources WHERE id = ?`, legacyID)
+		if storedCount != nil {
+			*storedCount++
 		}
 	}
-	return firstErr
+
+	return tx.Commit()
 }
 
 func mergePlayerRecordRefresh(base, update yahoofantasy.PlayerRecord, leagueKey string) yahoofantasy.PlayerRecord {
@@ -570,10 +753,11 @@ func mergePlayerRecordRefresh(base, update yahoofantasy.PlayerRecord, leagueKey 
 	if update.OwnershipStatus != "" {
 		out.OwnershipStatus = update.OwnershipStatus
 	}
-	if update.OwnerTeamKey != "" {
+	if update.OwnerTeamKey != "" && !strings.EqualFold(out.OwnershipStatus, "FA") && !strings.EqualFold(out.OwnershipStatus, "W") {
 		out.OwnerTeamKey = update.OwnerTeamKey
-	} else if strings.EqualFold(update.OwnershipStatus, "FA") || strings.EqualFold(update.OwnershipStatus, "W") {
+	} else if strings.EqualFold(out.OwnershipStatus, "FA") || strings.EqualFold(out.OwnershipStatus, "W") {
 		out.OwnerTeamKey = ""
+		out.SelectedPosition = ""
 	}
 	return out
 }

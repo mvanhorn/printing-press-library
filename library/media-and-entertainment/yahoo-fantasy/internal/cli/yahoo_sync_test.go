@@ -7,10 +7,12 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/yahoo-fantasy/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/yahoo-fantasy/internal/yahoofantasy"
 )
 
 type fakeYahooSyncClient struct {
@@ -177,5 +179,83 @@ func TestYahooSyncPartialFailureLatestOnlyAndDownwardScoreCorrection(t *testing.
 	mrOut := runTestRootCmd(t, "matchup-radar", "--league", "449.l.365083", "--team", "449.l.365083.t.1", "--week", "3", "--db", dbPath, "--data-source", "local", "--json")
 	if !strings.Contains(mrOut, `"team_points": 115`) || strings.Contains(mrOut, "130") {
 		t.Fatalf("expected downward-corrected score 115.0 in matchup-radar, got: %s", mrOut)
+	}
+}
+
+func TestYahooSyncLegacyBatchMigrationDroppedOwnerClearingAndConcurrentUpserts(t *testing.T) {
+	ctx := context.Background()
+	dbPath := filepath.Join(t.TempDir(), "legacy_and_drop.db")
+	db, err := store.OpenWithContext(ctx, dbPath)
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+
+	// Seed legacy batch rows for a drafted player (449.p.31002) and a draft pick row,
+	// plus a rostered player (449.p.32005) who will subsequently be dropped to free agency.
+	_ = db.Upsert("teams", "449.l.365083.t.1", json.RawMessage(`{"league_key":"449.l.365083","team_key":"449.l.365083.t.1","name":"Alpha"}`))
+	_ = db.Upsert("draft", "449.l.365083.pick.1.1", json.RawMessage(`{"league_key":"449.l.365083","round":1,"pick":1,"team_key":"449.l.365083.t.1","player_key":"449.p.31002"}`))
+	_ = db.Upsert("draft", "449.l.365083.pick.2.1", json.RawMessage(`{"league_key":"449.l.365083","round":2,"pick":13,"team_key":"449.l.365083.t.1","player_key":"449.p.32005"}`))
+	_ = db.Upsert("players", "449.l.365083:stats:0", json.RawMessage(`{"fantasy_content":{"league":{"league_key":"449.l.365083","players":[{"player":{"player_key":"449.p.31002","name":{"full":"Legacy Drafted"},"display_position":"RB","player_points":{"total":"195.0"}}}]}}}`))
+	_ = db.Upsert("players", "449.l.365083:ownership:0", json.RawMessage(`{"fantasy_content":{"league":{"league_key":"449.l.365083","players":[{"player":{"player_key":"449.p.31002","ownership":{"ownership_type":"team","owner_team_key":"449.l.365083.t.1"}}}]}}}`))
+	_ = db.Upsert("players", "449.l.365083:player:449.p.32005", json.RawMessage(`{"league_key":"449.l.365083","player_key":"449.p.32005","full_name":"Dropped WR","display_position":"WR","selected_position":"WR","ownership_status":"T","owner_team_key":"449.l.365083.t.1","points_total":120.0,"games_played":8,"points_per_game":15.0}`))
+
+	fc := &fakeYahooSyncClient{
+		handlers: map[string]func() (json.RawMessage, error){
+			"/league/449.l.365083/players;status=A;position=O;sort=PTS;start=0;count=25/percent_owned": func() (json.RawMessage, error) {
+				return json.RawMessage(`{"fantasy_content":{"league":{"league_key":"449.l.365083","players":[{"player":{"player_key":"449.p.32005","name":{"full":"Dropped WR"},"display_position":"WR","percent_owned":{"value":35}}}]}}}`), nil
+			},
+			"/league/449.l.365083/players;player_keys=449.p.32005/stats;type=season;week=1": func() (json.RawMessage, error) {
+				return json.RawMessage(`{"fantasy_content":{"league":{"league_key":"449.l.365083","players":[{"player":{"player_key":"449.p.32005","name":{"full":"Dropped WR"},"display_position":"WR","player_points":{"total":"120.0"},"player_stats":{"stats":[{"stat":{"stat_id":"0","value":"8"}}]}}}]}}}`), nil
+			},
+			"/league/449.l.365083/players;player_keys=449.p.32005/ownership": func() (json.RawMessage, error) {
+				return json.RawMessage(`{"fantasy_content":{"league":{"league_key":"449.l.365083","players":[{"player":{"player_key":"449.p.32005","ownership":{"ownership_type":"freeagents"}}}]}}}`), nil
+			},
+		},
+	}
+
+	up, err := parseSyncUserParams([]string{"league_key=449.l.365083"}, nil, nil)
+	if err != nil {
+		t.Fatalf("parseSyncUserParams: %v", err)
+	}
+	var events bytes.Buffer
+	// Run ONLY "players" sync (without re-running "draftresults") to verify legacy batch rows for 449.p.31002 are migrated, not deleted.
+	sr := syncYahooLeagueScopedResource(ctx, fc, db, "players", 1, true, up, &events, time.Now())
+	if sr.Err != nil {
+		t.Fatalf("sync players failed: %v", sr.Err)
+	}
+
+	// Verify concurrent upserts on the same player preserve merged fields from both writers.
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		_ = upsertYahooPlayerRecords(ctx, db, "449.l.365083", []yahoofantasy.PlayerRecord{{
+			LeagueKey:   "449.l.365083",
+			PlayerKey:   "449.p.31002",
+			PointsTotal: 205.0,
+			GamesPlayed: 10,
+		}}, nil)
+	}()
+	go func() {
+		defer wg.Done()
+		_ = upsertYahooPlayerRecords(ctx, db, "449.l.365083", []yahoofantasy.PlayerRecord{{
+			LeagueKey:       "449.l.365083",
+			PlayerKey:       "449.p.31002",
+			PercentOwned:    98.0,
+			OwnershipStatus: "T",
+			OwnerTeamKey:    "449.l.365083.t.1",
+		}}, nil)
+	}()
+	wg.Wait()
+	_ = db.Close()
+
+	// 1. Verify draft-roi retained migrated player 449.p.31002 (205.0 pts, retained_by_drafter: true)
+	// AND cleared owner_team_key on dropped player 449.p.32005 (retained_by_drafter: false).
+	drOut := runTestRootCmd(t, "draft-roi", "--league", "449.l.365083", "--db", dbPath, "--data-source", "local", "--json")
+	if !strings.Contains(drOut, `"season_points": 205`) {
+		t.Fatalf("expected migrated + concurrently updated player 449.p.31002 to have 205 season_points, got: %s", drOut)
+	}
+	if !strings.Contains(drOut, `"retained_by_drafter": false`) {
+		t.Fatalf("expected dropped player 449.p.32005 to have retained_by_drafter=false in draft-roi, got: %s", drOut)
 	}
 }

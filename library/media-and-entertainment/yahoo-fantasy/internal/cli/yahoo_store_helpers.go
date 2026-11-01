@@ -149,7 +149,8 @@ func extractLeaguePlayersFromBlobs(blobs [][]byte, leagueKey string) []yahoofant
 				if all[idx].PercentOwned == 0 && p.PercentOwned > 0 {
 					all[idx].PercentOwned = p.PercentOwned
 				}
-				if all[idx].SelectedPosition == "" && p.SelectedPosition != "" {
+				isAvailable := strings.EqualFold(all[idx].OwnershipStatus, "FA") || strings.EqualFold(all[idx].OwnershipStatus, "W")
+				if !isAvailable && all[idx].SelectedPosition == "" && p.SelectedPosition != "" {
 					all[idx].SelectedPosition = p.SelectedPosition
 				}
 				if all[idx].Status == "" && p.Status != "" {
@@ -158,7 +159,7 @@ func extractLeaguePlayersFromBlobs(blobs [][]byte, leagueKey string) []yahoofant
 				if all[idx].OwnershipStatus == "" && p.OwnershipStatus != "" {
 					all[idx].OwnershipStatus = p.OwnershipStatus
 				}
-				if all[idx].OwnerTeamKey == "" && p.OwnerTeamKey != "" {
+				if !isAvailable && all[idx].OwnerTeamKey == "" && p.OwnerTeamKey != "" {
 					all[idx].OwnerTeamKey = p.OwnerTeamKey
 				}
 			} else {
