@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "google-voice-polish-security-invariants",
+  "applied_at": "2026-10-31",
+  "base_run_id": "20261031-175451-910ae94f",
+  "base_printing_press_version": "4.35.0",
+  "summary": "Compare file owners without narrowing and preserve primary errors alongside failed resource cleanup, with narrow explanations for required protocol and validated local operations.",
+  "reason": "Custom Voice persistence and signing must retain private-storage safeguards, surface cleanup failures without discarding their primary cause, and explain security-scanner exceptions at their actual call sites.",
+  "files": [
+    "internal/cli/voice_core.go",
+    "internal/voice/mirror.go",
+    "internal/voice/privacy_unix.go",
+    "internal/voice/remote.go",
+    "internal/voice/session.go"
+  ],
+  "markers": [
+    "errors.Join",
+    "int64(st.Uid)",
+    "Google SAPISIDHASH requires"
+  ]
+}

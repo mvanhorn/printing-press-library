@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "verdict": "PASS",
+  "started_at": "2026-11-01T01:16:20Z",
+  "elapsed_ms": 7996,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-11-01T01:16:20Z",
+      "elapsed_ms": 1948,
+      "command": "/nix/store/jc74sh2av1n85hsdjfhx4jz80vhwhwzh-cli-printing-press-4.35.0/bin/cli-printing-press verify --dir <runstate>/chief-of-staff-9adf62f4/runs/20261031-175451-910ae94f/working/google-voice-pp-cli --write-manifest <runstate>/chief-of-staff-9adf62f4/runs/20261031-175451-910ae94f/working/google-voice-pp-cli/.printing-press.json --spec <runstate>/chief-of-staff-9adf62f4/runs/20261031-175451-910ae94f/research/google-voice-reader-spec.yaml --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-11-01T01:16:21Z",
+      "elapsed_ms": 149,
+      "command": "/nix/store/jc74sh2av1n85hsdjfhx4jz80vhwhwzh-cli-printing-press-4.35.0/bin/cli-printing-press validate-narrative --strict --full-examples --research <runstate>/chief-of-staff-9adf62f4/runs/20261031-175451-910ae94f/research.json --binary <runstate>/chief-of-staff-9adf62f4/runs/20261031-175451-910ae94f/working/google-voice-pp-cli/build/stage/bin/google-voice-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-11-01T01:16:22Z",
+      "elapsed_ms": 1757,
+      "command": "/nix/store/jc74sh2av1n85hsdjfhx4jz80vhwhwzh-cli-printing-press-4.35.0/bin/cli-printing-press dogfood --dir <runstate>/chief-of-staff-9adf62f4/runs/20261031-175451-910ae94f/working/google-voice-pp-cli --spec <runstate>/chief-of-staff-9adf62f4/runs/20261031-175451-910ae94f/research/google-voice-reader-spec.yaml --research-dir <runstate>/chief-of-staff-9adf62f4/runs/20261031-175451-910ae94f"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-11-01T01:16:23Z",
+      "elapsed_ms": 14,
+      "command": "/nix/store/jc74sh2av1n85hsdjfhx4jz80vhwhwzh-cli-printing-press-4.35.0/bin/cli-printing-press workflow-verify --dir <runstate>/chief-of-staff-9adf62f4/runs/20261031-175451-910ae94f/working/google-voice-pp-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-11-01T01:16:23Z",
+      "elapsed_ms": 25,
+      "command": "/nix/store/jc74sh2av1n85hsdjfhx4jz80vhwhwzh-cli-printing-press-4.35.0/bin/cli-printing-press apify-audit --dir <runstate>/chief-of-staff-9adf62f4/runs/20261031-175451-910ae94f/working/google-voice-pp-cli --research-dir <runstate>/chief-of-staff-9adf62f4/runs/20261031-175451-910ae94f"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-11-01T01:16:23Z",
+      "elapsed_ms": 3486,
+      "command": "/nix/store/jc74sh2av1n85hsdjfhx4jz80vhwhwzh-cli-printing-press-4.35.0/bin/cli-printing-press verify-skill --dir <runstate>/chief-of-staff-9adf62f4/runs/20261031-175451-910ae94f/working/google-voice-pp-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "verdict": "PASS",
+      "started_at": "2026-11-01T01:16:27Z",
+      "elapsed_ms": 613,
+      "command": "/nix/store/jc74sh2av1n85hsdjfhx4jz80vhwhwzh-cli-printing-press-4.35.0/bin/cli-printing-press scorecard --dir <runstate>/chief-of-staff-9adf62f4/runs/20261031-175451-910ae94f/working/google-voice-pp-cli --write-manifest <runstate>/chief-of-staff-9adf62f4/runs/20261031-175451-910ae94f/working/google-voice-pp-cli/.printing-press.json --research-dir <runstate>/chief-of-staff-9adf62f4/runs/20261031-175451-910ae94f --spec <runstate>/chief-of-staff-9adf62f4/runs/20261031-175451-910ae94f/research/google-voice-reader-spec.yaml --live-check"
+    }
+  ]
+}

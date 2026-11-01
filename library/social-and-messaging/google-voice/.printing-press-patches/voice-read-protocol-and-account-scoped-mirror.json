@@ -1,0 +1,32 @@
+{
+  "schema_version": 2,
+  "id": "voice-read-protocol-and-account-scoped-mirror",
+  "applied_at": "2026-10-31",
+  "base_run_id": "20261031-175451-910ae94f",
+  "base_printing_press_version": "4.35.0",
+  "summary": "Preserve fixed-host read-only Google Voice cookie signing, positional codecs and one account-pinned resumable message mirror with truthful local evidence queries.",
+  "reason": "The observed consumer Voice protocol uses dynamic SAPISIDHASH and protobuf JSON arrays rather than generated object requests, and two pagination layers must commit with deduplicated records to avoid false completeness claims.",
+  "files": [
+    "internal/cli/history_activity.go",
+    "internal/cli/history_arrivals.go",
+    "internal/cli/history_context.go",
+    "internal/cli/history_query.go",
+    "internal/cli/mirror_coverage.go",
+    "internal/cli/voice_core.go",
+    "internal/cli/voice_core_test.go",
+    "internal/cli/voice_history.go",
+    "internal/voice/codec.go",
+    "internal/voice/history.go",
+    "internal/voice/history_test.go",
+    "internal/voice/mirror.go",
+    "internal/voice/privacy_darwin_test.go",
+    "internal/voice/privacy_unix.go",
+    "internal/voice/privacy_windows.go",
+    "internal/voice/remote.go",
+    "internal/voice/review_regressions_test.go",
+    "internal/voice/session.go",
+    "internal/voice/sync.go",
+    "internal/voice/voice_test.go"
+  ],
+  "validated_outcome": "Go CLI live account/text/archive reads, atomic sync, all five local query outputs and rollback/dedup/account-isolation tests passed."
+}

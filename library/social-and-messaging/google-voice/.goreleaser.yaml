@@ -1,0 +1,55 @@
+version: 2
+project_name: google-voice-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: google-voice-pp-cli
+    main: ./cmd/google-voice-pp-cli
+    binary: google-voice-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/social-and-messaging/google-voice/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: google-voice-pp-mcp
+    main: ./cmd/google-voice-pp-mcp
+    binary: google-voice-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: google-voice-pp-cli
+    repository:
+      owner: mikemarqq
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Read Google Voice through ordinary HTTP and recover evidence from a local message mirror."
+    install: |
+      bin.install "google-voice-pp-cli"
+      bin.install "google-voice-pp-mcp"

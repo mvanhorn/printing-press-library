@@ -1,0 +1,96 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-11-01T03:29:37.879147Z",
+  "printing_press_version": "4.35.0",
+  "api_name": "google-voice",
+  "display_name": "Google Voice",
+  "cli_name": "google-voice-pp-cli",
+  "creator": {
+    "handle": "mikemarqq",
+    "name": "mikemarqq"
+  },
+  "owner": "mikemarqq",
+  "printer": "mikemarqq",
+  "printer_name": "mikemarqq",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:ec4993aeec66ca1b4e9c165499f60a3ef08b2953d9aaf9e0e2f0f7932a4f0e74",
+  "run_id": "20261031-175451-910ae94f",
+  "category": "social-and-messaging",
+  "description": "Read Google Voice through ordinary HTTP and recover evidence from a local message mirror.",
+  "mcp_binary": "google-voice-pp-mcp",
+  "mcp_tool_count": 3,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Compound message evidence",
+      "command": "history query",
+      "description": "Find messages using participant, dates, direction, literal text and attachment evidence together."
+    },
+    {
+      "name": "Message-anchored context packet",
+      "command": "history context",
+      "description": "Retrieve neighboring messages around a known message, including collection boundaries."
+    },
+    {
+      "name": "Question-scoped coverage evidence",
+      "command": "mirror coverage",
+      "description": "See freshness, unfinished pagination and collection failures before relying on a lookup."
+    },
+    {
+      "name": "Observed conversation activity",
+      "command": "history activity",
+      "description": "See observed inbound and outbound counts and latest message times per conversation."
+    },
+    {
+      "name": "Newly mirrored records",
+      "command": "history arrivals",
+      "description": "Inspect which records collection added, keeping old backfill distinct from recent communication."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Compound message evidence",
+      "command": "history query",
+      "description": "Find messages using participant, dates, direction, literal text and attachment evidence together."
+    },
+    {
+      "name": "Message-anchored context packet",
+      "command": "history context",
+      "description": "Retrieve neighboring messages around a known message, including collection boundaries."
+    },
+    {
+      "name": "Question-scoped coverage evidence",
+      "command": "mirror coverage",
+      "description": "See freshness, unfinished pagination and collection failures before relying on a lookup."
+    },
+    {
+      "name": "Observed conversation activity",
+      "command": "history activity",
+      "description": "See observed inbound and outbound counts and latest message times per conversation."
+    },
+    {
+      "name": "Newly mirrored records",
+      "command": "history arrivals",
+      "description": "Inspect which records collection added, keeping old backfill distinct from recent communication."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 29,
+    "total": 29,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 80,
+      "grade": "A",
+      "total": 80
+    }
+  }
+}

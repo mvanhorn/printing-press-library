@@ -1,0 +1,29 @@
+[
+  {
+    "feature": "history context",
+    "pass": true,
+    "bounded_neighbors": true
+  },
+  {
+    "feature": "history query",
+    "pass": true,
+    "positive_rows": 149,
+    "negative_empty": true
+  },
+  {
+    "feature": "mirror coverage",
+    "pass": true,
+    "unknown_archive_visible": true,
+    "unfinished_work_visible": true
+  },
+  {
+    "feature": "history activity",
+    "pass": true,
+    "counts_match_observed_records": true
+  },
+  {
+    "feature": "history arrivals",
+    "pass": true,
+    "first_seen_order_and_unique_ids": true
+  }
+]

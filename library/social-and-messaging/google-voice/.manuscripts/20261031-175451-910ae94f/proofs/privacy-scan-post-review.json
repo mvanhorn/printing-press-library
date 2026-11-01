@@ -1,0 +1,7 @@
+{
+  "files_scanned": 265,
+  "private_values_compared": 292,
+  "exact_private_value_matches": 0,
+  "matched_files": [],
+  "scope": "Auth cookie values, observed message text and exact phone identifiers; binaries excluded."
+}

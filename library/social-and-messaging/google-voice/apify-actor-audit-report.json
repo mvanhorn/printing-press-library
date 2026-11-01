@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/google-voice-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20261031-175451-910ae94f",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

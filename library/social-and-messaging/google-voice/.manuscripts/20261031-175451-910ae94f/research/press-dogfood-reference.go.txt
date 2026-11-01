@@ -1,0 +1,3968 @@
+package pipeline
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"go/ast"
+	"go/parser"
+	"go/scanner"
+	"go/token"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"regexp"
+	"slices"
+	"sort"
+	"strconv"
+	"strings"
+	"time"
+	"unicode"
+
+	"github.com/mvanhorn/cli-printing-press/v4/internal/artifacts"
+	"github.com/mvanhorn/cli-printing-press/v4/internal/naming"
+	openapiparser "github.com/mvanhorn/cli-printing-press/v4/internal/openapi"
+	"github.com/mvanhorn/cli-printing-press/v4/internal/platform"
+	apispec "github.com/mvanhorn/cli-printing-press/v4/internal/spec"
+	"gopkg.in/yaml.v3"
+)
+
+// DogfoodSpecSource identifies which spec input RunDogfood actually loaded
+// when both a bundled <dir>/spec.* and a caller-passed --spec are reachable.
+type DogfoodSpecSource string
+
+const (
+	DogfoodSpecSourceBundled DogfoodSpecSource = "bundled"
+	DogfoodSpecSourceCaller  DogfoodSpecSource = "caller"
+	DogfoodSpecSourceNone    DogfoodSpecSource = "none"
+)
+
+const (
+	DogfoodVerdictPass = "PASS"
+	DogfoodVerdictWarn = "WARN"
+	DogfoodVerdictFail = "FAIL"
+)
+
+type DogfoodReport struct {
+	Dir                    string                       `json:"dir"`
+	SpecPath               string                       `json:"spec_path,omitempty"`
+	SpecSource             DogfoodSpecSource            `json:"spec_source,omitempty"`
+	IsDeviceCLI            bool                         `json:"is_device_cli,omitempty"`
+	Verdict                string                       `json:"verdict"`
+	PathCheck              PathCheckResult              `json:"path_check"`
+	AuthCheck              AuthCheckResult              `json:"auth_check"`
+	BrowserSessionCheck    BrowserSessionCheckResult    `json:"browser_session_check"`
+	OAuthScopeCoverage     OAuthScopeCoverageResult     `json:"oauth_scope_coverage_check"`
+	DeadFlags              DeadCodeResult               `json:"dead_flags"`
+	DeadFuncs              DeadCodeResult               `json:"dead_functions"`
+	PipelineCheck          PipelineResult               `json:"pipeline_check"`
+	ExampleCheck           ExampleCheckResult           `json:"example_check"`
+	WiringCheck            WiringCheckResult            `json:"wiring_check"`
+	NovelFeaturesCheck     NovelFeaturesCheckResult     `json:"novel_features_check"`
+	MCPSurfaceParityCheck  MCPSurfaceResult             `json:"mcp_surface_parity"`
+	ReimplementationCheck  ReimplementationCheckResult  `json:"reimplementation_check"`
+	DescriptionDriftCheck  *DescriptionDriftResult      `json:"description_drift_check,omitempty"`
+	SourceClientCheck      SourceClientCheckResult      `json:"source_client_check"`
+	PrintJSONFilteredCheck PrintJSONFilteredCheckResult `json:"print_json_filtered_check"`
+	TestPresence           TestPresenceResult           `json:"test_presence"`
+	NamingCheck            NamingCheckResult            `json:"naming_check"`
+	SyncParamDropCheck     SyncParamDropResult          `json:"sync_param_drop_check"`
+	Issues                 []string                     `json:"issues"`
+}
+
+// NamingCheckResult reports non-canonical command verbs and flag names
+// found in generated CLI source. The rules live in naming_rules.go. Agents
+// trained on one printed CLI's vocabulary should recognize every other
+// printed CLI's vocabulary — drift here is a structural bug, not a style
+// preference.
+type NamingCheckResult struct {
+	Checked    int               `json:"checked"`
+	Violations []NamingViolation `json:"violations,omitempty"`
+}
+
+type NamingViolation struct {
+	File      string `json:"file"`
+	Banned    string `json:"banned"`
+	Preferred string `json:"preferred"`
+	Category  string `json:"category"`
+}
+
+type DescriptionDriftResult struct {
+	Expected string                    `json:"expected,omitempty"`
+	Findings []DescriptionDriftFinding `json:"findings,omitempty"`
+	Skipped  bool                      `json:"skipped,omitempty"`
+}
+
+type DescriptionDriftFinding struct {
+	Surface  string `json:"surface"`
+	File     string `json:"file"`
+	Actual   string `json:"actual"`
+	Expected string `json:"expected"`
+}
+
+func shouldReportDescriptionDrift(result DescriptionDriftResult) bool {
+	return !result.Skipped || result.Expected != "" || len(result.Findings) > 0
+}
+
+// TestPresenceResult reports coverage gaps in agent-authored pure-logic
+// packages under internal/. The walker only inspects packages outside the
+// known generator-emitted set, so this check targets agent-authored novel
+// code — the zero-tests-shipped pattern that recipe-goat's internal/recipes
+// (jsonld.go, subs.go) exhibited pre-PR-#68.
+//
+// Two tiers:
+//
+//   - MissingTests: pure-logic packages with zero _test.go files. Counts as
+//     a hard dogfood issue (shipcheck failure).
+//   - ThinTests: pure-logic packages with 1-2 Test* functions. Flagged as a
+//     warning surfaced to Phase 4.85 (Wave B) for agentic review — trivial
+//     pass-the-gate tests look like thin coverage and should get a second
+//     look.
+type TestPresenceResult struct {
+	Checked      int      `json:"checked"`
+	MissingTests []string `json:"missing_tests,omitempty"`
+	ThinTests    []string `json:"thin_tests,omitempty"`
+}
+
+// NovelFeaturesCheckResult tracks whether transcendence features planned
+// during absorb actually survived the build as registered CLI commands.
+type NovelFeaturesCheckResult struct {
+	Planned         int                         `json:"planned"`
+	Found           int                         `json:"found"`
+	Missing         []string                    `json:"missing,omitempty"`
+	DepthMismatches []NovelFeatureDepthMismatch `json:"depth_mismatches,omitempty"`
+	Stubbed         []string                    `json:"built_with_stub,omitempty"`
+	Skipped         bool                        `json:"skipped,omitempty"`
+}
+
+type NovelFeatureDepthMismatch struct {
+	Command    string `json:"command"`
+	Advertised string `json:"advertised"`
+	Actual     string `json:"actual"`
+}
+
+type PathCheckResult struct {
+	Tested  int      `json:"tested"`
+	Valid   int      `json:"valid"`
+	Invalid []string `json:"invalid,omitempty"`
+	Pct     int      `json:"valid_pct"`
+	Skipped bool     `json:"skipped,omitempty"`
+	Detail  string   `json:"detail,omitempty"`
+}
+
+type AuthCheckResult struct {
+	SpecScheme   string `json:"spec_scheme"`
+	GeneratedFmt string `json:"generated_format"`
+	Match        bool   `json:"match"`
+	Skipped      bool   `json:"skipped,omitempty"`
+	Detail       string `json:"detail"`
+}
+
+type OAuthScopeCoverageResult struct {
+	Checked    int                           `json:"checked"`
+	Covered    int                           `json:"covered"`
+	Violations []OAuthScopeCoverageViolation `json:"violations,omitempty"`
+	Skipped    bool                          `json:"skipped,omitempty"`
+	Detail     string                        `json:"detail,omitempty"`
+}
+
+type OAuthScopeCoverageViolation struct {
+	Endpoint                  string     `json:"endpoint"`
+	OperationID               string     `json:"operation_id,omitempty"`
+	RequiredScopes            []string   `json:"required_scopes"`
+	RequiredScopeAlternatives [][]string `json:"required_scope_alternatives,omitempty"`
+}
+
+type BrowserSessionCheckResult struct {
+	Required              bool   `json:"required"`
+	HasAuthLoginChrome    bool   `json:"has_auth_login_chrome,omitempty"`
+	HasProofWriter        bool   `json:"has_proof_writer,omitempty"`
+	HasDoctorProofCheck   bool   `json:"has_doctor_proof_check,omitempty"`
+	HasValidationEndpoint bool   `json:"has_validation_endpoint,omitempty"`
+	Pass                  bool   `json:"pass"`
+	Detail                string `json:"detail,omitempty"`
+}
+
+type DeadCodeResult struct {
+	Total int      `json:"total"`
+	Dead  int      `json:"dead"`
+	Items []string `json:"items,omitempty"`
+}
+
+type PipelineResult struct {
+	SyncCallsDomain      bool   `json:"sync_calls_domain"`
+	SyncCallsGeneric     bool   `json:"sync_calls_generic,omitempty"`
+	SearchCallsDomain    bool   `json:"search_calls_domain"`
+	DomainTables         int    `json:"domain_tables"`
+	SyncFileEmitted      bool   `json:"sync_file_emitted"`
+	SyncFileReadError    bool   `json:"sync_file_read_error,omitempty"`
+	SyncResourcesPresent bool   `json:"sync_resources_present"`
+	Detail               string `json:"detail"`
+}
+
+type ExampleCheckResult struct {
+	Tested        int      `json:"tested"`
+	WithExamples  int      `json:"with_examples"`
+	ValidExamples int      `json:"valid_examples"`
+	InvalidFlags  []string `json:"invalid_flags,omitempty"`
+	Missing       []string `json:"missing,omitempty"`
+	Skipped       bool     `json:"skipped,omitempty"`
+	Detail        string   `json:"detail"`
+}
+
+type dogfoodAgentContext struct {
+	Commands []dogfoodAgentCommand `json:"commands"`
+}
+
+type dogfoodAgentCommand struct {
+	Name        string                `json:"name"`
+	Annotations map[string]string     `json:"annotations,omitempty"`
+	Runnable    bool                  `json:"runnable,omitempty"`
+	Subcommands []dogfoodAgentCommand `json:"subcommands,omitempty"`
+}
+
+type WiringCheckResult struct {
+	CommandTree      CommandTreeResult      `json:"command_tree"`
+	ConfigConsist    ConfigConsistResult    `json:"config_consistency"`
+	WorkflowComplete WorkflowCompleteResult `json:"workflow_completeness"`
+}
+
+type CommandTreeResult struct {
+	Defined      int      `json:"defined"`
+	Registered   int      `json:"registered"`
+	Unregistered []string `json:"unregistered,omitempty"`
+}
+
+type ConfigConsistResult struct {
+	WriteFields []string `json:"write_fields,omitempty"`
+	ReadFields  []string `json:"read_fields,omitempty"`
+	Mismatched  []string `json:"mismatched,omitempty"`
+	Consistent  bool     `json:"consistent"`
+}
+
+type WorkflowCompleteResult struct {
+	Skipped       bool     `json:"skipped,omitempty"`
+	TotalSteps    int      `json:"total_steps"`
+	MappedSteps   int      `json:"mapped_steps"`
+	UnmappedSteps []string `json:"unmapped_steps,omitempty"`
+	Detail        string   `json:"detail"`
+}
+
+type openAPISpec struct {
+	Paths                  []string
+	Auth                   apispec.AuthConfig
+	Kind                   string // see apispec.KindREST / apispec.KindSynthetic
+	HTTPTransport          string
+	OAuthScopeRequirements []oauthScopeRequirement
+	NestedDataEnvelopes    map[responseFixtureKey]nestedDataEnvelopeFixture
+	// SyncRequests are the method and path pairs bare sync issues. The mock
+	// row check uses these so a fixture for a different operation cannot
+	// raise the expected count.
+	SyncRequests []responseFixtureKey
+	// ParamDefaults maps a positional placeholder name (lowercase) to its
+	// spec-declared default value, when one is set. Verify mock-mode uses
+	// this as the first step in its lookup chain so spec authors can name
+	// realistic placeholder values without modifying the generator (e.g.,
+	// food52's `servings: 4` rather than the generic `mock-value`). Built
+	// only for internal-format specs; OpenAPI specs leave this nil and
+	// fall through to the generic `canonicalargs` registry.
+	ParamDefaults map[string]string
+	// IsInternalYAML is true when this spec was loaded from the
+	// printing-press internal YAML format rather than OpenAPI. Internal
+	// YAML expresses paths in its own shape — the OpenAPI-derived path-
+	// validity check produces noisy false positives against it (often
+	// "0/0 valid (FAIL)" while the scorecard's parallel check correctly
+	// records the dimension as unscored). Surfaced by hackernews retro
+	// #350 finding F8.
+	IsInternalYAML bool
+	// Populated from the spec's cli_description so checkDescriptionDrift can
+	// accept root.Short values the template renders from it, not only the
+	// headline.
+	CLIDescription string
+}
+
+type responseFixtureKind string
+
+const (
+	responseFixtureNestedDataObject responseFixtureKind = "nested-data-object"
+	responseFixtureTopLevel         responseFixtureKind = "top-level"
+	responseFixtureDataArray        responseFixtureKind = "data-array"
+)
+
+type responseFixtureKey struct {
+	Method string
+	Path   string
+}
+
+type nestedDataEnvelopeFixture struct {
+	Kind     responseFixtureKind
+	ArrayKey string
+	Scalars  map[string]any
+}
+
+func (s *openAPISpec) IsSynthetic() bool {
+	return s != nil && s.Kind == apispec.KindSynthetic
+}
+
+func RunDogfood(dir, specPath string, opts ...DogfoodOption) (*DogfoodReport, error) {
+	canonicalDir, err := ResolveTargetDir(dir)
+	if err != nil {
+		return nil, err
+	}
+	dir = canonicalDir
+
+	releaseHome, err := scopeSubprocessHome(findCLINames(dir)...)
+	if err != nil {
+		return nil, err
+	}
+	defer releaseHome()
+
+	cfg := dogfoodConfig{}
+	for _, o := range opts {
+		o(&cfg)
+	}
+	if cfg.researchDir != "" {
+		canonicalResearchDir, err := ResolveTargetDir(cfg.researchDir)
+		if err != nil {
+			return nil, err
+		}
+		cfg.researchDir = canonicalResearchDir
+	}
+
+	resolvedSpec, specSource, overriddenCaller := resolveDogfoodSpec(dir, specPath)
+	if resolvedSpec != "" {
+		fmt.Fprintf(os.Stderr, "dogfood: using spec %s (%s)\n", absOrSame(resolvedSpec), specSourceLabel(specSource))
+	}
+	if overriddenCaller != "" {
+		fmt.Fprintf(os.Stderr, "dogfood: caller --spec=%s overridden by bundled %s\n", overriddenCaller, absOrSame(resolvedSpec))
+	}
+	specPath = resolvedSpec
+
+	report := &DogfoodReport{
+		Dir:         dir,
+		SpecPath:    specPath,
+		SpecSource:  specSource,
+		IsDeviceCLI: isDeviceCLIDir(dir),
+		Verdict:     DogfoodVerdictPass,
+	}
+
+	var spec *openAPISpec
+	if specPath != "" {
+		loaded, err := loadDogfoodOpenAPISpec(specPath, dogfoodAuthPreferenceFromManifest(dir))
+		if err != nil {
+			return nil, err
+		}
+		spec = loaded
+
+		if spec.IsSynthetic() {
+			// Synthetic CLIs intentionally go beyond the spec; strict
+			// path-validity would flag every hand-built command. Record as
+			// skipped (not as a misleading 100% pass).
+			report.PathCheck = PathCheckResult{
+				Skipped: true,
+				Detail:  "synthetic spec: path validity not applicable",
+			}
+		} else if spec.IsInternalYAML {
+			// Internal YAML specs declare paths in their own shape. The
+			// OpenAPI-derived path-matching here produces "0/0 valid
+			// (FAIL)" against perfectly valid CLIs. The scorecard's
+			// parallel path-validity check already records the dimension
+			// as unscored for internal YAML; align dogfood with that
+			// rather than report a contradictory FAIL.
+			report.PathCheck = PathCheckResult{
+				Skipped: true,
+				Detail:  "internal-yaml spec: paths validated at parse time",
+			}
+		} else {
+			report.PathCheck = checkPaths(dir, spec.Paths)
+		}
+		if report.IsDeviceCLI {
+			// Device CLIs talk BLE, not HTTP; there is no client.go auth header
+			// to validate. Skip rather than report a false "client.go missing".
+			report.AuthCheck = AuthCheckResult{Match: true, Detail: "SKIP (device CLI: no HTTP auth protocol)"}
+		} else {
+			report.AuthCheck = checkAuth(dir, spec.Auth)
+		}
+		report.BrowserSessionCheck = checkBrowserSessionAuth(dir, spec.Auth)
+		report.OAuthScopeCoverage = checkOAuthScopeCoverage(dir, spec.OAuthScopeRequirements, spec.Auth)
+	} else {
+		report.SpecSource = DogfoodSpecSourceNone
+		report.PathCheck = PathCheckResult{
+			Skipped: true,
+			Detail:  "no resolvable spec; path validity not checked",
+		}
+		report.AuthCheck = AuthCheckResult{
+			Match:   false,
+			Skipped: true,
+			Detail:  "spec not provided; auth protocol check skipped",
+		}
+		report.BrowserSessionCheck = BrowserSessionCheckResult{
+			Pass:   true,
+			Detail: "spec not provided; browser-session auth check skipped",
+		}
+		report.OAuthScopeCoverage = OAuthScopeCoverageResult{
+			Skipped: true,
+			Detail:  "spec not provided; OAuth scope coverage check skipped",
+		}
+	}
+
+	report.DeadFlags = checkDeadFlags(dir)
+	report.DeadFuncs = checkDeadFunctions(dir)
+	report.PipelineCheck = checkPipelineIntegrity(dir)
+	report.ExampleCheck = checkExamples(dir)
+	report.WiringCheck = checkWiring(dir)
+	report.NovelFeaturesCheck = checkNovelFeaturesOpts(dir, cfg.researchDir, cfg.overwriteCommandMirror)
+	report.MCPSurfaceParityCheck = checkMCPSurfaceParity(dir)
+	specPaths := []string{}
+	if specPath != "" {
+		specPaths = []string{specPath}
+	}
+	report.ReimplementationCheck = checkReimplementationWithHostGate(dir, cfg.researchDir, specPaths, dnsNovelHostResolver)
+	var specCLIDescription string
+	if spec != nil {
+		specCLIDescription = spec.CLIDescription
+	}
+	if drift := checkDescriptionDrift(dir, cfg.researchDir, specCLIDescription); shouldReportDescriptionDrift(drift) {
+		report.DescriptionDriftCheck = &drift
+	}
+	report.SourceClientCheck = checkSourceClients(dir)
+	report.PrintJSONFilteredCheck = checkPrintJSONFiltered(dir)
+	report.TestPresence = checkTestPresence(dir)
+	report.NamingCheck = checkNamingConsistency(dir)
+	report.SyncParamDropCheck = CheckSyncParamDrop(dir, resolveTrafficAnalysisPath(cfg, specPath))
+	if report.SpecSource == DogfoodSpecSourceNone {
+		report.PathCheck.Detail = fmt.Sprintf("no resolvable spec; %d command(s) unvalidated", report.WiringCheck.CommandTree.Defined)
+	}
+	report.Issues = collectDogfoodIssues(report, spec != nil)
+	report.Verdict = deriveDogfoodVerdict(report, spec != nil)
+
+	if err := writeDogfoodResults(report, dir); err != nil {
+		return nil, err
+	}
+
+	return report, nil
+}
+
+type dogfoodConfig struct {
+	researchDir            string
+	trafficAnalysisPath    string
+	overwriteCommandMirror bool
+}
+
+// DogfoodOption configures optional behavior for RunDogfood.
+type DogfoodOption func(*dogfoodConfig)
+
+// WithResearchDir provides the pipeline directory containing research.json
+// so dogfood can validate novel features against registered commands.
+func WithResearchDir(dir string) DogfoodOption {
+	return func(c *dogfoodConfig) {
+		c.researchDir = dir
+	}
+}
+
+// WithOverwriteCommandMirror explicitly permits dogfood to discard a
+// hand-corrected command_mirror_capabilities block in favor of research.json.
+// Without it, dogfood preserves the on-disk block and reports the path.
+func WithOverwriteCommandMirror() DogfoodOption {
+	return func(c *dogfoodConfig) {
+		c.overwriteCommandMirror = true
+	}
+}
+
+// WithTrafficAnalysis points dogfood at a browser-sniff traffic-analysis.json
+// so the sync-param-drop gate runs as part of the dogfood suite. When unset,
+// dogfood falls back to the convention path next to the spec
+// (<spec>-traffic-analysis.json); when that also doesn't exist the gate
+// records a Skipped result.
+func WithTrafficAnalysis(path string) DogfoodOption {
+	return func(c *dogfoodConfig) {
+		c.trafficAnalysisPath = path
+	}
+}
+
+// resolveTrafficAnalysisPath returns the explicit override when provided,
+// otherwise the conventional sidecar path next to the spec. Returning an
+// empty string lets the gate's Skipped branch take over without raising.
+func resolveTrafficAnalysisPath(cfg dogfoodConfig, specPath string) string {
+	if path := strings.TrimSpace(cfg.trafficAnalysisPath); path != "" {
+		return path
+	}
+	if strings.TrimSpace(specPath) == "" {
+		return ""
+	}
+	sidecar := defaultTrafficAnalysisSidecar(specPath)
+	if sidecar == "" {
+		return ""
+	}
+	if _, err := os.Stat(sidecar); err != nil {
+		return ""
+	}
+	return sidecar
+}
+
+// defaultTrafficAnalysisSidecar mirrors browsersniff.DefaultTrafficAnalysisPath
+// without importing the package at the dogfood layer — the gate itself owns
+// the browsersniff dependency. Kept narrow: takes a spec path, returns the
+// conventional `<stem>-traffic-analysis.json` neighbor.
+func defaultTrafficAnalysisSidecar(specPath string) string {
+	dir := filepath.Dir(specPath)
+	base := filepath.Base(specPath)
+	ext := filepath.Ext(base)
+	stem := strings.TrimSuffix(base, ext)
+	if stem == "" || stem == "." {
+		stem = "traffic"
+	}
+	return filepath.Join(dir, stem+"-traffic-analysis.json")
+}
+
+func checkMCPSurfaceParity(cliDir string) MCPSurfaceResult {
+	result, err := InspectMCPSurface(cliDir)
+	if err != nil {
+		return MCPSurfaceResult{
+			State:  MCPSurfaceUnknown,
+			Pass:   false,
+			Detail: err.Error(),
+		}
+	}
+	return result
+}
+
+// checkNovelFeatures validates that transcendence features from research.json
+// have corresponding registered commands in the generated CLI. It also writes
+// the verified list back as novel_features_built so downstream consumers
+// (README, publish) only claim what actually exists.
+func checkNovelFeatures(cliDir, researchDir string) NovelFeaturesCheckResult {
+	return checkNovelFeaturesOpts(cliDir, researchDir, false)
+}
+
+func checkNovelFeaturesOpts(cliDir, researchDir string, overwriteCommandMirror bool) NovelFeaturesCheckResult {
+	if canonicalDir, err := ResolveTargetDir(cliDir); err == nil {
+		cliDir = canonicalDir
+	}
+	if researchDir == "" {
+		researchDir = FindResearchDir(cliDir)
+	}
+	research, err := LoadResearch(researchDir)
+	if err != nil || len(research.NovelFeatures) == 0 {
+		return NovelFeaturesCheckResult{Skipped: true}
+	}
+
+	paths, leaves := collectRegisteredCommands(cliDir)
+
+	result := NovelFeaturesCheckResult{
+		Planned: len(research.NovelFeatures),
+	}
+	built := make([]NovelFeature, 0)
+	for _, nf := range research.NovelFeatures {
+		matched := matchNovelFeature(nf, paths, leaves)
+		if !matched {
+			if cm, applied := matchCrossCuttingFeature(nf.Command, cliDir); applied && cm {
+				matched = true
+			}
+		}
+		if matched {
+			result.Found++
+			built = append(built, nf)
+			if novelFeatureHasStubMarker(cliDir, nf) {
+				result.Stubbed = append(result.Stubbed, nf.Command)
+			}
+			if mismatch := novelFeatureDepthMismatch(nf, paths); mismatch != nil {
+				result.DepthMismatches = append(result.DepthMismatches, *mismatch)
+			}
+		} else {
+			result.Missing = append(result.Missing, nf.Command)
+		}
+	}
+
+	// Write the verified list back so generated docs and publish metadata only
+	// reference features that actually exist.
+	if err := WriteNovelFeaturesBuilt(researchDir, built); err != nil {
+		fmt.Fprintf(os.Stderr, "warning: could not write novel_features_built: %v\n", err)
+	} else {
+		if changed, err := SyncCLIManifestNovelFeatures(cliDir, built); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: could not sync novel_features to CLI manifest: %v\n", err)
+		} else if changed {
+			fmt.Fprintln(os.Stderr, "dogfood: synced .printing-press.json (novel_features) from novel_features_built")
+		}
+		if artifacts, err := syncCLITranscendenceDocs(cliDir, built, overwriteCommandMirror, len(research.Alternatives) > 0); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: could not sync transcendence docs: %v\n", err)
+		} else {
+			for _, artifact := range artifacts {
+				fmt.Fprintf(os.Stderr, "dogfood: synced %s (%s) from novel_features_built\n", artifact.Path, artifact.Detail)
+			}
+		}
+		if artifacts, err := SyncCLINarrativeDocs(cliDir, research.APIName, research.Narrative); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: could not sync narrative docs: %v\n", err)
+		} else {
+			for _, artifact := range artifacts {
+				fmt.Fprintf(os.Stderr, "dogfood: synced %s (%s) from research.json narrative\n", artifact.Path, artifact.Detail)
+			}
+		}
+		if changed, err := SyncCLIRootHighlights(cliDir, built); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: could not sync root highlights: %v\n", err)
+		} else if changed {
+			fmt.Fprintln(os.Stderr, "dogfood: synced internal/cli/root.go (Highlights) from novel_features_built")
+		}
+	}
+
+	return result
+}
+
+func novelFeatureHasStubMarker(cliDir string, nf NovelFeature) bool {
+	path := commandPath(nf.Command)
+	if path == "" {
+		return false
+	}
+	files := listGoFiles(filepath.Join(cliDir, "internal", "cli"))
+	for _, file := range files {
+		if strings.HasSuffix(file, "_test.go") {
+			continue
+		}
+		data, err := os.ReadFile(file)
+		if err != nil {
+			continue
+		}
+		for _, match := range novelFeatureStubMarkerRe.FindAllStringSubmatch(string(data), -1) {
+			if len(match) > 1 && match[1] == path {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+var novelFeatureStubMarkerRe = regexp.MustCompile(`TODO:\s*implement novel feature[^\n]*,\s*"([^"]+)"`)
+
+// matchNovelFeature reports whether a planned novel feature has a
+// corresponding built command. When paths are available it matches on
+// full command paths (so "portfolio perf" does not collide with
+// "analytics perf"); when paths are empty it falls back to leaf-only
+// matching against the flat leaves set for CLIs where the tree walker
+// couldn't construct a tree.
+//
+// Match strategies in both modes: exact match, then hyphen-prefix on
+// the last segment (sibling specialization — "auth login" → "auth
+// login-chrome"). Aliases run the same rules.
+//
+// Paths and leaves are both consulted. Path matching is preferred when
+// it fires because it's more specific, but leaf matching runs as a
+// fallback on every planned command — tree reconstruction only sees
+// commands wired via direct `rootCmd.AddCommand(newFooCmd())` /
+// `cmd.AddCommand(newFooCmd())` literals, so any CLI using variable-
+// based or late-bound registration (`sub := newFooCmd(); parent.
+// AddCommand(sub)`) will have a partial paths map. Treating a
+// non-empty paths map as "complete" would false-negative legitimate
+// built commands.
+func matchNovelFeature(nf NovelFeature, paths, leaves map[string]bool) bool {
+	plan := commandPath(nf.Command)
+	if plan == "" {
+		return false
+	}
+	try := func(p string) bool {
+		return matchPath(p, paths) || matchLeaf(p, leaves)
+	}
+	if try(plan) {
+		return true
+	}
+	for _, alias := range nf.Aliases {
+		if ap := commandPath(alias); ap != "" && try(ap) {
+			return true
+		}
+	}
+	return false
+}
+
+func novelFeatureDepthMismatch(nf NovelFeature, paths map[string]bool) *NovelFeatureDepthMismatch {
+	advertised := advertisedNovelFeaturePath(nf, paths)
+	if advertised == "" || matchPath(advertised, paths) {
+		return nil
+	}
+	actualPaths := exactLeafMatchedPaths(advertised, paths)
+	if len(actualPaths) == 0 {
+		return nil
+	}
+	return &NovelFeatureDepthMismatch{
+		Command:    nf.Command,
+		Advertised: advertised,
+		Actual:     strings.Join(actualPaths, ", "),
+	}
+}
+
+func advertisedNovelFeaturePath(nf NovelFeature, paths map[string]bool) string {
+	if advertised := exampleAdvertisedPath(nf.Example, paths); advertised != "" {
+		return advertised
+	}
+	return commandPath(nf.Command)
+}
+
+func exampleAdvertisedPath(example string, paths map[string]bool) string {
+	tokens := strings.Fields(strings.ToLower(example))
+	if len(tokens) < 2 || !looksLikePrintedCLIBinary(tokens[0]) {
+		return ""
+	}
+	var candidates []string
+	for _, token := range tokens[1:] {
+		token = strings.Trim(token, `"'`)
+		if token == "" {
+			continue
+		}
+		if strings.HasPrefix(token, "-") {
+			break
+		}
+		if len(candidates) == 0 {
+			candidates = append(candidates, token)
+			continue
+		}
+		candidates = append(candidates, candidates[len(candidates)-1]+" "+token)
+	}
+	for _, candidate := range slices.Backward(candidates) {
+		if matchPath(candidate, paths) {
+			return candidate
+		}
+	}
+	for _, candidate := range slices.Backward(candidates) {
+		if len(leafMatchedPaths(candidate, paths)) > 0 {
+			return candidate
+		}
+	}
+	if len(candidates) == 0 {
+		return ""
+	}
+	return candidates[0]
+}
+
+func looksLikePrintedCLIBinary(token string) bool {
+	base := filepath.Base(strings.Trim(token, `"'`))
+	return strings.HasSuffix(base, "-pp-cli")
+}
+
+func leafMatchedPaths(plan string, paths map[string]bool) []string {
+	return matchedLeafPaths(plan, paths, commandLeavesMatch)
+}
+
+func matchedLeafPaths(plan string, paths map[string]bool, match func(string, string) bool) []string {
+	_, leaf := splitCommandPath(plan)
+	if leaf == "" {
+		return nil
+	}
+	var out []string
+	for path := range paths {
+		_, pathLeaf := splitCommandPath(path)
+		if pathLeaf == "" {
+			continue
+		}
+		if match(leaf, pathLeaf) {
+			out = append(out, path)
+		}
+	}
+	sort.Strings(out)
+	return out
+}
+
+func exactLeafMatchedPaths(plan string, paths map[string]bool) []string {
+	return matchedLeafPaths(plan, paths, func(a, b string) bool { return a == b })
+}
+
+func commandLeavesMatch(a, b string) bool {
+	return a == b || strings.HasPrefix(a, b+"-") || strings.HasPrefix(b, a+"-")
+}
+
+// matchCrossCuttingFeature handles novel features whose command string
+// describes cross-cutting code — global flags or internal helpers —
+// rather than naming a CLI command. The regular path/leaf matcher can't
+// see these because they don't appear in the cobra command tree.
+//
+// Returns (matched, applied):
+//   - applied=false means the feature isn't cross-cutting (no flag token,
+//     no recognized parenthetical marker); the caller should fall back
+//     to the regular matcher.
+//   - applied=true, matched=true means a positive signal was found.
+//   - applied=true, matched=false means the feature is genuinely missing
+//     (e.g., a `--<flag>` named explicitly that isn't declared anywhere
+//     in CLI source).
+//
+// Detection strategy is deliberately a "cheap retrofit" (per issue
+// #1197): a literal-string scan of `internal/cli/*.go` for declared
+// flags, and a presence check for agent-authored packages under
+// `internal/` for `(internal ...)` markers. Parenthetical descriptors
+// without a flag to anchor on are trusted rather than reported missing.
+func matchCrossCuttingFeature(cmd, cliDir string) (matched, applied bool) {
+	lc := strings.ToLower(strings.TrimSpace(cmd))
+	flags := extractFlagNames(lc)
+	marker := parenLeadMarker(lc)
+	if marker == "" && len(flags) == 0 {
+		return false, false
+	}
+	// A plain command name followed by a flag ("sql --format") is not a
+	// cross-cutting feature: the verb names the command, and the flag is
+	// only an argument. Without a paren marker the regular path/leaf
+	// matcher is the authority; bailing here keeps the fallback from
+	// silently masking unbuilt commands when a flag name happens to
+	// appear elsewhere in internal/cli/*.go.
+	if marker == "" && commandPath(cmd) != "" {
+		return false, false
+	}
+
+	// Flag-bearing features take the strict path: a declared flag means
+	// found; a named flag with no declaration means genuinely missing.
+	// This preserves the negative-test case for "(any) --nonexistent".
+	if len(flags) > 0 {
+		for _, f := range flags {
+			if flagDeclaredInCLI(f, cliDir) {
+				return true, true
+			}
+		}
+		return false, true
+	}
+
+	// Parenthetical-only feature — no specific flag to anchor on.
+	switch marker {
+	case "internal":
+		return hasAgentInternalPackage(cliDir), true
+	case "global", "any":
+		// Behavioural descriptions like "(any read command, default
+		// behavior)" carry no specific signal. Trust the planner rather
+		// than emit a false-positive missing.
+		return true, true
+	}
+	return false, false
+}
+
+// parenLeadMarker returns the cross-cutting marker word at the start of
+// a feature command — "internal", "any", or "global" — or "" if the
+// feature doesn't begin with one of the known parenthetical markers.
+// Caller passes an already-lowercased and trimmed string.
+func parenLeadMarker(lc string) string {
+	if !strings.HasPrefix(lc, "(") {
+		return ""
+	}
+	inner := lc[1:]
+	end := len(inner)
+	for i, r := range inner {
+		if r == ' ' || r == ')' || r == ',' {
+			end = i
+			break
+		}
+	}
+	switch inner[:end] {
+	case "internal", "any", "global":
+		return inner[:end]
+	}
+	return ""
+}
+
+// flagDeclaredInCLI reports whether name appears as a quoted string
+// literal in any `internal/cli/*.go` file. Cobra registers long-flag
+// names via string literals on Flags()/PersistentFlags() calls, so a
+// `"<name>"` substring match is a reliable cheap signal without parsing
+// Go source.
+func flagDeclaredInCLI(name, cliDir string) bool {
+	if name == "" {
+		return false
+	}
+	needle := `"` + name + `"`
+	for _, f := range listGoFiles(filepath.Join(cliDir, "internal", "cli")) {
+		data, err := os.ReadFile(f)
+		if err != nil {
+			continue
+		}
+		if strings.Contains(string(data), needle) {
+			return true
+		}
+	}
+	return false
+}
+
+// hasAgentInternalPackage reports whether the CLI carries any
+// agent-authored package directory under internal/ — that is, a
+// subdirectory with at least one .go file that isn't the always-emitted
+// command package (cli) or a generator-reserved package (cliutil, mcp).
+// Used to corroborate "(internal ...)" novel-feature claims when no
+// specific keyword is available to pinpoint a package.
+func hasAgentInternalPackage(cliDir string) bool {
+	entries, err := os.ReadDir(filepath.Join(cliDir, "internal"))
+	if err != nil {
+		return false
+	}
+	for _, e := range entries {
+		if !e.IsDir() {
+			continue
+		}
+		switch e.Name() {
+		case "cli", "cliutil", "mcp":
+			continue
+		}
+		if len(listGoFiles(filepath.Join(cliDir, "internal", e.Name()))) > 0 {
+			return true
+		}
+	}
+	return false
+}
+
+// matchPath matches a planned path against a set of built paths:
+// exact match, or sibling hyphen-prefix (same parent, leaf ↔ leaf-foo).
+func matchPath(plan string, paths map[string]bool) bool {
+	if paths[plan] {
+		return true
+	}
+	parent, leaf := splitCommandPath(plan)
+	if leaf == "" {
+		return false
+	}
+	for path := range paths {
+		pp, pl := splitCommandPath(path)
+		if pp != parent || pl == "" {
+			continue
+		}
+		if commandLeavesMatch(leaf, pl) {
+			return true
+		}
+	}
+	return false
+}
+
+// matchLeaf is the legacy leaf-only matcher used as a fallback when the
+// built command tree can't be reconstructed. Ignores nesting.
+func matchLeaf(plan string, leaves map[string]bool) bool {
+	_, leaf := splitCommandPath(plan)
+	if leaf == "" {
+		return false
+	}
+	if leaves[leaf] {
+		return true
+	}
+	for use := range leaves {
+		if commandLeavesMatch(leaf, use) {
+			return true
+		}
+	}
+	return false
+}
+
+// commandPath strips flag tokens from a command string and joins the
+// remaining leading non-flag tokens into a space-separated path. Stops
+// at the first flag because any bare word that follows is a flag value,
+// not a command token — "options --moneyness otm" → "options".
+func commandPath(cmd string) string {
+	tokens := strings.Fields(strings.ToLower(cmd))
+	path := make([]string, 0, len(tokens))
+	for _, t := range tokens {
+		if strings.HasPrefix(t, "-") {
+			break
+		}
+		path = append(path, t)
+	}
+	return strings.Join(path, " ")
+}
+
+// splitCommandPath returns the parent and leaf segments of a space-
+// separated path. "portfolio perf" → ("portfolio", "perf"), "digest" →
+// ("", "digest").
+func splitCommandPath(path string) (parent, leaf string) {
+	i := strings.LastIndex(path, " ")
+	if i < 0 {
+		return "", path
+	}
+	return path[:i], path[i+1:]
+}
+
+// collectRegisteredCommands reads the CLI's internal/cli/*.go files once
+// and returns two views of its registered cobra commands:
+//
+//   - paths: full space-separated command paths (e.g. "portfolio perf",
+//     "auth login-chrome"), reconstructed by walking AddCommand edges.
+//     Empty when the tree walker can't identify roots or the source
+//     doesn't follow the expected pattern.
+//   - leaves: a flat set of every Use: name (e.g. "perf", "login-chrome")
+//     regardless of nesting. Used by callers as a leaf-only fallback
+//     when paths is empty.
+//
+// Callers prefer paths when non-empty for accuracy, and fall through to
+// leaves when the tree walker produced nothing.
+func collectRegisteredCommands(dir string) (paths, leaves map[string]bool) {
+	cliDir := filepath.Join(dir, "internal", "cli")
+	files := listGoFiles(cliDir)
+
+	type cmdFunc struct {
+		use      string
+		children []string
+	}
+	funcs := map[string]*cmdFunc{}
+	var rootFuncs []string
+	leaves = map[string]bool{}
+
+	// Root detection scans the full file because the wiring function
+	// (Execute / helpers) isn't a new*Cmd constructor.
+	rootAddRe := regexp.MustCompile(`rootCmd\.AddCommand\(\s*(\w+)\s*\(`)
+	rootVarAddRe := regexp.MustCompile(`rootCmd\.AddCommand\(\s*(\w+)\b`)
+	funcHeaderRe := regexp.MustCompile(`func\s+(\w+)\s*\(`)
+	useRe := cobraUseLeafRe
+	addChildRe := regexp.MustCompile(`\.AddCommand\(\s*(\w+)\s*\(`)
+	addChildVarRe := regexp.MustCompile(`\.AddCommand\(\s*(\w+)\b`)
+
+	for _, file := range files {
+		data, err := os.ReadFile(file)
+		if err != nil {
+			continue
+		}
+		src := string(data)
+		packageVars := packageCommandFactoryVars(src)
+		for _, u := range useRe.FindAllStringSubmatch(src, -1) {
+			if name := strings.Fields(u[1])[0]; name != "" {
+				leaves[name] = true
+			}
+		}
+		for _, m := range funcHeaderRe.FindAllStringSubmatchIndex(src, -1) {
+			name := src[m[2]:m[3]]
+			body := extractFuncBody(src, m[1])
+			if body == "" {
+				continue
+			}
+			bodyVars := commandFactoryVars(body)
+			for _, rm := range rootAddRe.FindAllStringSubmatch(body, -1) {
+				rootFuncs = append(rootFuncs, rm[1])
+			}
+			for _, rm := range rootVarAddRe.FindAllStringSubmatch(body, -1) {
+				fn := bodyVars[rm[1]]
+				if fn == "" {
+					fn = packageVars[rm[1]]
+				}
+				if fn != "" {
+					rootFuncs = append(rootFuncs, fn)
+				}
+			}
+
+			entry := &cmdFunc{}
+			if u := useRe.FindStringSubmatch(body); u != nil {
+				entry.use = strings.Fields(u[1])[0]
+			}
+			for _, cm := range addChildRe.FindAllStringSubmatch(body, -1) {
+				entry.children = append(entry.children, cm[1])
+			}
+			for _, cm := range addChildVarRe.FindAllStringSubmatch(body, -1) {
+				fn := bodyVars[cm[1]]
+				if fn == "" {
+					fn = packageVars[cm[1]]
+				}
+				if fn != "" {
+					entry.children = append(entry.children, fn)
+				}
+			}
+			funcs[name] = entry
+		}
+	}
+
+	paths = map[string]bool{}
+	if len(rootFuncs) == 0 || len(funcs) == 0 {
+		return paths, leaves
+	}
+
+	type qItem struct{ funcName, prefix string }
+	queue := make([]qItem, 0, len(rootFuncs))
+	for _, rf := range rootFuncs {
+		queue = append(queue, qItem{funcName: rf})
+	}
+	seen := map[qItem]bool{}
+	for len(queue) > 0 {
+		it := queue[0]
+		queue = queue[1:]
+		if seen[it] {
+			continue
+		}
+		seen[it] = true
+		fn, ok := funcs[it.funcName]
+		if !ok || fn.use == "" {
+			continue
+		}
+		path := fn.use
+		if it.prefix != "" {
+			path = it.prefix + " " + fn.use
+		}
+		paths[path] = true
+		for _, child := range fn.children {
+			queue = append(queue, qItem{funcName: child, prefix: path})
+		}
+	}
+	return paths, leaves
+}
+
+func commandFactoryVars(src string) map[string]string {
+	shortRe := regexp.MustCompile(`\b(\w+)\s*:=\s*(\w+)\s*\(`)
+	varRe := regexp.MustCompile(`\bvar\s+(\w+)\s*=\s*(\w+)\s*\(`)
+	vars := map[string]string{}
+	for _, m := range shortRe.FindAllStringSubmatch(src, -1) {
+		vars[m[1]] = m[2]
+	}
+	for _, m := range varRe.FindAllStringSubmatch(src, -1) {
+		vars[m[1]] = m[2]
+	}
+	return vars
+}
+
+func packageCommandFactoryVars(src string) map[string]string {
+	vars := map[string]string{}
+	file, err := parser.ParseFile(token.NewFileSet(), "", src, 0)
+	if err != nil {
+		return vars
+	}
+	for _, decl := range file.Decls {
+		gen, ok := decl.(*ast.GenDecl)
+		if !ok || gen.Tok != token.VAR {
+			continue
+		}
+		for _, spec := range gen.Specs {
+			valueSpec, ok := spec.(*ast.ValueSpec)
+			if !ok {
+				continue
+			}
+			for i, name := range valueSpec.Names {
+				if i >= len(valueSpec.Values) {
+					continue
+				}
+				if fn := commandFactoryCallName(valueSpec.Values[i]); fn != "" {
+					vars[name.Name] = fn
+				}
+			}
+		}
+	}
+	return vars
+}
+
+func commandFactoryCallName(expr ast.Expr) string {
+	call, ok := expr.(*ast.CallExpr)
+	if !ok {
+		return ""
+	}
+	if ident, ok := call.Fun.(*ast.Ident); ok {
+		return ident.Name
+	}
+	return ""
+}
+
+// extractFuncBody returns the balanced-brace body of a Go function given
+// the position of its header (regex match end). Empty string if no body
+// is found.
+func extractFuncBody(src string, headerEnd int) string {
+	i := strings.Index(src[headerEnd:], "{")
+	if i < 0 {
+		return ""
+	}
+	start := headerEnd + i + 1
+	depth := 1
+	end := start
+	for end < len(src) && depth > 0 {
+		switch src[end] {
+		case '{':
+			depth++
+		case '}':
+			depth--
+		}
+		end++
+	}
+	return src[start:end]
+}
+
+func LoadDogfoodResults(dir string) (*DogfoodReport, error) {
+	data, err := os.ReadFile(filepath.Join(dir, "dogfood-results.json"))
+	if err != nil {
+		return nil, err
+	}
+
+	var report DogfoodReport
+	if err := json.Unmarshal(data, &report); err != nil {
+		return nil, err
+	}
+	return &report, nil
+}
+
+func writeDogfoodResults(report *DogfoodReport, dir string) error {
+	// Marshal a copy so callers keep the real paths they passed in.
+	emitted := *report
+	emitted.Dir = artifacts.RedactCLIDirRoot(report.Dir)
+	emitted.SpecPath = artifacts.RedactPathUnderCLI(report.Dir, report.SpecPath)
+	data, err := json.MarshalIndent(&emitted, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(filepath.Join(dir, "dogfood-results.json"), data, 0o644)
+}
+
+// resolveDogfoodSpec picks the spec dogfood should actually load. The spec
+// bundled at <dir>/spec.{json,yaml,yml} by `publish package` is authoritative
+// for the printed CLI; preferring it over a caller-passed --spec avoids
+// false-negative Path Validity / Auth Protocol regressions when the caller
+// reaches into a multi-spec manuscripts directory and picks the upstream spec
+// instead of the internal one the CLI was actually generated from.
+//
+// Returns the resolved path, its DogfoodSpecSource, and — when bundled won
+// over a different caller path — the caller's overridden path for surfacing
+// in a warning. When neither a bundled nor a caller spec exists, all three
+// return values are empty and downstream checks that require a spec are
+// skipped exactly as before.
+func resolveDogfoodSpec(dir, callerSpec string) (resolved string, source DogfoodSpecSource, overriddenCaller string) {
+	bundled := findBundledDogfoodSpec(dir)
+	if bundled != "" {
+		if callerSpec != "" && !samePath(bundled, callerSpec) {
+			overriddenCaller = callerSpec
+		}
+		return bundled, DogfoodSpecSourceBundled, overriddenCaller
+	}
+	if callerSpec != "" {
+		return callerSpec, DogfoodSpecSourceCaller, ""
+	}
+	return "", "", ""
+}
+
+// findBundledDogfoodSpec returns the path to the spec archived alongside a
+// printed CLI by `publish package`, or "" if none is present. Search order
+// mirrors findArchivedSpec: spec.json (JSON inputs), spec.yaml, spec.yml.
+func findBundledDogfoodSpec(dir string) string {
+	for _, name := range []string{"spec.json", "spec.yaml", "spec.yml"} {
+		path := filepath.Join(dir, name)
+		if info, err := os.Stat(path); err == nil && !info.IsDir() {
+			return path
+		}
+	}
+	return ""
+}
+
+func samePath(a, b string) bool {
+	absA, errA := filepath.Abs(a)
+	absB, errB := filepath.Abs(b)
+	if errA != nil || errB != nil {
+		return filepath.Clean(a) == filepath.Clean(b)
+	}
+	return filepath.Clean(absA) == filepath.Clean(absB)
+}
+
+func absOrSame(p string) string {
+	if abs, err := filepath.Abs(p); err == nil {
+		return abs
+	}
+	return p
+}
+
+func specSourceLabel(source DogfoodSpecSource) string {
+	if source == DogfoodSpecSourceBundled {
+		return "bundled"
+	}
+	return "--spec"
+}
+
+func loadDogfoodOpenAPISpec(specPath string, authPreference string) (*openAPISpec, error) {
+	data, err := openapiparser.LoadSpecBytes(specPath, false, false)
+	if err != nil {
+		return nil, fmt.Errorf("reading spec: %w", err)
+	}
+
+	if isInternalYAMLSpec(data) {
+		internal, err := apispec.ParseBytes(data)
+		if err != nil {
+			return nil, fmt.Errorf("parsing internal YAML spec: %w", err)
+		}
+		return internalSpecToDogfoodSpec(internal), nil
+	}
+
+	summary, summaryErr := loadOpenAPISpecData(data, specPath)
+	nestedDataEnvelopes := detectNestedDataEnvelopeFixtures(data)
+	parsed, parseErr := openapiparser.ParseWithOptions(data, openapiparser.ParseOptions{
+		Path:           specPath,
+		Lenient:        true,
+		AuthPreference: strings.TrimSpace(authPreference),
+	})
+	if parseErr == nil {
+		var scopeRequirements []oauthScopeRequirement
+		if summary != nil {
+			scopeRequirements = summary.OAuthScopeRequirements
+		}
+		return &openAPISpec{
+			Paths:                  collectDogfoodSpecPaths(parsed.Resources),
+			Auth:                   parsed.Auth,
+			OAuthScopeRequirements: scopeRequirements,
+			NestedDataEnvelopes:    nestedDataEnvelopes,
+			SyncRequests:           defaultSyncRequestKeys(parsed, nestedDataEnvelopes),
+		}, nil
+	}
+
+	if summaryErr != nil {
+		return nil, parseErr
+	}
+
+	return &openAPISpec{
+		Paths:                  summary.Paths,
+		Auth:                   deriveDogfoodAuth(summary, authPreference),
+		OAuthScopeRequirements: summary.OAuthScopeRequirements,
+		NestedDataEnvelopes:    nestedDataEnvelopes,
+	}, nil
+}
+
+func collectDogfoodSpecPaths(resources map[string]apispec.Resource) []string {
+	var paths []string
+	for _, resource := range resources {
+		collectDogfoodResourcePaths(resource, &paths)
+	}
+	return uniqueSorted(paths)
+}
+
+func collectDogfoodResourcePaths(resource apispec.Resource, paths *[]string) {
+	for _, endpoint := range resource.Endpoints {
+		if strings.TrimSpace(endpoint.Path) != "" {
+			*paths = append(*paths, endpoint.Path)
+		}
+	}
+	for _, subresource := range resource.SubResources {
+		collectDogfoodResourcePaths(subresource, paths)
+	}
+}
+
+func dogfoodAuthPreferenceFromManifest(dir string) string {
+	manifest, err := ReadCLIManifest(dir)
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(manifest.AuthPreference)
+}
+
+func deriveDogfoodAuth(spec *openAPISpecInfo, authPreference string) apispec.AuthConfig {
+	if spec == nil {
+		return apispec.AuthConfig{Type: "none"}
+	}
+
+	if authPreference := strings.TrimSpace(authPreference); authPreference != "" {
+		for key, scheme := range spec.SecuritySchemes {
+			if strings.EqualFold(key, authPreference) || strings.EqualFold(scheme.Key, authPreference) {
+				if auth, ok := dogfoodAuthConfigForScheme(scheme); ok {
+					return auth
+				}
+			}
+		}
+	}
+
+	candidateKeys := referencedDogfoodSecurityKeys(spec.SecurityRequirements)
+	if len(candidateKeys) == 0 {
+		for key := range spec.SecuritySchemes {
+			candidateKeys = append(candidateKeys, key)
+		}
+		sort.Strings(candidateKeys)
+	}
+
+	for _, key := range candidateKeys {
+		scheme, ok := spec.SecuritySchemes[key]
+		if !ok {
+			continue
+		}
+		if auth, ok := dogfoodAuthConfigForScheme(scheme); ok {
+			return auth
+		}
+	}
+
+	return apispec.AuthConfig{Type: "none"}
+}
+
+func referencedDogfoodSecurityKeys(requirements []securityRequirementSet) []string {
+	seen := make(map[string]struct{})
+	var keys []string
+	for _, requirementSet := range requirements {
+		for _, alternative := range requirementSet.Alternatives {
+			for _, key := range alternative {
+				if _, ok := seen[key]; ok {
+					continue
+				}
+				seen[key] = struct{}{}
+				keys = append(keys, key)
+			}
+		}
+	}
+	sort.Strings(keys)
+	return keys
+}
+
+func dogfoodAuthConfigForScheme(scheme openAPISecurityScheme) (apispec.AuthConfig, bool) {
+	nameLower := strings.ToLower(scheme.Key)
+	auth := apispec.AuthConfig{
+		Type:   "none",
+		Scheme: scheme.Key,
+	}
+
+	switch {
+	case strings.Contains(nameLower, "bot"):
+		auth.Type = "api_key"
+		auth.Header = "Authorization"
+		auth.Format = "Bot {bot_token}"
+		return auth, true
+	case scheme.Type == "http" && scheme.Scheme == "bearer":
+		auth.Type = "bearer_token"
+		auth.Header = "Authorization"
+		return auth, true
+	case scheme.Type == "http" && scheme.Scheme == "basic":
+		auth.Type = "api_key"
+		auth.Header = "Authorization"
+		auth.Format = "Basic {username}:{password}"
+		return auth, true
+	case scheme.Type == "apikey":
+		auth.Type = "api_key"
+		auth.In = scheme.In
+		auth.Header = strings.TrimSpace(scheme.HeaderName)
+		if auth.Header == "" {
+			auth.Header = "Authorization"
+		}
+		if strings.EqualFold(auth.Header, "Authorization") && strings.Contains(nameLower, "bot") {
+			auth.Format = "Bot {bot_token}"
+		}
+		return auth, true
+	case scheme.Type == "oauth2" || scheme.Type == "openidconnect":
+		auth.Type = "bearer_token"
+		auth.Header = "Authorization"
+		return auth, true
+	default:
+		return apispec.AuthConfig{}, false
+	}
+}
+
+func checkPaths(dir string, paths []string) PathCheckResult {
+	result := PathCheckResult{}
+	if len(paths) == 0 {
+		return result
+	}
+
+	cliDir := filepath.Join(dir, "internal", "cli")
+	files := listGoFiles(cliDir)
+	var commandFiles []string
+	for _, file := range files {
+		base := filepath.Base(file)
+		switch base {
+		case "root.go", "helpers.go", "doctor.go", "auth.go", "dogfood.go", "scorecard.go", "vision.go":
+			continue
+		default:
+			commandFiles = append(commandFiles, file)
+		}
+	}
+	sort.Strings(commandFiles)
+	if len(commandFiles) > 10 {
+		commandFiles = commandFiles[:10]
+	}
+
+	specPatterns := compileSpecPathPatterns(paths)
+	pathAssignmentRe := regexp.MustCompile(`(?m)\bpath\s*(?::=|=)\s*"([^"]+)"`)
+
+	for _, file := range commandFiles {
+		content, err := os.ReadFile(file)
+		if err != nil {
+			continue
+		}
+
+		matches := pathAssignmentRe.FindAllStringSubmatch(string(content), -1)
+		for _, match := range matches {
+			path := match[1]
+			if path == "/" {
+				continue
+			}
+			result.Tested++
+			if pathMatchesSpec(path, specPatterns) {
+				result.Valid++
+				continue
+			}
+			result.Invalid = append(result.Invalid, path)
+		}
+	}
+
+	if result.Tested > 0 {
+		result.Pct = (result.Valid * 100) / result.Tested
+	}
+	result.Invalid = uniqueSorted(result.Invalid)
+	return result
+}
+
+func checkAuth(dir string, auth apispec.AuthConfig) AuthCheckResult {
+	result := AuthCheckResult{
+		Match:  true,
+		Detail: "no recognized auth scheme in spec",
+	}
+
+	expectedPrefix := ""
+	expectedHeader := ""
+	formatPrefixOverrides := ""
+	formatLower := strings.ToLower(auth.Format)
+	switch {
+	case strings.Contains(formatLower, "bot "):
+		result.SpecScheme = `bot token format (expects "Bot " prefix)`
+		expectedPrefix = "Bot "
+	case strings.EqualFold(auth.Type, "bearer_token"):
+		expectedPrefix = auth.HeaderPrefix() + " "
+		if formatPrefix, ok := authFormatSchemePrefix(auth.Format); ok {
+			if prefix := strings.TrimSpace(auth.Prefix); prefix != "" && !strings.EqualFold(strings.TrimSpace(formatPrefix), prefix) {
+				formatPrefixOverrides = prefix
+			}
+			expectedPrefix = formatPrefix
+		}
+		if formatPrefixOverrides != "" {
+			result.SpecScheme = fmt.Sprintf(`bearer token format (expects %q prefix from auth.format; auth.prefix %q ignored)`, expectedPrefix, formatPrefixOverrides)
+		} else {
+			result.SpecScheme = fmt.Sprintf(`bearer token format (expects %q prefix)`, expectedPrefix)
+		}
+	case strings.Contains(formatLower, "basic "):
+		result.SpecScheme = `basic auth format (expects "Basic " prefix)`
+		expectedPrefix = "Basic "
+	case strings.EqualFold(auth.Type, "api_key") && strings.EqualFold(auth.In, "header") && strings.TrimSpace(auth.Header) != "":
+		expectedHeader = strings.TrimSpace(auth.Header)
+		result.SpecScheme = fmt.Sprintf(`api key header %q`, expectedHeader)
+	}
+
+	clientData, err := os.ReadFile(filepath.Join(dir, "internal", "client", "client.go"))
+	if err != nil {
+		result.Match = false
+		result.Detail = fmt.Sprintf("failed to read client.go: %v", err)
+		return result
+	}
+
+	// Also read config.go — Bearer/Bot prefix may be constructed there
+	// rather than in client.go (e.g., config.AuthHeader() returns "Bearer " + token).
+	configData, _ := os.ReadFile(filepath.Join(dir, "internal", "config", "config.go"))
+
+	combinedSource := string(clientData) + string(configData)
+
+	// Composed/cookie auth stores the full header value (scheme prefix and
+	// token together) in Config.AuthHeaderVal and writes it to the wire
+	// verbatim. There is no source-level "<Scheme> " + token concat for the
+	// concat detector below to find. Classify by the spec-declared format
+	// instead, but only when the generated source still references
+	// AuthHeaderVal — a hand-stripped client must still surface as a miss.
+	if literalFmt, ok := classifyComposedAuthLiteral(auth, combinedSource); ok {
+		result.GeneratedFmt = literalFmt
+		switch {
+		case expectedPrefix != "" && literalFmt == composedAuthLabelFor(expectedPrefix):
+			result.Match = true
+			result.Detail = fmt.Sprintf(`spec format declares %q and generated client emits Config.AuthHeaderVal verbatim`, strings.TrimSpace(expectedPrefix))
+		case expectedPrefix == "" && literalFmt != composedAuthCustomFmt:
+			// Format-recognized prefix without a corresponding SpecScheme entry
+			// (e.g. composed + "Bearer ...", which the outer switch leaves
+			// expectedPrefix empty because the spec is not bearer_token typed).
+			// Populate SpecScheme from the literal so downstream readers see a
+			// matched pair, and treat the literal classification as the match.
+			result.SpecScheme = fmt.Sprintf(`%s format (composed/cookie literal in spec)`, literalFmt)
+			result.Match = true
+			result.Detail = `composed/cookie auth format declares a recognized scheme prefix and generated client emits Config.AuthHeaderVal verbatim`
+		case literalFmt == composedAuthCustomFmt:
+			result.Match = false
+			result.Detail = fmt.Sprintf(`composed auth format %q does not start with a recognized scheme prefix`, auth.Format)
+		default:
+			result.Match = false
+			result.Detail = fmt.Sprintf(`spec expects %q but composed auth format classifies as %q`, strings.TrimSpace(expectedPrefix), literalFmt)
+		}
+		return result
+	}
+
+	if expectedHeader != "" {
+		result.GeneratedFmt = detectGeneratedAPIKeyHeader(combinedSource, expectedHeader)
+		result.Match = strings.EqualFold(result.GeneratedFmt, expectedHeader)
+		if result.Match {
+			result.Detail = fmt.Sprintf(`spec and generated client both use api key header %q`, expectedHeader)
+		} else {
+			result.Detail = fmt.Sprintf(`spec expects api key header %q but generated client uses %q`, expectedHeader, strings.TrimSpace(result.GeneratedFmt))
+		}
+		return result
+	}
+
+	var tokenPreserving bool
+	var invalidDetail string
+	result.GeneratedFmt, tokenPreserving, invalidDetail = detectGeneratedAuthFormat(combinedSource, expectedPrefix)
+
+	if expectedPrefix == "" {
+		result.Detail = "no bot/bearer/basic scheme detected"
+		return result
+	}
+
+	result.Match = result.GeneratedFmt == expectedPrefix
+	if result.Match {
+		if tokenPreserving {
+			if formatPrefixOverrides != "" {
+				result.Detail = fmt.Sprintf(`auth.format %q overrides auth.prefix %q; generated client uses %q`, strings.TrimSpace(expectedPrefix), formatPrefixOverrides, strings.TrimSpace(expectedPrefix))
+			} else {
+				result.Detail = fmt.Sprintf(`spec and generated client both use %q`, strings.TrimSpace(expectedPrefix))
+			}
+		} else {
+			result.Match = false
+			result.Detail = invalidDetail
+		}
+	} else {
+		result.Detail = fmt.Sprintf(`spec expects %q but generated client uses %q`, strings.TrimSpace(expectedPrefix), strings.TrimSpace(result.GeneratedFmt))
+	}
+	return result
+}
+
+func authFormatSchemePrefix(format string) (string, bool) {
+	fields := strings.Fields(strings.TrimSpace(format))
+	if len(fields) == 0 || strings.Contains(fields[0], "{") {
+		return "", false
+	}
+	return fields[0] + " ", true
+}
+
+func checkOAuthScopeCoverage(dir string, requirements []oauthScopeRequirement, auth apispec.AuthConfig) OAuthScopeCoverageResult {
+	if len(requirements) == 0 {
+		return OAuthScopeCoverageResult{
+			Skipped: true,
+			Detail:  "no OAuth-scoped endpoints in spec",
+		}
+	}
+	if !oauthScopeCoverageApplies(auth) {
+		authType := strings.TrimSpace(auth.Type)
+		if authType == "" {
+			authType = "none"
+		}
+		return OAuthScopeCoverageResult{
+			Skipped: true,
+			Detail:  fmt.Sprintf("resolved auth type %s does not use OAuth scopes", authType),
+		}
+	}
+
+	generatedScopes := generatedOAuthScopes(dir)
+	generated := make(map[string]bool, len(generatedScopes))
+	for _, scope := range generatedScopes {
+		generated[scope] = true
+	}
+
+	result := OAuthScopeCoverageResult{Checked: len(requirements)}
+	for _, requirement := range requirements {
+		if oauthScopeRequirementCovered(requirement, generated) {
+			result.Covered++
+			continue
+		}
+		result.Violations = append(result.Violations, OAuthScopeCoverageViolation{
+			Endpoint:                  requirement.Endpoint,
+			OperationID:               requirement.OperationID,
+			RequiredScopes:            oauthScopeRequirementScopes(requirement),
+			RequiredScopeAlternatives: oauthScopeRequirementAlternatives(requirement),
+		})
+	}
+
+	if len(result.Violations) == 0 {
+		result.Detail = "all OAuth-scoped endpoints covered by generated auth scopes"
+	} else if len(generatedScopes) == 0 {
+		result.Detail = "generated auth files declare no OAuth scopes"
+	} else {
+		result.Detail = fmt.Sprintf("%d OAuth-scoped endpoint(s) lack a generated auth scope", len(result.Violations))
+	}
+	return result
+}
+
+func oauthScopeCoverageApplies(auth apispec.AuthConfig) bool {
+	switch strings.ToLower(strings.TrimSpace(auth.Type)) {
+	case "api_key", "basic", "none", "cookie", "composed":
+		return false
+	default:
+		return true
+	}
+}
+
+func oauthScopeRequirementCovered(requirement oauthScopeRequirement, generated map[string]bool) bool {
+	for _, alternative := range requirement.Alternatives {
+		covered := len(alternative.Scopes) > 0
+		for _, scope := range alternative.Scopes {
+			if !generated[scope] {
+				covered = false
+				break
+			}
+		}
+		if covered {
+			return true
+		}
+	}
+	return false
+}
+
+func oauthScopeRequirementScopes(requirement oauthScopeRequirement) []string {
+	var scopes []string
+	for _, alternative := range requirement.Alternatives {
+		scopes = append(scopes, alternative.Scopes...)
+	}
+	return uniqueSorted(scopes)
+}
+
+func oauthScopeRequirementAlternatives(requirement oauthScopeRequirement) [][]string {
+	alternatives := make([][]string, 0, len(requirement.Alternatives))
+	for _, alternative := range requirement.Alternatives {
+		scopes := uniqueSorted(alternative.Scopes)
+		if len(scopes) > 0 {
+			alternatives = append(alternatives, scopes)
+		}
+	}
+	return alternatives
+}
+
+func generatedOAuthScopes(dir string) []string {
+	var scopes []string
+	for _, path := range []string{
+		filepath.Join(dir, "internal", "cli", "auth.go"),
+		filepath.Join(dir, "internal", "client", "client.go"),
+	} {
+		file, err := parser.ParseFile(token.NewFileSet(), path, nil, 0)
+		if err != nil {
+			continue
+		}
+		scopes = append(scopes, generatedOAuthScopesFromFile(file)...)
+	}
+	return uniqueSorted(scopes)
+}
+
+func generatedOAuthScopesFromFile(file *ast.File) []string {
+	scopeVars := scopeJoinVars(file)
+	var scopes []string
+	ast.Inspect(file, func(node ast.Node) bool {
+		assign, ok := node.(*ast.AssignStmt)
+		if !ok {
+			return true
+		}
+		for i, lhs := range assign.Lhs {
+			name, ok := dogfoodIdentName(lhs)
+			if !ok || !scopeVars[name] || i >= len(assign.Rhs) {
+				continue
+			}
+			switch expr := assign.Rhs[i].(type) {
+			case *ast.CompositeLit:
+				scopes = append(scopes, stringCompositeValues(expr)...)
+			case *ast.CallExpr:
+				scopes = append(scopes, appendedStringValues(expr, scopeVars)...)
+			}
+		}
+		return true
+	})
+	scopeFuncs := wiredScopeResolverFuncs(file)
+	if len(scopeFuncs) > 0 {
+		scopes = append(scopes, returnedScopeLiterals(file, scopeFuncs)...)
+	}
+	return scopes
+}
+
+func scopeJoinVars(file *ast.File) map[string]bool {
+	vars := map[string]bool{}
+	ast.Inspect(file, func(node ast.Node) bool {
+		call, ok := node.(*ast.CallExpr)
+		if !ok || len(call.Args) < 2 || dogfoodSelectorName(call.Fun) != "Set" || dogfoodStringLiteral(call.Args[0]) != "scope" {
+			return true
+		}
+		join, ok := call.Args[1].(*ast.CallExpr)
+		if !ok || dogfoodSelectorName(join.Fun) != "Join" || len(join.Args) == 0 {
+			return true
+		}
+		name, ok := dogfoodIdentName(join.Args[0])
+		if ok {
+			vars[name] = true
+		}
+		return true
+	})
+	return vars
+}
+
+func wiredScopeResolverFuncs(file *ast.File) map[string]bool {
+	funcs := map[string]bool{}
+	ast.Inspect(file, func(node ast.Node) bool {
+		switch n := node.(type) {
+		case *ast.IfStmt:
+			assign, ok := n.Init.(*ast.AssignStmt)
+			if !ok || n.Body == nil {
+				return true
+			}
+			for i, lhs := range assign.Lhs {
+				scopeVar, ok := dogfoodIdentName(lhs)
+				if !ok || i >= len(assign.Rhs) || !blockSetsScopeFromIdent(n.Body, scopeVar) {
+					continue
+				}
+				if call, ok := assign.Rhs[i].(*ast.CallExpr); ok {
+					if name := dogfoodCallName(call.Fun); name != "" {
+						funcs[name] = true
+					}
+				}
+			}
+		case *ast.CallExpr:
+			if len(n.Args) < 2 || dogfoodSelectorName(n.Fun) != "Set" || dogfoodStringLiteral(n.Args[0]) != "scope" {
+				return true
+			}
+			call, ok := n.Args[1].(*ast.CallExpr)
+			if !ok {
+				return true
+			}
+			if name := dogfoodCallName(call.Fun); name != "" {
+				funcs[name] = true
+			}
+		}
+		return true
+	})
+	return funcs
+}
+
+func blockSetsScopeFromIdent(block *ast.BlockStmt, ident string) bool {
+	found := false
+	ast.Inspect(block, func(node ast.Node) bool {
+		if found {
+			return false
+		}
+		call, ok := node.(*ast.CallExpr)
+		if !ok || len(call.Args) < 2 || dogfoodSelectorName(call.Fun) != "Set" || dogfoodStringLiteral(call.Args[0]) != "scope" {
+			return true
+		}
+		name, ok := dogfoodIdentName(call.Args[1])
+		if ok && name == ident {
+			found = true
+			return false
+		}
+		return true
+	})
+	return found
+}
+
+func returnedScopeLiterals(file *ast.File, funcs map[string]bool) []string {
+	var values []string
+	for _, decl := range file.Decls {
+		fn, ok := decl.(*ast.FuncDecl)
+		if !ok || fn.Name == nil || !funcs[fn.Name.Name] || fn.Body == nil {
+			continue
+		}
+		ast.Inspect(fn.Body, func(node ast.Node) bool {
+			ret, ok := node.(*ast.ReturnStmt)
+			if !ok {
+				return true
+			}
+			for _, result := range ret.Results {
+				values = append(values, scopeLiteralValues(result)...)
+			}
+			return true
+		})
+	}
+	return values
+}
+
+func scopeLiteralValues(expr ast.Expr) []string {
+	if value := strings.TrimSpace(dogfoodStringLiteral(expr)); value != "" {
+		return []string{value}
+	}
+	call, ok := expr.(*ast.CallExpr)
+	if !ok || dogfoodSelectorName(call.Fun) != "ReplaceAll" || len(call.Args) == 0 {
+		return nil
+	}
+	if value := strings.TrimSpace(dogfoodStringLiteral(call.Args[0])); value != "" {
+		return []string{value}
+	}
+	return nil
+}
+
+func appendedStringValues(call *ast.CallExpr, scopeVars map[string]bool) []string {
+	if name := dogfoodCallName(call.Fun); name != "append" || len(call.Args) < 2 {
+		return nil
+	}
+	name, ok := dogfoodIdentName(call.Args[0])
+	if !ok || !scopeVars[name] {
+		return nil
+	}
+	return stringExprValues(call.Args[1:]...)
+}
+
+func stringCompositeValues(lit *ast.CompositeLit) []string {
+	return stringExprValues(lit.Elts...)
+}
+
+func stringExprValues(exprs ...ast.Expr) []string {
+	var values []string
+	for _, expr := range exprs {
+		if value := strings.TrimSpace(dogfoodStringLiteral(expr)); value != "" {
+			values = append(values, value)
+		}
+	}
+	return values
+}
+
+func dogfoodSelectorName(expr ast.Expr) string {
+	selector, ok := expr.(*ast.SelectorExpr)
+	if !ok {
+		return ""
+	}
+	return selector.Sel.Name
+}
+
+func dogfoodCallName(expr ast.Expr) string {
+	ident, ok := expr.(*ast.Ident)
+	if !ok {
+		return ""
+	}
+	return ident.Name
+}
+
+func dogfoodIdentName(expr ast.Expr) (string, bool) {
+	ident, ok := expr.(*ast.Ident)
+	if !ok {
+		return "", false
+	}
+	return ident.Name, true
+}
+
+func dogfoodStringLiteral(expr ast.Expr) string {
+	lit, ok := expr.(*ast.BasicLit)
+	if !ok || lit.Kind != token.STRING {
+		return ""
+	}
+	value, err := strconv.Unquote(lit.Value)
+	if err != nil {
+		return ""
+	}
+	return value
+}
+
+type authPrefixCandidate struct {
+	prefix   string
+	concatRe *regexp.Regexp
+}
+
+var authPrefixCandidates = []authPrefixCandidate{
+	{prefix: "Bot ", concatRe: regexp.MustCompile(`"Bot "\s*\+`)},
+	{prefix: "Bearer ", concatRe: regexp.MustCompile(`"Bearer "\s*\+`)},
+	{prefix: "Basic ", concatRe: regexp.MustCompile(`"Basic "\s*\+`)},
+	{prefix: "Token ", concatRe: regexp.MustCompile(`"Token "\s*\+`)},
+}
+
+// composedAuthLiteralScheme classifies the auth scheme that a composed-auth or
+// cookie-auth spec writes verbatim into Config.AuthHeaderVal. The literal
+// header value never gets a source-level "<Scheme> " + token concat, so the
+// concat-based detector in detectGeneratedAuthFormat returns "unknown" on this
+// path. Spec-side classification covers the gap.
+type composedAuthLiteralScheme struct {
+	prefix string
+	label  string
+}
+
+var composedAuthLiteralSchemes = []composedAuthLiteralScheme{
+	{prefix: "Bot ", label: "bot auth"},
+	{prefix: "Basic ", label: "basic auth"},
+	{prefix: "Bearer ", label: "bearer auth"},
+	{prefix: "Cookie ", label: "cookie auth"},
+	{prefix: "Token ", label: "token auth"},
+}
+
+const composedAuthCustomFmt = "custom-composed"
+
+// classifyComposedAuthLiteral returns the literal-format classification of a
+// composed/cookie auth spec when the generated source still wires
+// Config.AuthHeaderVal through to the wire. A stripped client (no
+// AuthHeaderVal reference in client.go or config.go) returns ok=false so the
+// caller falls through to the concat detector, which will surface "unknown".
+func classifyComposedAuthLiteral(auth apispec.AuthConfig, source string) (string, bool) {
+	authType := strings.ToLower(strings.TrimSpace(auth.Type))
+	if authType != "composed" && authType != "cookie" {
+		return "", false
+	}
+	if strings.TrimSpace(auth.Format) == "" {
+		return "", false
+	}
+	if !strings.Contains(source, "AuthHeaderVal") {
+		return "", false
+	}
+	for _, scheme := range composedAuthLiteralSchemes {
+		if strings.HasPrefix(auth.Format, scheme.prefix) {
+			return scheme.label, true
+		}
+	}
+	return composedAuthCustomFmt, true
+}
+
+// composedAuthLabelFor maps a concat-detector prefix ("Basic ", "Bearer ", ...)
+// to the composed-auth literal label so the new branch can reuse the existing
+// expectedPrefix value for the match decision.
+func composedAuthLabelFor(prefix string) string {
+	for _, scheme := range composedAuthLiteralSchemes {
+		if scheme.prefix == prefix {
+			return scheme.label
+		}
+	}
+	return ""
+}
+
+var applyAuthFormatInlineMapCallRe = regexp.MustCompile(`(?s)applyAuthFormat\("([^"]*)",\s*map\[string\]string\{(.*?)\}\)`)
+var applyAuthFormatCallRe = regexp.MustCompile(`applyAuthFormat\("([^"]*)"`)
+var authFormatPlaceholderRe = regexp.MustCompile(`\{([^}]+)\}`)
+var requestHeaderSetLiteralRe = regexp.MustCompile(`req\.Header\.Set\("([^"]+)",\s*(?:authHeader|h|(?:[^()]*|\([^()]*\))*AuthHeader\(\))\)`)
+
+func detectGeneratedAPIKeyHeader(source string, expectedHeader string) string {
+	expectedHeader = strings.TrimSpace(expectedHeader)
+	if expectedHeader == "" {
+		return "unknown"
+	}
+	for _, match := range requestHeaderSetLiteralRe.FindAllStringSubmatch(source, -1) {
+		header := strings.TrimSpace(match[1])
+		if strings.EqualFold(header, expectedHeader) {
+			return header
+		}
+	}
+	return "unknown"
+}
+
+func detectGeneratedAuthFormat(source string, expectedPrefix string) (string, bool, string) {
+	candidates := authCandidatesForPrefix(expectedPrefix)
+
+	for _, candidate := range candidates {
+		if candidate.concatRe.MatchString(source) {
+			return candidate.prefix, true, ""
+		}
+	}
+
+	var bestInvalidPrefix string
+	var bestInvalidDetail string
+	inlineFormats := map[string]bool{}
+	for _, formatMatch := range applyAuthFormatInlineMapCallRe.FindAllStringSubmatch(source, -1) {
+		format := formatMatch[1]
+		inlineFormats[format] = true
+		if prefix, ok := matchingAuthFormatPrefix(format, candidates); ok {
+			if authFormatInlineMapPreservesToken(format, formatMatch[2]) {
+				return prefix, true, ""
+			}
+			if placeholder := firstMissingAuthFormatPlaceholder(format, formatMatch[2]); placeholder != "" {
+				if bestInvalidPrefix == "" {
+					bestInvalidPrefix = prefix
+					bestInvalidDetail = fmt.Sprintf(`format literal %q includes placeholder %q but generated replacements do not provide it`, format, placeholder)
+				}
+				continue
+			}
+			if bestInvalidPrefix == "" {
+				bestInvalidPrefix = prefix
+				bestInvalidDetail = fmt.Sprintf(`format literal %q does not include a token placeholder`, format)
+			}
+		}
+	}
+
+	for _, formatMatch := range applyAuthFormatCallRe.FindAllStringSubmatch(source, -1) {
+		format := formatMatch[1]
+		if inlineFormats[format] {
+			continue
+		}
+		if prefix, ok := matchingAuthFormatPrefix(format, candidates); ok && strings.Contains(format, "{") {
+			return prefix, true, ""
+		}
+	}
+
+	if bestInvalidPrefix != "" {
+		return bestInvalidPrefix, false, bestInvalidDetail
+	}
+
+	for _, candidate := range candidates {
+		if strings.Contains(source, fmt.Sprintf("%q", candidate.prefix)) {
+			return candidate.prefix, false, fmt.Sprintf(`generated source includes bare %q prefix literal without a detected token append or placeholder`, strings.TrimSpace(candidate.prefix))
+		}
+	}
+
+	return "unknown", false, ""
+}
+
+func authCandidatesForPrefix(expectedPrefix string) []authPrefixCandidate {
+	if expectedPrefix == "" {
+		return authPrefixCandidates
+	}
+	candidates := make([]authPrefixCandidate, 0, len(authPrefixCandidates))
+	foundExpected := false
+	for _, candidate := range authPrefixCandidates {
+		if candidate.prefix == expectedPrefix {
+			candidates = append(candidates, candidate)
+			foundExpected = true
+			break
+		}
+	}
+	if !foundExpected {
+		candidates = append(candidates, authPrefixCandidate{
+			prefix:   expectedPrefix,
+			concatRe: regexp.MustCompile(regexp.QuoteMeta(strconv.Quote(expectedPrefix)) + `\s*\+`),
+		})
+	}
+	for _, candidate := range authPrefixCandidates {
+		if candidate.prefix != expectedPrefix {
+			candidates = append(candidates, candidate)
+		}
+	}
+	return candidates
+}
+
+func matchingAuthFormatPrefix(format string, candidates []authPrefixCandidate) (string, bool) {
+	for _, candidate := range candidates {
+		if strings.HasPrefix(format, candidate.prefix) {
+			return candidate.prefix, true
+		}
+	}
+	return "", false
+}
+
+func authFormatInlineMapPreservesToken(format string, replacements string) bool {
+	return strings.Contains(format, "{") && firstMissingAuthFormatPlaceholder(format, replacements) == ""
+}
+
+func firstMissingAuthFormatPlaceholder(format string, replacements string) string {
+	for _, match := range authFormatPlaceholderRe.FindAllStringSubmatch(format, -1) {
+		if !strings.Contains(replacements, fmt.Sprintf("%q:", match[1])) {
+			return match[1]
+		}
+	}
+	return ""
+}
+
+func checkBrowserSessionAuth(dir string, auth apispec.AuthConfig) BrowserSessionCheckResult {
+	if !auth.RequiresBrowserSession {
+		return BrowserSessionCheckResult{
+			Pass:   true,
+			Detail: "browser-session auth not required",
+		}
+	}
+
+	authData, _ := os.ReadFile(filepath.Join(dir, "internal", "cli", "auth.go"))
+	doctorData, _ := os.ReadFile(filepath.Join(dir, "internal", "cli", "doctor.go"))
+
+	result := BrowserSessionCheckResult{
+		Required:              true,
+		HasAuthLoginChrome:    strings.Contains(string(authData), "auth login --chrome") || strings.Contains(string(authData), `"chrome"`),
+		HasProofWriter:        strings.Contains(string(authData), "browser-session-proof.json"),
+		HasDoctorProofCheck:   strings.Contains(string(doctorData), "browser_session_proof"),
+		HasValidationEndpoint: strings.TrimSpace(auth.BrowserSessionValidationPath) != "",
+	}
+	result.Pass = result.HasAuthLoginChrome &&
+		result.HasProofWriter &&
+		result.HasDoctorProofCheck &&
+		result.HasValidationEndpoint
+	if result.Pass {
+		result.Detail = "browser-session auth has login, proof, doctor, and validation endpoint wiring"
+	} else {
+		var missing []string
+		if !result.HasAuthLoginChrome {
+			missing = append(missing, "auth login --chrome")
+		}
+		if !result.HasProofWriter {
+			missing = append(missing, "proof writer")
+		}
+		if !result.HasDoctorProofCheck {
+			missing = append(missing, "doctor proof check")
+		}
+		if !result.HasValidationEndpoint {
+			missing = append(missing, "validation endpoint metadata")
+		}
+		result.Detail = "missing " + strings.Join(missing, ", ")
+	}
+	return result
+}
+
+func checkDeadFlags(dir string) DeadCodeResult {
+	rootData, err := os.ReadFile(filepath.Join(dir, "internal", "cli", "root.go"))
+	if err != nil {
+		return DeadCodeResult{}
+	}
+
+	fieldRe := regexp.MustCompile(`&flags\.(\w+)`)
+	matches := fieldRe.FindAllStringSubmatch(string(rootData), -1)
+	if len(matches) == 0 {
+		return DeadCodeResult{}
+	}
+
+	fields := make(map[string]struct{})
+	for _, match := range matches {
+		fields[match[1]] = struct{}{}
+	}
+
+	// Build a version of root.go with declaration lines removed so only
+	// reads (e.g. `if flags.agent {`, `c.NoCache = f.noCache`) remain.
+	declLineRe := regexp.MustCompile(`(?m)^.*&flags\..*$`)
+	rootUsageOnly := declLineRe.ReplaceAllString(string(rootData), "")
+
+	files := listGoFiles(filepath.Join(dir, "internal", "cli"))
+	var otherSources []string
+	for _, file := range files {
+		if filepath.Base(file) == "root.go" {
+			otherSources = append(otherSources, rootUsageOnly)
+			continue
+		}
+		data, err := os.ReadFile(file)
+		if err != nil {
+			continue
+		}
+		otherSources = append(otherSources, string(data))
+	}
+
+	result := DeadCodeResult{Total: len(fields)}
+	for _, field := range sortedKeys(fields) {
+		// Search for both `flags.<field>` (used in Execute) and `f.<field>` or
+		// any other struct accessor (used in method receivers like newClient).
+		needle := "flags." + field
+		receiverNeedle := "." + field
+		if containsAny(otherSources, needle) {
+			continue
+		}
+		// Check for method-receiver access patterns (e.g., f.noCache, f.timeout)
+		if containsAny(otherSources, receiverNeedle) {
+			continue
+		}
+		result.Dead++
+		result.Items = append(result.Items, field)
+	}
+	return result
+}
+
+func checkDeadFunctions(dir string) DeadCodeResult {
+	helpersPath := filepath.Join(dir, "internal", "cli", "helpers.go")
+	data, err := os.ReadFile(helpersPath)
+	if err != nil {
+		return DeadCodeResult{}
+	}
+
+	funcRe := regexp.MustCompile(`(?m)^func\s+([A-Za-z_]\w*)\s*\(`)
+	matches := funcRe.FindAllStringSubmatch(string(data), -1)
+	if len(matches) == 0 {
+		return DeadCodeResult{}
+	}
+
+	names := make(map[string]struct{})
+	for _, match := range matches {
+		if isAllowedDeadHelper(match[1]) {
+			continue
+		}
+		names[match[1]] = struct{}{}
+	}
+
+	// Collect external sources (everything except helpers.go) for liveness seeding.
+	files := listGoFiles(filepath.Join(dir, "internal", "cli"))
+	var externalSources []string
+	for _, file := range files {
+		if filepath.Base(file) == "helpers.go" {
+			continue
+		}
+		content, err := os.ReadFile(file)
+		if err != nil {
+			continue
+		}
+		externalSources = append(externalSources, string(content))
+	}
+	// MCP search/sql call CLI helpers such as MCPStorePath. The CLI-only
+	// scan would mark that export dead and drop the dead-code score.
+	if mcpSrc := readPackageSources(filepath.Join(dir, "internal", "mcp")); mcpSrc != "" {
+		externalSources = append(externalSources, mcpSrc)
+	}
+
+	// Seed live set: functions called from external (non-helpers) files.
+	liveSet := make(map[string]bool)
+	for _, name := range sortedKeys(names) {
+		callRe := regexp.MustCompile(`\b` + regexp.QuoteMeta(name) + `\s*\(`)
+		if slices.ContainsFunc(externalSources, callRe.MatchString) {
+			liveSet[name] = true
+		}
+	}
+
+	// Build intra-helpers call map: for each helper function, which other
+	// helper functions does its body call?
+	helperBodies := extractFunctionBodies(string(data))
+	callsMap := make(map[string][]string)
+	for _, caller := range sortedKeys(names) {
+		body, ok := helperBodies[caller]
+		if !ok {
+			continue
+		}
+		for _, callee := range sortedKeys(names) {
+			if callee == caller {
+				continue
+			}
+			callRe := regexp.MustCompile(`\b` + regexp.QuoteMeta(callee) + `\s*\(`)
+			if callRe.MatchString(body) {
+				callsMap[caller] = append(callsMap[caller], callee)
+			}
+		}
+	}
+
+	// Iterative expansion: mark transitively reachable helpers as live.
+	for range 50 {
+		changed := false
+		for _, fn := range sortedKeys(names) {
+			if !liveSet[fn] {
+				continue
+			}
+			for _, callee := range callsMap[fn] {
+				if !liveSet[callee] {
+					liveSet[callee] = true
+					changed = true
+				}
+			}
+		}
+		if !changed {
+			break
+		}
+	}
+
+	result := DeadCodeResult{Total: len(names)}
+	for _, name := range sortedKeys(names) {
+		if liveSet[name] {
+			continue
+		}
+		result.Dead++
+		result.Items = append(result.Items, name)
+	}
+	return result
+}
+
+// checkNamingConsistency walks the generated CLI source and reports any
+// non-canonical command verbs or flag names against the rules in
+// naming_rules.go. The check is structural: agents need consistent
+// vocabulary across every printed CLI, so drift is a bug not a style nit.
+//
+// Verb detection: extract the first token of every cobra `Use:` declaration.
+// Flag detection: extract long-form flag names from the various
+// `Flags().StringVar` / `Flags().BoolP` / etc. registration patterns.
+//
+// The check never reports false positives from identifiers that happen to
+// contain a banned substring (e.g. `getInfoCached`) because it matches only
+// in the contexts where verbs or flags are declared.
+func checkNamingConsistency(dir string) NamingCheckResult {
+	files := listGoFiles(filepath.Join(dir, "internal", "cli"))
+	if len(files) == 0 {
+		return NamingCheckResult{}
+	}
+
+	result := NamingCheckResult{Checked: len(files)}
+
+	// Extract the first token of a cobra Use: declaration:
+	//   Use:  "get",                  -> "get"
+	//   Use:  "list [id]",            -> "list"
+	//   Use:  `query "<sql>"`,        -> "query"
+	//
+	// Deliberately not consolidated onto cobraUseLeafRe: the naming check
+	// only judges identifier-shaped verbs, so the capture class is tightened
+	// to [A-Za-z][A-Za-z0-9_-]* — anything broader would let a flag token
+	// or angle-bracket arg masquerade as a verb. Both regexes accept the
+	// same delimiters; only the capture differs.
+	useRe := regexp.MustCompile("(?m)Use:\\s*[\"`]([A-Za-z][A-Za-z0-9_-]*)")
+
+	// Extract long-form flag names from the common cobra registration
+	// patterns: StringVar, BoolVar, IntVar, Int64Var, StringVarP, BoolVarP,
+	// etc. The flag name is the second string argument in the non-P forms
+	// and the second string argument followed by a shorthand in the P forms.
+	// Matching `"--name"` directly covers both cases because the name in
+	// code does not include the leading dashes; we instead look for the
+	// quoted name positioned right after a Flags() call.
+	//
+	// Pattern catches: Flags().StringVar(&x, "name", ...), Flags().Bool("name", ...),
+	// PersistentFlags().StringVarP(&x, "name", "n", ...), etc.
+	flagRe := regexp.MustCompile(`(?:Persistent)?Flags\(\)\.(?:String|Bool|Int|Int64|Float64|Duration|StringSlice|StringArray)(?:Var)?(?:P)?\(\s*(?:&[A-Za-z_]\w*\s*,\s*)?"([A-Za-z][A-Za-z0-9_-]*)"`)
+
+	for _, path := range files {
+		content, err := os.ReadFile(path)
+		if err != nil {
+			continue
+		}
+		src := string(content)
+		rel, relErr := filepath.Rel(dir, path)
+		if relErr != nil {
+			rel = path
+		}
+
+		verbs := useRe.FindAllStringSubmatch(src, -1)
+		flags := flagRe.FindAllStringSubmatch(src, -1)
+
+		for _, match := range verbs {
+			verb := match[1]
+			if rule, ok := lookupNamingRule(verb, "verb"); ok {
+				result.Violations = append(result.Violations, NamingViolation{
+					File:      rel,
+					Banned:    verb,
+					Preferred: rule.Preferred,
+					Category:  "verb",
+				})
+			}
+		}
+		for _, match := range flags {
+			flag := match[1]
+			// Flag rules are declared with the `--` prefix; normalize.
+			bannedName := "--" + flag
+			if rule, ok := lookupNamingRule(bannedName, "flag"); ok {
+				result.Violations = append(result.Violations, NamingViolation{
+					File:      rel,
+					Banned:    bannedName,
+					Preferred: rule.Preferred,
+					Category:  "flag",
+				})
+			}
+		}
+	}
+
+	sort.Slice(result.Violations, func(i, j int) bool {
+		if result.Violations[i].File != result.Violations[j].File {
+			return result.Violations[i].File < result.Violations[j].File
+		}
+		return result.Violations[i].Banned < result.Violations[j].Banned
+	})
+	return result
+}
+
+// lookupNamingRule returns the first rule matching the given name and
+// category, or false if none match.
+func lookupNamingRule(name, category string) (NamingRule, bool) {
+	for _, r := range namingRules {
+		if r.Category == category && r.Banned == name {
+			return r, true
+		}
+	}
+	return NamingRule{}, false
+}
+
+// extractFunctionBodies returns a map from function name to its body text
+// (everything between its func line and the next top-level func line).
+func extractFunctionBodies(source string) map[string]string {
+	bodies := make(map[string]string)
+	funcLineRe := regexp.MustCompile(`(?m)^func\s+([A-Za-z_]\w*)\s*\(`)
+	locs := funcLineRe.FindAllStringIndex(source, -1)
+	nameMatches := funcLineRe.FindAllStringSubmatch(source, -1)
+	for i, match := range nameMatches {
+		name := match[1]
+		start := locs[i][1]
+		var end int
+		if i+1 < len(locs) {
+			end = locs[i+1][0]
+		} else {
+			end = len(source)
+		}
+		bodies[name] = source[start:end]
+	}
+	return bodies
+}
+
+// generatorEmittedPackages names internal/* packages emitted by the Printing
+// Press itself as templates. They're excluded from checkTestPresence because
+// test seeding for them is a separate template-level concern — either the
+// package is covered by its own _test.go template (cliutil) or it's glue
+// that the dogfood structural check shouldn't flag (config, client, types,
+// etc. contain mostly declarations, not agent-authored logic).
+//
+// Agent-authored packages — the ones agents create during Phase 3 for novel
+// features like recipe-goat's internal/recipes/ — are by definition not in
+// this set and so get inspected.
+var generatorEmittedPackages = map[string]bool{
+	"cli":     true, // cobra commands; also skipped via cobra detection below
+	"cliutil": true, // shipped with cliutil_test.go via template
+	"cache":   true,
+	"client":  true, // GraphQL content (graphql.go, queries.go) also lives here — no separate package
+	"config":  true,
+	"mcp":     true, // conditionally emitted for MCP-enabled CLIs
+	"store":   true, // conditionally emitted for Vision.Store CLIs
+	"types":   true,
+}
+
+// packageTestStats describes one internal/<pkg>/ directory's test coverage,
+// used internally by checkTestPresence.
+type packageTestStats struct {
+	pkgName       string
+	goFileCount   int
+	testFileCount int
+	testFuncCount int // count of ^func Test[A-Z]* declarations across all files
+	exportedFuncs int // count of ^func [A-Z]* declarations (exported funcs)
+	hasCobraUsage bool
+}
+
+// checkTestPresence walks internal/*/ subdirectories of the generated CLI,
+// groups .go files by package, counts _test.go files and Test* function
+// declarations per package, and identifies packages that should have tests
+// but don't.
+//
+// A package is flagged as a violation when ALL of:
+//   - it sits under internal/ (not a generator-emitted package, not cli)
+//   - it has at least one exported function (^func [A-Z])
+//   - it contains no cobra.Command{} usage (not a command wiring package)
+//   - it has zero _test.go files (hard) OR fewer than 3 Test* functions (thin)
+//
+// Hard violations go to MissingTests; thin violations to ThinTests. See
+// TestPresenceResult for how each tier is used downstream.
+func checkTestPresence(dir string) TestPresenceResult {
+	internalDir := filepath.Join(dir, "internal")
+	entries, err := os.ReadDir(internalDir)
+	if err != nil {
+		return TestPresenceResult{}
+	}
+
+	result := TestPresenceResult{}
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+		name := entry.Name()
+		if generatorEmittedPackages[name] {
+			continue
+		}
+		stats := collectPackageTestStats(filepath.Join(internalDir, name), name)
+		if stats == nil {
+			continue
+		}
+		if stats.hasCobraUsage {
+			continue // command wiring, not a pure-logic target
+		}
+		if stats.exportedFuncs == 0 {
+			continue // types/constants only, no function surface to test
+		}
+		result.Checked++
+		switch {
+		case stats.testFileCount == 0:
+			result.MissingTests = append(result.MissingTests, name)
+		case stats.testFuncCount < 3:
+			result.ThinTests = append(result.ThinTests, fmt.Sprintf("%s (%d test funcs)", name, stats.testFuncCount))
+		}
+	}
+	return result
+}
+
+// collectPackageTestStats scans one internal/<pkg>/ directory non-recursively
+// and returns an aggregate view of its test coverage + function surface.
+// Returns nil when the directory has no .go files (not a Go package).
+var exportedFuncRe = regexp.MustCompile(`(?m)^func\s+(?:\([^)]*\)\s+)?([A-Z]\w*)\s*[\[(]`)
+var testFuncRe = regexp.MustCompile(`(?m)^func\s+(Test[A-Z]\w*)\s*\(`)
+var cobraUsageRe = regexp.MustCompile(`cobra\.Command\{|&cobra\.Command\{|spf13/cobra`)
+
+func collectPackageTestStats(pkgDir, pkgName string) *packageTestStats {
+	entries, err := os.ReadDir(pkgDir)
+	if err != nil {
+		return nil
+	}
+	stats := &packageTestStats{pkgName: pkgName}
+	for _, e := range entries {
+		if e.IsDir() || !strings.HasSuffix(e.Name(), ".go") {
+			continue
+		}
+		data, err := os.ReadFile(filepath.Join(pkgDir, e.Name()))
+		if err != nil {
+			continue
+		}
+		source := string(data)
+		isTestFile := strings.HasSuffix(e.Name(), "_test.go")
+		if isTestFile {
+			stats.testFileCount++
+			stats.testFuncCount += len(testFuncRe.FindAllString(source, -1))
+			continue
+		}
+		stats.goFileCount++
+		stats.exportedFuncs += len(exportedFuncRe.FindAllString(source, -1))
+		if cobraUsageRe.MatchString(source) {
+			stats.hasCobraUsage = true
+		}
+	}
+	if stats.goFileCount == 0 {
+		return nil
+	}
+	return stats
+}
+
+func checkPipelineIntegrity(dir string) PipelineResult {
+	result := PipelineResult{
+		Detail: "sync/search/store files not found",
+	}
+
+	syncData, syncReadErr := os.ReadFile(filepath.Join(dir, "internal", "cli", "sync.go"))
+	searchData, _ := os.ReadFile(filepath.Join(dir, "internal", "cli", "search.go"))
+	storeData, _ := os.ReadFile(filepath.Join(dir, "internal", "store", "store.go"))
+
+	syncSource := string(syncData)
+	searchSource := string(searchData)
+	storeSource := string(storeData)
+
+	domainUpsertRe := regexp.MustCompile(`\.Upsert[A-Z]\w*\s*\(`)
+	domainSearchRe := regexp.MustCompile(`\.Search[A-Z]\w*\s*\(`)
+
+	result.SyncCallsDomain = domainUpsertRe.MatchString(syncSource)
+	result.SyncCallsGeneric = !result.SyncCallsDomain && strings.Contains(syncSource, ".Upsert(")
+	result.SearchCallsDomain = domainSearchRe.MatchString(searchSource)
+	result.DomainTables = countDomainTables(storeSource)
+	result.SyncFileReadError = syncReadErr != nil && !errors.Is(syncReadErr, os.ErrNotExist)
+	result.SyncFileEmitted = syncReadErr == nil || result.SyncFileReadError
+	result.SyncResourcesPresent = !result.SyncFileReadError && hasPopulatedSyncResources(syncSource)
+
+	var parts []string
+	if result.SyncFileEmitted {
+		switch {
+		case result.SyncFileReadError:
+			parts = append(parts, "sync.go could not be read")
+		case result.SyncCallsDomain:
+			parts = append(parts, "sync uses domain-specific Upsert methods")
+		case result.SyncCallsGeneric:
+			parts = append(parts, "sync uses generic Upsert only")
+		default:
+			parts = append(parts, "sync Upsert calls not found")
+		}
+	}
+
+	switch {
+	case result.SearchCallsDomain:
+		parts = append(parts, "search uses domain-specific Search methods")
+	case strings.Contains(searchSource, ".Search("):
+		parts = append(parts, "search uses generic Search only")
+	default:
+		parts = append(parts, "search methods not found")
+	}
+
+	if storeSource != "" {
+		parts = append(parts, fmt.Sprintf("%d domain tables found", result.DomainTables))
+	}
+
+	// When sync.go is emitted but defaultSyncResources() returns an empty list,
+	// the sync command is a no-op at runtime. Store-dependent novel commands
+	// (cookbook, pantry, top-rated, …) then ship with no advertised path to
+	// populate the store. Flag so the absence surfaces at shipcheck time.
+	if result.SyncFileEmitted && !result.SyncFileReadError && !result.SyncResourcesPresent {
+		parts = append(parts, "defaultSyncResources empty (sync command is a no-op)")
+	}
+
+	result.Detail = strings.Join(parts, "; ")
+	return result
+}
+
+// defaultSyncResourcesEmptyRe matches the generator's empty-list emission for
+// defaultSyncResources, after gofmt collapses `return []string{\n}` to a single
+// line. Matching the open-brace through the literal "}" keeps the check robust
+// against trailing whitespace and the gofmt-aware "\n\t}" form some emitters
+// produce when the template body has a leading newline.
+var defaultSyncResourcesEmptyRe = regexp.MustCompile(
+	`(?s)func\s+defaultSyncResources\s*\(\s*\)\s*\[\]string\s*\{\s*return\s+\[\]string\{\s*\}\s*\}`,
+)
+
+// hasPopulatedSyncResources reports whether the emitted sync.go declares at
+// least one syncable resource via the defaultSyncResources() helper. Returns
+// true when defaultSyncResources is either absent (hand-rolled or test
+// fixture sync surfaces are not the failure mode this check targets) or
+// present with at least one entry. Returns false only when the helper is
+// emitted with an explicit empty-list body `return []string{}`. Used by
+// dogfood's pipeline check to surface CLIs that emit a sync command with
+// nothing to sync: the failure mode where store-dependent novel commands
+// have no advertised population path.
+func hasPopulatedSyncResources(syncSource string) bool {
+	if syncSource == "" {
+		return false
+	}
+	if !strings.Contains(syncSource, "func defaultSyncResources") {
+		// No generator-emitted helper to inspect. Treat as "not the failure
+		// mode" rather than risking false positives on hand-rolled sync.
+		return true
+	}
+	return !defaultSyncResourcesEmptyRe.MatchString(syncSource)
+}
+
+var rootShortLiteralRe = regexp.MustCompile(`Short:\s*(` + "`[^`]*`" + `|"(?:\\.|[^"])*")`)
+
+// checkDescriptionDrift compares the descriptions in the generated CLI against
+// research.json. cliDescription is the spec's cli_description field (empty when
+// the spec is absent or not an internal YAML spec); it is accepted as a valid
+// root.Short value alongside the headline because the root.go template renders
+// Short from cli_description when the spec sets one.
+func checkDescriptionDrift(cliDir, researchDir, cliDescription string) DescriptionDriftResult {
+	if researchDir == "" {
+		return DescriptionDriftResult{Skipped: true}
+	}
+	research, err := LoadResearch(researchDir)
+	if err != nil || research.Narrative == nil {
+		return DescriptionDriftResult{Skipped: true}
+	}
+	expected := naming.ManifestDescription(research.Narrative.Headline)
+	if expected == "" {
+		expected = naming.ManifestDescription(research.Narrative.ValueProp)
+	}
+	if expected == "" {
+		return DescriptionDriftResult{Skipped: true}
+	}
+
+	result := DescriptionDriftResult{Expected: expected}
+	if actual, ok := readManifestDescription(filepath.Join(cliDir, CLIManifestFilename)); ok && !descriptionSurfaceMatches(actual, expected) {
+		result.Findings = append(result.Findings, DescriptionDriftFinding{
+			Surface:  "manifest.description",
+			File:     CLIManifestFilename,
+			Actual:   actual,
+			Expected: expected,
+		})
+	}
+	rootPath := filepath.Join(cliDir, "internal", "cli", "root.go")
+	if actual, ok := readRootShort(rootPath); ok && !rootShortMatches(actual, expected, cliDescription) {
+		result.Findings = append(result.Findings, DescriptionDriftFinding{
+			Surface:  "root.Short",
+			File:     filepath.Join("internal", "cli", "root.go"),
+			Actual:   actual,
+			Expected: expected,
+		})
+	}
+	return result
+}
+
+// Two sources are valid: the research headline (existing behaviour) and the
+// rendered form of cli_description — accepted because the template prefers it
+// over the headline when the spec provides it.
+func rootShortMatches(actual, expected, cliDescription string) bool {
+	if descriptionSurfaceMatches(actual, expected) {
+		return true
+	}
+	if cliDescription == "" {
+		return false
+	}
+	rendered := renderRootShortFromCLIDescription(cliDescription)
+	return descriptionSurfaceMatches(actual, rendered)
+}
+
+// Mirrors truncateWords(200)+goRawSafe from the root.go template so the drift
+// checker can compare against the exact string the template would emit rather
+// than the raw spec field.
+func renderRootShortFromCLIDescription(cliDescription string) string {
+	if cliDescription == "" {
+		return ""
+	}
+	runes := []rune(cliDescription)
+	const max = 200
+	truncated := cliDescription
+	if len(runes) > max {
+		cut := runes[:max-1]
+		boundary := -1
+		for i := len(cut) - 1; i >= 0; i-- {
+			if unicode.IsSpace(cut[i]) {
+				boundary = i
+				break
+			}
+		}
+		if boundary > 0 {
+			cut = cut[:boundary]
+		}
+		truncated = strings.TrimRightFunc(string(cut), unicode.IsSpace) + "…"
+	}
+	return strings.ReplaceAll(truncated, "`", "'")
+}
+
+func readManifestDescription(path string) (string, bool) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return "", false
+	}
+	var probe struct {
+		Description string `json:"description"`
+	}
+	if err := json.Unmarshal(data, &probe); err != nil {
+		return "", false
+	}
+	desc := strings.TrimSpace(probe.Description)
+	return desc, desc != ""
+}
+
+func readRootShort(path string) (string, bool) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return "", false
+	}
+	m := rootShortLiteralRe.FindStringSubmatch(string(data))
+	if len(m) < 2 {
+		return "", false
+	}
+	lit := m[1]
+	var value string
+	if unwrapped, ok := strings.CutPrefix(lit, "`"); ok {
+		value = strings.TrimSuffix(unwrapped, "`")
+	} else if unquoted, err := strconv.Unquote(lit); err == nil {
+		value = unquoted
+	}
+	value = strings.TrimSpace(value)
+	return value, value != ""
+}
+
+func descriptionSurfaceMatches(actual, expected string) bool {
+	actual = strings.ToLower(naming.ManifestDescription(actual))
+	expected = strings.ToLower(naming.ManifestDescription(expected))
+	if actual == "" || expected == "" {
+		return true
+	}
+	if actual == expected || strings.Contains(actual, expected) || strings.Contains(expected, actual) {
+		return true
+	}
+	if len([]rune(expected)) > 60 {
+		prefix := string([]rune(expected)[:60])
+		return strings.Contains(actual, prefix)
+	}
+	return false
+}
+
+type dogfoodVerdictRule struct {
+	verdict string
+	match   func(*DogfoodReport, bool) bool
+}
+
+var dogfoodVerdictRules = []dogfoodVerdictRule{
+	{DogfoodVerdictFail, func(r *DogfoodReport, hasSpec bool) bool {
+		return hasSpec && r.PathCheck.Tested > 0 && r.PathCheck.Pct < 70
+	}},
+	{DogfoodVerdictFail, func(r *DogfoodReport, hasSpec bool) bool { return hasSpec && !r.IsDeviceCLI && !r.AuthCheck.Match }},
+	{DogfoodVerdictFail, func(r *DogfoodReport, hasSpec bool) bool {
+		return hasSpec && r.BrowserSessionCheck.Required && !r.BrowserSessionCheck.Pass
+	}},
+	{DogfoodVerdictFail, func(r *DogfoodReport, hasSpec bool) bool {
+		return hasSpec && len(r.OAuthScopeCoverage.Violations) > 0
+	}},
+	{DogfoodVerdictFail, func(r *DogfoodReport, _ bool) bool { return r.DeadFlags.Dead >= 3 }},
+	{DogfoodVerdictFail, func(r *DogfoodReport, _ bool) bool {
+		return r.ExampleCheck.Tested > 0 && (r.ExampleCheck.WithExamples*100/r.ExampleCheck.Tested) < 50
+	}},
+	{DogfoodVerdictFail, func(r *DogfoodReport, _ bool) bool {
+		return len(r.ReimplementationCheck.MissingDataSourceStrategy) > 0
+	}},
+	{DogfoodVerdictFail, func(r *DogfoodReport, _ bool) bool {
+		return len(r.ReimplementationCheck.AuthGetenv) > 0
+	}},
+	{DogfoodVerdictFail, func(r *DogfoodReport, _ bool) bool {
+		return len(r.ReimplementationCheck.UnverifiedHosts) > 0
+	}},
+	{DogfoodVerdictWarn, func(r *DogfoodReport, _ bool) bool { return r.DeadFlags.Dead >= 1 && r.DeadFlags.Dead <= 2 }},
+	{DogfoodVerdictWarn, func(r *DogfoodReport, _ bool) bool { return r.DeadFuncs.Dead >= 1 }},
+	{DogfoodVerdictWarn, func(r *DogfoodReport, _ bool) bool {
+		return !r.IsDeviceCLI && r.PipelineCheck.SyncFileEmitted && !r.PipelineCheck.SyncCallsDomain
+	}},
+	{DogfoodVerdictWarn, func(r *DogfoodReport, _ bool) bool {
+		// Issue #1156: when defaultSyncResources is emitted empty, the sync
+		// command is a runtime no-op and store-dependent novel commands have
+		// no advertised path to populate the store. Promote to WARN so the
+		// gap surfaces at shipcheck time rather than after publish.
+		return !r.IsDeviceCLI && r.PipelineCheck.SyncFileEmitted && !r.PipelineCheck.SyncResourcesPresent
+	}},
+	{DogfoodVerdictWarn, func(r *DogfoodReport, _ bool) bool { return len(r.ExampleCheck.InvalidFlags) > 0 }},
+	{DogfoodVerdictWarn, func(r *DogfoodReport, _ bool) bool { return !r.IsDeviceCLI && r.ExampleCheck.Skipped }},
+	{DogfoodVerdictFail, func(r *DogfoodReport, _ bool) bool { return len(r.WiringCheck.CommandTree.Unregistered) > 0 }},
+	{DogfoodVerdictFail, func(r *DogfoodReport, _ bool) bool {
+		return !r.WiringCheck.ConfigConsist.Consistent && len(r.WiringCheck.ConfigConsist.Mismatched) > 0
+	}},
+	// Pure-logic packages with zero tests fail shipcheck; prompts alone have not kept this invariant reliable.
+	{DogfoodVerdictFail, func(r *DogfoodReport, _ bool) bool { return len(r.TestPresence.MissingTests) > 0 }},
+	{DogfoodVerdictFail, func(r *DogfoodReport, _ bool) bool { return len(r.NamingCheck.Violations) > 0 }},
+	{DogfoodVerdictFail, func(r *DogfoodReport, _ bool) bool {
+		return r.DescriptionDriftCheck != nil && len(r.DescriptionDriftCheck.Findings) > 0
+	}},
+	{DogfoodVerdictFail, func(r *DogfoodReport, _ bool) bool {
+		return mcpSurfaceCheckActive(r.MCPSurfaceParityCheck) && !r.MCPSurfaceParityCheck.HandEdited && !r.MCPSurfaceParityCheck.Pass
+	}},
+	{DogfoodVerdictWarn, func(r *DogfoodReport, _ bool) bool { return len(r.WiringCheck.WorkflowComplete.UnmappedSteps) > 0 }},
+	{DogfoodVerdictWarn, func(r *DogfoodReport, _ bool) bool {
+		return len(r.NovelFeaturesCheck.Missing) > 0 ||
+			len(r.NovelFeaturesCheck.DepthMismatches) > 0 ||
+			len(r.NovelFeaturesCheck.Stubbed) > 0
+	}},
+	{DogfoodVerdictWarn, func(r *DogfoodReport, _ bool) bool {
+		return mcpSurfaceCheckActive(r.MCPSurfaceParityCheck) && r.MCPSurfaceParityCheck.HandEdited
+	}},
+	// Surface hand-rolled responses without hard-blocking early iteration.
+	{DogfoodVerdictWarn, func(r *DogfoodReport, _ bool) bool { return len(r.ReimplementationCheck.Suspicious) > 0 }},
+	{DogfoodVerdictWarn, func(r *DogfoodReport, _ bool) bool { return len(r.SyncParamDropCheck.Findings) > 0 }},
+	{DogfoodVerdictWarn, func(r *DogfoodReport, _ bool) bool { return len(r.SourceClientCheck.Findings) > 0 }},
+	{DogfoodVerdictWarn, func(r *DogfoodReport, _ bool) bool { return len(r.PrintJSONFilteredCheck.Findings) > 0 }},
+}
+
+func deriveDogfoodVerdict(report *DogfoodReport, hasSpec bool) string {
+	for _, rule := range dogfoodVerdictRules {
+		if rule.match(report, hasSpec) {
+			return rule.verdict
+		}
+	}
+	return DogfoodVerdictPass
+}
+
+func collectDogfoodIssues(report *DogfoodReport, hasSpec bool) []string {
+	var issues []string
+	if hasSpec && report.PathCheck.Tested > 0 && report.PathCheck.Pct < 70 {
+		issues = append(issues, fmt.Sprintf("%d%% path validity against spec", report.PathCheck.Pct))
+	}
+	if hasSpec && !report.IsDeviceCLI && !report.AuthCheck.Match {
+		issues = append(issues, "auth protocol mismatch")
+	}
+	if hasSpec && report.BrowserSessionCheck.Required && !report.BrowserSessionCheck.Pass {
+		issues = append(issues, "browser-session auth proof wiring incomplete: "+report.BrowserSessionCheck.Detail)
+	}
+	if hasSpec && len(report.OAuthScopeCoverage.Violations) > 0 {
+		issues = append(issues, fmt.Sprintf("OAuth scope coverage missing for %d endpoint(s)", len(report.OAuthScopeCoverage.Violations)))
+	}
+	if report.DeadFlags.Dead >= 3 {
+		issues = append(issues, fmt.Sprintf("%d dead flags found", report.DeadFlags.Dead))
+	} else if report.DeadFlags.Dead > 0 {
+		issues = append(issues, fmt.Sprintf("%d dead flags found", report.DeadFlags.Dead))
+	}
+	if report.DeadFuncs.Dead > 0 {
+		issues = append(issues, fmt.Sprintf("%d dead helper functions found", report.DeadFuncs.Dead))
+	}
+	if !report.IsDeviceCLI && report.PipelineCheck.SyncFileEmitted && !report.PipelineCheck.SyncCallsDomain {
+		switch {
+		case report.PipelineCheck.SyncFileReadError:
+			issues = append(issues, "sync.go could not be read")
+		case report.PipelineCheck.SyncCallsGeneric:
+			issues = append(issues, "sync uses generic Upsert only")
+		default:
+			issues = append(issues, "sync Upsert calls not found")
+		}
+	}
+	if !report.IsDeviceCLI && report.PipelineCheck.SyncFileEmitted && !report.PipelineCheck.SyncFileReadError && !report.PipelineCheck.SyncResourcesPresent {
+		issues = append(issues, "defaultSyncResources empty: sync command is a runtime no-op; store-dependent novel commands have no advertised population path")
+	}
+	if report.ExampleCheck.Tested > 0 && (report.ExampleCheck.WithExamples*100/report.ExampleCheck.Tested) < 50 {
+		issues = append(issues, fmt.Sprintf("%d%% example coverage", report.ExampleCheck.WithExamples*100/report.ExampleCheck.Tested))
+	}
+	if len(report.ExampleCheck.InvalidFlags) > 0 {
+		issues = append(issues, fmt.Sprintf("%d invalid flags in examples", len(report.ExampleCheck.InvalidFlags)))
+	}
+	if !report.IsDeviceCLI && report.ExampleCheck.Skipped {
+		issues = append(issues, fmt.Sprintf("example check skipped: %s", report.ExampleCheck.Detail))
+	}
+	if len(report.WiringCheck.CommandTree.Unregistered) > 0 {
+		issues = append(issues, fmt.Sprintf("%d unregistered commands: %s",
+			len(report.WiringCheck.CommandTree.Unregistered),
+			strings.Join(report.WiringCheck.CommandTree.Unregistered, ", ")))
+	}
+	if !report.WiringCheck.ConfigConsist.Consistent && len(report.WiringCheck.ConfigConsist.Mismatched) > 0 {
+		issues = append(issues, fmt.Sprintf("config inconsistency: write fields %v vs read fields %v",
+			report.WiringCheck.ConfigConsist.WriteFields,
+			report.WiringCheck.ConfigConsist.ReadFields))
+	}
+	if len(report.WiringCheck.WorkflowComplete.UnmappedSteps) > 0 {
+		issues = append(issues, fmt.Sprintf("%d unmapped workflow steps: %s",
+			len(report.WiringCheck.WorkflowComplete.UnmappedSteps),
+			strings.Join(report.WiringCheck.WorkflowComplete.UnmappedSteps, ", ")))
+	}
+	if len(report.NovelFeaturesCheck.Missing) > 0 {
+		issues = append(issues, fmt.Sprintf("%d/%d novel features missing: %s",
+			len(report.NovelFeaturesCheck.Missing),
+			report.NovelFeaturesCheck.Planned,
+			strings.Join(report.NovelFeaturesCheck.Missing, ", ")))
+	}
+	if len(report.NovelFeaturesCheck.DepthMismatches) > 0 {
+		parts := make([]string, 0, len(report.NovelFeaturesCheck.DepthMismatches))
+		for _, mismatch := range report.NovelFeaturesCheck.DepthMismatches {
+			parts = append(parts, fmt.Sprintf("%s advertised as %s but registered as %s",
+				mismatch.Command, mismatch.Advertised, mismatch.Actual))
+		}
+		issues = append(issues, fmt.Sprintf("%d novel feature command-depth mismatches: %s",
+			len(report.NovelFeaturesCheck.DepthMismatches),
+			strings.Join(parts, "; ")))
+	}
+	if len(report.NovelFeaturesCheck.Stubbed) > 0 {
+		issues = append(issues, fmt.Sprintf("%d/%d novel features are TODO stubs: %s",
+			len(report.NovelFeaturesCheck.Stubbed),
+			report.NovelFeaturesCheck.Planned,
+			strings.Join(report.NovelFeaturesCheck.Stubbed, ", ")))
+	}
+	if mcpSurfaceCheckActive(report.MCPSurfaceParityCheck) && !report.MCPSurfaceParityCheck.Pass {
+		issues = append(issues, "MCP surface parity: "+report.MCPSurfaceParityCheck.Detail)
+	}
+	if mcpSurfaceCheckActive(report.MCPSurfaceParityCheck) && report.MCPSurfaceParityCheck.HandEdited {
+		issues = append(issues, "MCP surface parity: "+report.MCPSurfaceParityCheck.Detail)
+	}
+	if len(report.ReimplementationCheck.Suspicious) > 0 {
+		parts := make([]string, 0, len(report.ReimplementationCheck.Suspicious))
+		for _, f := range report.ReimplementationCheck.Suspicious {
+			parts = append(parts, fmt.Sprintf("%s (%s) — %s", f.Command, f.File, f.Reason))
+		}
+		issues = append(issues, fmt.Sprintf("%d/%d novel features look reimplemented: %s",
+			len(report.ReimplementationCheck.Suspicious),
+			report.ReimplementationCheck.Checked,
+			strings.Join(parts, "; ")))
+	}
+	if len(report.ReimplementationCheck.MissingDataSourceStrategy) > 0 {
+		parts := make([]string, 0, len(report.ReimplementationCheck.MissingDataSourceStrategy))
+		for _, f := range report.ReimplementationCheck.MissingDataSourceStrategy {
+			parts = append(parts, fmt.Sprintf("%s (%s) — %s", f.Command, f.File, f.Reason))
+		}
+		issues = append(issues, fmt.Sprintf("%d/%d novel features missing data-source strategy: %s",
+			len(report.ReimplementationCheck.MissingDataSourceStrategy),
+			report.ReimplementationCheck.Checked,
+			strings.Join(parts, "; ")))
+	}
+	if len(report.ReimplementationCheck.UnverifiedHosts) > 0 {
+		parts := make([]string, 0, len(report.ReimplementationCheck.UnverifiedHosts))
+		for _, f := range report.ReimplementationCheck.UnverifiedHosts {
+			where := f.File
+			if f.Line > 0 {
+				where = fmt.Sprintf("%s:%d", f.File, f.Line)
+			}
+			parts = append(parts, fmt.Sprintf("%s (%s) — %s", f.Command, where, f.Reason))
+		}
+		issues = append(issues, fmt.Sprintf("%d novel feature host(s) are not in research artifacts: %s",
+			len(report.ReimplementationCheck.UnverifiedHosts),
+			strings.Join(parts, "; ")))
+	}
+	if len(report.ReimplementationCheck.AuthGetenv) > 0 {
+		parts := make([]string, 0, len(report.ReimplementationCheck.AuthGetenv))
+		for _, f := range report.ReimplementationCheck.AuthGetenv {
+			parts = append(parts, fmt.Sprintf("%s (%s) — %s", f.Command, f.File, f.Reason))
+		}
+		issues = append(issues, fmt.Sprintf("%d/%d novel features read auth via os.Getenv: %s",
+			len(report.ReimplementationCheck.AuthGetenv),
+			report.ReimplementationCheck.Checked,
+			strings.Join(parts, "; ")))
+	}
+	if len(report.SyncParamDropCheck.Findings) > 0 {
+		parts := make([]string, 0, len(report.SyncParamDropCheck.Findings))
+		for _, f := range report.SyncParamDropCheck.Findings {
+			parts = append(parts, FormatSyncParamDropFinding(f))
+		}
+		issues = append(issues, fmt.Sprintf("%d sync call(s) dropping params the live site captures: %s",
+			len(report.SyncParamDropCheck.Findings),
+			strings.Join(parts, "; ")))
+	}
+	if len(report.SourceClientCheck.Findings) > 0 {
+		parts := make([]string, 0, len(report.SourceClientCheck.Findings))
+		for _, f := range report.SourceClientCheck.Findings {
+			parts = append(parts, fmt.Sprintf("%s — %s", f.File, f.Reason))
+		}
+		issues = append(issues, fmt.Sprintf("%d source client file(s) without rate-limit handling: %s",
+			len(report.SourceClientCheck.Findings),
+			strings.Join(parts, "; ")))
+	}
+	if len(report.PrintJSONFilteredCheck.Findings) > 0 {
+		parts := make([]string, 0, len(report.PrintJSONFilteredCheck.Findings))
+		for _, f := range report.PrintJSONFilteredCheck.Findings {
+			parts = append(parts, fmt.Sprintf("%s:%d", f.File, f.Line))
+		}
+		issues = append(issues, fmt.Sprintf("%d call site(s) using flags.printJSON(cmd, v) — silently drops --select/--compact/--csv/--quiet, switch to printJSONFiltered(cmd.OutOrStdout(), v, flags): %s",
+			len(report.PrintJSONFilteredCheck.Findings),
+			strings.Join(parts, "; ")))
+	}
+	if len(report.TestPresence.MissingTests) > 0 {
+		issues = append(issues, fmt.Sprintf("pure-logic packages with no tests: %s",
+			strings.Join(report.TestPresence.MissingTests, ", ")))
+	}
+	if len(report.NamingCheck.Violations) > 0 {
+		parts := make([]string, 0, len(report.NamingCheck.Violations))
+		for _, v := range report.NamingCheck.Violations {
+			parts = append(parts, fmt.Sprintf("%s %s→%s in %s", v.Category, v.Banned, v.Preferred, v.File))
+		}
+		issues = append(issues, fmt.Sprintf("%d naming violations: %s",
+			len(report.NamingCheck.Violations), strings.Join(parts, "; ")))
+	}
+	if report.DescriptionDriftCheck != nil && len(report.DescriptionDriftCheck.Findings) > 0 {
+		parts := make([]string, 0, len(report.DescriptionDriftCheck.Findings))
+		for _, f := range report.DescriptionDriftCheck.Findings {
+			parts = append(parts, fmt.Sprintf("%s in %s is %q; expected %q", f.Surface, f.File, f.Actual, f.Expected))
+		}
+		issues = append(issues, fmt.Sprintf("%d description surface(s) drifted from research.json narrative: %s",
+			len(report.DescriptionDriftCheck.Findings), strings.Join(parts, "; ")))
+	}
+	// ThinTests is intentionally NOT added as a hard issue — it's a warning
+	// surfaced to Wave B's Phase 4.85 agentic reviewer for deeper judgment.
+	// Hard-gating on test-function count would reward trivial placeholder
+	// tests; the agentic review is better at judging coverage quality.
+	return issues
+}
+
+func mcpSurfaceCheckActive(result MCPSurfaceResult) bool {
+	return result.State != ""
+}
+
+func checkExamples(dir string) ExampleCheckResult {
+	result := ExampleCheckResult{}
+
+	cliName := findCLIName(dir)
+	if cliName == "" {
+		result.Skipped = true
+		result.Detail = "no CLI command directory found"
+		return result
+	}
+
+	binaryPath, err := buildDogfoodBinary(dir, cliName)
+	if err != nil {
+		result.Skipped = true
+		result.Detail = fmt.Sprintf("could not build CLI binary: %v", err)
+		return result
+	}
+	defer func() { _ = os.Remove(binaryPath) }()
+
+	// Get global flags from root --help
+	globalOut, err := runDogfoodCmd(binaryPath, 15*time.Second, "--help")
+	if err != nil {
+		result.Skipped = true
+		result.Detail = fmt.Sprintf("failed to run --help: %v", err)
+		return result
+	}
+	globalFlags := extractFlagNames(globalOut)
+
+	commandPaths, err := discoverExampleCheckCommands(binaryPath)
+	if err != nil {
+		result.Skipped = true
+		result.Detail = fmt.Sprintf("could not discover command tree from agent-context: %v", err)
+		return result
+	}
+
+	for _, parts := range commandPaths {
+		result.Tested++
+		cmdLabel := strings.Join(parts, " ")
+
+		cmdArgs := append(append([]string{}, parts...), "--help")
+		cmdOut, err := runDogfoodCmd(binaryPath, 15*time.Second, cmdArgs...)
+		if err != nil {
+			result.Missing = append(result.Missing, cmdLabel)
+			continue
+		}
+
+		examples := extractExamplesSection(cmdOut)
+		if examples == "" {
+			result.Missing = append(result.Missing, cmdLabel)
+			continue
+		}
+
+		result.WithExamples++
+
+		// Extract flags used in examples
+		exampleFlags := extractFlagNames(examples)
+		// Extract all valid flags from command help + global flags
+		cmdFlags := extractFlagNames(cmdOut)
+		allValidFlags := make(map[string]struct{})
+		for _, f := range cmdFlags {
+			allValidFlags[f] = struct{}{}
+		}
+		for _, f := range globalFlags {
+			allValidFlags[f] = struct{}{}
+		}
+
+		valid := true
+		for _, f := range exampleFlags {
+			if _, ok := allValidFlags[f]; !ok {
+				result.InvalidFlags = append(result.InvalidFlags, "--"+f)
+				valid = false
+			}
+		}
+		if valid {
+			result.ValidExamples++
+		}
+	}
+
+	result.InvalidFlags = uniqueSorted(result.InvalidFlags)
+	result.Missing = uniqueSorted(result.Missing)
+
+	if result.Tested == 0 {
+		result.Detail = "no endpoint commands found to test"
+	} else {
+		result.Detail = fmt.Sprintf("%d/%d commands have examples", result.WithExamples, result.Tested)
+		if len(result.InvalidFlags) > 0 {
+			result.Detail += fmt.Sprintf(" (%d invalid flags: %s)", len(result.InvalidFlags), strings.Join(result.InvalidFlags, ", "))
+		}
+	}
+
+	return result
+}
+
+func discoverExampleCheckCommands(binaryPath string) ([][]string, error) {
+	out, err := runStdoutOnly(binaryPath, 15*time.Second, "agent-context")
+	if err != nil {
+		// Device CLIs (and any CLI lacking agent-context) enumerate via --help.
+		if paths := enumerateCommandPathsViaHelp(binaryPath); len(paths) > 0 {
+			if len(paths) > 10 {
+				paths = sampleEvenlyCommandPaths(paths, 10)
+			}
+			return paths, nil
+		}
+		return nil, fmt.Errorf("agent-context failed: %w", err)
+	}
+	paths, err := dogfoodExampleCommandPathsFromAgentContext(out)
+	if err != nil {
+		return nil, err
+	}
+	if len(paths) > 10 {
+		paths = sampleEvenlyCommandPaths(paths, 10)
+	}
+	return paths, nil
+}
+
+// runStdoutOnly runs binaryPath with args and returns stdout. Unlike
+// runDogfoodCmd, stderr is captured separately so a leaky printed CLI
+// (deprecation warnings, config-load notices, panics that race with
+// stdout writes) doesn't prefix the JSON consumers expect to parse.
+// On non-zero exit, the trimmed stderr surfaces in the error so
+// callers can surface a meaningful "what broke" instead of "exit
+// status 1".
+func runStdoutOnly(binaryPath string, timeout time.Duration, args ...string) ([]byte, error) {
+	return runStdoutOnlyWithRunner(timeout, func(ctx context.Context) ([]byte, error) {
+		cmd := exec.CommandContext(ctx, binaryPath, args...)
+		applyDefaultSubprocessEnv(cmd)
+		return cmd.Output()
+	})
+}
+
+func runStdoutOnlyWithRunner(timeout time.Duration, run func(context.Context) ([]byte, error)) ([]byte, error) {
+	deadline := time.Now().Add(timeout)
+	for attempt := 0; ; attempt++ {
+		remaining := time.Until(deadline)
+		if remaining <= 0 {
+			return nil, fmt.Errorf("timed out after %s", timeout)
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), remaining)
+		out, err := run(ctx)
+		timedOut := ctx.Err() == context.DeadlineExceeded
+		cancel()
+		if timedOut {
+			return nil, fmt.Errorf("timed out after %s", timeout)
+		}
+		if err == nil {
+			return out, nil
+		}
+		if isTextFileBusy(err) {
+			sleep := time.Duration(attempt+1) * 25 * time.Millisecond
+			sleep = min(sleep, 250*time.Millisecond)
+			remaining := time.Until(deadline)
+			if remaining <= 0 {
+				return nil, fmt.Errorf("timed out after %s", timeout)
+			}
+			time.Sleep(min(sleep, remaining))
+			continue
+		}
+		return nil, formatStdoutOnlyError(err)
+	}
+}
+
+func formatStdoutOnlyError(err error) error {
+	var exitErr *exec.ExitError
+	if errors.As(err, &exitErr) && len(exitErr.Stderr) > 0 {
+		return fmt.Errorf("%s", strings.TrimSpace(string(exitErr.Stderr)))
+	}
+	return err
+}
+
+func dogfoodExampleCommandPathsFromAgentContext(data []byte) ([][]string, error) {
+	items, err := dogfoodExampleCommandPathsWithAnnotationsFromAgentContext(data)
+	if err != nil {
+		return nil, err
+	}
+	paths := make([][]string, 0, len(items))
+	for _, item := range items {
+		paths = append(paths, item.Path)
+	}
+	return paths, nil
+}
+
+type dogfoodAgentCommandPath struct {
+	Path        []string
+	Annotations map[string]string
+}
+
+func dogfoodExampleCommandPathsWithAnnotationsFromAgentContext(data []byte) ([]dogfoodAgentCommandPath, error) {
+	var ctx dogfoodAgentContext
+	if err := json.Unmarshal(data, &ctx); err != nil {
+		return nil, err
+	}
+	var duplicates []string
+	seenRootNames := make(map[string]struct{}, len(ctx.Commands))
+	for _, command := range ctx.Commands {
+		if _, exists := seenRootNames[command.Name]; exists {
+			duplicates = append(duplicates, command.Name)
+		} else {
+			seenRootNames[command.Name] = struct{}{}
+		}
+		collectDuplicateDogfoodCommandNames(nil, command, &duplicates)
+	}
+	if len(duplicates) > 0 {
+		return nil, fmt.Errorf("duplicate sibling command names in agent-context: %s", strings.Join(duplicates, ", "))
+	}
+	var paths []dogfoodAgentCommandPath
+	for _, command := range ctx.Commands {
+		collectDogfoodExampleCommandPaths(nil, command, &paths)
+	}
+	sort.Slice(paths, func(i, j int) bool {
+		return strings.Join(paths[i].Path, " ") < strings.Join(paths[j].Path, " ")
+	})
+	return paths, nil
+}
+
+func collectDuplicateDogfoodCommandNames(prefix []string, command dogfoodAgentCommand, duplicates *[]string) {
+	seen := make(map[string]struct{}, len(command.Subcommands))
+	parentPath := strings.Join(append(prefix, command.Name), " ")
+	for _, subcommand := range command.Subcommands {
+		if _, exists := seen[subcommand.Name]; exists {
+			*duplicates = append(*duplicates, strings.TrimSpace(parentPath+" "+subcommand.Name))
+		} else {
+			seen[subcommand.Name] = struct{}{}
+		}
+		collectDuplicateDogfoodCommandNames(append(prefix, command.Name), subcommand, duplicates)
+	}
+}
+
+var dogfoodExampleCommandSkip = map[string]bool{
+	"agent-context": true,
+	"api":           true,
+	"auth":          true,
+	"analytics":     true,
+	"completion":    true,
+	"doctor":        true,
+	"export":        true,
+	"feedback":      true,
+	"help":          true,
+	"import":        true,
+	"jobs":          true,
+	"profile":       true,
+	"search":        true,
+	"share":         true,
+	"sync":          true,
+	"tail":          true,
+	"version":       true,
+	"workflow":      true,
+}
+
+func collectDogfoodExampleCommandPaths(prefix []string, command dogfoodAgentCommand, paths *[]dogfoodAgentCommandPath) {
+	if command.Name == "" || dogfoodExampleCommandSkip[command.Name] {
+		return
+	}
+
+	next := append(append([]string{}, prefix...), command.Name)
+	if len(command.Subcommands) == 0 {
+		*paths = append(*paths, dogfoodAgentCommandPath{
+			Path:        next,
+			Annotations: command.Annotations,
+		})
+		return
+	}
+	for _, sub := range command.Subcommands {
+		collectDogfoodExampleCommandPaths(next, sub, paths)
+	}
+}
+
+func sampleEvenlyCommandPaths(items [][]string, n int) [][]string {
+	if len(items) <= n {
+		return items
+	}
+	step := float64(len(items)) / float64(n)
+	result := make([][]string, n)
+	for i := range n {
+		idx := int(float64(i) * step)
+		result[i] = items[idx]
+	}
+	return result
+}
+
+func sampleEvenlyAgentCommandPaths(items []dogfoodAgentCommandPath, n int) []dogfoodAgentCommandPath {
+	if len(items) <= n {
+		return items
+	}
+	step := float64(len(items)) / float64(n)
+	result := make([]dogfoodAgentCommandPath, n)
+	for i := range n {
+		idx := int(float64(i) * step)
+		result[i] = items[idx]
+	}
+	return result
+}
+
+func findCLIName(dir string) string {
+	names := findCLINames(dir)
+	if len(names) == 0 {
+		return ""
+	}
+	return names[0]
+}
+
+func findCLINames(dir string) []string {
+	cmdDir := filepath.Join(dir, "cmd")
+	entries, err := os.ReadDir(cmdDir)
+	if err != nil {
+		return nil
+	}
+	var names []string
+	for _, entry := range entries {
+		if entry.IsDir() && naming.IsCLIDirName(entry.Name()) {
+			names = append(names, entry.Name())
+		}
+	}
+	return names
+}
+
+func buildDogfoodBinary(dir, cliName string) (string, error) {
+	tmp, err := os.CreateTemp("", cliName+"-dogfood-*")
+	if err != nil {
+		return "", fmt.Errorf("creating dogfood binary temp file: %w", err)
+	}
+	buildPath := tmp.Name()
+	if err := tmp.Close(); err != nil {
+		_ = os.Remove(buildPath)
+		return "", fmt.Errorf("closing dogfood binary temp file: %w", err)
+	}
+	_ = os.Remove(buildPath)
+	buildPath = platform.ExecutablePath(buildPath)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "go", "build", "-o", buildPath, "./cmd/"+cliName)
+	cmd.Dir = dir
+	if err := cmd.Run(); err != nil {
+		_ = os.Remove(buildPath)
+		if ctx.Err() == context.DeadlineExceeded {
+			return "", fmt.Errorf("timed out after 2m")
+		}
+		return "", err
+	}
+	return buildPath, nil
+}
+
+func runDogfoodCmd(binary string, timeout time.Duration, args ...string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, binary, args...)
+	applyDefaultSubprocessEnv(cmd)
+	out, err := cmd.CombinedOutput()
+	if err != nil && ctx.Err() == context.DeadlineExceeded {
+		return "", fmt.Errorf("timed out after %s", timeout)
+	}
+	// --help often returns exit 0, but accept output regardless
+	if len(out) > 0 {
+		return string(out), nil
+	}
+	return "", err
+}
+
+// extractExamplesSection scans Cobra --help output for the Examples block.
+//
+// The original implementation broke on the first unindented line, which
+// failed silently when authors used `Example: strings.TrimSpace(\`...\`)`
+// — TrimSpace strips the leading 2-space indent, so the first example
+// line is unindented and the parser captured nothing.
+//
+// The fix: break only on a closed set of canonical Cobra section headers,
+// not on any unindented line. Cobra emits these headers verbatim (no
+// indentation) when they delimit help output sections; nothing else
+// reliably has the same shape. Anything outside this set is treated as
+// continuation of the Examples block — losing-by-default is safer than
+// misclassifying real example content as a section boundary.
+func extractExamplesSection(helpOutput string) string {
+	lines := strings.Split(helpOutput, "\n")
+	var inExamples bool
+	var examples []string
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "Examples:" {
+			inExamples = true
+			continue
+		}
+		if !inExamples {
+			continue
+		}
+		// Section boundary: a known Cobra section header.
+		if isCobraHelpSectionHeader(trimmed) {
+			break
+		}
+		// Cobra emits a "Use \"<root> <subcommand> [command] --help\" for
+		// more information about a command." trailing line at the bottom
+		// of help output. Match the literal `Use "` prefix to avoid
+		// accidentally swallowing example lines that happen to start
+		// with the word "use".
+		if strings.HasPrefix(trimmed, `Use "`) {
+			break
+		}
+		// Otherwise treat as example continuation — preserves indented and
+		// unindented content alike, and tolerates blank lines mid-block.
+		examples = append(examples, line)
+	}
+	return strings.TrimSpace(strings.Join(examples, "\n"))
+}
+
+var extractFlagNameRe = regexp.MustCompile(`--([a-z][-a-z0-9]*)`)
+
+func extractFlagNames(text string) []string {
+	matches := extractFlagNameRe.FindAllStringSubmatch(text, -1)
+	seen := make(map[string]struct{})
+	var flags []string
+	for _, match := range matches {
+		name := match[1]
+		if _, ok := seen[name]; !ok {
+			seen[name] = struct{}{}
+			flags = append(flags, name)
+		}
+	}
+	sort.Strings(flags)
+	return flags
+}
+
+func compileSpecPathPatterns(paths []string) []*regexp.Regexp {
+	paramRe := regexp.MustCompile(`\\\{[^/]+\\\}`)
+	var patterns []*regexp.Regexp
+	for _, path := range paths {
+		quoted := regexp.QuoteMeta(path)
+		regex := "^" + paramRe.ReplaceAllString(quoted, `[^/]+`) + "$"
+		patterns = append(patterns, regexp.MustCompile(regex))
+	}
+	return patterns
+}
+
+func pathMatchesSpec(path string, patterns []*regexp.Regexp) bool {
+	for _, pattern := range patterns {
+		if pattern.MatchString(path) {
+			return true
+		}
+	}
+	return false
+}
+
+// readPackageSources concatenates Go sources under dir, including tests, so a
+// helper whose only caller lives in another generated package still counts.
+func readPackageSources(dir string) string {
+	files := append(listGoFiles(dir), listGoTestFiles(dir)...)
+	var b strings.Builder
+	for _, file := range files {
+		data, err := os.ReadFile(file)
+		if err != nil {
+			continue
+		}
+		b.Write(data)
+		b.WriteByte('\n')
+	}
+	return b.String()
+}
+
+func listGoFiles(dir string) []string {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil
+	}
+
+	var files []string
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		name := entry.Name()
+		if !strings.HasSuffix(name, ".go") || strings.HasSuffix(name, "_test.go") {
+			continue
+		}
+		files = append(files, filepath.Join(dir, name))
+	}
+	sort.Strings(files)
+	return files
+}
+
+// Dead-code analysis needs non-test files for definitions while counting usage
+// across both production and test files.
+func listGoTestFiles(dir string) []string {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil
+	}
+
+	var files []string
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), "_test.go") {
+			continue
+		}
+		files = append(files, filepath.Join(dir, entry.Name()))
+	}
+	sort.Strings(files)
+	return files
+}
+
+func countDomainTables(storeSource string) int {
+	if storeSource == "" {
+		return 0
+	}
+
+	tableRe := regexp.MustCompile(`(?is)CREATE TABLE IF NOT EXISTS\s+\w+\s*\((.*?)\);`)
+	matches := tableRe.FindAllStringSubmatch(storeSource, -1)
+	count := 0
+	for _, match := range matches {
+		columns := 0
+		for line := range strings.SplitSeq(match[1], "\n") {
+			line = strings.TrimSpace(strings.TrimSuffix(line, ","))
+			if line == "" {
+				continue
+			}
+			upper := strings.ToUpper(line)
+			if strings.HasPrefix(upper, "PRIMARY KEY") || strings.HasPrefix(upper, "FOREIGN KEY") || strings.HasPrefix(upper, "UNIQUE") || strings.HasPrefix(upper, "CONSTRAINT") || strings.HasPrefix(upper, "CHECK") {
+				continue
+			}
+			columns++
+		}
+		if columns > 3 {
+			count++
+		}
+	}
+	return count
+}
+
+func uniqueSorted(items []string) []string {
+	if len(items) == 0 {
+		return nil
+	}
+	set := make(map[string]struct{}, len(items))
+	for _, item := range items {
+		set[item] = struct{}{}
+	}
+	return sortedKeys(set)
+}
+
+func sortedKeys(set map[string]struct{}) []string {
+	keys := make([]string, 0, len(set))
+	for key := range set {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	return keys
+}
+
+func containsAny(sources []string, needle string) bool {
+	for _, source := range sources {
+		if strings.Contains(source, needle) {
+			return true
+		}
+	}
+	return false
+}
+
+// checkWiring orchestrates all three wiring sub-checks.
+func checkWiring(dir string) WiringCheckResult {
+	return WiringCheckResult{
+		CommandTree:      checkCommandTree(dir),
+		ConfigConsist:    checkConfigConsistency(dir),
+		WorkflowComplete: checkWorkflowCompleteness(dir),
+	}
+}
+
+// checkCommandTree scans internal/cli/*.go for command constructor functions
+// (func newXxxCmd) and verifies each is wired via an AddCommand call somewhere
+// in the source. This is pure static analysis — no binary build or help-text
+// parsing needed — and correctly handles deeply nested command hierarchies that
+// help-text scraping misses.
+func checkCommandTree(dir string) CommandTreeResult {
+	result := CommandTreeResult{}
+
+	cliDir := filepath.Join(dir, "internal", "cli")
+	files := listGoFiles(cliDir)
+
+	// Phase 1: Find all command constructor definitions and their Use: names.
+	// A constructor is func newXxxCmd(...) — we extract both the function name
+	// and the cobra Use: field (the command name users see).
+	constructorRe := regexp.MustCompile(`(?m)^func\s+(new\w+Cmd)\s*\(`)
+	useFieldRe := cobraUseLeafRe
+
+	type cmdDef struct {
+		constructor string // e.g. "newBookingsCmd"
+		useName     string // e.g. "bookings"
+	}
+
+	var allDefs []cmdDef
+	allSource := strings.Builder{}
+
+	for _, file := range files {
+		data, err := os.ReadFile(file)
+		if err != nil {
+			continue
+		}
+		content := string(data)
+		allSource.WriteString(content)
+		allSource.WriteString("\n")
+
+		// Find constructors in this file and pair with their Use: field
+		constructors := constructorRe.FindAllStringSubmatch(content, -1)
+		useFields := useFieldRe.FindAllStringSubmatch(content, -1)
+
+		// Build a lookup of Use: names for this file
+		var useNames []string
+		for _, m := range useFields {
+			name := strings.Fields(m[1])[0]
+			if name != "" {
+				useNames = append(useNames, name)
+			}
+		}
+
+		for i, m := range constructors {
+			funcName := m[1]
+			// Skip the root command constructor — it's not added via AddCommand
+			if funcName == "newRootCmd" {
+				continue
+			}
+			useName := funcName
+			if i < len(useNames) {
+				useName = useNames[i]
+			}
+			allDefs = append(allDefs, cmdDef{constructor: funcName, useName: useName})
+		}
+	}
+
+	result.Defined = len(allDefs)
+	if result.Defined == 0 {
+		return result
+	}
+
+	// Phase 2: Check which constructors are called from other functions.
+	// A constructor is "wired" if it appears as a call (funcName + "(") outside
+	// its own definition. This catches both direct AddCommand(newXxxCmd(...))
+	// and indirect patterns like: sub := newXxxCmd(flags); cmd.AddCommand(sub).
+	source := allSource.String()
+	for _, def := range allDefs {
+		// Count occurrences of "constructorName(" in all source.
+		// >=2 means at least one call site beyond the func definition itself.
+		if strings.Count(source, def.constructor+"(") >= 2 {
+			result.Registered++
+		} else {
+			result.Unregistered = append(result.Unregistered, def.useName)
+		}
+	}
+	sort.Strings(result.Unregistered)
+	return result
+}
+
+// extractCommandNames extracts command names from cobra --help output.
+// It looks for the "Available Commands:" section.
+func extractCommandNames(helpOutput string) []string {
+	lines := strings.Split(helpOutput, "\n")
+	var inCommands bool
+	var cmds []string
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "Available Commands:" {
+			inCommands = true
+			continue
+		}
+		if inCommands {
+			if len(line) > 0 && line[0] != ' ' && line[0] != '\t' {
+				break
+			}
+			parts := strings.Fields(trimmed)
+			if len(parts) > 0 {
+				cmds = append(cmds, parts[0])
+			}
+		}
+	}
+	return cmds
+}
+
+// configFieldNameRe is the shape of a config key. Dots and hyphens appear in
+// viper-style keys. Spaces and expression punctuation are not keys; a
+// quote-to-quote scan used to report the Go between adjacent literals as one.
+var configFieldNameRe = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_.-]*$`)
+
+// Free literals on a matching line are kept only when they look like a
+// credential key. Explicit config.Set / viper captures skip this filter, so a
+// key such as "timeout" still counts.
+var configFieldKeywordRe = regexp.MustCompile(`(?i)token|credential|secret|key|auth`)
+
+// checkConfigConsistency scans CLI source for token/credential write and read
+// sites, then verifies they reference the same config field names.
+func checkConfigConsistency(dir string) ConfigConsistResult {
+	result := ConfigConsistResult{Consistent: true}
+
+	// Collect all Go source files recursively
+	var sources []string
+	_ = filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return nil
+		}
+		if !info.IsDir() && strings.HasSuffix(path, ".go") && !strings.HasSuffix(path, "_test.go") {
+			sources = append(sources, path)
+		}
+		return nil
+	})
+
+	writePatterns := []*regexp.Regexp{
+		regexp.MustCompile(`(?i)SaveTokens?\s*\(`),
+		regexp.MustCompile(`(?i)SetTokens?\s*\(`),
+		regexp.MustCompile(`(?i)WriteTokens?\s*\(`),
+		regexp.MustCompile(`(?i)config\.Set\s*\(\s*"([^"]+)"`),
+		regexp.MustCompile(`(?i)viper\.Set\s*\(\s*"([^"]+)"`),
+	}
+	readPatterns := []*regexp.Regexp{
+		regexp.MustCompile(`(?i)AuthHeader\s*\(`),
+		regexp.MustCompile(`(?i)GetTokens?\s*\(`),
+		regexp.MustCompile(`(?i)ReadTokens?\s*\(`),
+		regexp.MustCompile(`(?i)config\.Get\s*\(\s*"([^"]+)"`),
+		regexp.MustCompile(`(?i)viper\.Get\s*\(\s*"([^"]+)"`),
+	}
+
+	writeFields := make(map[string]struct{})
+	readFields := make(map[string]struct{})
+
+	for _, srcPath := range sources {
+		data, err := os.ReadFile(srcPath)
+		if err != nil {
+			continue
+		}
+		content := string(data)
+
+		collectConfigFields(content, writePatterns, writeFields)
+		collectConfigFields(content, readPatterns, readFields)
+	}
+
+	result.WriteFields = sortedKeys(writeFields)
+	result.ReadFields = sortedKeys(readFields)
+
+	// If both sides have fields, check overlap
+	if len(writeFields) > 0 && len(readFields) > 0 {
+		overlap := false
+		for wf := range writeFields {
+			if _, ok := readFields[wf]; ok {
+				overlap = true
+				break
+			}
+		}
+		if !overlap {
+			result.Consistent = false
+			// Mismatched = write fields not found in read fields
+			for _, wf := range result.WriteFields {
+				if _, ok := readFields[wf]; !ok {
+					result.Mismatched = append(result.Mismatched, wf)
+				}
+			}
+			for _, rf := range result.ReadFields {
+				if _, ok := writeFields[rf]; !ok {
+					result.Mismatched = append(result.Mismatched, rf)
+				}
+			}
+			result.Mismatched = uniqueSorted(result.Mismatched)
+		}
+	}
+
+	return result
+}
+
+func collectConfigFields(content string, patterns []*regexp.Regexp, fields map[string]struct{}) {
+	for _, pat := range patterns {
+		if !pat.MatchString(content) {
+			continue
+		}
+		matches := pat.FindAllStringSubmatch(content, -1)
+		for _, m := range matches {
+			if len(m) > 1 && m[1] != "" {
+				addConfigField(fields, m[1])
+			}
+		}
+		for line := range strings.SplitSeq(content, "\n") {
+			if !pat.MatchString(line) {
+				continue
+			}
+			for _, lit := range goStringLiterals(line) {
+				if configFieldKeywordRe.MatchString(lit) {
+					addConfigField(fields, lit)
+				}
+			}
+		}
+	}
+}
+
+func addConfigField(fields map[string]struct{}, name string) {
+	name = strings.TrimSpace(name)
+	if name == "" || !configFieldNameRe.MatchString(name) {
+		return
+	}
+	fields[name] = struct{}{}
+}
+
+// Quote-to-quote matching treats the closer of "" and the opener of the next
+// "" as one string, so SaveTokens("", "", token, "") looked like a field.
+func goStringLiterals(line string) []string {
+	var sc scanner.Scanner
+	fs := token.NewFileSet()
+	file := fs.AddFile("", fs.Base(), len(line))
+	sc.Init(file, []byte(line), func(token.Position, string) {}, 0)
+	var lits []string
+	for {
+		_, tok, lit := sc.Scan()
+		if tok == token.EOF {
+			break
+		}
+		if tok != token.STRING {
+			continue
+		}
+		val, err := strconv.Unquote(lit)
+		if err != nil {
+			continue
+		}
+		lits = append(lits, val)
+	}
+	return lits
+}
+
+// workflowManifest represents the structure of workflow_verify.yaml.
+type workflowManifest struct {
+	Workflows []workflowDef `yaml:"workflows"`
+}
+
+type workflowDef struct {
+	Name  string         `yaml:"name"`
+	Steps []workflowStep `yaml:"steps"`
+}
+
+type workflowStep struct {
+	Command string `yaml:"command"`
+	Name    string `yaml:"name"`
+}
+
+// checkWorkflowCompleteness verifies that every step in a workflow_verify.yaml
+// manifest has a corresponding registered CLI command.
+func checkWorkflowCompleteness(dir string) WorkflowCompleteResult {
+	manifestPath := filepath.Join(dir, "workflow_verify.yaml")
+	data, err := os.ReadFile(manifestPath)
+	if err != nil {
+		return WorkflowCompleteResult{
+			Skipped: true,
+			Detail:  "no workflow_verify.yaml found",
+		}
+	}
+
+	var manifest workflowManifest
+	if err := yaml.Unmarshal(data, &manifest); err != nil {
+		return WorkflowCompleteResult{
+			Skipped: true,
+			Detail:  fmt.Sprintf("failed to parse workflow_verify.yaml: %v", err),
+		}
+	}
+
+	// Collect all step commands
+	var stepCommands []string
+	for _, wf := range manifest.Workflows {
+		for _, step := range wf.Steps {
+			if step.Command != "" {
+				stepCommands = append(stepCommands, step.Command)
+			}
+		}
+	}
+
+	result := WorkflowCompleteResult{
+		TotalSteps: len(stepCommands),
+	}
+
+	if len(stepCommands) == 0 {
+		result.Detail = "manifest has no steps"
+		return result
+	}
+
+	// Get help output to check command existence
+	cliName := findCLIName(dir)
+	if cliName == "" {
+		result.Detail = "no CLI binary to verify against"
+		result.MappedSteps = result.TotalSteps
+		return result
+	}
+
+	binaryPath, err := buildDogfoodBinary(dir, cliName)
+	if err != nil {
+		result.Detail = fmt.Sprintf("could not build CLI binary: %v", err)
+		result.MappedSteps = result.TotalSteps
+		return result
+	}
+	defer func() { _ = os.Remove(binaryPath) }()
+
+	helpOut, err := runDogfoodCmd(binaryPath, 15*time.Second, "--help")
+	if err != nil {
+		result.Detail = fmt.Sprintf("failed to run --help: %v", err)
+		result.MappedSteps = result.TotalSteps
+		return result
+	}
+
+	// Gather subcommand help too
+	var helpLower strings.Builder
+	helpLower.WriteString(strings.ToLower(helpOut))
+	topCmds := extractCommandNames(helpOut)
+	for _, topCmd := range topCmds {
+		subOut, err := runDogfoodCmd(binaryPath, 15*time.Second, topCmd, "--help")
+		if err == nil {
+			helpLower.WriteString("\n" + strings.ToLower(subOut))
+		}
+	}
+
+	for _, cmd := range stepCommands {
+		// Check if all parts of the command appear in help
+		cmdLower := strings.ToLower(cmd)
+		parts := strings.Fields(cmdLower)
+		found := true
+		for _, part := range parts {
+			if !strings.Contains(helpLower.String(), part) {
+				found = false
+				break
+			}
+		}
+		if found {
+			result.MappedSteps++
+		} else {
+			result.UnmappedSteps = append(result.UnmappedSteps, cmd)
+		}
+	}
+
+	result.UnmappedSteps = uniqueSorted(result.UnmappedSteps)
+	result.Detail = fmt.Sprintf("%d/%d workflow steps mapped to commands", result.MappedSteps, result.TotalSteps)
+	return result
+}

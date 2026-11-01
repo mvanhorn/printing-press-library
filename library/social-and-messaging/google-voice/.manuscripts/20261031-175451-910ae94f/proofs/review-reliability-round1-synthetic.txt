@@ -1,0 +1,20 @@
+=== RUN   TestReviewReproSmallBudgetStarvation
+    review_repro_test.go:69: run 1: pages=1 pending_threads=1 inventory_exhausted=true
+    review_repro_test.go:69: run 2: pages=1 pending_threads=1 inventory_exhausted=true
+    review_repro_test.go:69: run 3: pages=1 pending_threads=1 inventory_exhausted=true
+    review_repro_test.go:69: run 4: pages=1 pending_threads=1 inventory_exhausted=true
+    review_repro_test.go:72: REPRODUCED: after four resumptions, thread requests=0 archived requests=0
+--- PASS: TestReviewReproSmallBudgetStarvation (0.01s)
+=== RUN   TestReviewReproRefreshLosesGap
+    review_repro_test.go:100: REPRODUCED: source has 102 records; mirror has 101, middle record absent, continuation requests=0, status=observed_exhausted, pending=0
+--- PASS: TestReviewReproRefreshLosesGap (0.01s)
+=== RUN   TestReviewReproConcurrentCheckpointRegression
+    review_repro_test.go:129: REPRODUCED: committed cursor regressed from cursor-2 to cursor-1 when a concurrent stale page finished
+--- PASS: TestReviewReproConcurrentCheckpointRegression (0.01s)
+=== RUN   TestReviewReproGatewayIgnoresRetryAfter
+network error (Post "https://clients6.google.com/voice/v1/voiceclient/account/get": rate limited: HTTP 429 for https://clients6.google.com/voice/v1/voiceclient/account/get; retry after 30s), retrying in 1s (attempt 1/3)
+network error (Post "https://clients6.google.com/voice/v1/voiceclient/account/get": rate limited: HTTP 429 for https://clients6.google.com/voice/v1/voiceclient/account/get; retry after 30s), retrying in 2s (attempt 2/3)
+    review_repro_test.go:155: REPRODUCED: upstream Retry-After=30s, actual second request after 1.001s, requests=2
+--- PASS: TestReviewReproGatewayIgnoresRetryAfter (1.50s)
+PASS
+ok  	google-voice-pp-cli/internal/voice	1.677s

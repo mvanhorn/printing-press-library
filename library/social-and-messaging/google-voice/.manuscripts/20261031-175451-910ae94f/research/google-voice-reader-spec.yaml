@@ -1,0 +1,107 @@
+# Logical CLI contract for three verified read RPCs.
+# The custom Google Voice adapter serializes these named fields to protobuf arrays.
+# Wire source: captured read traffic and mautrix/gvoice 166786fdd5a02c5987defd9c3a0a8f635e175cac.
+name: google-voice
+version: 0.1.0
+category: communication
+cli_description: Read Google Voice through ordinary HTTP and recover evidence from a local message mirror.
+description: Read Google Voice account and conversation history with explicit local collection coverage.
+base_url: https://clients6.google.com/voice/v1/voiceclient
+http_transport: standard
+spec_source: sniffed
+auth:
+  type: cookie
+  header: Cookie
+  in: cookie
+  env_vars: []
+  cookie_domain: .google.com
+  cookies: [SID, HSID, SSID, APISID, SAPISID, __Secure-1PSIDTS]
+auth_warnings:
+  - Requires private imported Google cookies and per-request SAPISIDHASH; no personal API key.
+config:
+  format: toml
+  path: ~/.config/google-voice-pp-cli/config.toml
+# Automatic refresh is deliberately disabled: session expiry and bounded sync must stay explicit.
+cache:
+  enabled: false
+# learn no-entities escape: private participant and message identifiers are account-specific and must not be baked into code.
+learn:
+  synonyms:
+    sms: text messages
+    most recent: latest
+mcp:
+  transport: [stdio]
+resources:
+  account:
+    description: Verify the imported Google Voice account
+    endpoints:
+      get:
+        method: POST
+        mutation: false
+        path: /account/get
+        description: Read the Google Voice account bound to the private imported session
+        example: '  google-voice-pp-cli account get --agent'
+        response:
+          type: object
+          item: Account
+  threads:
+    description: Read Google Voice conversation inventory and messages
+    endpoints:
+      list:
+        method: POST
+        mutation: false
+        path: /api2thread/list
+        description: List a bounded conversation page with explicit continuation and folder evidence
+        example: '  google-voice-pp-cli threads list --folder texts --agent'
+        body:
+          - name: folder
+            type: string
+            default: texts
+            description: Verified folder to inspect, texts or archived after live validation
+          - name: cursor
+            type: string
+            description: Opaque conversation inventory continuation cursor returned by Voice
+          - name: unread
+            type: bool
+            description: Return only threads currently reported unread by Voice
+        response:
+          type: object
+          item: ThreadPage
+      get:
+        method: POST
+        mutation: false
+        path: /api2thread/get
+        description: Read one bounded message page without changing conversation read state
+        example: '  google-voice-pp-cli threads get --thread-id sms-example --count 50 --agent'
+        body:
+          - name: thread_id
+            flag_name: thread-id
+            type: string
+            required: true
+            description: Stable conversation ID returned by threads list
+          - name: count
+            type: int
+            default: 100
+            description: Maximum messages requested in this page, from 1 through 100
+          - name: cursor
+            type: string
+            description: Opaque older-history continuation cursor returned by Voice
+          - name: unread
+            type: bool
+            description: Return messages only if the thread itself is currently unread
+        response:
+          type: object
+          item: ThreadPage
+types:
+  Account:
+    fields:
+      - name: id
+        type: string
+      - name: version
+        type: string
+  ThreadPage:
+    fields:
+      - name: next_cursor
+        type: string
+      - name: threads
+        type: array

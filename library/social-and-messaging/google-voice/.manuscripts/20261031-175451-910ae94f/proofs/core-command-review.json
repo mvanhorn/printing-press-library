@@ -1,0 +1,56 @@
+[
+  {
+    "command": "account get",
+    "mode": "--help",
+    "exit": 0,
+    "valid": true
+  },
+  {
+    "command": "account get",
+    "mode": "--dry-run --json",
+    "exit": 0,
+    "valid": true
+  },
+  {
+    "command": "account get",
+    "mode": "--json",
+    "exit": 0,
+    "valid": true
+  },
+  {
+    "command": "threads list",
+    "mode": "--help",
+    "exit": 0,
+    "valid": true
+  },
+  {
+    "command": "threads list",
+    "mode": "--dry-run --json",
+    "exit": 0,
+    "valid": true
+  },
+  {
+    "command": "threads list",
+    "mode": "--json",
+    "exit": 0,
+    "valid": true
+  },
+  {
+    "command": "mirror export",
+    "mode": "--help",
+    "exit": 0,
+    "valid": true
+  },
+  {
+    "command": "mirror export",
+    "mode": "--dry-run --json",
+    "exit": 0,
+    "valid": true
+  },
+  {
+    "command": "mirror export",
+    "mode": "--json",
+    "exit": 0,
+    "valid": true
+  }
+]

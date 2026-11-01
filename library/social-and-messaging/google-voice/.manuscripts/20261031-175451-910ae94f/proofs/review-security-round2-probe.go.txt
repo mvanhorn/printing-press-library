@@ -1,0 +1,58 @@
+// Synthetic probe. Copy to a temporary main.go under this printed Go module to run.
+// It opens no real data and performs no network calls. Cleanup removes only its own fixtures.
+package main
+
+import (
+	"context"
+	"fmt"
+	"google-voice-pp-cli/internal/cliutil"
+	"google-voice-pp-cli/internal/voice"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"time"
+)
+
+func main() {
+	dir, err := os.MkdirTemp("", "voice-review-swap-")
+	if err != nil { panic(err) }
+	defer os.RemoveAll(dir)
+	// A directory ACL can preserve foreign path-replacement permissions through chmod0700.
+	if out, err := exec.Command("chmod", "+a", "everyone allow add_file,delete_child,search", dir).CombinedOutput(); err != nil {
+		panic(fmt.Sprintf("synthetic ACL setup: %s %v", out, err))
+	}
+	path := filepath.Join(dir, "mirror.sqlite3")
+	target := filepath.Join(dir, "public-target.sqlite3")
+	for p, mode := range map[string]os.FileMode{path: 0600, target: 0644} {
+		if err := os.WriteFile(p, nil, mode); err != nil { panic(err) }
+	}
+	locked, release := make(chan struct{}), make(chan struct{})
+	lockDone := make(chan error, 1)
+	go func() {
+		lockDone <- cliutil.WithFileLock(path+".schema", func() error {
+			close(locked)
+			<-release
+			return nil
+		})
+	}()
+	<-locked
+	type result struct { mirror *voice.Mirror; err error }
+	done := make(chan result, 1)
+	go func() {
+		mirror, err := voice.OpenMirrorContext(context.Background(), path, "synthetic-account", true)
+		done <- result{mirror, err}
+	}()
+	// Let OpenMirror validate the original file and wait on the schema lock.
+	time.Sleep(150*time.Millisecond)
+	if err := os.Rename(path, path+".safe"); err != nil { panic(err) }
+	if err := os.Symlink(target, path); err != nil { panic(err) }
+	close(release)
+	if err := <-lockDone; err != nil { panic(err) }
+	opened := <-done
+	fmt.Printf("symlink_swap: OpenMirror_accepted=%t error=%v\n", opened.err == nil, opened.err)
+	if opened.mirror != nil { opened.mirror.Close() }
+	info, err := os.Stat(target)
+	if err != nil { panic(err) }
+	fmt.Printf("target: mode=%04o bytes_written=%d\n", info.Mode().Perm(), info.Size())
+	fmt.Printf("parent_foreign_ACL_detected_by_existing_helper=%t\n", cliutil.CheckDarwinPrivateFileACL(dir, "probe directory") != nil)
+}

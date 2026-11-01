@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "google-voice-agent-tool-discovery",
+  "applied_at": "2026-10-31",
+  "base_run_id": "20261031-175451-910ae94f",
+  "base_printing_press_version": "4.35.0",
+  "summary": "Keep help-only command groups out of the actionable MCP catalog and retain grounded account and pagination descriptions through the supported override sidecar.",
+  "reason": "Agents should select executable leaf operations; account, threads, history and mirror are help-only groups, while the three read endpoints need accurate existing-account and same-thread cursor guidance.",
+  "files": [
+    "internal/cli/history.go",
+    "internal/cli/mirror.go",
+    "internal/cli/voice_core.go",
+    "mcp-descriptions.json"
+  ],
+  "markers": [
+    "pp:parent-group",
+    "older-history continuation evidence"
+  ]
+}

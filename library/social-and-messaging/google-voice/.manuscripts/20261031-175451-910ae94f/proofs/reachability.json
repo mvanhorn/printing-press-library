@@ -1,0 +1,17 @@
+{
+  "status": 200,
+  "rpc": "account/get",
+  "method": "POST",
+  "read_only": true,
+  "transport": "standard_http",
+  "captured_browser_status": 200,
+  "credentials_refreshed": true,
+  "cookie_names_changed": [
+    "__Secure-1PSIDTS",
+    "__Secure-3PSIDTS",
+    "S",
+    "SIDCC",
+    "__Secure-1PSIDCC",
+    "__Secure-3PSIDCC"
+  ]
+}

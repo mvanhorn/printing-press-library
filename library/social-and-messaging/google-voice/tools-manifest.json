@@ -1,0 +1,50 @@
+{
+  "api_name": "google-voice",
+  "base_url": "https://clients6.google.com/voice/v1/voiceclient",
+  "description": "Read Google Voice through ordinary HTTP and recover evidence from a local message mirror.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "in": "cookie",
+    "cookie_domain": ".google.com",
+    "cookies": [
+      "SID",
+      "HSID",
+      "SSID",
+      "APISID",
+      "SAPISID",
+      "__Secure-1PSIDTS"
+    ]
+  },
+  "required_headers": [],
+  "tools": [],
+  "novel_features": [
+    {
+      "name": "Compound message evidence",
+      "command": "history query",
+      "description": "Find messages using participant, dates, direction, literal text and attachment evidence together."
+    },
+    {
+      "name": "Message-anchored context packet",
+      "command": "history context",
+      "description": "Retrieve neighboring messages around a known message, including collection boundaries."
+    },
+    {
+      "name": "Question-scoped coverage evidence",
+      "command": "mirror coverage",
+      "description": "See freshness, unfinished pagination and collection failures before relying on a lookup."
+    },
+    {
+      "name": "Observed conversation activity",
+      "command": "history activity",
+      "description": "See observed inbound and outbound counts and latest message times per conversation."
+    },
+    {
+      "name": "Newly mirrored records",
+      "command": "history arrivals",
+      "description": "Inspect which records collection added, keeping old backfill distinct from recent communication."
+    }
+  ]
+}

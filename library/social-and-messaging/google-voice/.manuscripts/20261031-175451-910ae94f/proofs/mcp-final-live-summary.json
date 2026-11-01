@@ -1,0 +1,56 @@
+{
+  "initialize_passed": true,
+  "tool_count": 27,
+  "help_only_groups_absent": true,
+  "calls": [
+    {
+      "tool": "account_get",
+      "rpc_error": false,
+      "is_error": false,
+      "json_payloads": 1
+    },
+    {
+      "tool": "threads_list",
+      "rpc_error": false,
+      "is_error": false,
+      "json_payloads": 1
+    },
+    {
+      "tool": "threads_get",
+      "rpc_error": false,
+      "is_error": false,
+      "json_payloads": 1
+    },
+    {
+      "tool": "history_query",
+      "rpc_error": false,
+      "is_error": false,
+      "json_payloads": 1
+    },
+    {
+      "tool": "history_context",
+      "rpc_error": false,
+      "is_error": false,
+      "json_payloads": 1
+    },
+    {
+      "tool": "mirror_coverage",
+      "rpc_error": false,
+      "is_error": false,
+      "json_payloads": 1
+    },
+    {
+      "tool": "history_activity",
+      "rpc_error": false,
+      "is_error": false,
+      "json_payloads": 1
+    },
+    {
+      "tool": "history_arrivals",
+      "rpc_error": false,
+      "is_error": false,
+      "json_payloads": 1
+    }
+  ],
+  "invalid_count_rejected": true
+}

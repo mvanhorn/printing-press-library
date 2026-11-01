@@ -1,0 +1,77 @@
+{
+  "rows": [
+    {
+      "path": "auth import-har",
+      "pass": true
+    },
+    {
+      "path": "auth status",
+      "pass": true
+    },
+    {
+      "path": "account get",
+      "pass": true
+    },
+    {
+      "path": "threads list",
+      "pass": true
+    },
+    {
+      "path": "threads get",
+      "pass": true
+    },
+    {
+      "path": "threads get",
+      "pass": true
+    },
+    {
+      "path": "threads get",
+      "pass": true
+    },
+    {
+      "path": "mirror sync",
+      "pass": true
+    },
+    {
+      "path": "search",
+      "pass": true
+    },
+    {
+      "path": "mirror export",
+      "pass": true
+    },
+    {
+      "path": "threads get",
+      "pass": true
+    },
+    {
+      "path": "mcp",
+      "pass": true
+    },
+    {
+      "path": "history query",
+      "pass": true
+    },
+    {
+      "path": "history context",
+      "pass": true
+    },
+    {
+      "path": "mirror coverage",
+      "pass": true
+    },
+    {
+      "path": "history activity",
+      "pass": true
+    },
+    {
+      "path": "history arrivals",
+      "pass": true
+    }
+  ],
+  "novel_features_check": {
+    "planned": 5,
+    "found": 5
+  },
+  "usage_note": "search declares its real optional text argument; exact leaf resolution rejects parent command fall-through."
+}

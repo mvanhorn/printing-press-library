@@ -1,0 +1,205 @@
+{
+  "api_name": "google-voice",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "mautrix/gvoice",
+      "url": "https://github.com/mautrix/gvoice",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "googlevoice-mcp",
+      "url": "https://github.com/zhuqf/googlevoice-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-11-01T00:15:55.203826Z",
+  "novel_features": [
+    {
+      "name": "Compound message evidence",
+      "command": "history query",
+      "description": "Find messages using participant, dates, direction, literal text and attachment evidence together.",
+      "rationale": "Account-scoped local joins combine messages, participants and attachment metadata across mirrored threads.",
+      "example": "google-voice-pp-cli history query --text appointment --direction inbound --limit 20 --agent",
+      "why_it_matters": "Use when a concrete question needs a bounded intersection of message facts.",
+      "group": "Recover message evidence"
+    },
+    {
+      "name": "Message-anchored context packet",
+      "command": "history context",
+      "description": "Retrieve neighboring messages around a known message, including collection boundaries.",
+      "rationale": "Local message ordering and provenance create a bounded evidence packet around one stable source ID.",
+      "example": "google-voice-pp-cli history context --message-id sms-example --before 4 --after 4 --agent",
+      "why_it_matters": "Use after finding an exact message when its surrounding exchange matters.",
+      "group": "Recover message evidence"
+    },
+    {
+      "name": "Question-scoped coverage evidence",
+      "command": "mirror coverage",
+      "description": "See freshness, unfinished pagination and collection failures before relying on a lookup.",
+      "rationale": "Folder inventory, thread checkpoints and run failures must be joined with the proposed lookup scope.",
+      "example": "google-voice-pp-cli mirror coverage --agent",
+      "why_it_matters": "Use before treating an empty search as evidence that no communication occurred.",
+      "group": "Understand collection state"
+    },
+    {
+      "name": "Observed conversation activity",
+      "command": "history activity",
+      "description": "See observed inbound and outbound counts and latest message times per conversation.",
+      "rationale": "Local direction and time aggregates join exact participants and collection observations without assigning relationship meaning.",
+      "example": "google-voice-pp-cli history activity --since 30d --limit 50 --agent",
+      "why_it_matters": "Use to establish recent communication facts before a separate skill interprets them.",
+      "group": "Recover message evidence"
+    },
+    {
+      "name": "Newly mirrored records",
+      "command": "history arrivals",
+      "description": "Inspect which records collection added, keeping old backfill distinct from recent communication.",
+      "rationale": "Immutable first-seen collection observations join source timestamps and stable message IDs.",
+      "example": "google-voice-pp-cli history arrivals --limit 100 --agent",
+      "why_it_matters": "Use to review collection growth and confirm repeated imports do not invent new arrivals.",
+      "group": "Understand collection state"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Compound message evidence",
+      "command": "history query",
+      "description": "Find messages using participant, dates, direction, literal text and attachment evidence together.",
+      "rationale": "Account-scoped local joins combine messages, participants and attachment metadata across mirrored threads.",
+      "example": "google-voice-pp-cli history query --text appointment --direction inbound --limit 20 --agent",
+      "why_it_matters": "Use when a concrete question needs a bounded intersection of message facts.",
+      "group": "Recover message evidence"
+    },
+    {
+      "name": "Message-anchored context packet",
+      "command": "history context",
+      "description": "Retrieve neighboring messages around a known message, including collection boundaries.",
+      "rationale": "Local message ordering and provenance create a bounded evidence packet around one stable source ID.",
+      "example": "google-voice-pp-cli history context --message-id sms-example --before 4 --after 4 --agent",
+      "why_it_matters": "Use after finding an exact message when its surrounding exchange matters.",
+      "group": "Recover message evidence"
+    },
+    {
+      "name": "Question-scoped coverage evidence",
+      "command": "mirror coverage",
+      "description": "See freshness, unfinished pagination and collection failures before relying on a lookup.",
+      "rationale": "Folder inventory, thread checkpoints and run failures must be joined with the proposed lookup scope.",
+      "example": "google-voice-pp-cli mirror coverage --agent",
+      "why_it_matters": "Use before treating an empty search as evidence that no communication occurred.",
+      "group": "Understand collection state"
+    },
+    {
+      "name": "Observed conversation activity",
+      "command": "history activity",
+      "description": "See observed inbound and outbound counts and latest message times per conversation.",
+      "rationale": "Local direction and time aggregates join exact participants and collection observations without assigning relationship meaning.",
+      "example": "google-voice-pp-cli history activity --since 30d --limit 50 --agent",
+      "why_it_matters": "Use to establish recent communication facts before a separate skill interprets them.",
+      "group": "Recover message evidence"
+    },
+    {
+      "name": "Newly mirrored records",
+      "command": "history arrivals",
+      "description": "Inspect which records collection added, keeping old backfill distinct from recent communication.",
+      "rationale": "Immutable first-seen collection observations join source timestamps and stable message IDs.",
+      "example": "google-voice-pp-cli history arrivals --limit 100 --agent",
+      "why_it_matters": "Use to review collection growth and confirm repeated imports do not invent new arrivals.",
+      "group": "Understand collection state"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Google Voice",
+    "headline": "Read Google Voice through ordinary HTTP and recover evidence from a local message mirror.",
+    "value_prop": "Collect account-scoped message history with resumable pagination, then search it locally. Inspect surrounding conversation, observed activity and collection coverage before answering from that history.",
+    "auth_narrative": "Google Voice uses an existing signed-in Google web session, not a consumer API key. Import credentials from a private local HAR with auth import-har; the CLI keeps only allowlisted session material in a machine-local profile and computes SAPISIDHASH for each fixed-host read request. Expired sessions require a fresh private import; a running browser is not required for ordinary reads.",
+    "quickstart": [
+      {
+        "command": "google-voice-pp-cli doctor --dry-run",
+        "comment": "Check command configuration without credentials or network."
+      },
+      {
+        "command": "google-voice-pp-cli account get --agent",
+        "comment": "Verify the imported profile identifies the expected Voice account."
+      },
+      {
+        "command": "google-voice-pp-cli mirror sync --max-pages 2 --agent",
+        "comment": "Collect a bounded amount of message history and persist continuation work."
+      },
+      {
+        "command": "google-voice-pp-cli search appointment --limit 20 --agent",
+        "comment": "Find literal matches in the local message mirror."
+      },
+      {
+        "command": "google-voice-pp-cli mirror coverage --agent",
+        "comment": "Inspect observation freshness and unfinished collection before using the result."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Google returns 401 or the session is no longer usable.",
+        "fix": "Capture a fresh signed-in Voice read HAR privately, import it with auth import-har, then run auth status --live."
+      },
+      {
+        "symptom": "A search is empty or older messages are missing.",
+        "fix": "Run mirror coverage, then mirror sync with bounded --max-pages to continue pending inventory or thread history; an empty result is not completeness proof."
+      },
+      {
+        "symptom": "Google returns 429.",
+        "fix": "Honor the reported retry time and rerun bounded mirror sync later; do not install a rapid polling loop."
+      }
+    ],
+    "when_to_use": "Use for read-only Google Voice account, conversation and message access and for deterministic queries over its local mirror. Check collection coverage when answering a question from missing or older history. Keep relationship judgment and cross-service person identity in separate tools.",
+    "anti_triggers": [
+      "Do not use this CLI to send SMS/MMS, reply, call, mark read, archive or delete source conversations.",
+      "Do not use this CLI to merge identities or modify the existing Signal/Telegram relationship-memory database.",
+      "Do not use this CLI to install a background service or promise complete Google Voice history from one bounded sync."
+    ],
+    "recipes": [
+      {
+        "title": "Find inbound appointment messages",
+        "command": "google-voice-pp-cli history query --text appointment --direction inbound --limit 20 --agent --select messages.id,messages.thread_id,messages.timestamp,messages.text",
+        "explanation": "Narrow literal evidence while preserving source identifiers."
+      },
+      {
+        "title": "Inspect observed communication",
+        "command": "google-voice-pp-cli history activity --since 30d --limit 50 --agent",
+        "explanation": "Return counts and last-observed source times without assigning social meaning."
+      },
+      {
+        "title": "Check collection coverage",
+        "command": "google-voice-pp-cli mirror coverage --agent",
+        "explanation": "Inspect freshness, inventory, older-history cursors and failed work."
+      },
+      {
+        "title": "Inspect newly collected records",
+        "command": "google-voice-pp-cli history arrivals --limit 100 --agent",
+        "explanation": "Separate first-seen collection time from original message time."
+      }
+    ],
+    "trigger_phrases": [
+      "check my Google Voice messages",
+      "sync Google Voice history",
+      "search my Voice messages",
+      "what Google Voice history is collected",
+      "use google-voice",
+      "run google-voice"
+    ]
+  }
+}

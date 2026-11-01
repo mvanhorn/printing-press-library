@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/google-voice-pp-cli
+/google-voice-pp-cli.exe
+/google-voice-pp-mcp
+/google-voice-pp-mcp.exe
+/bin/
+/build/
+/dist/

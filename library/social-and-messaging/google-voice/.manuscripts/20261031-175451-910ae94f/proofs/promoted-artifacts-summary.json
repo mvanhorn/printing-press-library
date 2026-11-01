@@ -1,0 +1,24 @@
+{
+  "promoted": true,
+  "library_dir": "<cli-dir>/printing-press/library/google-voice",
+  "checks": [
+    {
+      "check": "version",
+      "exit": 0
+    },
+    {
+      "check": "auth-live",
+      "exit": 0
+    },
+    {
+      "check": "local-query",
+      "exit": 0
+    },
+    {
+      "check": "mcp-config",
+      "exit": 0
+    }
+  ],
+  "mcp_sibling_exists": true,
+  "embedded_acceptance_matches": true
+}

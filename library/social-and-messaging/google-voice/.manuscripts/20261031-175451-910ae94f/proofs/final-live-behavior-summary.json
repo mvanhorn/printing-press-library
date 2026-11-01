@@ -1,0 +1,12 @@
+{
+  "observed_records": 161,
+  "literal_search_matches": 18,
+  "literal_query_matches": 18,
+  "negative_literal_matches": 0,
+  "context_same_thread_chronological_rows": 9,
+  "unique_arrival_ids": 161,
+  "activity_messages_reconciled": 149,
+  "coverage_pending_work_preserved": true,
+  "novel_happy_paths_non_dry": 5,
+  "mcp_live_calls_passed": 8
+}

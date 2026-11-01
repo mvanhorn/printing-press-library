@@ -1,0 +1,15 @@
+{
+  "private_capture_mode": "0o600",
+  "exact_credential_scan": {
+    "files_scanned": 13,
+    "leak_paths": [],
+    "result": "pass"
+  },
+  "core_rows": 12,
+  "novel_cards": 5,
+  "novel_features": 5,
+  "framework_narrative_static_check": "pass",
+  "shared_review_http_status": 200,
+  "visual_review": "Desktop screenshot inspected; readable layout, all five novel features present in browser accessibility tree.",
+  "scope_approval": "pending"
+}
