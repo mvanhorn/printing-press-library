@@ -25,7 +25,8 @@ func hasLiveAuthConfigured(flags *rootFlags) bool {
 	return cid != "" && csec != "" && rtok != ""
 }
 
-// loadLocalResourceBlobs reads raw JSON rows from the local SQLite resources table using the drain-first pattern.
+// loadLocalResourceBlobs reads raw JSON rows from the local SQLite resources table using the drain-first pattern,
+// ordered from newest to oldest synced_at so the most recently synced record always takes precedence.
 func loadLocalResourceBlobs(ctx context.Context, cmd *cobra.Command, flags *rootFlags, dbPath string, resourceTypes ...string) ([][]byte, bool, error) {
 	if dbPath == "" {
 		dbPath = defaultDBPath("yahoo-fantasy-pp-cli")
@@ -43,7 +44,7 @@ func loadLocalResourceBlobs(ctx context.Context, cmd *cobra.Command, flags *root
 		hintIfStale(cmd, db, "", flags.maxAge)
 	}
 
-	query := `SELECT id, resource_type, data FROM resources`
+	query := `SELECT id, resource_type, data FROM resources ORDER BY synced_at DESC, rowid DESC`
 	rows, err := db.DB().QueryContext(ctx, query)
 	if err != nil {
 		return nil, true, err
@@ -106,6 +107,8 @@ func extractAllPlayersFromBlobs(blobs [][]byte) []yahoofantasy.PlayerRecord {
 	return extractLeaguePlayersFromBlobs(blobs, "")
 }
 
+// extractLeaguePlayersFromBlobs deduplicates player records across blobs ordered newest-first.
+// The newest blob's values win; older blobs only backfill missing fields.
 func extractLeaguePlayersFromBlobs(blobs [][]byte, leagueKey string) []yahoofantasy.PlayerRecord {
 	var all []yahoofantasy.PlayerRecord
 	seen := map[string]int{}
@@ -116,46 +119,46 @@ func extractLeaguePlayersFromBlobs(blobs [][]byte, leagueKey string) []yahoofant
 			}
 			key := p.LeagueKey + "|" + p.PlayerKey
 			if idx, ok := seen[key]; ok {
-				if p.LeagueKey != "" {
+				if all[idx].LeagueKey == "" && p.LeagueKey != "" {
 					all[idx].LeagueKey = p.LeagueKey
 				}
-				if p.FullName != "" {
+				if all[idx].FullName == "" && p.FullName != "" {
 					all[idx].FullName = p.FullName
 				}
-				if p.DisplayPosition != "" {
+				if all[idx].DisplayPosition == "" && p.DisplayPosition != "" {
 					all[idx].DisplayPosition = p.DisplayPosition
 				}
-				if len(p.EligiblePositions) > 0 && len(all[idx].EligiblePositions) == 0 {
+				if len(all[idx].EligiblePositions) == 0 && len(p.EligiblePositions) > 0 {
 					all[idx].EligiblePositions = p.EligiblePositions
 				}
-				if p.PointsTotal > all[idx].PointsTotal {
+				if all[idx].PointsTotal == 0 && p.PointsTotal > 0 {
 					all[idx].PointsTotal = p.PointsTotal
 				}
-				if p.PointsPerGame > all[idx].PointsPerGame {
+				if all[idx].PointsPerGame == 0 && p.PointsPerGame > 0 {
 					all[idx].PointsPerGame = p.PointsPerGame
 				}
-				if p.GamesPlayed > all[idx].GamesPlayed {
+				if all[idx].GamesPlayed == 0 && p.GamesPlayed > 0 {
 					all[idx].GamesPlayed = p.GamesPlayed
 				}
 				if all[idx].PointsPerGame == 0 && all[idx].PointsTotal > 0 && all[idx].GamesPlayed > 0 {
 					all[idx].PointsPerGame = all[idx].PointsTotal / float64(all[idx].GamesPlayed)
 				}
-				if p.ProjectedPoints > all[idx].ProjectedPoints {
+				if all[idx].ProjectedPoints == 0 && p.ProjectedPoints > 0 {
 					all[idx].ProjectedPoints = p.ProjectedPoints
 				}
-				if p.PercentOwned > all[idx].PercentOwned {
+				if all[idx].PercentOwned == 0 && p.PercentOwned > 0 {
 					all[idx].PercentOwned = p.PercentOwned
 				}
-				if p.SelectedPosition != "" {
+				if all[idx].SelectedPosition == "" && p.SelectedPosition != "" {
 					all[idx].SelectedPosition = p.SelectedPosition
 				}
-				if p.Status != "" {
+				if all[idx].Status == "" && p.Status != "" {
 					all[idx].Status = p.Status
 				}
-				if p.OwnershipStatus != "" {
+				if all[idx].OwnershipStatus == "" && p.OwnershipStatus != "" {
 					all[idx].OwnershipStatus = p.OwnershipStatus
 				}
-				if p.OwnerTeamKey != "" {
+				if all[idx].OwnerTeamKey == "" && p.OwnerTeamKey != "" {
 					all[idx].OwnerTeamKey = p.OwnerTeamKey
 				}
 			} else {
@@ -171,6 +174,8 @@ func extractAllTeamsFromBlobs(blobs [][]byte) []yahoofantasy.TeamRecord {
 	return extractLeagueTeamsFromBlobs(blobs, "")
 }
 
+// extractLeagueTeamsFromBlobs deduplicates team records across blobs ordered newest-first.
+// The newest record wins for each field; older or complementary blobs (e.g. teams vs standings) only fill unset fields.
 func extractLeagueTeamsFromBlobs(blobs [][]byte, leagueKey string) []yahoofantasy.TeamRecord {
 	var all []yahoofantasy.TeamRecord
 	seen := map[string]int{}
@@ -180,31 +185,31 @@ func extractLeagueTeamsFromBlobs(blobs [][]byte, leagueKey string) []yahoofantas
 				continue
 			}
 			if idx, ok := seen[t.TeamKey]; ok {
-				if t.LeagueKey != "" {
+				if all[idx].LeagueKey == "" && t.LeagueKey != "" {
 					all[idx].LeagueKey = t.LeagueKey
 				}
-				if t.Name != "" {
+				if all[idx].Name == "" && t.Name != "" {
 					all[idx].Name = t.Name
 				}
-				if t.PointsFor > all[idx].PointsFor {
+				if all[idx].PointsFor == 0 && t.PointsFor > 0 {
 					all[idx].PointsFor = t.PointsFor
 				}
-				if t.ProjectedPoints > all[idx].ProjectedPoints {
+				if all[idx].ProjectedPoints == 0 && t.ProjectedPoints > 0 {
 					all[idx].ProjectedPoints = t.ProjectedPoints
 				}
-				if t.WinProbability > all[idx].WinProbability {
+				if all[idx].WinProbability == 0 && t.WinProbability > 0 {
 					all[idx].WinProbability = t.WinProbability
 				}
-				if t.Wins > 0 || t.Losses > 0 || t.Ties > 0 {
+				if all[idx].Wins == 0 && all[idx].Losses == 0 && all[idx].Ties == 0 && (t.Wins > 0 || t.Losses > 0 || t.Ties > 0) {
 					all[idx].Wins = t.Wins
 					all[idx].Losses = t.Losses
 					all[idx].Ties = t.Ties
 				}
-				if t.HasFaab || t.FaabBalance > 0 {
+				if !all[idx].HasFaab && all[idx].FaabBalance == 0 && (t.HasFaab || t.FaabBalance > 0) {
 					all[idx].FaabBalance = t.FaabBalance
 					all[idx].HasFaab = true
 				}
-				if len(t.Roster) > 0 {
+				if len(all[idx].Roster) == 0 && len(t.Roster) > 0 {
 					all[idx].Roster = t.Roster
 				}
 			} else {
@@ -226,13 +231,13 @@ func extractLeagueDraftPicksFromBlobs(blobs [][]byte, leagueKey string) []yahoof
 			}
 			key := fmt.Sprintf("%s|%d|%d|%s", pk.LeagueKey, pk.Round, pk.Pick, pk.PlayerKey)
 			if idx, ok := seen[key]; ok {
-				if pk.LeagueKey != "" {
+				if all[idx].LeagueKey == "" && pk.LeagueKey != "" {
 					all[idx].LeagueKey = pk.LeagueKey
 				}
-				if pk.TeamKey != "" {
+				if all[idx].TeamKey == "" && pk.TeamKey != "" {
 					all[idx].TeamKey = pk.TeamKey
 				}
-				if pk.Cost > all[idx].Cost {
+				if all[idx].Cost == 0 && pk.Cost > 0 {
 					all[idx].Cost = pk.Cost
 				}
 			} else {
@@ -257,20 +262,17 @@ func extractLeagueTransactionsFromBlobs(blobs [][]byte, leagueKey string) []yaho
 				key = fmt.Sprintf("%s|%s|%s|%s|%d|%d", tx.LeagueKey, tx.TeamKey, tx.AddPlayerKey, tx.DropPlayerKey, tx.FaabBid, tx.Timestamp)
 			}
 			if idx, ok := seen[key]; ok {
-				if tx.LeagueKey != "" {
+				if all[idx].LeagueKey == "" && tx.LeagueKey != "" {
 					all[idx].LeagueKey = tx.LeagueKey
 				}
-				if tx.TeamKey != "" {
+				if all[idx].TeamKey == "" && tx.TeamKey != "" {
 					all[idx].TeamKey = tx.TeamKey
 				}
-				if tx.AddPlayerName != "" {
+				if all[idx].AddPlayerName == "" && tx.AddPlayerName != "" {
 					all[idx].AddPlayerName = tx.AddPlayerName
 				}
-				if tx.AddPlayerPos != "" {
+				if all[idx].AddPlayerPos == "" && tx.AddPlayerPos != "" {
 					all[idx].AddPlayerPos = tx.AddPlayerPos
-				}
-				if tx.FaabBid > all[idx].FaabBid {
-					all[idx].FaabBid = tx.FaabBid
 				}
 			} else {
 				seen[key] = len(all)
@@ -281,6 +283,8 @@ func extractLeagueTransactionsFromBlobs(blobs [][]byte, leagueKey string) []yaho
 	return all
 }
 
+// extractLeagueMatchupsFromBlobs selects the newest saved record for each weekly matchup
+// (since blobs are ordered by synced_at DESC) without combining field maxima across stale copies.
 func extractLeagueMatchupsFromBlobs(blobs [][]byte, leagueKey string) []yahoofantasy.MatchupRecord {
 	var all []yahoofantasy.MatchupRecord
 	seen := map[string]int{}
@@ -291,37 +295,19 @@ func extractLeagueMatchupsFromBlobs(blobs [][]byte, leagueKey string) []yahoofan
 			}
 			key := fmt.Sprintf("%d|%s|%s", m.Week, m.TeamKey, m.OpponentKey)
 			if idx, ok := seen[key]; ok {
-				if m.LeagueKey != "" {
+				if all[idx].LeagueKey == "" && m.LeagueKey != "" {
 					all[idx].LeagueKey = m.LeagueKey
 				}
-				if m.TeamName != "" {
+				if all[idx].TeamName == "" && m.TeamName != "" {
 					all[idx].TeamName = m.TeamName
 				}
-				if m.OpponentName != "" {
+				if all[idx].OpponentName == "" && m.OpponentName != "" {
 					all[idx].OpponentName = m.OpponentName
 				}
-				if m.TeamPoints > all[idx].TeamPoints {
-					all[idx].TeamPoints = m.TeamPoints
-				}
-				if m.TeamProjected > all[idx].TeamProjected {
-					all[idx].TeamProjected = m.TeamProjected
-				}
-				if m.OpponentPoints > all[idx].OpponentPoints {
-					all[idx].OpponentPoints = m.OpponentPoints
-				}
-				if m.OpponentProjected > all[idx].OpponentProjected {
-					all[idx].OpponentProjected = m.OpponentProjected
-				}
-				if m.TeamWinProb > all[idx].TeamWinProb {
-					all[idx].TeamWinProb = m.TeamWinProb
-				}
-				if m.OpponentWinProb > all[idx].OpponentWinProb {
-					all[idx].OpponentWinProb = m.OpponentWinProb
-				}
-				if len(m.TeamStarters) > len(all[idx].TeamStarters) {
+				if len(all[idx].TeamStarters) == 0 && len(m.TeamStarters) > 0 {
 					all[idx].TeamStarters = m.TeamStarters
 				}
-				if len(m.OpponentStarters) > len(all[idx].OpponentStarters) {
+				if len(all[idx].OpponentStarters) == 0 && len(m.OpponentStarters) > 0 {
 					all[idx].OpponentStarters = m.OpponentStarters
 				}
 			} else {

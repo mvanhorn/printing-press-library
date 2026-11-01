@@ -41,7 +41,7 @@ func runTestRootCmd(t *testing.T, args ...string) string {
 	return stdout.String()
 }
 
-func TestYahooSyncNoDuplicateReportRecordsAndBatchKeys(t *testing.T) {
+func TestYahooSyncNoDuplicateReportRecordsAndStablePlayerKeys(t *testing.T) {
 	ctx := context.Background()
 	dbPath := filepath.Join(t.TempDir(), "sync.db")
 	db, err := store.OpenWithContext(ctx, dbPath)
@@ -49,6 +49,7 @@ func TestYahooSyncNoDuplicateReportRecordsAndBatchKeys(t *testing.T) {
 		t.Fatalf("open store: %v", err)
 	}
 
+	faPlayerKey := "449.p.39999"
 	fc := &fakeYahooSyncClient{
 		handlers: map[string]func() (json.RawMessage, error){
 			"/league/449.l.365083/teams": func() (json.RawMessage, error) {
@@ -67,7 +68,7 @@ func TestYahooSyncNoDuplicateReportRecordsAndBatchKeys(t *testing.T) {
 				return json.RawMessage(`{"fantasy_content":{"league":{"league_key":"449.l.365083","players":[{"player":{"player_key":"449.p.31002","ownership":{"ownership_type":"team","owner_team_key":"449.l.365083.t.1"}}}]}}}`), nil
 			},
 			"/league/449.l.365083/players;status=A;position=O;sort=PTS;start=0;count=25/percent_owned": func() (json.RawMessage, error) {
-				return json.RawMessage(`{"fantasy_content":{"league":{"league_key":"449.l.365083","players":[{"player":{"player_key":"449.p.39999","name":{"full":"Free Agent"},"display_position":"WR","percent_owned":{"value":12}}}]}}}`), nil
+				return json.RawMessage(fmt.Sprintf(`{"fantasy_content":{"league":{"league_key":"449.l.365083","players":[{"player":{"player_key":"%s","name":{"full":"Free Agent"},"display_position":"WR","percent_owned":{"value":12}}}]}}}`, faPlayerKey)), nil
 			},
 			"/league/449.l.365083/players;player_keys=449.p.39999/stats;type=season;week=1": func() (json.RawMessage, error) {
 				return json.RawMessage(`{"fantasy_content":{"league":{"league_key":"449.l.365083","players":[{"player":{"player_key":"449.p.39999","name":{"full":"Free Agent"},"display_position":"WR","player_points":{"total":"88.0"},"player_stats":{"stats":[{"stat":{"stat_id":"0","value":"8"}}]}}}]}}}`), nil
@@ -89,6 +90,12 @@ func TestYahooSyncNoDuplicateReportRecordsAndBatchKeys(t *testing.T) {
 			t.Fatalf("sync %s error: %v", res, sr.Err)
 		}
 	}
+
+	// Verify only 2 stable per-player rows exist (no batch rows piling up).
+	playerCount, err := db.Count("players")
+	if err != nil || playerCount != 2 {
+		t.Fatalf("expected 2 stable per-player rows, got %d (err=%v)", playerCount, err)
+	}
 	_ = db.Close()
 
 	// Verify faab-audit counts the $15 acquisition once, not twice.
@@ -97,24 +104,26 @@ func TestYahooSyncNoDuplicateReportRecordsAndBatchKeys(t *testing.T) {
 		t.Fatalf("expected single $15 acquisition in faab-audit, got: %s", out)
 	}
 
-	// Verify draft-roi retains the 210.5 points for 449.p.31002 even after players sync ran its own batch 0.
+	// Verify draft-roi retains the 210.5 points for 449.p.31002 even after players sync ran.
 	drOut := runTestRootCmd(t, "draft-roi", "--league", "449.l.365083", "--db", dbPath, "--data-source", "local", "--json")
 	if !strings.Contains(drOut, `"season_points": 210.5`) {
 		t.Fatalf("expected draft-roi to preserve 210.5 season_points after players sync, got: %s", drOut)
 	}
 }
 
-func TestYahooSyncPartialFailureAndLatestOnlyAndLeagueScope(t *testing.T) {
+func TestYahooSyncPartialFailureLatestOnlyAndDownwardScoreCorrection(t *testing.T) {
 	ctx := context.Background()
 	dbPath := filepath.Join(t.TempDir(), "sync_scope.db")
 	db, err := store.OpenWithContext(ctx, dbPath)
 	if err != nil {
 		t.Fatalf("open store: %v", err)
 	}
-	defer func() { _ = db.Close() }()
 
-	// Seed an unrelated historical league in the DB.
+	// Seed an unrelated historical league AND a stale week-1 league blob for 449.l.365083,
+	// plus an old raw scoreboard with higher (pre-correction) week 3 score 130.0.
 	_ = db.Upsert("leagues", "449.l.999999", json.RawMessage(`{"league_key":"449.l.999999","current_week":5}`))
+	_ = db.Upsert("leagues", "449.l.365083", json.RawMessage(`{"league_key":"449.l.365083","current_week":1}`))
+	_ = db.Upsert("scoreboard", "449.l.365083.sb.3", json.RawMessage(`{"league_key":"449.l.365083","week":3,"team_key":"449.l.365083.t.1","team_name":"Alpha","team_points":130.0,"team_projected_points":128.0,"opponent_key":"449.l.365083.t.2","opponent_name":"Beta","opponent_points":102.0,"opponent_projected_points":105.0}`))
 
 	fc := &fakeYahooSyncClient{
 		handlers: map[string]func() (json.RawMessage, error){
@@ -122,7 +131,7 @@ func TestYahooSyncPartialFailureAndLatestOnlyAndLeagueScope(t *testing.T) {
 				return json.RawMessage(`{"fantasy_content":{"league":{"league_key":"449.l.365083","current_week":3}}}`), nil
 			},
 			"/league/449.l.365083/scoreboard;week=3": func() (json.RawMessage, error) {
-				return json.RawMessage(`{"fantasy_content":{"league":{"league_key":"449.l.365083","scoreboard":{"week":3,"matchups":[{"matchup":{"week":3,"teams":[{"team":{"team_key":"449.l.365083.t.1","name":"Alpha","team_points":{"total":"115.0"}}},{"team":{"team_key":"449.l.365083.t.2","name":"Beta","team_points":{"total":"102.0"}}}]}}]}}}}`), nil
+				return json.RawMessage(`{"fantasy_content":{"league":{"league_key":"449.l.365083","scoreboard":{"week":3,"matchups":[{"matchup":{"week":3,"teams":[{"team":{"team_key":"449.l.365083.t.1","name":"Alpha","team_points":{"total":"115.0"},"team_projected_points":{"total":"112.0"}}},{"team":{"team_key":"449.l.365083.t.2","name":"Beta","team_points":{"total":"102.0"},"team_projected_points":{"total":"100.0"}}}]}}]}}}}`), nil
 			},
 			"/league/449.l.365083/scoreboard;week=1": func() (json.RawMessage, error) {
 				return json.RawMessage(`{"fantasy_content":{"league":{"league_key":"449.l.365083","scoreboard":{"week":1,"matchups":[{"matchup":{"week":1,"teams":[{"team":{"team_key":"449.l.365083.t.1","name":"Alpha","team_points":{"total":"100.0"}}},{"team":{"team_key":"449.l.365083.t.2","name":"Beta","team_points":{"total":"95.0"}}}]}}]}}}}`), nil
@@ -138,9 +147,9 @@ func TestYahooSyncPartialFailureAndLatestOnlyAndLeagueScope(t *testing.T) {
 		t.Fatalf("parseSyncUserParams: %v", err)
 	}
 
-	// 1. --latest-only should fetch week 3 (current_week), NOT week 1, and should NOT touch 449.l.999999.
+	// 1. --latest-only should query live /league/449.l.365083 and fetch week 3 even when DB had current_week=1.
 	var events bytes.Buffer
-	srLatest := syncYahooLeagueScopedResource(ctx, fc, db, "scoreboard", 0, true, up, &events, time.Now())
+	srLatest := syncYahooLeagueScopedResource(ctx, fc, db, "scoreboard", 1, true, up, &events, time.Now())
 	if srLatest.Err != nil {
 		t.Fatalf("latest-only sync failed: %v", srLatest.Err)
 	}
@@ -161,5 +170,12 @@ func TestYahooSyncPartialFailureAndLatestOnlyAndLeagueScope(t *testing.T) {
 	}
 	if strings.Contains(events.String(), `"event":"sync_complete"`) {
 		t.Fatalf("expected failed sync not to emit sync_complete, got: %s", events.String())
+	}
+	_ = db.Close()
+
+	// 3. Downward score correction (130.0 -> 115.0) must report 115.0 in matchup-radar, not the old higher 130.0.
+	mrOut := runTestRootCmd(t, "matchup-radar", "--league", "449.l.365083", "--team", "449.l.365083.t.1", "--week", "3", "--db", dbPath, "--data-source", "local", "--json")
+	if !strings.Contains(mrOut, `"team_points": 115`) || strings.Contains(mrOut, "130") {
+		t.Fatalf("expected downward-corrected score 115.0 in matchup-radar, got: %s", mrOut)
 	}
 }

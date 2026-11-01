@@ -10,7 +10,7 @@
     "api_key_available": false,
     "browser_session_available": false
   },
-  "source_fingerprint": "a758804b83714e0c4930dc309f293528239455074aa389365b123ed2b58f8af3",
+  "source_fingerprint": "e90cd690f757ef03bc69fa2f7672719a3687b31baeab8ab76436d3496808f2a9",
   "source_files": {
     "cmd/yahoo-fantasy-pp-cli/main.go": "532fd1be1f2266448f9e040a5e82f1e4d5d3bd2b8e97480ed40e62aca638aa8b",
     "cmd/yahoo-fantasy-pp-mcp/http_auth_test.go": "5fbde52029fca49e8de860d3b075b319496e98f7a8ed2299032c9bdc9c103267",
@@ -110,9 +110,9 @@
     "internal/cli/waiver_wire_test.go": "e54b3d4eff942e720e217d4a054f18223777365f84c77ab9833404d464f4ddb5",
     "internal/cli/which.go": "3ab3c16a5cc2a9aad579e46bf73299bf3e7617a6c07e8d1707194dedf9c7d6fb",
     "internal/cli/which_test.go": "ecedae0bc0abc082295ca1f86629a271a2ee60293e4609e14d4629d891ef370e",
-    "internal/cli/yahoo_store_helpers.go": "115ae78f51902b5938d9eafdd58a740d8a3b757e07e1c58482cda680a84ff9a9",
-    "internal/cli/yahoo_sync.go": "b776ee5e4822ea767b197d869efdb293e9c5acfdf35d265fd8bb1b344f467fc9",
-    "internal/cli/yahoo_sync_test.go": "2e3bcef7578694b034ce18ef3c087be6650412b00c0a55f808707aa4e268e144",
+    "internal/cli/yahoo_store_helpers.go": "95a2ecfeedadcdc3a2f0d844d575fddf594062f7e6ef68d4b453485845557164",
+    "internal/cli/yahoo_sync.go": "5b7905c950bd6416d44dec10fa21bf027af29a8f84a6dfde19441ddc2d3649ad",
+    "internal/cli/yahoo_sync_test.go": "f9ba62d83446f874427f5b37cd8cfc7aae4f7ec9c2528ecf6e080075f06b953b",
     "internal/cli/yahoo_transport.go": "787189d77f1c9ac73032b480905ba5c1eee942cf91b263e173705eb1cb43f268",
     "internal/cli/yahoo_transport_test.go": "d20ca56738305d33e9aa66a549cff29ff22a6fc435d8d88ecc3cab607be03274",
     "internal/client/client.go": "fedcfabc9690fcbf2aa9868796a7f87bca497d3e8201dbc454f115ba07e12e9e",
