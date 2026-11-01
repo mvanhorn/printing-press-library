@@ -819,6 +819,9 @@ func mergePlayerRecordRefresh(base, update yahoofantasy.PlayerRecord, leagueKey 
 		out.OwnershipStatus = update.OwnershipStatus
 	}
 	if update.OwnerTeamKey != "" && !strings.EqualFold(out.OwnershipStatus, "FA") && !strings.EqualFold(out.OwnershipStatus, "W") {
+		if base.OwnerTeamKey != "" && !strings.EqualFold(base.OwnerTeamKey, update.OwnerTeamKey) && update.SelectedPosition == "" {
+			out.SelectedPosition = ""
+		}
 		out.OwnerTeamKey = update.OwnerTeamKey
 	} else if strings.EqualFold(out.OwnershipStatus, "FA") || strings.EqualFold(out.OwnershipStatus, "W") {
 		out.OwnerTeamKey = ""

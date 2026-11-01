@@ -150,7 +150,8 @@ func extractLeaguePlayersFromBlobs(blobs [][]byte, leagueKey string) []yahoofant
 					all[idx].PercentOwned = p.PercentOwned
 				}
 				isAvailable := strings.EqualFold(all[idx].OwnershipStatus, "FA") || strings.EqualFold(all[idx].OwnershipStatus, "W")
-				if !isAvailable && all[idx].SelectedPosition == "" && p.SelectedPosition != "" {
+				sameOrUnsetOwner := all[idx].OwnerTeamKey == "" || p.OwnerTeamKey == "" || strings.EqualFold(all[idx].OwnerTeamKey, p.OwnerTeamKey)
+				if !isAvailable && sameOrUnsetOwner && all[idx].SelectedPosition == "" && p.SelectedPosition != "" {
 					all[idx].SelectedPosition = p.SelectedPosition
 				}
 				if all[idx].Status == "" && p.Status != "" {

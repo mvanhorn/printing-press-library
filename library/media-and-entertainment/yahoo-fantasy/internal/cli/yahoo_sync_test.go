@@ -201,7 +201,7 @@ func TestYahooSyncLegacyBatchMigrationDroppedOwnerClearingAndConcurrentUpserts(t
 	_ = db.Upsert("players", "449.l.365083:stats:0", json.RawMessage(`{"fantasy_content":{"league":{"league_key":"449.l.365083","players":[{"player":{"player_key":"449.p.31002","name":{"full":"Legacy Drafted"},"display_position":"RB","player_points":{"total":"195.0"}}}]}}}`))
 	_ = db.Upsert("players", "449.l.365083:ownership:0", json.RawMessage(`{"fantasy_content":{"league":{"league_key":"449.l.365083","players":[{"player":{"player_key":"449.p.31002","ownership":{"ownership_type":"team","owner_team_key":"449.l.365083.t.1"}}}]}}}`))
 	_ = db.Upsert("players", "449.l.365083:player:449.p.32005", json.RawMessage(`{"league_key":"449.l.365083","player_key":"449.p.32005","full_name":"Dropped WR","display_position":"WR","selected_position":"WR","ownership_status":"T","owner_team_key":"449.l.365083.t.1","points_total":120.0,"games_played":8,"points_per_game":15.0}`))
-	_ = db.Upsert("players", "449.l.365083:player:449.p.33009", json.RawMessage(`{"league_key":"449.l.365083","player_key":"449.p.33009","full_name":"Traded Star","display_position":"WR","selected_position":"WR","ownership_status":"T","owner_team_key":"449.l.365083.t.1","points_total":180.0,"games_played":8,"points_per_game":22.5}`))
+	_ = db.Upsert("players", "449.l.365083:player:449.p.33009", json.RawMessage(`{"league_key":"449.l.365083","player_key":"449.p.33009","full_name":"Traded Star","display_position":"WR","selected_position":"BN","ownership_status":"T","owner_team_key":"449.l.365083.t.1","points_total":180.0,"games_played":8,"points_per_game":22.5}`))
 
 	fc := &fakeYahooSyncClient{
 		handlers: map[string]func() (json.RawMessage, error){
@@ -251,6 +251,12 @@ func TestYahooSyncLegacyBatchMigrationDroppedOwnerClearingAndConcurrentUpserts(t
 	matches, sErr := db.Search("Dropped WR", 10, "players")
 	if sErr != nil || len(matches) == 0 {
 		t.Fatalf("expected FTS search to find 'Dropped WR', got %d matches (err=%v)", len(matches), sErr)
+	}
+
+	// Verify traded player 449.p.33009 had its old team's BN slot cleared when ownership moved from t.1 to t.2.
+	tradedRaw, gErr := db.Get("players", "449.l.365083:player:449.p.33009")
+	if gErr != nil || strings.Contains(string(tradedRaw), `"selected_position"`) {
+		t.Fatalf("expected traded player 449.p.33009 to clear old team's selected_position, got: %s (err=%v)", string(tradedRaw), gErr)
 	}
 
 	// Verify concurrent upserts on the same player preserve merged fields from both writers.
