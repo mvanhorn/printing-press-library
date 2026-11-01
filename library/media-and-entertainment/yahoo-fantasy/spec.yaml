@@ -1,0 +1,982 @@
+name: yahoo-fantasy
+description: "Yahoo Fantasy Sports CLI and MCP server for NFL and multi-sport leagues, rosters, lineups, add/drop transactions, waivers, and local SQLite analytics"
+version: "0.1.0"
+category: media-and-entertainment
+base_url: "https://fantasysports.yahooapis.com/fantasy/v2"
+http_transport: standard
+health_check_path: "/game/nfl?format=json"
+required_headers:
+  - name: Accept
+    value: "application/json, application/xml;q=0.9, */*;q=0.8"
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "Bearer {token}"
+  env_vars:
+    - YAHOO_ACCESS_TOKEN
+    - YAHOO_FANTASY_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/yahoo-fantasy-pp-cli/config.toml"
+
+cache:
+  enabled: true
+  stale_after: 6h
+  refresh_timeout: 30s
+  commands:
+    - name: waiver-wire
+      resources: [users]
+    - name: matchup-radar
+      resources: [users]
+    - name: power-rankings
+      resources: [users]
+    - name: faab-audit
+      resources: [users]
+    - name: draft-roi
+      resources: [users]
+
+learn:
+  ticker_patterns:
+    - "^[0-9]{3}\\.l\\.[0-9]+$"
+    - "^[0-9]{3}\\.l\\.[0-9]+\\.t\\.[0-9]+$"
+    - "^[0-9]{3}\\.p\\.[0-9]+$"
+    - "^[0-9]{3}\\.l\\.[0-9]+\\.tr\\.[0-9]+$"
+  stopwords:
+    - fantasy
+    - yahoo
+    - player
+    - team
+    - league
+  synonyms:
+    "free agent": "fa"
+    "free agents": "fa"
+    "waiver wire": "waivers"
+    "starting lineup": "roster"
+    "starters": "roster"
+    "bench": "bn"
+    "injured reserve": "ir"
+  entity_lookup_seeds:
+    game_code:
+      - canonical: nfl
+        aliases: [football, pro football, fantasy football, nfl fantasy]
+      - canonical: nba
+        aliases: [basketball, pro basketball, fantasy basketball]
+      - canonical: mlb
+        aliases: [baseball, pro baseball, fantasy baseball]
+      - canonical: nhl
+        aliases: [hockey, pro hockey, fantasy hockey]
+    position:
+      - canonical: QB
+        aliases: [quarterback, quarterbacks, qbs]
+      - canonical: RB
+        aliases: [running back, running backs, rbs, halfback]
+      - canonical: WR
+        aliases: [wide receiver, wide receivers, wrs, receiver]
+      - canonical: TE
+        aliases: [tight end, tight ends, tes]
+      - canonical: W/R/T
+        aliases: [flex, wr/rb/te, flex spot]
+      - canonical: K
+        aliases: [kicker, kickers, pk]
+      - canonical: DEF
+        aliases: [defense, dst, d/st, team defense]
+      - canonical: BN
+        aliases: [bench, reserve]
+      - canonical: IR
+        aliases: [injured reserve, injured slot]
+
+resources:
+  games:
+    description: "Inspect Yahoo Fantasy game seasons, codes, and stat categories"
+    endpoints:
+      get:
+        method: GET
+        path: "/game/{game_key}"
+        description: "Get Yahoo Fantasy game metadata by game code (nfl, nba, mlb, nhl) or numeric game ID"
+        example: "  yahoo-fantasy-pp-cli games get nfl --agent"
+        happy_args: "game_key=nfl;--format=json"
+        params:
+          - name: game_key
+            flag_name: game-key
+            type: string
+            required: true
+            positional: true
+            description: "Game code (nfl, nba, mlb, nhl) or numeric season game ID (e.g. 449)"
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format from Yahoo API (json or xml)"
+        response:
+          type: object
+          item: Game
+
+  users:
+    description: "List leagues and teams belonging to the authenticated Yahoo user"
+    endpoints:
+      get_leagues:
+        method: GET
+        path: "/users;use_login=1/games;game_codes={game_codes}/leagues"
+        description: "List all Yahoo Fantasy leagues for the authenticated user filtered by sport code"
+        example: "  yahoo-fantasy-pp-cli users get-leagues nfl --agent"
+        happy_args: "game_codes=nfl;--format=json"
+        params:
+          - name: game_codes
+            flag_name: game-codes
+            type: string
+            required: true
+            positional: true
+            description: "Comma-separated sport game codes (e.g. nfl, nba, mlb, nhl)"
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format from Yahoo API (json or xml)"
+        response:
+          type: array
+          item: League
+
+      get_teams:
+        method: GET
+        path: "/users;use_login=1/games/teams"
+        description: "List all fantasy teams owned by the authenticated Yahoo user across seasons"
+        example: "  yahoo-fantasy-pp-cli users get-teams --agent"
+        happy_args: "--format=json"
+        params:
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format from Yahoo API (json or xml)"
+        response:
+          type: array
+          item: Team
+
+  leagues:
+    description: "Query Yahoo Fantasy league settings, standings, weekly scoreboards, players, draft results, and transactions"
+    endpoints:
+      get:
+        method: GET
+        path: "/league/{league_key}"
+        description: "Get league overview metadata (name, current week, scoring type, season)"
+        example: "  yahoo-fantasy-pp-cli leagues get 449.l.365083 --agent"
+        happy_args: "league_key=449.l.365083;--format=json"
+        params:
+          - name: league_key
+            flag_name: league-key
+            type: string
+            required: true
+            positional: true
+            description: "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)"
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format from Yahoo API (json or xml)"
+        response:
+          type: object
+          item: League
+
+      get_settings:
+        method: GET
+        path: "/league/{league_key}/settings"
+        description: "Get league rules, roster position slots, stat categories, point modifiers, and FAAB settings"
+        example: "  yahoo-fantasy-pp-cli leagues get-settings 449.l.365083 --agent"
+        happy_args: "league_key=449.l.365083;--format=json"
+        params:
+          - name: league_key
+            flag_name: league-key
+            type: string
+            required: true
+            positional: true
+            description: "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)"
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format from Yahoo API (json or xml)"
+        response:
+          type: object
+          item: LeagueSettings
+
+      get_standings:
+        method: GET
+        path: "/league/{league_key}/standings"
+        description: "Get league standings ordered by rank with win-loss-tie records, points for/against, and streak"
+        example: "  yahoo-fantasy-pp-cli leagues get-standings 449.l.365083 --agent"
+        happy_args: "league_key=449.l.365083;--format=json"
+        params:
+          - name: league_key
+            flag_name: league-key
+            type: string
+            required: true
+            positional: true
+            description: "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)"
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format from Yahoo API (json or xml)"
+        response:
+          type: array
+          item: Standing
+
+      get_teams:
+        method: GET
+        path: "/league/{league_key}/teams"
+        description: "List all teams in a league with manager profiles, waiver priority, and remaining FAAB budget"
+        example: "  yahoo-fantasy-pp-cli leagues get-teams 449.l.365083 --agent"
+        happy_args: "league_key=449.l.365083;--format=json"
+        params:
+          - name: league_key
+            flag_name: league-key
+            type: string
+            required: true
+            positional: true
+            description: "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)"
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format from Yahoo API (json or xml)"
+        response:
+          type: array
+          item: Team
+
+      get_scoreboard:
+        method: GET
+        path: "/league/{league_key}/scoreboard;week={week}"
+        description: "Get weekly league scoreboard and head-to-head matchups with live and projected points"
+        example: "  yahoo-fantasy-pp-cli leagues get-scoreboard 449.l.365083 9 --agent"
+        happy_args: "league_key=449.l.365083;week=9;--format=json"
+        params:
+          - name: league_key
+            flag_name: league-key
+            type: string
+            required: true
+            positional: true
+            description: "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)"
+          - name: week
+            type: int
+            required: true
+            positional: true
+            description: "NFL/league scoring week number (e.g. 1..18)"
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format from Yahoo API (json or xml)"
+        response:
+          type: array
+          item: Matchup
+
+      get_players:
+        method: GET
+        path: "/league/{league_key}/players;status={status};position={position};sort={sort};start={start};count={count}/percent_owned"
+        description: "List players in a league filtered by availability status (FA, W, T, A), position, and sort order"
+        example: "  yahoo-fantasy-pp-cli leagues get-players 449.l.365083 FA RB PTS 0 25 --agent"
+        happy_args: "league_key=449.l.365083;status=FA;position=RB;sort=PTS;start=0;count=25;--format=json"
+        params:
+          - name: league_key
+            flag_name: league-key
+            type: string
+            required: true
+            positional: true
+            description: "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)"
+          - name: status
+            type: string
+            required: true
+            positional: true
+            enum: ["A", "FA", "W", "T", "K"]
+            description: "Availability filter: FA (free agents), W (waivers), A (all available FA+W), T (taken), K (keepers)"
+          - name: position
+            type: string
+            required: true
+            positional: true
+            description: "Roster position filter (e.g. QB, RB, WR, TE, W/R/T, K, DEF)"
+          - name: sort
+            type: string
+            required: true
+            positional: true
+            description: "Sort criterion (PTS for points, OR for overall rank, AR for actual rank, NAME)"
+          - name: start
+            type: int
+            required: true
+            positional: true
+            description: "Pagination start offset (0, 25, 50, ...)"
+          - name: count
+            type: int
+            required: true
+            positional: true
+            description: "Number of players to return (max 25 per Yahoo API page)"
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format from Yahoo API (json or xml)"
+        response:
+          type: array
+          item: Player
+
+      get_draft_results:
+        method: GET
+        path: "/league/{league_key}/draftresults"
+        description: "Get complete league draft results with round, overall pick, team key, player key, and auction cost"
+        example: "  yahoo-fantasy-pp-cli leagues get-draft-results 449.l.365083 --agent"
+        happy_args: "league_key=449.l.365083;--format=json"
+        params:
+          - name: league_key
+            flag_name: league-key
+            type: string
+            required: true
+            positional: true
+            description: "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)"
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format from Yahoo API (json or xml)"
+        response:
+          type: array
+          item: DraftResult
+
+      get_transactions:
+        method: GET
+        path: "/league/{league_key}/transactions;types={types};count={count}"
+        description: "Get league transaction activity log filtered by transaction types (add, drop, trade, commish)"
+        example: "  yahoo-fantasy-pp-cli leagues get-transactions 449.l.365083 add,drop,trade 25 --agent"
+        happy_args: "league_key=449.l.365083;types=add,drop,trade;count=25;--format=json"
+        params:
+          - name: league_key
+            flag_name: league-key
+            type: string
+            required: true
+            positional: true
+            description: "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)"
+          - name: types
+            type: string
+            required: true
+            positional: true
+            description: "Comma-separated transaction types (add,drop,trade,commish,waiver,pending_trade)"
+          - name: count
+            type: int
+            required: true
+            positional: true
+            description: "Maximum number of transactions to return (e.g. 25)"
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format from Yahoo API (json or xml)"
+        response:
+          type: array
+          item: Transaction
+
+  teams:
+    description: "Inspect fantasy teams, weekly rosters, head-to-head matchups, and update starting lineups"
+    endpoints:
+      get:
+        method: GET
+        path: "/team/{team_key}"
+        description: "Get fantasy team details including manager, waiver priority, FAAB balance, and logos"
+        example: "  yahoo-fantasy-pp-cli teams get 449.l.365083.t.1 --agent"
+        happy_args: "team_key=449.l.365083.t.1;--format=json"
+        params:
+          - name: team_key
+            flag_name: team-key
+            type: string
+            required: true
+            positional: true
+            description: "Yahoo team key in {game_id}.l.{league_id}.t.{team_id} format (e.g. 449.l.365083.t.1)"
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format from Yahoo API (json or xml)"
+        response:
+          type: object
+          item: Team
+
+      get_roster:
+        method: GET
+        path: "/team/{team_key}/roster;week={week}"
+        description: "Get a team's active and bench roster for a specific NFL week"
+        example: "  yahoo-fantasy-pp-cli teams get-roster 449.l.365083.t.1 9 --agent"
+        happy_args: "team_key=449.l.365083.t.1;week=9;--format=json"
+        params:
+          - name: team_key
+            flag_name: team-key
+            type: string
+            required: true
+            positional: true
+            description: "Yahoo team key in {game_id}.l.{league_id}.t.{team_id} format (e.g. 449.l.365083.t.1)"
+          - name: week
+            type: int
+            required: true
+            positional: true
+            description: "NFL week number for the roster snapshot (e.g. 9)"
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format from Yahoo API (json or xml)"
+        response:
+          type: array
+          item: RosterPlayer
+
+      get_matchups:
+        method: GET
+        path: "/team/{team_key}/matchups;weeks={weeks}"
+        description: "Get head-to-head matchups and projected/actual scores for a team across one or more weeks"
+        example: "  yahoo-fantasy-pp-cli teams get-matchups 449.l.365083.t.1 9 --agent"
+        happy_args: "team_key=449.l.365083.t.1;weeks=9;--format=json"
+        params:
+          - name: team_key
+            flag_name: team-key
+            type: string
+            required: true
+            positional: true
+            description: "Yahoo team key in {game_id}.l.{league_id}.t.{team_id} format (e.g. 449.l.365083.t.1)"
+          - name: weeks
+            type: string
+            required: true
+            positional: true
+            description: "Week number or comma-separated list of weeks (e.g. 9 or 1,2,3)"
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format from Yahoo API (json or xml)"
+        response:
+          type: array
+          item: Matchup
+
+      update_roster:
+        method: PUT
+        path: "/team/{team_key}/roster"
+        mutation: true
+        description: "Update a team's starting lineup and bench positions for a given week or date"
+        example: "  yahoo-fantasy-pp-cli teams update-roster 449.l.365083.t.1 --coverage-type week --week 9 --player-key 449.p.31862 --position QB --dry-run"
+        happy_args: "team_key=449.l.365083.t.1;--coverage-type=week;--week=9;--player-key=449.p.31862;--position=QB;--dry-run"
+        params:
+          - name: team_key
+            flag_name: team-key
+            type: string
+            required: true
+            positional: true
+            description: "Yahoo team key in {game_id}.l.{league_id}.t.{team_id} format (e.g. 449.l.365083.t.1)"
+        body:
+          - name: coverage_type
+            flag_name: coverage-type
+            type: string
+            enum: ["week", "date"]
+            description: "Lineup coverage period type: week (NFL) or date (MLB/NBA/NHL)"
+          - name: week
+            type: int
+            description: "Target NFL week number when coverage-type is week"
+          - name: date
+            type: string
+            description: "Target date in YYYY-MM-DD format when coverage-type is date"
+          - name: player_key
+            flag_name: player-key
+            type: string
+            description: "Yahoo player key to move (e.g. 449.p.31862)"
+          - name: position
+            type: string
+            description: "Target roster slot (e.g. QB, RB, WR, TE, W/R/T, K, DEF, BN, IR)"
+        response:
+          type: object
+          item: RosterUpdateResult
+
+  players:
+    description: "Look up Yahoo Fantasy player profiles, weekly/season statistics, percent owned, and league ownership"
+    endpoints:
+      get_stats:
+        method: GET
+        path: "/league/{league_key}/players;player_keys={player_keys}/stats;type={stat_type};week={week}"
+        description: "Get player statistics for one or more player keys in a league by week or season"
+        example: "  yahoo-fantasy-pp-cli players get-stats 449.l.365083 449.p.31862 week 9 --agent"
+        happy_args: "league_key=449.l.365083;player_keys=449.p.31862;stat_type=week;week=9;--format=json"
+        params:
+          - name: league_key
+            flag_name: league-key
+            type: string
+            required: true
+            positional: true
+            description: "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)"
+          - name: player_keys
+            flag_name: player-keys
+            type: string
+            required: true
+            positional: true
+            description: "Comma-separated Yahoo player keys (e.g. 449.p.31862,449.p.30123)"
+          - name: stat_type
+            flag_name: stat-type
+            type: string
+            required: true
+            positional: true
+            enum: ["season", "week", "average_season", "lastweek", "lastmonth", "date"]
+            description: "Stat aggregation window (season, week, average_season, lastweek, lastmonth, date)"
+          - name: week
+            type: int
+            required: true
+            positional: true
+            description: "NFL week number when stat-type is week (e.g. 9)"
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format from Yahoo API (json or xml)"
+        response:
+          type: array
+          item: Player
+
+      search:
+        method: GET
+        path: "/league/{league_key}/players;search={query}/stats"
+        description: "Search players by name within a league and return their profile and season stats"
+        example: "  yahoo-fantasy-pp-cli players search 449.l.365083 Chase --agent"
+        happy_args: "league_key=449.l.365083;query=Chase;--format=json"
+        params:
+          - name: league_key
+            flag_name: league-key
+            type: string
+            required: true
+            positional: true
+            description: "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)"
+          - name: query
+            type: string
+            required: true
+            positional: true
+            description: "Player last name or full name search query (e.g. Chase, Burrow)"
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format from Yahoo API (json or xml)"
+        response:
+          type: array
+          item: Player
+
+      get_percent_owned:
+        method: GET
+        path: "/league/{league_key}/players;player_keys={player_keys}/percent_owned"
+        description: "Get Yahoo-wide ownership percentage and week-over-week delta for one or more players"
+        example: "  yahoo-fantasy-pp-cli players get-percent-owned 449.l.365083 449.p.31862 --agent"
+        happy_args: "league_key=449.l.365083;player_keys=449.p.31862;--format=json"
+        params:
+          - name: league_key
+            flag_name: league-key
+            type: string
+            required: true
+            positional: true
+            description: "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)"
+          - name: player_keys
+            flag_name: player-keys
+            type: string
+            required: true
+            positional: true
+            description: "Comma-separated Yahoo player keys (e.g. 449.p.31862)"
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format from Yahoo API (json or xml)"
+        response:
+          type: array
+          item: PlayerOwnership
+
+      get_ownership:
+        method: GET
+        path: "/league/{league_key}/players;player_keys={player_keys}/ownership"
+        description: "Get league-specific ownership status (free agent, waivers, or owning fantasy team) for players"
+        example: "  yahoo-fantasy-pp-cli players get-ownership 449.l.365083 449.p.31862 --agent"
+        happy_args: "league_key=449.l.365083;player_keys=449.p.31862;--format=json"
+        params:
+          - name: league_key
+            flag_name: league-key
+            type: string
+            required: true
+            positional: true
+            description: "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)"
+          - name: player_keys
+            flag_name: player-keys
+            type: string
+            required: true
+            positional: true
+            description: "Comma-separated Yahoo player keys (e.g. 449.p.31862)"
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format from Yahoo API (json or xml)"
+        response:
+          type: array
+          item: PlayerOwnership
+
+  transactions:
+    description: "Execute and manage league transactions including free-agent adds, drops, atomic add/drops, FAAB waiver claims, and trades"
+    endpoints:
+      get:
+        method: GET
+        path: "/transaction/{transaction_key}"
+        description: "Get details of a specific transaction, waiver claim, or pending trade by transaction key"
+        example: "  yahoo-fantasy-pp-cli transactions get 449.l.365083.tr.12 --agent"
+        happy_args: "transaction_key=449.l.365083.tr.12;--format=json"
+        params:
+          - name: transaction_key
+            flag_name: transaction-key
+            type: string
+            required: true
+            positional: true
+            description: "Yahoo transaction key in {game_id}.l.{league_id}.tr.{id} format (e.g. 449.l.365083.tr.12)"
+          - name: format
+            type: string
+            default: "json"
+            description: "Response format from Yahoo API (json or xml)"
+        response:
+          type: object
+          item: Transaction
+
+      create:
+        method: POST
+        path: "/league/{league_key}/transactions"
+        mutation: true
+        description: "Submit an add, drop, atomic add/drop, waiver claim (with optional FAAB bid), or trade proposal"
+        example: "  yahoo-fantasy-pp-cli transactions create 449.l.365083 --type add/drop --team-key 449.l.365083.t.1 --add-player-key 449.p.31862 --drop-player-key 449.p.30123 --faab-bid 15 --dry-run"
+        happy_args: "league_key=449.l.365083;--type=add/drop;--team-key=449.l.365083.t.1;--add-player-key=449.p.31862;--drop-player-key=449.p.30123;--faab-bid=15;--dry-run"
+        params:
+          - name: league_key
+            flag_name: league-key
+            type: string
+            required: true
+            positional: true
+            description: "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)"
+        body:
+          - name: type
+            type: string
+            enum: ["add", "drop", "add/drop", "pending_trade"]
+            description: "Transaction action type: add, drop, add/drop, or pending_trade"
+          - name: team_key
+            flag_name: team-key
+            type: string
+            description: "Destination/source Yahoo team key (e.g. 449.l.365083.t.1)"
+          - name: add_player_key
+            flag_name: add-player-key
+            type: string
+            description: "Yahoo player key to add or claim off waivers (e.g. 449.p.31862)"
+          - name: drop_player_key
+            flag_name: drop-player-key
+            type: string
+            description: "Yahoo player key to drop from your roster (e.g. 449.p.30123)"
+          - name: faab_bid
+            flag_name: faab-bid
+            type: int
+            description: "Optional FAAB dollar bid amount for waiver claims"
+        response:
+          type: object
+          item: Transaction
+
+      update:
+        method: PUT
+        path: "/transaction/{transaction_key}"
+        mutation: true
+        description: "Edit a pending waiver claim (FAAB bid or priority) or accept/reject a pending trade proposal"
+        example: "  yahoo-fantasy-pp-cli transactions update 449.l.365083.w.c.2_6090 --type waiver --faab-bid 20 --dry-run"
+        happy_args: "transaction_key=449.l.365083.w.c.2_6090;--type=waiver;--faab-bid=20;--dry-run"
+        params:
+          - name: transaction_key
+            flag_name: transaction-key
+            type: string
+            required: true
+            positional: true
+            description: "Yahoo transaction or waiver claim key (e.g. 449.l.365083.tr.12 or 449.l.365083.w.c.2_6090)"
+        body:
+          - name: type
+            type: string
+            enum: ["waiver", "pending_trade"]
+            description: "Transaction type being modified (waiver or pending_trade)"
+          - name: action
+            type: string
+            enum: ["accept", "reject", "vote_against"]
+            description: "Trade action when modifying a pending_trade (accept, reject, vote_against)"
+          - name: faab_bid
+            flag_name: faab-bid
+            type: int
+            description: "Updated FAAB dollar bid for a pending waiver claim"
+          - name: waiver_priority
+            flag_name: waiver-priority
+            type: int
+            description: "Updated priority order for a pending waiver claim"
+          - name: trade_note
+            flag_name: trade-note
+            type: string
+            description: "Optional note included when accepting or rejecting a trade"
+        response:
+          type: object
+          item: Transaction
+
+      cancel:
+        method: DELETE
+        path: "/transaction/{transaction_key}"
+        mutation: true
+        description: "Cancel a pending waiver claim or proposed trade before it processes"
+        example: "  yahoo-fantasy-pp-cli transactions cancel 449.l.365083.w.c.2_6090 --dry-run"
+        happy_args: "transaction_key=449.l.365083.w.c.2_6090;--dry-run"
+        params:
+          - name: transaction_key
+            flag_name: transaction-key
+            type: string
+            required: true
+            positional: true
+            description: "Yahoo transaction or waiver claim key to cancel"
+        response:
+          type: object
+          item: Transaction
+
+types:
+  Game:
+    fields:
+      - name: game_key
+        type: string
+      - name: game_id
+        type: string
+      - name: name
+        type: string
+      - name: code
+        type: string
+      - name: type
+        type: string
+      - name: season
+        type: string
+      - name: is_game_over
+        type: bool
+      - name: is_offseason
+        type: bool
+
+  League:
+    fields:
+      - name: league_key
+        type: string
+      - name: league_id
+        type: string
+      - name: name
+        type: string
+      - name: url
+        type: string
+      - name: draft_status
+        type: string
+      - name: num_teams
+        type: int
+      - name: current_week
+        type: int
+      - name: start_week
+        type: int
+      - name: end_week
+        type: int
+      - name: game_code
+        type: string
+      - name: season
+        type: string
+      - name: scoring_type
+        type: string
+
+  LeagueSettings:
+    fields:
+      - name: league_key
+        type: string
+      - name: draft_type
+        type: string
+      - name: is_auction_draft
+        type: bool
+      - name: scoring_type
+        type: string
+      - name: uses_playoff
+        type: bool
+      - name: playoff_start_week
+        type: int
+      - name: uses_faab
+        type: bool
+      - name: waiver_type
+        type: string
+      - name: waiver_rule
+        type: string
+      - name: trade_end_date
+        type: string
+
+  Standing:
+    fields:
+      - name: team_key
+        type: string
+      - name: name
+        type: string
+      - name: rank
+        type: int
+      - name: wins
+        type: int
+      - name: losses
+        type: int
+      - name: ties
+        type: int
+      - name: percentage
+        type: float
+      - name: points_for
+        type: float
+      - name: points_against
+        type: float
+      - name: streak_type
+        type: string
+      - name: streak_value
+        type: int
+
+  Team:
+    fields:
+      - name: team_key
+        type: string
+      - name: team_id
+        type: string
+      - name: name
+        type: string
+      - name: url
+        type: string
+      - name: waiver_priority
+        type: int
+      - name: faab_balance
+        type: int
+      - name: number_of_moves
+        type: int
+      - name: number_of_trades
+        type: int
+      - name: clinched_playoffs
+        type: int
+      - name: manager_nickname
+        type: string
+
+  RosterPlayer:
+    fields:
+      - name: player_key
+        type: string
+      - name: player_id
+        type: string
+      - name: full_name
+        type: string
+      - name: editorial_team_abbr
+        type: string
+      - name: display_position
+        type: string
+      - name: selected_position
+        type: string
+      - name: eligible_positions
+        type: string
+      - name: status
+        type: string
+      - name: status_full
+        type: string
+      - name: bye_week
+        type: int
+
+  Matchup:
+    fields:
+      - name: week
+        type: int
+      - name: week_start
+        type: string
+      - name: week_end
+        type: string
+      - name: status
+        type: string
+      - name: is_playoffs
+        type: bool
+      - name: is_consolation
+        type: bool
+      - name: winner_team_key
+        type: string
+      - name: team_a_key
+        type: string
+      - name: team_a_name
+        type: string
+      - name: team_a_points
+        type: float
+      - name: team_a_projected
+        type: float
+      - name: team_b_key
+        type: string
+      - name: team_b_name
+        type: string
+      - name: team_b_points
+        type: float
+      - name: team_b_projected
+        type: float
+
+  Player:
+    fields:
+      - name: player_key
+        type: string
+      - name: player_id
+        type: string
+      - name: full_name
+        type: string
+      - name: first_name
+        type: string
+      - name: last_name
+        type: string
+      - name: editorial_team_abbr
+        type: string
+      - name: display_position
+        type: string
+      - name: position_type
+        type: string
+      - name: status
+        type: string
+      - name: bye_week
+        type: int
+      - name: percent_owned
+        type: float
+      - name: points_total
+        type: float
+
+  PlayerOwnership:
+    fields:
+      - name: player_key
+        type: string
+      - name: full_name
+        type: string
+      - name: ownership_type
+        type: string
+      - name: owner_team_key
+        type: string
+      - name: owner_team_name
+        type: string
+      - name: percent_owned
+        type: float
+      - name: delta
+        type: float
+
+  DraftResult:
+    fields:
+      - name: pick
+        type: int
+      - name: round
+        type: int
+      - name: cost
+        type: int
+      - name: team_key
+        type: string
+      - name: player_key
+        type: string
+
+  Transaction:
+    fields:
+      - name: transaction_key
+        type: string
+      - name: transaction_id
+        type: string
+      - name: type
+        type: string
+      - name: status
+        type: string
+      - name: timestamp
+        type: string
+      - name: faab_bid
+        type: int
+      - name: trader_team_key
+        type: string
+      - name: tradee_team_key
+        type: string
+
+  RosterUpdateResult:
+    fields:
+      - name: team_key
+        type: string
+      - name: coverage_type
+        type: string
+      - name: week
+        type: int
+      - name: date
+        type: string
+      - name: status
+        type: string

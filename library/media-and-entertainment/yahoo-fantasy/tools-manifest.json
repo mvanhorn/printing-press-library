@@ -1,0 +1,766 @@
+{
+  "api_name": "yahoo-fantasy",
+  "base_url": "https://fantasysports.yahooapis.com/fantasy/v2",
+  "description": "Full Yahoo Fantasy Sports read/write CLI and MCP server — set lineups, execute add/drops and FAAB waiver claims, and run local SQLite league analytics.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {YAHOO_ACCESS_TOKEN}",
+    "env_vars": [
+      "YAHOO_ACCESS_TOKEN",
+      "YAHOO_FANTASY_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "YAHOO_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "YAHOO_FANTASY_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "Accept",
+      "value": "application/json, application/xml;q=0.9, */*;q=0.8"
+    }
+  ],
+  "tools": [
+    {
+      "name": "games_get",
+      "description": "Get Yahoo Fantasy game metadata by game code (nfl, nba, mlb, nhl) or numeric game ID. Required: game-key. Optional: format (default: json). Returns the Game.",
+      "method": "GET",
+      "path": "/game/{game_key}",
+      "params": [
+        {
+          "name": "game-key",
+          "wire_name": "game_key",
+          "type": "string",
+          "location": "path",
+          "description": "Game code (nfl, nba, mlb, nhl) or numeric season game ID (e.g. 449)",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format from Yahoo API (json or xml)"
+        }
+      ]
+    },
+    {
+      "name": "leagues_get",
+      "description": "Get league overview metadata (name, current week, scoring type, season). Required: league-key. Optional: format (default: json). Returns the League.",
+      "method": "GET",
+      "path": "/league/{league_key}",
+      "params": [
+        {
+          "name": "league-key",
+          "wire_name": "league_key",
+          "type": "string",
+          "location": "path",
+          "description": "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format from Yahoo API (json or xml)"
+        }
+      ]
+    },
+    {
+      "name": "leagues_get_draft_results",
+      "description": "Get complete league draft results with round, overall pick, team key, player key, and auction cost. Required: league-key. Optional: format (default: json). Returns array of DraftResult.",
+      "method": "GET",
+      "path": "/league/{league_key}/draftresults",
+      "params": [
+        {
+          "name": "league-key",
+          "wire_name": "league_key",
+          "type": "string",
+          "location": "path",
+          "description": "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format from Yahoo API (json or xml)"
+        }
+      ]
+    },
+    {
+      "name": "leagues_get_players",
+      "description": "List players in a league filtered by availability status (FA, W, T, A), position, and sort order. Required: league-key, status, position, sort, start, count. Optional: format (default: json). Returns array of Player.",
+      "method": "GET",
+      "path": "/league/{league_key}/players;status={status};position={position};sort={sort};start={start};count={count}/percent_owned",
+      "params": [
+        {
+          "name": "league-key",
+          "wire_name": "league_key",
+          "type": "string",
+          "location": "path",
+          "description": "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "path",
+          "description": "Availability filter: FA (free agents), W (waivers), A (all available FA+W), T (taken), K (keepers)",
+          "required": true
+        },
+        {
+          "name": "position",
+          "type": "string",
+          "location": "path",
+          "description": "Roster position filter (e.g. QB, RB, WR, TE, W/R/T, K, DEF)",
+          "required": true
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "path",
+          "description": "Sort criterion (PTS for points, OR for overall rank, AR for actual rank, NAME)",
+          "required": true
+        },
+        {
+          "name": "start",
+          "type": "int",
+          "location": "path",
+          "description": "Pagination start offset (0, 25, 50, ...)",
+          "required": true
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "path",
+          "description": "Number of players to return (max 25 per Yahoo API page)",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format from Yahoo API (json or xml)"
+        }
+      ]
+    },
+    {
+      "name": "leagues_get_scoreboard",
+      "description": "Get weekly league scoreboard and head-to-head matchups with live and projected points. Required: league-key, week. Optional: format (default: json). Returns array of Matchup.",
+      "method": "GET",
+      "path": "/league/{league_key}/scoreboard;week={week}",
+      "params": [
+        {
+          "name": "league-key",
+          "wire_name": "league_key",
+          "type": "string",
+          "location": "path",
+          "description": "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)",
+          "required": true
+        },
+        {
+          "name": "week",
+          "type": "int",
+          "location": "path",
+          "description": "NFL/league scoring week number (e.g. 1..18)",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format from Yahoo API (json or xml)"
+        }
+      ]
+    },
+    {
+      "name": "leagues_get_settings",
+      "description": "Get league rules, roster position slots, stat categories, point modifiers, and FAAB settings. Required: league-key. Optional: format (default: json). Returns the LeagueSettings.",
+      "method": "GET",
+      "path": "/league/{league_key}/settings",
+      "params": [
+        {
+          "name": "league-key",
+          "wire_name": "league_key",
+          "type": "string",
+          "location": "path",
+          "description": "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format from Yahoo API (json or xml)"
+        }
+      ]
+    },
+    {
+      "name": "leagues_get_standings",
+      "description": "Get league standings ordered by rank with win-loss-tie records, points for/against, and streak. Required: league-key. Optional: format (default: json). Returns array of Standing.",
+      "method": "GET",
+      "path": "/league/{league_key}/standings",
+      "params": [
+        {
+          "name": "league-key",
+          "wire_name": "league_key",
+          "type": "string",
+          "location": "path",
+          "description": "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format from Yahoo API (json or xml)"
+        }
+      ]
+    },
+    {
+      "name": "leagues_get_teams",
+      "description": "List all teams in a league with manager profiles, waiver priority, and remaining FAAB budget. Required: league-key. Optional: format (default: json). Returns array of Team.",
+      "method": "GET",
+      "path": "/league/{league_key}/teams",
+      "params": [
+        {
+          "name": "league-key",
+          "wire_name": "league_key",
+          "type": "string",
+          "location": "path",
+          "description": "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format from Yahoo API (json or xml)"
+        }
+      ]
+    },
+    {
+      "name": "leagues_get_transactions",
+      "description": "Get league transaction activity log filtered by transaction types (add, drop, trade, commish). Required: league-key, types, count. Optional: format (default: json). Returns array of Transaction.",
+      "method": "GET",
+      "path": "/league/{league_key}/transactions;types={types};count={count}",
+      "params": [
+        {
+          "name": "league-key",
+          "wire_name": "league_key",
+          "type": "string",
+          "location": "path",
+          "description": "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)",
+          "required": true
+        },
+        {
+          "name": "types",
+          "type": "string",
+          "location": "path",
+          "description": "Comma-separated transaction types (add,drop,trade,commish,waiver,pending_trade)",
+          "required": true
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "path",
+          "description": "Maximum number of transactions to return (e.g. 25)",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format from Yahoo API (json or xml)"
+        }
+      ]
+    },
+    {
+      "name": "players_get_ownership",
+      "description": "Get league-specific ownership status (free agent, waivers, or owning fantasy team) for players. Required: league-key, player-keys. Optional: format (default: json). Returns array of PlayerOwnership.",
+      "method": "GET",
+      "path": "/league/{league_key}/players;player_keys={player_keys}/ownership",
+      "params": [
+        {
+          "name": "league-key",
+          "wire_name": "league_key",
+          "type": "string",
+          "location": "path",
+          "description": "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)",
+          "required": true
+        },
+        {
+          "name": "player-keys",
+          "wire_name": "player_keys",
+          "type": "string",
+          "location": "path",
+          "description": "Comma-separated Yahoo player keys (e.g. 449.p.31862)",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format from Yahoo API (json or xml)"
+        }
+      ]
+    },
+    {
+      "name": "players_get_percent_owned",
+      "description": "Get Yahoo-wide ownership percentage and week-over-week delta for one or more players. Required: league-key, player-keys. Optional: format (default: json). Returns array of PlayerOwnership.",
+      "method": "GET",
+      "path": "/league/{league_key}/players;player_keys={player_keys}/percent_owned",
+      "params": [
+        {
+          "name": "league-key",
+          "wire_name": "league_key",
+          "type": "string",
+          "location": "path",
+          "description": "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)",
+          "required": true
+        },
+        {
+          "name": "player-keys",
+          "wire_name": "player_keys",
+          "type": "string",
+          "location": "path",
+          "description": "Comma-separated Yahoo player keys (e.g. 449.p.31862)",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format from Yahoo API (json or xml)"
+        }
+      ]
+    },
+    {
+      "name": "players_get_stats",
+      "description": "Get player statistics for one or more player keys in a league by week or season. Required: league-key, player-keys, stat-type, week. Optional: format (default: json). Returns array of Player.",
+      "method": "GET",
+      "path": "/league/{league_key}/players;player_keys={player_keys}/stats;type={stat_type};week={week}",
+      "params": [
+        {
+          "name": "league-key",
+          "wire_name": "league_key",
+          "type": "string",
+          "location": "path",
+          "description": "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)",
+          "required": true
+        },
+        {
+          "name": "player-keys",
+          "wire_name": "player_keys",
+          "type": "string",
+          "location": "path",
+          "description": "Comma-separated Yahoo player keys (e.g. 449.p.31862,449.p.30123)",
+          "required": true
+        },
+        {
+          "name": "stat-type",
+          "wire_name": "stat_type",
+          "type": "string",
+          "location": "path",
+          "description": "Stat aggregation window (season, week, average_season, lastweek, lastmonth, date)",
+          "required": true
+        },
+        {
+          "name": "week",
+          "type": "int",
+          "location": "path",
+          "description": "NFL week number when stat-type is week (e.g. 9)",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format from Yahoo API (json or xml)"
+        }
+      ]
+    },
+    {
+      "name": "players_search",
+      "description": "Search players by name within a league and return their profile and season stats. Required: league-key, query. Optional: format (default: json). Returns array of Player.",
+      "method": "GET",
+      "path": "/league/{league_key}/players;search={query}/stats",
+      "params": [
+        {
+          "name": "league-key",
+          "wire_name": "league_key",
+          "type": "string",
+          "location": "path",
+          "description": "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "path",
+          "description": "Player last name or full name search query (e.g. Chase, Burrow)",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format from Yahoo API (json or xml)"
+        }
+      ]
+    },
+    {
+      "name": "teams_get",
+      "description": "Get fantasy team details including manager, waiver priority, FAAB balance, and logos. Required: team-key. Optional: format (default: json). Returns the Team.",
+      "method": "GET",
+      "path": "/team/{team_key}",
+      "params": [
+        {
+          "name": "team-key",
+          "wire_name": "team_key",
+          "type": "string",
+          "location": "path",
+          "description": "Yahoo team key in {game_id}.l.{league_id}.t.{team_id} format (e.g. 449.l.365083.t.1)",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format from Yahoo API (json or xml)"
+        }
+      ]
+    },
+    {
+      "name": "teams_get_matchups",
+      "description": "Get head-to-head matchups and projected/actual scores for a team across one or more weeks. Required: team-key, weeks. Optional: format (default: json). Returns array of Matchup.",
+      "method": "GET",
+      "path": "/team/{team_key}/matchups;weeks={weeks}",
+      "params": [
+        {
+          "name": "team-key",
+          "wire_name": "team_key",
+          "type": "string",
+          "location": "path",
+          "description": "Yahoo team key in {game_id}.l.{league_id}.t.{team_id} format (e.g. 449.l.365083.t.1)",
+          "required": true
+        },
+        {
+          "name": "weeks",
+          "type": "string",
+          "location": "path",
+          "description": "Week number or comma-separated list of weeks (e.g. 9 or 1,2,3)",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format from Yahoo API (json or xml)"
+        }
+      ]
+    },
+    {
+      "name": "teams_get_roster",
+      "description": "Get a team's active and bench roster for a specific NFL week. Required: team-key, week. Optional: format (default: json). Returns array of RosterPlayer.",
+      "method": "GET",
+      "path": "/team/{team_key}/roster;week={week}",
+      "params": [
+        {
+          "name": "team-key",
+          "wire_name": "team_key",
+          "type": "string",
+          "location": "path",
+          "description": "Yahoo team key in {game_id}.l.{league_id}.t.{team_id} format (e.g. 449.l.365083.t.1)",
+          "required": true
+        },
+        {
+          "name": "week",
+          "type": "int",
+          "location": "path",
+          "description": "NFL week number for the roster snapshot (e.g. 9)",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format from Yahoo API (json or xml)"
+        }
+      ]
+    },
+    {
+      "name": "teams_update_roster",
+      "description": "Update a team's starting lineup and bench positions for a given week or date. Required: team-key. Optional: coverage-type, week, date (plus 2 more). Returns the updated RosterUpdateResult.",
+      "method": "PUT",
+      "path": "/team/{team_key}/roster",
+      "params": [
+        {
+          "name": "team-key",
+          "wire_name": "team_key",
+          "type": "string",
+          "location": "path",
+          "description": "Yahoo team key in {game_id}.l.{league_id}.t.{team_id} format (e.g. 449.l.365083.t.1)",
+          "required": true
+        },
+        {
+          "name": "coverage-type",
+          "wire_name": "coverage_type",
+          "type": "string",
+          "location": "body",
+          "description": "Lineup coverage period type: week (NFL) or date (MLB/NBA/NHL)"
+        },
+        {
+          "name": "week",
+          "type": "int",
+          "location": "body",
+          "description": "Target NFL week number when coverage-type is week"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "body",
+          "description": "Target date in YYYY-MM-DD format when coverage-type is date"
+        },
+        {
+          "name": "player-key",
+          "wire_name": "player_key",
+          "type": "string",
+          "location": "body",
+          "description": "Yahoo player key to move (e.g. 449.p.31862)"
+        },
+        {
+          "name": "position",
+          "type": "string",
+          "location": "body",
+          "description": "Target roster slot (e.g. QB, RB, WR, TE, W/R/T, K, DEF, BN, IR)"
+        }
+      ]
+    },
+    {
+      "name": "transactions_cancel",
+      "description": "Cancel a pending waiver claim or proposed trade before it processes. Required: transaction-key. Returns the Transaction. Destructive.",
+      "method": "DELETE",
+      "path": "/transaction/{transaction_key}",
+      "params": [
+        {
+          "name": "transaction-key",
+          "wire_name": "transaction_key",
+          "type": "string",
+          "location": "path",
+          "description": "Yahoo transaction or waiver claim key to cancel",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactions_create",
+      "description": "Submit an add, drop, atomic add/drop, waiver claim (with optional FAAB bid), or trade proposal. Required: league-key. Optional: type, team-key, add-player-key (plus 2 more). Returns the new Transaction.",
+      "method": "POST",
+      "path": "/league/{league_key}/transactions",
+      "params": [
+        {
+          "name": "league-key",
+          "wire_name": "league_key",
+          "type": "string",
+          "location": "path",
+          "description": "Yahoo league key in {game_id}.l.{league_id} format (e.g. 449.l.365083)",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Transaction action type: add, drop, add/drop, or pending_trade"
+        },
+        {
+          "name": "team-key",
+          "wire_name": "team_key",
+          "type": "string",
+          "location": "body",
+          "description": "Destination/source Yahoo team key (e.g. 449.l.365083.t.1)"
+        },
+        {
+          "name": "add-player-key",
+          "wire_name": "add_player_key",
+          "type": "string",
+          "location": "body",
+          "description": "Yahoo player key to add or claim off waivers (e.g. 449.p.31862)"
+        },
+        {
+          "name": "drop-player-key",
+          "wire_name": "drop_player_key",
+          "type": "string",
+          "location": "body",
+          "description": "Yahoo player key to drop from your roster (e.g. 449.p.30123)"
+        },
+        {
+          "name": "faab-bid",
+          "wire_name": "faab_bid",
+          "type": "int",
+          "location": "body",
+          "description": "Optional FAAB dollar bid amount for waiver claims"
+        }
+      ]
+    },
+    {
+      "name": "transactions_get",
+      "description": "Get details of a specific transaction, waiver claim, or pending trade by transaction key. Required: transaction-key. Optional: format (default: json). Returns the Transaction.",
+      "method": "GET",
+      "path": "/transaction/{transaction_key}",
+      "params": [
+        {
+          "name": "transaction-key",
+          "wire_name": "transaction_key",
+          "type": "string",
+          "location": "path",
+          "description": "Yahoo transaction key in {game_id}.l.{league_id}.tr.{id} format (e.g. 449.l.365083.tr.12)",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format from Yahoo API (json or xml)"
+        }
+      ]
+    },
+    {
+      "name": "transactions_update",
+      "description": "Edit a pending waiver claim (FAAB bid or priority) or accept/reject a pending trade proposal. Required: transaction-key. Optional: type, action, faab-bid (plus 2 more). Returns the updated Transaction.",
+      "method": "PUT",
+      "path": "/transaction/{transaction_key}",
+      "params": [
+        {
+          "name": "transaction-key",
+          "wire_name": "transaction_key",
+          "type": "string",
+          "location": "path",
+          "description": "Yahoo transaction or waiver claim key (e.g. 449.l.365083.tr.12 or 449.l.365083.w.c.2_6090)",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Transaction type being modified (waiver or pending_trade)"
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "Trade action when modifying a pending_trade (accept, reject, vote_against)"
+        },
+        {
+          "name": "faab-bid",
+          "wire_name": "faab_bid",
+          "type": "int",
+          "location": "body",
+          "description": "Updated FAAB dollar bid for a pending waiver claim"
+        },
+        {
+          "name": "waiver-priority",
+          "wire_name": "waiver_priority",
+          "type": "int",
+          "location": "body",
+          "description": "Updated priority order for a pending waiver claim"
+        },
+        {
+          "name": "trade-note",
+          "wire_name": "trade_note",
+          "type": "string",
+          "location": "body",
+          "description": "Optional note included when accepting or rejecting a trade"
+        }
+      ]
+    },
+    {
+      "name": "users_get_leagues",
+      "description": "List all Yahoo Fantasy leagues for the authenticated user filtered by sport code. Required: game-codes. Optional: format (default: json). Returns array of League.",
+      "method": "GET",
+      "path": "/users;use_login=1/games;game_codes={game_codes}/leagues",
+      "params": [
+        {
+          "name": "game-codes",
+          "wire_name": "game_codes",
+          "type": "string",
+          "location": "path",
+          "description": "Comma-separated sport game codes (e.g. nfl, nba, mlb, nhl)",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format from Yahoo API (json or xml)"
+        }
+      ]
+    },
+    {
+      "name": "users_get_teams",
+      "description": "List all fantasy teams owned by the authenticated Yahoo user across seasons. Optional: format (default: json). Returns array of Team.",
+      "method": "GET",
+      "path": "/users;use_login=1/games/teams",
+      "params": [
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format from Yahoo API (json or xml)"
+        }
+      ]
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Lineup auditor and ergonomic XML slot setter",
+      "command": "lineup",
+      "description": "Audit active starting slots for OUT, IR, or BYE players, preview bench swaps, and submit Yahoo XML roster updates."
+    },
+    {
+      "name": "Atomic add/drop and FAAB waiver claim builder",
+      "command": "add-drop",
+      "description": "Execute or dry-run free-agent adds, drops, atomic add/drops, and FAAB waiver claims with automatic XML payload construction."
+    },
+    {
+      "name": "Positional waiver and free-agent upgrade recommender",
+      "command": "waiver-wire",
+      "description": "Rank available free agents and waiver players by net points-per-game upgrade over your weakest bench player at each position."
+    },
+    {
+      "name": "Head-to-head matchup radar and slot advantage breakdown",
+      "command": "matchup-radar",
+      "description": "Compare both opponents' starting lineups slot-by-slot with projected vs. actual points, remaining starters, and injury flags."
+    },
+    {
+      "name": "All-play standings, power rankings, and schedule luck",
+      "command": "power-rankings",
+      "description": "Compute every team's true weekly all-play record, schedule luck delta, scoring consistency, and composite power rank."
+    },
+    {
+      "name": "League FAAB burn and waiver bid intelligence",
+      "command": "faab-audit",
+      "description": "Track every manager's remaining FAAB budget, positional spending breakdown, winning bids, and blocking bid thresholds."
+    },
+    {
+      "name": "Draft capital ROI and steals/busts analyzer",
+      "command": "draft-roi",
+      "description": "Evaluate snake draft rounds or auction dollar costs against season-to-date fantasy points and current roster retention."
+    }
+  ]
+}

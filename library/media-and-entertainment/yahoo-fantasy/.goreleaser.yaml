@@ -1,0 +1,55 @@
+version: 2
+project_name: yahoo-fantasy-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: yahoo-fantasy-pp-cli
+    main: ./cmd/yahoo-fantasy-pp-cli
+    binary: yahoo-fantasy-pp-cli
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/media-and-entertainment/yahoo-fantasy/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: yahoo-fantasy-pp-mcp
+    main: ./cmd/yahoo-fantasy-pp-mcp
+    binary: yahoo-fantasy-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: yahoo-fantasy-pp-cli
+    repository:
+      owner: benhof
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Full Yahoo Fantasy Sports read/write CLI and MCP server — set lineups, execute add/drops and FAAB waiver claims, and run local SQLite league analytics."
+    install: |
+      bin.install "yahoo-fantasy-pp-cli"
+      bin.install "yahoo-fantasy-pp-mcp"

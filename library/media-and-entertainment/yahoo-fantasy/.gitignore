@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/yahoo-fantasy-pp-cli
+/yahoo-fantasy-pp-cli.exe
+/yahoo-fantasy-pp-mcp
+/yahoo-fantasy-pp-mcp.exe
+/bin/
+/build/
+/dist/

@@ -1,0 +1,119 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-11-01T16:09:04.929523Z",
+  "printing_press_version": "4.35.0",
+  "api_name": "yahoo-fantasy",
+  "display_name": "Yahoo Fantasy Sports",
+  "cli_name": "yahoo-fantasy-pp-cli",
+  "creator": {
+    "handle": "BenHof",
+    "name": "BenHof"
+  },
+  "owner": "benhof",
+  "printer": "BenHof",
+  "printer_name": "BenHof",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:f03f75005ce1184a99de897a4a060c2518d0864a0f1c597d54b00e2b4f501f54",
+  "run_id": "20261101-101143-d6ebea8f",
+  "category": "media-and-entertainment",
+  "description": "Full Yahoo Fantasy Sports read/write CLI and MCP server — set lineups, execute add/drops and FAAB waiver claims, and run local SQLite league analytics.",
+  "mcp_binary": "yahoo-fantasy-pp-mcp",
+  "mcp_tool_count": 23,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "YAHOO_ACCESS_TOKEN",
+    "YAHOO_FANTASY_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Lineup auditor and ergonomic XML slot setter",
+      "command": "lineup",
+      "description": "Audit active starting slots for OUT, IR, or BYE players, preview bench swaps, and submit Yahoo XML roster updates."
+    },
+    {
+      "name": "Atomic add/drop and FAAB waiver claim builder",
+      "command": "add-drop",
+      "description": "Execute or dry-run free-agent adds, drops, atomic add/drops, and FAAB waiver claims with automatic XML payload construction."
+    },
+    {
+      "name": "Positional waiver and free-agent upgrade recommender",
+      "command": "waiver-wire",
+      "description": "Rank available free agents and waiver players by net points-per-game upgrade over your weakest bench player at each position."
+    },
+    {
+      "name": "Head-to-head matchup radar and slot advantage breakdown",
+      "command": "matchup-radar",
+      "description": "Compare both opponents' starting lineups slot-by-slot with projected vs. actual points, remaining starters, and injury flags."
+    },
+    {
+      "name": "All-play standings, power rankings, and schedule luck",
+      "command": "power-rankings",
+      "description": "Compute every team's true weekly all-play record, schedule luck delta, scoring consistency, and composite power rank."
+    },
+    {
+      "name": "League FAAB burn and waiver bid intelligence",
+      "command": "faab-audit",
+      "description": "Track every manager's remaining FAAB budget, positional spending breakdown, winning bids, and blocking bid thresholds."
+    },
+    {
+      "name": "Draft capital ROI and steals/busts analyzer",
+      "command": "draft-roi",
+      "description": "Evaluate snake draft rounds or auction dollar costs against season-to-date fantasy points and current roster retention."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Lineup auditor and ergonomic XML slot setter",
+      "command": "lineup",
+      "description": "Audit active starting slots for OUT, IR, or BYE players, preview bench swaps, and submit Yahoo XML roster updates."
+    },
+    {
+      "name": "Atomic add/drop and FAAB waiver claim builder",
+      "command": "add-drop",
+      "description": "Execute or dry-run free-agent adds, drops, atomic add/drops, and FAAB waiver claims with automatic XML payload construction."
+    },
+    {
+      "name": "Positional waiver and free-agent upgrade recommender",
+      "command": "waiver-wire",
+      "description": "Rank available free agents and waiver players by net points-per-game upgrade over your weakest bench player at each position."
+    },
+    {
+      "name": "Head-to-head matchup radar and slot advantage breakdown",
+      "command": "matchup-radar",
+      "description": "Compare both opponents' starting lineups slot-by-slot with projected vs. actual points, remaining starters, and injury flags."
+    },
+    {
+      "name": "All-play standings, power rankings, and schedule luck",
+      "command": "power-rankings",
+      "description": "Compute every team's true weekly all-play record, schedule luck delta, scoring consistency, and composite power rank."
+    },
+    {
+      "name": "League FAAB burn and waiver bid intelligence",
+      "command": "faab-audit",
+      "description": "Track every manager's remaining FAAB budget, positional spending breakdown, winning bids, and blocking bid thresholds."
+    },
+    {
+      "name": "Draft capital ROI and steals/busts analyzer",
+      "command": "draft-roi",
+      "description": "Evaluate snake draft rounds or auction dollar costs against season-to-date fantasy points and current roster retention."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 64,
+    "total": 64,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 92,
+      "grade": "A",
+      "total": 92
+    }
+  }
+}
