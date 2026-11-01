@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "gusto-cdp-tab-host-match",
+  "applied_at": "2026-10-24",
+  "base_run_id": "20261024-084709-6d9f8432",
+  "base_printing_press_version": "4.34.0",
+  "summary": "The CDP cookie fallback picks a Chrome tab by parsed https host (app.gusto.com or a subdomain) instead of a substring match on the URL.",
+  "reason": "A substring match let any tab whose URL merely contained the domain (e.g. in a query string) supply the cookies saved as the Gusto session.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/cdp_target_host_test.go"
+  ],
+  "validated_outcome": "TestCDPTargetHost; go vet; go test ./internal/cli/."
+}

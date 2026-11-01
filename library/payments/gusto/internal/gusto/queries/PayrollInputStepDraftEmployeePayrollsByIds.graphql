@@ -1,0 +1,605 @@
+query PayrollInputStepDraftEmployeePayrollsByIds($draftPayrollId: ID!, $ids: [ID!]!, $includeAnomalyChecks: Boolean! = false, $includeNetPay: Boolean!, $includePreviewPay: Boolean!, $includeTaxOverrideInformation: Boolean!, $includeWorkLocation: Boolean!) {
+  company {
+    id
+    draftPayroll(uuid: $draftPayrollId) {
+      id
+      draftEmployeePayrollsByIds(ids: $ids) {
+        id
+        anomalyChecks @include(if: $includeAnomalyChecks) {
+          ... on AnomalyCheck {
+            id
+            anomalyType
+            band {
+              high
+              low
+              __typename
+            }
+            comparedToValue
+            __typename
+          }
+          __typename
+        }
+        employee {
+          id
+          __typename
+        }
+        netPay @include(if: $includeNetPay)
+        previewPay @include(if: $includePreviewPay) {
+          id
+          grossPay {
+            amount
+            __typename
+          }
+          netPayAmount
+          __typename
+        }
+        ... on DraftEmployeePayroll {
+          id
+          allWorkedHours {
+            id
+            employeeJobCompensation {
+              id
+              employeeJob {
+                id
+                uuid
+                __typename
+              }
+              workLocation @include(if: $includeWorkLocation) {
+                id
+                city
+                state
+                street1
+                uuid
+                zip
+                __typename
+              }
+              flsaStatus: nullableFlsaStatus
+              paymentUnit
+              isPrimary
+              uuid
+              computedTitle
+              standardWorkingHours
+              minimumWageAdjusted
+              ... on EmployeeJobCompensation {
+                id
+                effectiveDate
+                flsaStatus: nullableFlsaStatus
+                minimumWageAdjusted
+                __typename
+              }
+              __typename
+            }
+            ... on DraftEmployeePayrollWorkedHours {
+              id
+              doubleOvertimeHours
+              missedBreakHours
+              overtimeHours
+              regularHours
+              workweekEndDate
+              workweekStartDate
+              employeeJobCompensation {
+                id
+                computedTitle
+                employeeJob {
+                  id
+                  uuid
+                  __typename
+                }
+                uuid
+                applicableMinimumWage
+                minimumWageAdjusted
+                flsaStatus: nullableFlsaStatus
+                ... on EmployeeJobCompensation {
+                  id
+                  computedTitle
+                  paymentAmount
+                  paymentUnit
+                  employeeJob {
+                    id
+                    uuid
+                    __typename
+                  }
+                  uuid
+                  __typename
+                  flsaStatus: nullableFlsaStatus
+                }
+                paymentAmount
+                paymentUnit
+                __typename
+              }
+              ... on DraftEmployeePayrollWorkedHours @include(if: $includeWorkLocation) {
+                id
+                employeeJobCompensation {
+                  id
+                  computedTitle
+                  employeeJob {
+                    id
+                    uuid
+                    __typename
+                  }
+                  uuid
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+            doubleOvertimeHours
+            missedBreakHours
+            overtimeHours
+            regularHours
+            workweekEndDate
+            workweekStartDate
+            __typename
+          }
+          __typename
+          allAdditionalPays {
+            id
+            ... on DraftEmployeePayrollAdditionalPay {
+              id
+              amount
+              payType {
+                id
+                name
+                includedInRegularRateOfPay
+                description
+                usageFrequencyScore
+                __typename
+              }
+              workweekEndDate
+              workweekStartDate
+              employeeJobCompensation @include(if: $includeWorkLocation) {
+                id
+                uuid
+                employeeJob {
+                  id
+                  uuid
+                  __typename
+                }
+                isPrimary
+                __typename
+              }
+              __typename
+            }
+            amount
+            payType {
+              id
+              includedInRegularRateOfPay
+              name
+              __typename
+            }
+            workweekEndDate
+            workweekStartDate
+            employeeJobCompensation {
+              id
+              employeeJob {
+                id
+                uuid
+                __typename
+              }
+              uuid
+              isPrimary
+              __typename
+            }
+            __typename
+          }
+          allReimbursements {
+            __typename
+            ... on DraftEmployeePayrollUnnamedItemizedReimbursement {
+              __typename
+              amount
+            }
+            ... on EmployeeReimbursement {
+              id
+              __typename
+              amount
+              category {
+                name
+                __typename
+              }
+              description
+              reimbursementType
+            }
+            ... on EmployeeReimbursementInterface {
+              __typename
+              amount
+              ... on EmployeeReimbursement {
+                id
+                amount
+                category {
+                  name
+                  __typename
+                }
+                description
+                reimbursementType
+                __typename
+              }
+            }
+          }
+          draftGrossPayBreakdownSummary {
+            ... on DraftGrossPayBreakdownSummary {
+              amount
+              breakdowns {
+                ... on DraftGrossPayBreakdown {
+                  doubleOvertimePremiumPay
+                  doubleOvertimeStraightTimePay
+                  jobId
+                  minimumWageAdjustment
+                  missedBreakPremiumPay
+                  overtimePremiumPay
+                  overtimeStraightTimePay
+                  regularStraightTimePay
+                  __typename
+                }
+                employeeJobCompensation {
+                  id
+                  uuid
+                  __typename
+                }
+                jobId
+                minimumWageAdjustment
+                doubleOvertimePremiumPay
+                doubleOvertimeStraightTimePay
+                overtimePremiumPay
+                overtimeStraightTimePay
+                regularStraightTimePay
+                __typename
+              }
+              __typename
+            }
+            amount
+            breakdowns {
+              doubleOvertimePremiumPay
+              doubleOvertimeStraightTimePay
+              employeeJobCompensation {
+                id
+                uuid
+                __typename
+              }
+              jobId
+              minimumWageAdjustment
+              missedBreakPremiumPay
+              overtimePremiumPay
+              overtimeStraightTimePay
+              regularStraightTimePay
+              rropAdjustmentSummary {
+                doubleOvertime
+                missedBreakPremium
+                overtime
+                __typename
+              }
+              __typename
+            }
+            __typename
+          }
+          holidaysForPayPeriod {
+            id
+            payoutHours
+            ... on EmployeeHolidaysForPayPeriod {
+              id
+              paidHolidays {
+                id
+                __typename
+              }
+              payoutHours
+              __typename
+            }
+            paidHolidays {
+              id
+              __typename
+            }
+            __typename
+          }
+          isDismissedInPayPeriod
+          isIncluded
+          netPay @include(if: $includeNetPay)
+          paymentMethod
+          timeOffEnrolledPoliciesForPayPeriod {
+            id
+            ... on TimeOffEnrolledPolicyForPayPeriod {
+              id
+              accruingHours
+              additionalUsedHours
+              isPaidOutOnTermination
+              isPayoutOverridden
+              payoutHours
+              remainingBalanceHours
+              timeOffRequests {
+                id
+                approvedHours
+                __typename
+              }
+              timeOffStatus {
+                id
+                ... on TimeOffStatus {
+                  id
+                  policy {
+                    id
+                    completed
+                    __typename
+                  }
+                  type {
+                    id
+                    name
+                    __typename
+                  }
+                  __typename
+                }
+                policy {
+                  id
+                  name
+                  completed
+                  accrualMethod
+                  paymentStrategy
+                  __typename
+                }
+                type {
+                  id
+                  name
+                  __typename
+                }
+                __typename
+              }
+              timeOffTypeKind
+              totalTimeOffHoursUsed
+              accruingHoursAtPayoutOverride
+              __typename
+            }
+            accruingHours
+            additionalUsedHours
+            isPaidOutOnTermination
+            isPayoutOverridden
+            payoutHours
+            remainingBalanceHours
+            timeOffRequests {
+              id
+              approvedHours
+              __typename
+            }
+            timeOffStatus {
+              id
+              ... on TimeOffStatus {
+                id
+                policy {
+                  id
+                  completed
+                  __typename
+                }
+                type {
+                  id
+                  name
+                  __typename
+                }
+                __typename
+              }
+              policy {
+                id
+                completed
+                accrualMethod
+                __typename
+              }
+              type {
+                id
+                name
+                __typename
+              }
+              __typename
+            }
+            timeOffTypeKind
+            totalTimeOffHoursUsed
+            __typename
+          }
+          employee {
+            id
+            preferredFullName
+            preferredFirstName
+            ... on Employee {
+              id
+              lastName
+              legalFirstName
+              preferredFirstName
+              preferredFullName
+              currentEmployment {
+                id
+                terminatedAt
+                __typename
+              }
+              hiredAt
+              paymentMethodType
+              uuid
+              __typename
+            }
+            currentEmployment {
+              id
+              termination(excludedStatuses: [draft]) {
+                id
+                lastDayOfEmployment
+                __typename
+              }
+              ... on Employment {
+                id
+                terminatedAt
+                __typename
+              }
+              terminatedAt
+              __typename
+            }
+            paymentMethodType
+            companyMember {
+              ... on CompanyMember {
+                id
+                legalFirstName
+                preferredFirstName
+                profilePicture {
+                  id
+                  thumbnailUrl
+                  __typename
+                }
+                lastName
+                __typename
+              }
+              id
+              __typename
+            }
+            uuid
+            companyMemberUuid
+            profilePicture {
+              id
+              thumbnailUrl
+              __typename
+            }
+            __typename
+          }
+          previewPay @include(if: $includePreviewPay) {
+            id
+            grossPay {
+              amount
+              __typename
+            }
+            netPayAmount
+            __typename
+          }
+          allDeductions(filters: [one_time, post_tax]) {
+            id
+            amount
+            deductAsPercentage
+            isRecurring
+            name
+            ... on DraftEmployeePayrollDeduction {
+              id
+              amount
+              deductAsPercentage
+              isRecurring
+              name
+              __typename
+            }
+            __typename
+          }
+          personalNote
+          primaryJobApplicableCompensation {
+            ... on EmployeeJobCompensation {
+              id
+              employeeJob {
+                id
+                uuid
+                __typename
+              }
+              uuid
+              flsaStatus: nullableFlsaStatus
+              __typename
+              paymentAmount
+              paymentUnit
+            }
+            id
+            paymentUnit
+            flsaStatus: nullableFlsaStatus
+            employeeJob {
+              id
+              uuid
+              __typename
+            }
+            uuid
+            paymentAmount
+            __typename
+          }
+          hasMultipleJobs
+          draftEmployeePayrollCalculatedAmounts {
+            paidTimeOffHours
+            __typename
+          }
+          uuid
+          employeeBenefitsForPayPeriod {
+            id
+            ... on PayrollItemInputBenefit {
+              id
+              benefit {
+                id
+                benefitTypeName
+                description
+                isGustoManaged
+                __typename
+              }
+              companyContribution {
+                __typename
+                ... on FixedAmountCompanyContribution {
+                  amount
+                  __typename
+                }
+                ... on PercentageCompanyContribution {
+                  percent
+                  __typename
+                }
+                ... on TieredCompanyContribution {
+                  tiers {
+                    rate
+                    threshold
+                    thresholdDelta
+                    __typename
+                  }
+                  __typename
+                }
+              }
+              employeeDeductionType
+              employeeDeductionValue
+              __typename
+            }
+            __typename
+          }
+          taxOverrideInformation @include(if: $includeTaxOverrideInformation) {
+            id
+            hasOverrides
+            ... on TaxOverrideInformation {
+              id
+              overrideDecisions {
+                id
+                ... on TaxOverrideDecision {
+                  id
+                  associatedSchedule {
+                    id
+                    amount
+                    amountType
+                    numberOfPayrolls
+                    numberOfPayrollsRemaining
+                    __typename
+                  }
+                  employeeStateField {
+                    id
+                    customWithholdingAllowed
+                    uuid
+                    fullStateName
+                    __typename
+                  }
+                  selectedOverride {
+                    __typename
+                    ... on ScheduledTaxOverride {
+                      id
+                      __typename
+                    }
+                    ... on OneTimeTaxOverride {
+                      id
+                      amount
+                      amountType
+                      __typename
+                    }
+                    ... on NoTaxOverride {
+                      id
+                      __typename
+                    }
+                  }
+                  __typename
+                }
+                __typename
+              }
+              hasOverrides
+              __typename
+            }
+            __typename
+          }
+        }
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+}

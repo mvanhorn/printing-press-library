@@ -1,0 +1,90 @@
+query PollPayrollSubmissionStatus($draftPayrollId: ID!) {
+  company {
+    id
+    draftPayroll(uuid: $draftPayrollId) {
+      id
+      payrollErrors {
+        id
+        payrollItemValidationErrors {
+          id
+          ...UseCalculateDraftPayrollValidationError
+          __typename
+        }
+        ...TopLevelPayrollValidationErrorHelper
+        __typename
+      }
+      submissionStatus {
+        id
+        calculationProgressPercentage
+        state
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+}
+
+fragment UseCalculateDraftPayrollValidationError on DraftEmployeePayrollValidationError {
+  id
+  employeeId
+  ...PayrollItemValidationErrorHelper
+  __typename
+}
+
+fragment TopLevelPayrollValidationErrorHelper on DraftPayrollValidationError {
+  id
+  paymentPeriodEndAtRequiredErrors
+  payrollAlreadySuccessfullyRunErrors
+  payrollBuildErrors
+  payrollCurrentlyProcessingErrors
+  payrollInputsErrors
+  regularPaymentPeriodIsUniqueErrors
+  __typename
+}
+
+fragment PayrollItemValidationErrorHelper on DraftEmployeePayrollValidationError {
+  id
+  __typename
+  benefitIdsAreNotUniqueErrors
+  bonusEarningsErrors
+  cashTipsEarningsErrors
+  commissionEarningsErrors
+  correctionPaymentEarningsErrors
+  customEarningsErrors
+  customWithholdingErrors
+  doubleOvertimeHoursErrors
+  employeeId
+  employeeJobCompensationMissingErrors
+  employeeJobMissingErrors
+  employeePayScheduleMismatchErrors
+  missedBreakHoursErrors
+  missingAddressErrors
+  multipleJobsBonusEarningsErrors
+  multipleJobsCashTipsEarningsErrors
+  multipleJobsCommissionEarningsErrors
+  multipleJobsCorrectionPaymentEarningsErrors
+  multipleJobsCustomEarningsErrors
+  multipleJobsDoubleOvertimeHoursErrors
+  multipleJobsMissedBreakHoursErrors
+  multipleJobsOvertimeHoursErrors
+  multipleJobsOwnersDrawEarningsErrors
+  multipleJobsPaycheckTipsEarningsErrors
+  multipleJobsRegularHoursErrors
+  multipleJobsSeveranceEarningsErrors
+  netPayErrors
+  overtimeHoursErrors
+  ownersDrawDisallowedInputsErrors
+  ownersDrawEarningsErrors
+  paidHolidayHoursErrors
+  paidTimeOffHoursErrors
+  paycheckTipsEarningsErrors
+  paymentMethodMustBeCheckErrors
+  regularHoursErrors
+  reimbursementsErrors
+  severanceEarningsErrors
+  sickHoursErrors
+  taxErrors
+  totalHoursDoNotFitInPaymentPeriodErrors
+  workAddressNotFoundErrors
+}

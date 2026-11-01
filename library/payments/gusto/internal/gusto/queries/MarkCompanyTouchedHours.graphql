@@ -1,0 +1,6 @@
+mutation MarkCompanyTouchedHours {
+  markCompanyTouchedHours {
+    success
+    __typename
+  }
+}

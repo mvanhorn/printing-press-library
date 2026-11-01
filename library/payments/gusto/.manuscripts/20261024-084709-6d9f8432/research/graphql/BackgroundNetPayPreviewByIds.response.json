@@ -1,0 +1,33 @@
+{
+ "data": {
+  "company": {
+   "id": "f290a54b-9dd2-1285-9772-7b50837a84af",
+   "draftPayroll": {
+    "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01",
+    "draftEmployeePayrollsByIds": [
+     {
+      "employee": {
+       "id": "556e0a31-11ae-beae-f79f-eaef81dac0c8",
+       "__typename": "Employee"
+      },
+      "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8",
+      "__typename": "DraftEmployeePayroll",
+      "previewPay": {
+       "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8",
+       "grossPay": {
+        "amount": "0.00",
+        "__typename": "PreviewGrossPay"
+       },
+       "netPayAmount": "0.00",
+       "reimbursements": [],
+       "totalReimbursements": "0.00",
+       "__typename": "PreviewPay"
+      }
+     }
+    ],
+    "__typename": "DraftPayroll"
+   },
+   "__typename": "Company"
+  }
+ }
+}

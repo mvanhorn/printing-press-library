@@ -1,0 +1,8 @@
+{
+ "data": {
+  "markCompanyTouchedHours": {
+   "success": true,
+   "__typename": "MarkCompanyTouchedHoursPayload"
+  }
+ }
+}

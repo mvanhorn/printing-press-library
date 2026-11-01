@@ -1,0 +1,314 @@
+{
+ "data": {
+  "company": {
+   "id": "f290a54b-9dd2-1285-9772-7b50837a84af",
+   "draftPayroll": {
+    "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01",
+    "draftEmployeePayrollsByIds": [
+     {
+      "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8",
+      "employee": {
+       "id": "556e0a31-11ae-beae-f79f-eaef81dac0c8",
+       "__typename": "Employee",
+       "preferredFullName": "Ava Example",
+       "preferredFirstName": "Ava",
+       "lastName": "Example",
+       "legalFirstName": "Ava",
+       "currentEmployment": {
+        "id": "16767023",
+        "terminatedAt": null,
+        "__typename": "Employment",
+        "termination": null
+       },
+       "hiredAt": "2026-09-22",
+       "paymentMethodType": "Direct Deposit",
+       "uuid": "556e0a31-11ae-beae-f79f-eaef81dac0c8",
+       "companyMember": {
+        "id": "cf311952-bf09-6286-99e6-72abf096dbdb",
+        "legalFirstName": "Ava",
+        "preferredFirstName": "Ava",
+        "profilePicture": {
+         "id": "default_photo_1871872795999972",
+         "thumbnailUrl": "https://assets.gusto.com/static/images/profile-photos/avatar-1.svg",
+         "__typename": "ProfilePicture"
+        },
+        "lastName": "Example",
+        "__typename": "CompanyMember"
+       },
+       "companyMemberUuid": "cf311952-bf09-6286-99e6-72abf096dbdb",
+       "profilePicture": {
+        "id": "default_photo_1871872795999972",
+        "thumbnailUrl": "https://assets.gusto.com/static/images/profile-photos/avatar-1.svg",
+        "__typename": "ProfilePicture"
+       }
+      },
+      "allWorkedHours": [
+       {
+        "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8.b9e7913d-f628-87fe-98bb-ebbaff2e8b90",
+        "employeeJobCompensation": {
+         "id": "1572439278432227",
+         "employeeJob": {
+          "id": "0500083950260136",
+          "uuid": "b0223cb9-b69a-0e12-9db4-77cccc252966",
+          "__typename": "EmployeeJob"
+         },
+         "flsaStatus": "Nonexempt",
+         "paymentUnit": "Hour",
+         "isPrimary": true,
+         "uuid": "b9e7913d-f628-87fe-98bb-ebbaff2e8b90",
+         "computedTitle": "Operations Associate",
+         "standardWorkingHours": null,
+         "minimumWageAdjusted": false,
+         "effectiveDate": "2026-09-22",
+         "__typename": "EmployeeJobCompensation",
+         "applicableMinimumWage": "7.25",
+         "paymentAmount": "16.0"
+        },
+        "doubleOvertimeHours": null,
+        "missedBreakHours": null,
+        "overtimeHours": null,
+        "regularHours": "1.0",
+        "workweekEndDate": null,
+        "workweekStartDate": null,
+        "__typename": "DraftEmployeePayrollWorkedHours"
+       }
+      ],
+      "__typename": "DraftEmployeePayroll",
+      "allAdditionalPays": [
+       {
+        "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8.1180b84b-6442-f2c0-a81b-19464e21cc88",
+        "amount": "0.00",
+        "payType": {
+         "id": "1180b84b-6442-f2c0-a81b-19464e21cc88",
+         "name": "Bonus",
+         "includedInRegularRateOfPay": true,
+         "description": "Payment in addition to employees standard compensation.",
+         "usageFrequencyScore": 1,
+         "__typename": "DraftEmployeePayrollPayType"
+        },
+        "workweekEndDate": null,
+        "workweekStartDate": null,
+        "__typename": "DraftEmployeePayrollAdditionalPay",
+        "employeeJobCompensation": {
+         "id": "1572439278432227",
+         "employeeJob": {
+          "id": "0500083950260136",
+          "uuid": "b0223cb9-b69a-0e12-9db4-77cccc252966",
+          "__typename": "EmployeeJob"
+         },
+         "uuid": "b9e7913d-f628-87fe-98bb-ebbaff2e8b90",
+         "isPrimary": true,
+         "__typename": "EmployeeJobCompensation"
+        }
+       },
+       {
+        "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8.5fa2330c-38c2-d081-839d-27c7967dbbed",
+        "amount": "0.00",
+        "payType": {
+         "id": "5fa2330c-38c2-d081-839d-27c7967dbbed",
+         "name": "Cash Tips",
+         "includedInRegularRateOfPay": false,
+         "description": "Amount of tips the employee already received in cash. ",
+         "usageFrequencyScore": 0,
+         "__typename": "DraftEmployeePayrollPayType"
+        },
+        "workweekEndDate": null,
+        "workweekStartDate": null,
+        "__typename": "DraftEmployeePayrollAdditionalPay",
+        "employeeJobCompensation": {
+         "id": "1572439278432227",
+         "employeeJob": {
+          "id": "0500083950260136",
+          "uuid": "b0223cb9-b69a-0e12-9db4-77cccc252966",
+          "__typename": "EmployeeJob"
+         },
+         "uuid": "b9e7913d-f628-87fe-98bb-ebbaff2e8b90",
+         "isPrimary": true,
+         "__typename": "EmployeeJobCompensation"
+        }
+       },
+       {
+        "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8.287907f7-4f89-ee0f-0b0b-2b05fdf4cd65",
+        "amount": "0.00",
+        "payType": {
+         "id": "287907f7-4f89-ee0f-0b0b-2b05fdf4cd65",
+         "name": "Commission",
+         "includedInRegularRateOfPay": true,
+         "description": "Payment in addition to or instead of a salary.",
+         "usageFrequencyScore": 0,
+         "__typename": "DraftEmployeePayrollPayType"
+        },
+        "workweekEndDate": null,
+        "workweekStartDate": null,
+        "__typename": "DraftEmployeePayrollAdditionalPay",
+        "employeeJobCompensation": {
+         "id": "1572439278432227",
+         "employeeJob": {
+          "id": "0500083950260136",
+          "uuid": "b0223cb9-b69a-0e12-9db4-77cccc252966",
+          "__typename": "EmployeeJob"
+         },
+         "uuid": "b9e7913d-f628-87fe-98bb-ebbaff2e8b90",
+         "isPrimary": true,
+         "__typename": "EmployeeJobCompensation"
+        }
+       },
+       {
+        "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8.739125b4-9f54-45c8-a344-b6510423c262",
+        "amount": "0.00",
+        "payType": {
+         "id": "739125b4-9f54-45c8-a344-b6510423c262",
+         "name": "Correction Payment",
+         "includedInRegularRateOfPay": true,
+         "description": "Payment adjustment to employees standard compensation.",
+         "usageFrequencyScore": 0,
+         "__typename": "DraftEmployeePayrollPayType"
+        },
+        "workweekEndDate": null,
+        "workweekStartDate": null,
+        "__typename": "DraftEmployeePayrollAdditionalPay",
+        "employeeJobCompensation": {
+         "id": "1572439278432227",
+         "employeeJob": {
+          "id": "0500083950260136",
+          "uuid": "b0223cb9-b69a-0e12-9db4-77cccc252966",
+          "__typename": "EmployeeJob"
+         },
+         "uuid": "b9e7913d-f628-87fe-98bb-ebbaff2e8b90",
+         "isPrimary": true,
+         "__typename": "EmployeeJobCompensation"
+        }
+       },
+       {
+        "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8.ce68c450-bcda-e1a3-372b-a9d089ffadd8",
+        "amount": "0.00",
+        "payType": {
+         "id": "ce68c450-bcda-e1a3-372b-a9d089ffadd8",
+         "name": "Minimum Wage Adjustment",
+         "includedInRegularRateOfPay": false,
+         "description": "Make up pay when an employees cash wage plus tips is less than the minimum wage.",
+         "usageFrequencyScore": 0,
+         "__typename": "DraftEmployeePayrollPayType"
+        },
+        "workweekEndDate": null,
+        "workweekStartDate": null,
+        "__typename": "DraftEmployeePayrollAdditionalPay",
+        "employeeJobCompensation": {
+         "id": "1572439278432227",
+         "employeeJob": {
+          "id": "0500083950260136",
+          "uuid": "b0223cb9-b69a-0e12-9db4-77cccc252966",
+          "__typename": "EmployeeJob"
+         },
+         "uuid": "b9e7913d-f628-87fe-98bb-ebbaff2e8b90",
+         "isPrimary": true,
+         "__typename": "EmployeeJobCompensation"
+        }
+       },
+       {
+        "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8.7e12effa-616d-fbd5-1f90-a1742782676c",
+        "amount": "0.00",
+        "payType": {
+         "id": "7e12effa-616d-fbd5-1f90-a1742782676c",
+         "name": "Paycheck Tips",
+         "includedInRegularRateOfPay": false,
+         "description": "Amount of tips the employee received by credit card payment that still needs to be paid. ",
+         "usageFrequencyScore": 0,
+         "__typename": "DraftEmployeePayrollPayType"
+        },
+        "workweekEndDate": null,
+        "workweekStartDate": null,
+        "__typename": "DraftEmployeePayrollAdditionalPay",
+        "employeeJobCompensation": {
+         "id": "1572439278432227",
+         "employeeJob": {
+          "id": "0500083950260136",
+          "uuid": "b0223cb9-b69a-0e12-9db4-77cccc252966",
+          "__typename": "EmployeeJob"
+         },
+         "uuid": "b9e7913d-f628-87fe-98bb-ebbaff2e8b90",
+         "isPrimary": true,
+         "__typename": "EmployeeJobCompensation"
+        }
+       }
+      ],
+      "allReimbursements": [
+       {
+        "__typename": "EmployeeReimbursement",
+        "id": "1069099908418302",
+        "amount": "1.23",
+        "category": {
+         "name": "None",
+         "__typename": "ExpenseCategory"
+        },
+        "description": "PP-CAPTURE test mileage",
+        "reimbursementType": "ITEMIZED_PAYROLL_REIMBURSEMENT"
+       },
+       {
+        "__typename": "DraftEmployeePayrollUnnamedItemizedReimbursement",
+        "amount": "0.00"
+       }
+      ],
+      "draftGrossPayBreakdownSummary": {
+       "amount": "16.00",
+       "breakdowns": [
+        {
+         "doubleOvertimePremiumPay": "0.00",
+         "doubleOvertimeStraightTimePay": "0.00",
+         "jobId": "0500083950260136",
+         "minimumWageAdjustment": "0.00",
+         "missedBreakPremiumPay": "0.00",
+         "overtimePremiumPay": "0.00",
+         "overtimeStraightTimePay": "0.00",
+         "regularStraightTimePay": "16.00",
+         "__typename": "DraftGrossPayBreakdown",
+         "employeeJobCompensation": {
+          "id": "1572439278432227",
+          "uuid": "b9e7913d-f628-87fe-98bb-ebbaff2e8b90",
+          "__typename": "EmployeeJobCompensation"
+         },
+         "rropAdjustmentSummary": {
+          "doubleOvertime": "0.00",
+          "missedBreakPremium": "0.00",
+          "overtime": "0.00",
+          "__typename": "RegularRateOfPayAdjustmentSummary"
+         }
+        }
+       ],
+       "__typename": "DraftGrossPayBreakdownSummary"
+      },
+      "holidaysForPayPeriod": null,
+      "isDismissedInPayPeriod": false,
+      "isIncluded": true,
+      "paymentMethod": "direct_deposit",
+      "timeOffEnrolledPoliciesForPayPeriod": [],
+      "allDeductions": [],
+      "personalNote": null,
+      "primaryJobApplicableCompensation": {
+       "id": "1572439278432227",
+       "employeeJob": {
+        "id": "0500083950260136",
+        "uuid": "b0223cb9-b69a-0e12-9db4-77cccc252966",
+        "__typename": "EmployeeJob"
+       },
+       "uuid": "b9e7913d-f628-87fe-98bb-ebbaff2e8b90",
+       "flsaStatus": "Nonexempt",
+       "__typename": "EmployeeJobCompensation",
+       "paymentAmount": "16.0",
+       "paymentUnit": "Hour"
+      },
+      "hasMultipleJobs": false,
+      "draftEmployeePayrollCalculatedAmounts": {
+       "paidTimeOffHours": "0.0",
+       "__typename": "DraftEmployeePayrollCalculatedAmounts"
+      },
+      "uuid": "6261ae49-9fbc-6fa4-d648-005d95427d22",
+      "employeeBenefitsForPayPeriod": []
+     }
+    ],
+    "__typename": "DraftPayroll"
+   },
+   "__typename": "Company"
+  }
+ }
+}

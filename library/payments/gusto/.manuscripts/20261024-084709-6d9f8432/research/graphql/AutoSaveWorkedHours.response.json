@@ -1,0 +1,73 @@
+{
+ "data": {
+  "updateDraftPayroll": {
+   "draftPayroll": {
+    "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01",
+    "draftEmployeePayroll": {
+     "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8",
+     "allWorkedHours": [
+      {
+       "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01.556e0a31-11ae-beae-f79f-eaef81dac0c8.b9e7913d-f628-87fe-98bb-ebbaff2e8b90",
+       "doubleOvertimeHours": "0.0",
+       "missedBreakHours": null,
+       "overtimeHours": "0.0",
+       "regularHours": "0.0",
+       "workweekEndDate": null,
+       "workweekStartDate": null,
+       "__typename": "DraftEmployeePayrollWorkedHours"
+      }
+     ],
+     "draftGrossPayBreakdownSummary": {
+      "amount": "0.00",
+      "breakdowns": [
+       {
+        "doubleOvertimePremiumPay": "0.00",
+        "doubleOvertimeStraightTimePay": "0.00",
+        "employeeJobCompensation": {
+         "id": "1572439278432227",
+         "uuid": "b9e7913d-f628-87fe-98bb-ebbaff2e8b90",
+         "__typename": "EmployeeJobCompensation"
+        },
+        "minimumWageAdjustment": "0.00",
+        "missedBreakPremiumPay": "0.00",
+        "overtimePremiumPay": "0.00",
+        "overtimeStraightTimePay": "0.00",
+        "regularStraightTimePay": "0.00",
+        "__typename": "DraftGrossPayBreakdown",
+        "jobId": "0500083950260136",
+        "rropAdjustmentSummary": {
+         "doubleOvertime": "0.00",
+         "missedBreakPremium": "0.00",
+         "overtime": "0.00",
+         "__typename": "RegularRateOfPayAdjustmentSummary"
+        }
+       }
+      ],
+      "__typename": "DraftGrossPayBreakdownSummary"
+     },
+     "timeOffEnrolledPoliciesForPayPeriod": [],
+     "draftEmployeePayrollCalculatedAmounts": {
+      "paidTimeOffHours": "0.0",
+      "__typename": "DraftEmployeePayrollCalculatedAmounts"
+     },
+     "__typename": "DraftEmployeePayroll"
+    },
+    "__typename": "DraftPayroll"
+   },
+   "draftPayrollValidationErrors": {
+    "id": "regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01",
+    "payrollItemValidationErrors": [],
+    "paymentPeriodEndAtRequiredErrors": [],
+    "payrollAlreadySuccessfullyRunErrors": [],
+    "payrollBuildErrors": [],
+    "payrollCurrentlyProcessingErrors": [],
+    "payrollInputsErrors": [],
+    "regularPaymentPeriodIsUniqueErrors": [],
+    "__typename": "DraftPayrollValidationError"
+   },
+   "errors": null,
+   "success": true,
+   "__typename": "UpdateDraftPayrollPayload"
+  }
+ }
+}

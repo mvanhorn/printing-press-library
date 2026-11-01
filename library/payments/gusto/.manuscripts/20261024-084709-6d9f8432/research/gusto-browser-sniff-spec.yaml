@@ -1,0 +1,4250 @@
+name: gusto
+description: Discovered API spec for gusto
+version: 0.1.0
+base_url: https://app.gusto.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "query" from body: search input'
+config:
+    format: toml
+    path: ~/.config/gusto-pp-cli/config.toml
+resources:
+    autos:
+        description: GraphQL BFF operations for autos
+        endpoints:
+            save_reimbursements:
+                method: POST
+                path: /
+                description: Fetch autos save reimbursements
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        mutation AutoSaveReimbursements($employeeUuid: ID!, $input: UpdateDraftPayrollInput!) {
+                          updateDraftPayroll(input: $input) {
+                            draftPayroll {
+                              id
+                              draftEmployeePayroll(employeeUuid: $employeeUuid) {
+                                id
+                                allReimbursements {
+                                  __typename
+                                  ...PayrollReimbursementsDrawerContentEmployeeReimbursementInterface
+                                }
+                                __typename
+                              }
+                              __typename
+                            }
+                            ...AutoSaveFieldUpdateDraftPayrollPayload
+                            __typename
+                          }
+                        }
+
+                        fragment PayrollReimbursementsDrawerContentEmployeeReimbursementInterface on EmployeeReimbursementInterface {
+                          __typename
+                          amount
+                          ...PayrollReimbursementsAccordionEmployeeReimbursementInterface
+                          ... on EmployeeReimbursement {
+                            id
+                            category {
+                              name
+                              __typename
+                            }
+                            description
+                            reimbursementType
+                            __typename
+                          }
+                        }
+
+                        fragment AutoSaveFieldUpdateDraftPayrollPayload on UpdateDraftPayrollPayload {
+                          draftPayrollValidationErrors {
+                            id
+                            ...PayrollValidationErrorHelper
+                            __typename
+                          }
+                          errors {
+                            argument
+                            message
+                            __typename
+                          }
+                          success
+                          __typename
+                        }
+
+                        fragment PayrollReimbursementsAccordionEmployeeReimbursementInterface on EmployeeReimbursementInterface {
+                          __typename
+                          amount
+                          ...PayrollReimbursementsCardViewEmployeeReimbursementInterface
+                          ...PayrollReimbursementsTableEmployeeReimbursementInterface
+                        }
+
+                        fragment PayrollValidationErrorHelper on DraftPayrollValidationError {
+                          id
+                          payrollItemValidationErrors {
+                            id
+                            ...PayrollItemValidationErrorHelper
+                            __typename
+                          }
+                          ...TopLevelPayrollValidationErrorHelper
+                          __typename
+                        }
+
+                        fragment PayrollReimbursementsCardViewEmployeeReimbursementInterface on EmployeeReimbursementInterface {
+                          __typename
+                          ... on EmployeeReimbursement {
+                            id
+                            amount
+                            category {
+                              name
+                              __typename
+                            }
+                            description
+                            __typename
+                          }
+                        }
+
+                        fragment PayrollReimbursementsTableEmployeeReimbursementInterface on EmployeeReimbursementInterface {
+                          __typename
+                          amount
+                          ... on EmployeeReimbursement {
+                            id
+                            description
+                            __typename
+                          }
+                        }
+
+                        fragment PayrollItemValidationErrorHelper on DraftEmployeePayrollValidationError {
+                          id
+                          __typename
+                          benefitIdsAreNotUniqueErrors
+                          bonusEarningsErrors
+                          cashTipsEarningsErrors
+                          commissionEarningsErrors
+                          correctionPaymentEarningsErrors
+                          customEarningsErrors
+                          customWithholdingErrors
+                          doubleOvertimeHoursErrors
+                          employeeId
+                          employeeJobCompensationMissingErrors
+                          employeeJobMissingErrors
+                          employeePayScheduleMismatchErrors
+                          missedBreakHoursErrors
+                          missingAddressErrors
+                          multipleJobsBonusEarningsErrors
+                          multipleJobsCashTipsEarningsErrors
+                          multipleJobsCommissionEarningsErrors
+                          multipleJobsCorrectionPaymentEarningsErrors
+                          multipleJobsCustomEarningsErrors
+                          multipleJobsDoubleOvertimeHoursErrors
+                          multipleJobsMissedBreakHoursErrors
+                          multipleJobsOvertimeHoursErrors
+                          multipleJobsOwnersDrawEarningsErrors
+                          multipleJobsPaycheckTipsEarningsErrors
+                          multipleJobsRegularHoursErrors
+                          multipleJobsSeveranceEarningsErrors
+                          netPayErrors
+                          overtimeHoursErrors
+                          ownersDrawDisallowedInputsErrors
+                          ownersDrawEarningsErrors
+                          paidHolidayHoursErrors
+                          paidTimeOffHoursErrors
+                          paycheckTipsEarningsErrors
+                          paymentMethodMustBeCheckErrors
+                          regularHoursErrors
+                          reimbursementsErrors
+                          severanceEarningsErrors
+                          sickHoursErrors
+                          taxErrors
+                          totalHoursDoNotFitInPaymentPeriodErrors
+                          workAddressNotFoundErrors
+                        }
+
+                        fragment TopLevelPayrollValidationErrorHelper on DraftPayrollValidationError {
+                          id
+                          paymentPeriodEndAtRequiredErrors
+                          payrollAlreadySuccessfullyRunErrors
+                          payrollBuildErrors
+                          payrollCurrentlyProcessingErrors
+                          payrollInputsErrors
+                          regularPaymentPeriodIsUniqueErrors
+                          __typename
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        employeeUuid: 556e0a31-11ae-beae-f79f-eaef81dac0c8
+                        input:
+                            payrollActivitySessionId: REDACTED
+                            reimbursements:
+                                - employeeUuid: 556e0a31-11ae-beae-f79f-eaef81dac0c8
+                                  itemizedReimbursements:
+                                    - amount: 1.23
+                                      description: PP-CAPTURE test mileage
+                                      employeeReimbursementId: c0d94d70-0347-cc74-fde1-d93a030042c2
+                                    - amount: 0
+                            uniqueIdentifier: regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01
+                      description: GraphQL variables as JSON
+                      fields: []
+                response:
+                    type: object
+                    item: auto_save_reimbursements
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+            save_worked_hours:
+                method: POST
+                path: /
+                description: Fetch autos save worked hours
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: AutoSaveWorkedHours
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        mutation AutoSaveWorkedHours($employeeUuid: ID!, $input: UpdateDraftPayrollInput!) {
+                          updateDraftPayroll(input: $input) {
+                            draftPayroll {
+                              id
+                              draftEmployeePayroll(employeeUuid: $employeeUuid) {
+                                id
+                                allWorkedHours {
+                                  id
+                                  doubleOvertimeHours
+                                  missedBreakHours
+                                  overtimeHours
+                                  regularHours
+                                  workweekEndDate
+                                  workweekStartDate
+                                  __typename
+                                }
+                                draftGrossPayBreakdownSummary {
+                                  amount
+                                  breakdowns {
+                                    doubleOvertimePremiumPay
+                                    doubleOvertimeStraightTimePay
+                                    employeeJobCompensation {
+                                      id
+                                      uuid
+                                      __typename
+                                    }
+                                    minimumWageAdjustment
+                                    missedBreakPremiumPay
+                                    overtimePremiumPay
+                                    overtimeStraightTimePay
+                                    regularStraightTimePay
+                                    __typename
+                                  }
+                                  ...ComputeTotalsFromConsolidatedDraftGrossPayBreakdownSummary
+                                  __typename
+                                }
+                                timeOffEnrolledPoliciesForPayPeriod {
+                                  id
+                                  accruingHours
+                                  payoutHours
+                                  remainingBalanceHours
+                                  totalTimeOffHoursUsed
+                                  __typename
+                                }
+                                ...PayrollInputAndActionsDraftEmployeePayrollSharedFieldsForAutoSaveWithoutIDs
+                                __typename
+                              }
+                              __typename
+                            }
+                            ...AutoSaveFieldUpdateDraftPayrollPayload
+                            __typename
+                          }
+                        }
+
+                        fragment ComputeTotalsFromConsolidatedDraftGrossPayBreakdownSummary on DraftGrossPayBreakdownSummary {
+                          amount
+                          breakdowns {
+                            ...ComputeTotalsFromConsolidatedDraftGrossPayBreakdown
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment PayrollInputAndActionsDraftEmployeePayrollSharedFieldsForAutoSaveWithoutIDs on DraftEmployeePayroll {
+                          id
+                          draftEmployeePayrollCalculatedAmounts {
+                            paidTimeOffHours
+                            __typename
+                          }
+                          draftGrossPayBreakdownSummary {
+                            amount
+                            breakdowns {
+                              doubleOvertimePremiumPay
+                              doubleOvertimeStraightTimePay
+                              employeeJobCompensation {
+                                id
+                                uuid
+                                __typename
+                              }
+                              jobId
+                              minimumWageAdjustment
+                              missedBreakPremiumPay
+                              overtimePremiumPay
+                              overtimeStraightTimePay
+                              regularStraightTimePay
+                              rropAdjustmentSummary {
+                                doubleOvertime
+                                missedBreakPremium
+                                overtime
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment AutoSaveFieldUpdateDraftPayrollPayload on UpdateDraftPayrollPayload {
+                          draftPayrollValidationErrors {
+                            id
+                            ...PayrollValidationErrorHelper
+                            __typename
+                          }
+                          errors {
+                            argument
+                            message
+                            __typename
+                          }
+                          success
+                          __typename
+                        }
+
+                        fragment ComputeTotalsFromConsolidatedDraftGrossPayBreakdown on DraftGrossPayBreakdown {
+                          doubleOvertimePremiumPay
+                          doubleOvertimeStraightTimePay
+                          jobId
+                          minimumWageAdjustment
+                          missedBreakPremiumPay
+                          overtimePremiumPay
+                          overtimeStraightTimePay
+                          regularStraightTimePay
+                          __typename
+                        }
+
+                        fragment PayrollValidationErrorHelper on DraftPayrollValidationError {
+                          id
+                          payrollItemValidationErrors {
+                            id
+                            ...PayrollItemValidationErrorHelper
+                            __typename
+                          }
+                          ...TopLevelPayrollValidationErrorHelper
+                          __typename
+                        }
+
+                        fragment PayrollItemValidationErrorHelper on DraftEmployeePayrollValidationError {
+                          id
+                          __typename
+                          benefitIdsAreNotUniqueErrors
+                          bonusEarningsErrors
+                          cashTipsEarningsErrors
+                          commissionEarningsErrors
+                          correctionPaymentEarningsErrors
+                          customEarningsErrors
+                          customWithholdingErrors
+                          doubleOvertimeHoursErrors
+                          employeeId
+                          employeeJobCompensationMissingErrors
+                          employeeJobMissingErrors
+                          employeePayScheduleMismatchErrors
+                          missedBreakHoursErrors
+                          missingAddressErrors
+                          multipleJobsBonusEarningsErrors
+                          multipleJobsCashTipsEarningsErrors
+                          multipleJobsCommissionEarningsErrors
+                          multipleJobsCorrectionPaymentEarningsErrors
+                          multipleJobsCustomEarningsErrors
+                          multipleJobsDoubleOvertimeHoursErrors
+                          multipleJobsMissedBreakHoursErrors
+                          multipleJobsOvertimeHoursErrors
+                          multipleJobsOwnersDrawEarningsErrors
+                          multipleJobsPaycheckTipsEarningsErrors
+                          multipleJobsRegularHoursErrors
+                          multipleJobsSeveranceEarningsErrors
+                          netPayErrors
+                          overtimeHoursErrors
+                          ownersDrawDisallowedInputsErrors
+                          ownersDrawEarningsErrors
+                          paidHolidayHoursErrors
+                          paidTimeOffHoursErrors
+                          paycheckTipsEarningsErrors
+                          paymentMethodMustBeCheckErrors
+                          regularHoursErrors
+                          reimbursementsErrors
+                          severanceEarningsErrors
+                          sickHoursErrors
+                          taxErrors
+                          totalHoursDoNotFitInPaymentPeriodErrors
+                          workAddressNotFoundErrors
+                        }
+
+                        fragment TopLevelPayrollValidationErrorHelper on DraftPayrollValidationError {
+                          id
+                          paymentPeriodEndAtRequiredErrors
+                          payrollAlreadySuccessfullyRunErrors
+                          payrollBuildErrors
+                          payrollCurrentlyProcessingErrors
+                          payrollInputsErrors
+                          regularPaymentPeriodIsUniqueErrors
+                          __typename
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        employeeUuid: 556e0a31-11ae-beae-f79f-eaef81dac0c8
+                        input:
+                            payrollActivitySessionId: REDACTED
+                            uniqueIdentifier: regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01
+                            workedHours:
+                                - employeeUuid: 556e0a31-11ae-beae-f79f-eaef81dac0c8
+                                  workedHours:
+                                    - doubleOvertimeHours: 0
+                                      employeeJobUuid: b0223cb9-b69a-0e12-9db4-77cccc252966
+                                      missedBreakHours: null
+                                      overtimeHours: 0
+                                      regularHours: 0
+                      description: GraphQL variables as JSON
+                      fields: []
+                response:
+                    type: object
+                    item: auto_save_worked_hours
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+    backgrounds:
+        description: GraphQL BFF operations for backgrounds
+        endpoints:
+            net_pay_preview_by_ids:
+                method: POST
+                path: /
+                description: Fetch backgrounds net pay preview by ids
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query BackgroundNetPayPreviewByIds($draftPayrollId: ID!, $ids: [ID!]!) {
+                          company {
+                            id
+                            draftPayroll(uuid: $draftPayrollId) {
+                              id
+                              draftEmployeePayrollsByIds(ids: $ids) {
+                                employee {
+                                  id
+                                  __typename
+                                }
+                                ...BackgroundNetPayPreviewPay
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                        }
+
+                        fragment BackgroundNetPayPreviewPay on DraftEmployeePayroll {
+                          id
+                          __typename
+                          previewPay {
+                            id
+                            grossPay {
+                              amount
+                              __typename
+                            }
+                            netPayAmount
+                            reimbursements {
+                              amount
+                              name
+                              __typename
+                            }
+                            totalReimbursements
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        draftPayrollId: regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01
+                        ids:
+                            - 556e0a31-11ae-beae-f79f-eaef81dac0c8
+                      description: GraphQL variables as JSON
+                      fields: []
+                response:
+                    type: object
+                    item: background_net_pay_preview_by_ids
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+    calculates:
+        description: GraphQL BFF operations for calculates
+        endpoints:
+            draft_payroll:
+                method: POST
+                path: /
+                description: Fetch calculates draft payroll
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        mutation CalculateDraftPayroll($input: CalculateDraftPayrollInput!) {
+                          calculateDraftPayroll(input: $input) {
+                            result {
+                              __typename
+                              ... on CalculateDraftPayrollSuccess {
+                                draftPayrollOnSuccess: draftPayroll {
+                                  id
+                                  __typename
+                                }
+                                __typename
+                              }
+                              ... on CalculateDraftPayrollFailure {
+                                draftPayrollOnFailure: draftPayroll {
+                                  id
+                                  totalAmountToBeDebited
+                                  __typename
+                                }
+                                errors {
+                                  argument
+                                  message
+                                  __typename
+                                }
+                                __typename
+                              }
+                            }
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        input:
+                            uniqueIdentifier: regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01
+                      description: GraphQL variables as JSON
+                      fields: []
+                response:
+                    type: object
+                    item: calculate_draft_payroll
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+    marks:
+        description: GraphQL BFF operations for marks
+        endpoints:
+            company_touched_hours:
+                method: POST
+                path: /
+                description: Fetch marks company touched hours
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        mutation MarkCompanyTouchedHours {
+                          markCompanyTouchedHours {
+                            success
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default: {}
+                      description: GraphQL variables as JSON
+                      fields: []
+                response:
+                    type: object
+                    item: mark_company_touched_hours
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+    payrolls:
+        description: GraphQL BFF operations for payrolls
+        endpoints:
+            history_container_payroll_summaries:
+                method: POST
+                path: /
+                description: Fetch payrolls history container payroll summaries
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query PayrollHistoryContainerPayrollSummaries($after: String, $before: String, $canViewPayrolls: Boolean!, $first: Int, $last: Int, $payHistoryPhaseThreeEnabled: Boolean!, $processedPayrollFilter: ProcessedPayrollsQueryFilter, $processedPayrollOrder: ProcessedPayrollsQueryOrder!) {
+                          company {
+                            id
+                            processedPayrolls(
+                              after: $after
+                              before: $before
+                              filter: $processedPayrollFilter
+                              first: $first
+                              last: $last
+                              order: $processedPayrollOrder
+                            ) @include(if: $canViewPayrolls) {
+                              edges {
+                                node {
+                                  id
+                                  ...PayrollSummariesTablePayroll
+                                  __typename
+                                }
+                                __typename
+                              }
+                              pageInfo {
+                                endCursor
+                                hasNextPage
+                                hasPreviousPage
+                                startCursor
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                        }
+
+                        fragment PayrollSummariesTablePayroll on Payroll {
+                          id
+                          autoPilot
+                          cancelValid
+                          canClawBackEmployeeFunds
+                          checkDate
+                          convertToCheckValid
+                          debitDate
+                          description
+                          employeePayrollsCount
+                          hasReversals
+                          inAppReversalValid
+                          isBlockedByPlaidRtb
+                          isPeoClient
+                          lastFundingAttemptFundingMethod {
+                            id
+                            bankName
+                            fundingType
+                            hiddenAccountNumber
+                            __typename
+                          }
+                          name
+                          offCycle
+                          offCycleReason
+                          paymentPeriodEndAt
+                          paymentPeriodStartAt
+                          payrollDetails
+                          payrollRisk @include(if: $payHistoryPhaseThreeEnabled) {
+                            id
+                            paymentStatusInformation {
+                              status
+                              __typename
+                            }
+                            ...ActionLink
+                            __typename
+                          }
+                          payrollType
+                          totalDebitAmount
+                          totalPayableTax
+                          wireInRequest {
+                            id
+                            status
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment ActionLink on PaymentRisk {
+                          id
+                          creditBlockers {
+                            blockerType
+                            selectedOption {
+                              __typename
+                            }
+                            status
+                            unblockOptions {
+                              __typename
+                              ... on SubmitWireUnblockOption {
+                                amount
+                                checkDate
+                                deadline
+                                __typename
+                              }
+                              ... on RespondToHighRiskFraudRfiUnblockOption {
+                                informationRequestUuid
+                                __typename
+                              }
+                            }
+                            __typename
+                          }
+                          isBlockedByPlaidRtb
+                          __typename
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        canViewPayrolls: true
+                        first: 10
+                        payHistoryPhaseThreeEnabled: true
+                        processedPayrollFilter: {}
+                        processedPayrollOrder:
+                            sortDirection: DESC
+                            type: CHECK_DATE
+                      description: GraphQL variables as JSON
+                      fields: []
+                response:
+                    type: object
+                    item: payroll_history_container_payroll_summaries
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+            input_step:
+                method: POST
+                path: /
+                description: Fetch payrolls input step
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: PayrollInputStep
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query PayrollInputStep($between: TimeTrackingDateRange!, $draftPayrollId: ID!, $featureFlagInputs: [GustoFfeFeatureInput!]!, $hasPaySchedule: Boolean!, $shouldQueryTimeTrackingFields: Boolean!) {
+                          company {
+                            id
+                            draftPayroll(uuid: $draftPayrollId) {
+                              id
+                              ... on DraftPayroll {
+                                id
+                                analyticsId
+                                payPeriod {
+                                  id
+                                  endDate
+                                  runPayrollBy
+                                  checkDate
+                                  ... on PayPeriod {
+                                    id
+                                    checkDate
+                                    runPayrollBy
+                                    projectedCheckDate
+                                    endDate
+                                    startDate
+                                    __typename
+                                  }
+                                  runPayrollByBankCutoffTime @include(if: $hasPaySchedule)
+                                  originalCheckDate
+                                  projectedCheckDate
+                                  startDate
+                                  nextAvailableFourDayCheckDate
+                                  __typename
+                                }
+                                paySchedule {
+                                  id
+                                  frequency
+                                  name
+                                  payGroup
+                                  uuid
+                                  __typename
+                                }
+                                payType
+                                saveDetails {
+                                  lastSavedOn
+                                  __typename
+                                }
+                                submissionStatus {
+                                  id
+                                  state
+                                  __typename
+                                }
+                                payrollType
+                                customName
+                                totalAmountToBeDebited
+                                offCycleReason
+                                paidHolidays {
+                                  id
+                                  ... on PaidHoliday {
+                                    id
+                                    name
+                                    __typename
+                                  }
+                                  __typename
+                                }
+                                payroll {
+                                  id
+                                  autoPilot
+                                  __typename
+                                }
+                                canNextDayAchOnTime
+                                isLateRegularPayroll
+                                fundingMethod {
+                                  id
+                                  ... on FundingMethodV2 {
+                                    id
+                                    fundingType
+                                    __typename
+                                  }
+                                  fundingType
+                                  __typename
+                                }
+                                draftEmployeePayrollsCount
+                                allDraftEmployeePayrolls(first: 1) {
+                                  nodes {
+                                    id
+                                    employee {
+                                      id
+                                      preferredFirstName
+                                      preferredFullName
+                                      __typename
+                                    }
+                                    __typename
+                                  }
+                                  __typename
+                                }
+                                canWireInOnTime
+                                payrollRisk {
+                                  id
+                                  wireCutoffTime
+                                  __typename
+                                }
+                                draftPayrollAdvancedSettings {
+                                  id
+                                  shouldMakeInternalDeductions
+                                  shouldMakeRegularDeductions
+                                  __typename
+                                }
+                                overlappingWorkweeks {
+                                  endDate
+                                  startDate
+                                  __typename
+                                }
+                                isRegularRateOfPayEnabled
+                                __typename
+                              }
+                              __typename
+                            }
+                            ... on Company {
+                              id
+                              payScheduleSchemeName
+                              supportedTimeTrackingDataSources
+                              isPayrollApprovalsEnabled
+                              achFundingMethods {
+                                id
+                                ... on FundingMethod {
+                                  id
+                                  accountType
+                                  bankName
+                                  hiddenAccountNumber
+                                  isVerified
+                                  __typename
+                                }
+                                __typename
+                              }
+                              hasRunPayroll
+                              schedulingSettings @include(if: $shouldQueryTimeTrackingFields) {
+                                ... on SchedulingSettings {
+                                  id
+                                  schedulingStatus
+                                  __typename
+                                }
+                                __typename
+                              }
+                              shouldAutoupgradeToPlus
+                              timeTrackingPayPeriods(between: $between) @include(if: $shouldQueryTimeTrackingFields) {
+                                id
+                                ... on TimeTrackingPayPeriod {
+                                  id
+                                  endDate
+                                  kind
+                                  payScheduleId
+                                  startDate
+                                  timesheetAbilities {
+                                    ... on TimesheetAbility {
+                                      action
+                                      actionReason
+                                      locked
+                                      __typename
+                                    }
+                                    action
+                                    actionReason
+                                    locked
+                                    __typename
+                                  }
+                                  checkDate
+                                  status
+                                  __typename
+                                }
+                                __typename
+                              }
+                              activeEmployeeMembers: members(
+                                employmentStatus: CURRENT_OR_PENDING_HIRE
+                                isEor: false
+                                workerTypes: [EMPLOYEE]
+                              ) {
+                                totalCount
+                                __typename
+                              }
+                              processedPayrolls(
+                                filter: {includedPayrollTypes: [REGULAR]}
+                                first: 1
+                                order: {type: CHECK_DATE, sortDirection: DESC}
+                              ) {
+                                nodes {
+                                  id
+                                  paymentPeriodStartAt
+                                  __typename
+                                }
+                                __typename
+                              }
+                              missingStatesForPayroll {
+                                id
+                                employees {
+                                  nodes {
+                                    id
+                                    preferredFullName
+                                    __typename
+                                  }
+                                  __typename
+                                }
+                                missingStates
+                                __typename
+                              }
+                              isEligibleForSafeExpedite
+                              defaultFundingMethod {
+                                id
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                          gustoFfeFeatures(input: $featureFlagInputs) @include(if: $shouldQueryTimeTrackingFields) {
+                            ... on GustoFfeFeatureResult {
+                              __typename
+                              entityId
+                              entityType
+                              featureFlagKey
+                              featureVariables {
+                                __typename
+                                ... on StringFeatureVariable {
+                                  stringVariableValue: variableValue
+                                  variableKey
+                                  __typename
+                                }
+                                ... on IntFeatureVariable {
+                                  intVariableValue: variableValue
+                                  variableKey
+                                  __typename
+                                }
+                                ... on FloatFeatureVariable {
+                                  floatVariableValue: variableValue
+                                  variableKey
+                                  __typename
+                                }
+                                ... on BooleanFeatureVariable {
+                                  booleanVariableValue: variableValue
+                                  variableKey
+                                  __typename
+                                }
+                                ... on JsonFeatureVariable {
+                                  jsonVariableValue: variableValue
+                                  variableKey
+                                  __typename
+                                }
+                              }
+                              isFeatureEnabled
+                              projectEntity
+                              variationName
+                            }
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        between:
+                            endDate: "2026-11-01"
+                            startDate: "2026-10-26"
+                        draftPayrollId: regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01
+                        featureFlagInputs:
+                            - entityId: "0429180324317886"
+                              entityType: COMPANY
+                              featureFlagKey: payroll_prep_unapproved_timesheets_only
+                              projectEntity: ALL
+                        hasPaySchedule: true
+                        shouldQueryTimeTrackingFields: false
+                      description: GraphQL variables as JSON
+                      fields: []
+                response:
+                    type: object
+                    item: payroll_input_step
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+            input_step_draft_employee_payrolls_by_ids:
+                method: POST
+                path: /
+                description: Fetch payrolls input step draft employee payrolls by ids
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query PayrollInputStepDraftEmployeePayrollsByIds($draftPayrollId: ID!, $ids: [ID!]!, $includeAnomalyChecks: Boolean! = false, $includeNetPay: Boolean!, $includePreviewPay: Boolean!, $includeTaxOverrideInformation: Boolean!, $includeWorkLocation: Boolean!) {
+                          company {
+                            id
+                            draftPayroll(uuid: $draftPayrollId) {
+                              id
+                              draftEmployeePayrollsByIds(ids: $ids) {
+                                id
+                                anomalyChecks @include(if: $includeAnomalyChecks) {
+                                  ... on AnomalyCheck {
+                                    id
+                                    anomalyType
+                                    band {
+                                      high
+                                      low
+                                      __typename
+                                    }
+                                    comparedToValue
+                                    __typename
+                                  }
+                                  __typename
+                                }
+                                employee {
+                                  id
+                                  __typename
+                                }
+                                netPay @include(if: $includeNetPay)
+                                previewPay @include(if: $includePreviewPay) {
+                                  id
+                                  grossPay {
+                                    amount
+                                    __typename
+                                  }
+                                  netPayAmount
+                                  __typename
+                                }
+                                ... on DraftEmployeePayroll {
+                                  id
+                                  allWorkedHours {
+                                    id
+                                    employeeJobCompensation {
+                                      id
+                                      employeeJob {
+                                        id
+                                        uuid
+                                        __typename
+                                      }
+                                      workLocation @include(if: $includeWorkLocation) {
+                                        id
+                                        city
+                                        state
+                                        street1
+                                        uuid
+                                        zip
+                                        __typename
+                                      }
+                                      flsaStatus: nullableFlsaStatus
+                                      paymentUnit
+                                      isPrimary
+                                      uuid
+                                      computedTitle
+                                      standardWorkingHours
+                                      minimumWageAdjusted
+                                      ... on EmployeeJobCompensation {
+                                        id
+                                        effectiveDate
+                                        flsaStatus: nullableFlsaStatus
+                                        minimumWageAdjusted
+                                        __typename
+                                      }
+                                      __typename
+                                    }
+                                    ... on DraftEmployeePayrollWorkedHours {
+                                      id
+                                      doubleOvertimeHours
+                                      missedBreakHours
+                                      overtimeHours
+                                      regularHours
+                                      workweekEndDate
+                                      workweekStartDate
+                                      employeeJobCompensation {
+                                        id
+                                        computedTitle
+                                        employeeJob {
+                                          id
+                                          uuid
+                                          __typename
+                                        }
+                                        uuid
+                                        applicableMinimumWage
+                                        minimumWageAdjusted
+                                        flsaStatus: nullableFlsaStatus
+                                        ... on EmployeeJobCompensation {
+                                          id
+                                          computedTitle
+                                          paymentAmount
+                                          paymentUnit
+                                          employeeJob {
+                                            id
+                                            uuid
+                                            __typename
+                                          }
+                                          uuid
+                                          __typename
+                                          flsaStatus: nullableFlsaStatus
+                                        }
+                                        paymentAmount
+                                        paymentUnit
+                                        __typename
+                                      }
+                                      ... on DraftEmployeePayrollWorkedHours @include(if: $includeWorkLocation) {
+                                        id
+                                        employeeJobCompensation {
+                                          id
+                                          computedTitle
+                                          employeeJob {
+                                            id
+                                            uuid
+                                            __typename
+                                          }
+                                          uuid
+                                          __typename
+                                        }
+                                        __typename
+                                      }
+                                      __typename
+                                    }
+                                    doubleOvertimeHours
+                                    missedBreakHours
+                                    overtimeHours
+                                    regularHours
+                                    workweekEndDate
+                                    workweekStartDate
+                                    __typename
+                                  }
+                                  __typename
+                                  allAdditionalPays {
+                                    id
+                                    ... on DraftEmployeePayrollAdditionalPay {
+                                      id
+                                      amount
+                                      payType {
+                                        id
+                                        name
+                                        includedInRegularRateOfPay
+                                        description
+                                        usageFrequencyScore
+                                        __typename
+                                      }
+                                      workweekEndDate
+                                      workweekStartDate
+                                      employeeJobCompensation @include(if: $includeWorkLocation) {
+                                        id
+                                        uuid
+                                        employeeJob {
+                                          id
+                                          uuid
+                                          __typename
+                                        }
+                                        isPrimary
+                                        __typename
+                                      }
+                                      __typename
+                                    }
+                                    amount
+                                    payType {
+                                      id
+                                      includedInRegularRateOfPay
+                                      name
+                                      __typename
+                                    }
+                                    workweekEndDate
+                                    workweekStartDate
+                                    employeeJobCompensation {
+                                      id
+                                      employeeJob {
+                                        id
+                                        uuid
+                                        __typename
+                                      }
+                                      uuid
+                                      isPrimary
+                                      __typename
+                                    }
+                                    __typename
+                                  }
+                                  allReimbursements {
+                                    __typename
+                                    ... on DraftEmployeePayrollUnnamedItemizedReimbursement {
+                                      __typename
+                                      amount
+                                    }
+                                    ... on EmployeeReimbursement {
+                                      id
+                                      __typename
+                                      amount
+                                      category {
+                                        name
+                                        __typename
+                                      }
+                                      description
+                                      reimbursementType
+                                    }
+                                    ... on EmployeeReimbursementInterface {
+                                      __typename
+                                      amount
+                                      ... on EmployeeReimbursement {
+                                        id
+                                        amount
+                                        category {
+                                          name
+                                          __typename
+                                        }
+                                        description
+                                        reimbursementType
+                                        __typename
+                                      }
+                                    }
+                                  }
+                                  draftGrossPayBreakdownSummary {
+                                    ... on DraftGrossPayBreakdownSummary {
+                                      amount
+                                      breakdowns {
+                                        ... on DraftGrossPayBreakdown {
+                                          doubleOvertimePremiumPay
+                                          doubleOvertimeStraightTimePay
+                                          jobId
+                                          minimumWageAdjustment
+                                          missedBreakPremiumPay
+                                          overtimePremiumPay
+                                          overtimeStraightTimePay
+                                          regularStraightTimePay
+                                          __typename
+                                        }
+                                        employeeJobCompensation {
+                                          id
+                                          uuid
+                                          __typename
+                                        }
+                                        jobId
+                                        minimumWageAdjustment
+                                        doubleOvertimePremiumPay
+                                        doubleOvertimeStraightTimePay
+                                        overtimePremiumPay
+                                        overtimeStraightTimePay
+                                        regularStraightTimePay
+                                        __typename
+                                      }
+                                      __typename
+                                    }
+                                    amount
+                                    breakdowns {
+                                      doubleOvertimePremiumPay
+                                      doubleOvertimeStraightTimePay
+                                      employeeJobCompensation {
+                                        id
+                                        uuid
+                                        __typename
+                                      }
+                                      jobId
+                                      minimumWageAdjustment
+                                      missedBreakPremiumPay
+                                      overtimePremiumPay
+                                      overtimeStraightTimePay
+                                      regularStraightTimePay
+                                      rropAdjustmentSummary {
+                                        doubleOvertime
+                                        missedBreakPremium
+                                        overtime
+                                        __typename
+                                      }
+                                      __typename
+                                    }
+                                    __typename
+                                  }
+                                  holidaysForPayPeriod {
+                                    id
+                                    payoutHours
+                                    ... on EmployeeHolidaysForPayPeriod {
+                                      id
+                                      paidHolidays {
+                                        id
+                                        __typename
+                                      }
+                                      payoutHours
+                                      __typename
+                                    }
+                                    paidHolidays {
+                                      id
+                                      __typename
+                                    }
+                                    __typename
+                                  }
+                                  isDismissedInPayPeriod
+                                  isIncluded
+                                  netPay @include(if: $includeNetPay)
+                                  paymentMethod
+                                  timeOffEnrolledPoliciesForPayPeriod {
+                                    id
+                                    ... on TimeOffEnrolledPolicyForPayPeriod {
+                                      id
+                                      accruingHours
+                                      additionalUsedHours
+                                      isPaidOutOnTermination
+                                      isPayoutOverridden
+                                      payoutHours
+                                      remainingBalanceHours
+                                      timeOffRequests {
+                                        id
+                                        approvedHours
+                                        __typename
+                                      }
+                                      timeOffStatus {
+                                        id
+                                        ... on TimeOffStatus {
+                                          id
+                                          policy {
+                                            id
+                                            completed
+                                            __typename
+                                          }
+                                          type {
+                                            id
+                                            name
+                                            __typename
+                                          }
+                                          __typename
+                                        }
+                                        policy {
+                                          id
+                                          name
+                                          completed
+                                          accrualMethod
+                                          paymentStrategy
+                                          __typename
+                                        }
+                                        type {
+                                          id
+                                          name
+                                          __typename
+                                        }
+                                        __typename
+                                      }
+                                      timeOffTypeKind
+                                      totalTimeOffHoursUsed
+                                      accruingHoursAtPayoutOverride
+                                      __typename
+                                    }
+                                    accruingHours
+                                    additionalUsedHours
+                                    isPaidOutOnTermination
+                                    isPayoutOverridden
+                                    payoutHours
+                                    remainingBalanceHours
+                                    timeOffRequests {
+                                      id
+                                      approvedHours
+                                      __typename
+                                    }
+                                    timeOffStatus {
+                                      id
+                                      ... on TimeOffStatus {
+                                        id
+                                        policy {
+                                          id
+                                          completed
+                                          __typename
+                                        }
+                                        type {
+                                          id
+                                          name
+                                          __typename
+                                        }
+                                        __typename
+                                      }
+                                      policy {
+                                        id
+                                        completed
+                                        accrualMethod
+                                        __typename
+                                      }
+                                      type {
+                                        id
+                                        name
+                                        __typename
+                                      }
+                                      __typename
+                                    }
+                                    timeOffTypeKind
+                                    totalTimeOffHoursUsed
+                                    __typename
+                                  }
+                                  employee {
+                                    id
+                                    preferredFullName
+                                    preferredFirstName
+                                    ... on Employee {
+                                      id
+                                      lastName
+                                      legalFirstName
+                                      preferredFirstName
+                                      preferredFullName
+                                      currentEmployment {
+                                        id
+                                        terminatedAt
+                                        __typename
+                                      }
+                                      hiredAt
+                                      paymentMethodType
+                                      uuid
+                                      __typename
+                                    }
+                                    currentEmployment {
+                                      id
+                                      termination(excludedStatuses: [draft]) {
+                                        id
+                                        lastDayOfEmployment
+                                        __typename
+                                      }
+                                      ... on Employment {
+                                        id
+                                        terminatedAt
+                                        __typename
+                                      }
+                                      terminatedAt
+                                      __typename
+                                    }
+                                    paymentMethodType
+                                    companyMember {
+                                      ... on CompanyMember {
+                                        id
+                                        legalFirstName
+                                        preferredFirstName
+                                        profilePicture {
+                                          id
+                                          thumbnailUrl
+                                          __typename
+                                        }
+                                        lastName
+                                        __typename
+                                      }
+                                      id
+                                      __typename
+                                    }
+                                    uuid
+                                    companyMemberUuid
+                                    profilePicture {
+                                      id
+                                      thumbnailUrl
+                                      __typename
+                                    }
+                                    __typename
+                                  }
+                                  previewPay @include(if: $includePreviewPay) {
+                                    id
+                                    grossPay {
+                                      amount
+                                      __typename
+                                    }
+                                    netPayAmount
+                                    __typename
+                                  }
+                                  allDeductions(filters: [one_time, post_tax]) {
+                                    id
+                                    amount
+                                    deductAsPercentage
+                                    isRecurring
+                                    name
+                                    ... on DraftEmployeePayrollDeduction {
+                                      id
+                                      amount
+                                      deductAsPercentage
+                                      isRecurring
+                                      name
+                                      __typename
+                                    }
+                                    __typename
+                                  }
+                                  personalNote
+                                  primaryJobApplicableCompensation {
+                                    ... on EmployeeJobCompensation {
+                                      id
+                                      employeeJob {
+                                        id
+                                        uuid
+                                        __typename
+                                      }
+                                      uuid
+                                      flsaStatus: nullableFlsaStatus
+                                      __typename
+                                      paymentAmount
+                                      paymentUnit
+                                    }
+                                    id
+                                    paymentUnit
+                                    flsaStatus: nullableFlsaStatus
+                                    employeeJob {
+                                      id
+                                      uuid
+                                      __typename
+                                    }
+                                    uuid
+                                    paymentAmount
+                                    __typename
+                                  }
+                                  hasMultipleJobs
+                                  draftEmployeePayrollCalculatedAmounts {
+                                    paidTimeOffHours
+                                    __typename
+                                  }
+                                  uuid
+                                  employeeBenefitsForPayPeriod {
+                                    id
+                                    ... on PayrollItemInputBenefit {
+                                      id
+                                      benefit {
+                                        id
+                                        benefitTypeName
+                                        description
+                                        isGustoManaged
+                                        __typename
+                                      }
+                                      companyContribution {
+                                        __typename
+                                        ... on FixedAmountCompanyContribution {
+                                          amount
+                                          __typename
+                                        }
+                                        ... on PercentageCompanyContribution {
+                                          percent
+                                          __typename
+                                        }
+                                        ... on TieredCompanyContribution {
+                                          tiers {
+                                            rate
+                                            threshold
+                                            thresholdDelta
+                                            __typename
+                                          }
+                                          __typename
+                                        }
+                                      }
+                                      employeeDeductionType
+                                      employeeDeductionValue
+                                      __typename
+                                    }
+                                    __typename
+                                  }
+                                  taxOverrideInformation @include(if: $includeTaxOverrideInformation) {
+                                    id
+                                    hasOverrides
+                                    ... on TaxOverrideInformation {
+                                      id
+                                      overrideDecisions {
+                                        id
+                                        ... on TaxOverrideDecision {
+                                          id
+                                          associatedSchedule {
+                                            id
+                                            amount
+                                            amountType
+                                            numberOfPayrolls
+                                            numberOfPayrollsRemaining
+                                            __typename
+                                          }
+                                          employeeStateField {
+                                            id
+                                            customWithholdingAllowed
+                                            uuid
+                                            fullStateName
+                                            __typename
+                                          }
+                                          selectedOverride {
+                                            __typename
+                                            ... on ScheduledTaxOverride {
+                                              id
+                                              __typename
+                                            }
+                                            ... on OneTimeTaxOverride {
+                                              id
+                                              amount
+                                              amountType
+                                              __typename
+                                            }
+                                            ... on NoTaxOverride {
+                                              id
+                                              __typename
+                                            }
+                                          }
+                                          __typename
+                                        }
+                                        __typename
+                                      }
+                                      hasOverrides
+                                      __typename
+                                    }
+                                    __typename
+                                  }
+                                }
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        draftPayrollId: regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01
+                        ids:
+                            - 556e0a31-11ae-beae-f79f-eaef81dac0c8
+                        includeAnomalyChecks: false
+                        includeNetPay: false
+                        includePreviewPay: false
+                        includeTaxOverrideInformation: false
+                        includeWorkLocation: false
+                      description: GraphQL variables as JSON
+                      fields: []
+                response:
+                    type: object
+                    item: payroll_input_step_draft_employee_payrolls_by_ids
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+            input_step_draft_employee_payrolls_metadata:
+                method: POST
+                path: /
+                description: Fetch payrolls input step draft employee payrolls metadata
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query PayrollInputStepDraftEmployeePayrollsMetadata($draftPayrollId: ID!) {
+                          company {
+                            id
+                            draftPayroll(uuid: $draftPayrollId) {
+                              id
+                              draftEmployeePayrollsMetadata(order: {type: FIRST_NAME, sortDirection: ASC}) {
+                                id
+                                ... on DraftEmployeePayrollMetadata {
+                                  id
+                                  departmentTitle
+                                  flsaStatuses
+                                  isDismissedInPayPeriod
+                                  isIncludedInPayroll
+                                  __typename
+                                  employeeUuid
+                                  companyMemberUuid
+                                  lastName
+                                  legalFirstName
+                                  preferredFirstName
+                                  terminatedAt
+                                  activeJobCompensationsCount
+                                }
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        draftPayrollId: regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01
+                      description: GraphQL variables as JSON
+                      fields: []
+                response:
+                    type: object
+                    item: payroll_input_step_draft_employee_payrolls_metadata
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+            review_step:
+                method: POST
+                path: /
+                description: Fetch payrolls review step
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: PayrollReviewStep
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query PayrollReviewStep($draftPayrollId: ID!, $hasAccessToPayrollBridge: Boolean!) {
+                          company {
+                            id
+                            achFundingMethods {
+                              id
+                              ...PayrollReviewStepFundingMethod
+                              __typename
+                            }
+                            activeTierSubscription {
+                              edges {
+                                baseFee
+                                name
+                                perEmployeeFee
+                                __typename
+                              }
+                              __typename
+                            }
+                            analyticsId
+                            companyOnboardingPackageRecommendation {
+                              id
+                              recommendedPlan
+                              selectedPlan
+                              __typename
+                            }
+                            draftPayroll(uuid: $draftPayrollId) {
+                              ...PayrollReviewStepDraftPayroll
+                              __typename
+                            }
+                            firstPayDay
+                            hasRunPayroll
+                            isPeoClient
+                            payScheduleSchemeName
+                            subscriptions {
+                              edges {
+                                node {
+                                  id
+                                  prices {
+                                    __typename
+                                    ...CommercePriceBase
+                                  }
+                                  product {
+                                    id
+                                    namespace
+                                    __typename
+                                  }
+                                  __typename
+                                }
+                                startOn
+                                __typename
+                              }
+                              __typename
+                            }
+                            ...CompanyMemberCoreVerifiedActiveEmployeeCount
+                            ...PaymentOptionsSummaryCompany
+                            ...PaymentSummaryCompany
+                            ...PayrollFooterCompany
+                            ...PayrollTaxBreakdownAccordionCompany
+                            ...UseRiskFeaturesCompany
+                            ...WireInPaymentOptionsDialogsCompany
+                            __typename
+                          }
+                        }
+
+                        fragment PayrollReviewStepFundingMethod on FundingMethod {
+                          id
+                          ...PayFundingMethodsInputFundingMethod
+                          __typename
+                        }
+
+                        fragment PayrollReviewStepDraftPayroll on DraftPayroll {
+                          id
+                          analyticsId
+                          payroll {
+                            id
+                            __typename
+                          }
+                          payrollRisk {
+                            id
+                            ...PayrollBridgePaymentRisk
+                            __typename
+                          }
+                          paySchedule {
+                            id
+                            autoPilot
+                            __typename
+                          }
+                          ...DismissalFinalPayAlertDraftPayroll
+                          ...EmployeeHoursAndEarningsAccordionDraftPayroll
+                          ...FasterPaymentOptionsDraftPayroll
+                          ...MoveToFourDayDialogDraftPayroll
+                          ...PaymentOptionsSummaryDraftPayroll
+                          ...PaymentSummaryDraftPayroll
+                          ...PayrollBlockedAlertDraftPayroll
+                          ...PayrollCompanyCostsAccordionDraftPayroll
+                          ...PayrollDeletedDialogDraftPayroll
+                          ...PayrollFooterDraftPayroll
+                          ...PayrollProcessedDialogDraftPayroll
+                          ...PayrollReviewUpsellDraftPayroll
+                          ...PayrollStepHeaderDraftPayroll
+                          ...PayrollSubmissionReminderDialogDraftPayroll
+                          ...PayrollTaxBreakdownAccordionDraftPayroll
+                          ...ReverseWireAlertDraftPayroll
+                          ...UseRiskFeaturesDraftPayroll
+                          ...UseShowAnomalyDetectionUIDraftPayroll
+                          ...WireInPaymentOptionsDialogsDraftPayroll
+                          ...ZeroCheckAmountInfoAlertDraftPayroll
+                          __typename
+                        }
+
+                        fragment CommercePriceBase on CommercePrice {
+                          id
+                          __typename
+                          frequency
+                          ... on CommercePriceFlat {
+                            amount {
+                              amount
+                              currencyCode
+                              __typename
+                            }
+                            __typename
+                          }
+                          ... on CommercePricePerUnit {
+                            amount {
+                              amount
+                              currencyCode
+                              __typename
+                            }
+                            unitKey
+                            unitName
+                            __typename
+                          }
+                          ... on CommercePriceTiered {
+                            tieredPrices {
+                              id
+                              __typename
+                              ... on CommerceTieredPriceFlat {
+                                amount {
+                                  amount
+                                  currencyCode
+                                  __typename
+                                }
+                                __typename
+                              }
+                              ... on CommerceTieredPricePerUnit {
+                                amount {
+                                  amount
+                                  currencyCode
+                                  __typename
+                                }
+                                unitKey
+                                unitName
+                                __typename
+                              }
+                            }
+                            __typename
+                          }
+                          ... on CommercePriceUnknown {
+                            amount {
+                              amount
+                              currencyCode
+                              __typename
+                            }
+                            __typename
+                          }
+                        }
+
+                        fragment CompanyMemberCoreVerifiedActiveEmployeeCount on Company {
+                          id
+                          activeEmployeeMembers: members(
+                            employmentSetupStatuses: [COMPLETED]
+                            employmentStatus: CURRENT_OR_PENDING_HIRE
+                            isEor: false
+                            workerTypes: [EMPLOYEE]
+                          ) {
+                            totalCount
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment PaymentOptionsSummaryCompany on Company {
+                          id
+                          ...DownloadPayrollSummaryDialogCompany
+                          ...UseRiskFeaturesCompany
+                          __typename
+                        }
+
+                        fragment PaymentSummaryCompany on Company {
+                          id
+                          ...DownloadPayrollSummaryDialogCompany
+                          ...UseRiskFeaturesCompany
+                          __typename
+                        }
+
+                        fragment PayrollFooterCompany on Company {
+                          id
+                          isPayrollApprovalsEnabled
+                          __typename
+                        }
+
+                        fragment PayrollTaxBreakdownAccordionCompany on Company {
+                          id
+                          ...PayrollDebitTotalsCardListCompany
+                          ...PayrollDebitTotalsTableCompany
+                          ...PayrollTaxBreakdownCardListCompany
+                          ...PayrollTaxBreakdownTableCompany
+                          __typename
+                        }
+
+                        fragment UseRiskFeaturesCompany on Company {
+                          id
+                          isEligibleForSafeExpedite
+                          __typename
+                        }
+
+                        fragment WireInPaymentOptionsDialogsCompany on Company {
+                          id
+                          analyticsId
+                          earnedAccessFlags {
+                            earnedAccessToFasterPayments
+                            inEarnedAccessVariation
+                            __typename
+                          }
+                          ...WireTransferRequirementsDialogCompany
+                          __typename
+                        }
+
+                        fragment PayFundingMethodsInputFundingMethod on FundingMethod {
+                          id
+                          accountType
+                          bankName
+                          hiddenAccountNumber
+                          isVerified
+                          __typename
+                        }
+
+                        fragment PayrollBridgePaymentRisk on PaymentRisk {
+                          id
+                          allEligibleFundingMethods {
+                            id
+                            fundingMethod {
+                              id
+                              __typename
+                              ... on LineOfCreditFundingMethod {
+                                id
+                                availableBalance
+                                __typename
+                              }
+                              ... on AchFundingMethod {
+                                id
+                                accountType
+                                availableBalance
+                                balanceLastCheckedAt
+                                bankName
+                                hiddenAccountNumber
+                                isConnected
+                                __typename
+                              }
+                            }
+                            isRequestedFundingMethod
+                            __typename
+                          }
+                          payrollBridgeFunding @include(if: $hasAccessToPayrollBridge) {
+                            id
+                            spendingPower
+                            status
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment DismissalFinalPayAlertDraftPayroll on DraftPayroll {
+                          id
+                          draftEmployeePayrolls {
+                            id
+                            isDismissedInPayPeriod
+                            paymentMethod
+                            __typename
+                          }
+                          payrollType
+                          __typename
+                        }
+
+                        fragment EmployeeHoursAndEarningsAccordionDraftPayroll on DraftPayroll {
+                          id
+                          includedDraftEmployeePayrolls {
+                            nodes {
+                              id
+                              hasMailedCheck
+                              ...EmployeeEarningsDataCardListDraftEmployeePayroll
+                              ...EmployeeEarningsTableDraftEmployeePayroll
+                              ...EmployeeHoursAndPayTableDraftEmployeePayroll
+                              __typename
+                            }
+                            __typename
+                          }
+                          payroll {
+                            id
+                            employeePayrolls {
+                              nodes {
+                                id
+                                employee {
+                                  id
+                                  __typename
+                                }
+                                negativePayroll {
+                                  id
+                                  uuid
+                                  __typename
+                                }
+                                reversed
+                                __typename
+                              }
+                              __typename
+                            }
+                            ...EmployeeHoursAndEarningsButtonsPayroll
+                            __typename
+                          }
+                          payrollType
+                          __typename
+                        }
+
+                        fragment FasterPaymentOptionsDraftPayroll on DraftPayroll {
+                          id
+                          canActivateFastAch
+                          canNextDayAchOnTime
+                          checkDateWithNextDayPay
+                          fasterPayoutRails {
+                            ...FasterPayoutRailOptionPart
+                            __typename
+                          }
+                          isLateRegularPayroll
+                          payPeriod {
+                            id
+                            checkDate
+                            __typename
+                          }
+                          payrollRisk {
+                            id
+                            achSpeed
+                            __typename
+                          }
+                          payrollType
+                          totalAmountToBeDebited
+                          ...FasterPaymentOptionAlertsDraftPayroll
+                          __typename
+                        }
+
+                        fragment MoveToFourDayDialogDraftPayroll on DraftPayroll {
+                          id
+                          payPeriod {
+                            id
+                            checkDate
+                            fourDayCheckDate
+                            fourDayDebitDate
+                            __typename
+                          }
+                          totalAmountToBeDebited
+                          __typename
+                        }
+
+                        fragment PaymentOptionsSummaryDraftPayroll on DraftPayroll {
+                          id
+                          fasterPayoutRails {
+                            ...PaymentOptionsSummaryFasterPayoutRailOption
+                            __typename
+                          }
+                          fundingMethod {
+                            id
+                            bankRequiresWireIn
+                            fundingType
+                            hiddenAccountNumber
+                            __typename
+                          }
+                          payPeriod {
+                            id
+                            checkDate
+                            fourDayCheckDate
+                            fourDayDebitDate
+                            runPayrollByBankCutoffTime
+                            __typename
+                          }
+                          payrollRisk {
+                            id
+                            achSpeed
+                            unchallengedForPlaidRtbExperiment
+                            waitingForWireIn
+                            wireCutoffTime
+                            wireInDeadlineAt
+                            __typename
+                          }
+                          totalAmountToBeDebited
+                          ...DownloadPayrollSummaryDialogDraftPayroll
+                          ...UseRiskFeaturesDraftPayroll
+                          __typename
+                        }
+
+                        fragment PaymentSummaryDraftPayroll on DraftPayroll {
+                          id
+                          fundingMethod {
+                            id
+                            fundingType
+                            __typename
+                          }
+                          ...DefaultPayrollSummaryPanelDraftPayroll
+                          ...DownloadPayrollSummaryDialogDraftPayroll
+                          ...LineOfCreditPanelDraftPayroll
+                          ...UseRiskFeaturesDraftPayroll
+                          ...WireTransferPanelDraftPayroll
+                          __typename
+                        }
+
+                        fragment PayrollBlockedAlertDraftPayroll on DraftPayroll {
+                          id
+                          payPeriod {
+                            id
+                            runPayrollBy
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment PayrollCompanyCostsAccordionDraftPayroll on DraftPayroll {
+                          id
+                          includedDraftEmployeePayrolls {
+                            nodes {
+                              id
+                              ...CompanyCostsDataCardListDraftEmployeePayroll
+                              ...CompanyCostsTableDraftEmployeePayroll
+                              __typename
+                            }
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment PayrollDeletedDialogDraftPayroll on DraftPayroll {
+                          id
+                          customName
+                          payrollType
+                          __typename
+                        }
+
+                        fragment PayrollFooterDraftPayroll on DraftPayroll {
+                          id
+                          __typename
+                        }
+
+                        fragment PayrollProcessedDialogDraftPayroll on DraftPayroll {
+                          id
+                          payPeriod {
+                            id
+                            checkDate
+                            __typename
+                          }
+                          totalAmountToBeDebited
+                          __typename
+                        }
+
+                        fragment PayrollReviewUpsellDraftPayroll on DraftPayroll {
+                          id
+                          draftPayrollCalculatedAmounts {
+                            employerDebitTotals {
+                              reimbursements
+                              __typename
+                            }
+                            __typename
+                          }
+                          includedDraftEmployeePayrolls {
+                            nodes {
+                              id
+                              allAdditionalPays {
+                                id
+                                amount
+                                payType {
+                                  id
+                                  name
+                                  __typename
+                                }
+                                __typename
+                              }
+                              draftEmployeePayrollCalculatedAmounts {
+                                benefitTotals {
+                                  employerContribution
+                                  __typename
+                                }
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment PayrollStepHeaderDraftPayroll on DraftPayroll {
+                          id
+                          payPeriod {
+                            id
+                            endDate
+                            startDate
+                            __typename
+                          }
+                          ...CreatePayrollDescriptiveLabelDraftPayroll
+                          __typename
+                        }
+
+                        fragment PayrollSubmissionReminderDialogDraftPayroll on DraftPayroll {
+                          id
+                          isOffCyclePayroll
+                          __typename
+                        }
+
+                        fragment PayrollTaxBreakdownAccordionDraftPayroll on DraftPayroll {
+                          id
+                          draftPayrollCalculatedAmounts {
+                            ...PayrollTaxBreakdownCardListDraftPayrollCalculatedAmounts
+                            ...PayrollTaxBreakdownTableDraftPayrollCalculatedAmounts
+                            __typename
+                          }
+                          ...PayrollDebitTotalsCardListDraftPayroll
+                          ...PayrollDebitTotalsTableDraftPayroll
+                          ...PayrollTaxBreakdownCardListDraftPayroll
+                          ...PayrollTaxBreakdownTableDraftPayroll
+                          __typename
+                        }
+
+                        fragment ReverseWireAlertDraftPayroll on DraftPayroll {
+                          id
+                          payrollRisk {
+                            id
+                            isReverseWireFastAch
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment UseRiskFeaturesDraftPayroll on DraftPayroll {
+                          id
+                          fundingMethod {
+                            id
+                            fundingType
+                            __typename
+                          }
+                          isLateRegularPayroll
+                          payrollRisk {
+                            id
+                            isBankScreenshotRequired
+                            isBankScreenshotUploaded
+                            submitBlockers {
+                              blockerType
+                              selectedOption {
+                                checkDate
+                                metadata
+                                unblockOptionType
+                                __typename
+                              }
+                              status
+                              unblockOptions {
+                                checkDate
+                                metadata
+                                unblockOptionType
+                                __typename
+                              }
+                              __typename
+                            }
+                            unchallengedForPlaidRtbExperiment
+                            wireInFunded
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment UseShowAnomalyDetectionUIDraftPayroll on DraftPayroll {
+                          id
+                          anomalyBatchId
+                          payrollType
+                          __typename
+                        }
+
+                        fragment WireInPaymentOptionsDialogsDraftPayroll on DraftPayroll {
+                          id
+                          payroll {
+                            id
+                            __typename
+                          }
+                          ...CheckPaymentDialogDraftPayroll
+                          ...MoveToFourDayDialogDraftPayroll
+                          ...UseRiskFeaturesDraftPayroll
+                          __typename
+                        }
+
+                        fragment ZeroCheckAmountInfoAlertDraftPayroll on DraftPayroll {
+                          id
+                          includedDraftEmployeePayrolls {
+                            nodes {
+                              ...ZeroCheckAmountInfoAertDraftEmployeePayroll
+                              __typename
+                            }
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment DownloadPayrollSummaryDialogCompany on Company {
+                          id
+                          __typename
+                        }
+
+                        fragment PayrollDebitTotalsCardListCompany on Company {
+                          id
+                          __typename
+                        }
+
+                        fragment PayrollDebitTotalsTableCompany on Company {
+                          id
+                          __typename
+                        }
+
+                        fragment PayrollTaxBreakdownCardListCompany on Company {
+                          id
+                          enrolledInRealtimeResearchAndDevelopment
+                          __typename
+                        }
+
+                        fragment PayrollTaxBreakdownTableCompany on Company {
+                          id
+                          enrolledInRealtimeResearchAndDevelopment
+                          __typename
+                        }
+
+                        fragment WireTransferRequirementsDialogCompany on Company {
+                          id
+                          tradeOrLegalName
+                          __typename
+                        }
+
+                        fragment EmployeeEarningsDataCardListDraftEmployeePayroll on DraftEmployeePayroll {
+                          id
+                          checkNumber
+                          hasMailedCheck
+                          paymentMethod
+                          payrollItem {
+                            id
+                            checkMailingDetails {
+                              liveStatus {
+                                status
+                                __typename
+                              }
+                              mailingSpeed
+                              __typename
+                            }
+                            __typename
+                          }
+                          uuid
+                          ...EmployeeEarningsDraftEmployeePayroll
+                          __typename
+                        }
+
+                        fragment EmployeeEarningsTableDraftEmployeePayroll on DraftEmployeePayroll {
+                          id
+                          checkNumber
+                          hasMailedCheck
+                          paymentMethod
+                          payrollItem {
+                            id
+                            checkMailingDetails {
+                              liveStatus {
+                                status
+                                __typename
+                              }
+                              mailingSpeed
+                              __typename
+                            }
+                            __typename
+                          }
+                          uuid
+                          ...EmployeeEarningsDraftEmployeePayroll
+                          __typename
+                        }
+
+                        fragment EmployeeHoursAndPayTableDraftEmployeePayroll on DraftEmployeePayroll {
+                          id
+                          employee {
+                            id
+                            legalFirstName
+                            __typename
+                          }
+                          payAdjustmentSummary {
+                            id
+                            amount
+                            hours
+                            name
+                            __typename
+                          }
+                          ...EmployeeHoursAndPayCardListDraftEmployeePayroll
+                          ...EmployeeHoursRowDraftEmployeePayroll
+                          ...EmployeePayRowDraftEmployeePayroll
+                          __typename
+                        }
+
+                        fragment EmployeeHoursAndEarningsButtonsPayroll on Payroll {
+                          id
+                          ...PrintChecksButtonPayroll
+                          __typename
+                        }
+
+                        fragment FasterPayoutRailOptionPart on FasterPayoutRailOption {
+                          cutoff
+                          eligible
+                          price
+                          value
+                          __typename
+                        }
+
+                        fragment FasterPaymentOptionAlertsDraftPayroll on DraftPayroll {
+                          id
+                          fasterPayoutRails {
+                            ...FasterPaymentOptionAlertsFasterPayoutRailOption
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment PaymentOptionsSummaryFasterPayoutRailOption on FasterPayoutRailOption {
+                          canPayOnTime
+                          cutoff
+                          eligible
+                          value
+                          __typename
+                        }
+
+                        fragment DownloadPayrollSummaryDialogDraftPayroll on DraftPayroll {
+                          id
+                          payroll {
+                            id
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment DefaultPayrollSummaryPanelDraftPayroll on DraftPayroll {
+                          id
+                          checkDateWithNextDayPay
+                          fundingMethod {
+                            id
+                            accountType
+                            bankName
+                            hiddenAccountNumber
+                            __typename
+                          }
+                          isLateRegularPayroll
+                          payPeriod {
+                            id
+                            checkDate
+                            runPayrollBy
+                            __typename
+                          }
+                          payrollRisk {
+                            id
+                            __typename
+                          }
+                          payrollType
+                          totalAmountToBeDebited
+                          totalEmployerCost
+                          __typename
+                        }
+
+                        fragment LineOfCreditPanelDraftPayroll on DraftPayroll {
+                          id
+                          checkDateWithNextDayPay
+                          payPeriod {
+                            id
+                            checkDate
+                            __typename
+                          }
+                          payrollRisk {
+                            id
+                            __typename
+                          }
+                          totalAmountToBeDebited
+                          totalEmployerCost
+                          __typename
+                        }
+
+                        fragment WireTransferPanelDraftPayroll on DraftPayroll {
+                          id
+                          payPeriod {
+                            id
+                            checkDate
+                            __typename
+                          }
+                          payrollRisk {
+                            id
+                            hasOneDayAch
+                            wireInDeadlineAt
+                            __typename
+                          }
+                          totalAmountToBeDebited
+                          totalEmployerCost
+                          __typename
+                        }
+
+                        fragment CompanyCostsDataCardListDraftEmployeePayroll on DraftEmployeePayroll {
+                          id
+                          ...CompanyCostsDraftEmployeePayroll
+                          __typename
+                        }
+
+                        fragment CompanyCostsTableDraftEmployeePayroll on DraftEmployeePayroll {
+                          id
+                          ...CompanyCostsDraftEmployeePayroll
+                          __typename
+                        }
+
+                        fragment CreatePayrollDescriptiveLabelDraftPayroll on DraftPayroll {
+                          id
+                          allDraftEmployeePayrolls(first: 1) {
+                            nodes {
+                              id
+                              employee {
+                                id
+                                preferredFullName
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                          customName
+                          payrollType
+                          paySchedule {
+                            id
+                            frequency
+                            name
+                            payGroup
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment PayrollTaxBreakdownCardListDraftPayrollCalculatedAmounts on DraftPayrollCalculatedAmounts {
+                          allTaxTotals {
+                            description
+                            employeeAmount
+                            employerAmount
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment PayrollTaxBreakdownTableDraftPayrollCalculatedAmounts on DraftPayrollCalculatedAmounts {
+                          allTaxTotals {
+                            description
+                            employeeAmount
+                            employerAmount
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment PayrollDebitTotalsCardListDraftPayroll on DraftPayroll {
+                          id
+                          draftPayrollCalculatedAmounts {
+                            employerDebitTotals {
+                              employeeDirectDepositNetPay
+                              garnishments
+                              reimbursements
+                              taxes
+                              __typename
+                            }
+                            __typename
+                          }
+                          payroll {
+                            id
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment PayrollDebitTotalsTableDraftPayroll on DraftPayroll {
+                          id
+                          draftPayrollCalculatedAmounts {
+                            employerDebitTotals {
+                              employeeDirectDepositNetPay
+                              garnishments
+                              reimbursements
+                              taxes
+                              __typename
+                            }
+                            __typename
+                          }
+                          payroll {
+                            id
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment PayrollTaxBreakdownCardListDraftPayroll on DraftPayroll {
+                          id
+                          totalEligibleResearchDevelopmentCredit
+                          __typename
+                        }
+
+                        fragment PayrollTaxBreakdownTableDraftPayroll on DraftPayroll {
+                          id
+                          totalEligibleResearchDevelopmentCredit
+                          __typename
+                        }
+
+                        fragment CheckPaymentDialogDraftPayroll on DraftPayroll {
+                          id
+                          payPeriod {
+                            id
+                            fourDayCheckDate
+                            fourDayDebitDate
+                            __typename
+                          }
+                          totalPayableTax
+                          __typename
+                        }
+
+                        fragment ZeroCheckAmountInfoAertDraftEmployeePayroll on DraftEmployeePayroll {
+                          id
+                          draftEmployeePayrollCalculatedAmounts {
+                            checkAmount
+                            __typename
+                          }
+                          employee {
+                            id
+                            ...FormatMemberNameAsPreferredEmployee
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment EmployeeEarningsDraftEmployeePayroll on DraftEmployeePayroll {
+                          id
+                          __typename
+                          draftEmployeePayrollCalculatedAmounts {
+                            benefitTotals {
+                              employeeDeduction
+                              __typename
+                            }
+                            checkAmount
+                            grossPay
+                            totalDeductionAmount
+                            totalEmployeeTax
+                            totalReimbursementAmount
+                            __typename
+                          }
+                          employee {
+                            id
+                            legalFirstName
+                            ...FormatMemberNameAsPreferredEmployee
+                            __typename
+                          }
+                          qualifiedFederalOvertimeAmount
+                          qualifiedTipsAmount
+                        }
+
+                        fragment EmployeeHoursAndPayCardListDraftEmployeePayroll on DraftEmployeePayroll {
+                          id
+                          employee {
+                            id
+                            legalFirstName
+                            __typename
+                          }
+                          payAdjustmentSummary {
+                            id
+                            amount
+                            hours
+                            name
+                            __typename
+                          }
+                          ...EmployeeHoursCardDraftEmployeePayroll
+                          ...EmployeePayCardDraftEmployeePayroll
+                          __typename
+                        }
+
+                        fragment EmployeeHoursRowDraftEmployeePayroll on DraftEmployeePayroll {
+                          id
+                          allWorkedHours {
+                            id
+                            doubleOvertimeHours
+                            missedBreakHours
+                            overtimeHours
+                            regularHours
+                            workweekEndDate
+                            workweekStartDate
+                            __typename
+                          }
+                          draftEmployeePayrollCalculatedAmounts {
+                            paidTimeOffHours
+                            unpaidTimeOffHours
+                            __typename
+                          }
+                          employee {
+                            id
+                            ...FormatMemberNameAsPreferredEmployee
+                            __typename
+                          }
+                          payAdjustmentSummary {
+                            id
+                            hours
+                            name
+                            __typename
+                          }
+                          primaryJobApplicableCompensation {
+                            id
+                            flsaStatus: nullableFlsaStatus
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment EmployeePayRowDraftEmployeePayroll on DraftEmployeePayroll {
+                          id
+                          draftEmployeePayrollCalculatedAmounts {
+                            allHourBasedPayTotals {
+                              amount
+                              compensationTypeName
+                              __typename
+                            }
+                            paidTimeOffPay
+                            __typename
+                          }
+                          employee {
+                            id
+                            ...FormatMemberNameAsPreferredEmployee
+                            __typename
+                          }
+                          payAdjustmentSummary {
+                            id
+                            amount
+                            name
+                            __typename
+                          }
+                          primaryJobApplicableCompensation {
+                            flsaStatus: nullableFlsaStatus
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment PrintChecksButtonPayroll on Payroll {
+                          id
+                          __typename
+                        }
+
+                        fragment FasterPaymentOptionAlertsFasterPayoutRailOption on FasterPayoutRailOption {
+                          cutoff
+                          eligible
+                          ineligibleReasons
+                          value
+                          __typename
+                        }
+
+                        fragment CompanyCostsDraftEmployeePayroll on DraftEmployeePayroll {
+                          id
+                          __typename
+                          draftEmployeePayrollCalculatedAmounts {
+                            benefitTotals {
+                              employerContribution
+                              __typename
+                            }
+                            employerCost
+                            employerTax
+                            grossPay
+                            totalReimbursementAmount
+                            __typename
+                          }
+                          employee {
+                            id
+                            legalFirstName
+                            ...FormatMemberNameAsPreferredEmployee
+                            __typename
+                          }
+                          payrollItem {
+                            id
+                            __typename
+                          }
+                        }
+
+                        fragment FormatMemberNameAsPreferredEmployee on Employee {
+                          id
+                          lastName
+                          legalFirstName
+                          preferredFirstName
+                          __typename
+                        }
+
+                        fragment EmployeeHoursCardDraftEmployeePayroll on DraftEmployeePayroll {
+                          id
+                          allWorkedHours {
+                            id
+                            doubleOvertimeHours
+                            missedBreakHours
+                            overtimeHours
+                            regularHours
+                            workweekEndDate
+                            workweekStartDate
+                            __typename
+                          }
+                          draftEmployeePayrollCalculatedAmounts {
+                            paidTimeOffHours
+                            unpaidTimeOffHours
+                            __typename
+                          }
+                          employee {
+                            id
+                            ...FormatMemberNameAsPreferredEmployee
+                            __typename
+                          }
+                          payAdjustmentSummary {
+                            id
+                            hours
+                            name
+                            __typename
+                          }
+                          primaryJobApplicableCompensation {
+                            id
+                            flsaStatus: nullableFlsaStatus
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment EmployeePayCardDraftEmployeePayroll on DraftEmployeePayroll {
+                          id
+                          draftEmployeePayrollCalculatedAmounts {
+                            allHourBasedPayTotals {
+                              amount
+                              compensationTypeName
+                              __typename
+                            }
+                            paidTimeOffPay
+                            __typename
+                          }
+                          employee {
+                            id
+                            ...FormatMemberNameAsPreferredEmployee
+                            __typename
+                          }
+                          payAdjustmentSummary {
+                            id
+                            amount
+                            name
+                            __typename
+                          }
+                          primaryJobApplicableCompensation {
+                            id
+                            flsaStatus: nullableFlsaStatus
+                            __typename
+                          }
+                          __typename
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        draftPayrollId: regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01
+                        hasAccessToPayrollBridge: true
+                      description: GraphQL variables as JSON
+                      fields: []
+                response:
+                    type: object
+                    item: payroll_review_step
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+    pays:
+        description: GraphQL BFF operations for pays
+        endpoints:
+            admin:
+                method: POST
+                path: /
+                description: Fetch pays admin
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: PayPageAdmin
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query PayPageAdmin($autoSubmissionEnabled: Boolean!, $eorRemoteMigrationBannerActive: Boolean!, $hasPayContractorCapability: Boolean!, $hasPayEmployeeCapability: Boolean!, $manageCompanyOnboardingPermissionActive: Boolean!, $mjpFirstPaydaySearchEndDate: ISO8601Date!, $mjpSwitcherAwaitingNextYearActive: Boolean!, $offCycleReasons: [OffCycleReason!], $timeTrackingActivationPromptActive: Boolean!, $usePayrollIdentifierOffCycle: Boolean!) {
+                          company {
+                            id
+                            canRunPayroll
+                            companyOnboardingCurrentExperienceType @include(if: $manageCompanyOnboardingPermissionActive)
+                            finishedOnboardingAt
+                            isApproved
+                            isMigrationDashboardFeatureEnabled
+                            isOnboarding
+                            isSuspended
+                            legalEntities {
+                              nodes {
+                                ...LegalEntityCountryCode
+                                __typename
+                              }
+                              __typename
+                            }
+                            name
+                            payrollBlockerNotifications @include(if: $hasPayEmployeeCapability) {
+                              title
+                              __typename
+                            }
+                            suspension {
+                              id
+                              suspendedAt
+                              __typename
+                            }
+                            ...DraftOffCyclePayrollsContextProviderCompany @include(if: $hasPayEmployeeCapability)
+                            ...DraftPayrollsSectionCompany @include(if: $hasPayEmployeeCapability)
+                            ...EorRemoteMigrationAlertCompany @include(if: $eorRemoteMigrationBannerActive)
+                            ...MjpSwitcherAwaitingNextYearCompany @include(if: $mjpSwitcherAwaitingNextYearActive)
+                            ...OtherPayrollOptionsCardContainerCompany
+                            ...PayContractorsPageSectionCompany
+                            ...PayPageCriticalAlertsCompany @include(if: $hasPayEmployeeCapability)
+                            ...PayPageOptionalAlertsCompany @include(if: $hasPayEmployeeCapability)
+                            ...PayPagePromotionsCompany @include(if: $hasPayEmployeeCapability)
+                            ...PayrollBlockerPageSectionCompany @include(if: $hasPayEmployeeCapability)
+                            ...PayrollNotSetupPageSectionCompany @include(if: $hasPayEmployeeCapability)
+                            ...PayrollUpNextPageSectionCompany @include(if: $hasPayEmployeeCapability)
+                            __typename
+                          }
+                          ...PayPagePromotionsQuery @include(if: $hasPayEmployeeCapability)
+                        }
+
+                        fragment LegalEntityCountryCode on LegalEntity {
+                          id
+                          countryCode
+                          __typename
+                        }
+
+                        fragment DraftOffCyclePayrollsContextProviderCompany on Company {
+                          id
+                          correctionOffCycles: draftOffCyclePayrolls(offCycleReasons: $offCycleReasons) @include(if: $usePayrollIdentifierOffCycle) {
+                            nodes {
+                              id
+                              __typename
+                            }
+                            __typename
+                          }
+                          draftInternationalEmployeeIncentives {
+                            id
+                            __typename
+                          }
+                          hasBonusDraftOffCycles: hasDraftOffCycleType(offCycleType: bonus)
+                          hasCorrectionDraftOffCycles: hasDraftOffCycleType(offCycleType: correction)
+                          ...CompanyMemberCoreActiveInternationalEmployeeCount
+                          __typename
+                        }
+
+                        fragment DraftPayrollsSectionCompany on Company {
+                          id
+                          correctionOffCycles: draftOffCyclePayrolls(offCycleReasons: $offCycleReasons) @include(if: $usePayrollIdentifierOffCycle) {
+                            nodes {
+                              id
+                              ...CorrectionDraftPayrollsDraftPayroll
+                              __typename
+                            }
+                            __typename
+                          }
+                          draftPayrollsByDashboardPrioritization {
+                            nodes {
+                              id
+                              ...DraftPayrollsSectionDraftPayroll
+                              __typename
+                            }
+                            __typename
+                          }
+                          safeExpediteReason
+                          upcomingInternationalPayrolls {
+                            id
+                            payPeriod {
+                              id
+                              checkDate
+                              countries
+                              endDate
+                              payFrequency
+                              runPayrollBy
+                              startDate
+                              __typename
+                            }
+                            payrollType
+                            __typename
+                          }
+                          ...LateDraftPayrollGroupCompany
+                          ...UpcomingDraftPayrollsGroupCompany
+                          __typename
+                        }
+
+                        fragment EorRemoteMigrationAlertCompany on Company {
+                          id
+                          internationalEmployees(activeAndOnboarded: true, first: 1) {
+                            nodes {
+                              id
+                              __typename
+                            }
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment MjpSwitcherAwaitingNextYearCompany on Company {
+                          id
+                          payrollBlockers
+                          upcomingPayPeriods(endDate: $mjpFirstPaydaySearchEndDate) {
+                            id
+                            checkDate
+                            __typename
+                          }
+                          ...PayrollBlockerBannerCompany
+                          __typename
+                        }
+
+                        fragment OtherPayrollOptionsCardContainerCompany on Company {
+                          id
+                          canPayContractors
+                          canRunPayroll
+                          hasRunPayroll
+                          ...ContractorPaymentOptionsCompany
+                          ...SeeMoreOptionsCompany
+                          __typename
+                        }
+
+                        fragment PayContractorsPageSectionCompany on Company {
+                          id
+                          canPayContractors
+                          internationalContractorList(activeAndOnboarded: true, first: 1) {
+                            edges {
+                              node {
+                                id
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                          isApproved
+                          payrollBlockerNotifications {
+                            title
+                            __typename
+                          }
+                          unprocessedContractorsPayGroups: payGroupInterfaces(
+                            filter: {payTypes: [CONTRACTOR_ADHOC], processingStates: [UNPROCESSED]}
+                            first: 1
+                          ) @include(if: $hasPayContractorCapability) {
+                            nodes {
+                              id
+                              __typename
+                              uniqueIdentifier
+                            }
+                            __typename
+                          }
+                          ...CompanyMemberCoreOnboardedDomesticContractorCount
+                          ...UseUnifiedContractorPaymentFeaturesCompany
+                          __typename
+                        }
+
+                        fragment PayPageCriticalAlertsCompany on Company {
+                          id
+                          achPayrollProcessingDays
+                          allowRunPayrollWhenAutoDebitRetryInProgress
+                          ...StatesNotSetupForPayrollAlertCompany
+                          __typename
+                        }
+
+                        fragment PayPageOptionalAlertsCompany on Company {
+                          id
+                          achPayrollProcessingDays
+                          name
+                          nextFastAchEligibilityDate
+                          showDelayedPaymentAlert
+                          tierName
+                          ...PayrollApprovalAlerts
+                          __typename
+                        }
+
+                        fragment PayPagePromotionsCompany on Company {
+                          id
+                          draftPayrollsByDashboardPrioritization {
+                            nodes {
+                              id
+                              payPeriod {
+                                id
+                                runPayrollBy
+                                __typename
+                              }
+                              paySchedule {
+                                id
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                          isEligibleToOptIntoProjectedPaycheck
+                          isPayrollApprovalsEnabled
+                          isProjectedPaycheckOptOut
+                          payrollAutomationSettings {
+                            id
+                            isAutoPrepEnabled
+                            isAutoSubmissionEnabled
+                            __typename
+                          }
+                          paySchedules(onlyActive: true) {
+                            id
+                            autoPilot
+                            autoPilotEligible
+                            name
+                            __typename
+                          }
+                          ...TimeTrackingActivationEligibilityCompany @include(if: $timeTrackingActivationPromptActive)
+                          __typename
+                        }
+
+                        fragment PayrollBlockerPageSectionCompany on Company {
+                          id
+                          payrollBlockerNotifications {
+                            ...PayrollBlockerRowPayrollBlockerNotification
+                            __typename
+                          }
+                          ...PayrollBlockerBannerCompany
+                          ...PayrollBlockerRowCompany
+                          __typename
+                        }
+
+                        fragment PayrollNotSetupPageSectionCompany on Company {
+                          id
+                          canRunPayroll
+                          hasAddressWithGeocode
+                          isApproved
+                          isDefaultBankAccountVerified
+                          isOnboarding
+                          payrollBlockersCompanySide
+                          primaryPayrollAdmin {
+                            id
+                            preferredFullName
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment PayrollUpNextPageSectionCompany on Company {
+                          id
+                          draftPayrollsByDashboardPrioritization {
+                            nodes {
+                              id
+                              offCycleReason
+                              payroll {
+                                id
+                                __typename
+                              }
+                              pendingDraftTransitionPayroll {
+                                id
+                                __typename
+                              }
+                              ...UpNextDraftPayrollCardDraftPayroll
+                              __typename
+                            }
+                            __typename
+                          }
+                          paySchedules(onlyActive: true) {
+                            id
+                            ...PayScheduleCalendarDropdownPaySchedule
+                            __typename
+                          }
+                          upcomingInternationalPayrolls {
+                            id
+                            payPeriod {
+                              id
+                              __typename
+                            }
+                            payrollType
+                            __typename
+                          }
+                          ...DraftPayrollsEmptyStateCompany
+                          ...UpNextDraftPayrollCardCompany
+                          __typename
+                        }
+
+                        fragment PayPagePromotionsQuery on Query {
+                          hasDismissedAutopilotPromotion: hasActiveAlertConfirmation(
+                            category: "promotion_auto_pilot"
+                          )
+                          hasDismissedPaycheckPreviewPromotion: hasActiveAlertConfirmation(
+                            category: "run_payroll_paycheck_preview_upsell_program"
+                          )
+                          hasDismissedPayNavigationUpdateAwarenessBannerForMobile: hasActiveAlertConfirmation(
+                            category: "pay_navigation_update_awareness_banner_for_mobile"
+                          )
+                          ...TimeTrackingActivationEligibilityQuery @include(if: $timeTrackingActivationPromptActive)
+                          __typename
+                        }
+
+                        fragment CompanyMemberCoreActiveInternationalEmployeeCount on Company {
+                          id
+                          activeInternationalEmployeeMembers: members(
+                            employmentSetupStatuses: [COMPLETED]
+                            employmentStatus: CURRENT_OR_PENDING_HIRE
+                            isEor: true
+                            workerTypes: [EMPLOYEE]
+                          ) {
+                            totalCount
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment CorrectionDraftPayrollsDraftPayroll on DraftPayroll {
+                          id
+                          ...CreatePayrollDescriptiveLabelDraftPayroll
+                          ...DraftPayrollCardButtonsDraftPayroll
+                          ...DraftPayrollCompactAlertDraftPayroll
+                          ...GetDraftPayrollDetailsDraftPayroll
+                          __typename
+                        }
+
+                        fragment DraftPayrollsSectionDraftPayroll on DraftPayroll {
+                          id
+                          pendingDraftTransitionPayroll {
+                            id
+                            __typename
+                          }
+                          ...LateDraftPayrollsGroupDraftPayroll
+                          ...UpcomingDraftPayrollsGroupDraftPayroll
+                          __typename
+                        }
+
+                        fragment LateDraftPayrollGroupCompany on Company {
+                          id
+                          hasArchivedPayrolls
+                          ...UseGenerateDraftPayrollGroupItemsCompany
+                          __typename
+                        }
+
+                        fragment UpcomingDraftPayrollsGroupCompany on Company {
+                          id
+                          ...UseGenerateDraftPayrollGroupItemsCompany
+                          __typename
+                        }
+
+                        fragment PayrollBlockerBannerCompany on Company {
+                          id
+                          upcomingPayrollDebitDate
+                          __typename
+                        }
+
+                        fragment ContractorPaymentOptionsCompany on Company {
+                          id
+                          internationalContractorList(activeAndOnboarded: true, first: 1) {
+                            edges {
+                              node {
+                                id
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                          unprocessedContractorsPayGroups: payGroupInterfaces(
+                            filter: {payTypes: [CONTRACTOR_ADHOC], processingStates: [UNPROCESSED]}
+                            first: 1
+                          ) @include(if: $hasPayContractorCapability) {
+                            nodes {
+                              id
+                              __typename
+                              uniqueIdentifier
+                            }
+                            __typename
+                          }
+                          ...CompanyMemberCoreOnboardedDomesticContractorCount
+                          ...UseUnifiedContractorPaymentFeaturesCompany
+                          __typename
+                        }
+
+                        fragment SeeMoreOptionsCompany on Company {
+                          id
+                          ...OtherPayrollsDrawerV2Company
+                          __typename
+                        }
+
+                        fragment CompanyMemberCoreOnboardedDomesticContractorCount on Company {
+                          id
+                          onboardedDomesticContractorMembers: members(
+                            countryCodes: [US]
+                            employmentSetupStatuses: [COMPLETED]
+                            workerTypes: [CONTRACTOR]
+                          ) {
+                            totalCount
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment UseUnifiedContractorPaymentFeaturesCompany on Company {
+                          id
+                          isUnifiedContractorPaymentEnabled @include(if: $hasPayContractorCapability)
+                          isUnifiedContractorPaymentEnabledForInternationalContractors @include(if: $hasPayContractorCapability)
+                          __typename
+                        }
+
+                        fragment StatesNotSetupForPayrollAlertCompany on Company {
+                          missingStatesForPayroll {
+                            id
+                            employees {
+                              nodes {
+                                id
+                                preferredFullName
+                                __typename
+                              }
+                              __typename
+                            }
+                            missingStates
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment PayrollApprovalAlerts on Company {
+                          id
+                          payrollAdmins {
+                            id
+                            companyMember {
+                              id
+                              access {
+                                id
+                                abilities(features: [RUN_PAYROLL]) {
+                                  level
+                                  __typename
+                                }
+                                hasFullAccess
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                          payrollApprovalRequestsWithoutAcknowledgment(first: 5) {
+                            edges {
+                              node {
+                                id
+                                preparer {
+                                  id
+                                  __typename
+                                }
+                                responses {
+                                  nodes {
+                                    id
+                                    resolutionStatus
+                                    responder {
+                                      id
+                                      preferredFullName
+                                      __typename
+                                    }
+                                    ...ApprovedAlertsPayrollApprovalRequestResponse
+                                    __typename
+                                  }
+                                  __typename
+                                }
+                                ...ApprovedAlertsPayrollApprovalRequest
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment TimeTrackingActivationEligibilityCompany on Company {
+                          id
+                          hasThirdPartyTimeTracking
+                          tierName
+                          timeTrackingStatus
+                          __typename
+                        }
+
+                        fragment PayrollBlockerRowPayrollBlockerNotification on PayrollBlockerNotification {
+                          href
+                          message
+                          title
+                          __typename
+                        }
+
+                        fragment PayrollBlockerRowCompany on Company {
+                          id
+                          analyticsId
+                          __typename
+                        }
+
+                        fragment UpNextDraftPayrollCardDraftPayroll on DraftPayroll {
+                          id
+                          canPayByCheckOnTime
+                          canWireInOnTime
+                          currentApprovalRequest {
+                            id
+                            __typename
+                          }
+                          ...AutoPayrollTagDraftPayroll
+                          ...CreatePayrollDescriptiveLabelDraftPayroll
+                          ...CreatePayrollExplanationDraftPayroll
+                          ...DraftPayrollCompactAlertDraftPayroll
+                          ...GetDraftPayrollDetailsDraftPayroll
+                          ...ShouldShowAutopilotTagDraftPayroll
+                          ...TimeLeftTagDraftPayroll
+                          ...UpNextDraftPayrollCardFooterDraftPayroll
+                          ...UseDraftPayrollCardActionButtonTextDraftPayroll
+                          ...UseDraftPayrollRoutesDraftPayroll
+                          __typename
+                        }
+
+                        fragment PayScheduleCalendarDropdownPaySchedule on PaySchedule {
+                          id
+                          label
+                          __typename
+                        }
+
+                        fragment DraftPayrollsEmptyStateCompany on Company {
+                          id
+                          nextPayrollDate
+                          __typename
+                        }
+
+                        fragment UpNextDraftPayrollCardCompany on Company {
+                          id
+                          isEligibleForSafeExpedite
+                          isPeoClient
+                          payrollAutomationSettings {
+                            id
+                            isAutoSubmissionEnabled
+                            __typename
+                          }
+                          payScheduleSchemeName
+                          __typename
+                        }
+
+                        fragment TimeTrackingActivationEligibilityQuery on Query {
+                          hasDismissedTimeTrackingActivation: hasActiveAlertConfirmation(
+                            category: "post_payroll_time_tracking_banner"
+                          )
+                          __typename
+                        }
+
+                        fragment CreatePayrollDescriptiveLabelDraftPayroll on DraftPayroll {
+                          id
+                          allDraftEmployeePayrolls(first: 1) {
+                            nodes {
+                              id
+                              employee {
+                                id
+                                preferredFullName
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                          customName
+                          payrollType
+                          paySchedule {
+                            id
+                            frequency
+                            name
+                            payGroup
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment DraftPayrollCardButtonsDraftPayroll on DraftPayroll {
+                          id
+                          payrollType
+                          ...DraftPayrollRowMoreActionsDraftPayroll
+                          ...UseDraftPayrollCardActionButtonTextDraftPayroll
+                          ...UseDraftPayrollRoutesDraftPayroll
+                          __typename
+                        }
+
+                        fragment DraftPayrollCompactAlertDraftPayroll on DraftPayroll {
+                          id
+                          currentApprovalRequest {
+                            id
+                            preparer {
+                              id
+                              __typename
+                            }
+                            status
+                            __typename
+                          }
+                          ...AbandonedDraftPayrollAlertDraftPayroll
+                          ...DebitDateMovedDueToWeekendAlertDraftPayroll
+                          ...GetDraftPayrollDetailsDraftPayroll
+                          ...ImpactingBankHolidayAlertDraftPayroll
+                          __typename
+                        }
+
+                        fragment GetDraftPayrollDetailsDraftPayroll on DraftPayroll {
+                          id
+                          payPeriod {
+                            id
+                            checkDate
+                            endDate
+                            originalCheckDate
+                            runPayrollBy
+                            startDate
+                            __typename
+                          }
+                          payrollType
+                          __typename
+                        }
+
+                        fragment LateDraftPayrollsGroupDraftPayroll on DraftPayroll {
+                          id
+                          ...DraftPayrollCompactAlertDraftPayroll
+                          ...UseGenerateDraftPayrollGroupItemsDraftPayroll
+                          __typename
+                        }
+
+                        fragment UpcomingDraftPayrollsGroupDraftPayroll on DraftPayroll {
+                          id
+                          ...DraftPayrollCompactAlertDraftPayroll
+                          ...UseGenerateDraftPayrollGroupItemsDraftPayroll
+                          __typename
+                        }
+
+                        fragment UseGenerateDraftPayrollGroupItemsCompany on Company {
+                          id
+                          isEligibleForSafeExpedite
+                          isPeoClient
+                          payrollAutomationSettings {
+                            id
+                            isAutoSubmissionEnabled
+                            __typename
+                          }
+                          payScheduleSchemeName
+                          __typename
+                        }
+
+                        fragment OtherPayrollsDrawerV2Company on Company {
+                          id
+                          earnedAccessFlags {
+                            earnedAccessToFasterPayments
+                            inEarnedAccessVariation
+                            __typename
+                          }
+                          tierName
+                          ...UsePayrollButtonActionsCompany
+                          __typename
+                        }
+
+                        fragment ApprovedAlertsPayrollApprovalRequestResponse on PayrollApprovalRequestResponse {
+                          id
+                          responder {
+                            id
+                            preferredFullName
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment ApprovedAlertsPayrollApprovalRequest on PayrollApprovalRequest {
+                          id
+                          payroll {
+                            id
+                            name
+                            paymentPeriodEndAt
+                            paymentPeriodStartAt
+                            payrollType
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment AutoPayrollTagDraftPayroll on DraftPayroll {
+                          id
+                          payPeriod {
+                            id
+                            runPayrollBy
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment CreatePayrollExplanationDraftPayroll on DraftPayroll {
+                          id
+                          allDraftEmployeePayrolls(first: 1) {
+                            nodes {
+                              id
+                              employee {
+                                id
+                                preferredFirstName
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment ShouldShowAutopilotTagDraftPayroll on DraftPayroll {
+                          id
+                          isLateRegularPayroll
+                          payPeriod {
+                            id
+                            runPayrollBy
+                            __typename
+                          }
+                          payrollType
+                          paySchedule {
+                            id
+                            autoPilot
+                            nextAutoPilotDate
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment TimeLeftTagDraftPayroll on DraftPayroll {
+                          id
+                          isLateRegularPayroll
+                          payPeriod {
+                            id
+                            originalDebitDate
+                            runPayrollBy
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment UpNextDraftPayrollCardFooterDraftPayroll on DraftPayroll {
+                          id
+                          inputAnomalyCount @include(if: $autoSubmissionEnabled)
+                          pendingTimeTrackingTasks @include(if: $autoSubmissionEnabled) {
+                            id
+                            unreviewedTimesheetsCount
+                            __typename
+                          }
+                          timeOffRequestsForPayPeriodByStatus(status: PENDING) @include(if: $autoSubmissionEnabled) {
+                            id
+                            __typename
+                          }
+                          ...SkipPayrollDialogDraftPayroll
+                          ...UpNextDraftPayrollCardAvatarGroupDraftPayroll
+                          ...UpNextDraftPayrollCardMoreActionsDraftPayroll
+                          ...UseDraftPayrollCardActionButtonTextDraftPayroll
+                          ...UseDraftPayrollRoutesDraftPayroll
+                          __typename
+                        }
+
+                        fragment UseDraftPayrollCardActionButtonTextDraftPayroll on DraftPayroll {
+                          id
+                          currentApprovalRequest {
+                            id
+                            preparer {
+                              id
+                              __typename
+                            }
+                            status
+                            __typename
+                          }
+                          payrollType
+                          paySchedule {
+                            id
+                            autoPilot
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment UseDraftPayrollRoutesDraftPayroll on DraftPayroll {
+                          id
+                          payrollType
+                          __typename
+                        }
+
+                        fragment DraftPayrollRowMoreActionsDraftPayroll on DraftPayroll {
+                          id
+                          ...DeletePayrollActionDraftPayroll
+                          ...PayrollApprovalRequestCancelActionDraftPayroll
+                          ...SkipPayrollActionDraftPayroll
+                          __typename
+                        }
+
+                        fragment AbandonedDraftPayrollAlertDraftPayroll on DraftPayroll {
+                          id
+                          isAbandoned
+                          isLateRegularPayroll
+                          paySchedule {
+                            id
+                            frequency
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment DebitDateMovedDueToWeekendAlertDraftPayroll on DraftPayroll {
+                          id
+                          calculatedDebitDate
+                          debitDateMovedDueToWeekend
+                          payPeriod {
+                            id
+                            bankHolidays {
+                              nodes {
+                                name
+                                __typename
+                              }
+                              __typename
+                            }
+                            runPayrollBy
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment ImpactingBankHolidayAlertDraftPayroll on DraftPayroll {
+                          id
+                          payPeriod {
+                            id
+                            bankHolidays {
+                              nodes {
+                                name
+                                __typename
+                              }
+                              __typename
+                            }
+                            runPayrollBy
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment UseGenerateDraftPayrollGroupItemsDraftPayroll on DraftPayroll {
+                          id
+                          canPayByCheckOnTime
+                          canWireInOnTime
+                          payPeriod {
+                            id
+                            runPayrollBy
+                            __typename
+                          }
+                          payrollType
+                          ...CreatePayrollDescriptiveLabelDraftPayroll
+                          ...DraftPayrollCardButtonsDraftPayroll
+                          ...DraftPayrollCompactAlertDraftPayroll
+                          ...GetDraftPayrollDetailsDraftPayroll
+                          ...PayrollGroupItemTagDraftPayroll
+                          __typename
+                        }
+
+                        fragment UsePayrollButtonActionsCompany on Company {
+                          id
+                          analyticsId
+                          canMaxOut401k
+                          canRunPayroll
+                          hasRunPayroll
+                          internationalContractorList(activeAndOnboarded: true, first: 1) {
+                            edges {
+                              node {
+                                id
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                          unprocessedContractorsPayGroups: payGroupInterfaces(
+                            filter: {payTypes: [CONTRACTOR_ADHOC], processingStates: [UNPROCESSED]}
+                            first: 1
+                          ) @include(if: $hasPayContractorCapability) {
+                            nodes {
+                              id
+                              __typename
+                              uniqueIdentifier
+                            }
+                            __typename
+                          }
+                          ...CompanyMemberCoreOnboardedDomesticContractorCount
+                          ...UseUnifiedContractorPaymentFeaturesCompany
+                          __typename
+                        }
+
+                        fragment SkipPayrollDialogDraftPayroll on DraftPayroll {
+                          id
+                          allDraftEmployeePayrolls(first: 1) {
+                            nodes {
+                              id
+                              employee {
+                                id
+                                ...SkipPayrollDialogEmployee
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                          payrollType
+                          ...FormatPayScheduleLabelDraftPayroll
+                          ...GetDraftPayrollDetailsDraftPayroll
+                          ...UseSkipPayrollDraftPayroll
+                          __typename
+                        }
+
+                        fragment UpNextDraftPayrollCardAvatarGroupDraftPayroll on DraftPayroll {
+                          id
+                          __typename
+                        }
+
+                        fragment UpNextDraftPayrollCardMoreActionsDraftPayroll on DraftPayroll {
+                          id
+                          ...SkipPayrollDialogDraftPayroll
+                          __typename
+                        }
+
+                        fragment DeletePayrollActionDraftPayroll on DraftPayroll {
+                          id
+                          ...DeletePayrollActionDialogDraftPayroll
+                          __typename
+                        }
+
+                        fragment PayrollApprovalRequestCancelActionDraftPayroll on DraftPayroll {
+                          id
+                          currentApprovalRequest {
+                            id
+                            preparer {
+                              id
+                              __typename
+                            }
+                            status
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment SkipPayrollActionDraftPayroll on DraftPayroll {
+                          id
+                          ...FormatPayScheduleLabelDraftPayroll
+                          ...GetDraftPayrollDetailsDraftPayroll
+                          ...SkipPayrollDialogDraftPayroll
+                          ...UseSkipPayrollDraftPayroll
+                          __typename
+                        }
+
+                        fragment PayrollGroupItemTagDraftPayroll on DraftPayroll {
+                          id
+                          ...AutoPayrollTagDraftPayroll
+                          ...ShouldShowAutopilotTagDraftPayroll
+                          ...TimeLeftTagDraftPayroll
+                          __typename
+                        }
+
+                        fragment SkipPayrollDialogEmployee on Employee {
+                          id
+                          preferredFirstName
+                          preferredFullName
+                          __typename
+                        }
+
+                        fragment FormatPayScheduleLabelDraftPayroll on DraftPayroll {
+                          id
+                          allDraftEmployeePayrolls(first: 1) {
+                            nodes {
+                              id
+                              employee {
+                                id
+                                preferredFullName
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                          payPeriod {
+                            id
+                            __typename
+                          }
+                          payrollType
+                          paySchedule {
+                            id
+                            labelForPayroll
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment UseSkipPayrollDraftPayroll on DraftPayroll {
+                          id
+                          allDraftEmployeePayrolls(first: 1) {
+                            nodes {
+                              id
+                              employee {
+                                id
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                          payPeriod {
+                            id
+                            endDate
+                            startDate
+                            __typename
+                          }
+                          payrollType
+                          paySchedule {
+                            id
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment DeletePayrollActionDialogDraftPayroll on DraftPayroll {
+                          id
+                          customName
+                          offCycleReason
+                          payroll {
+                            id
+                            __typename
+                          }
+                          payrollType
+                          ...UseDeleteDraftOffCyclePayrollDraftPayroll
+                          __typename
+                        }
+
+                        fragment UseDeleteDraftOffCyclePayrollDraftPayroll on DraftPayroll {
+                          id
+                          payroll {
+                            id
+                            __typename
+                          }
+                          payrollType
+                          __typename
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        autoSubmissionEnabled: false
+                        eorRemoteMigrationBannerActive: false
+                        hasPayContractorCapability: true
+                        hasPayEmployeeCapability: true
+                        manageCompanyOnboardingPermissionActive: true
+                        mjpFirstPaydaySearchEndDate: "2027-02-28"
+                        mjpSwitcherAwaitingNextYearActive: false
+                        offCycleReasons:
+                            - MAX_OUT_401K
+                            - CORRECTION
+                            - ADHOC
+                            - BONUS
+                        timeTrackingActivationPromptActive: true
+                        usePayrollIdentifierOffCycle: true
+                      description: GraphQL variables as JSON
+                      fields: []
+                response:
+                    type: object
+                    item: pay_page_admin
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+    polls:
+        description: GraphQL BFF operations for polls
+        endpoints:
+            payroll_submission_status:
+                method: POST
+                path: /
+                description: Fetch polls payroll submission status
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query PollPayrollSubmissionStatus($draftPayrollId: ID!) {
+                          company {
+                            id
+                            draftPayroll(uuid: $draftPayrollId) {
+                              id
+                              payrollErrors {
+                                id
+                                payrollItemValidationErrors {
+                                  id
+                                  ...UseCalculateDraftPayrollValidationError
+                                  __typename
+                                }
+                                ...TopLevelPayrollValidationErrorHelper
+                                __typename
+                              }
+                              submissionStatus {
+                                id
+                                calculationProgressPercentage
+                                state
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                        }
+
+                        fragment UseCalculateDraftPayrollValidationError on DraftEmployeePayrollValidationError {
+                          id
+                          employeeId
+                          ...PayrollItemValidationErrorHelper
+                          __typename
+                        }
+
+                        fragment TopLevelPayrollValidationErrorHelper on DraftPayrollValidationError {
+                          id
+                          paymentPeriodEndAtRequiredErrors
+                          payrollAlreadySuccessfullyRunErrors
+                          payrollBuildErrors
+                          payrollCurrentlyProcessingErrors
+                          payrollInputsErrors
+                          regularPaymentPeriodIsUniqueErrors
+                          __typename
+                        }
+
+                        fragment PayrollItemValidationErrorHelper on DraftEmployeePayrollValidationError {
+                          id
+                          __typename
+                          benefitIdsAreNotUniqueErrors
+                          bonusEarningsErrors
+                          cashTipsEarningsErrors
+                          commissionEarningsErrors
+                          correctionPaymentEarningsErrors
+                          customEarningsErrors
+                          customWithholdingErrors
+                          doubleOvertimeHoursErrors
+                          employeeId
+                          employeeJobCompensationMissingErrors
+                          employeeJobMissingErrors
+                          employeePayScheduleMismatchErrors
+                          missedBreakHoursErrors
+                          missingAddressErrors
+                          multipleJobsBonusEarningsErrors
+                          multipleJobsCashTipsEarningsErrors
+                          multipleJobsCommissionEarningsErrors
+                          multipleJobsCorrectionPaymentEarningsErrors
+                          multipleJobsCustomEarningsErrors
+                          multipleJobsDoubleOvertimeHoursErrors
+                          multipleJobsMissedBreakHoursErrors
+                          multipleJobsOvertimeHoursErrors
+                          multipleJobsOwnersDrawEarningsErrors
+                          multipleJobsPaycheckTipsEarningsErrors
+                          multipleJobsRegularHoursErrors
+                          multipleJobsSeveranceEarningsErrors
+                          netPayErrors
+                          overtimeHoursErrors
+                          ownersDrawDisallowedInputsErrors
+                          ownersDrawEarningsErrors
+                          paidHolidayHoursErrors
+                          paidTimeOffHoursErrors
+                          paycheckTipsEarningsErrors
+                          paymentMethodMustBeCheckErrors
+                          regularHoursErrors
+                          reimbursementsErrors
+                          severanceEarningsErrors
+                          sickHoursErrors
+                          taxErrors
+                          totalHoursDoNotFitInPaymentPeriodErrors
+                          workAddressNotFoundErrors
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        draftPayrollId: regular.f290a54b-9dd2-1285-9772-7b50837a84af.295d3235-6944-d6eb-7353-db20a504aecb.2026-11-01
+                      description: GraphQL variables as JSON
+                      fields: []
+                response:
+                    type: object
+                    item: poll_payroll_submission_status
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+    reimbursements:
+        description: GraphQL BFF operations for reimbursements
+        endpoints:
+            description_suggestions:
+                method: POST
+                path: /
+                description: Fetch reimbursements description suggestions
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query ReimbursementDescriptionSuggestions($query: String) {
+                          company {
+                            id
+                            reimbursementDescriptionSuggestions(query: $query)
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        query: ""
+                      description: GraphQL variables as JSON
+                      fields: []
+                response:
+                    type: object
+                    item: reimbursement_description_suggestions
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+types: {}

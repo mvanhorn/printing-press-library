@@ -1,0 +1,7 @@
+query ReimbursementDescriptionSuggestions($query: String) {
+  company {
+    id
+    reimbursementDescriptionSuggestions(query: $query)
+    __typename
+  }
+}

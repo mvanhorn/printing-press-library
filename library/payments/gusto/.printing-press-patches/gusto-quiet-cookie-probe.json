@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-10-24",
+  "base_run_id": "20261024-084709-6d9f8432",
+  "base_printing_press_version": "4.34.0",
+  "id": "gusto-quiet-cookie-probe",
+  "summary": "Cookie-tool detection probes pycookiecheat with stderr discarded.",
+  "reason": "The probe's Python traceback leaked into `doctor --json`, so the output was not valid JSON.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/cookie_probe_quiet.go"
+  ],
+  "validated_outcome": "gusto-pp-cli doctor --json parses as JSON."
+}
