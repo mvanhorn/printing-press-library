@@ -191,16 +191,23 @@ func TestYahooSyncLegacyBatchMigrationDroppedOwnerClearingAndConcurrentUpserts(t
 	}
 
 	// Seed legacy batch rows for a drafted player (449.p.31002) and a draft pick row,
-	// plus a rostered player (449.p.32005) who will subsequently be dropped to free agency.
+	// a rostered player (449.p.32005) who will be dropped to free agency,
+	// and a rostered player (449.p.33009) who was traded from t.1 to t.2.
+	_ = db.Upsert("leagues", "449.l.365083", json.RawMessage(`{"league_key":"449.l.365083","current_week":1}`))
 	_ = db.Upsert("teams", "449.l.365083.t.1", json.RawMessage(`{"league_key":"449.l.365083","team_key":"449.l.365083.t.1","name":"Alpha"}`))
+	_ = db.Upsert("teams", "449.l.365083.t.2", json.RawMessage(`{"league_key":"449.l.365083","team_key":"449.l.365083.t.2","name":"Beta"}`))
 	_ = db.Upsert("draft", "449.l.365083.pick.1.1", json.RawMessage(`{"league_key":"449.l.365083","round":1,"pick":1,"team_key":"449.l.365083.t.1","player_key":"449.p.31002"}`))
 	_ = db.Upsert("draft", "449.l.365083.pick.2.1", json.RawMessage(`{"league_key":"449.l.365083","round":2,"pick":13,"team_key":"449.l.365083.t.1","player_key":"449.p.32005"}`))
 	_ = db.Upsert("players", "449.l.365083:stats:0", json.RawMessage(`{"fantasy_content":{"league":{"league_key":"449.l.365083","players":[{"player":{"player_key":"449.p.31002","name":{"full":"Legacy Drafted"},"display_position":"RB","player_points":{"total":"195.0"}}}]}}}`))
 	_ = db.Upsert("players", "449.l.365083:ownership:0", json.RawMessage(`{"fantasy_content":{"league":{"league_key":"449.l.365083","players":[{"player":{"player_key":"449.p.31002","ownership":{"ownership_type":"team","owner_team_key":"449.l.365083.t.1"}}}]}}}`))
 	_ = db.Upsert("players", "449.l.365083:player:449.p.32005", json.RawMessage(`{"league_key":"449.l.365083","player_key":"449.p.32005","full_name":"Dropped WR","display_position":"WR","selected_position":"WR","ownership_status":"T","owner_team_key":"449.l.365083.t.1","points_total":120.0,"games_played":8,"points_per_game":15.0}`))
+	_ = db.Upsert("players", "449.l.365083:player:449.p.33009", json.RawMessage(`{"league_key":"449.l.365083","player_key":"449.p.33009","full_name":"Traded Star","display_position":"WR","selected_position":"WR","ownership_status":"T","owner_team_key":"449.l.365083.t.1","points_total":180.0,"games_played":8,"points_per_game":22.5}`))
 
 	fc := &fakeYahooSyncClient{
 		handlers: map[string]func() (json.RawMessage, error){
+			"/league/449.l.365083": func() (json.RawMessage, error) {
+				return json.RawMessage(`{"fantasy_content":{"league":{"league_key":"449.l.365083","current_week":1}}}`), nil
+			},
 			"/league/449.l.365083/players;status=A;position=O;sort=PTS;start=0;count=25/percent_owned": func() (json.RawMessage, error) {
 				return json.RawMessage(`{"fantasy_content":{"league":{"league_key":"449.l.365083","players":[{"player":{"player_key":"449.p.32005","name":{"full":"Dropped WR"},"display_position":"WR","percent_owned":{"value":35}}}]}}}`), nil
 			},
@@ -209,6 +216,12 @@ func TestYahooSyncLegacyBatchMigrationDroppedOwnerClearingAndConcurrentUpserts(t
 			},
 			"/league/449.l.365083/players;player_keys=449.p.32005/ownership": func() (json.RawMessage, error) {
 				return json.RawMessage(`{"fantasy_content":{"league":{"league_key":"449.l.365083","players":[{"player":{"player_key":"449.p.32005","ownership":{"ownership_type":"freeagents"}}}]}}}`), nil
+			},
+			"/team/449.l.365083.t.1/roster;week=1": func() (json.RawMessage, error) {
+				return json.RawMessage(`{"fantasy_content":{"team":{"team_key":"449.l.365083.t.1","roster":{"players":[{"player":{"player_key":"449.p.31002","name":{"full":"Legacy Drafted"},"display_position":"RB","selected_position":{"position":"RB"}}}]}}}}`), nil
+			},
+			"/league/449.l.365083/players;player_keys=449.p.33009/ownership": func() (json.RawMessage, error) {
+				return json.RawMessage(`{"fantasy_content":{"league":{"league_key":"449.l.365083","players":[{"player":{"player_key":"449.p.33009","ownership":{"ownership_type":"team","owner_team_key":"449.l.365083.t.2"}}}]}}}`), nil
 			},
 		},
 	}
@@ -222,6 +235,22 @@ func TestYahooSyncLegacyBatchMigrationDroppedOwnerClearingAndConcurrentUpserts(t
 	sr := syncYahooLeagueScopedResource(ctx, fc, db, "players", 1, true, up, &events, time.Now())
 	if sr.Err != nil {
 		t.Fatalf("sync players failed: %v", sr.Err)
+	}
+
+	// Sync only team t.1's roster: 449.p.33009 left t.1 via trade to t.2, so ownership check must assign it to t.2 (not FA).
+	upTeam1, err := parseSyncUserParams([]string{"team_key=449.l.365083.t.1"}, nil, nil)
+	if err != nil {
+		t.Fatalf("parseSyncUserParams team1: %v", err)
+	}
+	srRoster := syncYahooLeagueScopedResource(ctx, fc, db, "rosters", 1, true, upTeam1, &events, time.Now())
+	if srRoster.Err != nil {
+		t.Fatalf("sync rosters failed: %v", srRoster.Err)
+	}
+
+	// Verify FTS search finds players written by upsertYahooPlayerRecords.
+	matches, sErr := db.Search("Dropped WR", 10, "players")
+	if sErr != nil || len(matches) == 0 {
+		t.Fatalf("expected FTS search to find 'Dropped WR', got %d matches (err=%v)", len(matches), sErr)
 	}
 
 	// Verify concurrent upserts on the same player preserve merged fields from both writers.
@@ -257,5 +286,14 @@ func TestYahooSyncLegacyBatchMigrationDroppedOwnerClearingAndConcurrentUpserts(t
 	}
 	if !strings.Contains(drOut, `"retained_by_drafter": false`) {
 		t.Fatalf("expected dropped player 449.p.32005 to have retained_by_drafter=false in draft-roi, got: %s", drOut)
+	}
+
+	// 2. Verify waiver-wire recommends the dropped FA (449.p.32005) and does NOT recommend the traded player (449.p.33009).
+	wwOut := runTestRootCmd(t, "waiver-wire", "--league", "449.l.365083", "--team", "449.l.365083.t.1", "--db", dbPath, "--data-source", "local", "--json")
+	if !strings.Contains(wwOut, "449.p.32005") {
+		t.Fatalf("expected dropped player 449.p.32005 in waiver-wire candidates, got: %s", wwOut)
+	}
+	if strings.Contains(wwOut, "449.p.33009") {
+		t.Fatalf("expected traded player 449.p.33009 (now owned by t.2) NOT to appear in waiver-wire candidates, got: %s", wwOut)
 	}
 }
