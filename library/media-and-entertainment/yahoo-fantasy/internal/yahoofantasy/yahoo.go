@@ -398,8 +398,79 @@ func ParseSlotSwaps(setSpec string) ([]RosterSlotUpdate, error) {
 	return updates, nil
 }
 
+// YahooLeagueKeyFromEntityKey extracts the {game_id}.l.{league_id} prefix from any Yahoo entity key
+// such as a league_key (449.l.365083), team_key (449.l.365083.t.1), transaction_key (449.l.365083.tr.12),
+// waiver claim key (449.l.365083.w.c.2_31862), or composite storage key (449.l.365083:w1:...).
+func YahooLeagueKeyFromEntityKey(key string) string {
+	k := strings.TrimSpace(key)
+	if k == "" {
+		return ""
+	}
+	if idx := strings.IndexByte(k, ':'); idx > 0 {
+		prefix := k[:idx]
+		if strings.Contains(prefix, ".l.") {
+			k = prefix
+		}
+	}
+	for _, sep := range []string{".t.", ".tr.", ".w.", ".d.", ".p."} {
+		if idx := strings.Index(k, sep); idx > 0 {
+			cand := k[:idx]
+			if strings.Contains(cand, ".l.") {
+				return cand
+			}
+		}
+	}
+	parts := strings.Split(k, ".")
+	if len(parts) >= 3 && parts[1] == "l" && parts[0] != "" && parts[2] != "" {
+		return parts[0] + ".l." + parts[2]
+	}
+	return ""
+}
+
+// BelongsToLeague reports whether a record belongs to targetLeagueKey based on its explicit league_key
+// or any associated Yahoo entity keys (team_key, transaction_key, etc.).
+func BelongsToLeague(targetLeagueKey string, candidateKeys ...string) bool {
+	target := strings.TrimSpace(targetLeagueKey)
+	if target == "" {
+		return true
+	}
+	for _, ck := range candidateKeys {
+		ck = strings.TrimSpace(ck)
+		if ck == "" {
+			continue
+		}
+		if strings.EqualFold(ck, target) {
+			return true
+		}
+		if lk := YahooLeagueKeyFromEntityKey(ck); lk != "" && strings.EqualFold(lk, target) {
+			return true
+		}
+	}
+	return false
+}
+
+// FilterActiveStarters returns the starting lineup players from a full roster (excluding BN/IR/IL slots when selected_position is set).
+func FilterActiveStarters(roster []PlayerRecord) []PlayerRecord {
+	if len(roster) == 0 {
+		return nil
+	}
+	starters := make([]PlayerRecord, 0, len(roster))
+	for _, p := range roster {
+		slot := strings.ToUpper(strings.TrimSpace(p.SelectedPosition))
+		if slot == "BN" || slot == "BENCH" || slot == "IR" || slot == "IL" || slot == "IR-R" {
+			continue
+		}
+		starters = append(starters, p)
+	}
+	if len(starters) > 0 {
+		return starters
+	}
+	return roster
+}
+
 // PlayerRecord represents a normalized Yahoo Fantasy player with roster and scoring context.
 type PlayerRecord struct {
+	LeagueKey         string   `json:"league_key,omitempty"`
 	PlayerKey         string   `json:"player_key"`
 	PlayerID          string   `json:"player_id,omitempty"`
 	FullName          string   `json:"full_name"`
@@ -410,6 +481,7 @@ type PlayerRecord struct {
 	StatusFull        string   `json:"status_full,omitempty"`
 	EligiblePositions []string `json:"eligible_positions,omitempty"`
 	PercentOwned      float64  `json:"percent_owned,omitempty"`
+	GamesPlayed       int      `json:"games_played,omitempty"`
 	PointsTotal       float64  `json:"points_total,omitempty"`
 	PointsPerGame     float64  `json:"points_per_game,omitempty"`
 	ProjectedPoints   float64  `json:"projected_points,omitempty"`
@@ -613,10 +685,13 @@ func effectivePPG(p PlayerRecord) float64 {
 	if p.PointsPerGame > 0 {
 		return p.PointsPerGame
 	}
+	if p.GamesPlayed > 0 && p.PointsTotal > 0 {
+		return p.PointsTotal / float64(p.GamesPlayed)
+	}
 	if p.ProjectedPoints > 0 {
 		return p.ProjectedPoints
 	}
-	return p.PointsTotal
+	return 0
 }
 
 // AddDropPlan is the structured output of the add-drop command.
@@ -832,6 +907,7 @@ type MatchupSlotComparison struct {
 
 // MatchupRecord holds normalized matchup data for a single head-to-head pairing.
 type MatchupRecord struct {
+	LeagueKey         string         `json:"league_key,omitempty"`
 	Week              int            `json:"week"`
 	Status            string         `json:"status"`
 	TeamKey           string         `json:"team_key"`
@@ -893,6 +969,7 @@ func BuildMatchupRadar(leagueKey string, m MatchupRecord) MatchupRadarView {
 	if len(m.OpponentStarters) > maxLen {
 		maxLen = len(m.OpponentStarters)
 	}
+	var sumTProj, sumOProj float64
 	for i := 0; i < maxLen; i++ {
 		var tp, op PlayerRecord
 		if i < len(m.TeamStarters) {
@@ -911,6 +988,9 @@ func BuildMatchupRadar(leagueKey string, m MatchupRecord) MatchupRadarView {
 		if reason := starterInactiveReason(tp, m.Week); reason != "" {
 			view.InjuryAlerts = append(view.InjuryAlerts, fmt.Sprintf("%s (%s): %s", tp.FullName, slot, reason))
 		}
+		if reason := starterInactiveReason(op, m.Week); reason != "" {
+			view.InjuryAlerts = append(view.InjuryAlerts, fmt.Sprintf("%s [opp] (%s): %s", op.FullName, slot, reason))
+		}
 		tProj := tp.ProjectedPoints
 		if tProj == 0 {
 			tProj = tp.PointsPerGame
@@ -919,6 +999,8 @@ func BuildMatchupRadar(leagueKey string, m MatchupRecord) MatchupRadarView {
 		if oProj == 0 {
 			oProj = op.PointsPerGame
 		}
+		sumTProj += tProj
+		sumOProj += oProj
 		view.SlotComparisons = append(view.SlotComparisons, MatchupSlotComparison{
 			Slot:             slot,
 			TeamPlayerName:   tp.FullName,
@@ -932,25 +1014,36 @@ func BuildMatchupRadar(leagueKey string, m MatchupRecord) MatchupRadarView {
 			ProjectedEdge:    round2(tProj - oProj),
 		})
 	}
+	if view.TeamProjected == 0 && sumTProj > 0 {
+		view.TeamProjected = round2(sumTProj)
+	}
+	if view.OpponentProjected == 0 && sumOProj > 0 {
+		view.OpponentProjected = round2(sumOProj)
+	}
+	view.ProjectedMargin = round2(view.TeamProjected - view.OpponentProjected)
 	return view
 }
 
 // TeamRecord holds normalized team standings and budget metadata.
 type TeamRecord struct {
-	TeamKey        string  `json:"team_key"`
-	TeamID         string  `json:"team_id,omitempty"`
-	Name           string  `json:"name"`
-	ManagerName    string  `json:"manager_name,omitempty"`
-	Rank           int     `json:"rank,omitempty"`
-	Wins           int     `json:"wins"`
-	Losses         int     `json:"losses"`
-	Ties           int     `json:"ties"`
-	PointsFor      float64 `json:"points_for"`
-	PointsAgainst  float64 `json:"points_against"`
-	FaabBalance    int     `json:"faab_balance"`
-	HasFaab        bool    `json:"-"`
-	WaiverPriority int     `json:"waiver_priority,omitempty"`
-	NumberOfMoves  int     `json:"number_of_moves,omitempty"`
+	LeagueKey       string         `json:"league_key,omitempty"`
+	TeamKey         string         `json:"team_key"`
+	TeamID          string         `json:"team_id,omitempty"`
+	Name            string         `json:"name"`
+	ManagerName     string         `json:"manager_name,omitempty"`
+	Rank            int            `json:"rank,omitempty"`
+	Wins            int            `json:"wins"`
+	Losses          int            `json:"losses"`
+	Ties            int            `json:"ties"`
+	PointsFor       float64        `json:"points_for"`
+	ProjectedPoints float64        `json:"projected_points,omitempty"`
+	WinProbability  float64        `json:"win_probability,omitempty"`
+	PointsAgainst   float64        `json:"points_against"`
+	FaabBalance     int            `json:"faab_balance"`
+	HasFaab         bool           `json:"-"`
+	WaiverPriority  int            `json:"waiver_priority,omitempty"`
+	NumberOfMoves   int            `json:"number_of_moves,omitempty"`
+	Roster          []PlayerRecord `json:"roster,omitempty"`
 }
 
 // PowerRankingRow represents a single team's composite power ranking and all-play metrics.
@@ -1102,6 +1195,7 @@ func ComputePowerRankings(teams []TeamRecord, weeklyScores map[int]map[string]fl
 
 // TransactionRecord represents a normalized league transaction with FAAB and player details.
 type TransactionRecord struct {
+	LeagueKey      string `json:"league_key,omitempty"`
 	TransactionKey string `json:"transaction_key"`
 	Type           string `json:"type"`
 	Status         string `json:"status"`
@@ -1228,6 +1322,7 @@ func ComputeFAABAudit(defaultBudget int, teams []TeamRecord, transactions []Tran
 
 // DraftPickRecord represents a normalized league draft pick.
 type DraftPickRecord struct {
+	LeagueKey  string `json:"league_key,omitempty"`
 	Pick       int    `json:"pick"`
 	Round      int    `json:"round"`
 	Cost       int    `json:"cost,omitempty"`
@@ -1334,12 +1429,89 @@ func ComputeDraftROI(picks []DraftPickRecord, players map[string]PlayerRecord, c
 
 // --- Flexible JSON Extractors (support both Yahoo nested fantasy_content and flat JSON records) ---
 
+func extractRootLeagueKey(root any) string {
+	var found string
+	walkJSON(root, func(m map[string]any) {
+		if found != "" {
+			return
+		}
+		if lk := asString(m["league_key"]); strings.Contains(lk, ".l.") {
+			found = lk
+			return
+		}
+		if lk := YahooLeagueKeyFromEntityKey(asString(m["team_key"])); lk != "" {
+			found = lk
+			return
+		}
+		if lk := YahooLeagueKeyFromEntityKey(asString(m["transaction_key"])); lk != "" {
+			found = lk
+			return
+		}
+	})
+	return found
+}
+
+// ExtractLeagueCurrentWeek extracts the current/latest week from a Yahoo league or standings payload.
+func ExtractLeagueCurrentWeek(data []byte) int {
+	var root any
+	if err := json.Unmarshal(data, &root); err != nil {
+		return 0
+	}
+	var currentWeek int
+	walkJSON(root, func(m map[string]any) {
+		if cw := asInt(m["current_week"]); cw > currentWeek {
+			currentWeek = cw
+		}
+	})
+	if currentWeek > 0 {
+		return currentWeek
+	}
+	teams := ExtractTeams(data)
+	for _, t := range teams {
+		if games := t.Wins + t.Losses + t.Ties; games > currentWeek {
+			currentWeek = games
+		}
+	}
+	return currentWeek
+}
+
+// ExtractLeagueKeys extracts all distinct league keys (e.g. "449.l.365083") from a Yahoo JSON payload.
+func ExtractLeagueKeys(data []byte) []string {
+	var root any
+	if err := json.Unmarshal(data, &root); err != nil {
+		return nil
+	}
+	var out []string
+	seen := map[string]bool{}
+	add := func(lk string) {
+		lk = strings.TrimSpace(lk)
+		if !strings.Contains(lk, ".l.") || seen[lk] {
+			return
+		}
+		seen[lk] = true
+		out = append(out, lk)
+	}
+	walkJSON(root, func(m map[string]any) {
+		if lk := asString(m["league_key"]); lk != "" {
+			add(lk)
+		}
+		if lk := YahooLeagueKeyFromEntityKey(asString(m["team_key"])); lk != "" {
+			add(lk)
+		}
+		if lk := YahooLeagueKeyFromEntityKey(asString(m["transaction_key"])); lk != "" {
+			add(lk)
+		}
+	})
+	return out
+}
+
 // ExtractPlayers extracts PlayerRecord items from any Yahoo JSON or flat JSON payload.
 func ExtractPlayers(data []byte) []PlayerRecord {
 	var root any
 	if err := json.Unmarshal(data, &root); err != nil {
 		return nil
 	}
+	rootLK := extractRootLeagueKey(root)
 	var out []PlayerRecord
 	seen := map[string]int{}
 	walkJSON(root, func(m map[string]any) {
@@ -1348,6 +1520,9 @@ func ExtractPlayers(data []byte) []PlayerRecord {
 			return
 		}
 		rec := parsePlayerMap(m)
+		if rec.LeagueKey == "" {
+			rec.LeagueKey = rootLK
+		}
 		if idx, ok := seen[pk]; ok {
 			out[idx] = mergePlayerRecord(out[idx], rec)
 		} else {
@@ -1360,6 +1535,7 @@ func ExtractPlayers(data []byte) []PlayerRecord {
 
 func parsePlayerMap(m map[string]any) PlayerRecord {
 	rec := PlayerRecord{
+		LeagueKey:         asString(m["league_key"]),
 		PlayerKey:         asString(m["player_key"]),
 		PlayerID:          asString(m["player_id"]),
 		FullName:          asString(m["full_name"]),
@@ -1371,6 +1547,7 @@ func parsePlayerMap(m map[string]any) PlayerRecord {
 		PercentOwned:      asFloat(m["percent_owned"]),
 		PointsTotal:       asFloat(m["points_total"]),
 		PointsPerGame:     asFloat(m["points_per_game"]),
+		GamesPlayed:       asInt(m["games_played"]),
 		ProjectedPoints:   asFloat(m["projected_points"]),
 		ByeWeek:           asInt(m["bye_week"]),
 		OwnershipStatus:   asString(m["ownership_status"]),
@@ -1398,6 +1575,20 @@ func parsePlayerMap(m map[string]any) PlayerRecord {
 	if projMap, ok := m["player_projected_points"].(map[string]any); ok && rec.ProjectedPoints == 0 {
 		rec.ProjectedPoints = asFloat(projMap["total"])
 	}
+	if statsMap, ok := m["player_stats"].(map[string]any); ok && rec.GamesPlayed == 0 {
+		walkJSON(statsMap["stats"], func(sm map[string]any) {
+			sid := asString(sm["stat_id"])
+			sname := strings.ToLower(asString(sm["name"]))
+			if sid == "0" || sname == "games played" || sname == "gp" {
+				if gp := asInt(sm["value"]); gp > 0 {
+					rec.GamesPlayed = gp
+				}
+			}
+		})
+	}
+	if rec.PointsPerGame == 0 && rec.PointsTotal > 0 && rec.GamesPlayed > 0 {
+		rec.PointsPerGame = round2(rec.PointsTotal / float64(rec.GamesPlayed))
+	}
 	if ownMap, ok := m["ownership"].(map[string]any); ok {
 		if rec.OwnershipStatus == "" {
 			ot := asString(ownMap["ownership_type"])
@@ -1415,6 +1606,9 @@ func parsePlayerMap(m map[string]any) PlayerRecord {
 		if rec.OwnerTeamKey == "" {
 			rec.OwnerTeamKey = asString(ownMap["owner_team_key"])
 		}
+	}
+	if rec.LeagueKey == "" && rec.OwnerTeamKey != "" {
+		rec.LeagueKey = YahooLeagueKeyFromEntityKey(rec.OwnerTeamKey)
 	}
 	if eligAny, ok := m["eligible_positions"]; ok {
 		switch v := eligAny.(type) {
@@ -1444,6 +1638,9 @@ func parsePlayerMap(m map[string]any) PlayerRecord {
 }
 
 func mergePlayerRecord(a, b PlayerRecord) PlayerRecord {
+	if b.LeagueKey != "" {
+		a.LeagueKey = b.LeagueKey
+	}
 	if b.PlayerID != "" {
 		a.PlayerID = b.PlayerID
 	}
@@ -1477,6 +1674,12 @@ func mergePlayerRecord(a, b PlayerRecord) PlayerRecord {
 	if b.PointsPerGame > 0 {
 		a.PointsPerGame = b.PointsPerGame
 	}
+	if b.GamesPlayed > 0 {
+		a.GamesPlayed = b.GamesPlayed
+	}
+	if a.PointsPerGame == 0 && a.PointsTotal > 0 && a.GamesPlayed > 0 {
+		a.PointsPerGame = round2(a.PointsTotal / float64(a.GamesPlayed))
+	}
 	if b.ProjectedPoints > 0 {
 		a.ProjectedPoints = b.ProjectedPoints
 	}
@@ -1498,6 +1701,7 @@ func ExtractTeams(data []byte) []TeamRecord {
 	if err := json.Unmarshal(data, &root); err != nil {
 		return nil
 	}
+	rootLK := extractRootLeagueKey(root)
 	var out []TeamRecord
 	seen := map[string]int{}
 	walkJSON(root, func(m map[string]any) {
@@ -1516,6 +1720,9 @@ func ExtractTeams(data []byte) []TeamRecord {
 			return
 		}
 		rec := parseTeamMap(m)
+		if rec.LeagueKey == "" {
+			rec.LeagueKey = rootLK
+		}
 		if idx, ok := seen[tk]; ok {
 			out[idx] = mergeTeamRecord(out[idx], rec)
 		} else {
@@ -1528,21 +1735,29 @@ func ExtractTeams(data []byte) []TeamRecord {
 
 func parseTeamMap(m map[string]any) TeamRecord {
 	_, hasFaab := m["faab_balance"]
+	tk := asString(m["team_key"])
+	lk := asString(m["league_key"])
+	if lk == "" {
+		lk = YahooLeagueKeyFromEntityKey(tk)
+	}
 	rec := TeamRecord{
-		TeamKey:        asString(m["team_key"]),
-		TeamID:         asString(m["team_id"]),
-		Name:           asString(m["name"]),
-		ManagerName:    asString(m["manager_nickname"]),
-		Rank:           asInt(m["rank"]),
-		Wins:           asInt(m["wins"]),
-		Losses:         asInt(m["losses"]),
-		Ties:           asInt(m["ties"]),
-		PointsFor:      asFloat(m["points_for"]),
-		PointsAgainst:  asFloat(m["points_against"]),
-		FaabBalance:    asInt(m["faab_balance"]),
-		HasFaab:        hasFaab,
-		WaiverPriority: asInt(m["waiver_priority"]),
-		NumberOfMoves:  asInt(m["number_of_moves"]),
+		LeagueKey:       lk,
+		TeamKey:         tk,
+		TeamID:          asString(m["team_id"]),
+		Name:            asString(m["name"]),
+		ManagerName:     asString(m["manager_nickname"]),
+		Rank:            asInt(m["rank"]),
+		Wins:            asInt(m["wins"]),
+		Losses:          asInt(m["losses"]),
+		Ties:            asInt(m["ties"]),
+		PointsFor:       asFloat(m["points_for"]),
+		ProjectedPoints: asFloat(m["projected_points"]),
+		WinProbability:  asFloat(m["win_probability"]),
+		PointsAgainst:   asFloat(m["points_against"]),
+		FaabBalance:     asInt(m["faab_balance"]),
+		HasFaab:         hasFaab,
+		WaiverPriority:  asInt(m["waiver_priority"]),
+		NumberOfMoves:   asInt(m["number_of_moves"]),
 	}
 	if st, ok := m["team_standings"].(map[string]any); ok {
 		if rec.Rank == 0 {
@@ -1563,10 +1778,35 @@ func parseTeamMap(m map[string]any) TeamRecord {
 	if tp, ok := m["team_points"].(map[string]any); ok && rec.PointsFor == 0 {
 		rec.PointsFor = asFloat(tp["total"])
 	}
+	if tpp, ok := m["team_projected_points"].(map[string]any); ok && rec.ProjectedPoints == 0 {
+		rec.ProjectedPoints = asFloat(tpp["total"])
+	} else if rec.ProjectedPoints == 0 {
+		rec.ProjectedPoints = asFloat(m["team_projected_points"])
+	}
+	if rosterVal, ok := m["roster"]; ok && rosterVal != nil {
+		if raw, err := json.Marshal(rosterVal); err == nil {
+			rec.Roster = ExtractPlayers(raw)
+		}
+	} else if playersVal, ok := m["players"]; ok && playersVal != nil {
+		if raw, err := json.Marshal(playersVal); err == nil {
+			rec.Roster = ExtractPlayers(raw)
+		}
+	}
+	for i := range rec.Roster {
+		if rec.Roster[i].LeagueKey == "" {
+			rec.Roster[i].LeagueKey = rec.LeagueKey
+		}
+		if rec.Roster[i].OwnerTeamKey == "" {
+			rec.Roster[i].OwnerTeamKey = rec.TeamKey
+		}
+	}
 	return rec
 }
 
 func mergeTeamRecord(a, b TeamRecord) TeamRecord {
+	if b.LeagueKey != "" {
+		a.LeagueKey = b.LeagueKey
+	}
 	if b.TeamID != "" {
 		a.TeamID = b.TeamID
 	}
@@ -1587,6 +1827,12 @@ func mergeTeamRecord(a, b TeamRecord) TeamRecord {
 	if b.PointsFor > 0 {
 		a.PointsFor = b.PointsFor
 	}
+	if b.ProjectedPoints > 0 {
+		a.ProjectedPoints = b.ProjectedPoints
+	}
+	if b.WinProbability > 0 {
+		a.WinProbability = b.WinProbability
+	}
 	if b.PointsAgainst > 0 {
 		a.PointsAgainst = b.PointsAgainst
 	}
@@ -1600,6 +1846,9 @@ func mergeTeamRecord(a, b TeamRecord) TeamRecord {
 	if b.NumberOfMoves > 0 {
 		a.NumberOfMoves = b.NumberOfMoves
 	}
+	if len(b.Roster) > 0 {
+		a.Roster = b.Roster
+	}
 	return a
 }
 
@@ -1609,6 +1858,7 @@ func ExtractTransactions(data []byte) []TransactionRecord {
 	if err := json.Unmarshal(data, &root); err != nil {
 		return nil
 	}
+	rootLK := extractRootLeagueKey(root)
 	var out []TransactionRecord
 	seen := map[string]int{}
 	walkJSON(root, func(m map[string]any) {
@@ -1617,6 +1867,7 @@ func ExtractTransactions(data []byte) []TransactionRecord {
 			return
 		}
 		rec := TransactionRecord{
+			LeagueKey:      asString(m["league_key"]),
 			TransactionKey: tk,
 			Type:           asString(m["type"]),
 			Status:         asString(m["status"]),
@@ -1663,7 +1914,19 @@ func ExtractTransactions(data []byte) []TransactionRecord {
 				}
 			}
 		})
+		if rec.LeagueKey == "" {
+			rec.LeagueKey = YahooLeagueKeyFromEntityKey(tk)
+		}
+		if rec.LeagueKey == "" {
+			rec.LeagueKey = YahooLeagueKeyFromEntityKey(rec.TeamKey)
+		}
+		if rec.LeagueKey == "" {
+			rec.LeagueKey = rootLK
+		}
 		if idx, ok := seen[tk]; ok {
+			if rec.LeagueKey != "" {
+				out[idx].LeagueKey = rec.LeagueKey
+			}
 			if rec.FaabBid > 0 {
 				out[idx].FaabBid = rec.FaabBid
 			}
@@ -1689,6 +1952,7 @@ func ExtractDraftPicks(data []byte) []DraftPickRecord {
 	if err := json.Unmarshal(data, &root); err != nil {
 		return nil
 	}
+	rootLK := extractRootLeagueKey(root)
 	var out []DraftPickRecord
 	seen := map[string]bool{}
 	walkJSON(root, func(m map[string]any) {
@@ -1704,7 +1968,15 @@ func ExtractDraftPicks(data []byte) []DraftPickRecord {
 			return
 		}
 		seen[key] = true
+		lk := asString(m["league_key"])
+		if lk == "" {
+			lk = YahooLeagueKeyFromEntityKey(tk)
+		}
+		if lk == "" {
+			lk = rootLK
+		}
 		out = append(out, DraftPickRecord{
+			LeagueKey:  lk,
 			Pick:       pick,
 			Round:      round,
 			Cost:       asInt(m["cost"]),
@@ -1723,6 +1995,7 @@ func ExtractMatchups(data []byte) []MatchupRecord {
 	if err := json.Unmarshal(data, &root); err != nil {
 		return nil
 	}
+	rootLK := extractRootLeagueKey(root)
 	var out []MatchupRecord
 	seen := map[string]bool{}
 	walkJSON(root, func(m map[string]any) {
@@ -1735,7 +2008,15 @@ func ExtractMatchups(data []byte) []MatchupRecord {
 				return
 			}
 			seen[key] = true
+			lk := asString(m["league_key"])
+			if lk == "" {
+				lk = YahooLeagueKeyFromEntityKey(tk)
+			}
+			if lk == "" {
+				lk = rootLK
+			}
 			rec := MatchupRecord{
+				LeagueKey:         lk,
 				Week:              week,
 				Status:            asString(m["status"]),
 				TeamKey:           tk,
@@ -1772,15 +2053,29 @@ func ExtractMatchups(data []byte) []MatchupRecord {
 					return
 				}
 				seen[key] = true
+				lk := asString(m["league_key"])
+				if lk == "" {
+					lk = YahooLeagueKeyFromEntityKey(teams[0].TeamKey)
+				}
+				if lk == "" {
+					lk = rootLK
+				}
 				out = append(out, MatchupRecord{
-					Week:           week,
-					Status:         asString(m["status"]),
-					TeamKey:        teams[0].TeamKey,
-					TeamName:       teams[0].Name,
-					TeamPoints:     teams[0].PointsFor,
-					OpponentKey:    teams[1].TeamKey,
-					OpponentName:   teams[1].Name,
-					OpponentPoints: teams[1].PointsFor,
+					LeagueKey:         lk,
+					Week:              week,
+					Status:            asString(m["status"]),
+					TeamKey:           teams[0].TeamKey,
+					TeamName:          teams[0].Name,
+					TeamPoints:        teams[0].PointsFor,
+					TeamProjected:     teams[0].ProjectedPoints,
+					TeamWinProb:       teams[0].WinProbability,
+					TeamStarters:      FilterActiveStarters(teams[0].Roster),
+					OpponentKey:       teams[1].TeamKey,
+					OpponentName:      teams[1].Name,
+					OpponentPoints:    teams[1].PointsFor,
+					OpponentProjected: teams[1].ProjectedPoints,
+					OpponentWinProb:   teams[1].WinProbability,
+					OpponentStarters:  FilterActiveStarters(teams[1].Roster),
 				})
 			}
 		}
@@ -1797,25 +2092,35 @@ func walkJSON(v any, fn func(map[string]any)) {
 			walkJSON(child, fn)
 		}
 	case []any:
-		// Yahoo Fantasy JSON frequently encodes an object as an array of maps/slices (e.g. [ [{team_key:...}, {name:...}], {team_standings:...} ]).
+		// Yahoo Fantasy JSON frequently encodes a single entity as an array of disjoint-key maps/slices
+		// (e.g. [ [{team_key:...}, {name:...}], {team_standings:...} ]).
+		// Only collapse into a merged map when elements do not collide on keys (so a list of multiple entities is never merged).
 		merged := map[string]any{}
+		canMerge := true
+		addProp := func(k string, v2 any) {
+			if _, exists := merged[k]; exists {
+				canMerge = false
+				return
+			}
+			merged[k] = v2
+		}
 		for _, elem := range val {
 			switch sub := elem.(type) {
 			case map[string]any:
 				for k, v2 := range sub {
-					merged[k] = v2
+					addProp(k, v2)
 				}
 			case []any:
 				for _, inner := range sub {
 					if im, ok := inner.(map[string]any); ok {
 						for k, v2 := range im {
-							merged[k] = v2
+							addProp(k, v2)
 						}
 					}
 				}
 			}
 		}
-		if len(merged) > 0 {
+		if canMerge && len(merged) > 0 {
 			fn(merged)
 		}
 		for _, elem := range val {

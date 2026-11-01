@@ -43,6 +43,16 @@ func TestNovelAddDropCmd(t *testing.T) {
 		}
 	})
 
+	t.Run("dry-run fails on missing --add/--drop or negative --faab", func(t *testing.T) {
+		root := RootCmd()
+		root.SetOut(&bytes.Buffer{})
+		root.SetErr(&bytes.Buffer{})
+		root.SetArgs([]string{"add-drop", "--league", "449.l.365083", "--team", "449.l.365083.t.1", "--dry-run"})
+		if err := root.Execute(); err == nil {
+			t.Fatalf("expected error when neither --add nor --drop is provided under --dry-run")
+		}
+	})
+
 	t.Run("builds add/drop transaction plan in local mode", func(t *testing.T) {
 		root := RootCmd()
 		var stdout, stderr bytes.Buffer

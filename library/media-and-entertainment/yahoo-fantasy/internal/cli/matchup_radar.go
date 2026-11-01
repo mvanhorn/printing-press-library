@@ -76,15 +76,30 @@ with projected points, actual points, win probability, and active starter injury
 			}
 
 			var matchups []yahoofantasy.MatchupRecord
+			localRostersByTeam := map[string][]yahoofantasy.PlayerRecord{}
 			hasDB := false
 			if flags.dataSource != "live" {
-				blobs, dbExists, err := loadLocalResourceBlobs(ctx, cmd, flags, dbPath, "leagues", "teams", "matchups", "scoreboard")
+				blobs, dbExists, err := loadLocalResourceBlobs(ctx, cmd, flags, dbPath, "leagues", "teams", "matchups", "scoreboard", "rosters", "players")
 				if err != nil {
 					return err
 				}
 				hasDB = dbExists
 				for _, b := range blobs {
-					matchups = append(matchups, yahoofantasy.ExtractMatchups(b)...)
+					for _, m := range yahoofantasy.ExtractMatchups(b) {
+						if yahoofantasy.BelongsToLeague(leagueKey, m.LeagueKey, m.TeamKey, m.OpponentKey) {
+							matchups = append(matchups, m)
+						}
+					}
+				}
+				for _, t := range extractLeagueTeamsFromBlobs(blobs, leagueKey) {
+					if len(t.Roster) > 0 {
+						localRostersByTeam[t.TeamKey] = t.Roster
+					}
+				}
+				for _, p := range extractLeaguePlayersFromBlobs(blobs, leagueKey) {
+					if p.OwnerTeamKey != "" {
+						localRostersByTeam[p.OwnerTeamKey] = append(localRostersByTeam[p.OwnerTeamKey], p)
+					}
 				}
 			}
 
@@ -94,8 +109,14 @@ with projected points, actual points, win probability, and active starter injury
 					return err
 				}
 				sbPath := fmt.Sprintf("/league/%s/scoreboard;week=%s", leagueKey, strconv.Itoa(week))
-				if rawSB, getErr := c.Get(ctx, sbPath, map[string]string{"format": "json"}); getErr == nil {
-					matchups = yahoofantasy.ExtractMatchups(rawSB)
+				rawSB, getErr := c.Get(ctx, sbPath, map[string]string{"format": "json"})
+				if getErr != nil {
+					return classifyAPIError(cmd.OutOrStdout(), getErr, flags)
+				}
+				for _, m := range yahoofantasy.ExtractMatchups(rawSB) {
+					if yahoofantasy.BelongsToLeague(leagueKey, m.LeagueKey, m.TeamKey, m.OpponentKey) {
+						matchups = append(matchups, m)
+					}
 				}
 			}
 
@@ -112,6 +133,42 @@ with projected points, actual points, win probability, and active starter injury
 				}
 				if flagTeam != "" && m.TeamKey != teamKey && m.OpponentKey != teamKey {
 					continue
+				}
+				mWeek := m.Week
+				if mWeek <= 0 {
+					mWeek = week
+				}
+				if len(m.TeamStarters) == 0 && m.TeamKey != "" {
+					if r := localRostersByTeam[m.TeamKey]; len(r) > 0 {
+						m.TeamStarters = yahoofantasy.FilterActiveStarters(r)
+					} else if flags.dataSource != "local" && (hasLiveAuthConfigured(flags) || cliutil.IsVerifyEnv()) {
+						c, err := flags.newClient()
+						if err != nil {
+							return err
+						}
+						rPath := fmt.Sprintf("/team/%s/roster;week=%s", m.TeamKey, strconv.Itoa(mWeek))
+						rawR, rErr := c.Get(ctx, rPath, map[string]string{"format": "json"})
+						if rErr != nil {
+							return classifyAPIError(cmd.OutOrStdout(), rErr, flags)
+						}
+						m.TeamStarters = yahoofantasy.FilterActiveStarters(yahoofantasy.ExtractPlayers(rawR))
+					}
+				}
+				if len(m.OpponentStarters) == 0 && m.OpponentKey != "" {
+					if r := localRostersByTeam[m.OpponentKey]; len(r) > 0 {
+						m.OpponentStarters = yahoofantasy.FilterActiveStarters(r)
+					} else if flags.dataSource != "local" && (hasLiveAuthConfigured(flags) || cliutil.IsVerifyEnv()) {
+						c, err := flags.newClient()
+						if err != nil {
+							return err
+						}
+						rPath := fmt.Sprintf("/team/%s/roster;week=%s", m.OpponentKey, strconv.Itoa(mWeek))
+						rawR, rErr := c.Get(ctx, rPath, map[string]string{"format": "json"})
+						if rErr != nil {
+							return classifyAPIError(cmd.OutOrStdout(), rErr, flags)
+						}
+						m.OpponentStarters = yahoofantasy.FilterActiveStarters(yahoofantasy.ExtractPlayers(rawR))
+					}
 				}
 				views = append(views, yahoofantasy.BuildMatchupRadar(leagueKey, m))
 			}

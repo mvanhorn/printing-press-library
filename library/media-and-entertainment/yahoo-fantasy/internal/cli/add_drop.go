@@ -45,10 +45,13 @@ with optional --faab bid, and preview (--dry-run) or submit POST /league/{league
 				return cmd.Help()
 			}
 			hasFaab := cmd.Flags().Changed("faab")
+			previewPlan, err := yahoofantasy.PlanAddDrop(flagLeague, flagTeam, flagAdd, flagDrop, flagFaab, hasFaab, -1)
+			if err != nil {
+				_ = cmd.Usage()
+				return usageErr(err)
+			}
 			if dryRunOK(flags) {
-				if plan, err := yahoofantasy.PlanAddDrop(flagLeague, flagTeam, flagAdd, flagDrop, flagFaab, hasFaab, -1); err == nil {
-					fmt.Fprintf(cmd.ErrOrStderr(), "POST /league/%s/transactions\n%s\n", plan.LeagueKey, plan.XMLPayload)
-				}
+				fmt.Fprintf(cmd.ErrOrStderr(), "POST /league/%s/transactions\n%s\n", previewPlan.LeagueKey, previewPlan.XMLPayload)
 				return writeDryRun(cmd.OutOrStdout(), flags, "add-drop")
 			}
 

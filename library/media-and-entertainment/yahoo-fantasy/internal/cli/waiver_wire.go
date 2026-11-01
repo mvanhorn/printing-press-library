@@ -77,15 +77,15 @@ rostered bench player at each eligible position.`,
 			hasDB := false
 
 			if flags.dataSource != "live" {
-				blobs, dbExists, err := loadLocalResourceBlobs(ctx, cmd, flags, dbPath, "players", "leagues", "teams", "users")
+				blobs, dbExists, err := loadLocalResourceBlobs(ctx, cmd, flags, dbPath, "players", "rosters", "leagues", "teams", "users")
 				if err != nil {
 					return err
 				}
 				hasDB = dbExists
-				for _, p := range extractAllPlayersFromBlobs(blobs) {
-					if p.OwnerTeamKey == teamKey || (p.SelectedPosition != "" && p.OwnershipStatus != "FA" && p.OwnershipStatus != "W") {
+				for _, p := range extractLeaguePlayersFromBlobs(blobs, leagueKey) {
+					if p.OwnerTeamKey == teamKey || (p.OwnerTeamKey == "" && p.SelectedPosition != "" && p.OwnershipStatus != "FA" && p.OwnershipStatus != "W") {
 						roster = append(roster, p)
-					} else {
+					} else if p.OwnerTeamKey == "" {
 						candidates = append(candidates, p)
 					}
 				}
@@ -101,12 +101,72 @@ rostered bench player at each eligible position.`,
 					pos = "O"
 				}
 				faPath := fmt.Sprintf("/league/%s/players;status=A;position=%s;sort=PTS;start=0;count=25/percent_owned", leagueKey, pos)
-				if rawFA, getErr := c.Get(ctx, faPath, map[string]string{"format": "json"}); getErr == nil {
-					candidates = yahoofantasy.ExtractPlayers(rawFA)
+				rawFA, getErr := c.Get(ctx, faPath, map[string]string{"format": "json"})
+				if getErr != nil {
+					return classifyAPIError(cmd.OutOrStdout(), getErr, flags)
 				}
+				candidates = yahoofantasy.ExtractPlayers(rawFA)
+
 				rosterPath := fmt.Sprintf("/team/%s/roster;week=1", teamKey)
-				if rawRoster, rErr := c.Get(ctx, rosterPath, map[string]string{"format": "json"}); rErr == nil {
-					roster = yahoofantasy.ExtractPlayers(rawRoster)
+				rawRoster, rErr := c.Get(ctx, rosterPath, map[string]string{"format": "json"})
+				if rErr != nil {
+					return classifyAPIError(cmd.OutOrStdout(), rErr, flags)
+				}
+				roster = yahoofantasy.ExtractPlayers(rawRoster)
+
+				// Enrich candidates and roster with season stats (points_total + games_played -> PPG) when not already populated
+				var needStats []string
+				seenKey := map[string]bool{}
+				for _, p := range append(append([]yahoofantasy.PlayerRecord{}, candidates...), roster...) {
+					if p.PlayerKey != "" && p.PointsPerGame == 0 && p.ProjectedPoints == 0 && !seenKey[p.PlayerKey] {
+						seenKey[p.PlayerKey] = true
+						needStats = append(needStats, p.PlayerKey)
+					}
+				}
+				statsByKey := map[string]yahoofantasy.PlayerRecord{}
+				const batchSize = 25
+				for start := 0; start < len(needStats); start += batchSize {
+					end := start + batchSize
+					if end > len(needStats) {
+						end = len(needStats)
+					}
+					joined := strings.Join(needStats[start:end], ",")
+					statsPath := fmt.Sprintf("/league/%s/players;player_keys=%s/stats;type=season;week=1", leagueKey, joined)
+					rawStats, statsErr := c.Get(ctx, statsPath, map[string]string{"format": "json"})
+					if statsErr != nil {
+						return classifyAPIError(cmd.OutOrStdout(), statsErr, flags)
+					}
+					for _, sp := range yahoofantasy.ExtractPlayers(rawStats) {
+						statsByKey[sp.PlayerKey] = sp
+					}
+				}
+				if len(statsByKey) > 0 {
+					for i := range candidates {
+						if sp, ok := statsByKey[candidates[i].PlayerKey]; ok {
+							if sp.PointsTotal > 0 {
+								candidates[i].PointsTotal = sp.PointsTotal
+							}
+							if sp.GamesPlayed > 0 {
+								candidates[i].GamesPlayed = sp.GamesPlayed
+							}
+							if sp.PointsPerGame > 0 {
+								candidates[i].PointsPerGame = sp.PointsPerGame
+							}
+						}
+					}
+					for i := range roster {
+						if sp, ok := statsByKey[roster[i].PlayerKey]; ok {
+							if sp.PointsTotal > 0 {
+								roster[i].PointsTotal = sp.PointsTotal
+							}
+							if sp.GamesPlayed > 0 {
+								roster[i].GamesPlayed = sp.GamesPlayed
+							}
+							if sp.PointsPerGame > 0 {
+								roster[i].PointsPerGame = sp.PointsPerGame
+							}
+						}
+					}
 				}
 			}
 

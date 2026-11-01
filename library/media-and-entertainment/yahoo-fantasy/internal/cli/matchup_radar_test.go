@@ -32,6 +32,8 @@ func TestNovelMatchupRadarCmd(t *testing.T) {
 			t.Fatalf("open db: %v", err)
 		}
 		_ = db.Upsert("leagues", "449.l.365083.sb.9", json.RawMessage(`{"week":9,"status":"midevent","team_key":"449.l.365083.t.1","team_name":"Alpha","team_points":95.2,"team_projected_points":122.0,"opponent_key":"449.l.365083.t.2","opponent_name":"Bravo","opponent_points":81.0,"opponent_projected_points":110.5}`))
+		_ = db.Upsert("rosters", "449.l.365083.t.1:roster", json.RawMessage(`{"league_key":"449.l.365083","players":[{"player_key":"449.p.31862","full_name":"Josh Allen","selected_position":"QB","projected_points":24.5,"points_total":21.2,"owner_team_key":"449.l.365083.t.1"}]}`))
+		_ = db.Upsert("rosters", "449.l.365083.t.2:roster", json.RawMessage(`{"league_key":"449.l.365083","players":[{"player_key":"449.p.30123","full_name":"Lamar Jackson","selected_position":"QB","projected_points":22.0,"points_total":18.4,"owner_team_key":"449.l.365083.t.2"}]}`))
 		_ = db.Close()
 
 		root := RootCmd()
@@ -42,8 +44,8 @@ func TestNovelMatchupRadarCmd(t *testing.T) {
 		if err := root.Execute(); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
-		if !strings.Contains(stdout.String(), "Alpha") || !strings.Contains(stdout.String(), "Bravo") {
-			t.Fatalf("expected Alpha vs Bravo in matchup radar JSON, got: %s", stdout.String())
+		if !strings.Contains(stdout.String(), "Alpha") || !strings.Contains(stdout.String(), "Bravo") || !strings.Contains(stdout.String(), "Josh Allen") {
+			t.Fatalf("expected Alpha vs Bravo with starter slot comparisons in matchup radar JSON, got: %s", stdout.String())
 		}
 	})
 }

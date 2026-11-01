@@ -71,18 +71,18 @@ bid thresholds over the next rival manager.`,
 			hasDB := false
 
 			if flags.dataSource != "live" {
-				blobs, dbExists, err := loadLocalResourceBlobs(ctx, cmd, flags, dbPath, "teams", "transactions", "leagues", "users")
+				blobs, dbExists, err := loadLocalResourceBlobs(ctx, cmd, flags, dbPath, "teams", "standings", "transactions", "leagues", "users")
 				if err != nil {
 					return err
 				}
 				hasDB = dbExists
-				for _, t := range extractAllTeamsFromBlobs(blobs) {
-					if strings.HasPrefix(t.TeamKey, leagueKey+".t.") || leagueKey == "" {
-						teams = append(teams, t)
-					}
-				}
+				teams = append(teams, extractLeagueTeamsFromBlobs(blobs, leagueKey)...)
 				for _, b := range blobs {
-					transactions = append(transactions, yahoofantasy.ExtractTransactions(b)...)
+					for _, tx := range yahoofantasy.ExtractTransactions(b) {
+						if yahoofantasy.BelongsToLeague(leagueKey, tx.LeagueKey, tx.TransactionKey, tx.TeamKey) {
+							transactions = append(transactions, tx)
+						}
+					}
 				}
 			}
 
@@ -92,12 +92,24 @@ bid thresholds over the next rival manager.`,
 					return err
 				}
 				tmPath := fmt.Sprintf("/league/%s/teams", leagueKey)
-				if rawTm, getErr := c.Get(ctx, tmPath, map[string]string{"format": "json"}); getErr == nil {
-					teams = yahoofantasy.ExtractTeams(rawTm)
+				rawTm, getErr := c.Get(ctx, tmPath, map[string]string{"format": "json"})
+				if getErr != nil {
+					return classifyAPIError(cmd.OutOrStdout(), getErr, flags)
+				}
+				for _, t := range yahoofantasy.ExtractTeams(rawTm) {
+					if yahoofantasy.BelongsToLeague(leagueKey, t.LeagueKey, t.TeamKey) {
+						teams = append(teams, t)
+					}
 				}
 				txPath := fmt.Sprintf("/league/%s/transactions", leagueKey)
-				if rawTx, txErr := c.Get(ctx, txPath, map[string]string{"format": "json"}); txErr == nil {
-					transactions = yahoofantasy.ExtractTransactions(rawTx)
+				rawTx, txErr := c.Get(ctx, txPath, map[string]string{"format": "json"})
+				if txErr != nil {
+					return classifyAPIError(cmd.OutOrStdout(), txErr, flags)
+				}
+				for _, tx := range yahoofantasy.ExtractTransactions(rawTx) {
+					if yahoofantasy.BelongsToLeague(leagueKey, tx.LeagueKey, tx.TransactionKey, tx.TeamKey) {
+						transactions = append(transactions, tx)
+					}
 				}
 			}
 

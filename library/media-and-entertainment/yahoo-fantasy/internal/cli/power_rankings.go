@@ -72,18 +72,17 @@ power rank from synced SQLite records or live league standings and scoreboards.`
 			hasDB := false
 
 			if flags.dataSource != "live" {
-				blobs, dbExists, err := loadLocalResourceBlobs(ctx, cmd, flags, dbPath, "teams", "leagues", "users", "scoreboard")
+				blobs, dbExists, err := loadLocalResourceBlobs(ctx, cmd, flags, dbPath, "teams", "standings", "leagues", "users", "scoreboard", "matchups")
 				if err != nil {
 					return err
 				}
 				hasDB = dbExists
-				for _, t := range extractAllTeamsFromBlobs(blobs) {
-					if strings.HasPrefix(t.TeamKey, leagueKey+".t.") || leagueKey == "" {
-						teams = append(teams, t)
-					}
-				}
+				teams = append(teams, extractLeagueTeamsFromBlobs(blobs, leagueKey)...)
 				for _, b := range blobs {
 					for _, m := range yahoofantasy.ExtractMatchups(b) {
+						if !yahoofantasy.BelongsToLeague(leagueKey, m.LeagueKey, m.TeamKey, m.OpponentKey) {
+							continue
+						}
 						if flagThroughWeek > 0 && m.Week > flagThroughWeek {
 							continue
 						}
@@ -108,26 +107,50 @@ power rank from synced SQLite records or live league standings and scoreboards.`
 					return err
 				}
 				stPath := fmt.Sprintf("/league/%s/standings", leagueKey)
-				if rawSt, getErr := c.Get(ctx, stPath, map[string]string{"format": "json"}); getErr == nil {
-					teams = yahoofantasy.ExtractTeams(rawSt)
+				rawSt, getErr := c.Get(ctx, stPath, map[string]string{"format": "json"})
+				if getErr != nil {
+					return classifyAPIError(cmd.OutOrStdout(), getErr, flags)
+				}
+				for _, t := range yahoofantasy.ExtractTeams(rawSt) {
+					if yahoofantasy.BelongsToLeague(leagueKey, t.LeagueKey, t.TeamKey) {
+						teams = append(teams, t)
+					}
 				}
 				maxW := flagThroughWeek
-				if maxW <= 0 || cliutil.IsDogfoodEnv() || cliutil.IsVerifyEnv() {
+				if cliutil.IsDogfoodEnv() || cliutil.IsVerifyEnv() {
 					maxW = 1
+				} else if maxW <= 0 {
+					maxW = yahoofantasy.ExtractLeagueCurrentWeek(rawSt)
+					if maxW <= 0 {
+						lgPath := fmt.Sprintf("/league/%s", leagueKey)
+						rawLg, lgErr := c.Get(ctx, lgPath, map[string]string{"format": "json"})
+						if lgErr != nil {
+							return classifyAPIError(cmd.OutOrStdout(), lgErr, flags)
+						}
+						maxW = yahoofantasy.ExtractLeagueCurrentWeek(rawLg)
+					}
+					if maxW <= 0 {
+						return usageErr(fmt.Errorf("could not determine current league week; pass --through-week"))
+					}
 				}
 				for w := 1; w <= maxW; w++ {
 					sbPath := fmt.Sprintf("/league/%s/scoreboard;week=%s", leagueKey, strconv.Itoa(w))
-					if rawSB, sbErr := c.Get(ctx, sbPath, map[string]string{"format": "json"}); sbErr == nil {
-						for _, m := range yahoofantasy.ExtractMatchups(rawSB) {
-							if weeklyScores[w] == nil {
-								weeklyScores[w] = map[string]float64{}
-							}
-							if m.TeamKey != "" {
-								weeklyScores[w][m.TeamKey] = m.TeamPoints
-							}
-							if m.OpponentKey != "" {
-								weeklyScores[w][m.OpponentKey] = m.OpponentPoints
-							}
+					rawSB, sbErr := c.Get(ctx, sbPath, map[string]string{"format": "json"})
+					if sbErr != nil {
+						return classifyAPIError(cmd.OutOrStdout(), sbErr, flags)
+					}
+					for _, m := range yahoofantasy.ExtractMatchups(rawSB) {
+						if !yahoofantasy.BelongsToLeague(leagueKey, m.LeagueKey, m.TeamKey, m.OpponentKey) {
+							continue
+						}
+						if weeklyScores[w] == nil {
+							weeklyScores[w] = map[string]float64{}
+						}
+						if m.TeamKey != "" {
+							weeklyScores[w][m.TeamKey] = m.TeamPoints
+						}
+						if m.OpponentKey != "" {
+							weeklyScores[w][m.OpponentKey] = m.OpponentPoints
 						}
 					}
 				}

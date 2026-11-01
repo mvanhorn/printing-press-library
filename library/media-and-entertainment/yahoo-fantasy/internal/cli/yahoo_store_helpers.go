@@ -92,22 +92,58 @@ func loadLocalResourceBlobs(ctx context.Context, cmd *cobra.Command, flags *root
 				continue
 			}
 		}
-		blobs = append(blobs, []byte(r.data))
+		dataStr := strings.TrimSpace(r.data)
+		if idLK := yahoofantasy.YahooLeagueKeyFromEntityKey(r.id); idLK != "" && strings.HasPrefix(dataStr, "{") && !strings.Contains(dataStr, `"league_key"`) {
+			dataStr = `{"league_key":"` + idLK + `",` + dataStr[1:]
+		}
+		blobs = append(blobs, []byte(dataStr))
 	}
 	return blobs, true, nil
 }
 
 func extractAllPlayersFromBlobs(blobs [][]byte) []yahoofantasy.PlayerRecord {
+	return extractLeaguePlayersFromBlobs(blobs, "")
+}
+
+func extractLeaguePlayersFromBlobs(blobs [][]byte, leagueKey string) []yahoofantasy.PlayerRecord {
 	var all []yahoofantasy.PlayerRecord
 	seen := map[string]int{}
 	for _, b := range blobs {
 		for _, p := range yahoofantasy.ExtractPlayers(b) {
-			if idx, ok := seen[p.PlayerKey]; ok {
+			if leagueKey != "" && !yahoofantasy.BelongsToLeague(leagueKey, p.LeagueKey, p.OwnerTeamKey) {
+				continue
+			}
+			key := p.LeagueKey + "|" + p.PlayerKey
+			if idx, ok := seen[key]; ok {
+				if p.LeagueKey != "" {
+					all[idx].LeagueKey = p.LeagueKey
+				}
+				if p.FullName != "" {
+					all[idx].FullName = p.FullName
+				}
+				if p.DisplayPosition != "" {
+					all[idx].DisplayPosition = p.DisplayPosition
+				}
+				if len(p.EligiblePositions) > 0 && len(all[idx].EligiblePositions) == 0 {
+					all[idx].EligiblePositions = p.EligiblePositions
+				}
 				if p.PointsTotal > all[idx].PointsTotal {
 					all[idx].PointsTotal = p.PointsTotal
 				}
 				if p.PointsPerGame > all[idx].PointsPerGame {
 					all[idx].PointsPerGame = p.PointsPerGame
+				}
+				if p.GamesPlayed > all[idx].GamesPlayed {
+					all[idx].GamesPlayed = p.GamesPlayed
+				}
+				if all[idx].PointsPerGame == 0 && all[idx].PointsTotal > 0 && all[idx].GamesPlayed > 0 {
+					all[idx].PointsPerGame = all[idx].PointsTotal / float64(all[idx].GamesPlayed)
+				}
+				if p.ProjectedPoints > all[idx].ProjectedPoints {
+					all[idx].ProjectedPoints = p.ProjectedPoints
+				}
+				if p.PercentOwned > all[idx].PercentOwned {
+					all[idx].PercentOwned = p.PercentOwned
 				}
 				if p.SelectedPosition != "" {
 					all[idx].SelectedPosition = p.SelectedPosition
@@ -115,11 +151,14 @@ func extractAllPlayersFromBlobs(blobs [][]byte) []yahoofantasy.PlayerRecord {
 				if p.Status != "" {
 					all[idx].Status = p.Status
 				}
+				if p.OwnershipStatus != "" {
+					all[idx].OwnershipStatus = p.OwnershipStatus
+				}
 				if p.OwnerTeamKey != "" {
 					all[idx].OwnerTeamKey = p.OwnerTeamKey
 				}
 			} else {
-				seen[p.PlayerKey] = len(all)
+				seen[key] = len(all)
 				all = append(all, p)
 			}
 		}
@@ -128,15 +167,34 @@ func extractAllPlayersFromBlobs(blobs [][]byte) []yahoofantasy.PlayerRecord {
 }
 
 func extractAllTeamsFromBlobs(blobs [][]byte) []yahoofantasy.TeamRecord {
+	return extractLeagueTeamsFromBlobs(blobs, "")
+}
+
+func extractLeagueTeamsFromBlobs(blobs [][]byte, leagueKey string) []yahoofantasy.TeamRecord {
 	var all []yahoofantasy.TeamRecord
 	seen := map[string]int{}
 	for _, b := range blobs {
 		for _, t := range yahoofantasy.ExtractTeams(b) {
+			if leagueKey != "" && !yahoofantasy.BelongsToLeague(leagueKey, t.LeagueKey, t.TeamKey) {
+				continue
+			}
 			if idx, ok := seen[t.TeamKey]; ok {
+				if t.LeagueKey != "" {
+					all[idx].LeagueKey = t.LeagueKey
+				}
+				if t.Name != "" {
+					all[idx].Name = t.Name
+				}
 				if t.PointsFor > all[idx].PointsFor {
 					all[idx].PointsFor = t.PointsFor
 				}
-				if t.Wins > 0 || t.Losses > 0 {
+				if t.ProjectedPoints > all[idx].ProjectedPoints {
+					all[idx].ProjectedPoints = t.ProjectedPoints
+				}
+				if t.WinProbability > all[idx].WinProbability {
+					all[idx].WinProbability = t.WinProbability
+				}
+				if t.Wins > 0 || t.Losses > 0 || t.Ties > 0 {
 					all[idx].Wins = t.Wins
 					all[idx].Losses = t.Losses
 					all[idx].Ties = t.Ties
@@ -144,6 +202,9 @@ func extractAllTeamsFromBlobs(blobs [][]byte) []yahoofantasy.TeamRecord {
 				if t.HasFaab || t.FaabBalance > 0 {
 					all[idx].FaabBalance = t.FaabBalance
 					all[idx].HasFaab = true
+				}
+				if len(t.Roster) > 0 {
+					all[idx].Roster = t.Roster
 				}
 			} else {
 				seen[t.TeamKey] = len(all)

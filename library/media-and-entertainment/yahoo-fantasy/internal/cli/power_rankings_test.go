@@ -33,6 +33,7 @@ func TestNovelPowerRankingsCmd(t *testing.T) {
 		}
 		_ = db.Upsert("teams", "449.l.365083.t.1", json.RawMessage(`{"team_key":"449.l.365083.t.1","name":"Gridiron Kings","rank":2,"wins":6,"losses":3,"points_for":1180.5}`))
 		_ = db.Upsert("teams", "449.l.365083.t.2", json.RawMessage(`{"team_key":"449.l.365083.t.2","name":"Lucky Dogs","rank":1,"wins":7,"losses":2,"points_for":1020.0}`))
+		_ = db.Upsert("scoreboard", "449.l.999999.sb.1", json.RawMessage(`{"week":1,"team_key":"449.l.999999.t.1","team_points":500.0,"opponent_key":"449.l.999999.t.2","opponent_points":10.0}`))
 		_ = db.Close()
 
 		root := RootCmd()

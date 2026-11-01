@@ -34,6 +34,8 @@ func TestNovelFaabAuditCmd(t *testing.T) {
 		_ = db.Upsert("teams", "449.l.365083.t.1", json.RawMessage(`{"team_key":"449.l.365083.t.1","name":"Alpha","faab_balance":70}`))
 		_ = db.Upsert("teams", "449.l.365083.t.2", json.RawMessage(`{"team_key":"449.l.365083.t.2","name":"Bravo","faab_balance":45}`))
 		_ = db.Upsert("transactions", "449.l.365083.tr.1", json.RawMessage(`{"transaction_key":"449.l.365083.tr.1","type":"add/drop","status":"successful","team_key":"449.l.365083.t.1","faab_bid":30,"add_player_key":"449.p.31862","add_player_name":"Puka Nacua","add_player_position":"WR"}`))
+		// Other league's transaction must not leak
+		_ = db.Upsert("transactions", "449.l.999999.tr.1", json.RawMessage(`{"transaction_key":"449.l.999999.tr.1","type":"add/drop","status":"successful","team_key":"449.l.999999.t.1","faab_bid":95,"add_player_key":"449.p.99999","add_player_name":"Foreign Player","add_player_position":"RB"}`))
 		_ = db.Close()
 
 		root := RootCmd()
@@ -46,6 +48,9 @@ func TestNovelFaabAuditCmd(t *testing.T) {
 		}
 		if !strings.Contains(stdout.String(), "blocking_bid_over_next_rival") || !strings.Contains(stdout.String(), "Puka Nacua") {
 			t.Fatalf("expected FAAB audit JSON output, got: %s", stdout.String())
+		}
+		if strings.Contains(stdout.String(), "Foreign Player") || strings.Contains(stdout.String(), "449.l.999999") {
+			t.Fatalf("expected foreign league transaction to be excluded, got: %s", stdout.String())
 		}
 	})
 }

@@ -324,7 +324,48 @@ func TestBuildMatchupRadarAndExtractors(t *testing.T) {
 
 	rawPicks := []byte(`[{"pick":1,"round":1,"team_key":"449.l.365083.t.1","player_key":"449.p.31862","cost":45}]`)
 	picks := ExtractDraftPicks(rawPicks)
-	if len(picks) != 1 || picks[0].Cost != 45 {
+	if len(picks) != 1 || picks[0].Cost != 45 || picks[0].LeagueKey != "449.l.365083" {
 		t.Fatalf("unexpected draft picks: %+v", picks)
+	}
+}
+
+func TestLeagueScopingNestedMatchupsAndWaiverGamesPlayed(t *testing.T) {
+	if got := YahooLeagueKeyFromEntityKey("449.l.365083.t.1"); got != "449.l.365083" {
+		t.Fatalf("expected 449.l.365083, got %q", got)
+	}
+	if !BelongsToLeague("449.l.365083", "", "449.l.365083.t.2") {
+		t.Fatalf("expected BelongsToLeague to match derived team key")
+	}
+	if BelongsToLeague("449.l.365083", "449.l.999999", "449.l.999999.t.1") {
+		t.Fatalf("expected BelongsToLeague to reject mismatched league")
+	}
+
+	// Player with season points_total=120 and games_played=8 should derive PPG=15.0 (not 120.0)
+	rawPlayers := []byte(`{"league_key":"449.l.365083","players":[{"player_key":"449.p.50001","name":{"full":"Waiver WR"},"display_position":"WR","player_points":{"total":"120.0"},"player_stats":{"stats":[{"stat_id":"0","value":"8"}]}}]}`)
+	players := ExtractPlayers(rawPlayers)
+	if len(players) != 1 || players[0].GamesPlayed != 8 || players[0].PointsPerGame != 15.0 || players[0].LeagueKey != "449.l.365083" {
+		t.Fatalf("unexpected extracted player with games_played: %+v", players)
+	}
+
+	// Player with only season points_total and no games_played or projected_points must not use season total as PPG
+	if got := effectivePPG(PlayerRecord{PointsTotal: 150.0}); got != 0 {
+		t.Fatalf("expected effectivePPG=0 when only raw season PointsTotal is present, got %v", got)
+	}
+
+	// Nested Yahoo scoreboard matchup with team_projected_points and embedded rosters
+	nestedScoreboard := []byte(`{"fantasy_content":{"league":[{"league_key":"449.l.365083","current_week":9},{"scoreboard":{"matchups":[{"week":9,"status":"midevent","teams":[{"team_key":"449.l.365083.t.1","name":"Alpha","team_points":{"total":"88.4"},"team_projected_points":{"total":"124.5"},"win_probability":0.64,"roster":{"players":[{"player_key":"449.p.31862","name":{"full":"Josh Allen"},"selected_position":{"position":"QB"},"player_points":{"total":"21.2"},"player_projected_points":{"total":"24.5"}},{"player_key":"449.p.39999","name":{"full":"Bench Guy"},"selected_position":{"position":"BN"},"player_points":{"total":"5.0"}}]}},{"team_key":"449.l.365083.t.2","name":"Bravo","team_points":{"total":"79.2"},"team_projected_points":{"total":"115.0"},"win_probability":0.36,"roster":{"players":[{"player_key":"449.p.30123","name":{"full":"Lamar Jackson"},"selected_position":{"position":"QB"},"status":"Q","player_points":{"total":"18.4"},"player_projected_points":{"total":"22.0"}}]}}]}]}}]}}`)
+	if cw := ExtractLeagueCurrentWeek(nestedScoreboard); cw != 9 {
+		t.Fatalf("expected current_week=9, got %d", cw)
+	}
+	lks := ExtractLeagueKeys(nestedScoreboard)
+	if len(lks) != 1 || lks[0] != "449.l.365083" {
+		t.Fatalf("unexpected league keys: %+v", lks)
+	}
+	ms := ExtractMatchups(nestedScoreboard)
+	if len(ms) != 1 {
+		t.Fatalf("expected 1 nested matchup, got %d", len(ms))
+	}
+	if ms[0].TeamProjected != 124.5 || ms[0].OpponentProjected != 115.0 || len(ms[0].TeamStarters) != 1 || len(ms[0].OpponentStarters) != 1 {
+		t.Fatalf("unexpected nested matchup extraction: %+v", ms[0])
 	}
 }

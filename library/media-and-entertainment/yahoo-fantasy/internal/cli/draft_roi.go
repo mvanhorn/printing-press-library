@@ -72,15 +72,19 @@ retention, and steal/value/par/bust verdicts.`,
 			hasDB := false
 
 			if flags.dataSource != "live" {
-				blobs, dbExists, err := loadLocalResourceBlobs(ctx, cmd, flags, dbPath, "leagues", "players", "teams", "draft")
+				blobs, dbExists, err := loadLocalResourceBlobs(ctx, cmd, flags, dbPath, "leagues", "players", "teams", "draft", "rosters")
 				if err != nil {
 					return err
 				}
 				hasDB = dbExists
 				for _, b := range blobs {
-					picks = append(picks, yahoofantasy.ExtractDraftPicks(b)...)
+					for _, pk := range yahoofantasy.ExtractDraftPicks(b) {
+						if yahoofantasy.BelongsToLeague(leagueKey, pk.LeagueKey, pk.TeamKey) {
+							picks = append(picks, pk)
+						}
+					}
 				}
-				for _, p := range extractAllPlayersFromBlobs(blobs) {
+				for _, p := range extractLeaguePlayersFromBlobs(blobs, leagueKey) {
 					playersByKey[p.PlayerKey] = p
 					if p.OwnerTeamKey != "" {
 						ownerByPlayer[p.PlayerKey] = p.OwnerTeamKey
@@ -94,8 +98,81 @@ retention, and steal/value/par/bust verdicts.`,
 					return err
 				}
 				drPath := fmt.Sprintf("/league/%s/draftresults", leagueKey)
-				if rawDR, getErr := c.Get(ctx, drPath, map[string]string{"format": "json"}); getErr == nil {
-					picks = yahoofantasy.ExtractDraftPicks(rawDR)
+				rawDR, getErr := c.Get(ctx, drPath, map[string]string{"format": "json"})
+				if getErr != nil {
+					return classifyAPIError(cmd.OutOrStdout(), getErr, flags)
+				}
+				for _, pk := range yahoofantasy.ExtractDraftPicks(rawDR) {
+					if yahoofantasy.BelongsToLeague(leagueKey, pk.LeagueKey, pk.TeamKey) {
+						picks = append(picks, pk)
+					}
+				}
+				for _, p := range yahoofantasy.ExtractPlayers(rawDR) {
+					playersByKey[p.PlayerKey] = p
+					if p.OwnerTeamKey != "" {
+						ownerByPlayer[p.PlayerKey] = p.OwnerTeamKey
+					}
+				}
+
+				// Fetch season stats and current league ownership in batches of 25 drafted players
+				var draftedKeys []string
+				seenKey := map[string]bool{}
+				for _, pk := range picks {
+					if pk.PlayerKey != "" && !seenKey[pk.PlayerKey] {
+						seenKey[pk.PlayerKey] = true
+						draftedKeys = append(draftedKeys, pk.PlayerKey)
+					}
+				}
+				const batchSize = 25
+				for start := 0; start < len(draftedKeys); start += batchSize {
+					end := start + batchSize
+					if end > len(draftedKeys) {
+						end = len(draftedKeys)
+					}
+					joined := strings.Join(draftedKeys[start:end], ",")
+					statsPath := fmt.Sprintf("/league/%s/players;player_keys=%s/stats;type=season;week=1", leagueKey, joined)
+					rawStats, statsErr := c.Get(ctx, statsPath, map[string]string{"format": "json"})
+					if statsErr != nil {
+						return classifyAPIError(cmd.OutOrStdout(), statsErr, flags)
+					}
+					for _, p := range yahoofantasy.ExtractPlayers(rawStats) {
+						cur := playersByKey[p.PlayerKey]
+						if p.FullName != "" {
+							cur.FullName = p.FullName
+						}
+						if p.DisplayPosition != "" {
+							cur.DisplayPosition = p.DisplayPosition
+						}
+						if p.PointsTotal > 0 {
+							cur.PointsTotal = p.PointsTotal
+						}
+						if p.PointsPerGame > 0 {
+							cur.PointsPerGame = p.PointsPerGame
+						}
+						if p.GamesPlayed > 0 {
+							cur.GamesPlayed = p.GamesPlayed
+						}
+						cur.PlayerKey = p.PlayerKey
+						playersByKey[p.PlayerKey] = cur
+					}
+
+					ownPath := fmt.Sprintf("/league/%s/players;player_keys=%s/ownership", leagueKey, joined)
+					rawOwn, ownErr := c.Get(ctx, ownPath, map[string]string{"format": "json"})
+					if ownErr != nil {
+						return classifyAPIError(cmd.OutOrStdout(), ownErr, flags)
+					}
+					for _, p := range yahoofantasy.ExtractPlayers(rawOwn) {
+						cur := playersByKey[p.PlayerKey]
+						if p.OwnerTeamKey != "" {
+							cur.OwnerTeamKey = p.OwnerTeamKey
+							ownerByPlayer[p.PlayerKey] = p.OwnerTeamKey
+						}
+						if p.OwnershipStatus != "" {
+							cur.OwnershipStatus = p.OwnershipStatus
+						}
+						cur.PlayerKey = p.PlayerKey
+						playersByKey[p.PlayerKey] = cur
+					}
 				}
 			}
 

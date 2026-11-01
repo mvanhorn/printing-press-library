@@ -271,8 +271,18 @@ Resource scoping:
 				}()
 			}
 
-			// Enqueue all resources
+			// Run "users" first when present so discovered leagues/teams are stored before league-scoped resources fan out.
+			var remainingResources []string
 			for _, resource := range resources {
+				if resource == "users" {
+					results <- syncResource(cmd.Context(), c, db, resource, sinceTS, full, maxPages, effectiveLatestOnly, prune, userParams, syncEventWriter)
+				} else {
+					remainingResources = append(remainingResources, resource)
+				}
+			}
+
+			// Enqueue remaining resources
+			for _, resource := range remainingResources {
 				work <- resource
 			}
 			close(work)
@@ -439,6 +449,10 @@ func syncResource(ctx context.Context, c interface {
 
 	if !humanFriendly {
 		fmt.Fprintf(syncEvents, `{"event":"sync_start","resource":"%s"}`+"\n", resource)
+	}
+
+	if isYahooLeagueScopedSyncResource(resource) {
+		return syncYahooLeagueScopedResource(ctx, c, db, resource, maxPages, latestOnly, userParams, syncEvents, started)
 	}
 
 	path, err := syncResourcePath(resource)
@@ -2144,7 +2158,17 @@ func parseRestSyncTimestamp(value string) (time.Time, bool) {
 }
 
 func defaultSyncResources() []string {
-	return []string{}
+	return []string{
+		"users",
+		"leagues",
+		"teams",
+		"standings",
+		"scoreboard",
+		"draftresults",
+		"transactions",
+		"players",
+		"rosters",
+	}
 }
 
 // knownSyncResourceNames returns every resource name sync will accept —
@@ -2153,6 +2177,16 @@ func defaultSyncResources() []string {
 func knownSyncResourceNames() []string {
 	names := []string{
 		"users",
+		"leagues",
+		"teams",
+		"standings",
+		"scoreboard",
+		"matchups",
+		"draftresults",
+		"draft",
+		"transactions",
+		"players",
+		"rosters",
 	}
 	return names
 }
