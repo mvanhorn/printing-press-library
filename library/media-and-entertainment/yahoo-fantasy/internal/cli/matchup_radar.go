@@ -84,13 +84,7 @@ with projected points, actual points, win probability, and active starter injury
 					return err
 				}
 				hasDB = dbExists
-				for _, b := range blobs {
-					for _, m := range yahoofantasy.ExtractMatchups(b) {
-						if yahoofantasy.BelongsToLeague(leagueKey, m.LeagueKey, m.TeamKey, m.OpponentKey) {
-							matchups = append(matchups, m)
-						}
-					}
-				}
+				matchups = append(matchups, extractLeagueMatchupsFromBlobs(blobs, leagueKey)...)
 				for _, t := range extractLeagueTeamsFromBlobs(blobs, leagueKey) {
 					if len(t.Roster) > 0 {
 						localRostersByTeam[t.TeamKey] = t.Roster

@@ -55,6 +55,14 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 
 	var storedCount int
 	var firstErr error
+	recordErr := func(err error) {
+		if err != nil && firstErr == nil {
+			firstErr = err
+		}
+	}
+	if discErr != nil {
+		recordErr(discErr)
+	}
 	jsonParams := map[string]string{"format": "json"}
 
 	upsertLeagueJSON := func(resType, id, leagueKey string, raw []byte) error {
@@ -71,9 +79,7 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 		for _, lk := range leagueKeys {
 			rawLg, err := c.Get(ctx, fmt.Sprintf("/league/%s", lk), jsonParams)
 			if err != nil {
-				if firstErr == nil {
-					firstErr = err
-				}
+				recordErr(err)
 				continue
 			}
 			if isDryRunResponseForClient(c, rawLg) {
@@ -82,19 +88,51 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 				}
 				return syncResult{Resource: resource, Count: 0, Duration: time.Since(started)}
 			}
-			_ = upsertLeagueJSON("leagues", lk, lk, rawLg)
-			if rawSet, setErr := c.Get(ctx, fmt.Sprintf("/league/%s/settings", lk), jsonParams); setErr == nil {
-				_ = upsertLeagueJSON("leagues", lk+":settings", lk, rawSet)
+			recordErr(upsertLeagueJSON("leagues", lk, lk, rawLg))
+			rawSet, setErr := c.Get(ctx, fmt.Sprintf("/league/%s/settings", lk), jsonParams)
+			if setErr != nil {
+				recordErr(setErr)
+				continue
+			}
+			recordErr(upsertLeagueJSON("leagues", lk+":settings", lk, rawSet))
+		}
+
+	case "teams":
+		for _, lk := range leagueKeys {
+			rawTm, err := c.Get(ctx, fmt.Sprintf("/league/%s/teams", lk), jsonParams)
+			if err != nil {
+				recordErr(err)
+				continue
+			}
+			if isDryRunResponseForClient(c, rawTm) {
+				if !humanFriendly {
+					fmt.Fprintf(syncEvents, `{"event":"sync_dryrun","resource":"%s"}`+"\n", resource)
+				}
+				return syncResult{Resource: resource, Count: 0, Duration: time.Since(started)}
+			}
+			teams := extractLeagueTeamsFromBlobs([][]byte{rawTm}, lk)
+			if len(teams) > 0 {
+				for _, t := range teams {
+					if t.LeagueKey == "" {
+						t.LeagueKey = lk
+					}
+					b, mErr := json.Marshal(t)
+					if mErr != nil {
+						recordErr(mErr)
+						continue
+					}
+					recordErr(upsertLeagueJSON("teams", t.TeamKey, lk, b))
+				}
+			} else {
+				recordErr(upsertLeagueJSON("teams", lk+":teams", lk, rawTm))
 			}
 		}
 
-	case "teams", "standings":
+	case "standings":
 		for _, lk := range leagueKeys {
 			rawSt, err := c.Get(ctx, fmt.Sprintf("/league/%s/standings", lk), jsonParams)
 			if err != nil {
-				if firstErr == nil {
-					firstErr = err
-				}
+				recordErr(err)
 				continue
 			}
 			if isDryRunResponseForClient(c, rawSt) {
@@ -103,30 +141,36 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 				}
 				return syncResult{Resource: resource, Count: 0, Duration: time.Since(started)}
 			}
-			_ = upsertLeagueJSON(resource, lk+":standings", lk, rawSt)
-			for _, t := range yahoofantasy.ExtractTeams(rawSt) {
-				if t.LeagueKey == "" {
-					t.LeagueKey = lk
+			teams := extractLeagueTeamsFromBlobs([][]byte{rawSt}, lk)
+			if len(teams) > 0 {
+				for _, t := range teams {
+					if t.LeagueKey == "" {
+						t.LeagueKey = lk
+					}
+					b, mErr := json.Marshal(t)
+					if mErr != nil {
+						recordErr(mErr)
+						continue
+					}
+					recordErr(upsertLeagueJSON("standings", t.TeamKey+":standings", lk, b))
 				}
-				if b, mErr := json.Marshal(t); mErr == nil {
-					_ = upsertLeagueJSON("teams", t.TeamKey, lk, b)
-				}
-			}
-			if rawTm, tmErr := c.Get(ctx, fmt.Sprintf("/league/%s/teams", lk), jsonParams); tmErr == nil {
-				_ = upsertLeagueJSON(resource, lk+":teams", lk, rawTm)
+			} else {
+				recordErr(upsertLeagueJSON("standings", lk+":standings", lk, rawSt))
 			}
 		}
 
 	case "scoreboard", "matchups":
 		for _, lk := range leagueKeys {
-			maxW := resolveSyncMaxWeek(ctx, c, db, lk, maxPages, latestOnly)
-			for w := 1; w <= maxW; w++ {
+			startW, endW, wErr := resolveSyncWeekRange(ctx, c, db, lk, maxPages, latestOnly)
+			if wErr != nil {
+				recordErr(wErr)
+				continue
+			}
+			for w := startW; w <= endW; w++ {
 				sbPath := fmt.Sprintf("/league/%s/scoreboard;week=%s", lk, strconv.Itoa(w))
 				rawSB, err := c.Get(ctx, sbPath, jsonParams)
 				if err != nil {
-					if firstErr == nil {
-						firstErr = err
-					}
+					recordErr(err)
 					continue
 				}
 				if isDryRunResponseForClient(c, rawSB) {
@@ -135,17 +179,24 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 					}
 					return syncResult{Resource: resource, Count: 0, Duration: time.Since(started)}
 				}
-				_ = upsertLeagueJSON(resource, fmt.Sprintf("%s.sb.%d", lk, w), lk, rawSB)
-				for _, m := range yahoofantasy.ExtractMatchups(rawSB) {
-					if m.LeagueKey == "" {
-						m.LeagueKey = lk
+				matchups := yahoofantasy.ExtractMatchups(rawSB)
+				if len(matchups) > 0 {
+					for _, m := range matchups {
+						if m.LeagueKey == "" {
+							m.LeagueKey = lk
+						}
+						if m.Week == 0 {
+							m.Week = w
+						}
+						b, mErr := json.Marshal(m)
+						if mErr != nil {
+							recordErr(mErr)
+							continue
+						}
+						recordErr(upsertLeagueJSON("matchups", fmt.Sprintf("%s.m.%d.%s.%s", lk, m.Week, m.TeamKey, m.OpponentKey), lk, b))
 					}
-					if m.Week == 0 {
-						m.Week = w
-					}
-					if b, mErr := json.Marshal(m); mErr == nil {
-						_ = upsertLeagueJSON("matchups", fmt.Sprintf("%s.m.%d.%s.%s", lk, m.Week, m.TeamKey, m.OpponentKey), lk, b)
-					}
+				} else {
+					recordErr(upsertLeagueJSON(resource, fmt.Sprintf("%s.sb.%d", lk, w), lk, rawSB))
 				}
 			}
 		}
@@ -154,9 +205,7 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 		for _, lk := range leagueKeys {
 			rawDR, err := c.Get(ctx, fmt.Sprintf("/league/%s/draftresults", lk), jsonParams)
 			if err != nil {
-				if firstErr == nil {
-					firstErr = err
-				}
+				recordErr(err)
 				continue
 			}
 			if isDryRunResponseForClient(c, rawDR) {
@@ -165,32 +214,36 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 				}
 				return syncResult{Resource: resource, Count: 0, Duration: time.Since(started)}
 			}
-			_ = upsertLeagueJSON("draft", lk+".draft", lk, rawDR)
 			picks := yahoofantasy.ExtractDraftPicks(rawDR)
 			var draftedKeys []string
 			seenPK := map[string]bool{}
-			for _, pk := range picks {
-				if pk.LeagueKey == "" {
-					pk.LeagueKey = lk
+			if len(picks) > 0 {
+				for _, pk := range picks {
+					if pk.LeagueKey == "" {
+						pk.LeagueKey = lk
+					}
+					b, mErr := json.Marshal(pk)
+					if mErr != nil {
+						recordErr(mErr)
+						continue
+					}
+					recordErr(upsertLeagueJSON("draft", fmt.Sprintf("%s.pick.%d.%d", lk, pk.Round, pk.Pick), lk, b))
+					if pk.PlayerKey != "" && !seenPK[pk.PlayerKey] {
+						seenPK[pk.PlayerKey] = true
+						draftedKeys = append(draftedKeys, pk.PlayerKey)
+					}
 				}
-				if b, mErr := json.Marshal(pk); mErr == nil {
-					_ = upsertLeagueJSON("draft", fmt.Sprintf("%s.pick.%d.%d", lk, pk.Round, pk.Pick), lk, b)
-				}
-				if pk.PlayerKey != "" && !seenPK[pk.PlayerKey] {
-					seenPK[pk.PlayerKey] = true
-					draftedKeys = append(draftedKeys, pk.PlayerKey)
-				}
+			} else {
+				recordErr(upsertLeagueJSON("draft", lk+".draft", lk, rawDR))
 			}
-			syncYahooPlayerStatsAndOwnership(ctx, c, lk, draftedKeys, upsertLeagueJSON)
+			recordErr(syncYahooPlayerStatsAndOwnership(ctx, c, lk, draftedKeys, upsertLeagueJSON))
 		}
 
 	case "transactions":
 		for _, lk := range leagueKeys {
 			rawTx, err := c.Get(ctx, fmt.Sprintf("/league/%s/transactions", lk), jsonParams)
 			if err != nil {
-				if firstErr == nil {
-					firstErr = err
-				}
+				recordErr(err)
 				continue
 			}
 			if isDryRunResponseForClient(c, rawTx) {
@@ -199,14 +252,25 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 				}
 				return syncResult{Resource: resource, Count: 0, Duration: time.Since(started)}
 			}
-			_ = upsertLeagueJSON("transactions", lk+".transactions", lk, rawTx)
-			for _, tx := range yahoofantasy.ExtractTransactions(rawTx) {
-				if tx.LeagueKey == "" {
-					tx.LeagueKey = lk
+			txs := yahoofantasy.ExtractTransactions(rawTx)
+			if len(txs) > 0 {
+				for _, tx := range txs {
+					if tx.LeagueKey == "" {
+						tx.LeagueKey = lk
+					}
+					b, mErr := json.Marshal(tx)
+					if mErr != nil {
+						recordErr(mErr)
+						continue
+					}
+					txID := tx.TransactionKey
+					if txID == "" {
+						txID = fmt.Sprintf("%s.tx.%s.%s.%d", lk, tx.TeamKey, tx.AddPlayerKey, tx.Timestamp)
+					}
+					recordErr(upsertLeagueJSON("transactions", txID, lk, b))
 				}
-				if b, mErr := json.Marshal(tx); mErr == nil {
-					_ = upsertLeagueJSON("transactions", tx.TransactionKey, lk, b)
-				}
+			} else {
+				recordErr(upsertLeagueJSON("transactions", lk+".transactions", lk, rawTx))
 			}
 		}
 
@@ -225,9 +289,7 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 				faPath := fmt.Sprintf("/league/%s/players;status=A;position=O;sort=PTS;start=%d;count=25/percent_owned", lk, startIdx)
 				rawFA, err := c.Get(ctx, faPath, jsonParams)
 				if err != nil {
-					if firstErr == nil {
-						firstErr = err
-					}
+					recordErr(err)
 					break
 				}
 				if isDryRunResponseForClient(c, rawFA) {
@@ -236,7 +298,7 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 					}
 					return syncResult{Resource: resource, Count: 0, Duration: time.Since(started)}
 				}
-				_ = upsertLeagueJSON("players", fmt.Sprintf("%s:players:fa:%d", lk, startIdx), lk, rawFA)
+				recordErr(upsertLeagueJSON("players", fmt.Sprintf("%s:players:fa:%d", lk, startIdx), lk, rawFA))
 				extracted := yahoofantasy.ExtractPlayers(rawFA)
 				for _, p := range extracted {
 					if p.PlayerKey != "" && !seenPK[p.PlayerKey] {
@@ -248,28 +310,40 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 					break
 				}
 			}
-			syncYahooPlayerStatsAndOwnership(ctx, c, lk, pKeys, upsertLeagueJSON)
+			recordErr(syncYahooPlayerStatsAndOwnership(ctx, c, lk, pKeys, upsertLeagueJSON))
 		}
 
 	case "rosters":
 		if len(teamKeys) == 0 {
 			for _, lk := range leagueKeys {
-				if rawTm, err := c.Get(ctx, fmt.Sprintf("/league/%s/teams", lk), jsonParams); err == nil {
-					for _, t := range yahoofantasy.ExtractTeams(rawTm) {
-						if t.TeamKey != "" {
-							teamKeys = append(teamKeys, t.TeamKey)
-						}
+				rawTm, err := c.Get(ctx, fmt.Sprintf("/league/%s/teams", lk), jsonParams)
+				if err != nil {
+					recordErr(err)
+					continue
+				}
+				for _, t := range yahoofantasy.ExtractTeams(rawTm) {
+					if t.TeamKey != "" {
+						teamKeys = append(teamKeys, t.TeamKey)
 					}
 				}
 			}
 		}
+		leagueCurrentWeek := map[string]int{}
 		for _, tk := range teamKeys {
 			lk := yahoofantasy.YahooLeagueKeyFromEntityKey(tk)
-			rawR, err := c.Get(ctx, fmt.Sprintf("/team/%s/roster;week=1", tk), jsonParams)
-			if err != nil {
-				if firstErr == nil {
-					firstErr = err
+			curW, ok := leagueCurrentWeek[lk]
+			if !ok {
+				_, cw, wErr := resolveSyncWeekRange(ctx, c, db, lk, 1, true)
+				if wErr != nil {
+					recordErr(wErr)
+					continue
 				}
+				curW = cw
+				leagueCurrentWeek[lk] = curW
+			}
+			rawR, err := c.Get(ctx, fmt.Sprintf("/team/%s/roster;week=%d", tk, curW), jsonParams)
+			if err != nil {
+				recordErr(err)
 				continue
 			}
 			if isDryRunResponseForClient(c, rawR) {
@@ -278,24 +352,32 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 				}
 				return syncResult{Resource: resource, Count: 0, Duration: time.Since(started)}
 			}
-			_ = upsertLeagueJSON("rosters", tk+":roster", lk, rawR)
-			for _, p := range yahoofantasy.ExtractPlayers(rawR) {
-				p.LeagueKey = lk
-				if p.OwnerTeamKey == "" {
-					p.OwnerTeamKey = tk
+			rosterPlayers := yahoofantasy.ExtractPlayers(rawR)
+			if len(rosterPlayers) > 0 {
+				for _, p := range rosterPlayers {
+					p.LeagueKey = lk
+					if p.OwnerTeamKey == "" {
+						p.OwnerTeamKey = tk
+					}
+					b, mErr := json.Marshal(p)
+					if mErr != nil {
+						recordErr(mErr)
+						continue
+					}
+					recordErr(upsertLeagueJSON("players", lk+":"+p.PlayerKey, lk, b))
 				}
-				if b, mErr := json.Marshal(p); mErr == nil {
-					_ = upsertLeagueJSON("players", lk+":"+p.PlayerKey, lk, b)
-				}
+			} else {
+				recordErr(upsertLeagueJSON("rosters", tk+":roster", lk, rawR))
 			}
 		}
 	}
 
-	if storedCount == 0 && firstErr != nil {
+	if firstErr != nil {
+		_ = db.SaveSyncProgressInScope(resource, scopeKey, "", storedCount)
 		if !humanFriendly {
 			fmt.Fprintln(syncEvents, syncErrorJSON(resource, "", firstErr))
 		}
-		return syncResult{Resource: resource, Err: fmt.Errorf("fetching %s: %w", resource, firstErr), Duration: time.Since(started)}
+		return syncResult{Resource: resource, Count: storedCount, Err: fmt.Errorf("fetching %s: %w", resource, firstErr), Duration: time.Since(started)}
 	}
 
 	cachedCount, err := db.Count(resource)
@@ -314,9 +396,15 @@ func syncYahooLeagueScopedResource(ctx context.Context, c interface {
 
 func syncYahooPlayerStatsAndOwnership(ctx context.Context, c interface {
 	Get(context.Context, string, map[string]string) (json.RawMessage, error)
-}, leagueKey string, playerKeys []string, upsertFn func(resType, id, leagueKey string, raw []byte) error) {
+}, leagueKey string, playerKeys []string, upsertFn func(resType, id, leagueKey string, raw []byte) error) error {
 	if len(playerKeys) == 0 {
-		return
+		return nil
+	}
+	var firstErr error
+	recordErr := func(err error) {
+		if err != nil && firstErr == nil {
+			firstErr = err
+		}
 	}
 	jsonParams := map[string]string{"format": "json"}
 	const batchSize = 25
@@ -327,14 +415,21 @@ func syncYahooPlayerStatsAndOwnership(ctx context.Context, c interface {
 		}
 		joined := strings.Join(playerKeys[start:end], ",")
 		statsPath := fmt.Sprintf("/league/%s/players;player_keys=%s/stats;type=season;week=1", leagueKey, joined)
-		if rawStats, err := c.Get(ctx, statsPath, jsonParams); err == nil {
-			_ = upsertFn("players", fmt.Sprintf("%s:stats:%d", leagueKey, start), leagueKey, rawStats)
+		rawStats, statsErr := c.Get(ctx, statsPath, jsonParams)
+		if statsErr != nil {
+			recordErr(statsErr)
+		} else {
+			recordErr(upsertFn("players", fmt.Sprintf("%s:stats:%s", leagueKey, joined), leagueKey, rawStats))
 		}
 		ownPath := fmt.Sprintf("/league/%s/players;player_keys=%s/ownership", leagueKey, joined)
-		if rawOwn, err := c.Get(ctx, ownPath, jsonParams); err == nil {
-			_ = upsertFn("players", fmt.Sprintf("%s:ownership:%d", leagueKey, start), leagueKey, rawOwn)
+		rawOwn, ownErr := c.Get(ctx, ownPath, jsonParams)
+		if ownErr != nil {
+			recordErr(ownErr)
+		} else {
+			recordErr(upsertFn("players", fmt.Sprintf("%s:ownership:%s", leagueKey, joined), leagueKey, rawOwn))
 		}
 	}
+	return firstErr
 }
 
 func discoverSyncLeaguesAndTeams(ctx context.Context, c interface {
@@ -373,6 +468,32 @@ func discoverSyncLeaguesAndTeams(ctx context.Context, c interface {
 				addTeam(part)
 			}
 		}
+	}
+
+	// If explicit league or team parameters were supplied, respect that selection without adding unrelated saved leagues.
+	if len(leagues) > 0 || len(teams) > 0 {
+		if len(teams) == 0 && strings.EqualFold(strings.TrimSpace(resource), "rosters") {
+			if rows, err := db.DB().QueryContext(ctx, `SELECT data FROM resources`); err == nil {
+				var blobs []string
+				for rows.Next() {
+					var s string
+					if rows.Scan(&s) == nil {
+						blobs = append(blobs, s)
+					}
+				}
+				_ = rows.Close()
+				for _, s := range blobs {
+					for _, t := range yahoofantasy.ExtractTeams([]byte(s)) {
+						for _, lk := range leagues {
+							if yahoofantasy.BelongsToLeague(lk, t.LeagueKey, t.TeamKey) {
+								addTeam(t.TeamKey)
+							}
+						}
+					}
+				}
+			}
+		}
+		return leagues, teams, nil
 	}
 
 	if rows, err := db.DB().QueryContext(ctx, `SELECT data FROM resources`); err == nil {
@@ -428,11 +549,11 @@ func discoverSyncLeaguesAndTeams(ctx context.Context, c interface {
 	return leagues, teams, firstErr
 }
 
-func resolveSyncMaxWeek(ctx context.Context, c interface {
+func resolveSyncWeekRange(ctx context.Context, c interface {
 	Get(context.Context, string, map[string]string) (json.RawMessage, error)
-}, db *store.Store, leagueKey string, maxPages int, latestOnly bool) int {
-	if latestOnly || cliutil.IsVerifyEnv() || cliutil.IsDogfoodEnv() {
-		return 1
+}, db *store.Store, leagueKey string, maxPages int, latestOnly bool) (int, int, error) {
+	if cliutil.IsVerifyEnv() || cliutil.IsDogfoodEnv() {
+		return 1, 1, nil
 	}
 	var currentWeek int
 	if rows, err := db.DB().QueryContext(ctx, `SELECT data FROM resources`); err == nil {
@@ -455,17 +576,23 @@ func resolveSyncMaxWeek(ctx context.Context, c interface {
 		}
 	}
 	if currentWeek <= 0 {
-		if rawLg, err := c.Get(ctx, fmt.Sprintf("/league/%s", leagueKey), map[string]string{"format": "json"}); err == nil {
-			currentWeek = yahoofantasy.ExtractLeagueCurrentWeek(rawLg)
+		rawLg, err := c.Get(ctx, fmt.Sprintf("/league/%s", leagueKey), map[string]string{"format": "json"})
+		if err != nil {
+			return 0, 0, err
 		}
+		currentWeek = yahoofantasy.ExtractLeagueCurrentWeek(rawLg)
 	}
 	if currentWeek <= 0 {
 		currentWeek = 1
 	}
-	if maxPages > 0 && currentWeek > maxPages {
-		currentWeek = maxPages
+	if latestOnly {
+		return currentWeek, currentWeek, nil
 	}
-	return currentWeek
+	endWeek := currentWeek
+	if maxPages > 0 && endWeek > maxPages {
+		endWeek = maxPages
+	}
+	return 1, endWeek, nil
 }
 
 func stampLeagueKeyInJSON(raw []byte, leagueKey string) []byte {

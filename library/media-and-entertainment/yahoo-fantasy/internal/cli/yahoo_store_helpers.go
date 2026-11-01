@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"strings"
 
@@ -209,6 +210,123 @@ func extractLeagueTeamsFromBlobs(blobs [][]byte, leagueKey string) []yahoofantas
 			} else {
 				seen[t.TeamKey] = len(all)
 				all = append(all, t)
+			}
+		}
+	}
+	return all
+}
+
+func extractLeagueDraftPicksFromBlobs(blobs [][]byte, leagueKey string) []yahoofantasy.DraftPickRecord {
+	var all []yahoofantasy.DraftPickRecord
+	seen := map[string]int{}
+	for _, b := range blobs {
+		for _, pk := range yahoofantasy.ExtractDraftPicks(b) {
+			if leagueKey != "" && !yahoofantasy.BelongsToLeague(leagueKey, pk.LeagueKey, pk.TeamKey) {
+				continue
+			}
+			key := fmt.Sprintf("%s|%d|%d|%s", pk.LeagueKey, pk.Round, pk.Pick, pk.PlayerKey)
+			if idx, ok := seen[key]; ok {
+				if pk.LeagueKey != "" {
+					all[idx].LeagueKey = pk.LeagueKey
+				}
+				if pk.TeamKey != "" {
+					all[idx].TeamKey = pk.TeamKey
+				}
+				if pk.Cost > all[idx].Cost {
+					all[idx].Cost = pk.Cost
+				}
+			} else {
+				seen[key] = len(all)
+				all = append(all, pk)
+			}
+		}
+	}
+	return all
+}
+
+func extractLeagueTransactionsFromBlobs(blobs [][]byte, leagueKey string) []yahoofantasy.TransactionRecord {
+	var all []yahoofantasy.TransactionRecord
+	seen := map[string]int{}
+	for _, b := range blobs {
+		for _, tx := range yahoofantasy.ExtractTransactions(b) {
+			if leagueKey != "" && !yahoofantasy.BelongsToLeague(leagueKey, tx.LeagueKey, tx.TransactionKey, tx.TeamKey) {
+				continue
+			}
+			key := tx.TransactionKey
+			if key == "" {
+				key = fmt.Sprintf("%s|%s|%s|%s|%d|%d", tx.LeagueKey, tx.TeamKey, tx.AddPlayerKey, tx.DropPlayerKey, tx.FaabBid, tx.Timestamp)
+			}
+			if idx, ok := seen[key]; ok {
+				if tx.LeagueKey != "" {
+					all[idx].LeagueKey = tx.LeagueKey
+				}
+				if tx.TeamKey != "" {
+					all[idx].TeamKey = tx.TeamKey
+				}
+				if tx.AddPlayerName != "" {
+					all[idx].AddPlayerName = tx.AddPlayerName
+				}
+				if tx.AddPlayerPos != "" {
+					all[idx].AddPlayerPos = tx.AddPlayerPos
+				}
+				if tx.FaabBid > all[idx].FaabBid {
+					all[idx].FaabBid = tx.FaabBid
+				}
+			} else {
+				seen[key] = len(all)
+				all = append(all, tx)
+			}
+		}
+	}
+	return all
+}
+
+func extractLeagueMatchupsFromBlobs(blobs [][]byte, leagueKey string) []yahoofantasy.MatchupRecord {
+	var all []yahoofantasy.MatchupRecord
+	seen := map[string]int{}
+	for _, b := range blobs {
+		for _, m := range yahoofantasy.ExtractMatchups(b) {
+			if leagueKey != "" && !yahoofantasy.BelongsToLeague(leagueKey, m.LeagueKey, m.TeamKey, m.OpponentKey) {
+				continue
+			}
+			key := fmt.Sprintf("%d|%s|%s", m.Week, m.TeamKey, m.OpponentKey)
+			if idx, ok := seen[key]; ok {
+				if m.LeagueKey != "" {
+					all[idx].LeagueKey = m.LeagueKey
+				}
+				if m.TeamName != "" {
+					all[idx].TeamName = m.TeamName
+				}
+				if m.OpponentName != "" {
+					all[idx].OpponentName = m.OpponentName
+				}
+				if m.TeamPoints > all[idx].TeamPoints {
+					all[idx].TeamPoints = m.TeamPoints
+				}
+				if m.TeamProjected > all[idx].TeamProjected {
+					all[idx].TeamProjected = m.TeamProjected
+				}
+				if m.OpponentPoints > all[idx].OpponentPoints {
+					all[idx].OpponentPoints = m.OpponentPoints
+				}
+				if m.OpponentProjected > all[idx].OpponentProjected {
+					all[idx].OpponentProjected = m.OpponentProjected
+				}
+				if m.TeamWinProb > all[idx].TeamWinProb {
+					all[idx].TeamWinProb = m.TeamWinProb
+				}
+				if m.OpponentWinProb > all[idx].OpponentWinProb {
+					all[idx].OpponentWinProb = m.OpponentWinProb
+				}
+				if len(m.TeamStarters) > len(all[idx].TeamStarters) {
+					all[idx].TeamStarters = m.TeamStarters
+				}
+				if len(m.OpponentStarters) > len(all[idx].OpponentStarters) {
+					all[idx].OpponentStarters = m.OpponentStarters
+				}
+			} else {
+				seen[key] = len(all)
+				all = append(all, m)
 			}
 		}
 	}

@@ -77,13 +77,7 @@ retention, and steal/value/par/bust verdicts.`,
 					return err
 				}
 				hasDB = dbExists
-				for _, b := range blobs {
-					for _, pk := range yahoofantasy.ExtractDraftPicks(b) {
-						if yahoofantasy.BelongsToLeague(leagueKey, pk.LeagueKey, pk.TeamKey) {
-							picks = append(picks, pk)
-						}
-					}
-				}
+				picks = append(picks, extractLeagueDraftPicksFromBlobs(blobs, leagueKey)...)
 				for _, p := range extractLeaguePlayersFromBlobs(blobs, leagueKey) {
 					playersByKey[p.PlayerKey] = p
 					if p.OwnerTeamKey != "" {

@@ -77,13 +77,7 @@ bid thresholds over the next rival manager.`,
 				}
 				hasDB = dbExists
 				teams = append(teams, extractLeagueTeamsFromBlobs(blobs, leagueKey)...)
-				for _, b := range blobs {
-					for _, tx := range yahoofantasy.ExtractTransactions(b) {
-						if yahoofantasy.BelongsToLeague(leagueKey, tx.LeagueKey, tx.TransactionKey, tx.TeamKey) {
-							transactions = append(transactions, tx)
-						}
-					}
-				}
+				transactions = append(transactions, extractLeagueTransactionsFromBlobs(blobs, leagueKey)...)
 			}
 
 			if len(teams) == 0 && flags.dataSource != "local" && (hasLiveAuthConfigured(flags) || cliutil.IsVerifyEnv()) {

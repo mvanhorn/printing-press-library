@@ -78,24 +78,19 @@ power rank from synced SQLite records or live league standings and scoreboards.`
 				}
 				hasDB = dbExists
 				teams = append(teams, extractLeagueTeamsFromBlobs(blobs, leagueKey)...)
-				for _, b := range blobs {
-					for _, m := range yahoofantasy.ExtractMatchups(b) {
-						if !yahoofantasy.BelongsToLeague(leagueKey, m.LeagueKey, m.TeamKey, m.OpponentKey) {
-							continue
+				for _, m := range extractLeagueMatchupsFromBlobs(blobs, leagueKey) {
+					if flagThroughWeek > 0 && m.Week > flagThroughWeek {
+						continue
+					}
+					if m.Week > 0 {
+						if weeklyScores[m.Week] == nil {
+							weeklyScores[m.Week] = map[string]float64{}
 						}
-						if flagThroughWeek > 0 && m.Week > flagThroughWeek {
-							continue
+						if m.TeamKey != "" {
+							weeklyScores[m.Week][m.TeamKey] = m.TeamPoints
 						}
-						if m.Week > 0 {
-							if weeklyScores[m.Week] == nil {
-								weeklyScores[m.Week] = map[string]float64{}
-							}
-							if m.TeamKey != "" {
-								weeklyScores[m.Week][m.TeamKey] = m.TeamPoints
-							}
-							if m.OpponentKey != "" {
-								weeklyScores[m.Week][m.OpponentKey] = m.OpponentPoints
-							}
+						if m.OpponentKey != "" {
+							weeklyScores[m.Week][m.OpponentKey] = m.OpponentPoints
 						}
 					}
 				}
