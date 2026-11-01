@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "cookie"
   },
-  "source_fingerprint": "465d2177711472605ad282cfd3f8ac53e300730bf2795afd3605edecae3b656a",
+  "source_fingerprint": "5c550d6fca514a3642bf444bfa04813ee6be2eb4f622205dd6eedad5fb2f2f86",
   "source_files": {
     "cmd/google-voice-pp-cli/main.go": "7a0e7fc4007ee34a14dd23e826d177c0eb70cc22d7f8dab3a5587cafa7987420",
     "cmd/google-voice-pp-mcp/main.go": "4a5f3785ab5be28a7ebf72f22d6c9a3f59059408af9b807fbd522cae9c83360b",
@@ -108,7 +108,7 @@
     "internal/cliutil/filelock_unix.go": "8dcf8e03ef854221a1bb229f22c5666318049ffc87a5f3a620c72615fb801002",
     "internal/cliutil/filelock_windows.go": "076e82192b84a9bf14ed964c976b1ab073c68715e4cb4b9ac604efa848deca86",
     "internal/cliutil/jwtshape.go": "c2a1ac465286ea142f722df35c9dd57b7904063f371d93aa188d1812f94a20cd",
-    "internal/cliutil/jwtshape_test.go": "f566169e5e175ec2534794c08c1de1c6924d07bd2555dbbfa1757277ffe1e8e9",
+    "internal/cliutil/jwtshape_test.go": "ed4d8506a9e5faca626044c8f9af64631f0689cbd9e28305930ab662d357580a",
     "internal/cliutil/odata_date.go": "09f7c946d8f943b51a60d8e1085fd91efc68730674f6f961ca3a3a9518cc072e",
     "internal/cliutil/odata_date_test.go": "8b1f8a98870323134c2ae62711d6c1e05bb009e8357cf57799b322e38d05b3d0",
     "internal/cliutil/paths.go": "b07ab40e1b7e7a94c84fbd08fbb04a52791bd36056a062303a5f65e37af5b277",

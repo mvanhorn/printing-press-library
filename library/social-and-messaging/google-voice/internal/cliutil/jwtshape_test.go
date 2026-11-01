@@ -12,9 +12,9 @@ import (
 func TestLooksLikeJWT(t *testing.T) {
 	t.Parallel()
 
-	// realAuth0RS256 is a realistically-sized RS256 token (header ~64 chars,
+	// realAuth0RS256 is a wholly invented RS256-shaped token (header ~64 chars,
 	// payload ~430 chars, signature ~344 chars). Synthetic — not a credential.
-	realAuth0RS256 := "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImFvNi1PYzAyQlZHTF9GbnBDeE5JMiJ9." +
+	realAuth0RS256 := "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN5bnRoZXRpYy10ZXN0LWtleSJ9." +
 		strings.Repeat("a", 430) + "." + strings.Repeat("b", 344)
 
 	// Exact boundary fixtures. The floor is 150 chars total; these straddle it.
@@ -30,10 +30,10 @@ func TestLooksLikeJWT(t *testing.T) {
 	// that breaks normal-sized small JWTs surfaces independently.
 	minimalHS256 := strings.Repeat("h", 36) + "." + strings.Repeat("p", 80) + "." + strings.Repeat("s", 40)
 
-	// Factor75 false-positive — Cloudflare-shaped cookie value with 3
-	// base64url segments and 31 chars total. The original looksLikeJWT
-	// heuristic accepted this; the length-floored shape check rejects it.
-	cfCookieShaped := "01KRPVRYA2SNQT9BAGD6984WAG_.tt.1"
+	// A wholly invented cookie-shaped fixture with three base64url segments
+	// and 32 characters. Preserve the old heuristic false-positive shape
+	// without retaining any browser-captured visitor or session value.
+	cfCookieShaped := strings.Repeat("c", 27) + ".xx.0"
 
 	cases := []struct {
 		name string
@@ -72,7 +72,8 @@ func TestLooksLikeJWT(t *testing.T) {
 func TestFindJWTInCookieJar(t *testing.T) {
 	t.Parallel()
 
-	realJWT := "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImFvNi1PYzAyQlZHTF9GbnBDeE5JMiJ9." +
+	// Header, payload and signature are wholly synthetic.
+	realJWT := "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN5bnRoZXRpYy10ZXN0LWtleSJ9." +
 		strings.Repeat("a", 430) + "." + strings.Repeat("b", 344)
 
 	cases := []struct {
@@ -82,7 +83,7 @@ func TestFindJWTInCookieJar(t *testing.T) {
 	}{
 		{
 			name: "JWT alongside CF tracking cookies",
-			jar:  "__cf_bm=01KRPVRYA2SNQT9BAGD6984WAG_.tt.1; auth_token=" + realJWT + "; csrf=abc123",
+			jar:  "__cf_bm=ccccccccccccccccccccccccccc.xx.0; auth_token=" + realJWT + "; csrf=abc123",
 			want: realJWT,
 		},
 		{
@@ -96,7 +97,7 @@ func TestFindJWTInCookieJar(t *testing.T) {
 		},
 		{
 			name: "no JWT, only short shaped cookies",
-			jar:  "__cf_bm=01KRPVRYA2SNQT9BAGD6984WAG_.tt.1; _ga=GA1.1.123.456",
+			jar:  "__cf_bm=ccccccccccccccccccccccccccc.xx.0; _ga=GA1.1.123.456",
 			want: "",
 		},
 		{
