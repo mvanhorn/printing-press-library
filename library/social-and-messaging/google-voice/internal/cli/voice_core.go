@@ -3,7 +3,6 @@
 package cli
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -478,7 +477,7 @@ func newVoiceSearch(f *rootFlags) *cobra.Command {
 			defer m.Close()
 			ctx, cancel := boundCtx(c.Context(), f)
 			defer cancel()
-			out, e = m.Messages(ctx, voice.Query{Text: args[0], Limit: limit, FTS: true})
+			out, e = m.Messages(ctx, voice.Query{Text: args[0], Limit: limit})
 			if e != nil {
 				return usageErr(e)
 			}
@@ -550,21 +549,40 @@ func newVoiceMCP(f *rootFlags) *cobra.Command {
 		}
 		server := filepath.Join(filepath.Dir(exe), "google-voice-pp-mcp")
 		if !serve {
-			return f.printJSON(c, map[string]any{"transport": "stdio", "command": server, "args": []string{}, "note": "Launch the companion binary through your agent's MCP configuration, or use mcp --serve."})
+			return f.printJSON(c, map[string]any{"transport": "stdio", "command": server, "args": []string{}, "env": voiceMCPEnv(f), "note": "Launch the companion binary through your agent's MCP configuration, or use mcp --serve."})
 		}
 		if cliutil.IsAnyHarness() {
 			return writeHarnessRefusal(c.OutOrStdout(), f, "start long-running MCP server")
 		}
-		child := exec.CommandContext(context.Background(), server) // #nosec G204 -- Execute only the fixed companion basename beside this executable, without a shell or user-controlled arguments.
-		child.Stdin = c.InOrStdin()
-		child.Stdout = c.OutOrStdout()
-		child.Stderr = c.ErrOrStderr()
-		return child.Run()
+		return voiceMCPChild(c, server, f).Run()
 	})
 	c.Annotations["mcp:hidden"] = "true"
 	c.Example = "  google-voice-pp-cli mcp --agent"
 	c.Flags().BoolVar(&serve, "serve", false, "Start the companion stdio MCP server for an agent session")
 	return c
+}
+
+func voiceMCPEnv(f *rootFlags) map[string]string {
+	env := map[string]string{}
+	for _, key := range []string{"GOOGLE_VOICE_HOME", "GOOGLE_VOICE_CONFIG_DIR", "GOOGLE_VOICE_DATA_DIR", "GOOGLE_VOICE_STATE_DIR", "GOOGLE_VOICE_CACHE_DIR", "GOOGLE_VOICE_PROFILE"} {
+		if value := os.Getenv(key); value != "" {
+			env[key] = value
+		}
+	}
+	if home := strings.TrimSpace(f.homePath); home != "" {
+		env["GOOGLE_VOICE_HOME"] = filepath.Clean(home)
+	}
+	return env
+}
+
+func voiceMCPChild(c *cobra.Command, server string, f *rootFlags) *exec.Cmd {
+	child := exec.CommandContext(c.Context(), server) // #nosec G204 -- Production passes only the fixed companion basename beside this executable, without a shell or user-controlled arguments.
+	child.Env = os.Environ()
+	for key, value := range voiceMCPEnv(f) {
+		child.Env = append(child.Env, key+"="+value)
+	}
+	child.Stdin, child.Stdout, child.Stderr = c.InOrStdin(), c.OutOrStdout(), c.ErrOrStderr()
+	return child
 }
 
 // Fixtures are supplied only by the operator at test time; no account IDs,

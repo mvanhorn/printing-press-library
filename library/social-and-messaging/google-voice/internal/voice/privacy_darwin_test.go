@@ -11,7 +11,7 @@ import (
 )
 
 func TestDarwinPrivateWritesRejectInheritedACLBeforeSecretBytes(t *testing.T) {
-	restore, e := cliutil.SetHomeOverride(t.TempDir())
+	restore, e := cliutil.SetHomeOverride(privateTestDir(t))
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -33,7 +33,7 @@ func TestDarwinPrivateWritesRejectInheritedACLBeforeSecretBytes(t *testing.T) {
 	if _, e = os.Stat(session); !os.IsNotExist(e) {
 		t.Fatal("credential bytes were published before privacy verification")
 	}
-	path := filepath.Join(t.TempDir(), "mirror.sqlite3")
+	path := filepath.Join(privateTestDir(t), "mirror.sqlite3")
 	m, e := OpenMirror(path, "account-id", true)
 	if e != nil {
 		t.Fatal(e)
@@ -49,7 +49,7 @@ func TestDarwinPrivateWritesRejectInheritedACLBeforeSecretBytes(t *testing.T) {
 }
 
 func TestMirrorRefusesForeignWritableDirectoryACL(t *testing.T) {
-	dir := t.TempDir()
+	dir := privateTestDir(t)
 	m, e := OpenMirror(filepath.Join(dir, "messages.sqlite3"), "account", true)
 	if e != nil {
 		t.Fatal(e)

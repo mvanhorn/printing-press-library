@@ -3,17 +3,35 @@ package voice
 import (
 	"context"
 	"database/sql"
+	"database/sql/driver"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/google-voice/internal/cliutil"
-	_ "modernc.org/sqlite"
+	"golang.org/x/text/cases"
+	"modernc.org/sqlite"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 )
+
+func init() {
+	// SQLite lower() folds ASCII only. Keep literal matching Unicode-aware
+	// without changing stored source text or requiring a mirror migration.
+	sqlite.MustRegisterDeterministicScalarFunction("voice_contains_fold", 2, func(_ *sqlite.FunctionContext, args []driver.Value) (driver.Value, error) {
+		text, textOK := args[0].(string)
+		query, queryOK := args[1].(string)
+		if !textOK || !queryOK {
+			return int64(0), nil
+		}
+		if strings.Contains(cases.Fold().String(text), cases.Fold().String(query)) {
+			return int64(1), nil
+		}
+		return int64(0), nil
+	})
+}
 
 type Mirror struct {
 	DB        *sql.DB
@@ -85,7 +103,9 @@ func OpenMirrorContext(ctx context.Context, path, account string, write bool) (*
 		if e := os.MkdirAll(filepath.Dir(path), 0700); e != nil {
 			return nil, e
 		}
-		if e := os.Chmod(filepath.Dir(path), 0700); e != nil { // #nosec G302 -- This is a private directory; owner traversal is required and no group/other access is granted.
+		// Never chmod an operator's existing directory. Reject unsafe parents
+		// before creating a database or any SQLite sidecar in them.
+		if e := verifyPrivateDirectory(filepath.Dir(path)); e != nil {
 			return nil, e
 		}
 		f, e := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0600) // #nosec G304 -- Operator-selected private mirror path; regular-file, ownership, ACL and trusted-ancestor checks guard access before SQLite reads or writes.
@@ -387,7 +407,7 @@ func (m *Mirror) Messages(ctx context.Context, q Query) ([]Record, error) {
 			where = append(where, "m.id IN(SELECT id FROM voice_fts WHERE voice_fts MATCH ?)")
 			args = append(args, `"`+strings.ReplaceAll(q.Text, `"`, `""`)+`"`)
 		} else {
-			where = append(where, "instr(lower(m.text),lower(?))>0")
+			where = append(where, "voice_contains_fold(m.text,?)=1")
 			args = append(args, q.Text)
 		}
 	}

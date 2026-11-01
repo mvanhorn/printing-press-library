@@ -124,7 +124,7 @@ func TestRemoteAndGateway(t *testing.T) {
 	}
 }
 func TestPrivateImport(t *testing.T) {
-	restore, e := cliutil.SetHomeOverride(t.TempDir())
+	restore, e := cliutil.SetHomeOverride(privateTestDir(t))
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -167,7 +167,7 @@ func TestPrivateImport(t *testing.T) {
 	}
 }
 func TestMirrorTransactionsAndQueries(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "messages.sqlite3")
+	path := filepath.Join(privateTestDir(t), "messages.sqlite3")
 	m, e := OpenMirror(path, "account-id", true)
 	if e != nil {
 		t.Fatal(e)

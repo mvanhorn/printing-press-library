@@ -15,7 +15,7 @@ import (
 
 func historyFixture(t *testing.T) *Mirror {
 	t.Helper()
-	m, e := OpenMirror(filepath.Join(t.TempDir(), "messages.sqlite3"), "account-id", true)
+	m, e := OpenMirror(filepath.Join(privateTestDir(t), "messages.sqlite3"), "account-id", true)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -141,7 +141,7 @@ func TestArrivalsAndLiteralFilters(t *testing.T) {
 	}
 }
 func TestSyncResumeAndFailure(t *testing.T) {
-	m, e := OpenMirror(filepath.Join(t.TempDir(), "messages.sqlite3"), "account-id", true)
+	m, e := OpenMirror(filepath.Join(privateTestDir(t), "messages.sqlite3"), "account-id", true)
 	if e != nil {
 		t.Fatal(e)
 	}

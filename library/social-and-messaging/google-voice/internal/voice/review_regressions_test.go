@@ -83,7 +83,7 @@ func fakeSession() Session {
 	return Session{AccountID: "account-id", Cookies: map[string]string{"SID": "fake", "SAPISID": "fake"}, Headers: map[string]string{}, PublicKey: "public-key"}
 }
 func TestFairBudgetAndRefreshGap(t *testing.T) {
-	m, e := OpenMirrorContext(context.Background(), filepath.Join(t.TempDir(), "data.sqlite3"), "account-id", true)
+	m, e := OpenMirrorContext(context.Background(), filepath.Join(privateTestDir(t), "data.sqlite3"), "account-id", true)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -165,7 +165,7 @@ func TestFairBudgetAndRefreshGap(t *testing.T) {
 	}
 }
 func TestSyncLockCancellationAndAccountSingleton(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "data.sqlite3")
+	path := filepath.Join(privateTestDir(t), "data.sqlite3")
 	m, e := OpenMirror(path, "account-id", true)
 	if e != nil {
 		t.Fatal(e)
@@ -203,7 +203,7 @@ func TestSyncLockCancellationAndAccountSingleton(t *testing.T) {
 	if e = <-done; e != nil {
 		t.Fatal(e)
 	}
-	newPath := filepath.Join(t.TempDir(), "singleton.sqlite3")
+	newPath := filepath.Join(privateTestDir(t), "singleton.sqlite3")
 	var wg sync.WaitGroup
 	results := make(chan error, 2)
 	for _, account := range []string{"one", "two"} {
@@ -230,7 +230,7 @@ func TestSyncLockCancellationAndAccountSingleton(t *testing.T) {
 	}
 }
 func TestGatewayIdentityUnknownReadAndRateStatus(t *testing.T) {
-	restore, e := cliutil.SetHomeOverride(t.TempDir())
+	restore, e := cliutil.SetHomeOverride(privateTestDir(t))
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -294,7 +294,7 @@ func TestGatewayIdentityUnknownReadAndRateStatus(t *testing.T) {
 }
 
 func TestExhaustedInventoryStopsWithinRun(t *testing.T) {
-	m, err := OpenMirror(filepath.Join(t.TempDir(), "messages.sqlite3"), "account-id", true)
+	m, err := OpenMirror(filepath.Join(privateTestDir(t), "messages.sqlite3"), "account-id", true)
 	if err != nil {
 		t.Fatal(err)
 	}

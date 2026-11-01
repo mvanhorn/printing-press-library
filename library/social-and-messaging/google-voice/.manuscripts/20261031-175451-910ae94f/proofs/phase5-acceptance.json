@@ -11,11 +11,11 @@
   "auth_context": {
     "type": "cookie"
   },
-  "source_fingerprint": "c42475d6b4bee4ad012e37bbb7cc9fde4ad462cf2d931f4360ba501469a477d4",
+  "source_fingerprint": "465d2177711472605ad282cfd3f8ac53e300730bf2795afd3605edecae3b656a",
   "source_files": {
     "cmd/google-voice-pp-cli/main.go": "7a0e7fc4007ee34a14dd23e826d177c0eb70cc22d7f8dab3a5587cafa7987420",
     "cmd/google-voice-pp-mcp/main.go": "4a5f3785ab5be28a7ebf72f22d6c9a3f59059408af9b807fbd522cae9c83360b",
-    "go.mod": "af7c4f36e11f6bfd2f42caae54a44c10e36bf830ede62991e5c3770d58753760",
+    "go.mod": "8e246b3705b8179aae33b8e51baaacac492001cac67d959a8f645df586472a66",
     "go.sum": "cf4b763c131336d7d73a90d919d358bcc5a9308ac08a9b0d96b3a38c1a68c007",
     "internal/cache/cache.go": "9c17b350d4eed2d071ee394148d879c865d893cd74c3d9ddc7be417697590a4d",
     "internal/cli/agent_context.go": "08d17128c057040a40cdf9c5e3b7e0ac671d058c0e0da80f50ff645f33839fb2",
@@ -72,8 +72,8 @@
     "internal/cli/threads_get.go": "67e57eafdc8c15e18a92d7168a23aaccdac098d6c616eef71a18a33f79630e3a",
     "internal/cli/threads_list.go": "a7627a8df389b67b21da6860251131aaa29a0bacd8c37eb4e0c7dcf1651454f8",
     "internal/cli/version.go": "e4fede443c1295249cd692e11767b6cd49e1f1a167b0e1a0da943857e234702c",
-    "internal/cli/voice_core.go": "9c5f70fef32ce0db7386477ccbb036c541ab8e32eda4d9b467fa0c0125059e14",
-    "internal/cli/voice_core_test.go": "132f6544f8c77a07014a3358ba69da01535bec08891474c4984a5233b87c96a8",
+    "internal/cli/voice_core.go": "5af7a6381fc306c403cbca85dcec6b0276f279b951ee703a69dd892a9373808e",
+    "internal/cli/voice_core_test.go": "b9f3434af664598eb23b88ee3a6edb06554726a7e1a46e5c2c9a9dfa728f7f37",
     "internal/cli/voice_history.go": "e89eb892c416dfd3fa860c95bdecf3bd2ef4dfb6033450166e6fb10089256471",
     "internal/cli/which.go": "89b9d553946756b24635a80d8982452ce1616a83f93aaad0c3f172b6872c3be1",
     "internal/cli/which_test.go": "35bb14228d9f8b96a670a5e4769192beaebabd574faafc87a0ef66aaf9f55b91",
@@ -204,16 +204,17 @@
     "internal/types/types.go": "bd488d16778b28c219a2de00a5a3c31fb75d53e56e045c3102d474de7df3aa29",
     "internal/voice/codec.go": "53d159cfabbc8e3e8fad51501718f5e59c9b54fac58918c5e01044a65022dc96",
     "internal/voice/history.go": "2a3e1dc68911698cb22d9dbccf810e3f6eecccc45fc8e2171b620e303db607e0",
-    "internal/voice/history_test.go": "782d379ff0756fa63899ae8f91232cd68d26c16addebaf64bade181533d6d781",
-    "internal/voice/mirror.go": "94d488412b93f3445380dcf96cac747504901743c5369d4f715238557ed96090",
-    "internal/voice/privacy_darwin_test.go": "0668cdab1891878de07406874de3a942eba4c474000eef80772ad1da8a8cbe11",
+    "internal/voice/history_test.go": "c20c15454cbd766e929179e5357cf1b730e628275949c3f33bc45aea39241dd7",
+    "internal/voice/mirror.go": "59e4b080b060c0c8f289b53cde59ef516b8c74df2fcfd754908fc3687b5c9a21",
+    "internal/voice/privacy_darwin_test.go": "7df4300327e210e32ddabab93dd2892d22de092164c3b7e2168288a440001536",
     "internal/voice/privacy_unix.go": "defe377de8031b8880a907710d29a049e0688c7e5b5734546cbf2c3f34f3fff4",
     "internal/voice/privacy_windows.go": "726073b544b74575e2b2659528c00badf37448a23a031559227a52a0beaae38e",
+    "internal/voice/publication_regressions_test.go": "2efbf9ba2f4ccdae926b3da05ae478a45fcf36b165ef940c8b43dc233f07f0b8",
     "internal/voice/remote.go": "75417be5a67b3b9feaf4b9914e4230fe29000ce2814a1d20594dd44104f26aa1",
-    "internal/voice/review_regressions_test.go": "9a350d33ee6cef778ef885366c33d4c65a0b356bc2518e2c7d62ba816bd46aa8",
+    "internal/voice/review_regressions_test.go": "db4769fd4c41426ee629c5aa19fd563b8f6b72ed68a42533e20da0faf51a4d0a",
     "internal/voice/session.go": "3423790370e6e64b3ec0ef7f2011e8032ac4c2144f42252c5e4ea4888198586b",
     "internal/voice/sync.go": "94dddd3b7410dca16d87b0e3dbafa4007ed648890276ef0e7eef9f5d99f6f25c",
-    "internal/voice/voice_test.go": "567f266749590c9fadde47b930588ad41beebb9baa595caaefb84cd232dd834a",
+    "internal/voice/voice_test.go": "bdd1a84875a94f4f35ed7c2931d4fcf9ee707dad2b58deabcf56824d16a110f4",
     "spec.yaml": "ec4993aeec66ca1b4e9c165499f60a3ef08b2953d9aaf9e0e2f0f7932a4f0e74"
   }
 }
