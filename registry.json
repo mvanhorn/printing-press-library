@@ -13090,6 +13090,12 @@
         "Calculate the draft and show how its total debit and payable tax changed against the last processed payroll, alongside the draft's gross, reimbursements, taxes and net."
       ],
       "path": "library/payments/gusto",
+      "release": {
+        "cli_name": "gusto-pp-cli",
+        "version": "2026.11.1",
+        "released_at": "2026-11-02T10:00:08Z",
+        "source_commit": "f90d41b41d0a2ba8071791fb6c682ef1a5049d72"
+      },
       "printer": "beetz12",
       "printer_name": "david",
       "creator": {
