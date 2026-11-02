@@ -12407,6 +12407,52 @@
       }
     },
     {
+      "name": "google-voice",
+      "category": "social-and-messaging",
+      "api": "Google Voice",
+      "description": "Read Google Voice through ordinary HTTP and recover evidence from a local message mirror.",
+      "search_terms": [
+        "google-voice",
+        "Google Voice",
+        "google-voice-pp-cli",
+        "Read Google Voice through ordinary HTTP and recover evidence from a local message mirror.",
+        "Compound message evidence",
+        "history query",
+        "Find messages using participant, dates, direction, literal text and attachment evidence together.",
+        "Message-anchored context packet",
+        "history context",
+        "Retrieve neighboring messages around a known message, including collection boundaries.",
+        "Question-scoped coverage evidence",
+        "mirror coverage",
+        "See freshness, unfinished pagination and collection failures before relying on a lookup.",
+        "Observed conversation activity",
+        "history activity",
+        "See observed inbound and outbound counts and latest message times per conversation.",
+        "Newly mirrored records",
+        "history arrivals",
+        "Inspect which records collection added, keeping old backfill distinct from recent communication."
+      ],
+      "path": "library/social-and-messaging/google-voice",
+      "printer": "mikemarqq",
+      "printer_name": "mikemarqq",
+      "creator": {
+        "handle": "mikemarqq",
+        "name": "mikemarqq"
+      },
+      "mcp": {
+        "binary": "google-voice-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 3,
+        "public_tool_count": 0,
+        "auth_type": "cookie",
+        "env_vars": [],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "googlehealth",
       "category": "devices",
       "api": "Google Health",
