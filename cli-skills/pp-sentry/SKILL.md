@@ -149,6 +149,14 @@ sentry-pp-cli export organizations --format json --output sentry-organizations.j
 
 Create a portable incident handoff file after syncing or listing data.
 
+### Count errors by project, environment and release
+
+```bash
+sentry-pp-cli organizations events query-explore-in-table-format my-org --dataset errors --field project --field environment --field release --field 'count()' --stats-period 14d --sort='-count()' --agent
+```
+
+Repeat `--field`, `--project` and `--environment` once per value; each repeat is sent as its own query key, and values are never split on commas, so functions such as `count_if(a,equals,b)` stay intact.
+
 ### Inspect CLI capabilities
 
 ```bash
