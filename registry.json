@@ -12433,6 +12433,12 @@
         "Inspect which records collection added, keeping old backfill distinct from recent communication."
       ],
       "path": "library/social-and-messaging/google-voice",
+      "release": {
+        "cli_name": "google-voice-pp-cli",
+        "version": "2026.11.1",
+        "released_at": "2026-11-02T09:57:02Z",
+        "source_commit": "1681ca611a87377d51b2d2e34f19c9dc768310c4"
+      },
       "printer": "mikemarqq",
       "printer_name": "mikemarqq",
       "creator": {
