@@ -1,0 +1,8 @@
+# Root-anchored so cmd/<binary>/ source stays tracked.
+/government-data-pp-cli
+/government-data-pp-cli.exe
+/government-data-pp-mcp
+/government-data-pp-mcp.exe
+/bin/
+/build/
+/dist/

@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "government-data-pp-cli"
+display_name = "Government Data"
+description = "Find California and U.S. open datasets and SEC EDGAR filings with clear provenance."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/government-data-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+DATA_GOV_API_KEY = true

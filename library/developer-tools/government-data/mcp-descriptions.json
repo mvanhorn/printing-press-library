@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "california_organizations": "List source-native publishing organization names from the California catalog. Takes no required filters and returns the catalog organization list; use these identifiers when filtering catalog searches by organization."
+  }
+}

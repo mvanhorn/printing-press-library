@@ -1,0 +1,20 @@
+{
+  "lock_command": [
+    "<runstate>/wha/runs/20261101-190344-8e78c635/working/government-data-pp-cli/government-data-pp-cli",
+    "intake",
+    "lock",
+    "--snapshot",
+    "smoke-b",
+    "--resource",
+    "california:a47fde7d-7071-4f89-bd95-d8912ec8c385:83440b3e-1c58-420a-8390-7ffe762853a0",
+    "--output",
+    "<workspace>/work/intake-smoke.json",
+    "--db",
+    "<workspace>/work/smoke.sqlite",
+    "--json",
+    "--no-learn"
+  ],
+  "exit": 0,
+  "stdout": "{\n  \"output\": \"<workspace>/work/intake-smoke.json\",\n  \"selected_resources\": 1,\n  \"snapshot\": \"smoke-b\"\n}\n",
+  "other_commands": "overlap/changes/coverage/intake audit --snapshot smoke-b (changes --from smoke-a --to smoke-b), same scratch database; each exit0 and valid JSON"
+}

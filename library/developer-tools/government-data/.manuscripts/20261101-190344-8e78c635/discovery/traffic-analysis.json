@@ -1,0 +1,1167 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://data.ca.gov/_next/data/angFhxGvQgnvsfEcRbt_v/search.json?query=water",
+    "entry_count": 35,
+    "api_entry_count": 25,
+    "noise_entry_count": 10,
+    "host_distribution": {
+      "data.ca.gov": 34,
+      "publish.data.ca.gov": 1
+    },
+    "http_version_distribution": {
+      "h2": 35
+    },
+    "time_start": "2026-11-02T03:12:39.53Z",
+    "time_end": "2026-11-02T03:12:53.801Z"
+  },
+  "secondary_hosts": [
+    {
+      "host": "publish.data.ca.gov",
+      "count": 1,
+      "reason": "non-primary host"
+    }
+  ],
+  "reachability": {
+    "mode": "browser_required",
+    "confidence": 0.9,
+    "reasons": [
+      "CAPTCHA challenge observed"
+    ],
+    "evidence": [
+      {
+        "entry_index": 23,
+        "method": "GET",
+        "host": "data.ca.gov",
+        "path": "/_next/static/chunks/pages/contact-3f1b772239f44dd2.js",
+        "status": 200,
+        "content_type": "application/javascript",
+        "reason": "CAPTCHA marker"
+      },
+      {
+        "entry_index": 34,
+        "method": "GET",
+        "host": "data.ca.gov",
+        "path": "/_next/static/chunks/pages/contact-3f1b772239f44dd2.js",
+        "status": 200,
+        "content_type": "application/javascript",
+        "reason": "CAPTCHA marker"
+      }
+    ]
+  },
+  "protocols": [
+    {
+      "label": "rest_json",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1,
+          "method": "HEAD",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "publish.data.ca.gov",
+          "path": "/api/3/action/package_search",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/@california-department-of-water-resources/water-plan-water-balance-data.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/@california-state-water-resources-control-board/ground-water-water-quality-results.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 13,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 14,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 15,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/@california-state-water-resources-control-board/surface-water-water-quality-regulatory-information.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 20,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/@california-department-of-water-resources/water-plan-water-balance-data.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 21,
+          "method": "HEAD",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/@california-department-of-water-resources/water-plan-water-balance-data.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 22,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/@california-department-of-water-resources/water-plan-water-balance-data.json",
+          "status": 304,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 24,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 25,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 26,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 27,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 28,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 29,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 30,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 31,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 32,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 33,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        }
+      ]
+    }
+  ],
+  "auth": {},
+  "protections": [
+    {
+      "label": "cloudflare",
+      "confidence": 0.9,
+      "evidence": [
+        {
+          "entry_index": 23,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/static/chunks/pages/contact-3f1b772239f44dd2.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 34,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/static/chunks/pages/contact-3f1b772239f44dd2.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "Cloudflare header or challenge marker"
+        }
+      ]
+    },
+    {
+      "label": "captcha",
+      "confidence": 0.85,
+      "evidence": [
+        {
+          "entry_index": 23,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/static/chunks/pages/contact-3f1b772239f44dd2.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "CAPTCHA marker"
+        },
+        {
+          "entry_index": 34,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/static/chunks/pages/contact-3f1b772239f44dd2.js",
+          "status": 200,
+          "content_type": "application/javascript",
+          "reason": "CAPTCHA marker"
+        }
+      ]
+    }
+  ],
+  "endpoint_clusters": [
+    {
+      "host": "data.ca.gov",
+      "method": "GET",
+      "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/@california-department-of-water-resources/water-plan-water-balance-data.json",
+      "count": 3,
+      "statuses": [
+        200,
+        304
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "__N_SSG",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "pageProps",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "confidence": "medium",
+      "evidence": [
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/@california-department-of-water-resources/water-plan-water-balance-data.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 20,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/@california-department-of-water-resources/water-plan-water-balance-data.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 22,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/@california-department-of-water-resources/water-plan-water-balance-data.json",
+          "status": 304,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "data.ca.gov",
+      "method": "HEAD",
+      "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/@california-department-of-water-resources/water-plan-water-balance-data.json",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 21,
+          "method": "HEAD",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/@california-department-of-water-resources/water-plan-water-balance-data.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "data.ca.gov",
+      "method": "GET",
+      "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/@california-state-water-resources-control-board/ground-water-water-quality-results.json",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "__N_SSG",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "pageProps",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/@california-state-water-resources-control-board/ground-water-water-quality-results.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "data.ca.gov",
+      "method": "GET",
+      "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/@california-state-water-resources-control-board/surface-water-water-quality-regulatory-information.json",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "__N_SSG",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "pageProps",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 15,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/@california-state-water-resources-control-board/surface-water-water-quality-regulatory-information.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "data.ca.gov",
+      "method": "GET",
+      "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+      "count": 17,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "large",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "__N_SSG",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "pageProps",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 13,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 14,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 24,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 25,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 26,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 27,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 28,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 29,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 30,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 31,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 32,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 33,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "data.ca.gov",
+      "method": "HEAD",
+      "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "HEAD",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "publish.data.ca.gov",
+      "method": "GET",
+      "path": "/api/{id}/action/package_search",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "large",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "help",
+            "type": "string",
+            "required": true,
+            "format": "url"
+          },
+          {
+            "name": "result",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "success",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "low_confidence_parameters": [
+        {
+          "name": "id",
+          "segment": "3",
+          "position": 1,
+          "reason": "single-sample small integer path segment"
+        }
+      ],
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "publish.data.ca.gov",
+          "path": "/api/3/action/package_search",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "request_sequences": [
+    {
+      "label": "observed_api_flow",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 1,
+          "method": "HEAD",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "publish.data.ca.gov",
+          "path": "/api/3/action/package_search",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/@california-department-of-water-resources/water-plan-water-balance-data.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/@california-state-water-resources-control-board/ground-water-water-quality-results.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        }
+      ],
+      "notes": [
+        "HAR timing available for at least one request."
+      ]
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "get_package_search",
+      "resource": "package_search",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/{id}/action/package_search traffic.",
+      "evidence": [
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "publish.data.ca.gov",
+          "path": "/api/3/action/package_search",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "head_search.json",
+      "resource": "search.json",
+      "confidence": 0.55,
+      "rationale": "Derived from observed HEAD /_next/data/angFhxGvQgnvsfEcRbt_v/search.json traffic.",
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "HEAD",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "head_water_plan_water_balance_data.json",
+      "resource": "water_plan_water_balance_data.json",
+      "confidence": 0.55,
+      "rationale": "Derived from observed HEAD /_next/data/angFhxGvQgnvsfEcRbt_v/@california-department-of-water-resources/water-plan-water-balance-data.json traffic.",
+      "evidence": [
+        {
+          "entry_index": 21,
+          "method": "HEAD",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/@california-department-of-water-resources/water-plan-water-balance-data.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_ground_water_water_quality_results.json",
+      "resource": "ground_water_water_quality_results.json",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /_next/data/angFhxGvQgnvsfEcRbt_v/@california-state-water-resources-control-board/ground-water-water-quality-results.json traffic.",
+      "evidence": [
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/@california-state-water-resources-control-board/ground-water-water-quality-results.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_search.json",
+      "resource": "search.json",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /_next/data/angFhxGvQgnvsfEcRbt_v/search.json traffic.",
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 13,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 14,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 24,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 25,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 26,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 27,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 28,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 29,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 30,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 31,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 32,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 33,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/search.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_surface_water_water_quality_regulatory_information.json",
+      "resource": "surface_water_water_quality_regulatory_information.json",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /_next/data/angFhxGvQgnvsfEcRbt_v/@california-state-water-resources-control-board/surface-water-water-quality-regulatory-information.json traffic.",
+      "evidence": [
+        {
+          "entry_index": 15,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/@california-state-water-resources-control-board/surface-water-water-quality-regulatory-information.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_water_plan_water_balance_data.json",
+      "resource": "water_plan_water_balance_data.json",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /_next/data/angFhxGvQgnvsfEcRbt_v/@california-department-of-water-resources/water-plan-water-balance-data.json traffic.",
+      "evidence": [
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/@california-department-of-water-resources/water-plan-water-balance-data.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 20,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/@california-department-of-water-resources/water-plan-water-balance-data.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 22,
+          "method": "GET",
+          "host": "data.ca.gov",
+          "path": "/_next/data/angFhxGvQgnvsfEcRbt_v/@california-department-of-water-resources/water-plan-water-balance-data.json",
+          "status": 304,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "generation_hints": [
+    "requires_page_context",
+    "requires_protected_client"
+  ]
+}

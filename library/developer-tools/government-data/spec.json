@@ -1,0 +1,280 @@
+{
+  "name": "government-data",
+  "category": "other",
+  "description": "Find and access California, U.S. open datasets and SEC EDGAR filings with provenance.",
+  "version": "0.1.0",
+  "base_url": "https://api.gsa.gov/technology/datagov/v4",
+  "auth": {
+    "type": "api_key",
+    "header": "X-Api-Key",
+    "in": "header",
+    "env_vars": [
+      "DATA_GOV_API_KEY"
+    ]
+  },
+  "resources": {
+    "california": {
+      "base_url": "https://publish.data.ca.gov/api/3/action",
+      "description": "California public catalog API",
+      "endpoints": {
+        "find": {
+          "method": "GET",
+          "path": "/package_search",
+          "params": [
+            {
+              "name": "q",
+              "type": "string",
+              "description": "q for this catalog request",
+              "flag_name": "query"
+            },
+            {
+              "name": "rows",
+              "type": "int",
+              "description": "rows for this catalog request",
+              "default": 10
+            },
+            {
+              "name": "start",
+              "type": "int",
+              "description": "start for this catalog request"
+            },
+            {
+              "name": "fq",
+              "type": "string",
+              "description": "fq for this catalog request",
+              "flag_name": "filter"
+            },
+            {
+              "name": "sort",
+              "type": "string",
+              "description": "sort for this catalog request"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Payload"
+          },
+          "no_auth": true,
+          "response_path": "result.results",
+          "description": "Search catalog datasets using text and filters"
+        },
+        "dataset": {
+          "method": "GET",
+          "path": "/package_show",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "description": "id for this catalog request",
+              "required": true
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Payload"
+          },
+          "no_auth": true,
+          "description": "Retrieve complete dataset metadata and resource references"
+        },
+        "organizations": {
+          "method": "GET",
+          "path": "/organization_list",
+          "params": [],
+          "response": {
+            "type": "object",
+            "item": "Payload"
+          },
+          "no_auth": true,
+          "description": "List dataset publishing organizations"
+        },
+        "topics": {
+          "method": "GET",
+          "path": "/group_list",
+          "params": [],
+          "response": {
+            "type": "object",
+            "item": "Payload"
+          },
+          "no_auth": true,
+          "description": "List source-native dataset topics or keywords"
+        },
+        "tags": {
+          "method": "GET",
+          "path": "/tag_list",
+          "params": [],
+          "response": {
+            "type": "object",
+            "item": "Payload"
+          },
+          "no_auth": true,
+          "description": "List California dataset keyword tags"
+        },
+        "resource": {
+          "method": "GET",
+          "path": "/resource_show",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "description": "id for this catalog request",
+              "required": true
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Payload"
+          },
+          "no_auth": true,
+          "description": "Retrieve California resource download metadata"
+        }
+      },
+      "tier": "california"
+    },
+    "federal": {
+      "description": "U.S. Data.gov official v4 catalog",
+      "endpoints": {
+        "find": {
+          "method": "GET",
+          "path": "/search",
+          "params": [
+            {
+              "name": "q",
+              "type": "string",
+              "description": "q for this catalog request",
+              "flag_name": "query"
+            },
+            {
+              "name": "per_page",
+              "type": "int",
+              "description": "per page for this catalog request",
+              "default": 10
+            },
+            {
+              "name": "after",
+              "type": "string",
+              "description": "after for this catalog request"
+            },
+            {
+              "name": "org_slug",
+              "type": "string",
+              "description": "org slug for this catalog request"
+            },
+            {
+              "name": "keyword",
+              "type": "string",
+              "description": "keyword for this catalog request"
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Payload"
+          },
+          "response_path": "results",
+          "pagination": {
+            "type": "cursor",
+            "cursor_field": "after",
+            "cursor_param": "after"
+          },
+          "description": "Search catalog datasets using text and filters"
+        },
+        "dataset": {
+          "method": "GET",
+          "path": "/dataset/{id}",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "description": "id for this catalog request",
+              "required": true,
+              "positional": true
+            }
+          ],
+          "response": {
+            "type": "object",
+            "item": "Payload"
+          },
+          "description": "Retrieve complete dataset metadata and resource references"
+        },
+        "organizations": {
+          "method": "GET",
+          "path": "/organizations",
+          "params": [],
+          "response": {
+            "type": "object",
+            "item": "Payload"
+          },
+          "description": "List dataset publishing organizations"
+        },
+        "topics": {
+          "method": "GET",
+          "path": "/keywords",
+          "params": [],
+          "response": {
+            "type": "object",
+            "item": "Payload"
+          },
+          "description": "List source-native dataset topics or keywords"
+        }
+      }
+    }
+  },
+  "types": {
+    "Payload": {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    }
+  },
+  "mcp": {
+    "transport": [
+      "stdio"
+    ]
+  },
+  "learn": {
+    "synonyms": {
+      "sec edgar": "edgar",
+      "data ca": "california"
+    },
+    "entity_lookup_seeds": {
+      "catalog": [
+        {
+          "canonical": "California",
+          "aliases": [
+            "ca",
+            "data.ca.gov"
+          ]
+        },
+        {
+          "canonical": "Data.gov",
+          "aliases": [
+            "federal",
+            "us"
+          ]
+        }
+      ]
+    }
+  },
+  "cache": {
+    "enabled": false
+  },
+  "tier_routing": {
+    "tiers": {
+      "california": {
+        "auth": {
+          "type": "none"
+        }
+      }
+    }
+  }
+}

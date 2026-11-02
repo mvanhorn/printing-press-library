@@ -1,0 +1,182 @@
+name: sec-edgar
+description: Discovered API spec for efts-sec
+version: 0.1.0
+base_url: https://efts.sec.gov
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "keysTyped" from query: seen on fewer than 3 distinct endpoints'
+    - 'rejected auth candidate "q" from query: search input'
+config:
+    format: toml
+    path: ~/.config/sec-edgar-pp-cli/config.toml
+resources:
+    LATEST:
+        description: Operations on search-index
+        endpoints:
+            list_search_index:
+                method: GET
+                path: /LATEST/search-index
+                description: GET /LATEST/search-index
+                params:
+                    - name: enddt
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: keysTyped
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: q
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: startdt
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: SearchIndex
+                pagination: null
+types:
+    Aggregations:
+        fields:
+            - name: biz_states_filter
+              type: ref:BizStatesFilter
+            - name: entity_filter
+              type: ref:EntityFilter
+            - name: form_filter
+              type: ref:FormFilter
+            - name: sic_filter
+              type: ref:SicFilter
+    Aggregations2:
+        fields:
+            - name: biz_states_filter
+              type: object
+            - name: entity_filter
+              type: object
+            - name: form_filter
+              type: object
+            - name: sic_filter
+              type: object
+    BizStatesFilter:
+        fields:
+            - name: buckets
+              type: array
+            - name: doc_count_error_upper_bound
+              type: integer
+            - name: sum_other_doc_count
+              type: integer
+    EntityFilter:
+        fields:
+            - name: buckets
+              type: array
+            - name: doc_count_error_upper_bound
+              type: integer
+            - name: sum_other_doc_count
+              type: integer
+    FormFilter:
+        fields:
+            - name: buckets
+              type: array
+            - name: doc_count_error_upper_bound
+              type: integer
+            - name: sum_other_doc_count
+              type: integer
+    Hit:
+        fields:
+            - name: _id
+              type: string
+            - name: _index
+              type: string
+            - name: _score
+              type: number
+            - name: _source
+              type: object
+    Hits:
+        fields:
+            - name: hits
+              type: '[]ref:Hit'
+            - name: max_score
+              type: number
+            - name: total
+              type: ref:Total
+    Query:
+        fields:
+            - name: _source
+              type: ref:Source
+              omit_empty: true
+            - name: aggregations
+              type: ref:Aggregations2
+              omit_empty: true
+            - name: from
+              type: integer
+            - name: query
+              type: ref:Query2
+            - name: size
+              type: integer
+    Query2:
+        fields:
+            - name: bool
+              type: object
+    SearchIndex:
+        fields:
+            - name: _shards
+              type: ref:Shards
+            - name: aggregations
+              type: ref:Aggregations
+              omit_empty: true
+            - name: hits
+              type: ref:Hits
+            - name: query
+              type: ref:Query
+            - name: timed_out
+              type: bool
+            - name: took
+              type: integer
+    Shards:
+        fields:
+            - name: failed
+              type: integer
+            - name: skipped
+              type: integer
+            - name: successful
+              type: integer
+            - name: total
+              type: integer
+    SicFilter:
+        fields:
+            - name: buckets
+              type: array
+            - name: doc_count_error_upper_bound
+              type: integer
+            - name: sum_other_doc_count
+              type: integer
+    Source:
+        fields:
+            - name: exclude
+              type: array
+    Total:
+        fields:
+            - name: relation
+              type: string
+            - name: value
+              type: integer
