@@ -12,8 +12,8 @@ import (
 )
 
 func newOrganizationsIssuesListAnOrganizationSCmd(flags *rootFlags) *cobra.Command {
-	var flagEnvironment string
-	var flagProject string
+	var flagEnvironment []string
+	var flagProject []string
 	var flagStatsPeriod string
 	var flagStart string
 	var flagEnd string
@@ -23,8 +23,8 @@ func newOrganizationsIssuesListAnOrganizationSCmd(flags *rootFlags) *cobra.Comma
 	var flagViewId string
 	var flagSort string
 	var flagLimit int
-	var flagExpand string
-	var flagCollapse string
+	var flagExpand []string
+	var flagCollapse []string
 	var flagCursor string
 	var flagAll bool
 
@@ -83,9 +83,11 @@ func newOrganizationsIssuesListAnOrganizationSCmd(flags *rootFlags) *cobra.Comma
 
 			path := "/api/0/organizations/{organization_id_or_slug}/issues/"
 			path = replacePathParam(path, "organization_id_or_slug", args[0])
+			path = appendArrayQueryParam(path, "environment", flagEnvironment)
+			path = appendArrayQueryParam(path, "project", flagProject)
+			path = appendArrayQueryParam(path, "expand", flagExpand)
+			path = appendArrayQueryParam(path, "collapse", flagCollapse)
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "issues", path, map[string]string{
-				"environment":      fmt.Sprintf("%v", flagEnvironment),
-				"project":          fmt.Sprintf("%v", flagProject),
 				"statsPeriod":      fmt.Sprintf("%v", flagStatsPeriod),
 				"start":            fmt.Sprintf("%v", flagStart),
 				"end":              fmt.Sprintf("%v", flagEnd),
@@ -95,8 +97,6 @@ func newOrganizationsIssuesListAnOrganizationSCmd(flags *rootFlags) *cobra.Comma
 				"viewId":           fmt.Sprintf("%v", flagViewId),
 				"sort":             fmt.Sprintf("%v", flagSort),
 				"limit":            fmt.Sprintf("%v", flagLimit),
-				"expand":           fmt.Sprintf("%v", flagExpand),
-				"collapse":         fmt.Sprintf("%v", flagCollapse),
 				"cursor":           fmt.Sprintf("%v", flagCursor),
 			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
@@ -140,8 +140,8 @@ func newOrganizationsIssuesListAnOrganizationSCmd(flags *rootFlags) *cobra.Comma
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagEnvironment, "environment", "", "The name of environments to filter by.")
-	cmd.Flags().StringVar(&flagProject, "project", "", "The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")
+	cmd.Flags().StringArrayVar(&flagEnvironment, "environment", nil, "The name of environments to filter by.")
+	cmd.Flags().StringArrayVar(&flagProject, "project", nil, "The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")
 	cmd.Flags().StringVar(&flagStatsPeriod, "stats-period", "", "The period of time for the query, will override the start & end parameters, a number followed by one of: - `d` for...")
 	cmd.Flags().StringVar(&flagStart, "start", "", "The start of the period of time for the query, expected in ISO-8601 format. For example, `2001-12-14T12:34:56.7890`.")
 	cmd.Flags().StringVar(&flagEnd, "end", "", "The end of the period of time for the query, expected in ISO-8601 format. For example, `2001-12-14T12:34:56.7890`.")
@@ -151,8 +151,8 @@ func newOrganizationsIssuesListAnOrganizationSCmd(flags *rootFlags) *cobra.Comma
 	cmd.Flags().StringVar(&flagViewId, "view-id", "", "The ID of the view to use. If no query is present, the view's query and filters will be applied.")
 	cmd.Flags().StringVar(&flagSort, "sort", "date", "The sort order of the view. Options include 'Last Seen' (`date`), 'First Seen' (`new`), 'Trends' (`trends`),... (one of: date, freq, inbox, new, recommended, trends, user)")
 	cmd.Flags().IntVar(&flagLimit, "limit", 100, "The maximum number of issues to affect. The maximum is 100.")
-	cmd.Flags().StringVar(&flagExpand, "expand", "", "Additional data to include in the response.")
-	cmd.Flags().StringVar(&flagCollapse, "collapse", "", "Fields to remove from the response to improve query performance.")
+	cmd.Flags().StringArrayVar(&flagExpand, "expand", nil, "Additional data to include in the response.")
+	cmd.Flags().StringArrayVar(&flagCollapse, "collapse", nil, "Fields to remove from the response to improve query performance.")
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "A pointer to the last object fetched and its sort order; used to retrieve the next or previous results.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 

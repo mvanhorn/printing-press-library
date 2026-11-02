@@ -13,7 +13,7 @@ import (
 
 func newProjectsReplaysListClickedNodesCmd(flags *rootFlags) *cobra.Command {
 	var flagCursor string
-	var flagEnvironment string
+	var flagEnvironment []string
 	var flagPerPage int
 	var flagQuery string
 	var flagAll bool
@@ -42,11 +42,11 @@ func newProjectsReplaysListClickedNodesCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("replay_id is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "replay_id"))
 			}
 			path = replacePathParam(path, "replay_id", args[2])
+			path = appendArrayQueryParam(path, "environment", flagEnvironment)
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "replays", path, map[string]string{
-				"cursor":      fmt.Sprintf("%v", flagCursor),
-				"environment": fmt.Sprintf("%v", flagEnvironment),
-				"per_page":    fmt.Sprintf("%v", flagPerPage),
-				"query":       fmt.Sprintf("%v", flagQuery),
+				"cursor":   fmt.Sprintf("%v", flagCursor),
+				"per_page": fmt.Sprintf("%v", flagPerPage),
+				"query":    fmt.Sprintf("%v", flagQuery),
 			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)
@@ -90,7 +90,7 @@ func newProjectsReplaysListClickedNodesCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "A pointer to the last object fetched and its sort order; used to retrieve the next or previous results.")
-	cmd.Flags().StringVar(&flagEnvironment, "environment", "", "The name of environments to filter by.")
+	cmd.Flags().StringArrayVar(&flagEnvironment, "environment", nil, "The name of environments to filter by.")
 	cmd.Flags().IntVar(&flagPerPage, "per-page", 0, "Limit the number of rows to return in the result. Default and maximum allowed is 100.")
 	cmd.Flags().StringVar(&flagQuery, "query", "", "Filters results by using [query syntax](/product/sentry-basics/search/). Example: `query=(transaction:foo AND...")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")

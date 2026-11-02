@@ -12,13 +12,13 @@ import (
 )
 
 func newOrganizationsStatsV2RetrieveEventCountsForAnOrganizationV2Cmd(flags *rootFlags) *cobra.Command {
-	var flagGroupBy string
+	var flagGroupBy []string
 	var flagField string
 	var flagStatsPeriod string
 	var flagInterval string
 	var flagStart string
 	var flagEnd string
-	var flagProject string
+	var flagProject []string
 	var flagCategory string
 	var flagOutcome string
 	var flagReason string
@@ -85,10 +85,9 @@ func newOrganizationsStatsV2RetrieveEventCountsForAnOrganizationV2Cmd(flags *roo
 
 			path := "/api/0/organizations/{organization_id_or_slug}/stats_v2/"
 			path = replacePathParam(path, "organization_id_or_slug", args[0])
+			path = appendArrayQueryParam(path, "groupBy", flagGroupBy)
+			path = appendArrayQueryParam(path, "project", flagProject)
 			params := map[string]string{}
-			if flagGroupBy != "" {
-				params["groupBy"] = fmt.Sprintf("%v", flagGroupBy)
-			}
 			if flagField != "" {
 				params["field"] = fmt.Sprintf("%v", flagField)
 			}
@@ -103,9 +102,6 @@ func newOrganizationsStatsV2RetrieveEventCountsForAnOrganizationV2Cmd(flags *roo
 			}
 			if flagEnd != "" {
 				params["end"] = fmt.Sprintf("%v", flagEnd)
-			}
-			if flagProject != "" {
-				params["project"] = fmt.Sprintf("%v", flagProject)
 			}
 			if flagCategory != "" {
 				params["category"] = fmt.Sprintf("%v", flagCategory)
@@ -158,13 +154,13 @@ func newOrganizationsStatsV2RetrieveEventCountsForAnOrganizationV2Cmd(flags *roo
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagGroupBy, "group-by", "", "can pass multiple groupBy parameters to group by multiple, e.g. `groupBy=project&groupBy=outcome` to group by...")
+	cmd.Flags().StringArrayVar(&flagGroupBy, "group-by", nil, "can pass multiple groupBy parameters to group by multiple, e.g. `groupBy=project&groupBy=outcome` to group by...")
 	cmd.Flags().StringVar(&flagField, "field", "", "the `sum(quantity)` field is bytes for attachments, and all others the 'event' count for those types of events.... (one of: sum(quantity), sum(times_seen))")
 	cmd.Flags().StringVar(&flagStatsPeriod, "stats-period", "", "This defines the range of the time series, relative to now. The range is given in a `<number><unit>` format. For...")
 	cmd.Flags().StringVar(&flagInterval, "interval", "", "This is the resolution of the time series, given in the same format as `statsPeriod`. The default resolution is `1h`...")
 	cmd.Flags().StringVar(&flagStart, "start", "", "This defines the start of the time series range as an explicit datetime, either in UTC ISO8601 or epoch seconds. Use...")
 	cmd.Flags().StringVar(&flagEnd, "end", "", "This defines the inclusive end of the time series range as an explicit datetime, either in UTC ISO8601 or epoch...")
-	cmd.Flags().StringVar(&flagProject, "project", "", "The ID of the projects to filter by. Use `-1` to include all accessible projects.")
+	cmd.Flags().StringArrayVar(&flagProject, "project", nil, "The ID of the projects to filter by. Use `-1` to include all accessible projects.")
 	cmd.Flags().StringVar(&flagCategory, "category", "", "Filter by data category. Each category represents a different type of data: - `error`: Error events (includes... (one of: error, transaction, attachment, replay, profile, profile_duration, profile_duration_ui, profile_chunk, profile_chunk_ui, monitor)")
 	cmd.Flags().StringVar(&flagOutcome, "outcome", "", "See https://docs.sentry.io/product/stats/ for more information on outcome statuses. * `accepted` * `filtered` *... (one of: accepted, filtered, rate_limited, invalid, abuse, client_discard, cardinality_limited)")
 	cmd.Flags().StringVar(&flagReason, "reason", "", "The reason field will contain why an event was filtered/dropped.")

@@ -14,15 +14,15 @@ import (
 func newOrganizationsEventsTimeseriesQueryExploreEventsInTimeseriesFormatCmd(flags *rootFlags) *cobra.Command {
 	var flagDataset string
 	var flagEnd string
-	var flagEnvironment string
-	var flagProject string
+	var flagEnvironment []string
+	var flagProject []string
 	var flagStart string
 	var flagStatsPeriod string
 	var flagTopEvents int
 	var flagComparisonDelta int
 	var flagInterval int
 	var flagSort string
-	var flagGroupBy string
+	var flagGroupBy []string
 	var flagYAxis string
 	var flagQuery string
 	var flagDisableAggregateExtrapolation string
@@ -43,7 +43,7 @@ func newOrganizationsEventsTimeseriesQueryExploreEventsInTimeseriesFormatCmd(fla
 				return fmt.Errorf("required flag \"%s\" not set", "dataset")
 			}
 			if cmd.Flags().Changed("dataset") {
-				allowedDataset := []string{"logs", "profile_functions", "spans", "uptime_results"}
+				allowedDataset := []string{"errors", "logs", "profile_functions", "spans", "tracemetrics", "uptime_results"}
 				validDataset := false
 				for _, v := range allowedDataset {
 					if flagDataset == v {
@@ -101,18 +101,15 @@ func newOrganizationsEventsTimeseriesQueryExploreEventsInTimeseriesFormatCmd(fla
 
 			path := "/api/0/organizations/{organization_id_or_slug}/events-timeseries/"
 			path = replacePathParam(path, "organization_id_or_slug", args[0])
+			path = appendArrayQueryParam(path, "environment", flagEnvironment)
+			path = appendArrayQueryParam(path, "project", flagProject)
+			path = appendArrayQueryParam(path, "groupBy", flagGroupBy)
 			params := map[string]string{}
 			if flagDataset != "" {
 				params["dataset"] = fmt.Sprintf("%v", flagDataset)
 			}
 			if flagEnd != "" {
 				params["end"] = fmt.Sprintf("%v", flagEnd)
-			}
-			if flagEnvironment != "" {
-				params["environment"] = fmt.Sprintf("%v", flagEnvironment)
-			}
-			if flagProject != "" {
-				params["project"] = fmt.Sprintf("%v", flagProject)
 			}
 			if flagStart != "" {
 				params["start"] = fmt.Sprintf("%v", flagStart)
@@ -131,9 +128,6 @@ func newOrganizationsEventsTimeseriesQueryExploreEventsInTimeseriesFormatCmd(fla
 			}
 			if flagSort != "" {
 				params["sort"] = fmt.Sprintf("%v", flagSort)
-			}
-			if flagGroupBy != "" {
-				params["groupBy"] = fmt.Sprintf("%v", flagGroupBy)
 			}
 			if flagYAxis != "" {
 				params["yAxis"] = fmt.Sprintf("%v", flagYAxis)
@@ -192,17 +186,17 @@ func newOrganizationsEventsTimeseriesQueryExploreEventsInTimeseriesFormatCmd(fla
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagDataset, "dataset", "", "Which dataset to query, changing datasets changes the available fields that can be queried (one of: logs, profile_functions, spans, uptime_results)")
+	cmd.Flags().StringVar(&flagDataset, "dataset", "", "Which dataset to query, changing datasets changes the available fields that can be queried (one of: errors, logs, profile_functions, spans, tracemetrics, uptime_results)")
 	cmd.Flags().StringVar(&flagEnd, "end", "", "The end of the period of time for the query, expected in ISO-8601 format. For example, `2001-12-14T12:34:56.7890`.")
-	cmd.Flags().StringVar(&flagEnvironment, "environment", "", "The name of environments to filter by.")
-	cmd.Flags().StringVar(&flagProject, "project", "", "The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")
+	cmd.Flags().StringArrayVar(&flagEnvironment, "environment", nil, "The name of environments to filter by.")
+	cmd.Flags().StringArrayVar(&flagProject, "project", nil, "The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")
 	cmd.Flags().StringVar(&flagStart, "start", "", "The start of the period of time for the query, expected in ISO-8601 format. For example, `2001-12-14T12:34:56.7890`.")
 	cmd.Flags().StringVar(&flagStatsPeriod, "stats-period", "", "The period of time for the query, will override the start & end parameters, a number followed by one of: - `d` for...")
 	cmd.Flags().IntVar(&flagTopEvents, "top-events", 0, "The number of top event results to return, must be between 1 and 10. When TopEvents is passed, both sort and groupBy...")
 	cmd.Flags().IntVar(&flagComparisonDelta, "comparison-delta", 0, "The delta in seconds to return additional offset timeseries by")
 	cmd.Flags().IntVar(&flagInterval, "interval", 0, "The size of the bucket for the timeseries to have, must be a value smaller than the window being queried. If the...")
 	cmd.Flags().StringVar(&flagSort, "sort", "", "What to order the results of the query by. Must be something in the `field` list, excluding equations.")
-	cmd.Flags().StringVar(&flagGroupBy, "group-by", "", "List of fields to group by, *Required* for topEvents queries as this and sort determine what the top events are")
+	cmd.Flags().StringArrayVar(&flagGroupBy, "group-by", nil, "List of fields to group by, *Required* for topEvents queries as this and sort determine what the top events are")
 	cmd.Flags().StringVar(&flagYAxis, "y-axis", "", "The aggregate field to create the timeseries for, defaults to `count()` when not included")
 	cmd.Flags().StringVar(&flagQuery, "query", "", "Filters results by using [query syntax](/product/sentry-basics/search/). Example: `query=(transaction:foo AND...")
 	cmd.Flags().StringVar(&flagDisableAggregateExtrapolation, "disable-aggregate-extrapolation", "", "Whether to disable the use of extrapolation and return the sampled values, due to sampling the number returned may... (one of: 0, 1)")

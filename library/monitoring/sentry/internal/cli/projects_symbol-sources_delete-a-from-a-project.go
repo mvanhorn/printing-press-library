@@ -38,6 +38,9 @@ func newProjectsSymbolSourcesDeleteAFromAProjectCmd(flags *rootFlags) *cobra.Com
 				return usageErr(fmt.Errorf("project_id_or_slug is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "project_id_or_slug"))
 			}
 			path = replacePathParam(path, "project_id_or_slug", args[1])
+			if cmd.Flags().Changed("id") {
+				path = appendQueryParam(path, "id", fmt.Sprintf("%v", flagId))
+			}
 			data, statusCode, err := c.Delete(path)
 			if err != nil {
 				return classifyDeleteError(err)

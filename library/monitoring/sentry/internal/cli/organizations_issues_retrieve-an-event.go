@@ -13,7 +13,7 @@ import (
 
 func newOrganizationsIssuesRetrieveAnEventCmd(flags *rootFlags) *cobra.Command {
 	var flagEventId string
-	var flagEnvironment string
+	var flagEnvironment []string
 
 	cmd := &cobra.Command{
 		Use:         "retrieve-an-event <organization_id_or_slug> <issue_id>",
@@ -48,11 +48,9 @@ func newOrganizationsIssuesRetrieveAnEventCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("issue_id is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "issue_id"))
 			}
 			path = replacePathParam(path, "issue_id", args[1])
+			path = appendArrayQueryParam(path, "environment", flagEnvironment)
 			path = replacePathParam(path, "event_id", fmt.Sprintf("%v", flagEventId))
 			params := map[string]string{}
-			if flagEnvironment != "" {
-				params["environment"] = fmt.Sprintf("%v", flagEnvironment)
-			}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "issues", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
@@ -96,7 +94,7 @@ func newOrganizationsIssuesRetrieveAnEventCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagEventId, "event-id", "latest", "The ID of the event to retrieve, or 'latest', 'oldest', or 'recommended'. (one of: latest, oldest, recommended)")
-	cmd.Flags().StringVar(&flagEnvironment, "environment", "", "The name of environments to filter by.")
+	cmd.Flags().StringArrayVar(&flagEnvironment, "environment", nil, "The name of environments to filter by.")
 
 	return cmd
 }

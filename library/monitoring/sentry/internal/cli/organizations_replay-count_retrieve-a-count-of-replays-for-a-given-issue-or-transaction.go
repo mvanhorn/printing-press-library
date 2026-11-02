@@ -12,11 +12,11 @@ import (
 )
 
 func newOrganizationsReplayCountRetrieveACountOfReplaysForAGivenIssueOrTransactionCmd(flags *rootFlags) *cobra.Command {
-	var flagEnvironment string
+	var flagEnvironment []string
 	var flagStart string
 	var flagEnd string
 	var flagStatsPeriod string
-	var flagProjectIdOrSlug string
+	var flagProjectIdOrSlug []string
 	var flagQuery string
 
 	cmd := &cobra.Command{
@@ -36,10 +36,9 @@ func newOrganizationsReplayCountRetrieveACountOfReplaysForAGivenIssueOrTransacti
 
 			path := "/api/0/organizations/{organization_id_or_slug}/replay-count/"
 			path = replacePathParam(path, "organization_id_or_slug", args[0])
+			path = appendArrayQueryParam(path, "environment", flagEnvironment)
+			path = appendArrayQueryParam(path, "project_id_or_slug", flagProjectIdOrSlug)
 			params := map[string]string{}
-			if flagEnvironment != "" {
-				params["environment"] = fmt.Sprintf("%v", flagEnvironment)
-			}
 			if flagStart != "" {
 				params["start"] = fmt.Sprintf("%v", flagStart)
 			}
@@ -48,9 +47,6 @@ func newOrganizationsReplayCountRetrieveACountOfReplaysForAGivenIssueOrTransacti
 			}
 			if flagStatsPeriod != "" {
 				params["statsPeriod"] = fmt.Sprintf("%v", flagStatsPeriod)
-			}
-			if flagProjectIdOrSlug != "" {
-				params["project_id_or_slug"] = fmt.Sprintf("%v", flagProjectIdOrSlug)
 			}
 			if flagQuery != "" {
 				params["query"] = fmt.Sprintf("%v", flagQuery)
@@ -97,11 +93,11 @@ func newOrganizationsReplayCountRetrieveACountOfReplaysForAGivenIssueOrTransacti
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagEnvironment, "environment", "", "The name of environments to filter by.")
+	cmd.Flags().StringArrayVar(&flagEnvironment, "environment", nil, "The name of environments to filter by.")
 	cmd.Flags().StringVar(&flagStart, "start", "", "The start of the period of time for the query, expected in ISO-8601 format. For example, `2001-12-14T12:34:56.7890`.")
 	cmd.Flags().StringVar(&flagEnd, "end", "", "The end of the period of time for the query, expected in ISO-8601 format. For example, `2001-12-14T12:34:56.7890`.")
 	cmd.Flags().StringVar(&flagStatsPeriod, "stats-period", "", "The period of time for the query, will override the start & end parameters, a number followed by one of: - `d` for...")
-	cmd.Flags().StringVar(&flagProjectIdOrSlug, "project-id-or-slug", "", "The project slugs to filter by. Use `$all` to include all available projects. For example, the following are valid...")
+	cmd.Flags().StringArrayVar(&flagProjectIdOrSlug, "project-id-or-slug", nil, "The project slugs to filter by. Use `$all` to include all available projects. For example, the following are valid...")
 	cmd.Flags().StringVar(&flagQuery, "query", "", "Filters results by using [query syntax](/product/sentry-basics/search/). Example: `query=(transaction:foo AND...")
 
 	return cmd

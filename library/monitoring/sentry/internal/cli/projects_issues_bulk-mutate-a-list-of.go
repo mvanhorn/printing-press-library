@@ -46,6 +46,12 @@ func newProjectsIssuesBulkMutateAListOfCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("project_id_or_slug is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "project_id_or_slug"))
 			}
 			path = replacePathParam(path, "project_id_or_slug", args[1])
+			if cmd.Flags().Changed("id") {
+				path = appendQueryParam(path, "id", fmt.Sprintf("%v", flagId))
+			}
+			if cmd.Flags().Changed("status") {
+				path = appendQueryParam(path, "status", fmt.Sprintf("%v", flagStatus))
+			}
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)

@@ -13,7 +13,7 @@ import (
 
 func newOrganizationsIssuesListATagSValuesForAnCmd(flags *rootFlags) *cobra.Command {
 	var flagSort string
-	var flagEnvironment string
+	var flagEnvironment []string
 
 	cmd := &cobra.Command{
 		Use:         "list-a-tag-s-values-for-an <issue_id> <organization_id_or_slug> <key>",
@@ -53,12 +53,10 @@ func newOrganizationsIssuesListATagSValuesForAnCmd(flags *rootFlags) *cobra.Comm
 				return usageErr(fmt.Errorf("key is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "key"))
 			}
 			path = replacePathParam(path, "key", args[2])
+			path = appendArrayQueryParam(path, "environment", flagEnvironment)
 			params := map[string]string{}
 			if flagSort != "" {
 				params["sort"] = fmt.Sprintf("%v", flagSort)
-			}
-			if flagEnvironment != "" {
-				params["environment"] = fmt.Sprintf("%v", flagEnvironment)
 			}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "issues", false, path, params, nil)
 			if err != nil {
@@ -103,7 +101,7 @@ func newOrganizationsIssuesListATagSValuesForAnCmd(flags *rootFlags) *cobra.Comm
 		},
 	}
 	cmd.Flags().StringVar(&flagSort, "sort", "", "Sort order of the resulting tag values. Prefix with '-' for descending order. Default is '-id'. (one of: age, count, date, id)")
-	cmd.Flags().StringVar(&flagEnvironment, "environment", "", "The name of environments to filter by.")
+	cmd.Flags().StringArrayVar(&flagEnvironment, "environment", nil, "The name of environments to filter by.")
 
 	return cmd
 }

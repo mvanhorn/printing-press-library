@@ -7,8 +7,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
+	"net/url"
 	"os"
 	"path/filepath"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -178,7 +182,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/api/0/organizations/{organization_id_or_slug}/detectors/", []string{"organization_id_or_slug"}),
+		makeAPIHandler("DELETE", "/api/0/organizations/{organization_id_or_slug}/detectors/", []string{"organization_id_or_slug"}, "project", "query", "sortBy", "id"),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_detectors_delete-a-monitor",
@@ -224,7 +228,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("id", mcplib.Description("The ID of the monitor you'd like to query.")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PUT", "/api/0/organizations/{organization_id_or_slug}/detectors/", []string{"organization_id_or_slug"}),
+		makeAPIHandler("PUT", "/api/0/organizations/{organization_id_or_slug}/detectors/", []string{"organization_id_or_slug"}, "project", "query", "id"),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_detectors_update-a-monitor-by-id",
@@ -470,7 +474,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("limit", mcplib.Description("The maximum number of issues to affect. The maximum is 100.")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PUT", "/api/0/organizations/{organization_id_or_slug}/issues/", []string{"organization_id_or_slug"}),
+		makeAPIHandler("PUT", "/api/0/organizations/{organization_id_or_slug}/issues/", []string{"organization_id_or_slug"}, "environment", "project", "id", "query", "viewId", "sort", "limit"),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_issues_bulk-remove-an-organization-s",
@@ -486,7 +490,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/api/0/organizations/{organization_id_or_slug}/issues/", []string{"organization_id_or_slug"}),
+		makeAPIHandler("DELETE", "/api/0/organizations/{organization_id_or_slug}/issues/", []string{"organization_id_or_slug"}, "environment", "project", "id", "query", "viewId", "sort", "limit"),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_issues_list-a-tag-s-values-for-an",
@@ -747,7 +751,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/api/0/organizations/{organization_id_or_slug}/monitors/{monitor_id_or_slug}/", []string{"organization_id_or_slug", "monitor_id_or_slug"}),
+		makeAPIHandler("DELETE", "/api/0/organizations/{organization_id_or_slug}/monitors/{monitor_id_or_slug}/", []string{"organization_id_or_slug", "monitor_id_or_slug"}, "environment"),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_monitors_retrieve-a",
@@ -1596,7 +1600,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/api/0/organizations/{organization_id_or_slug}/workflows/", []string{"organization_id_or_slug"}),
+		makeAPIHandler("DELETE", "/api/0/organizations/{organization_id_or_slug}/workflows/", []string{"organization_id_or_slug"}, "query", "id", "project"),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_workflows_create-an-alert-for-an-organization",
@@ -1651,7 +1655,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("project", mcplib.Description("The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PUT", "/api/0/organizations/{organization_id_or_slug}/workflows/", []string{"organization_id_or_slug"}),
+		makeAPIHandler("PUT", "/api/0/organizations/{organization_id_or_slug}/workflows/", []string{"organization_id_or_slug"}, "query", "id", "project"),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_workflows_update-an-alert-by-id",
@@ -1778,7 +1782,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/files/dsyms/", []string{"organization_id_or_slug", "project_id_or_slug"}),
+		makeAPIHandler("DELETE", "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/files/dsyms/", []string{"organization_id_or_slug", "project_id_or_slug"}, "id"),
 	)
 	s.AddTool(
 		mcplib.NewTool("projects_files_list-a-project-s-debug-information",
@@ -1886,7 +1890,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("status", mcplib.Description("Optionally limits the query to issues of the specified status. Valid values are `'resolved'`, `'reprocessing'`,...")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PUT", "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/issues/", []string{"organization_id_or_slug", "project_id_or_slug"}),
+		makeAPIHandler("PUT", "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/issues/", []string{"organization_id_or_slug", "project_id_or_slug"}, "id", "status"),
 	)
 	s.AddTool(
 		mcplib.NewTool("projects_issues_bulk-remove-a-list-of",
@@ -1897,7 +1901,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/issues/", []string{"organization_id_or_slug", "project_id_or_slug"}),
+		makeAPIHandler("DELETE", "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/issues/", []string{"organization_id_or_slug", "project_id_or_slug"}, "id"),
 	)
 	s.AddTool(
 		mcplib.NewTool("projects_issues_list-a-project-s",
@@ -1992,7 +1996,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/monitors/{monitor_id_or_slug}/", []string{"organization_id_or_slug", "project_id_or_slug", "monitor_id_or_slug"}),
+		makeAPIHandler("DELETE", "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/monitors/{monitor_id_or_slug}/", []string{"organization_id_or_slug", "project_id_or_slug", "monitor_id_or_slug"}, "environment"),
 	)
 	s.AddTool(
 		mcplib.NewTool("projects_monitors_retrieve-a-for-a-project",
@@ -2340,7 +2344,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/symbol-sources/", []string{"organization_id_or_slug", "project_id_or_slug"}),
+		makeAPIHandler("DELETE", "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/symbol-sources/", []string{"organization_id_or_slug", "project_id_or_slug"}, "id"),
 	)
 	s.AddTool(
 		mcplib.NewTool("projects_symbol-sources_retrieve-a-project-s",
@@ -2362,7 +2366,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the source to update.")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PUT", "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/symbol-sources/", []string{"organization_id_or_slug", "project_id_or_slug"}),
+		makeAPIHandler("PUT", "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/symbol-sources/", []string{"organization_id_or_slug", "project_id_or_slug"}, "id"),
 	)
 	s.AddTool(
 		mcplib.NewTool("projects_tags_list-a-s-values",
@@ -2637,7 +2641,24 @@ func RegisterTools(s *server.MCPServer) {
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
-func makeAPIHandler(method, pathTemplate string, positionalParams []string) server.ToolHandlerFunc {
+// mcpQueryValues formats native array elements for repeated query keys. JSON
+// numbers arrive as float64; whole numbers up to 2^53 (Sentry project IDs) keep their exact digits.
+func mcpQueryValues(items []any) []string {
+	out := make([]string, 0, len(items))
+	for _, item := range items {
+		out = append(out, mcpQueryValue(item))
+	}
+	return out
+}
+
+func mcpQueryValue(v any) string {
+	if f, ok := v.(float64); ok && f == math.Trunc(f) && math.Abs(f) <= 1<<53 {
+		return strconv.FormatInt(int64(f), 10)
+	}
+	return fmt.Sprintf("%v", v)
+}
+
+func makeAPIHandler(method, pathTemplate string, positionalParams []string, queryParams ...string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 		c, err := newMCPClient()
 		if err != nil {
@@ -2657,9 +2678,22 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 			}
 		}
 
-		// Collect non-positional params as query params
+		// GET sends every non-positional arg as a query param. Other methods send the
+		// operation's declared query params on the path (bulk deletes and mutations
+		// filter by them) and the rest in the body. Native arrays become repeated keys.
+		isQuery := make(map[string]bool, len(queryParams))
+		for _, q := range queryParams {
+			isQuery[q] = true
+		}
 		params := make(map[string]string)
-		for k, v := range args {
+		bodyArgs := make(map[string]any, len(args))
+		keys := make([]string, 0, len(args))
+		for k := range args {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		for _, k := range keys {
+			v := args[k]
 			isPositional := false
 			for _, p := range positionalParams {
 				if k == p {
@@ -2667,8 +2701,19 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 					break
 				}
 			}
-			if !isPositional {
-				params[k] = fmt.Sprintf("%v", v)
+			switch {
+			case isPositional:
+				bodyArgs[k] = v
+			case method == "GET" || isQuery[k]:
+				if arr, ok := v.([]any); ok {
+					path = cliutil.AppendArrayQuery(path, k, mcpQueryValues(arr))
+				} else if method == "GET" {
+					params[k] = fmt.Sprintf("%v", v)
+				} else {
+					path = cliutil.AppendQueryValues(path, url.Values{k: {mcpQueryValue(v)}})
+				}
+			default:
+				bodyArgs[k] = v
 			}
 		}
 
@@ -2677,14 +2722,14 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 		case "GET":
 			data, err = c.Get(path, params)
 		case "POST":
-			body, _ := json.Marshal(args)
-			data, _, err = c.Post(path, body)
+			// The client JSON-encodes the body; passing marshaled bytes sent a base64 string.
+			data, _, err = c.Post(path, bodyArgs)
 		case "PUT":
-			body, _ := json.Marshal(args)
-			data, _, err = c.Put(path, body)
+			// The client JSON-encodes the body; passing marshaled bytes sent a base64 string.
+			data, _, err = c.Put(path, bodyArgs)
 		case "PATCH":
-			body, _ := json.Marshal(args)
-			data, _, err = c.Patch(path, body)
+			// The client JSON-encodes the body; passing marshaled bytes sent a base64 string.
+			data, _, err = c.Patch(path, bodyArgs)
 		case "DELETE":
 			data, _, err = c.Delete(path)
 		default:

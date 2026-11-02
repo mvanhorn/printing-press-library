@@ -12,8 +12,8 @@ import (
 )
 
 func newOrganizationsNotificationsListSpikeProtectionCmd(flags *rootFlags) *cobra.Command {
-	var flagProject string
-	var flagProjectIdOrSlug string
+	var flagProject []string
+	var flagProjectIdOrSlug []string
 	var flagTriggerType string
 
 	cmd := &cobra.Command{
@@ -33,13 +33,9 @@ func newOrganizationsNotificationsListSpikeProtectionCmd(flags *rootFlags) *cobr
 
 			path := "/api/0/organizations/{organization_id_or_slug}/notifications/actions/"
 			path = replacePathParam(path, "organization_id_or_slug", args[0])
+			path = appendArrayQueryParam(path, "project", flagProject)
+			path = appendArrayQueryParam(path, "project_id_or_slug", flagProjectIdOrSlug)
 			params := map[string]string{}
-			if flagProject != "" {
-				params["project"] = fmt.Sprintf("%v", flagProject)
-			}
-			if flagProjectIdOrSlug != "" {
-				params["project_id_or_slug"] = fmt.Sprintf("%v", flagProjectIdOrSlug)
-			}
 			if flagTriggerType != "" {
 				params["triggerType"] = fmt.Sprintf("%v", flagTriggerType)
 			}
@@ -85,8 +81,8 @@ func newOrganizationsNotificationsListSpikeProtectionCmd(flags *rootFlags) *cobr
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagProject, "project", "", "The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")
-	cmd.Flags().StringVar(&flagProjectIdOrSlug, "project-id-or-slug", "", "The project slugs to filter by. Use `$all` to include all available projects. For example, the following are valid...")
+	cmd.Flags().StringArrayVar(&flagProject, "project", nil, "The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")
+	cmd.Flags().StringArrayVar(&flagProjectIdOrSlug, "project-id-or-slug", nil, "The project slugs to filter by. Use `$all` to include all available projects. For example, the following are valid...")
 	cmd.Flags().StringVar(&flagTriggerType, "trigger-type", "", "Type of the trigger that causes the notification. The only supported value right now is: `spike-protection`")
 
 	return cmd

@@ -12,7 +12,7 @@ import (
 )
 
 func newOrganizationsShortidsResolveAShortIdCmd(flags *rootFlags) *cobra.Command {
-	var flagCollapse string
+	var flagCollapse []string
 
 	cmd := &cobra.Command{
 		Use:         "resolve-a-short-id <organization_id_or_slug> <issue_id>",
@@ -35,10 +35,8 @@ func newOrganizationsShortidsResolveAShortIdCmd(flags *rootFlags) *cobra.Command
 				return usageErr(fmt.Errorf("issue_id is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "issue_id"))
 			}
 			path = replacePathParam(path, "issue_id", args[1])
+			path = appendArrayQueryParam(path, "collapse", flagCollapse)
 			params := map[string]string{}
-			if flagCollapse != "" {
-				params["collapse"] = fmt.Sprintf("%v", flagCollapse)
-			}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "shortids", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
@@ -81,7 +79,7 @@ func newOrganizationsShortidsResolveAShortIdCmd(flags *rootFlags) *cobra.Command
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagCollapse, "collapse", "", "Fields to remove from the response to improve query performance.")
+	cmd.Flags().StringArrayVar(&flagCollapse, "collapse", nil, "Fields to remove from the response to improve query performance.")
 
 	return cmd
 }

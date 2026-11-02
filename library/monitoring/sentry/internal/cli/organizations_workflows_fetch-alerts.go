@@ -14,8 +14,8 @@ import (
 func newOrganizationsWorkflowsFetchAlertsCmd(flags *rootFlags) *cobra.Command {
 	var flagSortBy string
 	var flagQuery string
-	var flagId string
-	var flagProject string
+	var flagId []string
+	var flagProject []string
 
 	cmd := &cobra.Command{
 		Use:         "fetch-alerts <organization_id_or_slug>",
@@ -34,18 +34,14 @@ func newOrganizationsWorkflowsFetchAlertsCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/api/0/organizations/{organization_id_or_slug}/workflows/"
 			path = replacePathParam(path, "organization_id_or_slug", args[0])
+			path = appendArrayQueryParam(path, "id", flagId)
+			path = appendArrayQueryParam(path, "project", flagProject)
 			params := map[string]string{}
 			if flagSortBy != "" {
 				params["sortBy"] = fmt.Sprintf("%v", flagSortBy)
 			}
 			if flagQuery != "" {
 				params["query"] = fmt.Sprintf("%v", flagQuery)
-			}
-			if flagId != "" {
-				params["id"] = fmt.Sprintf("%v", flagId)
-			}
-			if flagProject != "" {
-				params["project"] = fmt.Sprintf("%v", flagProject)
 			}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "workflows", false, path, params, nil)
 			if err != nil {
@@ -91,8 +87,8 @@ func newOrganizationsWorkflowsFetchAlertsCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagSortBy, "sort-by", "", "The field to sort results by. If not specified, the results are sorted by id. Available fields are: - `name` - `id`...")
 	cmd.Flags().StringVar(&flagQuery, "query", "", "An optional search query for filtering alerts.")
-	cmd.Flags().StringVar(&flagId, "id", "", "The ID of the alert you'd like to query.")
-	cmd.Flags().StringVar(&flagProject, "project", "", "The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")
+	cmd.Flags().StringArrayVar(&flagId, "id", nil, "The ID of the alert you'd like to query.")
+	cmd.Flags().StringArrayVar(&flagProject, "project", nil, "The IDs of projects to filter by. `-1` means all available projects. For example, the following are valid...")
 
 	return cmd
 }

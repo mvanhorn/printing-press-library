@@ -17,7 +17,7 @@ func newOrganizationsStatsSummaryRetrieveAnOrganizationSEventsCountByProjectCmd(
 	var flagInterval string
 	var flagStart string
 	var flagEnd string
-	var flagProject string
+	var flagProject []string
 	var flagCategory string
 	var flagOutcome string
 	var flagReason string
@@ -82,6 +82,7 @@ func newOrganizationsStatsSummaryRetrieveAnOrganizationSEventsCountByProjectCmd(
 
 			path := "/api/0/organizations/{organization_id_or_slug}/stats-summary/"
 			path = replacePathParam(path, "organization_id_or_slug", args[0])
+			path = appendArrayQueryParam(path, "project", flagProject)
 			params := map[string]string{}
 			if flagField != "" {
 				params["field"] = fmt.Sprintf("%v", flagField)
@@ -97,9 +98,6 @@ func newOrganizationsStatsSummaryRetrieveAnOrganizationSEventsCountByProjectCmd(
 			}
 			if flagEnd != "" {
 				params["end"] = fmt.Sprintf("%v", flagEnd)
-			}
-			if flagProject != "" {
-				params["project"] = fmt.Sprintf("%v", flagProject)
 			}
 			if flagCategory != "" {
 				params["category"] = fmt.Sprintf("%v", flagCategory)
@@ -160,7 +158,7 @@ func newOrganizationsStatsSummaryRetrieveAnOrganizationSEventsCountByProjectCmd(
 	cmd.Flags().StringVar(&flagInterval, "interval", "", "This is the resolution of the time series, given in the same format as `statsPeriod`. The default resolution is `1h`...")
 	cmd.Flags().StringVar(&flagStart, "start", "", "This defines the start of the time series range as an explicit datetime, either in UTC ISO8601 or epoch seconds. Use...")
 	cmd.Flags().StringVar(&flagEnd, "end", "", "This defines the inclusive end of the time series range as an explicit datetime, either in UTC ISO8601 or epoch...")
-	cmd.Flags().StringVar(&flagProject, "project", "", "The ID of the projects to filter by.")
+	cmd.Flags().StringArrayVar(&flagProject, "project", nil, "The ID of the projects to filter by.")
 	cmd.Flags().StringVar(&flagCategory, "category", "", "If filtering by attachments, you cannot filter by any other category due to quantity values becoming nonsensical... (one of: error, transaction, attachment, replays, profiles)")
 	cmd.Flags().StringVar(&flagOutcome, "outcome", "", "See https://docs.sentry.io/product/stats/ for more information on outcome statuses. * `accepted` * `filtered` *... (one of: accepted, filtered, rate_limited, invalid, abuse, client_discard, cardinality_limited)")
 	cmd.Flags().StringVar(&flagReason, "reason", "", "The reason field will contain why an event was filtered/dropped.")

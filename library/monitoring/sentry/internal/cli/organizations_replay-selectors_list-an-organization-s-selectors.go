@@ -12,12 +12,12 @@ import (
 )
 
 func newOrganizationsReplaySelectorsListAnOrganizationSSelectorsCmd(flags *rootFlags) *cobra.Command {
-	var flagEnvironment string
+	var flagEnvironment []string
 	var flagStatsPeriod string
 	var flagStart string
 	var flagEnd string
-	var flagProject string
-	var flagProjectSlug string
+	var flagProject []string
+	var flagProjectSlug []string
 	var flagSort string
 	var flagSortBy string
 	var flagOrderBy string
@@ -43,13 +43,13 @@ func newOrganizationsReplaySelectorsListAnOrganizationSSelectorsCmd(flags *rootF
 
 			path := "/api/0/organizations/{organization_id_or_slug}/replay-selectors/"
 			path = replacePathParam(path, "organization_id_or_slug", args[0])
+			path = appendArrayQueryParam(path, "environment", flagEnvironment)
+			path = appendArrayQueryParam(path, "project", flagProject)
+			path = appendArrayQueryParam(path, "projectSlug", flagProjectSlug)
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "replay-selectors", path, map[string]string{
-				"environment": fmt.Sprintf("%v", flagEnvironment),
 				"statsPeriod": fmt.Sprintf("%v", flagStatsPeriod),
 				"start":       fmt.Sprintf("%v", flagStart),
 				"end":         fmt.Sprintf("%v", flagEnd),
-				"project":     fmt.Sprintf("%v", flagProject),
-				"projectSlug": fmt.Sprintf("%v", flagProjectSlug),
 				"sort":        fmt.Sprintf("%v", flagSort),
 				"sortBy":      fmt.Sprintf("%v", flagSortBy),
 				"orderBy":     fmt.Sprintf("%v", flagOrderBy),
@@ -98,12 +98,12 @@ func newOrganizationsReplaySelectorsListAnOrganizationSSelectorsCmd(flags *rootF
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagEnvironment, "environment", "", "The environment to filter by.")
+	cmd.Flags().StringArrayVar(&flagEnvironment, "environment", nil, "The environment to filter by.")
 	cmd.Flags().StringVar(&flagStatsPeriod, "stats-period", "", "This defines the range of the time series, relative to now. The range is given in a `<number><unit>` format. For...")
 	cmd.Flags().StringVar(&flagStart, "start", "", "This defines the start of the time series range as an explicit datetime, either in UTC ISO8601 or epoch seconds.Use...")
 	cmd.Flags().StringVar(&flagEnd, "end", "", "This defines the inclusive end of the time series range as an explicit datetime, either in UTC ISO8601 or epoch...")
-	cmd.Flags().StringVar(&flagProject, "project", "", "The ID of the projects to filter by.")
-	cmd.Flags().StringVar(&flagProjectSlug, "project-slug", "", "A list of project slugs to filter your results by.")
+	cmd.Flags().StringArrayVar(&flagProject, "project", nil, "The ID of the projects to filter by.")
+	cmd.Flags().StringArrayVar(&flagProjectSlug, "project-slug", nil, "A list of project slugs to filter your results by.")
 	cmd.Flags().StringVar(&flagSort, "sort", "", "The field to sort the output by.")
 	cmd.Flags().StringVar(&flagSortBy, "sort-by", "", "The field to sort the output by.")
 	cmd.Flags().StringVar(&flagOrderBy, "order-by", "", "The field to sort the output by.")

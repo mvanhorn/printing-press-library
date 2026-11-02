@@ -19,7 +19,7 @@ func newProjectsPreprodartifactsGetTheLatestInstallableBuildForAProjectCmd(flags
 	var flagMainBinaryIdentifier string
 	var flagBuildConfiguration string
 	var flagCodesigningType string
-	var flagInstallGroups string
+	var flagInstallGroups []string
 
 	cmd := &cobra.Command{
 		Use:         "get-the-latest-installable-build-for-a-project <organization_id_or_slug> <project_id_or_slug>",
@@ -48,6 +48,7 @@ func newProjectsPreprodartifactsGetTheLatestInstallableBuildForAProjectCmd(flags
 				return usageErr(fmt.Errorf("project_id_or_slug is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "project_id_or_slug"))
 			}
 			path = replacePathParam(path, "project_id_or_slug", args[1])
+			path = appendArrayQueryParam(path, "installGroups", flagInstallGroups)
 			params := map[string]string{}
 			if flagAppId != "" {
 				params["appId"] = fmt.Sprintf("%v", flagAppId)
@@ -69,9 +70,6 @@ func newProjectsPreprodartifactsGetTheLatestInstallableBuildForAProjectCmd(flags
 			}
 			if flagCodesigningType != "" {
 				params["codesigningType"] = fmt.Sprintf("%v", flagCodesigningType)
-			}
-			if flagInstallGroups != "" {
-				params["installGroups"] = fmt.Sprintf("%v", flagInstallGroups)
 			}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "preprodartifacts", false, path, params, nil)
 			if err != nil {
@@ -122,7 +120,7 @@ func newProjectsPreprodartifactsGetTheLatestInstallableBuildForAProjectCmd(flags
 	cmd.Flags().StringVar(&flagMainBinaryIdentifier, "main-binary-identifier", "", "UUID of the main binary (e.g. Mach-O UUID for Apple builds). Either this or buildNumber must be provided when...")
 	cmd.Flags().StringVar(&flagBuildConfiguration, "build-configuration", "", "Filter by build configuration name (exact match).")
 	cmd.Flags().StringVar(&flagCodesigningType, "codesigning-type", "", "Filter by code signing type.")
-	cmd.Flags().StringVar(&flagInstallGroups, "install-groups", "", "Filter by install group name (repeatable for multiple groups).")
+	cmd.Flags().StringArrayVar(&flagInstallGroups, "install-groups", nil, "Filter by install group name (repeatable for multiple groups).")
 
 	return cmd
 }
