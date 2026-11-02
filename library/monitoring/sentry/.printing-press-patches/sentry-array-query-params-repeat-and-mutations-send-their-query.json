@@ -4,7 +4,7 @@
   "applied_at": "2026-11-02",
   "base_run_id": "20260502-124520",
   "base_printing_press_version": "3.4.3",
-  "summary": "Preserve repeated and explicitly empty query values in CLI and MCP requests, keep mutation filters separate from JSON object bodies, derive offline detail IDs from URL paths, and retain current API dataset options.",
+  "summary": "Preserve repeated and explicitly empty query values in CLI and MCP requests, keep mutation filters separate from JSON object bodies, derive offline detail IDs from URL paths, retain current API dataset options, and keep slugs in compact organization lists.",
   "reason": "Sentry filters by repeated keys (field, project, environment, id), and its bulk deletes and mutations take their filters in the query; dropping them sent DELETE /issues/ with no id, which Sentry treats as the first 1000 issues. Sentry function fields such as count_if(a,equals,b) contain commas, so comma splitting would corrupt them.",
   "files": [
     "internal/cli/organizations_detectors_bulk-delete-monitors.go",
@@ -49,6 +49,7 @@
     "internal/cli/projects_symbol-sources_update-a-project-s.go",
     "internal/cli/query_params.go",
     "internal/cli/data_source.go",
+    "internal/cli/helpers.go",
     "internal/cliutil/query.go",
     "internal/mcp/tools.go"
   ],
