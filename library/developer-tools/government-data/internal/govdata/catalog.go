@@ -76,6 +76,18 @@ func New(key string) *Client {
 		return nil
 	}}, Key: key, CaliforniaURL: "https://publish.data.ca.gov/api/3/action", FederalURL: "https://api.gsa.gov/technology/datagov/v4", limiter: cliutil.NewAdaptiveLimiter(1)}
 }
+
+// ConfigureHTTP applies the shared transport and timeout while retaining the
+// catalog's stricter same-origin redirects and credential isolation.
+func (c *Client) ConfigureHTTP(selected *http.Client, rate float64) {
+	h := *selected
+	h.CheckRedirect = c.HTTP.CheckRedirect
+	c.HTTP = &h
+	if rate >= 0 {
+		c.limiter = cliutil.NewAdaptiveLimiter(rate)
+	}
+}
+
 func (c *Client) Fetch(ctx context.Context, source, path string, q url.Values) (map[string]any, error) {
 	base := c.CaliforniaURL
 	if source == "federal" {

@@ -38,7 +38,13 @@ func govClient(f *rootFlags, demo bool) (*govdata.Client, error) {
 	if demo && key == "" {
 		key = "DEMO_KEY"
 	}
-	return govdata.New(key), nil
+	httpClient, e := govHTTPClient(f)
+	if e != nil {
+		return nil, e
+	}
+	c := govdata.New(key)
+	c.ConfigureHTTP(httpClient, f.rateLimit)
+	return c, nil
 }
 func govAnnotations() map[string]string {
 	return map[string]string{"pp:data-source": "live", "mcp:read-only": "true"}
@@ -167,7 +173,10 @@ func newGovResource(f *rootFlags) *cobra.Command {
 		defer func() { _ = file.Close(); _ = os.Remove(file.Name()) }()
 		ctx, cancel := boundCtx(cmd.Context(), f)
 		defer cancel()
-		c := govdata.New("")
+		c, e := govClient(f, false)
+		if e != nil {
+			return e
+		}
 		n, e := c.Download(ctx, u, file, max)
 		if e != nil {
 			return e
@@ -360,7 +369,7 @@ func newGovCatalogFind(f *rootFlags) *cobra.Command {
 				if e != nil {
 					return e
 				}
-				if e = db.Upsert("datasets", d.Source+":"+d.ID, b); e != nil {
+				if e = saveGovDataset(db, d, b); e != nil {
 					return e
 				}
 			}

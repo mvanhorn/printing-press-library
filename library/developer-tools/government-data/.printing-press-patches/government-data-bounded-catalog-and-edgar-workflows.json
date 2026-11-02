@@ -4,7 +4,7 @@
   "applied_at": "2026-11-02",
   "base_run_id": "20261101-190344-8e78c635",
   "base_printing_press_version": "4.34.2",
-  "summary": "Preserve bounded equal-source catalog discovery, immutable local evidence, and direct SEC workflows with source-isolated credentials.",
+  "summary": "Preserve bounded catalog and SEC workflows, source-filtered offline search, shared connection settings, and configurable SEC contact identity.",
   "reason": "The catalog APIs expose different metadata and pagination shapes; SEC requires a contact User-Agent, explicit filing bounds, and exact XBRL units and periods. Local snapshot analysis must not imply full-catalog completeness or deletions.",
   "files": [
     "internal/cli/gov_catalog.go",
@@ -18,7 +18,12 @@
     "internal/client/gov_auth_test.go",
     "internal/client/client.go",
     "mcp-descriptions.json",
-    "workflow_verify.yaml"
+    "workflow_verify.yaml",
+    "internal/cli/gov_network.go",
+    "internal/cli/gov_network_test.go",
+    "internal/govdata/catalog.go",
+    "internal/govdata/catalog_test.go",
+    "manifest.json"
   ],
   "validated_outcome": "171/171 executed live checks; 49/49 mock checks; all five saved-state feature lifecycles and California/SEC workflow chains passed."
 }

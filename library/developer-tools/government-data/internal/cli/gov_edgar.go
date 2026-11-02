@@ -36,8 +36,9 @@ func secFetch(ctx context.Context, u string) ([]byte, error) {
 	if ua == "" {
 		return nil, usageErr(fmt.Errorf("set SEC_USER_AGENT to your application name and contact email before SEC requests"))
 	}
+	httpClient, limiter := secRequestSettings(ctx)
 	for attempt := 0; attempt < 3; attempt++ {
-		if err := secLimiter.Wait(ctx); err != nil {
+		if err := limiter.Wait(ctx); err != nil {
 			return nil, err
 		}
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
@@ -46,22 +47,14 @@ func secFetch(ctx context.Context, u string) ([]byte, error) {
 		}
 		req.Header.Set("User-Agent", ua)
 		req.Header.Set("Accept", "application/json,text/html,*/*")
-		resp, err := (&http.Client{Timeout: 30 * time.Second, CheckRedirect: func(r *http.Request, via []*http.Request) error {
-			if len(via) >= 5 {
-				return fmt.Errorf("SEC redirect limit reached")
-			}
-			if r.URL.Scheme != "https" || !secHost(r.URL.Hostname()) {
-				return fmt.Errorf("SEC redirected outside approved SEC hosts")
-			}
-			return nil
-		}}).Do(req)
+		resp, err := httpClient.Do(req)
 		if err != nil {
 			return nil, err
 		}
 		if resp.StatusCode == 429 {
 			retry := cliutil.RetryAfter(resp)
 			_ = resp.Body.Close()
-			secLimiter.OnRateLimit()
+			limiter.OnRateLimit()
 			if attempt == 2 {
 				return nil, &cliutil.RateLimitError{URL: u, RetryAfter: retry}
 			}
@@ -88,7 +81,7 @@ func secFetch(ctx context.Context, u string) ([]byte, error) {
 			return nil, fmt.Errorf("SEC response exceeded 64 MiB limit")
 		}
 		if err == nil {
-			secLimiter.OnSuccess()
+			limiter.OnSuccess()
 		}
 		return b, err
 	}
@@ -189,6 +182,11 @@ func newGovEdgar(f *rootFlags) *cobra.Command {
 			if dryRunOK(f) {
 				return writeDryRun(c.OutOrStdout(), f, c.CommandPath())
 			}
+			h, err := govHTTPClient(f)
+			if err != nil {
+				return err
+			}
+			c.SetContext(withSECSettings(c.Context(), h, f.rateLimit))
 			return run(c, a)
 		}
 		return c
